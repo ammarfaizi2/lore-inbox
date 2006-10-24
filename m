@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWJXQsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWJXQ67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWJXQsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 12:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbWJXQsM
+	id S1030320AbWJXQ67 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 12:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWJXQ66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 12:48:12 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:693 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1030424AbWJXQsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 12:48:10 -0400
-Subject: Re: -rt7 announcement? (was Re: 2.6.18-rt6) and more info about a
-	compile error
-From: Daniel Walker <dwalker@mvista.com>
-To: tglx@linutronix.de
-Cc: sergio@sergiomb.no-ip.org, Lee Revell <rlrevell@joe-job.com>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, Mike Galbraith <efault@gmx.de>,
-       Manish Lachwani <mlachwani@mvista.com>, bastien.dugue@bull.net
-In-Reply-To: <1161664706.22373.48.camel@localhost.localdomain>
-References: <20061018083921.GA10993@elte.hu>
-	 <1161356444.15860.327.camel@mindpipe>  <1161621286.2835.3.camel@mindpipe>
-	 <1161628539.22373.36.camel@localhost.localdomain>
-	 <1161635161.2948.12.camel@localhost.portugal>
-	 <1161636049.3982.18.camel@mindpipe>
-	 <1161653206.2996.17.camel@localhost.portugal>
-	 <1161664706.22373.48.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 24 Oct 2006 09:48:07 -0700
-Message-Id: <1161708487.2414.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Tue, 24 Oct 2006 12:58:58 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:18578 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030320AbWJXQ66
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 12:58:58 -0400
+Message-ID: <453E4654.1030809@drzeus.cx>
+Date: Tue, 24 Oct 2006 18:59:00 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Timo Teras <timo.teras@solidboot.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: MMC: When rescanning cards check existing cards after mmc_setup()
+References: <20061016090609.GB17596@mail.solidboot.com> <453B4005.8080501@drzeus.cx> <20061024101458.GA17024@mail.solidboot.com>
+In-Reply-To: <20061024101458.GA17024@mail.solidboot.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timo Teras wrote:
+> On Sun, Oct 22, 2006 at 11:55:17AM +0200, Pierre Ossman wrote:
+>   
+>> If we check cards on both sides of mmc_setup(), then we should be covered.
+>>     
+>
+> Should I update my patch to do this already? Or is the code fine as is?
+>
+>   
 
-Is this new functionality? I thought -rt7 was just moving to the -mm'ish
-hrtimers. What's changing the rtmutex?
+Please include it in your revised patch.
 
-Daniel
+>> Also, please add some comments about why we do this. Otherwise it will
+>> run the risk of getting removed in the future.
+>>     
+>
+> Will do.
+>
+> I'll send updated patch later on.
+>
+>   
 
-On Tue, 2006-10-24 at 06:38 +0200, Thomas Gleixner wrote:
-> Index: linux-2.6.18/kernel/rtmutex.c
-> ===================================================================
-> --- linux-2.6.18.orig/kernel/rtmutex.c	2006-10-24 06:33:02.000000000 +0200
-> +++ linux-2.6.18/kernel/rtmutex.c	2006-10-24 06:31:55.000000000 +0200
-> @@ -902,7 +902,10 @@ static inline void rt_reacquire_bkl(int 
->  }
->  
->  #else
-> -# define rt_release_bkl(x)	(-1)
-> +static inline int rt_release_bkl(struct rt_mutex *lock, unsigned long flags)
-> +{
-> +	return -1;
-> +}
->  # define rt_reacquire_bkl(x)	do { } while (0)
->  #endif
->  
-> 
-> 
+Looking forward to it. :)
+
+Rgds
+
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
 

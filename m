@@ -1,47 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWJXVix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWJXVnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422638AbWJXVix (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422637AbWJXViw
+	id S1422641AbWJXVnk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWJXVnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:38:52 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:3632 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S1422634AbWJXViv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:38:51 -0400
-Date: Tue, 24 Oct 2006 14:38:50 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Avi Kivity <avi@qumranet.com>, Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: kvm_create() (was Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine)
-Message-ID: <20061024213850.GA7529@hexapodia.org>
-References: <4537818D.4060204@qumranet.com> <20061019173151.GD4957@rhun.haifa.ibm.com> <4537BD27.7050509@qumranet.com> <200610211816.27964.arnd@arndb.de>
-Mime-Version: 1.0
+	Tue, 24 Oct 2006 17:43:40 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55760 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161247AbWJXVnj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 17:43:39 -0400
+Date: Tue, 24 Oct 2006 23:43:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       David Chinner <dgc@sgi.com>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Message-ID: <20061024214322.GA5652@elf.ucw.cz>
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com> <200610241730.00488.rjw@sisk.pl> <20061024170633.GA17956@infradead.org> <20061024212648.GB5662@elf.ucw.cz> <20061024213342.GA22552@infradead.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610211816.27964.arnd@arndb.de>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+In-Reply-To: <20061024213342.GA22552@infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't have much clue what the context of this is, but one chunk caught
-my eye:
+Hi!
 
-On Sat, Oct 21, 2006 at 06:16:27PM +0200, Arnd Bergmann wrote:
-> Your example above could translate to something like:
+On Tue 2006-10-24 22:33:42, Christoph Hellwig wrote:
+> On Tue, Oct 24, 2006 at 11:26:48PM +0200, Pavel Machek wrote:
+> > > No, that's definitly not enough.  You need to freeze_bdev to make sure
+> > > data is on disk in the place it's expected by the filesystem without
+> > > starting a log recovery.
+> > 
+> > I believe log recovery is okay in this case.
+> > 
+> > It can only happen when kernel dies during suspend or during
+> > resume... And log recovery seems okay in that case. We even guarantee
+> > that user did not loose any data -- by using sys_sync() after userland
+> > is stopped -- but let's not overdo over protections.
 > 
->    int kvm_fd = kvm_create("/kvm/my_vcpu")
->    int mem_fd = openat(kvm_fd, "mem", O_RDWR);
+> You're still entirely missing the problem.
+> 
+> Take a look at http://www.opengroup.org/onlinepubs/007908799/xsh/sync.html
+> and the linux sync(2) manpage.  The only thing sync guarantees is writing
+> out all in-memory data to disk.  It doesn't even gurantee completion,
+> although we've been synchronous in Linux for a while.
 
-Based just on this snippet, it seems to me that kvm_create() could be
-simply:
-    open("/kvm/my_vcpu", O_CREAT | O_EXCL | O_DIRECTORY, 0777);
+Ok, I assume sys_sync is synchronous, but that's okay.
 
-(Which currently seems to silently mask out O_DIRECTORY, but seems to me
-should be a synonym for mkdir().)
+> What it does not gurantee is where on disk the data is located.  Now for
+> a journaling filesystem pushing everything to the log is the easiest way
+> to complete sync, and it's perfectly valid - if the system crashes after
+> the sync and before data is written back to it's normal place on disk
+> the system notices it's not been unmounted cleanly and will do a log
+> recovery.  In the suspend case however the system neither crashes nor
+> is unmounted - thus the filesystem doesn't know it has to recover the
+> log.  We have to choices to fix this:
+> 
+>  (1) force a log recovery of an already mounted and in use filesystem
+>  (2) make sure data is in the right place before suspending
+> 
+> (1) is pretty nasty, and hard to do across filesystems.  (2) is already
+> implemented and easily useable by the suspend code.
 
--andy
+No, there's no need to do either (1) or (2) in "machine suspended and
+resumed successfully". In that case, machine just continues as if no
+suspend has happened.
+
+In fact I could remove sys_sync() from freezer. suspend code would
+still be correct.
+
+That sys_sync() only matters in case of suspend but machine died
+during resume... and in that case we know we crashed, and journal
+recovery is okay.
+
+I do know how journaling works (from 10000feet, anyway), and it is
+okay in this case.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

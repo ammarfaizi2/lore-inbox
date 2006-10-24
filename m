@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWJXMO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWJXMTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbWJXMO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 08:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWJXMO1
+	id S1161020AbWJXMTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 08:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbWJXMTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 08:14:27 -0400
-Received: from mail.dsa-ac.de ([62.112.80.99]:45842 "EHLO mail.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S1161015AbWJXMO1 (ORCPT
+	Tue, 24 Oct 2006 08:19:25 -0400
+Received: from mx03.stofanet.dk ([212.10.10.13]:16808 "EHLO mx03.stofanet.dk")
+	by vger.kernel.org with ESMTP id S1161020AbWJXMTY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 08:14:27 -0400
-Date: Tue, 24 Oct 2006 14:14:23 +0200 (CEST)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.18-rt6] BUG / typo
-In-Reply-To: <Pine.LNX.4.63.0610241003280.1852@pcgl.dsa-ac.de>
-Message-ID: <Pine.LNX.4.63.0610241408000.1852@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.63.0610240954420.1852@pcgl.dsa-ac.de>
- <Pine.LNX.4.63.0610241003280.1852@pcgl.dsa-ac.de>
+	Tue, 24 Oct 2006 08:19:24 -0400
+Date: Tue, 24 Oct 2006 14:19:02 +0200 (CEST)
+From: Esben Nielsen <nielsen.esben@googlemail.com>
+X-X-Sender: simlo@frodo.shire
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: rtmutex's wait_lock in 2.6.18-rt7
+In-Reply-To: <1161683163.22373.68.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0610241408480.30444@frodo.shire>
+References: <Pine.LNX.4.64.0610231150500.12557@frodo.shire>
+ <1161683163.22373.68.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Oct 2006, Guennadi Liakhovetski wrote:
 
-> On Tue, 24 Oct 2006, Guennadi Liakhovetski wrote:
+
+On Tue, 24 Oct 2006, Thomas Gleixner wrote:
+
+> On Mon, 2006-10-23 at 11:55 +0200, Esben Nielsen wrote:
+>> Hi,
+>>   I see that in 2.6.18-rt7 the rtmutex's wait_lock is sudden interrupt
+>> disabling. I don't see the need as no (hard) interrupt-handlers should be
+>> touching any mutex.
 >
->> [22644.590000] BUG: scheduling with irqs disabled: 
->> posix_cpu_timer/0x00000001/2
->> [22644.590000] caller is schedule+0x10/0x118
-> [...]
+> It does not touch mutexes, but the dynamic priority adjustment of the
+> hrtimer softirq needs it.
 >
-> Hm, got the same BUG with the patch from the previous email. Looking further, 
-> unless somebody has an idea?
+> The correct solution will be moving the timer callback into the process
+> context, as it will be woken up anyway, but that's more complex to do
+> than it looks in the first place.
+>
 
-Could the reason have been that I in my (pxa) timer ISR had 
-irq_enter()/_exit around the call to handle_event, as suggested in 
-i386/kernel/apic.c:
+I have send out patches doing the correct priority adjustment without 
+touching the wait_lock. Why not use that?
 
- 	/*
- 	 * update_process_times() expects us to have done irq_enter().
- 	 * Besides, if we don't timer interrupts ignore the global
- 	 * interrupt lock, which is the WrongThing (tm) to do.
- 	 */
- 	irq_enter();
- 	/*
- 	 * If the task is currently running in user mode, don't
- 	 * detect soft lockups.  If CONFIG_DETECT_SOFTLOCKUP is not
- 	 * configured, this should be optimized out.
- 	 */
- 	if (user_mode(regs))
- 		touch_softlockup_watchdog();
+I found it in the archives:
+  http://www.uwsg.iu.edu/hypermail/linux/kernel/0610.0/0049.html
+(or more specific in 
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0610.0/0051.html, look for 
+changes to sched.c)
 
- 	evt->event_handler(regs);
- 	irq_exit();
+It is very bad to do PI traversal in interrupt context. In the general 
+case, where there are user-space locks, that operation unbounded. I 
+know that in your case you can only traverse kernel locks, but I think it 
+is bad to open for such posibilities if it can be avoided.
 
-? Anyway, I cannot SEEM to reproduce it anymore now I've removed those 
-calls. Will test further.
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+Esben
+
+> 	tglx
+>
+>

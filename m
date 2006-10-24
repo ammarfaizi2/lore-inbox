@@ -1,82 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWJXIPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWJXIQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965095AbWJXIPP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 04:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWJXINv
+	id S1030210AbWJXIQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 04:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbWJXINq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 04:13:51 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:1530 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S932438AbWJXIN0 (ORCPT
+	Tue, 24 Oct 2006 04:13:46 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:11720 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S932433AbWJXINN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 04:13:26 -0400
+	Tue, 24 Oct 2006 04:13:13 -0400
 From: Haavard Skinnemoen <hskinnemoen@atmel.com>
 To: torvalds@osdl.org
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Ben Nizette <ben@mallochdigital.com>,
        Haavard Skinnemoen <hskinnemoen@atmel.com>
-Subject: [PATCH 4/8] AVR32: Fix oversize immediates in atomic.h
+Subject: [PATCH 5/8] AVR32: add io{read,write}{8,16,32}{be,} support
 Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Date: Tue, 24 Oct 2006 10:12:42 +0200
-Message-Id: <11616775661978-git-send-email-hskinnemoen@atmel.com>
+Date: Tue, 24 Oct 2006 10:12:43 +0200
+Message-Id: <1161677566524-git-send-email-hskinnemoen@atmel.com>
 X-Mailer: git-send-email 1.4.1.1
-In-Reply-To: <11616775661390-git-send-email-hskinnemoen@atmel.com>
-References: <1161677566706-git-send-email-hskinnemoen@atmel.com> <11616775663220-git-send-email-hskinnemoen@atmel.com> <11616775662194-git-send-email-hskinnemoen@atmel.com> <11616775661390-git-send-email-hskinnemoen@atmel.com>
+In-Reply-To: <11616775661978-git-send-email-hskinnemoen@atmel.com>
+References: <1161677566706-git-send-email-hskinnemoen@atmel.com> <11616775663220-git-send-email-hskinnemoen@atmel.com> <11616775662194-git-send-email-hskinnemoen@atmel.com> <11616775661390-git-send-email-hskinnemoen@atmel.com> <11616775661978-git-send-email-hskinnemoen@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When calling e.g. atomic_sub_return with a large constant, the
-compiler may output an immediate that is too large for the sub
-instruction in the middle of the loop.
+From: Ben Nizette <ben@mallochdigital.com>
 
-Fix this by explicitly specifying the number of bits allowed in the
-constraint. Also stop atomic_add_return() and friends from falling
-back to their respective "sub" variants if the constant is too large
-to fit in an immediate.
+A number of new drivers require io{read,write}{8,16,32}{be,} family of io
+operations.  These are provided for the AVR32 by this patch in the form of
+a series of macros.
 
+Access to the (memory mapped) io space through these macros is defined to
+be little endian only as little endian devices (such as PCI) are the main
+consumer of IO access.  If high speed access is required,
+io{read,write}{16,32}be macros are supplied to perform native big endian
+access to this io space.
+
+Signed-off-by: Ben Nizette <ben@mallochdigital.com>
 Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 ---
- include/asm-avr32/atomic.h |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ include/asm-avr32/io.h |   33 +++++++++++++++++++++++++++++++++
+ 1 files changed, 33 insertions(+), 0 deletions(-)
 
-diff --git a/include/asm-avr32/atomic.h b/include/asm-avr32/atomic.h
-index e0b9c44..c40b603 100644
---- a/include/asm-avr32/atomic.h
-+++ b/include/asm-avr32/atomic.h
-@@ -41,7 +41,7 @@ static inline int atomic_sub_return(int 
- 		"	stcond	%1, %0\n"
- 		"	brne	1b"
- 		: "=&r"(result), "=o"(v->counter)
--		: "m"(v->counter), "ir"(i)
-+		: "m"(v->counter), "rKs21"(i)
- 		: "cc");
+diff --git a/include/asm-avr32/io.h b/include/asm-avr32/io.h
+index 2fc8f11..eec4750 100644
+--- a/include/asm-avr32/io.h
++++ b/include/asm-avr32/io.h
+@@ -76,6 +76,39 @@ #define readsb(p, d, l)		__raw_readsb((u
+ #define readsw(p, d, l)		__raw_readsw((unsigned int)p, d, l)
+ #define readsl(p, d, l)		__raw_readsl((unsigned int)p, d, l)
  
- 	return result;
-@@ -58,7 +58,7 @@ static inline int atomic_add_return(int 
- {
- 	int result;
- 
--	if (__builtin_constant_p(i))
-+	if (__builtin_constant_p(i) && (i >= -1048575) && (i <= 1048576))
- 		result = atomic_sub_return(-i, v);
- 	else
- 		asm volatile(
-@@ -101,7 +101,7 @@ static inline int atomic_sub_unless(atom
- 		"	mov	%1, 1\n"
- 		"1:"
- 		: "=&r"(tmp), "=&r"(result), "=o"(v->counter)
--		: "m"(v->counter), "ir"(a), "ir"(u)
-+		: "m"(v->counter), "rKs21"(a), "rKs21"(u)
- 		: "cc", "memory");
- 
- 	return result;
-@@ -121,7 +121,7 @@ static inline int atomic_add_unless(atom
- {
- 	int tmp, result;
- 
--	if (__builtin_constant_p(a))
-+	if (__builtin_constant_p(a) && (a >= -1048575) && (a <= 1048576))
- 		result = atomic_sub_unless(v, -a, u);
- 	else {
- 		result = 0;
++
++/*
++ * io{read,write}{8,16,32} macros in both le (for PCI style consumers) and native be
++ */
++#ifndef ioread8
++
++#define ioread8(p)	({ unsigned int __v = __raw_readb(p); __v; })
++
++#define ioread16(p)	({ unsigned int __v = le16_to_cpu(__raw_readw(p)); __v; })
++#define ioread16be(p)	({ unsigned int __v = be16_to_cpu(__raw_readw(p)); __v; })
++
++#define ioread32(p)	({ unsigned int __v = le32_to_cpu(__raw_readl(p)); __v; })
++#define ioread32be(p)	({ unsigned int __v = be32_to_cpu(__raw_readl(p)); __v; })
++
++#define iowrite8(v,p)	__raw_writeb(v, p)
++
++#define iowrite16(v,p)	__raw_writew(cpu_to_le16(v), p)
++#define iowrite16be(v,p)	__raw_writew(cpu_to_be16(v), p)
++
++#define iowrite32(v,p)	__raw_writel(cpu_to_le32(v), p)
++#define iowrite32be(v,p)	__raw_writel(cpu_to_be32(v), p)
++
++#define ioread8_rep(p,d,c)	__raw_readsb(p,d,c)
++#define ioread16_rep(p,d,c)	__raw_readsw(p,d,c)
++#define ioread32_rep(p,d,c)	__raw_readsl(p,d,c)
++
++#define iowrite8_rep(p,s,c)	__raw_writesb(p,s,c)
++#define iowrite16_rep(p,s,c)	__raw_writesw(p,s,c)
++#define iowrite32_rep(p,s,c)	__raw_writesl(p,s,c)
++
++#endif
++
++
+ /*
+  * These two are only here because ALSA _thinks_ it needs them...
+  */
 -- 
 1.4.1.1
 

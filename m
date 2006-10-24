@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161138AbWJXSWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161134AbWJXSUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161138AbWJXSWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 14:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbWJXSWG
+	id S1161134AbWJXSUt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 14:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161138AbWJXSUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 14:22:06 -0400
-Received: from [213.234.233.54] ([213.234.233.54]:63920 "EHLO mail.screens.ru")
-	by vger.kernel.org with ESMTP id S1161138AbWJXSWD (ORCPT
+	Tue, 24 Oct 2006 14:20:49 -0400
+Received: from hera.kernel.org ([140.211.167.34]:61676 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1161134AbWJXSUs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 14:22:03 -0400
-Date: Tue, 24 Oct 2006 22:21:37 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Cedric Le Goater <clg@fr.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] session_of_pgrp: kill unnecessary do_each_task_pid(PIDTYPE_PGID)
-Message-ID: <20061024182137.GA1369@oleg>
+	Tue, 24 Oct 2006 14:20:48 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH 1/5] netpoll: use sk_buff_head for txq
+Date: Tue, 24 Oct 2006 07:14:51 -0700
+Organization: OSDL
+Message-ID: <20061024071451.2ba1b79c@freekitty>
+References: <20061020153027.3bed8c86@dxpl.pdx.osdl.net>
+	<20061022.204220.78710782.davem@davemloft.net>
+	<20061023120253.5dd146d2@dxpl.pdx.osdl.net>
+	<20061023.230350.05157566.davem@davemloft.net>
+	<20061024075130.6e4cf8d2@dads-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1161714016 20273 10.8.0.54 (24 Oct 2006 18:20:16 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 24 Oct 2006 18:20:16 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On top of add-process_session-helper-routine.patch
+On Tue, 24 Oct 2006 07:51:30 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-All members of the process group have the same sid and it can't be == 0.
-
-NOTE: this code (and a similar one in sys_setpgid) was needed because it
-was possibe to have ->session == 0. It's not possible any longer since
-
-	[PATCH] pidhash: don't use zero pids
-	Commit: c7c6464117a02b0d54feb4ebeca4db70fa493678
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- rc2-mm2/kernel/exit.c~	2006-10-24 20:39:31.000000000 +0400
-+++ rc2-mm2/kernel/exit.c	2006-10-24 20:46:14.000000000 +0400
-@@ -188,21 +188,18 @@ repeat:
- int session_of_pgrp(int pgrp)
- {
- 	struct task_struct *p;
--	int sid = -1;
-+	int sid = 0;
- 
- 	read_lock(&tasklist_lock);
--	do_each_task_pid(pgrp, PIDTYPE_PGID, p) {
--		if (process_session(p) > 0) {
--			sid = process_session(p);
--			goto out;
--		}
--	} while_each_task_pid(pgrp, PIDTYPE_PGID, p);
--	p = find_task_by_pid(pgrp);
--	if (p)
-+
-+	p = find_task_by_pid_type(PIDTYPE_PGID, pgrp);
-+	if (p == NULL)
-+		p = find_task_by_pid(pgrp);
-+	if (p != NULL)
- 		sid = process_session(p);
--out:
-+
- 	read_unlock(&tasklist_lock);
--	
-+
- 	return sid;
- }
- 
-
+> On Mon, 23 Oct 2006 23:03:50 -0700 (PDT)
+> David Miller <davem@davemloft.net> wrote:
+> 
+> > From: Stephen Hemminger <shemminger@osdl.org>
+> > Date: Mon, 23 Oct 2006 12:02:53 -0700
+> > 
+> > > +	spin_lock_irqsave(&netpoll_txq.lock, flags);
+> > > +	for (skb = (struct sk_buff *)netpoll_txq.next;
+> > > +	     skb != (struct sk_buff *)&netpoll_txq; skb = next) {
+> > > +		next = skb->next;
+> > > +		if (skb->dev == dev) {
+> > > +			skb_unlink(skb, &netpoll_txq);
+> > > +			kfree_skb(skb);
+> > > +		}
+> > >  	}
+> > > +	spin_unlock_irqrestore(&netpoll_txq.lock, flags);
+> > 
+> > IRQ's are disabled, I think we can't call kfree_skb() in such a
+> > context.
+> 
+> It is save since the skb's only come from this code (no destructors).
+> 
+Actually it does use destructors... I am doing a better version (per-device).

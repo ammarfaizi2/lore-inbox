@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWJXQKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbWJXQTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030411AbWJXQKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 12:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbWJXQKZ
+	id S1161083AbWJXQTl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 12:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbWJXQTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 12:10:25 -0400
-Received: from de01egw02.freescale.net ([192.88.165.103]:61577 "EHLO
-	de01egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S1030411AbWJXQKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 12:10:25 -0400
-Message-ID: <453E3AAC.9040403@freescale.com>
-Date: Tue, 24 Oct 2006 11:09:16 -0500
-From: Scott Wood <scottwood@freescale.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       linux1394-devel@lists.sourceforge.net,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>
-Subject: Re: pci_set_power_state() failure and breaking suspend
-References: <1161672898.10524.596.camel@localhost.localdomain> <200610241400.06047.rjw@sisk.pl>
-In-Reply-To: <200610241400.06047.rjw@sisk.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 12:19:41 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:64094 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1030419AbWJXQTl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 12:19:41 -0400
+Date: Tue, 24 Oct 2006 18:20:50 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 0/5] I/O statistics through request queues
+Message-ID: <20061024162050.GK4281@kernel.dk>
+References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20061023113728.GM8251@kernel.dk> <453D05C3.7040104@de.ibm.com> <20061023200220.GB4281@kernel.dk> <453E38FE.1020306@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <453E38FE.1020306@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> On Tuesday, 24 October 2006 08:54, Benjamin Herrenschmidt wrote:
->>However, this raises the question of do we actually want to prevent
->>machines to suspend when they have a PCI device that don't have the PCI
->>PM capability ? I'm asking that because I can easily imagine that sort
->>of construct growing into more drivers (sounds logical if you don't
->>think) and I can even imagine somebody thinking it's a good idea to slap
->>a __must_check on pci_set_power_state() ... 
+On Tue, Oct 24 2006, Martin Peschke wrote:
+> Jens Axboe wrote:
+> >>Our tests indicate that the blktrace approach is fine for performance
+> >>analysis as long as the system to be analysed isn't too busy.
+> >>But once the system faces a consirable amount of non-sequential I/O
+> >>workload, the plenty of blktrace-generated data starts to get painful.
+> >
+> >Why haven't you done an analysis and posted it here? I surely cannot fix
+> >what nobody tells me is broken or suboptimal.
 > 
+> Fair enough. We have tried out the silly way of blktrace-ing, storing
+> data locally. So, it's probably not worthwhile discussing that.
+
+You'd probably never want to do local traces for performance analysis.
+It may be handy for other purposes, though.
+
+> > I have to say it's news to
+> >me that it's performance intensive, tests I did with Alan Brunelle a
+> >year or so ago showed it to be quite low impact.
 > 
-> As far as the suspend to RAM is concerned, I don't know.
+> I found some discussions on linux-btrace (Feburary 2006).
+> There is little information on how the alleged 2 percent impact has
+> been determined. Test cases seem to comprise formatting disks ...hmm.
+
+It may sound strange, but formatting a large drive generates a huge
+flood of block layer events from lots of io queued and merged. So it's
+not a bad benchmark for this type of thing. And it's easy to test :-)
+
+> >>If the system runs I/O-bound, how to write out traces without
+> >>stealing bandwith and causing side effects?
+> >
+> >You'd be silly to locally store traces, send them out over the network.
 > 
-> For the suspend to disk we can ignore the error if we know that the device
-> in question won't do anything like a DMA transfer into memory while we're
-> creating the suspend image.
+> Will try this next and post complaints, if any, along with numbers.
 
-I think it should be ignored for suspend-to-RAM as well; even if a 
-device or two is consuming unnecessary power, it's better than not being 
-able to suspend at all, causing more things to consume unnecessary power.
+Thanks! Also note that you do not need to log every event, just register
+a mask of interesting ones to decrease the output logging rate. We could
+so with some better setup for that though, but at least you should be
+able to filter out some unwanted events.
 
-At most, a warning should be issued so the user knows what's going on, 
-and can choose whether to suspend to disk instead (or choose to complain 
-to the device manufacturer).
+> However, a fast network connection plus a second system for blktrace
+> data processing are serious requirements. Think of servers secured
+> by firewalls. Reading some counters in debugfs, sysfs or whatever
+> might be more appropriate for some one who has noticed an unexpected
+> I/O slowdown and needs directions for further investigation.
 
--Scott
+It's hard to make something that will suit everybody. Maintaining some
+counters in sysfs is of course less expensive when your POV is cpu
+cycles.
+
+-- 
+Jens Axboe
+

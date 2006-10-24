@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161257AbWJXWHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161255AbWJXWNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161257AbWJXWHc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161255AbWJXWHc
+	id S1161255AbWJXWNE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 18:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161258AbWJXWNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:07:32 -0400
-Received: from ext-103.mv.fabric7.com ([68.120.107.103]:8491 "EHLO
-	corp.fabric7.com") by vger.kernel.org with ESMTP id S1161254AbWJXWHb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:07:31 -0400
-Subject: Re: [PATCH 1/1] Fabric7 VIOC: Ethtool
-From: Sriram Chidambaram <schidambaram@fabric7.com>
-Reply-To: driver-support@fabric7.com
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Driver Support <driver-support@fabric7.com>, Jeff Garzik <jeff@garzik.org>,
-       KERNEL Linux <linux-kernel@vger.kernel.org>,
-       NETDEV Linux <netdev@vger.kernel.org>
-In-Reply-To: <20061024144620.4c9892f6@dxpl.pdx.osdl.net>
-References: <1161725441.8112.11.camel@rh234.mv.fabric7.com>
-	 <20061024144620.4c9892f6@dxpl.pdx.osdl.net>
+	Tue, 24 Oct 2006 18:13:04 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16549 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1161255AbWJXWNC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 18:13:02 -0400
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <200610242208.34426.rjw@sisk.pl>
+References: <1161576857.3466.9.camel@nigel.suspend2.net>
+	 <200610242208.34426.rjw@sisk.pl>
 Content-Type: text/plain
-Organization: Fabric7 Systems Inc
-Message-Id: <1161727647.8112.19.camel@rh234.mv.fabric7.com>
+Date: Wed, 25 Oct 2006 08:13:01 +1000
+Message-Id: <1161727981.22729.18.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 24 Oct 2006 15:07:27 -0700
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Oct 2006 22:07:27.0905 (UTC) FILETIME=[CB091110:01C6F7B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removed debug print statement
+Hi.
 
-Signed-off-by: Fabric7 Driver-Support <driver-support@fabric7.com>
----
- vioc.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+On Tue, 2006-10-24 at 22:08 +0200, Rafael J. Wysocki wrote:
+> On Monday, 23 October 2006 06:14, Nigel Cunningham wrote:
+> > Switch from bitmaps to using extents to record what swap is allocated;
+> > they make more efficient use of memory, particularly where the allocated
+> > storage is small and the swap space is large.
+> 
+> As I said before, I like the overall idea, but I have a bunch of comments.
 
-diff --git a/vioc.c b/vioc.c
-index 51004c6..c771737 100644
---- a/vioc.c
-+++ b/vioc.c
-@@ -17,8 +17,6 @@ int vioc_dump_regs(struct ethtool_drvinf
- 	unsigned int	num_regs;
- 	struct regs_line *reg_info = (struct regs_line *) regs->data;
- 
--	printf("%s: Enter\n", __FUNCTION__);
--
- 	printf("ethtool_regs\n"
- 		"%-20s = %04x\n"
- 		"%-20s = %04x\n",
--- 
-1.4.3.GIT
+Thanks for them. Just a quick reply for the moment to say they're
+appreciated and I will revise accordingly.
 
+I should also mention that this isn't the only use of these functions in
+Suspend2. There I also use extents to record the blocks to which the
+image will be written. I hope to submit modifications to swsusp to do
+that too in the near future.
+
+> > +/* Simplify iterating through all the values in an extent chain */
+> > +#define suspend_extent_for_each(extent_chain, extentpointer, value) \
+> > +if ((extent_chain)->first) \
+> > +	for ((extentpointer) = (extent_chain)->first, (value) = \
+> > +			(extentpointer)->minimum; \
+> > +	     ((extentpointer) && ((extentpointer)->next || (value) <= \
+> > +				 (extentpointer)->maximum)); \
+> > +	     (((value) == (extentpointer)->maximum) ? \
+> > +		((extentpointer) = (extentpointer)->next, (value) = \
+> > +		 ((extentpointer) ? (extentpointer)->minimum : 0)) : \
+> > +			(value)++))
+> 
+> This macro doesn't look very nice and is used only once, so I think you
+> can drop it and just write the loop where it belongs.
+
+With the modifications I mentioned just above, this would also be used
+for getting the blocks which match each swap extent. I can remove the
+macro, but just want to make you aware that it does serve a purpose,
+you're just not seeing it fully yet.
+
+> > +
+> > +void suspend_put_extent_chain(struct extent_chain *chain);
+> > +int suspend_add_to_extent_chain(struct extent_chain *chain, 
+> > +		unsigned long minimum, unsigned long maximum);
+> > +
+> > +/* swap_entry_to_extent_val & extent_val_to_swap_entry: 
+> > + * We are putting offset in the low bits so consecutive swap entries
+> > + * make consecutive extent values */
+> > +#define swap_entry_to_extent_val(swp_entry) (swp_entry.val)
+> > +#define extent_val_to_swap_entry(val) (swp_entry_t) { (val) }
+> 
+> These two macros are also used only once each.  I'd just use the values
+> directly.
+
+Ok. Thanks. I think they're a leftover from 2.4 support :)
+
+Nigel
 

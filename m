@@ -1,166 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWJXJPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWJXJdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbWJXJPK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 05:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWJXJPK
+	id S1030208AbWJXJdL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 05:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbWJXJdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 05:15:10 -0400
-Received: from systemlinux.org ([83.151.29.59]:60641 "EHLO m18s25.vlinux.de")
-	by vger.kernel.org with ESMTP id S965101AbWJXJPJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 05:15:09 -0400
-Date: Tue, 24 Oct 2006 11:14:49 +0200
-From: Andre Noll <maan@systemlinux.org>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       linux-ext4@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>
-Subject: Re: ext3: bogus i_mode errors with 2.6.18.1
-Message-ID: <20061024091449.GZ22487@skl-net.de>
-References: <20061023144556.GY22487@skl-net.de> <20061023164416.GM3509@schatzie.adilger.int> <20061023200242.GA5015@schatzie.adilger.int>
+	Tue, 24 Oct 2006 05:33:11 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:34971 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965123AbWJXJdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 05:33:09 -0400
+Date: Tue, 24 Oct 2006 11:32:49 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Nick Piggin <npiggin@suse.de>
+Cc: linux-fsdevel@vger.kernel.org, Mark Fasheh <mark.fasheh@oracle.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, swhiteho@redhat.com, bjornw@axis.com,
+       reiserfs-dev@namesys.com, chris.mason@oracle.com
+Subject: Re: [RFC] commit_write less than prepared by prepare_write
+Message-ID: <20061024093249.GA22279@wohnheim.fh-wedel.de>
+References: <20061022084020.GA23506@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="o/BvujNCPFVhiGON"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20061023200242.GA5015@schatzie.adilger.int>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061022084020.GA23506@wotan.suse.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 22 October 2006 10:40:20 +0200, Nick Piggin wrote:
+> 
+> Filesystems that are non trivial are GFS2, OCFS2, Reiserfs, JFFS so
+> I need maintainers to look at those.
 
---o/BvujNCPFVhiGON
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+JFFS has been unmaintained for some years and barely evaded removal at
+least once.  Now might be the time to pull support for good or else
+convert it by adding an #error to it.
 
-On 14:02, Andreas Dilger wrote:
+Jörn
 
-> I found a URL for the 2.4 version of this patch, if some kind soul would
-> update it for 2.6 it might save someone's data in the future.
-
-Something like the this? (only compile tested). And no, I do _not_ know,
-what I'm doing ;)
-
-Thanks
-Andre
-
-
-diff --git a/fs/ext3/balloc.c b/fs/ext3/balloc.c
-index 063d994..da2bd51 100644
---- a/fs/ext3/balloc.c
-+++ b/fs/ext3/balloc.c
-@@ -359,17 +359,6 @@ do_more:
- 	if (!desc)
- 		goto error_return;
-=20
--	if (in_range (le32_to_cpu(desc->bg_block_bitmap), block, count) ||
--	    in_range (le32_to_cpu(desc->bg_inode_bitmap), block, count) ||
--	    in_range (block, le32_to_cpu(desc->bg_inode_table),
--		      sbi->s_itb_per_group) ||
--	    in_range (block + count - 1, le32_to_cpu(desc->bg_inode_table),
--		      sbi->s_itb_per_group))
--		ext3_error (sb, "ext3_free_blocks",
--			    "Freeing blocks in system zones - "
--			    "Block =3D "E3FSBLK", count =3D %lu",
--			    block, count);
--
- 	/*
- 	 * We are about to start releasing blocks in the bitmap,
- 	 * so we need undo access.
-@@ -392,7 +381,17 @@ do_more:
-=20
- 	jbd_lock_bh_state(bitmap_bh);
-=20
--	for (i =3D 0, group_freed =3D 0; i < count; i++) {
-+	for (i =3D 0, group_freed =3D 0; i < count; i++, block++) {
-+		struct ext3_group_desc *gdp =3D ext3_get_group_desc(sb, i, NULL);
-+		if (block =3D=3D le32_to_cpu(gdp->bg_block_bitmap) ||
-+			block =3D=3D le32_to_cpu(gdp->bg_inode_bitmap) ||
-+			in_range(block, le32_to_cpu(gdp->bg_inode_table),
-+				EXT3_SB(sb)->s_itb_per_group)) {
-+			ext3_error(sb, __FUNCTION__,
-+				"Freeing block in system zone - block =3D %lu",
-+				block);
-+			continue;
-+		}
- 		/*
- 		 * An HJ special.  This is expensive...
- 		 */
-@@ -400,7 +399,7 @@ #ifdef CONFIG_JBD_DEBUG
- 		jbd_unlock_bh_state(bitmap_bh);
- 		{
- 			struct buffer_head *debug_bh;
--			debug_bh =3D sb_find_get_block(sb, block + i);
-+			debug_bh =3D sb_find_get_block(sb, block);
- 			if (debug_bh) {
- 				BUFFER_TRACE(debug_bh, "Deleted!");
- 				if (!bh2jh(bitmap_bh)->b_committed_data)
-@@ -452,7 +451,7 @@ #endif
- 			jbd_unlock_bh_state(bitmap_bh);
- 			ext3_error(sb, __FUNCTION__,
- 				"bit already cleared for block "E3FSBLK,
--				 block + i);
-+				block);
- 			jbd_lock_bh_state(bitmap_bh);
- 			BUFFER_TRACE(bitmap_bh, "bit already cleared");
- 		} else {
-@@ -479,7 +478,6 @@ #endif
- 	*pdquot_freed_blocks +=3D group_freed;
-=20
- 	if (overflow && !err) {
--		block +=3D count;
- 		count =3D overflow;
- 		goto do_more;
- 	}
-@@ -1260,7 +1258,7 @@ #endif
- 		*errp =3D -ENOSPC;
- 		goto out;
- 	}
--
-+repeat:
- 	/*
- 	 * First, test whether the goal block is free.
- 	 */
-@@ -1372,12 +1370,24 @@ allocated:
- 	    in_range(ret_block, le32_to_cpu(gdp->bg_inode_table),
- 		      EXT3_SB(sb)->s_itb_per_group) ||
- 	    in_range(ret_block + num - 1, le32_to_cpu(gdp->bg_inode_table),
--		      EXT3_SB(sb)->s_itb_per_group))
--		ext3_error(sb, "ext3_new_block",
-+		      EXT3_SB(sb)->s_itb_per_group)) {
-+		int j;
-+		ext3_error(sb, __FUNCTION__,
- 			    "Allocating block in system zone - "
- 			    "blocks from "E3FSBLK", length %lu",
- 			     ret_block, num);
--
-+		/* Note: This will potentially use up one of the handle's
-+		 * buffer credits.  Normally we have way too many credits,
-+		 * so that is OK.  In _very_ rare cases it might not be OK.
-+		 * We will trigger an assertion if we run out of credits,
-+		 * and we will have to do a full fsck of the filesystem -
-+		 * better than randomly corrupting filesystem metadata.
-+		 */
-+		j =3D find_next_usable_block(-1, gdp, EXT3_BLOCKS_PER_GROUP(sb));
-+		if (j >=3D 0)
-+			ext3_set_bit(j, gdp_bh->b_data);
-+		goto repeat;
-+	}
- 	performed_allocation =3D 1;
-=20
- #ifdef CONFIG_JBD_DEBUG
---=20
-The only person who always got his work done by Friday was Robinson Crusoe
-
---o/BvujNCPFVhiGON
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFPdmJWto1QDEAkw8RAvzzAJkB9TdRRg7VPrm/F0cm3Zq3Y9Qg5wCfU20S
-KHGvyUh48aymT8sTvS/4wH0=
-=Jlp3
------END PGP SIGNATURE-----
-
---o/BvujNCPFVhiGON--
+-- 
+This above all: to thine own self be true.
+-- Shakespeare

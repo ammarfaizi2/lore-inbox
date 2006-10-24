@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWJXNWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWJXNYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWJXNWX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 09:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWJXNWX
+	id S965110AbWJXNYk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 09:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbWJXNYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 09:22:23 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:50823 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S964827AbWJXNWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 09:22:22 -0400
-Date: Tue, 24 Oct 2006 09:20:25 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Mitch <Mitch@0Bits.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: More uml build failures on 2.16.19-rc3 and 2.6.18.1
-Message-ID: <20061024132025.GA4190@ccure.user-mode-linux.org>
-References: <453DC147.2020508@0Bits.COM>
-Mime-Version: 1.0
+	Tue, 24 Oct 2006 09:24:40 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:23448 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S965110AbWJXNYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 09:24:39 -0400
+Date: Tue, 24 Oct 2006 07:24:37 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, akpm@osdl.org,
+       kernel-janitors@lists.osdl.org, maxk@qualcomm.com, kjhall@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [KJ] [PATCH] Correct misc_register return code handling in several drivers
+Message-ID: <20061024132437.GP25210@parisc-linux.org>
+References: <20061023171910.GA23714@hmsreliant.homelinux.net> <1161660875.10524.535.camel@localhost.localdomain> <20061024125306.GA1608@hmsreliant.homelinux.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <453DC147.2020508@0Bits.COM>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061024125306.GA1608@hmsreliant.homelinux.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 11:31:19AM +0400, Mitch wrote:
-> I'm still having build failures on 2.6.18.1 and even the latest -rc3
-> 
-> home /usr/src/sources/kernel/linux-2.6.18% !ma
-> make ARCH=um
->   SYMLINK arch/um/include/kern_constants.h
->   CC      arch/um/sys-i386/user-offsets.s
-> arch/um/sys-i386/user-offsets.c: In function 'foo':
-> arch/um/sys-i386/user-offsets.c:19: warning: implicit declaration of 
-> function 'offsetof'
+On Tue, Oct 24, 2006 at 08:53:06AM -0400, Neil Horman wrote:
+> The INIT_LIST_HEAD is there to prevent a potential oops on module removal.
+> misc_register, if it fails, leaves miscdevice.list unchanged.  That means its
+> next and prev pointers contain NULL or garbage, when both pointers should contain
+> &miscdevice.list. If we don't do that, then there is a chance we will oops on
+> module removal when we do a list_del in misc_deregister on the moudule_exit
+> routine.  I could have done this statically, but I thought it looked cleaner to
+> do it with the macro in the code.
 
-The last time I saw this, someone had replaced the glibc kernel
-headers with a link to include/ within a kernel pool.  There, offsetof
-is wrapped in #ifdef __KERNEL__, and inaccessible to userspace.
-
-The glibc headers have a usable offsetof, so fix that, and UML should
-build.
-
-				Jeff
+Maybe it would be better to have misc_register() call INIT_LIST_HEAD in
+the failure case?

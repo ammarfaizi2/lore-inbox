@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWJXRbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWJXRnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030448AbWJXRbk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 13:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbWJXRbj
+	id S1161117AbWJXRnT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 13:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWJXRnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 13:31:39 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:48619 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030448AbWJXRbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 13:31:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FQJTvKG11nRt+2WVCMCtHfrRnIIk/ZJA0OxjrZ7dsinuvwDX30ZCPAIlbOHBxW4x2VLMEwYsY1Vo3dZusr2GY2/aC+g5blAMxq3Hp/OA7JKiJd4iRt7v8ckZb++ua/XJny9wCyamGlRdST8lT0VzPEFmjVMWvKX19kY3+K5ItA8=
-Message-ID: <43e72e890610241031q41e7303bgb63786995f5c28d6@mail.gmail.com>
-Date: Tue, 24 Oct 2006 13:31:26 -0400
-From: "Luis R. Rodriguez" <mcgrof@gmail.com>
-To: "Johannes Berg" <johannes@sipsolutions.net>
-Subject: Re: [RFC] [PATCH 0/3] Add Regulatory Domain support to d80211
-Cc: netdev@vger.kernel.org, "Jiri Benc" <jbenc@suse.cz>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       "Jean Tourrilhes" <jt@hpl.hp.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1161678344.2840.2.camel@ux156>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 24 Oct 2006 13:43:19 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:36766 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161117AbWJXRnS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 13:43:18 -0400
+Subject: Re: PROBLEM: Oops when doing disk heavy disk I/O
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Michael Sallaway <michael.sallaway@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9f916e540610240856p263d5s7098e4e2edd0ed25@mail.gmail.com>
+References: <9f916e540610240856p263d5s7098e4e2edd0ed25@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 24 Oct 2006 10:43:10 -0700
+Message-Id: <1161711790.18096.29.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <43e72e890610231541k2e8e6dcbq98f58a77aa8a52d7@mail.gmail.com>
-	 <1161678344.2840.2.camel@ux156>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/24/06, Johannes Berg <johannes@sipsolutions.net> wrote:
-> Alright, here's more now that I can think clearly again :)
->
-> > ISO 3166-1, as part of the ISO 3166 standard, provides codes for the names
-> > of countries and dependent areas. It was first published in 1974 by
-> > the International Organization for Standardization (ISO) and defines three
-> > different codes for each area:
-> >
-> >     * ISO 3166-1 alpha-2, a two-letter system with many applications,
-> >       most notably the Internet top-level domains (ccTLD) for countries.
-> >     * ISO 3166-1 alpha-3, a three-letter system.
-> >     * ISO 3166-1 numeric, a three-digit numerical system, which is
-> >     identical to that defined by the United Nations Statistical Division.
-> >
-> > Although this would usually be only used in userspace IEEE-802.11d
-> > has made use of ISO-3166-1 alpha 3. This mapping was added
-> > to enhance stack support for IEEE-802.11d and 802.11 Regulatory
-> > Domain control. ieee80211_regdomains makes use of this module
-> > by creating a map of iso3166 alpha3 country code to stack
-> > regulatory domain.
->
-> But if 802.11d only requires alpha 3, why put all the other stuff into
-> the kernel as well?
+On Wed, 2006-10-25 at 01:56 +1000, Michael Sallaway wrote:
+> [1.] One line summary of the problem:
+> Kernel Oopses when doing I/O to a disk (using dd).
+> 
+> [2.] Full description of the problem/report:
+> When writing to [any] disk (IDE or SCSI), the kernel will Oops after
+> short periods of time ranging from 30 seconds to 5-10 minutes.
+> Sometimes this is a complete crash (with "Aieee, killing interrupt
+> handler!"), sometimes it's just an oops but the system doesn't crash
+> comepletely (isn't very usable, though), and sometimes it just gives a
+> "general protection fault: 0000 [1] SMP".
+> 
+> It's worth mentioning that I've managed to set up the entire system
+> without incident -- a debian netinstall, downloading new packages,
+> changing things, etc. The only reason I discovered this was when
+> copying large amounts of data off another machine, and it died
+> reproducably after a few gigabytes of data. (I originally thought it
+> was an XFS issue, but had the same problem with EXT3, and all other
+> combinations I tried - I can now reproduce it by using dd if=/dev/zero
+> of=/dev/hda6.)
+> 
+> Ultimately, I've tried it with different (known good) devices and hard
+> drives. The only common things between all failures are the CPU
+> (Athlon 64 3200), Motherboard (Asus M2N-E), and RAM (2GB DDR2-533).
+> (Memtest x86 shows the memory to be fine.) As such, I'm suspecting
+> it's something to do with the motherboard -- It's using an x86_64
+> kernel (although it does the same with an i386), on an nforce 570
+> motherboard.
+> 
+> Other things I have tried:
+> - SATA, SCSI and IDE drives -- all do the same thing
+> - removing *all* drives and cards and devices -- it does it with a
+> single IDE drive connected and no PCI cards
+> - kernels 2.6.16, 18, 18.1, 19-rc3.
 
-It would have been a half ass job for kernel iso3166-1 support, also
-though -- I feel we should leave this as-is until we have an ironed
-out userspace regulatory daemon. This would make regulatory
-domain/802.11d/MLME daemon optional to introduce for distributions
-until that part is done and distributions have happily adopted
-something. Since its a complete iso3166-1 db I wondered if any other
-modules would make use of it. An example of a similar db in the kernel
-is for Native Language Support (NLS) for filesystems. If no modules
-can make use of it the quicker this should be removed once we have a
-userspace API ready.
+All of these kernels are having the same problem ? Or just noticed
+it only in 19-rc3 ?
 
-CC'ing LKML to see if any other module can make use of this.
+Thanks,
+Badari
 
-  Luis

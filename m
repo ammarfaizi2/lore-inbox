@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161171AbWJXSmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161176AbWJXSpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161171AbWJXSmc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 14:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161173AbWJXSmc
+	id S1161176AbWJXSpW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 14:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161177AbWJXSpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 14:42:32 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:9873 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161171AbWJXSmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 14:42:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=blVpHBkCLtW/Zx5BnVMU5qymBSy8gmSKiFU9fVoHYm/kyINj+DWLwIPSMdUu5wfPLOd10x7lQqz+ZUfUB/5uupdM55AmUH46br42JllPWtY4SqUhw7Kl4QIQckH5sD+gJDseJBrttZYtQu08YjqJritooF9WLlfCfFNI0XZ2pWQ=
-Message-ID: <84144f020610241142y2c86485dj898f555174803577@mail.gmail.com>
-Date: Tue, 24 Oct 2006 21:42:06 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Arnd Bergmann" <arnd@arndb.de>
-Subject: Re: [PATCH 2/3] spufs: fix another off-by-one bug in mbox_read
-Cc: "Paul Mackerras" <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       "Arnd Bergmann" <arnd.bergmann@de.ibm.com>
-In-Reply-To: <20061024160406.923275000@arndb.de>
+	Tue, 24 Oct 2006 14:45:22 -0400
+Received: from outbound-red.frontbridge.com ([216.148.222.49]:37687 "EHLO
+	outbound3-red-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1161176AbWJXSpV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 14:45:21 -0400
+X-BigFish: VP
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061024160140.452484000@arndb.de>
-	 <20061024160406.923275000@arndb.de>
-X-Google-Sender-Auth: 9e7a6b17ab12825a
+Subject: Re: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
+Date: Tue, 24 Oct 2006 11:45:10 -0700
+Message-ID: <5986589C150B2F49A46483AC44C7BCA412D75A@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
+Thread-Index: Acb29PZqiQrjMhYqRXOk2C3vtxTWVwApoRYQ
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@muc.de>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Muli Ben-Yehuda" <muli@il.ibm.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>
+X-OriginalArrivalTime: 24 Oct 2006 18:45:11.0556 (UTC)
+ FILETIME=[89352C40:01C6F79C]
+X-WSS-ID: 692080BD1X4227778-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arnd,
+>From: Andi Kleen [mailto:ak@suse.de]
+>Is that still needed with Eric's latest patches? I suppose not?
 
-On 10/24/06, Arnd Bergmann <arnd@arndb.de> wrote:
->         spu_acquire(ctx);
-> -       for (count = 0; count <= len; count += 4, udata++) {
-> +       for (count = 0; (count + 4) <= len; count += 4, udata++) {
+It needs Eric's
 
-Wouldn't this be more obvious as
+x86_64-irq-simplify-the-vector-allocator.patch
+x86_64-irq-only-look-at-per_cpu-data-for-online-cpus.patch
 
-  for (count = 0, count < (len / 4); count++, udata++) {
+Those two are in -mm tree now.
 
-And then do count * 4 if you need the actual index somewhere. Hmm?
+Otherwise it can not be applied without FAIL.
+
+YH
+
+
+

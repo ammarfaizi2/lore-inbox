@@ -1,190 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbWJXNnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbWJXNpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965138AbWJXNnk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 09:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbWJXNnk
+	id S965140AbWJXNpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 09:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbWJXNpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 09:43:40 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:37244 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S965138AbWJXNnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 09:43:39 -0400
-Message-ID: <453E1886.8010608@qumranet.com>
-Date: Tue, 24 Oct 2006 15:43:34 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH] x86: Extract segment descriptor definitions for use outside
- of x86_64
-References: <453CC390.9080508@qumranet.com> <200610232235.29287.arnd@arndb.de> <453E0108.3080502@qumranet.com> <200610232219.46369.ak@suse.de>
-In-Reply-To: <200610232219.46369.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 24 Oct 2006 09:45:16 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:38604 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965140AbWJXNpO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 09:45:14 -0400
+Subject: Re: [RFC/PATCH 3/7] Powerpc MSI ops layer
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: michael@ellerman.id.au
+Cc: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linuxppc-dev@ozlabs.org, "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <1161654688.2149.45.camel@localhost.localdomain>
+References: <20060928215339.D911C67BFA@ozlabs.org>
+	 <1159912492.4997.257.camel@goblue>
+	 <1161654688.2149.45.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM
+Date: Tue, 24 Oct 2006 08:44:37 -0500
+Message-Id: <1161697478.28147.288.camel@goblue>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Oct 2006 13:43:38.0924 (UTC) FILETIME=[69289EC0:01C6F772]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Code that wants to use struct desc_struct cannot do so on i386 because
-desc.h contains other code that will only compile on x86_64.
+On Tue, 2006-10-24 at 11:51 +1000, Michael Ellerman wrote:
+> On Tue, 2006-10-03 at 16:54 -0500, Jake Moilanen wrote:
+> > On Fri, 2006-09-29 at 07:53 +1000, Michael Ellerman wrote:
+> > > Powerpc MSI ops layer.
+> > > 
+> > > Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
+> > > ---
+> > > 
+> > >  arch/powerpc/kernel/msi.c        |  347 +++++++++++++++++++++++++++++++++++++++
+> > >  include/asm-powerpc/machdep.h    |    6 
+> > >  include/asm-powerpc/msi.h        |  175 +++++++++++++++++++
+> > >  include/asm-powerpc/pci-bridge.h |    4 
+> > >  4 files changed, 532 insertions(+)
+> > > 
+> > > Index: to-merge/arch/powerpc/kernel/msi.c
+> > > ===================================================================
+> > > --- /dev/null
+> > > +++ to-merge/arch/powerpc/kernel/msi.c
+> > > @@ -0,0 +1,347 @@
+> > > +/*
+> > > + * Copyright 2006 (C), Michael Ellerman, IBM Corporation.
+> > > + *
+> > > + * This program is free software; you can redistribute it and/or
+> > > + * modify it under the terms of the GNU General Public License
+> > > + * as published by the Free Software Foundation; either version
+> > > + * 2 of the License, or (at your option) any later version.
+> > > + */
+> > > +
+> > > +#undef DEBUG
+> > > +
+> > > +#include <linux/kernel.h>
+> > > +#include <linux/slab.h>
+> > > +#include <asm/msi.h>
+> > > +#include <asm/machdep.h>
+> > > +
+> > > +static struct ppc_msi_ops *get_msi_ops(struct pci_dev *pdev)
+> > > +{
+> > > +	if (ppc_md.get_msi_ops)
+> > > +		return ppc_md.get_msi_ops(pdev);
+> > > +	return NULL;
+> > > +}
+> > > +
+> > > +/* Activated by pci=nomsi on the command line. */
+> > > +static int no_msi;
+> > > +
+> > > +void pci_no_msi(void)
+> > > +{
+> > > +	no_msi = 1;
+> > > +}
+> > > +
+> > > +
+> > > +/* msi_info helpers */
+> > > +
+> > > +static struct pci_dn *get_pdn(struct pci_dev *pdev)
+> > > +{
+> > > +	struct device_node *dn;
+> > > +	struct pci_dn *pdn;
+> > > +
+> > > +	dn = pci_device_to_OF_node(pdev);
+> > > +	if (!dn) {
+> > > +		pr_debug("get_pdn: no dn found for %s\n", pci_name(pdev));
+> > > +		return NULL;
+> > > +	}
+> > > +
+> > > +	pdn = PCI_DN(dn);
+> > > +	if (!pdn) {
+> > > +		pr_debug("get_pdn: no pci_dn found for %s\n", pci_name(pdev));
+> > > +		return NULL;
+> > > +	}
+> > > +
+> > > +	return pdn;
+> > > +}
+> > > +
+> > > +static int alloc_msi_info(struct pci_dev *pdev, int num,
+> > > +			struct msix_entry *entries, int type)
+> > > +{
+> > > +	struct msi_info *info;
+> > > +	unsigned int entries_size;
+> > > +	struct pci_dn *pdn;
+> > > +
+> > > +	entries_size = sizeof(struct msix_entry) * num;
+> > > +
+> > > +	info = kzalloc(sizeof(struct msi_info) + entries_size, GFP_KERNEL);
+> > 
+> > Shouldn't you do a second kzalloc for info->entries, and not just add on
+> > the size to the end?
+> 
+> We could, but I don't see why it's better. It's a little sneaky to tack
+> the entries on the end but I don't see a problem with it?
+> 
+> There is a bug in there that I don't set the entries pointer before
+> doing the memcpy, but I've fixed that - or is that what you meant ? :)
 
-So extract the structure definitions into a asm-x86_64/desc_defs.h.
-
-Signed-off-by: Avi Kivity <avi@qumranet.com>
-
- include/asm-x86_64/desc.h      |   53 +------------------------------
- include/asm-x86_64/desc_defs.h |   69 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 70 insertions(+), 52 deletions(-)
-
-diff --git a/include/asm-x86_64/desc.h b/include/asm-x86_64/desc.h
-index eb7723a..913d6ac 100644
---- a/include/asm-x86_64/desc.h
-+++ b/include/asm-x86_64/desc.h
-@@ -9,64 +9,13 @@ #ifndef __ASSEMBLY__
- 
- #include <linux/string.h>
- #include <linux/smp.h>
-+#include <asm/desc_defs.h>
- 
- #include <asm/segment.h>
- #include <asm/mmu.h>
- 
--// 8 byte segment descriptor
--struct desc_struct { 
--	u16 limit0;
--	u16 base0;
--	unsigned base1 : 8, type : 4, s : 1, dpl : 2, p : 1;
--	unsigned limit : 4, avl : 1, l : 1, d : 1, g : 1, base2 : 8;
--} __attribute__((packed)); 
--
--struct n_desc_struct { 
--	unsigned int a,b;
--}; 	
--
- extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
- 
--enum { 
--	GATE_INTERRUPT = 0xE, 
--	GATE_TRAP = 0xF, 	
--	GATE_CALL = 0xC,
--}; 	
--
--// 16byte gate
--struct gate_struct {          
--	u16 offset_low;
--	u16 segment; 
--	unsigned ist : 3, zero0 : 5, type : 5, dpl : 2, p : 1;
--	u16 offset_middle;
--	u32 offset_high;
--	u32 zero1; 
--} __attribute__((packed));
--
--#define PTR_LOW(x) ((unsigned long)(x) & 0xFFFF) 
--#define PTR_MIDDLE(x) (((unsigned long)(x) >> 16) & 0xFFFF)
--#define PTR_HIGH(x) ((unsigned long)(x) >> 32)
--
--enum { 
--	DESC_TSS = 0x9,
--	DESC_LDT = 0x2,
--}; 
--
--// LDT or TSS descriptor in the GDT. 16 bytes.
--struct ldttss_desc { 
--	u16 limit0;
--	u16 base0;
--	unsigned base1 : 8, type : 5, dpl : 2, p : 1;
--	unsigned limit1 : 4, zero0 : 3, g : 1, base2 : 8;
--	u32 base3;
--	u32 zero1; 
--} __attribute__((packed)); 
--
--struct desc_ptr {
--	unsigned short size;
--	unsigned long address;
--} __attribute__((packed)) ;
--
- #define load_TR_desc() asm volatile("ltr %w0"::"r" (GDT_ENTRY_TSS*8))
- #define load_LDT_desc() asm volatile("lldt %w0"::"r" (GDT_ENTRY_LDT*8))
- #define clear_LDT()  asm volatile("lldt %w0"::"r" (0))
-diff --git a/include/asm-x86_64/desc_defs.h b/include/asm-x86_64/desc_defs.h
-new file mode 100644
-index 0000000..7408266
---- /dev/null
-+++ b/include/asm-x86_64/desc_defs.h
-@@ -0,0 +1,69 @@
-+/* Written 2000 by Andi Kleen */ 
-+#ifndef __ARCH_DESC_DEFS_H
-+#define __ARCH_DESC_DEFS_H
-+
-+/*
-+ * Segment descriptor structure definitions, usable from both x86_64 and i386
-+ * archs.
-+ */
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <linux/types.h>
-+
-+// 8 byte segment descriptor
-+struct desc_struct { 
-+	u16 limit0;
-+	u16 base0;
-+	unsigned base1 : 8, type : 4, s : 1, dpl : 2, p : 1;
-+	unsigned limit : 4, avl : 1, l : 1, d : 1, g : 1, base2 : 8;
-+} __attribute__((packed)); 
-+
-+struct n_desc_struct { 
-+	unsigned int a,b;
-+}; 	
-+
-+enum { 
-+	GATE_INTERRUPT = 0xE, 
-+	GATE_TRAP = 0xF, 	
-+	GATE_CALL = 0xC,
-+}; 	
-+
-+// 16byte gate
-+struct gate_struct {          
-+	u16 offset_low;
-+	u16 segment; 
-+	unsigned ist : 3, zero0 : 5, type : 5, dpl : 2, p : 1;
-+	u16 offset_middle;
-+	u32 offset_high;
-+	u32 zero1; 
-+} __attribute__((packed));
-+
-+#define PTR_LOW(x) ((unsigned long)(x) & 0xFFFF) 
-+#define PTR_MIDDLE(x) (((unsigned long)(x) >> 16) & 0xFFFF)
-+#define PTR_HIGH(x) ((unsigned long)(x) >> 32)
-+
-+enum { 
-+	DESC_TSS = 0x9,
-+	DESC_LDT = 0x2,
-+}; 
-+
-+// LDT or TSS descriptor in the GDT. 16 bytes.
-+struct ldttss_desc { 
-+	u16 limit0;
-+	u16 base0;
-+	unsigned base1 : 8, type : 5, dpl : 2, p : 1;
-+	unsigned limit1 : 4, zero0 : 3, g : 1, base2 : 8;
-+	u32 base3;
-+	u32 zero1; 
-+} __attribute__((packed)); 
-+
-+struct desc_ptr {
-+	unsigned short size;
-+	unsigned long address;
-+} __attribute__((packed)) ;
-+
-+
-+#endif /* !__ASSEMBLY__ */
-+
-+#endif
+Yeah...I was just pointing out there was a bug.  :)
 
 
-
--- 
-error compiling committee.c: too many arguments to function
 

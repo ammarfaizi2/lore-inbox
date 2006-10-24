@@ -1,34 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWJXPa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbWJXPbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWJXPa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 11:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWJXPa7
+	id S965156AbWJXPbT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 11:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965153AbWJXPbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 11:30:59 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:33294 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S964883AbWJXPa6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 11:30:58 -0400
-Date: Tue, 24 Oct 2006 16:30:54 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Wouter de Waal <wrm@ccii.co.za>, linux-kernel@vger.kernel.org
-Subject: Re: FDDI on Linux kernel 2.6
-In-Reply-To: <1161703237.3982.81.camel@mindpipe>
-Message-ID: <Pine.LNX.4.64N.0610241628470.2511@blysk.ds.pg.gda.pl>
-References: <5.0.0.25.2.20061024131939.05e4de70@alpha.ccii.co.za>
- <1161703237.3982.81.camel@mindpipe>
+	Tue, 24 Oct 2006 11:31:18 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:54985 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965054AbWJXPbR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 11:31:17 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: David Chinner <dgc@sgi.com>
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Date: Tue, 24 Oct 2006 17:29:59 +0200
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, xfs@oss.sgi.com
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com>
+In-Reply-To: <20061024144446.GD11034@melbourne.sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610241730.00488.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Oct 2006, Lee Revell wrote:
+On Tuesday, 24 October 2006 16:44, David Chinner wrote:
+> On Mon, Oct 23, 2006 at 12:36:53PM +0200, Rafael J. Wysocki wrote:
+> > On Monday, 23 October 2006 06:12, Nigel Cunningham wrote:
+> > > XFS can continue to submit I/O from a timer routine, even after
+> > > freezeable kernel and userspace threads are frozen. This doesn't seem to
+> > > be an issue for current swsusp code,
+> > 
+> > So it doesn't look like we need the patch _now_.
+> > 
+> > > but is definitely an issue for Suspend2, where the pages being written could
+> > > be overwritten by Suspend2's atomic copy.
+> > 
+> > And IMO that's a good reason why we shouldn't use RCU pages for storing the
+> > image.  XFS is one known example that breaks things if we do so and
+> > there may be more such things that we don't know of.  The fact that they
+> > haven't appeared in testing so far doesn't mean they don't exist and
+> > moreover some things like that may appear in the future.
+> 
+> Could you please tell us which XFS bits are broken so we can get
+> them fixed?  The XFS daemons should all be checking if they are
+> supposed to freeze (i.e. they call try_to_freeze() after they wake
+> up due to timer expiry) so I thought they were doing the right
+> thing.
+> 
+> However, I have to say that I agree with freezing the filesystems
+> before suspend - at least XFS will be in a consistent state that can
+> be recovered from without corruption if your machine fails to
+> resume....
 
-> Most drivers will work on 64 bit without modification.  If it's not
-> possible to make the driver 64 bit clean, then make it depend on
-> !X86_64 (and any other 64 bit platform the hardware might be used on).
+Do you mean calling sys_sync() after the userspace has been frozen
+may not be sufficient?
 
- Actually !64BIT is probably more appropriate.
+Greetings,
+Rafael
 
-  Maciej
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

@@ -1,87 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbWJXUiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965184AbWJXUih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965185AbWJXUiy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 16:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965187AbWJXUix
+	id S965184AbWJXUih (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 16:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbWJXUih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 16:38:53 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54694 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965185AbWJXUiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 16:38:52 -0400
-Date: Tue, 24 Oct 2006 21:38:40 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061024203840.GA14736@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1161576735.3466.7.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161576735.3466.7.camel@nigel.suspend2.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 24 Oct 2006 16:38:37 -0400
+Received: from iriserv.iradimed.com ([69.44.168.233]:57179 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S965184AbWJXUih (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 16:38:37 -0400
+Message-ID: <453E79D1.6070703@cfl.rr.com>
+Date: Tue, 24 Oct 2006 16:38:41 -0400
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Martin Peschke <mp3@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch 0/5] I/O statistics through request queues
+References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20061023113728.GM8251@kernel.dk> <453D05C3.7040104@de.ibm.com> <20061023200220.GB4281@kernel.dk> <453E38FE.1020306@de.ibm.com> <20061024162050.GK4281@kernel.dk>
+In-Reply-To: <20061024162050.GK4281@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Oct 2006 20:38:47.0371 (UTC) FILETIME=[67C001B0:01C6F7AC]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14772.000
+X-TM-AS-Result: No--20.412600-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +/* 
-> + * Done after userspace is frozen, so there should be no danger of
-> + * fses being unmounted while we're in here.
-> + */
-> +int freezer_make_fses_ro(void)
+This discussion seems to involve two different solutions to two 
+different problems.  If it is a simple counter you want to be able to 
+poll, then sysfs/debugfs is an appropriate place to make the count 
+available.  If it is a detailed log of IO requests that you are after, 
+then blktrace is appropriate.
 
-This should be called freeze_filesystems() or something along the line.
-I also wonder whether it should be next to freeze_bdev instead of
-in the suspend code.
+I did not read the patch to see, so I must ask: does it merely keep 
+statistics or does it log events?  If it is just statistics you are 
+after, then clearly blktrace is not the appropriate tool to use.
 
-> +{
-> +	struct frozen_fs *fs;
-> +	struct super_block *sb;
-> +
-> +	/* Generate the list */
-> +	list_for_each_entry(sb, &super_blocks, s_list) {
-> +		if (!sb->s_root || !sb->s_bdev ||
-> +		    (sb->s_frozen == SB_FREEZE_TRANS) ||
-> +		    (sb->s_flags & MS_RDONLY))
-> +			continue;
-> +
-> +		fs = kmalloc(sizeof(struct frozen_fs), GFP_ATOMIC);
-> +		if (!fs)
-> +			return 1;
-> +		fs->sb = sb;
-> +		list_add_tail(&fs->fsb_list, &frozen_fs_list);
-> +	};
-> +
-> +	/* Do the freezing in reverse order so filesystems dependant
-> +	 * upon others are frozen in the right order. (Eg loopback
-> +	 * on ext3). */
-> +	list_for_each_entry_reverse(fs, &frozen_fs_list, fsb_list)
-> +		freeze_bdev(fs->sb->s_bdev);
+Jens Axboe wrote:
+> On Tue, Oct 24 2006, Martin Peschke wrote:
+>> Jens Axboe wrote:
+>>>> Our tests indicate that the blktrace approach is fine for performance
+>>>> analysis as long as the system to be analysed isn't too busy.
+>>>> But once the system faces a consirable amount of non-sequential I/O
+>>>> workload, the plenty of blktrace-generated data starts to get painful.
+>>> Why haven't you done an analysis and posted it here? I surely cannot fix
+>>> what nobody tells me is broken or suboptimal.
+>> Fair enough. We have tried out the silly way of blktrace-ing, storing
+>> data locally. So, it's probably not worthwhile discussing that.
+> 
+> You'd probably never want to do local traces for performance analysis.
+> It may be handy for other purposes, though.
+> 
+>>> I have to say it's news to
+>>> me that it's performance intensive, tests I did with Alan Brunelle a
+>>> year or so ago showed it to be quite low impact.
+>> I found some discussions on linux-btrace (Feburary 2006).
+>> There is little information on how the alleged 2 percent impact has
+>> been determined. Test cases seem to comprise formatting disks ...hmm.
+> 
+> It may sound strange, but formatting a large drive generates a huge
+> flood of block layer events from lots of io queued and merged. So it's
+> not a bad benchmark for this type of thing. And it's easy to test :-)
+> 
+>>>> If the system runs I/O-bound, how to write out traces without
+>>>> stealing bandwith and causing side effects?
+>>> You'd be silly to locally store traces, send them out over the network.
+>> Will try this next and post complaints, if any, along with numbers.
+> 
+> Thanks! Also note that you do not need to log every event, just register
+> a mask of interesting ones to decrease the output logging rate. We could
+> so with some better setup for that though, but at least you should be
+> able to filter out some unwanted events.
+> 
+>> However, a fast network connection plus a second system for blktrace
+>> data processing are serious requirements. Think of servers secured
+>> by firewalls. Reading some counters in debugfs, sysfs or whatever
+>> might be more appropriate for some one who has noticed an unexpected
+>> I/O slowdown and needs directions for further investigation.
+> 
+> It's hard to make something that will suit everybody. Maintaining some
+> counters in sysfs is of course less expensive when your POV is cpu
+> cycles.
+> 
 
-I'd rather avoid this local list and operate directly on the super_blocks
-lists. To do that we'd need another flag in the superblock to flag a
-filesystem as suspended by this routine, which seems just fine.
-
-void freeze_filesystems(void)
-{
-	/*
-	 * Freeze in reverse order so filesystems dependant
-	 * upon others are frozen in the right order.
-	 * (E.g. loopback on ext3).
-	 */
-	list_for_each_entry_reverse(fs, &super_blocks, fsb_list) {
-		if (!sb->s_root || !sb->s_bdev ||
-		    (sb->s_frozen == SB_FREEZE_TRANS) ||
-		    (sb->s_flags & MS_RDONLY))
-			continue;
-		freeze_bdev(sb->s_bdev);
-		sb->s_flags &= MS_SUSPENDED; // XXX find protection for s_flags
-	}
-}

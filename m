@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWJXAFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWJXBFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWJXAFG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 20:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWJXAFB
+	id S964885AbWJXBFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 21:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWJXBFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 20:05:01 -0400
-Received: from smtp121.iad.emailsrvr.com ([207.97.245.121]:21984 "EHLO
-	smtp121.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S932349AbWJXAFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 20:05:00 -0400
-Message-ID: <453D5870.20308@gentoo.org>
-Date: Mon, 23 Oct 2006 20:04:00 -0400
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
+	Mon, 23 Oct 2006 21:05:15 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:54443 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964885AbWJXBFM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 21:05:12 -0400
+Message-ID: <453D66C6.5080008@us.ibm.com>
+Date: Mon, 23 Oct 2006 20:05:10 -0500
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-To: Udo van den Heuvel <udovdh@xs4all.nl>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: sata_via issue for VIA Epia SP8000 in 2.6.18[.1]?
-References: <453B61D9.9060707@xs4all.nl>
-In-Reply-To: <453B61D9.9060707@xs4all.nl>
+To: Avi Kivity <avi@qumranet.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 9/13] KVM: define exit handlers
+References: <453CC390.9080508@qumranet.com> <20061023133106.C19DB250143@cleopatra.q>
+In-Reply-To: <20061023133106.C19DB250143@cleopatra.q>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Udo van den Heuvel wrote:
-> Hello,
-> 
-> 2.6.17.13 works OK on this VIA Epia SP8000.
-> (remember vaguely about some (PCI?) fixups to get things going)
-> Now I try to get 2.6.18.1 working. SATA is detected by this kernel but
-> disk gives timeout while 2.6.17.13 boots fine.
-> 
-> Some burbs:
-> 
-> Links is up but  SStatus 113 SControl 300
-> qc timeout (cmd 0xec)
-> failed to IDENTIFY
-> This results in a kernel panic.
+Avi Kivity wrote:
+> +static int handle_external_interrupt(struct kvm_vcpu *vcpu,
+> +				     struct kvm_run *kvm_run)
+> +{
+> +	++kvm_stat.irq_exits;
+> +	return 1;
+> +}
+>   
 
-Try this patch:
-http://marc.theaimsgroup.com/?l=git-commits-head&m=116121959622812&q=raw
+Don't you need to propagate the interrupt here?  In Xen, we inject the 
+interrupt using the IDT.  As a module, you don't have access to that.  
+However, you could use a software interrupt to reraise it.
 
-If that doesn't help, I guess you're seeing the same as 
-https://bugs.gentoo.org/150773
+I got your code running this afternoon (it's quite cool) but I noticed a 
+ton of "rtc: lost some interrupts at 1024Hz." messages which leads me to 
+believe.. you're dropping interrupts :-)  Things seem to hang trying to 
+bring up eth0 in the guest.
 
-Daniel
+BTW, have you setup a mailing list yet?
 
+Regards,
 
+Anthony Liguori

@@ -1,87 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbWJXUn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161211AbWJXUoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965186AbWJXUn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 16:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbWJXUn3
+	id S1161211AbWJXUoK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 16:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbWJXUoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 16:43:29 -0400
-Received: from xenotime.net ([66.160.160.81]:54170 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965186AbWJXUn2 (ORCPT
+	Tue, 24 Oct 2006 16:44:10 -0400
+Received: from iriserv.iradimed.com ([69.44.168.233]:7004 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S965187AbWJXUoI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 16:43:28 -0400
-Date: Tue, 24 Oct 2006 13:45:08 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Oleg Verych <olecom@flower.upol.cz>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [patch, rfc] kbuild: implement checksrc without building
- Cources  (was Re: CHECK without C compile?)
-Message-Id: <20061024134508.adb14be6.rdunlap@xenotime.net>
-In-Reply-To: <slrnejsrjq.93p.olecom@flower.upol.cz>
-References: <20061023153540.4d467a88.rdunlap@xenotime.net>
-	<slrnejscd5.93p.olecom@flower.upol.cz>
-	<slrnejsrjq.93p.olecom@flower.upol.cz>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 24 Oct 2006 16:44:08 -0400
+Message-ID: <453E7B1F.7020602@cfl.rr.com>
+Date: Tue, 24 Oct 2006 16:44:15 -0400
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Martin Peschke <mp3@de.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 0/5] I/O statistics through request queues
+References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <453D0C62.4030601@cfl.rr.com> <453E39B0.2000800@de.ibm.com>
+In-Reply-To: <453E39B0.2000800@de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Oct 2006 20:44:21.0892 (UTC) FILETIME=[2F23DC40:01C6F7AD]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14772.000
+X-TM-AS-Result: No--3.773100-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Oct 2006 19:43:40 +0000 (UTC) Oleg Verych wrote:
+Martin Peschke wrote:
+> Well, the instrumentation "on demand" aspect is half of the truth.
+> A probe inserted through kprobes impacts performance more than static
+> instrumentation.
 
-> On 2006-10-24, Oleg Verych wrote:
-> > On 2006-10-23, Randy Dunlap wrote:
-> >> Hi Sam,
-> >
-> * It seems*
-> >
-> > +     $(call if_changed_rule,cc_o_c) || \
-> > +     { echo $(@:.o=.ko); echo $@; } > $(MODVERDIR)/$(@F:.o=.mod)
-> 
-> This doesn't work, use ifs instead. Updated.
-> I have no idea what to do with generated sources and headers.
-> One may be: check target `if_changed' to be %.c or %.h and let it be
-> built.
-
-Hi Oleg,
-
-Yes, it works for me, with the exception of host-generated
-files, as you mentioned.  I ran into those with:
-IKCONFIG (the one that you mentioned), ATM_FORE200E firmware,
-IEEE 1394 OUI database (which I sent a patch for -- it should
-not be generated when the config option is not enabled),
-RAID456 tables, VIDEO_LOGO files, and CRC32 table.
-
-Thanks for your time and effort.  Maybe Sam will have some ideas.
-
-> ____
-> From: Oleg Verych <olecom@flower.upol.cz>
-> Subject: [patch, rfc] kbuild: implement checksrc without building Cources
-> 
->   Implementation of configured source chacking without actual building.
-> 
-> Cc: Randy Dunlap <rdunlap@xenotime.net>
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Signed-off-by: Oleg Verych <olecom@flower.upol.cz>
-> ---
-> 
->   Configured sources means, some config target must be run already.
->   After that
->   ,-<shell>
->   | make prepare
->   | make C=something_not_0,1,2 _target_
->   `--
->   should run _target_ with checking and without building.
-> 
-> -o--=O`C  /. .\
->  #oo'L O      o
-> <___=E M    ^--
-> 
->  scripts/Kbuild.include |    6 +++---
->  scripts/Makefile.build |   25 ++++++++++++++++---------
->  2 files changed, 19 insertions(+), 12 deletions(-)
+True, but given that there are going to be a number of things you might 
+want to instrument at some point, and that at any given time you might 
+only be interested in a few of those, it likely will be better overall 
+to spend some more time only on the few than less time on the many.
 
 
----
-~Randy

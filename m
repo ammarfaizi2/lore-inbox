@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWJXOB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbWJXOD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbWJXOB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 10:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWJXOB2
+	id S1161002AbWJXOD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 10:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWJXOD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 10:01:28 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:40161 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S965158AbWJXOB0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 10:01:26 -0400
-Date: Tue, 24 Oct 2006 16:01:25 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Thomas Zeitlhofer <tzeitlho+lkml@nt.tuwien.ac.at>
+	Tue, 24 Oct 2006 10:03:57 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63202 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161002AbWJXOD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 10:03:57 -0400
+Subject: Re: incorrect taint of ndiswrapper
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Giridhar Pemmasani <pgiri@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: automount nfs: mkdir_path /net/host/dir failed: Read-only file system
-Message-ID: <20061024140125.GA12781@janus>
-References: <20061023092329.GA5231@swan.nt.tuwien.ac.at>
+In-Reply-To: <20061024024347.57840.qmail@web32414.mail.mud.yahoo.com>
+References: <20061024024347.57840.qmail@web32414.mail.mud.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 24 Oct 2006 15:07:10 +0100
+Message-Id: <1161698830.22348.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061023092329.GA5231@swan.nt.tuwien.ac.at>
-User-Agent: Mutt/1.4.1i
-X-BotBait: val@frankvm.com, kuil@frankvm.com
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 11:23:29AM +0200, Thomas Zeitlhofer wrote:
-> 
-> there is a problem in 2.6.18/.1 when mkdir is called for an existing
-> directory on a read-only mounted NFS filesystem.
-[...]
-> As a consequence of 1), autofs does not work with mountpoints on NFS
+Ar Llu, 2006-10-23 am 19:43 -0700, ysgrifennodd Giridhar Pemmasani:
+> I was not fully aware of this issue until now (I have read posts related to
+> this issue now). Does this mean that any module that loads binary code can't
+> be GPL, even those that load firmware files? How is
 
-I'm hitting this regression too
+Firmware is usually more clearly separated (the problem ultimately is
+that "derived work" is a legal not a technical distinction).
 
-> So please consider this patch for the next -stable release:
-> 
-> diff --git a/fs/namei.c b/fs/namei.c
-> index 432d6bc..5201d77 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -1774,8 +1774,6 @@ struct dentry *lookup_create(struct name
->  	if (nd->last_type != LAST_NORM)
->  		goto fail;
->  	nd->flags &= ~LOOKUP_PARENT;
-> -	nd->flags |= LOOKUP_CREATE;
-> -	nd->intent.open.flags = O_EXCL;
->  
->  	/*
->  	 * Do the final lookup.
+> non-GPL-due-to-transitivity going to be checked? Why does module loader mark
+> only couple of modules as non-GPL, when there are other drivers that load
+> some sort of binary code? It is understandable to mark a module as non-GPL if
+> it is lying about its license, but as far as that is concerned, ndiswrapper
+> (alone) is GPL.
 
-yep, fixes it for me. Thankx.
+Yes. I don't think the current situation is neccessarily correct, but if
+it uses EXPORT_SYMBOL_GPL then the "now taint me" ought to fail and the
+driver ought to refuse to load a non GPL windows driver.
 
--- 
-Frank
+Alan
+

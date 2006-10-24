@@ -1,79 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161238AbWJXVeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422628AbWJXVhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161238AbWJXVeO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161240AbWJXVeN
+	id S1422628AbWJXVhr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbWJXVhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:34:13 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13492 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161237AbWJXVeK (ORCPT
+	Tue, 24 Oct 2006 17:37:47 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:56278 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1161244AbWJXVhp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:34:10 -0400
-Date: Tue, 24 Oct 2006 23:34:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use extents for recording what swap is allocated.
-Message-ID: <20061024213402.GC5662@elf.ucw.cz>
-References: <1161576857.3466.9.camel@nigel.suspend2.net> <200610242208.34426.rjw@sisk.pl>
-MIME-Version: 1.0
+	Tue, 24 Oct 2006 17:37:45 -0400
+Date: Tue, 24 Oct 2006 17:37:44 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, John Partridge <johnip@sgi.com>
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+Message-ID: <20061024213744.GH2043@havoc.gtf.org>
+References: <adafyddcysw.fsf@cisco.com> <1161725063.22348.39.camel@localhost.localdomain> <aday7r5bdx0.fsf@cisco.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610242208.34426.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <aday7r5bdx0.fsf@cisco.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Switch from bitmaps to using extents to record what swap is allocated;
-> > they make more efficient use of memory, particularly where the allocated
-> > storage is small and the swap space is large.
+On Tue, Oct 24, 2006 at 02:29:47PM -0700, Roland Dreier wrote:
+>  > It is good to be conservative in this area. Some AMD chipsets at least
+>  > had ordering problems with some configurations in the K7 era.
 > 
-> As I said before, I like the overall idea, but I have a bunch of
-> comments.
+> Could you expand a little?  Do you mean that the arch implementation
+> of pci_write_config_xxx() should have extra barriers, or that drivers
+> should do belt-and-suspenders flushes to make sure config writes are
+> really done properly?
 
-Okay, if Rafael likes it... lets take a look.
+Drivers are -already- written to assume the pci_write_config_xxx() has
+the requisite barriers.  The fix doesn't belong in the drivers.
 
-First... what is the _worst case_ overhead? AFAICT extents are very
-good at the best case, but tend to suck for the worst case...?
+	Jeff
 
-> > +#include <linux/suspend.h>
-> > +#include "extent.h"
-> > +
-> > +/* suspend_get_extent
-> > + *
-> > + * Returns a free extent. May fail, returning NULL instead.
-> > + */
 
-Your comments are nice, and quite close to linuxdoc... Can we make
-them proper linuxdoc?
 
-> > +/* suspend_put_extent_chain.
-> > + *
-> > + * Frees a whole chain of extents.
-> > + */
-> > +void suspend_put_extent_chain(struct extent_chain *chain)
-> 
-> I'd call it suspend_free_all_extents().
-
-This is actually important. As it does undocditional free(), it may
-not be called "put".
-
-> > +#ifndef EXTENT_H
-> > +#define EXTENT_H
-> > +
-> > +struct extent {
-> > +	unsigned long minimum, maximum;
-> 
-> Well, I'd use shorter names, but whatever.
-
-Actually, minimum and 
-	  maximum look too similar. start/end are really better names.
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

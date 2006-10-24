@@ -1,75 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWJXVpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422661AbWJXVql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422642AbWJXVpM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161253AbWJXVpM
+	id S1422661AbWJXVql (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbWJXVql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:45:12 -0400
-Received: from webserve.ca ([69.90.47.180]:15061 "EHLO computersmith.org")
-	by vger.kernel.org with ESMTP id S1161252AbWJXVpL (ORCPT
+	Tue, 24 Oct 2006 17:46:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33507 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422658AbWJXVqk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:45:11 -0400
-Message-ID: <453E8921.2090406@wintersgift.com>
-Date: Tue, 24 Oct 2006 14:44:01 -0700
-From: teunis <teunis@wintersgift.com>
-User-Agent: Icedove 1.5.0.7 (X11/20061013)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc3: known unfixed regressions: confirmations
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061024202104.GF27968@stusta.de>
-In-Reply-To: <20061024202104.GF27968@stusta.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 24 Oct 2006 17:46:40 -0400
+Date: Tue, 24 Oct 2006 14:46:20 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: driver-support@fabric7.com
+Cc: schidambaram@fabric7.com, Jeff Garzik <jeff@garzik.org>,
+       KERNEL Linux <linux-kernel@vger.kernel.org>,
+       NETDEV Linux <netdev@vger.kernel.org>
+Subject: Re: [PATCH 1/1] Fabric7 VIOC: Ethtool
+Message-ID: <20061024144620.4c9892f6@dxpl.pdx.osdl.net>
+In-Reply-To: <1161725441.8112.11.camel@rh234.mv.fabric7.com>
+References: <1161725441.8112.11.camel@rh234.mv.fabric7.com>
+X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 24 Oct 2006 14:30:41 -0700
+Sriram Chidambaram <schidambaram@fabric7.com> wrote:
 
-Adrian Bunk wrote:
-> This email lists some known unfixed regressions in 2.6.19-rc3 compared 
-> to 2.6.18.
-...
+> Ethtool patch for Fabric7 VIOC Device Driver.
+> 
+> Signed-off-by: Fabric7 Driver-Support <driver-support@fabric7.com>
+> ---
+>  Makefile.am    |    2 +-
+>  ethtool-util.h |    2 ++
+>  ethtool.c      |    1 +
+>  vioc.c         |   35 +++++++++++++++++++++++++++++++++++
+>  4 files changed, 39 insertions(+), 1 deletions(-)
+> 
+> diff --git a/Makefile.am b/Makefile.am
+> index 97ad512..240979e 100644
+> --- a/Makefile.am
+> +++ b/Makefile.am
+> @@ -7,7 +7,7 @@ sbin_PROGRAMS = ethtool
+>  ethtool_SOURCES = ethtool.c ethtool-copy.h ethtool-util.h	\
+>  		  amd8111e.c de2104x.c e100.c e1000.c		\
+>  		  fec_8xx.c ibm_emac.c ixgb.c natsemi.c		\
+> -		  pcnet32.c realtek.c tg3.c marvell.c
+> +		  pcnet32.c realtek.c tg3.c marvell.c vioc.c
+>  
+>  dist-hook:
+>  	cp $(top_srcdir)/ethtool.spec $(distdir)
+> diff --git a/ethtool-util.h b/ethtool-util.h
+> index 0909a5a..dcb0c1c 100644
+> --- a/ethtool-util.h
+> +++ b/ethtool-util.h
+> @@ -54,4 +54,6 @@ int skge_dump_regs(struct ethtool_drvinf
+>  /* SysKonnect Gigabit (Yukon2) */
+>  int sky2_dump_regs(struct ethtool_drvinfo *info, struct ethtool_regs *regs);
+>  
+> +/* Fabric7 VIOC */
+> +int vioc_dump_regs(struct ethtool_drvinfo *info, struct ethtool_regs *regs);
+>  #endif
+> diff --git a/ethtool.c b/ethtool.c
+> index b783248..6e68009 100644
+> --- a/ethtool.c
+> +++ b/ethtool.c
+> @@ -958,6 +958,7 @@ static struct {
+>  	{ "tg3", tg3_dump_regs },
+>  	{ "skge", skge_dump_regs },
+>  	{ "sky2", sky2_dump_regs },
+> +        { "vioc", vioc_dump_regs },
+>  };
+>  
+>  static int dump_regs(struct ethtool_drvinfo *info, struct ethtool_regs *regs)
+> diff --git a/vioc.c b/vioc.c
+> new file mode 100644
+> index 0000000..b58dd40
+> --- /dev/null
+> +++ b/vioc.c
+> @@ -0,0 +1,35 @@
+> +/* Copyright 2006 Fabric7 Systems, Inc */
+> +
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include "ethtool-util.h"
+> +
+> +struct regs_line {
+> +		u32	addr;
+> +		u32	data;
+> +};
+> +
+> +#define VIOC_REGS_LINE_SIZE	sizeof(struct regs_line)
+> +
+> +int vioc_dump_regs(struct ethtool_drvinfo *info, struct ethtool_regs *regs)
+> +{
+> +	unsigned int	i;
+> +	unsigned int	num_regs;
+> +	struct regs_line *reg_info = (struct regs_line *) regs->data;
+> +
+> +	printf("%s: Enter\n", __FUNCTION__);
 
-I'm not directly testing -rc3 as yet...  rc2-mm2 + a few modifications
-works on the equipment I'm testing and as I can't afford more lost time
-due to faults - I'm keeping to that build for the short term.
-
-> Subject    : shutdown problem
-> References : http://lkml.org/lkml/2006/10/22/140
-> Submitter  : art@usfltd.com
->              teunis@wintersgift.com
->              Jiri Slaby <jirislaby@gmail.com>
-> Status     : unknown
-
-repaired by Jeff Dike's patch to fs/proc/array.c
-
-
-VFAT failure: inode.c patch worked.   Has this been fixed in -rc3?
-(email I've reviewed implies no)
-
-HP nx6110 and nx6310 (i945G chipsets) - ACPI S3 and S4 (is that right?)
-now fully operational.  speedstep not yet operational on nx6310 (Yonah).
-
-synaptic driver: does not recover in S3 mode on nx7400 () or Acer
-TravelMate 8000 (Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
-USB UHCI)
-Suspect USB host problem as synaptic driver DOES recover on nx6130.
-This IS a regression as these worked fine in kernels where S3 formerly
-worked.    Video does not yet fully recover on nx7400 - but it never has
-so that's not a regression  (backlight fails to recover).
-
-Any idea when Yonah (family 6/model 14/stepping 8) will be supported by
-either speedstep, P4 or ACPI driver?   NONE of these work.  P4 did work
-briefly (-rc1-git4 and -rc1-git6) but I'm not sure that it's optimal.
-acpi-cpufreq hasn't loaded since 2.6.18  (which didn't work properly
-with other parts of the laptops so went with 2.6.19 rc series).
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFPokhbFT/SAfwLKMRAgFrAKCS/3jAVs12uk2LWhAcN/vFZe7nvACfeLr2
-EJOWO0HZ4hVk3UXZoxe4BbQ=
-=wO+m
------END PGP SIGNATURE-----
+Leftover debug?

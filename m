@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422730AbWJXWuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422764AbWJXWxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422730AbWJXWuB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:50:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422764AbWJXWuB
+	id S1422764AbWJXWxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 18:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422767AbWJXWxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:50:01 -0400
-Received: from mtagate5.uk.ibm.com ([195.212.29.138]:34097 "EHLO
-	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1422730AbWJXWuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:50:00 -0400
-Message-ID: <453E9892.1010408@de.ibm.com>
-Date: Wed, 25 Oct 2006 00:49:54 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: Phillip Susi <psusi@cfl.rr.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0/5] I/O statistics through request queues
-References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <453D0C62.4030601@cfl.rr.com> <453E39B0.2000800@de.ibm.com> <453E7B1F.7020602@cfl.rr.com>
-In-Reply-To: <453E7B1F.7020602@cfl.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 18:53:40 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:47492 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1422764AbWJXWxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 18:53:39 -0400
+Date: Tue, 24 Oct 2006 18:52:22 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Muli Ben-Yehuda <muli@il.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
+Message-ID: <20061024225222.GA7241@filer.fsl.cs.sunysb.edu>
+References: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi wrote:
-> Martin Peschke wrote:
->> Well, the instrumentation "on demand" aspect is half of the truth.
->> A probe inserted through kprobes impacts performance more than static
->> instrumentation.
+On Tue, Oct 24, 2006 at 02:33:08PM -0700, Lu, Yinghai wrote:
+>  
+> Clear the irq releated entries in irq_vector, irq_domain and vector_irq 
+> instead of clearing irq_vector only. So when new irq is created, it 
+> could get that vector.
 > 
-> True, but given that there are going to be a number of things you might 
-> want to instrument at some point, and that at any given time you might 
-> only be interested in a few of those, it likely will be better overall 
-> to spend some more time only on the few than less time on the many.
+> Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
+> 
+> --- linux-2.6/arch/x86_64/kernel/io_apic.c	2006-10-24
+> 13:40:48.000000000 -0700
+> +++ linux-2.6.xx/arch/x86_64/kernel/io_apic.c	2006-10-24
+> 14:03:08.000000000 -0700
+> @@ -716,6 +716,22 @@
 
-Im sure there will be more discussions to sort out which data should be
-retrieved through which kind of instrumentation, and to find the right mix.
-But I won't dare speculating about the outcome. I am just tossing another
-request for data into the discussion (important, in my eyes), along with a
-method for retrieving such data (less important, in my eyes).
+Your patch got mangled up.
 
+Josef "Jeff" Sipek.
+
+-- 
+Linux, n.:
+  Generous programmers from around the world all join forces to help
+  you shoot yourself in the foot for free. 

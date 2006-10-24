@@ -1,48 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWJXWRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422712AbWJXWSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422716AbWJXWRN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422712AbWJXWRM
+	id S1422712AbWJXWSr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 18:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161258AbWJXWSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:17:12 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:5542 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1422716AbWJXWRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:17:12 -0400
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200610242216.05949.rjw@sisk.pl>
-References: <1161576735.3466.7.camel@nigel.suspend2.net>
-	 <200610242216.05949.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 08:17:11 +1000
-Message-Id: <1161728231.22729.24.camel@nigel.suspend2.net>
+	Tue, 24 Oct 2006 18:18:47 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:11729
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161252AbWJXWSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 18:18:47 -0400
+Date: Tue, 24 Oct 2006 15:18:51 -0700 (PDT)
+Message-Id: <20061024.151851.32347810.davem@davemloft.net>
+To: viro@ftp.linux.org.uk
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix RARP ic_servaddr breakage
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061024211027.GG29920@ftp.linux.org.uk>
+References: <20061024211027.GG29920@ftp.linux.org.uk>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 24 Oct 2006 22:10:27 +0100
 
-On Tue, 2006-10-24 at 22:16 +0200, Rafael J. Wysocki wrote:
-> On Monday, 23 October 2006 06:12, Nigel Cunningham wrote:
-> > XFS can continue to submit I/O from a timer routine, even after
-> > freezeable kernel and userspace threads are frozen. This doesn't seem to
-> > be an issue for current swsusp code, but is definitely an issue for
-> > Suspend2, where the pages being written could be overwritten by
-> > Suspend2's atomic copy.
-> >     
-> > We can address this issue by freezing bdevs after stopping userspace
-> > threads, and thawing them prior to thawing userspace.
+> memcpy 4 bytes to address of auto unsigned long variable followed
+> by comparison with u32 is a bloody bad idea.
 > 
-> Okay, it turns out we'll probably need this, so a couple of comments follow.
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-Ack. Revised version will come when I find/make the time to do it :)
-Feel free to prod :>
-
-Nigel
-
+Applied, good spotting Al.

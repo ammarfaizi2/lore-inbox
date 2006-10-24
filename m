@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161096AbWJXTsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbWJXTxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161096AbWJXTsp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 15:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161111AbWJXTsp
+	id S1161123AbWJXTxg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 15:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWJXTxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 15:48:45 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24590 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161096AbWJXTso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 15:48:44 -0400
-Date: Tue, 24 Oct 2006 21:48:43 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 2.6.19-rc2: known unfixed regressions (v3)
-Message-ID: <20061024194842.GD27968@stusta.de>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061022122355.GC3502@stusta.de> <Pine.SOC.4.61.0610231757590.27929@math.ut.ee> <20061023205902.GK3502@stusta.de> <453E29E7.6090405@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <453E29E7.6090405@s5r6.in-berlin.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 24 Oct 2006 15:53:36 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:62356 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161116AbWJXTxf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 15:53:35 -0400
+Subject: Re: [PATCH 2/3] spufs: fix another off-by-one bug in mbox_read
+From: Will Schmidt <will_schmidt@vnet.ibm.com>
+Reply-To: will_schmidt@vnet.ibm.com
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linuxppc-dev@ozlabs.org,
+       Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200610242107.44115.arnd@arndb.de>
+References: <20061024160140.452484000@arndb.de>
+	 <20061024160406.923275000@arndb.de>
+	 <84144f020610241142y2c86485dj898f555174803577@mail.gmail.com>
+	 <200610242107.44115.arnd@arndb.de>
+Content-Type: text/plain
+Organization: IBM
+Date: Tue, 24 Oct 2006 14:53:22 -0500
+Message-Id: <1161719603.8946.84.camel@farscape>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 04:57:43PM +0200, Stefan Richter wrote:
-> Hi Adrian,
+On Tue, 2006-24-10 at 21:07 +0200, Arnd Bergmann wrote:
+> On Tuesday 24 October 2006 20:42, Pekka Enberg wrote:
+> > On 10/24/06, Arnd Bergmann <arnd@arndb.de> wrote:
+> > >         spu_acquire(ctx);
+> > > -       for (count = 0; count <= len; count += 4, udata++) {
+> > > +       for (count = 0; (count + 4) <= len; count += 4, udata++) {
+> >
+> > Wouldn't this be more obvious as
+> >
+> >   for (count = 0, count < (len / 4); count++, udata++) {
+> >
+> > And then do count * 4 if you need the actual index somewhere. Hmm?
 > 
-> here is another one:
+> Count is the return value from a write() file operation. I find it
+> more readable to update that every time I do one put_user(), to
+> the exact value, than calculating the return code later.
+
+Hey Arnd, 
+   just curiosity..   What was the behavior before this patch?   just
+leaving a few (0 - 3) characters behind?
+
+
 > 
-> Subject    : [ohci1394 on PPC_PMAC] pci_set_power_state() failure and breaking suspend
-> References : http://lkml.org/lkml/2006/10/24/13
-> Submitter  : Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Caused-By  : Stefan Richter <stefanr@s5r6.in-berlin.de>
->              commit ea6104c22468239083857fa07425c312b1ecb424
-> Status     : looking for answer when to ignore return code of pci_set_power_state
-
-Thanks, added.
-
-> Stefan Richter
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> 	Arnd <>< 
+> _______________________________________________
+> Linuxppc-dev mailing list
+> Linuxppc-dev@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-dev
 

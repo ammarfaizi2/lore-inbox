@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161266AbWJXWPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbWJXWPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161266AbWJXWPI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbWJXWPI
+	id S1161267AbWJXWPy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 18:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbWJXWPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:15:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2713 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161259AbWJXWPD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:15:03 -0400
-Message-ID: <453E8FB7.9090001@sgi.com>
-Date: Tue, 24 Oct 2006 17:12:07 -0500
-From: John Partridge <johnip@sgi.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Jeff Garzik <jeff@garzik.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: Ordering between PCI config space writes and MMIO reads?
-References: <adafyddcysw.fsf@cisco.com> <20061024192210.GE2043@havoc.gtf.org>	<20061024214724.GS25210@parisc-linux.org> <adar6wxbcwt.fsf@cisco.com>
-In-Reply-To: <adar6wxbcwt.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 24 Oct 2006 18:15:54 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:45477 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1161267AbWJXWPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 18:15:53 -0400
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061024213402.GC5662@elf.ucw.cz>
+References: <1161576857.3466.9.camel@nigel.suspend2.net>
+	 <200610242208.34426.rjw@sisk.pl>  <20061024213402.GC5662@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 25 Oct 2006 08:15:53 +1000
+Message-Id: <1161728153.22729.22.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->  > I think the right way to fix this is to ensure mmio write ordering in
->  > the pci_write_config_*() implementations.  Like this.
+Hi.
+
+On Tue, 2006-10-24 at 23:34 +0200, Pavel Machek wrote:
+> Hi!
 > 
-> I'm happy to fix this in the PCI core and not force drivers to worry
-> about this.
+> > > Switch from bitmaps to using extents to record what swap is allocated;
+> > > they make more efficient use of memory, particularly where the allocated
+> > > storage is small and the swap space is large.
+> > 
+> > As I said before, I like the overall idea, but I have a bunch of
+> > comments.
 > 
-> John, can you confirm that this patch fixes the issue for you?
+> Okay, if Rafael likes it... lets take a look.
 > 
-> Thanks,
->   Roland
+> First... what is the _worst case_ overhead? AFAICT extents are very
+> good at the best case, but tend to suck for the worst case...?
 
-I'll give it a try and get back to you.
+That's right. In using this, we're relying on the fact that the swap
+allocator tries to act sensibly. I've only seen worse case performance
+when a user had two swap devices with the same priority (striped), but
+that was a bug. :)
 
-John
+> > > +#include <linux/suspend.h>
+> > > +#include "extent.h"
+> > > +
+> > > +/* suspend_get_extent
+> > > + *
+> > > + * Returns a free extent. May fail, returning NULL instead.
+> > > + */
+> 
+> Your comments are nice, and quite close to linuxdoc... Can we make
+> them proper linuxdoc?
 
--- 
-John Partridge
+Ok.
 
-Silicon Graphics Inc
-Tel:  651-683-3428
-Vnet: 233-3428
-E-Mail: johnip@sgi.com
+> > > +/* suspend_put_extent_chain.
+> > > + *
+> > > + * Frees a whole chain of extents.
+> > > + */
+> > > +void suspend_put_extent_chain(struct extent_chain *chain)
+> > 
+> > I'd call it suspend_free_all_extents().
+> 
+> This is actually important. As it does undocditional free(), it may
+> not be called "put".
+
+Ok.
+
+> > > +#ifndef EXTENT_H
+> > > +#define EXTENT_H
+> > > +
+> > > +struct extent {
+> > > +	unsigned long minimum, maximum;
+> > 
+> > Well, I'd use shorter names, but whatever.
+> 
+> Actually, minimum and 
+> 	  maximum look too similar. start/end are really better names.
+
+Ok.
+
+Thanks!
+
+Nigel
+

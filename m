@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752080AbWJXGD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752077AbWJXGDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752080AbWJXGD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 02:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752079AbWJXGD6
+	id S1752077AbWJXGDE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 02:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752079AbWJXGDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 02:03:58 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16270
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1752080AbWJXGD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 02:03:57 -0400
-Date: Mon, 23 Oct 2006 23:03:50 -0700 (PDT)
-Message-Id: <20061023.230350.05157566.davem@davemloft.net>
-To: shemminger@osdl.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] netpoll: use sk_buff_head for txq
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061023120253.5dd146d2@dxpl.pdx.osdl.net>
-References: <20061020153027.3bed8c86@dxpl.pdx.osdl.net>
-	<20061022.204220.78710782.davem@davemloft.net>
-	<20061023120253.5dd146d2@dxpl.pdx.osdl.net>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 24 Oct 2006 02:03:04 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:47640 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1752077AbWJXGDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 02:03:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SiyyxdyEk4LiBcrTeQ34/4uUGwHNQIgVaCU1VHaEicZTLKnESacDkVoBwMKf2lm88bQF+TD3hTFTGKg0oM6Gu+BZ/8vQXseyLoYysq3CK/NIDSg+e9leZB1o4adUvPTI9rpsm7ps28o8LuZTgtCJVIGnlTAY7NHINkdywBZ46RU=
+Message-ID: <86802c440610232303r67226decq3048470682aa2a46@mail.gmail.com>
+Date: Mon, 23 Oct 2006 23:03:00 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: "Oleg Verych" <olecom@flower.upol.cz>
+Subject: Re: [PATCH] x86_64 irq: reuse vector for set_xxx_irq_affinity in phys flat mode
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <slrnejratd.93p.olecom@flower.upol.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5986589C150B2F49A46483AC44C7BCA412D747@ssvlexmb2.amd.com>
+	 <slrnejratd.93p.olecom@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Mon, 23 Oct 2006 12:02:53 -0700
+On 10/23/06, Oleg Verych <olecom@flower.upol.cz> wrote:
+> Hallo, Lu.
+>
+> On 2006-10-23, Lu, Yinghai wrote:
+> > This is a multi-part message in MIME format.
 
-> +	spin_lock_irqsave(&netpoll_txq.lock, flags);
-> +	for (skb = (struct sk_buff *)netpoll_txq.next;
-> +	     skb != (struct sk_buff *)&netpoll_txq; skb = next) {
-> +		next = skb->next;
-> +		if (skb->dev == dev) {
-> +			skb_unlink(skb, &netpoll_txq);
-> +			kfree_skb(skb);
-> +		}
->  	}
-> +	spin_unlock_irqrestore(&netpoll_txq.lock, flags);
+I have to use outlook in my office to send email. If i use attachment,
+that is what you get.
 
-IRQ's are disabled, I think we can't call kfree_skb() in such a
-context.
+If i cut and paste, I will get wordwrapped.
 
-That's why zap_completion_queue() has all of these funny
-skb->destructor checks and such, all of this stuff potentially runs in
-IRQ context.
+I have to use gmail to send out patch...
+
+Please check another thread for the patch.
+
+http://lkml.org/lkml/2006/10/24/1
+
+YH

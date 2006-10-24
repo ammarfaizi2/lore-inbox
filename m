@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbWJXMMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWJXMMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161007AbWJXMMM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 08:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWJXMML
+	id S1161008AbWJXMMn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 08:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbWJXMMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 08:12:11 -0400
-Received: from main.gmane.org ([80.91.229.2]:36834 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1161007AbWJXMMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 08:12:10 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: Link lib to a kernel module
-Date: Tue, 24 Oct 2006 12:11:47 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnejs14h.93p.olecom@flower.upol.cz>
-References: <20061024105518.GA55219@server.idefix.loc>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: Oleg Verych <olecom@flower.upol.cz>, LKML <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-User-Agent: slrn/0.9.8.1pl1 (Debian)
-Cc: kbuild-devel@lists.sourceforge.net
+	Tue, 24 Oct 2006 08:12:42 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:30382 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161008AbWJXMMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 08:12:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=qVK7arC3CTeD00Z4JQrmzF7jgrInhBA3FQ9QLE/Uk8toa/+JDk6sUIa5b4FeKwDUgtmEJTCIj8oui4SqbtKhx3eB/P8UMMd7Fp/SEkr/qICGPwq8c5PyfKXYRihb/Dq3PxGkTKRlNWAm84g9c4BIIw5HZbsYqrHcxKptHGX5FMA=
+Message-ID: <84144f020610240512y80a41bblcf8ce08c3875c008@mail.gmail.com>
+Date: Tue, 24 Oct 2006 15:12:39 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Randy Dunlap" <rdunlap@xenotime.net>
+Subject: Re: incorrect taint of ndiswrapper
+Cc: "Giridhar Pemmasani" <pgiri@yahoo.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061023201135.0d8766c9.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1161608452.19388.31.camel@localhost.localdomain>
+	 <20061024024347.57840.qmail@web32414.mail.mud.yahoo.com>
+	 <20061023201135.0d8766c9.rdunlap@xenotime.net>
+X-Google-Sender-Auth: 2c1252254efd3215
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo, Matthias.
+On 10/24/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
+> The kernel should not depend on a not-in-tree kernel module to
+> taint the kernel.  The kernel can and should do that itself.
 
-On 2006-10-24, Matthias Fechner wrote:
-
-> I tried today to link a lib (.a) to my kernel module but I could not
-> found howto do it.
-
-`Documentation/kbuild' directory in your linux sources.
-`makefiles.txt' about `lib-y',
-`modules.txt'   about modules.
-
-Good luck.
-____
-
+Agreed. But should the kernel disallow the use of _GPL symbols for
+ndiswrapper? I would say no.

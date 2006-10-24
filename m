@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752008AbWJXEsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751998AbWJXEsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752008AbWJXEsG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 00:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752024AbWJXEsG
+	id S1751998AbWJXEsA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 00:48:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWJXEsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 00:48:06 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:61601 "EHLO
+	Tue, 24 Oct 2006 00:48:00 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:53409 "EHLO
 	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1752008AbWJXEsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 00:48:04 -0400
-Date: Mon, 23 Oct 2006 21:46:08 -0700
+	id S1751998AbWJXEr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 00:47:59 -0400
+Date: Mon, 23 Oct 2006 21:43:30 -0700
 From: Randy Dunlap <randy.dunlap@oracle.com>
-To: iss_storagedev@hp.com, lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH cciss: fix printk format warning
-Message-Id: <20061023214608.f09074e9.randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: bcasavan@sgi.com, akpm <akpm@osdl.org>
+Subject: [PATCH] ioc4: fix printk format warning
+Message-Id: <20061023214330.04657b3c.randy.dunlap@oracle.com>
 Organization: Oracle Linux Eng.
 X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -29,40 +29,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Fix printk format warnings:
-drivers/block/cciss.c:2000: warning: long long int format, long unsigned int arg (arg 2)
-drivers/block/cciss.c:2035: warning: long long int format, long unsigned int arg (arg 2)
+Fix printk format warning:
+drivers/misc/ioc4.c:213: warning: long long int format, u64 arg (arg 3)
 
 Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 ---
 
- drivers/block/cciss.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/misc/ioc4.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2619-rc3-pv.orig/drivers/block/cciss.c
-+++ linux-2619-rc3-pv/drivers/block/cciss.c
-@@ -1992,8 +1992,8 @@ cciss_read_capacity(int ctlr, int logvol
- 		*block_size = BLOCK_SIZE;
+--- linux-2619-rc3-pv.orig/drivers/misc/ioc4.c
++++ linux-2619-rc3-pv/drivers/misc/ioc4.c
+@@ -209,8 +209,8 @@ ioc4_clock_calibrate(struct ioc4_driver_
+ 
+ 		do_div(ns, IOC4_EXTINT_COUNT_DIVISOR);
+ 		printk(KERN_DEBUG
+-		       "IOC4 %s: PCI clock is %lld ns.\n",
+-		       pci_name(idd->idd_pdev), ns);
++		       "IOC4 %s: PCI clock is %llu ns.\n",
++		       pci_name(idd->idd_pdev), (unsigned long long)ns);
  	}
- 	if (*total_size != (__u32) 0)
--		printk(KERN_INFO "      blocks= %lld block_size= %d\n",
--		*total_size, *block_size);
-+		printk(KERN_INFO "      blocks= %llu block_size= %d\n",
-+		(unsigned long long)*total_size, *block_size);
- 	kfree(buf);
- 	return;
- }
-@@ -2027,8 +2027,8 @@ cciss_read_capacity_16(int ctlr, int log
- 		*total_size = 0;
- 		*block_size = BLOCK_SIZE;
- 	}
--	printk(KERN_INFO "      blocks= %lld block_size= %d\n",
--	       *total_size, *block_size);
-+	printk(KERN_INFO "      blocks= %llu block_size= %d\n",
-+	       (unsigned long long)*total_size, *block_size);
- 	kfree(buf);
- 	return;
- }
+ 
+ 	/* Remember results.  We store the extint clock period rather
 
 
 ---

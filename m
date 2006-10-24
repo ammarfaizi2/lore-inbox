@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752086AbWJXHXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752100AbWJXHb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752086AbWJXHXd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 03:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752088AbWJXHXd
+	id S1752100AbWJXHb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 03:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752099AbWJXHbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 03:23:33 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:15725 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1752086AbWJXHXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 03:23:32 -0400
-Message-ID: <453DBF70.6030605@qumranet.com>
-Date: Tue, 24 Oct 2006 09:23:28 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 24 Oct 2006 03:31:25 -0400
+Received: from [87.201.200.205] ([87.201.200.205]:10478 "EHLO HasBox.COM")
+	by vger.kernel.org with ESMTP id S1752100AbWJXHbZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 03:31:25 -0400
+Message-ID: <453DC147.2020508@0Bits.COM>
+Date: Tue, 24 Oct 2006 11:31:19 +0400
+From: Mitch <Mitch@0Bits.COM>
+User-Agent: Thunderbird 3.0a1 (X11/20061017)
 MIME-Version: 1.0
-To: Anthony Liguori <aliguori@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 9/13] KVM: define exit handlers
-References: <453CC390.9080508@qumranet.com> <20061023133106.C19DB250143@cleopatra.q> <453D66C6.5080008@us.ibm.com>
-In-Reply-To: <453D66C6.5080008@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: More uml build failures on 2.16.19-rc3 and 2.6.18.1
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Oct 2006 07:23:32.0220 (UTC) FILETIME=[4F4DC3C0:01C6F73D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anthony Liguori wrote:
-> Avi Kivity wrote:
->> +static int handle_external_interrupt(struct kvm_vcpu *vcpu,
->> +                     struct kvm_run *kvm_run)
->> +{
->> +    ++kvm_stat.irq_exits;
->> +    return 1;
->> +}
->>   
->
-> Don't you need to propagate the interrupt here?  In Xen, we inject the 
-> interrupt using the IDT.  As a module, you don't have access to that.  
-> However, you could use a software interrupt to reraise it.
+I'm still having build failures on 2.6.18.1 and even the latest -rc3
 
-We don't set VM_EXIT_ACK_INTR_ON_EXIT on the VM exit controls, so when 
-an external interrupt is received, it isn't acked and remains in the 
-(real) apic.  We do set the guest to exit on external interrupt, so the 
-guest exits and when it reaches the popf in kvm_dev_ioctl_run() the 
-interrupt is dispatched naturally using the host IDT.
+Anyone ?
+M
 
-[Xen can't do that since it must handle some of the interrupts itself]
-
->
-> I got your code running this afternoon (it's quite cool) but I noticed 
-> a ton of "rtc: lost some interrupts at 1024Hz." messages which leads 
-> me to believe.. you're dropping interrupts :-)  
-
-That's in the guest, right?  I get those too.  Probably due to to our 
-shadow mmu suckiness or a problem with the virtual apic.  We are 
-addressing both.
-
-> Things seem to hang trying to bring up eth0 in the guest.
-
-Hmm.  What guest are you using?  Are you using dhcp? ipv6? qemu user net 
-or tap?
-
-
->
-> BTW, have you setup a mailing list yet?
-
-I have a project queued on sourceforge, should be up in a day or two.
-
-Thanks for testing!
-
--- 
-error compiling committee.c: too many arguments to function
-
+home /usr/src/sources/kernel/linux-2.6.18% !ma
+make ARCH=um
+   SYMLINK arch/um/include/kern_constants.h
+   CC      arch/um/sys-i386/user-offsets.s
+arch/um/sys-i386/user-offsets.c: In function 'foo':
+arch/um/sys-i386/user-offsets.c:19: warning: implicit declaration of 
+function 'offsetof'
+arch/um/sys-i386/user-offsets.c:19: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:20: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:21: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:22: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:23: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:24: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:25: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:26: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:27: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:28: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:29: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:30: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:31: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:32: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:33: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:34: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:35: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:36: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:37: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:38: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:39: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:40: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:41: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:42: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:43: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:44: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:45: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:46: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:47: error: syntax error before 'struct'
+arch/um/sys-i386/user-offsets.c:48: error: syntax error before 'struct'
+make[1]: *** [arch/um/sys-i386/user-offsets.s] Error 1
+make: *** [arch/um/sys-i386/user-offsets.s] Error 2

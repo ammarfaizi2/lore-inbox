@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWJXPKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWJXPKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWJXPKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 11:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWJXPKQ
+	id S965151AbWJXPKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 11:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWJXPKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 11:10:16 -0400
-Received: from smtp111.iad.emailsrvr.com ([207.97.245.111]:62920 "EHLO
-	smtp111.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S965153AbWJXPKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 11:10:14 -0400
-Message-ID: <453E2C9A.7010604@gentoo.org>
-Date: Tue, 24 Oct 2006 11:09:14 -0400
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
-MIME-Version: 1.0
-To: Holden Karau <holden@pigscanfly.ca>
-CC: zd1211-devs@lists.sourceforge.net, linville@tuxdriver.com,
-       netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
-       holdenk@xandros.com, Ulrich Kunitz <kune@deine-taler.de>
-Subject: Re: [PATCH] wireless-2.6 zd1211rw check against regulatory domain
- rather than hardcoded value of 11
-References: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>	 <453D48E5.8040100@gentoo.org> <f46018bb0610240709y203d8cdbw95cdf66db23aa1ce@mail.gmail.com>
-In-Reply-To: <f46018bb0610240709y203d8cdbw95cdf66db23aa1ce@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 11:10:48 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:26124 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S965151AbWJXPKr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 11:10:47 -0400
+Date: Tue, 24 Oct 2006 11:07:00 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, akpm@osdl.org,
+       kernel-janitors@lists.osdl.org, maxk@qualcomm.com, kjhall@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [KJ] [PATCH] Correct misc_register return code handling in several drivers
+Message-ID: <20061024150700.GA1735@hmsreliant.homelinux.net>
+References: <20061023171910.GA23714@hmsreliant.homelinux.net> <1161660875.10524.535.camel@localhost.localdomain> <20061024125306.GA1608@hmsreliant.homelinux.net> <20061024132437.GP25210@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061024132437.GP25210@parisc-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holden Karau wrote:
-> I've changed the patch based on your suggestions :-)
+On Tue, Oct 24, 2006 at 07:24:37AM -0600, Matthew Wilcox wrote:
+> On Tue, Oct 24, 2006 at 08:53:06AM -0400, Neil Horman wrote:
+> > The INIT_LIST_HEAD is there to prevent a potential oops on module removal.
+> > misc_register, if it fails, leaves miscdevice.list unchanged.  That means its
+> > next and prev pointers contain NULL or garbage, when both pointers should contain
+> > &miscdevice.list. If we don't do that, then there is a chance we will oops on
+> > module removal when we do a list_del in misc_deregister on the moudule_exit
+> > routine.  I could have done this statically, but I thought it looked cleaner to
+> > do it with the macro in the code.
+> 
+> Maybe it would be better to have misc_register() call INIT_LIST_HEAD in
+> the failure case?
 
-Thanks, looks fine. Let's just wait for an OK from Ulrich, then you can 
-send it to John, without broken tabs/lines, with signoff and description.
+Hmm, that seems reasonable.  If you don't mind, since there are other unrelated
+clean-ups in this patch, I'll make that change in a follow on patch.  But I
+think thats a good idea.
 
-Daniel
+Thanks & Regards
+Neil
 
-
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

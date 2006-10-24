@@ -1,95 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWJXBbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWJXBq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbWJXBbg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 21:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWJXBbg
+	id S964867AbWJXBq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 21:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWJXBq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 21:31:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6072 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964972AbWJXBbf (ORCPT
+	Mon, 23 Oct 2006 21:46:26 -0400
+Received: from ozlabs.org ([203.10.76.45]:51146 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964867AbWJXBq0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 21:31:35 -0400
-Subject: Re: Battery class driver.
-From: David Zeuthen <davidz@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       olpc-dev@laptop.org, mjg59@srcf.ucam.org, len.brown@intel.com,
-       sfr@canb.auug.org.au, benh@kernel.crashing.org
-In-Reply-To: <20061023225905.GA10977@kroah.com>
-References: <1161627633.19446.387.camel@pmac.infradead.org>
-	 <1161641703.2597.115.camel@zelda.fubar.dk>
-	 <20061023225905.GA10977@kroah.com>
-Content-Type: text/plain
-Date: Mon, 23 Oct 2006 21:31:09 -0400
-Message-Id: <1161653469.2801.91.camel@zelda.fubar.dk>
+	Mon, 23 Oct 2006 21:46:26 -0400
+Subject: Re: [PATCH] Preliminary MPIC MSI backend
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <65FA7A1D-5D74-4ABA-9985-2DB78ABC8685@kernel.crashing.org>
+References: <20060929001657.6EFE667B8F@ozlabs.org>
+	 <65FA7A1D-5D74-4ABA-9985-2DB78ABC8685@kernel.crashing.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-F0rf0l2IqjRtx99NSmVK"
+Date: Tue, 24 Oct 2006 11:46:23 +1000
+Message-Id: <1161654383.2149.39.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-23 at 15:59 -0700, Greg KH wrote:
-> > So, perhaps the battery class should provide a file called 'timestamp'
-> > or something that is only writable by the super user. If you read from
-> > that file it gives the time when the information was last updated. If
-> > you write to the file it will force the driver query the hardware and
-> > update the other files. Reading any other file than 'timestamp' will
-> > just read cached information. 
-> 
-> You can poll the sysfs file, which means you just sleep until something
-> changes in it and then you wake up and read it.  Sound accepatble?
 
-Yea, however I still think there needs to be a 'timestamp' file so 
+--=-F0rf0l2IqjRtx99NSmVK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
- a) we don't need to poll every file in /sys/class/battery/BAT0
-   (if we had to do that, we would (potentially) wake up N times!); and 
+On Sat, 2006-09-30 at 10:43 +0200, Segher Boessenkool wrote:
+> > A pretty hackish MPIC backend, just enough to flesh out the design.
+> > Based on code from Segher.
+>=20
+> It's pretty alright, and very hackish ;-)  I'll sign off on it,
+> but some comments...
+>=20
+> Signed-off-by: Segher Boessenkool <segher@kernel.crashing.org>
+> > Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
+>=20
+> > +static int msi_mpic_check(struct pci_dev *pdev, int num,
+> > +			struct msix_entry *entries, int type)
+> > +{
+> > +	/* The irq allocator needs more work to support MSI-X/multi-MSI */
+> > +	if (type =3D=3D PCI_CAP_ID_MSIX || num !=3D 1)
+> > +		return 1;
+>=20
+> I never tested any MSI-X, so maybe keep MSI-X disabled completely
+> for now?
 
- b) if the kernel ensures that the 'timestamp' file is updated last,
-    we get atomic updates (which might matter for drawing pretty graphs,
-    guestimating remaining time etc.); and
+Yeah it is, that's an ||.
 
- c) it provides some mechanism to instruct the driver to go read the
-    values from the hardware (if that is what user space wants)
-    nonwithstanding that the hardware / driver delivers asynchronous
-    updates once in a while via an IRQ.
+> > +static int msi_mpic_alloc(struct pci_dev *pdev, int num,
+> > +			struct msix_entry *entries, int type)
+> > +{
+> > +	irq_hw_number_t hwirq;
+> > +	unsigned int virq;
+> > +
+> > +	/* We need a smarter allocator for MSI-X/multi-MSI */
+> > +	hwirq =3D irq_map[pdev->irq].hwirq;
+> > +	hwirq +=3D 100;
+>=20
+> Yep, that's the main problem with this code.  A sanity check to
+> make sure the number isn't >=3D 120 would be good, too.
 
-    Notably user space can see _when_ the values from the hardware was
-    retrieved the last time which makes it easier to work around with
-    hardware / drivers that don't provide asynchronous updates even
-    when they are supposed to (if there is some bug with e.g. the ACPI
-    stack).
+Talking to Ben, we decided for the moment we'll just reuse the currently
+assigned irq, in the medium term we'll come up with some way to find the
+unassigned irqs on mpic and write an allocator.
 
-This implies that the battery class should probably cache the values as
-to make the platform driver as simple as possible. I've got a bad
-feeling things like caching is badly frowned upon in kernel space but I
-thought I'd ask for it anyway :-). I hope I've stated my case :-)
+> > +	set_irq_type(virq, IRQ_TYPE_EDGE_RISING);
+>=20
+> I also had some code to show MSI IRQs as "MSI" instead of "EDGE"
+> in /proc/interrupts, maybe you want to add a generic version of
+> that?  Or maybe you have, and I judt didn't see it.
 
-(Anyway, the point is that I want to avoid having an open file
-descriptor for each and every file in /sys/class/battery/BAT0 to put it
-into the huge poll() stmt in my main loop (granted with things like glib
-it's dead simple), that's all.. Caching might also avoid excessive round
-trips to the hardware but one can argue both way in most cases.)
+I lost that along the way somewhere, I'll try and find it and resurrect
+it.
 
-So.. how all this relates to hwmon I'm not sure.. looking briefly at
-Documentation/hwmon/sysfs-interface no such thing seems to be available,
-I'm not sure how libsensors get by here but the problem is sorta
-similar. I do think batteries in itself deserves it's own abstraction
-instead of using hwmon but I'm no expert on this.
+> > +static int msi_mpic_setup_msi_msg(struct pci_dev *pdev,
+> > +		struct msix_entry *entry, struct msi_msg *msg, int type)
+> > +{
+> > +	msg->address_lo =3D 0xfee00000;	/* XXX What is this value? */
+> > +	msg->address_hi =3D 0;
+> > +	msg->data =3D pdev->irq | 0x8000;
+>=20
+> Lose the | 0x8000 part, that was an old experiment to work around
+> U3/U4 MPIC brokenness (and it didn't work).
 
-Btw, an OLPC specific feature is also to instruct the Embedded
-Controller (EC) to stop delivering IRQ's on battery/ac_adapter changes.
-This is so the host CPU won't be woken up when e.g. in e-book reader
-mode (or whatever) where the host CPU is supposed to be turned off to
-save juice. 
-This is simple right now as the EC currently doesn't deliver any IRQ's
-at all [1] and I guess a simple sysfs file in the OLPC platform device
-will let us do that once we actually get IRQ delivery. Thus, I'm not
-sure "stop IRQ delivery" belongs in the battery class proper. This is
-also why we need device link to the OLPC platform device.
+OK.
 
-     David
+> > +static int msi_mpic_init(void)
+> > +{
+> > +	/* XXX Do this in mpic_init ? */
+> > +	pr_debug("mpic_msi_init: Registering MPIC MSI ops.\n");
+> > +	ppc_md.get_msi_ops =3D mpic_get_msi_ops;
+>=20
+> It's best to do this in the platform code I think.
 
-[1] : but see http://dev.laptop.org/ticket/224
+Yeah probably, I'll leave that up to Ben.
 
+cheers
 
+--=20
+Michael Ellerman
+OzLabs, IBM Australia Development Lab
+
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
+
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
+
+--=-F0rf0l2IqjRtx99NSmVK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBFPXBvdSjSd0sB4dIRAlPjAJ9WWDdTAMfxfoKYoK+AR7TgadtF5QCeMac6
+rZEhyfmFNRKorDXb7SmtrBE=
+=33E2
+-----END PGP SIGNATURE-----
+
+--=-F0rf0l2IqjRtx99NSmVK--
 

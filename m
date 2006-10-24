@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWJXMTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbWJXMTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161020AbWJXMTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 08:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbWJXMTZ
+	id S1161018AbWJXMTG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 08:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbWJXMTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 08:19:25 -0400
-Received: from mx03.stofanet.dk ([212.10.10.13]:16808 "EHLO mx03.stofanet.dk")
-	by vger.kernel.org with ESMTP id S1161020AbWJXMTY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 08:19:24 -0400
-Date: Tue, 24 Oct 2006 14:19:02 +0200 (CEST)
-From: Esben Nielsen <nielsen.esben@googlemail.com>
-X-X-Sender: simlo@frodo.shire
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>, Ingo Molnar <mingo@elte.hu>,
+	Tue, 24 Oct 2006 08:19:06 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:21711 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161018AbWJXMTD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 08:19:03 -0400
+Subject: Re: incorrect taint of ndiswrapper
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Giridhar Pemmasani <pgiri@yahoo.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: rtmutex's wait_lock in 2.6.18-rt7
-In-Reply-To: <1161683163.22373.68.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0610241408480.30444@frodo.shire>
-References: <Pine.LNX.4.64.0610231150500.12557@frodo.shire>
- <1161683163.22373.68.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+In-Reply-To: <84144f020610240512y80a41bblcf8ce08c3875c008@mail.gmail.com>
+References: <1161608452.19388.31.camel@localhost.localdomain>
+	 <20061024024347.57840.qmail@web32414.mail.mud.yahoo.com>
+	 <20061023201135.0d8766c9.rdunlap@xenotime.net>
+	 <84144f020610240512y80a41bblcf8ce08c3875c008@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 24 Oct 2006 13:22:13 +0100
+Message-Id: <1161692533.22348.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Maw, 2006-10-24 am 15:12 +0300, ysgrifennodd Pekka Enberg:
+> On 10/24/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
+> > The kernel should not depend on a not-in-tree kernel module to
+> > taint the kernel.  The kernel can and should do that itself.
+> 
+> Agreed. But should the kernel disallow the use of _GPL symbols for
+> ndiswrapper? I would say no.
 
+I'd agree providing the attempt to taint function allows an error return
+if it did so and it then refuses to load non-GPL windows drivers.
 
-On Tue, 24 Oct 2006, Thomas Gleixner wrote:
-
-> On Mon, 2006-10-23 at 11:55 +0200, Esben Nielsen wrote:
->> Hi,
->>   I see that in 2.6.18-rt7 the rtmutex's wait_lock is sudden interrupt
->> disabling. I don't see the need as no (hard) interrupt-handlers should be
->> touching any mutex.
->
-> It does not touch mutexes, but the dynamic priority adjustment of the
-> hrtimer softirq needs it.
->
-> The correct solution will be moving the timer callback into the process
-> context, as it will be woken up anyway, but that's more complex to do
-> than it looks in the first place.
->
-
-I have send out patches doing the correct priority adjustment without 
-touching the wait_lock. Why not use that?
-
-I found it in the archives:
-  http://www.uwsg.iu.edu/hypermail/linux/kernel/0610.0/0049.html
-(or more specific in 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0610.0/0051.html, look for 
-changes to sched.c)
-
-It is very bad to do PI traversal in interrupt context. In the general 
-case, where there are user-space locks, that operation unbounded. I 
-know that in your case you can only traverse kernel locks, but I think it 
-is bad to open for such posibilities if it can be avoided.
-
-
-Esben
-
-> 	tglx
->
->

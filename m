@@ -1,118 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWJXQmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWJXQlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030421AbWJXQmm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 12:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWJXQml
+	id S1030420AbWJXQlL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 12:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWJXQk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 12:42:41 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:1530 "EHLO
+	Tue, 24 Oct 2006 12:40:57 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:30451 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1030434AbWJXQmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 12:42:13 -0400
-Message-Id: <20061024163812.670608000@arndb.de>
+	id S1030407AbWJXQkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 12:40:00 -0400
+Message-Id: <20061024163815.364550000@arndb.de>
 References: <20061024163113.694643000@arndb.de>
 User-Agent: quilt/0.45-1
-Date: Tue, 24 Oct 2006 18:31:15 +0200
+Date: Tue, 24 Oct 2006 18:31:21 +0200
 From: arnd@arndb.de
 To: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
        linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: [PATCH 02/16] cell: remove unused struct spu variable
-Content-Disposition: inline; filename=spufs-remove-unused-var.diff
-Cc: Geoff Levand <geoffrey.levand@am.sony.com>,
+Subject: [PATCH 08/16] cell: add shadow registers for pmd_reg
+Content-Disposition: inline; filename=cbe-regs-shadow.diff
+Cc: Kevin Corry <kevcorry@us.ibm.com>,
        Arnd Bergmann <arnd.bergmann@de.ibm.com>
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Geoff Levand <geoffrey.levand@am.sony.com>
+From: Kevin Corry <kevcorry@us.ibm.com>
 
-Remove the mostly unused variable isrc from struct spu and a forgotten
-function declaration.
+Many of the registers in the performance monitoring unit are write-only.
+We need to save a "shadow" copy when we write to those registers so we
+can retrieve the values if we need them later.
 
-Signed-off-by: Geoff Levand <geoffrey.levand@am.sony.com>
+The new cbe_pmd_shadow_regs structure is added to the cbe_regs_map structure
+so we have the appropriate per-node copies of these shadow values.
+
+Signed-off-by: Kevin Corry <kevcorry@us.ibm.com>
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
----
-
-Index: linux-2.6/arch/powerpc/platforms/cell/spu_base.c
+Index: linux-2.6/arch/powerpc/platforms/cell/cbe_regs.c
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spu_base.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spu_base.c
-@@ -364,8 +364,7 @@ struct spu *spu_alloc_node(int node)
- 	if (!list_empty(&spu_list[node])) {
- 		spu = list_entry(spu_list[node].next, struct spu, list);
- 		list_del_init(&spu->list);
--		pr_debug("Got SPU %x %d %d\n",
--			 spu->isrc, spu->number, spu->node);
-+		pr_debug("Got SPU %d %d\n", spu->number, spu->node);
- 		spu_init_channels(spu);
- 	}
- 	mutex_unlock(&spu_mutex);
-@@ -591,7 +590,6 @@ static int __init spu_map_interrupts_old
+--- linux-2.6.orig/arch/powerpc/platforms/cell/cbe_regs.c
++++ linux-2.6/arch/powerpc/platforms/cell/cbe_regs.c
+@@ -30,6 +30,7 @@ static struct cbe_regs_map
+ 	struct cbe_pmd_regs __iomem *pmd_regs;
+ 	struct cbe_iic_regs __iomem *iic_regs;
+ 	struct cbe_mic_tm_regs __iomem *mic_tm_regs;
++	struct cbe_pmd_shadow_regs pmd_shadow_regs;
+ } cbe_regs_maps[MAX_CBE];
+ static int cbe_regs_map_count;
  
- 	/* Add the node number */
- 	isrc |= spu->node << IIC_IRQ_NODE_SHIFT;
--	spu->isrc = isrc;
- 
- 	/* Now map interrupts of all 3 classes */
- 	spu->irqs[0] = irq_create_mapping(NULL, IIC_IRQ_CLASS_0 | isrc);
-@@ -733,16 +731,6 @@ struct sysdev_class spu_sysdev_class = {
- 	set_kset_name("spu")
- };
- 
--static ssize_t spu_show_isrc(struct sys_device *sysdev, char *buf)
--{
--	struct spu *spu = container_of(sysdev, struct spu, sysdev);
--	return sprintf(buf, "%d\n", spu->isrc);
--
--}
--static SYSDEV_ATTR(isrc, 0400, spu_show_isrc, NULL);
--
--extern int attach_sysdev_to_node(struct sys_device *dev, int nid);
--
- static int spu_create_sysdev(struct spu *spu)
- {
- 	int ret;
-@@ -756,8 +744,6 @@ static int spu_create_sysdev(struct spu 
- 		return ret;
- 	}
- 
--	if (spu->isrc != 0)
--		sysdev_create_file(&spu->sysdev, &attr_isrc);
- 	sysfs_add_device_to_node(&spu->sysdev, spu->nid);
- 
- 	return 0;
-@@ -765,7 +751,6 @@ static int spu_create_sysdev(struct spu 
- 
- static void spu_destroy_sysdev(struct spu *spu)
- {
--	sysdev_remove_file(&spu->sysdev, &attr_isrc);
- 	sysfs_remove_device_from_node(&spu->sysdev, spu->nid);
- 	sysdev_unregister(&spu->sysdev);
+@@ -80,6 +81,22 @@ struct cbe_pmd_regs __iomem *cbe_get_cpu
  }
-@@ -821,8 +806,8 @@ static int __init create_spu(struct devi
- 	list_add(&spu->list, &spu_list[spu->node]);
- 	mutex_unlock(&spu_mutex);
+ EXPORT_SYMBOL_GPL(cbe_get_cpu_pmd_regs);
  
--	pr_debug(KERN_DEBUG "Using SPE %s %02x %p %p %p %p %d\n",
--		spu->name, spu->isrc, spu->local_store,
-+	pr_debug(KERN_DEBUG "Using SPE %s %p %p %p %p %d\n",
-+		spu->name, spu->local_store,
- 		spu->problem, spu->priv1, spu->priv2, spu->number);
- 	goto out;
- 
-Index: linux-2.6/include/asm-powerpc/spu.h
++struct cbe_pmd_shadow_regs *cbe_get_pmd_shadow_regs(struct device_node *np)
++{
++	struct cbe_regs_map *map = cbe_find_map(np);
++	if (map == NULL)
++		return NULL;
++	return &map->pmd_shadow_regs;
++}
++
++struct cbe_pmd_shadow_regs *cbe_get_cpu_pmd_shadow_regs(int cpu)
++{
++	struct cbe_regs_map *map = cbe_thread_map[cpu].regs;
++	if (map == NULL)
++		return NULL;
++	return &map->pmd_shadow_regs;
++}
++
+ struct cbe_iic_regs __iomem *cbe_get_iic_regs(struct device_node *np)
+ {
+ 	struct cbe_regs_map *map = cbe_find_map(np);
+Index: linux-2.6/arch/powerpc/platforms/cell/cbe_regs.h
 ===================================================================
---- linux-2.6.orig/include/asm-powerpc/spu.h
-+++ linux-2.6/include/asm-powerpc/spu.h
-@@ -118,7 +118,6 @@ struct spu {
- 	int number;
- 	int nid;
- 	unsigned int irqs[3];
--	u32 isrc;
- 	u32 node;
- 	u64 flags;
- 	u64 dar;
+--- linux-2.6.orig/arch/powerpc/platforms/cell/cbe_regs.h
++++ linux-2.6/arch/powerpc/platforms/cell/cbe_regs.h
+@@ -121,6 +121,41 @@ extern struct cbe_pmd_regs __iomem *cbe_
+ extern struct cbe_pmd_regs __iomem *cbe_get_cpu_pmd_regs(int cpu);
+ 
+ /*
++ * PMU shadow registers
++ *
++ * Many of the registers in the performance monitoring unit are write-only,
++ * so we need to save a copy of what we write to those registers.
++ *
++ * The actual data counters are read/write. However, writing to the counters
++ * only takes effect if the PMU is enabled. Otherwise the value is stored in
++ * a hardware latch until the next time the PMU is enabled. So we save a copy
++ * of the counter values if we need to read them back while the PMU is
++ * disabled. The counter_value_in_latch field is a bitmap indicating which
++ * counters currently have a value waiting to be written.
++ */
++
++#define NR_PHYS_CTRS	4
++#define NR_CTRS		(NR_PHYS_CTRS * 2)
++
++struct cbe_pmd_shadow_regs {
++	u32 group_control;
++	u32 debug_bus_control;
++	u32 trace_address;
++	u32 ext_tr_timer;
++	u32 pm_status;
++	u32 pm_control;
++	u32 pm_interval;
++	u32 pm_start_stop;
++	u32 pm07_control[NR_CTRS];
++
++	u32 pm_ctr[NR_PHYS_CTRS];
++	u32 counter_value_in_latch;
++};
++
++extern struct cbe_pmd_shadow_regs *cbe_get_pmd_shadow_regs(struct device_node *np);
++extern struct cbe_pmd_shadow_regs *cbe_get_cpu_pmd_shadow_regs(int cpu);
++
++/*
+  *
+  * IIC unit register definitions
+  *
 
 --
 

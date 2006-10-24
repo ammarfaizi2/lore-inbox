@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWJXJDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWJXJGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWJXJDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 05:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWJXJDZ
+	id S1030244AbWJXJGX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 05:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWJXJGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 05:03:25 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:30201 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1030240AbWJXJDY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 05:03:24 -0400
-Date: Tue, 24 Oct 2006 11:03:22 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Oleg Verych <olecom@flower.upol.cz>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Mailing lists (again, was ANNOUNCEMENT: Real-time Linux users list created)
-Message-ID: <20061024090322.GC19478@harddisk-recovery.com>
-References: <E1GawZH-0002l3-FG@candygram.thunk.org> <slrnejm9d6.30t.olecom@flower.upol.cz>
-MIME-Version: 1.0
+	Tue, 24 Oct 2006 05:06:23 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:26978 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1030244AbWJXJGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 05:06:22 -0400
+Date: Tue, 24 Oct 2006 11:06:19 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
+Message-ID: <20061024090619.GD4943@rhun.haifa.ibm.com>
+References: <86802c440610232115r76d98803o4293cdafce1fd95c@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <slrnejm9d6.30t.olecom@flower.upol.cz>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <86802c440610232115r76d98803o4293cdafce1fd95c@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 22, 2006 at 07:56:12AM +0000, Oleg Verych wrote:
-> On 2006-10-20, Theodore Ts'o wrote:
-> >
-> > 	We have created a list for users of CONFIG_PREEMPT_RT,
-> > linux-rt-users@vger.kernel.org.   It is archived on gmane.org (and of
-> > course people who want to read it via gmane's NNTP or RSS feeds can do
-> > so as well): 
-> >
-> > 	http://gmane.org/info.php?group=gmane.linux.rt.user
+On Mon, Oct 23, 2006 at 09:15:31PM -0700, yhlu wrote:
+> in phys flat mode, when using set_xxx_irq_affinity to irq balance from
+> one cpu to another,  _assign_irq_vector will get to increase last used
+> vector and get new vector. this will use up the vector if enough
+> set_xxx_irq_affintiy are called. and end with using same vector in
+> different cpu for different irq. (that is not what we want, we only
+> want to use same vector in different cpu for different irq when more
+> than 0x240 irq needed). To keep it simple, the vector should be reused
+> instead of getting new vector.
 > 
-> Could you, please, explain why this new list and LKML add that
-> (imho silly) messages in every post? (e.g.):
-> .____
-> |-
-> |To unsubscribe from this list: send the line "unsubscribe
-> |linux-rt-users" in
-> |the body of a message to majordomo@vger.kernel.org
-> |More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> `----
+> Also according to Eric's review, make it more generic to be used with
+> flat mode too.
 > 
-> Why not to use something like this in the headers?
+> This patch need to be applied over Eric's irq: cpu_online_map patch.
 > 
-> ,--
-> |List-Post: <mailto:XXX-kernel@lists.ZZZZ.org>
-> |List-Help: <mailto:XXX-kernel-request@lists.ZZZZ.org?subject=help>
-> |List-Subscribe: <mailto:XXX-kernel-request@lists.ZZZZ.org?subject=su...
-> |List-Unsubscribe: <mailto:XXX-kernel-request@lists.ZZZZ.org?subject=un...
-> `--
 > 
-> I think everybody, who wants to use the list, may find info; in the
-> message's headers one may (and should) find even more info on how to
-> use, manage, configure the list.
-> IMHO store this in information body of a message, is useless payload.
+> Cc: Eric W. Biederman <ebiederm@xmission.com>
+> Cc: Muli Ben-Yehuda <muli@il.ibm.com>
+> Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
 
-You might be surprised how many clueless people there are out there
-that can't find that kind of information when it's hidden somewhere in
-the headers. Just run a mailing list and you'll soon find out that you
-really want that kind of vital information in the body.
+Boots fine and survives a quick stress test.
 
-
-Erik
-[who happens to be linux-arm*-owner #2]
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Cheers,
+Muli

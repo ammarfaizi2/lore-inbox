@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423203AbWJYKUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423212AbWJYK1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423203AbWJYKUn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 06:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423204AbWJYKUn
+	id S1423212AbWJYK1b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 06:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423213AbWJYK1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 06:20:43 -0400
-Received: from attila.bofh.it ([213.92.8.2]:11978 "EHLO attila.bofh.it")
-	by vger.kernel.org with ESMTP id S1423203AbWJYKUm (ORCPT
+	Wed, 25 Oct 2006 06:27:31 -0400
+Received: from web23113.mail.ird.yahoo.com ([217.146.189.53]:39837 "HELO
+	web23113.mail.ird.yahoo.com") by vger.kernel.org with SMTP
+	id S1423212AbWJYK1a convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 06:20:42 -0400
-Date: Wed, 25 Oct 2006 12:20:30 +0200
-To: linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Cc: Greg KH <greg@kroah.com>
-Subject: major 442
-Message-ID: <20061025102030.GA5790@wonderland.linux.it>
-Mail-Followup-To: md@Linux.IT, linux-kernel@vger.kernel.org,
-	debian-kernel@lists.debian.org, Greg KH <greg@kroah.com>
+	Wed, 25 Oct 2006 06:27:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=ZmwNv5sJKYBC/JnzK+FS/dVY5g2nl0YI9iKsEKDz12v50DewFsReEwcT46/zKSj18w9uUSS3fitZVt3zqivwVtM1DFEF7tVVjOP+1gU/Cx6MFyk90CWrR5OTAgvvsTLezC7nz8VhbPIV9FHbTKvYwEYzPpdKlXPipj5i/mbr3ws=  ;
+Message-ID: <20061025102726.75828.qmail@web23113.mail.ird.yahoo.com>
+Date: Wed, 25 Oct 2006 12:27:26 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: [CRYPTO] Use aes hardware crypto device from userspace
+To: herbert@gondor.apana.org.au
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: md@Linux.IT (Marco d'Itri)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just installed the Debian 2.6.18 kernel package and I noticed that it
-repeatedly tries to load a major 442 module alias, which appears to be
-used by the usb_endpoint devices.
-Does anybody know why? I am not even using the USB ports.
+Hello,
 
-md@bongo:~$uname -a
-Linux bongo 2.6.18-1-686 #1 SMP Sat Oct 21 17:21:28 UTC 2006 i686 GNU/Linux
-md@bongo:~$while sleep 0.1; do ps axf|grep modprob[e]; done
- 6424 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_2049
- 6429 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_2049
- 6438 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
- 6447 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_2048
- 6460 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
- 6473 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_8192
- 6487 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
- 6500 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_0
- 6517 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
- 6557 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_4096
- 6562 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_4096
- 6571 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
- 6582 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
- 6595 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_2051
-[...]
+I need to make AES ciphering in a userspace application. My platform
+has an integrated crypto engine which is used by the kernel through
+the core cryptographic API.
 
--- 
-ciao,
-Marco
+Is it possible to export easily this hardware to userspace just by writing
+a dumb driver that would rely on the core crypto API ?  Are there any
+races issues ?
+
+Thanks
+
+Francis
+
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Découvrez une nouvelle façon d'obtenir des réponses à toutes vos questions ! 
+Profitez des connaissances, des opinions et des expériences des internautes sur Yahoo! Questions/Réponses 
+http://fr.answers.yahoo.com

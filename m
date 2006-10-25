@@ -1,115 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbWJYX7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWJZADv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965242AbWJYX7V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 19:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965240AbWJYX7V
+	id S1750877AbWJZADv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 20:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWJZADv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 19:59:21 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:37816 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S965237AbWJYX7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 19:59:18 -0400
-Date: Wed, 25 Oct 2006 16:59:57 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: toralf.foerster@gmx.de, netdev@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, link@miggy.org, greg@kroah.com,
-       akpm@osdl.org, zippel@linux-m68k.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net
-Subject: [PATCH 1/2] !CONFIG_NET_ETHERNET unsets CONFIG_PHYLIB, but 
- CONFIG_USB_USBNET also needs CONFIG_PHYLIB
-Message-Id: <20061025165957.4c390137.randy.dunlap@oracle.com>
-In-Reply-To: <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
-	<20061025201341.GH21200@miggy.org>
-	<20061025151737.1bf4898c.randy.dunlap@oracle.com>
-	<20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 25 Oct 2006 20:03:51 -0400
+Received: from mga05.intel.com ([192.55.52.89]:14455 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750877AbWJZADu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 20:03:50 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,358,1157353200"; 
+   d="scan'208"; a="152098492:sNHT96256167"
+Date: Wed, 25 Oct 2006 16:42:53 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Russ Anderson <rja@sgi.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Mixed Madison and Montecito system support
+Message-ID: <20061025164253.A21790@unix-os.sc.intel.com>
+References: <20061023205643.GA13990@intel.com> <200610250056.k9P0ujPY21429663@clink.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200610250056.k9P0ujPY21429663@clink.americas.sgi.com>; from rja@sgi.com on Tue, Oct 24, 2006 at 07:56:45PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Oct 2006 15:27:09 -0700 David Brownell wrote:
-
-> The other parts are right, this isn't.
+On Tue, Oct 24, 2006 at 07:56:45PM -0500, Russ Anderson wrote:
+> Tony Luck wrote:
+> > 
+> > Cc: linux-kernel for generic bit of this change.  Rest of patch was
+> > posted to linux-ia64: http://marc.theaimsgroup.com/?l=linux-ia64&m=116070997529216&w=2
+> > 
+> > On Thu, Oct 12, 2006 at 10:25:58PM -0500, Russ Anderson wrote:
+> > >  int sched_create_sysfs_power_savings_entries(struct sysdev_class *cls)
+> > >  {
+> > > -	int err = 0;
+> > > +	int err = 0, c;
+> > >  
+> > >  #ifdef CONFIG_SCHED_SMT
+> > > -	if (smt_capable())
+> > > -		err = sysfs_create_file(&cls->kset.kobj,
+> > > +	for_each_online_cpu(c)
+> > > +		if (smt_capable(c)) {
+> > > +			err = sysfs_create_file(&cls->kset.kobj,
+> > >  					&attr_sched_smt_power_savings.attr);
+> > > +			break;
+> > > +		}
+> > >  #endif
+> > 
+> > What if you booted an all-Madison system, and then hot-plugged some
+> > Montecitos later?  Either we'd need the hotplug cpu code to run through
+> > this routine again to re-test whether any cpu has multi-thread support
+> > (it doesn't look like it does that now).
+> > 
+> > Or perhaps it would be simpler to dispense with this test and always
+> > call sysfs_create_file() here (still inside CONFIG_SCHED_SMT) so that
+> > the hook is always present to tune the scheduler (even if it may be
+> > ineffective on a no-smt system)?
 > 
-> Instead, "usbnet.c" should #ifdef the relevant ethtool hooks
-> according to CONFIG_MII ... since it's completely legit to
-> use usbnet with peripherals that don't need MII.
+> I like that idea.  Any objections or comments?
 
-Ugh.  OK.  How's this?  (2 patches)
+I added it so that these entries will not confuse users of a non-smt/mc
+systems. But mixed type of processors and cpu hotplug really complicates the
+things..
 
-(oh, OP mentioned CONFIG_PHYLIB but it's actually CONFIG_MII AFAIK)
+May be a check of something like "is this platform capable of
+supporting any multi-core/multi-threaded processor package?" helps..
 
----
-From: Randy Dunlap <randy.dunlap@oracle.com>
+As there is no well defined mechanism to find out that and for simplicity
+reasons, we should probably go with Tony's suggestion.
 
-pegasus and mcs7830 drivers use MII interfaces and should
-select MII in the same way that drivers/net/ drivers do.
+Russ I can post a patch, removing both smt_capable() and mc_capable()
+checks.
 
-However, the MII config symbol should not be in the 10/100 Ethernet
-menu, so that other drivers can use (enable) it or so that users
-can enable it without needing to enable 10/100 Ethernet.
+Today this sysfs variable is not documented. But when it happens, we
+need to clearly document that these variables have no meaning when
+the system doesn't have cpus with threads/cores.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- drivers/net/Kconfig     |   15 +++++++--------
- drivers/usb/net/Kconfig |    2 ++
- 2 files changed, 9 insertions(+), 8 deletions(-)
-
---- linux-2619-rc3-pv.orig/drivers/usb/net/Kconfig
-+++ linux-2619-rc3-pv/drivers/usb/net/Kconfig
-@@ -84,6 +84,7 @@ config USB_PEGASUS
- config USB_RTL8150
- 	tristate "USB RTL8150 based ethernet device support (EXPERIMENTAL)"
- 	depends on EXPERIMENTAL
-+	select MII
- 	help
- 	  Say Y here if you have RTL8150 based usb-ethernet adapter.
- 	  Send me <petkan@users.sourceforge.net> any comments you may have.
-@@ -210,6 +211,7 @@ config USB_NET_PLUSB
- config USB_NET_MCS7830
- 	tristate "MosChip MCS7830 based Ethernet adapters"
- 	depends on USB_USBNET
-+	select MII
- 	help
- 	  Choose this option if you're using a 10/100 Ethernet USB2
- 	  adapter based on the MosChip 7830 controller. This includes
---- linux-2619-rc3-pv.orig/drivers/net/Kconfig
-+++ linux-2619-rc3-pv/drivers/net/Kconfig
-@@ -145,6 +145,13 @@ config NET_SB1000
- 
- source "drivers/net/arcnet/Kconfig"
- 
-+config MII
-+	tristate "Generic Media Independent Interface device support"
-+	help
-+	  Most ethernet controllers have MII transceiver either as an external
-+	  or internal device.  It is safe to say Y or M here even if your
-+	  ethernet card lacks MII.
-+
- source "drivers/net/phy/Kconfig"
- 
- #
-@@ -180,14 +187,6 @@ config NET_ETHERNET
- 	  kernel: saying N will just cause the configurator to skip all
- 	  the questions about Ethernet network cards. If unsure, say N.
- 
--config MII
--	tristate "Generic Media Independent Interface device support"
--	depends on NET_ETHERNET
--	help
--	  Most ethernet controllers have MII transceiver either as an external
--	  or internal device.  It is safe to say Y or M here even if your
--	  ethernet card lack MII.
--
- source "drivers/net/arm/Kconfig"
- 
- config MACE
+thanks,
+suresh

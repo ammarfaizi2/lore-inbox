@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423265AbWJYLEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423269AbWJYLJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423265AbWJYLEY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 07:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423268AbWJYLEY
+	id S1423269AbWJYLJn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 07:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423270AbWJYLJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 07:04:24 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:20181 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1423265AbWJYLEX convert rfc822-to-8bit (ORCPT
+	Wed, 25 Oct 2006 07:09:43 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:18448 "EHLO mail.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S1423269AbWJYLJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 07:04:23 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Vasily Tarasov <vtaras@openvz.org>
-Subject: Re: [PATCH] diskquota: 32bit quota tools on 64bit architectures
-Date: Wed, 25 Oct 2006 13:03:48 +0200
-User-Agent: KMail/1.9.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Jan Kara <jack@suse.cz>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Kagan <rkagan@sw.ru>,
-       Randy Dunlap <rdunlap@xenotime.net>, Dmitry Mishin <dim@openvz.org>,
-       Andi Kleen <ak@suse.de>, Vasily Averin <vvs@sw.ru>,
-       Christoph Hellwig <hch@infradead.org>, Kirill Korotaev <dev@openvz.org>,
-       OpenVZ Developers List <devel@openvz.org>
-References: <200610251003.k9PA38kD018604@vass.7ka.mipt.ru>
-In-Reply-To: <200610251003.k9PA38kD018604@vass.7ka.mipt.ru>
+	Wed, 25 Oct 2006 07:09:42 -0400
+Date: Wed, 25 Oct 2006 13:09:37 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.18-rt6] BUG / typo
+In-Reply-To: <Pine.LNX.4.63.0610241512500.1852@pcgl.dsa-ac.de>
+Message-ID: <Pine.LNX.4.63.0610251247460.1852@pcgl.dsa-ac.de>
+References: <Pine.LNX.4.63.0610240954420.1852@pcgl.dsa-ac.de>
+ <Pine.LNX.4.63.0610241003280.1852@pcgl.dsa-ac.de>
+ <Pine.LNX.4.63.0610241408000.1852@pcgl.dsa-ac.de>
+ <Pine.LNX.4.63.0610241512500.1852@pcgl.dsa-ac.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610251303.50551.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 October 2006 12:03, Vasily Tarasov wrote:
-> + * This code works only for 32 bit quota tools over 64 bit OS (x86_64, ia64)
-> + * and is necessary due to alignment problems.
-> + */
-> +struct compat_if_dqblk {
-> +       compat_uint_t dqb_bhardlimit[2];
-> +       compat_uint_t dqb_bsoftlimit[2];
-> +       compat_uint_t dqb_curspace[2];
-> +       compat_uint_t dqb_ihardlimit[2];
-> +       compat_uint_t dqb_isoftlimit[2];
-> +       compat_uint_t dqb_curinodes[2];
-> +       compat_uint_t dqb_btime[2];
-> +       compat_uint_t dqb_itime[2];
-> +       compat_uint_t dqb_valid;
-> +};
-> +
-> +/* XFS structures */
-> +struct compat_fs_qfilestat {
-> +       compat_uint_t dqb_bhardlimit[2];
-> +       compat_uint_t   qfs_nblks[2];
-> +       compat_uint_t   qfs_nextents;
-> +};
-> +
+Hi again
 
-The patch looks technically correct, but you have defined the structures
-in a somewhat unusual way. I'd have defined them with 
-attribute((packed, aligned(4))) in the end.
+Just a bit more detail to the way the bug occurs: you just need
 
-Or even better, we should probably add a 
+CONFIG_LATENCY_TIMING=y
 
-typedef unsigned long long __attribute__((aligned(4))) compat_u64;
+and in my case I had 2 consoles: tty1 and ttyS0. tty1 is a framebuffer. I 
+don't know where irqs get disabled (the original BUG was
 
-for x86 compat and use that instead of compat_uint_t foo[2].
+BUG: scheduling with irqs disabled: posix_cpu_timer/0x00000001/2
+caller is rt_spin_lock_slowlock+0xd8/0x1c8
 
-	Arnd <><
+but is it at all ok to schedule in kmalloc(GFP_ATOMIC)? Which is exactly 
+what happens here as kmalloc tries to acquire the per-cpu "spinlock" / 
+mutex slab_irq_locks and is forced into the slow path.
+
+The bug often triggers when I reset /proc/sys/kernel/preempt_max_latency 
+with 0 and if I have high enough console logging level in 
+/proc/sys/kernel/printk.
+
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany

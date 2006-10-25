@@ -1,88 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWJYVeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWJYVnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWJYVeE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 17:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWJYVeE
+	id S1750789AbWJYVnI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 17:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWJYVnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 17:34:04 -0400
-Received: from mail.acc.umu.se ([130.239.18.156]:22414 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S932426AbWJYVeC (ORCPT
+	Wed, 25 Oct 2006 17:43:08 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61893 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750789AbWJYVnF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 17:34:02 -0400
-Date: Wed, 25 Oct 2006 23:33:55 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Pavel Roskin <proski@gnu.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: incorrect taint of ndiswrapper
-Message-ID: <20061025213355.GG23256@vasa.acc.umu.se>
-Mail-Followup-To: Pavel Roskin <proski@gnu.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-References: <1161807069.3441.33.camel@dv> <1161808227.7615.0.camel@localhost.localdomain> <1161810392.3441.60.camel@dv>
-Mime-Version: 1.0
+	Wed, 25 Oct 2006 17:43:05 -0400
+Date: Wed, 25 Oct 2006 23:42:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix generic WARN_ON message
+Message-ID: <20061025214257.GA2578@elf.ucw.cz>
+References: <4535902E.1000608@goop.org> <20061018055542.GA14784@elte.hu> <20061025100405.GB7658@elf.ucw.cz> <1161809722.3207.3.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1161810392.3441.60.camel@dv>
-User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+In-Reply-To: <1161809722.3207.3.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 05:06:32PM -0400, Pavel Roskin wrote:
-> On Wed, 2006-10-25 at 21:30 +0100, Alan Cox wrote:
-> > Ar Mer, 2006-10-25 am 16:11 -0400, ysgrifennodd Pavel Roskin:
-> > > I don't see any legal reasons behind this restriction.  A driver under
-> > > GPL should be able to use any exported symbols.  EXPORT_SYMBOL_GPL is a
-> > > technical mechanism of enforcing GPL against non-free code, but
-> > > ndiswrapper is free.  The non-free NDIS drivers are not using those
-> > > symbols.
+On Wed 2006-10-25 16:55:22, Steven Rostedt wrote:
+> On Wed, 2006-10-25 at 12:04 +0200, Pavel Machek wrote:
+> > Hi!
 > > 
-> > The combination of GPL wrapper and the NDIS driver as a work is not free
-> > (in fact its questionable if its even legal to ship such a combination
-> > together).
+> > > * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> > > 
+> > > > A warning is a warning, not a BUG.
+> > > 
+> > > > -		printk("BUG: warning at %s:%d/%s()\n", __FILE__,	\
+> > > > +		printk("WARNING at %s:%d %s()\n", __FILE__,	\
+> > > 
+> > > i'm not really happy about this change.
+> > > 
+> > > Firstly, most WARN_ON()s are /bugs/, not warnings ... If it's a real 
+> > > warning, a KERN_INFO printk should be done.
+> > > 
+> > > Secondly, the reason i changed it to the 'BUG: ...' format is that i 
+> > > tried to make it easier for automated tools (and for users) to figure 
+> > > out that a kernel bug happened.
+> > 
+> > Well... but the message is really bad. It leads to users telling us "I
+> > hit BUG in kernel"...
 > 
-> So, the problem is on the legal side.
+> But they *did* hit a BUG. It just so happens that the BUG was fixable.
+> We want this reported because a WARN_ON should *never* be hit unless
+> there's a bug.  If people start getting "WARNING" messages, they will
+> more likely not be reporting them.
 > 
-> But I have to ask - which NDIS driver?  I can write a free NDIS driver
-> and use it with ndiswrapper.  You can say it's a stupid thing to do, but
-> once you talk about the legality, the only argument should be
-> legal/illegal.  Besides, it may be a not such a bad idea for a ReactOS
-> developer writing a ReactOS driver to test it with Linux.
-> 
-> Also, nothing should prevent me from combining ndiswrapper with any
-> Windows driver in the privacy of my home as long as I don't distribute
-> anything.  GPL doesn't have use restrictions (although the driver may
-> have an EULA).
-> 
-> Since the problem is with USB symbols, I can split the USB part from
-> ndiswrapper and call it ndiswrapper-usb.  Then ndiswrapper-usb will be
-> calling the GPL-only symbols while ndiswrapper will be loading the
-> non-free modules.  Good luck catching that!  It's actually a change that
-> makes sense technically.  Imagine what a change specifically intended to
-> fool Linux would do!
-> 
-> I don't see how the kernel can detect the cases where GPL is actually
-> violated without creating problem for honest users.  Kernel code is not
-> a police department, let alone a court of law.  Let's not create out own
-> DRM right in the kernel!
-> 
-> Companies that ship ndiswrapper with non-free modules may be breaking
-> copyright laws already.  But it's not something that should be fought by
-> kernel patches.
+> As Ingo already said, if it is just a "warning" then a normal printk
+> should be used.
 
-No matter how the legal situation looks like: do we *want* to support
-drivers that use an API totally alien to Linux concepts?
+Fine, then why is the macro called WARN_ON()? That's certainly highly
+confusing.
 
-Personally I feel that no matter if they are legal or not, we should not
-cater to such drivers in the first place.  If it's trickier to use
-Windows API-drivers under Linux than to write a native Linux driver,
-big deal...  We don't want Windows-drivers.  We want native drivers.
+NONFATAL_BUG_ON()?
 
-
-Regards: David Weinehall
+I hate people reporting BUG (or BUG()) when they hit WARN_ON(), and
+current wording certainly makes it easy.
+								Pavel
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

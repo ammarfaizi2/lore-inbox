@@ -1,82 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423323AbWJYMLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423377AbWJYM0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423323AbWJYMLk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 08:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423356AbWJYMLk
+	id S1423377AbWJYM0p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 08:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423384AbWJYM0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 08:11:40 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11747 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1423323AbWJYMLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 08:11:39 -0400
-Subject: Re: [PATCH v2] Re: Battery class driver.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Richard Hughes <hughsient@gmail.com>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       David Zeuthen <davidz@redhat.com>
-In-Reply-To: <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
-References: <1161628327.19446.391.camel@pmac.infradead.org>
-	 <1161631091.16366.0.camel@localhost.localdomain>
-	 <1161633509.4994.16.camel@hughsie-laptop>
-	 <1161636514.27622.30.camel@shinybook.infradead.org>
-	 <1161710328.17816.10.camel@hughsie-laptop>
-	 <1161762158.27622.72.camel@shinybook.infradead.org>
-	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 15:11:35 +0300
-Message-Id: <1161778296.27622.85.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 25 Oct 2006 08:26:45 -0400
+Received: from michelle.lostinspace.de ([62.146.248.226]:8920 "EHLO
+	michelle.lostinspace.de") by vger.kernel.org with ESMTP
+	id S1423377AbWJYM0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 08:26:44 -0400
+Date: Wed, 25 Oct 2006 14:26:10 +0200
+From: Matthias Fechner <idefix@fechner.net>
+To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Link lib to a kernel module
+Message-ID: <20061025122609.GA86838@server.idefix.loc>
+Reply-To: linux-kernel@vger.kernel.org
+Mail-Followup-To: kbuild-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20061024105518.GA55219@server.idefix.loc> <slrnejs14h.93p.olecom@flower.upol.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <slrnejs14h.93p.olecom@flower.upol.cz>
+X-Crypto: GnuPG/1.0.6 http://www.gnupg.org
+X-GnuPG: 0x1B756EF6
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (michelle.lostinspace.de [62.146.248.226]); Wed, 25 Oct 2006 14:26:16 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-25 at 11:54 +0200, Shem Multinymous wrote:
-> What about current and power? These change very quickly.
+Hello Oleg,
 
-I don't think we'd want to generate events for those, except perhaps if
-they exceed certain thresholds.
+* Oleg Verych <olecom@flower.upol.cz> [24-10-06 12:11]:
+> `Documentation/kbuild' directory in your linux sources.
+> `makefiles.txt' about `lib-y',
+> `modules.txt'   about modules.
 
-> BTW, your patch doesn't address the instantaneous vs. average readout
-> issue in the Smart Battery Data Specification and ThinkPads. Nor a
-> number of other issues I brought up earlier.
+I was now successfull with:
+hello_lib.h:
+int printHello(int);
 
-True; it's a work-in-progress, and was actually sent just as I was
-boarding a plane. I shall attempt to go back through the messages I've
-received and address anything else that's pending.
+hello_lib.c
+int printHello(int count)
+{
+   int i;
+      
+   for(i=0;i<=count;i++)
+   {
+       printk("Hello World\n");
+   }
+   return 0;
+}
+			   
+hello.c:
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include "hello_lib.h"
+   
+MODULE_LICENSE("GPL");
+			   
+int init_module(void)
+{
+    printk("call function\n");
+    printHello(5);
+    return 0;
+}
+				    
+void cleanup_module(void)
+{
+    printk(KERN_INFO "remove module\n");
+    return;
+}
+					  
+Makefile:
+KDIR    := /lib/modules/$(shell uname -r)/build
+PWD := $(shell pwd)
 
-If you can summarise the bits I've missed in the meantime that would be 
-wonderfully useful -- especially if you could do so in 'diff -u' form :)
+obj-m += test.o
+test-y := hello.o libhello_lib.a
 
-> > one of the things I plan is to remove 'charge_units' and provide both
-> > 'design_charge' and 'design_energy' (also {energy,charge}_last,
-> > _*_thresh etc.) to cover the mWh vs. mAh cases.
-> 
-> You can't do this conversion, since the voltage is not constant.
-> Typically the voltage drops when the charge goes down, so you'll be
-> grossly overestimating the available energy it. And the effect varies
-> with battery chemistry and condition.
+all:
+   gcc -I/usr/include -c -o hello_lib.o hello_lib.c
+   rm -f libhello_lib.a
+   ar cru libhello_lib.a hello_lib.o
+   $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules KBUILD_VERBOSE=1
+	      
 
-Absolutely. I don't want to do the conversion -- I want to present the
-raw data. I was just a question of whether I provide 'capacity' and
-'units' properties, or whether I provide 'capacity_mWh' and
-'capacity_mAh' properties (only one of which, presumably, would be
-available for any given battery). Likewise for the rates, thresholds,
-etc.
 
-> > I'd rather show it as a hex value 'flags' than
-> > split it up. But I still think that the current 'present,charging,low'
-> > is best.
-> 
-> Then please make space-separated rather than comma-separated. That's
-> easier to parse in shell and C.
-
-Ok. Committed to git://git.infradead.org/battery-2.6.git
+Best regards,
+Matthias
 
 -- 
-dwmw2
 
+"Programming today is a race between software engineers striving to
+build bigger and better idiot-proof programs, and the universe trying to
+produce bigger and better idiots. So far, the universe is winning." --
+Rich Cook

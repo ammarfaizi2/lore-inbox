@@ -1,207 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbWJYXwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbWJYX7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965105AbWJYXwv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 19:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWJYXwv
+	id S965170AbWJYX7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 19:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbWJYX7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 19:52:51 -0400
-Received: from hu-out-0506.google.com ([72.14.214.227]:27773 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751707AbWJYXwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 19:52:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=lmWEt4H5EaWOke+bGiQmug1BEUCRgOqQ9ebr4cmrBfhLjwsZ9xWlFW0G06fPG2ZtbCJEqgwO7/nXZhot0SWWzKbzgtdYh5lv8CSOLj8MT+ST6MygCc3bdR8wwsQ96qkIZ22jyvf07RdJrv5DRR8iTYyLEj6SgyS0D1+j+qQlLqs=
-Message-ID: <f46018bb0610251652y7b29889cr8a41044db6168432@mail.gmail.com>
-Date: Wed, 25 Oct 2006 19:52:47 -0400
-From: "Holden Karau" <holden@pigscanfly.ca>
-To: hirofumi@mail.parknet.co.jp
-Subject: [PATCH 1/1] fat: improve sync performance by grouping writes in fat_mirror_bhs
-Cc: linux-kernel@vger.kernel.org, holdenk@xandros.com,
-       "akpm@osdl.org" <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       "Holden Karau" <holden@pigscanfly.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 25 Oct 2006 19:59:06 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:10561 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S964838AbWJYX7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 19:59:05 -0400
+Date: Wed, 25 Oct 2006 16:58:58 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: toralf.foerster@gmx.de, netdev@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, link@miggy.org, greg@kroah.com,
+       akpm@osdl.org, zippel@linux-m68k.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net
+Subject: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
+Message-Id: <20061025165858.b76b4fd8.randy.dunlap@oracle.com>
+In-Reply-To: <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
+	<20061025201341.GH21200@miggy.org>
+	<20061025151737.1bf4898c.randy.dunlap@oracle.com>
+	<20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Google-Sender-Auth: e492536d052bdb84
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
+On Wed, 25 Oct 2006 15:27:09 -0700 David Brownell wrote:
 
-This is an attempt at improving fat_mirror_bhs in sync mode [namely it
-writes all of the data for a backup block, and then blocks untill
-finished]. The old behaviour would write & block in smaller chunks, so
-this should be slightly faster. It also removes the fixme requesting
-that it be fixed to behave this way :-)
-Signed-off-by: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
+> Instead, "usbnet.c" should #ifdef the relevant ethtool hooks
+> according to CONFIG_MII ... since it's completely legit to
+> use usbnet with peripherals that don't need MII.
+
 ---
-Important note; I do not normally play with filesystems. This MAY eat
-your file system, it hasen't eaten mine but that does not mean much at
-all [although I don't think it will]. I'd greatly appreciate comments
-& suggestions. In case the patch gets mangled I've put it up at
-http://www.holdenkarau.com/~holden/projects/fat/001_improve_fat_sync_performance.patch
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-And now for the actual patch:
---- a/fs/fat/fatent.c	2006-09-19 23:42:06.000000000 -0400
-+++ b/fs/fat/fatent.c	2006-10-25 19:14:14.000000000 -0400
-@@ -1,5 +1,6 @@
- /*
-  * Copyright (C) 2004, OGAWA Hirofumi
-+ * Copyright (C) 2006, Holden Karau [Xandros]
-  * Released under GPL v2.
-  */
+usbnet driver should use mii_*() interfaces if they are available
+in the kernel (config enabled) but usbnet does not require or depend
+on these interfaces.
 
-@@ -343,34 +344,46 @@ int fat_ent_read(struct inode *inode, st
- 	return ops->ent_get(fatent);
- }
+Build tested with CONFIG_MII=y, m, n.
 
--/* FIXME: We can write the blocks as more big chunk. */
- static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
--			  int nr_bhs)
-+			  int nr_bhs ) {
-+  return fat_mirror_bhs_optw(sb , bhs , nr_bhs, 0);
-+}
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ drivers/usb/net/usbnet.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+--- linux-2619-rc3-pv.orig/drivers/usb/net/usbnet.c
++++ linux-2619-rc3-pv/drivers/usb/net/usbnet.c
+@@ -47,6 +47,12 @@
+ 
+ #define DRIVER_VERSION		"22-Aug-2005"
+ 
++#if defined(CONFIG_MII) || defined(CONFIG_MII_MODULE)
++#define HAVE_MII		1
++#else
++#define HAVE_MII		0
++#endif
 +
-+static int fat_mirror_bhs_optw(struct super_block *sb, struct
-buffer_head **bhs,
-+			       int nr_bhs , int wait)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
--	struct buffer_head *c_bh;
-+	struct buffer_head *c_bh[nr_bhs];
- 	int err, n, copy;
-
-+	/* Always wait if mounted -o sync */
-+	if (sb->s_flags & MS_SYNCHRONOUS ) {
-+	  wait = 1;
-+	}
-+
- 	err = 0;
-+	err = fat_sync_bhs_optw( bhs  , nr_bhs , wait);
-+	if (err)
-+	  goto error;
- 	for (copy = 1; copy < sbi->fats; copy++) {
- 		sector_t backup_fat = sbi->fat_length * copy;
--
- 		for (n = 0; n < nr_bhs; n++) {
--			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
--			if (!c_bh) {
-+	    c_bh[n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
-+	    if (!c_bh[n]) {
- 				err = -ENOMEM;
- 				goto error;
- 			}
--			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
--			set_buffer_uptodate(c_bh);
--			mark_buffer_dirty(c_bh);
--			if (sb->s_flags & MS_SYNCHRONOUS)
--				err = sync_dirty_buffer(c_bh);
--			brelse(c_bh);
-+	    set_buffer_uptodate(c_bh[n]);
-+	    mark_buffer_dirty(c_bh[n]);
-+	    memcpy(c_bh[n]->b_data, bhs[n]->b_data, sb->s_blocksize);
-+	  }
-+	  err = fat_sync_bhs_optw( c_bh  , nr_bhs , wait );
-+	  for (n = 0; n < nr_bhs; n++ ) {
-+	    brelse(c_bh[n]);
-+	  }
- 			if (err)
- 				goto error;
- 		}
--	}
- error:
- 	return err;
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+@@ -676,7 +682,10 @@ int usbnet_get_settings (struct net_devi
+ 	if (!dev->mii.mdio_read)
+ 		return -EOPNOTSUPP;
+ 
++#if HAVE_MII
+ 	return mii_ethtool_gset(&dev->mii, cmd);
++#endif
++	return -EOPNOTSUPP;
  }
-@@ -383,12 +396,7 @@ int fat_ent_write(struct inode *inode, s
- 	int err;
-
- 	ops->ent_put(fatent, new);
--	if (wait) {
--		err = fat_sync_bhs(fatent->bhs, fatent->nr_bhs);
--		if (err)
--			return err;
--	}
--	return fat_mirror_bhs(sb, fatent->bhs, fatent->nr_bhs);
-+	return fat_mirror_bhs_optw(sb, fatent->bhs, fatent->nr_bhs , wait);
+ EXPORT_SYMBOL_GPL(usbnet_get_settings);
+ 
+@@ -688,7 +697,11 @@ int usbnet_set_settings (struct net_devi
+ 	if (!dev->mii.mdio_write)
+ 		return -EOPNOTSUPP;
+ 
++#if HAVE_MII
+ 	retval = mii_ethtool_sset(&dev->mii, cmd);
++#else
++	retval = -EOPNOTSUPP;
++#endif
+ 
+ 	/* link speed/duplex might have changed */
+ 	if (dev->driver_info->link_reset)
+@@ -721,9 +734,11 @@ u32 usbnet_get_link (struct net_device *
+ 	if (dev->driver_info->check_connect)
+ 		return dev->driver_info->check_connect (dev) == 0;
+ 
++#if HAVE_MII
+ 	/* if the device has mii operations, use those */
+ 	if (dev->mii.mdio_read)
+ 		return mii_link_ok(&dev->mii);
++#endif
+ 
+ 	/* Otherwise, say we're up (to avoid breaking scripts) */
+ 	return 1;
+@@ -753,7 +768,10 @@ int usbnet_nway_reset(struct net_device 
+ 	if (!dev->mii.mdio_write)
+ 		return -EOPNOTSUPP;
+ 
++#if HAVE_MII
+ 	return mii_nway_restart(&dev->mii);
++#endif
++	return -EOPNOTSUPP;
  }
-
- static inline int fat_ent_next(struct msdos_sb_info *sbi,
-@@ -505,9 +513,9 @@ out:
- 	fatent_brelse(&fatent);
- 	if (!err) {
- 		if (inode_needs_sync(inode))
--			err = fat_sync_bhs(bhs, nr_bhs);
--		if (!err)
--			err = fat_mirror_bhs(sb, bhs, nr_bhs);
-+		  err = fat_mirror_bhs_optw(sb , bhs, nr_bhs , 1);
-+		else
-+		  err = fat_mirror_bhs_optw(sb, bhs, nr_bhs , 0 );
- 	}
- 	for (i = 0; i < nr_bhs; i++)
- 		brelse(bhs[i]);
-@@ -549,11 +557,6 @@ int fat_free_clusters(struct inode *inod
- 		}
-
- 		if (nr_bhs + fatent.nr_bhs > MAX_BUF_PER_PAGE) {
--			if (sb->s_flags & MS_SYNCHRONOUS) {
--				err = fat_sync_bhs(bhs, nr_bhs);
--				if (err)
--					goto error;
--			}
- 			err = fat_mirror_bhs(sb, bhs, nr_bhs);
- 			if (err)
- 				goto error;
-@@ -564,11 +567,6 @@ int fat_free_clusters(struct inode *inod
- 		fat_collect_bhs(bhs, &nr_bhs, &fatent);
- 	} while (cluster != FAT_ENT_EOF);
-
--	if (sb->s_flags & MS_SYNCHRONOUS) {
--		err = fat_sync_bhs(bhs, nr_bhs);
--		if (err)
--			goto error;
--	}
- 	err = fat_mirror_bhs(sb, bhs, nr_bhs);
- error:
- 	fatent_brelse(&fatent);
---- a/fs/fat/misc.c	2006-09-19 23:42:06.000000000 -0400
-+++ b/fs/fat/misc.c	2006-10-25 18:54:27.000000000 -0400
-@@ -194,11 +194,17 @@ void fat_date_unix2dos(int unix_date, __
-
- EXPORT_SYMBOL_GPL(fat_date_unix2dos);
-
--int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs)
-+
-+int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs ) {
-+  return fat_sync_bhs_optw(bhs , nr_bhs , 1);
-+}
-+
-+int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs ,int wait)
- {
- 	int i, err = 0;
-
- 	ll_rw_block(SWRITE, nr_bhs, bhs);
-+	if (wait) {
- 	for (i = 0; i < nr_bhs; i++) {
- 		wait_on_buffer(bhs[i]);
- 		if (buffer_eopnotsupp(bhs[i])) {
-@@ -207,6 +213,7 @@ int fat_sync_bhs(struct buffer_head **bh
- 		} else if (!err && !buffer_uptodate(bhs[i]))
- 			err = -EIO;
- 	}
-+	}
- 	return err;
- }
-
---- a/include/linux/msdos_fs.h	2006-09-19 23:42:06.000000000 -0400
-+++ b/include/linux/msdos_fs.h	2006-10-25 18:53:50.000000000 -0400
-@@ -419,6 +419,7 @@ extern int fat_chain_add(struct inode *i
- extern int date_dos2unix(unsigned short time, unsigned short date);
- extern void fat_date_unix2dos(int unix_date, __le16 *time, __le16 *date);
- extern int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs);
-+extern int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs, int wait);
-
- int fat_cache_init(void);
- void fat_cache_destroy(void);
+ EXPORT_SYMBOL_GPL(usbnet_nway_reset);
+ 

@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWJYWDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWJYWHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751695AbWJYWDB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 18:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWJYWDB
+	id S1751711AbWJYWHE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 18:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751724AbWJYWHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 18:03:01 -0400
-Received: from c60.cesmail.net ([216.154.195.49]:35845 "EHLO c60.cesmail.net")
-	by vger.kernel.org with ESMTP id S1751695AbWJYWDA (ORCPT
+	Wed, 25 Oct 2006 18:07:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45517 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751711AbWJYWHD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 18:03:00 -0400
-Subject: Re: incorrect taint of ndiswrapper
-From: Pavel Roskin <proski@gnu.org>
-To: David Weinehall <tao@acc.umu.se>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061025213355.GG23256@vasa.acc.umu.se>
-References: <1161807069.3441.33.camel@dv>
-	 <1161808227.7615.0.camel@localhost.localdomain>
-	 <1161810392.3441.60.camel@dv>  <20061025213355.GG23256@vasa.acc.umu.se>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 18:02:58 -0400
-Message-Id: <1161813778.3441.84.camel@dv>
+	Wed, 25 Oct 2006 18:07:03 -0400
+Date: Wed, 25 Oct 2006 15:06:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Git training wheels for the pimple faced maintainer
+Message-Id: <20061025150622.1fea8f5b.akpm@osdl.org>
+In-Reply-To: <453FDC13.60409@drzeus.cx>
+References: <4537EB67.8030208@drzeus.cx>
+	<20061019152503.217a82aa.akpm@osdl.org>
+	<45386C29.7050501@drzeus.cx>
+	<20061019233708.3b1f4811.akpm@osdl.org>
+	<453FDC13.60409@drzeus.cx>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-25 at 23:33 +0200, David Weinehall wrote:
+> On Wed, 25 Oct 2006 23:50:11 +0200 Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+> Andrew Morton wrote:
+> > I don't care what the history is.  I fetch the whole thing then generate
+> > (you - linus) as a single unified diff then whack it into the patch pile.
+> >   
+> 
+> How do you handle when I'm a bit after Linus (which will be the case
+> most of the time)? Will me doing pulls left and right distrupt this?
+> 
 
-> No matter how the legal situation looks like: do we *want* to support
-> drivers that use an API totally alien to Linux concepts?
+Nope, that's fine.  git gives me a diff which is "things which are in Pierre's
+tree but which aren't in Linus's".
 
-The word "support" is overloaded.  I think tainting was striking the
-perfect balance between the two meanings.  The driver would work, but
-the kernel developers could ignore problems with the driver.
-
-What is going on now is making sure that the driver doesn't work.  At
-least that's my understanding of Alan's intention not to allow code
-loading for modules that have used GPL-only symbols.
-
-And that's what I think is way over the top.  It's akin looking for
-process called "wine" (or detecting it by its behavior) and denying it
-access to some syscalls.
-
-> Personally I feel that no matter if they are legal or not, we should not
-> cater to such drivers in the first place.  If it's trickier to use
-> Windows API-drivers under Linux than to write a native Linux driver,
-> big deal...  We don't want Windows-drivers.  We want native drivers.
-
-The only non-native part of ndiswrapper is NDIS, as opposed to bare
-hardware access.  ndiswrapper implements quite a lot of functionality in
-the free code.
-
-Discouraging the ndiswrapper developer is especially unfair because he
-did much better job at supporting such features as WPA, compared to what
-some of us, myself included, did with the free drivers.
-
-I'm not against free and fully open drivers, but they won't appear
-overnight.  Sometimes ndiswrapper is a good starting point to understand
-what the hardware can do and whether it's functional at all.  It could
-also be used for reverse engineering.
-
--- 
-Regards,
-Pavel Roskin
-
+Just go ahead and do whatever it is you want to do and don't bother about
+-mm.  If something goes badly wrong (it probably won't) then we can take a
+look at it.

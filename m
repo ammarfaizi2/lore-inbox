@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWJYPnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWJYPoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751495AbWJYPnR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 11:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbWJYPnR
+	id S964796AbWJYPoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 11:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751870AbWJYPoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 11:43:17 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:53145 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751495AbWJYPnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 11:43:16 -0400
-Date: Wed, 25 Oct 2006 11:41:30 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Mitch <Mitch@0Bits.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: More uml build failures on 2.16.19-rc3 and 2.6.18.1
-Message-ID: <20061025154130.GF4323@ccure.user-mode-linux.org>
-References: <453E7F07.9010804@0Bits.COM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <453E7F07.9010804@0Bits.COM>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 25 Oct 2006 11:44:25 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:46813 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751706AbWJYPoY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 11:44:24 -0400
+Message-ID: <453F8630.2000608@zytor.com>
+Date: Wed, 25 Oct 2006 08:43:44 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Jes Sorensen <jes@sgi.com>, Junio C Hamano <junkio@cox.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git failure] failure pulling latest Linus tree
+References: <yq0d58g92u0.fsf@jaguar.mkp.net> <Pine.LNX.4.64.0610250746000.3962@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610250746000.3962@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 01:00:55AM +0400, Mitch wrote:
-> I've definetly not done any such change on my machine. Remember with the 
-> same compile, same environment, if i go back to 2.6.18 i can build uml 
-> fine. If i move to 2.6.18.1 or above it breaks...
-
-You're sure about that?  I just looked through the 2.6.18.1 changelog and
-I see nothing that would cause this.
-
-> I do notice my gcc stddef does have this defined
+Linus Torvalds wrote:
 > 
-> % grep offsetof /usr/lib/gcc/i686-linux/4.0.3/include/stddef.h
-> #define offsetof(TYPE, MEMBER) __builtin_offsetof (TYPE, MEMBER)
+> On Wed, 25 Oct 2006, Jes Sorensen wrote:
+>> Known error? git tree corrupted or need for a new version of git?
+> 
+> For some reason, the mirroring seems to be really slow or broken to one of 
+> the public servers (zeus-pub1). It looks to be affecting gitweb too (ie 
+> www1.kernel.org is busted, while www2.kernel.org seems ok)
+> 
 
-I would do a -E build and make sure that this header, or another one that
-defines offsetof is getting pulled in.
+For some reason which we haven't been able to track down yet, the recent 
+load imposed by FC6 caused zeus1's load to skyrocket, but not zeus2's... 
+it's largely a mystery.
 
-				Jeff
+HOWEVER, git 1.4.3 seems to have been bad chicken.  When we ran it we 
+got a neverending stream of segfaults in the logs.
+
+	-hpa

@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423196AbWJYKTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423203AbWJYKUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423196AbWJYKTn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 06:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423195AbWJYKTm
+	id S1423203AbWJYKUn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 06:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423204AbWJYKUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 06:19:42 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:44348 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1423196AbWJYKTm (ORCPT
+	Wed, 25 Oct 2006 06:20:43 -0400
+Received: from attila.bofh.it ([213.92.8.2]:11978 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S1423203AbWJYKUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 06:19:42 -0400
-Date: Wed, 25 Oct 2006 12:20:55 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use extents for recording what swap is allocated.
-Message-ID: <20061025102054.GA4281@kernel.dk>
-References: <1161576857.3466.9.camel@nigel.suspend2.net> <20061024204239.GA15689@infradead.org> <1161727596.22729.11.camel@nigel.suspend2.net> <20061025091702.GT4281@kernel.dk> <1161770873.22729.120.camel@nigel.suspend2.net>
-Mime-Version: 1.0
+	Wed, 25 Oct 2006 06:20:42 -0400
+Date: Wed, 25 Oct 2006 12:20:30 +0200
+To: linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+Cc: Greg KH <greg@kroah.com>
+Subject: major 442
+Message-ID: <20061025102030.GA5790@wonderland.linux.it>
+Mail-Followup-To: md@Linux.IT, linux-kernel@vger.kernel.org,
+	debian-kernel@lists.debian.org, Greg KH <greg@kroah.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1161770873.22729.120.camel@nigel.suspend2.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: md@Linux.IT (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25 2006, Nigel Cunningham wrote:
-> On Wed, 2006-10-25 at 11:17 +0200, Jens Axboe wrote:
-> > On Wed, Oct 25 2006, Nigel Cunningham wrote:
-> > > IIRC, I avoided list.h because I only wanted a singly linked list (it
-> > > never gets traversed backwards). List.h looks to me like all doubly
-> > > linked lists. Do you know if there are any other singly linked list
-> > > implementations I could piggy-back?
-> > 
-> > Look closer in list.h, more specifically at the hlist_ entries.
-> 
-> Thanks for the pointer. I did look at it, but unless I'm misreading,
-> it's still doubly linked. No matter. I'll use the doubly linked list.
+I just installed the Debian 2.6.18 kernel package and I noticed that it
+repeatedly tries to load a major 442 module alias, which appears to be
+used by the usb_endpoint devices.
+Does anybody know why? I am not even using the USB ports.
 
-It is, the head just takes up a pointer less. As hch mentioned, I doubt
-it matters in this case at all.
+md@bongo:~$uname -a
+Linux bongo 2.6.18-1-686 #1 SMP Sat Oct 21 17:21:28 UTC 2006 i686 GNU/Linux
+md@bongo:~$while sleep 0.1; do ps axf|grep modprob[e]; done
+ 6424 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_2049
+ 6429 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_2049
+ 6438 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
+ 6447 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_2048
+ 6460 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
+ 6473 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_8192
+ 6487 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
+ 6500 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_0
+ 6517 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
+ 6557 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_4096
+ 6562 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_4096
+ 6571 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
+ 6582 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442
+ 6595 ?        R<     0:00      \_ /sbin/modprobe -q -- char_major_442_2051
+[...]
 
 -- 
-Jens Axboe
-
+ciao,
+Marco

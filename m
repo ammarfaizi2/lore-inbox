@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWJYPMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbWJYPSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbWJYPMY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 11:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWJYPMY
+	id S1030472AbWJYPSu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 11:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWJYPSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 11:12:24 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:15257 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932460AbWJYPMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 11:12:23 -0400
-Date: Wed, 25 Oct 2006 11:10:24 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 04/10] uml: make execvp safe for our usage
-Message-ID: <20061025151024.GA4323@ccure.user-mode-linux.org>
-References: <20061017211943.26445.75719.stgit@americanbeauty.home.lan> <20061017212711.26445.79770.stgit@americanbeauty.home.lan> <20061018183707.GB6566@ccure.user-mode-linux.org> <200610210211.28502.blaisorblade@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Oct 2006 11:18:50 -0400
+Received: from attila.bofh.it ([213.92.8.2]:34001 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S1030472AbWJYPSt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 11:18:49 -0400
+Date: Wed, 25 Oct 2006 17:18:37 +0200
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+Subject: Re: major 442
+Message-ID: <20061025151837.GB9999@wonderland.linux.it>
+Mail-Followup-To: md@Linux.IT, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+References: <20061025102030.GA5790@wonderland.linux.it> <20061025150846.GB23331@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
 Content-Disposition: inline
-In-Reply-To: <200610210211.28502.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061025150846.GB23331@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: md@Linux.IT (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 21, 2006 at 02:11:28AM +0200, Blaisorblade wrote:
-> > This is horriby ugly.
-> 
-> Detail why. The code of execvp()? Passing in the buffer?
-> I'm not saying it's the brightest code around here, but it's ok for me.
 
-My initial reaction was mostly due to the look of the code, which is
-fixable.  I also don't like carrying around bits of libc (although we
-do have setjmp/longjmp, but that's a special case).  However, it's
-unlikely that it will need much maintenance, so this is more a taste
-thing as well.
+--0eh6TmSyL6TZE2Uz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I initially thought to design a two-steps API with a "which" operation (where
-> memory allocation was used) to call later execvp(); when I saw the glibc 
-> implementation (it allocates one single fixed-size buffer) I saw it was 
-> simpler this way.
+On Oct 25, Greg KH <greg@kroah.com> wrote:
 
-I think I still like the two-stage thing better.  If the 'which' part
-finds something that doesn't exec, then we can just spit out a nice error.
+> As for what is trying to load the module, I have no idea, it must be
+> some userspace tool...
+Found it... I had this experimental udev rule which puts the devices in
+/dev/bus/usb/ and pcscd keeps scanning the directory every second
+looking for Cthulhu knows what:
 
-> I'd not do that at boot, but just before the fork()+execve() - it is 
-> conceivable that a given user will install a support binary after booting 
-> UML.
+SUBSYSTEM=3D=3D"usb_endpoint",      PROGRAM=3D"/bin/sh -c 'K=3D%k; E=3D$${K=
+#*_}; K=3D$${K#usbdev}; K=3D$${K%%%%_*}; printf bus/usb/%%03i/%%03i_%%s $${=
+K%%%%.*} $${K#*.} $$E'", \
+                                NAME=3D"%c"
 
-I was envisioning it being part of bootup, but doing it just before
-the exec would be OK, too.
+--=20
+ciao,
+Marco
 
-				Jeff
+--0eh6TmSyL6TZE2Uz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFP4BNFGfw2OHuP7ERAjnyAJ9OtjMSRU7ij9qgOGBy3x0tCATOFwCfTbSp
+8vzlOtS2vXRowsgcwNvY8nQ=
+=ZS0j
+-----END PGP SIGNATURE-----
+
+--0eh6TmSyL6TZE2Uz--

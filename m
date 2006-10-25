@@ -1,89 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423303AbWJYLjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423308AbWJYLvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423303AbWJYLjc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 07:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423306AbWJYLjc
+	id S1423308AbWJYLvD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 07:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423311AbWJYLvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 07:39:32 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:17642 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1423303AbWJYLjb (ORCPT
+	Wed, 25 Oct 2006 07:51:03 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:65487 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1423308AbWJYLvB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 07:39:31 -0400
-Date: Wed, 25 Oct 2006 13:39:11 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Dick Streefland <dick.streefland@altium.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: What about make mergeconfig ?
-In-Reply-To: <3d6d.453f3a0f.92d2c@altium.nl>
-Message-ID: <Pine.LNX.4.61.0610251336580.23137@yvahk01.tjqt.qr>
-References: <1161755164.22582.60.camel@localhost.localdomain>
- <3d6d.453f3a0f.92d2c@altium.nl>
+	Wed, 25 Oct 2006 07:51:01 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Vasily Tarasov <vtaras@openvz.org>
+Subject: Re: [PATCH] diskquota: 32bit quota tools on 64bit architectures
+Date: Wed, 25 Oct 2006 13:50:21 +0200
+User-Agent: KMail/1.9.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jan Kara <jack@suse.cz>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Kagan <rkagan@sw.ru>,
+       Randy Dunlap <rdunlap@xenotime.net>, Dmitry Mishin <dim@openvz.org>,
+       Andi Kleen <ak@suse.de>, Vasily Averin <vvs@sw.ru>,
+       Christoph Hellwig <hch@infradead.org>, Kirill Korotaev <dev@openvz.org>,
+       OpenVZ Developers List <devel@openvz.org>
+References: <200610251003.k9PA38kD018604@vass.7ka.mipt.ru> <200610251303.50551.arnd@arndb.de> <200610251125.k9PBPYMj020655@vass.7ka.mipt.ru>
+In-Reply-To: <200610251125.k9PBPYMj020655@vass.7ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610251350.23748.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 25 October 2006 13:25, Vasily Tarasov wrote:
+> Actually I didn't use __attribute__, 'case I'v heard,  that this isn't
+> encouraged now to use __attribute__((...)) in kernel. But if you think it
+> is ok, and even preferable, I will definitely redo it!
 
->Can't you do that with just a sort command?
->
->  sort .config other.config > new.config
+You shouldn't use attributes in ABI headers, because they are
+not interpreted correctly by every compiler. For stuff inside
+of the kernel, I don't see a reason against it.
 
-That does not work where .config and other.config have the same symbol 
-listed, kconfig will bark and use the first value encountered. Because I 
-do have exactly that problem with my patch series (changes some Ys to 
-Ms), I am in need of the following patch to Kconfig TDTRT.
-
-This is probably also what the OP is looking for, except that it does 
-not require a special 'mergeconfig', but works with all 'oldconfig', 
-'menuconfig', xconfig, etc.
-
-
-kconfig_override.diff
-Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
-
-Index: linux-2.6.18_rc4/scripts/kconfig/confdata.c
-===================================================================
---- linux-2.6.18_rc4.orig/scripts/kconfig/confdata.c
-+++ linux-2.6.18_rc4/scripts/kconfig/confdata.c
-@@ -170,8 +170,7 @@ load:
- 					sym->type = S_BOOLEAN;
- 			}
- 			if (sym->flags & def_flags) {
--				conf_warning("trying to reassign symbol %s", sym->name);
--				break;
-+				conf_warning("override: reassigning to symbol %s", sym->name);
- 			}
- 			switch (sym->type) {
- 			case S_BOOLEAN:
-@@ -207,8 +206,7 @@ load:
- 					sym->type = S_OTHER;
- 			}
- 			if (sym->flags & def_flags) {
--				conf_warning("trying to reassign symbol %s", sym->name);
--				break;
-+				conf_warning("override: reassigning to symbol %s", sym->name);
- 			}
- 			switch (sym->type) {
- 			case S_TRISTATE:
-@@ -284,11 +282,9 @@ load:
- 				}
- 				break;
- 			case yes:
--				if (cs->def[def].tri != no) {
--					conf_warning("%s creates inconsistent choice state", sym->name);
--					cs->flags &= ~def_flags;
--				} else
--					cs->def[def].val = sym;
-+				if(cs->def[def].tri != no)
-+					conf_warning("override: %s turns state choice", sym->name);
-+				cs->def[def].val = sym;
- 				break;
- 			}
- 			cs->def[def].tri = E_OR(cs->def[def].tri, sym->def[def].tri);
-#<EOF>
-
-
-	-`J'
--- 
+	Arnd <><

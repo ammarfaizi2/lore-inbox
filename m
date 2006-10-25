@@ -1,71 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWJYVnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWJYVqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbWJYVnI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 17:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWJYVnI
+	id S1750794AbWJYVqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 17:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWJYVqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 17:43:08 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61893 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750789AbWJYVnF (ORCPT
+	Wed, 25 Oct 2006 17:46:07 -0400
+Received: from toxygen.net ([213.146.59.4]:34830 "EHLO toxygen.net")
+	by vger.kernel.org with ESMTP id S1750794AbWJYVqE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 17:43:05 -0400
-Date: Wed, 25 Oct 2006 23:42:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix generic WARN_ON message
-Message-ID: <20061025214257.GA2578@elf.ucw.cz>
-References: <4535902E.1000608@goop.org> <20061018055542.GA14784@elte.hu> <20061025100405.GB7658@elf.ucw.cz> <1161809722.3207.3.camel@localhost.localdomain>
+	Wed, 25 Oct 2006 17:46:04 -0400
+Message-ID: <453FDAD8.7040809@toxygen.net>
+Date: Wed, 25 Oct 2006 23:44:56 +0200
+From: Wojtek Kaniewski <wojtekka@toxygen.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161809722.3207.3.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc4xx: Compilation fixes for PCI-less configs
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 2006-10-25 16:55:22, Steven Rostedt wrote:
-> On Wed, 2006-10-25 at 12:04 +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> > > 
-> > > > A warning is a warning, not a BUG.
-> > > 
-> > > > -		printk("BUG: warning at %s:%d/%s()\n", __FILE__,	\
-> > > > +		printk("WARNING at %s:%d %s()\n", __FILE__,	\
-> > > 
-> > > i'm not really happy about this change.
-> > > 
-> > > Firstly, most WARN_ON()s are /bugs/, not warnings ... If it's a real 
-> > > warning, a KERN_INFO printk should be done.
-> > > 
-> > > Secondly, the reason i changed it to the 'BUG: ...' format is that i 
-> > > tried to make it easier for automated tools (and for users) to figure 
-> > > out that a kernel bug happened.
-> > 
-> > Well... but the message is really bad. It leads to users telling us "I
-> > hit BUG in kernel"...
-> 
-> But they *did* hit a BUG. It just so happens that the BUG was fixable.
-> We want this reported because a WARN_ON should *never* be hit unless
-> there's a bug.  If people start getting "WARNING" messages, they will
-> more likely not be reporting them.
-> 
-> As Ingo already said, if it is just a "warning" then a normal printk
-> should be used.
+Fix compilation without PCI support for Bubinga, CPCI405 and EP405.
+bios_fixup() for these boards uses functions available only with
+CONFIG_PCI, so linker fails.
 
-Fine, then why is the macro called WARN_ON()? That's certainly highly
-confusing.
+Signed-Off-By: Wojtek Kaniewski <wojtekka@toxygen.net>
 
-NONFATAL_BUG_ON()?
+--- linux-2.6.19-rc3.orig/arch/ppc/platforms/4xx/bubinga.c	2006-10-25 22:29:35.000000000 +0200
++++ linux-2.6.19-rc3/arch/ppc/platforms/4xx/bubinga.c	2006-10-25 23:12:09.000000000 +0200
+@@ -116,6 +116,7 @@
+ void __init
+ bios_fixup(struct pci_controller *hose, struct pcil0_regs *pcip)
+ {
++#ifdef CONFIG_PCI
 
-I hate people reporting BUG (or BUG()) when they hit WARN_ON(), and
-current wording certainly makes it easy.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+ 	unsigned int bar_response, bar;
+ 	/*
+@@ -212,6 +213,7 @@
+ 	printk(" ptm2la\t0x%x\n", in_le32(&(pcip->ptm2la)));
+
+ #endif
++#endif
+ }
+
+ void __init
+--- linux-2.6.19-rc3.orig/arch/ppc/platforms/4xx/cpci405.c	2006-10-25 22:29:35.000000000 +0200
++++ linux-2.6.19-rc3/arch/ppc/platforms/4xx/cpci405.c	2006-10-25 22:54:55.000000000 +0200
+@@ -126,6 +126,7 @@
+ void __init
+ bios_fixup(struct pci_controller *hose, struct pcil0_regs *pcip)
+ {
++#ifdef CONFIG_PCI
+ 	unsigned int bar_response, bar;
+
+ 	/* Disable region first */
+@@ -167,6 +168,7 @@
+ 					PCI_FUNC(hose->first_busno), bar,
+ 					&bar_response);
+ 	}
++#endif
+ }
+
+ void __init
+--- linux-2.6.19-rc3.orig/arch/ppc/platforms/4xx/ep405.c	2006-10-25 22:29:35.000000000 +0200
++++ linux-2.6.19-rc3/arch/ppc/platforms/4xx/ep405.c	2006-10-25 23:01:20.000000000 +0200
+@@ -68,6 +68,7 @@
+ void __init
+ bios_fixup(struct pci_controller *hose, struct pcil0_regs *pcip)
+ {
++#ifdef CONFIG_PCI
+ 	unsigned int bar_response, bar;
+ 	/*
+ 	 * Expected PCI mapping:
+@@ -130,6 +131,7 @@
+ 		    PCI_FUNC(hose->first_busno), bar, bar_response);
+ 	}
+ 	/* end work arround */
++#endif
+ }
+
+ void __init

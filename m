@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWJYOyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbWJYPJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWJYOyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 10:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWJYOyZ
+	id S1030463AbWJYPJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 11:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbWJYPJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 10:54:25 -0400
-Received: from adsl-186-246.37-151.net24.it ([151.37.246.186]:50727 "EHLO
-	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S932446AbWJYOyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 10:54:24 -0400
-Message-ID: <453F7A09.10702@abinetworks.biz>
-Date: Wed, 25 Oct 2006 16:51:53 +0200
-From: Gianluca Alberici <gianluca@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Wed, 25 Oct 2006 11:09:27 -0400
+Received: from mail.kroah.org ([69.55.234.183]:61411 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030463AbWJYPJ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 11:09:26 -0400
+Date: Wed, 25 Oct 2006 08:08:46 -0700
+From: Greg KH <greg@kroah.com>
+To: md@Linux.IT, linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+Subject: Re: major 442
+Message-ID: <20061025150846.GB23331@kroah.com>
+References: <20061025102030.GA5790@wonderland.linux.it>
 MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Frustrated with Linux, Asus, and nVidia, and AMD
-References: <453EEE46.9040600@perkel.com>
-In-Reply-To: <453EEE46.9040600@perkel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061025102030.GA5790@wonderland.linux.it>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc,
+On Wed, Oct 25, 2006 at 12:20:30PM +0200, Marco d'Itri wrote:
+> I just installed the Debian 2.6.18 kernel package and I noticed that it
+> repeatedly tries to load a major 442 module alias, which appears to be
+> used by the usb_endpoint devices.
+> Does anybody know why? I am not even using the USB ports.
 
-2.6.16.11 works. I tell u because i got an M2E with 1GB ram on Athlon 
-AM2 under test since a couple of week and it goes fine.
+It doesn't matter if you are using them or not, they are being created
+by the usb core for the next-version of usbfs.  They currently are not
+hooked up to anything properly, but people are working on them to fix
+that soon.
 
-BUT notice: i boot from SATA, dont have any PATA disk.
+And the number is just a placeholder, it's not a reserved major number.
 
-Maybe u can use that waiting for the patch
+As for what is trying to load the module, I have no idea, it must be
+some userspace tool...
 
-Bye,
+thanks,
 
-Gianluca
-
-Marc Perkel wrote:
-
-> Ok - I had a bad day today struggling with hardware. Having said that 
-> I'm somewhat frustrated with the lack of progress of Linux getting it 
-> right with Asus, nVidia, and AMD processors right.
->
-> I still have to run pci=nommconf to keep the server from locking up. 
-> That's with both 939 pin and AM2 motherboards.
->
-> This bug remains unresolved:
->
-> http://bugzilla.kernel.org/show_bug.cgi?id=6975
->
-> So what's up with the no progress?
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+greg k-h

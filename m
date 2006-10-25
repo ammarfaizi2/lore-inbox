@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWJYRvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWJYSM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161001AbWJYRvl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 13:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161254AbWJYRvl
+	id S1030310AbWJYSM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 14:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbWJYSM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 13:51:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48316 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161001AbWJYRvk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 13:51:40 -0400
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: Phillip Susi <psusi@cfl.rr.com>, Jens Axboe <jens.axboe@oracle.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0/5] I/O statistics through request queues
-References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-	<20061023113728.GM8251@kernel.dk> <453D05C3.7040104@de.ibm.com>
-	<20061023200220.GB4281@kernel.dk> <453E38FE.1020306@de.ibm.com>
-	<20061024162050.GK4281@kernel.dk> <453E79D1.6070703@cfl.rr.com>
-	<453E9368.9070405@de.ibm.com>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 25 Oct 2006 13:50:52 -0400
-In-Reply-To: <453E9368.9070405@de.ibm.com>
-Message-ID: <y0mvem8thc3.fsf@ton.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+	Wed, 25 Oct 2006 14:12:26 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:8323 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1030310AbWJYSM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 14:12:26 -0400
+X-Sasl-enc: c18ypvIQ7M54znSd4E7LycgGv6mxv+v47fIQRibURH56 1161799945
+Message-ID: <453FA996.3020000@imap.cc>
+Date: Wed, 25 Oct 2006 20:14:46 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5 Mnenhy/0.7.4.666
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.18-rc7-mm1] slow boot
+References: <4516B966.3010909@imap.cc>
+In-Reply-To: <4516B966.3010909@imap.cc>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig6371BA6FCEABD9F3E6B9EE32"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig6371BA6FCEABD9F3E6B9EE32
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Martin Peschke <mp3@de.ibm.com> writes:
+Problem's gone in 2.6.19-rc3.
 
-> [...]  The tricky question is: is event processing, that is,
-> statistics data aggregation, better done later (in user space), or
-> immediately (in the kernel). Both approaches exist: blktrace/btt vs.
-> gendisk statistics used by iostat, for example. [...]
+Thanks
+Tilman
 
-I would put it one step farther: the tricky question is whether it's
-worth separating marking the state change events ("request X
-enqueued") from the action to be taken ("track statistics", "collect
-trace records").
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
 
-The reason I brought up the lttng/marker thread here was because that
-suggests a way of addressing several of the problems at the same time.
-This could work thusly: (This will sound familiar to OLS attendees.)
 
-- The blktrace code would adopt a generic marker mechanism such as
-  that (still) evolving within the lttng/systemtap effort.  These
-  markers would replace calls to inline functions such as
-      blk_add_trace_bio(q,bio,BLK_TA_QUEUE);
-  with something like
-      MARK(blk_bio_queue,q,bio);
+--------------enig6371BA6FCEABD9F3E6B9EE32
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-- The blktrace code that formats and manages trace data would become a
-  consumer of the marker API.  It would be hooked up at runtime to
-  these markers.  When the events fire, the tracing backend receiving
-  the callbacks could do the same thing it does now.  (With the
-  markers dormant, the cost should not be much higher than the current
-  (likely (!q->blk_trace)) conditional.)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-- The mp3 statistics code would be an alternate backend to these same
-  markers.  It could be activated or deactivated on the fly (to let
-  another subsystem use the markers).  The code would maintain statistics
-  in its own memory and could present the data on /proc or whatnot, the
-  same way as today.
+iD8DBQFFP6meMdB4Whm86/kRAglOAJ45WuY79k5DUn+UqMTW9yDVBq9qKwCdFQE8
+W/BLAg9PA/u1+n/4oVdkNwU=
+=fDkn
+-----END PGP SIGNATURE-----
 
-- Additional backends would be immediately possible: lttng style
-  tracing or even fully programmable systemtap probing / analysis
-  could all be dynamically activated without further kernel patches or
-  rebooting.
-
->From a user's point of view, it could be the best of all worlds: easy
-to get a complete trace for detailed analysis, easy to retain plain
-statistics for simple monitoring, easy to do something more elaborate
-if necessary.
-
-- FChE
+--------------enig6371BA6FCEABD9F3E6B9EE32--

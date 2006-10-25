@@ -1,28 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161367AbWJYTKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWJYTPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161367AbWJYTKS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 15:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161377AbWJYTKS
+	id S1030299AbWJYTPt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 15:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWJYTPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 15:10:18 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:59527 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1161367AbWJYTKQ
+	Wed, 25 Oct 2006 15:15:49 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:21128 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S964798AbWJYTPs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 15:10:16 -0400
-Date: Wed, 25 Oct 2006 20:10:15 +0100 (IST)
+	Wed, 25 Oct 2006 15:15:48 -0400
+Date: Wed, 25 Oct 2006 20:15:47 +0100 (IST)
 From: Dave Airlie <airlied@linux.ie>
 X-X-Sender: airlied@skynet.skynet.ie
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [git pull] intelfb patches for 2.6.19-rc3
-Message-ID: <Pine.LNX.4.64.0610252008080.9796@skynet.skynet.ie>
+Subject: [git pull] intelfb patches for 2.6.19-rc3 (corrected)
+Message-ID: <Pine.LNX.4.64.0610252014160.9796@skynet.skynet.ie>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+(sorry the PM talk distracted me while writing this last-time..)
 Hi Linus,
+
+Can you pull the 'intelfb-patches' from
+git://git.kernel.org/pub/scm/linux/kernel/git/airlied/intelfb-2.6 intelfb-patches
 
 This is just some minor fixes to intelfb...
 

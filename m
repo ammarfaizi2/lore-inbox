@@ -1,118 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbWJYQ5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbWJYRQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965128AbWJYQ5s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 12:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWJYQ5s
+	id S965222AbWJYRQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 13:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWJYRQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 12:57:48 -0400
-Received: from rwcrmhc15.comcast.net ([204.127.192.85]:5627 "EHLO
-	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S965128AbWJYQ5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 12:57:47 -0400
-Message-ID: <453F9555.1050201@wolfmountaingroup.com>
-Date: Wed, 25 Oct 2006 10:48:21 -0600
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nate Diller <nate.diller@gmail.com>
-CC: David Howells <dhowells@redhat.com>, sds@tycho.nsa.gov, jmorris@namei.org,
-       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: Security issues with local filesystem caching
-References: <16969.1161771256@redhat.com> <5c49b0ed0610250952i2fcc64b7t47fb7565cada14c6@mail.gmail.com>
-In-Reply-To: <5c49b0ed0610250952i2fcc64b7t47fb7565cada14c6@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Oct 2006 13:16:26 -0400
+Received: from quartz.orcorp.ca ([142.179.161.236]:30090 "EHLO
+	quartz.orcorp.ca") by vger.kernel.org with ESMTP id S965219AbWJYRQY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 13:16:24 -0400
+Date: Wed, 25 Oct 2006 11:15:54 -0600
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Grant Grundler <grundler@parisc-linux.org>, linux-ia64@vger.kernel.org,
+       Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [openib-general] Ordering between PCI config space writes and MMIO reads?
+Message-ID: <20061025171554.GM4054@obsidianresearch.com>
+References: <adafyddcysw.fsf@cisco.com> <20061025063022.GC12319@colo.lackof.org> <20061025141859.GC5591@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061025141859.GC5591@parisc-linux.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 25, 2006 at 08:18:59AM -0600, Matthew Wilcox wrote:
 
-SELinux support addresses all of these issues for B1 level security 
-quite well with mandatory access controls
-at the fs layers.  In fact, it works so well, when enabled you cannot 
-even run apache on top of an FS unless
-configured properly. 
+> PCI-PCI bridges are allowed to do it.  If you look in table E-1 of PCI
+> 2.3, or table 8-3 of PCI-X 2.0, you'll see that a Posted Memory Write
+> can pass a Delayed Write Request (or in PCI-X, a Memory Write can pass a
+> Split Write Request).
 
-Jeff
+Carefull here.. Only MMIO writes are of the posted variety. Non posted
+transactions (config write, IO write, all reads) are not ever allowed
+to pass a posted write, but they can be re-ordered.
 
-Nate Diller wrote:
+Table 8-3 shows that Split Write vs Split Read are all Y/N
+meaning they could be re-ordered with respect to each other.
 
-> On 10/25/06, David Howells <dhowells@redhat.com> wrote:
->
->>
->> Hi,
->>
->> Some issues have been raised by Christoph Hellwig over how I'm handling
->> filesystem security in my CacheFiles module, and I'd like advice on 
->> how to deal
->> with them.
->>
->> CacheFiles stores its cache objects as files and directories in a 
->> tree under a
->> directory nominated by the configuration.  This means the data it is 
->> holding
->> (a) is potentially exposed to userspace, and (b) must be labelled for 
->> access
->> control according to the usual filesystem rules.
->>
->> Currently, CacheFiles temporarily changes fsuid and fsgid to 0 whilst 
->> doing its
->> own pathwalk through the cache and whilst creating files and 
->> directories in the
->> cache.  This allows it to deal with DAC security directly.  All the 
->> directories
->> it creates are given permissions mask 0700 and all files 0000.
->>
->> However, Christoph has objected to this practice, and has said that 
->> I'm not
->> allowed to change fsuid and fsgid.  The problem with not doing so is 
->> that this
->> code is running in the context of the process that issued the 
->> original open(),
->> read(), write(), etc, and so any accesses or creations it does would 
->> be done
->> with that process's fsuid and fsgid, which would lead to a cache with 
->> bits that
->> can't be shared between users.
->
->
-> I don't really understand the objection here.  Is it likely to cause
-> security breaches?  None of the proposed solutions seem particularly
-> elegant, so arguing that the current approach is a hack doesn't hold
-> much water with me.
->
->> Another thing I'm currently doing is bypassing the usual calls to the 
->> LSM
->> hooks.  This means that I'm not setting and checking security labels 
->> and MACs.
->> The reason for this is again that I'm running in some random 
->> process's context
->> and labelling and MAC'ing will affect the sharability of the cache.  
->> This was
->> objected to also.
->>
->> This also bypasses auditing (I think).  I don't want the CacheFiles 
->> module's
->> access to the cache to be logged against whatever process was 
->> accessing, say,
->> an NFS file.  That process didn't ask to access the cache, and the 
->> cache is
->> meant to be transparent.
->
->
-> Christoph, are you objecting to this behavior as well?  This seems
-> like the desired outcome.  Do you think there is buggy behavior here,
-> or do you just have issues with David's design?  Can you suggest any
-> alternatives of your own?
->
-> NATE
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+The problem with mthca is exactly this, although the operations were
+issued in-order by the bridges the end device (mthca) is free to
+complete them in any order, and it choose to complete the MMIO read
+before the config write.
 
+>   In most PCI-X implementations, Split Requests are managed in separate
+>   buffers from Split Completions, so Split Requests naturally pass Split
+>   Completions. However, no deadlocks occur if Split Completions block
+>   Split Requests.
+
+Again, this is only for posted writes. All these rules are designed to
+prevent the bus from deadlocking due to buffer starvation under
+certain situations. [Basically split completions and posted writes are
+given a seperate queue that can advance if the request queue is
+stalled. Otherwise you can deadlock a bridge]
+
+> So all this code that checks to see if a write had an effect is unsafe.
+> I'm a little perturbed by this.  It means the only way to reliably
+
+MMIO based code that does this is correct and reliable.. PIO code that
+does this is only safe if the platform is waiting for the PIO write
+completion before starting the PIO read.
+
+PCI-X (pg 80) says this about non-posted transaction ordering requirements:
+  As in convention PCI, if a requester requires one non-posted
+  transaction to complete before another, it must not initiate the
+  second transaction until the first one compeltes.
+
+IMHO, all sane hardware implementations of config ops and PIO should
+block the host bridge until the completion is generated by the end
+device..I'm sure that most x86 platforms do this. (For instance I've
+observed this kind of behavior with a Hyper Transport probe on
+Opterons)
+
+This is more than just worrying about ordering, it is about how to
+engage a platform specific way to know that the completion has been
+generated. The person who suggested polling the PIO_OUTSTANDING
+register on SN2 seems to have the right idea (if that counts all
+pending non-posted operations, not just PIO ones) :|
+
+The risk of re-ordering is probably not so much in the bridges since
+that would be a fairly strange thing to do - but it is very likely in
+end-devices. This is especially true if the accesses are to different
+internal resources!
+
+Jason

@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423128AbWJYIjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423127AbWJYIix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423128AbWJYIjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 04:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423135AbWJYIjY
+	id S1423127AbWJYIix (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 04:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423132AbWJYIiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 04:39:24 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:23489 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1423128AbWJYIjW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 04:39:22 -0400
-Date: Wed, 25 Oct 2006 18:38:30 +1000
-From: David Chinner <dgc@sgi.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: David Chinner <dgc@sgi.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061025083830.GI11034@melbourne.sgi.com>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com> <200610241730.00488.rjw@sisk.pl> <20061024163345.GG11034@melbourne.sgi.com> <20061024213737.GD5662@elf.ucw.cz> <20061025001331.GP8394166@melbourne.sgi.com> <20061025081001.GL5851@elf.ucw.cz>
+	Wed, 25 Oct 2006 04:38:52 -0400
+Received: from dev.mellanox.co.il ([194.90.237.44]:913 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1423123AbWJYIiv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 04:38:51 -0400
+Date: Wed, 25 Oct 2006 10:37:11 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org
+Subject: Re: 2.6.19-rc2: known unfixed regressions (v3)
+Message-ID: <20061025083711.GB9518@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20061025082820.GD7083@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061025081001.GL5851@elf.ucw.cz>
+In-Reply-To: <20061025082820.GD7083@elf.ucw.cz>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 10:10:01AM +0200, Pavel Machek wrote:
-> > Hence the only way to correctly rebuild the XFS state on resume is
-> > to quiesce the filesystem on suspend and thaw it on resume so as to
-> > trigger log recovery.
+Quoting r. Pavel Machek <pavel@suse.cz>:
+> > >
+> > > Subject    : T60 stops triggering any ACPI events
+> > > References : http://lkml.org/lkml/2006/10/4/425
+> > >              http://lkml.org/lkml/2006/10/16/262
+> > > Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
+> > > Status     : unknown
+> > 
+> > Just retested with 2.6.19-rc3 - it's still there:
+> > e.g. after I do a full kernel compile, my T60 stops triggering any ACPI events:
+> > tail -f /var/log/acpid does not show anything, even on Fn/F4 which is supposed
+> > to be always enabled.  Restarting the acpid doesn't do anything either - ACPI
+> > starts working again, for a while, only after reboot.
+> > 
+> > Works fine in 2.6.18 ( + this patch http://lkml.org/lkml/2006/7/20/56).
 > 
-> No, during suspend/resume, memory image is saved, and no state is
-> lost. We would not even have to do sys_sync(), and suspend/resume
-> would still work properly.
+> Bugzilla.kernel.org, assign it to acpi people...
 
-It seems to me that you ensure the filesystem is synced to disk and
-then at some point later you record the memory state of the
-filesystem, but these happen at different times. That leaves a
-window for things to get out of sync again, right?
-
-Cheers,
-
-Dave.
+Already done, http://bugzilla.kernel.org/show_bug.cgi?id=7408
 
 -- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+MST

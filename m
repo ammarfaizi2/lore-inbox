@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWJYTE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161373AbWJYTHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422658AbWJYTE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 15:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422669AbWJYTE2
+	id S1161373AbWJYTHB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 15:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161367AbWJYTHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 15:04:28 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:23510 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1422658AbWJYTE1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 15:04:27 -0400
+	Wed, 25 Oct 2006 15:07:01 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:26326 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1422746AbWJYTHA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 15:07:00 -0400
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Radim =?iso-8859-2?q?Lu=BEa?= <xluzar00@stud.fit.vutbr.cz>
-Subject: Re: suspend to disk -> resume -> X with DRI extension on R100 chips hangs
-Date: Wed, 25 Oct 2006 21:03:47 +0200
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Date: Wed, 25 Oct 2006 21:05:56 +0200
 User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <453F01CF.2040106@eva.fit.vutbr.cz>
-In-Reply-To: <453F01CF.2040106@eva.fit.vutbr.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, David Chinner <dgc@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610251432.41958.rjw@sisk.pl> <1161782620.3638.0.camel@nigel.suspend2.net>
+In-Reply-To: <1161782620.3638.0.camel@nigel.suspend2.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610252103.47886.rjw@sisk.pl>
+Message-Id: <200610252105.56862.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wednesday, 25 October 2006 08:18, Radim Lu¾a wrote:
-> Good morning
+On Wednesday, 25 October 2006 15:23, Nigel Cunningham wrote:
+> Hi.
 > 
-> I noticed following problem:
-> After resuming from suspend to disk Xorg with DRI switched on hangs. 
-> System is not affected by Xorg hang. If I login via SSH I can kill X 
-> server and start it again - with same result. X server hangs even after 
-> I suspend from text mode with X not running and with unloaded modules 
-> radeon and drm and resume then and try to start X server. With DRI 
-> switched off in xorg.conf X resumes correctly.
+> On Wed, 2006-10-25 at 14:32 +0200, Rafael J. Wysocki wrote:
+> > On Wednesday, 25 October 2006 10:47, Pavel Machek wrote:
+> > > On Wed 2006-10-25 18:38:30, David Chinner wrote:
+> > > > On Wed, Oct 25, 2006 at 10:10:01AM +0200, Pavel Machek wrote:
+> > > > > > Hence the only way to correctly rebuild the XFS state on resume is
+> > > > > > to quiesce the filesystem on suspend and thaw it on resume so as to
+> > > > > > trigger log recovery.
+> > > > > 
+> > > > > No, during suspend/resume, memory image is saved, and no state is
+> > > > > lost. We would not even have to do sys_sync(), and suspend/resume
+> > > > > would still work properly.
+> > > > 
+> > > > It seems to me that you ensure the filesystem is synced to disk and
+> > > > then at some point later you record the memory state of the
+> > > > filesystem, but these happen at different times. That leaves a
+> > > > window for things to get out of sync again, right?
+> > > 
+> > > I DO NOT HAVE TO ENSURE FILESYSTEM IS SYNCED. That sys_sync() is
+> > > optional.
+> > > 
+> > > Recording of memory state is atomic, and as long as noone writes to
+> > > the disk after atomic snapshot, memory image matches what is on disk.
+> > 
+> > Well, my impression is that this is exactly what happens here: Something
+> > in the XFS code causes metadata to be written to disk _after_ the atomic
+> > snapshot.
+> > 
+> > That's why I asked if the dirty XFS metadata were flushed by a kernel thread.
+> 
+> When I first added bdev freezing it was because there was an XFS timer
+> doing writes.
 
-Well, I think you'll need to file a bug repart at http://bugzilla.kernel.org
-(please add rjwysocki@sisk.pl to the Cc list).
+Yes, I noticed you said that, but I'd like someone from the XFS team to either
+confirm or deny it.
 
 Greetings,
 Rafael

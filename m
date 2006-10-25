@@ -1,84 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423025AbWJYIqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422953AbWJYIrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423025AbWJYIqU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 04:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423059AbWJYIqT
+	id S1422953AbWJYIrY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 04:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423047AbWJYIrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 04:46:19 -0400
-Received: from ns.virtuo.it ([88.149.128.9]:17561 "EHLO agnus.ngi.it")
-	by vger.kernel.org with ESMTP id S1423025AbWJYIqT (ORCPT
+	Wed, 25 Oct 2006 04:47:24 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60828 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1422953AbWJYIrX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 04:46:19 -0400
-Message-ID: <453F2454.1000707@webster.it>
-Date: Wed, 25 Oct 2006 10:46:12 +0200
-From: "David N. Welton" <d.welton@webster.it>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Wed, 25 Oct 2006 04:47:23 -0400
+Date: Wed, 25 Oct 2006 10:47:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Chinner <dgc@sgi.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Message-ID: <20061025084714.GA7266@elf.ucw.cz>
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com> <200610241730.00488.rjw@sisk.pl> <20061024163345.GG11034@melbourne.sgi.com> <20061024213737.GD5662@elf.ucw.cz> <20061025001331.GP8394166@melbourne.sgi.com> <20061025081001.GL5851@elf.ucw.cz> <20061025083830.GI11034@melbourne.sgi.com>
 MIME-Version: 1.0
-To: bdurrett@slick.ORG
-CC: linux-kernel@vger.kernel.org
-Subject: megaraid_sas waiting for command and then offline
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061025083830.GI11034@melbourne.sgi.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed 2006-10-25 18:38:30, David Chinner wrote:
+> On Wed, Oct 25, 2006 at 10:10:01AM +0200, Pavel Machek wrote:
+> > > Hence the only way to correctly rebuild the XFS state on resume is
+> > > to quiesce the filesystem on suspend and thaw it on resume so as to
+> > > trigger log recovery.
+> > 
+> > No, during suspend/resume, memory image is saved, and no state is
+> > lost. We would not even have to do sys_sync(), and suspend/resume
+> > would still work properly.
+> 
+> It seems to me that you ensure the filesystem is synced to disk and
+> then at some point later you record the memory state of the
+> filesystem, but these happen at different times. That leaves a
+> window for things to get out of sync again, right?
 
-I found someone corresponding to your name writing about a problem with
-the megaraid sas driver/hardware on the LKML:
+I DO NOT HAVE TO ENSURE FILESYSTEM IS SYNCED. That sys_sync() is
+optional.
 
-http://lkml.org/lkml/2006/9/6/12
+Recording of memory state is atomic, and as long as noone writes to
+the disk after atomic snapshot, memory image matches what is on disk.
 
-We have a Dell (2950, running 2.6.18 #1 SMP) as well, and the way I
-managed to kill the thing dead in its tracks (symptoms basically what
-you you describe) is with smartctl:
-
-root@salgari:~# smartctl --all /dev/sda
-smartctl version 5.34 [i686-pc-linux-gnu] Copyright (C) 2002-5 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
-
-Device: DELL     PERC 5/i         Version: 1.00
-Device type: disk
-Local Time is: Wed Oct 25 10:14:40 2006 CEST
-Device does not support SMART
-
-Error Counter logging not supported
-
-
-Device does not support Self Test logging
-
-----
-
-[61101.681857] sd 0:2:0:0: rejecting I/O to offline device
-[61101.681944] EXT3-fs error (device sda1): ext3_readdir: directory
-#7553069 contains a hole at offset 0
-[61103.944794] sd 0:2:0:0: rejecting I/O to offline device
-[61103.944879] EXT3-fs error (device sda1): ext3_readdir: directory
-#7553069 contains a hole at offset 0
-[61104.672212] sd 0:2:0:0: rejecting I/O to offline device
-[61104.672295] EXT3-fs error (device sda1): ext3_readdir: directory
-#7553069 contains a hole at offset 0
-[61105.255981] sd 0:2:0:0: rejecting I/O to offline device
-[61105.256066] EXT3-fs error (device sda1): ext3_readdir: directory
-#7553069 contains a hole at offset 0
-
-----
-
-Dead in the water.  We suspect that in any case there are some disk
-problems, which is why we were trying to use smartctl in the first place.
-
-I was just curious if you managed to figure anything out...
-
-Thanks,
-Dave Welton
+								Pavel
 -- 
-Webster srl
-Sede legale:
-Via del Seminario, 3 35122 Padova
-Sede operativa:
-Via S. Breda, 28 35010 Limena (PD)
-
-Tel. +39 049 8842188
-Email: d.welton@webster.it
-
-Visita www.webster.it
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

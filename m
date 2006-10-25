@@ -1,98 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423392AbWJYMaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423385AbWJYMbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423392AbWJYMaR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 08:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423390AbWJYMaR
+	id S1423385AbWJYMbI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 08:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423388AbWJYMbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 08:30:17 -0400
-Received: from michelle.lostinspace.de ([62.146.248.226]:24307 "EHLO
-	michelle.lostinspace.de") by vger.kernel.org with ESMTP
-	id S1423385AbWJYMaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 08:30:15 -0400
-Date: Wed, 25 Oct 2006 14:30:05 +0200
-From: Matthias Fechner <idefix@fechner.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Link lib to a kernel module
-Message-ID: <20061025123004.GB86838@server.idefix.loc>
-Reply-To: linux-kernel@vger.kernel.org
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20061024105518.GA55219@server.idefix.loc> <453DF507.8050101@innomedia.soft.net> <453EA343.2080504@fechner.net> <453EFA4C.9000502@innomedia.soft.net>
+	Wed, 25 Oct 2006 08:31:07 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:23918 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1423385AbWJYMbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 08:31:03 -0400
+Message-ID: <453F58FB.4050407@sw.ru>
+Date: Wed, 25 Oct 2006 16:30:51 +0400
+From: Vasily Averin <vvs@sw.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <453EFA4C.9000502@innomedia.soft.net>
-X-Crypto: GnuPG/1.0.6 http://www.gnupg.org
-X-GnuPG: 0x1B756EF6
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (michelle.lostinspace.de [62.146.248.226]); Wed, 25 Oct 2006 14:30:11 +0200 (CEST)
+To: Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
+       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
+       David Howells <dhowells@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org, Andrew Morton <akpm@osdl.org>
+Subject: [Q] missing unused dentry in prune_dcache()?
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Dipti,
+Hello folks,
 
-* Dipti Ranjan Tarai <dipti@innomedia.soft.net> [25-10-06 11:16]:
-> Now in mod2 call test_export() of mod1, compile it and load the module u 
-> can able to access test_export().
+I would like to ask you clarify me one question in the the following patch:
+http://linux.bkbits.net:8080/linux-2.6/gnupatch@449b144ecSF1rYskg3q-SeR2vf88zg
+# ChangeSet
+#   2006/06/22 15:05:57-07:00 neilb@suse.de
+#   [PATCH] Fix dcache race during umount
 
-thx for that hint, but I want one module :)
+#   If prune_dcache finds a dentry that it cannot free, it leaves it where it
+#   is (at the tail of the list) and exits, on the assumption that some other
+#   thread will be removing that dentry soon.
 
-I was now successfull with the following code:
-hello_lib.h:
-int printHello(int);
+However as far as I see this comment is not correct: when we cannot take
+s_umount rw_semaphore (for example because it was taken in do_remount) this
+dentry is already extracted from dentry_unused list and we do not add it into
+the list again. Therefore dentry will not be found by prune_dcache() and
+shrink_dcache_sb() and will leave in memory very long time until the partition
+will be unmounted.
 
-hello_lib.c
-int printHello(int count)
-{
-   int i;
-      
-   for(i=0;i<=count;i++)
-   {
-      printk("Hello World\n");
-   }
-		        
-   return 0;
-}
-			   
-hello.c:
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include "hello_lib.h"
-			   
-MODULE_LICENSE("GPL");
-			   
-int init_module(void)
-{
-    printk("call function\n");
-    printHello(5);
-    return 0;
-}
-				    
-void cleanup_module(void)
-{
-    printk(KERN_INFO "remove module\n");
-    return;
-}
-					  
-Makefile:
-KDIR    := /lib/modules/$(shell uname -r)/build
-PWD := $(shell pwd)
+Am I probably err?
 
-obj-m += test.o
-test-y := hello.o libhello_lib.a
+The patch adds this dentry into tail of the dentry_unused list.
 
-all:
-    gcc -I/usr/include -c -o hello_lib.o hello_lib.c
-    rm -f libhello_lib.a
-    ar cru libhello_lib.a hello_lib.o
-    $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules KBUILD_VERBOSE=1
-				      
+Signed-off-by:	Vasily Averin <vvs@sw.ru>
 
-Best regards,
-Matthias
-
--- 
-
-"Programming today is a race between software engineers striving to
-build bigger and better idiot-proof programs, and the universe trying to
-produce bigger and better idiots. So far, the universe is winning." --
-Rich Cook
+--- linux-2.6.19-rc3/fs/dcache.c.prdch	2006-10-25 16:09:19.000000000 +0400
++++ linux-2.6.19-rc3/fs/dcache.c	2006-10-25 16:08:20.000000000 +0400
+@@ -477,6 +477,8 @@ static void prune_dcache(int count, stru
+ 			}
+ 			up_read(s_umount);
+ 		}
++ 		list_add_tail(&dentry->d_lru, &dentry_unused);
++		dentry_stat.nr_unused++;
+ 		spin_unlock(&dentry->d_lock);
+ 		/* Cannot remove the first dentry, and it isn't appropriate
+ 		 * to move it to the head of the list, so give up, and try

@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbWJYOTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWJYOZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030462AbWJYOTE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 10:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbWJYOTD
+	id S1751629AbWJYOZN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 10:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbWJYOZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 10:19:03 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:7095 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1030462AbWJYOTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 10:19:01 -0400
-Date: Wed, 25 Oct 2006 08:18:59 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Roland Dreier <rdreier@cisco.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, John Partridge <johnip@sgi.com>
-Subject: Re: Ordering between PCI config space writes and MMIO reads?
-Message-ID: <20061025141859.GC5591@parisc-linux.org>
-References: <adafyddcysw.fsf@cisco.com> <20061025063022.GC12319@colo.lackof.org>
+	Wed, 25 Oct 2006 10:25:13 -0400
+Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:35259 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S1751629AbWJYOZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 10:25:11 -0400
+Date: Wed, 25 Oct 2006 16:25:04 +0200
+From: martin f krafft <madduck@debian.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: 394200-forwarded@bugs.debian.org
+Subject: mysterious freeze on X40 with 2.6.16/17/18
+Message-ID: <20061025142504.GA26948@piper.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	394200-forwarded@bugs.debian.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
 Content-Disposition: inline
-In-Reply-To: <20061025063022.GC12319@colo.lackof.org>
+X-Debbugs-No-Ack: please spare me
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 12:30:22AM -0600, Grant Grundler wrote:
-> Can someone provide a quote of the PCI Local bus spec that allows this?
-> (Or at least a reference to a spec version and section number)
 
-PCI-PCI bridges are allowed to do it.  If you look in table E-1 of PCI
-2.3, or table 8-3 of PCI-X 2.0, you'll see that a Posted Memory Write
-can pass a Delayed Write Request (or in PCI-X, a Memory Write can pass a
-Split Write Request).
+--rwEMma7ioTxnRzrJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So mmiowb() will solve the problem for Altix, but leave everybody else
-vulnerable.  I actually don't see a way of forcing the config write to
-complete before a memory write -- everything is allowed to pass a config
-write, even a config read.  I initially thought "But only a crack monkey
-would implement a system where a config read could pass a config write",
-but the spec explains that:
+Hi kernel team,
 
-  In most PCI-X implementations, Split Requests are managed in separate
-  buffers from Split Completions, so Split Requests naturally pass Split
-  Completions. However, no deadlocks occur if Split Completions block
-  Split Requests.
+I have been fighting with kernel freezes on my X40 for the 2.6.16-18
+kernels (I am using Debian and their kernels). Apparently 2.6.14
+works fine, but I can't ever be sure...
 
-So all this code that checks to see if a write had an effect is unsafe.
-I'm a little perturbed by this.  It means the only way to reliably
-distinguish between a write that hasn't taken effect yet and a bit (say,
-MWI) the device hasn't implemented is to do a memory access to the
-device.  Which is hard when you're trying to program the BARs.
+You can see my bug log at http://bugs.debian.org/394200
 
-I suppose this hasn't bitten us before in, what, 7 years of PCI-X, so
-it can't be *that* common a thing for bridges to do.  And we would have
-noticed the BAR sizing code going wrong (as it does config write
-followed immediately by config read), so maybe implementations aren't as
-crackful as the PCI spec seems to permit them to be.
+I would appreciate if you could look at it; I'd be happy to try
+things out if it helps to narrow down the problem.
 
-I find it really hard to believe the PCI committee have done something
-this stupid.  There must be another rule somewhere that I'm missing.
+Cheers,
 
+--=20
+ .''`.   martin f. krafft <madduck@debian.org>
+: :'  :  proud Debian developer, author, administrator, and user
+`. `'`   http://people.debian.org/~madduck - http://debiansystem.info
+  `-  Debian - when you have better things to do than fixing systems
+
+--rwEMma7ioTxnRzrJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature (GPG/PGP)
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFP3PAIgvIgzMMSnURAlpjAJ9m+YneVfkaQ9AZhyctQR9hx72JsQCgwc/F
+Wlun/IYOLKw6zeDOb1/3M6Q=
+=VIbL
+-----END PGP SIGNATURE-----
+
+--rwEMma7ioTxnRzrJ--

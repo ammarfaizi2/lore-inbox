@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422829AbWJXXfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422755AbWJYAHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422829AbWJXXfa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 19:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422830AbWJXXfa
+	id S1422755AbWJYAHq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 20:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422814AbWJYAHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 19:35:30 -0400
-Received: from michelle.lostinspace.de ([62.146.248.226]:63481 "EHLO
-	michelle.lostinspace.de") by vger.kernel.org with ESMTP
-	id S1422829AbWJXXf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 19:35:29 -0400
-Message-ID: <453EA343.2080504@fechner.net>
-Date: Wed, 25 Oct 2006 01:35:31 +0200
-From: Matthias Fechner <idefix@fechner.net>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
+	Tue, 24 Oct 2006 20:07:46 -0400
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:23569 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1422755AbWJYAHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 20:07:45 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Link lib to a kernel module
-References: <20061024105518.GA55219@server.idefix.loc> <453DF507.8050101@innomedia.soft.net>
-In-Reply-To: <453DF507.8050101@innomedia.soft.net>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Subject: 2.6.18: BUG: soft lockup detected on CPU#0!
+Date: Wed, 25 Oct 2006 01:07:50 +0100
+User-Agent: KMail/1.9.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam_score: -4.3
-X-Spam_score_int: -42
-X-Spam_bar: ----
-X-Spam_host: idefix.fechner.net
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (michelle.lostinspace.de [62.146.248.226]); Wed, 25 Oct 2006 01:35:26 +0200 (CEST)
+Content-Disposition: inline
+Message-Id: <200610250107.50098.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Dipti Ranjan Tarai schrieb:
->   As per my knowledge kernel module can not access to a library
-> function. Library function are only accessible to user level program.
-> Module can access exported symbol only.
+After 28 days of uptime on a 2.6.18 kernel I got a mysterious lockup. When I 
+went to look at the screen the only debug that made it was:
 
-I don't want to build the module against a shared lib. I have here a lib
-and I want that the lib is included into the kernel module.
-I found in the documentation that it is possible to link the kernel
-module with several object files (.o) and I found no source to do it
-with libs (.a).
+BUG: soft lockup detected on CPU#0!
 
-Thx
-Matthias
+The cursor had frozen and the kernel would not respond to magic sysrq.
+
+Anybody else seen this? I had 30+ days uptime with 2.6.17..
 
 -- 
+Cheers,
+Alistair.
 
-"Programming today is a race between software engineers striving to
-build bigger and better idiot-proof programs, and the universe trying to
-produce bigger and better idiots. So far, the universe is winning." --
-Rich Cook
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

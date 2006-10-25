@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423132AbWJYInZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423025AbWJYIqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423132AbWJYInZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 04:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423059AbWJYInZ
+	id S1423025AbWJYIqU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 04:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423059AbWJYIqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 04:43:25 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12766 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1423132AbWJYInY (ORCPT
+	Wed, 25 Oct 2006 04:46:19 -0400
+Received: from ns.virtuo.it ([88.149.128.9]:17561 "EHLO agnus.ngi.it")
+	by vger.kernel.org with ESMTP id S1423025AbWJYIqT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 04:43:24 -0400
-Date: Wed, 25 Oct 2006 10:42:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use extents for recording what swap is allocated.
-Message-ID: <20061025084226.GN5851@elf.ucw.cz>
-References: <1161576857.3466.9.camel@nigel.suspend2.net> <200610242208.34426.rjw@sisk.pl> <20061024213402.GC5662@elf.ucw.cz> <1161728153.22729.22.camel@nigel.suspend2.net> <20061024221950.GB5851@elf.ucw.cz> <1161729027.22729.37.camel@nigel.suspend2.net> <20061025081135.GM5851@elf.ucw.cz> <1161764907.22729.86.camel@nigel.suspend2.net>
+	Wed, 25 Oct 2006 04:46:19 -0400
+Message-ID: <453F2454.1000707@webster.it>
+Date: Wed, 25 Oct 2006 10:46:12 +0200
+From: "David N. Welton" <d.welton@webster.it>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161764907.22729.86.camel@nigel.suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: bdurrett@slick.ORG
+CC: linux-kernel@vger.kernel.org
+Subject: megaraid_sas waiting for command and then offline
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > > With the code I have in Suspend2 (which is what I'm working towards),
-> > > the value includes the swap_type, so there's no overlap. Assuming the
-> > > swap allocator does it's normal thing and swap allocated is contiguous,
-> > > you'll probably end up with two extents: one containing the swap
-> > > allocated on the first device, and the other containing the swap
-> > > allocated on the second device. So (with the current version), striping
-> > > would use 6 * sizeof(unsigned long) instead of 3 * sizeof(unsigned
-> > > long).
-> > 
-> > And now, can you do same computation assuming the swap allocator goes
-> > completely crazy, and free space is in 1-page chunks?
-> 
-> The worst case is 3 * sizeof(unsigned long) *
-> number_of_swap_extents_allocated bytes.
+I found someone corresponding to your name writing about a problem with
+the megaraid sas driver/hardware on the LKML:
 
-Okay, so if we got 4GB of swap space, thats 1MB swap pages, worst case
-is you have one extent per page, on x86-64 that's 24MB. +kmalloc
-overhead, I assume?
+http://lkml.org/lkml/2006/9/6/12
 
-And you do linear walks over those extents, leading to O(n^2)
-algorithm, no? That has bitten us before...
-									Pavel
+We have a Dell (2950, running 2.6.18 #1 SMP) as well, and the way I
+managed to kill the thing dead in its tracks (symptoms basically what
+you you describe) is with smartctl:
+
+root@salgari:~# smartctl --all /dev/sda
+smartctl version 5.34 [i686-pc-linux-gnu] Copyright (C) 2002-5 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+Device: DELL     PERC 5/i         Version: 1.00
+Device type: disk
+Local Time is: Wed Oct 25 10:14:40 2006 CEST
+Device does not support SMART
+
+Error Counter logging not supported
+
+
+Device does not support Self Test logging
+
+----
+
+[61101.681857] sd 0:2:0:0: rejecting I/O to offline device
+[61101.681944] EXT3-fs error (device sda1): ext3_readdir: directory
+#7553069 contains a hole at offset 0
+[61103.944794] sd 0:2:0:0: rejecting I/O to offline device
+[61103.944879] EXT3-fs error (device sda1): ext3_readdir: directory
+#7553069 contains a hole at offset 0
+[61104.672212] sd 0:2:0:0: rejecting I/O to offline device
+[61104.672295] EXT3-fs error (device sda1): ext3_readdir: directory
+#7553069 contains a hole at offset 0
+[61105.255981] sd 0:2:0:0: rejecting I/O to offline device
+[61105.256066] EXT3-fs error (device sda1): ext3_readdir: directory
+#7553069 contains a hole at offset 0
+
+----
+
+Dead in the water.  We suspect that in any case there are some disk
+problems, which is why we were trying to use smartctl in the first place.
+
+I was just curious if you managed to figure anything out...
+
+Thanks,
+Dave Welton
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Webster srl
+Sede legale:
+Via del Seminario, 3 35122 Padova
+Sede operativa:
+Via S. Breda, 28 35010 Limena (PD)
+
+Tel. +39 049 8842188
+Email: d.welton@webster.it
+
+Visita www.webster.it

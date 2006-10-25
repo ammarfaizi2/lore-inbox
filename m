@@ -1,127 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWJYUOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161187AbWJYUPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965225AbWJYUOG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 16:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbWJYUOG
+	id S1161187AbWJYUPP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 16:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161192AbWJYUPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 16:14:06 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:25876 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965225AbWJYUOE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 16:14:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JPUXgwsNadnZAXJdD4CRLmCcCnLUI90vXV+GUMFrWvr6rmISEaO5U9qiAfUXUg91q+EJU+OUVbbScC23OVJcMQjfu2PA4omlA0DEPaMhYYM7DxInKEkqaD5W5QFf0dHw7658XEzXa3+CukHfYl8igwLnoSbIMxPQUNEF8yX3rAQ=
-Message-ID: <6b4e42d10610251313g5a42ef9ft524bd3bc525d7f00@mail.gmail.com>
-Date: Wed, 25 Oct 2006 13:13:56 -0700
-From: "Om Narasimhan" <om.turyx@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: HPET : Legacy Routing Replacement Enable - 3rd try.
-Cc: randy.dunlap@oracle.com, omanakuttan.potty@sun.com, clemens@ladisch.de,
-       vojtech@suse.cz, bob.picco@hp.com, venkatesh.pallipadi@intel.com,
-       omanakuttan@imap.cc, linux-kernel@vger.kernel.org
-In-Reply-To: <p731wowmdlz.fsf@verdi.suse.de>
+	Wed, 25 Oct 2006 16:15:14 -0400
+Received: from dxa00.wellsfargo.com ([151.151.65.115]:49368 "EHLO
+	dxa00.wellsfargo.com") by vger.kernel.org with ESMTP
+	id S1161187AbWJYUPM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 16:15:12 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200610250013.48194.om.turyx@gmail.com>
-	 <p731wowmdlz.fsf@verdi.suse.de>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Subject: RE: Touchscreen hardware hacking/driver hacking.
+Date: Wed, 25 Oct 2006 15:08:55 -0500
+Message-ID: <E8C008223DD5F64485DFBDF6D4B7F71D020C69E4@msgswbmnmsp25.wellsfargo.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Touchscreen hardware hacking/driver hacking.
+Thread-Index: AcbyMQAlmUmwm8/pSJei8KH7eSW2JgGMp1mg
+From: <Greg.Chandler@wellsfargo.com>
+To: <dtor@insightbb.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-input@atrey.karlin.mff.cuni.cz>
+X-OriginalArrivalTime: 25 Oct 2006 20:08:56.0064 (UTC) FILETIME=[66760000:01C6F871]
+X-WFMX: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 03/03 : Documentation
 
-------
-Signed-Off-by : Om Narasimhan <om.turyx@gmail.com>
+I've been thinking about the code I added:
+        {
+                .ident = "FLORA-ie 55mi",
+                .matches = {
+                        DMI_MATCH(DMI_PRODUCT_NAME, "FLORA-ie 55mi"),
+                },
+        },
+
+That's nice and all that it works, but I'd like to make it work for all
+models.  Some don't return the same strings, but do have the same
+hardware.  I noticed the same thing with your lifebook models.
+I can't find the definition for "DMI_MATCH", of if I did, I sure don't
+understand it.  What I'd like to do is something along the lines of:
+
+const char* UPCASEME(string str)
+  {
+    for (int x = 0; x < str.size(); x = x + 1)
+      {
+        str[x] = toupper(str[x]);
+      }
+    return str.c_str();
+  }
+
+{
+  if (strncmp(UPCASEME(DMI_PRODUCT_NAME), UPCASEME("FLORA-ie ") ,9) ==
+0)
+    {
+      .ident = "FLORA-ie 55mi",
+      .matches = { DMI_MATCH(UPCASEME(DMI_PRODUCT_NAME),
+UPCASEME("FLORA-ie ")) },
+    }
+  else if (strncmp(UPCASEME(DMI_PRODUCT_NAME), UPCASEME("LifeBook B")
+,10) == 0)
+    {
+      .ident = "LifeBook B",
+      .matches = { DMI_MATCH(UPCASEME(DMI_PRODUCT_NAME),
+UPCASEME("LifeBook B")) },
+    }
+  else
+    {
+    }
+}
+ 
+
+Now that I have looked at it {going over my code to see if it should
+work I saw this in drivers/firmware/dmi_scan.c:
+/**
+ *      dmi_check_system - check system DMI data
+ *      @list: array of dmi_system_id structures to match against
+ *              All non-null elements of the list must match
+ *              their slot's (field index's) data (i.e., each
+ *              list string must be a substring of the specified
+ *              DMI slot's string data) to be considered a
+ *              successful match.
+ *
+ *      Walk the blacklist table running matching functions until
+someone
+ *      returns non zero or we hit the end. Callback function is called
+for
+ *      each successful match. Returns the number of matches.
+ */
+int dmi_check_system(struct dmi_system_id *list)
+
+If this is true, maybe that function should be changed to make it
+case-insensitive?
+If so then, 4 of the pre-existing cases can be summed up as "LifeBook
+B", and all of the Flora-ie tablets can be listed as a single entry as
+well.
+
+I know somone will object to this as a dangerous assumption that all
+models, or all spellings are the same.  Byt the time the flames hit, I
+should have my asbestos armour out and ready.  However, I know for a
+fact that all of the Hitachi tablets do have this, and for what I have
+read so do the lifebooks.  My opinion is that "it's only a PS/2" driver,
+what could go wrong.  I'm no kernel developer, and not much of a
+developer in general so, now that I've erected the lightning rod I guess
+it's time for discussion?
+
+What do you guys think?
 
 
- Documentation/hpet.txt              |   56 +++++++++++++++++++++++++++++++++++
- Documentation/kernel-parameters.txt |    9 ++++++
- 2 files changed, 65 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/hpet.txt b/Documentation/hpet.txt
-index b7a3dc3..0b1b9d9 100644
---- a/Documentation/hpet.txt
-+++ b/Documentation/hpet.txt
-@@ -298,3 +298,59 @@ members of the hpet_task structure befor
- hpet_control simply vectors to the hpet_ioctl routine and has the same
- commands and respective arguments as the user API.  hpet_unregister
- is used to terminate usage of the HPET timer reserved by hpet_register.
-+
-+		HPET Legacy Replacement Route option (hpet_lrr)
-+
-+HPET is capable of replacing the IRQ0 (connected INT0 PIN) routing for
-+timer interrupt. The capability register (at offset 0 of HPET
-+base address) has a bit specifying if HPET chip is capbale of doing
-+this. OS can read the bit either from HW or ACPI table. (HPET ACPI
-+description table -> Event Timer block -> bit 15, page 30 of HPET
-+spec).  Ideally (I think so!) BIOS should set the ACPI table than letting
-+the OS read H/W, which gives the BIOS a way to configure either legacy
-+or Legacy replacement modes.
-+
-+Typically the motherboard has BIOS configured / hardwired IRQ0 to INT0
-+(pin of APIC) connection. Linux assumes IRQ0 connected to INT0 unless it is
-+supplied using an override parameter in the MPTable. Some NVidia chipsets /
-+BIOS initialization code had configured to override IRQ0 -> INT0 connection
-+and later a parameter was introduce (acpi_skip_timer_override) to get IRQ0 ->
-+INT0 connection right.
-+
-+But a number of bioses (both phoenix and AMI) are not working as
-+expected. (I have an AMI BIOS which sets ACPI table bit 15 to 0 and then
-+connect IRQ0 -> INT2 internally, Another bios I have sets the ACPI table bit
-+15 to 0, but does not connect IRQ0 -> INT2. Both would result in a hang in
-+calibrate_delay() since there would not be any timer interrupts So I have
-+provided a command line parameter which overrides
-+the BIOS ACPI entry. So, irrespctive of the BIOS' HPET ACPI Descriptor
-+table settings, if the parameter hpet_lrr=[0,1] is specified, it takes
-+precedence.
-+
-+* When to use this parameter?
-+
-+Some latest versions CK-804 (e.g),(Actually the code initializes the
-+CK804 in the BIOS), would correctly set the HPET such that there would not
-+be any interrupts on INT0. Linux does not handle this situation very well
-+because in linux, if HW is LRR capable, it is enabled from the OS. Still the
-+timer interrupt handler is setup for IRQ0. Under this situation, you can
-+force the parameter hpet_lrr=1, so that IRQ2 is timer interrupts.
-+
-+[root@mophia ~]# cat /proc/interrupts | grep 2:
-+ 2:        163          0          0          0          1          7
-+207     955341    IO-APIC-edge  timer
-+
-+[root@mophia ~]# uptime
-+ 22:52:38 up 15 min,  2 users,  load average: 0.00, 0.01, 0.02
-+
-+[root@mophia ~]# dmesg | grep -i MP-BIOS
-+
-+For 15 mts (900 sec), around 95k interrupts on timer looks kinda fine.
-+
-+* Known Bugs:
-+I have tested it only with Nvidia CK-804. There seem to be some kind of timing
-+issue between enabling the HPET with LRR set and start of tinerrupts. As a
-+result of which, calibrate_delay() hangs because there are no interrupts. If
-+you run into such a case, pass lpj=<bogomips * 500> as a work around. i.e, if
-+your bogomips is 5000, pass lpj=2500000
-+
-diff --git a/Documentation/kernel-parameters.txt
-b/Documentation/kernel-parameters.txt
-index ff571f9..36e469c 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -366,6 +366,15 @@ and is between 256 and 4096 characters.
- 	hpet=		[IA-32,HPET] option to disable HPET and use PIT.
- 			Format: disable
 
-+	hpet_lrr=	[IA32,X86_64,HPET] Option to enable/disable the HPET
-+			Legacy replacement route. Please read Documentation/
-+			hpet.txt for more info.
-+			Format : {"0" | "1"}
-+			0 -> Disables Legacy Route Replacement. (Default)
-+			1 -> Enables LRR. Please consult your BIOS
-+			documentation before doing this.
-+
-+
- 	cm206=		[HW,CD]
- 			Format: { auto | [<io>,][<irq>] }
+
+
+
+
+
+
+
+
+
+-----Original Message-----
+From: dmitry.torokhov@gmail.com [mailto:dmitry.torokhov@gmail.com] On
+Behalf Of Dmitry Torokhov
+Sent: Tuesday, October 17, 2006 4:12 PM
+To: Chandler, Greg
+Cc: linux-kernel@vger.kernel.org; linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: Touchscreen hardware hacking/driver hacking.
+
+On 10/17/06, Greg.Chandler@wellsfargo.com <Greg.Chandler@wellsfargo.com>
+wrote:
+>
+> I'm working on a prototype Hitachi tablet, it uses a Fujitsu 4-wire 
+> resistive touchscreen. {10.4" I think} I've found that windows-xp 
+> embedded uses a generic ps/2 driver for the device.
+>
+> I've ripped this thing to pieces on several occasions looking for 
+> chips to help the porting, my problem is that I can not find the 
+> analog-digital converter for this thing.  The connector goes to a 
+> surface mount header on an 8 layer board.
+> I loose the traces almost instantly.  Given that I can't find the 
+> converter anywhere what should I do next?
+>
+> I've done my homework and found that this HAS to be either serial or 
+> usb attached according to Fujitsu.
+> Aparently it's neither.  There are no unknown USB devices {or known 
+> matching}, and there is no activity on the single serial port on the 
+> system.  Since the windows driver uses PS/2 as the interface I have a 
+> horrible feeling this thing has an interpretation layer that makes it 
+> a
+> PS/2 mouse, and that may or may not royally be a nightmare.
+>
+
+The touchscreen might need a "magic knock" to activate. You might try to
+see what data wondows driver sends to PS/2 port.
+
+Also check of Lifebook touchscreen protocol will work for you. You will
+need to adjust DMI table in drivers/input/mouse/lifebook.c/
+
+> I would have posted this to a different group but there is no "input"
+> mailing list.
+>
+
+linux-input@atrey.karlin.mff.cuni.cz
+
+But you must be subscribed to post otherwise list just drops your mails
+on the floor.
+
+--
+Dmitry
+
+

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423127AbWJYIix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423132AbWJYInZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423127AbWJYIix (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 04:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423132AbWJYIiw
+	id S1423132AbWJYInZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 04:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423059AbWJYInZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 04:38:52 -0400
-Received: from dev.mellanox.co.il ([194.90.237.44]:913 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1423123AbWJYIiv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 04:38:51 -0400
-Date: Wed, 25 Oct 2006 10:37:11 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: Re: 2.6.19-rc2: known unfixed regressions (v3)
-Message-ID: <20061025083711.GB9518@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061025082820.GD7083@elf.ucw.cz>
-Mime-Version: 1.0
+	Wed, 25 Oct 2006 04:43:25 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12766 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1423132AbWJYInY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 04:43:24 -0400
+Date: Wed, 25 Oct 2006 10:42:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+Message-ID: <20061025084226.GN5851@elf.ucw.cz>
+References: <1161576857.3466.9.camel@nigel.suspend2.net> <200610242208.34426.rjw@sisk.pl> <20061024213402.GC5662@elf.ucw.cz> <1161728153.22729.22.camel@nigel.suspend2.net> <20061024221950.GB5851@elf.ucw.cz> <1161729027.22729.37.camel@nigel.suspend2.net> <20061025081135.GM5851@elf.ucw.cz> <1161764907.22729.86.camel@nigel.suspend2.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061025082820.GD7083@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1161764907.22729.86.camel@nigel.suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Pavel Machek <pavel@suse.cz>:
-> > >
-> > > Subject    : T60 stops triggering any ACPI events
-> > > References : http://lkml.org/lkml/2006/10/4/425
-> > >              http://lkml.org/lkml/2006/10/16/262
-> > > Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
-> > > Status     : unknown
+Hi!
+
+> > > With the code I have in Suspend2 (which is what I'm working towards),
+> > > the value includes the swap_type, so there's no overlap. Assuming the
+> > > swap allocator does it's normal thing and swap allocated is contiguous,
+> > > you'll probably end up with two extents: one containing the swap
+> > > allocated on the first device, and the other containing the swap
+> > > allocated on the second device. So (with the current version), striping
+> > > would use 6 * sizeof(unsigned long) instead of 3 * sizeof(unsigned
+> > > long).
 > > 
-> > Just retested with 2.6.19-rc3 - it's still there:
-> > e.g. after I do a full kernel compile, my T60 stops triggering any ACPI events:
-> > tail -f /var/log/acpid does not show anything, even on Fn/F4 which is supposed
-> > to be always enabled.  Restarting the acpid doesn't do anything either - ACPI
-> > starts working again, for a while, only after reboot.
-> > 
-> > Works fine in 2.6.18 ( + this patch http://lkml.org/lkml/2006/7/20/56).
+> > And now, can you do same computation assuming the swap allocator goes
+> > completely crazy, and free space is in 1-page chunks?
 > 
-> Bugzilla.kernel.org, assign it to acpi people...
+> The worst case is 3 * sizeof(unsigned long) *
+> number_of_swap_extents_allocated bytes.
 
-Already done, http://bugzilla.kernel.org/show_bug.cgi?id=7408
+Okay, so if we got 4GB of swap space, thats 1MB swap pages, worst case
+is you have one extent per page, on x86-64 that's 24MB. +kmalloc
+overhead, I assume?
 
+And you do linear walks over those extents, leading to O(n^2)
+algorithm, no? That has bitten us before...
+									Pavel
 -- 
-MST
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

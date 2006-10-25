@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161381AbWJYUtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161198AbWJYUxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161381AbWJYUtl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 16:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbWJYUtl
+	id S1161198AbWJYUxM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 16:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161383AbWJYUxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 16:49:41 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50836
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161381AbWJYUtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 16:49:40 -0400
-Date: Wed, 25 Oct 2006 13:49:32 -0700 (PDT)
-Message-Id: <20061025.134932.63125874.davem@davemloft.net>
-To: suzuki@in.ibm.com
+	Wed, 25 Oct 2006 16:53:12 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:37846 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1161198AbWJYUxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 16:53:12 -0400
+Date: Wed, 25 Oct 2006 16:52:38 -0400
+To: Alex Handy <ahandy@bzmedia.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Behaviour of compat_msgsnd/compat_msgrcv calls
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <453FB3F9.9080704@in.ibm.com>
-References: <453FB3F9.9080704@in.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Subject: Re: Linux and GPL 3
+Message-ID: <20061025205238.GE30993@csclub.uwaterloo.ca>
+References: <453FC6A6.2020108@bzmedia.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <453FC6A6.2020108@bzmedia.com>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Suzuki K P <suzuki@in.ibm.com>
-Date: Wed, 25 Oct 2006 11:59:05 -0700
+On Wed, Oct 25, 2006 at 01:18:46PM -0700, Alex Handy wrote:
+> I am working on a story about the GPL 3.0, and I'd like someone who 
+> contributes to the Linux Kernel to chat about why the GPL 3.0 is making 
+> folks unhappy. Anyone got 10 minutes for a phone call on this tomorrow 
+> or Friday? I am on the west coast of the USA, so someone within 3 hours 
+> time difference would be best, if not someone local to the SF Bay area.
 
-> Is there any specific reason behind this ? Can't we just use the user 
-> buffer directly instead of doing an additional copy_in_user ?
-> ie,
-> 	err = sys_msgrcv(first, uptr, second, msgtyp, third);
+Wouldn't it be simpler to just read this thread:
+http://groups.google.ca/group/linux.kernel/browse_frm/thread/21d472915541ac48?q=gplv3+position&
 
-It's the cleanest way to deal with the difference in
-"struct msgbuf" layout between native and compat userspace.
-
-I guess we could make some common do_sys_msgrcv() function
-that passed in a pointer to the "msgbuf" and the buffer
-seperately.
+--
+Len Sorensen

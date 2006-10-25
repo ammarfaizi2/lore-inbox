@@ -1,118 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751722AbWJYOmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWJYOqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751722AbWJYOmi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 10:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWJYOmi
+	id S932221AbWJYOqi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 10:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWJYOqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 10:42:38 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:60568 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751722AbWJYOmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 10:42:37 -0400
+	Wed, 25 Oct 2006 10:46:38 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:35496 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932221AbWJYOqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 10:46:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aSwQsqoyycsr84FQLNSuHav4RR9fYNp743to85/k21hZVs78zX6VI0hznjkOxBwsCyhag2UTydDYquowJasor/GlymkaCRtUpV7IT0kRhRBa41x1Q75e8dysSCmX3rhypLSL9cRTxE/YnS4+zXg03Z6SBECojDQVJAqm9wJALQk=
-Message-ID: <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
-Date: Wed, 25 Oct 2006 16:42:35 +0200
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Cc: "Richard Hughes" <hughsient@gmail.com>, "Dan Williams" <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       "David Zeuthen" <davidz@redhat.com>,
-       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>
-In-Reply-To: <1161778296.27622.85.camel@shinybook.infradead.org>
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=kwYfxITmTl6LY6KrQ49PZ3yYvju99Ticte6PNYM51m+B68HRz2/yfMPOtx9BsPENAPhxs9+jcE2pNsp3OuZyF+6BNjm+3mkm6F1+wuPujhC0GblPJu7ufrP4+mB75sUyn0sIOD33AItdHuoDoX/iCrf/8WRaI+M1IJUezcROzoA=
+Message-ID: <453F78CF.9050708@gmail.com>
+Date: Wed, 25 Oct 2006 11:46:39 -0300
+From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <oliveiram@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: free_pages error message.
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1161628327.19446.391.camel@pmac.infradead.org>
-	 <1161631091.16366.0.camel@localhost.localdomain>
-	 <1161633509.4994.16.camel@hughsie-laptop>
-	 <1161636514.27622.30.camel@shinybook.infradead.org>
-	 <1161710328.17816.10.camel@hughsie-laptop>
-	 <1161762158.27622.72.camel@shinybook.infradead.org>
-	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
-	 <1161778296.27622.85.camel@shinybook.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Does anybody know what the following message means?
+The server logged this message and rebooted.
 
-On 10/25/06, David Woodhouse <dwmw2@infradead.org> wrote:
-> If you can summarise the bits I've missed in the meantime that would be
-> wonderfully useful
-
-OK. Looking at the current git snapshot:
-
-current_now is missing.
-
-time_remainig should be split into:
-  time_to_empty_now
-  time_to_empty_avg
-  time_to_full
-or even
-  time_to_empty_now
-  time_to_empty_avg
-  time_to_full_now
-  time_to_full_avg
-
-s/charge_count/cycle_count/, that's the standard name and used by the SBS spec.
-
-Why the reversed order, for example, in design_charge vs. charge_last?
-Following hwmon style, I think it should be
-s/design_charge/charge_design/
-s/manufacture_date/date_manufactured/
-s/first_use/date_first_used/
-s/design_voltage/voltage_design/
-
-s/charge_last/charge_last_full/ seems less ambiguous.
-
-s/^charge$/charge_left/ follows SBS and seems better.
-
-And, for the reasons I explained earlier, I strongly suggest not using
-the term "charge" except when referring to the action of charging.
-Hence:
-s/charge_rate/rate/;  s/charge/capacity/
-
-It would be nice to have power_{now,avg}, always in mW regardless of
-the capacity units.
-
-I take it you don't want to deal with battery control actions for now.
-
-
-> > > one of the things I plan is to remove 'charge_units' and provide both
-> > > 'design_charge' and 'design_energy' (also {energy,charge}_last,
-> > > _*_thresh etc.) to cover the mWh vs. mAh cases.
-> >
-> > You can't do this conversion, since the voltage is not constant.
-> > Typically the voltage drops when the charge goes down, so you'll be
-> > grossly overestimating the available energy it. And the effect varies
-> > with battery chemistry and condition.
->
-> Absolutely. I don't want to do the conversion -- I want to present the
-> raw data. I was just a question of whether I provide 'capacity' and
-> 'units' properties, or whether I provide 'capacity_mWh' and
-> 'capacity_mAh' properties (only one of which, presumably, would be
-> available for any given battery). Likewise for the rates, thresholds,
-> etc.
-
-I think using one set of files and units string makes more sense, for
-several reasons:
-Reduces the number of attributes and kernel code duplication.
-Can handle weird power sources that use other units.
-Simpler userspace code. One can do
-$ cd /sys/foo; echo `cat capacity_left` out of `cat capacity_last`
-`cat capaity_units` left.
-instead of checking multiple sets of files for valid values.
-
-The great majority of apps don't care about the physical values, but
-just need something that they can parse as a relative quantity and
-something to show the user. The generic units scheme provides both. We
-have current_*, voltage etc. for those that do care, but there's no
-need to duplicate the whole set of _thresholds, _last_full, _design
-etc.
-
-  Shem
+kernel: free_pages_ok(): incorrect sub-page count ffffffff, of page 
+00000040cadd8000(100000000000000).
+kernel: bash[10000]: NaT consumption 17179869216
+kernel:
+kernel: Pid: 1000, comm:                 bash
+kernel: EIP is at pipe_release [kernel] 0x50 (2.4.21-27.0.2.EL)
+kernel: psr : 0000101008026018 ifs : 800000000000048c ip  : 
+[<e0000000045399d0>]    Not tainted
+kernel: unat: 0000000000000000 pfs : 000000000000050c rsc : 0000000000000003
+kernel: rnat: 0000000000000000 bsps: 0000000000000000 pr  : 80000000f5a52919
+kernel: ldrs: 0000000000000000 ccv : 0000000080000000 fpsr: 0009804c0270033f
+kernel: b0  : e00000000451d0b0 b6  : e000000004402f70 b7  : e000000004539d20
+kernel: f6  : 1003e0000000000000000 f7  : 1003e0000000000000001
+kernel: f8  : 1003e0000000000000001 f9  : 1003e0000000000000001
+kernel: r1  : e000000004cb7d00 r2  : 0000000000000000 r3  : 0000000000000001
+kernel: r8  : e000000004b205f8 r9  : e000000004539d20 r10 : e00000404c59e790
+kernel: r11 : e00000405c5aab88 r12 : e00000406b2f7e60 r13 : e00000406b2f0000
+kernel: r14 : e000000004b205a8 r15 : e000000004993758 r16 : e00000406b2f0038
+kernel: r17 : 0000000000000028 r18 : e000000004a88380 r19 : e000000004b78ec8
+kernel: r20 : 0000000000000000 r21 : 0000000080000000 r22 : e00000016b965c90
+kernel: r23 : ffffffffffffffef r24 : 0000000000000000 r25 : e00000016b965d30
+kernel: r26 : e00000016b965ca8 r27 : e00000016b965cb0 r28 : 0000000000000000
+kernel: r29 : 0000000000000000 r30 : 0000000000000001 r31 : 0000000000000004
+kernel:
+kernel: Call Trace: [<e000000004415960>] sp=0xe00000406b2f79f0 
+bsp=0xe00000406b2f1408 show_stack [kernel] 0x80
+kernel: [<e000000004431e50>] sp=0xe00000406b2f7bc0 
+bsp=0xe00000406b2f13d8 die [kernel] 0x1b0
+kernel: [<e000000004432fd0>] sp=0xe00000406b2f7bc0 
+bsp=0xe00000406b2f1398 ia64_fault [kernel] 0x170
+kernel: [<e00000000440ea20>] sp=0xe00000406b2f7cc0 
+bsp=0xe00000406b2f1398 ia64_leave_kernel [kernel] 0x0
+kernel: [<e0000000045399d0>] sp=0xe00000406b2f7e60 
+bsp=0xe00000406b2f1338 pipe_release [kernel] 0x50
+kernel: [<e00000000451d0b0>] sp=0xe00000406b2f7e60 
+bsp=0xe00000406b2f12e8 __fput [kernel] 0x350
+kernel: [<e00000000451cd40>] sp=0xe00000406b2f7e60 
+bsp=0xe00000406b2f12d0 fput [kernel] 0x40
+kernel: [<e000000004519400>] sp=0xe00000406b2f7e60 
+bsp=0xe00000406b2f12a8 filp_close [kernel] 0x1a0
+kernel: [<e000000004519660>] sp=0xe00000406b2f7e60 
+bsp=0xe00000406b2f1258 sys_close [kernel] 0x1e0
+kernel: [<e00000000440ea00>] sp=0xe00000406b2f7e60 
+bsp=0xe00000406b2f1258 ia64_ret_from_syscall [kernel] 0x0

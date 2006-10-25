@@ -1,88 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbWJYRQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWJYRW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965222AbWJYRQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 13:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWJYRQ0
+	id S964809AbWJYRW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 13:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbWJYRW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 13:16:26 -0400
-Received: from quartz.orcorp.ca ([142.179.161.236]:30090 "EHLO
-	quartz.orcorp.ca") by vger.kernel.org with ESMTP id S965219AbWJYRQY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 13:16:24 -0400
-Date: Wed, 25 Oct 2006 11:15:54 -0600
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Grant Grundler <grundler@parisc-linux.org>, linux-ia64@vger.kernel.org,
-       Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [openib-general] Ordering between PCI config space writes and MMIO reads?
-Message-ID: <20061025171554.GM4054@obsidianresearch.com>
-References: <adafyddcysw.fsf@cisco.com> <20061025063022.GC12319@colo.lackof.org> <20061025141859.GC5591@parisc-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061025141859.GC5591@parisc-linux.org>
-User-Agent: Mutt/1.5.9i
+	Wed, 25 Oct 2006 13:22:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16543 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964809AbWJYRW0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 13:22:26 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <453F9555.1050201@wolfmountaingroup.com> 
+References: <453F9555.1050201@wolfmountaingroup.com>  <16969.1161771256@redhat.com> <5c49b0ed0610250952i2fcc64b7t47fb7565cada14c6@mail.gmail.com> 
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Nate Diller <nate.diller@gmail.com>, sds@tycho.nsa.gov, jmorris@namei.org,
+       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+       linux-kernel@vger.kernel.org, aviro@redhat.com,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Security issues with local filesystem caching 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 25 Oct 2006 18:21:16 +0100
+Message-ID: <25083.1161796876@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 08:18:59AM -0600, Matthew Wilcox wrote:
+Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
 
-> PCI-PCI bridges are allowed to do it.  If you look in table E-1 of PCI
-> 2.3, or table 8-3 of PCI-X 2.0, you'll see that a Posted Memory Write
-> can pass a Delayed Write Request (or in PCI-X, a Memory Write can pass a
-> Split Write Request).
+> SELinux support addresses all of these issues for B1 level security quite
+> well with mandatory access controls at the fs layers.  In fact, it works so
+> well, when enabled you cannot even run apache on top of an FS unless
+> configured properly.
 
-Carefull here.. Only MMIO writes are of the posted variety. Non posted
-transactions (config write, IO write, all reads) are not ever allowed
-to pass a posted write, but they can be re-ordered.
+How?  The problem I've got is that the caching code would be creating and
+accessing files and directories with the wrong security context - that of the
+calling process - and not a context suitable for sharing things in the cache
+whilst protecting them from userspace as best we can.
 
-Table 8-3 shows that Split Write vs Split Read are all Y/N
-meaning they could be re-ordered with respect to each other.
-
-The problem with mthca is exactly this, although the operations were
-issued in-order by the bridges the end device (mthca) is free to
-complete them in any order, and it choose to complete the MMIO read
-before the config write.
-
->   In most PCI-X implementations, Split Requests are managed in separate
->   buffers from Split Completions, so Split Requests naturally pass Split
->   Completions. However, no deadlocks occur if Split Completions block
->   Split Requests.
-
-Again, this is only for posted writes. All these rules are designed to
-prevent the bus from deadlocking due to buffer starvation under
-certain situations. [Basically split completions and posted writes are
-given a seperate queue that can advance if the request queue is
-stalled. Otherwise you can deadlock a bridge]
-
-> So all this code that checks to see if a write had an effect is unsafe.
-> I'm a little perturbed by this.  It means the only way to reliably
-
-MMIO based code that does this is correct and reliable.. PIO code that
-does this is only safe if the platform is waiting for the PIO write
-completion before starting the PIO read.
-
-PCI-X (pg 80) says this about non-posted transaction ordering requirements:
-  As in convention PCI, if a requester requires one non-posted
-  transaction to complete before another, it must not initiate the
-  second transaction until the first one compeltes.
-
-IMHO, all sane hardware implementations of config ops and PIO should
-block the host bridge until the completion is generated by the end
-device..I'm sure that most x86 platforms do this. (For instance I've
-observed this kind of behavior with a Hyper Transport probe on
-Opterons)
-
-This is more than just worrying about ordering, it is about how to
-engage a platform specific way to know that the completion has been
-generated. The person who suggested polling the PIO_OUTSTANDING
-register on SN2 seems to have the right idea (if that counts all
-pending non-posted operations, not just PIO ones) :|
-
-The risk of re-ordering is probably not so much in the bridges since
-that would be a fairly strange thing to do - but it is very likely in
-end-devices. This is especially true if the accesses are to different
-internal resources!
-
-Jason
+David

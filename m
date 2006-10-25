@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423171AbWJYJ4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423165AbWJYKBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423171AbWJYJ4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 05:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423169AbWJYJ4Q
+	id S1423165AbWJYKBX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 06:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423175AbWJYKBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 05:56:16 -0400
-Received: from main.gmane.org ([80.91.229.2]:13195 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1423171AbWJYJ4P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 05:56:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: Frustrated with Linux, Asus, and nVidia, and AMD
-Date: Wed, 25 Oct 2006 09:56:00 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnejudhu.93p.olecom@flower.upol.cz>
-References: <453EEE46.9040600@perkel.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Wed, 25 Oct 2006 06:01:22 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:58186 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1423165AbWJYKBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 06:01:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lo2cZ/d+DKQUiqwGpxZILhXAniM02LKNRZNzuIoxYWYwW5/RtzsafCCVYW8AtU5YUBFbG+cG6GWyc6Vw9k2hXbfy7UVX1tO7HDZWZUqOXfXQ6MzuoUz0POdbRfTvr10E5e17y6HtWhpZCcoh1Qt2EEYen/c3DpaafVx6AHlxi9o=
+Message-ID: <9a8748490610250301k6d10b168x37a4d667c4016601@mail.gmail.com>
+Date: Wed, 25 Oct 2006 12:01:20 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+Subject: Re: What about make mergeconfig ?
+Cc: "Linux Kernel list" <linux-kernel@vger.kernel.org>,
+       "Sam Ravnborg" <sam@ravnborg.org>
+In-Reply-To: <1161755164.22582.60.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1161755164.22582.60.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-10-25, Marc Perkel wrote:
-> User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-> Xref: news.gmane.org gmane.linux.kernel:460364
-> Archived-At: <http://permalink.gmane.org/gmane.linux.kernel/460364>
+On 25/10/06, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> Hi folks !
 >
-> Ok - I had a bad day today struggling with hardware. Having said that 
-> I'm somewhat frustrated with the lack of progress of Linux getting it 
-> right with Asus, nVidia, and AMD processors right.
+> I'm not good enough at make and friends to do that myself without
+> spending a lot more time than I have at hand, but I figured it might be
+> something doable in a blink for whoever knows Kconfig guts :)
 >
-> I still have to run pci=nommconf to keep the server from locking up. 
-> That's with both 939 pin and AM2 motherboards.
-
-Please, read down this thread:
-<http://article.gmane.org/gmane.linux.ports.x86-64.general/1794>
-And this one may be relevant:
-<http://permalink.gmane.org/gmane.linux.kernel/458769>
-
-Maybe will give some clue about soft-"hardware".
-
-> This bug remains unresolved:
+> What about something like:
 >
-> http://bugzilla.kernel.org/show_bug.cgi?id=6975
+> make mergeconfig <path_to_file>
 >
-> So what's up with the no progress?
+> That would merge all entries in the specified file with the
+> current .config. By mergeing, that basically means that rule:
+>
+> N + N = N
+> m + N = m
+> Y + N = Y
+> m + Y = Y
+>
+> (that is, we basically take for each entry max(.config, merge file)
+>
+> The idea here is that on archs like powerpc, we have the ability to
+> build kernels that can boot several platforms. However, the defconfigs
+> we ship (g5_defconfig, pseries_defconfig, maple_defconfig, cell... ) are
+> tailored for one platform.
+>
+> Now, if (for testing typically) I want to build a kernel that boots (and
+> has all the necessary drivers) for both a g5 and a cell, I need to start
+> from one of the defconfigs (the g5 one) and basically add in manually
+> all the bits necessary from the other one (the cell one).
+>
+> Thus it might be useful to have a mecanism to automate that...
+>
+Hmm, wouldn't you only have to build that config once and then in the
+future just use "make oldconfig" to keep it up-to-date with newer
+kernels ?
 
-If you are only one using that hardware and experiencing
-bugs, then you are on your own.
-OTOH, many would help if more hardware information and erratas will be
-*actually published*.
-____
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

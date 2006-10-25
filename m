@@ -1,153 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423252AbWJYKqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423263AbWJYLA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423252AbWJYKqb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 06:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423255AbWJYKqa
+	id S1423263AbWJYLA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 07:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423264AbWJYLA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 06:46:30 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:20767 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1423252AbWJYKqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 06:46:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SwBok5mgDoIs7DfZpCiLYe7lws+4JCTLMH9TQ7NezQZ24/qniT2KIjvhmk91VOxV+XBOD2pOTGVp4O8R/tRVIH6KUJio96R6AoEvjK7SJpIh8jD7fIaT/mUode/0WXfJzHy28CtUJWVuwAoxgUp+rTBLeMUIK9KoVeo8MPrh+tc=
-Message-ID: <74d0deb30610250346u1f444a5brbc2c32b4ab83d3e2@mail.gmail.com>
-Date: Wed, 25 Oct 2006 12:46:27 +0200
-From: "pHilipp Zabel" <philipp.zabel@gmail.com>
+	Wed, 25 Oct 2006 07:00:27 -0400
+Received: from nucleus.hjsoft.com ([207.210.221.102]:25867 "EHLO
+	nucleus.hjsoft.com") by vger.kernel.org with ESMTP id S1423263AbWJYLA0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 07:00:26 -0400
+Date: Wed, 25 Oct 2006 07:00:25 -0400
+From: John M Flinchbaugh <john@hjsoft.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc[123]: Oops in __wake_up_common during htc magician resume.
+Subject: inconsistent lock state in 2.6.18.1
+Message-ID: <20061025110024.GA4320@hjsoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-When I switched from 2.6.18 to 2.6.19-rc1 processes started to get killed
-during resume due to an oops in __wake_up_common on my arm
-pxa272 device (htc magician). The patches I used are at
-http://userpage.fu-berlin.de/~zabel/magician/magician-patches-2.6.19-rc3-20061025.tar.bz2
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Is there any information in those reports that could help me find the issue?
-I have no idea how to debug this, so I'd appreciate any hint.
+I see this OOPS on boot with 2.6.18.1/amd64:
+[  113.147347] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+[  113.147561] [ INFO: inconsistent lock state ]
+[  113.147668] ---------------------------------
+[  113.147775] inconsistent {in-hardirq-W} -> {hardirq-on-W} usage.
+[  113.147883] dhclient3/1787 [HC0[0]:SC0[1]:HE1:SE0] takes:
+[  113.147991]  (&ei_local->page_lock){+...}, at: [<ffffffff88080fbb>] ei_s=
+tart_xmit+0x95/0x24e [8390]
+[  113.148274] {in-hardirq-W} state was registered at:
+[  113.148382]   [<ffffffff802443d5>] lock_acquire+0x7a/0xa1
+[  113.148556]   [<ffffffff80438c09>] _spin_lock+0x2e/0x3c
+[  113.148730]   [<ffffffff880808e0>] ei_interrupt+0x44/0x2fb [8390]
+[  113.148904]   [<ffffffff80258f9f>] handle_IRQ_event+0x2b/0x64
+[  113.149078]   [<ffffffff80259086>] __do_IRQ+0xae/0x114
+[  113.149251]   [<ffffffff8020c21a>] do_IRQ+0xee/0x100
+[  113.149424]   [<ffffffff80209dbd>] common_interrupt+0x65/0x66
+[  113.149596] irq event stamp: 20582
+[  113.149703] hardirqs last  enabled at (20582): [<ffffffff8043916b>] _spi=
+n_unlock_irqrestore+0x3f/0x69
+[  113.149940] hardirqs last disabled at (20581): [<ffffffff80438e74>] _spi=
+n_lock_irqsave+0x13/0x46
+[  113.150176] softirqs last  enabled at (20456): [<ffffffff880037b2>] unix=
+_release_sock+0x7c/0x218 [unix]
+[  113.150417] softirqs last disabled at (20578): [<ffffffff803ddbe8>] dev_=
+queue_xmit+0xe2/0x26a
+[  113.150654]=20
+[  113.150654] other info that might help us debug this:
+[  113.150866] 1 lock held by dhclient3/1787:
+[  113.150973]  #0:  (&dev->_xmit_lock){-+..}, at: [<ffffffff803ea9c6>] __q=
+disc_run+0x77/0x1e5
+[  113.151272]=20
+[  113.151273] stack backtrace:
+[  113.151484]=20
+[  113.151485] Call Trace:
+[  113.151799]  [<ffffffff8020ae85>] show_trace+0xae/0x342
+[  113.151919]  [<ffffffff8020b12e>] dump_stack+0x15/0x17
+[  113.152039]  [<ffffffff8024293b>] print_usage_bug+0x259/0x26a
+[  113.152230]  [<ffffffff802431ae>] mark_lock+0x218/0x3e2
+[  113.152421]  [<ffffffff80243d97>] __lock_acquire+0x492/0xa56
+[  113.152612]  [<ffffffff802443d6>] lock_acquire+0x7b/0xa1
+[  113.152804]  [<ffffffff80438c0a>] _spin_lock+0x2f/0x3c
+[  113.153002]  [<ffffffff88080fbb>] :8390:ei_start_xmit+0x95/0x24e
+[  113.153114]  [<ffffffff803dbac0>] dev_hard_start_xmit+0x1d6/0x24b
+[  113.153696]  [<ffffffff803eaa52>] __qdisc_run+0x103/0x1e5
+[  113.154282]  [<ffffffff803ddc45>] dev_queue_xmit+0x13f/0x26a
+[  113.154857]  [<ffffffff882e2d72>] :af_packet:packet_sendmsg_spkt+0x1cf/0=
+x1f7
+[  113.154975]  [<ffffffff803d0a8c>] sock_sendmsg+0x111/0x130
+[  113.155535]  [<ffffffff803d1f23>] sys_sendto+0x106/0x12d
+[  113.156096]  [<ffffffff80209886>] system_call+0x7e/0x83
+[  113.156209] DWARF2 unwinder stuck at system_call+0x7e/0x83
+[  113.156316] Leftover inexact backtrace:
 
-<4>Stopping tasks: =============|
-<4>Suspending console(s)
-<4>resume:
-<4>CCCR = 02000408
-<4>CLKCFG = 00000009
-<4>MSC0 = 7ff085a2
-<4>MSC1 = 18801880
-<4>MSC2 = 16607ff0
-<4>magician_udc_command(0)
-<4>usb usb1: root hub lost power or was reset
-<3> usbdev1.2_ep00: PM: resume from 0, parent 1-1 still 2
-<3>hci_usb 1-1:1.0: PM: resume from 2, parent 1-1 still 2
-<3> usbdev1.2_ep81: PM: resume from 0, parent 1-1:1.0 still 2
-<3> usbdev1.2_ep02: PM: resume from 0, parent 1-1:1.0 still 2
-<3> usbdev1.2_ep82: PM: resume from 0, parent 1-1:1.0 still 2
-<3>hci_usb 1-1:1.1: PM: resume from 2, parent 1-1 still 2
-<3> usbdev1.2_ep03: PM: resume from 0, parent 1-1:1.1 still 2
-<3> usbdev1.2_ep83: PM: resume from 0, parent 1-1:1.1 still 2
-<3> hci0: PM: resume from 0, parent 1-1:1.0 still 2
-<4>Restarting tasks...<6>usb 1-1: USB disconnect, address 2
-<4> done
-<6>udc: USB reset
-<1>Unable to handle kernel paging request at virtual address a2f0c000
-<1>pgd = c2ef8000
-<1>[a2f0c000] *pgd=00000000
-<4>Internal error: Oops: f5 [#1]
-<4>Modules linked in: hci_usb ohci_hcd usbcore magician_ts
-leds_magician hidp l2cap bluetooth g_ether corgi_bl
-<4>CPU: 0
-<4>PC is at __wake_up_common+0x1c/0x78
-<4>LR is at __wake_up+0x4c/0x78
-<4>pc : [<c002dbf4>]    lr : [<c002f140>]    Not tainted
-<4>sp : c2eddd90  ip : a2f0c000  fp : c2edddbc
-<4>r10: 000d8000  r9 : c2edddf0  r8 : 80000013
-<4>r7 : c0000008  r6 : 00000001  r5 : 00000003  r4 : c0000008
-<4>r3 : 00000000  r2 : 00000001  r1 : 00000003  r0 : c0000008
-<4>Flags: Nzcv  IRQs off  FIQs on  Mode SVC_32  Segment user
-<4>Control: 397F
-<4>Table: A2EF8000  DAC: 00000015
-<4>Process sh (pid: 888, stack limit = 0xc2edc260)
-<4>Stack: (0xc2eddd90 to 0xc2ede000)
-<4>dd80:                                     c01187b8 c0000008
-00000003 00000001
-<4>dda0: c2edddf0 80000013 c382b220 000d8000 c2edddec c2edddc0
-c002f140 c002dbe4
-<4>ddc0: c2edddf0 00000005 000000bf c028bdc0 00000000 c028bdc0
-c2ed8b60 c394b5f8
-<4>dde0: c2edde04 c2edddf0 c0048970 c002f100 c028bdc0 00000000
-c2edde1c c2edde08
-<4>de00: c005830c c0048948 c2ed8800 00000001 c2edde54 c2edde20
-c0064d80 c00582c4
-<4>de20: a0000013 c38f8800 00005402 c2ed8800 a2eee0df 00000000
-c2ed8b60 c394b5f8
-<4>de40: 000d8000 c2ef8000 c2eddebc c2edde58 c0065e4c c0064d14
-c2ef8000 c382b260
-<4>de60: a2eee0df c01de0ac 00000000 00000001 00000800 c382b220
-c001f160 c2ef8000
-<4>de80: c2eddeac 00000360 c0103cb0 c002e128 c0103e04 ffffffff
-c382b254 c394b5f8
-<4>dea0: c3e68d60 c382b220 c2eddfb0 000d80f0 c2eddefc c2eddec0
-c00226a0 c00655c0
-<4>dec0: c022d6c0 a0000013 c2eddef4 0000081f c00763ac ffffffff
-c01dccd0 0000081f
-<4>dee0: c2eddfb0 000d80f0 00001008 401ed000 c2eddfac c2eddf00
-c0022958 c00225c8
-<4>df00: c2eddf24 c3cc6de0 c2eddf2c c2eddf18 c01a611c c002e128
-c2edc000 00000000
-<4>df20: c2eddf5c c2eddf30 c003f3b0 c002e128 c0045ea8 c3cc6de0
-bec187b0 c2eddf60
-<4>df40: 0000001c 000000ae c001afa8 bec187b0 00000014 00000000
-bec187b0 c003f4b8
-<4>df60: 00000000 14000000 4010b740 08000000 00000000 0001e0bc
-14000000 4010b740
-<4>df80: 08000000 00000000 000c50d4 ffffffff 401ee0b4 401ee0b4
-401ee07c 00000063
-<4>dfa0: 00000000 c2eddfb0 c001ada8 c0022928 000d70e0 00001038
-00002040 401ee404
-<4>dfc0: 00000438 401ee0b4 401ee0b4 401ee07c 00000063 00001008
-401ed000 00001002
-<4>dfe0: 000d80e8 bec189b0 00000003 401431e8 20000010 ffffffff
-00000000 00000000
-<4>Backtrace:
-<4>[<c002dbd8>] (__wake_up_common+0x0/0x78) from [<c002f140>]
-(__wake_up+0x4c/0x78)
-<4>[<c002f0f4>] (__wake_up+0x0/0x78) from [<c0048970>] (__wake_up_bit+0x34/0x3c)
-<4> r8 = C394B5F8  r7 = C2ED8B60  r6 = C028BDC0  r5 = 00000000
-<4> r4 = C028BDC0
-<4>[<c004893c>] (__wake_up_bit+0x0/0x3c) from [<c005830c>]
-(unlock_page+0x54/0x60)
-<4>[<c00582b8>] (unlock_page+0x0/0x60) from [<c0064d80>] (do_wp_page+0x78/0x5cc)
-<4> r4 = 00000001
-<4>[<c0064d08>] (do_wp_page+0x0/0x5cc) from [<c0065e4c>]
-(__handle_mm_fault+0x898/0x9d8)
-<4>[<c00655b4>] (__handle_mm_fault+0x0/0x9d8) from [<c00226a0>]
-(do_page_fault+0xe4/0x230)
-<4>[<c00225bc>] (do_page_fault+0x0/0x230) from [<c0022958>]
-(do_DataAbort+0x3c/0xa0)
-<4>[<c002291c>] (do_DataAbort+0x0/0xa0) from [<c001ada8>]
-(ret_from_exception+0x0/0x10)
-<4> r8 = 00000063  r7 = 401EE07C  r6 = 401EE0B4  r5 = 401EE0B4
-<4> r4 = FFFFFFFF
-<4>Code: e24dd004 e590c000 e59b9004 e1a07000 (e59c5000)
-<4> <6>note: sh[888] exited with preempt_count 2
-<6>udc: USB reset
-<6>usb0: full speed config #1: 100 mA, Ethernet Gadget, using CDC Ethernet
-<3>pxa2xx-udc pxa2xx-udc: pxa27x_ep_disable, ep1in-bulk not enabled
-<3>pxa2xx-udc pxa2xx-udc: pxa27x_ep_disable, ep2out-bulk not enabled
-<6>usb 1-1: new full speed USB device using pxa27x-ohci and address 3
-<6>usb 1-1: configuration #1 chosen from 1 choice
+It seems to be ISCs dhclient3 talking to a NIC which is driven by ne2k_pci
+module:
+[   91.706329] eth0: RealTek RTL-8029 found at 0xa400, IRQ 225, 00:40:05:59=
+:11:18.
 
-Some more Oops messages (not only page faults, but all of them ending
-in __wake_up_common) are at
-http://userpage.fu-berlin.de/~zabel/magician/oops.txt
+Here's the ver_linux:
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+=20
+Linux butterfly 2.6.18.1 #1 SMP PREEMPT Wed Oct 25 06:26:53 EDT 2006 x86_64=
+ GNU/Linux
+=20
+Gnu C                  4.1.2
+Gnu make               3.81
+binutils               2.17
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.2.2
+e2fsprogs              1.40-WIP
+reiserfsprogs          3.6.19
+quota-tools            3.14.
+Linux C Library        2.3.6
+Dynamic linker (ldd)   2.3.6
+Procps                 3.2.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.97
+udev                   100
+Modules Loaded         radeon drm binfmt_misc rfcomm l2cap bluetooth nfs nf=
+sd exportfs lockd nfs_acl sunrpc thermal fan button ac battery autofs4 act_=
+police sch_ingress cls_u32 sch_sfq sch_cbq ipt_REJECT xt_tcpudp iptable_fil=
+ter iptable_nat ip_nat ip_conntrack nfnetlink ip_tables x_tables ipv6 af_pa=
+cket dm_snapshot dm_mirror dm_mod it87 hwmon_vid hwmon eeprom i2c_isa lp cp=
+ufreq_ondemand powernow_k8 freq_table processor sr_mod sbp2 ide_generic ide=
+_disk ide_cd cdrom eth1394 amd74xx generic ide_core usbhid snd_intel8x0 tsd=
+ev 8250_pnp snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss ohci_hcd =
+snd_pcm ohci1394 ieee1394 ehci_hcd evdev sata_nv i2c_nforce2 i2c_core usbco=
+re snd_timer snd_page_alloc libata snd_mpu401 snd_mpu401_uart snd_rawmidi s=
+nd_seq_device sk98lin forcedeth ne2k_pci 8390 8250 serial_core parport_pc p=
+arport floppy snd soundcore pcspkr psmouse serio_raw unix
+--=20
+John M Flinchbaugh
+john@hjsoft.com
 
-thanks
-Philipp
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFP0PICGPRljI8080RAtD7AJ4ph4vpp9hhLkm0lMBdH0NKsZUR+QCdG7tR
+zxed08m8HbW4nqBTCpNEKGU=
+=kr1x
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

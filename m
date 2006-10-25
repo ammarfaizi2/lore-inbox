@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbWJYNVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161360AbWJYNXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbWJYNVg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 09:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbWJYNVg
+	id S1161360AbWJYNXp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 09:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161362AbWJYNXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 09:21:36 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:30987 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S965211AbWJYNVg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 09:21:36 -0400
-Date: Wed, 25 Oct 2006 09:17:47 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, akpm@osdl.org,
-       maxk@qualcomm.com, linux-kernel@vger.kernel.org
-Subject: Re: [KJ][PATCH] Correct misc_register return code handling in several drivers
-Message-ID: <20061025131747.GA8141@hmsreliant.homelinux.net>
-References: <20061023171910.GA23714@hmsreliant.homelinux.net> <1161660875.10524.535.camel@localhost.localdomain> <20061024125306.GA1608@hmsreliant.homelinux.net> <1161729762.10524.660.camel@localhost.localdomain>
+	Wed, 25 Oct 2006 09:23:45 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:46216 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1161360AbWJYNXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 09:23:44 -0400
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@ucw.cz>, David Chinner <dgc@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+In-Reply-To: <200610251432.41958.rjw@sisk.pl>
+References: <1161576735.3466.7.camel@nigel.suspend2.net>
+	 <20061025083830.GI11034@melbourne.sgi.com>
+	 <20061025084714.GA7266@elf.ucw.cz>  <200610251432.41958.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Wed, 25 Oct 2006 23:23:40 +1000
+Message-Id: <1161782620.3638.0.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161729762.10524.660.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 08:42:42AM +1000, Benjamin Herrenschmidt wrote:
-> On Tue, 2006-10-24 at 08:53 -0400, Neil Horman wrote:
-> > On Tue, Oct 24, 2006 at 01:34:34PM +1000, Benjamin Herrenschmidt wrote:
-> > > On Mon, 2006-10-23 at 13:19 -0400, Neil Horman wrote:
-> > > > Hey All-
-> > > > 	Janitor patch to clean up return code handling and exit from failed
-> > > > calls to misc_register accross several modules.
+Hi.
+
+On Wed, 2006-10-25 at 14:32 +0200, Rafael J. Wysocki wrote:
+> On Wednesday, 25 October 2006 10:47, Pavel Machek wrote:
+> > On Wed 2006-10-25 18:38:30, David Chinner wrote:
+> > > On Wed, Oct 25, 2006 at 10:10:01AM +0200, Pavel Machek wrote:
+> > > > > Hence the only way to correctly rebuild the XFS state on resume is
+> > > > > to quiesce the filesystem on suspend and thaw it on resume so as to
+> > > > > trigger log recovery.
+> > > > 
+> > > > No, during suspend/resume, memory image is saved, and no state is
+> > > > lost. We would not even have to do sys_sync(), and suspend/resume
+> > > > would still work properly.
 > > > 
-> > > The patch doesn't match the description... What are those INIT_LIST_HEAD
-> > > things ? Is this something I've missed or is this a new requirement for
-> > > all misc devices ? Can't it be statically initialized instead ?
-> > > 
+> > > It seems to me that you ensure the filesystem is synced to disk and
+> > > then at some point later you record the memory state of the
+> > > filesystem, but these happen at different times. That leaves a
+> > > window for things to get out of sync again, right?
 > > 
-> > The INIT_LIST_HEAD is there to prevent a potential oops on module removal.
-> > misc_register, if it fails, leaves miscdevice.list unchanged.  That means its
-> > next and prev pointers contain NULL or garbage, when both pointers should contain
-> > &miscdevice.list. If we don't do that, then there is a chance we will oops on
-> > module removal when we do a list_del in misc_deregister on the moudule_exit
-> > routine.  I could have done this statically, but I thought it looked cleaner to
-> > do it with the macro in the code.
+> > I DO NOT HAVE TO ENSURE FILESYSTEM IS SYNCED. That sys_sync() is
+> > optional.
+> > 
+> > Recording of memory state is atomic, and as long as noone writes to
+> > the disk after atomic snapshot, memory image matches what is on disk.
 > 
-> Hrm... I see, but I still for some reason don't like it that much.. I'd
-> rather have misc_register() do the initialisation unconditionally before
-> it can fail, don't you think ?
+> Well, my impression is that this is exactly what happens here: Something
+> in the XFS code causes metadata to be written to disk _after_ the atomic
+> snapshot.
 > 
-> We would theorically have a similar problem with any driver that does
-> 
-> 
-> xxxx_register(&static_struct)
-> 
-> and
-> 
-> xxxx_unregister(&static_struct)
-> 
-> (pci, usb, etc...)
-> 
-> As long as there are list heads involved. I think the proper solution
-> here is to have either the unregister be smart and test for NULL/NULL or
-> the register initialize those fields before it has a chance to fail.
-> 
-> Ben.
-> 
+> That's why I asked if the dirty XFS metadata were flushed by a kernel thread.
 
-I agreed with you in my last note regarding this, I think moving the
-INIT_LIST_HEAD inside the misc_register function is a good idea, but since this
-is a cleanup patch with several other fixups in it, I'd just as soon get this
-integrated, and make that change in a separate patch.
+When I first added bdev freezing it was because there was an XFS timer
+doing writes.
 
-Regards
-Neil
+Regards,
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+Nigel
+

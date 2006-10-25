@@ -1,36 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbWJYSZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbWJYS1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030418AbWJYSZX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 14:25:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030467AbWJYSZX
+	id S1030397AbWJYS1p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 14:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWJYS1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 14:25:23 -0400
-Received: from main.gmane.org ([80.91.229.2]:50898 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030418AbWJYSZV (ORCPT
+	Wed, 25 Oct 2006 14:27:45 -0400
+Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:10186 "EHLO
+	outbound1-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1030397AbWJYS1n convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 14:25:21 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: Link lib to a kernel module
-Date: Wed, 25 Oct 2006 18:24:29 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnejvbbc.93p.olecom@flower.upol.cz>
-References: <20061024105518.GA55219@server.idefix.loc> <slrnejs14h.93p.olecom@flower.upol.cz> <20061025122609.GA86838@server.idefix.loc>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: Oleg Verych <olecom@flower.upol.cz>, kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-User-Agent: slrn/0.9.8.1pl1 (Debian)
-Cc: kbuild-devel@lists.sourceforge.net
+	Wed, 25 Oct 2006 14:27:43 -0400
+X-BigFish: VP
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [PATCH] x86_64 irq: reset more to default when clear
+ irq_vector for destroy_irq
+Date: Wed, 25 Oct 2006 09:40:35 -0700
+Message-ID: <5986589C150B2F49A46483AC44C7BCA412D763@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] x86_64 irq: reset more to default when clear
+ irq_vector for destroy_irq
+Thread-Index: Acb4KQP9X/ULutS6SCmEe900qJWIUQAKwUcg
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Muli Ben-Yehuda" <muli@il.ibm.com>
+cc: "Andi Kleen" <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Oct 2006 16:40:36.0178 (UTC)
+ FILETIME=[4BF2C320:01C6F854]
+X-WSS-ID: 69214C0E1X4328487-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-10-25, Matthias Fechner wrote:
-[]
-> Makefile:
-> KDIR    := /lib/modules/$(shell uname -r)/build
-> PWD := $(shell pwd)
+Thanks.
 
-there's $(CURDIR), just in case...
-____
+I only found ht_irq and msi call destroy_irq. How about io_apic? 
+
+YH
+
+-----Original Message-----
+From: Muli Ben-Yehuda [mailto:muli@il.ibm.com] 
+Sent: Wednesday, October 25, 2006 4:30 AM
+To: Lu, Yinghai
+Cc: Andi Kleen; Eric W. Biederman; Andrew Morton; Linux Kernel Mailing
+List
+Subject: Re: [PATCH] x86_64 irq: reset more to default when clear
+irq_vector for destroy_irq
+
+On Tue, Oct 24, 2006 at 08:46:31PM -0700, Yinghai Lu wrote:
+> resend with gmail.
+> 
+> Clear the irq releated entries in irq_vector, irq_domain and
+vector_irq
+> instead of clearing irq_vector only. So when new irq is created, it
+> could reuse that vector. (actually is the second loop scanning from
+> FIRST_DEVICE_VECTOR+8). This could avoid the vectors are used up
+> with enough module inserting and removing
+> 
+> Cc: Eric W. Biedierman <ebiederm@xmission.com>
+> Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
+
+I hope I'm testing the right patch... this one boots and works fine.
+
+Cheers,
+Muli
+
+
+
 

@@ -1,28 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423097AbWJYIKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423102AbWJYILu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423097AbWJYIKO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 04:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423102AbWJYIKO
+	id S1423102AbWJYILu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 04:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423106AbWJYILu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 04:10:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13710 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1423097AbWJYIKN (ORCPT
+	Wed, 25 Oct 2006 04:11:50 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14734 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1423102AbWJYILt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 04:10:13 -0400
-Date: Wed, 25 Oct 2006 10:10:01 +0200
+	Wed, 25 Oct 2006 04:11:49 -0400
+Date: Wed, 25 Oct 2006 10:11:35 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: David Chinner <dgc@sgi.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061025081001.GL5851@elf.ucw.cz>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com> <200610241730.00488.rjw@sisk.pl> <20061024163345.GG11034@melbourne.sgi.com> <20061024213737.GD5662@elf.ucw.cz> <20061025001331.GP8394166@melbourne.sgi.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+Message-ID: <20061025081135.GM5851@elf.ucw.cz>
+References: <1161576857.3466.9.camel@nigel.suspend2.net> <200610242208.34426.rjw@sisk.pl> <20061024213402.GC5662@elf.ucw.cz> <1161728153.22729.22.camel@nigel.suspend2.net> <20061024221950.GB5851@elf.ucw.cz> <1161729027.22729.37.camel@nigel.suspend2.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061025001331.GP8394166@melbourne.sgi.com>
+In-Reply-To: <1161729027.22729.37.camel@nigel.suspend2.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,50 +28,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > Do you mean calling sys_sync() after the userspace has been frozen
-> > > > may not be sufficient?
-> > > 
-> > > In most cases it probably is, but sys_sync() doesn't provide any
-> > > guarantees that the filesystem is not being used or written to after
-> > > it completes. Given that every so often I hear about an XFS filesystem
-> > > that was corrupted by suspend, I don't think this is sufficient...
+> > > That's right. In using this, we're relying on the fact that the swap
+> > > allocator tries to act sensibly. I've only seen worse case performance
+> > > when a user had two swap devices with the same priority (striped), but
+> > > that was a bug. :)
 > > 
-> > Userspace is frozen. There's noone that can write to the XFS
-> > filesystem.
+> > Ok, but if the allocator somehow manages to stripe between two swap
+> > devices, what happens?
+> > 
+> > IIRC original code was something like .1% overhead (8bytes per 4K, or
+> > something?), bitmaps should be even better. If it is 1% in worst case,
+> > that's probably okay, but it would be bad if it had overhead bigger
+> > than 10times original code (worst case).
 > 
-> Sure, no new userspace processes can write data, but what about the
-> internal state of the filesystem?
-> 
-> All a sync guarantees is that the filesystem is consistent when the
-> sync returns and XFS provides this guarantee by writing all data and
-> ensuring all metadata changes are logged so if a crash occurs it can
-> be recovered (which provides the sync guarantee). hence after a
-> sys_sync(), XFS will still have lots of dirty metadata that needs to
-> be written to disk at some time in the future so the transactions
-> can be removed from the log.
-> 
-> This dirty metadata can be flushed at any time, and the dirty state
-> is kept in XFS structures and not always in page structures (think
-> multipage metadata buffers). Hence I cannot see how suspend can
-> guarantee that it has saved all the dirty data in XFS, nor
-> restore it correctly on resume. Once you toss dirty metadata that
-> is currently in the log, further operations will result in that log
-> transaction being overwritten without it ever being written to disk.
-> That then means any subsequent operations after resume will corrupt
-> the filesystem....
-> 
-> Hence the only way to correctly rebuild the XFS state on resume is
-> to quiesce the filesystem on suspend and thaw it on resume so as to
-> trigger log recovery.
+> With the code I have in Suspend2 (which is what I'm working towards),
+> the value includes the swap_type, so there's no overlap. Assuming the
+> swap allocator does it's normal thing and swap allocated is contiguous,
+> you'll probably end up with two extents: one containing the swap
+> allocated on the first device, and the other containing the swap
+> allocated on the second device. So (with the current version), striping
+> would use 6 * sizeof(unsigned long) instead of 3 * sizeof(unsigned
+> long).
 
-No, during suspend/resume, memory image is saved, and no state is
-lost. We would not even have to do sys_sync(), and suspend/resume
-would still work properly.
+And now, can you do same computation assuming the swap allocator goes
+completely crazy, and free space is in 1-page chunks?
 
-sys_sync() is there only to limit damage in case of suspend/resume
-failure.
-
-								Pavel
+In particular, how much swap space can we have before we run out of
+low memory? What is the overhead compared to bitmaps?
+									Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

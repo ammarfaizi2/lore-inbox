@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423096AbWJYIAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423035AbWJYIFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423096AbWJYIAx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 04:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423102AbWJYIAx
+	id S1423035AbWJYIFm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 04:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423102AbWJYIFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 04:00:53 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:4747 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1423096AbWJYIAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 04:00:52 -0400
-Date: Wed, 25 Oct 2006 10:00:48 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: arnd@arndb.de
-Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, paulus@samba.org,
-       Christian Krafft <krafft@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: Re: [PATCH 12/16] cell: add temperature to SPU and CPU sysfs entries
-Message-ID: <20061025080048.GB7090@osiris.boeblingen.de.ibm.com>
-References: <20061024163113.694643000@arndb.de> <20061024163816.851732000@arndb.de>
-MIME-Version: 1.0
+	Wed, 25 Oct 2006 04:05:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3534 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1423035AbWJYIFl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 04:05:41 -0400
+Date: Wed, 25 Oct 2006 04:05:08 -0400
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux PM <linux-pm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [RFC][PATCH -mm] Make swsusp work on i386 with PAE
+Message-ID: <20061025080508.GB19551@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+	Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+	Nigel Cunningham <ncunningham@linuxmail.org>
+References: <200610221548.48204.rjw@sisk.pl> <20061023145033.GB31273@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061024163816.851732000@arndb.de>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <20061023145033.GB31273@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 06:31:25PM +0200, arnd@arndb.de wrote:
+On Mon, Oct 23, 2006 at 04:50:33PM +0200, Pavel Machek wrote:
+ > Hi!
+ > 
+ > > The purpose of the appended patch is to make swsusp work on i386 with PAE,
+ > > but it should also allow i386 systems without PSE to use swsusp.
+ > > 
+ > > The patch creates temporary page tables located in resume-safe page frames
+ > > during the resume and uses them for restoring the suspend image (the same
+ > > approach is used on x86-64).
+ > > 
+ > > It has been tested on an i386 system with PAE and survived several
+ > > suspend-resume cycles in a row, but I have no systems without PSE, so that
+ > > requires some testing.
+ > 
+ > Thanks, looks okay to me. I guess Andi Kleen would be right person to
+ > review it in detail?
 
-> + * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
+I gave it a quick skim, and saw nothing obviously broken fwiw.
+Thanks for doing this work, it's definitly something that's needed.
 
-IBM Corp. instead of IBM DE? 2006?
+	Dave
 
-> +static int __init thermal_init(void)
-> +{
-> +	init_default_values();
-> +
-> +	spu_add_sysdev_attr_group(&spu_attribute_group);
-> +	cpu_add_sysdev_attr_group(&ppe_attribute_group);
-> +
-> +	return 0;
-> +}
-
-Same here: check for errors on spu_add_sysdev_attr_group and
-cpu_add_sysdev_attr_group.
-
-> +static void __exit thermal_exit(void)
-> +{
-> +	spu_remove_sysdev_attr_group(&spu_attribute_group);
-> +	cpu_remove_sysdev_attr_group(&ppe_attribute_group);
-
-Will crash if cpu_add_sysdev_attr_group failed...
+-- 
+http://www.codemonkey.org.uk

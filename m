@@ -1,128 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161361AbWJYGa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423058AbWJYGdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161361AbWJYGa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 02:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161362AbWJYGa2
+	id S1423058AbWJYGdA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 02:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423059AbWJYGdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 02:30:28 -0400
-Received: from colo.lackof.org ([198.49.126.79]:60817 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S1161361AbWJYGa1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 02:30:27 -0400
-Date: Wed, 25 Oct 2006 00:30:22 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       John Partridge <johnip@sgi.com>
-Subject: Re: Ordering between PCI config space writes and MMIO reads?
-Message-ID: <20061025063022.GC12319@colo.lackof.org>
-References: <adafyddcysw.fsf@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adafyddcysw.fsf@cisco.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+	Wed, 25 Oct 2006 02:33:00 -0400
+Received: from barracuda.s2io.com ([72.1.205.138]:62138 "EHLO
+	barracuda.s2io.com") by vger.kernel.org with ESMTP id S1423058AbWJYGc7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 02:32:59 -0400
+X-ASG-Debug-ID: 1161757976-7056-21-2
+X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
+X-ASG-Whitelist: Client
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-ASG-Orig-Subj: RE: [PATCH] s2io: add PCI error recovery support
+Subject: RE: [PATCH] s2io: add PCI error recovery support
+Date: Wed, 25 Oct 2006 02:29:33 -0400
+Message-ID: <78C9135A3D2ECE4B8162EBDCE82CAD77DC1C9B@nekter>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] s2io: add PCI error recovery support
+Thread-Index: Acb3tp6/mVnjeIhpQ1yyC1P8KxLJ8wAOGpaQ
+From: "Ananda Raju" <Ananda.Raju@neterion.com>
+To: "Linas Vepstas" <linas@austin.ibm.com>, "Wen Xiong" <wenxiong@us.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-pci@atrey.karlin.mff.cuni.cz>,
+       <netdev@vger.kernel.org>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Andrew Morton" <akpm@osdl.org>
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 12:13:19PM -0700, Roland Dreier wrote:
-> John Partridge found an interesting bug involving mthca (Mellanox
-> InfiniBand HCA driver) on IA64/Altix systems.  Basically, during
-> initialization, mthca does:
-> 
->     - do some config writes, including enabling BARs
->     - then start a firmware command
->       - read an MMIO register from a BAR (to check if FW is busy)
-> 
-> However, John found that the Altix PCI-X bridge was allowing the MMIO
-> read to start before the config write was done (which is allowed by
-> the PCI spec).
+Hi, 
 
-Can someone provide a quote of the PCI Local bus spec that allows this?
-(Or at least a reference to a spec version and section number)
+s2io_card_down() will do few BAR0 read/write. As per
+pci-error-recovery.txt Documentation we are not supposed to do any new
+IO in error_detected(). 
 
->   The PCI trace looked like:
-> 
-> 23454:    Config Write     REG = 01 TYPE = 1    BE = 0000  Req = (0,0,0)  Tag = 1  Bus = 1 Device = 0 Function = 0     WAIT = 2
-> 23462:    Memory Rd DW     A = 00280698  BE = 0000  Req = (0,0,0)  Tag = 0      WAIT = 2
-> 23470:    Split compl.     Lower A = 00  Req = (0,0,0)  Tag = 0  Comp = (0,2,0)     WAIT = 1   (Error completion)
-> 23476:    Split compl.     Lower A = 00  Req = (0,0,0)  Tag = 1  Comp = (0,2,0)     WAIT = 1   (Normal completion of WRITE)
-> 
-> and that "Error completion" leads to a crash.
-> 
-> John proposed the following patch to fix this, which looks good to
-> me.  However, I have a couple of questions about this situation:
-> 
->  1) Is this something that should be fixed in the driver?  The PCI
->     spec allows MMIO cycles to start before an earlier config cycle
->     completed, but do we want to expose this fact to drivers?
+Can you try using 
 
-I would prefer we did not.
+atomic_set(&sp->card_state, CARD_DOWN); 
 
->     Would
->     it be better for ia64 to use some sort of barrier to make sure
->     pci_write_config_xxx() is strongly ordered with MMIO?
+instead of s2io_card_down().
 
-That would be my preference.
+Also we have to add following if statement in beginning of s2io_isr().
 
->  2) Is this issue lurking in other drivers?
-> 
-> Thanks,
->   Roland
-> 
-> commit 424b50b6360b325ce642ece687756a600c25d28a
-> Author: John Partridge <johnip@sgi.com>
-> Date:   Tue Oct 24 11:54:16 2006 -0700
-> 
->     IB/mthca: Make sure all PCI config writes reach device before doing MMIO
->     
->     During initialization, mthca writes some PCI config space registers
->     and then does an MMIO read from one of the BARs it just enabled.  This
->     MMIO read sometimes failed and caused a crash on SGI Altix machines,
->     because the PCI-X host bridge (legitimately, according to the PCI
->     spec) allowed the MMIO read to start before the config write completed.
+if (atomic_read(&nic->card_state) == CARD_DOWN)
+	return IRQ_NOTHANDLED.
 
-Because of this past discussion with jesse barnes, I'm leary of
-any kind of writes traveling through SN2 fabric. The issue is
-described pretty well here:
-	http://www.usenetlinux.com/archive/topic.php/t-49141.html
+If it is ok to do BAR0 read/write in error_detected() then patch is OK. 
 
-I don't know that this is the same (or similar) problem.
+Ananda 
+-----Original Message-----
+From: Linas Vepstas [mailto:linas@austin.ibm.com] 
+Sent: Tuesday, October 24, 2006 2:55 PM
+To: Raghavendra Koushik; Ananda Raju; Wen Xiong
+Cc: linux-kernel@vger.kernel.org; linux-pci@atrey.karlin.mff.cuni.cz;
+netdev@vger.kernel.org; Jeff Garzik; Andrew Morton
+Subject: [PATCH] s2io: add PCI error recovery support
 
->     To fix this, add a config read after all config writes to make sure
->     they are all done before starting the MMIO read.
->     
->     Signed-off-by: John Partridge <johnip@sgi.com>
->     Signed-off-by: Roland Dreier <rolandd@cisco.com>
-> 
-> diff --git a/drivers/infiniband/hw/mthca/mthca_reset.c b/drivers/infiniband/hw/mthca/mthca_reset.c
-> index 91934f2..578dc7c 100644
-> --- a/drivers/infiniband/hw/mthca/mthca_reset.c
-> +++ b/drivers/infiniband/hw/mthca/mthca_reset.c
-> @@ -281,6 +281,20 @@ good:
->  		goto out;
->  	}
->  
-> +	/*
-> +	 * Perform a "flush" of the PCI config writes here by reading
-> +	 * the PCI_COMMAND register.  This is needed to make sure that
-> +	 * we don't try to touch other PCI BARs before the config
-> +	 * writes are done -- otherwise an MMIO cycle could start
-> +	 * before the config writes are done and reach the HCA before
-> +	 * the BAR is actually enabled.
-> +	 */
 
-If this code is accepted, the comment should provide a specific reference
-(PCI Version + section) to the PCI spec that allows the out-of-order.
+Koushik, Raju,
+Please review, comment, and if you find this acceptable, 
+please forward upstream.
 
-I agree with jgarzik that the drivers already expect config cycles
-to be ordered with respect to MMIO cycles.
+--linas
 
-I'm looking at arch/ia64/pci/pci.c.
-Wouldn't it be reasonable to include memory barriers around calls
-to SAL config space access functions?
+This patch adds PCI error recovery support to the 
+s2io 10-Gigabit ethernet device driver.
 
-thanks,
-grant
+Tested, seems to work well.
+
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Cc: Raghavendra Koushik <raghavendra.koushik@neterion.com>
+Cc: Ananda Raju <Ananda.Raju@neterion.com>
+Cc: Wen Xiong <wenxiong@us.ibm.com>
+
+----
+ drivers/net/s2io.c |   77
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/net/s2io.h |    5 +++
+ 2 files changed, 82 insertions(+)
+
+Index: linux-2.6.19-rc1-git11/drivers/net/s2io.c
+===================================================================
+--- linux-2.6.19-rc1-git11.orig/drivers/net/s2io.c	2006-10-20
+12:24:17.000000000 -0500
++++ linux-2.6.19-rc1-git11/drivers/net/s2io.c	2006-10-24
+16:19:49.000000000 -0500
+@@ -434,11 +434,18 @@ static struct pci_device_id s2io_tbl[] _
+ 
+ MODULE_DEVICE_TABLE(pci, s2io_tbl);
+ 
++static struct pci_error_handlers s2io_err_handler = {
++	.error_detected = s2io_io_error_detected,
++	.slot_reset = s2io_io_slot_reset,
++	.resume = s2io_io_resume,
++};
++
+ static struct pci_driver s2io_driver = {
+       .name = "S2IO",
+       .id_table = s2io_tbl,
+       .probe = s2io_init_nic,
+       .remove = __devexit_p(s2io_rem_nic),
++      .err_handler = &s2io_err_handler,
+ };
+ 
+ /* A simplifier macro used both by init and free shared_mem Fns(). */
+@@ -7564,3 +7571,73 @@ static void lro_append_pkt(nic_t *sp, lr
+ 	sp->mac_control.stats_info->sw_stat.clubbed_frms_cnt++;
+ 	return;
+ }
++
++/**
++ * s2io_io_error_detected - called when PCI error is detected
++ * @pdev: Pointer to PCI device
++ * @state: The current pci conneection state
++ *
++ * This function is called after a PCI bus error affecting
++ * this device has been detected.
++ */
++static pci_ers_result_t s2io_io_error_detected(struct pci_dev *pdev,
+pci_channel_state_t state)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	nic_t *sp = netdev->priv;
++
++	netif_device_detach(netdev);
++
++	if (netif_running(netdev)) {
++		/* Reset card */
++		s2io_card_down(sp);
++		sp->device_close_flag = TRUE;	/* Device is shut down.
+*/
++	}
++	pci_disable_device(pdev);
++
++	return PCI_ERS_RESULT_NEED_RESET;
++}
++
++/**
++ * s2io_io_slot_reset - called after the pci bus has been reset.
++ * @pdev: Pointer to PCI device
++ *
++ * Restart the card from scratch, as if from a cold-boot.
++ */
++static pci_ers_result_t s2io_io_slot_reset(struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	nic_t *sp = netdev->priv;
++
++	if (pci_enable_device(pdev)) {
++		printk(KERN_ERR "s2io: Cannot re-enable PCI device after
+reset.\n");
++		return PCI_ERS_RESULT_DISCONNECT;
++	}
++
++	pci_set_master(pdev);
++	s2io_reset(sp);
++
++	return PCI_ERS_RESULT_RECOVERED;
++}
++
++/**
++ * s2io_io_resume - called when traffic can start flowing again.
++ * @pdev: Pointer to PCI device
++ *
++ * This callback is called when the error recovery driver tells us that
++ * its OK to resume normal operation.
++ */
++static void s2io_io_resume(struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	nic_t *sp = netdev->priv;
++
++	if (netif_running(netdev)) {
++		if (s2io_card_up(sp)) {
++			printk(KERN_ERR "s2io: can't bring device back
+up after reset\n");
++			return;
++		}
++	}
++
++	netif_device_attach(netdev);
++	netif_wake_queue(netdev);
++}
+Index: linux-2.6.19-rc1-git11/drivers/net/s2io.h
+===================================================================
+--- linux-2.6.19-rc1-git11.orig/drivers/net/s2io.h	2006-10-20
+12:24:17.000000000 -0500
++++ linux-2.6.19-rc1-git11/drivers/net/s2io.h	2006-10-20
+12:41:39.000000000 -0500
+@@ -1013,6 +1013,11 @@ static void queue_rx_frame(struct sk_buf
+ static void update_L3L4_header(nic_t *sp, lro_t *lro);
+ static void lro_append_pkt(nic_t *sp, lro_t *lro, struct sk_buff *skb,
+u32 tcp_len);
+ 
++static pci_ers_result_t s2io_io_error_detected(struct pci_dev *pdev,
++
+pci_channel_state_t state);
++static pci_ers_result_t s2io_io_slot_reset(struct pci_dev *pdev);
++static void s2io_io_resume(struct pci_dev *pdev);
++
+ #define s2io_tcp_mss(skb) skb_shinfo(skb)->gso_size
+ #define s2io_udp_mss(skb) skb_shinfo(skb)->gso_size
+ #define s2io_offload_type(skb) skb_shinfo(skb)->gso_type
+

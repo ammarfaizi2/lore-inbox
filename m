@@ -1,76 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWJYVaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWJYVeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWJYVaI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 17:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWJYVaI
+	id S932426AbWJYVeE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 17:34:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWJYVeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 17:30:08 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:39666 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932243AbWJYVaG (ORCPT
+	Wed, 25 Oct 2006 17:34:04 -0400
+Received: from mail.acc.umu.se ([130.239.18.156]:22414 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S932426AbWJYVeC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 17:30:06 -0400
-Date: Wed, 25 Oct 2006 14:29:40 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] x86_64 add missing enter_idle() calls
-Message-ID: <20061025212940.GA10003@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20061006081607.GB8793@frankl.hpl.hp.com> <200610161636.52721.ak@suse.de> <20061021091837.GA24670@frankl.hpl.hp.com> <200610211522.53938.ak@suse.de>
+	Wed, 25 Oct 2006 17:34:02 -0400
+Date: Wed, 25 Oct 2006 23:33:55 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Pavel Roskin <proski@gnu.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+Message-ID: <20061025213355.GG23256@vasa.acc.umu.se>
+Mail-Followup-To: Pavel Roskin <proski@gnu.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+References: <1161807069.3441.33.camel@dv> <1161808227.7615.0.camel@localhost.localdomain> <1161810392.3441.60.camel@dv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610211522.53938.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+In-Reply-To: <1161810392.3441.60.camel@dv>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
-
-Looking a the exit_idle() code:
-
-static void __exit_idle(void)
-{
-        if (read_pda(isidle) == 0)
-                return;
-        write_pda(isidle, 0);
-        atomic_notifier_call_chain(&idle_notifier, IDLE_END, NULL);
-}
-
-I am wondering whether you are exposed to a race condition  w.r.t. to interrupts.
-Supposed you are in idle, you get an interrupt and you execute __exit_idle(), the
-test evaluate to false but before you can change the value of isidle, you get 
-a higher priority interrupt which then also calls __exit_idle(), the test is still
-false and you invoke the notifier, when you return from this interrupt you also
-clear the isidle, but you call the notifier yet a second time.
-
-I think that isidle needs to be test_and_clear atomically for this to guarantee
-only one call the notifier on __exit_idle().
-
-what do you think?
-
-On Sat, Oct 21, 2006 at 03:22:53PM +0200, Andi Kleen wrote:
+On Wed, Oct 25, 2006 at 05:06:32PM -0400, Pavel Roskin wrote:
+> On Wed, 2006-10-25 at 21:30 +0100, Alan Cox wrote:
+> > Ar Mer, 2006-10-25 am 16:11 -0400, ysgrifennodd Pavel Roskin:
+> > > I don't see any legal reasons behind this restriction.  A driver under
+> > > GPL should be able to use any exported symbols.  EXPORT_SYMBOL_GPL is a
+> > > technical mechanism of enforcing GPL against non-free code, but
+> > > ndiswrapper is free.  The non-free NDIS drivers are not using those
+> > > symbols.
+> > 
+> > The combination of GPL wrapper and the NDIS driver as a work is not free
+> > (in fact its questionable if its even legal to ship such a combination
+> > together).
 > 
-> > I finally found the culprit for this. The current code is wrong for the
-> > simple reason that the cpu_idle() function is NOT always the lowest level
-> > idle loop function. For enter_idle()/__exit_idle() to work correctly they
-> > must be placed in the lowest-level idle loop. The cpu_idle() eventually ends
-> > up in the idle() function, but this one may have a loop in it! This is the
-> > case when idle()=cpu_default_idle() and idle()=poll_idle(), for instance. 
+> So, the problem is on the legal side.
 > 
-> Ah now I remember - i had actually fixed that (it was the cleanup-idle-loops
-> patch) that moved the loops one level up. But then I disabled the patch
-> at the request of Andrew because it conflicted with some ACPI idle changes.
+> But I have to ask - which NDIS driver?  I can write a free NDIS driver
+> and use it with ndiswrapper.  You can say it's a stupid thing to do, but
+> once you talk about the legality, the only argument should be
+> legal/illegal.  Besides, it may be a not such a bad idea for a ReactOS
+> developer writing a ReactOS driver to test it with Linux.
 > 
-> I'll readd it for .20, then things should be ok.
+> Also, nothing should prevent me from combining ndiswrapper with any
+> Windows driver in the privacy of my home as long as I don't distribute
+> anything.  GPL doesn't have use restrictions (although the driver may
+> have an EULA).
 > 
-> -Andi
+> Since the problem is with USB symbols, I can split the USB part from
+> ndiswrapper and call it ndiswrapper-usb.  Then ndiswrapper-usb will be
+> calling the GPL-only symbols while ndiswrapper will be loading the
+> non-free modules.  Good luck catching that!  It's actually a change that
+> makes sense technically.  Imagine what a change specifically intended to
+> fool Linux would do!
+> 
+> I don't see how the kernel can detect the cases where GPL is actually
+> violated without creating problem for honest users.  Kernel code is not
+> a police department, let alone a court of law.  Let's not create out own
+> DRM right in the kernel!
+> 
+> Companies that ship ndiswrapper with non-free modules may be breaking
+> copyright laws already.  But it's not something that should be fought by
+> kernel patches.
 
+No matter how the legal situation looks like: do we *want* to support
+drivers that use an API totally alien to Linux concepts?
+
+Personally I feel that no matter if they are legal or not, we should not
+cater to such drivers in the first place.  If it's trickier to use
+Windows API-drivers under Linux than to write a native Linux driver,
+big deal...  We don't want Windows-drivers.  We want native drivers.
+
+
+Regards: David Weinehall
 -- 
-
--Stephane
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

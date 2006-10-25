@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161232AbWJYRpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbWJYRwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161232AbWJYRpl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 13:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161254AbWJYRpl
+	id S1161254AbWJYRwR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 13:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161295AbWJYRwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 13:45:41 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:16813 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1161232AbWJYRpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 13:45:41 -0400
-Date: Wed, 25 Oct 2006 10:45:40 -0700 (PDT)
-From: dean gaudet <dean@arctic.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Nigel Cunningham <ncunningham@linuxmail.org>, rjw@sisk.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Thaw userspace and kernel space separately.
-In-Reply-To: <20061023095124.7be583ce.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0610251044380.19648@twinlark.arctic.org>
-References: <1161560896.7438.67.camel@nigel.suspend2.net> <200610231226.03718.rjw@sisk.pl>
- <1161604811.3315.12.camel@nigel.suspend2.net> <20061023095124.7be583ce.akpm@osdl.org>
+	Wed, 25 Oct 2006 13:52:17 -0400
+Received: from rwcrmhc15.comcast.net ([216.148.227.155]:14268 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1161254AbWJYRwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 13:52:16 -0400
+Message-ID: <453FA220.3090001@wolfmountaingroup.com>
+Date: Wed, 25 Oct 2006 11:42:56 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Howells <dhowells@redhat.com>
+CC: Nate Diller <nate.diller@gmail.com>, sds@tycho.nsa.gov, jmorris@namei.org,
+       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+       linux-kernel@vger.kernel.org, aviro@redhat.com,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Security issues with local filesystem caching
+References: <453F9555.1050201@wolfmountaingroup.com>  <16969.1161771256@redhat.com> <5c49b0ed0610250952i2fcc64b7t47fb7565cada14c6@mail.gmail.com> <25083.1161796876@redhat.com>
+In-Reply-To: <25083.1161796876@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Oct 2006, Andrew Morton wrote:
+David Howells wrote:
 
-> > On Mon, 23 Oct 2006 22:00:11 +1000 Nigel Cunningham <ncunningham@linuxmail.org> wrote:
-> > If you can only thaw the kernel threads, you can free memory without
-> > restarting userspace or deadlocking against a frozen kjournald.
-> > 
-> 
-> kjournald will not participate in writing to swapfiles.
-> 
-> The situation where we would need this feature is where the loop driver is
-> involved in the path-to-disk.  But I doubt if that's a thing we'd want to
-> support.
+>Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
+>
+>  
+>
+>>SELinux support addresses all of these issues for B1 level security quite
+>>well with mandatory access controls at the fs layers.  In fact, it works so
+>>well, when enabled you cannot even run apache on top of an FS unless
+>>configured properly.
+>>    
+>>
+>
+>How?  The problem I've got is that the caching code would be creating and
+>accessing files and directories with the wrong security context - that of the
+>calling process - and not a context suitable for sharing things in the cache
+>whilst protecting them from userspace as best we can.
+>  
+>
+Have it access them as 0.0 (root) when you change the fsuid, etc. and I 
+think this would satisfy security concerns.  I agree that it sounds like
+someone needs to instrument MAC layers with this subsystem.
 
-dm-crypt?  that seems like a very important thing to support for suspend 
-to disk.
+Jeff
 
--dean
+>David
+>
+>  
+>
+

@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWJYPoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161362AbWJYPrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWJYPoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 11:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751870AbWJYPoZ
+	id S1161362AbWJYPrA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 11:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751932AbWJYPrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 11:44:25 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:46813 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751706AbWJYPoY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 11:44:24 -0400
-Message-ID: <453F8630.2000608@zytor.com>
-Date: Wed, 25 Oct 2006 08:43:44 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Jes Sorensen <jes@sgi.com>, Junio C Hamano <junkio@cox.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git failure] failure pulling latest Linus tree
-References: <yq0d58g92u0.fsf@jaguar.mkp.net> <Pine.LNX.4.64.0610250746000.3962@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610250746000.3962@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 25 Oct 2006 11:47:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38077 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751725AbWJYPq7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 11:46:59 -0400
+Date: Wed, 25 Oct 2006 08:46:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: swsusp initialized after SATA (was Re: swsusp APIC oopsen (was
+ Re: swsusp ooms))
+Message-Id: <20061025084613.4776ef76.akpm@osdl.org>
+In-Reply-To: <20061025104318.GA1743@elf.ucw.cz>
+References: <20061009213359.7f2806b6.akpm@osdl.org>
+	<200610132231.08643.rjw@sisk.pl>
+	<20061013140000.329e8854.akpm@osdl.org>
+	<200610132307.47162.rjw@sisk.pl>
+	<20061014002504.1ab10ee9.akpm@osdl.org>
+	<20061014004046.670ddd76.akpm@osdl.org>
+	<20061014082237.GA3818@elf.ucw.cz>
+	<20061014083227.GA3868@elf.ucw.cz>
+	<20061014015109.0ff2c52f.akpm@osdl.org>
+	<20061025104318.GA1743@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+> On Wed, 25 Oct 2006 12:43:18 +0200 Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
 > 
-> On Wed, 25 Oct 2006, Jes Sorensen wrote:
->> Known error? git tree corrupted or need for a new version of git?
+> > > > (cc-ed to public list)
+> > > > 
+> > > > > Andrew Morton <akpm@osdl.org> wrote:
+> > > > > 
+> > > > > > and I'm not having much luck.  See 
+> > > > > > 
+> > > > > > http://userweb.kernel.org/~akpm/s5000340.jpg and
+> > > > > > http://userweb.kernel.org/~akpm/s5000339.jpg
+> > > > > 
+> > > > > Running an UP kernel and disabling local APIC avoided the oopses and
+> > > > > allowed me to confirm that it was leaking.  whoops.
+> > > > 
+> > > > I wonder why everyone but me sees those APIC problems?
+> > > > 
+> > > > Anyway, there's one more problem in -rc1: boot order changed, and (at
+> > > > least with paralel boot options), swsusp gets initialized *after*
+> > > > swsusp => bad, but should be easy to fix.
+> > > 
+> > > Sorry, I meant:
+> > > 
+> > > "sata is initialized *after* swsusp => bad".
+> > 
+> > Which patch made this change, and why?
 > 
-> For some reason, the mirroring seems to be really slow or broken to one of 
-> the public servers (zeus-pub1). It looks to be affecting gitweb too (ie 
-> www1.kernel.org is busted, while www2.kernel.org seems ok)
+> CONFIG_PCI_MULTITHREAD_PROBE is the setting responsible, and IIRC
+> that's Greg's code.
 > 
+> Now... what is the recommended way to wait for hard disks to become
+> online?
 
-For some reason which we haven't been able to track down yet, the recent 
-load imposed by FC6 caused zeus1's load to skyrocket, but not zeus2's... 
-it's largely a mystery.
+The multithreaded probing is breaking (or at least altering) the initcall
+ordering guarantees.  We should wait for all the probing kernel threads to
+terminate after processing each initcall level.  
 
-HOWEVER, git 1.4.3 seems to have been bad chicken.  When we ran it we 
-got a neverending stream of segfaults in the logs.
-
-	-hpa

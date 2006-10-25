@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWJYWZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWJYW1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWJYWZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 18:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbWJYWZ4
+	id S964826AbWJYW1S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 18:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965240AbWJYW1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 18:25:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13758 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964876AbWJYWZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 18:25:55 -0400
-Subject: Re: [PATCH v2] Re: Battery class driver.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Richard Hughes <hughsient@gmail.com>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       David Zeuthen <davidz@redhat.com>,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
-In-Reply-To: <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
-References: <1161628327.19446.391.camel@pmac.infradead.org>
-	 <1161631091.16366.0.camel@localhost.localdomain>
-	 <1161633509.4994.16.camel@hughsie-laptop>
-	 <1161636514.27622.30.camel@shinybook.infradead.org>
-	 <1161710328.17816.10.camel@hughsie-laptop>
-	 <1161762158.27622.72.camel@shinybook.infradead.org>
-	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
-	 <1161778296.27622.85.camel@shinybook.infradead.org>
-	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 26 Oct 2006 01:25:38 +0300
-Message-Id: <1161815138.27622.139.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
+	Wed, 25 Oct 2006 18:27:18 -0400
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:26192 "HELO
+	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964826AbWJYW1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 18:27:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:Received:Date:From:To:Subject:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=xy8wfv6p/BNHeM1GluCa4TAoM3FMGs1C8+S7P0NXEsZdyS7MzSqT+Nm3Gn0YlGSBtMsFyD56JBd5Ke+Tkg4APdfceZReduJxoNeMsFMSCQLypIDlOC5iXSPsyoQuNzuqxU+zqxHe1/RRZGfjiFbxS8q2Ojw76AbjaTf+7w/249U=  ;
+Date: Wed, 25 Oct 2006 15:27:09 -0700
+From: David Brownell <david-b@pacbell.net>
+To: toralf.foerster@gmx.de, randy.dunlap@oracle.com, netdev@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, link@miggy.org, greg@kroah.com,
+       akpm@osdl.org
+Subject: Re: [PATCH] !CONFIG_NET_ETHERNET unsets CONFIG_PHYLIB, but 
+ CONFIG_USB_USBNET also needs CONFIG_PHYLIB
+Cc: zippel@linux-m68k.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       dbrownell@users.sourceforge.net
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
+ <20061025201341.GH21200@miggy.org>
+ <20061025151737.1bf4898c.randy.dunlap@oracle.com>
+In-Reply-To: <20061025151737.1bf4898c.randy.dunlap@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-25 at 16:42 +0200, Shem Multinymous wrote:
-> Hi,
-> 
-> On 10/25/06, David Woodhouse <dwmw2@infradead.org> wrote:
-> > If you can summarise the bits I've missed in the meantime that would be
-> > wonderfully useful
-> 
-> OK. Looking at the current git snapshot:
->  < ... >
+> @@ -94,6 +95,7 @@ config USB_RTL8150
+>  
+>  config USB_USBNET
+>  	tristate "Multi-purpose USB Networking Framework"
+> +	select MII
+>  	---help---
+>  	  This driver supports several kinds of network links over USB,
+>  	  with "minidrivers" built around a common network driver core
 
-Ok, thanks for the feedback -- I think I've done all that. It wasn't in
-'diff -u' form so I may have misapplied it. Please confirm.
+The other parts are right, this isn't.
 
-> I take it you don't want to deal with battery control actions for now.
-
-They're simple enough to add. We can do it when the tp driver gets
-converted over.
-
-> I think using one set of files and units string makes more sense, for
-> several reasons:
-
-Yeah, OK. Colour me convinced. I'll leave it as I had it.
-
--- 
-dwmw2
+Instead, "usbnet.c" should #ifdef the relevant ethtool hooks
+according to CONFIG_MII ... since it's completely legit to
+use usbnet with peripherals that don't need MII.
 

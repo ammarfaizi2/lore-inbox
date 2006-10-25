@@ -1,44 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423296AbWJYLaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423303AbWJYLjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423296AbWJYLaV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 07:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423297AbWJYLaV
+	id S1423303AbWJYLjc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 07:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423306AbWJYLjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 07:30:21 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:15536 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1423296AbWJYLaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 07:30:20 -0400
-Date: Wed, 25 Oct 2006 13:30:17 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
-Message-ID: <20061025113017.GD3277@rhun.haifa.ibm.com>
-References: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com> <86802c440610242046g6ef06fcexf8776b5009cea23@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c440610242046g6ef06fcexf8776b5009cea23@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Wed, 25 Oct 2006 07:39:32 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:17642 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1423303AbWJYLjb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 07:39:31 -0400
+Date: Wed, 25 Oct 2006 13:39:11 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Dick Streefland <dick.streefland@altium.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: What about make mergeconfig ?
+In-Reply-To: <3d6d.453f3a0f.92d2c@altium.nl>
+Message-ID: <Pine.LNX.4.61.0610251336580.23137@yvahk01.tjqt.qr>
+References: <1161755164.22582.60.camel@localhost.localdomain>
+ <3d6d.453f3a0f.92d2c@altium.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 08:46:31PM -0700, Yinghai Lu wrote:
-> resend with gmail.
-> 
-> Clear the irq releated entries in irq_vector, irq_domain and vector_irq
-> instead of clearing irq_vector only. So when new irq is created, it
-> could reuse that vector. (actually is the second loop scanning from
-> FIRST_DEVICE_VECTOR+8). This could avoid the vectors are used up
-> with enough module inserting and removing
-> 
-> Cc: Eric W. Biedierman <ebiederm@xmission.com>
-> Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
 
-I hope I'm testing the right patch... this one boots and works fine.
+>Can't you do that with just a sort command?
+>
+>  sort .config other.config > new.config
 
-Cheers,
-Muli
+That does not work where .config and other.config have the same symbol 
+listed, kconfig will bark and use the first value encountered. Because I 
+do have exactly that problem with my patch series (changes some Ys to 
+Ms), I am in need of the following patch to Kconfig TDTRT.
+
+This is probably also what the OP is looking for, except that it does 
+not require a special 'mergeconfig', but works with all 'oldconfig', 
+'menuconfig', xconfig, etc.
+
+
+kconfig_override.diff
+Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
+
+Index: linux-2.6.18_rc4/scripts/kconfig/confdata.c
+===================================================================
+--- linux-2.6.18_rc4.orig/scripts/kconfig/confdata.c
++++ linux-2.6.18_rc4/scripts/kconfig/confdata.c
+@@ -170,8 +170,7 @@ load:
+ 					sym->type = S_BOOLEAN;
+ 			}
+ 			if (sym->flags & def_flags) {
+-				conf_warning("trying to reassign symbol %s", sym->name);
+-				break;
++				conf_warning("override: reassigning to symbol %s", sym->name);
+ 			}
+ 			switch (sym->type) {
+ 			case S_BOOLEAN:
+@@ -207,8 +206,7 @@ load:
+ 					sym->type = S_OTHER;
+ 			}
+ 			if (sym->flags & def_flags) {
+-				conf_warning("trying to reassign symbol %s", sym->name);
+-				break;
++				conf_warning("override: reassigning to symbol %s", sym->name);
+ 			}
+ 			switch (sym->type) {
+ 			case S_TRISTATE:
+@@ -284,11 +282,9 @@ load:
+ 				}
+ 				break;
+ 			case yes:
+-				if (cs->def[def].tri != no) {
+-					conf_warning("%s creates inconsistent choice state", sym->name);
+-					cs->flags &= ~def_flags;
+-				} else
+-					cs->def[def].val = sym;
++				if(cs->def[def].tri != no)
++					conf_warning("override: %s turns state choice", sym->name);
++				cs->def[def].val = sym;
+ 				break;
+ 			}
+ 			cs->def[def].tri = E_OR(cs->def[def].tri, sym->def[def].tri);
+#<EOF>
+
+
+	-`J'
+-- 

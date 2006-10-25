@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWJYMiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWJYMro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWJYMiA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 08:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWJYMiA
+	id S964802AbWJYMro (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 08:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWJYMro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 08:38:00 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:5840 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964795AbWJYMh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 08:37:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=FXaGjMxpD3cmKG5yxLENHCeUHwkgFV9zk48aI3Fl8vKXBdSfP0eNZvRCOuI4wTF8Cm5UreQlx8NuVrWWFW4veoa5cRx86Ene9MBpYIexdFhiNCUzNkb0X/DYnuJslw8EoDphuAvZlmkqiYBWM8RO2sRt8Yjup8GI0lwnIE93BT4=
-Message-ID: <4ac8254d0610250537m7ee628cbo255decde52586742@mail.gmail.com>
-Date: Wed, 25 Oct 2006 14:37:57 +0200
-From: "Tuncer Ayaz" <tuncer.ayaz@gmail.com>
-To: linux-kernel@vger.kernel.org, ak@suse.de, yinghai.lu@amd.com
-Subject: IO_APIC broken by 45edfd1db02f818b3dc7e4743ee8585af6b78f78
+	Wed, 25 Oct 2006 08:47:44 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:61139 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964802AbWJYMrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 08:47:43 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+Date: Wed, 25 Oct 2006 14:46:40 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <1161576857.3466.9.camel@nigel.suspend2.net> <20061025091022.GB7266@elf.ucw.cz> <1161770750.22729.117.camel@nigel.suspend2.net>
+In-Reply-To: <1161770750.22729.117.camel@nigel.suspend2.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200610251446.41344.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've bisected the non-working'ness of HD-Audio and USB Mouse on one of
-my x86_64 boxes back to the following commit.
+On Wednesday, 25 October 2006 12:05, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Wed, 2006-10-25 at 11:10 +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > > > And now, can you do same computation assuming the swap allocator goes
+> > > > > > completely crazy, and free space is in 1-page chunks?
+> > > > > 
+> > > > > The worst case is 3 * sizeof(unsigned long) *
+> > > > > number_of_swap_extents_allocated bytes.
+> > > > 
+> > > > Okay, so if we got 4GB of swap space, thats 1MB swap pages, worst case
+> > > > is you have one extent per page, on x86-64 that's 24MB. +kmalloc
+> > > > overhead, I assume?
+> > > 
+> > > Sounds right.
+> > 
+> > Ok, 24-50MB per 4GB of swap space is not _that_ bad...
+> 
+> Other way round: 12MB for x86, 24 for x86_64 is the worst case.
+> Actually, come to think of it, that would be for 8GB of swap space. The
+> worst case would require every page of swap to be alternately free and
+> allocated, so for 4GB you'd only have 2GB of swap allocated = 1/2 the
+> number of extents and half the memory requirements.
+> 
+> > > > And you do linear walks over those extents, leading to O(n^2)
+> > > > algorithm, no? That has bitten us before...
+> > > 
+> > > We start from where we last added an extent on the chain by default.
+> > 
+> > ...but linear search through 24MB _is_ going to hurt.
+> 
+> If we did one, yes it would. But this will be O(1) since we start at the
+> last value, and get_swap_page goes through the space sequentially.
 
-The machine is an HP xw4400 Core 2 Duo E6600 with the Intel 975X chipset.
-Please let me know if you need any debug info.
+No, it doesn't, AFAICT, but I don't think it matters.
 
-45edfd1db02f818b3dc7e4743ee8585af6b78f78 is first bad commit
-commit 45edfd1db02f818b3dc7e4743ee8585af6b78f78
-Author: Yinghai Lu <yinghai.lu@amd.com>
-Date:   Sat Oct 21 18:37:01 2006 +0200
+The question is whether there is a chance we'll get anywhere close to the
+worst case and I think the answer is 'no' due to the way in which the swap
+allocation works.
 
-    [PATCH] x86-64: typo in __assign_irq_vector when updating pos for
-vector and offset
+Greetings,
+Rafael
 
-    typo with cpu instead of new_cpu
 
-    Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
-    Signed-off-by: Andi Kleen <ak@suse.de>
-
-:040000 040000 1d64801d89bfb23ef4d63d1625f47122d01ded6c
-03bb862d9bfdfb05fb5382d56d52ffe1c5f8aba2 M	arch
-
-Accordingly ther revert-diff is this
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-index b000017..1fa95d5 100644
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -651,12 +651,12 @@ next:
-                if (vector == IA32_SYSCALL_VECTOR)
-                        goto next;
-                for_each_cpu_mask(new_cpu, domain)
--                       if (per_cpu(vector_irq, new_cpu)[vector] != -1)
-+                       if (per_cpu(vector_irq, cpu)[vector] != -1)
-                                goto next;
-                /* Found one! */
-                for_each_cpu_mask(new_cpu, domain) {
--                       pos[new_cpu].vector = vector;
--                       pos[new_cpu].offset = offset;
-+                       pos[cpu].vector = vector;
-+                       pos[cpu].offset = offset;
-                }
-                if (old_vector >= 0) {
-                        int old_cpu;
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422918AbWJYD4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422923AbWJYEAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422918AbWJYD4x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 23:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161340AbWJYD4x
+	id S1422923AbWJYEAb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 00:00:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161339AbWJYEAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 23:56:53 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:54209 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161335AbWJYD4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 23:56:52 -0400
+	Wed, 25 Oct 2006 00:00:31 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:31167 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1161338AbWJYEAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 00:00:30 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=L/qbt5c2Hob+txkr095hQFUMAi6y9ZKlFH2Br0NjTJz7kcJ25p3SGfjiV8e/jJn+xXydUmFwNHSFAfcXCwFICqbgU6uHwjqf+/zkPtaNLpkx6huvKRnTCa0RgZeOOVZONdAJTRxTBpSTQGeZNQbQXdbXnOja41aAZFksFRLr3KU=
-Date: Tue, 24 Oct 2006 20:56:44 -0700
-From: Amit Choudhary <amit2030@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Cc: netdev@vger.kernel.org
-Subject: [PATCH 2.6.19-rc3] drivers/char/synclink.c: check kmalloc() return
- value.
-Message-Id: <20061024205644.5ce58504.amit2030@gmail.com>
-Organization: X
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=ViqfzduZOsb07JnxLPxtbtIPgd5rCxrWAD+ilUNTtGiKOjFyLffCWJcDBCnv+wNt8fFcXJHdRfcx6tz2RsldPRsUlvM2P5G+QUZV9gt2QJm29AotrVuC6+GQuWsLw9S1BBXxriF/5KQLEAtOTR3Nwt60yKrmvL26l5SAGNY2xVk=
+Message-ID: <86802c440610242100gb1e3199lda1a2e1a7900ceb6@mail.gmail.com>
+Date: Tue, 24 Oct 2006 21:00:29 -0700
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@muc.de>
+Subject: Re: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Muli Ben-Yehuda" <muli@il.ibm.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D75A@ssvlexmb2.amd.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5986589C150B2F49A46483AC44C7BCA412D75A@ssvlexmb2.amd.com>
+X-Google-Sender-Auth: d6317eef19e8c76c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Check the return value of kmalloc() in function mgsl_alloc_intermediate_txbuffer_memory(), in file drivers/char/synclink.c.
+Andi,
 
-Signed-off-by: Amit Choudhary <amit2030@gmail.com>
+I think this patch could be in your tree after Eric's tree is getting
+into mainstream.
 
-diff --git a/drivers/char/synclink.c b/drivers/char/synclink.c
-index 06784ad..24f99bc 100644
---- a/drivers/char/synclink.c
-+++ b/drivers/char/synclink.c
-@@ -4012,8 +4012,13 @@ static int mgsl_alloc_intermediate_txbuf
- 	for ( i=0; i<info->num_tx_holding_buffers; ++i) {
- 		info->tx_holding_buffers[i].buffer =
- 			kmalloc(info->max_frame_size, GFP_KERNEL);
--		if ( info->tx_holding_buffers[i].buffer == NULL )
-+		if (info->tx_holding_buffers[i].buffer == NULL) {
-+			for (--i; i >= 0; i--) {
-+				kfree(info->tx_holding_buffers[i].buffer);
-+				info->tx_holding_buffers[i].buffer = NULL;
-+			}
- 			return -ENOMEM;
-+		}
- 	}
- 
- 	return 0;
+YH
+
+On 10/24/06, Lu, Yinghai <yinghai.lu@amd.com> wrote:
+> >From: Andi Kleen [mailto:ak@suse.de]
+> >Is that still needed with Eric's latest patches? I suppose not?
+>
+> It needs Eric's
+>
+> x86_64-irq-simplify-the-vector-allocator.patch
+> x86_64-irq-only-look-at-per_cpu-data-for-online-cpus.patch
+>
+> Those two are in -mm tree now.
+>
+> Otherwise it can not be applied without FAIL.
+>
+> YH
+>

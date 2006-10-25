@@ -1,246 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422819AbWJYDpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752006AbWJYDqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422819AbWJYDpY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 23:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752082AbWJYDpY
+	id S1752006AbWJYDqe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 23:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752082AbWJYDqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 23:45:24 -0400
-Received: from gate.crashing.org ([63.228.1.57]:33971 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751616AbWJYDpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 23:45:23 -0400
-Subject: Notification of bus events to arch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 13:44:59 +1000
-Message-Id: <1161747900.22582.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 23:46:34 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:50857 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1752006AbWJYDqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 23:46:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
+        b=Cc70KehZJfviz3/gYjEDubX2HxThylq52ZyP1saS4/JQXUjAOsA0BZo/f1HQXjjJJ2uBNhpDVQWryOJR66Iudby0VRRAJU86VtyTRH+t7IM/2YI8LAF+1bX0d+m+aqfi5FhYEoMDUCQgLRhjAqfl3oBI3dLBQ1UA5HLd/xuXQxc=
+Message-ID: <86802c440610242046g6ef06fcexf8776b5009cea23@mail.gmail.com>
+Date: Tue, 24 Oct 2006 20:46:31 -0700
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Muli Ben-Yehuda" <muli@il.ibm.com>
+Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_19315_13627121.1161747991617"
+References: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
+X-Google-Sender-Auth: 2c0b72e21e6a47b8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg !
+------=_Part_19315_13627121.1161747991617
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-So here's a new approach with patch for my needs of notification of
-device addition/removal.
+resend with gmail.
 
-I finally did as you suggested and added the notifier to the struct
-bus_type itself. There are still problems to be expected is something
-attaches to a bus type where the code can hook in different struct
-device sub-classes (which is imho a big bogosity but I won't even try to
-argue that case now) but it will solve nicely a number of issues I've
-had so far.
+Clear the irq releated entries in irq_vector, irq_domain and vector_irq
+instead of clearing irq_vector only. So when new irq is created, it
+could reuse that vector. (actually is the second loop scanning from
+FIRST_DEVICE_VECTOR+8). This could avoid the vectors are used up
+with enough module inserting and removing
 
-That also means that clients interested in registering for such
-notifications have to do it before devices are added and after bus types
-are registered. Fortunately, most bus types that matter for the various
-usage scenarios I have in mind are registerd at postcore_initcall time,
-which means I have a really nice spot at arch_initcall time to add my
-notifiers.
+Cc: Eric W. Biedierman <ebiederm@xmission.com>
+Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
 
-There are 4 notifications provided. Device being added (before hooked to
-the bus) and removed (failure of previous case or after being unhooked
-from the bus), along with driver being bound to a device and about to be
-unbound.
+------=_Part_19315_13627121.1161747991617
+Content-Type: text/x-patch; name=io_apic_clear_irq_vector.diff; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_etp6by2y
+Content-Disposition: attachment; filename="io_apic_clear_irq_vector.diff"
 
-The usage I have for these are:
-
- - The 2 first ones are used to maintain a struct device_ext that is
-hooked to struct device.firmware_data. This structure contains for now a
-pointer to the Open Firmware node related to the device (if any), the
-NUMA node ID (for quick access to it) and the DMA operations pointers &
-iommu table instance for DMA to/from this device. For bus types I own
-(like IBM VIO or EBUS), I just maintain that structure directly from the
-bus code when creating the devices. But for bus types managed by generic
-code like PCI or platform (actually, of_platform which is a variation of
-platform linked to Open Firmware device-tree), I need this notifier.
-
- - The other two ones have a completely different usage scenario. I have
-cases where multiple devices and their drivers depend on each other. For
-example, the IBM EMAC network driver needs to attach to a MAL DMA engine
-which is a separate device, and a PHY interface which is also a separate
-device. They are all of_platform_device's (well, about to be with my
-upcoming patches) but there is no say in what precise order the core
-will "probe" them and instanciate the various modules. The solution I
-found for that is to have the drivers for emac to use multithread_probe,
-and wait for a driver to be bound to the target MAL and PHY control
-devices (the device-tree contains reference to the MAL and PHY interface
-nodes, which I can then match to of_platform_devices). Right now, I've
-been polling, but with that notifier, I can more cleanly wait (with a
-timeout of course).
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
----
-
-Please comment asap, since if it's not ok, I have to rework a pile of
-stuff I have depending on that which is all supposed to go into 2.6.20.
-
-Thanks !,
-Ben.
-
-Index: linux-cell/drivers/base/core.c
-===================================================================
---- linux-cell.orig/drivers/base/core.c	2006-10-25 13:19:44.000000000 +1000
-+++ linux-cell/drivers/base/core.c	2006-10-25 13:21:49.000000000 +1000
-@@ -17,6 +17,7 @@
- #include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/kdev_t.h>
-+#include <linux/notifier.h>
- 
- #include <asm/semaphore.h>
- 
-@@ -428,6 +429,11 @@ int device_add(struct device *dev)
- 	if (platform_notify)
- 		platform_notify(dev);
- 
-+	/* notify clients of device entry (new way) */
-+	if (dev->bus)
-+		blocking_notifier_call_chain(&dev->bus->bus_notifier,
-+					     BUS_NOTIFY_ADD_DEVICE, dev);
-+
- 	dev->uevent_attr.attr.name = "uevent";
- 	dev->uevent_attr.attr.mode = S_IWUSR;
- 	if (dev->driver)
-@@ -504,6 +510,9 @@ int device_add(struct device *dev)
-  BusError:
- 	device_pm_remove(dev);
-  PMError:
-+	if (dev->bus)
-+		blocking_notifier_call_chain(&dev->bus->bus_notifier,
-+					     BUS_NOTIFY_DEL_DEVICE, dev);
- 	device_remove_groups(dev);
-  GroupError:
-  	device_remove_attrs(dev);
-@@ -622,6 +631,9 @@ void device_del(struct device * dev)
- 	 */
- 	if (platform_notify_remove)
- 		platform_notify_remove(dev);
-+	if (dev->bus)
-+		blocking_notifier_call_chain(&dev->bus->bus_notifier,
-+					     BUS_NOTIFY_DEL_DEVICE, dev);
- 	device_pm_remove(dev);
- 	kobject_uevent(&dev->kobj, KOBJ_REMOVE);
- 	kobject_del(&dev->kobj);
-Index: linux-cell/include/linux/device.h
-===================================================================
---- linux-cell.orig/include/linux/device.h	2006-10-25 13:19:13.000000000 +1000
-+++ linux-cell/include/linux/device.h	2006-10-25 13:19:45.000000000 +1000
-@@ -42,6 +42,8 @@ struct bus_type {
- 	struct klist		klist_devices;
- 	struct klist		klist_drivers;
- 
-+	struct blocking_notifier_head bus_notifier;
-+
- 	struct bus_attribute	* bus_attrs;
- 	struct device_attribute	* dev_attrs;
- 	struct driver_attribute	* drv_attrs;
-@@ -75,6 +77,28 @@ int __must_check bus_for_each_drv(struct
- 		struct device_driver *start, void *data,
- 		int (*fn)(struct device_driver *, void *));
- 
-+/* Bus notifiers: Get notified of addition/removal of devices
-+ * and binding/unbinding of drivers to devices.
-+ * In the long run, it should be a replacement for the platform
-+ * notify hooks.
-+ */
-+struct notifier_block;
-+
-+extern int register_bus_notifier(struct bus_type *bus,
-+				 struct notifier_block *nb);
-+extern int unregister_bus_notifier(struct bus_type *bus,
-+				   struct notifier_block *nb);
-+
-+/* All 4 notifers below get called with the target struct device *
-+ * as an argument. Note that those functions are likely to be called
-+ * with the device semaphore held in the core, so be careful.
-+ */
-+#define BUS_NOTIFY_ADD_DEVICE		0x00000001 /* device added */
-+#define BUS_NOTIFY_DEL_DEVICE		0x00000002 /* device removed */
-+#define BUS_NOTIFY_BOUND_DRIVER		0x00000003 /* driver bound to device */
-+#define BUS_NOTIFY_UNBIND_DRIVER	0x00000004 /* driver about to be
-+						      unbound */
-+
- /* driverfs interface for exporting bus attributes */
- 
- struct bus_attribute {
-@@ -427,7 +451,6 @@ extern int (*platform_notify)(struct dev
- 
- extern int (*platform_notify_remove)(struct device * dev);
- 
--
- /**
-  * get_device - atomically increment the reference count for the device.
-  *
-Index: linux-cell/drivers/base/bus.c
-===================================================================
---- linux-cell.orig/drivers/base/bus.c	2006-10-25 13:19:13.000000000 +1000
-+++ linux-cell/drivers/base/bus.c	2006-10-25 13:21:47.000000000 +1000
-@@ -724,6 +724,8 @@ int bus_register(struct bus_type * bus)
- {
- 	int retval;
- 
-+	BLOCKING_INIT_NOTIFIER_HEAD(&bus->bus_notifier);
-+
- 	retval = kobject_set_name(&bus->subsys.kset.kobj, "%s", bus->name);
- 	if (retval)
- 		goto out;
-@@ -782,6 +784,16 @@ void bus_unregister(struct bus_type * bu
- 	subsystem_unregister(&bus->subsys);
- }
- 
-+int register_bus_notifier(struct bus_type *bus, struct notifier_block *nb)
-+{
-+	return blocking_notifier_chain_register(&bus->bus_notifier, nb);
-+}
-+
-+int unregister_bus_notifier(struct bus_type *bus, struct notifier_block *nb)
-+{
-+	return blocking_notifier_chain_unregister(&bus->bus_notifier, nb);
-+}
-+
- int __init buses_init(void)
- {
- 	return subsystem_register(&bus_subsys);
-@@ -798,3 +810,6 @@ EXPORT_SYMBOL_GPL(bus_rescan_devices);
- 
- EXPORT_SYMBOL_GPL(bus_create_file);
- EXPORT_SYMBOL_GPL(bus_remove_file);
-+
-+EXPORT_SYMBOL_GPL(register_bus_notifier);
-+EXPORT_SYMBOL_GPL(unregister_bus_notifier);
-Index: linux-cell/drivers/base/dd.c
-===================================================================
---- linux-cell.orig/drivers/base/dd.c	2006-10-25 13:19:13.000000000 +1000
-+++ linux-cell/drivers/base/dd.c	2006-10-25 13:21:40.000000000 +1000
-@@ -51,6 +51,11 @@ int device_bind_driver(struct device *de
- 
- 	pr_debug("bound device '%s' to driver '%s'\n",
- 		 dev->bus_id, dev->driver->name);
-+
-+	if (dev->bus)
-+		blocking_notifier_call_chain(&dev->bus->bus_notifier,
-+					     BUS_NOTIFY_BOUND_DRIVER, dev);
-+
- 	klist_add_tail(&dev->knode_driver, &dev->driver->klist_devices);
- 	ret = sysfs_create_link(&dev->driver->kobj, &dev->kobj,
- 			  kobject_name(&dev->kobj));
-@@ -284,6 +289,11 @@ static void __device_release_driver(stru
- 		sysfs_remove_link(&dev->kobj, "driver");
- 		klist_remove(&dev->knode_driver);
- 
-+		if (dev->bus)
-+			blocking_notifier_call_chain(&dev->bus->bus_notifier,
-+						     BUS_NOTIFY_UNBIND_DRIVER,
-+						     dev);
-+
- 		if (dev->bus && dev->bus->remove)
- 			dev->bus->remove(dev);
- 		else if (drv->remove)
-
-
+LS0tIGxpbnV4LTIuNi9hcmNoL3g4Nl82NC9rZXJuZWwvaW9fYXBpYy5jCTIwMDYtMTAtMjQgMTM6
+NDA6NDguMDAwMDAwMDAwIC0wNzAwCisrKyBsaW51eC0yLjYueHgvYXJjaC94ODZfNjQva2VybmVs
+L2lvX2FwaWMuYwkyMDA2LTEwLTI0IDE0OjAzOjA4LjAwMDAwMDAwMCAtMDcwMApAQCAtNzE2LDYg
+KzcxNiwyMiBAQAogCXJldHVybiB2ZWN0b3I7CiB9CiAKK3N0YXRpYyB2b2lkIF9fY2xlYXJfaXJx
+X3ZlY3RvcihpbnQgaXJxKQoreworCWludCBvbGRfdmVjdG9yID0gLTE7CisJaWYgKGlycV92ZWN0
+b3JbaXJxXSA+IDApCisJCW9sZF92ZWN0b3IgPSBpcnFfdmVjdG9yW2lycV07CisJaWYgKG9sZF92
+ZWN0b3IgPj0gMCkgeworCQljcHVtYXNrX3Qgb2xkX21hc2s7CisJCWludCBvbGRfY3B1OworCQlj
+cHVzX2FuZChvbGRfbWFzaywgaXJxX2RvbWFpbltpcnFdLCBjcHVfb25saW5lX21hcCk7CisJCWZv
+cl9lYWNoX2NwdV9tYXNrKG9sZF9jcHUsIG9sZF9tYXNrKQorCQkJcGVyX2NwdSh2ZWN0b3JfaXJx
+LCBvbGRfY3B1KVtvbGRfdmVjdG9yXSA9IC0xOworCX0KKwlpcnFfdmVjdG9yW2lycV0gPSAwOwor
+CWlycV9kb21haW5baXJxXSA9IENQVV9NQVNLX05PTkU7Cit9CisKIHZvaWQgX19zZXR1cF92ZWN0
+b3JfaXJxKGludCBjcHUpCiB7CiAJLyogSW5pdGlhbGl6ZSB2ZWN0b3JfaXJxIG9uIGEgbmV3IGNw
+dSAqLwpAQCAtMTgwMyw3ICsxODE5LDcgQEAKIAlkeW5hbWljX2lycV9jbGVhbnVwKGlycSk7CiAK
+IAlzcGluX2xvY2tfaXJxc2F2ZSgmdmVjdG9yX2xvY2ssIGZsYWdzKTsKLQlpcnFfdmVjdG9yW2ly
+cV0gPSAwOworCV9fY2xlYXJfaXJxX3ZlY3RvcihpcnEpOwogCXNwaW5fdW5sb2NrX2lycXJlc3Rv
+cmUoJnZlY3Rvcl9sb2NrLCBmbGFncyk7CiB9CiAK
+------=_Part_19315_13627121.1161747991617--

@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423146AbWJYJMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423145AbWJYJPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423146AbWJYJMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 05:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423147AbWJYJMJ
+	id S1423145AbWJYJPv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 05:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423149AbWJYJPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 05:12:09 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:44167 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1423146AbWJYJMI (ORCPT
+	Wed, 25 Oct 2006 05:15:51 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:62056 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1423145AbWJYJPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 05:12:08 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Junio C Hamano <junkio@cox.net>, linux-kernel@vger.kernel.org
-Subject: [git failure] failure pulling latest Linus tree
-From: Jes Sorensen <jes@sgi.com>
-Date: 25 Oct 2006 05:12:07 -0400
-Message-ID: <yq0d58g92u0.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Wed, 25 Oct 2006 05:15:50 -0400
+Date: Wed, 25 Oct 2006 11:17:03 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+Message-ID: <20061025091702.GT4281@kernel.dk>
+References: <1161576857.3466.9.camel@nigel.suspend2.net> <20061024204239.GA15689@infradead.org> <1161727596.22729.11.camel@nigel.suspend2.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161727596.22729.11.camel@nigel.suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Oct 25 2006, Nigel Cunningham wrote:
+> IIRC, I avoided list.h because I only wanted a singly linked list (it
+> never gets traversed backwards). List.h looks to me like all doubly
+> linked lists. Do you know if there are any other singly linked list
+> implementations I could piggy-back?
 
-This morning I got in and tried to pull the tree from vger, however I
-get the following strange error message:
+Look closer in list.h, more specifically at the hlist_ entries.
 
-jes@eye:~/src/kernel/linus/linux-2.6> git pull
-fatal: unexpected EOF
-Fetch failure:
-git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-jes@eye:~/src/kernel/linus/linux-2.6> git --version
-git version 1.4.1.1
+-- 
+Jens Axboe
 
-Known error? git tree corrupted or need for a new version of git?
-
-Cheers,
-Jes

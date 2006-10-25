@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161360AbWJYNXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbWJYNjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161360AbWJYNXp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 09:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161362AbWJYNXp
+	id S1030363AbWJYNjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 09:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWJYNjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 09:23:45 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:46216 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1161360AbWJYNXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 09:23:44 -0400
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@ucw.cz>, David Chinner <dgc@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-In-Reply-To: <200610251432.41958.rjw@sisk.pl>
-References: <1161576735.3466.7.camel@nigel.suspend2.net>
-	 <20061025083830.GI11034@melbourne.sgi.com>
-	 <20061025084714.GA7266@elf.ucw.cz>  <200610251432.41958.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 23:23:40 +1000
-Message-Id: <1161782620.3638.0.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Wed, 25 Oct 2006 09:39:25 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:50606 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1030363AbWJYNjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 09:39:24 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: "Marco d'Itri" <md@linux.it>
+Subject: Re: major 442
+Date: Wed, 25 Oct 2006 15:39:46 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org,
+       Greg KH <greg@kroah.com>
+References: <20061025102030.GA5790@wonderland.linux.it>
+In-Reply-To: <20061025102030.GA5790@wonderland.linux.it>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2662867.01V1AXB44t";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200610251539.51952.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+--nextPart2662867.01V1AXB44t
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Wed, 2006-10-25 at 14:32 +0200, Rafael J. Wysocki wrote:
-> On Wednesday, 25 October 2006 10:47, Pavel Machek wrote:
-> > On Wed 2006-10-25 18:38:30, David Chinner wrote:
-> > > On Wed, Oct 25, 2006 at 10:10:01AM +0200, Pavel Machek wrote:
-> > > > > Hence the only way to correctly rebuild the XFS state on resume is
-> > > > > to quiesce the filesystem on suspend and thaw it on resume so as to
-> > > > > trigger log recovery.
-> > > > 
-> > > > No, during suspend/resume, memory image is saved, and no state is
-> > > > lost. We would not even have to do sys_sync(), and suspend/resume
-> > > > would still work properly.
-> > > 
-> > > It seems to me that you ensure the filesystem is synced to disk and
-> > > then at some point later you record the memory state of the
-> > > filesystem, but these happen at different times. That leaves a
-> > > window for things to get out of sync again, right?
-> > 
-> > I DO NOT HAVE TO ENSURE FILESYSTEM IS SYNCED. That sys_sync() is
-> > optional.
-> > 
-> > Recording of memory state is atomic, and as long as noone writes to
-> > the disk after atomic snapshot, memory image matches what is on disk.
-> 
-> Well, my impression is that this is exactly what happens here: Something
-> in the XFS code causes metadata to be written to disk _after_ the atomic
-> snapshot.
-> 
-> That's why I asked if the dirty XFS metadata were flushed by a kernel thread.
+Am Mittwoch, 25. Oktober 2006 12:20 schrieb Marco d'Itri:
+> I just installed the Debian 2.6.18 kernel package and I noticed that it
+> repeatedly tries to load a major 442 module alias, which appears to be
+> used by the usb_endpoint devices.
+> Does anybody know why? I am not even using the USB ports.
 
-When I first added bdev freezing it was because there was an XFS timer
-doing writes.
+grep 442 /etc/modprobe.conf
 
-Regards,
+HTH
 
-Nigel
+Eike
 
+--nextPart2662867.01V1AXB44t
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBFP2knXKSJPmm5/E4RAnjBAJ0WDi7Tpjuo1PT7NIVTqgRgmOF7VgCdG4xJ
+Vd1rUd8IC8kXaqjD++Nf7nI=
+=1e90
+-----END PGP SIGNATURE-----
+
+--nextPart2662867.01V1AXB44t--

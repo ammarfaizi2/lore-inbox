@@ -1,282 +1,380 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422975AbWJYHOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423042AbWJYHhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422975AbWJYHOE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 03:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422998AbWJYHOD
+	id S1423042AbWJYHhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 03:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423045AbWJYHhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 03:14:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:53043 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422975AbWJYHOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 03:14:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=dtuj2MudZtsNfjmUwu7O9u8mbxKPcRrV9oG6jPOa0p+WSzBFCAMeG14nnVF+T0AYS0b27ES4knUiyQWmMYcjw9PiR0Euc0C5VjH6oUqkKyUke7H7Xk+cBtH2I6oZk0ulLu+/wm0bAetOkuDAkOsY9vxU6ILo5goolPnVuOTjkNs=
-From: Om Narasimhan <om.turyx@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: HPET : Legacy Routing Replacement Enable - 3rd try.
-Date: Wed, 25 Oct 2006 00:13:47 -0700
-User-Agent: KMail/1.9.3
-Cc: randy.dunlap@oracle.com, omanakuttan.potty@sun.com, clemens@ladisch.de,
-       ak@muc.de, vojtech@suse.cz, bob.picco@hp.com,
-       venkatesh.pallipadi@intel.com, omanakuttan@imap.cc
+	Wed, 25 Oct 2006 03:37:09 -0400
+Received: from eva.fit.vutbr.cz ([147.229.176.14]:48123 "EHLO eva.fit.vutbr.cz")
+	by vger.kernel.org with ESMTP id S1423042AbWJYHhH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 03:37:07 -0400
+Message-ID: <453F01CF.2040106@eva.fit.vutbr.cz>
+Date: Wed, 25 Oct 2006 08:18:55 +0200
+From: =?ISO-8859-2?Q?Radim_Lu=BEa?= <xluzar00@stud.fit.vutbr.cz>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: suspend to disk -> resume -> X with DRI extension on R100 chips hangs
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610250013.48194.om.turyx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have incorporated Randy's comments.
-CC-ing HPET developers.
+Good morning
 
-Patch here.
-Signed-off-by: Om Narasimhan <om.turyx@gmail.com>
+I noticed following problem:
+After resuming from suspend to disk Xorg with DRI switched on hangs. 
+System is not affected by Xorg hang. If I login via SSH I can kill X 
+server and start it again - with same result. X server hangs even after 
+I suspend from text mode with X not running and with unloaded modules 
+radeon and drm and resume then and try to start X server. With DRI 
+switched off in xorg.conf X resumes correctly.
+
+Info about my system:
+
+cat /proc/version
+  Linux version 2.6.18 (root@b02-307b.kn.vutbr.cz) (gcc version 3.4.3 
+(Mandrakelinux 10.2 3.4.3-7mdk)) #6 Wed Sep 27 10:07:17 CEST 2006
+
+cat /proc/modules
+tun 8576 1 - Live 0xe0c94000
+8139too 22272 0 - Live 0xe0c9d000
+mii 5120 1 8139too, Live 0xe0c38000
+usbmouse 4736 0 - Live 0xe0c35000
+usbhid 48160 0 - Live 0xe0cc4000
+snd_rtctimer 2572 0 - Live 0xe0c17000
+tsdev 6336 0 - Live 0xe0c32000
+radeon 110880 1 - Live 0xe0ca7000
+drm 60692 2 radeon, Live 0xe0c40000
+joydev 8256 0 - Live 0xe0c1d000
+mousedev 10144 1 - Live 0xe0c19000
+psmouse 37512 0 - Live 0xe0c21000
+cpufreq_ondemand 5104 0 - Live 0xe0bf0000
+cpufreq_userspace 3220 0 - Live 0xe0bba000
+cpufreq_powersave 1664 0 - Live 0xe0bb8000
+p4_clockmod 4364 0 - Live 0xe0bb5000
+speedstep_lib 3972 1 p4_clockmod, Live 0xe0bb3000
+freq_table 3716 1 p4_clockmod, Live 0xe087c000
+ipv6 228192 16 - Live 0xe0c51000
+snd_seq_dummy 2948 0 - Live 0xe0bb1000
+snd_seq_oss 30208 0 - Live 0xe0bbc000
+snd_seq_midi_event 6016 1 snd_seq_oss, Live 0xe0b9a000
+snd_seq 44752 5 snd_seq_dummy,snd_seq_oss,snd_seq_midi_event, Live 
+0xe0be4000
+snd_seq_device 6668 3 snd_seq_dummy,snd_seq_oss,snd_seq, Live 0xe0ba2000
+snd_pcm_oss 42400 0 - Live 0xe0bd8000
+snd_mixer_oss 15744 1 snd_pcm_oss, Live 0xe0b9d000
+snd_ali5451 20108 1 - Live 0xe0b6c000
+snd_ac97_codec 91168 1 snd_ali5451, Live 0xe0bf6000
+snd_ac97_bus 2176 1 snd_ac97_codec, Live 0xe0b6a000
+snd_pcm 69000 3 snd_pcm_oss,snd_ali5451,snd_ac97_codec, Live 0xe0bc6000
+snd_timer 19588 3 snd_rtctimer,snd_seq,snd_pcm, Live 0xe0b45000
+snd_page_alloc 8072 1 snd_pcm, Live 0xe0b67000
+snd 42852 11 
+snd_seq_oss,snd_seq,snd_seq_device,snd_pcm_oss,snd_mixer_oss,snd_ali5451,snd_ac97_codec,snd_pcm,snd_timer, 
+Live0xe0ba5000
+soundcore 7392 1 snd, Live 0xe0b64000
+parport_pc 31556 1 - Live 0xe0b8e000
+lp 10312 0 - Live 0xe0b60000
+parport 31560 2 parport_pc,lp, Live 0xe0b50000
+irlan 24208 0 - Live 0xe0b59000
+irda 108472 1 irlan, Live 0xe0b72000
+crc_ccitt 2048 1 irda, Live 0xe087e000
+af_packet 16136 0 - Live 0xe0b4b000
+eeprom 5648 0 - Live 0xe0b42000
+i2c_ali1535 6276 0 - Live 0xe0860000
+pcmcia 30764 2 - Live 0xe0b30000
+yenta_socket 24844 2 - Live 0xe0b3a000
+rsrc_nonstatic 11264 1 yenta_socket, Live 0xe0b2c000
+pcmcia_core 34064 3 pcmcia,yenta_socket,rsrc_nonstatic, Live 0xe0af6000
+sbs 12448 0 - Live 0xe0af1000
+i2c_ec 4224 1 sbs, Live 0xe0876000
+i2c_core 16912 3 eeprom,i2c_ali1535,i2c_ec, Live 0xe0aeb000
+ide_cd 36868 0 - Live 0xe0b21000
+loop 13064 0 - Live 0xe0ae6000
+nls_iso8859_2 4608 1 - Live 0xe0873000
+nls_cp852 4864 1 - Live 0xe0863000
+vfat 10112 1 - Live 0xe086f000
+fat 46876 1 vfat, Live 0xe0ad9000
+ali_agp 5760 1 - Live 0xe085d000
+agpgart 28080 2 drm,ali_agp, Live 0xe0867000
+nvram 6792 0 - Live 0xe082f000
+evdev 8320 1 - Live 0xe0859000
+ohci_hcd 18436 0 - Live 0xe0853000
+usbcore 113924 4 usbmouse,usbhid,ohci_hcd, Live 0xe0a56000
+video 14852 0 - Live 0xe0834000
+thermal 11656 0 - Live 0xe0839000
+processor 22956 1 thermal, Live 0xe0845000
+ibm_acpi 24064 0 - Live 0xe083e000
+fan 3844 0 - Live 0xe0832000
+dock 5768 0 - Live 0xe081b000
+container 3584 0 - Live 0xe0823000
+button 5392 0 - Live 0xe0820000
+battery 8196 0 - Live 0xe082b000
+asus_acpi 14104 0 - Live 0xe0826000
+ac 3844 0 - Live 0xe081e000
 
 
- Documentation/hpet.txt              |   56 +++++++++++++++++++++++++++++++++++
- Documentation/kernel-parameters.txt |    9 ++++++
- arch/i386/kernel/acpi/boot.c        |   18 +++++++++++
- arch/i386/kernel/time_hpet.c        |    3 +-
- arch/x86_64/kernel/time.c           |   16 +++++++---
- include/asm-x86_64/hpet.h           |    1 +
- include/linux/acpi.h                |    1 +
- include/linux/hpet.h                |    7 ++++
- 8 files changed, 105 insertions(+), 6 deletions(-)
+cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vesafb
+03f6-03f6 : ide0
+03f8-03ff : serial
+04d0-04d1 : pnp 00:07
+04d6-04d6 : pnp 00:07
+0778-077a : parport0
+0cf8-0cff : PCI conf1
+1000-10ff : 0000:00:04.0
+  1000-10ff : ALI 5451
+1400-14ff : 0000:00:08.0
+  1400-14ff : 8139too
+1800-180f : 0000:00:0b.0
+1810-181f : 0000:00:0f.0
+  1810-1817 : ide0
+  1818-181f : ide1
+1c00-1cff : PCI CardBus #02
+2000-20ff : PCI CardBus #02
+3810-381f : motherboard
+  3810-381f : pnp 00:07
+8000-803f : 0000:00:06.0
+  8000-8003 : ACPI PM1a_EVT_BLK
+  8004-8005 : motherboard
+  8008-800b : ACPI PM_TMR
+  8010-8015 : ACPI CPU throttle
+  8018-8027 : ACPI GPE0_BLK
+  8030-8030 : ACPI PM2_CNT_BLK
+8040-805f : 0000:00:06.0
+  8040-805f : ali1535_smbus
+9000-9fff : PCI Bus #01
+  9000-90ff : 0000:01:00.0
+fe10-fe11 : motherboard
+  fe10-fe11 : ACPI PM1a_CNT_BLK
 
-diff --git a/Documentation/hpet.txt b/Documentation/hpet.txt
-index b7a3dc3..ca62b69 100644
---- a/Documentation/hpet.txt
-+++ b/Documentation/hpet.txt
-@@ -298,3 +298,59 @@ members of the hpet_task structure befor
- hpet_control simply vectors to the hpet_ioctl routine and has the same
- commands and respective arguments as the user API.  hpet_unregister
- is used to terminate usage of the HPET timer reserved by hpet_register.
-+
-+		HPET Legacy Replacement Route option (hpet_lrr)
-+
-+HPET is capable of replacing the IRQ0 (connected INT0 PIN) routing for
-+timer interrupt. The capability register (at offset 0 of HPET
-+base address) has a bit specifying if HPET chip is capbale of doing
-+this. OS can read the bit either from HW or ACPI table. (HPET ACPI
-+description table -> Event Timer block -> bit 15, page 30 of HPET
-+spec).  Ideally (I think so!) BIOS should set the ACPI table than letting
-+the OS read H/W, which gives the BIOS a way to configure either legacy
-+or Legacy replacement modes.
-+
-+Typically the motherboard has BIOS configured / hardwired IRQ0 to INT0
-+(pin of APIC) connection. Linux assumes IRQ0 connected to INT0 unless it is
-+supplied using an override parameter in the MPTable. Some NVidia chipsets /
-+BIOS initialization code had configured to override IRQ0 -> INT0 connection
-+and later a parameter was introduce (acpi_skip_timer_override) to get IRQ0 ->
-+INT0 connection right.
-+
-+But a number of bioses (both phoenix and AMI) are not working as
-+expected. (I have an AMI BIOS which sets ACPI table bit 15 to 0 and then
-+connect IRQ0 -> INT2 internally, Another bios I have sets the ACPI table bit
-+15 to 0, but does not connect IRQ0 -> INT2. Both would result in a hang in
-+calibrate_delay() since there would not be any timer interrupts So I have
-+provided a command line parameter which overrides
-+the BIOS ACPI entry. So, irrespctive of the BIOS' HPET ACPI Descriptor
-+table settings, if the parameter hpet_lrr=[0,1] is specified, it takes
-+precedence.
-+
-+* When to use this parameter?
-+
-+Some latest versions CK-804 (e.g),(Actually the code initializes the
-+CK804 in the BIOS), would correctly set the HPET such that there would not
-+be any interrupts on INT0. Linux does not handle this situation very well
-+because in linux, if HW is LRR capable, it is enabled from the OS. Still the
-+timer interrupt handler is setup for IRQ0. Under this situation, you can 
-+force the parameter hpet_lrr=1, so that IRQ2 is timer interrupts.
-+
-+[root@mophia ~]# cat /proc/interrupts | grep 2:
-+ 2:        163          0          0          0          1          7
-+207     955341    IO-APIC-edge  timer
-+
-+[root@mophia ~]# uptime
-+ 22:52:38 up 15 min,  2 users,  load average: 0.00, 0.01, 0.02
-+
-+[root@mophia ~]# dmesg | grep -i MP-BIOS
-+
-+For 15 mts (900 sec), around 95k interrupts on timer looks kinda fine.
-+
-+* Known Bugs:
-+I have tested it only with Nvidia CK-804. There seem to be some kind of timing
-+issue between enabling the HPET with LRR set and start of tinerrupts. As a
-+result of which, calibrate_delay() hangs because there are no interrupts. If
-+you run into such a case, pass lpj=<bogomips * 500> as a work around. i.e, if
-+your bogomips is 5000, pass lpj=2500000
-+
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index dd00fd5..7916ff5 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -366,6 +366,15 @@ and is between 256 and 4096 characters. 
- 	hpet=		[IA-32,HPET] option to disable HPET and use PIT.
- 			Format: disable
- 
-+	hpet_lrr=	[IA32,X86_64,HPET] Option to enable/disable the HPET
-+			Legacy replacement route. Please read Documentation/
-+			hpet.txt for more info.
-+			Format : {"0" | "1"}
-+			0 -> Disables Legacy Route Replacement. (Default)
-+			1 -> Enables LRR. Please consult your BIOS
-+			documentation before doing this.
-+			
-+
- 	cm206=		[HW,CD]
- 			Format: { auto | [<io>,][<irq>] }
- 
-diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
-index ab974ff..2c5a798 100644
---- a/arch/i386/kernel/acpi/boot.c
-+++ b/arch/i386/kernel/acpi/boot.c
-@@ -82,6 +82,17 @@ EXPORT_SYMBOL(acpi_strict);
- acpi_interrupt_flags acpi_sci_flags __initdata;
- int acpi_sci_override_gsi __initdata;
- int acpi_skip_timer_override __initdata;
-+/* HPET Legacy routing replacement option passed through ACPI Table */
-+int acpi_hpet_lrr;
-+/* cmdline opt. for faulty bioses not setting ACPI HPET entry right */
-+int hpet_lrr_force;
-+
-+static int hpet_lrr_setup (char *str)
-+{
-+	get_option(&str, &hpet_lrr_force);
-+	return 1;
-+}
-+__setup ("hpet_lrr=", hpet_lrr_setup);
- 
- #ifdef CONFIG_X86_LOCAL_APIC
- static u64 acpi_lapic_addr __initdata = APIC_DEFAULT_PHYS_BASE;
-@@ -669,6 +680,13 @@ #define HPET_RESOURCE_NAME_SIZE 9
- 			 "HPET %u", hpet_tbl->number);
- 		hpet_res->end = (1 * 1024) - 1;
- 	}
-+	acpi_hpet_lrr = (hpet_tbl->id & ACPI_HPET_LRR_CAP) ? 1 : 0;
-+	/* Print a message about the bios HPET ACPI Desc Table passed.
-+	 * LRR bit should not be set in the table unless IRQ0->INT2 is
-+	 * connected. But BIOS may be faulty ...
-+	 */
-+	printk(KERN_INFO PREFIX "HPET id: %#x. ACPI LRR bit %s SET\n",
-+			hpet_tbl->id, acpi_hpet_lrr ? "": "NOT");
- 
- #ifdef	CONFIG_X86_64
- 	vxtime.hpet_address = hpet_tbl->addr.addrl |
-diff --git a/arch/i386/kernel/time_hpet.c b/arch/i386/kernel/time_hpet.c
-index 1a2a979..01b2f67 100644
---- a/arch/i386/kernel/time_hpet.c
-+++ b/arch/i386/kernel/time_hpet.c
-@@ -94,7 +94,8 @@ static int hpet_timer_stop_set_go(unsign
-  	 * Go!
-  	 */
- 	cfg = hpet_readl(HPET_CFG);
--	if (hpet_use_timer)
-+	/* Ideally the following should be &&(acpi_hpet_lrr || hpet_lrr_force) */
-+	if (hpet_use_timer && hpet_lrr_force)
- 		cfg |= HPET_CFG_LEGACY;
- 	cfg |= HPET_CFG_ENABLE;
- 	hpet_writel(cfg, HPET_CFG);
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index 1ba5a44..0f5d990 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -46,9 +46,6 @@ #include <asm/apic.h>
- #ifdef CONFIG_CPU_FREQ
- static void cpufreq_delayed_get(void);
- #endif
--extern void i8254_timer_resume(void);
--extern int using_apic_timer;
--
- static char *timename = NULL;
- 
- DEFINE_SPINLOCK(rtc_lock);
-@@ -783,7 +780,10 @@ static int hpet_timer_stop_set_go(unsign
- 		    HPET_TN_32BIT, HPET_T0_CFG);
- 		hpet_writel(hpet_tick, HPET_T0_CMP); /* next interrupt */
- 		hpet_writel(hpet_tick, HPET_T0_CMP); /* period */
--		cfg |= HPET_CFG_LEGACY;
-+		/* Ideal value (acpi_hpet_lrr || hpet_lrr_force) */
-+		if (hpet_lrr_force)
-+			cfg |= HPET_CFG_LEGACY;
-+
- 	}
- /*
-  * Go!
-@@ -887,6 +887,7 @@ time_cpu_notifier(struct notifier_block 
- 
- void __init time_init(void)
- {
-+	int timer_irq = 0;
- 	if (nohpet)
- 		vxtime.hpet_address = 0;
- 
-@@ -906,6 +907,10 @@ void __init time_init(void)
- 	  	tick_nsec = TICK_NSEC_HPET;
- 		cpu_khz = hpet_calibrate_tsc();
- 		timename = "HPET";
-+		/* Ideal value is (acpi_hpet_lrr || hpet_lrr_force) */
-+		if (hpet_lrr_force)
-+			timer_irq = HPET_TIMER_LRR_IRQ;
-+
- #ifdef CONFIG_X86_PM_TIMER
- 	} else if (pmtmr_ioport && !vxtime.hpet_address) {
- 		vxtime_hz = PM_TIMER_FREQUENCY;
-@@ -924,7 +929,8 @@ #endif
- 	vxtime.tsc_quot = (USEC_PER_MSEC << US_SCALE) / cpu_khz;
- 	vxtime.last_tsc = get_cycles_sync();
- 	set_cyc2ns_scale(cpu_khz);
--	setup_irq(0, &irq0);
-+	printk(KERN_WARNING PREFIX "Registering Timer IRQ = %d\n", timer_irq);
-+	setup_irq(timer_irq, &irq0);
- 	hotcpu_notifier(time_cpu_notifier, 0);
- 	time_cpu_notifier(NULL, CPU_ONLINE, (void *)(long)smp_processor_id());
- 
-diff --git a/include/asm-x86_64/hpet.h b/include/asm-x86_64/hpet.h
-index b390984..2d18b39 100644
---- a/include/asm-x86_64/hpet.h
-+++ b/include/asm-x86_64/hpet.h
-@@ -37,6 +37,7 @@ #define HPET_CFG_ENABLE	0x001
- #define HPET_CFG_LEGACY	0x002
- #define	HPET_LEGACY_8254	2
- #define	HPET_LEGACY_RTC		8
-+#define	HPET_TIMER_LRR_IRQ	2
- 
- #define HPET_TN_LEVEL		0x0002
- #define HPET_TN_ENABLE		0x0004
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 2b0c955..62dab08 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -220,6 +220,7 @@ enum acpi_interrupt_id {
- };
- 
- #define	ACPI_SPACE_MEM		0
-+#define	ACPI_HPET_LRR_CAP	0x8000
- 
- struct acpi_gen_regaddr {
- 	u8  space_id;
-diff --git a/include/linux/hpet.h b/include/linux/hpet.h
-index 707f7cb..6c31473 100644
---- a/include/linux/hpet.h
-+++ b/include/linux/hpet.h
-@@ -119,6 +119,13 @@ int hpet_register(struct hpet_task *, in
- int hpet_unregister(struct hpet_task *);
- int hpet_control(struct hpet_task *, unsigned int, unsigned long);
- 
-+
-+/* these are used by time.c */
-+extern void i8254_timer_resume(void);
-+extern int using_apic_timer;
-+extern int acpi_hpet_lrr;
-+extern int hpet_lrr_force;
-+
- #endif /* __KERNEL__ */
- 
- struct hpet_info {
 
+cat /proc/iomem
+00000000-0009f7ff : System RAM
+0009f800-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000cefff : Video ROM
+000cf000-000cffff : Adapter ROM
+000f0000-000fffff : System ROM
+00100000-1feeffff : System RAM
+  00100000-0032dcff : Kernel code
+  0032dd00-003e44f3 : Kernel data
+1fef0000-1fefefff : ACPI Tables
+1feff000-1fefffff : ACPI Non-volatile Storage
+1ff00000-1fffffff : reserved
+30000000-31ffffff : PCI CardBus #02
+32000000-33ffffff : PCI CardBus #02
+34000000-34000fff : 0000:00:0a.0
+  34000000-34000fff : yenta_socket
+e0000000-e0000fff : 0000:00:02.0
+  e0000000-e0000fff : ohci_hcd
+e0001000-e0001fff : 0000:00:04.0
+  e0001000-e0001fff : ALI 5451
+e0002000-e00020ff : 0000:00:08.0
+  e0002000-e00020ff : 8139too
+e0003000-e0003fff : 0000:00:09.0
+e0100000-e01fffff : PCI Bus #01
+  e0100000-e010ffff : 0000:01:00.0
+  e0120000-e013ffff : 0000:01:00.0
+e8000000-efffffff : PCI Bus #01
+  e8000000-efffffff : 0000:01:00.0
+    e8000000-e9ffffff : vesafb
+f0000000-f7ffffff : 0000:00:00.0
+fffc0000-ffffffff : reserved
+
+
+
+
+lspci -vvv
+00:00.0 Host bridge: ALi Corporation M1671 Super P4 Northbridge 
+[AGP4X,PCI and SDR/DDR] (rev 02)
+        Subsystem: Hewlett-Packard Company: Unknown device 0027
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR+
+        Latency: 0
+        Region 0: Memory at f0000000 (32-bit, prefetchable) [size=128M]
+        Capabilities: <available only to root>
+
+00:01.0 PCI bridge: ALi Corporation PCI to AGP Controller (prog-if 00 
+[Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 00009000-00009fff
+        Memory behind bridge: e0100000-e01fffff
+        Prefetchable memory behind bridge: e8000000-efffffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03) 
+(prog-if 10 [OHCI])
+        Subsystem: Hewlett-Packard Company: Unknown device 0027
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (20000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at e0000000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: <available only to root>
+
+00:04.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link 
+Controller Audio Device (rev 02)
+        Subsystem: Hewlett-Packard Company: Unknown device 0027
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR+ <PERR+
+        Latency: 64 (500ns min, 6000ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at 1000 [size=256]
+        Region 1: Memory at e0001000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: <available only to root>
+
+00:06.0 Bridge: ALi Corporation M7101 Power Management Controller [PMU]
+        Subsystem: Hewlett-Packard Company: Unknown device 0027
+        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+
+00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
+        Subsystem: Hewlett-Packard Company: Unknown device 0027
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Capabilities: <available only to root>
+
+00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+        Subsystem: Hewlett-Packard Company: Unknown device 0027
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (8000ns min, 16000ns max)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at 1400 [size=256]
+        Region 1: Memory at e0002000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: <available only to root>
+
+00:09.0 Network controller: Intersil Corporation Prism 2.5 Wavelan 
+chipset (rev 01)
+        Subsystem: Actiontec Electronics Inc: Unknown device 1406
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at e0003000 (32-bit, prefetchable) [size=4K]
+        Capabilities: <available only to root>
+
+00:0a.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus 
+Controller (rev 02)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168, cache line size 20
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at 34000000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+        Memory window 0: 30000000-31fff000 (prefetchable)
+        Memory window 1: 32000000-33fff000
+        I/O window 0: 00001c00-00001cff
+        I/O window 1: 00002000-000020ff
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ 
+PostWrite+
+
+00:0b.0 Communication controller: ESS Technology ES2838/2839 SuperLink 
+Modem (rev 01)
+        Subsystem: Hewlett-Packard Company: Unknown device 0020
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at 1800 [size=16]
+        Capabilities: <available only to root>
+
+00:0f.0 IDE interface: ALi Corporation M5229 IDE (rev c4) (prog-if fa)
+        Subsystem: Hewlett-Packard Company: Unknown device 0027
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (500ns min, 1000ns max)
+        Interrupt: pin A routed to IRQ 255
+        Region 4: I/O ports at 1810 [size=16]
+        Capabilities: <available only to root>
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility 
+M6 LY (prog-if 00 [VGA])
+        Subsystem: Hewlett-Packard Company: Unknown device 0027
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping+ SERR+ FastB2B+
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 66 (2000ns min), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e8000000 (32-bit, prefetchable) [size=128M]
+        Region 1: I/O ports at 9000 [size=256]
+        Region 2: Memory at e0100000 (32-bit, non-prefetchable) [size=64K]
+        Expansion ROM at e0120000 [disabled] [size=128K]
+        Capabilities: <available only to root>
+
+
+
+
+cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 Mobile CPU 1.40GHz
+stepping        : 4
+cpu MHz         : 1400.000
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca 
+cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 2802.66
+
+
+
+
+My distro is Mandriva 2005 with Xorg 6.8.2.
+
+This problem also appeared on another computer with Madriva 2007 and 
+Xorg 7.1 - same kernel 2.6.18.
 

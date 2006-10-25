@@ -1,108 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423347AbWJYMEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423366AbWJYMH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423347AbWJYMEh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 08:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423358AbWJYMEh
+	id S1423366AbWJYMH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 08:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423367AbWJYMH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 08:04:37 -0400
-Received: from ausmtp06.au.ibm.com ([202.81.18.155]:64423 "EHLO
-	ausmtp06.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1423347AbWJYMEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 08:04:36 -0400
-Message-ID: <453F06A1.6040101@in.ibm.com>
-Date: Wed, 25 Oct 2006 12:09:29 +0530
-From: Srinivasa Ds <srinivasa@in.ibm.com>
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: Mark Fasheh <mark.fasheh@oracle.com>
-CC: linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Joel Becker <Joel.Becker@oracle.com>
-Subject: Re: Issues with possible recursive locking
-References: <4535A89E.9070609@in.ibm.com> <20061019165338.GC10128@ca-server1.us.oracle.com>
-In-Reply-To: <20061019165338.GC10128@ca-server1.us.oracle.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Oct 2006 08:07:56 -0400
+Received: from ns2.tasking.nl ([195.193.207.10]:22099 "EHLO ns2.tasking.nl")
+	by vger.kernel.org with ESMTP id S1423366AbWJYMHz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 08:07:55 -0400
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@altium.nl (Dick Streefland)
+Organization: Altium BV
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <3d6d.453f3a0f.92d2c@altium.nl> <1161755164.22582.60.camel@localhost.localdomain> <3d6d.453f3a0f.92d2c@altium.nl> <Pine.LNX.4.61.0610251336580.23137@yvahk01.tjqt.qr>
+From: dick.streefland@altium.nl (Dick Streefland)
+Subject: Re: What about make mergeconfig ?
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <31ed.453f5399.96651@altium.nl>
+Date: Wed, 25 Oct 2006 12:07:53 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Fasheh wrote:
-> On Wed, Oct 18, 2006 at 09:37:58AM +0530, Srinivasa Ds wrote:
->   
->> When I was removing dlm module,I hit in to below error.
->>     
-> This patch should take care of that particular warning, please let me know
-> if it doesn't. I'll carry it in ocfs2.git shortly.
->   
-Thanks Mark,It worked fine for me.
-> Hmm, I get other warnings from configfs starting and stopping the ocfs2
-> cluster stack, so I bet we've got some more mutex_lock() calls in there to
-> change to mutex_lock_nested():
->
-> [ INFO: possible recursive locking detected ]
-> 2.6.19-rc2 #1
-> ---------------------------------------------
-> o2cb_ctl/2457 is trying to acquire lock:
->  (&inode->i_mutex){--..}, at: [<c02ff984>] mutex_lock+0x21/0x24
->
-> but task is already holding lock:
->  (&inode->i_mutex){--..}, at: [<c02ff984>] mutex_lock+0x21/0x24
->
-> other info that might help us debug this:
-> 2 locks held by o2cb_ctl/2457:
->  #0:  (&inode->i_mutex/1){--..}, at: [<c0177194>] lookup_create+0x1d/0x73
->  #1:  (&inode->i_mutex){--..}, at: [<c02ff984>] mutex_lock+0x21/0x24
->
-> stack backtrace:
->  [<c0104d0a>] dump_trace+0x64/0x1c2
->  [<c0104e7a>] show_trace_log_lvl+0x12/0x25
->  [<c01053c6>] show_trace+0xd/0x10
->  [<c01054dc>] dump_stack+0x19/0x1b
->  [<c013c7bb>] __lock_acquire+0x6c6/0x8e3
->  [<c013cf1b>] lock_acquire+0x4b/0x6c
->  [<c02ff81d>] __mutex_lock_slowpath+0xb0/0x1f6
->  [<c02ff984>] mutex_lock+0x21/0x24
->  [<f8aa2800>] configfs_add_file+0x36/0x60 [configfs]
->  [<f8aa285f>] configfs_create_file+0x35/0x38 [configfs]
->  [<f8aa3260>] configfs_attach_item+0x13d/0x180 [configfs]
->  [<f8aa32b7>] configfs_attach_group+0x14/0x154 [configfs]
->  [<f8aa3377>] configfs_attach_group+0xd4/0x154 [configfs]
->  [<f8aa3d8b>] configfs_mkdir+0x1b2/0x287 [configfs]
->  [<c017666a>] vfs_mkdir+0xca/0x131
->  [<c0178c8d>] sys_mkdirat+0x88/0xbb
->  [<c0178cd0>] sys_mkdir+0x10/0x12
->  [<c0103e2b>] syscall_call+0x7/0xb
-> 	--Mark
->
->
-> configfs: mutex_lock_nested() fix
->
-> configfs_unregister_subsystem() nests a pair of inode i_mutex acquisitions,
-> and thus needs annotation via mutex_lock_nested().
->
-> Signed-off-by: Mark Fasheh <mark.fasheh@oracle.com>
->
-> diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-> index 8a3b6a1..452cfd1 100644
-> --- a/fs/configfs/dir.c
-> +++ b/fs/configfs/dir.c
-> @@ -1176,8 +1176,9 @@ void configfs_unregister_subsystem(struc
->  		return;
->  	}
->  
-> -	mutex_lock(&configfs_sb->s_root->d_inode->i_mutex);
-> -	mutex_lock(&dentry->d_inode->i_mutex);
-> +	mutex_lock_nested(&configfs_sb->s_root->d_inode->i_mutex,
-> +			  I_MUTEX_PARENT);
-> +	mutex_lock_nested(&dentry->d_inode->i_mutex, I_MUTEX_CHILD);
->  	if (configfs_detach_prep(dentry)) {
->  		printk(KERN_ERR "configfs: Tried to unregister non-empty subsystem!\n");
->  	}
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->   
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+| >Can't you do that with just a sort command?
+| >
+| >  sort .config other.config > new.config
+| 
+| That does not work where .config and other.config have the same symbol 
+| listed, kconfig will bark and use the first value encountered. Because I 
+| do have exactly that problem with my patch series (changes some Ys to 
+| Ms), I am in need of the following patch to Kconfig TDTRT.
+
+Or you can use the following hack:
+
+  (sort .config other.config; echo set) | sh | grep ^CONFIG_ > new.config
+
+-- 
+Dick Streefland                      ////                      Altium BV
+dick.streefland@altium.nl           (@ @)          http://www.altium.com
+--------------------------------oOO--(_)--OOo---------------------------
 

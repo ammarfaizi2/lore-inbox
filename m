@@ -1,67 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965248AbWJYWpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWJYWsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965248AbWJYWpa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 18:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbWJYWpa
+	id S1161026AbWJYWsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 18:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWJYWsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 18:45:30 -0400
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:27792 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S965248AbWJYWp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 18:45:29 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.4.3.3
-cc: linux-kernel@vger.kernel.org
-Date: Wed, 25 Oct 2006 15:45:27 -0700
-Message-ID: <7v7iyokoag.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Wed, 25 Oct 2006 18:48:09 -0400
+Received: from 66-117-159-244.lmi.net ([66.117.159.244]:31180 "EHLO slick.org")
+	by vger.kernel.org with ESMTP id S1161026AbWJYWsI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 18:48:08 -0400
+Message-ID: <453FE9C4.1090504@imvu.com>
+Date: Wed, 25 Oct 2006 15:48:36 -0700
+From: "Brett G. Durrett" <brett@imvu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "David N. Welton" <d.welton@webster.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: megaraid_sas waiting for command and then offline
+References: <453F2454.1000707@webster.it>
+In-Reply-To: <453F2454.1000707@webster.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest maintenance release GIT 1.4.3.3 is available at the
-usual places:
 
-  http://www.kernel.org/pub/software/scm/git/
+David,
 
-  git-1.4.3.3.tar.{gz,bz2}			(tarball)
-  git-htmldocs-1.4.3.3.tar.{gz,bz2}		(preformatted docs)
-  git-manpages-1.4.3.3.tar.{gz,bz2}		(preformatted docs)
-  RPMS/$arch/git-*-1.4.3.3-1.$arch.rpm	(RPM)
+We switched to 2.6.18 (SMP) and applied the latest patches from LSI (got 
+them directly from Sumant Patro).  Also, he told me to make sure "read 
+ahead" was set to "off".  This seems to have reduced the frequency of 
+the failures to about once per week (across 10+ machines), down from 
+several times per week.
 
-Sorry to be doing three follow-up releases in a row.  This is
-primarily fix the partitioning of programs in generated RPM.  If
-you are installing all of git it does not matter, but by mistake
-we were placing git-archive into git-arch subpackage, which
-meant that you need to install tla only to use git-tar-tree and
-git-archive --format=zip.
+After I reported an additional failure, Sumant said they were able to 
+reproduce the problems with XFS but they have not seen it with EXT3.  I 
+prefer XFS but I prefer to have reliable databases even more...
 
-Thanks for Gerrit for noticing and reporting it, although he is
-from Debian camp ;-).
+I now have a couple of systems running in the new configuration and I am 
+slowly migrating others to it as well.  I have not seen a failure with 
+EXT3 but I statistically it would have been unlikely... I won't declare 
+victory until I have more systems converted with a few weeks of reliable 
+use.
 
-----------------------------------------------------------------
+Hope this helps... if anybody solves the root cause I will happily offer 
+them a small gift to show my gratitude.
 
-Changes since v1.4.3.2 are as follows:
-
-Eric Wong (1):
-      git-svn: fix symlink-to-file changes when using command-line svn 1.4.0
-
-Gerrit Pape (1):
-      Set $HOME for selftests
-
-Junio C Hamano (5):
-      Documentation: note about contrib/.
-      RPM package re-classification.
-      Refer to git-rev-parse:Specifying Revisions from git.txt
-      Update cherry documentation.
-      Documentation/SubmittingPatches: 3+1 != 6
-
-Petr Baudis (1):
-      xdiff: Match GNU diff behaviour when deciding hunk comment worthiness of lines
-
-Tuncer Ayaz (1):
-      git-fetch.sh printed protocol fix
+B-
 
 
+
+David N. Welton wrote:
+
+>Hi,
+>
+>I found someone corresponding to your name writing about a problem with
+>the megaraid sas driver/hardware on the LKML:
+>
+>http://lkml.org/lkml/2006/9/6/12
+>
+>We have a Dell (2950, running 2.6.18 #1 SMP) as well, and the way I
+>managed to kill the thing dead in its tracks (symptoms basically what
+>you you describe) is with smartctl:
+>
+>root@salgari:~# smartctl --all /dev/sda
+>smartctl version 5.34 [i686-pc-linux-gnu] Copyright (C) 2002-5 Bruce Allen
+>Home page is http://smartmontools.sourceforge.net/
+>
+>Device: DELL     PERC 5/i         Version: 1.00
+>Device type: disk
+>Local Time is: Wed Oct 25 10:14:40 2006 CEST
+>Device does not support SMART
+>
+>Error Counter logging not supported
+>
+>
+>Device does not support Self Test logging
+>
+>----
+>
+>[61101.681857] sd 0:2:0:0: rejecting I/O to offline device
+>[61101.681944] EXT3-fs error (device sda1): ext3_readdir: directory
+>#7553069 contains a hole at offset 0
+>[61103.944794] sd 0:2:0:0: rejecting I/O to offline device
+>[61103.944879] EXT3-fs error (device sda1): ext3_readdir: directory
+>#7553069 contains a hole at offset 0
+>[61104.672212] sd 0:2:0:0: rejecting I/O to offline device
+>[61104.672295] EXT3-fs error (device sda1): ext3_readdir: directory
+>#7553069 contains a hole at offset 0
+>[61105.255981] sd 0:2:0:0: rejecting I/O to offline device
+>[61105.256066] EXT3-fs error (device sda1): ext3_readdir: directory
+>#7553069 contains a hole at offset 0
+>
+>----
+>
+>Dead in the water.  We suspect that in any case there are some disk
+>problems, which is why we were trying to use smartctl in the first place.
+>
+>I was just curious if you managed to figure anything out...
+>
+>Thanks,
+>Dave Welton
+>  
+>

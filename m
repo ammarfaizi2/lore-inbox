@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422840AbWJYB1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422812AbWJYBa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422840AbWJYB1X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 21:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422819AbWJYB1W
+	id S1422812AbWJYBa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 21:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422819AbWJYBa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 21:27:22 -0400
-Received: from nic.NetDirect.CA ([216.16.235.2]:22453 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1422765AbWJYB1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 21:27:22 -0400
-X-Originating-Ip: 72.57.81.197
-Date: Tue, 24 Oct 2006 21:25:30 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: trivial@kernel.org
-Subject: [PATCH] sched.c: correct typoes in this_rq_lock() comment.
-Message-ID: <Pine.LNX.4.64.0610242122500.28083@localhost.localdomain>
+	Tue, 24 Oct 2006 21:30:27 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20753 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422812AbWJYBa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 21:30:27 -0400
+Date: Wed, 25 Oct 2006 03:30:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>
+Subject: Re: linux-2.6.19-rc2 tg3 problem
+Message-ID: <20061025013022.GG27968@stusta.de>
+References: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 23, 2006 at 11:24:14PM +0800, Jeff Chua wrote:
+> I'm getting this error on with linux 2.6.19-rc2 with tg3 module, even
+> with patching to v3.66 ...
+> 
+> tg3.c:v3.67 (October 18, 2006)
+> ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+> tg3: Cannot find proper PCI device base address, aborting.
+> ACPI: PCI Interrupt for device 0000:02:00.0 disabled
+> 
+> The last version 2.6.18-rc2 works fine. h/w is Dell Optiplex GX620.
 
-Correct the comment preceding this_rq_lock() so that it matches the
-actual function name and purpose.
+Known issue, can you confirm the patches below fix it for you?
 
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
----
-diff --git a/kernel/sched.c b/kernel/sched.c
-index 3399701..8f3bdc3 100644
---- a/kernel/sched.c
-+++ b/kernel/sched.c
-@@ -547,7 +547,7 @@ # define schedstat_add(rq, field, amt)	d
- #endif
+Subject    : "ACPI: PCI interrupt for device ... disabled"
+References : http://lkml.org/lkml/2006/10/21/227
+             http://lkml.org/lkml/2006/10/23/89
+Submitter  : Muli Ben-Yehuda <muli@il.ibm.com>
+             Gleb Natapov <glebn@voltaire.com>
+Caused-By  : Yinghai Lu <yinghai.lu@amd.com>
+             commit 45edfd1db02f818b3dc7e4743ee8585af6b78f78
+Handled-By : Eric W. Biederman <ebiederm@xmission.com>
+Patch      : http://marc.theaimsgroup.com/?l=linux-kernel&m=116157813623508&w=2
+             http://marc.theaimsgroup.com/?l=linux-kernel&m=116157837104613&w=2
+Status     : patches available
 
- /*
-- * rq_lock - lock a given runqueue and disable interrupts.
-+ * this_rq_lock - lock the current runqueue and disable interrupts.
-  */
- static inline struct rq *this_rq_lock(void)
- 	__acquires(rq->lock)
+> Jeff.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

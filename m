@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161373AbWJYTHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161374AbWJYTJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161373AbWJYTHB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 15:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161367AbWJYTHB
+	id S1161374AbWJYTJX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 15:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161376AbWJYTJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 15:07:01 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:26326 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1422746AbWJYTHA (ORCPT
+	Wed, 25 Oct 2006 15:09:22 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:38326 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1161374AbWJYTJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 15:07:00 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Date: Wed, 25 Oct 2006 21:05:56 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, David Chinner <dgc@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610251432.41958.rjw@sisk.pl> <1161782620.3638.0.camel@nigel.suspend2.net>
-In-Reply-To: <1161782620.3638.0.camel@nigel.suspend2.net>
+	Wed, 25 Oct 2006 15:09:22 -0400
+Message-ID: <453FB661.3020607@perkel.com>
+Date: Wed, 25 Oct 2006 12:09:21 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Frustrated with Linux, Asus, and nVidia, and AMD
+References: <453EEE46.9040600@perkel.com> <p73vem8kyuv.fsf@verdi.suse.de>
+In-Reply-To: <p73vem8kyuv.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610252105.56862.rjw@sisk.pl>
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 25 October 2006 15:23, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Wed, 2006-10-25 at 14:32 +0200, Rafael J. Wysocki wrote:
-> > On Wednesday, 25 October 2006 10:47, Pavel Machek wrote:
-> > > On Wed 2006-10-25 18:38:30, David Chinner wrote:
-> > > > On Wed, Oct 25, 2006 at 10:10:01AM +0200, Pavel Machek wrote:
-> > > > > > Hence the only way to correctly rebuild the XFS state on resume is
-> > > > > > to quiesce the filesystem on suspend and thaw it on resume so as to
-> > > > > > trigger log recovery.
-> > > > > 
-> > > > > No, during suspend/resume, memory image is saved, and no state is
-> > > > > lost. We would not even have to do sys_sync(), and suspend/resume
-> > > > > would still work properly.
-> > > > 
-> > > > It seems to me that you ensure the filesystem is synced to disk and
-> > > > then at some point later you record the memory state of the
-> > > > filesystem, but these happen at different times. That leaves a
-> > > > window for things to get out of sync again, right?
-> > > 
-> > > I DO NOT HAVE TO ENSURE FILESYSTEM IS SYNCED. That sys_sync() is
-> > > optional.
-> > > 
-> > > Recording of memory state is atomic, and as long as noone writes to
-> > > the disk after atomic snapshot, memory image matches what is on disk.
-> > 
-> > Well, my impression is that this is exactly what happens here: Something
-> > in the XFS code causes metadata to be written to disk _after_ the atomic
-> > snapshot.
-> > 
-> > That's why I asked if the dirty XFS metadata were flushed by a kernel thread.
-> 
-> When I first added bdev freezing it was because there was an XFS timer
-> doing writes.
-
-Yes, I noticed you said that, but I'd like someone from the XFS team to either
-confirm or deny it.
-
-Greetings,
-Rafael
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Andi Kleen wrote:
+> Marc Perkel <marc@perkel.com> writes:
+>
+>   
+>> Ok - I had a bad day today struggling with hardware. Having said that
+>> I'm somewhat frustrated with the lack of progress of Linux getting it
+>> right with Asus, nVidia, and AMD processors right.
+>>
+>> I still have to run pci=nommconf to keep the server from locking
+>> up. That's with both 939 pin and AM2 motherboards.
+>>
+>> This bug remains unresolved:
+>>
+>> http://bugzilla.kernel.org/show_bug.cgi?id=6975
+>>
+>> So what's up with the no progress?
+>>     
+>
+> The bug report only references ancient kernels (2.6.15, 2.6.17) How do you know there is no
+> progress?
+>
+> -Andi
+>   
+As of the 2.6.18 released kernel I still had to modify the source code 
+to keep the kernel from locking up on boot. I haven't tried it with 
+2.6.19rcx yet.
+

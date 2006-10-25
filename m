@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161372AbWJYTDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWJYTE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161372AbWJYTDB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 15:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161374AbWJYTDB
+	id S1422658AbWJYTE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 15:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422669AbWJYTE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 15:03:01 -0400
-Received: from mx1.suse.de ([195.135.220.2]:3531 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161372AbWJYTDA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 15:03:00 -0400
-To: Joe Korty <joe.korty@ccur.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] strange work_notifysig code since 2.6.16
-References: <20061024231921.GA25130@tsunami.ccur.com>
-	<20061025054806.GP6412@waste.org>
-	<20061025142923.GA20833@tsunami.ccur.com>
-From: Andi Kleen <ak@suse.de>
-Date: 25 Oct 2006 21:02:58 +0200
-In-Reply-To: <20061025142923.GA20833@tsunami.ccur.com>
-Message-ID: <p73r6wwkyl9.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 25 Oct 2006 15:04:28 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:23510 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1422658AbWJYTE1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 15:04:27 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Radim =?iso-8859-2?q?Lu=BEa?= <xluzar00@stud.fit.vutbr.cz>
+Subject: Re: suspend to disk -> resume -> X with DRI extension on R100 chips hangs
+Date: Wed, 25 Oct 2006 21:03:47 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <453F01CF.2040106@eva.fit.vutbr.cz>
+In-Reply-To: <453F01CF.2040106@eva.fit.vutbr.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610252103.47886.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Korty <joe.korty@ccur.com> writes:
+Hi,
 
-> > I suspect this won't link with CONFIG_VM86 disabled because save_v86_state
-> > goes away. I think we just need to move the #endif up a few lines.
+On Wednesday, 25 October 2006 08:18, Radim Lu¾a wrote:
+> Good morning
 > 
-> Hi Matt,
-> Since that also makes the 'then' and 'else' branches identical, perhaps
-> this patch would be better .. it eliminates the VM86 test entirely when
-> CONFIG_VM86=n.
-> 
-> Boot tested with CONFIG_VM86=y.
+> I noticed following problem:
+> After resuming from suspend to disk Xorg with DRI switched on hangs. 
+> System is not affected by Xorg hang. If I login via SSH I can kill X 
+> server and start it again - with same result. X server hangs even after 
+> I suspend from text mode with X not running and with unloaded modules 
+> radeon and drm and resume then and try to start X server. With DRI 
+> switched off in xorg.conf X resumes correctly.
 
-Added.
+Well, I think you'll need to file a bug repart at http://bugzilla.kernel.org
+(please add rjwysocki@sisk.pl to the Cc list).
 
--Andi
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

@@ -1,79 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422892AbWJYC1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422810AbWJYCjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422892AbWJYC1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 22:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422893AbWJYC1R
+	id S1422810AbWJYCjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 22:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422894AbWJYCjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 22:27:17 -0400
-Received: from web18614.mail.tpe.yahoo.com ([203.84.195.111]:16508 "HELO
-	web18614.mail.tpe.yahoo.com") by vger.kernel.org with SMTP
-	id S1422892AbWJYC1Q convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 22:27:16 -0400
+	Tue, 24 Oct 2006 22:39:16 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:45794 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1422810AbWJYCjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 22:39:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.tw;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=hWzPKFK9Q3RvHB6kIHLzQ0iCGyXUIxoArWsB5CtBGi0W0I+oXB6EbGWPIp5r0j8MKg18qqAIRxBb94JPMH+tGeLFUel4YpuQ/VKBBFCth8YGjawGXGVZnUj8wdMJ39dc+HXDe2X/zk4M7u5Q9IJY6XHOuQzCPYvsib42HvS3jjM=  ;
-Message-ID: <20061025022713.69272.qmail@web18614.mail.tpe.yahoo.com>
-Date: Wed, 25 Oct 2006 10:27:13 +0800 (CST)
-From: animals hippo5329 <hippo5329@yahoo.com.tw>
-Subject: Subject: [PATCH] initramfs : handle more than one source dir or file
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=pdid/KeFNl8yz6qssdrBpRX85Dzj1YNKDamItMRSjRLk+5/4cHKs+ajp71MOuwoX03g/GL2apFpOXc/QAqY9xZg9lu6+hCxB42oZPsnx+sbnj7aSdIsoKMRoV2sCyk/7i2ZzXNecVJgKMMptijOT65reWWtLYOyd775v6W+Khkw=
+Date: Wed, 25 Oct 2006 11:39:14 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       David Rientjes <rientjes@cs.washington.edu>
+Subject: [PATCH] appletalk: handle errors during module_init
+Message-ID: <20061025023914.GA12488@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org, Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	David Rientjes <rientjes@cs.washington.edu>
+References: <20061024085357.GB7703@localhost> <20061024102711.GA27382@martell.zuzino.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061024102711.GA27382@martell.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 24, 2006 at 02:27:11PM +0400, Alexey Dobriyan wrote:
 
-From: Thomas Chou <hippo5329@yahoo.com.tw>
+> Make sure that module won't load if sysctl table can't be registered,
+> instead.
 
-Handle more than one source dir or filelist to the initramfs gen scripts.
+I fixed the patch to do so and handle another errors, too.
 
-Signed-off-by: Thomas Chou <hippo5329@yahoo.com.tw>
----
-Bug ID 7401
+Subject: [PATCH] appletalk: handle errors during module_init
 
-diff -uprN -X linux-2.6.19-rc3-vanilla/Documentation/dontdiff linux-2.6.19-rc3-vanilla/scripts/gen_initramfs_list.sh linux-2.6.19-rc3/scripts/gen_initramfs_list.sh
---- linux-2.6.19-rc3-vanilla/scripts/gen_initramfs_list.sh	2006-09-20 11:42:06.000000000 +0800
-+++ linux-2.6.19-rc3/scripts/gen_initramfs_list.sh	2006-10-25 09:59:28.000000000 +0800
-@@ -158,7 +158,7 @@ unknown_option() {
+This patch makes aarp_proto_init() and atalk_register_sysctl()
+return error value to catch ENOMEM errors from module init call.
+Then it handles several errors in module_init and makes happen fail.
+
+Also unnessesary SYSCTL ifdef in module_cleanup was removed.
+
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+
+ include/linux/atalk.h            |    6 ++---
+ net/appletalk/aarp.c             |   12 ++++++----
+ net/appletalk/ddp.c              |   45 ++++++++++++++++++++++++++++++++-------
+ net/appletalk/sysctl_net_atalk.c |    3 +-
+ 4 files changed, 49 insertions(+), 17 deletions(-)
+
+Index: work-fault-inject/net/appletalk/sysctl_net_atalk.c
+===================================================================
+--- work-fault-inject.orig/net/appletalk/sysctl_net_atalk.c
++++ work-fault-inject/net/appletalk/sysctl_net_atalk.c
+@@ -71,9 +71,10 @@ static struct ctl_table atalk_root_table
+ 
+ static struct ctl_table_header *atalk_table_header;
+ 
+-void atalk_register_sysctl(void)
++int atalk_register_sysctl(void)
+ {
+ 	atalk_table_header = register_sysctl_table(atalk_root_table, 1);
++	return (atalk_table_header == NULL) ? -ENOMEM : 0;
  }
  
- list_header() {
--	echo "deps_initramfs := \\"
-+       return 0;
+ void atalk_unregister_sysctl(void)
+Index: work-fault-inject/net/appletalk/ddp.c
+===================================================================
+--- work-fault-inject.orig/net/appletalk/ddp.c
++++ work-fault-inject/net/appletalk/ddp.c
+@@ -1871,21 +1871,52 @@ static int __init atalk_init(void)
+ {
+ 	int rc = proto_register(&ddp_proto, 0);
+ 
+-	if (rc != 0)
++	if (rc)
+ 		goto out;
+ 
+-	(void)sock_register(&atalk_family_ops);
++	rc = sock_register(&atalk_family_ops);
++	if (rc)
++		goto out1;
++
+ 	ddp_dl = register_snap_client(ddp_snap_id, atalk_rcv);
+-	if (!ddp_dl)
++	if (!ddp_dl) {
+ 		printk(atalk_err_snap);
++		rc = -ENOMEM;
++		goto out2;
++	}
+ 
+ 	dev_add_pack(&ltalk_packet_type);
+ 	dev_add_pack(&ppptalk_packet_type);
+ 
+ 	register_netdevice_notifier(&ddp_notifier);
+-	aarp_proto_init();
+-	atalk_proc_init();
+-	atalk_register_sysctl();
++
++	rc = aarp_proto_init();
++	if (rc)
++		goto out3;
++
++	rc = atalk_proc_init();
++	if (rc)
++		goto out4;
++
++	rc = atalk_register_sysctl();
++	if (rc)
++		goto out5;
++
++	return 0;
++
++out5:
++	atalk_proc_exit();
++out4:
++	aarp_cleanup_module();	/* General aarp clean-up. */
++out3:
++	unregister_netdevice_notifier(&ddp_notifier);
++	dev_remove_pack(&ltalk_packet_type);
++	dev_remove_pack(&ppptalk_packet_type);
++	unregister_snap_client(ddp_dl);
++out2:
++	sock_unregister(PF_APPLETALK);
++out1:
++	proto_unregister(&ddp_proto);
+ out:
+ 	return rc;
+ }
+@@ -1902,9 +1933,7 @@ module_init(atalk_init);
+  */
+ static void __exit atalk_exit(void)
+ {
+-#ifdef CONFIG_SYSCTL
+ 	atalk_unregister_sysctl();
+-#endif /* CONFIG_SYSCTL */
+ 	atalk_proc_exit();
+ 	aarp_cleanup_module();	/* General aarp clean-up. */
+ 	unregister_netdevice_notifier(&ddp_notifier);
+Index: work-fault-inject/include/linux/atalk.h
+===================================================================
+--- work-fault-inject.orig/include/linux/atalk.h
++++ work-fault-inject/include/linux/atalk.h
+@@ -147,7 +147,7 @@ static __inline__ struct elapaarp *aarp_
+ #define AARP_RESOLVE_TIME	(10 * HZ)
+ 
+ extern struct datalink_proto *ddp_dl, *aarp_dl;
+-extern void aarp_proto_init(void);
++extern int aarp_proto_init(void);
+ 
+ /* Inter module exports */
+ 
+@@ -190,10 +190,10 @@ extern int sysctl_aarp_retransmit_limit;
+ extern int sysctl_aarp_resolve_time;
+ 
+ #ifdef CONFIG_SYSCTL
+-extern void atalk_register_sysctl(void);
++extern int atalk_register_sysctl(void);
+ extern void atalk_unregister_sysctl(void);
+ #else
+-#define atalk_register_sysctl()		do { } while(0)
++#define atalk_register_sysctl()		({ 0; })
+ #define atalk_unregister_sysctl()	do { } while(0)
+ #endif
+ 
+Index: work-fault-inject/net/appletalk/aarp.c
+===================================================================
+--- work-fault-inject.orig/net/appletalk/aarp.c
++++ work-fault-inject/net/appletalk/aarp.c
+@@ -858,17 +858,19 @@ static struct notifier_block aarp_notifi
+ 
+ static unsigned char aarp_snap_id[] = { 0x00, 0x00, 0x00, 0x80, 0xF3 };
+ 
+-void __init aarp_proto_init(void)
++int __init aarp_proto_init(void)
+ {
+ 	aarp_dl = register_snap_client(aarp_snap_id, aarp_rcv);
+-	if (!aarp_dl)
++	if (!aarp_dl) {
+ 		printk(KERN_CRIT "Unable to register AARP with SNAP.\n");
+-	init_timer(&aarp_timer);
+-	aarp_timer.function = aarp_expire_timeout;
+-	aarp_timer.data	    = 0;
++		return -ENOMEM;
++	}
++	setup_timer(&aarp_timer, aarp_expire_timeout, 0);
+ 	aarp_timer.expires  = jiffies + sysctl_aarp_expiry_time;
+ 	add_timer(&aarp_timer);
+ 	register_netdevice_notifier(&aarp_notifier);
++
++	return 0;
  }
  
- header() {
-@@ -227,6 +227,7 @@ arg="$1"
- case "$arg" in
- 	"-l")	# files included in initramfs - used by kbuild
- 		dep_list="list_"
-+		echo "deps_initramfs := \\"
- 		shift
- 		;;
- 	"-o")	# generate gzipped cpio image named $1
-diff -uprN -X linux-2.6.19-rc3-vanilla/Documentation/dontdiff linux-2.6.19-rc3-vanilla/usr/Makefile linux-2.6.19-rc3/usr/Makefile
---- linux-2.6.19-rc3-vanilla/usr/Makefile	2006-10-25 09:53:54.000000000 +0800
-+++ linux-2.6.19-rc3/usr/Makefile	2006-10-25 09:58:41.000000000 +0800
-@@ -20,7 +20,7 @@ $(obj)/initramfs_data.o: $(obj)/initramf
- hostprogs-y := gen_init_cpio
- initramfs   := $(CONFIG_SHELL) $(srctree)/scripts/gen_initramfs_list.sh
- ramfs-input := $(if $(filter-out "",$(CONFIG_INITRAMFS_SOURCE)), \
--                    $(CONFIG_INITRAMFS_SOURCE),-d)
-+                    $(shell echo $(CONFIG_INITRAMFS_SOURCE)),-d)
- ramfs-args  := \
-         $(if $(CONFIG_INITRAMFS_ROOT_UID), -u $(CONFIG_INITRAMFS_ROOT_UID)) \
-         $(if $(CONFIG_INITRAMFS_ROOT_GID), -g $(CONFIG_INITRAMFS_ROOT_GID))
-
-
-
-
-
-
-
-___________________________________________________ 
- 您的生活即時通 － 溝通、娛樂、生活、工作一次搞定！ 
- http://messenger.yahoo.com.tw/
+ /* Remove the AARP entries associated with a device. */

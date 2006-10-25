@@ -1,85 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751718AbWJYO3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030457AbWJYOei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751718AbWJYO3h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 10:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWJYO3h
+	id S1030457AbWJYOei (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 10:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWJYOei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 10:29:37 -0400
-Received: from flvpn.ccur.com ([66.10.65.2]:7030 "EHLO gamx.iccur.com")
-	by vger.kernel.org with ESMTP id S1751718AbWJYO3g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 10:29:36 -0400
-Date: Wed, 25 Oct 2006 10:29:23 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] strange work_notifysig code since 2.6.16
-Message-ID: <20061025142923.GA20833@tsunami.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-References: <20061024231921.GA25130@tsunami.ccur.com> <20061025054806.GP6412@waste.org>
+	Wed, 25 Oct 2006 10:34:38 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15371 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1030457AbWJYOeh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 10:34:37 -0400
+Date: Wed, 25 Oct 2006 10:45:28 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, olpc-dev@laptop.org, davidz@redhat.com,
+       greg@kroah.com, mjg59@srcf.ucam.org, len.brown@intel.com,
+       sfr@canb.auug.org.au, benh@kernel.crashing.org
+Subject: Re: Battery class driver.
+Message-ID: <20061025104528.GC4835@ucw.cz>
+References: <1161627633.19446.387.camel@pmac.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061025054806.GP6412@waste.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1161627633.19446.387.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suspect this won't link with CONFIG_VM86 disabled because save_v86_state
-> goes away. I think we just need to move the #endif up a few lines.
+Hi!
 
-Hi Matt,
-Since that also makes the 'then' and 'else' branches identical, perhaps
-this patch would be better .. it eliminates the VM86 test entirely when
-CONFIG_VM86=n.
+> At git://git.infradead.org/battery-2.6.git there is an initial
+> implementation of a battery class, along with a driver which makes use
+> of it. The patch is below, and also viewable at 
+> http://git.infradead.org/?p=battery-2.6.git;a=commitdiff;h=master;hp=linus
 
-Boot tested with CONFIG_VM86=y.
+Thanks a lot for this work.
 
-Regards,
-Joe
+> I don't like the sysfs interaction much -- is it really necessary for me
+> to provide a separate function for each attribute, rather than a single
+> function which handles them all and is given the individual attribute as
+> an argument? That seems strange and bloated.
+> 
+> I'm half tempted to ditch the sysfs attributes and just use a single
+> seq_file, in fact.
 
-The entry.S code at work_notifysig is surely wrong.  It drops into unrelated
-code if the branch to work_notifysig_v86 is taken, and CONFIG_VM86=n.
+No, please don't.
 
-	[PATCH] Make vm86 support optional
-	tree 9b5daef5280800a0006343a17f63072658d91a1d
-	pushed to git Jan 8, 2006, and first appears in 2.6.16
-
-The 'fix' here is to also compile out the vm86 test & branch when
-CONFIG_VM86=n.
-
-Signed-off-by: Joe Korty <joe.korty@ccur.com>
-
-Index: 2.6.18.1/arch/i386/kernel/entry.S
-===================================================================
---- 2.6.18.1.orig/arch/i386/kernel/entry.S	2006-10-25 10:06:25.000000000 -0400
-+++ 2.6.18.1/arch/i386/kernel/entry.S	2006-10-25 10:10:38.000000000 -0400
-@@ -447,6 +447,7 @@
- 
- work_notifysig:				# deal with pending signals and
- 					# notify-resume requests
-+#ifdef CONFIG_VM86
- 	testl $VM_MASK, EFLAGS(%esp)
- 	movl %esp, %eax
- 	jne work_notifysig_v86		# returning to kernel-space or
-@@ -457,17 +458,18 @@
- 
- 	ALIGN
- work_notifysig_v86:
--#ifdef CONFIG_VM86
- 	pushl %ecx			# save ti_flags for do_notify_resume
- 	CFI_ADJUST_CFA_OFFSET 4
- 	call save_v86_state		# %eax contains pt_regs pointer
- 	popl %ecx
- 	CFI_ADJUST_CFA_OFFSET -4
- 	movl %eax, %esp
-+#else
-+	movl %esp, %eax
-+#endif
- 	xorl %edx, %edx
- 	call do_notify_resume
- 	jmp resume_userspace_sig
--#endif
- 
- 	# perform syscall exit tracing
- 	ALIGN
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

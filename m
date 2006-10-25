@@ -1,98 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423377AbWJYM0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423384AbWJYM2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423377AbWJYM0p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 08:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423384AbWJYM0p
+	id S1423384AbWJYM2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 08:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423385AbWJYM2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 08:26:45 -0400
-Received: from michelle.lostinspace.de ([62.146.248.226]:8920 "EHLO
-	michelle.lostinspace.de") by vger.kernel.org with ESMTP
-	id S1423377AbWJYM0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 08:26:44 -0400
-Date: Wed, 25 Oct 2006 14:26:10 +0200
-From: Matthias Fechner <idefix@fechner.net>
-To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Link lib to a kernel module
-Message-ID: <20061025122609.GA86838@server.idefix.loc>
-Reply-To: linux-kernel@vger.kernel.org
-Mail-Followup-To: kbuild-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20061024105518.GA55219@server.idefix.loc> <slrnejs14h.93p.olecom@flower.upol.cz>
+	Wed, 25 Oct 2006 08:28:17 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:58021 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423384AbWJYM2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 08:28:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index:message-id;
+        b=qugvETI61Z7AeS8dhG0kvJOikFWwel/FK1S/jjSORgWofD6ULbO12rphSSGcQ/9WRHSgtaDaEKK1Fl6CdxwflxVNCrhQIUGVJ5/XFCMaA1K7jkd+mP5L86MIkFaWJlFo/YBDX/INLAB9dysNPNf9nNsDeo5SDuUCJTuRPHUzgWs=
+From: "Michael" <michael.sallaway@gmail.com>
+To: <ray-gmail@madrabbit.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: Oops when doing disk heavy disk I/O
+Date: Wed, 25 Oct 2006 22:28:02 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrnejs14h.93p.olecom@flower.upol.cz>
-X-Crypto: GnuPG/1.0.6 http://www.gnupg.org
-X-GnuPG: 0x1B756EF6
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (michelle.lostinspace.de [62.146.248.226]); Wed, 25 Oct 2006 14:26:16 +0200 (CEST)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <2c0942db0610242112r738fe4ccg8702ef5175a7927c@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Thread-index: Acb369ILyGDeN2suRDG6/JMX6aQvWQARJidg
+Message-ID: <453f585d.299e45f8.4666.371b@mx.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Oleg,
+ 
 
-* Oleg Verych <olecom@flower.upol.cz> [24-10-06 12:11]:
-> `Documentation/kbuild' directory in your linux sources.
-> `makefiles.txt' about `lib-y',
-> `modules.txt'   about modules.
+> -----Original Message-----
+> From: Ray Lee [mailto:madrabbit@gmail.com] 
+> Sent: Wednesday, 25 October 2006 2:13 PM
+> 
+> Try swapping out the RAM (or getting it down to 1Gig). Try a really
+> old kernel, such as debian's 2.6.8 package.
+> 
+> Ray
 
-I was now successfull with:
-hello_lib.h:
-int printHello(int);
+Well, what do you know -- that seems to have fixed it! I took out one stick
+of RAM (so it's down to 1 gig) and it seems to work fine, now, without any
+boot parameters or anything. (mind you, murphy's law will dictate that it'll
+crash about 30 seconds after I send this...)
 
-hello_lib.c
-int printHello(int count)
-{
-   int i;
-      
-   for(i=0;i<=count;i++)
-   {
-       printk("Hello World\n");
-   }
-   return 0;
-}
-			   
-hello.c:
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include "hello_lib.h"
-   
-MODULE_LICENSE("GPL");
-			   
-int init_module(void)
-{
-    printk("call function\n");
-    printHello(5);
-    return 0;
-}
-				    
-void cleanup_module(void)
-{
-    printk(KERN_INFO "remove module\n");
-    return;
-}
-					  
-Makefile:
-KDIR    := /lib/modules/$(shell uname -r)/build
-PWD := $(shell pwd)
+I'm amazed at that -- but I'm not going to look a gift horse in the mouth,
+this has been frustrating me for far too long. :-)
 
-obj-m += test.o
-test-y := hello.o libhello_lib.a
+Although, having said that, I'm curious... It is working because there's
+only 1 gig of RAM in there, or because it's only a single stick (ie. not
+dual-channel)? It works fine with both sticks, individually, just not both
+together... I wonder what the cause of it actually is...
 
-all:
-   gcc -I/usr/include -c -o hello_lib.o hello_lib.c
-   rm -f libhello_lib.a
-   ar cru libhello_lib.a hello_lib.o
-   $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules KBUILD_VERBOSE=1
-	      
+Thanks heaps for the suggestion!
+
+Cheers,
+Michael
 
 
-Best regards,
-Matthias
 
--- 
-
-"Programming today is a race between software engineers striving to
-build bigger and better idiot-proof programs, and the universe trying to
-produce bigger and better idiots. So far, the universe is winning." --
-Rich Cook

@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422923AbWJYEAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422926AbWJYECJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422923AbWJYEAb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 00:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161339AbWJYEAb
+	id S1422926AbWJYECJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 00:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422924AbWJYECJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 00:00:31 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:31167 "EHLO
+	Wed, 25 Oct 2006 00:02:09 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:56259 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161338AbWJYEAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 00:00:30 -0400
+	id S1161338AbWJYECG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 00:02:06 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=ViqfzduZOsb07JnxLPxtbtIPgd5rCxrWAD+ilUNTtGiKOjFyLffCWJcDBCnv+wNt8fFcXJHdRfcx6tz2RsldPRsUlvM2P5G+QUZV9gt2QJm29AotrVuC6+GQuWsLw9S1BBXxriF/5KQLEAtOTR3Nwt60yKrmvL26l5SAGNY2xVk=
-Message-ID: <86802c440610242100gb1e3199lda1a2e1a7900ceb6@mail.gmail.com>
-Date: Tue, 24 Oct 2006 21:00:29 -0700
+        b=bVNTKrA6xHLNXeWMo7zlTPclXV3PqagHKdfsuop6Eu0f+wWU6i42HQpNxUzUvOXlvgg3W32DTzL87CbqbSupvKNrFfR2ZmbJVmRMnlt+hKLYf6PjnKpWiCsD63uQWbGMQMZWxrhO7Gf9Q7DdkSk/YzZq6CLopvCisO1ZZ61drY0=
+Message-ID: <86802c440610242102h8627eb5xd0f62bb0310ecd17@mail.gmail.com>
+Date: Tue, 24 Oct 2006 21:02:05 -0700
 From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Andi Kleen" <ak@muc.de>
-Subject: Re: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Muli Ben-Yehuda" <muli@il.ibm.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D75A@ssvlexmb2.amd.com>
+To: "Andi Kleen" <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Muli Ben-Yehuda" <muli@il.ibm.com>
+Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <86802c440610242046g6ef06fcexf8776b5009cea23@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <5986589C150B2F49A46483AC44C7BCA412D75A@ssvlexmb2.amd.com>
-X-Google-Sender-Auth: d6317eef19e8c76c
+References: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
+	 <86802c440610242046g6ef06fcexf8776b5009cea23@mail.gmail.com>
+X-Google-Sender-Auth: 8b33c82995bd6b93
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andi,
 
-I think this patch could be in your tree after Eric's tree is getting
-into mainstream.
+This could get into your tree.
 
 YH
 
-On 10/24/06, Lu, Yinghai <yinghai.lu@amd.com> wrote:
-> >From: Andi Kleen [mailto:ak@suse.de]
-> >Is that still needed with Eric's latest patches? I suppose not?
+On 10/24/06, Yinghai Lu <yinghai.lu@amd.com> wrote:
+> resend with gmail.
 >
-> It needs Eric's
+> Clear the irq releated entries in irq_vector, irq_domain and vector_irq
+> instead of clearing irq_vector only. So when new irq is created, it
+> could reuse that vector. (actually is the second loop scanning from
+> FIRST_DEVICE_VECTOR+8). This could avoid the vectors are used up
+> with enough module inserting and removing
 >
-> x86_64-irq-simplify-the-vector-allocator.patch
-> x86_64-irq-only-look-at-per_cpu-data-for-online-cpus.patch
+> Cc: Eric W. Biedierman <ebiederm@xmission.com>
+> Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
 >
-> Those two are in -mm tree now.
 >
-> Otherwise it can not be applied without FAIL.
->
-> YH
 >

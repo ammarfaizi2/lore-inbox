@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWJ1Eut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWJ1Ewh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbWJ1Eut (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 00:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWJ1Eut
+	id S1750888AbWJ1Ewh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 00:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWJ1Ewh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 00:50:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44724 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750814AbWJ1Eus (ORCPT
+	Sat, 28 Oct 2006 00:52:37 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5389 "EHLO spitz.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750888AbWJ1Ewg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 00:50:48 -0400
-Date: Fri, 27 Oct 2006 21:50:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Rusty Russell <rusty@rustcorp.com.au>,
-       virtualization <virtualization@lists.osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/4] Prep for paravirt: Be careful about touching BIOS
- address space
-Message-Id: <20061027215037.cd69b2a3.akpm@osdl.org>
-In-Reply-To: <4542DD84.3070006@goop.org>
-References: <1161920325.17807.29.camel@localhost.localdomain>
-	<1161920535.17807.33.camel@localhost.localdomain>
-	<20061027113001.GB8095@elf.ucw.cz>
-	<45427ABD.6070407@goop.org>
-	<20061027144157.f23fcf89.akpm@osdl.org>
-	<4542DD84.3070006@goop.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sat, 28 Oct 2006 00:52:36 -0400
+Date: Wed, 25 Oct 2006 16:51:17 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: swsusp initialized after SATA (was Re: swsusp APIC oopsen (was Re: swsusp ooms))
+Message-ID: <20061025165117.GD5675@ucw.cz>
+References: <200610132231.08643.rjw@sisk.pl> <20061013140000.329e8854.akpm@osdl.org> <200610132307.47162.rjw@sisk.pl> <20061014002504.1ab10ee9.akpm@osdl.org> <20061014004046.670ddd76.akpm@osdl.org> <20061014082237.GA3818@elf.ucw.cz> <20061014083227.GA3868@elf.ucw.cz> <20061014015109.0ff2c52f.akpm@osdl.org> <20061025104318.GA1743@elf.ucw.cz> <20061025084613.4776ef76.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061025084613.4776ef76.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006 21:33:08 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+Hi!
 
-> Andrew Morton wrote:
-> > It'd be better to use include/linux/uaccess.h:probe_kernel_address() for
-> > this operation.
-> >   
-> Ah, yes, that was the precedent I was thinking of,
+> > > > Sorry, I meant:
+> > > > 
+> > > > "sata is initialized *after* swsusp => bad".
+> > > 
+> > > Which patch made this change, and why?
+> > 
+> > CONFIG_PCI_MULTITHREAD_PROBE is the setting responsible, and IIRC
+> > that's Greg's code.
+> > 
+> > Now... what is the recommended way to wait for hard disks to become
+> > online?
+> 
+> The multithreaded probing is breaking (or at least altering) the initcall
+> ordering guarantees.  We should wait for all the probing kernel threads to
+> terminate after processing each initcall level.  
 
-We've done open-coded __get_user() in various places in the past.  The difference with
-probe_kernel_address() is that it doesn't get deadlocked on mmap_sem().
-
->  but I guess it would 
-> be better to just use it directly.  It's a relatively new interface, 
-> isn't it?
-
-Yeah.  New enough that nobody's tried using it on non-x86 ;) It needs
-to do set_fs(KERNEL_DS).
-
+Can I read that as 'problem is bigger than swsusp, so someone else
+(not Pavel :-) will solve it'?
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

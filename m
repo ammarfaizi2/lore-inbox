@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbWJYPSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWJYPYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030472AbWJYPSu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 11:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWJYPSu
+	id S1030473AbWJYPYo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 11:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWJYPYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 11:18:50 -0400
-Received: from attila.bofh.it ([213.92.8.2]:34001 "EHLO attila.bofh.it")
-	by vger.kernel.org with ESMTP id S1030472AbWJYPSt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 11:18:49 -0400
-Date: Wed, 25 Oct 2006 17:18:37 +0200
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Subject: Re: major 442
-Message-ID: <20061025151837.GB9999@wonderland.linux.it>
-Mail-Followup-To: md@Linux.IT, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-References: <20061025102030.GA5790@wonderland.linux.it> <20061025150846.GB23331@kroah.com>
+	Wed, 25 Oct 2006 11:24:44 -0400
+Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:31207 "EHLO
+	bipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1030473AbWJYPYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 11:24:43 -0400
+Message-ID: <453F81B6.3080205@grupopie.com>
+Date: Wed, 25 Oct 2006 16:24:38 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
-Content-Disposition: inline
-In-Reply-To: <20061025150846.GB23331@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: md@Linux.IT (Marco d'Itri)
+To: Michael <michael.sallaway@gmail.com>
+CC: ray-gmail@madrabbit.org, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Oops when doing disk heavy disk I/O
+References: <453f585d.299e45f8.4666.371b@mx.google.com>
+In-Reply-To: <453f585d.299e45f8.4666.371b@mx.google.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael wrote:
+>> From: Ray Lee [mailto:madrabbit@gmail.com] 
+>> Try swapping out the RAM (or getting it down to 1Gig). Try a really
+>> old kernel, such as debian's 2.6.8 package.
+> 
+> [...]
+> Although, having said that, I'm curious... It is working because there's
+> only 1 gig of RAM in there, or because it's only a single stick (ie. not
+> dual-channel)? It works fine with both sticks, individually, just not both
+> together... I wonder what the cause of it actually is...
 
---0eh6TmSyL6TZE2Uz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Another thing that I would try is to tweak the /proc/sys/vm/dirty_ratio 
+and /proc/sys/vm/dirty_background_ratio settings.
 
-On Oct 25, Greg KH <greg@kroah.com> wrote:
+pdflush appears in your trace and with twice the RAM there is twice the 
+dirty data to write out. Maybe choosing half the ratio in both settings 
+with 2Gb of RAM would produce the same amount of dirty data as using 
+just 1Gb of RAM with the original settings.
 
-> As for what is trying to load the module, I have no idea, it must be
-> some userspace tool...
-Found it... I had this experimental udev rule which puts the devices in
-/dev/bus/usb/ and pcscd keeps scanning the directory every second
-looking for Cthulhu knows what:
+This is still a bug, though. This test would just give more debug 
+information.
 
-SUBSYSTEM=3D=3D"usb_endpoint",      PROGRAM=3D"/bin/sh -c 'K=3D%k; E=3D$${K=
-#*_}; K=3D$${K#usbdev}; K=3D$${K%%%%_*}; printf bus/usb/%%03i/%%03i_%%s $${=
-K%%%%.*} $${K#*.} $$E'", \
-                                NAME=3D"%c"
+-- 
+Paulo "grasping at straws" Marques - www.grupopie.com
 
---=20
-ciao,
-Marco
-
---0eh6TmSyL6TZE2Uz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFP4BNFGfw2OHuP7ERAjnyAJ9OtjMSRU7ij9qgOGBy3x0tCATOFwCfTbSp
-8vzlOtS2vXRowsgcwNvY8nQ=
-=ZS0j
------END PGP SIGNATURE-----
-
---0eh6TmSyL6TZE2Uz--
+"The face of a child can say it all, especially the
+mouth part of the face."

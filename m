@@ -1,42 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423357AbWJYMCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423348AbWJYMBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423357AbWJYMCB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 08:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423366AbWJYMCB
+	id S1423348AbWJYMBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 08:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423347AbWJYMBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 08:02:01 -0400
-Received: from pm-mx5.mgn.net ([195.46.220.209]:22427 "EHLO pm-mx5.mgn.net")
-	by vger.kernel.org with ESMTP id S1423357AbWJYMCA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 08:02:00 -0400
-Date: Wed, 25 Oct 2006 14:01:55 +0200
-From: Damien Wyart <damien.wyart@free.fr>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Auke Kok <auke-jan.h.kok@intel.com>, Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>
-Subject: Re: Linux 2.6.19-rc3
-Message-ID: <20061025120155.GA2436@localhost.localdomain>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025132534.df8466c0.khali@linux-fr.org>
+	Wed, 25 Oct 2006 08:01:16 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:37830 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1423340AbWJYMBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 08:01:15 -0400
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+Subject: [PATCH 2.6.19-rc3 1/2] ehea: kzalloc GFP_ATOMIC fix
+Date: Wed, 25 Oct 2006 13:11:42 +0200
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061025132534.df8466c0.khali@linux-fr.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Jeff Garzik <jeff@garzik.org>
+Cc: netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
+       "Jan-Bernd Themann" <themann@de.ibm.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200610251311.43009.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Auke Kok (1):
-> >       e100: fix reboot -f with netconsole enabled
+This patch fixes kzalloc parameters (GFP_ATOMIC instead of GFP_KERNEL)
 
-* Jean Delvare <khali@linux-fr.org> [2006-10-25 13:25]: This one breaks
-> power-off and reboot on my laptop (thanks to git bisect for isolating
-> it). The shutdown freezes after "Shutdown: hda" or "Rebooting".
-> SysRq-p says the CPU is idle. If you need additional information on my
-> config or want me to do more tests, just ask.
+Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
+---
 
-This has already been discussed, a fix has been posted (see recent
-netdev messages) and should be pulled soon into mainline (I guess).
-
--- 
-Damien Wyart
+diff --git a/drivers/net/ehea/ehea_main.c b/drivers/net/ehea/ehea_main.c
+index eb7d44d..4538c99 100644
+--- a/drivers/net/ehea/ehea_main.c
++++ b/drivers/net/ehea/ehea_main.c
+@@ -586,8 +586,8 @@ int ehea_sense_port_attr(struct ehea_por
+ 	u64 hret;
+ 	struct hcp_ehea_port_cb0 *cb0;
+ 
+-	cb0 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
+-	if (!cb0) {
++	cb0 = kzalloc(H_CB_ALIGNMENT, GFP_ATOMIC);   /* May be called via */
++	if (!cb0) {                                  /* ehea_neq_tasklet() */
+ 		ehea_error("no mem for cb0");
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -765,8 +765,7 @@ static void ehea_parse_eqe(struct ehea_a
+ 
+ 		if (EHEA_BMASK_GET(NEQE_PORT_UP, eqe)) {
+ 			if (!netif_carrier_ok(port->netdev)) {
+-				ret = ehea_sense_port_attr(
+-					port);
++				ret = ehea_sense_port_attr(port);
+ 				if (ret) {
+ 					ehea_error("failed resensing port "
+ 						   "attributes");
+@@ -1502,7 +1501,7 @@ static void ehea_promiscuous(struct net_
+ 	if ((enable && port->promisc) || (!enable && !port->promisc))
+ 		return;
+ 
+-	cb7 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
++	cb7 = kzalloc(H_CB_ALIGNMENT, GFP_ATOMIC);
+ 	if (!cb7) {
+ 		ehea_error("no mem for cb7");
+ 		goto out;
+@@ -1606,7 +1605,7 @@ static void ehea_add_multicast_entry(str
+ 	struct ehea_mc_list *ehea_mcl_entry;
+ 	u64 hret;
+ 
+-	ehea_mcl_entry = kzalloc(sizeof(*ehea_mcl_entry), GFP_KERNEL);
++	ehea_mcl_entry = kzalloc(sizeof(*ehea_mcl_entry), GFP_ATOMIC);
+ 	if (!ehea_mcl_entry) {
+ 		ehea_error("no mem for mcl_entry");
+ 		return;

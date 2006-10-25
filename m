@@ -1,203 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965206AbWJYUII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWJYUJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965206AbWJYUII (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 16:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWJYUII
+	id S965217AbWJYUJd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 16:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbWJYUJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 16:08:08 -0400
-Received: from smtp3-g19.free.fr ([212.27.42.29]:23220 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S965206AbWJYUIE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 16:08:04 -0400
-Message-ID: <453FC465.2030603@gmail.com>
-Date: Wed, 25 Oct 2006 22:09:09 +0200
-From: giggz <giggzounet@gmail.com>
-User-Agent: IceDove 1.5.0.7 (X11/20061013)
+	Wed, 25 Oct 2006 16:09:33 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:17651 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965217AbWJYUJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 16:09:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CaaIpyvgXHiUNWepy9wMPWll+ZgsWiYoxx/MSrtQDy+ZC7K1x/rz88zagc0zicFw+88b0Y152YbXnjdYUQAFDYcFMX7z9FRq8uUqMhm4HESLi1/iXEmpace6K9TF+EZ/ns9UKIEKr6DllaHZJtCjdyovi1Sy6bRmN6vNew7RhyU=
+Message-ID: <6b4e42d10610251309j4350c68co8f131a32f3b05644@mail.gmail.com>
+Date: Wed, 25 Oct 2006 13:09:30 -0700
+From: "Om Narasimhan" <om.turyx@gmail.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: HPET : Legacy Routing Replacement Enable - 3rd try.
+Cc: randy.dunlap@oracle.com, omanakuttan.potty@sun.com, clemens@ladisch.de,
+       vojtech@suse.cz, bob.picco@hp.com, venkatesh.pallipadi@intel.com,
+       omanakuttan@imap.cc, linux-kernel@vger.kernel.org
+In-Reply-To: <p731wowmdlz.fsf@verdi.suse.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re : PROBLEM : Bus is hidden behind transparent bridge
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=A030AFA6
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200610250013.48194.om.turyx@gmail.com>
+	 <p731wowmdlz.fsf@verdi.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
+Thanks for comments. I have split the patches into three.
 
-Here is the begenning of the log with pci=assign-busses
+Rationale:
+Some enterprise servers' (e.g, SunFire 4600 series) BIOS sets up the
+IRQ0 -> INT2 mapping  as per HPET specifications. (BIOS engineers
+explained that this routing is required for another major commercial
+OS's forthcoming version to work).
+Linux currently assumes timer interrupt is at IRQ0 (implying
+IRQ0->INT0) connection setup by the bios. In this scenario, IRQ0 would
+not generate any interrupts and we get the following message :
+........
+Boot done.
+..MP-BIOS bug: 8254 timer not connected to IO-APIC
+ failed.
+timer doesn't work through the IO-APIC - disabling NMI Watchdog!
+Using local APIC timer interrupts.
+........
+When AMD Powernow (TM) is enabled, APIC interrupt does not work as
+expected and we observe strange behaviour like lost ticks...etc and
+occasional crashes.
 
-Oct 25 22:02:19 localhost syslogd 1.4.1#20: restart.
-Oct 25 22:02:19 localhost kernel: klogd 1.4.1#20, log source =
-/proc/kmsg started.
-Oct 25 22:02:20 localhost kernel: Linux version 2.6.18.1-17
-(giggz@debian) (gcc version 4.1.2 20061007 (prerelease) (Debian
-4.1.1-16)) #1 PREEMPT Sat Oct 21 07:51:02 CEST 2006
-Oct 25 22:02:20 localhost kernel: BIOS-provided physical RAM map:
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 0000000000000000 -
-000000000009f800 (usable)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 000000000009f800 -
-00000000000a0000 (reserved)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 00000000000d8000 -
-00000000000e0000 (reserved)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 00000000000e4000 -
-0000000000100000 (reserved)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 0000000000100000 -
-000000007ff70000 (usable)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 000000007ff70000 -
-000000007ff7b000 (ACPI data)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 000000007ff7b000 -
-000000007ff80000 (ACPI NVS)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 000000007ff80000 -
-0000000080000000 (reserved)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 00000000ff800000 -
-00000000ffc00000 (reserved)
-Oct 25 22:02:20 localhost kernel:  BIOS-e820: 00000000fffff000 -
-0000000100000000 (reserved)
-Oct 25 22:02:20 localhost kernel: 1151MB HIGHMEM available.
-Oct 25 22:02:20 localhost kernel: 896MB LOWMEM available.
-Oct 25 22:02:20 localhost kernel: DMI present.
-Oct 25 22:02:20 localhost kernel: ACPI: PM-Timer IO Port: 0x1008
-Oct 25 22:02:20 localhost kernel: Allocating PCI resources starting at
-88000000 (gap: 80000000:7f800000)
-Oct 25 22:02:20 localhost kernel: Detected 1794.338 MHz processor.
-Oct 25 22:02:20 localhost kernel: Built 1 zonelists.  Total pages: 524144
-Oct 25 22:02:20 localhost kernel: Kernel command line: root=/dev/hda1 ro
-pci=assign-busses
-Oct 25 22:02:20 localhost kernel: Local APIC disabled by BIOS -- you can
-enable it with "lapic"
-Oct 25 22:02:20 localhost kernel: Enabling fast FPU save and restore...
-done.
-Oct 25 22:02:20 localhost kernel: Enabling unmasked SIMD FPU exception
-support... done.
-Oct 25 22:02:20 localhost kernel: Initializing CPU#0
-Oct 25 22:02:20 localhost kernel: PID hash table entries: 4096 (order:
-12, 16384 bytes)
-Oct 25 22:02:20 localhost kernel: Console: colour VGA+ 80x25
-Oct 25 22:02:20 localhost kernel: Dentry cache hash table entries:
-131072 (order: 7, 524288 bytes)
-Oct 25 22:02:20 localhost kernel: Inode-cache hash table entries: 65536
-(order: 6, 262144 bytes)
-Oct 25 22:02:20 localhost kernel: Memory: 2075696k/2096576k available
-(1631k kernel code, 19724k reserved, 483k data, 148k init, 1179072k highmem)
-Oct 25 22:02:20 localhost kernel: Checking if this processor honours the
-WP bit even in supervisor mode... Ok.
-Oct 25 22:02:20 localhost kernel: Calibrating delay using timer specific
-routine.. 3589.52 BogoMIPS (lpj=1794763)
-Oct 25 22:02:20 localhost kernel: Security Framework v1.0.0 initialized
-Oct 25 22:02:20 localhost kernel: Capability LSM initialized
-Oct 25 22:02:20 localhost kernel: Mount-cache hash table entries: 512
-Oct 25 22:02:20 localhost kernel: CPU: L1 I cache: 32K, L1 D cache: 32K
-Oct 25 22:02:20 localhost kernel: CPU: L2 cache: 2048K
-Oct 25 22:02:20 localhost kernel: Intel machine check architecture
-supported.
-Oct 25 22:02:20 localhost kernel: Intel machine check reporting enabled
-on CPU#0.
-Oct 25 22:02:20 localhost kernel: CPU: Intel(R) Pentium(R) M processor
-1.80GHz stepping 06
-Oct 25 22:02:20 localhost kernel: Checking 'hlt' instruction... OK.
-Oct 25 22:02:20 localhost kernel: ACPI: Core revision 20060707
-Oct 25 22:02:20 localhost kernel: ACPI: setting ELCR to 0200 (from 0c00)
-Oct 25 22:02:20 localhost kernel: NET: Registered protocol family 16
-Oct 25 22:02:20 localhost kernel: ACPI: bus type pci registered
-Oct 25 22:02:20 localhost kernel: PCI: PCI BIOS revision 2.10 entry at
-0xfd7d5, last bus=2
-Oct 25 22:02:20 localhost kernel: PCI: Using configuration type 1
-Oct 25 22:02:20 localhost kernel: Setting up standard PCI resources
-Oct 25 22:02:20 localhost kernel: ACPI: Interpreter enabled
-Oct 25 22:02:20 localhost kernel: ACPI: Using PIC for interrupt routing
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Root Bridge [PCI0] (0000:00)
-Oct 25 22:02:20 localhost kernel: PCI quirk: region 1000-107f claimed by
-ICH4 ACPI/GPIO/TCO
-Oct 25 22:02:20 localhost kernel: PCI quirk: region 1180-11bf claimed by
-ICH4 GPIO
-Oct 25 22:02:20 localhost kernel: PCI: Ignoring BAR0-3 of IDE controller
-0000:00:1f.1
-Oct 25 22:02:20 localhost kernel: PCI: Transparent bridge - 0000:00:1e.0
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKA] (IRQs
-10 *11)
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKB] (IRQs *10)
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKC] (IRQs
-10 *11)
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKD] (IRQs
-10) *11
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKE] (IRQs
-10 11) *0, disabled.
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKF] (IRQs
-10 11) *0, disabled.
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKG] (IRQs
-10 11) *0, disabled.
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKH] (IRQs
-*10 11)
-Oct 25 22:02:20 localhost kernel: ACPI: Embedded Controller [EC0] (gpe
-28) interrupt mode.
-Oct 25 22:02:20 localhost kernel: Linux Plug and Play Support v0.97 (c)
-Adam Belay
-Oct 25 22:02:20 localhost kernel: pnp: PnP ACPI init
-Oct 25 22:02:20 localhost kernel: pnp: PnP ACPI: found 10 devices
-Oct 25 22:02:20 localhost kernel: PnPBIOS: Disabled by ACPI PNP
-Oct 25 22:02:20 localhost kernel: PCI: Using ACPI for IRQ routing
-Oct 25 22:02:20 localhost kernel: PCI: If a device doesn't work, try
-"pci=routeirq".  If it helps, post a report
-Oct 25 22:02:20 localhost kernel: PCI: Bridge: 0000:00:01.0
-Oct 25 22:02:20 localhost kernel:   IO window: 3000-3fff
-Oct 25 22:02:20 localhost kernel:   MEM window: d0100000-d01fffff
-Oct 25 22:02:20 localhost kernel:   PREFETCH window: d8000000-dfffffff
-Oct 25 22:02:20 localhost kernel: PCI: Bus 3, cardbus bridge: 0000:02:09.0
-Oct 25 22:02:20 localhost kernel:   IO window: 00004000-000040ff
-Oct 25 22:02:20 localhost kernel:   IO window: 00004400-000044ff
-Oct 25 22:02:20 localhost kernel:   PREFETCH window: 88000000-89ffffff
-Oct 25 22:02:20 localhost kernel:   MEM window: 8e000000-8fffffff
-Oct 25 22:02:20 localhost kernel: PCI: Bus 7, cardbus bridge: 0000:02:09.1
-Oct 25 22:02:20 localhost kernel:   IO window: 00004800-000048ff
-Oct 25 22:02:20 localhost kernel:   IO window: 00004c00-00004cff
-Oct 25 22:02:20 localhost kernel:   PREFETCH window: 8a000000-8bffffff
-Oct 25 22:02:20 localhost kernel:   MEM window: 90000000-91ffffff
-Oct 25 22:02:20 localhost kernel: PCI: Bridge: 0000:00:1e.0
-Oct 25 22:02:20 localhost kernel:   IO window: 4000-4fff
-Oct 25 22:02:20 localhost kernel:   MEM window: d0200000-d02fffff
-Oct 25 22:02:20 localhost kernel:   PREFETCH window: 88000000-8cffffff
-Oct 25 22:02:20 localhost kernel: PCI: Enabling device 0000:00:1e.0
-(0005 -> 0007)
-Oct 25 22:02:20 localhost kernel: PCI: Enabling device 0000:02:09.0
-(0000 -> 0003)
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKF]
-enabled at IRQ 11
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt 0000:02:09.0[A] ->
-Link [LNKF] -> GSI 11 (level, low) -> IRQ 11
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt Link [LNKB]
-enabled at IRQ 10
-Oct 25 22:02:20 localhost kernel: ACPI: PCI Interrupt 0000:02:09.1[B] ->
-Link [LNKB] -> GSI 10 (level, low) -> IRQ 10
-Oct 25 22:02:20 localhost kernel: NET: Registered protocol family 2
-Oct 25 22:02:20 localhost kernel: IP route cache hash table entries:
-32768 (order: 5, 131072 bytes)
-Oct 25 22:02:20 localhost kernel: TCP established hash table entries:
-262144 (order: 8, 1048576 bytes)
-Oct 25 22:02:20 localhost kernel: TCP bind hash table entries: 65536
-(order: 6, 262144 bytes)
-Oct 25 22:02:20 localhost kernel: TCP: Hash tables configured
-(established 262144 bind 65536)
-Oct 25 22:02:20 localhost kernel: TCP reno registered
-Oct 25 22:02:20 localhost kernel: Simple Boot Flag at 0x36 set to 0x1
-Oct 25 22:02:20 localhost kernel: Machine check exception polling timer
-started.
-Oct 25 22:02:20 localhost kernel: highmem bounce pool size: 64 pages
-Oct 25 22:02:20 localhost kernel: Initializing Cryptographic API
-Oct 25 22:02:20 localhost kernel: io scheduler noop registered
-Oct 25 22:02:20 localhost kernel: io scheduler anticipatory registered
-Oct 25 22:02:20 localhost kernel: io scheduler deadline registered
-Oct 25 22:02:20 localhost kernel: io scheduler cfq registered (default)
-- --
-GT> kwyxz: hum, tu sais comment buter des zombies sous nux ?
-k> GT: en root, tu tapes "init 6"  <-- GT has quit (EOF From client)
-k> Hop, plus de zombies !
-- -+- kwyxz in Guide du Fmblien Assassin : "Bande de zombies !" -+-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+I expect that more and more BIOSes would start implementing the
+routing as per specifications and linux kernel might face this problem
+sooner or later.
 
-iD8DBQFFP8RlRvQAQ6Awr6YRAsPvAJ9IxN6XtRkOlthFRbsrf1YI2XTDpgCgpDJ8
-AfzRORfAGkMtWkBQ8DhSNNs=
-=sTyO
------END PGP SIGNATURE-----
+Regards,
+Om.
+
+Patch 01/03 : Arch specific (i386 and x86_64)
+
+Signed-Off-by : Om Narasimhan <om.turyx@gmail.com>
+ arch/i386/kernel/acpi/boot.c |   18 ++++++++++++++++++
+ arch/i386/kernel/time_hpet.c |    3 ++-
+ arch/x86_64/kernel/time.c    |   16 +++++++++++-----
+ 3 files changed, 31 insertions(+), 6 deletions(-)
+
+diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+index 92f79cd..3d30e2f 100644
+--- a/arch/i386/kernel/acpi/boot.c
++++ b/arch/i386/kernel/acpi/boot.c
+@@ -82,6 +82,17 @@ EXPORT_SYMBOL(acpi_strict);
+ acpi_interrupt_flags acpi_sci_flags __initdata;
+ int acpi_sci_override_gsi __initdata;
+ int acpi_skip_timer_override __initdata;
++/* HPET Legacy routing replacement option passed through ACPI Table */
++int acpi_hpet_lrr;
++/* cmdline opt. for faulty bioses not setting ACPI HPET entry right */
++int hpet_lrr_force;
++
++static int hpet_lrr_setup (char *str)
++{
++	get_option(&str, &hpet_lrr_force);
++	return 1;
++}
++__setup ("hpet_lrr=", hpet_lrr_setup);
+
+ #ifdef CONFIG_X86_LOCAL_APIC
+ static u64 acpi_lapic_addr __initdata = APIC_DEFAULT_PHYS_BASE;
+@@ -669,6 +680,13 @@ #define HPET_RESOURCE_NAME_SIZE 9
+ 			 "HPET %u", hpet_tbl->number);
+ 		hpet_res->end = (1 * 1024) - 1;
+ 	}
++	acpi_hpet_lrr = (hpet_tbl->id & ACPI_HPET_LRR_CAP) ? 1 : 0;
++	/* Print a message about the bios HPET ACPI Desc Table passed.
++	 * LRR bit should not be set in the table unless IRQ0->INT2 is
++	 * connected. But BIOS may be faulty ...
++	 */
++	printk(KERN_INFO PREFIX "HPET id: %#x. ACPI LRR bit %s SET\n",
++			hpet_tbl->id, acpi_hpet_lrr ? "": "NOT");
+
+ #ifdef	CONFIG_X86_64
+ 	vxtime.hpet_address = hpet_tbl->addr.addrl |
+diff --git a/arch/i386/kernel/time_hpet.c b/arch/i386/kernel/time_hpet.c
+index 1a2a979..01b2f67 100644
+--- a/arch/i386/kernel/time_hpet.c
++++ b/arch/i386/kernel/time_hpet.c
+@@ -94,7 +94,8 @@ static int hpet_timer_stop_set_go(unsign
+  	 * Go!
+  	 */
+ 	cfg = hpet_readl(HPET_CFG);
+-	if (hpet_use_timer)
++	/* Ideally the following should be &&(acpi_hpet_lrr || hpet_lrr_force) */
++	if (hpet_use_timer && hpet_lrr_force)
+ 		cfg |= HPET_CFG_LEGACY;
+ 	cfg |= HPET_CFG_ENABLE;
+ 	hpet_writel(cfg, HPET_CFG);
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+index 1ba5a44..0f5d990 100644
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -46,9 +46,6 @@ #include <asm/apic.h>
+ #ifdef CONFIG_CPU_FREQ
+ static void cpufreq_delayed_get(void);
+ #endif
+-extern void i8254_timer_resume(void);
+-extern int using_apic_timer;
+-
+ static char *timename = NULL;
+
+ DEFINE_SPINLOCK(rtc_lock);
+@@ -783,7 +780,10 @@ static int hpet_timer_stop_set_go(unsign
+ 		    HPET_TN_32BIT, HPET_T0_CFG);
+ 		hpet_writel(hpet_tick, HPET_T0_CMP); /* next interrupt */
+ 		hpet_writel(hpet_tick, HPET_T0_CMP); /* period */
+-		cfg |= HPET_CFG_LEGACY;
++		/* Ideal value (acpi_hpet_lrr || hpet_lrr_force) */
++		if (hpet_lrr_force)
++			cfg |= HPET_CFG_LEGACY;
++
+ 	}
+ /*
+  * Go!
+@@ -887,6 +887,7 @@ time_cpu_notifier(struct notifier_block
+
+ void __init time_init(void)
+ {
++	int timer_irq = 0;
+ 	if (nohpet)
+ 		vxtime.hpet_address = 0;
+
+@@ -906,6 +907,10 @@ void __init time_init(void)
+ 	  	tick_nsec = TICK_NSEC_HPET;
+ 		cpu_khz = hpet_calibrate_tsc();
+ 		timename = "HPET";
++		/* Ideal value is (acpi_hpet_lrr || hpet_lrr_force) */
++		if (hpet_lrr_force)
++			timer_irq = HPET_TIMER_LRR_IRQ;
++
+ #ifdef CONFIG_X86_PM_TIMER
+ 	} else if (pmtmr_ioport && !vxtime.hpet_address) {
+ 		vxtime_hz = PM_TIMER_FREQUENCY;
+@@ -924,7 +929,8 @@ #endif
+ 	vxtime.tsc_quot = (USEC_PER_MSEC << US_SCALE) / cpu_khz;
+ 	vxtime.last_tsc = get_cycles_sync();
+ 	set_cyc2ns_scale(cpu_khz);
+-	setup_irq(0, &irq0);
++	printk(KERN_WARNING PREFIX "Registering Timer IRQ = %d\n", timer_irq);
++	setup_irq(timer_irq, &irq0);
+ 	hotcpu_notifier(time_cpu_notifier, 0);
+ 	time_cpu_notifier(NULL, CPU_ONLINE, (void *)(long)smp_processor_id());

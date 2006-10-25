@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWJYS5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbWJYS7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422652AbWJYS5O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 14:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161372AbWJYS5O
+	id S1030470AbWJYS7K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 14:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbWJYS7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 14:57:14 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:36526 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161370AbWJYS5N (ORCPT
+	Wed, 25 Oct 2006 14:59:10 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:49838 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030470AbWJYS7H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 14:57:13 -0400
-Date: Wed, 25 Oct 2006 11:58:13 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: John Levon <levon@movementarian.org>, phil.el@wanadoo.fr,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       oprofile-list@lists.sourceforge.net, george@mvista.com
-Subject: Re: oprofile can cause an NMI to schedule (was: [RT] scheduling and oprofile)
-Message-ID: <20061025185813.GA4114@monkey.ibm.com>
-References: <20061023212307.GA21498@monkey.beaverton.ibm.com> <1161656674.13276.17.camel@localhost.localdomain> <20061024124650.GA2668@totally.trollied.org> <Pine.LNX.4.58.0610240852450.949@gandalf.stny.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0610240852450.949@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 25 Oct 2006 14:59:07 -0400
+Message-ID: <453FB3F9.9080704@in.ibm.com>
+Date: Wed, 25 Oct 2006 11:59:05 -0700
+From: Suzuki K P <suzuki@in.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060413 Red Hat/1.7.13-1.4.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Behaviour of compat_msgsnd/compat_msgrcv calls
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 08:54:42AM -0400, Steven Rostedt wrote:
-> On Tue, 24 Oct 2006, John Levon wrote:
-> 
-> > On Mon, Oct 23, 2006 at 10:24:34PM -0400, Steven Rostedt wrote:
-> > in_atomic() is supposed to be true in this context, so the test in
-> > do_page_fault() catches it.
-> 
-> Ahh, missed that one.  So this is an issue that _only_ rt needs to fix.
-> OK, thanks for pointing that out.
+Hi,
 
-Thanks!  This issue is with an older RT kernel that I am running.  In the
-version of the kernel I am running nmi_enter() and nmi_exit() are commented
-out as described here:
+I have a question regarding the behaviour of the comapt_msgsnd/ 
+compat_msgrcv ()s. Don't know if this has been discussed already or if 
+as I could not find any threads in the archives. Please bear with me if 
+this is really a stupid question.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0508.1/1714.html
+  The maximum length of the message that can be sent or received in any 
+of those functions above is MAXBUF-(sizeof (struct msgbuf)), where 
+MAXBUF is 64k.
 
-Newer RT kernels (such as linux-2.6.18-rt5) have reenabled the
-add_preempt_count/sub_preempt_count calls in nmi_enter/exit.  If I
-understand correctly the reason one could not modify the preempt_count
-from NMI code is that it could have been in the process of being
-modified by non-NMI code.  But, in recent RT kernels it appears that
-preempt_count is still a single word modified by both NMI and
-non-NMI code.  What am I missing that now makes this safe?
+ipc/compat.c : compat_msgrcv()
+         if (second < 0 || (second >= MAXBUF - sizeof(struct msgbuf)))
+                           ^^^^^^
+                 return -EINVAL;
 
--- 
-Mike
+Is this limit due to the buffer allocation in user space as below ?
+
+  And the way we are doing this is by allocating a buffer of msgsize on 
+the userspace stack using compat_alloc_user_space() instead of using the 
+buffer provided by the user and later copying the result back to the 
+user buffer.
+
+         if (!version) {
+            [...]
+                 if (copy_from_user (&ipck, uptr, sizeof(ipck)))
+                         goto out;
+                 uptr = compat_ptr(ipck.msgp);
+                 msgtyp = ipck.msgtyp;
+
+         }
+
+         p = compat_alloc_user_space(second + sizeof(struct msgbuf));
+
+Do we really need this allocation ?
+
+         err = sys_msgrcv(first, p, second, msgtyp, third);
+
+Is there any specific reason behind this ? Can't we just use the user 
+buffer directly instead of doing an additional copy_in_user ?
+ie,
+	err = sys_msgrcv(first, uptr, second, msgtyp, third);
+
+Thanks,
+
+-Suzuki

@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423443AbWJZNAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423482AbWJZNCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423443AbWJZNAR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 09:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423470AbWJZNAR
+	id S1423482AbWJZNCn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 09:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423481AbWJZNCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 09:00:17 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:61545 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1423443AbWJZNAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 09:00:15 -0400
-Date: Thu, 26 Oct 2006 15:00:10 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch 0/5] various user space access fixes
-Message-ID: <20061026130010.GA7127@osiris.boeblingen.de.ibm.com>
+	Thu, 26 Oct 2006 09:02:43 -0400
+Received: from adsl-ull-235-236.42-151.net24.it ([151.42.236.235]:19752 "EHLO
+	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
+	id S1423479AbWJZNCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 09:02:41 -0400
+Message-ID: <4540B136.8050908@abinetworks.biz>
+Date: Thu, 26 Oct 2006 14:59:34 +0200
+From: Gianluca Alberici <gianluca@abinetworks.biz>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: "Giacomo A. Catenazzi" <cate@debian.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       proski@gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+References: <1161807069.3441.33.camel@dv>	 <1161808227.7615.0.camel@localhost.localdomain>	 <20061025205923.828c620d.akpm@osdl.org> <1161859199.12781.7.camel@localhost.localdomain> <4540A867.307@debian.org>
+In-Reply-To: <4540A867.307@debian.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replacing the get/put_user macros with some __must_check dummy functions
-quite a few places where user space accesses aren't handled properly.
-I fixed most of these (that come up with a warning on standard s390 build).
+Giacomo A. Catenazzi wrote:
 
-But for the ones below I haven't done anything:
+> I'm confused on the discussion:
+> legal? I don't find how a windo$e driver can be "derived work" of Linux,
+> and anyway they use a "standard" interface. So it is acceptable for GPL
+> (IMHO and IANAL). so it is not a legal problem.
+>
+> I see only a development question:
+> should we allow untrusted module to know and modify the
+> "intimate" part of kernel, and cause compability and other large
+> amount of problems into kernel developers, distribution and users?
+>
+I really cannot see even a political problem. I the case of ndiswrapper 
+the problem is not whether we want to support windows or whatever 
+drivermodules, but if we want to support NDIS drivers with a GPL wrapper.
 
-include/asm/uaccess.h: In function `schedule_tail':
-kernel/sched.c:1811: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
+regards,
 
-include/asm/uaccess.h: In function `mm_release':
-kernel/fork.c:459: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
+Gianluca
 
-include/asm/uaccess.h: In function `sys_getcpu':
-kernel/sys.c:2189: warning: ignoring return value of `get_user', declared with attribute warn_unused_result
-kernel/sys.c:2190: warning: ignoring return value of `get_user', declared with attribute warn_unused_result
-kernel/sys.c:2193: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
-kernel/sys.c:2194: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
+> So it is a political question, not a legal question!
+>
+> ciao
+>     cate
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Not sure if these three need to be fixed at all... Even though sys_getcpu
-looks like it needs to be fixed, but how?
 
-
-include/asm/uaccess.h: In function `set_termios':
-drivers/char/tty_ioctl.c:207: warning: ignoring return value of `get_user', declared with attribute warn_unused_result
-drivers/char/tty_ioctl.c:207: warning: ignoring return value of `get_user', declared with attribute warn_unused_result
-drivers/char/tty_ioctl.c:207: warning: ignoring return value of `get_user', declared with attribute warn_unused_result
-drivers/char/tty_ioctl.c:207: warning: ignoring return value of `get_user', declared with attribute warn_unused_result
-
-include/asm/uaccess.h: In function `n_tty_ioctl':
-drivers/char/tty_ioctl.c:236: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
-drivers/char/tty_ioctl.c:236: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
-drivers/char/tty_ioctl.c:236: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
-drivers/char/tty_ioctl.c:236: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
-drivers/char/tty_ioctl.c:236: warning: ignoring return value of `put_user', declared with attribute warn_unused_result
-
-These two are because of the nice user_termio_to_kernel_termios and
-kernel_termios_to_user_termio macros in asm/termios.h...
-Might have a look at these two later.

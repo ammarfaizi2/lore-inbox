@@ -1,95 +1,215 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423687AbWJZRZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423688AbWJZR0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423687AbWJZRZk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 13:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423688AbWJZRZk
+	id S1423688AbWJZR0A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 13:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423692AbWJZR0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 13:25:40 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:3722 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1423687AbWJZRZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 13:25:38 -0400
-Date: Thu, 26 Oct 2006 10:26:30 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Andrew Morton <akpm@osdl.org>, gianluca@abinetworks.biz, cate@debian.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, proski@gnu.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH ??] Re: incorrect taint of ndiswrapper
-Message-Id: <20061026102630.ad191d21.randy.dunlap@oracle.com>
-In-Reply-To: <20061025205923.828c620d.akpm@osdl.org>
-References: <1161807069.3441.33.camel@dv>
-	<1161808227.7615.0.camel@localhost.localdomain>
-	<20061025205923.828c620d.akpm@osdl.org>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Thu, 26 Oct 2006 13:26:00 -0400
+Received: from il.qumranet.com ([62.219.232.206]:46012 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1423688AbWJZRZ6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 13:25:58 -0400
+Subject: [PATCH 4/13] KVM: random accessors and constants
+From: Avi Kivity <avi@qumranet.com>
+Date: Thu, 26 Oct 2006 17:25:56 -0000
+To: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
+References: <4540EE2B.9020606@qumranet.com>
+In-Reply-To: <4540EE2B.9020606@qumranet.com>
+Message-Id: <20061026172556.A48DFA0209@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Oct 2006 20:59:23 -0700 Andrew Morton wrote:
+Define some constants and accessors to be used later on.
 
-> > On Wed, 25 Oct 2006 21:30:26 +0100 Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > Ar Mer, 2006-10-25 am 16:11 -0400, ysgrifennodd Pavel Roskin:
-> > > I don't see any legal reasons behind this restriction.  A driver under
-> > > GPL should be able to use any exported symbols.  EXPORT_SYMBOL_GPL is a
-> > > technical mechanism of enforcing GPL against non-free code, but
-> > > ndiswrapper is free.  The non-free NDIS drivers are not using those
-> > > symbols.
-> > 
-> > The combination of GPL wrapper and the NDIS driver as a work is not free
-> > (in fact its questionable if its even legal to ship such a combination
-> > together).
-> 
-> May be so.  But this patch was supposed to print a helpful taint message to
-> draw our attention to the fact that ndis-wrapper was in use.  The patch was
-> not intended to cause gpl'ed modules to stop loading (or if is was, that
-> effect was concealed from yours truly).
-> 
-> IOW, this was a mistake.
-> 
-> 
-> Now, if we do want to disallow gpl module loading after ndis-wrapper has
-> been used then fine, we can discuss that.  If we decide to proceed that way
-> then we will probably cause a load of ndis-wrapper to emit a scary printk for
-> six months or so to give people time to make arrangements.
+Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Yes, if I understand what's happening, then this was an unintended
-consequence.
-Does the patch below allow ndiswrapper to operate?
-Of course, this still leaves the kernel marked as tainted,
-without an indication of which module caused that.  Not the best
-situation.
-
----
-From: Randy Dunlap <randy.dunlap@oracle.com>
-
-For ndiswrapper and driverloader, don't set the module->taints
-flags, just set the kernel global tainted flag.
-This should allow ndiswrapper to continue to use GPL symbols.
-Not tested.
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- kernel/module.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2619-rc3-pv.orig/kernel/module.c
-+++ linux-2619-rc3-pv/kernel/module.c
-@@ -1718,9 +1718,9 @@ static struct module *load_module(void _
- 	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
+Index: linux-2.6/drivers/kvm/kvm.h
+===================================================================
+--- linux-2.6.orig/drivers/kvm/kvm.h
++++ linux-2.6/drivers/kvm/kvm.h
+@@ -7,6 +7,38 @@
+ #include <linux/spinlock.h>
+ #include <linux/mm.h>
  
- 	if (strcmp(mod->name, "ndiswrapper") == 0)
--		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
-+		add_taint(TAINT_PROPRIETARY_MODULE);
- 	if (strcmp(mod->name, "driverloader") == 0)
--		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
-+		add_taint(TAINT_PROPRIETARY_MODULE);
++#include "vmx.h"
++
++#define CR0_PE_MASK (1ULL << 0)
++#define CR0_TS_MASK (1ULL << 3)
++#define CR0_NE_MASK (1ULL << 5)
++#define CR0_WP_MASK (1ULL << 16)
++#define CR0_NW_MASK (1ULL << 29)
++#define CR0_CD_MASK (1ULL << 30)
++#define CR0_PG_MASK (1ULL << 31)
++
++#define CR3_WPT_MASK (1ULL << 3)
++#define CR3_PCD_MASK (1ULL << 4)
++
++#define CR3_RESEVED_BITS 0x07ULL
++#define CR3_L_MODE_RESEVED_BITS (~((1ULL << 40) - 1) | 0x0fe7ULL)
++#define CR3_FLAGS_MASK ((1ULL << 5) - 1)
++
++#define CR4_VME_MASK (1ULL << 0)
++#define CR4_PSE_MASK (1ULL << 4)
++#define CR4_PAE_MASK (1ULL << 5)
++#define CR4_PGE_MASK (1ULL << 7)
++#define CR4_VMXE_MASK (1ULL << 13)
++
++#define KVM_GUEST_CR0_MASK \
++	(CR0_PG_MASK | CR0_PE_MASK | CR0_WP_MASK | CR0_NE_MASK)
++#define KVM_VM_CR0_ALWAYS_ON KVM_GUEST_CR0_MASK
++
++#define KVM_GUEST_CR4_MASK \
++	(CR4_PSE_MASK | CR4_PAE_MASK | CR4_PGE_MASK | CR4_VMXE_MASK | CR4_VME_MASK)
++#define KVM_PMODE_VM_CR4_ALWAYS_ON (CR4_VMXE_MASK | CR4_PAE_MASK)
++#define KVM_RMODE_VM_CR4_ALWAYS_ON (CR4_VMXE_MASK | CR4_PAE_MASK | CR4_VME_MASK)
++
+ #define INVALID_PAGE (~(hpa_t)0)
+ #define UNMAPPED_GVA (~(gpa_t)0)
  
- 	/* Set up MODINFO_ATTR fields */
- 	setup_modinfo(mod, sechdrs, infoindex);
+@@ -18,6 +50,19 @@
+ #define FX_IMAGE_ALIGN 16
+ #define FX_BUF_SIZE (2 * FX_IMAGE_SIZE + FX_IMAGE_ALIGN)
+ 
++#define DE_VECTOR 0
++#define DF_VECTOR 8
++#define TS_VECTOR 10
++#define NP_VECTOR 11
++#define SS_VECTOR 12
++#define GP_VECTOR 13
++#define PF_VECTOR 14
++
++#define SELECTOR_TI_MASK (1 << 2)
++#define SELECTOR_RPL_MASK 0x03
++
++#define IOPL_SHIFT 12
++
+ /*
+  * Address types:
+  *
+@@ -203,4 +248,125 @@ hpa_t gva_to_hpa(struct kvm_vcpu *vcpu, 
+ 
+ extern hpa_t bad_page_address;
+ 
++static inline struct page *gfn_to_page(struct kvm_memory_slot *slot, gfn_t gfn)
++{
++	return slot->phys_mem[gfn - slot->base_gfn];
++}
++
++struct kvm_memory_slot *gfn_to_memslot(struct kvm *kvm, gfn_t gfn);
++void mark_page_dirty(struct kvm *kvm, gfn_t gfn);
++
++void realmode_lgdt(struct kvm_vcpu *vcpu, u16 size, unsigned long address);
++void realmode_lidt(struct kvm_vcpu *vcpu, u16 size, unsigned long address);
++void realmode_lmsw(struct kvm_vcpu *vcpu, unsigned long msw,
++		   unsigned long *rflags);
++
++unsigned long realmode_get_cr(struct kvm_vcpu *vcpu, int cr);
++void realmode_set_cr(struct kvm_vcpu *vcpu, int cr, unsigned long value,
++		     unsigned long *rflags);
++
++int kvm_read_guest(struct kvm_vcpu *vcpu,
++	       gva_t addr,
++	       unsigned long size,
++	       void *dest);
++
++int kvm_write_guest(struct kvm_vcpu *vcpu,
++		gva_t addr,
++		unsigned long size,
++		void *data);
++
++void vmcs_writel(unsigned long field, unsigned long value);
++unsigned long vmcs_readl(unsigned long field);
++
++static inline u16 vmcs_read16(unsigned long field)
++{
++	return vmcs_readl(field);
++}
++
++static inline u32 vmcs_read32(unsigned long field)
++{
++	return vmcs_readl(field);
++}
++
++static inline u64 vmcs_read64(unsigned long field)
++{
++#ifdef __x86_64__
++	return vmcs_readl(field);
++#else
++	return vmcs_readl(field) | ((u64)vmcs_readl(field+1) << 32);
++#endif
++}
++
++static inline void vmcs_write32(unsigned long field, u32 value)
++{
++	vmcs_writel(field, value);
++}
++
++static inline int is_long_mode(void)
++{
++	return vmcs_read32(VM_ENTRY_CONTROLS) & VM_ENTRY_CONTROLS_IA32E_MASK;
++}
++
++static inline unsigned long guest_cr4(void)
++{
++	return (vmcs_readl(CR4_READ_SHADOW) & KVM_GUEST_CR4_MASK) |
++		(vmcs_readl(GUEST_CR4) & ~KVM_GUEST_CR4_MASK);
++}
++
++static inline int is_pae(void)
++{
++	return guest_cr4() & CR4_PAE_MASK;
++}
++
++static inline int is_pse(void)
++{
++	return guest_cr4() & CR4_PSE_MASK;
++}
++
++static inline unsigned long guest_cr0(void)
++{
++	return (vmcs_readl(CR0_READ_SHADOW) & KVM_GUEST_CR0_MASK) |
++		(vmcs_readl(GUEST_CR0) & ~KVM_GUEST_CR0_MASK);
++}
++
++static inline unsigned guest_cpl(void)
++{
++	return vmcs_read16(GUEST_CS_SELECTOR) & SELECTOR_RPL_MASK;
++}
++
++static inline int is_paging(void)
++{
++	return guest_cr0() & CR0_PG_MASK;
++}
++
++static inline int is_page_fault(u32 intr_info)
++{
++	return (intr_info & (INTR_INFO_INTR_TYPE_MASK | INTR_INFO_VECTOR_MASK |
++			     INTR_INFO_VALID_MASK)) ==
++		(INTR_TYPE_EXCEPTION | PF_VECTOR | INTR_INFO_VALID_MASK);
++}
++
++static inline int is_external_interrupt(u32 intr_info)
++{
++	return (intr_info & (INTR_INFO_INTR_TYPE_MASK | INTR_INFO_VALID_MASK))
++		== (INTR_TYPE_EXT_INTR | INTR_INFO_VALID_MASK);
++}
++
++static inline void flush_guest_tlb(struct kvm_vcpu *vcpu)
++{
++	vmcs_writel(GUEST_CR3, vmcs_readl(GUEST_CR3));
++}
++
++static inline int memslot_id(struct kvm *kvm, struct kvm_memory_slot *slot)
++{
++	return slot - kvm->memslots;
++}
++
++static inline struct kvm_mmu_page *page_header(hpa_t shadow_page)
++{
++	struct page *page = pfn_to_page(shadow_page >> PAGE_SHIFT);
++
++	return (struct kvm_mmu_page *)page->private;
++}
++
+ #endif

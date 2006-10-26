@@ -1,86 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752082AbWJZIJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWJZISf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752082AbWJZIJF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 04:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752117AbWJZIJE
+	id S964773AbWJZISf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 04:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWJZISf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 04:09:04 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:32468 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1752082AbWJZIJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 04:09:02 -0400
-Date: Thu, 26 Oct 2006 10:09:39 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, greg@kroah.com
-Subject: Re: +
- drivers-wait-for-threaded-probes-between-initcall-levels.patch added to -mm
- tree
-Message-ID: <20061026100939.24bbf536@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <200610260212.k9Q2CYvw031387@shell0.pdx.osdl.net>
-References: <200610260212.k9Q2CYvw031387@shell0.pdx.osdl.net>
-X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Thu, 26 Oct 2006 04:18:35 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:32170 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S964773AbWJZISe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 04:18:34 -0400
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: David Chinner <dgc@sgi.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+In-Reply-To: <20061026073022.GG8394166@melbourne.sgi.com>
+References: <1161576735.3466.7.camel@nigel.suspend2.net>
+	 <200610251432.41958.rjw@sisk.pl>
+	 <1161782620.3638.0.camel@nigel.suspend2.net>
+	 <200610252105.56862.rjw@sisk.pl>
+	 <20061026073022.GG8394166@melbourne.sgi.com>
+Content-Type: text/plain
+Date: Thu, 26 Oct 2006 18:18:29 +1000
+Message-Id: <1161850709.17293.23.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Oct 2006 19:12:01 -0700,
-akpm@osdl.org wrote:
+Hi Dave.
 
-> Subject: drivers: wait for threaded probes between initcall levels
-> From: Andrew Morton <akpm@osdl.org>
+On Thu, 2006-10-26 at 17:30 +1000, David Chinner wrote:
+> On Wed, Oct 25, 2006 at 09:05:56PM +0200, Rafael J. Wysocki wrote:
+> > On Wednesday, 25 October 2006 15:23, Nigel Cunningham wrote:
+> > > > 
+> > > > Well, my impression is that this is exactly what happens here: Something
+> > > > in the XFS code causes metadata to be written to disk _after_ the atomic
+> > > > snapshot.
+> > > > 
+> > > > That's why I asked if the dirty XFS metadata were flushed by a kernel thread.
+> > > 
+> > > When I first added bdev freezing it was because there was an XFS timer
+> > > doing writes.
+> > 
+> > Yes, I noticed you said that, but I'd like someone from the XFS team to either
+> > confirm or deny it.
 > 
-> The multithreaded-probing code has a problem: after one initcall level (eg,
-> core_initcall) has been processed, we will then start processing the next
-> level (postcore_initcall) while the kernel threads which are handling
-> core_initcall are still executing.  This breaks the guarantees which the
-> layered initcalls previously gave us.
+> We have daemons running in the background that can definitely do stuff
+> after a sync. hmm - one does try_to_freeze() after a wakeup, the
+> other does:
 > 
-> IOW, we want to be multithreaded _within_ an initcall level, but not between
-> different levels.
+>                 if (unlikely(freezing(current))) {
+>                         set_bit(XBT_FORCE_SLEEP, &target->bt_flags);
+>                         refrigerator();
+>                 } else {
+>                         clear_bit(XBT_FORCE_SLEEP, &target->bt_flags);
+>                 }
 > 
-> Fix that up by causing the probing code to wait for all outstanding probes at
-> one level to complete before we start processing the next level.
+> before it goes to sleep. So that one (xfsbufd - metadata buffer flushing)
+> can definitely wake up after the sync and do work, and the other could if
+> the kernel thread freeze occurs after the sync.
 > 
-> Cc: Greg KH <greg@kroah.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Another good question at this point - exactly how should we be putting
+> these thread to to sleep? Are both these valid methods for freezing them?
+> And should we be freezing when we wake up instead of before we go to
+> sleep? i.e. what are teh rules we are supposed to be following?
 
-Makes a lot of sense. I guess we could also get rid of
-driver_probe_done() in prepare_namespace() with this patch...
+As you have them at the moment, the threads seem to be freezing fine.
+The issue I've seen in the past related not to threads but to timer
+based activity. Admittedly it was 2.6.14 when I last looked at it, but
+there used to be a possibility for XFS to submit I/O from a timer when
+the threads are frozen but the bdev isn't frozen. Has that changed?
 
+Regards,
 
-> +#ifdef CONFIG_PCI_MULTITHREAD_PROBE
-> +static int __init wait_for_probes(void)
-> +{
-> +	DEFINE_WAIT(wait);
-> +
-> +	if (!atomic_read(&probe_count))
-> +		return 0;
-> +	printk(KERN_INFO "%s: waiting for %d threads\n", __FUNCTION__,
-> +			atomic_read(&probe_count));
-> +	while (atomic_read(&probe_count)) {
-> +		prepare_to_wait(&probe_waitqueue, &wait, TASK_UNINTERRUPTIBLE);
-> +		if (atomic_read(&probe_count))
-> +			schedule();
-> +	}
-> +	finish_wait(&probe_waitqueue, &wait);
-> +	return 0;
-> +}
-> +
-> +core_initcall_sync(wait_for_probes);
-> +postcore_initcall_sync(wait_for_probes);
-> +arch_initcall_sync(wait_for_probes);
-> +subsys_initcall_sync(wait_for_probes);
-> +fs_initcall_sync(wait_for_probes);
-> +device_initcall_sync(wait_for_probes);
-> +late_initcall_sync(wait_for_probes);
-> +#endif
+Nigel
 
-...if we get rid of this #ifdef.
-
--- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

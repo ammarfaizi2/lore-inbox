@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbWJZAyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbWJZBC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965247AbWJZAyO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 20:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbWJZAyO
+	id S965258AbWJZBC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 21:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbWJZBC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 20:54:14 -0400
-Received: from wx-out-0506.google.com ([66.249.82.232]:25207 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965247AbWJZAyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 20:54:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Hd+P98yQ7KGFClW4WpaK3bh7N5LpeAQmooHut0Ct6rUwg+TspjgadERzXP3Hq+0HRGXlHQfg26HMhTum/5/Q+7QsRI/InylFdzSsTsTUVOf/i0drvxKXh1j+KepIYG9URYcOe0r0fNJ9Swkze1hRIsTadliAGrYLF4vt9XxZSts=
-Message-ID: <b6a2187b0610251754x7dc2c51aoad2244b8cdcb1c09@mail.gmail.com>
-Date: Thu, 26 Oct 2006 08:54:12 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: linux-2.6.19-rc2 tg3 problem
-Cc: linux-kernel@vger.kernel.org, "David Miller" <davem@davemloft.net>
-In-Reply-To: <20061025013022.GG27968@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Oct 2006 21:02:27 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:33257 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S965254AbWJZBCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 21:02:25 -0400
+Date: Wed, 25 Oct 2006 21:02:00 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Holden Karau <holden@pigscanfly.ca>
+Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
+       holdenk@xandros.com, "akpm@osdl.org" <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes in fat_mirror_bhs
+Message-ID: <20061026010200.GE7128@filer.fsl.cs.sunysb.edu>
+References: <f46018bb0610251652y7b29889cr8a41044db6168432@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com>
-	 <20061025013022.GG27968@stusta.de>
+In-Reply-To: <f46018bb0610251652y7b29889cr8a41044db6168432@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/25/06, Adrian Bunk <bunk@stusta.de> wrote:
-> On Mon, Oct 23, 2006 at 11:24:14PM +0800, Jeff Chua wrote:
-> > I'm getting this error on with linux 2.6.19-rc2 with tg3 module, even
-> > with patching to v3.66 ...
-> > The last version 2.6.18-rc2 works fine. h/w is Dell Optiplex GX620.
->
-> Known issue, can you confirm the patches below fix it for you?
+On Wed, Oct 25, 2006 at 07:52:47PM -0400, Holden Karau wrote:
+...
+> And now for the actual patch:
+> --- a/fs/fat/fatent.c	2006-09-19 23:42:06.000000000 -0400
+> +++ b/fs/fat/fatent.c	2006-10-25 19:14:14.000000000 -0400
+> @@ -1,5 +1,6 @@
+> /*
+>  * Copyright (C) 2004, OGAWA Hirofumi
+> + * Copyright (C) 2006, Holden Karau [Xandros]
+>  * Released under GPL v2.
+>  */
 
-I see the patch is for x86_64. I'm on 32bit. And tg3 is compiled as a
-module, so I can't pass pci=routeirq to it. Tried on boot cmdline, but
-doesn't work.
+Mangled up :)
 
-I've tried 2.6.19-rc3, still the same problem.
+Josef "Jeff" Sipek.
 
-Thanks,
-Jeff.
+-- 
+Only two things are infinite, the universe and human stupidity, and I'm not
+sure about the former.
+		- Albert Einstein

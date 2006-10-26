@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422960AbWJZKfm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423018AbWJZKgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422960AbWJZKfm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 06:35:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423018AbWJZKfm
+	id S1423018AbWJZKgr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 06:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423141AbWJZKgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 06:35:42 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:15057 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1422960AbWJZKfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 06:35:42 -0400
-Message-ID: <45408F71.1030909@anagramm.de>
-Date: Thu, 26 Oct 2006 12:35:29 +0200
-From: Clemens Koller <clemens.koller@anagramm.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gregory Brauer <greg@wildbrain.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SATA300 TX4 + WD2500KS = status=0x50 { DriveReady SeekComplete
- }
-References: <453FD6B5.9080205@wildbrain.com>
-In-Reply-To: <453FD6B5.9080205@wildbrain.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 26 Oct 2006 06:36:47 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:32689 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1423018AbWJZKgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 06:36:46 -0400
+Subject: Re: incorrect taint of ndiswrapper
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: proski@gnu.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061025205923.828c620d.akpm@osdl.org>
+References: <1161807069.3441.33.camel@dv>
+	 <1161808227.7615.0.camel@localhost.localdomain>
+	 <20061025205923.828c620d.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:224ad0fd4f2efe95e6ec4f0a3ca8a73c
+Date: Thu, 26 Oct 2006 11:39:59 +0100
+Message-Id: <1161859199.12781.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Gregory!
+Ar Mer, 2006-10-25 am 20:59 -0700, ysgrifennodd Andrew Morton:
+> May be so.  But this patch was supposed to print a helpful taint message to
+> draw our attention to the fact that ndis-wrapper was in use.  The patch was
+> not intended to cause gpl'ed modules to stop loading 
 
-Gregory Brauer wrote:
-> 
-> I have a new Promise SATA300 TX4 4-port SATA controller
-> to which I have attached two older WD2500JD hard drives
-> and two brand new WD2500KS hard drives.  The older drives
-> seem to work fine, but both of the brand new hard drives
-> trigger the following errors every few seconds during
-> i/o:
-> 
-> Oct 25 13:57:18 gleep kernel: ata3: no sense translation for status: 0x50
-> Oct 25 13:57:18 gleep kernel: ata3: translated ATA stat/err 0x50/00 to 
-> SCSI SK/ASC/ASCQ 0xb/00/00
-> [...]
-> 00:0b.0 Mass storage controller: Promise Technology, Inc. PDC20718 (SATA 
-> 300 TX4) (rev 02)
+The stopping loading is purely because it now uses _GPLONLY symbols,
+which is fine until the user wants to load a windows driver except for
+the old CIPE driver. Some assumptions broke somewhere along the way and
+the chain of events that was never forseen unfolded.
 
-Hummm... Well, first, can you try another kernel?
-Second, the same chip on a board from a different manufacturer.
-I am a hardware engineer working with the Promise PDC20775.
-SATA Chips are pretty sensitive to bad board layout, coming up
-with strange errors. :-/
+> Now, if we do want to disallow gpl module loading after ndis-wrapper has
+> been used then fine
 
-Best greets,
+The problem is we do the dynamic link at module load time. We would have
+to unlink the module if it tried to taint itself, which is clearly not
+what the end user needs to suffer. Having the taint function actually
+taint and printk + return a "Linked gplonly you can't" error seems the
+better solution.
 
-Clemens Koller
-_______________________________
-R&D Imaging Devices
-Anagramm GmbH
-Rupert-Mayer-Str. 45/1
-81379 Muenchen
-Germany
-
-http://www.anagramm.de
-Phone: +49-89-741518-50
-Fax: +49-89-741518-19
+Really ndiswrapper shouldn't be using _GPLONLY symbols, that would
+actually make it useful to the binary driver afflicted again and more
+likely to be legal.
 

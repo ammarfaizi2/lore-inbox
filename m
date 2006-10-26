@@ -1,207 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423295AbWJZL7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423305AbWJZMDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423295AbWJZL7p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 07:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423305AbWJZL7p
+	id S1423305AbWJZMDf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 08:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423306AbWJZMDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 07:59:45 -0400
-Received: from to-mmp-01.tel-ott.com ([142.46.202.39]:18581 "EHLO
-	to-mmp-01.tel-ott.com") by vger.kernel.org with ESMTP
-	id S1423295AbWJZL7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 07:59:44 -0400
-Date: Thu, 26 Oct 2006 07:59:42 -0400
-From: Holden Karau <holden@pigscanfly.ca>
-Subject: [PATCH 1/1] fat: improve sync performance by grouping writes in
- fat_mirror_bhs [really unmangled]
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       holdenk@xandros.com, "akpm@osdl.org" <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, holden@pigscanfly.ca,
-       holden.karau@gmail.com
-Message-id: <4540A32E.5050602@pigscanfly.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Thu, 26 Oct 2006 08:03:34 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:52872 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1423305AbWJZMDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 08:03:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=CSJ6pMjbQL7KrpnKf48HgbTwBRrQF7giIctf3DPuCDpGJLXcYGfjd0rdpvGOCS5KXNRGiVLfW8DH2bD1cZX7phzzVZlNYLOKQ9RsS5FrNfJSxtNXzSVcX0T4TsNNt6lWFMLSBtL2+2CYe8KZzz+nyeZEsPoT4F77VNrNps2lzWc=  ;
+Message-ID: <4540A404.5090406@yahoo.com.au>
+Date: Thu, 26 Oct 2006 22:03:16 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
+       linux-kernel@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [PATCH 2/5] Extract load calculation from rebalance_tick
+References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com> <20061024183114.4530.95231.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20061024183114.4530.95231.sendpatchset@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
+Christoph Lameter wrote:
+> Extract load calculation from rebalance_tick
+> 
+> A load calculation is always done in rebalance_tick() in addition
+> to the real load balancing activities that only take place when certain
+> jiffie counts have been reached. Move that processing into a separate
+> function and call it directly from scheduler_tick().
 
-This is an attempt at improving fat_mirror_bhs in sync mode [namely it
-writes all of the data for a backup block, and then blocks untill
-finished]. The old behaviour would write & block in smaller chunks, so
-this should be slightly faster. It also removes the fixme requesting
-that it be fixed to behave this way :-)
-Signed-off-by: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
----
-Sorry about the mangled patch, this time it really shouldn't be mangled :-)
-Important note; I do not normally play with filesystems. This MAY eat
-your file system, it has not eaten mine but that does not mean much at
-all [although I don't think it will]. I'd greatly appreciate comments
-& suggestions. In case the patch gets mangled [again] I've put it up at
-http://www.holdenkarau.com/~holden/projects/fat/001_improve_fat_sync_performance.patch
+Ack for this one.
 
+> 
+> Also extract the time slice handling from scheduler_tick and
+> put it into a separate function. Then we can clean up scheduler_tick
+> significantly. It will no longer have any gotos.
 
-And now for the actual patch:
+'time_slice' should be static, and it should be named better, and you
+may as well also put the "task has expired but not rescheduled" part
+in there too. That is part of the same logical op (which is to resched
+the task when it finishes timeslice).
 
---- a/fs/fat/fatent.c	2006-09-19 23:42:06.000000000 -0400
-+++ b/fs/fat/fatent.c	2006-10-25 19:14:14.000000000 -0400
-@@ -1,5 +1,6 @@
- /*
-  * Copyright (C) 2004, OGAWA Hirofumi
-+ * Copyright (C) 2006, Holden Karau [Xandros] 
-  * Released under GPL v2.
-  */
- 
-@@ -343,34 +344,46 @@ int fat_ent_read(struct inode *inode, st
- 	return ops->ent_get(fatent);
- }
- 
--/* FIXME: We can write the blocks as more big chunk. */
- static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
--			  int nr_bhs)
-+			  int nr_bhs ) {
-+  return fat_mirror_bhs_optw(sb , bhs , nr_bhs, 0);
-+}
-+
-+static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
-+			       int nr_bhs , int wait)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
--	struct buffer_head *c_bh;
-+	struct buffer_head *c_bh[nr_bhs];
- 	int err, n, copy;
- 
-+	/* Always wait if mounted -o sync */
-+	if (sb->s_flags & MS_SYNCHRONOUS ) {
-+	  wait = 1;
-+	}
-+
- 	err = 0;
-+	err = fat_sync_bhs_optw( bhs  , nr_bhs , wait);
-+	if (err)
-+	  goto error;
- 	for (copy = 1; copy < sbi->fats; copy++) {
- 		sector_t backup_fat = sbi->fat_length * copy;
--
- 		for (n = 0; n < nr_bhs; n++) {
--			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
--			if (!c_bh) {
-+	    c_bh[n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
-+	    if (!c_bh[n]) {
- 				err = -ENOMEM;
- 				goto error;
- 			}
--			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
--			set_buffer_uptodate(c_bh);
--			mark_buffer_dirty(c_bh);
--			if (sb->s_flags & MS_SYNCHRONOUS)
--				err = sync_dirty_buffer(c_bh);
--			brelse(c_bh);
-+	    set_buffer_uptodate(c_bh[n]);
-+	    mark_buffer_dirty(c_bh[n]);
-+	    memcpy(c_bh[n]->b_data, bhs[n]->b_data, sb->s_blocksize);
-+	  }
-+	  err = fat_sync_bhs_optw( c_bh  , nr_bhs , wait );
-+	  for (n = 0; n < nr_bhs; n++ ) {
-+	    brelse(c_bh[n]);
-+	  }
- 			if (err)
- 				goto error;
- 		}
--	}
- error:
- 	return err;
- }
-@@ -383,12 +396,7 @@ int fat_ent_write(struct inode *inode, s
- 	int err;
- 
- 	ops->ent_put(fatent, new);
--	if (wait) {
--		err = fat_sync_bhs(fatent->bhs, fatent->nr_bhs);
--		if (err)
--			return err;
--	}
--	return fat_mirror_bhs(sb, fatent->bhs, fatent->nr_bhs);
-+	return fat_mirror_bhs_optw(sb, fatent->bhs, fatent->nr_bhs , wait);
- }
- 
- static inline int fat_ent_next(struct msdos_sb_info *sbi,
-@@ -505,9 +513,9 @@ out:
- 	fatent_brelse(&fatent);
- 	if (!err) {
- 		if (inode_needs_sync(inode))
--			err = fat_sync_bhs(bhs, nr_bhs);
--		if (!err)
--			err = fat_mirror_bhs(sb, bhs, nr_bhs);
-+		  err = fat_mirror_bhs_optw(sb , bhs, nr_bhs , 1);
-+		else
-+		  err = fat_mirror_bhs_optw(sb, bhs, nr_bhs , 0 );
- 	}
- 	for (i = 0; i < nr_bhs; i++)
- 		brelse(bhs[i]);
-@@ -549,11 +557,6 @@ int fat_free_clusters(struct inode *inod
- 		}
- 
- 		if (nr_bhs + fatent.nr_bhs > MAX_BUF_PER_PAGE) {
--			if (sb->s_flags & MS_SYNCHRONOUS) {
--				err = fat_sync_bhs(bhs, nr_bhs);
--				if (err)
--					goto error;
--			}
- 			err = fat_mirror_bhs(sb, bhs, nr_bhs);
- 			if (err)
- 				goto error;
-@@ -564,11 +567,6 @@ int fat_free_clusters(struct inode *inod
- 		fat_collect_bhs(bhs, &nr_bhs, &fatent);
- 	} while (cluster != FAT_ENT_EOF);
- 
--	if (sb->s_flags & MS_SYNCHRONOUS) {
--		err = fat_sync_bhs(bhs, nr_bhs);
--		if (err)
--			goto error;
--	}
- 	err = fat_mirror_bhs(sb, bhs, nr_bhs);
- error:
- 	fatent_brelse(&fatent);
---- a/fs/fat/misc.c	2006-09-19 23:42:06.000000000 -0400
-+++ b/fs/fat/misc.c	2006-10-25 18:54:27.000000000 -0400
-@@ -194,11 +194,17 @@ void fat_date_unix2dos(int unix_date, __
- 
- EXPORT_SYMBOL_GPL(fat_date_unix2dos);
- 
--int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs)
-+
-+int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs ) {
-+  return fat_sync_bhs_optw(bhs , nr_bhs , 1);
-+}
-+
-+int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs ,int wait)
- {
- 	int i, err = 0;
- 
- 	ll_rw_block(SWRITE, nr_bhs, bhs);
-+	if (wait) {
- 	for (i = 0; i < nr_bhs; i++) {
- 		wait_on_buffer(bhs[i]);
- 		if (buffer_eopnotsupp(bhs[i])) {
-@@ -207,6 +213,7 @@ int fat_sync_bhs(struct buffer_head **bh
- 		} else if (!err && !buffer_uptodate(bhs[i]))
- 			err = -EIO;
- 	}
-+	}
- 	return err;
- }
- 
---- a/include/linux/msdos_fs.h	2006-09-19 23:42:06.000000000 -0400
-+++ b/include/linux/msdos_fs.h	2006-10-25 18:53:50.000000000 -0400
-@@ -419,6 +419,7 @@ extern int fat_chain_add(struct inode *i
- extern int date_dos2unix(unsigned short time, unsigned short date);
- extern void fat_date_unix2dos(int unix_date, __le16 *time, __le16 *date);
- extern int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs);
-+extern int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs, int wait);
- 
- int fat_cache_init(void);
- void fat_cache_destroy(void);
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

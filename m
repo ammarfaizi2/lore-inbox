@@ -1,211 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422911AbWJZD6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423161AbWJZD72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422911AbWJZD6J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 23:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422910AbWJZD6I
+	id S1423161AbWJZD72 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 23:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423155AbWJZD72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 23:58:08 -0400
-Received: from to-mmp-01.tel-ott.com ([142.46.202.39]:9958 "EHLO
-	to-mmp-01.tel-ott.com") by vger.kernel.org with ESMTP
-	id S1422893AbWJZD6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 23:58:07 -0400
-Date: Wed, 25 Oct 2006 23:58:02 -0400
-From: Holden Karau <holden@pigscanfly.ca>
-Subject: [PATCH 1/1] fat: improve sync performance by grouping writes in
- fat_mirror_bhs  [unmangled]
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       holdenk@xandros.com, "akpm@osdl.org" <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, holden@pigscanfly.ca,
-       holden.karau@gmail.com
-Message-id: <4540324A.4050806@pigscanfly.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Wed, 25 Oct 2006 23:59:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2735 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423135AbWJZD70 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 23:59:26 -0400
+Date: Wed, 25 Oct 2006 20:59:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: proski@gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+Message-Id: <20061025205923.828c620d.akpm@osdl.org>
+In-Reply-To: <1161808227.7615.0.camel@localhost.localdomain>
+References: <1161807069.3441.33.camel@dv>
+	<1161808227.7615.0.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
+> On Wed, 25 Oct 2006 21:30:26 +0100 Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Mer, 2006-10-25 am 16:11 -0400, ysgrifennodd Pavel Roskin:
+> > I don't see any legal reasons behind this restriction.  A driver under
+> > GPL should be able to use any exported symbols.  EXPORT_SYMBOL_GPL is a
+> > technical mechanism of enforcing GPL against non-free code, but
+> > ndiswrapper is free.  The non-free NDIS drivers are not using those
+> > symbols.
+> 
+> The combination of GPL wrapper and the NDIS driver as a work is not free
+> (in fact its questionable if its even legal to ship such a combination
+> together).
 
-This is an attempt at improving fat_mirror_bhs in sync mode [namely it
-writes all of the data for a backup block, and then blocks untill
-finished]. The old behaviour would write & block in smaller chunks, so
-this should be slightly faster. It also removes the fixme requesting
-that it be fixed to behave this way :-)
-Signed-off-by: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
----
-Sorry about the mangled patch, serves me right for using gmail I suppose :-).
-Important note; I do not normally play with filesystems. This MAY eat
-your file system, it hasen't eaten mine but that does not mean much at
-all [although I don't think it will]. I'd greatly appreciate comments
-& suggestions. In case the patch gets mangled [again] I've put it up at
-http://www.holdenkarau.com/~holden/projects/fat/001_improve_fat_sync_performance.patch
+May be so.  But this patch was supposed to print a helpful taint message to
+draw our attention to the fact that ndis-wrapper was in use.  The patch was
+not intended to cause gpl'ed modules to stop loading (or if is was, that
+effect was concealed from yours truly).
 
-
-And now for the actual patch:
-
---- a/fs/fat/fatent.c	2006-09-19 23:42:06.000000000 -0400
-+++ b/fs/fat/fatent.c	2006-10-25 19:14:14.000000000 -0400
-@@ -1,5 +1,6 @@
- /*
-  * Copyright (C) 2004, OGAWA Hirofumi
-+ * Copyright (C) 2006, Holden Karau [Xandros] 
-  * Released under GPL v2.
-  */
- 
-@@ -343,34 +344,46 @@ int fat_ent_read(struct inode *inode, st
- 	return ops->ent_get(fatent);
- }
- 
--/* FIXME: We can write the blocks as more big chunk. */
- static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
--			  int nr_bhs)
-+			  int nr_bhs ) {
-+  return fat_mirror_bhs_optw(sb , bhs , nr_bhs, 0);
-+}
-+
-+static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
-+			       int nr_bhs , int wait)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
--	struct buffer_head *c_bh;
-+	struct buffer_head *c_bh[nr_bhs];
- 	int err, n, copy;
- 
-+	/* Always wait if mounted -o sync */
-+	if (sb->s_flags & MS_SYNCHRONOUS ) {
-+	  wait = 1;
-+	}
-+
- 	err = 0;
-+	err = fat_sync_bhs_optw( bhs  , nr_bhs , wait);
-+	if (err)
-+	  goto error;
- 	for (copy = 1; copy < sbi->fats; copy++) {
- 		sector_t backup_fat = sbi->fat_length * copy;
--
- 		for (n = 0; n < nr_bhs; n++) {
--			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
--			if (!c_bh) {
-+	    c_bh[n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
-+	    if (!c_bh[n]) {
- 				err = -ENOMEM;
- 				goto error;
- 			}
--			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
--			set_buffer_uptodate(c_bh);
--			mark_buffer_dirty(c_bh);
--			if (sb->s_flags & MS_SYNCHRONOUS)
--				err = sync_dirty_buffer(c_bh);
--			brelse(c_bh);
-+	    set_buffer_uptodate(c_bh[n]);
-+	    mark_buffer_dirty(c_bh[n]);
-+	    memcpy(c_bh[n]->b_data, bhs[n]->b_data, sb->s_blocksize);
-+	  }
-+	  err = fat_sync_bhs_optw( c_bh  , nr_bhs , wait );
-+	  for (n = 0; n < nr_bhs; n++ ) {
-+	    brelse(c_bh[n]);
-+	  }
- 			if (err)
- 				goto error;
- 		}
--	}
- error:
- 	return err;
- }
-@@ -383,12 +396,7 @@ int fat_ent_write(struct inode *inode, s
- 	int err;
- 
- 	ops->ent_put(fatent, new);
--	if (wait) {
--		err = fat_sync_bhs(fatent->bhs, fatent->nr_bhs);
--		if (err)
--			return err;
--	}
--	return fat_mirror_bhs(sb, fatent->bhs, fatent->nr_bhs);
-+	return fat_mirror_bhs_optw(sb, fatent->bhs, fatent->nr_bhs , wait);
- }
- 
- static inline int fat_ent_next(struct msdos_sb_info *sbi,
-@@ -505,9 +513,9 @@ out:
- 	fatent_brelse(&fatent);
- 	if (!err) {
- 		if (inode_needs_sync(inode))
--			err = fat_sync_bhs(bhs, nr_bhs);
--		if (!err)
--			err = fat_mirror_bhs(sb, bhs, nr_bhs);
-+		  err = fat_mirror_bhs_optw(sb , bhs, nr_bhs , 1);
-+		else
-+		  err = fat_mirror_bhs_optw(sb, bhs, nr_bhs , 0 );
- 	}
- 	for (i = 0; i < nr_bhs; i++)
- 		brelse(bhs[i]);
-@@ -549,11 +557,6 @@ int fat_free_clusters(struct inode *inod
- 		}
- 
- 		if (nr_bhs + fatent.nr_bhs > MAX_BUF_PER_PAGE) {
--			if (sb->s_flags & MS_SYNCHRONOUS) {
--				err = fat_sync_bhs(bhs, nr_bhs);
--				if (err)
--					goto error;
--			}
- 			err = fat_mirror_bhs(sb, bhs, nr_bhs);
- 			if (err)
- 				goto error;
-@@ -564,11 +567,6 @@ int fat_free_clusters(struct inode *inod
- 		fat_collect_bhs(bhs, &nr_bhs, &fatent);
- 	} while (cluster != FAT_ENT_EOF);
- 
--	if (sb->s_flags & MS_SYNCHRONOUS) {
--		err = fat_sync_bhs(bhs, nr_bhs);
--		if (err)
--			goto error;
--	}
- 	err = fat_mirror_bhs(sb, bhs, nr_bhs);
- error:
- 	fatent_brelse(&fatent);
---- a/fs/fat/misc.c	2006-09-19 23:42:06.000000000 -0400
-+++ b/fs/fat/misc.c	2006-10-25 18:54:27.000000000 -0400
-@@ -194,11 +194,17 @@ void fat_date_unix2dos(int unix_date, __
- 
- EXPORT_SYMBOL_GPL(fat_date_unix2dos);
- 
--int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs)
-+
-+int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs ) {
-+  return fat_sync_bhs_optw(bhs , nr_bhs , 1);
-+}
-+
-+int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs ,int wait)
- {
- 	int i, err = 0;
- 
- 	ll_rw_block(SWRITE, nr_bhs, bhs);
-+	if (wait) {
- 	for (i = 0; i < nr_bhs; i++) {
- 		wait_on_buffer(bhs[i]);
- 		if (buffer_eopnotsupp(bhs[i])) {
-@@ -207,6 +213,7 @@ int fat_sync_bhs(struct buffer_head **bh
- 		} else if (!err && !buffer_uptodate(bhs[i]))
- 			err = -EIO;
- 	}
-+	}
- 	return err;
- }
- 
---- a/include/linux/msdos_fs.h	2006-09-19 23:42:06.000000000 -0400
-+++ b/include/linux/msdos_fs.h	2006-10-25 18:53:50.000000000 -0400
-@@ -419,6 +419,7 @@ extern int fat_chain_add(struct inode *i
- extern int date_dos2unix(unsigned short time, unsigned short date);
- extern void fat_date_unix2dos(int unix_date, __le16 *time, __le16 *date);
- extern int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs);
-+extern int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs, int wait);
- 
- int fat_cache_init(void);
- void fat_cache_destroy(void);
+IOW, this was a mistake.
 
 
-
-
-
+Now, if we do want to disallow gpl module loading after ndis-wrapper has
+been used then fine, we can discuss that.  If we decide to proceed that way
+then we will probably cause a load of ndis-wrapper to emit a scary printk for
+six months or so to give people time to make arrangements.

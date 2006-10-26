@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161058AbWJZWbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945964AbWJZWoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161058AbWJZWbk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 18:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161448AbWJZWbk
+	id S1945964AbWJZWoo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 18:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945965AbWJZWoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 18:31:40 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:50892 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161058AbWJZWbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 18:31:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BH5M5jxd4l/SMxT+X+dglKDXaJ8xk9Lv0ZWA+EfswHlvJS7XxmNOi3oOsK34hP1SHTWTxGcxZWyu2NkHKzfjotC8sVZlI7DMBmmD+plTavMpwKnqYadJD0ilqY+cmE4drmHpa/yxWT58X5GJWofpyUbEaUQ4P4sxqop0ig15e6g=
-Message-ID: <9a8748490610261531s539b0861t621e95c785b53d7@mail.gmail.com>
-Date: Fri, 27 Oct 2006 00:31:37 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: removing drivers and ISA support? [Was: Char: correct pci_get_device changes]
-Cc: "Jiri Slaby" <jirislaby@gmail.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061026222525.GP27968@stusta.de>
+	Thu, 26 Oct 2006 18:44:44 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:57339 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1945964AbWJZWon convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 18:44:43 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 6/13] KVM: memory slot management
+Date: Fri, 27 Oct 2006 00:44:31 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
+References: <4540EE2B.9020606@qumranet.com> <20061026172756.D0649A0209@cleopatra.q>
+In-Reply-To: <20061026172756.D0649A0209@cleopatra.q>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <4540F79C.7070705@gmail.com> <20061026222525.GP27968@stusta.de>
+Message-Id: <200610270044.31382.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/10/06, Adrian Bunk <bunk@stusta.de> wrote:
-> On Thu, Oct 26, 2006 at 07:59:56PM +0200, Jiri Slaby wrote:
-> >...
-> > And what about (E)ISA support. When converting to pci probing, should be ISA bus
-> > support preserved (how much is ISA used in present)? -- it makes code ugly and long.
+On Thursday 26 October 2006 19:27, Avi Kivity wrote:
+> kvm defines memory in "slots", more or less corresponding to the DIMM
+> slots.
 >
-> There seem to be still many running 486 machines - and only the last 486
-> boards also had PCI slots.
+> this allows us to:
+>  - avoid the VGA hole at 640K
+>  - add a pci framebuffer at runtime
+>  - hotplug memory
 >
-> While deprecating OSS drivers, I got emails from people still using some
-> of the ISA cards.
->
-> And there are even Pentium 4 boards with ISA slots available.
->
-Not to mention many embedded boards - many pc104 boards use ISA, just
-to mention one type.
+> Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
+> Signed-off-by: Avi Kivity <avi@qumranet.com>
 
+To bring up the discussion about guest memory allocation again,
+I'd like to make a case for using defining guest real memory
+as host user, not a special in-kernel address space.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+You're probably aware of many of these points, but I'd like
+to list all that I can think of, in case you haven't thought
+of them:
+
+- no need to preallocate memory that the guest doesn't actually use.
+- guest memory can be paged to disk.
+- you can mmap files into multiple guest for fast communication
+- you can use mmap host files as backing store for guest blockdevices,
+  including ext2 with the -o xip mount option to avoid double paging
+- you can mmap packet sockets or similar to provide virtual networking
+  devices.
+- you can use hugetlbfs inside of guests
+- you can mmap simple devices (e.g. frame buffer) directly into
+  trusted guests without HW emulation.
+- you can use gdb to debug the running guest address space
+- no need for ioctl to access or allocate guest memory
+- you can mmap a kernel image (MAP_PRIVATE) into multiple guests
+  and share instruction cache lines.
+- the kernel code doesn't need special accessors, but can use
+  asm/uaccess.h.
+- may be able to avoid a bunch of TLB flushes with nested page tables.
+
+On the downside, I can see these points:
+
+- As you mentioned guest size on 32 bit hosts is limited to around 1G.
+- you probably have to rewrite your virtual MMU from scratch
+- for optimal performance, pageable guests need something like the s390
+  pagex/pfault mechanism in the guest kernel.
+- if you want a guest not to be paged out, you need privileges to do mlock.
+- you can't use swap space in the guest if you want to avoid the
+  double paging problem (host needs to read a page from disk for the guest
+  to swap it out), or you'd have to implement a mechanism like Martin
+  Schwidefsky's page hints (cmm2) for s390.
+
+	Arnd <><

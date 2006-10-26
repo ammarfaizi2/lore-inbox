@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423489AbWJZNLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423496AbWJZNN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423489AbWJZNLz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 09:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423496AbWJZNLz
+	id S1423496AbWJZNN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 09:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423498AbWJZNN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 09:11:55 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:8895 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1423489AbWJZNLy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 09:11:54 -0400
-Message-ID: <4540B414.7040406@compro.net>
-Date: Thu, 26 Oct 2006 09:11:48 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+	Thu, 26 Oct 2006 09:13:26 -0400
+Received: from ezoffice.mandriva.com ([84.14.106.134]:13829 "EHLO
+	office.mandriva.com") by vger.kernel.org with ESMTP
+	id S1423496AbWJZNNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 09:13:25 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+X-URL: <http://www.mandrivalinux.com/
+References: <1161807069.3441.33.camel@dv>
+	<1161808227.7615.0.camel@localhost.localdomain>
+	<1161810392.3441.60.camel@dv> <20061025213355.GG23256@vasa.acc.umu.se>
+	<1161817118.7615.34.camel@localhost.localdomain>
+	<20061026032352.GI23256@vasa.acc.umu.se>
+From: Thierry Vignaud <tvignaud@mandriva.com>
+Organization: Mandriva
+Date: Thu, 26 Oct 2006 15:13:23 +0200
+In-Reply-To: <20061026032352.GI23256@vasa.acc.umu.se> (David Weinehall's message of "Thu, 26 Oct 2006 05:23:52 +0200")
+Message-ID: <m2r6wvusng.fsf@vador.mandriva.com>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dmarkh@cfl.rr.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Another kernel releated GPL ?
-References: <4540839C.6010302@cfl.rr.com> <1161861128.12781.28.camel@localhost.localdomain> <45409BFA.8000507@compro.net> <20061026121041.GB12420@harddisk-recovery.com>
-In-Reply-To: <20061026121041.GB12420@harddisk-recovery.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
-> On Thu, Oct 26, 2006 at 07:28:58AM -0400, Mark Hounschell wrote:
->> Alan Cox wrote:
->>> Ask your lawyer. It depends on the legal definition of "derivative
->>> work", which isn't something a kernel developer can really answer.
->>>
->> I'm sure every lawyer will have his own opinion. In the end won't it come down
->> to the intent of the kernel developer? Surly the definition of "derivative work"
->> has to be, or has been already, defined by someone other than a lawyer or court
->> that knows nothing of "kernel development"?
+David Weinehall <tao@acc.umu.se> writes:
+
+> > > Personally I feel that no matter if they are legal or not, we
+> > > should not cater to such drivers in the first place.  If it's
+> > > trickier to use Windows API-drivers under Linux than to write a
+> > > native Linux driver, big deal...  We don't want Windows-drivers.
+> > > We want native drivers.
+> > 
+> > Neither taint nor _GPL are intended to stop people doing things
+> > that, in the eyes of the masses, are stupid. The taint mark is
+> > there to ensure that they don't harm the rest of us. The FSF view
+> > of freedom is freedom to modify not freedom to modify in a manner
+> > approved by some defining body.
 > 
-> "Derivative work" is defined by copyright law, not by some random
-> kernel hackers. You should really consult a lawyer.
-> 
-> If legal advise is too expensive, then your Most Holy IP apparently
-> isn't worth that much and you'd rather release it under GPL.
-> 
-> 
-> Erik
-> 
+> Hence my use of the world "Personally".  It's my own opinion that we
+> shouldn't support Windows API-drivers.  I don't think this has
+> anything to do with the FSF view on freedom.  This has to do with
+> the freedom to make a sound technical decision.
 
-Any Holy IP I might have would be GPL. It's just I know of some that isn't and I
-can't understand why it isn't. I'm not looking for legal advise. Just opinions.
-
-Some code is added directly to the kernel source tree. A user land library is
-written to access the changes. It is not GPL or LGPL. Simple scenario. No? I
-thought so at least.
-
-With all the complex and detailed (way over my head) discussions of the GPL-V2
-vs. V3 that the list has had recently, I don't understand how something so
-simple as this scenario would require legal advise to know if it were OK or not.
-
-
-
-Thanks anyway
-Mark
+and your freedom to do whatever you want at home isn't restricted by
+the tainting.

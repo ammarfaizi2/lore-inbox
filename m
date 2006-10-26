@@ -1,132 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161384AbWJZNqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161391AbWJZNv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161384AbWJZNqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 09:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161129AbWJZNqY
+	id S1161391AbWJZNv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 09:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161396AbWJZNv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 09:46:24 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:21708 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161370AbWJZNqY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 09:46:24 -0400
-Date: Thu, 26 Oct 2006 09:44:42 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@muc.de>, Ian Campbell <Ian.Campbell@xensource.com>
-Subject: Re: [PATCH] x86_64: Some vmlinux.lds.S cleanups
-Message-ID: <20061026134442.GA11284@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061024210140.GB14225@in.ibm.com> <45407B05.76E4.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 Oct 2006 09:51:58 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:49009 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1161393AbWJZNv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 09:51:57 -0400
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+To: Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH 2.6.19-rc3 2/2] ehea: 64K page support fix
+Date: Thu, 26 Oct 2006 15:00:20 +0200
+User-Agent: KMail/1.8.2
+Cc: Jeff Garzik <jeff@garzik.org>, Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>, netdev <netdev@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
+References: <200610251312.01235.ossthema@de.ibm.com> <20061025162126.GB25324@krispykreme>
+In-Reply-To: <20061025162126.GB25324@krispykreme>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45407B05.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200610261500.20898.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 26, 2006 at 08:08:21AM +0100, Jan Beulich wrote:
-> I was about to ack it when I saw that you left .bss in init - that doesn't seem
-> too good an idea... Jan
-> 
+Hi,
 
-Should I create a separate program header say "bss" for .bss section? Last
-time when I suggested it you said there is no need to create a separate
-program header for bss.
+that is right, I'll send a new patch
 
-More program headers we create, we need to make sure that they are on page
-size boundaries so that kexec on vmlinux does not break.
+Thanks,
+Jan-Bernd
 
-Thanks
-Vivek
-
-> >>> Vivek Goyal <vgoyal@in.ibm.com> 24.10.06 23:01 >>>
+On Wednesday 25 October 2006 18:21, Anton Blanchard wrote:
 > 
+> Hi,
 > 
-> o Some cleanups based on Jan Beulich's suggestions. It boots on my box. Hope
->   does not break anything else.
+> > +#ifdef CONFIG_PPC_64K_PAGES
+> > +	/* To support 64k pages we must round to 64k page boundary */
+> > +	epas->kernel.addr =
+> > +		ioremap((paddr_kernel & 0xFFFFFFFFFFFF0000), PAGE_SIZE) +
+> > +		(paddr_kernel & 0xFFFF);
+> > +#else
+> >  	epas->kernel.addr = ioremap(paddr_kernel, PAGE_SIZE);
+> > +#endif
 > 
-> o Renamed program header name data.init to init. "init" is now supposed
->   to contain init text/data.
+> Cant you just use PAGE_MASK, ~PAGE_MASK and remove the ifdefs
+> completely?
 > 
-> o Moved sections ".data.init_task" and ".data.page_aligned" into program
->   header "data" as they don't fit logically into "init".
+> Anton
 > 
-> o Got rid of "R" permission for "note" phdr as only boot loaer is supposed
->   to look at note phdr.
-> 
-> o Got rid of "E" permission for "data" phdr.  
-> 
-> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
-> ---
-> 
->  arch/x86_64/kernel/vmlinux.lds.S |   32 ++++++++++++++++----------------
->  1 file changed, 16 insertions(+), 16 deletions(-)
-> 
-> diff -puN arch/x86_64/kernel/vmlinux.lds.S~x86_64-vmlinux-lds-S-cleanup arch/x86_64/kernel/vmlinux.lds.S
-> --- linux-2.6.19-rc3/arch/x86_64/kernel/vmlinux.lds.S~x86_64-vmlinux-lds-S-cleanup	2006-10-24 15:58:23.000000000
-> -0400
-> +++ linux-2.6.19-rc3-root/arch/x86_64/kernel/vmlinux.lds.S	2006-10-24 16:35:56.000000000 -0400
-> @@ -15,10 +15,10 @@ ENTRY(phys_startup_64)
->  jiffies_64 = jiffies;
->  PHDRS {
->  	text PT_LOAD FLAGS(5);	/* R_E */
-> -	data PT_LOAD FLAGS(7);	/* RWE */
-> +	data PT_LOAD FLAGS(6);	/* RW_ */
->  	user PT_LOAD FLAGS(7);	/* RWE */
-> -	data.init PT_LOAD FLAGS(7);	/* RWE */
-> -	note PT_NOTE FLAGS(4);	/* R__ */
-> +	init PT_LOAD FLAGS(7);	/* RWE */
-> +	note PT_NOTE FLAGS(0);	/* None */
->  }
->  SECTIONS
->  {
-> @@ -78,9 +78,19 @@ SECTIONS
->    	*(.data.read_mostly)
->    }
->  
-> +  . = ALIGN(8192);		/* init_task */
-> +  .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
-> +	*(.data.init_task)
-> +  }
-> +
-> +  . = ALIGN(4096);
-> +  .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
-> +	*(.data.page_aligned)
-> +  }
-> +
->  #define VSYSCALL_ADDR (-10*1024*1024)
-> -#define VSYSCALL_PHYS_ADDR ((LOADADDR(.data.read_mostly) + SIZEOF(.data.read_mostly) + 4095) & ~(4095))
-> -#define VSYSCALL_VIRT_ADDR ((ADDR(.data.read_mostly) + SIZEOF(.data.read_mostly) + 4095) & ~(4095))
-> +#define VSYSCALL_PHYS_ADDR ((LOADADDR(.data.page_aligned) + SIZEOF(.data.page_aligned) + 4095) & ~(4095))
-> +#define VSYSCALL_VIRT_ADDR ((ADDR(.data.page_aligned) + SIZEOF(.data.page_aligned) + 4095) & ~(4095))
->  
->  #define VLOAD_OFFSET (VSYSCALL_ADDR - VSYSCALL_PHYS_ADDR)
->  #define VLOAD(x) (ADDR(x) - VLOAD_OFFSET)
-> @@ -129,23 +139,13 @@ SECTIONS
->  #undef VVIRT_OFFSET
->  #undef VVIRT
->  
-> -  . = ALIGN(8192);		/* init_task */
-> -  .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
-> -	*(.data.init_task)
-> -  }:data.init
-> -
-> -  . = ALIGN(4096);
-> -  .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
-> -	*(.data.page_aligned)
-> -  }
-> -
->    /* might get freed after init */
->    . = ALIGN(4096);
->    __smp_alt_begin = .;
->    __smp_alt_instructions = .;
->    .smp_altinstructions : AT(ADDR(.smp_altinstructions) - LOAD_OFFSET) {
->  	*(.smp_altinstructions)
-> -  }
-> +  }:init
->    __smp_alt_instructions_end = .;
->    . = ALIGN(8);
->    __smp_locks = .;
-> _

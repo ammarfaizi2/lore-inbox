@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423435AbWJZFys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423437AbWJZGG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423435AbWJZFys (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 01:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423437AbWJZFys
+	id S1423437AbWJZGG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 02:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423439AbWJZGG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 01:54:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:23201 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1423435AbWJZFys (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 01:54:48 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
+	Thu, 26 Oct 2006 02:06:56 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26538
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1423437AbWJZGG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 02:06:56 -0400
+Date: Wed, 25 Oct 2006 23:06:52 -0700 (PDT)
+Message-Id: <20061025.230652.71090033.davem@davemloft.net>
 To: linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@suse.de>
-Subject: i386: Enable NMI watchdog by default does not work as intended
+Subject: Re: ext3 oops on shutdown
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061025.005134.74748405.davem@davemloft.net>
+References: <20061024.175751.07640578.davem@davemloft.net>
+	<20061025.005134.74748405.davem@davemloft.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 26 Oct 2006 15:54:33 +1000
-Message-ID: <29986.1161842073@kao2.melbourne.sgi.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch does not work as intended.
+From: David Miller <davem@davemloft.net>
+Date: Wed, 25 Oct 2006 00:51:34 -0700 (PDT)
 
-commit 1de84979dfc527c422abf63f27beabe43892989b
-Author: Andi Kleen <ak@suse.de>
-Date:   Tue Sep 26 10:52:27 2006 +0200
+> It's probably some sparc64 issue, maybe even some error wrt.  freeing
+> up init memory.  I'll try to track it down.  I'm actually quite
+> curious what this bug is :-)
 
-    [PATCH] i386: Enable NMI watchdog by default
+Yep, a sparc64 bug, I'll push this to Linus shortly...
 
-diff --git a/arch/i386/kernel/nmi.c b/arch/i386/kernel/nmi.c
-index 8e4ed93..6e5085d 100644
---- a/arch/i386/kernel/nmi.c
-+++ b/arch/i386/kernel/nmi.c
-@@ -21,6 +21,7 @@ #include <linux/nmi.h>
- #include <linux/sysdev.h>
- #include <linux/sysctl.h>
- #include <linux/percpu.h>
-+#include <linux/dmi.h>
+commit 2506be0657c7bd1befdb616fb0e86d87c6a288cd
+Author: David S. Miller <davem@sunset.davemloft.net>
+Date:   Wed Oct 25 22:33:07 2006 -0700
+
+    [SPARC64]: Fix memory corruption in pci_4u_free_consistent().
+    
+    The second argument to free_npages() was being incorrectly
+    calculated, which would thus access far past the end of the
+    arena->map[] bitmap.
+    
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/arch/sparc64/kernel/pci_iommu.c b/arch/sparc64/kernel/pci_iommu.c
+index 82e5455..2e7f142 100644
+--- a/arch/sparc64/kernel/pci_iommu.c
++++ b/arch/sparc64/kernel/pci_iommu.c
+@@ -281,7 +281,7 @@ static void pci_4u_free_consistent(struc
  
- #include <asm/smp.h>
- #include <asm/nmi.h>
-@@ -204,6 +205,14 @@ static int __init check_nmi_watchdog(voi
- 	unsigned int *prev_nmi_count;
- 	int cpu;
+ 	spin_lock_irqsave(&iommu->lock, flags);
  
-+	/* Enable NMI watchdog for newer systems.
-+           Actually it should be safe for most systems before 2004 too except
-+	   for some IBM systems that corrupt registers when NMI happens
-+	   during SMM. Unfortunately we don't have more exact information
-+ 	   on these and use this coarse check. */
-+	if (nmi_watchdog == NMI_DEFAULT && dmi_get_year(DMI_BIOS_DATE) >= 2004)
-+		nmi_watchdog = NMI_LOCAL_APIC;
-+
- 	if ((nmi_watchdog == NMI_NONE) || (nmi_watchdog == NMI_DEFAULT))
- 		return 0;
+-	free_npages(iommu, dvma, npages);
++	free_npages(iommu, dvma - iommu->page_table_map_base, npages);
  
-It attempts to change NMI_DEFAULT to NMI_LOCAL_APIC for recent BIOS
-versions, even when the user does _not_ specify nmi_watchdog= on the
-command line.  However a few lines further down is this test which
-fails because nmi_active is 0.
-
-	if (!atomic_read(&nmi_active))
-		return 0;
-
-The calling sequence is setup_local_APIC() -> setup_apic_nmi_watchdog()
--> atomic_inc(nmi_active), but only if nmi_watchdog contains
-NMI_LOCAL_APIC or NMI_IO_APIC.  Without a command line option,
-setup_apic_nmi_watchdog() does nothing, nmi_active is still 0 and
-check_nmi_watchdog() exits early.  Only if you specify nmi_watchdog= on
-the command line so nmi_active is non-zero before check_nmi_watchdog()
-is called do you get an NMI handler.  IOW, the automatic activation of
-the NMI handler is too late.
-
+ 	spin_unlock_irqrestore(&iommu->lock, flags);
+ 

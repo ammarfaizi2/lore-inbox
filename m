@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422809AbWJZLtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422985AbWJZLtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422809AbWJZLtw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 07:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbWJZLtw
+	id S1422985AbWJZLtz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 07:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422942AbWJZLtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 07:49:52 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31635 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161115AbWJZLtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 07:49:51 -0400
-Subject: Re: Security issues with local filesystem caching
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Dittmer <jdi@l4x.org>
-Cc: David Howells <dhowells@redhat.com>, sds@tycho.nsa.gov, jmorris@namei.org,
-       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com
-In-Reply-To: <45407C71.5070407@l4x.org>
-References: <16969.1161771256@redhat.com>  <45407C71.5070407@l4x.org>
+	Thu, 26 Oct 2006 07:49:55 -0400
+Received: from mail.first.fraunhofer.de ([194.95.169.2]:40925 "EHLO
+	mail.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1161144AbWJZLty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 07:49:54 -0400
+Subject: Re: usb initialization order (usbhid vs. appletouch)
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200610261220.05707.oliver@neukum.org>
+References: <1161856438.5214.2.camel@no.intranet.wo.rk>
+	 <200610261220.05707.oliver@neukum.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 26 Oct 2006 12:52:21 +0100
-Message-Id: <1161863541.12781.32.camel@localhost.localdomain>
+Date: Thu, 26 Oct 2006 13:49:40 +0200
+Message-Id: <1161863380.18657.38.camel@no.intranet.wo.rk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-10-26 am 11:14 +0200, ysgrifennodd Jan Dittmer:
-> Why again no local userspace daemon to do the caching? That would
-> put the policy out of the kernel. The additional context switches
-> are probably pretty cheap compared to the io operations.
+On Thu, 2006-10-26 at 12:20 +0200, Oliver Neukum wrote:
+> Am Donnerstag, 26. Oktober 2006 11:53 schrieb Soeren Sonnenburg:
+> > Dear all,
+> > 
+> > I've noticed that the appletouch driver needs to be loaded *before* the
+> > usbhid driver to function. This is currently impossible when built into
+> > the kernel (and not modules). So I wonder how one can change the
+> > ordering of when the usb drivers are loaded.
+> > 
+> > Suggestions ?
+> 
+> Add a quirk to HID. Messing around with probing orders is not
+> a sure thing.
 
-It costs a lot in latency, and you don't need a daemon in the first
-place. If you want to do a user space caching fs of course you can
-already do it with FUSE..
+what do you have in mind ? if appletouch is turned on ignore IDs that
+appear in appletouch ?
 
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.

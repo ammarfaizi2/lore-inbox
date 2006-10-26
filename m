@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752122AbWJZJCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422747AbWJZJC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752122AbWJZJCG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 05:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752123AbWJZJCG
+	id S1422747AbWJZJC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 05:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752131AbWJZJC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 05:02:06 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:1181 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1752122AbWJZJCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 05:02:04 -0400
-Date: Thu, 26 Oct 2006 11:02:01 +0200
+	Thu, 26 Oct 2006 05:02:56 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:34597 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1752130AbWJZJCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 05:02:55 -0400
+Date: Thu, 26 Oct 2006 11:02:53 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, cornelia.huck@de.ibm.com
-Subject: [S390] cio: css_probe_device() must be called enabled.
-Message-ID: <20061026090201.GB16270@skybase>
+To: linux-kernel@vger.kernel.org, rwuerthn@de.ibm.com
+Subject: [S390] Improve AP bus device removal.
+Message-ID: <20061026090253.GD16270@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,41 +21,39 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Ralph Wuerthner <rwuerthn@de.ibm.com>
 
-[S390] cio: css_probe_device() must be called enabled.
+[S390] Improve AP bus device removal.
 
-Move css_probe_device() behind giving up the lock for the old subchannel
-in css_evaluate_known_subchannel() so we aren't disabled when we call it.
+Added a call to device_unregister() in ap_scan_bus() to actively
+remove unavailable AP bus devices with every bus scan. Previously 
+devices were only removed in ap_queue_message() or __ap_poll_all().
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Ralph Wuerthner <rwuerthn@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/css.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/s390/crypto/ap_bus.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/css.c linux-2.6-patched/drivers/s390/cio/css.c
---- linux-2.6/drivers/s390/cio/css.c	2006-10-26 10:43:46.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/css.c	2006-10-26 10:44:03.000000000 +0200
-@@ -271,10 +271,6 @@ static int css_evaluate_known_subchannel
- 		/* Reset intparm to zeroes. */
- 		sch->schib.pmcw.intparm = 0;
- 		cio_modify(sch);
--
--		/* Probe if necessary. */
--		if (action == UNREGISTER_PROBE)
--			ret = css_probe_device(sch->schid);
- 		break;
- 	case REPROBE:
- 		device_trigger_reprobe(sch);
-@@ -283,6 +279,9 @@ static int css_evaluate_known_subchannel
- 		break;
- 	}
- 	spin_unlock_irqrestore(&sch->lock, flags);
-+	/* Probe if necessary. */
-+	if (action == UNREGISTER_PROBE)
-+		ret = css_probe_device(sch->schid);
- 
- 	return ret;
- }
+diff -urpN linux-2.6/drivers/s390/crypto/ap_bus.c linux-2.6-patched/drivers/s390/crypto/ap_bus.c
+--- linux-2.6/drivers/s390/crypto/ap_bus.c	2006-10-26 10:43:46.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/ap_bus.c	2006-10-26 10:44:05.000000000 +0200
+@@ -739,11 +739,16 @@ static void ap_scan_bus(void *data)
+ 		dev = bus_find_device(&ap_bus_type, NULL,
+ 				      (void *)(unsigned long)qid,
+ 				      __ap_scan_bus);
++		rc = ap_query_queue(qid, &queue_depth, &device_type);
++		if (dev && rc) {
++			put_device(dev);
++			device_unregister(dev);
++			continue;
++		}
+ 		if (dev) {
+ 			put_device(dev);
+ 			continue;
+ 		}
+-		rc = ap_query_queue(qid, &queue_depth, &device_type);
+ 		if (rc)
+ 			continue;
+ 		rc = ap_init_queue(qid);

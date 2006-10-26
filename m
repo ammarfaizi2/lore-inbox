@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422870AbWJZDIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWJZDX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422870AbWJZDIf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 23:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422885AbWJZDIf
+	id S932253AbWJZDX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 23:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWJZDX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 23:08:35 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:39060 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1422870AbWJZDIe (ORCPT
+	Wed, 25 Oct 2006 23:23:58 -0400
+Received: from mail.acc.umu.se ([130.239.18.156]:1729 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S932253AbWJZDX5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 23:08:34 -0400
-Date: Wed, 25 Oct 2006 22:40:04 -0400
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       Harald Welte <laforge@gnumonks.org>
-Subject: Re: [PATCH] cm4000_cs: fix return value check
-Message-ID: <20061026024004.GF32048@dominikbrodowski.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-	Harald Welte <laforge@gnumonks.org>
-References: <20061017062559.GB13100@localhost>
+	Wed, 25 Oct 2006 23:23:57 -0400
+Date: Thu, 26 Oct 2006 05:23:52 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+Message-ID: <20061026032352.GI23256@vasa.acc.umu.se>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+References: <1161807069.3441.33.camel@dv> <1161808227.7615.0.camel@localhost.localdomain> <1161810392.3441.60.camel@dv> <20061025213355.GG23256@vasa.acc.umu.se> <1161817118.7615.34.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061017062559.GB13100@localhost>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1161817118.7615.34.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Oct 17, 2006 at 03:25:59PM +0900, Akinobu Mita wrote:
-> The return value of class_create() need to be checked with IS_ERR().
-> And register_chrdev() returns errno on failure.
-> This patch includes these fixes for cm4000_cs and cm4040_cs.
+On Wed, Oct 25, 2006 at 11:58:38PM +0100, Alan Cox wrote:
+> Ar Mer, 2006-10-25 am 23:33 +0200, ysgrifennodd David Weinehall:
+> > Personally I feel that no matter if they are legal or not, we should not
+> > cater to such drivers in the first place.  If it's trickier to use
+> > Windows API-drivers under Linux than to write a native Linux driver,
+> > big deal...  We don't want Windows-drivers.  We want native drivers.
 > 
-> Cc: Harald Welte <laforge@gnumonks.org>
-> Signed-off-by: Akinbou Mita <akinobu.mita@gmail.com>
+> Neither taint nor _GPL are intended to stop people doing things that, in
+> the eyes of the masses, are stupid. The taint mark is there to ensure
+> that they don't harm the rest of us. The FSF view of freedom is freedom
+> to modify not freedom to modify in a manner approved by some defining
+> body.
 
-Temporarily applied to pcmica-2.6.git, thanks. Harald, do you ACK?
+Hence my use of the world "Personally".  It's my own opinion that we
+shouldn't support Windows API-drivers.  I don't think this has anything
+to do with the FSF view on freedom.  This has to do with the freedom to
+make a sound technical decision.
 
-Thanks,
-	Dominik
+
+Regards: David
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

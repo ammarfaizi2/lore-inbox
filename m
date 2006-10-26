@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946025AbWJZXrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945998AbWJZXtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946025AbWJZXrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 19:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946029AbWJZXrQ
+	id S1945998AbWJZXtM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 19:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946030AbWJZXtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 19:47:16 -0400
-Received: from c60.cesmail.net ([216.154.195.49]:45142 "EHLO c60.cesmail.net")
-	by vger.kernel.org with ESMTP id S1946025AbWJZXrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 19:47:15 -0400
-Subject: Re: incorrect taint of ndiswrapper
-From: Pavel Roskin <proski@gnu.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061026230002.GR27968@stusta.de>
-References: <1161807069.3441.33.camel@dv>
-	 <1161808227.7615.0.camel@localhost.localdomain>
-	 <20061025205923.828c620d.akpm@osdl.org>
-	 <1161859199.12781.7.camel@localhost.localdomain>
-	 <1161890340.9087.28.camel@dv> <20061026214600.GL27968@stusta.de>
-	 <1161901793.9087.110.camel@dv>  <20061026230002.GR27968@stusta.de>
-Content-Type: text/plain
-Date: Thu, 26 Oct 2006 19:47:13 -0400
-Message-Id: <1161906433.9087.121.camel@dv>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Oct 2006 19:49:12 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:36128 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1945998AbWJZXtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 19:49:11 -0400
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Andrew Morton <akpm@osdl.org>, iss_storagedev@hp.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH cciss: fix printk format warning
+X-Message-Flag: Warning: May contain useful information
+References: <20061023214608.f09074e9.randy.dunlap@oracle.com>
+	<20061026160245.26f86ce2.akpm@osdl.org> <ada64e67jhf.fsf@cisco.com>
+	<454144ED.4020101@oracle.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 26 Oct 2006 16:49:10 -0700
+In-Reply-To: <454144ED.4020101@oracle.com> (Randy Dunlap's message of "Thu, 26 Oct 2006 16:29:49 -0700")
+Message-ID: <ada1wou7i4p.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 26 Oct 2006 23:49:10.0698 (UTC) FILETIME=[5568E0A0:01C6F959]
+Authentication-Results: sj-dkim-7.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-27 at 01:00 +0200, Adrian Bunk wrote:
-> On Thu, Oct 26, 2006 at 06:29:53PM -0400, Pavel Roskin wrote:
-> > On Thu, 2006-10-26 at 23:46 +0200, Adrian Bunk wrote:
-> >...
-> > > It's not even clear that any modules containing non-GPL'ed code were 
-> > > legal.
-> > 
-> > I'm not a lawyer, but I think one cannot classify software as legal or
-> > illegal.
-> 
-> That's wrong, e.g. in some jurisdictions writing software that 
-> circumvents copyright protections is forbidden by law.
+ > OK, how about this one then?
+ > 
+ > 	c->busaddr = (__u32) cmd_dma_handle;
+ > 
+ > where cmd_dma_handle is a dma_addr_t (u32 or u64)
 
-Fortunately, it would take a long flight of imagination to classify
-ndiswrapper as "software that circumvents copyright protections".  One
-would have to claim that ndiswrapper is "bundling" itself with non-free
-code and "distributing" that "bundle" from the hard drive into RAM, or
-something just as ridiculous.
+It's super-fishy looking but actually I think it's OK, at least as
+things stand now.  As you see later from how it's freed:
 
-Anyway, I'm glad that the sanity has prevailed for now.
+ > 		pci_free_consistent(h->pdev, sizeof(CommandList_struct),
+ > 				    c, (dma_addr_t) c->busaddr);
 
--- 
-Regards,
-Pavel Roskin
+this is the bus address of memory from pci_alloc_consistent(), and
+since cciss never does pci_set_consistent_dma_mask(), the mask will
+remain at the default 32 bits.  So the driver is actually safe in
+assuming that cmd_dma_handle fits into 32 bits.  assuming that
+cmd_dma_handle.
 
+ - R.

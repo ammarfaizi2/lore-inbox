@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161418AbWJZSLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423493AbWJZSOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161418AbWJZSLA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 14:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161417AbWJZSLA
+	id S1423493AbWJZSOh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 14:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423610AbWJZSOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 14:11:00 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:49415 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1161418AbWJZSK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 14:10:59 -0400
-Date: Thu, 26 Oct 2006 20:10:55 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
-Message-ID: <20061026181055.GT4868@rhun.haifa.ibm.com>
-References: <86802c440610232115r76d98803o4293cdafce1fd95c@mail.gmail.com> <20061024170503.GA71966@muc.de> <86802c440610260204t4620d25t2d2e40895203b17@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c440610260204t4620d25t2d2e40895203b17@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Thu, 26 Oct 2006 14:14:37 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38355 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1423493AbWJZSOg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 14:14:36 -0400
+Date: Thu, 26 Oct 2006 11:13:11 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
+       linux-kernel@vger.kernel.org,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [PATCH 5/5] Only call rebalance_domains when needed from
+ scheduler_tick
+In-Reply-To: <4540EC84.8070302@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0610261110030.18037@schroedinger.engr.sgi.com>
+References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com>
+ <20061024183130.4530.83162.sendpatchset@schroedinger.engr.sgi.com>
+ <4540A986.2070200@yahoo.com.au> <Pine.LNX.4.64.0610260922400.16978@schroedinger.engr.sgi.com>
+ <4540EC84.8070302@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 26, 2006 at 02:04:57AM -0700, Yinghai Lu wrote:
-> Andi,
-> please check the revised patch: It can be appied to current linus't tree.
-> 
-> in phys flat mode, when using set_xxx_irq_affinity to irq balance from
-> one cpu to another,  _assign_irq_vector will get to increase last used
-> vector and get new vector. this will use up the vector if enough
-> set_xxx_irq_affintiy are called. and end with using same vector in
-> different cpu for different irq. (that is not what we want, we only
-> want to use same vector in different cpu for different irq when more
-> than 0x240 irq needed). To keep it simple, the vector should be reused
-> instead of getting new vector.
-> 
-> Also according to Eric's review, make it more generic to be used with
-> flat mode too.
-> 
-> It also check if new domain and old domain is equal, to avoid extra 
-> operation.
+On Fri, 27 Oct 2006, Nick Piggin wrote:
 
-Works fine for mee.
+> > > sched-domains was supposed to be able to build a whacky topology
+> > > so you didn't have to take the occasional big latency hit when
+> > > scanning 512 CPUs...
+> > 
+> > 
+> > How is that supposed to work? The load calculations will be off
+> > in that case and also the load balancing algorithm wont work anymore. This
+> > is going to be a pretty significant rework of how the scheduler works but
+> > given the problems with pinned tasks... maybe that is necessary?
+> > duler?
+> 
+> What will the problem be? Sure it may pull tasks fom one group to
+> another when both could actually be pulling from a third, but it
+> the load balancing algorithm should work fine and not require any
+> rework.
 
-Cheers,
-Muli
+Hmmm....
+I think we already have what you want if we would disable the allnodes 
+domain. The next sched domain layer contains 16 surrounding nodes 
+from which it can pull processes. If there would be severe overload on one 
+node  then processes would be gradually migrated away from it but it would 
+require multiple migration steps.
+
+Nevertheless, I still think we need this patchset because of the general 
+interrupt hold off issue. The livelock is extreme case but it general we 
+do no want long interrupt holdoffs but keep the period in which we would 
+be executing with interrupts off minimal.
+

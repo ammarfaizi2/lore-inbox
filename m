@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423409AbWJZFek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423435AbWJZFys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423409AbWJZFek (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 01:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423416AbWJZFek
+	id S1423435AbWJZFys (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 01:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423437AbWJZFys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 01:34:40 -0400
-Received: from main.gmane.org ([80.91.229.2]:47779 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1423409AbWJZFej (ORCPT
+	Thu, 26 Oct 2006 01:54:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23201 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1423435AbWJZFys (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 01:34:39 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 26 Oct 2006 01:54:48 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [git failure] failure pulling latest Linus tree
-Date: Thu, 26 Oct 2006 05:34:26 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnek0iji.93p.olecom@flower.upol.cz>
-References: <yq0d58g92u0.fsf@jaguar.mkp.net> <Pine.LNX.4.64.0610250746000.3962@g5.osdl.org> <453F8630.2000608@zytor.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+Cc: Andi Kleen <ak@suse.de>
+Subject: i386: Enable NMI watchdog by default does not work as intended
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 26 Oct 2006 15:54:33 +1000
+Message-ID: <29986.1161842073@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-10-25, H. Peter Anvin wrote:
-> Linus Torvalds wrote:
->> 
->> On Wed, 25 Oct 2006, Jes Sorensen wrote:
->>> Known error? git tree corrupted or need for a new version of git?
->> 
->> For some reason, the mirroring seems to be really slow or broken to one of 
->> the public servers (zeus-pub1). It looks to be affecting gitweb too (ie 
->> www1.kernel.org is busted, while www2.kernel.org seems ok)
->> 
->
-> For some reason which we haven't been able to track down yet, the recent 
-> load imposed by FC6 caused zeus1's load to skyrocket, but not zeus2's... 
-> it's largely a mystery.
->
-> HOWEVER, git 1.4.3 seems to have been bad chicken.  When we ran it we 
-> got a neverending stream of segfaults in the logs.
+This patch does not work as intended.
 
-Please, are there more gitweb services of kernel.org's one?
+commit 1de84979dfc527c422abf63f27beabe43892989b
+Author: Andi Kleen <ak@suse.de>
+Date:   Tue Sep 26 10:52:27 2006 +0200
 
-I know this may be stupid as anyone can git clone && etc. But in my
-case all i need (mostly) is history and logs (i've started my devel
-from patches, and they are mirrored pretty good).
+    [PATCH] i386: Enable NMI watchdog by default
 
-TIA.
+diff --git a/arch/i386/kernel/nmi.c b/arch/i386/kernel/nmi.c
+index 8e4ed93..6e5085d 100644
+--- a/arch/i386/kernel/nmi.c
++++ b/arch/i386/kernel/nmi.c
+@@ -21,6 +21,7 @@ #include <linux/nmi.h>
+ #include <linux/sysdev.h>
+ #include <linux/sysctl.h>
+ #include <linux/percpu.h>
++#include <linux/dmi.h>
+ 
+ #include <asm/smp.h>
+ #include <asm/nmi.h>
+@@ -204,6 +205,14 @@ static int __init check_nmi_watchdog(voi
+ 	unsigned int *prev_nmi_count;
+ 	int cpu;
+ 
++	/* Enable NMI watchdog for newer systems.
++           Actually it should be safe for most systems before 2004 too except
++	   for some IBM systems that corrupt registers when NMI happens
++	   during SMM. Unfortunately we don't have more exact information
++ 	   on these and use this coarse check. */
++	if (nmi_watchdog == NMI_DEFAULT && dmi_get_year(DMI_BIOS_DATE) >= 2004)
++		nmi_watchdog = NMI_LOCAL_APIC;
++
+ 	if ((nmi_watchdog == NMI_NONE) || (nmi_watchdog == NMI_DEFAULT))
+ 		return 0;
+ 
+It attempts to change NMI_DEFAULT to NMI_LOCAL_APIC for recent BIOS
+versions, even when the user does _not_ specify nmi_watchdog= on the
+command line.  However a few lines further down is this test which
+fails because nmi_active is 0.
 
--o--=O`C  /. .\
- #oo'L O      o
-<___=E M    ^--
+	if (!atomic_read(&nmi_active))
+		return 0;
+
+The calling sequence is setup_local_APIC() -> setup_apic_nmi_watchdog()
+-> atomic_inc(nmi_active), but only if nmi_watchdog contains
+NMI_LOCAL_APIC or NMI_IO_APIC.  Without a command line option,
+setup_apic_nmi_watchdog() does nothing, nmi_active is still 0 and
+check_nmi_watchdog() exits early.  Only if you specify nmi_watchdog= on
+the command line so nmi_active is non-zero before check_nmi_watchdog()
+is called do you get an NMI handler.  IOW, the automatic activation of
+the NMI handler is too late.
 

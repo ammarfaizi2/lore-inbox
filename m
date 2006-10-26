@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752123AbWJZJHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422778AbWJZJJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752123AbWJZJHF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 05:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752124AbWJZJHF
+	id S1422778AbWJZJJb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 05:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752125AbWJZJJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 05:07:05 -0400
-Received: from adsl-ull-235-236.42-151.net24.it ([151.42.236.235]:7719 "EHLO
-	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S1752123AbWJZJHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 05:07:02 -0400
-Message-ID: <454079F5.3040204@abinetworks.biz>
-Date: Thu, 26 Oct 2006 11:03:49 +0200
-From: Gianluca Alberici <gianluca@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Thu, 26 Oct 2006 05:09:30 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:46811 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1752124AbWJZJJ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 05:09:29 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Date: Thu, 26 Oct 2006 11:08:22 +0200
+User-Agent: KMail/1.9.1
+Cc: David Chinner <dgc@sgi.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <20061026073022.GG8394166@melbourne.sgi.com> <1161850709.17293.23.camel@nigel.suspend2.net>
+In-Reply-To: <1161850709.17293.23.camel@nigel.suspend2.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: incorrect taint of ndiswrapper
-References: <1161807069.3441.33.camel@dv>	<1161808227.7615.0.camel@localhost.localdomain> <20061025205923.828c620d.akpm@osdl.org>
-In-Reply-To: <20061025205923.828c620d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610261108.23390.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thursday, 26 October 2006 10:18, Nigel Cunningham wrote:
+> Hi Dave.
+> 
+> On Thu, 2006-10-26 at 17:30 +1000, David Chinner wrote:
+> > On Wed, Oct 25, 2006 at 09:05:56PM +0200, Rafael J. Wysocki wrote:
+> > > On Wednesday, 25 October 2006 15:23, Nigel Cunningham wrote:
+> > > > > 
+> > > > > Well, my impression is that this is exactly what happens here: Something
+> > > > > in the XFS code causes metadata to be written to disk _after_ the atomic
+> > > > > snapshot.
+> > > > > 
+> > > > > That's why I asked if the dirty XFS metadata were flushed by a kernel thread.
+> > > > 
+> > > > When I first added bdev freezing it was because there was an XFS timer
+> > > > doing writes.
+> > > 
+> > > Yes, I noticed you said that, but I'd like someone from the XFS team to either
+> > > confirm or deny it.
+> > 
+> > We have daemons running in the background that can definitely do stuff
+> > after a sync. hmm - one does try_to_freeze() after a wakeup, the
+> > other does:
+> > 
+> >                 if (unlikely(freezing(current))) {
+> >                         set_bit(XBT_FORCE_SLEEP, &target->bt_flags);
+> >                         refrigerator();
+> >                 } else {
+> >                         clear_bit(XBT_FORCE_SLEEP, &target->bt_flags);
+> >                 }
+> > 
+> > before it goes to sleep. So that one (xfsbufd - metadata buffer flushing)
+> > can definitely wake up after the sync and do work, and the other could if
+> > the kernel thread freeze occurs after the sync.
+> > 
+> > Another good question at this point - exactly how should we be putting
+> > these thread to to sleep? Are both these valid methods for freezing them?
+> > And should we be freezing when we wake up instead of before we go to
+> > sleep? i.e. what are teh rules we are supposed to be following?
+> 
+> As you have them at the moment, the threads seem to be freezing fine.
+> The issue I've seen in the past related not to threads but to timer
+> based activity. Admittedly it was 2.6.14 when I last looked at it, but
+> there used to be a possibility for XFS to submit I/O from a timer when
+> the threads are frozen but the bdev isn't frozen.
 
-i apologize for being bothering you twice in three days but i was 
-wondering whether someone has found reason why ndiswrapper does not load 
-on 2.6.19-rc2-mm2.
+Also there may be a problem if a workqueue is used for that, because
+worker_threads run with PF_NOFREEZE set.
 
-NOTE: it seems to be related to tainting
+Greetings,
+Rafael
 
-I try to resume a bit:
 
-__create_workqueue         undefined symbol
-queue_work                       undefined symbol
-
-After patching modules.c to remove tainting of ndiswrapper i got to load 
-it without problems but it doesnt seem a modules.c problem (those 
-symbols are EXPORT_GPL since at least 2.6.18), modules.c and workqueue.c 
-are as of 2.6.16 kernel.
-
-Is there any new ?
-
-If i can tell my user opinion about tainting is that it s...cks in 
-general, dont know any case in which it fits something, i mean in life 
-not just linux kernel.
-One who uses ndiswrapper doest it at his own risk, a developer or 
-debugger can manage...
-And the blacklist hardcoded in modules.c, as someone used to say couple 
-days ago, seems really hard to carry on !
-
-THanks to anyone who will find time to show me the light,
-
-Gianluca
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

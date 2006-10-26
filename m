@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423647AbWJZSSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423630AbWJZSS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423647AbWJZSSG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 14:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423649AbWJZSSG
+	id S1423630AbWJZSS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 14:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423674AbWJZSS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 14:18:06 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:41433 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1423647AbWJZSSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 14:18:03 -0400
-Date: Thu, 26 Oct 2006 11:17:08 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [PATCH 3/5] Use next_balance instead of last_balance
-In-Reply-To: <4540ECCD.7050700@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0610261113180.18037@schroedinger.engr.sgi.com>
-References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com>
- <20061024183119.4530.64973.sendpatchset@schroedinger.engr.sgi.com>
- <4540A676.1070802@yahoo.com.au> <4540AACE.3010804@yahoo.com.au>
- <Pine.LNX.4.64.0610260924440.16978@schroedinger.engr.sgi.com>
- <4540ECCD.7050700@yahoo.com.au>
+	Thu, 26 Oct 2006 14:18:57 -0400
+Received: from mx1.suse.de ([195.135.220.2]:64730 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1423630AbWJZSS4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 14:18:56 -0400
+From: Andi Kleen <ak@suse.de>
+To: Marc Perkel <marc@perkel.com>
+Subject: Re: Frustrated with Linux, Asus, and nVidia, and AMD
+Date: Thu, 26 Oct 2006 11:05:51 -0700
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <453EEE46.9040600@perkel.com> <p73vem8kyuv.fsf@verdi.suse.de> <453FB661.3020607@perkel.com>
+In-Reply-To: <453FB661.3020607@perkel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610261105.52042.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006, Nick Piggin wrote:
 
-> > Hmmmm... We change the point at which we calculate the interval relative to
-> > load balancing. So move it after the load balance. This also avoids having
-> > to do the calculation if the sched_domain has not expired.
-> 
-> That still doesn't take into account if the CPU goes idle/busy during
-> the interval.
+> As of the 2.6.18 released kernel I still had to modify the source code
+> to keep the kernel from locking up on boot. I haven't tried it with
+> 2.6.19rcx yet.
 
-How does the current version take that into account? As far as I can tell 
-we take the busy / idle stuation at the point in time when 
-rebalance_tick() is called. We do not track whever the cpu gues idle/busy 
-in the interval.
+Modify in what way?
+
+-Andi
+

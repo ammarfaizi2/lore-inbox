@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423482AbWJZNCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423473AbWJZNBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423482AbWJZNCn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 09:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423481AbWJZNCn
+	id S1423473AbWJZNBw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 09:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423477AbWJZNBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 09:02:43 -0400
-Received: from adsl-ull-235-236.42-151.net24.it ([151.42.236.235]:19752 "EHLO
-	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S1423479AbWJZNCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 09:02:41 -0400
-Message-ID: <4540B136.8050908@abinetworks.biz>
-Date: Thu, 26 Oct 2006 14:59:34 +0200
-From: Gianluca Alberici <gianluca@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Thu, 26 Oct 2006 09:01:52 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:11489 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1423473AbWJZNBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 09:01:51 -0400
+Date: Thu, 26 Oct 2006 15:01:46 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [patch 1/5] binfmt: fix uaccess handling
+Message-ID: <20061026130146.GB7127@osiris.boeblingen.de.ibm.com>
+References: <20061026130010.GA7127@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-To: "Giacomo A. Catenazzi" <cate@debian.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       proski@gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: incorrect taint of ndiswrapper
-References: <1161807069.3441.33.camel@dv>	 <1161808227.7615.0.camel@localhost.localdomain>	 <20061025205923.828c620d.akpm@osdl.org> <1161859199.12781.7.camel@localhost.localdomain> <4540A867.307@debian.org>
-In-Reply-To: <4540A867.307@debian.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061026130010.GA7127@osiris.boeblingen.de.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo A. Catenazzi wrote:
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ fs/binfmt_elf.c |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
 
-> I'm confused on the discussion:
-> legal? I don't find how a windo$e driver can be "derived work" of Linux,
-> and anyway they use a "standard" interface. So it is acceptable for GPL
-> (IMHO and IANAL). so it is not a legal problem.
->
-> I see only a development question:
-> should we allow untrusted module to know and modify the
-> "intimate" part of kernel, and cause compability and other large
-> amount of problems into kernel developers, distribution and users?
->
-I really cannot see even a political problem. I the case of ndiswrapper 
-the problem is not whether we want to support windows or whatever 
-drivermodules, but if we want to support NDIS drivers with a GPL wrapper.
-
-regards,
-
-Gianluca
-
-> So it is a political question, not a legal question!
->
-> ciao
->     cate
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Index: linux-2.6/fs/binfmt_elf.c
+===================================================================
+--- linux-2.6.orig/fs/binfmt_elf.c	2006-10-26 14:40:58.000000000 +0200
++++ linux-2.6/fs/binfmt_elf.c	2006-10-26 14:41:59.000000000 +0200
+@@ -243,8 +243,9 @@
+ 	if (interp_aout) {
+ 		argv = sp + 2;
+ 		envp = argv + argc + 1;
+-		__put_user((elf_addr_t)(unsigned long)argv, sp++);
+-		__put_user((elf_addr_t)(unsigned long)envp, sp++);
++		if (__put_user((elf_addr_t)(unsigned long)argv, sp++) ||
++		    __put_user((elf_addr_t)(unsigned long)envp, sp++))
++			return -EFAULT;
+ 	} else {
+ 		argv = sp;
+ 		envp = argv + argc + 1;
+@@ -254,7 +255,8 @@
+ 	p = current->mm->arg_end = current->mm->arg_start;
+ 	while (argc-- > 0) {
+ 		size_t len;
+-		__put_user((elf_addr_t)p, argv++);
++		if (__put_user((elf_addr_t)p, argv++))
++			return -EFAULT;
+ 		len = strnlen_user((void __user *)p, PAGE_SIZE*MAX_ARG_PAGES);
+ 		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
+ 			return 0;
+@@ -265,7 +267,8 @@
+ 	current->mm->arg_end = current->mm->env_start = p;
+ 	while (envc-- > 0) {
+ 		size_t len;
+-		__put_user((elf_addr_t)p, envp++);
++		if (__put_user((elf_addr_t)p, envp++))
++			return -EFAULT;
+ 		len = strnlen_user((void __user *)p, PAGE_SIZE*MAX_ARG_PAGES);
+ 		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
+ 			return 0;

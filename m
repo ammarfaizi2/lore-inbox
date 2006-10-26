@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422747AbWJZJC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422627AbWJZJDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422747AbWJZJC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 05:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752131AbWJZJC4
+	id S1422627AbWJZJDo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 05:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422822AbWJZJDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 05:02:56 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:34597 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1752130AbWJZJCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 05:02:55 -0400
-Date: Thu, 26 Oct 2006 11:02:53 +0200
+	Thu, 26 Oct 2006 05:03:43 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:24989 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1422627AbWJZJDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 05:03:42 -0400
+Date: Thu, 26 Oct 2006 11:03:40 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, rwuerthn@de.ibm.com
-Subject: [S390] Improve AP bus device removal.
-Message-ID: <20061026090253.GD16270@skybase>
+To: linux-kernel@vger.kernel.org, cborntra@de.ibm.com
+Subject: [S390] remove salipl memory detection.
+Message-ID: <20061026090339.GF16270@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,39 +21,58 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ralph Wuerthner <rwuerthn@de.ibm.com>
+From: Christian Borntraeger <cborntra@de.ibm.com>
 
-[S390] Improve AP bus device removal.
+[S390] remove salipl memory detection.
 
-Added a call to device_unregister() in ap_scan_bus() to actively
-remove unavailable AP bus devices with every bus scan. Previously 
-devices were only removed in ap_queue_message() or __ap_poll_all().
+The SALIPL entry point has an needless memory detection routine as we
+later check the memory size again. The SALIPL code also uses diagnose
+0x060 if we are running under VM, but this diagnose is not compatible
+with the 64 bit addressing mode. The solution is to get rid of this
+code and rely on the memory detection in the startup code.
 
-Signed-off-by: Ralph Wuerthner <rwuerthn@de.ibm.com>
+Signed-off-by: Christian Borntraeger <cborntra@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/crypto/ap_bus.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
+ arch/s390/kernel/head.S |   21 ---------------------
+ 1 files changed, 21 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/crypto/ap_bus.c linux-2.6-patched/drivers/s390/crypto/ap_bus.c
---- linux-2.6/drivers/s390/crypto/ap_bus.c	2006-10-26 10:43:46.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/crypto/ap_bus.c	2006-10-26 10:44:05.000000000 +0200
-@@ -739,11 +739,16 @@ static void ap_scan_bus(void *data)
- 		dev = bus_find_device(&ap_bus_type, NULL,
- 				      (void *)(unsigned long)qid,
- 				      __ap_scan_bus);
-+		rc = ap_query_queue(qid, &queue_depth, &device_type);
-+		if (dev && rc) {
-+			put_device(dev);
-+			device_unregister(dev);
-+			continue;
-+		}
- 		if (dev) {
- 			put_device(dev);
- 			continue;
- 		}
--		rc = ap_query_queue(qid, &queue_depth, &device_type);
- 		if (rc)
- 			continue;
- 		rc = ap_init_queue(qid);
+diff -urpN linux-2.6/arch/s390/kernel/head.S linux-2.6-patched/arch/s390/kernel/head.S
+--- linux-2.6/arch/s390/kernel/head.S	2006-10-26 10:43:38.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/head.S	2006-10-26 10:44:07.000000000 +0200
+@@ -418,24 +418,6 @@ start:
+ .gotr:
+ 	l	%r10,.tbl		# EBCDIC to ASCII table
+ 	tr	0(240,%r8),0(%r10)
+-	stidp	__LC_CPUID		# Are we running on VM maybe
+-	cli	__LC_CPUID,0xff
+-	bnz	.test
+-	.long	0x83300060		# diag 3,0,x'0060' - storage size
+-	b	.done
+-.test:
+-	mvc	0x68(8),.pgmnw		# set up pgm check handler
+-	l	%r2,.fourmeg
+-	lr	%r3,%r2
+-	bctr	%r3,%r0			# 4M-1
+-.loop:	iske	%r0,%r3
+-	ar	%r3,%r2
+-.pgmx:
+-	sr	%r3,%r2
+-	la	%r3,1(%r3)
+-.done:
+-	l	%r1,.memsize
+-	st	%r3,ARCH_OFFSET(%r1)
+ 	slr	%r0,%r0
+ 	st	%r0,INITRD_SIZE+ARCH_OFFSET-PARMAREA(%r11)
+ 	st	%r0,INITRD_START+ARCH_OFFSET-PARMAREA(%r11)
+@@ -443,9 +425,6 @@ start:
+ .tbl:	.long	_ebcasc			# translate table
+ .cmd:	.long	COMMAND_LINE		# address of command line buffer
+ .parm:	.long	PARMAREA
+-.memsize: .long memory_size
+-.fourmeg: .long 0x00400000      	# 4M
+-.pgmnw:	.long	0x00080000,.pgmx
+ .lowcase:
+ 	.byte 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07
+ 	.byte 0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f

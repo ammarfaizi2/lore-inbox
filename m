@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161399AbWJZQTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423602AbWJZQYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161399AbWJZQTr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 12:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161429AbWJZQTr
+	id S1423602AbWJZQYS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 12:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161431AbWJZQYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 12:19:47 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:48590 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161399AbWJZQTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 12:19:47 -0400
-Date: Thu, 26 Oct 2006 09:19:29 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [PATCH 4/5] Create rebalance_domains from rebalance_tick
-In-Reply-To: <4540A7CE.6060407@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0610260913450.16978@schroedinger.engr.sgi.com>
-References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com>
- <20061024183124.4530.92230.sendpatchset@schroedinger.engr.sgi.com>
- <4540A7CE.6060407@yahoo.com.au>
+	Thu, 26 Oct 2006 12:24:18 -0400
+Received: from mail.impinj.com ([206.169.229.170]:16335 "EHLO earth.impinj.com")
+	by vger.kernel.org with ESMTP id S1161421AbWJZQYS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 12:24:18 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: markh@compro.net
+Subject: Re: Another kernel releated GPL ?
+Date: Thu, 26 Oct 2006 09:24:16 -0700
+User-Agent: KMail/1.9.1
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Erik Mouw <erik@harddisk-recovery.com>, dmarkh@cfl.rr.com,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <4540839C.6010302@cfl.rr.com> <1161872508.12781.42.camel@localhost.localdomain> <4540CDFE.4000003@compro.net>
+In-Reply-To: <4540CDFE.4000003@compro.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610260924.16767.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2006, Nick Piggin wrote:
+On Thursday 26 October 2006 08:02, Mark Hounschell wrote:
+> Alan Cox wrote:
+> > In the usual case it doesn't matter, much stuff is GPL anyway, and for
+> > the usual system calls/C library stuff not only is the law probably
+> > fairly well established but there is an explicit statement with the
+> > kernel that we don't want to claim such rights for a normal system call
+> > which would guide a Judge if a case ever came up.
+>
+> That's sort of what I was in search of. Where is this "explicit statement"
+> found BTW.
 
-> > While we are at it: Take the opportunity to avoid taking
-> > the request queue lock in wake_priority_sleeper if
-> > there are no running processes.
-> 
-> Can you split this out? It is good without the tasklet based
-> rebalancing.
+COPYING file in top-level directory.
 
-Sure next rollup will have this:
+> Thanks
+> Mark
 
-
-Avoid taking the rq lock in wake_priority sleeper
-
-Avoid taking the request queue lock in wake_priority_sleeper if
-there are no running processes.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.19-rc3/kernel/sched.c
-===================================================================
---- linux-2.6.19-rc3.orig/kernel/sched.c	2006-10-26 11:13:29.000000000 -0500
-+++ linux-2.6.19-rc3/kernel/sched.c	2006-10-26 11:16:44.896476659 -0500
-@@ -2900,6 +2900,9 @@ static inline int wake_priority_sleeper(
- 	int ret = 0;
- 
- #ifdef CONFIG_SCHED_SMT
-+	if (!rq->nr_running)
-+		return 0;
-+
- 	spin_lock(&rq->lock);
- 	/*
- 	 * If an SMT sibling task has been put to sleep for priority
+-- Vadim Lobanov

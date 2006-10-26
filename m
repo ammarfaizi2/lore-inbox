@@ -1,55 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752141AbWJZLVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752138AbWJZLWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752141AbWJZLVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 07:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752142AbWJZLVO
+	id S1752138AbWJZLWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 07:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752142AbWJZLWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 07:21:14 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:55485 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1752141AbWJZLVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 07:21:13 -0400
-Date: Thu, 26 Oct 2006 14:20:56 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.helsinki.fi>
-To: Michael Holzheu <holzheu@de.ibm.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org, joern@wohnheim.fh-wedel.de,
-       schwidefsky@de.ibm.com, ioe-lkml@rameria.de, minyard@acm.org
-Subject: Re: [PATCH] strstrip remove last blank fix
-In-Reply-To: <20061026130703.6f8cc0bd.holzheu@de.ibm.com>
-Message-ID: <Pine.LNX.4.64.0610261420200.1223@sbz-30.cs.Helsinki.FI>
-References: <20061026130703.6f8cc0bd.holzheu@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 Oct 2006 07:22:09 -0400
+Received: from mta.songnetworks.no ([62.73.241.54]:12328 "EHLO
+	pebbles.fastcom.no") by vger.kernel.org with ESMTP id S1752138AbWJZLWG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 07:22:06 -0400
+Mime-Version: 1.0 (Apple Message framework v752.2)
+In-Reply-To: <C5C787DB-6791-462E-9907-F3A0438E6B9C@karlsbakk.net>
+References: <C5C787DB-6791-462E-9907-F3A0438E6B9C@karlsbakk.net>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5419B5E0-602C-4799-B2EA-2C8CABE6B982@karlsbakk.net>
 Content-Transfer-Encoding: 7bit
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Subject: Re: Debugging I/O errors?
+Date: Thu, 26 Oct 2006 13:22:02 +0200
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2006, Michael Holzheu wrote:
-> strstrip() does not remove the last blank from strings which only consist
-> of blanks.
+Can anyone help me out how to debug this further, please?
 
-[snip]
+On 20. okt. 2006, at 12.06, Roy Sigurd Karlsbakk wrote:
 
-> Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
-> 
-> ---
-> 
->  lib/string.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff -Naurp linux-2.6.18/lib/string.c linux-2.6.18-strstrip-fix/lib/string.c
-> --- linux-2.6.18/lib/string.c	2006-06-19 14:03:20.000000000 +0200
-> +++ linux-2.6.18-strstrip-fix/lib/string.c	2006-10-25 18:36:08.000000000 +0200
-> @@ -320,7 +320,7 @@ char *strstrip(char *s)
->  		return s;
->  
->  	end = s + size - 1;
-> -	while (end != s && isspace(*end))
-> +	while (end >= s && isspace(*end))
->  		end--;
->  	*(end + 1) = '\0';
+> Hi all
+>
+> Stresstesting a SATA drive+controller, I get the error below after  
+> a while. How can I find if this error is due to a controller  
+> failure, a bad driver, or a drive failure?
+>
+> thanks for all help
+>
+> system info below
+>
+> roy
+> -----
+> Running an unpatched 2.6.18.1
+>
+> This is a SIS controller:
+> 01:03.0 RAID bus controller: Silicon Image, Inc. SiI 3114 [SATALink/ 
+> SATARaid] Serial ATA Controller (rev 02)
+>         Subsystem: Silicon Image, Inc. SiI 3114 SATARaid Controller
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-  
+> ParErr- Stepping- SERR+ FastB2B-
+>         Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium  
+> >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 32, Cache Line Size: 32 bytes
+>         Interrupt: pin A routed to IRQ 10
+>         Region 0: I/O ports at dc00 [size=8]
+>         Region 1: I/O ports at d480 [size=4]
+>         Region 2: I/O ports at d400 [size=8]
+>         Region 3: I/O ports at d080 [size=4]
+>         Region 4: I/O ports at d000 [size=16]
+>         Region 5: Memory at ff8efc00 (32-bit, non-prefetchable)  
+> [size=1K]
+>         Expansion ROM at c6a00000 [disabled] [size=512K]
+>         Capabilities: [60] Power Management version 2
+>                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME 
+> (D0-,D1-,D2-,D3hot-,D3cold-)
+>                 Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+>
+> The drive is a seagate 400gig thing (dunno how I can find what),  
+> libata is alone at IRQ10.
+>
+> /var/log/kern.log output
+> Oct 19 18:32:04 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140273
+> Oct 19 18:32:04 ganske kernel: Aborting journal on device sda1.
+> Oct 19 18:32:04 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_ordered_writepage: IO failure
+> Oct 19 18:32:04 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_ordered_writepage: IO failure
+> Oct 19 18:32:04 ganske kernel: ext3_abort called.
+> Oct 19 18:32:04 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_journal_start_sb: Detected aborted journal
+> Oct 19 18:32:04 ganske kernel: Remounting filesystem read-only
+> Oct 19 18:32:04 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_ordered_writepage: IO failure
+> Oct 19 18:32:04 ganske last message repeated 2 times
+> Oct 19 18:32:08 ganske kernel: 0843
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140844
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140845
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140847
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140848
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140851
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140855
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140857
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140860
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140863
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140864
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140867
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140868
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140870
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140871
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140873
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140875
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140879
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140883
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140884
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140886
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140887
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140889
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140891
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140892
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140893
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140895
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140896
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140898
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140899
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140902
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140903
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1):  
+> ext3_free_blocks_sb: bit already cleared for block 35140904
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_free_blocks_sb: Journal has aborted
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_reserve_inode_write: Journal has aborted
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_truncate: Journal has aborted
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_reserve_inode_write: Journal has aborted
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_orphan_del: Journal has aborted
+> Oct 19 18:32:08 ganske kernel: EXT3-fs error (device sda1) in  
+> ext3_reserve_inode_write: Journal has aborted
+> Oct 19 18:32:08 ganske kernel: __journal_remove_journal_head:  
+> freeing b_committed_data
+> Oct 19 18:32:08 ganske last message repeated 219 times
+> ganske:~#
+>
+> --
+> Roy Sigurd Karlsbakk
+> roy@karlsbakk.net
+> -------------------------------
+> MICROSOFT: Acronym for "Most Intelligent Customers Realise Our  
+> Software Only Fools Teenagers"
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux- 
+> kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Looks good, thanks!  Andrew, can you please pick up this patch?
+--
+Roy Sigurd Karlsbakk
+roy@karlsbakk.net
+-------------------------------
+MICROSOFT: Acronym for "Most Intelligent Customers Realise Our  
+Software Only Fools Teenagers"
 
-Acked-by: Pekka Enberg <penberg@cs.helsinki.fi>

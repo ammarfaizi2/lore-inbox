@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423596AbWJZQ05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423605AbWJZQ3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423596AbWJZQ05 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 12:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423603AbWJZQ05
+	id S1423605AbWJZQ3W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 12:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161433AbWJZQ3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 12:26:57 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:26487 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1423596AbWJZQ05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 12:26:57 -0400
+	Thu, 26 Oct 2006 12:29:22 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:44019 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1161432AbWJZQ3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 12:29:21 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=kUrS/6voPO4ESNM2KJopU1hq6caxaZismTQTOfkZzlIyBX57u289OqcBMYZkZPoHq4qrJYgdnZDg59HdD4TP36xSof1IfG12YYq8rr2a08Ukbm/OwrCu5RU7pdGeYvlbRAggidYG0MpbklW0xykhJ+zOhd8l+ldgOhC5XzM/Xfk=
-Message-ID: <84144f020610260926x3765398coce0146c82a69f674@mail.gmail.com>
-Date: Thu, 26 Oct 2006 19:26:54 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: Re: 2.6.18: unable to handle kernel paging request at virtual address e5e9ec24
-Cc: admin@prnet.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4540C678.2060106@mbligh.org>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=usftOfixGo6dfeQ7rDtRaRUEXKEmOEwDOukLBrmNI0+52msYw6qS06H45YbpJFVQey4OmsHuA50WaF2oCxmspy22UbS9KpNBp05/PYjSwUDeRrDLZNvGILJuVaggp8LhRO2dPdibc8O8c92wLfpmmpjhK0Y6kcnex52Vt9wjBKU=
+Message-ID: <d120d5000610260929n6239772bka1a9cce971cfa133@mail.gmail.com>
+Date: Thu, 26 Oct 2006 12:29:18 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Matthew Garrett" <mjg59@srcf.ucam.org>
+Subject: Re: Touchscreen hardware hacking/driver hacking.
+Cc: "Greg.Chandler@wellsfargo.com" <Greg.Chandler@wellsfargo.com>,
+       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20061026084836.GA13981@srcf.ucam.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <58488.212.24.212.169.1161860570.squirrel@server.prnet.org>
-	 <4540C678.2060106@mbligh.org>
-X-Google-Sender-Auth: 36e8b1e121c299b4
+References: <E8C008223DD5F64485DFBDF6D4B7F71D020C69E4@msgswbmnmsp25.wellsfargo.com>
+	 <d120d5000610251355n4104e3b8l6a86cb91a27c08eb@mail.gmail.com>
+	 <20061026084836.GA13981@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 10/26/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Wed, Oct 25, 2006 at 04:55:13PM -0400, Dmitry Torokhov wrote:
+>
+> > It was considered but we decided that if we need to rely on solely DMI
+> > data when activating some features we need to add models one by one
+> > and do not use "blanket" options. There are lifebooks out there that
+> > do not have that kind of outscreen so if we tried to match just on
+> > "LIFEBOOK" present in the product name we might hit such models and
+> > then their PS/2 mice would not work.
+>
+> Do the Lifebooks with these touchscreens not have a PnPBIOS or ACPI
+> entry that describes the type?
+>
 
-On 10/26/06, Martin J. Bligh <mbligh@mbligh.org> wrote:
-> Binary modules loaded. Don't do that.
+I don't recall anything in ACPI spec that would help determining type
+of PS/2 device connected, but then I did not read the latest version.
+Anyway, I would not hold my breath...
 
-To elaborate bit on what Martin said here, there aren't many
-developers on LKML that are willing to debug a tainted kernel. Please
-reproduce without any binary-only modules and post the results to get
-help. Thanks.
-
-                             Pekka
+-- 
+Dmitry

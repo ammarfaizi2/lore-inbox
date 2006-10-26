@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWJZTTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422800AbWJZTW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWJZTTE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 15:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWJZTTE
+	id S1422800AbWJZTW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 15:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422825AbWJZTW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 15:19:04 -0400
-Received: from c60.cesmail.net ([216.154.195.49]:27183 "EHLO c60.cesmail.net")
-	by vger.kernel.org with ESMTP id S932222AbWJZTTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 15:19:02 -0400
-Subject: Re: incorrect taint of ndiswrapper
-From: Pavel Roskin <proski@gnu.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1161859199.12781.7.camel@localhost.localdomain>
-References: <1161807069.3441.33.camel@dv>
-	 <1161808227.7615.0.camel@localhost.localdomain>
-	 <20061025205923.828c620d.akpm@osdl.org>
-	 <1161859199.12781.7.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 26 Oct 2006 15:19:00 -0400
-Message-Id: <1161890340.9087.28.camel@dv>
+	Thu, 26 Oct 2006 15:22:28 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:23269 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422800AbWJZTW2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 15:22:28 -0400
+Date: Thu, 26 Oct 2006 20:22:20 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, lkml@pengaru.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: rename() contention (BUG?)
+Message-ID: <20061026192219.GL29920@ftp.linux.org.uk>
+References: <20061025205634.GB9100@shells.gnugeneration.com> <20061025211341.GB7128@filer.fsl.cs.sunysb.edu> <454101D6.9050004@argo.co.il>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <454101D6.9050004@argo.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-26 at 11:39 +0100, Alan Cox wrote:
-> Really ndiswrapper shouldn't be using _GPLONLY symbols, that would
-> actually make it useful to the binary driver afflicted again and more
-> likely to be legal.
+On Thu, Oct 26, 2006 at 08:43:34PM +0200, Avi Kivity wrote:
+> The changes make the mutex more efficient, but won't decrease the 
+> contention.  It seems that all renames in one filesystem are serialized, 
+> and if the renames require I/O (which is certainly the case with nfs), 
+> rename throughput is severely limited.
 
-usb_register_driver is using EXPORT_SYMBOL_GPL_FUTURE, which means all
-USB drivers will have to be GPL soon.  This would disable the USB
-support in ndiswrapper.
-
-There is no other way to register USB drivers.  Apparently, the USB
-developers feel that every Linux USB driver should be considered a
-derived work of Linux, and therefore should be under GPL.
-
-This means that ndiswrapper would be considered as a derived work of
-Linux.  Since ndiswrapper is under GPL, it would suffer unfairly if the
-meaning of EXPORT_SYMBOL_GPL is extended to restrict GPLed modules
-capable of loading proprietary code into the kernel.
-
-The second problem is sysfs.  Again, using sysfs is only allowed to
-GPLed modules for the same reason.  Although ndiswrapper is not using
-sysfs now, it would be unfair to restrict it from doing that in the
-future.
-
-It's not like the proprietary modules would be using Linux USB or sysfs
-API - they are unaware of Linux.  Only the free code can use it.
-
--- 
-Regards,
-Pavel Roskin
+	They are, and for a good reason.  For details see
+Documentation/filesystems/directory-locking.
 

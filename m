@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752135AbWJZJTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422891AbWJZJYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752135AbWJZJTo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 05:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752134AbWJZJTo
+	id S1422891AbWJZJYc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 05:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422893AbWJZJYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 05:19:44 -0400
-Received: from gate.crashing.org ([63.228.1.57]:19120 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1752135AbWJZJTn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 05:19:43 -0400
-Subject: Re: [Cbe-oss-dev] [PATCH 12/16] cell: add temperature to SPU and
-	CPU sysfs entries
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, cbe-oss-dev@ozlabs.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200610260935.01801.arnd@arndb.de>
-References: <20061024163113.694643000@arndb.de>
-	 <20061025080048.GB7090@osiris.boeblingen.de.ibm.com>
-	 <1161818364.22582.145.camel@localhost.localdomain>
-	 <200610260935.01801.arnd@arndb.de>
-Content-Type: text/plain
-Date: Thu, 26 Oct 2006 19:19:02 +1000
-Message-Id: <1161854342.5299.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Oct 2006 05:24:32 -0400
+Received: from science.horizon.com ([192.35.100.1]:16461 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1422891AbWJZJYc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 05:24:32 -0400
+Date: 26 Oct 2006 05:24:30 -0400
+Message-ID: <20061026092430.25816.qmail@science.horizon.com>
+From: linux@horizon.com
+To: johnstul@us.ibm.com, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: 2.6.19-rc2 and very unstable NTP
+Cc: linux@horizon.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-26 at 09:35 +0200, Arnd Bergmann wrote:
-> On Thursday 26 October 2006 01:19, Benjamin Herrenschmidt wrote:
-> > > 
-> > > Will crash if cpu_add_sysdev_attr_group failed...
-> > 
-> > 
-> > Which is a total PITA. If this is the case, then we should modify the
-> > add calls to at least initialize enough fields before they can fail for
-> > the remove calls not to crash. You don't want to keep track precisely of
-> > what file was added and what not and test all of that in your exit code
-> > path, it's just insane.
-> 
-> Heiko suggested that earlied in http://lkml.org/lkml/2006/10/9/22,
-> but Andrew didn't like it.
-> 
-> Currently, the worst is that sysfs_remove_file can be used
-> on a nonexisting file,  but sysfs_remove_group cannot, which is
-> inconsistent. Either sysfs_remove_file should WARN_ON or
-> sysfs_remove_group should silently return, and I'd prefer the
-> latter, as it makes users simpler.
+There have been a bunch of changes to timekeeping since 2.6.17, and I've
+noticed that, with 2.6.19-rc2 + linuxpps, I'm getting some impressively
+unstable oscillations in the local time.  +/- 350 us, when, given a
+good quality local PPS source, it should be wiggling +/- a few us.
+And the shape of the curves is not "wander" but "overcorrecting wildly".
 
-We need to argue with Andrew then. I'll have a go tomorrow
-
-Ben.
+It's sort of series of exponential decay curves, but each one overshoots
+by 100%, and then before it fully flattens out, starts surging in the
+other direction.   (Actually, the overshoot amplitudes fluctuate
+erratically, too.)  As best I can render it in ASCII art:
 
 
+*                      *                      *
+                    *                      *
+                  *                      *
+                 *                      *
+ *              *       *              *
+
+               *                      *
+  *                      *
+--------------*----------------------*-----------
+   *                      *
+
+    *        *             *        *
+     *                      *
+      *                      *
+        *                      *
+           *                      *
+
+600-700 us p-p, with 2200-2400 s per full cycle.
+
+It looks like ajtimex() isn't doing what NTP is expecting,
+leading to loop instability.
+
+
+I'm going to git bisect this, although it's a bit time-consuming
+waiting to see if things will settle own cleanly after each reboot.
+And some of the patches have been anything but one-liners, so
+that's not necessarily a direct pointer to the problem.
+
+I know there have been a number of reports of ntp timekeeping
+problems with 2.6.18.  Has there been any progress already?
+
+(Local system: AMD64 uniprocessor, 2.6.19-rc2+linuxpps kernel,
+NTP 4.2.2, Acutime 2000 GPS clock + PPS input.)

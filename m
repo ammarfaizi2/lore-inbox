@@ -1,178 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423239AbWJZKys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423251AbWJZKzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423239AbWJZKys (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 06:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423248AbWJZKyr
+	id S1423251AbWJZKzh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 06:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423248AbWJZKzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 06:54:47 -0400
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:37584 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1423239AbWJZKyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 06:54:46 -0400
-Date: Thu, 26 Oct 2006 16:25:23 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Gautham R Shenoy <ego@in.ibm.com>
-Cc: rusty@rustcorp.com.au, torvalds@osdl.org, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, vatsa@in.ibm.com,
-       dipankar@in.ibm.com, gaughen@us.ibm.com, arjan@linux.intel.org,
-       davej@redhat.com, venkatesh.pallipadi@intel.com, kiran@scalex86.org
-Subject: [PATCH 3/5] lock_cpu_hotplug:Redesign - Use lock_cpu_hotplug in workqueue.c instead of workqueue_mutex.
-Message-ID: <20061026105523.GD11803@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20061026104858.GA11803@in.ibm.com> <20061026105058.GB11803@in.ibm.com> <20061026105342.GC11803@in.ibm.com>
+	Thu, 26 Oct 2006 06:55:37 -0400
+Received: from main.gmane.org ([80.91.229.2]:39818 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1423249AbWJZKze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 06:55:34 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Samuel Tardieu <sam@rfc1149.net>
+Subject: Re: What about make mergeconfig ?
+Date: 26 Oct 2006 12:50:51 +0200
+Message-ID: <87r6wvjqpg.fsf@willow.rfc1149.net>
+References: <1161755164.22582.60.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061026105342.GC11803@in.ibm.com>
-User-Agent: Mutt/1.5.10i
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use lock_cpu_hotplug() instead of workqueue_mutex to prevent a 
-cpu-hotplug event in kernel/workqueue.c.
+>>>>> "Benjamin" == Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-Signed-off-by: Gautham R Shenoy <ego@in.ibm.com>
+Benjamin> That would merge all entries in the specified file with the
+Benjamin> current .config.
 
----
- kernel/workqueue.c |   37 +++++++++++++------------------------
- 1 files changed, 13 insertions(+), 24 deletions(-)
+You don't need it to be a Makefile target, it can be an external
+script. Would this one (untested!) do what you want?
 
-Index: hotplug/kernel/workqueue.c
-===================================================================
---- hotplug.orig/kernel/workqueue.c
-+++ hotplug/kernel/workqueue.c
-@@ -67,9 +67,7 @@ struct workqueue_struct {
- 	struct list_head list; 	/* Empty if single thread */
- };
- 
--/* All the per-cpu workqueues on the system, for hotplug cpu to add/remove
--   threads to each one as cpus come/go. */
--static DEFINE_MUTEX(workqueue_mutex);
-+static DEFINE_SPINLOCK(workqueue_lock);
- static LIST_HEAD(workqueues);
- 
- static int singlethread_cpu;
-@@ -328,10 +326,10 @@ void fastcall flush_workqueue(struct wor
- 	} else {
- 		int cpu;
- 
--		mutex_lock(&workqueue_mutex);
-+		lock_cpu_hotplug();
- 		for_each_online_cpu(cpu)
- 			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
--		mutex_unlock(&workqueue_mutex);
-+		unlock_cpu_hotplug();
- 	}
- }
- EXPORT_SYMBOL_GPL(flush_workqueue);
-@@ -379,7 +377,7 @@ struct workqueue_struct *__create_workqu
- 	}
- 
- 	wq->name = name;
--	mutex_lock(&workqueue_mutex);
-+	lock_cpu_hotplug();
- 	if (singlethread) {
- 		INIT_LIST_HEAD(&wq->list);
- 		p = create_workqueue_thread(wq, singlethread_cpu);
-@@ -388,7 +386,9 @@ struct workqueue_struct *__create_workqu
- 		else
- 			wake_up_process(p);
- 	} else {
-+		spin_lock(&workqueue_lock);
- 		list_add(&wq->list, &workqueues);
-+		spin_unlock(&workqueue_lock);
- 		for_each_online_cpu(cpu) {
- 			p = create_workqueue_thread(wq, cpu);
- 			if (p) {
-@@ -398,8 +398,7 @@ struct workqueue_struct *__create_workqu
- 				destroy = 1;
- 		}
- 	}
--	mutex_unlock(&workqueue_mutex);
--
-+	unlock_cpu_hotplug();
- 	/*
- 	 * Was there any error during startup? If yes then clean up:
- 	 */
-@@ -439,15 +438,17 @@ void destroy_workqueue(struct workqueue_
- 	flush_workqueue(wq);
- 
- 	/* We don't need the distraction of CPUs appearing and vanishing. */
--	mutex_lock(&workqueue_mutex);
-+	lock_cpu_hotplug();
- 	if (is_single_threaded(wq))
- 		cleanup_workqueue_thread(wq, singlethread_cpu);
- 	else {
- 		for_each_online_cpu(cpu)
- 			cleanup_workqueue_thread(wq, cpu);
-+		spin_lock(&workqueue_lock);
- 		list_del(&wq->list);
-+		spin_unlock(&workqueue_lock);
- 	}
--	mutex_unlock(&workqueue_mutex);
-+	unlock_cpu_hotplug();
- 	free_percpu(wq->cpu_wq);
- 	kfree(wq);
- }
-@@ -519,13 +520,13 @@ int schedule_on_each_cpu(void (*func)(vo
- 	if (!works)
- 		return -ENOMEM;
- 
--	mutex_lock(&workqueue_mutex);
-+	lock_cpu_hotplug();
- 	for_each_online_cpu(cpu) {
- 		INIT_WORK(per_cpu_ptr(works, cpu), func, info);
- 		__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu),
- 				per_cpu_ptr(works, cpu));
- 	}
--	mutex_unlock(&workqueue_mutex);
-+	unlock_cpu_hotplug();
- 	flush_workqueue(keventd_wq);
- 	free_percpu(works);
- 	return 0;
-@@ -641,7 +642,6 @@ static int __devinit workqueue_cpu_callb
- 
- 	switch (action) {
- 	case CPU_UP_PREPARE:
--		mutex_lock(&workqueue_mutex);
- 		/* Create a new workqueue thread for it. */
- 		list_for_each_entry(wq, &workqueues, list) {
- 			if (!create_workqueue_thread(wq, hotcpu)) {
-@@ -660,7 +660,6 @@ static int __devinit workqueue_cpu_callb
- 			kthread_bind(cwq->thread, hotcpu);
- 			wake_up_process(cwq->thread);
- 		}
--		mutex_unlock(&workqueue_mutex);
- 		break;
- 
- 	case CPU_UP_CANCELED:
-@@ -672,15 +671,6 @@ static int __devinit workqueue_cpu_callb
- 				     any_online_cpu(cpu_online_map));
- 			cleanup_workqueue_thread(wq, hotcpu);
- 		}
--		mutex_unlock(&workqueue_mutex);
--		break;
--
--	case CPU_DOWN_PREPARE:
--		mutex_lock(&workqueue_mutex);
--		break;
--
--	case CPU_DOWN_FAILED:
--		mutex_unlock(&workqueue_mutex);
- 		break;
- 
- 	case CPU_DEAD:
-@@ -688,7 +678,6 @@ static int __devinit workqueue_cpu_callb
- 			cleanup_workqueue_thread(wq, hotcpu);
- 		list_for_each_entry(wq, &workqueues, list)
- 			take_over_work(wq, hotcpu);
--		mutex_unlock(&workqueue_mutex);
- 		break;
- 	}
- 
+  Sam
 -- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"
+Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
+
+#! /usr/bin/python
+#
+# (c) 2006 Samuel Tardieu <sam@rfc1149.net>
+#
+# This software may be used and distributed according to the terms
+# of the GNU General Public License, incorporated herein by reference.
+#
+# Usage: mergeconfig config1 config2 ... > newconfig
+#
+# To get the formatting back, it is advised to run "make oldconfig" on the
+# result.
+#
+# Be careful in not using the same file as input and output
+
+import sre, sys
+
+_not_set = sre.compile('# (CONFIG_\S+) is not set')
+_set = sre.compile('(CONFIG_[^=]+)=(.*)')
+
+def read_config(fn):
+    """Read a kernel configuration file and return a dictionary with
+    all the options present in the file. If an option is commented out,
+    set its value as None."""
+    d = {}
+    for l in file(fn):
+        l = l.rstrip('\r\n')
+        x = _not_set.match(l)
+        if x: d[x.group(1)] = None
+        x = _set.match(l)
+        if x: d[x.group(1)] = x.group(2)
+    return d
+
+def merge_option(o, v1, v2):
+    """Merge option value v1 and v2."""
+    if 'y' in [v1, v2]: return 'y'
+    if 'm' in [v1, v2]: return 'm'
+    if v1 != v2:
+        sys.stderr.write('Option %s has two incompatible values: %s and %s' %
+                         (o, v1, v2))
+        sys.exit(1)
+    return v1
+
+def merge_config_into(a, b):
+    """Merge configuration dictionary a into configuration dictionary b.
+    In addition, this function returns b after the merge."""
+    for k, v in a.items():
+        try:
+            b[v] = merge_option(k, v, b[v])
+        except KeyError:
+            b[k] = v
+    return b
+
+def output_config(d):
+    for k, v in d.items():
+        if v is None: print '# %s is not set' % k
+        else: print '%s=%s' % (k, v)
+
+if __name__ == '__main__':
+    output_config (reduce(lambda x, y: merge_config_into(x, read_config(y)),
+                          sys.argv[1:], {}))
+

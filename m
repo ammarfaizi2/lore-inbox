@@ -1,32 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422862AbWJZJpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422996AbWJZJqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422862AbWJZJpD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 05:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422961AbWJZJpD
+	id S1422996AbWJZJqU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 05:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423026AbWJZJqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 05:45:03 -0400
-Received: from ms-smtp-03.tampabay.rr.com ([65.32.5.133]:35580 "EHLO
-	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1422862AbWJZJpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 05:45:02 -0400
-Message-ID: <4540839C.6010302@cfl.rr.com>
-Date: Thu, 26 Oct 2006 05:45:00 -0400
-From: Mark Hounschell <dmarkh@cfl.rr.com>
-Reply-To: dmarkh@cfl.rr.com
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+	Thu, 26 Oct 2006 05:46:20 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:16622 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1422996AbWJZJqU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 05:46:20 -0400
+Date: Thu, 26 Oct 2006 11:45:13 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: linux@horizon.com
+cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2 and very unstable NTP
+In-Reply-To: <20061026092430.25816.qmail@science.horizon.com>
+Message-ID: <Pine.LNX.4.64.0610261144230.6761@scrub.home>
+References: <20061026092430.25816.qmail@science.horizon.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Another kernel releated GPL ?
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I make "modifications" to the kernel, then create a user land library to access
-these "modifications". Obviously my kernel "modifications" are then GPL, but
-what is the opinion of the kernel developers as far as the license of this
-library? Does that user land library have to be GPL also?
+Hi,
 
-Thanks
-Mark
+On Thu, 26 Oct 2006, linux@horizon.com wrote:
+
+> There have been a bunch of changes to timekeeping since 2.6.17, and I've
+> noticed that, with 2.6.19-rc2 + linuxpps,
+
+Please specify "+ linuxpps".
+
+bye, Roman

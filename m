@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965266AbWJZBmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWJZBmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965266AbWJZBmv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 21:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965272AbWJZBmu
+	id S965265AbWJZBmO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 21:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbWJZBmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 21:42:50 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:32997 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S965266AbWJZBmt (ORCPT
+	Wed, 25 Oct 2006 21:42:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9661 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965265AbWJZBmN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 21:42:49 -0400
-Date: Thu, 26 Oct 2006 10:42:23 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ata: Generic platform_device libata driver, take 2.
-Message-ID: <20061026014223.GA4813@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20061023065907.GA22029@linux-sh.org> <20061023164220.GA24471@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061023164220.GA24471@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 25 Oct 2006 21:42:13 -0400
+Message-Id: <200610260141.k9Q1fgUW026204@pasta.boston.redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Roland McGrath <roland@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix for zeroed user-space tids in multi-threaded core dumps
+Date: Wed, 25 Oct 2006 21:41:42 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 05:42:21PM +0100, Russell King wrote:
-> On Mon, Oct 23, 2006 at 03:59:07PM +0900, Paul Mundt wrote:
-> > This is the second attempt at a generic platform_device libata driver,
-> > attempting to take in to account issues raised by Matthias Fuchs and rmk.
-> > 
-> > Changes in this version include adding a small pata_platform.h header for
-> > the private data (which at the moment is limited to a register shift
-> > that's needed by ARM), though other things can be added in here if
-> > platforms start having other needs.
-> 
-> Thanks, this will enable me to use this code on ARM.
-> 
-> Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> 
-Andrew, can you add this to -mm? No one has raised any other objections
-to this particular patch, and without it, IDE on most SH boards is a
-no-go.
+Hi, Andrew.  Please consider the patch below for the next open 2.6 release.
+
+The NPTL library uses the CLONE_CHILD_CLEARTID flag on clone() syscalls
+on behalf of pthread_create() library calls.  This feature is used to
+request that the kernel clear the thread-id in user space (at an address
+provided in the syscall) when the thread disassociates itself from the
+address space, which is done in mm_release().
+
+Unfortunately, when a multi-threaded process incurs a core dump (such as
+from a SIGSEGV), the core-dumping thread sends SIGKILL signals to all of
+the other threads, which then proceed to clear their user-space tids
+before synchronizing in exit_mm() with the start of core dumping.  This
+misrepresents the state of process's address space at the time of the
+SIGSEGV and makes it more difficult for someone to debug NPTL and glibc
+problems (misleading him/her to conclude that the threads had gone away
+before the fault).
+
+The fix below is to simply avoid the CLONE_CHILD_CLEARTID action if a
+core dump has been initiated.
+
+Cheers.  -ernie
+
+
+
+--- linux-2.6.18/kernel/fork.c.orig
++++ linux-2.6.18/kernel/fork.c
+@@ -439,7 +439,9 @@ void mm_release(struct task_struct *tsk,
+ 		tsk->vfork_done = NULL;
+ 		complete(vfork_done);
+ 	}
+-	if (tsk->clear_child_tid && atomic_read(&mm->mm_users) > 1) {
++	if (tsk->clear_child_tid &&
++	    mm->core_waiters == 0 &&
++	    atomic_read(&mm->mm_users) > 1) {
+ 		u32 __user * tidptr = tsk->clear_child_tid;
+ 		tsk->clear_child_tid = NULL;
+ 

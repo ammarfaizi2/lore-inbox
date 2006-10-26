@@ -1,86 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423619AbWJZRTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423645AbWJZRXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423619AbWJZRTq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 13:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423623AbWJZRTq
+	id S1423645AbWJZRXE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 13:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423646AbWJZRXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 13:19:46 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:31127 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1423619AbWJZRTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 13:19:46 -0400
-Message-ID: <4540EE2B.9020606@qumranet.com>
-Date: Thu, 26 Oct 2006 19:19:39 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Thu, 26 Oct 2006 13:23:03 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:37251 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1423645AbWJZRXA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 13:23:00 -0400
+Date: Thu, 26 Oct 2006 19:22:27 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Jim Houston <jim.houston@comcast.net>
+cc: John Stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux@horizon.com
+Subject: Re: [PATCH] time_adjust cleared before use
+In-Reply-To: <1161876597.7885.9.camel@x2.site>
+Message-ID: <Pine.LNX.4.64.0610261919400.6761@scrub.home>
+References: <1161876597.7885.9.camel@x2.site>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       kvm-devel@lists.sourceforge.net
-Subject: [PATCH 0/13] KVM: Kernel-based Virtual Machine (v3)
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Oct 2006 17:19:45.0272 (UTC) FILETIME=[EE87CF80:01C6F922]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes:
+Hi,
 
-- mailing list: kvm-devel@lists.sourceforge.net
-  (http://lists.sourceforge.net/lists/listinfo/kvm-devel)
-- applied code review comments
-- fixed set_sregs() ioctl corrupting guest state if cr0.pe changed
-  (a polite way of saying that loading a saved vm was broken)
+On Thu, 26 Oct 2006, Jim Houston wrote:
 
----
+> Hi
+> 
+> I notice that the code which implements adjtime clears
+> the time_adjust value before using it.  The attached 
+> patch makes the obvious fix.
+> 
+> Jim Houston - Concurrent Computer Corp.
+> 
+> --
+> 
+> diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
+> index 47195fa..3afeaa3 100644
+> --- a/kernel/time/ntp.c
+> +++ b/kernel/time/ntp.c
+> @@ -161,9 +161,9 @@ void second_overflow(void)
+>  			time_adjust += MAX_TICKADJ;
+>  			tick_length -= MAX_TICKADJ_SCALED;
+>  		} else {
+> -			time_adjust = 0;
+>  			tick_length += (s64)(time_adjust * NSEC_PER_USEC /
+>  					     HZ) << TICK_LENGTH_SHIFT;
+> +			time_adjust = 0;
+>  		}
+>  	}
+>  }
 
-The following patchset adds a driver for Intel's hardware
-virtualization extensions to the x86 architecture.  The driver adds
-a character device (/dev/kvm) that exposes the virtualization
-capabilities to userspace.  Using this driver, a process can run a
-virtual machine (a "guest") in a fully virtualized PC containing its
-own virtual hard disks, network adapters, and display.
+Acked-by: Roman Zippel <zippel@linux-m68k.org>
 
-Using this driver, one can start multiple virtual machines on a host.
-Each virtual machine is a process on the host; a virtual cpu is a thread
-in that process.  kill(1), nice(1), top(1) work as expected.
-   
-In effect, the driver adds a third execution mode to the existing two:
-we now have kernel mode, user mode, and guest mode.  Guest mode has its
-own address space mapping guest physical memory (which is accessible to
-user mode by mmap()ing /dev/kvm).  Guest mode has no access to any I/O
-devices; any such access is intercepted and directed to user mode for
-emulation.
+Thanks, that might also explain the other problem.
+Could you please sign it off and then it should go into 2.6.19.
 
-The driver supports i386 and x86_64 hosts and guests.  All combinations
-are allowed except x86_64 guest on i386 host.  For i386 guests and
-hosts, both pae and non-pae paging modes are supported.
-
-SMP hosts and UP guests are supported.  At the moment only Intel
-hardware is supported, but AMD virtualization support is being worked on.
-
-Performance currently is non-stellar due to the naive implementation
-of the mmu virtualization, which throws away most of the shadow page
-table entries every context switch.  We plan to address this in two ways:
-
-- cache shadow page tables across tlv flushes
-- wait until AMD and Intel release processors with nested page tables
-
-Currently a virtual desktop is responsive but consumes a lot of CPU.
-Under Windows I tried playing pinball and watching a few flash movies;
-with a recent CPU one can hardly feel the virtualization.  Linux/X is
-slower, probably due to X being in a separate process.
-
-In addition to the driver, you need a slightly modified qemu to provide
-I/O device emulation and the BIOS.
-
-Caveats:
-
-- The Windows install currently bluescreens due to a problem with the
-  virtual APIC.  We are working on a fix.  A temporary workaround is to
-  use an existing image or install through qemu
-- Windows 64-bit does not work.  That's also true for qemu, so it's
-  probably a problem with the device model.
-
--- 
-error compiling committee.c: too many arguments to function
-
+bye, Roman

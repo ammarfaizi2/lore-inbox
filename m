@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422893AbWJZKZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422960AbWJZKfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422893AbWJZKZd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 06:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422925AbWJZKZd
+	id S1422960AbWJZKfm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 06:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423018AbWJZKfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 06:25:33 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:21404 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1422893AbWJZKZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 06:25:32 -0400
-Date: Thu, 26 Oct 2006 12:25:30 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cm4000_cs: fix return value check
-Message-ID: <20061026102530.GM6264@sunbeam.de.gnumonks.org>
-References: <20061017062559.GB13100@localhost> <20061026024004.GF32048@dominikbrodowski.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nEsDIrWrg+hrB7l1"
-Content-Disposition: inline
-In-Reply-To: <20061026024004.GF32048@dominikbrodowski.de>
-User-Agent: mutt-ng devel-20050619 (Debian)
+	Thu, 26 Oct 2006 06:35:42 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:15057 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1422960AbWJZKfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 06:35:42 -0400
+Message-ID: <45408F71.1030909@anagramm.de>
+Date: Thu, 26 Oct 2006 12:35:29 +0200
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gregory Brauer <greg@wildbrain.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA300 TX4 + WD2500KS = status=0x50 { DriveReady SeekComplete
+ }
+References: <453FD6B5.9080205@wildbrain.com>
+In-Reply-To: <453FD6B5.9080205@wildbrain.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:224ad0fd4f2efe95e6ec4f0a3ca8a73c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, Gregory!
 
---nEsDIrWrg+hrB7l1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Gregory Brauer wrote:
+> 
+> I have a new Promise SATA300 TX4 4-port SATA controller
+> to which I have attached two older WD2500JD hard drives
+> and two brand new WD2500KS hard drives.  The older drives
+> seem to work fine, but both of the brand new hard drives
+> trigger the following errors every few seconds during
+> i/o:
+> 
+> Oct 25 13:57:18 gleep kernel: ata3: no sense translation for status: 0x50
+> Oct 25 13:57:18 gleep kernel: ata3: translated ATA stat/err 0x50/00 to 
+> SCSI SK/ASC/ASCQ 0xb/00/00
+> [...]
+> 00:0b.0 Mass storage controller: Promise Technology, Inc. PDC20718 (SATA 
+> 300 TX4) (rev 02)
 
-On Wed, Oct 25, 2006 at 10:40:04PM -0400, Dominik Brodowski wrote:
+Hummm... Well, first, can you try another kernel?
+Second, the same chip on a board from a different manufacturer.
+I am a hardware engineer working with the Promise PDC20775.
+SATA Chips are pretty sensitive to bad board layout, coming up
+with strange errors. :-/
 
-> On Tue, Oct 17, 2006 at 03:25:59PM +0900, Akinobu Mita wrote:
-> > The return value of class_create() need to be checked with IS_ERR().
-> > And register_chrdev() returns errno on failure.
-> > This patch includes these fixes for cm4000_cs and cm4040_cs.
-> >=20
-> > Cc: Harald Welte <laforge@gnumonks.org>
-> > Signed-off-by: Akinbou Mita <akinobu.mita@gmail.com>
->=20
-> Temporarily applied to pcmica-2.6.git, thanks. Harald, do you ACK?
+Best greets,
 
-yes, sorry.  I've been too busy and the mail slipped through...
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
 
-The patch is obviously fine. Thanks!
+http://www.anagramm.de
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19
 
-Signed-off-by: Harald Welte <laforge@gnumonks.org>
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-We all know Linux is great...it does infinite loops in 5 seconds. -- Linus
-
---nEsDIrWrg+hrB7l1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFQI0aXaXGVTD0i/8RAmQSAKCodDIvFPn4oE5rHPrhu/AoRvPZbgCfYOAo
-p+EMzS49/oV76ioOHdPUqpQ=
-=DIoB
------END PGP SIGNATURE-----
-
---nEsDIrWrg+hrB7l1--

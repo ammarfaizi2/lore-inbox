@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423534AbWJZOwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423537AbWJZOzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423534AbWJZOwa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 10:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752119AbWJZOw3
+	id S1423537AbWJZOzi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 10:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752119AbWJZOzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 10:52:29 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42176 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751698AbWJZOw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 10:52:29 -0400
-Subject: Re: incorrect taint of ndiswrapper
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, proski@gnu.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061026144117.GI29920@ftp.linux.org.uk>
-References: <1161807069.3441.33.camel@dv>
-	 <1161808227.7615.0.camel@localhost.localdomain>
-	 <20061025205923.828c620d.akpm@osdl.org>
-	 <1161859199.12781.7.camel@localhost.localdomain>
-	 <20061026144117.GI29920@ftp.linux.org.uk>
-Content-Type: text/plain
+	Thu, 26 Oct 2006 10:55:38 -0400
+Received: from wr-out-0506.google.com ([64.233.184.224]:31613 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751698AbWJZOzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 10:55:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EWLwOG4tYz82vazKs9b9/cgHGfwf/jL0TixtSJqQa5d2N2Fg7r0sq2cybdFQCFHWILq6YPdkkAXojKehsvKaFVWQefNrfuUNUZAthXsQnETihHlDE5HSUBZz0qVeM70K/X0kaOGQvsA7P0OTa2L6zkkK1oigAmMqAnJVwaYuXvk=
+Message-ID: <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>
+Date: Thu, 26 Oct 2006 14:55:36 +0000
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 26 Oct 2006 15:55:39 +0100
-Message-Id: <1161874540.12781.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+References: <20061013023218.31362830.maxextreme@gmail.com>
+	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>
+	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
+	 <453CE85B.2080702@innova-card.com>
+	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>
+	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-10-26 am 15:41 +0100, ysgrifennodd Al Viro:
-> Could we please decide WTF _GPLONLY *is* and at least remain consistent?
-> Aside of "method of fighting binary-only modules", that is - this part
-> is obvious.
+On 10/23/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
+> On 10/23/06, Miguel Ojeda <maxextreme@gmail.com> wrote:
+> > Yes, we are sure. AFAIK there is no need to lock when it is a fbdev.
+> > The older version were "alone" drivers: they needed to lock because
+> > they used fops and they exported functions.
+> >
+>
+> ok, so no other driver than fb could use 'cfag12864b_buffer'. Maybe
+> I'm missing something but why did you split your fb driver into
+> cfag12864b.c and cfag12864fb.c ?
+>
 
-It was originally added to mark symbols that are clearly internal only
-and make a work derivative. It's somewhere expanded to include symbols
-whose code authors think that a cease and desist is the correct answer
-to non GPL use.
+To be clearer. And you are wrong: you can write other modules which
+want to know what the LCD is showing, or use it; without worrying
+about framebuffer things. They can read / write "cfag12864b_buffer" as
+well as cfag12864bfb do. Why not?
 
-I can't really help personally on the details there since I'm of the
-opinion that _GPLONLY while useful doesn't generally make a blind bit of
-difference as most if not all binary modules are violating the license.
-(And I'm sure Nvidia's legal counsel disagrees with me at least in
-public)
+The cfag12864b module is the real driver, which uses ks0108 module.
+The cfag12864bfb is just the framebuffer device.
 
-Alan
+>
+> BTW, 'cfag12864b_cache' could have been static...
 
+Right, I saw that in the meantime I was adding the mmap feature. Thanks.
+
+>
+>                 Franck
+>

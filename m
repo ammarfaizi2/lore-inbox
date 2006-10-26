@@ -1,39 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423466AbWJZMos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423378AbWJZMwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423466AbWJZMos (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 08:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423474AbWJZMos
+	id S1423378AbWJZMwG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 08:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWJZMwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 08:44:48 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:44210 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1423466AbWJZMos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 08:44:48 -0400
-Date: Thu, 26 Oct 2006 14:44:17 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pekka J Enberg <penberg@cs.helsinki.fi>
-Cc: Michael Holzheu <holzheu@de.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, schwidefsky@de.ibm.com, ioe-lkml@rameria.de,
-       minyard@acm.org
-Subject: Re: [PATCH] strstrip remove last blank fix
-Message-ID: <20061026124417.GA15733@wohnheim.fh-wedel.de>
-References: <20061026130703.6f8cc0bd.holzheu@de.ibm.com> <Pine.LNX.4.64.0610261420200.1223@sbz-30.cs.Helsinki.FI>
+	Thu, 26 Oct 2006 08:52:06 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:9679 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1423378AbWJZMwE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 08:52:04 -0400
+Subject: Re: Security issues with local filesystem caching
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+       chrisw@sous-sol.org, jmorris@namei.org
+In-Reply-To: <8567.1161859255@redhat.com>
+References: <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
+	 <16969.1161771256@redhat.com>   <8567.1161859255@redhat.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 26 Oct 2006 08:51:41 -0400
+Message-Id: <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0610261420200.1223@sbz-30.cs.Helsinki.FI>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 October 2006 14:20:56 +0300, Pekka J Enberg wrote:
+On Thu, 2006-10-26 at 11:40 +0100, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > This requires a fully trusted cache daemon that can arbitrarily tamper with
+> > any content cached in this manner.
 > 
-> Acked-by: Pekka Enberg <penberg@cs.helsinki.fi>
-Acked-by Joern Engel <joern@wh.fh-wedel.de>
+> Well, we could say that the cache daemon isn't actually allowed to read or
+> write any of these files; all it need to do is read their cache xattrs, names
+> and atimes, and rename and delete them.  It also needs to be able to do
+> readdir and lookup on the directories contained therein.
 
-Jörn
+Yes, SELinux policy could impose such a restriction, as well as ensuring
+that only the cache daemon can access the cache in the first place (vs.
+any arbitrary uid 0 process).  However, can the cache daemon effectively
+redirect an access by a process to a file that is being cached to
+another file by renaming cache files within the cache, such that the
+higher level permission checking and auditing would be applied to one
+file but the actual access would occur to another one?  If so, then it
+can effectively downgrade any file it is caching to the security context
+of any other file it is caching.
+
+> > But per-cache security attributes would be a reasonable approach to enabling
+> > finer-grained protection.
+> 
+> I'm not sure what you mean by this exactly.  I'd be happy to set the same
+> security attributes on the files and directories in the cache that impose
+> draconian restrictions, but whatever I do has to be representable in the
+> backing filesystem across reboots.
+
+What I mean is that the cachefiles configuration would allow one to
+specify a set of security attributes (uid, gid, security context) per
+cache, and those attributes would then be applied by the cachefiles
+kernel module when creating files within that cache.  This means that
+all files within a given cache have the same security attributes, but
+different caches can have different attributes.  Then one can run
+different cache daemon instances with different process security
+attributes, and ensure that each one can only access the caches it is
+responsible for managing.  Thus, the cache daemon instance for external
+data can't tamper with the cache of internal data, or vice versa.  Now,
+your default configuration may just use a single set of security
+attributes for all caches, and you might have a default definition in
+your configuration that is applied in the absence of any per-cache
+value, but you would be providing a mechanism by which people who want
+to isolate different caches can do so.
+
+> > It would help to understand the objection to setting fsuid/fsgid more
+> > clearly - it may have had more to do with always setting them to 0 for all
+> > cache files, or with using that as a way to work around the lack of an
+> > explicit mechanism for bypassing security checks for internal accesses than
+> > with the setting of the fsuid/fsgid itself.
+> 
+> Christoph did enscribe thus:
+> 
+> | - in cachefiles_walk_to_object reseting the fsuid/fsgid is not allowed
+> 
+> Which I take to mean that I'm not allowed to change fsuid and fsgid.  Why not,
+> I'm not entirely certain.  I wouldn't have thought it would matter as long as
+> I put them back again before returning.
+
+I think he also talked about binding the right access control
+credentials to the cache files, which I think is more along the lines of
+the discussion above (and Viro's concern).  I don't think it is so much
+about setting fsuid/fsgid per se, but about being able to protect the
+cache at finer granularity.
 
 -- 
-Data expands to fill the space available for storage.
--- Parkinson's Law
+Stephen Smalley
+National Security Agency
+

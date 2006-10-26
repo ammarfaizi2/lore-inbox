@@ -1,102 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423586AbWJZPyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161422AbWJZQDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423586AbWJZPyw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 11:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423589AbWJZPyw
+	id S1161422AbWJZQDR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 12:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161421AbWJZQDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 11:54:52 -0400
-Received: from webserve.ca ([69.90.47.180]:53945 "EHLO computersmith.org")
-	by vger.kernel.org with ESMTP id S1423586AbWJZPyv (ORCPT
+	Thu, 26 Oct 2006 12:03:17 -0400
+Received: from systemlinux.org ([83.151.29.59]:48335 "EHLO m18s25.vlinux.de")
+	by vger.kernel.org with ESMTP id S1161419AbWJZQDQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 11:54:51 -0400
-Message-ID: <4540DA23.7060104@wintersgift.com>
-Date: Thu, 26 Oct 2006 08:54:11 -0700
-From: teunis <teunis@wintersgift.com>
-User-Agent: Icedove 1.5.0.7 (X11/20061013)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: teunis <teunis@wintersgift.com>, linux-kernel@vger.kernel.org,
-       art@usfltd.com, Jiri Slaby <jirislaby@gmail.com>,
-       Jeff Dike <jdike@addtoit.com>, pavel@suse.cz, linux-pm@osdl.org
-Subject: Re: 2.6.19-rc3: known unfixed regressions: confirmations
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061024202104.GF27968@stusta.de> <453E8921.2090406@wintersgift.com> <20061026153142.GJ27968@stusta.de>
-In-Reply-To: <20061026153142.GJ27968@stusta.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Oct 2006 12:03:16 -0400
+Date: Thu, 26 Oct 2006 18:02:41 +0200
+From: Andre Noll <maan@systemlinux.org>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+       linux-ext4@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>
+Subject: Re: ext3: bogus i_mode errors with 2.6.18.1
+Message-ID: <20061026160241.GB12843@skl-net.de>
+References: <20061023144556.GY22487@skl-net.de> <20061023164416.GM3509@schatzie.adilger.int> <20061023200242.GA5015@schatzie.adilger.int> <20061024091449.GZ22487@skl-net.de> <20061024202716.GX3509@schatzie.adilger.int> <20061025094418.GA22487@skl-net.de> <20061026093613.GM3509@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+Content-Disposition: inline
+In-Reply-To: <20061026093613.GM3509@schatzie.adilger.int>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Adrian Bunk wrote:
-> On Tue, Oct 24, 2006 at 02:44:01PM -0700, teunis wrote:
->> Adrian Bunk wrote:
->>> This email lists some known unfixed regressions in 2.6.19-rc3 compared 
->>> to 2.6.18.
->> ...
->>
->> I'm not directly testing -rc3 as yet...  rc2-mm2 + a few modifications
->> works on the equipment I'm testing and as I can't afford more lost time
->> due to faults - I'm keeping to that build for the short term.
->>
->>> Subject    : shutdown problem
->>> References : http://lkml.org/lkml/2006/10/22/140
->>> Submitter  : art@usfltd.com
->>>              teunis@wintersgift.com
->>>              Jiri Slaby <jirislaby@gmail.com>
->>> Status     : unknown
->> repaired by Jeff Dike's patch to fs/proc/array.c
->> ...
-> 
-> Can you give me a pointer to this patch?
-> 
-> cu
-> Adrian
-> 
+--yEPQxsgoJgBvi8ip
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have no idea how to look up the link any other way - so here's a copy
-of the details from my mailbox (I've been keeping an archive local as I
-frequently work offline)
+On 03:36, Andreas Dilger wrote:
 
-posted by: akpm@osdl.org; 23/10/06 10:34 AM
+> On Oct 25, 2006  11:44 +0200, Andre Noll wrote:
+> > Are you saying that ext3_set_bit() should simply be called with
+> > "ret_block" as its first argument? If yes, that is what the revised
+> > patch below does.
+>=20
+> You might need to call ext3_set_bit_atomic() (as claim_block() does,
+> not sure.
 
-From: Jeff Dike <jdike@addtoit.com>
+I _think_ it doesn't matter much which one is used as on most archs
+ext3_set_bit_atomic() is only a wrapper for test_and_set_bit() just like
+ext3_set_bit() is. The only exceptions seem to be those archs that use
+the generic bitops and m68knommu.
 
-add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
-in -mm causes UML to hang at shutdown - init is sitting in a select on the
-initctl socket.
+> The other issue is that you need to potentially set "num" bits in the
+> bitmap here, if those all overlap metadata.  In fact, it might just
+> make more sense at this stage to walk all of the bits in the bitmaps,
+> the inode table and the backup superblock and group descriptor to see
+> if they need fixing also.
 
-This patch fixes it for me.
+I tried to implement this, but I could not find out how to check at this
+point whether a given bit (in the block bitmap, say) needs fixing.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-- ---
+Thanks
+Andre
+--=20
+The only person who always got his work done by Friday was Robinson Crusoe
 
- fs/proc/array.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+--yEPQxsgoJgBvi8ip
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-diff -puN
-fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix
-fs/proc/array.c
-- ---
-a/fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix
-+++ a/fs/proc/array.c
-@@ -388,7 +388,7 @@ static int do_task_stat(struct task_stru
- 			stime = cputime_add(stime, sig->stime);
- 		}
-
-- -		signal_session(sig);
-+		sid = signal_session(sig);
- 		pgid = process_group(task);
- 		ppid = rcu_dereference(task->real_parent)->tgid;
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFFQNojbFT/SAfwLKMRAqioAJ9+l+87bNRFJaHknJBGu6bYfrTlrACeOyts
-gkeCAiYDPBmR7E052LEMAtU=
-=eyIw
+iD8DBQFFQNwhWto1QDEAkw8RAm+eAJ4qvpD++YZHgAeCk4E8SBSKDckMawCgnVlq
+laElebX7tAz0jKCkNl+ybC4=
+=vwEl
 -----END PGP SIGNATURE-----
+
+--yEPQxsgoJgBvi8ip--

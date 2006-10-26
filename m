@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945957AbWJZWIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161393AbWJZWZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945957AbWJZWIs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 18:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945960AbWJZWIs
+	id S1161393AbWJZWZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 18:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161448AbWJZWZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 18:08:48 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:60387 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1945957AbWJZWIr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 18:08:47 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [2.6.18-rt7] BUG: time warp detected!
-Date: Fri, 27 Oct 2006 00:07:35 +0200
-User-Agent: KMail/1.9.1
-Cc: LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
-References: <1161847210.32585.14.camel@Homer.simpson.net>
-In-Reply-To: <1161847210.32585.14.camel@Homer.simpson.net>
+	Thu, 26 Oct 2006 18:25:28 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:40460 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161393AbWJZWZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 18:25:27 -0400
+Date: Fri, 27 Oct 2006 00:25:25 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: removing drivers and ISA support? [Was: Char: correct pci_get_device changes]
+Message-ID: <20061026222525.GP27968@stusta.de>
+References: <4540F79C.7070705@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610270007.36648.rjw@sisk.pl>
+In-Reply-To: <4540F79C.7070705@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 26, 2006 at 07:59:56PM +0200, Jiri Slaby wrote:
+>...
+> And what about (E)ISA support. When converting to pci probing, should be ISA bus
+> support preserved (how much is ISA used in present)? -- it makes code ugly and long.
 
-On Thursday, 26 October 2006 09:20, Mike Galbraith wrote:
-> Greetings,
-> 
-> $subject happened on my single P4/HT box sometime after resume from
-> disk.  Hohum activity:  I had just read lkml and was retrieving latest
-> glibc snapshot when I noticed the trace.  I also noticed that the kernel
-> decided to use pit instead of tsc.
+There seem to be still many running 486 machines - and only the last 486 
+boards also had PCI slots.
 
-Please check if CONFIG_PM_TRACE is not set in your .config.
+While deprecating OSS drivers, I got emails from people still using some 
+of the ISA cards.
 
-Greetings,
-Rafael
+And there are even Pentium 4 boards with ISA slots available.
 
+> regards,
+
+cu
+Adrian
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

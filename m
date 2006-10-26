@@ -1,22 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965298AbWJZCVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965295AbWJZCVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965298AbWJZCVm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 22:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965290AbWJZCTK
+	id S965295AbWJZCVi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 22:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422739AbWJZCU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 22:19:10 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:30943 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S965286AbWJZCTE (ORCPT
+	Wed, 25 Oct 2006 22:20:59 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:37343 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S965293AbWJZCTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 22:19:04 -0400
-Date: Wed, 25 Oct 2006 22:16:36 -0400
+	Wed, 25 Oct 2006 22:19:12 -0400
+Date: Wed, 25 Oct 2006 22:11:43 -0400
 From: Dominik Brodowski <linux@dominikbrodowski.net>
 To: linux-pcmcia@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, amol@verismonetworks.com
-Subject: [RFC PATCH 8/11] ioremap balanced with iounmap for drivers/pcmcia
-Message-ID: <20061026021636.GI20473@dominikbrodowski.de>
+Cc: linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net,
+       andrew@sanpeople.com
+Subject: [RFC PATCH 1/11] pcmcia: at91_cf update
+Message-ID: <20061026021143.GB20473@dominikbrodowski.de>
 Mail-Followup-To: linux-pcmcia@lists.infradead.org,
-	linux-kernel@vger.kernel.org, amol@verismonetworks.com
+	linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net,
+	andrew@sanpeople.com
 References: <20061026021027.GA20473@dominikbrodowski.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,119 +28,81 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Amol Lad <amol@verismonetworks.com>
-Date: Fri, 20 Oct 2006 14:44:18 -0700
-Subject: [PATCH] ioremap balanced with iounmap for drivers/pcmcia
+From: David Brownell <david-b@pacbell.net>
+Date: Sat, 1 Jul 2006 13:39:55 -0700
+Subject: [PATCH] pcmcia: at91_cf update
 
-ioremap must be balanced by an iounmap and failing to do so can result
-in a memory leak.
+More correct AT91 CF wakeup logic ... only enable/disable the IRQ wakeup
+capability, not the IRQ itself.  That way the we know that the IRQ will be
+disabled correctly, in suspend/resume logic instead of ARM IRQ code.
 
-Signed-off-by: Amol Lad <amol@verismonetworks.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Most of the pin multiplexing setup has moved to the devices.c setup code.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Andrew Victor <andrew@sanpeople.com>
 Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 ---
- drivers/pcmcia/at91_cf.c        |    3 ++-
- drivers/pcmcia/au1000_generic.c |   10 ++++++++++
- drivers/pcmcia/m8xx_pcmcia.c    |   12 ++++++++----
- drivers/pcmcia/omap_cf.c        |    3 ++-
- 4 files changed, 22 insertions(+), 6 deletions(-)
+ drivers/pcmcia/at91_cf.c |   25 +++++++------------------
+ 1 files changed, 7 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/pcmcia/at91_cf.c b/drivers/pcmcia/at91_cf.c
-index f8db6e3..3bcb7dc 100644
+index 7f5df9a..f8db6e3 100644
 --- a/drivers/pcmcia/at91_cf.c
 +++ b/drivers/pcmcia/at91_cf.c
-@@ -310,9 +310,10 @@ static int __init at91_cf_probe(struct p
- 	return 0;
+@@ -241,12 +241,6 @@ static int __init at91_cf_probe(struct p
+ 	csa = at91_sys_read(AT91_EBI_CSA);
+ 	at91_sys_write(AT91_EBI_CSA, csa | AT91_EBI_CS4A_SMC_COMPACTFLASH);
  
- fail2:
--	iounmap((void __iomem *) cf->socket.io_offset);
- 	release_mem_region(io->start, io->end + 1 - io->start);
- fail1:
-+	if (cf->socket.io_offset)
-+		iounmap((void __iomem *) cf->socket.io_offset);
+-	/* force poweron defaults for these pins ... */
+-	(void) at91_set_A_periph(AT91_PIN_PC9, 0);	/* A25/CFRNW */
+-	(void) at91_set_A_periph(AT91_PIN_PC10, 0);	/* NCS4/CFCS */
+-	(void) at91_set_A_periph(AT91_PIN_PC11, 0);	/* NCS5/CFCE1 */
+-	(void) at91_set_A_periph(AT91_PIN_PC12, 0);	/* NCS6/CFCE2 */
+-
+ 	/* nWAIT is _not_ a default setting */
+ 	(void) at91_set_A_periph(AT91_PIN_PC6, 1);	/*  nWAIT */
+ 
+@@ -322,6 +316,7 @@ fail1:
  	if (board->irq_pin)
  		free_irq(board->irq_pin, cf);
  fail0a:
-diff --git a/drivers/pcmcia/au1000_generic.c b/drivers/pcmcia/au1000_generic.c
-index 5387de6..551bde5 100644
---- a/drivers/pcmcia/au1000_generic.c
-+++ b/drivers/pcmcia/au1000_generic.c
-@@ -449,6 +449,16 @@ out_err:
- 		del_timer_sync(&skt->poll_timer);
- 		pcmcia_unregister_socket(&skt->socket);
- 		flush_scheduled_work();
-+		if (i == 0) {
-+			iounmap(skt->virt_io + (u32)mips_io_port_base);
-+			skt->virt_io = NULL;
-+		}
-+#ifndef CONFIG_MIPS_XXS1500
-+		else {
-+			iounmap(skt->virt_io + (u32)mips_io_port_base);
-+			skt->virt_io = NULL;
-+		}
-+#endif
- 		ops->hw_shutdown(skt);
++	device_init_wakeup(&pdev->dev, 0);
+ 	free_irq(board->det_pin, cf);
+ 	device_init_wakeup(&pdev->dev, 0);
+ fail0:
+@@ -360,26 +355,20 @@ static int at91_cf_suspend(struct platfo
+ 	struct at91_cf_data	*board = cf->board;
  
+ 	pcmcia_socket_dev_suspend(&pdev->dev, mesg);
+-	if (device_may_wakeup(&pdev->dev))
++	if (device_may_wakeup(&pdev->dev)) {
+ 		enable_irq_wake(board->det_pin);
+-	else {
++		if (board->irq_pin)
++			enable_irq_wake(board->irq_pin);
++	} else {
+ 		disable_irq_wake(board->det_pin);
+-		disable_irq(board->det_pin);
++		if (board->irq_pin)
++			disable_irq_wake(board->irq_pin);
  	}
-diff --git a/drivers/pcmcia/m8xx_pcmcia.c b/drivers/pcmcia/m8xx_pcmcia.c
-index e070a28..3b72be8 100644
---- a/drivers/pcmcia/m8xx_pcmcia.c
-+++ b/drivers/pcmcia/m8xx_pcmcia.c
-@@ -427,7 +427,7 @@ static int voltage_set(int slot, int vcc
- 			reg |= BCSR1_PCCVCC1;
- 			break;
- 		default:
--			return 1;
-+			goto out_unmap;
- 	}
- 
- 	switch(vpp) {
-@@ -438,15 +438,15 @@ static int voltage_set(int slot, int vcc
- 			if(vcc == vpp)
- 				reg |= BCSR1_PCCVPP1;
- 			else
--				return 1;
-+				goto out_unmap;
- 			break;
- 		case 120:
- 			if ((vcc == 33) || (vcc == 50))
- 				reg |= BCSR1_PCCVPP0;
- 			else
--				return 1;
-+				goto out_unmap;
- 		default:
--			return 1;
-+			goto out_unmap;
- 	}
- 
- 	/* first, turn off all power */
-@@ -457,6 +457,10 @@ static int voltage_set(int slot, int vcc
- 
- 	iounmap(bcsr_io);
+-	if (board->irq_pin)
+-		disable_irq(board->irq_pin);
  	return 0;
-+
-+out_unmap:
-+	iounmap(bcsr_io);
-+	return 1;
  }
  
- #define socket_get(_slot_) PCMCIA_SOCKET_KEY_5V
-diff --git a/drivers/pcmcia/omap_cf.c b/drivers/pcmcia/omap_cf.c
-index c8e838c..06bf7f4 100644
---- a/drivers/pcmcia/omap_cf.c
-+++ b/drivers/pcmcia/omap_cf.c
-@@ -309,9 +309,10 @@ static int __devinit omap_cf_probe(struc
+ static int at91_cf_resume(struct platform_device *pdev)
+ {
+-	struct at91_cf_socket	*cf = platform_get_drvdata(pdev);
+-	struct at91_cf_data	*board = cf->board;
+-
+-	if (board->irq_pin)
+-		enable_irq(board->irq_pin);
+-	if (!device_may_wakeup(&pdev->dev))
+-		enable_irq(board->det_pin);
+ 	pcmcia_socket_dev_resume(&pdev->dev);
  	return 0;
- 
- fail2:
--	iounmap((void __iomem *) cf->socket.io_offset);
- 	release_mem_region(cf->phys_cf, SZ_8K);
- fail1:
-+	if (cf->socket.io_offset)
-+		iounmap((void __iomem *) cf->socket.io_offset);
- 	free_irq(irq, cf);
- fail0:
- 	kfree(cf);
+ }
 -- 
 1.4.3
 

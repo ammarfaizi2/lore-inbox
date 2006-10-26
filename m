@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423473AbWJZNBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423477AbWJZNCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423473AbWJZNBw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 09:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423477AbWJZNBw
+	id S1423477AbWJZNCK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 09:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423478AbWJZNCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 09:01:52 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:11489 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1423473AbWJZNBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 09:01:51 -0400
-Date: Thu, 26 Oct 2006 15:01:46 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch 1/5] binfmt: fix uaccess handling
-Message-ID: <20061026130146.GB7127@osiris.boeblingen.de.ibm.com>
-References: <20061026130010.GA7127@osiris.boeblingen.de.ibm.com>
+	Thu, 26 Oct 2006 09:02:09 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:25729 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1423477AbWJZNCH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 09:02:07 -0400
+Date: Thu, 26 Oct 2006 15:01:20 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: linux@horizon.com
+cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2 and very unstable NTP
+In-Reply-To: <20061026123051.3831.qmail@science.horizon.com>
+Message-ID: <Pine.LNX.4.64.0610261449500.6761@scrub.home>
+References: <20061026123051.3831.qmail@science.horizon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061026130010.GA7127@osiris.boeblingen.de.ibm.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- fs/binfmt_elf.c |   11 +++++++----
- 1 files changed, 7 insertions(+), 4 deletions(-)
+Hi,
 
-Index: linux-2.6/fs/binfmt_elf.c
-===================================================================
---- linux-2.6.orig/fs/binfmt_elf.c	2006-10-26 14:40:58.000000000 +0200
-+++ linux-2.6/fs/binfmt_elf.c	2006-10-26 14:41:59.000000000 +0200
-@@ -243,8 +243,9 @@
- 	if (interp_aout) {
- 		argv = sp + 2;
- 		envp = argv + argc + 1;
--		__put_user((elf_addr_t)(unsigned long)argv, sp++);
--		__put_user((elf_addr_t)(unsigned long)envp, sp++);
-+		if (__put_user((elf_addr_t)(unsigned long)argv, sp++) ||
-+		    __put_user((elf_addr_t)(unsigned long)envp, sp++))
-+			return -EFAULT;
- 	} else {
- 		argv = sp;
- 		envp = argv + argc + 1;
-@@ -254,7 +255,8 @@
- 	p = current->mm->arg_end = current->mm->arg_start;
- 	while (argc-- > 0) {
- 		size_t len;
--		__put_user((elf_addr_t)p, argv++);
-+		if (__put_user((elf_addr_t)p, argv++))
-+			return -EFAULT;
- 		len = strnlen_user((void __user *)p, PAGE_SIZE*MAX_ARG_PAGES);
- 		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
- 			return 0;
-@@ -265,7 +267,8 @@
- 	current->mm->arg_end = current->mm->env_start = p;
- 	while (envc-- > 0) {
- 		size_t len;
--		__put_user((elf_addr_t)p, envp++);
-+		if (__put_user((elf_addr_t)p, envp++))
-+			return -EFAULT;
- 		len = strnlen_user((void __user *)p, PAGE_SIZE*MAX_ARG_PAGES);
- 		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
- 			return 0;
+On Thu, 26 Oct 2006, linux@horizon.com wrote:
+
+> > Did you ask the author? It would really help to have more specific 
+> > information here, e.g. what kernel interfaces are actually used in this 
+> > configuration.
+> 
+> Er... I thought I *was* asking the authors of the Linux kernel/time*
+> code.
+> 
+> If you're deeply suspiscious of a simple device driver, with publicly
+> available code, that adds timestamping to the handling of DCD changed
+> events from the serial ports, and exports those timestamps to user space,
+> I can remove it.  The Acutime 2000 can timestamp pulses sent to it
+> (via the RTS line), so I can get sub-microsecond time measurements anyway.
+
+I don't have this hardware, so I can only guess and the less information I 
+get the broader I have to guess. Sorry, but currently I don't have the 
+time to go on such a broad hunt. Someone familiar with this code should a 
+far easier time localizing the problem. It's not just kernel driver, there 
+is also lot of code in user space which converts the data to time 
+adjustments. There is also more than one way to adjust time, so I need 
+more specific information about what is happening and what is expected to 
+happen.
+
+bye, Roman

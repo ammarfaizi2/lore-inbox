@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWJZHbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWJZHfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751768AbWJZHbS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 03:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWJZHbS
+	id S1751769AbWJZHfR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 03:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751771AbWJZHfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 03:31:18 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30118 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751768AbWJZHbS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 03:31:18 -0400
-Date: Thu, 26 Oct 2006 17:30:22 +1000
-From: David Chinner <dgc@sgi.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Pavel Machek <pavel@ucw.cz>,
-       David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, xfs@oss.sgi.com
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061026073022.GG8394166@melbourne.sgi.com>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610251432.41958.rjw@sisk.pl> <1161782620.3638.0.camel@nigel.suspend2.net> <200610252105.56862.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 Oct 2006 03:35:17 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:28100 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751769AbWJZHfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 03:35:15 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [Cbe-oss-dev] [PATCH 12/16] cell: add temperature to SPU and CPU sysfs entries
+Date: Thu, 26 Oct 2006 09:35:00 +0200
+User-Agent: KMail/1.9.5
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, cbe-oss-dev@ozlabs.org,
+       Andrew Morton <akpm@osdl.org>
+References: <20061024163113.694643000@arndb.de> <20061025080048.GB7090@osiris.boeblingen.de.ibm.com> <1161818364.22582.145.camel@localhost.localdomain>
+In-Reply-To: <1161818364.22582.145.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200610252105.56862.rjw@sisk.pl>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200610260935.01801.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 09:05:56PM +0200, Rafael J. Wysocki wrote:
-> On Wednesday, 25 October 2006 15:23, Nigel Cunningham wrote:
-> > > 
-> > > Well, my impression is that this is exactly what happens here: Something
-> > > in the XFS code causes metadata to be written to disk _after_ the atomic
-> > > snapshot.
-> > > 
-> > > That's why I asked if the dirty XFS metadata were flushed by a kernel thread.
+On Thursday 26 October 2006 01:19, Benjamin Herrenschmidt wrote:
 > > 
-> > When I first added bdev freezing it was because there was an XFS timer
-> > doing writes.
+> > Will crash if cpu_add_sysdev_attr_group failed...
 > 
-> Yes, I noticed you said that, but I'd like someone from the XFS team to either
-> confirm or deny it.
+> 
+> Which is a total PITA. If this is the case, then we should modify the
+> add calls to at least initialize enough fields before they can fail for
+> the remove calls not to crash. You don't want to keep track precisely of
+> what file was added and what not and test all of that in your exit code
+> path, it's just insane.
 
-We have daemons running in the background that can definitely do stuff
-after a sync. hmm - one does try_to_freeze() after a wakeup, the
-other does:
+Heiko suggested that earlied in http://lkml.org/lkml/2006/10/9/22,
+but Andrew didn't like it.
 
-                if (unlikely(freezing(current))) {
-                        set_bit(XBT_FORCE_SLEEP, &target->bt_flags);
-                        refrigerator();
-                } else {
-                        clear_bit(XBT_FORCE_SLEEP, &target->bt_flags);
-                }
+Currently, the worst is that sysfs_remove_file can be used
+on a nonexisting file,  but sysfs_remove_group cannot, which is
+inconsistent. Either sysfs_remove_file should WARN_ON or
+sysfs_remove_group should silently return, and I'd prefer the
+latter, as it makes users simpler.
 
-before it goes to sleep. So that one (xfsbufd - metadata buffer flushing)
-can definitely wake up after the sync and do work, and the other could if
-the kernel thread freeze occurs after the sync.
-
-Another good question at this point - exactly how should we be putting
-these thread to to sleep? Are both these valid methods for freezing them?
-And should we be freezing when we wake up instead of before we go to
-sleep? i.e. what are teh rules we are supposed to be following?
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+	Arnd <><

@@ -1,80 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161157AbWJZRIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423499AbWJZRLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161157AbWJZRIW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 13:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161218AbWJZRIW
+	id S1423499AbWJZRLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 13:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423510AbWJZRLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 13:08:22 -0400
-Received: from aa013msr.fastwebnet.it ([85.18.95.73]:31916 "EHLO
-	aa013msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1161157AbWJZRIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 13:08:22 -0400
-Message-ID: <001501c6f921$56c3fe40$2b20ff27@flaviopc>
-From: "Inter filmati" <interfc@jumpy.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: cpufreq/powernowd limiting CPU frequency on kernels >=2.6.16
-Date: Thu, 26 Oct 2006 19:08:20 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-Antivirus: avast! (VPS 0643-5, 26/10/2006), Outbound message
-X-Antivirus-Status: Clean
+	Thu, 26 Oct 2006 13:11:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3746 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1423499AbWJZRLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 13:11:07 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil>  <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+       chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 26 Oct 2006 18:09:34 +0100
+Message-ID: <24017.1161882574@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Most recent kernel where this bug did not occur:2.6.15
-Distribution:Ubuntu64bit
-Hardware Environment: X2 3800+, DFI NF4 Ultra-D, X800GT
-Software Environment:
-Problem Description: I overclocked via bios my cpu (factory: 200x10) to 
-2565mhz
-(285x9), and I haven't any problems 'til 2.6.15, it goes down to 285x5 in 
-idle
-and up to 285x9 in full load. If I upgrade to a newer kernel, it says 1ghz 
-in
-idle and 1,8ghz in full load (I wonder it takes the fsb value, that is 
-200mhz,
-directly form cpu and not from the bios, so it assumes 200x5 in idle and 
-200x9
-in full load)
-flapane@a64:~$ cpufreq-info
-cpufrequtils 002: cpufreq-info (C) Dominik Brodowski 2004-2006
-Report errors and bugs to linux@brodo.de, please.
-analyzing CPU 0:
-  driver: powernow-k8
-  CPUs which need to switch frequency at the same time: 0 1
-  hardware limits: 1000 MHz - 1.80 GHz
-  available frequency steps: 1.80 GHz, 1000 MHz
-  available cpufreq governors: userspace, powersave, ondemand, conservative,
-performance
-  current policy: frequency should be within 1000 MHz and 1.80 GHz.
-                  The governor "ondemand" may decide which speed to use
-                  within this range.
-  current CPU frequency is 1000 MHz.
-analyzing CPU 1:
-  driver: powernow-k8
-  CPUs which need to switch frequency at the same time: 0 1
-  hardware limits: 1000 MHz - 1.80 GHz
-  available frequency steps: 1.80 GHz, 1000 MHz
-  available cpufreq governors: userspace, powersave, ondemand, conservative,
-performance
-  current policy: frequency should be within 1000 MHz and 1.80 GHz.
-                  The governor "ondemand" may decide which speed to use
-                  within this range.
-  current CPU frequency is 1000 MHz.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
+> > Sounds okay.  I'm not sure how I'd allow that to be configured.  I suspect
+> > it'd have to involve the cache module calling an LSM hook for each cache.
+> 
+> I'd expect some userspace process to provide the proper context for each
+> cache to the cache module during normal configuration, and that context would
+> come from the same config file that defines the rest of the cache info.
 
-Steps to reproduce:
-simply compile a kernel >=2.6.16 and try to overclock your cpu from the bios
-raising the FSB (or HT)
+This is read by the cachefilesd daemon and fed to the module prior to the
+start of the caching.
 
-Flavio
-www.flapane.com 
+> There would need to be a permission check (via a security hook call) at that
+> point between the process' context and the provided context to prevent a
+> given process from setting the context arbitrarily.
 
+Okay.
+
+> Is the configuration of the cache module done by the cache daemon itself?
+
+Yes.
+
+> What access checks is it normally subjected to?  Do you already perform a
+> check against the cache dir?
+
+The module lets the VFS DAC and MAC stuff check that root has writable access
+to the cache dir and will also do checks of the xattr if it's there already.
+
+> The cache module would then internally store the per-cache context values,
+
+Okay.
+
+> and prior to creating a file within the cache, it would set the current
+> fscreate attribute (via a security hook call) to that per-cache value, in
+> much the same way it is presently setting the fsuid/fsgid.
+
+That sounds reasonable.  There has to be some way to revert it, though.
+
+> The fscreate attribute is normally set via the security_setprocattr hook
+> (when a task writes to /proc/self/attr/fscreate);
+
+That makes it sound like fscreate is a per-process attribute, not a per-thread
+attribute.  The former would definitely be a problem.
+
+> however, you may want a specialized hook for this purpose that distinguishes
+> the fact that you are doing this internally.  Or possibly your mechanism for
+> exempting the cache module from permission checking would allow you to just
+> use security_setprocattr as is.
+
+Sounds feasible, I think; but I still need to revert the change I imposed.
+
+> You may also want to convert the context value to a secid once when it is
+> first configured, and then later just pass the secid to the hook call for
+> setting the fscreate value for efficiency.
+
+I'm not sure what you mean by that.  Can you give a pseudo-code example?
+
+> We would need a security_secctx_to_secid() hook for that, and then a variant
+> of security_setprocattr() that takes a secid instead of a context value.
+> Some similar handling already exists for audit, secmark, peersec, and
+> netlink, although some of those are using selinux specific interfaces
+> presently (but they can be turned into LSM hooks fairly easily).
+
+You make it sound so simple:-)
+
+David

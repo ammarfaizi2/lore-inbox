@@ -1,100 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423251AbWJZKzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423249AbWJZK4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423251AbWJZKzh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 06:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423248AbWJZKzh
+	id S1423249AbWJZK4j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 06:56:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423270AbWJZK4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 06:55:37 -0400
-Received: from main.gmane.org ([80.91.229.2]:39818 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1423249AbWJZKze (ORCPT
+	Thu, 26 Oct 2006 06:56:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15274 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1423249AbWJZK4i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 06:55:34 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Samuel Tardieu <sam@rfc1149.net>
-Subject: Re: What about make mergeconfig ?
-Date: 26 Oct 2006 12:50:51 +0200
-Message-ID: <87r6wvjqpg.fsf@willow.rfc1149.net>
-References: <1161755164.22582.60.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
+	Thu, 26 Oct 2006 06:56:38 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <45407C71.5070407@l4x.org> 
+References: <45407C71.5070407@l4x.org>  <16969.1161771256@redhat.com> 
+To: Jan Dittmer <jdi@l4x.org>
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, chrisw@sous-sol.org,
+       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 26 Oct 2006 11:55:25 +0100
+Message-ID: <8791.1161860125@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Benjamin" == Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Jan Dittmer <jdi@l4x.org> wrote:
 
-Benjamin> That would merge all entries in the specified file with the
-Benjamin> current .config.
+> > I can see a few ways to deal with this:
+> >
+> >  (1) Do all the cache operations in their own thread (sort of like knfsd).
+> >
+> >  (2) Add further security ops for the caching code to call.  These might
+> >      be of use elsewhere in the kernel.  These would set cache-specific
+> >      security labels and check for them.
+> >
+> >  (3) Add a flag or something to current to override the normal security on
+> >      the basis that it should be using the cache's security rather than
+> >      the process's security.
+> 
+> Why again no local userspace daemon to do the caching?
 
-You don't need it to be a Makefile target, it can be an external
-script. Would this one (untested!) do what you want?
+Because that reduces the problem to option (1), and then we add context
+switches and pushing the metadata in and out of userspace.  In addition, the
+cache calls back into the netfs to get information.
 
-  Sam
--- 
-Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
+I'm guess you're thinking of a halfway-house with userspace deciding which
+files to open and then opening the file and telling the kernel to use that
+file to back a particular netfs inode, with the kernel handling the actual
+read/write ops.  If you are, then this brings us back to the ENFILE problem,
+and also raises EMFILE as a new possible problem.  But this time, there isn't
+a way to escape the ENFILE problem - you're opening files in userspace.
 
-#! /usr/bin/python
-#
-# (c) 2006 Samuel Tardieu <sam@rfc1149.net>
-#
-# This software may be used and distributed according to the terms
-# of the GNU General Public License, incorporated herein by reference.
-#
-# Usage: mergeconfig config1 config2 ... > newconfig
-#
-# To get the formatting back, it is advised to run "make oldconfig" on the
-# result.
-#
-# Be careful in not using the same file as input and output
+We could have userspace tell the kernel use a file by name rather than
+actually opening it and handing over the fd, I suppose; but you still have the
+serialisation issue to deal with.
 
-import sre, sys
+> That would put the policy out of the kernel. The additional context switches
+> are probably pretty cheap compared to the io operations.
 
-_not_set = sre.compile('# (CONFIG_\S+) is not set')
-_set = sre.compile('(CONFIG_[^=]+)=(.*)')
+It's not just a pair of context switches you have to add in.
 
-def read_config(fn):
-    """Read a kernel configuration file and return a dictionary with
-    all the options present in the file. If an option is commented out,
-    set its value as None."""
-    d = {}
-    for l in file(fn):
-        l = l.rstrip('\r\n')
-        x = _not_set.match(l)
-        if x: d[x.group(1)] = None
-        x = _set.match(l)
-        if x: d[x.group(1)] = x.group(2)
-    return d
-
-def merge_option(o, v1, v2):
-    """Merge option value v1 and v2."""
-    if 'y' in [v1, v2]: return 'y'
-    if 'm' in [v1, v2]: return 'm'
-    if v1 != v2:
-        sys.stderr.write('Option %s has two incompatible values: %s and %s' %
-                         (o, v1, v2))
-        sys.exit(1)
-    return v1
-
-def merge_config_into(a, b):
-    """Merge configuration dictionary a into configuration dictionary b.
-    In addition, this function returns b after the merge."""
-    for k, v in a.items():
-        try:
-            b[v] = merge_option(k, v, b[v])
-        except KeyError:
-            b[k] = v
-    return b
-
-def output_config(d):
-    for k, v in d.items():
-        if v is None: print '# %s is not set' % k
-        else: print '%s=%s' % (k, v)
-
-if __name__ == '__main__':
-    output_config (reduce(lambda x, y: merge_config_into(x, read_config(y)),
-                          sys.argv[1:], {}))
-
+David

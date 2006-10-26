@@ -1,81 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422825AbWJZTac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423672AbWJZVQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422825AbWJZTac (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 15:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422886AbWJZTab
+	id S1423672AbWJZVQW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 17:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423677AbWJZVQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 15:30:31 -0400
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:11752 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S1422825AbWJZTab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 15:30:31 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Add .mailmap at the toplevel.
-Date: Thu, 26 Oct 2006 12:30:30 -0700
-Message-Id: <11618910300-git-send-email-junkio@cox.net>
-X-Mailer: git-send-email 1.4.3.3.gfbe5
-Content-type: text/plain; charset=utf-8
+	Thu, 26 Oct 2006 17:16:22 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:7145 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1423672AbWJZVQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 17:16:21 -0400
+Date: Thu, 26 Oct 2006 14:14:50 -0700
+From: Paul Jackson <pj@sgi.com>
+To: ego@in.ibm.com
+Cc: rusty@rustcorp.com.au, torvalds@osdl.org, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, vatsa@in.ibm.com,
+       dipankar@in.ibm.com, gaughen@us.ibm.com, arjan@linux.intel.org,
+       davej@redhat.com, venkatesh.pallipadi@intel.com, kiran@scalex86.org
+Subject: Re: [PATCH 4/5] lock_cpu_hotplug: Redesign - Lightweight
+ implementation of lock_cpu_hotplug.
+Message-Id: <20061026141450.53b48b88.pj@sgi.com>
+In-Reply-To: <20061026105731.GE11803@in.ibm.com>
+References: <20061026104858.GA11803@in.ibm.com>
+	<20061026105058.GB11803@in.ibm.com>
+	<20061026105342.GC11803@in.ibm.com>
+	<20061026105523.GD11803@in.ibm.com>
+	<20061026105731.GE11803@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-git-shortlog has kept this mapping between e-mail addresses and
-people's printed names hardcoded in the script, but now it wants
-to lose it.  It is project specific data after all, and is better
-kept as part of the project.
+Gautham wrote:
++ *- Readers assume control iff:					*
++ *    a) No other reader has a reference and no writer is writing.	*
++ *    OR								*
++ *    b) Atleast one reader (on *any* cpu) has a reference.		*
 
-Signed-off-by: Junio C Hamano <junkio@cox.net>
----
- .mailmap |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 40 insertions(+), 0 deletions(-)
+Isn't this logically equivalent to stating:
 
-diff --git a/.mailmap b/.mailmap
-new file mode 100644
-index 0000000..6a49b9f
---- /dev/null
-+++ b/.mailmap
-@@ -0,0 +1,40 @@
-+#
-+# Even with git, we don't always have name translations.
-+# So have an email->real name table to translate the
-+# (hopefully few) missing names
-+#
-+Adrian Bunk <bunk@stusta.de>
-+Andreas Herrmann <aherrman@de.ibm.com>
-+Andrew Morton <akpm@osdl.org>
-+Andrew Vasquez <andrew.vasquez@qlogic.com>
-+Christoph Hellwig <hch@lst.de>
-+Corey Minyard <minyard@acm.org>
-+David Woodhouse <dwmw2@shinybook.infradead.org>
-+Domen Puncer <domen@coderock.org>
-+Douglas Gilbert <dougg@torque.net>
-+Ed L Cashin <ecashin@coraid.com>
-+Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+Felix Moeller <felix@derklecks.de>
-+Frank Zago <fzago@systemfabricworks.com>
-+Greg Kroah-Hartman <gregkh@suse.de>
-+James Bottomley <jejb@mulgrave.(none)>
-+James Bottomley <jejb@titanic.il.steeleye.com>
-+Jeff Garzik <jgarzik@pretzel.yyz.us>
-+Jens Axboe <axboe@suse.de>
-+Kay Sievers <kay.sievers@vrfy.org>
-+Mitesh shah <mshah@teja.com>
-+Morten Welinder <terra@gnome.org>
-+Morten Welinder <welinder@anemone.rentec.com>
-+Morten Welinder <welinder@darter.rentec.com>
-+Morten Welinder <welinder@troll.com>
-+Nguyen Anh Quynh <aquynh@gmail.com>
-+Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-+Peter A Jonsson <pj@ludd.ltu.se>
-+Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
-+Rudolf Marek <R.Marek@sh.cvut.cz>
-+Rui Saraiva <rmps@joel.ist.utl.pt>
-+Sachin P Sant <ssant@in.ibm.com>
-+Santtu Hyrkkö <santtu.hyrkko@gmail.com>
-+Simon Kelley <simon@thekelleys.org.uk>
-+Tejun Heo <htejun@gmail.com>
-+Tony Luck <tony.luck@intel.com>
+  *- Readers assume control iff no writer is writing
+
+(Or if it's not equivalent, it might be interesting to state why.)
+
 -- 
-1.4.3.3.gfbe5
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

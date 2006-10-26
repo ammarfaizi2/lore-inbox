@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423516AbWJZQp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423492AbWJZQxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423516AbWJZQp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 12:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423614AbWJZQp4
+	id S1423492AbWJZQxw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 12:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423614AbWJZQxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 12:45:56 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:1233 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1423516AbWJZQpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 12:45:55 -0400
-Date: Thu, 26 Oct 2006 09:44:49 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [PATCH 3/5] Use next_balance instead of last_balance
-In-Reply-To: <4540AACE.3010804@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0610260924440.16978@schroedinger.engr.sgi.com>
-References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com>
- <20061024183119.4530.64973.sendpatchset@schroedinger.engr.sgi.com>
- <4540A676.1070802@yahoo.com.au> <4540AACE.3010804@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Oct 2006 12:53:52 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:4458 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1423492AbWJZQxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 12:53:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:content-type:date:message-id:mime-version:x-mailer;
+        b=tt/5YqtuTQLrkiLrk2bRUKRo+NFGBi6qPU8nOajvLbW8cSJvoxrF4KKs4W/4TYXwCt1nHjvsmZvMqesMo7pLfLmAEBNhcAvEtao4IK6VeL1B+hqsmP+URwqUZMJMe/rAC6gNHdfB2EFufZDHAhc05zQNZSNMiJYKNfH1My6aVl0=
+Subject: O2 Micro MMC card reader driver
+From: Islam Amer <pharon@gmail.com>
+Reply-To: pharon@gmail.com
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xvdf+5mT89mTcVONnnc6"
+Date: Thu, 26 Oct 2006 18:53:52 +0200
+Message-Id: <1161881632.19813.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.9.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2006, Nick Piggin wrote:
 
-> Actually, it is wrong, so nack.
-> 
-> You didn't take into account that balance_interval may have changed,
-> and so might the idle status.
+--=-xvdf+5mT89mTcVONnnc6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hmmmm... We change the point at which we calculate the interval relative 
-to load balancing. So move it after the load balance. This also avoids 
-having to do the calculation if the sched_domain has not expired.
+Hi all, I own a HP Compaq nc4000 that has an mmc card reader from the O2
+Micro company.=20
 
-Want a new rollup/testing cycle for all of this?
+00:0b.0 CardBus bridge: O2 Micro, Inc. OZ711M1/MC1 4-in-1 MemoryCardBus
+Controller (rev 20)
+00:0b.1 CardBus bridge: O2 Micro, Inc. OZ711M1/MC1 4-in-1 MemoryCardBus
+Controller (rev 20)
+00:0b.2 System peripheral: O2 Micro, Inc. OZ711Mx 4-in-1 MemoryCardBus
+Accelerator
 
-Index: linux-2.6.19-rc3/kernel/sched.c
-===================================================================
---- linux-2.6.19-rc3.orig/kernel/sched.c	2006-10-26 11:31:04.000000000 -0500
-+++ linux-2.6.19-rc3/kernel/sched.c	2006-10-26 11:41:07.129561438 -0500
-@@ -2867,15 +2867,6 @@ static void rebalance_domains(unsigned l
- 		if (!(sd->flags & SD_LOAD_BALANCE))
- 			continue;
- 
--		interval = sd->balance_interval;
--		if (idle != SCHED_IDLE)
--			interval *= sd->busy_factor;
--
--		/* scale ms to jiffies */
--		interval = msecs_to_jiffies(interval);
--		if (unlikely(!interval))
--			interval = 1;
--
- 		if (jiffies >= sd->next_balance) {
- 			if (load_balance(this_cpu, this_rq, sd, idle)) {
- 				/*
-@@ -2885,6 +2876,14 @@ static void rebalance_domains(unsigned l
- 				 */
- 				idle = NOT_IDLE;
- 			}
-+			interval = sd->balance_interval;
-+			if (idle != SCHED_IDLE)
-+				interval *= sd->busy_factor;
-+
-+			/* scale ms to jiffies */
-+			interval = msecs_to_jiffies(interval);
-+			if (unlikely(!interval))
-+				interval = 1;
- 			sd->next_balance += interval;
- 		}
- 		next_balance = min(next_balance, sd->next_balance);
+I reached to the mmc wiki and found a page which had information about
+this controller and others.
+
+http://mmc.drzeus.cx/wiki/Controllers/O2/OZ711Mx
+
+I then proceeded to contact the company asking for a driver. I got a
+rapid response with a driver tarball, apparently under the GPL.
+Unfortunately it did not compile because I use a 2.6.17 kernel, in which
+the PCMCIA API has changed. I'm trying to fix it but my programming
+knowledge is limited.
+
+I have attached the driver to the same wiki page, and contacted their
+mailing list but they pointed me to LKML.
+
+I am ready to interact with someone and try to get this driver in shape.
+Looking forward to your help.
+
+--=-xvdf+5mT89mTcVONnnc6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBFQOgg+xUeRqIE71gRAgKbAKCI+a7u4WhxE+0yoDziHIlQ3lZ+4ACgqwwt
+U2X94H7BzT7luqXbnzmTNwk=
+=JTfm
+-----END PGP SIGNATURE-----
+
+--=-xvdf+5mT89mTcVONnnc6--
+

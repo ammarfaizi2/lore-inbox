@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422775AbWJZCU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422657AbWJZCYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422775AbWJZCU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 22:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbWJZCTL
+	id S1422657AbWJZCYM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 22:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422825AbWJZCYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 22:19:11 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:32223 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S965289AbWJZCTE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 22:19:04 -0400
-Date: Wed, 25 Oct 2006 22:13:22 -0400
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: linux-pcmcia@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, kaustav.majumdar@wipro.com
-Subject: [RFC PATCH 3/11] pcmcia: update alloc_io_space for conflict checking for multifunction PC card
-Message-ID: <20061026021322.GD20473@dominikbrodowski.de>
-Mail-Followup-To: linux-pcmcia@lists.infradead.org,
-	linux-kernel@vger.kernel.org, kaustav.majumdar@wipro.com
-References: <20061026021027.GA20473@dominikbrodowski.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Oct 2006 22:24:12 -0400
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:14764 "HELO
+	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422800AbWJZCYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 22:24:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=eLikH2IVx0YI2pISgw5TVuRfG9Qq33e6XQDB5OzafmOckKhVYQpU3pO65tRefV4vBFGuaoX9wuY2i0oOMJPzaEcwlyBJQjmLO21Mh6YmGk6xBPtVpN8fiQRk4OZzhK3cHIwJxta6MrQ98stWpOhOl08tlvgKd2jTHA7SlmFdtGg=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: [PATCH 1/2] !CONFIG_NET_ETHERNET unsets CONFIG_PHYLIB, but  CONFIG_USB_USBNET also needs CONFIG_PHYLIB
+Date: Wed, 25 Oct 2006 19:24:03 -0700
+User-Agent: KMail/1.7.1
+Cc: toralf.foerster@gmx.de, netdev@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, link@miggy.org, greg@kroah.com,
+       akpm@osdl.org, zippel@linux-m68k.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061025165957.4c390137.randy.dunlap@oracle.com>
+In-Reply-To: <20061025165957.4c390137.randy.dunlap@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061026021027.GA20473@dominikbrodowski.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200610251924.04321.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kaustav Majumdar <kaustav.majumdar@wipro.com>
-Date: Fri, 20 Oct 2006 14:44:09 -0700
-Subject: [PATCH] pcmcia: update alloc_io_space for conflict checking for multifunction PC card
+On Wednesday 25 October 2006 4:59 pm, Randy Dunlap wrote:
+> On Wed, 25 Oct 2006 15:27:09 -0700 David Brownell wrote:
+> 
+> > The other parts are right, this isn't.
+> > 
+> > Instead, "usbnet.c" should #ifdef the relevant ethtool hooks
+> > according to CONFIG_MII ... since it's completely legit to
+> > use usbnet with peripherals that don't need MII.
+> 
+> Ugh.  OK.  How's this?  (2 patches)
 
-Some PCMCIA cards do not mention specific IO addresses in the CIS.  In that
-case, inside the alloc_io_space function, conflicts are detected (the
-function returns 1) for the second function of a multifunction card unless
-the length of IO address range required is greater than 0x100.
+Looks about right, but ...
 
-The following patch will remove this conflict checking for a PCMCIA
-function which had not mentioned any specific IO address to be mapped from.
 
-The patch is tested for Linux kernel 2.6.15.4 and works fine in the above
-case and is as suggested by Dave Hinds.
+> However, the MII config symbol should not be in the 10/100 Ethernet
+> menu, so that other drivers can use (enable) it or so that users
+> can enable it without needing to enable 10/100 Ethernet.
 
-Signed-off-by: Kaustav Majumdar <kaustav.majumdar@wipro.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
----
- drivers/pcmcia/pcmcia_resource.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+... MII should still depend on ETHERNET, right?
+Just not limited to 10/100 Ethernet.
 
-diff --git a/drivers/pcmcia/pcmcia_resource.c b/drivers/pcmcia/pcmcia_resource.c
-index 74cebd4..b9201c2 100644
---- a/drivers/pcmcia/pcmcia_resource.c
-+++ b/drivers/pcmcia/pcmcia_resource.c
-@@ -95,7 +95,7 @@ static int alloc_io_space(struct pcmcia_
- 	 * potential conflicts, just the most obvious ones.
- 	 */
- 	for (i = 0; i < MAX_IO_WIN; i++)
--		if ((s->io[i].res) &&
-+		if ((s->io[i].res) && *base &&
- 		    ((s->io[i].res->start & (align-1)) == *base))
- 			return 1;
- 	for (i = 0; i < MAX_IO_WIN; i++) {
--- 
-1.4.3
-
+> --- linux-2619-rc3-pv.orig/drivers/net/Kconfig
+> +++ linux-2619-rc3-pv/drivers/net/Kconfig
+> @@ -145,6 +145,13 @@ config NET_SB1000
+>  
+>  source "drivers/net/arcnet/Kconfig"
+>  
+> +config MII
+> +	tristate "Generic Media Independent Interface device support"
+> +	help
+> +	  Most ethernet controllers have MII transceiver either as an external
+> +	  or internal device.  It is safe to say Y or M here even if your
+> +	  ethernet card lacks MII.
+> +
+>  source "drivers/net/phy/Kconfig"
+>  
+>  #
+> @@ -180,14 +187,6 @@ config NET_ETHERNET
+>  	  kernel: saying N will just cause the configurator to skip all
+>  	  the questions about Ethernet network cards. If unsure, say N.
+>  
+> -config MII
+> -	tristate "Generic Media Independent Interface device support"
+> -	depends on NET_ETHERNET
+> -	help
+> -	  Most ethernet controllers have MII transceiver either as an external
+> -	  or internal device.  It is safe to say Y or M here even if your
+> -	  ethernet card lack MII.
+> -
+>  source "drivers/net/arm/Kconfig"
+>  
+>  config MACE
+> 

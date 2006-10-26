@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423553AbWJZPNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423564AbWJZPY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423553AbWJZPNW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 11:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423555AbWJZPNV
+	id S1423564AbWJZPY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 11:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423567AbWJZPY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 11:13:21 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:35548 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1423553AbWJZPNV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 11:13:21 -0400
-Date: Thu, 26 Oct 2006 11:12:41 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Andi Kleen <ak@muc.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Ian Campbell <Ian.Campbell@xensource.com>
-Subject: Re: [PATCH] x86_64: Some vmlinux.lds.S cleanups
-Message-ID: <20061026151241.GC11284@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061024210140.GB14225@in.ibm.com> <45407B05.76E4.0078.0@novell.com> <20061026134442.GA11284@in.ibm.com> <4540D9CF.76E4.0078.0@novell.com>
-Mime-Version: 1.0
+	Thu, 26 Oct 2006 11:24:59 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49414 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1423564AbWJZPY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 11:24:58 -0400
+Date: Thu, 26 Oct 2006 17:24:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>
+Subject: Re: linux-2.6.19-rc2 tg3 problem
+Message-ID: <20061026152455.GI27968@stusta.de>
+References: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com> <20061025013022.GG27968@stusta.de> <b6a2187b0610251754x7dc2c51aoad2244b8cdcb1c09@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4540D9CF.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <b6a2187b0610251754x7dc2c51aoad2244b8cdcb1c09@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 26, 2006 at 03:52:47PM +0200, Jan Beulich wrote:
-> >>> Vivek Goyal <vgoyal@in.ibm.com> 26.10.06 15:44 >>>
-> >On Thu, Oct 26, 2006 at 08:08:21AM +0100, Jan Beulich wrote:
-> >> I was about to ack it when I saw that you left .bss in init - that doesn't seem
-> >> too good an idea... Jan
-> >> 
+On Thu, Oct 26, 2006 at 08:54:12AM +0800, Jeff Chua wrote:
+> On 10/25/06, Adrian Bunk <bunk@stusta.de> wrote:
+> >On Mon, Oct 23, 2006 at 11:24:14PM +0800, Jeff Chua wrote:
+> >> I'm getting this error on with linux 2.6.19-rc2 with tg3 module, even
+> >> with patching to v3.66 ...
+> >> The last version 2.6.18-rc2 works fine. h/w is Dell Optiplex GX620.
 > >
-> >Should I create a separate program header say "bss" for .bss section? Last
-> >time when I suggested it you said there is no need to create a separate
-> >program header for bss.
+> >Known issue, can you confirm the patches below fix it for you?
 > 
-> No, I continue to think .bss naturally belongs at the end of the data segment.
+> I see the patch is for x86_64. I'm on 32bit. And tg3 is compiled as a
+> module, so I can't pass pci=routeirq to it. Tried on boot cmdline, but
+> doesn't work.
+
+That wasn't clear from your bug report.
+
+You said 2.6.18-rc2 -> 2.6.19-rc2 broke.
+
+Can you identify between which -rc kernels it broke?
+
+Please send complete "dmesg -s 1000000" for the time after tg3 loads for 
+both the last working and the first non-working -rc kernel.
+
+> I've tried 2.6.19-rc3, still the same problem.
 > 
+> Thanks,
+> Jeff.
 
-Only disadvantage of this is that .bss becomes part of the compressed data
-and size of vmlinux.bin and bzImage increases.
+cu
+Adrian
 
-OTOH, all the sections being mapped in segment "user" are also effectively
-data only. isn't it? So .bss coming after that would make sense.
+-- 
 
-Thanks
-Vivek
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

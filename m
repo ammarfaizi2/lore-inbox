@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752032AbWJZLJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752141AbWJZLVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752032AbWJZLJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 07:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752124AbWJZLJ2
+	id S1752141AbWJZLVO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 07:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752142AbWJZLVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 07:09:28 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:56214 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1752136AbWJZLJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 07:09:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=YcBU0SnUzSZfsIXJWYDE/HKFWnRLLKsNqKnmUVDjNWIqxKnC5C988pa8nniA1EfOjlcyG564NM+45ItJT5T9PrlhZnHZY1cPgD95ThqO9af3zt/4W7Hw1xx63Vw0+xxiEDurEpVvm2+1kWgUv1BZHAUdE1jUorhpxFklhzpUe0s=  ;
-Message-ID: <45409761.9000806@yahoo.com.au>
-Date: Thu, 26 Oct 2006 21:09:21 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Airlie <airlied@gmail.com>
-CC: Nick Piggin <npiggin@suse.de>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
-References: <20061007105758.14024.70048.sendpatchset@linux.site>	 <20061007105853.14024.95383.sendpatchset@linux.site> <21d7e9970610241431j38c59ec5rac17f780813e6f05@mail.gmail.com>
-In-Reply-To: <21d7e9970610241431j38c59ec5rac17f780813e6f05@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 26 Oct 2006 07:21:14 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:55485 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1752141AbWJZLVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 07:21:13 -0400
+Date: Thu, 26 Oct 2006 14:20:56 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.helsinki.fi>
+To: Michael Holzheu <holzheu@de.ibm.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org, joern@wohnheim.fh-wedel.de,
+       schwidefsky@de.ibm.com, ioe-lkml@rameria.de, minyard@acm.org
+Subject: Re: [PATCH] strstrip remove last blank fix
+In-Reply-To: <20061026130703.6f8cc0bd.holzheu@de.ibm.com>
+Message-ID: <Pine.LNX.4.64.0610261420200.1223@sbz-30.cs.Helsinki.FI>
+References: <20061026130703.6f8cc0bd.holzheu@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie wrote:
-> On 10/7/06, Nick Piggin <npiggin@suse.de> wrote:
-> 
->> Nonlinear mappings are (AFAIKS) simply a virtual memory concept that
->> encodes the virtual address -> file offset differently from linear
->> mappings.
->>
-> 
-> Hi Nick,
-> 
-> what is the status of this patch? I'm just trying to line up a kernel
-> tree for the new DRM memory management code, which really would like
-> this...
-> 
-> Dave.
+On Thu, 26 Oct 2006, Michael Holzheu wrote:
+> strstrip() does not remove the last blank from strings which only consist
+> of blanks.
 
-Hi Dave,
+[snip]
 
-Blocked by another kernel bug at the moment. I hope both fixes can
-make it into 2.6.20, but if that doesn't look like it will happen,
-then I might try reworking the patchset to break the ->fault change
-out by itself because there are several others who would like to use
-it as well.
+> Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+> 
+> ---
+> 
+>  lib/string.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff -Naurp linux-2.6.18/lib/string.c linux-2.6.18-strstrip-fix/lib/string.c
+> --- linux-2.6.18/lib/string.c	2006-06-19 14:03:20.000000000 +0200
+> +++ linux-2.6.18-strstrip-fix/lib/string.c	2006-10-25 18:36:08.000000000 +0200
+> @@ -320,7 +320,7 @@ char *strstrip(char *s)
+>  		return s;
+>  
+>  	end = s + size - 1;
+> -	while (end != s && isspace(*end))
+> +	while (end >= s && isspace(*end))
+>  		end--;
+>  	*(end + 1) = '\0';
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Looks good, thanks!  Andrew, can you please pick up this patch?
+
+Acked-by: Pekka Enberg <penberg@cs.helsinki.fi>

@@ -1,164 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422784AbWJZCWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965298AbWJZCVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422784AbWJZCWs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 22:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422739AbWJZCWU
+	id S965298AbWJZCVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 22:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965290AbWJZCTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 22:22:20 -0400
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:6308 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965285AbWJZCWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 22:22:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=UNTJnEMmYF5A1kYyR9zgUMZYP1glH2av5i/Hi9Cw7MmAX+q+y3D7APWGAHXlvzDdR0jELK2S/4etkWprrHHAyrZLBNGpCkBvogOiy6azmP9LrCDWXn69ZLkhT8950hMy3D/TijpYmbeM2ezq4J69liH9pBOKqyFtcDCrO2KhrKw=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
-Date: Wed, 25 Oct 2006 19:22:08 -0700
-User-Agent: KMail/1.7.1
-Cc: toralf.foerster@gmx.de, netdev@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, link@miggy.org, greg@kroah.com,
-       akpm@osdl.org, zippel@linux-m68k.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061025165858.b76b4fd8.randy.dunlap@oracle.com>
-In-Reply-To: <20061025165858.b76b4fd8.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Oct 2006 22:19:10 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:30943 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S965286AbWJZCTE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 22:19:04 -0400
+Date: Wed, 25 Oct 2006 22:16:36 -0400
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: linux-pcmcia@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, amol@verismonetworks.com
+Subject: [RFC PATCH 8/11] ioremap balanced with iounmap for drivers/pcmcia
+Message-ID: <20061026021636.GI20473@dominikbrodowski.de>
+Mail-Followup-To: linux-pcmcia@lists.infradead.org,
+	linux-kernel@vger.kernel.org, amol@verismonetworks.com
+References: <20061026021027.GA20473@dominikbrodowski.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610251922.09692.david-b@pacbell.net>
+In-Reply-To: <20061026021027.GA20473@dominikbrodowski.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 October 2006 4:58 pm, Randy Dunlap wrote:
-> On Wed, 25 Oct 2006 15:27:09 -0700 David Brownell wrote:
-> 
-> > Instead, "usbnet.c" should #ifdef the relevant ethtool hooks
-> > according to CONFIG_MII ... since it's completely legit to
-> > use usbnet with peripherals that don't need MII.
+From: Amol Lad <amol@verismonetworks.com>
+Date: Fri, 20 Oct 2006 14:44:18 -0700
+Subject: [PATCH] ioremap balanced with iounmap for drivers/pcmcia
 
-I had in mind something simpler -- #ifdeffing the entire functions,
-as in this patch.  It looks more complicated than it is, because
-"diff" gets confused by moving two functions earlier in the file.
+ioremap must be balanced by an iounmap and failing to do so can result
+in a memory leak.
 
-(Thanks for starting this, Randy ... these two patches should be merged
-before RC4 ships.)
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+---
+ drivers/pcmcia/at91_cf.c        |    3 ++-
+ drivers/pcmcia/au1000_generic.c |   10 ++++++++++
+ drivers/pcmcia/m8xx_pcmcia.c    |   12 ++++++++----
+ drivers/pcmcia/omap_cf.c        |    3 ++-
+ 4 files changed, 22 insertions(+), 6 deletions(-)
 
-- Dave
-
-
-
-The usbnet infrastructure must not reference MII symbols unless they're
-provided in the kernel being built.  This extends also to the ethtool
-hooks that reference those symbols.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
-Index: g26/drivers/usb/net/usbnet.c
-===================================================================
---- g26.orig/drivers/usb/net/usbnet.c	2006-10-24 18:29:28.000000000 -0700
-+++ g26/drivers/usb/net/usbnet.c	2006-10-25 19:07:16.000000000 -0700
-@@ -669,6 +669,9 @@ done:
-  * they'll probably want to use this base set.
-  */
+diff --git a/drivers/pcmcia/at91_cf.c b/drivers/pcmcia/at91_cf.c
+index f8db6e3..3bcb7dc 100644
+--- a/drivers/pcmcia/at91_cf.c
++++ b/drivers/pcmcia/at91_cf.c
+@@ -310,9 +310,10 @@ static int __init at91_cf_probe(struct p
+ 	return 0;
  
-+#if defined(CONFIG_MII) || defined(CONFIG_MII_MODULE)
-+#define HAVE_MII
-+
- int usbnet_get_settings (struct net_device *net, struct ethtool_cmd *cmd)
- {
- 	struct usbnet *dev = netdev_priv(net);
-@@ -699,20 +702,6 @@ int usbnet_set_settings (struct net_devi
- }
- EXPORT_SYMBOL_GPL(usbnet_set_settings);
- 
--
--void usbnet_get_drvinfo (struct net_device *net, struct ethtool_drvinfo *info)
--{
--	struct usbnet *dev = netdev_priv(net);
--
--	/* REVISIT don't always return "usbnet" */
--	strncpy (info->driver, driver_name, sizeof info->driver);
--	strncpy (info->version, DRIVER_VERSION, sizeof info->version);
--	strncpy (info->fw_version, dev->driver_info->description,
--		sizeof info->fw_version);
--	usb_make_path (dev->udev, info->bus_info, sizeof info->bus_info);
--}
--EXPORT_SYMBOL_GPL(usbnet_get_drvinfo);
--
- u32 usbnet_get_link (struct net_device *net)
- {
- 	struct usbnet *dev = netdev_priv(net);
-@@ -730,40 +719,57 @@ u32 usbnet_get_link (struct net_device *
- }
- EXPORT_SYMBOL_GPL(usbnet_get_link);
- 
--u32 usbnet_get_msglevel (struct net_device *net)
-+int usbnet_nway_reset(struct net_device *net)
- {
- 	struct usbnet *dev = netdev_priv(net);
- 
--	return dev->msg_enable;
-+	if (!dev->mii.mdio_write)
-+		return -EOPNOTSUPP;
-+
-+	return mii_nway_restart(&dev->mii);
- }
--EXPORT_SYMBOL_GPL(usbnet_get_msglevel);
-+EXPORT_SYMBOL_GPL(usbnet_nway_reset);
- 
--void usbnet_set_msglevel (struct net_device *net, u32 level)
-+#endif	/* HAVE_MII */
-+
-+void usbnet_get_drvinfo (struct net_device *net, struct ethtool_drvinfo *info)
- {
- 	struct usbnet *dev = netdev_priv(net);
- 
--	dev->msg_enable = level;
-+	/* REVISIT don't always return "usbnet" */
-+	strncpy (info->driver, driver_name, sizeof info->driver);
-+	strncpy (info->version, DRIVER_VERSION, sizeof info->version);
-+	strncpy (info->fw_version, dev->driver_info->description,
-+		sizeof info->fw_version);
-+	usb_make_path (dev->udev, info->bus_info, sizeof info->bus_info);
- }
--EXPORT_SYMBOL_GPL(usbnet_set_msglevel);
-+EXPORT_SYMBOL_GPL(usbnet_get_drvinfo);
- 
--int usbnet_nway_reset(struct net_device *net)
-+u32 usbnet_get_msglevel (struct net_device *net)
- {
- 	struct usbnet *dev = netdev_priv(net);
- 
--	if (!dev->mii.mdio_write)
--		return -EOPNOTSUPP;
-+	return dev->msg_enable;
-+}
-+EXPORT_SYMBOL_GPL(usbnet_get_msglevel);
- 
--	return mii_nway_restart(&dev->mii);
-+void usbnet_set_msglevel (struct net_device *net, u32 level)
-+{
-+	struct usbnet *dev = netdev_priv(net);
-+
-+	dev->msg_enable = level;
- }
--EXPORT_SYMBOL_GPL(usbnet_nway_reset);
-+EXPORT_SYMBOL_GPL(usbnet_set_msglevel);
- 
- /* drivers may override default ethtool_ops in their bind() routine */
- static struct ethtool_ops usbnet_ethtool_ops = {
-+#ifdef	HAVE_MII
- 	.get_settings		= usbnet_get_settings,
- 	.set_settings		= usbnet_set_settings,
--	.get_drvinfo		= usbnet_get_drvinfo,
- 	.get_link		= usbnet_get_link,
- 	.nway_reset		= usbnet_nway_reset,
+ fail2:
+-	iounmap((void __iomem *) cf->socket.io_offset);
+ 	release_mem_region(io->start, io->end + 1 - io->start);
+ fail1:
++	if (cf->socket.io_offset)
++		iounmap((void __iomem *) cf->socket.io_offset);
+ 	if (board->irq_pin)
+ 		free_irq(board->irq_pin, cf);
+ fail0a:
+diff --git a/drivers/pcmcia/au1000_generic.c b/drivers/pcmcia/au1000_generic.c
+index 5387de6..551bde5 100644
+--- a/drivers/pcmcia/au1000_generic.c
++++ b/drivers/pcmcia/au1000_generic.c
+@@ -449,6 +449,16 @@ out_err:
+ 		del_timer_sync(&skt->poll_timer);
+ 		pcmcia_unregister_socket(&skt->socket);
+ 		flush_scheduled_work();
++		if (i == 0) {
++			iounmap(skt->virt_io + (u32)mips_io_port_base);
++			skt->virt_io = NULL;
++		}
++#ifndef CONFIG_MIPS_XXS1500
++		else {
++			iounmap(skt->virt_io + (u32)mips_io_port_base);
++			skt->virt_io = NULL;
++		}
 +#endif
-+	.get_drvinfo		= usbnet_get_drvinfo,
- 	.get_msglevel		= usbnet_get_msglevel,
- 	.set_msglevel		= usbnet_set_msglevel,
- };
+ 		ops->hw_shutdown(skt);
+ 
+ 	}
+diff --git a/drivers/pcmcia/m8xx_pcmcia.c b/drivers/pcmcia/m8xx_pcmcia.c
+index e070a28..3b72be8 100644
+--- a/drivers/pcmcia/m8xx_pcmcia.c
++++ b/drivers/pcmcia/m8xx_pcmcia.c
+@@ -427,7 +427,7 @@ static int voltage_set(int slot, int vcc
+ 			reg |= BCSR1_PCCVCC1;
+ 			break;
+ 		default:
+-			return 1;
++			goto out_unmap;
+ 	}
+ 
+ 	switch(vpp) {
+@@ -438,15 +438,15 @@ static int voltage_set(int slot, int vcc
+ 			if(vcc == vpp)
+ 				reg |= BCSR1_PCCVPP1;
+ 			else
+-				return 1;
++				goto out_unmap;
+ 			break;
+ 		case 120:
+ 			if ((vcc == 33) || (vcc == 50))
+ 				reg |= BCSR1_PCCVPP0;
+ 			else
+-				return 1;
++				goto out_unmap;
+ 		default:
+-			return 1;
++			goto out_unmap;
+ 	}
+ 
+ 	/* first, turn off all power */
+@@ -457,6 +457,10 @@ static int voltage_set(int slot, int vcc
+ 
+ 	iounmap(bcsr_io);
+ 	return 0;
++
++out_unmap:
++	iounmap(bcsr_io);
++	return 1;
+ }
+ 
+ #define socket_get(_slot_) PCMCIA_SOCKET_KEY_5V
+diff --git a/drivers/pcmcia/omap_cf.c b/drivers/pcmcia/omap_cf.c
+index c8e838c..06bf7f4 100644
+--- a/drivers/pcmcia/omap_cf.c
++++ b/drivers/pcmcia/omap_cf.c
+@@ -309,9 +309,10 @@ static int __devinit omap_cf_probe(struc
+ 	return 0;
+ 
+ fail2:
+-	iounmap((void __iomem *) cf->socket.io_offset);
+ 	release_mem_region(cf->phys_cf, SZ_8K);
+ fail1:
++	if (cf->socket.io_offset)
++		iounmap((void __iomem *) cf->socket.io_offset);
+ 	free_irq(irq, cf);
+ fail0:
+ 	kfree(cf);
+-- 
+1.4.3
+

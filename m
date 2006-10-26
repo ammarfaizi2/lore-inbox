@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWJZDX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWJZDfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWJZDX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 23:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWJZDX6
+	id S1751739AbWJZDfS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 23:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751755AbWJZDfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 23:23:58 -0400
-Received: from mail.acc.umu.se ([130.239.18.156]:1729 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S932253AbWJZDX5 (ORCPT
+	Wed, 25 Oct 2006 23:35:18 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:58051 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1751748AbWJZDfR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 23:23:57 -0400
-Date: Thu, 26 Oct 2006 05:23:52 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: incorrect taint of ndiswrapper
-Message-ID: <20061026032352.GI23256@vasa.acc.umu.se>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
-References: <1161807069.3441.33.camel@dv> <1161808227.7615.0.camel@localhost.localdomain> <1161810392.3441.60.camel@dv> <20061025213355.GG23256@vasa.acc.umu.se> <1161817118.7615.34.camel@localhost.localdomain>
+	Wed, 25 Oct 2006 23:35:17 -0400
+Date: Thu, 26 Oct 2006 13:26:59 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: ppc-dev <linuxppc-dev@ozlabs.org>, paulus@samba.org, ak@suse.de,
+       linux-mm@kvack.org
+Subject: [PATCH 1/3] Constify compat_get_bitmap argument
+Message-Id: <20061026132659.2ff90dd1.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 2.3.0beta3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161817118.7615.34.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 11:58:38PM +0100, Alan Cox wrote:
-> Ar Mer, 2006-10-25 am 23:33 +0200, ysgrifennodd David Weinehall:
-> > Personally I feel that no matter if they are legal or not, we should not
-> > cater to such drivers in the first place.  If it's trickier to use
-> > Windows API-drivers under Linux than to write a native Linux driver,
-> > big deal...  We don't want Windows-drivers.  We want native drivers.
-> 
-> Neither taint nor _GPL are intended to stop people doing things that, in
-> the eyes of the masses, are stupid. The taint mark is there to ensure
-> that they don't harm the rest of us. The FSF view of freedom is freedom
-> to modify not freedom to modify in a manner approved by some defining
-> body.
+This means we can call it when the bitmap we want to fetch is declared
+const.
 
-Hence my use of the world "Personally".  It's my own opinion that we
-shouldn't support Windows API-drivers.  I don't think this has anything
-to do with the FSF view on freedom.  This has to do with the freedom to
-make a sound technical decision.
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+---
+ include/linux/compat.h |    2 +-
+ kernel/compat.c        |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-
-Regards: David
+This is headed towards getting sys_migrate_pages wired up for powerpc.
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+
+diff --git a/include/linux/compat.h b/include/linux/compat.h
+index f4ebf96..f155319 100644
+--- a/include/linux/compat.h
++++ b/include/linux/compat.h
+@@ -196,7 +196,7 @@ #define BITS_PER_COMPAT_LONG    (8*sizeo
+ #define BITS_TO_COMPAT_LONGS(bits) \
+ 	(((bits)+BITS_PER_COMPAT_LONG-1)/BITS_PER_COMPAT_LONG)
+ 
+-long compat_get_bitmap(unsigned long *mask, compat_ulong_t __user *umask,
++long compat_get_bitmap(unsigned long *mask, const compat_ulong_t __user *umask,
+ 		       unsigned long bitmap_size);
+ long compat_put_bitmap(compat_ulong_t __user *umask, unsigned long *mask,
+ 		       unsigned long bitmap_size);
+diff --git a/kernel/compat.c b/kernel/compat.c
+index 75573e5..d4898aa 100644
+--- a/kernel/compat.c
++++ b/kernel/compat.c
+@@ -678,7 +678,7 @@ int get_compat_sigevent(struct sigevent
+ 		? -EFAULT : 0;
+ }
+ 
+-long compat_get_bitmap(unsigned long *mask, compat_ulong_t __user *umask,
++long compat_get_bitmap(unsigned long *mask, const compat_ulong_t __user *umask,
+ 		       unsigned long bitmap_size)
+ {
+ 	int i, j;
+-- 
+1.4.3.2
+

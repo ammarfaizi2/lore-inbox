@@ -1,68 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423333AbWJZMAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423295AbWJZL7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423333AbWJZMAK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 08:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423305AbWJZMAJ
+	id S1423295AbWJZL7p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 07:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423305AbWJZL7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 08:00:09 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:62634 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1423246AbWJZMAH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 08:00:07 -0400
-Date: Thu, 26 Oct 2006 14:00:01 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Dick Streefland <dick.streefland@altium.nl>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       sam@ravnborg.org
-Subject: Re: What about make mergeconfig ?
-In-Reply-To: <Pine.LNX.4.61.0610261322120.29875@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.62.0610261357080.1555@pademelon.sonytel.be>
-References: <3d6d.453f3a0f.92d2c@altium.nl> <1161755164.22582.60.camel@localhost.localdomain>
- <3d6d.453f3a0f.92d2c@altium.nl> <Pine.LNX.4.61.0610251336580.23137@yvahk01.tjqt.qr>
- <31ed.453f5399.96651@altium.nl> <Pine.LNX.4.61.0610261000210.29875@yvahk01.tjqt.qr>
- <Pine.LNX.4.62.0610261102520.1555@pademelon.sonytel.be>
- <Pine.LNX.4.61.0610261322120.29875@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Oct 2006 07:59:45 -0400
+Received: from to-mmp-01.tel-ott.com ([142.46.202.39]:18581 "EHLO
+	to-mmp-01.tel-ott.com") by vger.kernel.org with ESMTP
+	id S1423295AbWJZL7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 07:59:44 -0400
+Date: Thu, 26 Oct 2006 07:59:42 -0400
+From: Holden Karau <holden@pigscanfly.ca>
+Subject: [PATCH 1/1] fat: improve sync performance by grouping writes in
+ fat_mirror_bhs [really unmangled]
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
+       holdenk@xandros.com, "akpm@osdl.org" <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org, holden@pigscanfly.ca,
+       holden.karau@gmail.com
+Message-id: <4540A32E.5050602@pigscanfly.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2006, Jan Engelhardt wrote:
-> >> >Or you can use the following hack:
-> >> >
-> >> >  (sort .config other.config; echo set) | sh | grep ^CONFIG_ > new.config
-> >> 
-> >> That does not properly deal with "# CONFIG_XYZ is not set" lines in 
-> >> other.config.
-> >
-> >What about RCS merge?
-> 
-> I take it we do not want to depend on too many tools (remember the 
-> kconfig implementation language debate).
+From: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
 
-If you have CVS installed, you have RCS merge.
+This is an attempt at improving fat_mirror_bhs in sync mode [namely it
+writes all of the data for a backup block, and then blocks untill
+finished]. The old behaviour would write & block in smaller chunks, so
+this should be slightly faster. It also removes the fixme requesting
+that it be fixed to behave this way :-)
+Signed-off-by: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
+---
+Sorry about the mangled patch, this time it really shouldn't be mangled :-)
+Important note; I do not normally play with filesystems. This MAY eat
+your file system, it has not eaten mine but that does not mean much at
+all [although I don't think it will]. I'd greatly appreciate comments
+& suggestions. In case the patch gets mangled [again] I've put it up at
+http://www.holdenkarau.com/~holden/projects/fat/001_improve_fat_sync_performance.patch
 
-> >merge -p other.config .config.old .config > other.config.new
-> 
-> This also does not seem conflict-safe.
 
-Indeed, you can still have conflicts, which you have to resolve manually.
+And now for the actual patch:
 
-But it depends on what you want to achieve: do you want to set each config
-option in the destination config to max(config1.option, config2.option), or do
-you want to apply the recent changes for one config (which may include
-disabling options) to another config?
+--- a/fs/fat/fatent.c	2006-09-19 23:42:06.000000000 -0400
++++ b/fs/fat/fatent.c	2006-10-25 19:14:14.000000000 -0400
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright (C) 2004, OGAWA Hirofumi
++ * Copyright (C) 2006, Holden Karau [Xandros] 
+  * Released under GPL v2.
+  */
+ 
+@@ -343,34 +344,46 @@ int fat_ent_read(struct inode *inode, st
+ 	return ops->ent_get(fatent);
+ }
+ 
+-/* FIXME: We can write the blocks as more big chunk. */
+ static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
+-			  int nr_bhs)
++			  int nr_bhs ) {
++  return fat_mirror_bhs_optw(sb , bhs , nr_bhs, 0);
++}
++
++static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
++			       int nr_bhs , int wait)
+ {
+ 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+-	struct buffer_head *c_bh;
++	struct buffer_head *c_bh[nr_bhs];
+ 	int err, n, copy;
+ 
++	/* Always wait if mounted -o sync */
++	if (sb->s_flags & MS_SYNCHRONOUS ) {
++	  wait = 1;
++	}
++
+ 	err = 0;
++	err = fat_sync_bhs_optw( bhs  , nr_bhs , wait);
++	if (err)
++	  goto error;
+ 	for (copy = 1; copy < sbi->fats; copy++) {
+ 		sector_t backup_fat = sbi->fat_length * copy;
+-
+ 		for (n = 0; n < nr_bhs; n++) {
+-			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
+-			if (!c_bh) {
++	    c_bh[n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
++	    if (!c_bh[n]) {
+ 				err = -ENOMEM;
+ 				goto error;
+ 			}
+-			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
+-			set_buffer_uptodate(c_bh);
+-			mark_buffer_dirty(c_bh);
+-			if (sb->s_flags & MS_SYNCHRONOUS)
+-				err = sync_dirty_buffer(c_bh);
+-			brelse(c_bh);
++	    set_buffer_uptodate(c_bh[n]);
++	    mark_buffer_dirty(c_bh[n]);
++	    memcpy(c_bh[n]->b_data, bhs[n]->b_data, sb->s_blocksize);
++	  }
++	  err = fat_sync_bhs_optw( c_bh  , nr_bhs , wait );
++	  for (n = 0; n < nr_bhs; n++ ) {
++	    brelse(c_bh[n]);
++	  }
+ 			if (err)
+ 				goto error;
+ 		}
+-	}
+ error:
+ 	return err;
+ }
+@@ -383,12 +396,7 @@ int fat_ent_write(struct inode *inode, s
+ 	int err;
+ 
+ 	ops->ent_put(fatent, new);
+-	if (wait) {
+-		err = fat_sync_bhs(fatent->bhs, fatent->nr_bhs);
+-		if (err)
+-			return err;
+-	}
+-	return fat_mirror_bhs(sb, fatent->bhs, fatent->nr_bhs);
++	return fat_mirror_bhs_optw(sb, fatent->bhs, fatent->nr_bhs , wait);
+ }
+ 
+ static inline int fat_ent_next(struct msdos_sb_info *sbi,
+@@ -505,9 +513,9 @@ out:
+ 	fatent_brelse(&fatent);
+ 	if (!err) {
+ 		if (inode_needs_sync(inode))
+-			err = fat_sync_bhs(bhs, nr_bhs);
+-		if (!err)
+-			err = fat_mirror_bhs(sb, bhs, nr_bhs);
++		  err = fat_mirror_bhs_optw(sb , bhs, nr_bhs , 1);
++		else
++		  err = fat_mirror_bhs_optw(sb, bhs, nr_bhs , 0 );
+ 	}
+ 	for (i = 0; i < nr_bhs; i++)
+ 		brelse(bhs[i]);
+@@ -549,11 +557,6 @@ int fat_free_clusters(struct inode *inod
+ 		}
+ 
+ 		if (nr_bhs + fatent.nr_bhs > MAX_BUF_PER_PAGE) {
+-			if (sb->s_flags & MS_SYNCHRONOUS) {
+-				err = fat_sync_bhs(bhs, nr_bhs);
+-				if (err)
+-					goto error;
+-			}
+ 			err = fat_mirror_bhs(sb, bhs, nr_bhs);
+ 			if (err)
+ 				goto error;
+@@ -564,11 +567,6 @@ int fat_free_clusters(struct inode *inod
+ 		fat_collect_bhs(bhs, &nr_bhs, &fatent);
+ 	} while (cluster != FAT_ENT_EOF);
+ 
+-	if (sb->s_flags & MS_SYNCHRONOUS) {
+-		err = fat_sync_bhs(bhs, nr_bhs);
+-		if (err)
+-			goto error;
+-	}
+ 	err = fat_mirror_bhs(sb, bhs, nr_bhs);
+ error:
+ 	fatent_brelse(&fatent);
+--- a/fs/fat/misc.c	2006-09-19 23:42:06.000000000 -0400
++++ b/fs/fat/misc.c	2006-10-25 18:54:27.000000000 -0400
+@@ -194,11 +194,17 @@ void fat_date_unix2dos(int unix_date, __
+ 
+ EXPORT_SYMBOL_GPL(fat_date_unix2dos);
+ 
+-int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs)
++
++int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs ) {
++  return fat_sync_bhs_optw(bhs , nr_bhs , 1);
++}
++
++int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs ,int wait)
+ {
+ 	int i, err = 0;
+ 
+ 	ll_rw_block(SWRITE, nr_bhs, bhs);
++	if (wait) {
+ 	for (i = 0; i < nr_bhs; i++) {
+ 		wait_on_buffer(bhs[i]);
+ 		if (buffer_eopnotsupp(bhs[i])) {
+@@ -207,6 +213,7 @@ int fat_sync_bhs(struct buffer_head **bh
+ 		} else if (!err && !buffer_uptodate(bhs[i]))
+ 			err = -EIO;
+ 	}
++	}
+ 	return err;
+ }
+ 
+--- a/include/linux/msdos_fs.h	2006-09-19 23:42:06.000000000 -0400
++++ b/include/linux/msdos_fs.h	2006-10-25 18:53:50.000000000 -0400
+@@ -419,6 +419,7 @@ extern int fat_chain_add(struct inode *i
+ extern int date_dos2unix(unsigned short time, unsigned short date);
+ extern void fat_date_unix2dos(int unix_date, __le16 *time, __le16 *date);
+ extern int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs);
++extern int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs, int wait);
+ 
+ int fat_cache_init(void);
+ void fat_cache_destroy(void);
 
-For the latter, merge should work fine.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,24 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965289AbWJZCWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422775AbWJZCU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965289AbWJZCWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 22:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965288AbWJZCTI
+	id S1422775AbWJZCU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 22:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbWJZCTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 22:19:08 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:29663 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S965285AbWJZCTE (ORCPT
+	Wed, 25 Oct 2006 22:19:11 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:32223 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S965289AbWJZCTE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 25 Oct 2006 22:19:04 -0400
-Date: Wed, 25 Oct 2006 22:15:48 -0400
+Date: Wed, 25 Oct 2006 22:13:22 -0400
 From: Dominik Brodowski <linux@dominikbrodowski.net>
 To: linux-pcmcia@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, om.turyx@gmail.com,
-       yoichi_yuasa@tripeaks.co.jp
-Subject: [RFC PATCH 7/11] pcmcia: au1000_generic fix
-Message-ID: <20061026021548.GH20473@dominikbrodowski.de>
+Cc: linux-kernel@vger.kernel.org, kaustav.majumdar@wipro.com
+Subject: [RFC PATCH 3/11] pcmcia: update alloc_io_space for conflict checking for multifunction PC card
+Message-ID: <20061026021322.GD20473@dominikbrodowski.de>
 Mail-Followup-To: linux-pcmcia@lists.infradead.org,
-	linux-kernel@vger.kernel.org, om.turyx@gmail.com,
-	yoichi_yuasa@tripeaks.co.jp
+	linux-kernel@vger.kernel.org, kaustav.majumdar@wipro.com
 References: <20061026021027.GA20473@dominikbrodowski.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,84 +26,41 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Om Narasimhan <om.turyx@gmail.com>
-Date: Fri, 20 Oct 2006 14:44:15 -0700
-Subject: [PATCH] pcmcia: au1000_generic fix
+From: Kaustav Majumdar <kaustav.majumdar@wipro.com>
+Date: Fri, 20 Oct 2006 14:44:09 -0700
+Subject: [PATCH] pcmcia: update alloc_io_space for conflict checking for multifunction PC card
 
-The previous code did something like,
+Some PCMCIA cards do not mention specific IO addresses in the CIS.  In that
+case, inside the alloc_io_space function, conflicts are detected (the
+function returns 1) for the second function of a multifunction card unless
+the length of IO address range required is greater than 0x100.
 
-if (error) goto out_err;
-....
-do {
-             struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
-              del_timer_sync(&skt->poll_timer);
-               pcmcia_unregister_socket(&skt->socket);
-out_err:
-               flush_scheduled_work();
-               ops->hw_shutdown(skt);
-               i--;
-} while (i > 0)
-.....
+The following patch will remove this conflict checking for a PCMCIA
+function which had not mentioned any specific IO address to be mapped from.
 
-- On the error path, skt would not contain a valid value for the first
-  iteration (skt is masked by uninitialized automatic skt)
+The patch is tested for Linux kernel 2.6.15.4 and works fine in the above
+case and is as suggested by Dave Hinds.
 
-- Does not do hw_shutdown() for 0th element of PCMCIA_SOCKET
-
-Signed-off-by: Om Narasimhan <om.turyx@gmail.com>
-Cc: "Yoichi Yuasa" <yoichi_yuasa@tripeaks.co.jp>
+Signed-off-by: Kaustav Majumdar <kaustav.majumdar@wipro.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 ---
- drivers/pcmcia/au1000_generic.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/pcmcia/pcmcia_resource.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/pcmcia/au1000_generic.c b/drivers/pcmcia/au1000_generic.c
-index d5dd0ce..5387de6 100644
---- a/drivers/pcmcia/au1000_generic.c
-+++ b/drivers/pcmcia/au1000_generic.c
-@@ -351,6 +351,7 @@ struct skt_dev_info {
- int au1x00_pcmcia_socket_probe(struct device *dev, struct pcmcia_low_level *ops, int first, int nr)
- {
- 	struct skt_dev_info *sinfo;
-+	struct au1000_pcmcia_socket *skt;
- 	int ret, i;
- 
- 	sinfo = kzalloc(sizeof(struct skt_dev_info), GFP_KERNEL);
-@@ -365,7 +366,7 @@ int au1x00_pcmcia_socket_probe(struct de
- 	 * Initialise the per-socket structure.
+diff --git a/drivers/pcmcia/pcmcia_resource.c b/drivers/pcmcia/pcmcia_resource.c
+index 74cebd4..b9201c2 100644
+--- a/drivers/pcmcia/pcmcia_resource.c
++++ b/drivers/pcmcia/pcmcia_resource.c
+@@ -95,7 +95,7 @@ static int alloc_io_space(struct pcmcia_
+ 	 * potential conflicts, just the most obvious ones.
  	 */
- 	for (i = 0; i < nr; i++) {
--		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
-+		skt = PCMCIA_SOCKET(i);
- 		memset(skt, 0, sizeof(*skt));
- 
- 		skt->socket.resource_ops = &pccard_static_ops;
-@@ -438,17 +439,19 @@ #endif
- 	dev_set_drvdata(dev, sinfo);
- 	return 0;
- 
--	do {
--		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
-+
-+out_err:
-+	flush_scheduled_work();
-+	ops->hw_shutdown(skt);
-+	while (i-- > 0) {
-+		skt = PCMCIA_SOCKET(i);
- 
- 		del_timer_sync(&skt->poll_timer);
- 		pcmcia_unregister_socket(&skt->socket);
--out_err:
- 		flush_scheduled_work();
- 		ops->hw_shutdown(skt);
- 
--		i--;
--	} while (i > 0);
-+	}
- 	kfree(sinfo);
- out:
- 	return ret;
+ 	for (i = 0; i < MAX_IO_WIN; i++)
+-		if ((s->io[i].res) &&
++		if ((s->io[i].res) && *base &&
+ 		    ((s->io[i].res->start & (align-1)) == *base))
+ 			return 1;
+ 	for (i = 0; i < MAX_IO_WIN; i++) {
 -- 
 1.4.3
 

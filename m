@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423441AbWJZGIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423438AbWJZGLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423441AbWJZGIm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 02:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423442AbWJZGIm
+	id S1423438AbWJZGLo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 02:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423447AbWJZGLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 02:08:42 -0400
-Received: from smtp010.mail.ukl.yahoo.com ([217.12.11.79]:55210 "HELO
-	smtp010.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1423441AbWJZGIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 02:08:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=dtGmVtGu7XlGLkMeNABx5Dh7GG6Alf1VqtZ+TsS3iPgwPAW3tuw7ndI98qePQtYCT12CbGUPEVTVQP+uzMQ6kXKUFx2WnnAe3VInNhM1cySzqyHxzeT5ev9mna7M2J2wnMMiVMpANgZbMMAR+FhtzPXacGyPYAjcAvZk59Nsv78=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 01/14] uml: fix compilation options for USER_OBJS
-Date: Thu, 26 Oct 2006 08:08:26 +0200
-User-Agent: KMail/1.9.5
-Cc: Jeff Dike <jdike@addtoit.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20061009163208.GA4931@ccure.user-mode-linux.org> <20061011110828.43576.qmail@web25221.mail.ukl.yahoo.com> <20061013201010.GC5517@ccure.user-mode-linux.org>
-In-Reply-To: <20061013201010.GC5517@ccure.user-mode-linux.org>
+	Thu, 26 Oct 2006 02:11:44 -0400
+Received: from ms-smtp-03.ohiordc.rr.com ([65.24.5.137]:62716 "EHLO
+	ms-smtp-03.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S1423438AbWJZGLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 02:11:44 -0400
+Date: Thu, 26 Oct 2006 02:11:32 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org, linuxppc-dev@ozlabs.org
+Subject: Re: 2.6.19-rc2-mm2
+Message-ID: <20061026061131.GA9265@nineveh.rivenstone.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, paulus@samba.org,
+	linuxppc-dev@ozlabs.org
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610260808.27508.blaisorblade@yahoo.it>
+In-Reply-To: <20061020015641.b4ed72e5.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: jhf@columbus.rr.com (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 October 2006 22:10, Jeff Dike wrote:
-> On Wed, Oct 11, 2006 at 01:08:27PM +0200, Paolo Giarrusso wrote:
-> > Ok, at a first glance this alternative solution is ok. Make sure (run
-> > gdb on an userspace object file and saying list <function>) that it
-> > works and we'll be ok.
+On Fri, Oct 20, 2006 at 01:56:41AM -0700, Andrew Morton wrote:
 >
-> After discovering that the original patch broke UML/i386 and broke the
-> UML/x86_64 build, I now have the patch below.
-Where is it? It should go in 2.6.19. I'm going to test it locally and merge 
-it.
-> Listing userspace functions is fine.
-Good...
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade
-http://www.user-mode-linux.org/~blaisorblade
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
+>
+
+    The "Lazy interrupt disabling for 64-bit machines" patch
+(which is in -rc2-mm2 through git-powerpc) seems to make -rc2-mm2
+not build for ppc32 when KEXEC is enabled.  Building with kexec
+enabled worked in -rc2-mm1.
+
+    Building -mm2 fails when trying to make the vmlinux.  I don't have
+the exact messages anymore, sorry, but it was an "undefined reference
+to hard_irq_disable' in arch/powerpc/kernel/entry_32.S".  This appears
+to be the result of an earlier warning about an "implicit
+declaration of hard_irq_disable" in arch/powerpc/kernel/crash.c .
+
+    (There's a comment at the top of that file that made it sound to
+me like the file is for PPC64 only, but looking closer makes me think
+that's not the case.)
+
+    Backing out that "lazy interrupt" patch got -mm2 building again.
+Turning kexec off works too.
+
+    I don't use kexec, I just have it config'd on.  I doubt anyone is
+actually using kexec in -mm on ppc32.  I'm just sayin'.
+
+--
+Joseph Fannin
+jhf@columbus.rr.com
+

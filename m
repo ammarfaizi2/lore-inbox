@@ -1,84 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWJZADv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWJZAcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWJZADv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 20:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWJZADv
+	id S964828AbWJZAcs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 20:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbWJZAcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 20:03:51 -0400
-Received: from mga05.intel.com ([192.55.52.89]:14455 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750877AbWJZADu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 20:03:50 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,358,1157353200"; 
-   d="scan'208"; a="152098492:sNHT96256167"
-Date: Wed, 25 Oct 2006 16:42:53 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Russ Anderson <rja@sgi.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
+	Wed, 25 Oct 2006 20:32:47 -0400
+Received: from smtp009.mail.ukl.yahoo.com ([217.12.11.63]:53338 "HELO
+	smtp009.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S964838AbWJZAcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 20:32:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=u41Xti2Q7QdEqsya91axVGGveA+1kpqMB94RmQ83hDCX4+xp91kacttpxcqx/EFD8+n6/YgvKPaWB5JvTOVT7H8lpFy6dH+92pAYNDj9qM2p+csUN1jAitzUwsWJxMrQWPhDrTzvXm57daEyCVPHQJ6Fmq2nv96wFElgAihdXeI=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [Fwd: Re: More uml build failures on 2.16.19-rc3 and 2.6.18.1]
+Date: Thu, 26 Oct 2006 02:32:43 +0200
+User-Agent: KMail/1.9.5
+Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>, Mitch <Mitch@0bits.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch] Mixed Madison and Montecito system support
-Message-ID: <20061025164253.A21790@unix-os.sc.intel.com>
-References: <20061023205643.GA13990@intel.com> <200610250056.k9P0ujPY21429663@clink.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <453DCB33.3060607@0Bits.COM> <84144f020610240131j7603a75ftf8d8a5718e895699@mail.gmail.com>
+In-Reply-To: <84144f020610240131j7603a75ftf8d8a5718e895699@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200610250056.k9P0ujPY21429663@clink.americas.sgi.com>; from rja@sgi.com on Tue, Oct 24, 2006 at 07:56:45PM -0500
+Message-Id: <200610260232.44294.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 07:56:45PM -0500, Russ Anderson wrote:
-> Tony Luck wrote:
-> > 
-> > Cc: linux-kernel for generic bit of this change.  Rest of patch was
-> > posted to linux-ia64: http://marc.theaimsgroup.com/?l=linux-ia64&m=116070997529216&w=2
-> > 
-> > On Thu, Oct 12, 2006 at 10:25:58PM -0500, Russ Anderson wrote:
-> > >  int sched_create_sysfs_power_savings_entries(struct sysdev_class *cls)
-> > >  {
-> > > -	int err = 0;
-> > > +	int err = 0, c;
-> > >  
-> > >  #ifdef CONFIG_SCHED_SMT
-> > > -	if (smt_capable())
-> > > -		err = sysfs_create_file(&cls->kset.kobj,
-> > > +	for_each_online_cpu(c)
-> > > +		if (smt_capable(c)) {
-> > > +			err = sysfs_create_file(&cls->kset.kobj,
-> > >  					&attr_sched_smt_power_savings.attr);
-> > > +			break;
-> > > +		}
-> > >  #endif
-> > 
-> > What if you booted an all-Madison system, and then hot-plugged some
-> > Montecitos later?  Either we'd need the hotplug cpu code to run through
-> > this routine again to re-test whether any cpu has multi-thread support
-> > (it doesn't look like it does that now).
-> > 
-> > Or perhaps it would be simpler to dispense with this test and always
-> > call sysfs_create_file() here (still inside CONFIG_SCHED_SMT) so that
-> > the hook is always present to tune the scheduler (even if it may be
-> > ineffective on a no-smt system)?
-> 
-> I like that idea.  Any objections or comments?
-
-I added it so that these entries will not confuse users of a non-smt/mc
-systems. But mixed type of processors and cpu hotplug really complicates the
-things..
-
-May be a check of something like "is this platform capable of
-supporting any multi-core/multi-threaded processor package?" helps..
-
-As there is no well defined mechanism to find out that and for simplicity
-reasons, we should probably go with Tony's suggestion.
-
-Russ I can post a patch, removing both smt_capable() and mc_capable()
-checks.
-
-Today this sysfs variable is not documented. But when it happens, we
-need to clearly document that these variables have no meaning when
-the system doesn't have cpus with threads/cores.
-
-thanks,
-suresh
+On Tuesday 24 October 2006 10:31, Pekka Enberg wrote:
+> Hi,
+>
+> On 10/24/06, Mitch <Mitch@0bits.com> wrote:
+> > Yup, did do 'make mrproper'. config attached.
+>
+> Works for me. Perhaps the UML people can figure out what's going on.
+Guess this is not enough info... please forward us the report or at least send 
+us a link to the thread (but I tend not to read links except when I've 
+exceptionally much time in excess, i.e. never).
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade
+http://www.user-mode-linux.org/~blaisorblade
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

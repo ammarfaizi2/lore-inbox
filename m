@@ -1,70 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161330AbWJZODO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161398AbWJZOJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161330AbWJZODO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 10:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161386AbWJZODO
+	id S1161398AbWJZOJF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 10:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161399AbWJZOJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 10:03:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18323 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161330AbWJZODO (ORCPT
+	Thu, 26 Oct 2006 10:09:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27802 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161398AbWJZOJE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 10:03:14 -0400
-Date: Thu, 26 Oct 2006 10:02:18 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: psusi@cfl.rr.com, Jens Axboe <jens.axboe@oracle.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0/5] I/O statistics through request queues
-Message-ID: <20061026140218.GC4978@redhat.com>
-References: <453D05C3.7040104@de.ibm.com> <20061023200220.GB4281@kernel.dk> <453E38FE.1020306@de.ibm.com> <20061024162050.GK4281@kernel.dk> <453E79D1.6070703@cfl.rr.com> <453E9368.9070405@de.ibm.com> <y0mvem8thc3.fsf@ton.toronto.redhat.com> <45409709.3000701@de.ibm.com> <20061026121348.GB4978@redhat.com> <4540BA32.3020708@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4540BA32.3020708@de.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Oct 2006 10:09:04 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <4540BEFC.4080502@sw.ru> 
+References: <4540BEFC.4080502@sw.ru>  <4540A0C5.60700@sw.ru> <453F58FB.4050407@sw.ru> <19857.1161869015@redhat.com> 
+To: Vasily Averin <vvs@sw.ru>
+Cc: aviro@redhat.com, Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
+       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
+       Kirill Korotaev <dev@openvz.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Q] missing unused dentry in prune_dcache()? 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 26 Oct 2006 15:07:32 +0100
+Message-ID: <20675.1161871652@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
+Vasily Averin <vvs@sw.ru> wrote:
 
-On Thu, Oct 26, 2006 at 03:37:54PM +0200, Martin Peschke wrote:
-> [...]
-> lookup_table[key] = value	, or
-> lookup_table[key]++
-> 
-> How does this scale?
+> I would note that in first two hunks you have decremented
+> dentry_stat.nr_unused correctly, under dcache_lock. Probably it's better to
+> count freed dentries only in third case and corrects dentry_stat.nr_unused
+> value inside shrink_dcache_for_umount_subtree() function before return.
 
-It depends.  If one is interested in only aggregates as an end result,
-then intermediate totals can be tracked individiaully per-cpu with no
-locking contention, so this scales well.
+Maybe, maybe not.  This way we only touch the dentry_stat cacheline once, if
+at all.  I'm not sure it'd make much difference though.
 
-> It must be someting else than an array, because key boundaries
-> aren't known when the lookup table is created, right?
-> And actual keys might be few and far between.
-
-In systemtap, we use a hash table.
-
-> What if the heap of intermediate results grows into thousands or
-> more?  [...]
-
-It depends whether you mean "rows" or "columns".
-
-By "rows", if you need to track thousands of queues, you will need
-memory to store some data for each of them.  In systemtap's case, the
-maximum number of elements in a hash table is configurable, and is all
-allocated at startup time.  (The default is a couple of thousand.)
-This is of course still larger than enlarging the base structures the
-way your code does.  But it's only larger by a constant amount, and
-makes it unnecessary to patch the code.
-
-By "columns", if you need to track statistical aggregates of thousands
-of data points for an individual queue, then one can use a handful of
-fixed-size counters, as you already have for histograms.
-
-
-Anyway, my point was not that you should use systemtap proper, or that
-you need to use the same techniques for managing data on the side.
-It's that by using instrumentation markers, more things are possible.
-
-
-- FChE
+David

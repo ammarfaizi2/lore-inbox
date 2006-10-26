@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423336AbWJZSAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423510AbWJZSAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423336AbWJZSAG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 14:00:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161395AbWJZSAD
+	id S1423510AbWJZSAP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 14:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161401AbWJZSAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 14:00:03 -0400
-Received: from aa011msr.fastwebnet.it ([85.18.95.71]:9673 "EHLO
-	aa011msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1161387AbWJZSAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 14:00:01 -0400
-Message-ID: <001201c6f928$89c9a720$2b20ff27@flaviopc>
-From: "Inter filmati" <interfc@jumpy.it>
-To: <linux-kernel@vger.kernel.org>
-References: <001501c6f921$56c3fe40$2b20ff27@flaviopc> <20061026174153.GB18076@amd64.of.nowhere>
-Subject: Re: cpufreq/powernowd limiting CPU frequency on kernels >=2.6.16
-Date: Thu, 26 Oct 2006 19:59:41 +0200
+	Thu, 26 Oct 2006 14:00:15 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:9152 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1161387AbWJZSAN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 14:00:13 -0400
+Message-ID: <4540F79C.7070705@gmail.com>
+Date: Thu, 26 Oct 2006 19:59:56 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: removing drivers and ISA support? [Was: Char: correct pci_get_device
+ changes]
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-Antivirus: avast! (VPS 0643-5, 26/10/2006), Outbound message
-X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: <thunder7@xs4all.nl>
-To: "Inter filmati" <interfc@jumpy.it>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, October 26, 2006 7:41 PM
-Subject: Re: cpufreq/powernowd limiting CPU frequency on kernels >=2.6.16
-
-> Which means that my X2 4600+ works just fine, but after overclocking
-> cpufreq restores it to the FSB that it should run on.
+Alan Cox wrote:
+> Ar Sul, 2006-10-15 am 01:36 +0200, ysgrifennodd Jiri Slaby:
+> > It affects moxa and rio char drivers. (All this stuff deserves to be
+> > converted to pci_probing, though.)
 >
-> If you care about that changed, try to find out what patch caused this,
-> but in general, there's no support for overclocking in the kernel, and
-> bugreports from overclocked systems are frowned upon.
->
-It would be kind to find out why the problem seems to show only from 2.6.16 
-and not before, unfortunately I ain't so skilled to investigate into cpufreq 
-source.
+> Agreed, or dropped
 
----
-Flavio
-www.flapane.com 
+Alan, do you consider some (char) driver to be removed now?
+
+And what about (E)ISA support. When converting to pci probing, should be ISA bus
+support preserved (how much is ISA used in present)? -- it makes code ugly and long.
+
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
 

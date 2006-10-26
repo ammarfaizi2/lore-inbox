@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423376AbWJZEQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423401AbWJZEtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423376AbWJZEQP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 00:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423388AbWJZEQP
+	id S1423401AbWJZEtM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 00:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423395AbWJZEtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 00:16:15 -0400
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:63402 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1423376AbWJZEQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 00:16:14 -0400
-Date: Thu, 26 Oct 2006 09:43:41 +0530
-From: Ankita Garg <ankita@in.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, akpm <akpm@osdl.org>
+	Thu, 26 Oct 2006 00:49:12 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:28117 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1423401AbWJZEtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 00:49:11 -0400
+Message-ID: <45403E8C.80801@oracle.com>
+Date: Wed, 25 Oct 2006 21:50:20 -0700
+From: "Randy.Dunlap" <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: ankita@in.ibm.com
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
 Subject: Re: [PATCH] lkdtm: cleanup headers and module_param/MODULE_PARM_DESC
-Message-ID: <20061026041341.GA6562@in.ibm.com>
-Reply-To: ankita@in.ibm.com
-References: <20061023200645.1657b7ab.randy.dunlap@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061023200645.1657b7ab.randy.dunlap@oracle.com>
-User-Agent: Mutt/1.4.1i
+References: <20061023200645.1657b7ab.randy.dunlap@oracle.com> <20061026041341.GA6562@in.ibm.com>
+In-Reply-To: <20061026041341.GA6562@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ankita Garg wrote:
+> Hi,
+> 
+>>  #include <linux/kernel.h>
+>> +#include <linux/fs.h>
+>>  #include <linux/module.h>
+>> +#include <linux/buffer_head.h>
+>>  #include <linux/kprobes.h>
+>> -#include <linux/kallsyms.h>
+>> +#include <linux/list.h>
+>>  #include <linux/init.h>
+>> -#include <linux/irq.h>
+>>  #include <linux/interrupt.h>
+>> +#include <linux/hrtimer.h>
+>>  #include <scsi/scsi_cmnd.h>
+> 
+> Why does the module require fs.h, hrtimer.h, list.h and buffer_head.h? It works fine for me without these header files. I do not get any gcc warning. Moreover, I found that even init.h and interrupt.h are also not required.
 
->  #include <linux/kernel.h>
-> +#include <linux/fs.h>
->  #include <linux/module.h>
-> +#include <linux/buffer_head.h>
->  #include <linux/kprobes.h>
-> -#include <linux/kallsyms.h>
-> +#include <linux/list.h>
->  #include <linux/init.h>
-> -#include <linux/irq.h>
->  #include <linux/interrupt.h>
-> +#include <linux/hrtimer.h>
->  #include <scsi/scsi_cmnd.h>
+fs.h:  struct file *, struct block_device *
+hrtimer.h:  struct hrtimer *
+list.h:  struct list_head *
+buffer_head.h:  struct buffer_head *
 
-Why does the module require fs.h, hrtimer.h, list.h and buffer_head.h? It works fine for me without these header files. I do not get any gcc warning. Moreover, I found that even init.h and interrupt.h are also not required.
-  
-> +MODULE_PARM_DESC(cpoint_name, " Crash Point, where kernel is to be crashed");
-> +module_param(cpoint_type, charp, 0644);
-> +MODULE_PARM_DESC(cpoint_type, " Crash Point Type, action to be taken on "\
-> +				"hitting the crash point");
-> +module_param(cpoint_count, int, 0644);
-> +MODULE_PARM_DESC(cpoint_count, " Crash Point Count, number of times the "\
-                                                                            ^^not required now!
-> +				"crash point is to be hit to trigger action");
->  
+struct buffer_head is what triggered this.  gcc warns like this:
 
-Thanks for fixing the typo.
- 
-> ---
-> ~Randy
+  CC [M]  drivers/misc/lkdtm.o
+drivers/misc/lkdtm.c:150: warning: 'struct buffer_head' declared inside parameter list
+drivers/misc/lkdtm.c:150: warning: its scope is only this definition or declaration, which is probably not what you want
+
+or you could not #include those files and just do new source code lines like:
+
+struct hrtimer;
+struct buffer_head;
+struct file;
+struct block_dev;
+struct list_head;
+
+What we want to see is that source files explicly #include all header files
+that they need or use, for structs, unions, extern data, function APIs, etc.
+What is happening with lkdtm is that one or more header files is doing
+this for you.  We want it to be more explicit than that.
 
 -- 
-Ankita Garg 
-Linux Technology Center
+~Randy

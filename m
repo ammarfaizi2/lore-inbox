@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423621AbWJZROz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423619AbWJZRTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423621AbWJZROz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 13:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423623AbWJZROz
+	id S1423619AbWJZRTq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 13:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423623AbWJZRTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 13:14:55 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:36268 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1423621AbWJZROy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 13:14:54 -0400
-Date: Thu, 26 Oct 2006 13:14:53 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: UCB1400 driver problem in pxa270
-In-reply-to: <9975050.1161880631044.JavaMail.websites@opensubscriber>
-X-X-Sender: nico@xanadu.home
-To: saravanan_sprt@hotmail.com
-Cc: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.64.0610261310100.12418@xanadu.home>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <9975050.1161880631044.JavaMail.websites@opensubscriber>
+	Thu, 26 Oct 2006 13:19:46 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:31127 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1423619AbWJZRTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 13:19:46 -0400
+Message-ID: <4540EE2B.9020606@qumranet.com>
+Date: Thu, 26 Oct 2006 19:19:39 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       kvm-devel@lists.sourceforge.net
+Subject: [PATCH 0/13] KVM: Kernel-based Virtual Machine (v3)
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Oct 2006 17:19:45.0272 (UTC) FILETIME=[EE87CF80:01C6F922]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006, saravanan_sprt@hotmail.com wrote:
+Changes:
 
-> Hi all,
-> 
-> I am a newbie in using UCB1400 chip. Iam using Toradex Colibri module PXA270 as my target system with UCB1400 chip integrated.
-> I have a problem in enabling the audio system using UCB1400. Can anyone point me, how could I enable and use the UCB1400 driver on linux 2.6.12 platform. I have applied Nicolas Pitre patches and configured kernel CONFIG_INPUT, CONFIG_SND, CONFIG_SOUND,CONFIG_SND_PXA2xx_AC97, CONFIG_SND_PXA2xx_PCM to  =y. The kernel builds well, but on boot the UCB1400 driver didn't gets registered and there are no more interrupts enabled in /proc/interrupts with following boot message,
-> .....
-> .....
-> ts: UCB1x00 touchscreen protocol output
-> Advanced Linux Sound Architecture Driver Version 1.0.9rc2 ( The MAr 24 10:34:34 2005 UTC)
-> ALSA device list:
->   No soundcards found.
-> ....
-> ....
-> 
-> The problem seems to be due to driver_register(pxa2xx-ac97) and bus match.
-> 
-> Any help will be appreciated .
+- mailing list: kvm-devel@lists.sourceforge.net
+  (http://lists.sourceforge.net/lists/listinfo/kvm-devel)
+- applied code review comments
+- fixed set_sregs() ioctl corrupting guest state if cr0.pe changed
+  (a polite way of saying that loading a saved vm was broken)
 
-Look in arch/arm/mach-pxa/mainstone.c for mst_audio_device.  This is an 
-example of the  platform_device structure the pxa2xx-ac97 driver is 
-looking for.
+---
 
+The following patchset adds a driver for Intel's hardware
+virtualization extensions to the x86 architecture.  The driver adds
+a character device (/dev/kvm) that exposes the virtualization
+capabilities to userspace.  Using this driver, a process can run a
+virtual machine (a "guest") in a fully virtualized PC containing its
+own virtual hard disks, network adapters, and display.
 
-Nicolas
+Using this driver, one can start multiple virtual machines on a host.
+Each virtual machine is a process on the host; a virtual cpu is a thread
+in that process.  kill(1), nice(1), top(1) work as expected.
+   
+In effect, the driver adds a third execution mode to the existing two:
+we now have kernel mode, user mode, and guest mode.  Guest mode has its
+own address space mapping guest physical memory (which is accessible to
+user mode by mmap()ing /dev/kvm).  Guest mode has no access to any I/O
+devices; any such access is intercepted and directed to user mode for
+emulation.
+
+The driver supports i386 and x86_64 hosts and guests.  All combinations
+are allowed except x86_64 guest on i386 host.  For i386 guests and
+hosts, both pae and non-pae paging modes are supported.
+
+SMP hosts and UP guests are supported.  At the moment only Intel
+hardware is supported, but AMD virtualization support is being worked on.
+
+Performance currently is non-stellar due to the naive implementation
+of the mmu virtualization, which throws away most of the shadow page
+table entries every context switch.  We plan to address this in two ways:
+
+- cache shadow page tables across tlv flushes
+- wait until AMD and Intel release processors with nested page tables
+
+Currently a virtual desktop is responsive but consumes a lot of CPU.
+Under Windows I tried playing pinball and watching a few flash movies;
+with a recent CPU one can hardly feel the virtualization.  Linux/X is
+slower, probably due to X being in a separate process.
+
+In addition to the driver, you need a slightly modified qemu to provide
+I/O device emulation and the BIOS.
+
+Caveats:
+
+- The Windows install currently bluescreens due to a problem with the
+  virtual APIC.  We are working on a fix.  A temporary workaround is to
+  use an existing image or install through qemu
+- Windows 64-bit does not work.  That's also true for qemu, so it's
+  probably a problem with the device model.
+
+-- 
+error compiling committee.c: too many arguments to function
+

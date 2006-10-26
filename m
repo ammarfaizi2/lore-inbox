@@ -1,90 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751757AbWJZIta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751849AbWJZIsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751757AbWJZIta (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 04:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751932AbWJZIta
+	id S1751849AbWJZIsp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 04:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbWJZIsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 04:49:30 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:27355 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751757AbWJZIt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 04:49:29 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Date: Thu, 26 Oct 2006 10:48:15 +0200
-User-Agent: KMail/1.9.1
-Cc: David Chinner <dgc@sgi.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <20061026073022.GG8394166@melbourne.sgi.com> <1161850709.17293.23.camel@nigel.suspend2.net>
-In-Reply-To: <1161850709.17293.23.camel@nigel.suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Oct 2006 04:48:45 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:57733 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1751757AbWJZIso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 04:48:44 -0400
+Date: Thu, 26 Oct 2006 09:48:37 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: "Greg.Chandler@wellsfargo.com" <Greg.Chandler@wellsfargo.com>,
+       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: Touchscreen hardware hacking/driver hacking.
+Message-ID: <20061026084836.GA13981@srcf.ucam.org>
+References: <E8C008223DD5F64485DFBDF6D4B7F71D020C69E4@msgswbmnmsp25.wellsfargo.com> <d120d5000610251355n4104e3b8l6a86cb91a27c08eb@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610261048.15819.rjw@sisk.pl>
+In-Reply-To: <d120d5000610251355n4104e3b8l6a86cb91a27c08eb@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 26 October 2006 10:18, Nigel Cunningham wrote:
-> Hi Dave.
-> 
-> On Thu, 2006-10-26 at 17:30 +1000, David Chinner wrote:
-> > On Wed, Oct 25, 2006 at 09:05:56PM +0200, Rafael J. Wysocki wrote:
-> > > On Wednesday, 25 October 2006 15:23, Nigel Cunningham wrote:
-> > > > > 
-> > > > > Well, my impression is that this is exactly what happens here: Something
-> > > > > in the XFS code causes metadata to be written to disk _after_ the atomic
-> > > > > snapshot.
-> > > > > 
-> > > > > That's why I asked if the dirty XFS metadata were flushed by a kernel thread.
-> > > > 
-> > > > When I first added bdev freezing it was because there was an XFS timer
-> > > > doing writes.
-> > > 
-> > > Yes, I noticed you said that, but I'd like someone from the XFS team to either
-> > > confirm or deny it.
-> > 
-> > We have daemons running in the background that can definitely do stuff
-> > after a sync. hmm - one does try_to_freeze() after a wakeup, the
-> > other does:
-> > 
-> >                 if (unlikely(freezing(current))) {
-> >                         set_bit(XBT_FORCE_SLEEP, &target->bt_flags);
-> >                         refrigerator();
-> >                 } else {
-> >                         clear_bit(XBT_FORCE_SLEEP, &target->bt_flags);
-> >                 }
-> > 
-> > before it goes to sleep. So that one (xfsbufd - metadata buffer flushing)
-> > can definitely wake up after the sync and do work,
+On Wed, Oct 25, 2006 at 04:55:13PM -0400, Dmitry Torokhov wrote:
 
-Once it's entered the refrigerator, it won't return from it before
-freeze_processes() is called (usually during the resume).
+> It was considered but we decided that if we need to rely on solely DMI
+> data when activating some features we need to add models one by one
+> and do not use "blanket" options. There are lifebooks out there that
+> do not have that kind of outscreen so if we tried to match just on
+> "LIFEBOOK" present in the product name we might hit such models and
+> then their PS/2 mice would not work.
 
-> > and the other could if the kernel thread freeze occurs after the sync.
-
-Even if it does anything after the sync, it's okay as long as that's before we
-create the image.  And it is, because both threads are frozen before we do it.
-
-> > Another good question at this point - exactly how should we be putting
-> > these thread to to sleep? Are both these valid methods for freezing them?
-> > And should we be freezing when we wake up instead of before we go to
-> > sleep? i.e. what are teh rules we are supposed to be following?
-> 
-> As you have them at the moment, the threads seem to be freezing fine.
-
-Yes.  IMO they are freezing fine.
-
-In fact the suspend would fail if they didn't freeze unless one of them had
-PF_NOFREEZE set.
-
-Greetings,
-Rafael
-
+Do the Lifebooks with these touchscreens not have a PnPBIOS or ACPI 
+entry that describes the type?
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Matthew Garrett | mjg59@srcf.ucam.org

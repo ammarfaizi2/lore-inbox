@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423424AbWJZMbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423461AbWJZMcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423424AbWJZMbA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 08:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423457AbWJZMbA
+	id S1423461AbWJZMcV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 08:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423463AbWJZMcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 08:31:00 -0400
-Received: from mga02.intel.com ([134.134.136.20]:44322 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1423424AbWJZMa6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 08:30:58 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,361,1157353200"; 
-   d="scan'208"; a="150974992:sNHT23160515"
-Message-ID: <4540AA7E.4050703@intel.com>
-Date: Thu, 26 Oct 2006 20:30:54 +0800
-From: "bibo,mao" <bibo.mao@intel.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Thu, 26 Oct 2006 08:32:21 -0400
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:55679 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1423461AbWJZMcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 08:32:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=SHPlOclLKZqpvwsX2atsTGzF4jIVVWz7lWR02/32MJmsX7IHCDEjNuQFgP3Ud3tFYnWysnUYEE/RToi9OmdxX2KccOu5A0A+RVvF3BUhrXr2Xvmp+C5Ft0fgBypiAYF53XPi4bhf1SXuRFythgGmHrYe0wnAYFmY0HdI0fcSpuM=  ;
+Message-ID: <4540AACE.3010804@yahoo.com.au>
+Date: Thu, 26 Oct 2006 22:32:14 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] i386 create e820.c to handle e820/efi memory map table
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [PATCH 3/5] Use next_balance instead of last_balance
+References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com> <20061024183119.4530.64973.sendpatchset@schroedinger.engr.sgi.com> <4540A676.1070802@yahoo.com.au>
+In-Reply-To: <4540A676.1070802@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-  On i386 there are legacy bios and efi bios, memory map table handling
-between legacy bios and efi bios is different, this brings some confusion
-about memory map table handing. This patch creates new file named e820.c
-to put bios memory map table relative functions together, it is something
-the same with x86_64 arch.
-  This patch set only moves function from setup.c to e820.c. There is no any
-function modification , except that static declaration for some functions are
-removed because these functions will be called in other files. 
-  With this patch, function handling about bios memory map table is more
-explicit, easier to handle memmap table between legacy bios and efi bios.
-  This patch is divided fives parts, each parts can compile and run well in
-my machine. Any comments and suggestion is welcome.
-  
-Signed-off-by: bibo,mao <bibo.mao@intel.com>
+Nick Piggin wrote:
+> Christoph Lameter wrote:
+> 
+>> Use next_balance instead of last_balance ...
+>>
+>> The cpu offset calculation in the sched_domains code makes it 
+>> difficult to
+>> figure out when the next event is supposed to happen since we only keep
+>> track of the last_balancing. We want to know when the next load balance
+>> is supposed to occur.
+>>
+>> Move the cpu offset calculation into build_sched_domains(). Do the
+>> setup of the staggered load balance schewduling when the sched domains
+>> are initialized. That way we dont have to worry about it anymore later.
+>>
+>> This also in turn simplifies the load balancing time checks.
+> 
+> 
+> OK. I think I made this overcomplex in order to cope with issues where
+> offset can get skewed so if we're unlucky they might all get into synch
+> ... but this new code isn't any worse than the old, and it is cheaper.
+> 
+> So, Ack.
+
+Actually, it is wrong, so nack.
+
+You didn't take into account that balance_interval may have changed,
+and so might the idle status.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

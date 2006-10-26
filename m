@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423651AbWJZSBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423591AbWJZSD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423651AbWJZSBh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 14:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423610AbWJZSBg
+	id S1423591AbWJZSD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 14:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423610AbWJZSD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 14:01:36 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:34235 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1423592AbWJZSBf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 14:01:35 -0400
-Date: Thu, 26 Oct 2006 12:01:33 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Andre Noll <maan@systemlinux.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       linux-ext4@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>
-Subject: Re: ext3: bogus i_mode errors with 2.6.18.1
-Message-ID: <20061026180133.GN3509@schatzie.adilger.int>
-Mail-Followup-To: Andre Noll <maan@systemlinux.org>,
-	Theodore Ts'o <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-	linux-ext4@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>
-References: <20061023144556.GY22487@skl-net.de> <20061023164416.GM3509@schatzie.adilger.int> <20061023200242.GA5015@schatzie.adilger.int> <20061024091449.GZ22487@skl-net.de> <20061024202716.GX3509@schatzie.adilger.int> <20061025094418.GA22487@skl-net.de> <20061026093613.GM3509@schatzie.adilger.int> <20061026160241.GB12843@skl-net.de>
+	Thu, 26 Oct 2006 14:03:58 -0400
+Received: from smtp-out0.tiscali.nl ([195.241.79.175]:3522 "EHLO
+	smtp-out0.tiscali.nl") by vger.kernel.org with ESMTP
+	id S1423591AbWJZSD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 14:03:57 -0400
+Subject: keyboard scancode problems
+From: Joost Gevers <joost.gevers@tiscali.nl>
+Reply-To: joost.gevers@tiscali.nl
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 26 Oct 2006 20:03:56 +0200
+Message-Id: <1161885837.6083.19.camel@venus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061026160241.GB12843@skl-net.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 26, 2006  18:02 +0200, Andre Noll wrote:
-> On 03:36, Andreas Dilger wrote:
-> > The other issue is that you need to potentially set "num" bits in the
-> > bitmap here, if those all overlap metadata.  In fact, it might just
-> > make more sense at this stage to walk all of the bits in the bitmaps,
-> > the inode table and the backup superblock and group descriptor to see
-> > if they need fixing also.
-> 
-> I tried to implement this, but I could not find out how to check at this
-> point whether a given bit (in the block bitmap, say) needs fixing.
+Hello,
 
-Well, since we know at least one bit needs fixing and results in the block
-being written to disk then setting the bits for all of the other metadata
-blocks in this group has no extra IO cost (only a tiny amount of CPU).
-Re-setting the bits if they are already set is not harmful.
+I've a laptop with 2 additional keys for the Euro and Dollar (Acer 
+TM8106). 
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+When I press these keys, I get the following error: 
+atkbd.c: Unknown key pressed (translated set 2, code 0xb3 on
+isa0060/serio0). 
+atkbd.c: Use 'setkeycodes e033 <keycode>' to make it known. 
+atkbd.c: Unknown key released (translated set 2, code 0xb3 on
+isa0060/serio0). 
+atkbd.c: Use 'setkeycodes e033 <keycode>' to make it known. 
+
+When I use setkeycodes to link a keycode to a scancode, as shown below: 
+
+setkeycodes 0xb3 205 
+
+(I think that this is the same as: 
+setkeycodes e033 205 
+At least it gives identical results) 
+
+To make the key know as Euro key, I do the following: 
+loadkeys << "EOF" 
+keycode  205 = currency 
+EOF 
+
+This results in a the Euro sign on my console with 
+setfont lat0-16 -m 8859-15 
+
+Now my question: 
+When I do a showkey -s, I expect that when I press the Euro key, which
+I 
+just linked to 0xb3 will be shown. But the following is the result: 
+showkey -s 
+kb mode was XLATE 
+
+press any key (program terminates after 10s of last keypress)... 
+0x9c 
+0xe0 0x25 
+0xe0 0xa5 
+
+What is the reason that the scancode which I set differs from what is 
+shown by showkey? 
+
+With kind regards 
+Joost Gevers 
+
+
 

@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423605AbWJZQ3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161432AbWJZQ31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423605AbWJZQ3W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 12:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161433AbWJZQ3W
+	id S1161432AbWJZQ31 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 12:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161433AbWJZQ31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 12:29:22 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:44019 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161432AbWJZQ3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 12:29:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=usftOfixGo6dfeQ7rDtRaRUEXKEmOEwDOukLBrmNI0+52msYw6qS06H45YbpJFVQey4OmsHuA50WaF2oCxmspy22UbS9KpNBp05/PYjSwUDeRrDLZNvGILJuVaggp8LhRO2dPdibc8O8c92wLfpmmpjhK0Y6kcnex52Vt9wjBKU=
-Message-ID: <d120d5000610260929n6239772bka1a9cce971cfa133@mail.gmail.com>
-Date: Thu, 26 Oct 2006 12:29:18 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Matthew Garrett" <mjg59@srcf.ucam.org>
-Subject: Re: Touchscreen hardware hacking/driver hacking.
-Cc: "Greg.Chandler@wellsfargo.com" <Greg.Chandler@wellsfargo.com>,
-       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20061026084836.GA13981@srcf.ucam.org>
+	Thu, 26 Oct 2006 12:29:27 -0400
+Received: from adsl-ull-235-236.42-151.net24.it ([151.42.236.235]:34856 "EHLO
+	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
+	id S1161432AbWJZQ30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 12:29:26 -0400
+Message-ID: <4540E1BB.1000101@abinetworks.biz>
+Date: Thu, 26 Oct 2006 18:26:35 +0200
+From: Gianluca Alberici <gianluca@abinetworks.biz>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+References: <1161807069.3441.33.camel@dv>	<1161808227.7615.0.camel@localhost.localdomain>	<20061025205923.828c620d.akpm@osdl.org>	<1161859199.12781.7.camel@localhost.localdomain> <20061026090002.49b04f1b@freekitty>
+In-Reply-To: <20061026090002.49b04f1b@freekitty>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <E8C008223DD5F64485DFBDF6D4B7F71D020C69E4@msgswbmnmsp25.wellsfargo.com>
-	 <d120d5000610251355n4104e3b8l6a86cb91a27c08eb@mail.gmail.com>
-	 <20061026084836.GA13981@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/26/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> On Wed, Oct 25, 2006 at 04:55:13PM -0400, Dmitry Torokhov wrote:
->
-> > It was considered but we decided that if we need to rely on solely DMI
-> > data when activating some features we need to add models one by one
-> > and do not use "blanket" options. There are lifebooks out there that
-> > do not have that kind of outscreen so if we tried to match just on
-> > "LIFEBOOK" present in the product name we might hit such models and
-> > then their PS/2 mice would not work.
->
-> Do the Lifebooks with these touchscreens not have a PnPBIOS or ACPI
-> entry that describes the type?
->
+Stephen Hemminger wrote:
 
-I don't recall anything in ACPI spec that would help determining type
-of PS/2 device connected, but then I did not read the latest version.
-Anyway, I would not hold my breath...
+>On Thu, 26 Oct 2006 11:39:59 +0100
+>Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+>  
+>
+>>Ar Mer, 2006-10-25 am 20:59 -0700, ysgrifennodd Andrew Morton:
+>>    
+>>
+>>>May be so.  But this patch was supposed to print a helpful taint message to
+>>>draw our attention to the fact that ndis-wrapper was in use.  The patch was
+>>>not intended to cause gpl'ed modules to stop loading 
+>>>      
+>>>
+>>The stopping loading is purely because it now uses _GPLONLY symbols,
+>>which is fine until the user wants to load a windows driver except for
+>>the old CIPE driver. Some assumptions broke somewhere along the way and
+>>the chain of events that was never forseen unfolded.
+>>
+>>    
+>>
+>>>Now, if we do want to disallow gpl module loading after ndis-wrapper has
+>>>been used then fine
+>>>      
+>>>
+>>The problem is we do the dynamic link at module load time. We would have
+>>to unlink the module if it tried to taint itself, which is clearly not
+>>what the end user needs to suffer. Having the taint function actually
+>>taint and printk + return a "Linked gplonly you can't" error seems the
+>>better solution.
+>>
+>>Really ndiswrapper shouldn't be using _GPLONLY symbols, that would
+>>actually make it useful to the binary driver afflicted again and more
+>>likely to be legal.
+>>
+>>    
+>>
+>
+>What are the symbols in question? A simple test would be to take the GPL
+>MODULE_LICENSE() off of ndiswrapper and try loading it.
+>
+>  
+>
+i've found:
 
--- 
-Dmitry
+__create_workqueue
+queue_work
+
+As i said removing add_taint() in modules.c in the section regarding 
+ndiswrapper makes the module load correctly.
+
+regards,
+
+Gianluca

@@ -1,206 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423532AbWJZOk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423531AbWJZOlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423532AbWJZOk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 10:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423531AbWJZOk6
+	id S1423531AbWJZOlI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 10:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423533AbWJZOlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 10:40:58 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:30100 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423532AbWJZOk4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 10:40:56 -0400
-Date: Thu, 26 Oct 2006 10:40:18 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       magnus.damm@gmail.com, fastboot@lists.osdl.org,
-       Horms <horms@verge.net.au>, Dave Anderson <anderson@redhat.com>,
-       ebiederm@xmission.com
-Subject: Re: [PATCH] Kdump: Align 64-bit ELF crash notes correctly (x86_64, powerpc)
-Message-ID: <20061026144018.GB11284@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061026094957.3410.45001.sendpatchset@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 Oct 2006 10:41:08 -0400
+Received: from wr-out-0506.google.com ([64.233.184.235]:47978 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1423531AbWJZOlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 10:41:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Hel3p1I+VSY+IZXhRhe1QrmKd+f4OkoUmDjsuUfAy6Pcioo/0Js4ULCWa+OWKSl1tBXz/W4+0SeBJ7E235NvN4AXJ610BefkKyISF5cD+KgaH1auXwDuDHaq3UtGVqB8uHB7zg7cnN8M4XALhVA5+WjkeWSeWnyUxVwDpwvxETg=
+Message-ID: <4ac8254d0610260741r6e753310t32a796d66225d94a@mail.gmail.com>
+Date: Thu, 26 Oct 2006 16:41:03 +0200
+From: "Tuncer Ayaz" <tuncer.ayaz@gmail.com>
+To: "Muli Ben-Yehuda" <muli@il.ibm.com>
+Subject: Re: IO_APIC broken by 45edfd1db02f818b3dc7e4743ee8585af6b78f78
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, yinghai.lu@amd.com
+In-Reply-To: <4ac8254d0610250737j5c85161ar9f1f4cdb7c79e743@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061026094957.3410.45001.sendpatchset@localhost>
-User-Agent: Mutt/1.5.11
+References: <4ac8254d0610250537m7ee628cbo255decde52586742@mail.gmail.com>
+	 <20061025130331.GE3277@rhun.haifa.ibm.com>
+	 <4ac8254d0610250737j5c85161ar9f1f4cdb7c79e743@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 26, 2006 at 06:49:57PM +0900, Magnus Damm wrote:
-> Kdump: Align 64-bit ELF crash notes correctly (x86_64, powerpc)
-> 
-> The current ELF code aligns data to 32-bit addresses, regardless if ELFCLASS32
-> or ELFCLASS64 is used. This works well for the 32-bit case, but for 64-bit 
-> notes we should (of course) align to 64-bit addresses. At least if we intend 
-> to follow the "ELF-64 Object File Format, Version 1.5 Draft 2, May 27, 1998".
-> 
-> Unfortunately this change affects 3 pieces of code:
-> - The regular Linux kernel: See x86_64 and powerpc changes below.
-> - The "crash" kernel: Needs to align properly when merging notes, see below.
-> - The utilities that read the vmcore files: Crash, GDB and so on.
-> 
-Hi Magnus,
+On 10/25/06, Tuncer Ayaz <tuncer.ayaz@gmail.com> wrote:
+> On 10/25/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
+> > On Wed, Oct 25, 2006 at 02:37:57PM +0200, Tuncer Ayaz wrote:
+> > > I've bisected the non-working'ness of HD-Audio and USB Mouse on one of
+> > > my x86_64 boxes back to the following commit.
+> > >
+> > > The machine is an HP xw4400 Core 2 Duo E6600 with the Intel 975X chipset.
+> > > Please let me know if you need any debug info.
+> >
+> > These two patches should fix it:
+> >
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=116157813623508&w=2
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=116157837104613&w=2
+>
+> Thanks, a clean v2.6.19-rc3 plus those two patches solves the issues.
+> I assume that the fixes will be pulled into Linus' tree before 2.6.19
+> is released.
 
-Interesting observation. Going through the ELF-64 Object File format,
-version 1.5, it does look like that note data should be aligned to
-8byte boundary for 64bit and not 4 byte boundary.
-
-But given the fact that as of today, gdb, readelf parse the notes correctly,
-then they are broken too and needs to be changed?
-
-I just looked at process core dumper (binfmt_elf.c) and that too also 
-seems to be creating notes aligned at 4byte boundary (alignfile()).
-
-Same seems to be the case of /proc/kcore ((storenote()). Notes seem to
-be 4byte aligned.
-
-So looks like, everywhere in kernel and tool chain we are still following
-the assumption of notes being 4byte aligned even for 64bit.
-
-I think if you are fixing it, then please fix it for /proc/kcore and
-process core dumps too so that kernel exports a consistent image and then
-tool chain folks can do the modifications.
-
-Thanks
-Vivek
-
-> I am sure that this change will cause all sorts of trouble if someone is using
-> a certain combination of kernels and tools, but I believe the best long-term
-> solution is simply to fix this properly as soon as possible and live with the 
-> fact that 64-bit vmcore files may have been broken up until now.
-> 
-> Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
-> ---
-> 
->  Compiles on x86_64, powerpc code only dry-coded.
->  Applies on top of 2.6.19-rc3.
-> 
->  arch/powerpc/kernel/crash.c |   18 +++++++++++-------
->  arch/x86_64/kernel/crash.c  |   14 +++++++-------
->  fs/proc/vmcore.c            |    4 ++--
->  3 files changed, 20 insertions(+), 16 deletions(-)
-> 
-> --- 0001/arch/powerpc/kernel/crash.c
-> +++ work/arch/powerpc/kernel/crash.c	2006-10-26 17:09:33.000000000 +0900
-> @@ -41,12 +41,16 @@
->  #define DBG(fmt...)
->  #endif
->  
-> +#define ELF_ALIGN(x) ((x + (sizeof(elf_addr_t) - 1)) \
-> +                        & ~(sizeof(elf_addr_t) - 1))
-> +
->  /* This keeps a track of which one is crashing cpu. */
->  int crashing_cpu = -1;
->  static cpumask_t cpus_in_crash = CPU_MASK_NONE;
->  cpumask_t cpus_in_sr = CPU_MASK_NONE;
->  
-> -static u32 *append_elf_note(u32 *buf, char *name, unsigned type, void *data,
-> +static unsigned char *
-> +append_elf_note(unsigned char *buf, char *name, unsigned type, void *data,
->  							       size_t data_len)
->  {
->  	struct elf_note note;
-> @@ -55,16 +59,16 @@ static u32 *append_elf_note(u32 *buf, ch
->  	note.n_descsz = data_len;
->  	note.n_type   = type;
->  	memcpy(buf, &note, sizeof(note));
-> -	buf += (sizeof(note) +3)/4;
-> +	buf += ELF_ALIGN(sizeof(note));
->  	memcpy(buf, name, note.n_namesz);
-> -	buf += (note.n_namesz + 3)/4;
-> +	buf += ELF_ALIGN(note.n_namesz);
->  	memcpy(buf, data, note.n_descsz);
-> -	buf += (note.n_descsz + 3)/4;
-> +	buf += ELF_ALIGN(note.n_descsz);
->  
->  	return buf;
->  }
->  
-> -static void final_note(u32 *buf)
-> +static void final_note(unsigned char *buf)
->  {
->  	struct elf_note note;
->  
-> @@ -77,7 +81,7 @@ static void final_note(u32 *buf)
->  static void crash_save_this_cpu(struct pt_regs *regs, int cpu)
->  {
->  	struct elf_prstatus prstatus;
-> -	u32 *buf;
-> +	unsigned char *buf;
->  
->  	if ((cpu < 0) || (cpu >= NR_CPUS))
->  		return;
-> @@ -89,7 +93,7 @@ static void crash_save_this_cpu(struct p
->  	 * squirrelled away.  ELF notes happen to provide
->  	 * all of that that no need to invent something new.
->  	 */
-> -	buf = (u32*)per_cpu_ptr(crash_notes, cpu);
-> +	buf = (unsigned char *)per_cpu_ptr(crash_notes, cpu);
->  	if (!buf) 
->  		return;
->  
-> --- 0002/arch/x86_64/kernel/crash.c
-> +++ work/arch/x86_64/kernel/crash.c	2006-10-26 16:58:18.000000000 +0900
-> @@ -28,7 +28,7 @@
->  /* This keeps a track of which one is crashing cpu. */
->  static int crashing_cpu;
->  
-> -static u32 *append_elf_note(u32 *buf, char *name, unsigned type,
-> +static u64 *append_elf_note(u64 *buf, char *name, unsigned type,
->  						void *data, size_t data_len)
->  {
->  	struct elf_note note;
-> @@ -37,16 +37,16 @@ static u32 *append_elf_note(u32 *buf, ch
->  	note.n_descsz = data_len;
->  	note.n_type   = type;
->  	memcpy(buf, &note, sizeof(note));
-> -	buf += (sizeof(note) +3)/4;
-> +	buf += (sizeof(note) + 7) / 8;
->  	memcpy(buf, name, note.n_namesz);
-> -	buf += (note.n_namesz + 3)/4;
-> +	buf += (note.n_namesz + 7) / 8;
->  	memcpy(buf, data, note.n_descsz);
-> -	buf += (note.n_descsz + 3)/4;
-> +	buf += (note.n_descsz + 7) / 8;
->  
->  	return buf;
->  }
->  
-> -static void final_note(u32 *buf)
-> +static void final_note(u64 *buf)
->  {
->  	struct elf_note note;
->  
-> @@ -59,7 +59,7 @@ static void final_note(u32 *buf)
->  static void crash_save_this_cpu(struct pt_regs *regs, int cpu)
->  {
->  	struct elf_prstatus prstatus;
-> -	u32 *buf;
-> +	u64 *buf;
->  
->  	if ((cpu < 0) || (cpu >= NR_CPUS))
->  		return;
-> @@ -72,7 +72,7 @@ static void crash_save_this_cpu(struct p
->  	 * all of that, no need to invent something new.
->  	 */
->  
-> -	buf = (u32*)per_cpu_ptr(crash_notes, cpu);
-> +	buf = (u64*)per_cpu_ptr(crash_notes, cpu);
->  
->  	if (!buf)
->  		return;
-> --- 0001/fs/proc/vmcore.c
-> +++ work/fs/proc/vmcore.c	2006-10-26 17:31:36.000000000 +0900
-> @@ -256,8 +256,8 @@ static int __init merge_note_headers_elf
->  			if (nhdr_ptr->n_namesz == 0)
->  				break;
->  			sz = sizeof(Elf64_Nhdr) +
-> -				((nhdr_ptr->n_namesz + 3) & ~3) +
-> -				((nhdr_ptr->n_descsz + 3) & ~3);
-> +				((nhdr_ptr->n_namesz + 7) & ~7) +
-> +				((nhdr_ptr->n_descsz + 7) & ~7);
->  			real_sz += sz;
->  			nhdr_ptr = (Elf64_Nhdr*)((char*)nhdr_ptr + sz);
->  		}
+Linus' tree as of this morning CEST time has the two patches included and
+everything's fine. Case closed.

@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945976AbWJZWzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945974AbWJZW4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945976AbWJZWzs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 18:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945973AbWJZWzs
+	id S1945974AbWJZW4H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 18:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945973AbWJZW4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 18:55:48 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:25597 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1945976AbWJZWzr convert rfc822-to-8bit (ORCPT
+	Thu, 26 Oct 2006 18:56:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51627 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1945975AbWJZW4C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 18:55:47 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 3/13] KVM: kvm data structures
-Date: Fri, 27 Oct 2006 00:55:45 +0200
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
-References: <4540EE2B.9020606@qumranet.com> <20061026172456.91391A0209@cleopatra.q>
-In-Reply-To: <20061026172456.91391A0209@cleopatra.q>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610270055.45560.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+	Thu, 26 Oct 2006 18:56:02 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil>  <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+       chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 26 Oct 2006 23:53:20 +0100
+Message-ID: <2340.1161903200@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 October 2006 19:24, Avi Kivity wrote:
-> +struct kvm {
-> +       spinlock_t lock; /* protects everything except vcpus */
-> +       int nmemslots;
-> +       struct kvm_memory_slot memslots[KVM_MEMORY_SLOTS];
-> +       struct list_head active_mmu_pages;
-> +       struct kvm_vcpu vcpus[KVM_MAX_VCPUS];
-> +       int memory_config_version;
-> +       int busy;
-> +};
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Assuming that you move to the host-user == guest-real memory
-model, will this data structure still be needed? It would
-be really nice if a guest could simply consist of a number
-of vcpu structures that happen to be used from threads in the
-same process address space, but I find it hard to tell if
-that is realistic.
+> When the daemon writes the context value (a string) to the cachefiles
+> module interface for a given cache, the cachefiles module would do
+> something like the following:
 
-	Arnd <><
+This looks reasonable.
+
+> SELinux would then provide selinux_secctx_to_secid() and
+> selinux_cache_set_context() implementations; the former would just be call to
+> selinux_string_to_sid(),
+
+That sounds fairly easy.
+
+> while the latter would require some new permission check to be defined
+> unless we can treat this as equivalent to some existing operation.
+
+So what does this actually check?  I assume it checks that the process's
+current context permits the use of the specified secid in this snippet:
+
+	/* Check permission of current to set this context. */
+	rc = security_cache_set_context(secid);
+
+> You'll find that there is already a security_secid_to_secctx() hook defined
+> for LSM, so the first hook just adds the other direction.
+
+Okay.
+
+> 	cache->secid = secid;
+
+I was wondering if the cache struct should have a "void *security" that the LSM
+modules can set, free and assert temporarily, but this sounds like it will do.
+
+> Later, when going to create a file in that cache, the cachefiles module
+> would do something like:
+> 	/* Save and switch the fs secid for creation. */
+> 	fssecid = security_getfssecid();
+> 	security_setfssecid(cache->secid);
+> 	<create file>
+> 	/* Restore the original fs secid. */
+> 	security_setfssecid(fssecid);
+> SELinux would then provide selinux_getfsecid() and selinux_setfssecid()
+> implementations that are just:
+> 	u32 selinux_getfssecid(void)
+> 	{
+> 		struct task_security_struct *tsec = current->security;
+> 		return tsec->create_sid;
+> 	}
+> 	void selinux_setfssecid(u32 secid)
+> 	{
+> 		struct task_security_struct *tsec = current->security;
+> 		tsec->create_sid = secid;
+> 	}
+
+That sounds doable.  I presume I should attend to fsuid/fsgid myself, much as
+I'm doing now?
+
+David

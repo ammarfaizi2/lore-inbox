@@ -1,64 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423588AbWJZPxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423586AbWJZPyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423588AbWJZPxh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 11:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423586AbWJZPxh
+	id S1423586AbWJZPyw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 11:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423589AbWJZPyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 11:53:37 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:9576 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1423464AbWJZPxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 11:53:36 -0400
-Message-ID: <4540D96D.601@oracle.com>
-Date: Thu, 26 Oct 2006 08:51:09 -0700
-From: "Randy.Dunlap" <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Thu, 26 Oct 2006 11:54:52 -0400
+Received: from webserve.ca ([69.90.47.180]:53945 "EHLO computersmith.org")
+	by vger.kernel.org with ESMTP id S1423586AbWJZPyv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 11:54:51 -0400
+Message-ID: <4540DA23.7060104@wintersgift.com>
+Date: Thu, 26 Oct 2006 08:54:11 -0700
+From: teunis <teunis@wintersgift.com>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
 MIME-Version: 1.0
 To: Adrian Bunk <bunk@stusta.de>
-CC: David Brownell <david-b@pacbell.net>, toralf.foerster@gmx.de,
-       netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       link@miggy.org, greg@kroah.com, akpm@osdl.org, zippel@linux-m68k.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       dbrownell@users.sourceforge.net, Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025201341.GH21200@miggy.org> <20061025151737.1bf4898c.randy.dunlap@oracle.com> <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061025165858.b76b4fd8.randy.dunlap@oracle.com> <20061026154635.GK27968@stusta.de>
-In-Reply-To: <20061026154635.GK27968@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: teunis <teunis@wintersgift.com>, linux-kernel@vger.kernel.org,
+       art@usfltd.com, Jiri Slaby <jirislaby@gmail.com>,
+       Jeff Dike <jdike@addtoit.com>, pavel@suse.cz, linux-pm@osdl.org
+Subject: Re: 2.6.19-rc3: known unfixed regressions: confirmations
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061024202104.GF27968@stusta.de> <453E8921.2090406@wintersgift.com> <20061026153142.GJ27968@stusta.de>
+In-Reply-To: <20061026153142.GJ27968@stusta.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
 Adrian Bunk wrote:
-> On Wed, Oct 25, 2006 at 04:58:58PM -0700, Randy Dunlap wrote:
+> On Tue, Oct 24, 2006 at 02:44:01PM -0700, teunis wrote:
+>> Adrian Bunk wrote:
+>>> This email lists some known unfixed regressions in 2.6.19-rc3 compared 
+>>> to 2.6.18.
 >> ...
->> Build tested with CONFIG_MII=y, m, n.
->> ...
->> --- linux-2619-rc3-pv.orig/drivers/usb/net/usbnet.c
->> +++ linux-2619-rc3-pv/drivers/usb/net/usbnet.c
->> @@ -47,6 +47,12 @@
->>  
->>  #define DRIVER_VERSION		"22-Aug-2005"
->>  
->> +#if defined(CONFIG_MII) || defined(CONFIG_MII_MODULE)
->> +#define HAVE_MII		1
->> +#else
->> +#define HAVE_MII		0
->> +#endif
+>>
+>> I'm not directly testing -rc3 as yet...  rc2-mm2 + a few modifications
+>> works on the equipment I'm testing and as I can't afford more lost time
+>> due to faults - I'm keeping to that build for the short term.
+>>
+>>> Subject    : shutdown problem
+>>> References : http://lkml.org/lkml/2006/10/22/140
+>>> Submitter  : art@usfltd.com
+>>>              teunis@wintersgift.com
+>>>              Jiri Slaby <jirislaby@gmail.com>
+>>> Status     : unknown
+>> repaired by Jeff Dike's patch to fs/proc/array.c
 >> ...
 > 
-> I'm too lame to test it, but I bet this will break with
-> CONFIG_USB_USBNET=y, CONFIG_MII=m, and you'll actually need
+> Can you give me a pointer to this patch?
 > 
->   #if defined(CONFIG_MII) || (defined(CONFIG_MII_MODULE) && defined(MODULE))
+> cu
+> Adrian
 > 
-> And then there's the question whether this amount of #ifdef's is 
-> actually worth avoiding the "select MII"...
 
-Thanks, but that's OK, David posted a different patch for it.
+I have no idea how to look up the link any other way - so here's a copy
+of the details from my mailbox (I've been keeping an archive local as I
+frequently work offline)
 
--- 
-~Randy
+posted by: akpm@osdl.org; 23/10/06 10:34 AM
+
+From: Jeff Dike <jdike@addtoit.com>
+
+add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
+in -mm causes UML to hang at shutdown - init is sitting in a select on the
+initctl socket.
+
+This patch fixes it for me.
+
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+- ---
+
+ fs/proc/array.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN
+fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix
+fs/proc/array.c
+- ---
+a/fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix
++++ a/fs/proc/array.c
+@@ -388,7 +388,7 @@ static int do_task_stat(struct task_stru
+ 			stime = cputime_add(stime, sig->stime);
+ 		}
+
+- -		signal_session(sig);
++		sid = signal_session(sig);
+ 		pgid = process_group(task);
+ 		ppid = rcu_dereference(task->real_parent)->tgid;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFQNojbFT/SAfwLKMRAqioAJ9+l+87bNRFJaHknJBGu6bYfrTlrACeOyts
+gkeCAiYDPBmR7E052LEMAtU=
+=eyIw
+-----END PGP SIGNATURE-----

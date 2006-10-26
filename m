@@ -1,43 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423140AbWJZKXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422893AbWJZKZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423140AbWJZKXI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 06:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423141AbWJZKXH
+	id S1422893AbWJZKZd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 06:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422925AbWJZKZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 06:23:07 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:12416 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1423140AbWJZKXE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 06:23:04 -0400
-Date: Thu, 26 Oct 2006 12:22:35 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: linux@horizon.com
-cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc2 and very unstable NTP
-In-Reply-To: <20061026100027.32164.qmail@science.horizon.com>
-Message-ID: <Pine.LNX.4.64.0610261218350.6761@scrub.home>
-References: <20061026100027.32164.qmail@science.horizon.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Oct 2006 06:25:33 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:21404 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1422893AbWJZKZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 06:25:32 -0400
+Date: Thu, 26 Oct 2006 12:25:30 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cm4000_cs: fix return value check
+Message-ID: <20061026102530.GM6264@sunbeam.de.gnumonks.org>
+References: <20061017062559.GB13100@localhost> <20061026024004.GF32048@dominikbrodowski.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nEsDIrWrg+hrB7l1"
+Content-Disposition: inline
+In-Reply-To: <20061026024004.GF32048@dominikbrodowski.de>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 26 Oct 2006, linux@horizon.com wrote:
+--nEsDIrWrg+hrB7l1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Please specify "+ linuxpps".
-> 
-> http://gitweb.enneenne.com/?p=linuxpps;a=summary
-> http://wiki.enneenne.com/index.php/LinuxPPS_support
-> 
-> It's a PPS-input timestamping driver, touching drivers/serial/8250.c
-> and the like.  No contact with kernel timekeeping code, other than
-> calling it to obtain the timestamps.
+On Wed, Oct 25, 2006 at 10:40:04PM -0400, Dominik Brodowski wrote:
 
-Did you ask the author? It would really help to have more specific 
-information here, e.g. what kernel interfaces are actually used in this 
-configuration.
+> On Tue, Oct 17, 2006 at 03:25:59PM +0900, Akinobu Mita wrote:
+> > The return value of class_create() need to be checked with IS_ERR().
+> > And register_chrdev() returns errno on failure.
+> > This patch includes these fixes for cm4000_cs and cm4040_cs.
+> >=20
+> > Cc: Harald Welte <laforge@gnumonks.org>
+> > Signed-off-by: Akinbou Mita <akinobu.mita@gmail.com>
+>=20
+> Temporarily applied to pcmica-2.6.git, thanks. Harald, do you ACK?
 
-bye, Roman
+yes, sorry.  I've been too busy and the mail slipped through...
+
+The patch is obviously fine. Thanks!
+
+Signed-off-by: Harald Welte <laforge@gnumonks.org>
+
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+We all know Linux is great...it does infinite loops in 5 seconds. -- Linus
+
+--nEsDIrWrg+hrB7l1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFQI0aXaXGVTD0i/8RAmQSAKCodDIvFPn4oE5rHPrhu/AoRvPZbgCfYOAo
+p+EMzS49/oV76ioOHdPUqpQ=
+=DIoB
+-----END PGP SIGNATURE-----
+
+--nEsDIrWrg+hrB7l1--

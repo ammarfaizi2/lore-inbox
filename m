@@ -1,97 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423378AbWJZMwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423474AbWJZNBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423378AbWJZMwG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 08:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWJZMwG
+	id S1423474AbWJZNBX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 09:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423476AbWJZNBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 08:52:06 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:9679 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1423378AbWJZMwE (ORCPT
+	Thu, 26 Oct 2006 09:01:23 -0400
+Received: from raven.upol.cz ([158.194.120.4]:41146 "EHLO raven.upol.cz")
+	by vger.kernel.org with ESMTP id S1423474AbWJZNBW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 08:52:04 -0400
-Subject: Re: Security issues with local filesystem caching
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-       chrisw@sous-sol.org, jmorris@namei.org
-In-Reply-To: <8567.1161859255@redhat.com>
-References: <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
-	 <16969.1161771256@redhat.com>   <8567.1161859255@redhat.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Thu, 26 Oct 2006 08:51:41 -0400
-Message-Id: <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Oct 2006 09:01:22 -0400
+Date: Thu, 26 Oct 2006 15:07:20 +0200
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re:[patch, rfc] kbuild: implement checksrc without building Cources...
+Message-ID: <20061026130720.GA2765@flower.upol.cz>
+References: <20061023153540.4d467a88.rdunlap@xenotime.net> <slrnejscd5.93p.olecom@flower.upol.cz> <slrnejsrjq.93p.olecom@flower.upol.cz> <20061024134508.adb14be6.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061024134508.adb14be6.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Oleg Verych <olecom@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-26 at 11:40 +0100, David Howells wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > This requires a fully trusted cache daemon that can arbitrarily tamper with
-> > any content cached in this manner.
+On Tue, Oct 24, 2006 at 01:45:08PM -0700, Randy Dunlap wrote:
+> On Tue, 24 Oct 2006 19:43:40 +0000 (UTC) Oleg Verych wrote:
+> > This doesn't work, use ifs instead. Updated.
+> > I have no idea what to do with generated sources and headers.
+> > One may be: check target `if_changed' to be %.c or %.h and let it be
+> > built.
 > 
-> Well, we could say that the cache daemon isn't actually allowed to read or
-> write any of these files; all it need to do is read their cache xattrs, names
-> and atimes, and rename and delete them.  It also needs to be able to do
-> readdir and lookup on the directories contained therein.
-
-Yes, SELinux policy could impose such a restriction, as well as ensuring
-that only the cache daemon can access the cache in the first place (vs.
-any arbitrary uid 0 process).  However, can the cache daemon effectively
-redirect an access by a process to a file that is being cached to
-another file by renaming cache files within the cache, such that the
-higher level permission checking and auditing would be applied to one
-file but the actual access would occur to another one?  If so, then it
-can effectively downgrade any file it is caching to the security context
-of any other file it is caching.
-
-> > But per-cache security attributes would be a reasonable approach to enabling
-> > finer-grained protection.
+> Hi Oleg,
 > 
-> I'm not sure what you mean by this exactly.  I'd be happy to set the same
-> security attributes on the files and directories in the cache that impose
-> draconian restrictions, but whatever I do has to be representable in the
-> backing filesystem across reboots.
+> Yes, it works for me, with the exception of host-generated
+> files, as you mentioned.  I ran into those with:
+> IKCONFIG (the one that you mentioned), ATM_FORE200E firmware,
+> IEEE 1394 OUI database (which I sent a patch for -- it should
+> not be generated when the config option is not enabled),
+> RAID456 tables, VIDEO_LOGO files, and CRC32 table.
 
-What I mean is that the cachefiles configuration would allow one to
-specify a set of security attributes (uid, gid, security context) per
-cache, and those attributes would then be applied by the cachefiles
-kernel module when creating files within that cache.  This means that
-all files within a given cache have the same security attributes, but
-different caches can have different attributes.  Then one can run
-different cache daemon instances with different process security
-attributes, and ensure that each one can only access the caches it is
-responsible for managing.  Thus, the cache daemon instance for external
-data can't tamper with the cache of internal data, or vice versa.  Now,
-your default configuration may just use a single set of security
-attributes for all caches, and you might have a default definition in
-your configuration that is applied in the absence of any per-cache
-value, but you would be providing a mechanism by which people who want
-to isolate different caches can do so.
+I'm glad, that semi-working thing was helpful. But it's ugly hack.
 
-> > It would help to understand the objection to setting fsuid/fsgid more
-> > clearly - it may have had more to do with always setting them to 0 for all
-> > cache files, or with using that as a way to work around the lack of an
-> > explicit mechanism for bypassing security checks for internal accesses than
-> > with the setting of the fsuid/fsgid itself.
-> 
-> Christoph did enscribe thus:
-> 
-> | - in cachefiles_walk_to_object reseting the fsuid/fsgid is not allowed
-> 
-> Which I take to mean that I'm not allowed to change fsuid and fsgid.  Why not,
-> I'm not entirely certain.  I wouldn't have thought it would matter as long as
-> I put them back again before returning.
+Idea is to substitute objects (*.o) with sparse output, thus targets
+like
+,--
+|%.o : %.c
++--
+will be updated and new check will pass them (force check may be applied).
+Also having results in files (even in so messy called *.o) is good for
+collecting and sorting errors. Headers will be generated as needed.
 
-I think he also talked about binding the right access control
-credentials to the cache files, which I think is more along the lines of
-the discussion above (and Viro's concern).  I don't think it is so much
-about setting fsuid/fsgid per se, but about being able to protect the
-cache at finer granularity.
+Finally short statistics maybe printed in the end of the check:
+[(stat -c %s *.o > 0 | wc -l) / find --name *.o]
+  ^ with error file size > 0  / overall error files
 
--- 
-Stephen Smalley
-National Security Agency
+But implementing all this in non-hack way isn't easy. Maybe Sam will
+came back and will do it magically quickly. Until that, i'll try to
+fight with current makefiles myself.
 
+> Thanks for your time and effort.  Maybe Sam will have some ideas.
+
+I've found "sparse" and read some philosophy from README. Nice.
+Thanks you also !
+____

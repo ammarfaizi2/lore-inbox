@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423732AbWJZXV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423547AbWJZX2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423732AbWJZXV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 19:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423734AbWJZXV5
+	id S1423547AbWJZX2R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 19:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423670AbWJZX2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 19:21:57 -0400
-Received: from host-233-54.several.ru ([213.234.233.54]:2950 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1423732AbWJZXVz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 19:21:55 -0400
-Date: Fri, 27 Oct 2006 03:21:46 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
-       Jay Lan <jlan@sgi.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/6] taskstats_tgid_alloc: optimization
-Message-ID: <20061026232146.GA529@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Thu, 26 Oct 2006 19:28:17 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:44092 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1423547AbWJZX2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 19:28:16 -0400
+Message-ID: <454144ED.4020101@oracle.com>
+Date: Thu, 26 Oct 2006 16:29:49 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Roland Dreier <rdreier@cisco.com>
+CC: Andrew Morton <akpm@osdl.org>, iss_storagedev@hp.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH cciss: fix printk format warning
+References: <20061023214608.f09074e9.randy.dunlap@oracle.com>	<20061026160245.26f86ce2.akpm@osdl.org> <ada64e67jhf.fsf@cisco.com>
+In-Reply-To: <ada64e67jhf.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every subthread (except first) does unneeded kmem_cache_alloc/kmem_cache_free.
+Roland Dreier wrote:
+>  > >  	if (*total_size != (__u32) 0)
+>  > 
+>  > Why is cciss_read_capacity casting *total_size to u32?
+> 
+> It's not -- it's actually casting 0 to __32 -- there's no cast on the
+> *total_size side of the comparison.  However that just makes the cast
+> look even fishier.
+> 
+>  - R.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+OK, how about this one then?
 
---- STATS/include/linux/taskstats_kern.h~4_alloc	2006-10-27 01:28:31.000000000 +0400
-+++ STATS/include/linux/taskstats_kern.h	2006-10-27 01:39:10.000000000 +0400
-@@ -32,6 +32,9 @@ static inline void taskstats_tgid_alloc(
- 	struct taskstats *stats;
- 	unsigned long flags;
- 
-+	if (sig->stats != NULL)
-+		return;
-+
- 	stats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
- 	if (!stats)
- 		return;
 
+	c->busaddr = (__u32) cmd_dma_handle;
+
+where cmd_dma_handle is a dma_addr_t (u32 or u64)
+
+and then later:
+
+		pci_free_consistent(h->pdev, sizeof(CommandList_struct),
+				    c, (dma_addr_t) c->busaddr);
+
+-- 
+~Randy

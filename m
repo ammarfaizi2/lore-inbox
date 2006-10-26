@@ -1,96 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423620AbWJZRN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423621AbWJZROz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423620AbWJZRN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 13:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423621AbWJZRN4
+	id S1423621AbWJZROz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 13:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423623AbWJZROz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 13:13:56 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:64606 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1423620AbWJZRNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 13:13:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=3GiuVSTnYE9Iael/Yq3Eewcz3SYjGMLhDZ079Vf+t4PPQs724alfrymOKC9Xf+XRbYxnQzp3/9rCa1XOuJMgMftDX75VBIH98YoN8mGWoei42+jrhU8ZrXUDPIoJ0B6yZFoibE2pNDq9mxdRlKpuZsVasAL/lTKVKM22DO7Uu54=  ;
-Message-ID: <4540ECCD.7050700@yahoo.com.au>
-Date: Fri, 27 Oct 2006 03:13:49 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [PATCH 3/5] Use next_balance instead of last_balance
-References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com> <20061024183119.4530.64973.sendpatchset@schroedinger.engr.sgi.com> <4540A676.1070802@yahoo.com.au> <4540AACE.3010804@yahoo.com.au> <Pine.LNX.4.64.0610260924440.16978@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0610260924440.16978@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Oct 2006 13:14:55 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:36268 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1423621AbWJZROy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 13:14:54 -0400
+Date: Thu, 26 Oct 2006 13:14:53 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: UCB1400 driver problem in pxa270
+In-reply-to: <9975050.1161880631044.JavaMail.websites@opensubscriber>
+X-X-Sender: nico@xanadu.home
+To: saravanan_sprt@hotmail.com
+Cc: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.64.0610261310100.12418@xanadu.home>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <9975050.1161880631044.JavaMail.websites@opensubscriber>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Thu, 26 Oct 2006, Nick Piggin wrote:
-> 
-> 
->>Actually, it is wrong, so nack.
->>
->>You didn't take into account that balance_interval may have changed,
->>and so might the idle status.
-> 
-> 
-> Hmmmm... We change the point at which we calculate the interval relative 
-> to load balancing. So move it after the load balance. This also avoids 
-> having to do the calculation if the sched_domain has not expired.
+On Fri, 27 Oct 2006, saravanan_sprt@hotmail.com wrote:
 
-That still doesn't take into account if the CPU goes idle/busy during
-the interval.
+> Hi all,
+> 
+> I am a newbie in using UCB1400 chip. Iam using Toradex Colibri module PXA270 as my target system with UCB1400 chip integrated.
+> I have a problem in enabling the audio system using UCB1400. Can anyone point me, how could I enable and use the UCB1400 driver on linux 2.6.12 platform. I have applied Nicolas Pitre patches and configured kernel CONFIG_INPUT, CONFIG_SND, CONFIG_SOUND,CONFIG_SND_PXA2xx_AC97, CONFIG_SND_PXA2xx_PCM to  =y. The kernel builds well, but on boot the UCB1400 driver didn't gets registered and there are no more interrupts enabled in /proc/interrupts with following boot message,
+> .....
+> .....
+> ts: UCB1x00 touchscreen protocol output
+> Advanced Linux Sound Architecture Driver Version 1.0.9rc2 ( The MAr 24 10:34:34 2005 UTC)
+> ALSA device list:
+>   No soundcards found.
+> ....
+> ....
+> 
+> The problem seems to be due to driver_register(pxa2xx-ac97) and bus match.
+> 
+> Any help will be appreciated .
 
-> 
-> Want a new rollup/testing cycle for all of this?
-> 
-> Index: linux-2.6.19-rc3/kernel/sched.c
-> ===================================================================
-> --- linux-2.6.19-rc3.orig/kernel/sched.c	2006-10-26 11:31:04.000000000 -0500
-> +++ linux-2.6.19-rc3/kernel/sched.c	2006-10-26 11:41:07.129561438 -0500
-> @@ -2867,15 +2867,6 @@ static void rebalance_domains(unsigned l
->  		if (!(sd->flags & SD_LOAD_BALANCE))
->  			continue;
->  
-> -		interval = sd->balance_interval;
-> -		if (idle != SCHED_IDLE)
-> -			interval *= sd->busy_factor;
-> -
-> -		/* scale ms to jiffies */
-> -		interval = msecs_to_jiffies(interval);
-> -		if (unlikely(!interval))
-> -			interval = 1;
-> -
->  		if (jiffies >= sd->next_balance) {
->  			if (load_balance(this_cpu, this_rq, sd, idle)) {
->  				/*
-> @@ -2885,6 +2876,14 @@ static void rebalance_domains(unsigned l
->  				 */
->  				idle = NOT_IDLE;
->  			}
-> +			interval = sd->balance_interval;
-> +			if (idle != SCHED_IDLE)
-> +				interval *= sd->busy_factor;
-> +
-> +			/* scale ms to jiffies */
-> +			interval = msecs_to_jiffies(interval);
-> +			if (unlikely(!interval))
-> +				interval = 1;
->  			sd->next_balance += interval;
->  		}
->  		next_balance = min(next_balance, sd->next_balance);
-> 
+Look in arch/arm/mach-pxa/mainstone.c for mst_audio_device.  This is an 
+example of the  platform_device structure the pxa2xx-ac97 driver is 
+looking for.
 
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Nicolas

@@ -1,81 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945964AbWJZWoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945969AbWJZWpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945964AbWJZWoo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 18:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945965AbWJZWoo
+	id S1945969AbWJZWpq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 18:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945973AbWJZWpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 18:44:44 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:57339 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1945964AbWJZWon convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 18:44:43 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 6/13] KVM: memory slot management
-Date: Fri, 27 Oct 2006 00:44:31 +0200
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
-References: <4540EE2B.9020606@qumranet.com> <20061026172756.D0649A0209@cleopatra.q>
-In-Reply-To: <20061026172756.D0649A0209@cleopatra.q>
+	Thu, 26 Oct 2006 18:45:46 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55564 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1945971AbWJZWpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 18:45:44 -0400
+Date: Fri, 27 Oct 2006 00:45:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Philipp Zabel <philipp.zabel@gmail.com>, rmk@arm.linux.org.uk,
+       Martin Lorenz <martin@lorenz.eu.org>, len.brown@intel.com,
+       linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Thierry Vignaud <tvignaud@mandriva.com>, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org, Alex Romosan <romosan@sycorax.lbl.gov>,
+       Jens Axboe <jens.axboe@oracle.com>, Komuro <komurojun-mbn@nifty.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux1394-devel@lists.sourceforge.net, Christian <christiand59@web.de>,
+       Mark Langsdorf <mark.langsdorf@amd.com>, davej@codemonkey.org.uk,
+       cpufreq@lists.linux.org.uk
+Subject: 2.6.19-rc3: known unfixed regressions (v2)
+Message-ID: <20061026224541.GQ27968@stusta.de>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610270044.31382.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+In-Reply-To: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 October 2006 19:27, Avi Kivity wrote:
-> kvm defines memory in "slots", more or less corresponding to the DIMM
-> slots.
->
-> this allows us to:
->  - avoid the VGA hole at 640K
->  - add a pci framebuffer at runtime
->  - hotplug memory
->
-> Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
-> Signed-off-by: Avi Kivity <avi@qumranet.com>
+This email lists some known regressions in 2.6.19-rc3 compared to 2.6.18
+that are not yet fixed Linus' tree.
 
-To bring up the discussion about guest memory allocation again,
-I'd like to make a case for using defining guest real memory
-as host user, not a special in-kernel address space.
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
-You're probably aware of many of these points, but I'd like
-to list all that I can think of, in case you haven't thought
-of them:
+Due to the huge amount of recipients, please trim the Cc when answering.
 
-- no need to preallocate memory that the guest doesn't actually use.
-- guest memory can be paged to disk.
-- you can mmap files into multiple guest for fast communication
-- you can use mmap host files as backing store for guest blockdevices,
-  including ext2 with the -o xip mount option to avoid double paging
-- you can mmap packet sockets or similar to provide virtual networking
-  devices.
-- you can use hugetlbfs inside of guests
-- you can mmap simple devices (e.g. frame buffer) directly into
-  trusted guests without HW emulation.
-- you can use gdb to debug the running guest address space
-- no need for ioctl to access or allocate guest memory
-- you can mmap a kernel image (MAP_PRIVATE) into multiple guests
-  and share instruction cache lines.
-- the kernel code doesn't need special accessors, but can use
-  asm/uaccess.h.
-- may be able to avoid a bunch of TLB flushes with nested page tables.
 
-On the downside, I can see these points:
+Subject    : swsusp initialized after SATA (CONFIG_PCI_MULTITHREAD_PROBE)
+References : http://lkml.org/lkml/2006/10/14/31
+Submitter  : Pavel Machek <pavel@ucw.cz>
+Status     : unknown
 
-- As you mentioned guest size on 32 bit hosts is limited to around 1G.
-- you probably have to rewrite your virtual MMU from scratch
-- for optimal performance, pageable guests need something like the s390
-  pagex/pfault mechanism in the guest kernel.
-- if you want a guest not to be paged out, you need privileges to do mlock.
-- you can't use swap space in the guest if you want to avoid the
-  double paging problem (host needs to read a page from disk for the guest
-  to swap it out), or you'd have to implement a mechanism like Martin
-  Schwidefsky's page hints (cmm2) for s390.
 
-	Arnd <><
+Subject    : MSI errors during boot (CONFIG_PCI_MULTITHREAD_PROBE)
+References : http://lkml.org/lkml/2006/10/16/291
+Submitter  : Stephen Hemminger <shemminger@osdl.org>
+Handled-By : Greg KH <greg@kroah.com>
+Status     : Greg is working on a fix
+
+
+Subject    : arm: Oops in __wake_up_common during htc magician resume
+References : http://lkml.org/lkml/2006/10/25/73
+Submitter  : Philipp Zabel <philipp.zabel@gmail.com>
+Status     : unknown
+
+
+Subject    : X60s: BUG()s, lose ACPI events after suspend/resume
+References : http://lkml.org/lkml/2006/10/10/39
+Submitter  : Martin Lorenz <martin@lorenz.eu.org>
+Status     : unknown
+
+
+Subject    : T60 stops triggering any ACPI events
+References : http://lkml.org/lkml/2006/10/4/425
+             http://lkml.org/lkml/2006/10/16/262
+             http://bugzilla.kernel.org/show_bug.cgi?id=7408
+Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
+Status     : unknown
+
+
+Subject    : sata-via doesn't detect anymore disks attached to VIA vt6421
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7255
+Submitter  : Thierry Vignaud <tvignaud@mandriva.com>
+Status     : unknown
+
+
+Subject    : unable to rip cd
+References : http://lkml.org/lkml/2006/10/13/100
+Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
+Status     : unknown
+
+
+Subject    : SMP kernel can not generate ISA irq properly
+References : http://lkml.org/lkml/2006/10/22/15
+Submitter  : Komuro <komurojun-mbn@nifty.com>
+Handled-By : Thomas Gleixner <tglx@linutronix.de>
+Status     : Thomas will investigate
+
+
+Subject    : ohci1394 on PPC_PMAC:
+             pci_set_power_state() failure and breaking suspend
+References : http://lkml.org/lkml/2006/10/24/13
+Submitter  : Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Caused-By  : Stefan Richter <stefanr@s5r6.in-berlin.de>
+             commit ea6104c22468239083857fa07425c312b1ecb424
+Handled-By : Stefan Richter <stefanr@s5r6.in-berlin.de>
+Status     : Stefan Richter: looking for an answer when to ignore
+             the return code of pci_set_power_state
+
+
+Subject    : cpufreq not working on AMD K8
+References : http://lkml.org/lkml/2006/10/10/114
+Submitter  : Christian <christiand59@web.de>
+Handled-By : Mark Langsdorf <mark.langsdorf@amd.com>
+Status     : Mark is investigating
+
+

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422850AbWJZJEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752131AbWJZJEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422850AbWJZJEI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 05:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422809AbWJZJEH
+	id S1752131AbWJZJEl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 05:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752124AbWJZJEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 05:04:07 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:1994 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1422850AbWJZJEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 05:04:05 -0400
-Date: Thu, 26 Oct 2006 11:04:03 +0200
+	Thu, 26 Oct 2006 05:04:40 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:37533 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1422778AbWJZJEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 05:04:38 -0400
+Date: Thu, 26 Oct 2006 11:04:36 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, horst.hummel@de.ibm.com
-Subject: [S390] handle incorrect values when writing to dasd sysfs attributes.
-Message-ID: <20061026090403.GG16270@skybase>
+To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+Subject: [S390] Add __must_check to uaccess functions.
+Message-ID: <20061026090436.GI16270@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,113 +21,96 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Horst Hummel <horst.hummel@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[S390] handle incorrect values when writing to dasd sysfs attributes.
+[S390] Add __must_check to uaccess functions.
 
-When writing to dasd attributes (e.g. readonly), all values besides '1'
-are handled like '0'.
-Other sysfs-attributes like 'online' are checking for '1' and for '0'
-and do not accept other values. Therefore enhanced checking and error
-handling in dasd_devmap attribute store functions.
+Follow other architectures and add __must_check to uaccess functions.
 
-Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_devmap.c |   43 ++++++++++++++++++++++++++-------------
- 1 files changed, 29 insertions(+), 14 deletions(-)
+ include/asm-s390/uaccess.h |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/block/dasd_devmap.c linux-2.6-patched/drivers/s390/block/dasd_devmap.c
---- linux-2.6/drivers/s390/block/dasd_devmap.c	2006-10-26 10:43:46.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd_devmap.c	2006-10-26 10:44:08.000000000 +0200
-@@ -684,21 +684,26 @@ dasd_ro_store(struct device *dev, struct
- 	      const char *buf, size_t count)
+diff -urpN linux-2.6/include/asm-s390/uaccess.h linux-2.6-patched/include/asm-s390/uaccess.h
+--- linux-2.6/include/asm-s390/uaccess.h	2006-10-26 10:43:51.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/uaccess.h	2006-10-26 10:44:10.000000000 +0200
+@@ -201,7 +201,7 @@ extern int __get_user_bad(void) __attrib
+  * Returns number of bytes that could not be copied.
+  * On success, this will be zero.
+  */
+-static inline unsigned long
++static inline unsigned long __must_check
+ __copy_to_user(void __user *to, const void *from, unsigned long n)
  {
- 	struct dasd_devmap *devmap;
--	int ro_flag;
-+	int val;
-+	char *endp;
- 
- 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
- 	if (IS_ERR(devmap))
- 		return PTR_ERR(devmap);
--	ro_flag = buf[0] == '1';
-+
-+	val = simple_strtoul(buf, &endp, 0);
-+	if (((endp + 1) < (buf + count)) || (val > 1))
-+		return -EINVAL;
-+
- 	spin_lock(&dasd_devmap_lock);
--	if (ro_flag)
-+	if (val)
- 		devmap->features |= DASD_FEATURE_READONLY;
- 	else
- 		devmap->features &= ~DASD_FEATURE_READONLY;
- 	if (devmap->device)
- 		devmap->device->features = devmap->features;
- 	if (devmap->device && devmap->device->gdp)
--		set_disk_ro(devmap->device->gdp, ro_flag);
-+		set_disk_ro(devmap->device->gdp, val);
- 	spin_unlock(&dasd_devmap_lock);
- 	return count;
- }
-@@ -729,17 +734,22 @@ dasd_use_diag_store(struct device *dev, 
+ 	if (__builtin_constant_p(n) && (n <= 256))
+@@ -226,7 +226,7 @@ __copy_to_user(void __user *to, const vo
+  * Returns number of bytes that could not be copied.
+  * On success, this will be zero.
+  */
+-static inline unsigned long
++static inline unsigned long __must_check
+ copy_to_user(void __user *to, const void *from, unsigned long n)
  {
- 	struct dasd_devmap *devmap;
- 	ssize_t rc;
--	int use_diag;
-+	int val;
-+	char *endp;
- 
- 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
- 	if (IS_ERR(devmap))
- 		return PTR_ERR(devmap);
--	use_diag = buf[0] == '1';
-+
-+	val = simple_strtoul(buf, &endp, 0);
-+	if (((endp + 1) < (buf + count)) || (val > 1))
-+		return -EINVAL;
-+
- 	spin_lock(&dasd_devmap_lock);
- 	/* Changing diag discipline flag is only allowed in offline state. */
- 	rc = count;
- 	if (!devmap->device) {
--		if (use_diag)
-+		if (val)
- 			devmap->features |= DASD_FEATURE_USEDIAG;
- 		else
- 			devmap->features &= ~DASD_FEATURE_USEDIAG;
-@@ -854,20 +864,25 @@ dasd_eer_store(struct device *dev, struc
- 	       const char *buf, size_t count)
+ 	might_sleep();
+@@ -252,7 +252,7 @@ copy_to_user(void __user *to, const void
+  * If some data could not be copied, this function will pad the copied
+  * data to the requested size using zero bytes.
+  */
+-static inline unsigned long
++static inline unsigned long __must_check
+ __copy_from_user(void *to, const void __user *from, unsigned long n)
  {
- 	struct dasd_devmap *devmap;
--	int rc;
-+	int val, rc;
-+	char *endp;
- 
- 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
- 	if (IS_ERR(devmap))
- 		return PTR_ERR(devmap);
- 	if (!devmap->device)
--		return count;
--	if (buf[0] == '1') {
-+		return -ENODEV;
-+
-+	val = simple_strtoul(buf, &endp, 0);
-+	if (((endp + 1) < (buf + count)) || (val > 1))
-+		return -EINVAL;
-+
-+	rc = count;
-+	if (val)
- 		rc = dasd_eer_enable(devmap->device);
--		if (rc)
--			return rc;
--	} else
-+	else
- 		dasd_eer_disable(devmap->device);
--	return count;
-+	return rc;
+ 	if (__builtin_constant_p(n) && (n <= 256))
+@@ -277,7 +277,7 @@ __copy_from_user(void *to, const void __
+  * If some data could not be copied, this function will pad the copied
+  * data to the requested size using zero bytes.
+  */
+-static inline unsigned long
++static inline unsigned long __must_check
+ copy_from_user(void *to, const void __user *from, unsigned long n)
+ {
+ 	might_sleep();
+@@ -288,13 +288,13 @@ copy_from_user(void *to, const void __us
+ 	return n;
  }
  
- static DEVICE_ATTR(eer_enabled, 0644, dasd_eer_show, dasd_eer_store);
+-static inline unsigned long
++static inline unsigned long __must_check
+ __copy_in_user(void __user *to, const void __user *from, unsigned long n)
+ {
+ 	return uaccess.copy_in_user(n, to, from);
+ }
+ 
+-static inline unsigned long
++static inline unsigned long __must_check
+ copy_in_user(void __user *to, const void __user *from, unsigned long n)
+ {
+ 	might_sleep();
+@@ -306,7 +306,7 @@ copy_in_user(void __user *to, const void
+ /*
+  * Copy a null terminated string from userspace.
+  */
+-static inline long
++static inline long __must_check
+ strncpy_from_user(char *dst, const char __user *src, long count)
+ {
+         long res = -EFAULT;
+@@ -343,13 +343,13 @@ strnlen_user(const char __user * src, un
+  * Zero Userspace
+  */
+ 
+-static inline unsigned long
++static inline unsigned long __must_check
+ __clear_user(void __user *to, unsigned long n)
+ {
+ 	return uaccess.clear_user(n, to);
+ }
+ 
+-static inline unsigned long
++static inline unsigned long __must_check
+ clear_user(void __user *to, unsigned long n)
+ {
+ 	might_sleep();

@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423135AbWJZLyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423333AbWJZMAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423135AbWJZLyo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 07:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423117AbWJZLyo
+	id S1423333AbWJZMAK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 08:00:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423305AbWJZMAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 07:54:44 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:36316 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161150AbWJZLyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 07:54:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=PFMu2vM922F+1hqsxrJgE6xvm8HJhIi0x5l2+bgoejIb5rFBtjckQtru/n88ZjVUaY+bCdOYQiJwv9nolg/ouFh6jxk4Xve3Y8VZ7q+4mImgH0jYv2mW/YF1mNcWim/gyxZoWpxDsYjTZ/yBunVfKQIx2iwaW+5xBuhfDc38w7s=
-Message-ID: <84144f020610260454uff54addi553b942d142a2de3@mail.gmail.com>
-Date: Thu, 26 Oct 2006 14:54:41 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: markh@compro.net
-Subject: Re: Another kernel releated GPL ?
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, dmarkh@cfl.rr.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <45409BFA.8000507@compro.net>
+	Thu, 26 Oct 2006 08:00:09 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:62634 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1423246AbWJZMAH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 08:00:07 -0400
+Date: Thu, 26 Oct 2006 14:00:01 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Dick Streefland <dick.streefland@altium.nl>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       sam@ravnborg.org
+Subject: Re: What about make mergeconfig ?
+In-Reply-To: <Pine.LNX.4.61.0610261322120.29875@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.62.0610261357080.1555@pademelon.sonytel.be>
+References: <3d6d.453f3a0f.92d2c@altium.nl> <1161755164.22582.60.camel@localhost.localdomain>
+ <3d6d.453f3a0f.92d2c@altium.nl> <Pine.LNX.4.61.0610251336580.23137@yvahk01.tjqt.qr>
+ <31ed.453f5399.96651@altium.nl> <Pine.LNX.4.61.0610261000210.29875@yvahk01.tjqt.qr>
+ <Pine.LNX.4.62.0610261102520.1555@pademelon.sonytel.be>
+ <Pine.LNX.4.61.0610261322120.29875@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4540839C.6010302@cfl.rr.com>
-	 <1161861128.12781.28.camel@localhost.localdomain>
-	 <45409BFA.8000507@compro.net>
-X-Google-Sender-Auth: 9889d2609b343ed6
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/26/06, Mark Hounschell <markh@compro.net> wrote:
-> I'm sure every lawyer will have his own opinion. In the end won't it come down
-> to the intent of the kernel developer? Surly the definition of "derivative work"
-> has to be, or has been already, defined by someone other than a lawyer or court
-> that knows nothing of "kernel development"?
+On Thu, 26 Oct 2006, Jan Engelhardt wrote:
+> >> >Or you can use the following hack:
+> >> >
+> >> >  (sort .config other.config; echo set) | sh | grep ^CONFIG_ > new.config
+> >> 
+> >> That does not properly deal with "# CONFIG_XYZ is not set" lines in 
+> >> other.config.
+> >
+> >What about RCS merge?
+> 
+> I take it we do not want to depend on too many tools (remember the 
+> kconfig implementation language debate).
 
-Please, consult a lawyer for legal advice, not the LKML.
+If you have CVS installed, you have RCS merge.
+
+> >merge -p other.config .config.old .config > other.config.new
+> 
+> This also does not seem conflict-safe.
+
+Indeed, you can still have conflicts, which you have to resolve manually.
+
+But it depends on what you want to achieve: do you want to set each config
+option in the destination config to max(config1.option, config2.option), or do
+you want to apply the recent changes for one config (which may include
+disabling options) to another config?
+
+For the latter, merge should work fine.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

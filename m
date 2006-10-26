@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752144AbWJZL1C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752146AbWJZL2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752144AbWJZL1C (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 07:27:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752146AbWJZL1C
+	id S1752146AbWJZL2r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 07:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752148AbWJZL2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 07:27:02 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:22673 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1752144AbWJZL1A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 07:27:00 -0400
-Date: Thu, 26 Oct 2006 13:25:26 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Dick Streefland <dick.streefland@altium.nl>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       sam@ravnborg.org
-Subject: Re: What about make mergeconfig ?
-In-Reply-To: <Pine.LNX.4.62.0610261102520.1555@pademelon.sonytel.be>
-Message-ID: <Pine.LNX.4.61.0610261322120.29875@yvahk01.tjqt.qr>
-References: <3d6d.453f3a0f.92d2c@altium.nl> <1161755164.22582.60.camel@localhost.localdomain>
- <3d6d.453f3a0f.92d2c@altium.nl> <Pine.LNX.4.61.0610251336580.23137@yvahk01.tjqt.qr>
- <31ed.453f5399.96651@altium.nl> <Pine.LNX.4.61.0610261000210.29875@yvahk01.tjqt.qr>
- <Pine.LNX.4.62.0610261102520.1555@pademelon.sonytel.be>
+	Thu, 26 Oct 2006 07:28:47 -0400
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:54187 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S1752146AbWJZL2q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 07:28:46 -0400
+Message-ID: <45409BFA.8000507@compro.net>
+Date: Thu, 26 Oct 2006 07:28:58 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dmarkh@cfl.rr.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Another kernel releated GPL ?
+References: <4540839C.6010302@cfl.rr.com> <1161861128.12781.28.camel@localhost.localdomain>
+In-Reply-To: <1161861128.12781.28.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >Or you can use the following hack:
->> >
->> >  (sort .config other.config; echo set) | sh | grep ^CONFIG_ > new.config
->> 
->> That does not properly deal with "# CONFIG_XYZ is not set" lines in 
->> other.config.
->
->What about RCS merge?
+Alan Cox wrote:
+> Ar Iau, 2006-10-26 am 05:45 -0400, ysgrifennodd Mark Hounschell:
+>> I make "modifications" to the kernel, then create a user land library to access
+>> these "modifications". Obviously my kernel "modifications" are then GPL, but
+>> what is the opinion of the kernel developers as far as the license of this
+>> library? Does that user land library have to be GPL also?
+> 
+> Ask your lawyer. It depends on the legal definition of "derivative
+> work", which isn't something a kernel developer can really answer.
+> 
 
-I take it we do not want to depend on too many tools (remember the 
-kconfig implementation language debate).
+I'm sure every lawyer will have his own opinion. In the end won't it come down
+to the intent of the kernel developer? Surly the definition of "derivative work"
+has to be, or has been already, defined by someone other than a lawyer or court
+that knows nothing of "kernel development"?
 
->merge -p other.config .config.old .config > other.config.new
+Mark
 
-This also does not seem conflict-safe.
-
-
-	-`J'
--- 

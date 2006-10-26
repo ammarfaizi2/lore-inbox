@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423061AbWJZKAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422879AbWJZKT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423061AbWJZKAf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 06:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423099AbWJZKAf
+	id S1422879AbWJZKT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 06:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423140AbWJZKT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 06:00:35 -0400
-Received: from science.horizon.com ([192.35.100.1]:45384 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1423061AbWJZKAe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 06:00:34 -0400
-Date: 26 Oct 2006 06:00:27 -0400
-Message-ID: <20061026100027.32164.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux@horizon.com, zippel@linux-m68k.org
-Subject: Re: 2.6.19-rc2 and very unstable NTP
-Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0610261144230.6761@scrub.home>
+	Thu, 26 Oct 2006 06:19:57 -0400
+Received: from smtp-out001.kontent.com ([81.88.40.215]:44994 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S1422879AbWJZKT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 06:19:57 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Soeren Sonnenburg <kernel@nn7.de>, linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb initialization order (usbhid vs. appletouch)
+Date: Thu, 26 Oct 2006 12:20:05 +0200
+User-Agent: KMail/1.8
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1161856438.5214.2.camel@no.intranet.wo.rk>
+In-Reply-To: <1161856438.5214.2.camel@no.intranet.wo.rk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610261220.05707.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please specify "+ linuxpps".
+Am Donnerstag, 26. Oktober 2006 11:53 schrieb Soeren Sonnenburg:
+> Dear all,
+> 
+> I've noticed that the appletouch driver needs to be loaded *before* the
+> usbhid driver to function. This is currently impossible when built into
+> the kernel (and not modules). So I wonder how one can change the
+> ordering of when the usb drivers are loaded.
+> 
+> Suggestions ?
 
-http://gitweb.enneenne.com/?p=linuxpps;a=summary
-http://wiki.enneenne.com/index.php/LinuxPPS_support
+Add a quirk to HID. Messing around with probing orders is not
+a sure thing.
 
-It's a PPS-input timestamping driver, touching drivers/serial/8250.c
-and the like.  No contact with kernel timekeeping code, other than
-calling it to obtain the timestamps.
-
-I can send you NTP logs if you like; I just thought they were a bit
-bulky for linux-kernel.
-
-I don't think its use of netlink is entirely appropriate, but it works
-well enough.
+	Regards
+		Oliver

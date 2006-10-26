@@ -1,93 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423578AbWJZPhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423559AbWJZPqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423578AbWJZPhH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 11:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423577AbWJZPhH
+	id S1423559AbWJZPqk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 11:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423584AbWJZPqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 11:37:07 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:12305 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1423578AbWJZPhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 11:37:05 -0400
-Message-ID: <4540D61B.5040802@de.ibm.com>
-Date: Thu, 26 Oct 2006 17:36:59 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Thu, 26 Oct 2006 11:46:40 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3591 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1423558AbWJZPqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 11:46:39 -0400
+Date: Thu, 26 Oct 2006 17:46:36 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: David Brownell <david-b@pacbell.net>, toralf.foerster@gmx.de,
+       netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       link@miggy.org, greg@kroah.com, akpm@osdl.org, zippel@linux-m68k.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       dbrownell@users.sourceforge.net, Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
+Message-ID: <20061026154635.GK27968@stusta.de>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025201341.GH21200@miggy.org> <20061025151737.1bf4898c.randy.dunlap@oracle.com> <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061025165858.b76b4fd8.randy.dunlap@oracle.com>
 MIME-Version: 1.0
-To: "Frank Ch. Eigler" <fche@redhat.com>
-CC: psusi@cfl.rr.com, Jens Axboe <jens.axboe@oracle.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0/5] I/O statistics through request queues
-References: <453D05C3.7040104@de.ibm.com> <20061023200220.GB4281@kernel.dk> <453E38FE.1020306@de.ibm.com> <20061024162050.GK4281@kernel.dk> <453E79D1.6070703@cfl.rr.com> <453E9368.9070405@de.ibm.com> <y0mvem8thc3.fsf@ton.toronto.redhat.com> <45409709.3000701@de.ibm.com> <20061026121348.GB4978@redhat.com> <4540BA32.3020708@de.ibm.com> <20061026140218.GC4978@redhat.com>
-In-Reply-To: <20061026140218.GC4978@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061025165858.b76b4fd8.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Ch. Eigler wrote:
-> Hi -
-> 
-> On Thu, Oct 26, 2006 at 03:37:54PM +0200, Martin Peschke wrote:
->> [...]
->> lookup_table[key] = value	, or
->> lookup_table[key]++
->>
->> How does this scale?
-> 
-> It depends.  If one is interested in only aggregates as an end result,
-> then intermediate totals can be tracked individiaully per-cpu with no
-> locking contention, so this scales well.
+On Wed, Oct 25, 2006 at 04:58:58PM -0700, Randy Dunlap wrote:
+>...
+> Build tested with CONFIG_MII=y, m, n.
+>...
+> --- linux-2619-rc3-pv.orig/drivers/usb/net/usbnet.c
+> +++ linux-2619-rc3-pv/drivers/usb/net/usbnet.c
+> @@ -47,6 +47,12 @@
+>  
+>  #define DRIVER_VERSION		"22-Aug-2005"
+>  
+> +#if defined(CONFIG_MII) || defined(CONFIG_MII_MODULE)
+> +#define HAVE_MII		1
+> +#else
+> +#define HAVE_MII		0
+> +#endif
+>...
 
-Sorry for not being clear.
-I meant scaling with regard to lots of different keys.
-This is what you have described as "By 'rows'", isn't it?
+I'm too lame to test it, but I bet this will break with
+CONFIG_USB_USBNET=y, CONFIG_MII=m, and you'll actually need
 
-For example, if I wanted to store a timestamp for each request
-issued, and there were lots of devices and the I/O was driving
-the system crazy - how would affect that lookup time?
+  #if defined(CONFIG_MII) || (defined(CONFIG_MII_MODULE) && defined(MODULE))
 
-I would use, say, the address of struct request as key. I would
-store the start time of a request there. Once a requests completes
-I would look up the start time and calculate a latency.
+And then there's the question whether this amount of #ifdef's is 
+actually worth avoiding the "select MII"...
 
-I would be done with that lookup table entry then.
-But it won't go away, will it? Is this an issue?
+cu
+Adrian
 
->> It must be someting else than an array, because key boundaries
->> aren't known when the lookup table is created, right?
->> And actual keys might be few and far between.
-> 
-> In systemtap, we use a hash table.
-> 
->> What if the heap of intermediate results grows into thousands or
->> more?  [...]
-> 
-> It depends whether you mean "rows" or "columns".
-> 
-> By "rows", if you need to track thousands of queues, you will need
-> memory to store some data for each of them.  In systemtap's case, the
-> maximum number of elements in a hash table is configurable, and is all
-> allocated at startup time.  (The default is a couple of thousand.)
-> This is of course still larger than enlarging the base structures the
-> way your code does.  But it's only larger by a constant amount, and
-> makes it unnecessary to patch the code.
-> 
-> By "columns", if you need to track statistical aggregates of thousands
-> of data points for an individual queue, then one can use a handful of
-> fixed-size counters, as you already have for histograms.
-> 
-> 
-> Anyway, my point was not that you should use systemtap proper, or that
-> you need to use the same techniques for managing data on the side.
-> It's that by using instrumentation markers, more things are possible.
+-- 
 
-Right, I have gone off on a tangent - systemtap, just one out of many
-likely exploiters of markers.
-
-Anyway, I think this discussion shows that any dynamically added client
-of kernel markers which needs to hold extra data for entities like
-requests might be difficult to be implemented efficiently (compared
-to static instrumentation), because markers, by nature, only allow
-for code additions, but not for additions to existing data structures.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423601AbWJZQZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423596AbWJZQ05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423601AbWJZQZE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 12:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161421AbWJZQZD
+	id S1423596AbWJZQ05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 12:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423603AbWJZQ05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 12:25:03 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:10191 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161431AbWJZQZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 12:25:00 -0400
-Date: Thu, 26 Oct 2006 09:24:40 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [PATCH 5/5] Only call rebalance_domains when needed from
- scheduler_tick
-In-Reply-To: <4540A986.2070200@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0610260922400.16978@schroedinger.engr.sgi.com>
-References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com>
- <20061024183130.4530.83162.sendpatchset@schroedinger.engr.sgi.com>
- <4540A986.2070200@yahoo.com.au>
+	Thu, 26 Oct 2006 12:26:57 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:26487 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423596AbWJZQ05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 12:26:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=kUrS/6voPO4ESNM2KJopU1hq6caxaZismTQTOfkZzlIyBX57u289OqcBMYZkZPoHq4qrJYgdnZDg59HdD4TP36xSof1IfG12YYq8rr2a08Ukbm/OwrCu5RU7pdGeYvlbRAggidYG0MpbklW0xykhJ+zOhd8l+ldgOhC5XzM/Xfk=
+Message-ID: <84144f020610260926x3765398coce0146c82a69f674@mail.gmail.com>
+Date: Thu, 26 Oct 2006 19:26:54 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: Re: 2.6.18: unable to handle kernel paging request at virtual address e5e9ec24
+Cc: admin@prnet.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4540C678.2060106@mbligh.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <58488.212.24.212.169.1161860570.squirrel@server.prnet.org>
+	 <4540C678.2060106@mbligh.org>
+X-Google-Sender-Auth: 36e8b1e121c299b4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2006, Nick Piggin wrote:
+Hi,
 
-> > Call rebalance_domains from a tasklet with interrupt enabled.
-> > Only call it when one of the sched domains is to be rebalanced.
-> > The jiffies when the next balancing action is to take place is
-> > kept in a per cpu variable next_balance.
-> 
-> sched-domains was supposed to be able to build a whacky topology
-> so you didn't have to take the occasional big latency hit when
-> scanning 512 CPUs...
+On 10/26/06, Martin J. Bligh <mbligh@mbligh.org> wrote:
+> Binary modules loaded. Don't do that.
 
-How is that supposed to work? The load calculations will be off
-in that case and also the load balancing algorithm wont work anymore. 
-This is going to be a pretty significant rework of how the scheduler 
-works but given the problems with pinned tasks... maybe that is 
-necessary?
-duler?
+To elaborate bit on what Martin said here, there aren't many
+developers on LKML that are willing to debug a tainted kernel. Please
+reproduce without any binary-only modules and post the results to get
+help. Thanks.
 
+                             Pekka

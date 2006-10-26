@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423616AbWJZQlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423618AbWJZQo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423616AbWJZQlL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 12:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423615AbWJZQlK
+	id S1423618AbWJZQo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 12:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423614AbWJZQo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 12:41:10 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:20174 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1423616AbWJZQlJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 12:41:09 -0400
-Message-ID: <4540E500.9080701@zytor.com>
-Date: Thu, 26 Oct 2006 09:40:32 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 26 Oct 2006 12:44:58 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:60368 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1423610AbWJZQo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 12:44:57 -0400
+From: Russ Anderson <rja@sgi.com>
+Message-Id: <200610261644.k9QGipAf21995445@clink.americas.sgi.com>
+Subject: Re: [patch] Mixed Madison and Montecito system support
+To: suresh.b.siddha@intel.com (Siddha, Suresh B)
+Date: Thu, 26 Oct 2006 11:44:51 -0500 (CDT)
+Cc: rja@sgi.com (Russ Anderson), tony.luck@intel.com (Luck Tony),
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061025164253.A21790@unix-os.sc.intel.com> from "Siddha, Suresh B" at Oct 25, 2006 04:42:53 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Kumar Gala <galak@kernel.crashing.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Jes Sorensen <jes@sgi.com>,
-       Junio C Hamano <junkio@cox.net>, linux-kernel@vger.kernel.org
-Subject: Re: [git failure] failure pulling latest Linus tree
-References: <yq0d58g92u0.fsf@jaguar.mkp.net> <Pine.LNX.4.64.0610250746000.3962@g5.osdl.org> <453F8630.2000608@zytor.com> <72AE9332-F318-4853-8DC9-B6BC7FD1E055@kernel.crashing.org>
-In-Reply-To: <72AE9332-F318-4853-8DC9-B6BC7FD1E055@kernel.crashing.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kumar Gala wrote:
+Siddha, Suresh B wrote:
 > 
-> It the issue suppose to be fixed, I'm still seeing the same behavior 
-> where one server seems ok and the other does:
-> 
-> [galak@blarg tmp]$ git clone 
-> git://git.kernel.org/pub/scm/boot/u-boot/galak/u-boot.git
-> fatal: read error (Connection reset by peer)
-> fetch-pack from 
-> 'git://git.kernel.org/pub/scm/boot/u-boot/galak/u-boot.git' failed.
-> 
+> I added it so that these entries will not confuse users of a non-smt/mc
+> systems. But mixed type of processors and cpu hotplug really complicates the
+> things..
 
-No, this is due to the load on the servers being very high at the 
-moment.  The only thing that can help that is a dedicated git server, 
-which we currently don't have equipment for.
+Yes, it does.  :-)
+ 
+> May be a check of something like "is this platform capable of
+> supporting any multi-core/multi-threaded processor package?" helps..
+> 
+> As there is no well defined mechanism to find out that and for simplicity
+> reasons, we should probably go with Tony's suggestion.
+> 
+> Russ I can post a patch, removing both smt_capable() and mc_capable()
+> checks.
 
-	-hpa
+Yes, please do.
+
+> Today this sysfs variable is not documented. But when it happens, we
+> need to clearly document that these variables have no meaning when
+> the system doesn't have cpus with threads/cores.
+
+
+-- 
+Russ Anderson, OS RAS/Partitioning Project Lead  
+SGI - Silicon Graphics Inc          rja@sgi.com

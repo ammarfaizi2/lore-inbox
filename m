@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbWJZBC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965266AbWJZBmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965258AbWJZBC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 21:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbWJZBC1
+	id S965266AbWJZBmv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 21:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965272AbWJZBmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 21:02:27 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:33257 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S965254AbWJZBCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 21:02:25 -0400
-Date: Wed, 25 Oct 2006 21:02:00 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Holden Karau <holden@pigscanfly.ca>
-Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       holdenk@xandros.com, "akpm@osdl.org" <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes in fat_mirror_bhs
-Message-ID: <20061026010200.GE7128@filer.fsl.cs.sunysb.edu>
-References: <f46018bb0610251652y7b29889cr8a41044db6168432@mail.gmail.com>
-Mime-Version: 1.0
+	Wed, 25 Oct 2006 21:42:50 -0400
+Received: from smtp.ocgnet.org ([64.20.243.3]:32997 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S965266AbWJZBmt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Oct 2006 21:42:49 -0400
+Date: Thu, 26 Oct 2006 10:42:23 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ata: Generic platform_device libata driver, take 2.
+Message-ID: <20061026014223.GA4813@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+	Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20061023065907.GA22029@linux-sh.org> <20061023164220.GA24471@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f46018bb0610251652y7b29889cr8a41044db6168432@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061023164220.GA24471@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 07:52:47PM -0400, Holden Karau wrote:
-...
-> And now for the actual patch:
-> --- a/fs/fat/fatent.c	2006-09-19 23:42:06.000000000 -0400
-> +++ b/fs/fat/fatent.c	2006-10-25 19:14:14.000000000 -0400
-> @@ -1,5 +1,6 @@
-> /*
->  * Copyright (C) 2004, OGAWA Hirofumi
-> + * Copyright (C) 2006, Holden Karau [Xandros]
->  * Released under GPL v2.
->  */
-
-Mangled up :)
-
-Josef "Jeff" Sipek.
-
--- 
-Only two things are infinite, the universe and human stupidity, and I'm not
-sure about the former.
-		- Albert Einstein
+On Mon, Oct 23, 2006 at 05:42:21PM +0100, Russell King wrote:
+> On Mon, Oct 23, 2006 at 03:59:07PM +0900, Paul Mundt wrote:
+> > This is the second attempt at a generic platform_device libata driver,
+> > attempting to take in to account issues raised by Matthias Fuchs and rmk.
+> > 
+> > Changes in this version include adding a small pata_platform.h header for
+> > the private data (which at the moment is limited to a register shift
+> > that's needed by ARM), though other things can be added in here if
+> > platforms start having other needs.
+> 
+> Thanks, this will enable me to use this code on ARM.
+> 
+> Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> 
+Andrew, can you add this to -mm? No one has raised any other objections
+to this particular patch, and without it, IDE on most SH boards is a
+no-go.

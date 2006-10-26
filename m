@@ -1,76 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161151AbWJZNiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161384AbWJZNqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161151AbWJZNiE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 09:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161157AbWJZNiE
+	id S1161384AbWJZNqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 09:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161129AbWJZNqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 09:38:04 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:16971 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161151AbWJZNiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 09:38:01 -0400
-Message-ID: <4540BA32.3020708@de.ibm.com>
-Date: Thu, 26 Oct 2006 15:37:54 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: "Frank Ch. Eigler" <fche@redhat.com>
-CC: Phillip Susi <psusi@cfl.rr.com>, Jens Axboe <jens.axboe@oracle.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0/5] I/O statistics through request queues
-References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20061023113728.GM8251@kernel.dk> <453D05C3.7040104@de.ibm.com> <20061023200220.GB4281@kernel.dk> <453E38FE.1020306@de.ibm.com> <20061024162050.GK4281@kernel.dk> <453E79D1.6070703@cfl.rr.com> <453E9368.9070405@de.ibm.com> <y0mvem8thc3.fsf@ton.toronto.redhat.com> <45409709.3000701@de.ibm.com> <20061026121348.GB4978@redhat.com>
-In-Reply-To: <20061026121348.GB4978@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Oct 2006 09:46:24 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:21708 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161370AbWJZNqY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 09:46:24 -0400
+Date: Thu, 26 Oct 2006 09:44:42 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@muc.de>, Ian Campbell <Ian.Campbell@xensource.com>
+Subject: Re: [PATCH] x86_64: Some vmlinux.lds.S cleanups
+Message-ID: <20061026134442.GA11284@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061024210140.GB14225@in.ibm.com> <45407B05.76E4.0078.0@novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45407B05.76E4.0078.0@novell.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Ch. Eigler wrote:
-> Hi -
+On Thu, Oct 26, 2006 at 08:08:21AM +0100, Jan Beulich wrote:
+> I was about to ack it when I saw that you left .bss in init - that doesn't seem
+> too good an idea... Jan
 > 
-> On Thu, Oct 26, 2006 at 01:07:53PM +0200, Martin Peschke wrote:
->> [...]
->> I suppose the marker approach will be adopted if jumping from a
->> marker to code hooked up there can be made fast and secure enough
->> for prominent architectures.
+
+Should I create a separate program header say "bss" for .bss section? Last
+time when I suggested it you said there is no need to create a separate
+program header for bss.
+
+More program headers we create, we need to make sure that they are on page
+size boundaries so that kexec on vmlinux does not break.
+
+Thanks
+Vivek
+
+> >>> Vivek Goyal <vgoyal@in.ibm.com> 24.10.06 23:01 >>>
 > 
-> Agree, and I think we're not far.  By "secure" you mean "robust"
-> right?
-
-yes
-
->> [...]
->> Dynamic instrumentation based on markers allows to grow code,
->> but it doesn't allow to grow data structure, AFAICS.
->>
->> Statistics might require temporary results to be stored per
->> entity.
 > 
-> The data can be kept in data structures private to the instrumentation
-> module.  Instead of growing the base structure, you have a lookup
-> table indexed by a key of the base structure.  In the lookup table,
-> you store whatever you would need: timestamps, whatnot.
-
-lookup_table[key] = value	, or
-lookup_table[key]++
-
-How does this scale?
-
-It must be someting else than an array, because key boundaries
-aren't known when the lookup table is created, right?
-And actual keys might be few and far between.
-So you have got some sort of list or tree and do some searching,
-don't you?
-What if the heap of intermediate results grows into thousands or more?
-
->> The workaround would be to pass any intermediate result in the form
->> of a trace event up to user space and try to sort it out later -
->> which takes us back to the blktrace approach.
+> o Some cleanups based on Jan Beulich's suggestions. It boots on my box. Hope
+>   does not break anything else.
 > 
-> In systemtap, it is routine to store such intermediate data in kernel
-> space, and process it into aggregate statistics on demand, still in
-> kernel space.  User space need only see finished results.  This part
-> is not complicated.
-
-Yes. I tried out earlier this year.
-
+> o Renamed program header name data.init to init. "init" is now supposed
+>   to contain init text/data.
+> 
+> o Moved sections ".data.init_task" and ".data.page_aligned" into program
+>   header "data" as they don't fit logically into "init".
+> 
+> o Got rid of "R" permission for "note" phdr as only boot loaer is supposed
+>   to look at note phdr.
+> 
+> o Got rid of "E" permission for "data" phdr.  
+> 
+> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> ---
+> 
+>  arch/x86_64/kernel/vmlinux.lds.S |   32 ++++++++++++++++----------------
+>  1 file changed, 16 insertions(+), 16 deletions(-)
+> 
+> diff -puN arch/x86_64/kernel/vmlinux.lds.S~x86_64-vmlinux-lds-S-cleanup arch/x86_64/kernel/vmlinux.lds.S
+> --- linux-2.6.19-rc3/arch/x86_64/kernel/vmlinux.lds.S~x86_64-vmlinux-lds-S-cleanup	2006-10-24 15:58:23.000000000
+> -0400
+> +++ linux-2.6.19-rc3-root/arch/x86_64/kernel/vmlinux.lds.S	2006-10-24 16:35:56.000000000 -0400
+> @@ -15,10 +15,10 @@ ENTRY(phys_startup_64)
+>  jiffies_64 = jiffies;
+>  PHDRS {
+>  	text PT_LOAD FLAGS(5);	/* R_E */
+> -	data PT_LOAD FLAGS(7);	/* RWE */
+> +	data PT_LOAD FLAGS(6);	/* RW_ */
+>  	user PT_LOAD FLAGS(7);	/* RWE */
+> -	data.init PT_LOAD FLAGS(7);	/* RWE */
+> -	note PT_NOTE FLAGS(4);	/* R__ */
+> +	init PT_LOAD FLAGS(7);	/* RWE */
+> +	note PT_NOTE FLAGS(0);	/* None */
+>  }
+>  SECTIONS
+>  {
+> @@ -78,9 +78,19 @@ SECTIONS
+>    	*(.data.read_mostly)
+>    }
+>  
+> +  . = ALIGN(8192);		/* init_task */
+> +  .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
+> +	*(.data.init_task)
+> +  }
+> +
+> +  . = ALIGN(4096);
+> +  .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
+> +	*(.data.page_aligned)
+> +  }
+> +
+>  #define VSYSCALL_ADDR (-10*1024*1024)
+> -#define VSYSCALL_PHYS_ADDR ((LOADADDR(.data.read_mostly) + SIZEOF(.data.read_mostly) + 4095) & ~(4095))
+> -#define VSYSCALL_VIRT_ADDR ((ADDR(.data.read_mostly) + SIZEOF(.data.read_mostly) + 4095) & ~(4095))
+> +#define VSYSCALL_PHYS_ADDR ((LOADADDR(.data.page_aligned) + SIZEOF(.data.page_aligned) + 4095) & ~(4095))
+> +#define VSYSCALL_VIRT_ADDR ((ADDR(.data.page_aligned) + SIZEOF(.data.page_aligned) + 4095) & ~(4095))
+>  
+>  #define VLOAD_OFFSET (VSYSCALL_ADDR - VSYSCALL_PHYS_ADDR)
+>  #define VLOAD(x) (ADDR(x) - VLOAD_OFFSET)
+> @@ -129,23 +139,13 @@ SECTIONS
+>  #undef VVIRT_OFFSET
+>  #undef VVIRT
+>  
+> -  . = ALIGN(8192);		/* init_task */
+> -  .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
+> -	*(.data.init_task)
+> -  }:data.init
+> -
+> -  . = ALIGN(4096);
+> -  .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
+> -	*(.data.page_aligned)
+> -  }
+> -
+>    /* might get freed after init */
+>    . = ALIGN(4096);
+>    __smp_alt_begin = .;
+>    __smp_alt_instructions = .;
+>    .smp_altinstructions : AT(ADDR(.smp_altinstructions) - LOAD_OFFSET) {
+>  	*(.smp_altinstructions)
+> -  }
+> +  }:init
+>    __smp_alt_instructions_end = .;
+>    . = ALIGN(8);
+>    __smp_locks = .;
+> _

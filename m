@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423163AbWJZMTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423241AbWJZMWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423163AbWJZMTd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 08:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423241AbWJZMTd
+	id S1423241AbWJZMWE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 08:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423354AbWJZMWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 08:19:33 -0400
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:5780 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1423163AbWJZMTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 08:19:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=X229JFAVDqtb0vR/TJIkiLq1syyaga0a/gYqwzFUbWTE4Fwc7peKrfd6DcOrYa+f77p2xYOugxl6qR7F11NbnQ+KsBEYH0BtqJ+11UwFUR6RrY7pJsa+yv/7+PYbLbxFYDbtqQPi3l2yp2pZnCeU37HZGZy/2dcGTIUvaNa4hiw=  ;
-Message-ID: <4540A7CE.6060407@yahoo.com.au>
-Date: Thu, 26 Oct 2006 22:19:26 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 26 Oct 2006 08:22:03 -0400
+Received: from xsmtp0.ethz.ch ([82.130.70.14]:28962 "EHLO XSMTP0.ethz.ch")
+	by vger.kernel.org with ESMTP id S1423241AbWJZMWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 08:22:01 -0400
+Message-ID: <4540A867.307@debian.org>
+Date: Thu, 26 Oct 2006 14:21:59 +0200
+From: "Giacomo A. Catenazzi" <cate@debian.org>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [PATCH 4/5] Create rebalance_domains from rebalance_tick
-References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com> <20061024183124.4530.92230.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20061024183124.4530.92230.sendpatchset@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, proski@gnu.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+References: <1161807069.3441.33.camel@dv>	 <1161808227.7615.0.camel@localhost.localdomain>	 <20061025205923.828c620d.akpm@osdl.org> <1161859199.12781.7.camel@localhost.localdomain>
+In-Reply-To: <1161859199.12781.7.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Oct 2006 12:21:59.0795 (UTC) FILETIME=[55E05C30:01C6F8F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> Create rebalance_domains() from rebalance_tick().
+Alan Cox wrote:
+> The stopping loading is purely because it now uses _GPLONLY symbols,
+> which is fine until the user wants to load a windows driver except for
+> the old CIPE driver. Some assumptions broke somewhere along the way and
+> the chain of events that was never forseen unfolded.
 > 
-> Essentially rebalance_domains = rebalance_tick. However, we
-> do the idle calculation on our own. This removes some processing
-> from scheduler_tick into rebalance_domains().
+>> Now, if we do want to disallow gpl module loading after ndis-wrapper has
+>> been used then fine
 > 
-> While we are at it: Take the opportunity to avoid taking
-> the request queue lock in wake_priority_sleeper if
-> there are no running processes.
+> The problem is we do the dynamic link at module load time. We would have
+> to unlink the module if it tried to taint itself, which is clearly not
+> what the end user needs to suffer. Having the taint function actually
+> taint and printk + return a "Linked gplonly you can't" error seems the
+> better solution.
+> 
+> Really ndiswrapper shouldn't be using _GPLONLY symbols, that would
+> actually make it useful to the binary driver afflicted again and more
+> likely to be legal.
 
-Can you split this out? It is good without the tasklet based
-rebalancing.
+I'm confused on the discussion:
+legal? I don't find how a windo$e driver can be "derived work" of Linux,
+and anyway they use a "standard" interface. So it is acceptable for GPL
+(IMHO and IANAL). so it is not a legal problem.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+I see only a development question:
+should we allow untrusted module to know and modify the
+"intimate" part of kernel, and cause compability and other large
+amount of problems into kernel developers, distribution and users?
+
+So it is a political question, not a legal question!
+
+ciao
+	cate

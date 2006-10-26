@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751707AbWJZDfm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422905AbWJZD6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751707AbWJZDfm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Oct 2006 23:35:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422893AbWJZDfW
+	id S1422905AbWJZD6R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Oct 2006 23:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422910AbWJZD6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Oct 2006 23:35:22 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:58563 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1751707AbWJZDfR (ORCPT
+	Wed, 25 Oct 2006 23:58:17 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:56521 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1422905AbWJZD6K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Oct 2006 23:35:17 -0400
-Date: Thu, 26 Oct 2006 13:33:05 +1000
+	Wed, 25 Oct 2006 23:58:10 -0400
+Date: Thu, 26 Oct 2006 13:57:59 +1000
 From: Stephen Rothwell <sfr@canb.auug.org.au>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: ppc-dev <linuxppc-dev@ozlabs.org>, paulus@samba.org, ak@suse.de,
        linux-mm@kvack.org
 Subject: [PATCH 2/3] Create compat_sys_migrate_pages
-Message-Id: <20061026133305.b0db54e6.sfr@canb.auug.org.au>
-In-Reply-To: <20061026132659.2ff90dd1.sfr@canb.auug.org.au>
+Message-Id: <20061026135759.7cf2cd5c.sfr@canb.auug.org.au>
+In-Reply-To: <20061026133305.b0db54e6.sfr@canb.auug.org.au>
 References: <20061026132659.2ff90dd1.sfr@canb.auug.org.au>
+	<20061026133305.b0db54e6.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 2.3.0beta3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -33,17 +34,16 @@ this method saves two copies of the bitmasks.
 
 Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 ---
- mm/mempolicy.c |  107 ++++++++++++++++++++++++++++++++++++++++++++++++-------
- 1 files changed, 93 insertions(+), 14 deletions(-)
+ mm/mempolicy.c |  111 ++++++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 files changed, 95 insertions(+), 16 deletions(-)
 
-Maybe the other compat routines in here should be converted to use
-compat_get_nodes as well.
+OOPS, forgot to add a couple of fixes.  Replacement of 2/3 only ...
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 
 diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 617fb31..65c0281 100644
+index 617fb31..aa81d41 100644
 --- a/mm/mempolicy.c
 +++ b/mm/mempolicy.c
 @@ -854,6 +854,58 @@ static int get_nodes(nodemask_t *nodes,
@@ -132,7 +132,24 @@ index 617fb31..65c0281 100644
  	/* Find the mm_struct */
  	read_lock(&tasklist_lock);
  	task = pid ? find_task_by_pid(pid) : current;
-@@ -963,6 +1003,25 @@ out:
+@@ -947,7 +987,7 @@ asmlinkage long sys_migrate_pages(pid_t
+ 
+ 	task_nodes = cpuset_mems_allowed(task);
+ 	/* Is the user allowed to access the target nodes? */
+-	if (!nodes_subset(new, task_nodes) && !capable(CAP_SYS_NICE)) {
++	if (!nodes_subset(*new, task_nodes) && !capable(CAP_SYS_NICE)) {
+ 		err = -EPERM;
+ 		goto out;
+ 	}
+@@ -956,13 +996,32 @@ asmlinkage long sys_migrate_pages(pid_t
+ 	if (err)
+ 		goto out;
+ 
+-	err = do_migrate_pages(mm, &old, &new,
++	err = do_migrate_pages(mm, old, new,
+ 		capable(CAP_SYS_NICE) ? MPOL_MF_MOVE_ALL : MPOL_MF_MOVE);
+ out:
+ 	mmput(mm);
  	return err;
  }
  
@@ -152,7 +169,7 @@ index 617fb31..65c0281 100644
 +	if (err)
 +		return err;
 +
-+	return internal_migrate_pages(pid, old, new);
++	return internal_migrate_pages(pid, &old, &new);
 +}
 +
  
@@ -172,15 +189,15 @@ index 617fb31..65c0281 100644
 +	nodemask_t new;
 +	int err;
 +
-+	err = get_nodes(&old, old_nodes, maxnode);
++	err = compat_get_nodes(&old, old_nodes, maxnode);
 +	if (err)
 +		return err;
 +
-+	err = get_nodes(&new, new_nodes, maxnode);
++	err = compat_get_nodes(&new, new_nodes, maxnode);
 +	if (err)
 +		return err;
 +
-+	return internal_migrate_pages(pid, old, new);
++	return internal_migrate_pages(pid, &old, &new);
 +}
 +
 +#endif /* CONFIG_COMPAT */

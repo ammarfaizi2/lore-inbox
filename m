@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWJ0XU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWJ0XXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWJ0XU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 19:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWJ0XU2
+	id S1750844AbWJ0XXk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 19:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWJ0XXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 19:20:28 -0400
-Received: from mo-p04-ob.rzone.de ([81.169.146.178]:36832 "EHLO
-	mo-p04-ob.rzone.de") by vger.kernel.org with ESMTP id S1750775AbWJ0XU1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 19:20:27 -0400
-Date: Sat, 28 Oct 2006 01:12:03 +0200 (MEST)
-From: Olaf Hering <olaf@aepfle.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Greg KH <greg@kroah.com>, Stephen Hemminger <shemminger@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
-Message-ID: <20061027231200.GA16102@aepfle.de>
-References: <20061027010252.GV27968@stusta.de> <20061027012058.GH5591@parisc-linux.org> <20061026182838.ac2c7e20.akpm@osdl.org> <20061026191131.003f141d@localhost.localdomain> <20061027170748.GA9020@kroah.com> <20061027172219.GC30416@elf.ucw.cz> <20061027113908.4a82c28a.akpm@osdl.org> <20061027114144.f8a5addc.akpm@osdl.org> <20061027114237.d577c153.akpm@osdl.org> <1161989970.16839.45.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1161989970.16839.45.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 27 Oct 2006 19:23:40 -0400
+Received: from main.gmane.org ([80.91.229.2]:3220 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750837AbWJ0XXj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 19:23:39 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
+Date: Fri, 27 Oct 2006 23:23:01 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnek55j7.39b.olecom@flower.upol.cz>
+References: <1161807069.3441.33.camel@dv> <1161808227.7615.0.camel@localhost.localdomain> <20061025205923.828c620d.akpm@osdl.org> <20061026102630.ad191d21.randy.dunlap@oracle.com> <1161959020.12281.1.camel@laptopd505.fenrus.org> <20061027082741.8476024a.randy.dunlap@oracle.com> <20061027112601.dbd83c32.akpm@osdl.org> <45428EAD.6040005@gmail.com> <1161990307.16839.50.camel@localhost.localdomain>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Florin Malita <fmalita@gmail.com>, Andrew Morton <akpm@osdl.org>, Randy Dunlap <randy.dunlap@oracle.com>, Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org, proski@gnu.org, cate@debian.org, gianluca@abinetworks.biz
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, Alan Cox wrote:
+On 2006-10-27, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Gwe, 2006-10-27 am 18:56 -0400, ysgrifennodd Florin Malita:
+>> Also, since driverloader is not GPL-compatible (MODULE_LICENSE("see
+>> LICENSE file; Copyright (c)2003-2004 Linuxant inc.")), that check is
+>> redundant. How about removing it (applies on top of Randy's patch)?
+>> 
+>> 
+>> Signed-off-by: Florin Malita <fmalita@gmail.com>
+>
+> NAK
+>
+> Older versions of Linuxant's driverloader claim GPL\0some other text and
+> systematically set out to abuse the license tag code. We should continue
+> to carry the code for this.
+>
+> Alan
+>
+ACK this NACK.
 
-> Ar Gwe, 2006-10-27 am 11:42 -0700, ysgrifennodd Andrew Morton:
-> > IOW, we want to be multithreaded _within_ an initcall level, but not between
-> > different levels.
-> 
-> Thats actually insufficient. We have link ordered init sequences in
-> large numbers of driver subtrees (ATA, watchdog, etc). We'll need
-> several more initcall layers to fix that.
+Please, do not forget:
+Message-ID: <Pine.LNX.4.58.0404301401420.18014@ppc970.osdl.org>
+<http://permalink.gmane.org/gmane.linux.kernel/201265>
+____
 
-Is it time for something better?
-True dependencies, an addition to or as replacement for module_init()?
-random example: hfs/super.c:
-depends_on_initialized(init_hfs_fs: init_hfsplus_fs,kmem_cache_thingie,core_filesystem_thingie,foo,bar,worldpeace);
-If init_hfsplus_fs() does not exist it should be no error.
-
-Whatever the sytax will be and however its parsed during build, that link order
-requirement bites every other month.

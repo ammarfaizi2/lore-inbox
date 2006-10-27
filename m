@@ -1,85 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWJ0Rk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWJ0Rkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWJ0Rk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 13:40:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWJ0Rk1
+	id S1751316AbWJ0Rkc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 13:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWJ0Rkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 13:40:27 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37319 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751315AbWJ0Rk0 (ORCPT
+	Fri, 27 Oct 2006 13:40:32 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:30102 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751316AbWJ0Rka (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 13:40:26 -0400
-Message-ID: <454244A5.6030500@sgi.com>
-Date: Fri, 27 Oct 2006 10:40:53 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/6] bacct_add_tsk: fix unsafe and wrong parent/group_leader
- dereference
-References: <20061026232106.GA523@oleg>
-In-Reply-To: <20061026232106.GA523@oleg>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 13:40:30 -0400
+Message-Id: <200610271739.k9RHdvXa024984@laptop13.inf.utfsm.cl>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+cc: linux-kernel@vger.kernel.org, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: removing drivers and ISA support? [Was: Char: correct pci_get_device 
+In-Reply-To: Message from "Kilau, Scott" <Scott_Kilau@digi.com> 
+   of "Fri, 27 Oct 2006 10:01:00 CDT." <335DD0B75189FB428E5C32680089FB9F804012@mtk-sms-mail01.digi.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Fri, 27 Oct 2006 14:39:57 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 27 Oct 2006 14:39:57 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
-> 1. ts = timespec_sub(uptime, current->group_leader->start_time);
+Kilau, Scott <Scott_Kilau@digi.com> wrote:
+> Alan Cox:
+> > I think some of the drivers like epca we should seriously consider
+> > dropping and seeing if there is any complaint, my guess will be not.
 > 
->    It is possible that current != tsk. Probably it was supposed
->    to be 'tsk->group_leader->start_time. But why we are reading
->    group_leader's start_time ? This accounting is per thread,
->    not per procees, I changed this to 'tsk->start_time.
->    Please corect me.
+> You sure won't have any compliants from Digi International about removing
+> the epca driver from the kernel tree.
 
-This is right. Thanks!
+> That driver is *ancient* and I suspect no one actually uses it.
+> (I am not sure its even useable in the current form in the kernel tree)
+> 
+> We (Digi) have a much newer "PCI-only, rewritten for 2.6.x" open source
+> version of the driver called "dgap" that all our customers use now
+> instead.
 
-> 
-> 2. stats->ac_ppid = (tsk->parent) ? tsk->parent->pid : 0;
-> 
->    tsk->parent never == NULL, and it is unsafe to dereference it.
->    Both the task and it's parent may exit after the caller unlocks
->    tasklist_lock, the memory could be unmapped (DEBUG_SLAB).
->    (And we should use ->real_parent->tgid in fact).
-> 
-> Q: I don't understand the 'if (thread_group_leader(tsk))' check.
-> Why it is needed ?
+Have you proposed it for inclusion in the official tree? Many distros today
+don't ship drivers that aren't in the oficial tree, so you are needlessly
+limiting your customer base (plus adding hassle for them, plus you have to
+track kernel changes yourself). Not a winning proposition, IMHO.
 
-The code was borrowed from kernel/acct.c. The CSA code was extended
-from the BSD accounting, so we just borrowed the basic accounting
-stuff from the code.
-
-Thanks,
- - jay
-
-> 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> --- STATS/kernel/tsacct.c~2_par_fix	2006-10-22 18:24:03.000000000 +0400
-> +++ STATS/kernel/tsacct.c	2006-10-27 01:03:26.000000000 +0400
-> @@ -36,7 +36,7 @@ void bacct_add_tsk(struct taskstats *sta
->  
->  	/* calculate task elapsed time in timespec */
->  	do_posix_clock_monotonic_gettime(&uptime);
-> -	ts = timespec_sub(uptime, current->group_leader->start_time);
-> +	ts = timespec_sub(uptime, tsk->start_time);
->  	/* rebase elapsed time to usec */
->  	ac_etime = timespec_to_ns(&ts);
->  	do_div(ac_etime, NSEC_PER_USEC);
-> @@ -58,7 +58,10 @@ void bacct_add_tsk(struct taskstats *sta
->  	stats->ac_uid	 = tsk->uid;
->  	stats->ac_gid	 = tsk->gid;
->  	stats->ac_pid	 = tsk->pid;
-> -	stats->ac_ppid	 = (tsk->parent) ? tsk->parent->pid : 0;
-> +	rcu_read_lock();
-> +	stats->ac_ppid	 = pid_alive(tsk) ?
-> +				rcu_dereference(tsk->real_parent)->tgid : 0;
-> +	rcu_read_unlock();
->  	stats->ac_utime	 = cputime_to_msecs(tsk->utime) * USEC_PER_MSEC;
->  	stats->ac_stime	 = cputime_to_msecs(tsk->stime) * USEC_PER_MSEC;
->  	stats->ac_minflt = tsk->min_flt;
-> 
-
+Thanks for your support of Linux!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

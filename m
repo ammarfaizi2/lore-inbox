@@ -1,82 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946473AbWJ0P2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752276AbWJ0Pd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946473AbWJ0P2L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 11:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752313AbWJ0P2L
+	id S1752276AbWJ0Pd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 11:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752302AbWJ0Pd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 11:28:11 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:41999 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1752308AbWJ0P2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 11:28:10 -0400
-Date: Fri, 27 Oct 2006 11:28:09 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Ingo Molnar <mingo@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] workqueue: update kerneldoc
-Message-ID: <Pine.LNX.4.44L0.0610271116350.6443-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Oct 2006 11:33:27 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:46382 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1752274AbWJ0Pd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 11:33:27 -0400
+Date: Fri, 27 Oct 2006 08:27:41 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, proski@gnu.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, cate@debian.org,
+       gianluca@abinetworks.biz, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
+Message-Id: <20061027082741.8476024a.randy.dunlap@oracle.com>
+In-Reply-To: <1161959020.12281.1.camel@laptopd505.fenrus.org>
+References: <1161807069.3441.33.camel@dv>
+	<1161808227.7615.0.camel@localhost.localdomain>
+	<20061025205923.828c620d.akpm@osdl.org>
+	<20061026102630.ad191d21.randy.dunlap@oracle.com>
+	<1161959020.12281.1.camel@laptopd505.fenrus.org>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch (as812) changes the kerneldoc comments explaining the
-return values from queue_work(), queue_delayed_work(), and
-queue_delayed_work_on().  The updated comments explain more
-accurately the meaning of the return code and avoid suggesting that a
-0 value means the routine was unsuccessful.
+On Fri, 27 Oct 2006 16:23:39 +0200 Arjan van de Ven wrote:
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> > ---
+> > From: Randy Dunlap <randy.dunlap@oracle.com>
+> > 
+> > For ndiswrapper and driverloader, don't set the module->taints
+> > flags, just set the kernel global tainted flag.
+> > This should allow ndiswrapper to continue to use GPL symbols.
+> > Not tested.
+> 
+> 
+> can we put something in feature-removal that we'll undo this in say 6
+> months?
+
+It's open for discussion AFAIK.
+
+> ndiswrapper is easy to fix to not use the internals of the queue_work
+> api, and just use schedule_work() instead. At that time the
+> functionality as a whole is still the right one.
+> (it's a separate question if ndiswrapper should be in this table;
+> driverloader should be, it's non-GPL at all, so that part of your patch
+> is broken)
+
+OK, here's the replacement for only ndiswrapper, not driverloader.
 
 ---
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Andrew:
+For ndiswrapper, don't set the module->taints flags,
+just set the kernel global tainted flag.
+This should allow ndiswrapper to continue to use GPL symbols.
+Not tested.
 
-After seeing how queue_work() and schedule_work() are used in practice,
-and in view of the recent discussion (concerning the PCI MWI routine)  
-about when it's appropriate to return an error code as opposed to just
-returning a non-zero value, I decided there wasn't any need to change
-queue_work() and friends.
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ kernel/module.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-The 0 value they return is not a sign of an error; it simply means 
-that the work_struct had already been added to a workqueue.  The best way 
-to clear up any confusion is simply to improve the kerneldoc comment.
-
-Alan Stern
-
-
-Index: usb-2.6/kernel/workqueue.c
-===================================================================
---- usb-2.6.orig/kernel/workqueue.c
-+++ usb-2.6/kernel/workqueue.c
-@@ -99,7 +99,7 @@ static void __queue_work(struct cpu_work
-  * @wq: workqueue to use
-  * @work: work to queue
-  *
-- * Returns non-zero if it was successfully added.
-+ * Returns 0 if @work was already on a queue, non-zero otherwise.
-  *
-  * We queue the work to the CPU it was submitted, but there is no
-  * guarantee that it will be processed by that CPU.
-@@ -138,7 +138,7 @@ void delayed_work_timer_fn(unsigned long
-  * @work: work to queue
-  * @delay: number of jiffies to wait before queueing
-  *
-- * Returns non-zero if it was successfully added.
-+ * Returns 0 if @work was already on a queue, non-zero otherwise.
-  */
- int fastcall queue_delayed_work(struct workqueue_struct *wq,
- 				struct work_struct *work, unsigned long delay)
-@@ -170,7 +170,7 @@ EXPORT_SYMBOL_GPL(queue_delayed_work);
-  * @work: work to queue
-  * @delay: number of jiffies to wait before queueing
-  *
-- * Returns non-zero if it was successfully added.
-+ * Returns 0 if @work was already on a queue, non-zero otherwise.
-  */
- int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
- 			struct work_struct *work, unsigned long delay)
-
+--- linux-2619-rc3-pv.orig/kernel/module.c
++++ linux-2619-rc3-pv/kernel/module.c
+@@ -1718,7 +1718,7 @@ static struct module *load_module(void _
+ 	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
+ 
+ 	if (strcmp(mod->name, "ndiswrapper") == 0)
+-		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
++		add_taint(TAINT_PROPRIETARY_MODULE);
+ 	if (strcmp(mod->name, "driverloader") == 0)
+ 		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
+ 

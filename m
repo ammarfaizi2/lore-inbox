@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWJ0Ikt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965246AbWJ0IpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWJ0Ikt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 04:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965254AbWJ0Ikt
+	id S965246AbWJ0IpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 04:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965254AbWJ0IpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 04:40:49 -0400
-Received: from salsa.ec-nantes.fr ([130.66.33.3]:21382 "EHLO
-	salsa.ec-nantes.fr") by vger.kernel.org with ESMTP id S964830AbWJ0Iks
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 04:40:48 -0400
-Message-ID: <4541C609.1030902@gmail.com>
-Date: Fri, 27 Oct 2006 10:40:41 +0200
-From: Giggz <giggzounet@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [MODULE] [DEVELLOPEMENT] acerhk in the linux kernel ?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 27 Oct 2006 04:45:09 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:8649 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S965246AbWJ0IpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 04:45:07 -0400
+Subject: Re: [PATCH, RFC/T] Fix handling of write failures to swap devices
+From: Richard Purdie <rpurdie@openedhand.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <4541C1B2.7070003@yahoo.com.au>
+References: <1161935995.5019.46.camel@localhost.localdomain>
+	 <4541C1B2.7070003@yahoo.com.au>
+Content-Type: text/plain
+Date: Fri, 27 Oct 2006 09:44:54 +0100
+Message-Id: <1161938694.5019.83.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-CentraleNantes-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2006-10-27 at 18:22 +1000, Nick Piggin wrote:
+> Richard Purdie wrote:
+> > Comments and testing from people who know this area of code better than
+> > me would be appreciated!
+> 
+> This is the right approach to handling swap write errors. However, you need
+> to cut down on the amount of code duplication. 
 
-First at all thx for your work!
+The code is subtly different to the swapoff code but I'll take another
+look and see if I can refactor it now I have it all working.
 
-I have a laptop with linux (debian sid) and the kernel 2.6.18.1. The 
-multimadia hotkeys seem to work with a driver / module "acerhk" ( 
-http://www2.informatik.hu-berlin.de/~tauber/acerhk/ ). On 
-http://www.linux-laptop.net/ there are lots of computers which are using 
-it.
-Is it planned to integrate it in the kernel ?
+> Also, if you hit that BUG_ON, then you probably have a bug, don't
+> remove it!
 
-Thx for your attention and sorry for my bad english...(my accent is worse)
-Guillaume
+I gave that a lot of thought. We are in a write handler and have to
+handle the write error from there so the page will be marked as
+writeback. That function appears to be safe to call with that set
+through the new code path I added (which wouldn't have happened in the
+past). I therefore decided it was safe and the simplest solution was to
+remove the BUG_ON. If anyone can see a problem with a page being in
+writeback in that function, please enlighten me though!
+
+Cheers,
+
+Richard
+

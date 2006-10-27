@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423750AbWJ0Gy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423108AbWJ0HDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423750AbWJ0Gy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 02:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423754AbWJ0Gy5
+	id S1423108AbWJ0HDW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 03:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423758AbWJ0HDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 02:54:57 -0400
-Received: from mail.gmx.net ([213.165.64.20]:41155 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1423750AbWJ0Gy4 (ORCPT
+	Fri, 27 Oct 2006 03:03:22 -0400
+Received: from styx.suse.cz ([82.119.242.94]:26324 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1423108AbWJ0HDV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 02:54:56 -0400
-X-Authenticated: #14349625
-Subject: Re: CPU Loading
-From: Mike Galbraith <efault@gmx.de>
-To: Indian Mogul <indian_mogul@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061027053731.57351.qmail@web54511.mail.yahoo.com>
-References: <20061027053731.57351.qmail@web54511.mail.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 27 Oct 2006 07:26:28 +0000
-Message-Id: <1161933988.6102.28.camel@Homer.simpson.net>
+	Fri, 27 Oct 2006 03:03:21 -0400
+Date: Fri, 27 Oct 2006 09:03:19 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: Andi Kleen <ak@muc.de>, Om Narasimhan <om.turyx@gmail.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org, randy.dunlap@oracle.com,
+       clemens@ladisch.de, bob.picco@hp.com
+Subject: Re: HPET : Legacy Routing Replacement Enable - 3rd try.
+Message-ID: <20061027070319.GA24559@suse.cz>
+References: <EB12A50964762B4D8111D55B764A8454C9608C@scsmsx413.amr.corp.intel.com> <6b4e42d10610251420x4365b840sa3232010e7bd7f73@mail.gmail.com> <20061027024238.GC58088@muc.de> <20061027055708.GA20270@suse.cz> <4541A758.9010504@kolumbus.fi>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4541A758.9010504@kolumbus.fi>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-26 at 22:37 -0700, Indian Mogul wrote:
+On Fri, Oct 27, 2006 at 09:29:44AM +0300, Mika Penttilä wrote:
 
-> How can I load the CPU such that the scheduling time
-> slice is insuffucent for mplayer to playout the video?
-> To the mplayer the system thus appears "slow" ?
+> >JFYI: The new per-cpu timekeeping code doesn't need the HPET legacy bit,
+> >thus not replacing IRQ0 (PIT) and IRQ13 (RTC). It still can do that, but
+> >will work just as well without it.
 
-:) unusual request.
+> There seems to be lot of confusion here. Current code isn't using hpet 
+> as tick source if legacy is not supported. This patch adds 
+> hpet_lrr_force but it's not clear how it interacts with hpet_use_timer - 
+> in some places it is hpet_use_timer and some (hpet_use_timer && 
+> hpet_lrr_force).
 
-The proglet below, which someone posted a while back, should meet your
-needs nicely.  Fire up a few copies in the background with args like
-5000 6000 7000 8000 9000.., and mplayer should become decidedly unhappy.
+Sorry about my share of confusion introduced: Jiri Bohac
+(jbohac@suse.cz) is currently working on a new timekeeping code for
+x86-64 that takes a significantly different approach that allows for
+precise and fast gettimeofday even on CPUs with unsynchronized TSCs.
 
-The scheduler round robin schedules tasks which it has classified as
-interactive (tasks which sleep somewhat regularly basically) at a higher
-rate than their timeslice to reduce latency, but the more tasks
-circulating at the same priority (or above) as mplayer, the bigger the
-latency hit mplayer will take.
+This rewrite depends even less on hpet_use_timer than the current code.
+The current code can cope with hpet_use_timer == 0, but that mode of
+operation is far from optimal.
 
-	-Mike
+> The timer is routed to ioapic pin 2 which is irq0 with source override. 
+> With this patch with hpet_lrr_force=1 timer irq is set to 2 for x86_64 
+> and 0 for i386, that can't be right?
+ 
+It doesn't seem right to me, unless someone at Sun really misread the
+specification when designing the mainboard.
 
-#include <stdlib.h>
-#include <unistd.h>
-
-static void burn_cpu(unsigned int x)
-{
-	static char buf[1024];
-	int i;
-	
-	for (i=0; i < x; ++i)
-		buf[i%sizeof(buf)] = (x-i)*3;
-}
-
-int main(int argc, char **argv)
-{
-	unsigned long burn;
-	if (argc != 2)
-		return 1;
-	burn = (unsigned long)atoi(argv[1]);
-	while(1) {
-		burn_cpu(burn*1000);
-		usleep(1);
-	}
-	return 0;
-}
-
-
+-- 
+Vojtech Pavlik
+Director SuSE Labs

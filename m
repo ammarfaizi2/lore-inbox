@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWJ0XKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWJ0XMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750996AbWJ0XKV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 19:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWJ0XKU
+	id S1751035AbWJ0XMM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 19:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWJ0XMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 19:10:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29162 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750990AbWJ0XKT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 19:10:19 -0400
-Date: Fri, 27 Oct 2006 16:06:26 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 27 Oct 2006 19:12:12 -0400
+Received: from wx-out-0506.google.com ([66.249.82.234]:52881 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751034AbWJ0XML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 19:12:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=hamPzXtB+JEDobSifha9/6jGsMpY0TXLODMUDjyoz5h1YOSwuVm+IvDvZTD4vc9jQNlY2cINR5QkVDylV1Fd8MqB4lFxeVzE4kbv9KmVJy0bGZ0mXjVthos/zSW79Y2HTPmxPgC8X2GhnAVZtB0tb/xMXEvAdAapcbllOvw/I60=
+Message-ID: <45429240.1080800@gmail.com>
+Date: Fri, 27 Oct 2006 19:12:00 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch] drivers: wait for threaded probes between initcall
- levels
-Message-Id: <20061027160626.8ac4a910.akpm@osdl.org>
-In-Reply-To: <1161989970.16839.45.camel@localhost.localdomain>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
-	<20061026224541.GQ27968@stusta.de>
-	<20061027010252.GV27968@stusta.de>
-	<20061027012058.GH5591@parisc-linux.org>
-	<20061026182838.ac2c7e20.akpm@osdl.org>
-	<20061026191131.003f141d@localhost.localdomain>
-	<20061027170748.GA9020@kroah.com>
-	<20061027172219.GC30416@elf.ucw.cz>
-	<20061027113908.4a82c28a.akpm@osdl.org>
-	<20061027114144.f8a5addc.akpm@osdl.org>
-	<20061027114237.d577c153.akpm@osdl.org>
-	<1161989970.16839.45.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: Andrew Morton <akpm@osdl.org>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       proski@gnu.org, cate@debian.org, gianluca@abinetworks.biz
+Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
+References: <1161807069.3441.33.camel@dv>	 <1161808227.7615.0.camel@localhost.localdomain>	 <20061025205923.828c620d.akpm@osdl.org>	 <20061026102630.ad191d21.randy.dunlap@oracle.com>	 <1161959020.12281.1.camel@laptopd505.fenrus.org>	 <20061027082741.8476024a.randy.dunlap@oracle.com>	 <20061027112601.dbd83c32.akpm@osdl.org>  <45428EAD.6040005@gmail.com> <1161990307.16839.50.camel@localhost.localdomain>
+In-Reply-To: <1161990307.16839.50.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006 23:59:30 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Alan Cox wrote:
+> Ar Gwe, 2006-10-27 am 18:56 -0400, ysgrifennodd Florin Malita:
+>   
+>> Also, since driverloader is not GPL-compatible (MODULE_LICENSE("see
+>> LICENSE file; Copyright (c)2003-2004 Linuxant inc.")), that check is
+>> redundant. How about removing it (applies on top of Randy's patch)?
+>>
+>>
+>> Signed-off-by: Florin Malita <fmalita@gmail.com>
+>>     
+>
+> NAK
+>
+> Older versions of Linuxant's driverloader claim GPL\0some other text and
+> systematically set out to abuse the license tag code. We should continue
+> to carry the code for this.
+>   
 
-> Ar Gwe, 2006-10-27 am 11:42 -0700, ysgrifennodd Andrew Morton:
-> > IOW, we want to be multithreaded _within_ an initcall level, but not between
-> > different levels.
-> 
-> Thats actually insufficient. We have link ordered init sequences in
-> large numbers of driver subtrees (ATA, watchdog, etc). We'll need
-> several more initcall layers to fix that.
-> 
+Older versions of driverloader won't even build for recent kernels
+(actually even the latest - 2.34 - fails with 2.6.19-rc3). Do you know
+of any driverloader version that actually works with 2.6.18+ and
+misrepresents its license? Seems to me they gave up that practice and
+currently the check is useless but if you want to keep it as a statement
+I can understand that :)
 
-It would be nice to express those dependencies in some clearer and less
-fragile manner than link order.  I guess finer-grained initcall levels
-would do that, but it doesn't scale very well.
-
-But whatever.  I think multithreaded probing just doesn't pass the
-benefit-versus-hassle test, sorry.   Make it dependent on CONFIG_GREGKH ;)
+---
+fm

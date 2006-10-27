@@ -1,148 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946405AbWJ0LPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946392AbWJ0LOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946405AbWJ0LPx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 07:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946401AbWJ0LPw
+	id S1946392AbWJ0LOy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 07:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946401AbWJ0LOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 07:15:52 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:15121 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1946405AbWJ0LPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 07:15:51 -0400
-Date: Fri, 27 Oct 2006 13:15:48 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, rwuerthn@de.ibm.com
-Subject: [S390] update interface notes in zcrypt.h
-Message-ID: <20061027111548.GB27468@skybase>
+	Fri, 27 Oct 2006 07:14:54 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:4265 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1946392AbWJ0LOx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 07:14:53 -0400
+Date: Fri, 27 Oct 2006 13:14:46 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Dick Streefland <dick.streefland@altium.nl>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       sam@ravnborg.org
+Subject: Re: What about make mergeconfig ?
+In-Reply-To: <Pine.LNX.4.61.0610271154260.17570@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.62.0610271311260.23917@pademelon.sonytel.be>
+References: <3d6d.453f3a0f.92d2c@altium.nl> <1161755164.22582.60.camel@localhost.localdomain>
+ <3d6d.453f3a0f.92d2c@altium.nl> <Pine.LNX.4.61.0610251336580.23137@yvahk01.tjqt.qr>
+ <31ed.453f5399.96651@altium.nl> <Pine.LNX.4.61.0610261000210.29875@yvahk01.tjqt.qr>
+ <Pine.LNX.4.62.0610261102520.1555@pademelon.sonytel.be>
+ <Pine.LNX.4.61.0610261322120.29875@yvahk01.tjqt.qr>
+ <Pine.LNX.4.62.0610261357080.1555@pademelon.sonytel.be>
+ <Pine.LNX.4.61.0610271154260.17570@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ralph Wuerthner <rwuerthn@de.ibm.com>
+On Fri, 27 Oct 2006, Jan Engelhardt wrote:
+> >> >What about RCS merge?
+> >> 
+> >> I take it we do not want to depend on too many tools (remember the 
+> >> kconfig implementation language debate).
+> >
+> >If you have CVS installed, you have RCS merge.
+> 
+> 11:54 ichi:~ > rpm -q cvs rcs
+> cvs-1.12.12-19
+> package rcs is not installed
+> 
+> 11:54 ichi:~ > gzip -cd /ARCHIVES.gz | grep "/merge$"
+> ./CD1/suse/i586/rcs-5.7-879.i586.rpm:
+>     -rwxr-xr-x    1 root    root 45252 May  2 09:42 /usr/bin/merge
+> 
+> CVS does not need RCS.
 
-[S390] update interface notes in zcrypt.h
+OK, so CVS assimilated RCS merge internally.
 
-Signed-off-by: Ralph Wuerthner <rwuerthn@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+> >>>merge -p other.config .config.old .config > other.config.new
+> >> 
+> >> This also does not seem conflict-safe.
+> >
+> >Indeed, you can still have conflicts, which you have to resolve manually.
+> >
+> >But it depends on what you want to achieve: do you want to set each config
+> >option in the destination config to max(config1.option, config2.option), or do
+> >you want to apply the recent changes for one config (which may include
+> >disabling options) to another config?
+> 
+> In my case, the latter.
+> 
+> >For the latter, merge should work fine.
+> 
+> Is merge a lot different from what `patch` is doing?
 
- include/asm-s390/zcrypt.h |   91 ++++++++++++++++++++--------------------------
- 1 files changed, 41 insertions(+), 50 deletions(-)
+Yes, it does 3-way merges (merge `my' version with `your' version using a
+common ancestor). I.e. it's better in resolving conflicts than patch.
 
-diff -urpN linux-2.6/include/asm-s390/zcrypt.h linux-2.6-patched/include/asm-s390/zcrypt.h
---- linux-2.6/include/asm-s390/zcrypt.h	2006-10-27 11:25:54.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/zcrypt.h	2006-10-27 11:26:14.000000000 +0200
-@@ -180,40 +180,8 @@ struct ica_xcRB {
-  *	     for the implementation details for the contents of the
-  *	     block
-  *
-- *   Z90STAT_TOTALCOUNT
-- *     Return an integer count of all device types together.
-- *
-- *   Z90STAT_PCICACOUNT
-- *     Return an integer count of all PCICAs.
-- *
-- *   Z90STAT_PCICCCOUNT
-- *     Return an integer count of all PCICCs.
-- *
-- *   Z90STAT_PCIXCCMCL2COUNT
-- *     Return an integer count of all MCL2 PCIXCCs.
-- *
-- *   Z90STAT_PCIXCCMCL3COUNT
-- *     Return an integer count of all MCL3 PCIXCCs.
-- *
-- *   Z90STAT_CEX2CCOUNT
-- *     Return an integer count of all CEX2Cs.
-- *
-- *   Z90STAT_CEX2ACOUNT
-- *     Return an integer count of all CEX2As.
-- *
-- *   Z90STAT_REQUESTQ_COUNT
-- *     Return an integer count of the number of entries waiting to be
-- *     sent to a device.
-- *
-- *   Z90STAT_PENDINGQ_COUNT
-- *     Return an integer count of the number of entries sent to a
-- *     device awaiting the reply.
-- *
-- *   Z90STAT_TOTALOPEN_COUNT
-- *     Return an integer count of the number of open file handles.
-- *
-- *   Z90STAT_DOMAIN_INDEX
-- *     Return the integer value of the Cryptographic Domain.
-+ *   ZSECSENDCPRB
-+ *     Send an arbitrary CPRB to a crypto card.
-  *
-  *   Z90STAT_STATUS_MASK
-  *     Return an 64 element array of unsigned chars for the status of
-@@ -235,28 +203,51 @@ struct ica_xcRB {
-  *     of successfully completed requests per device since the device
-  *     was detected and made available.
-  *
-- *   ICAZ90STATUS (deprecated)
-+ *   Z90STAT_REQUESTQ_COUNT
-+ *     Return an integer count of the number of entries waiting to be
-+ *     sent to a device.
-+ *
-+ *   Z90STAT_PENDINGQ_COUNT
-+ *     Return an integer count of the number of entries sent to all
-+ *     devices awaiting the reply.
-+ *
-+ *   Z90STAT_TOTALOPEN_COUNT
-+ *     Return an integer count of the number of open file handles.
-+ *
-+ *   Z90STAT_DOMAIN_INDEX
-+ *     Return the integer value of the Cryptographic Domain.
-+ *
-+ *   The following ioctls are deprecated and should be no longer used:
-+ *
-+ *   Z90STAT_TOTALCOUNT
-+ *     Return an integer count of all device types together.
-+ *
-+ *   Z90STAT_PCICACOUNT
-+ *     Return an integer count of all PCICAs.
-+ *
-+ *   Z90STAT_PCICCCOUNT
-+ *     Return an integer count of all PCICCs.
-+ *
-+ *   Z90STAT_PCIXCCMCL2COUNT
-+ *     Return an integer count of all MCL2 PCIXCCs.
-+ *
-+ *   Z90STAT_PCIXCCMCL3COUNT
-+ *     Return an integer count of all MCL3 PCIXCCs.
-+ *
-+ *   Z90STAT_CEX2CCOUNT
-+ *     Return an integer count of all CEX2Cs.
-+ *
-+ *   Z90STAT_CEX2ACOUNT
-+ *     Return an integer count of all CEX2As.
-+ *
-+ *   ICAZ90STATUS
-  *     Return some device driver status in a ica_z90_status struct
-  *     This takes an ica_z90_status struct as its arg.
-  *
-- *     NOTE: this ioctl() is deprecated, and has been replaced with
-- *	     single ioctl()s for each type of status being requested
-- *
-- *   Z90STAT_PCIXCCCOUNT (deprecated)
-+ *   Z90STAT_PCIXCCCOUNT
-  *     Return an integer count of all PCIXCCs (MCL2 + MCL3).
-  *     This is DEPRECATED now that MCL3 PCIXCCs are treated differently from
-  *     MCL2 PCIXCCs.
-- *
-- *   Z90QUIESCE (not recommended)
-- *     Quiesce the driver.  This is intended to stop all new
-- *     requests from being processed.  Its use is NOT recommended,
-- *     except in circumstances where there is no other way to stop
-- *     callers from accessing the driver.  Its original use was to
-- *     allow the driver to be "drained" of work in preparation for
-- *     a system shutdown.
-- *
-- *     NOTE: once issued, this ban on new work cannot be undone
-- *	     except by unloading and reloading the driver.
-  */
- 
- /**
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

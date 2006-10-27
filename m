@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752224AbWJ0OcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752225AbWJ0Odt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752224AbWJ0OcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 10:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752225AbWJ0OcZ
+	id S1752225AbWJ0Odt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 10:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752228AbWJ0Odt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 10:32:25 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:28535 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1752211AbWJ0OcY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 10:32:24 -0400
-Message-ID: <45421A38.7060307@sw.ru>
-Date: Fri, 27 Oct 2006 18:39:52 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 27 Oct 2006 10:33:49 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:59883 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1752225AbWJ0Ods convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 10:33:48 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: suspend to disk -> resume -> X with DRI extension on R100 chips hangs
+Date: Fri, 27 Oct 2006 16:32:28 +0200
+User-Agent: KMail/1.9.1
+Cc: Radim =?utf-8?q?Lu=C5=BEa?= <xluzar00@stud.fit.vutbr.cz>,
+       linux-kernel@vger.kernel.org
+References: <453F01CF.2040106@eva.fit.vutbr.cz> <200610252103.47886.rjw@sisk.pl> <20061027112316.GA8095@elf.ucw.cz>
+In-Reply-To: <20061027112316.GA8095@elf.ucw.cz>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Vasily Averin <vvs@sw.ru>, Neil Brown <neilb@suse.de>,
-       Jan Blunck <jblunck@suse.de>, Olaf Hering <olh@suse.de>,
-       Balbir Singh <balbir@in.ibm.com>, Kirill Korotaev <dev@openvz.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Q] missing unused dentry in prune_dcache()?
-References: <45420DD4.9020602@sw.ru>  <4541F2A3.8050004@sw.ru> <4541BDE2.6050703@sw.ru> <45409DD5.7050306@sw.ru> <453F6D90.4060106@sw.ru> <453F58FB.4050407@sw.ru> <20792.1161784264@redhat.com> <21393.1161786209@redhat.com> <19898.1161869129@redhat.com> <22562.1161945769@redhat.com> <24249.1161951081@redhat.com> <27160.1161959345@redhat.com>
-In-Reply-To: <27160.1161959345@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610271632.28928.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Vasily Averin <vvs@sw.ru> wrote:
+On Friday, 27 October 2006 13:23, Pavel Machek wrote:
+> Hi!
 > 
+> > On Wednesday, 25 October 2006 08:18, Radim Luža wrote:
+> > > Good morning
+> > > 
+> > > I noticed following problem:
+> > > After resuming from suspend to disk Xorg with DRI switched on hangs. 
+> > > System is not affected by Xorg hang. If I login via SSH I can kill X 
+> > > server and start it again - with same result. X server hangs even after 
+> > > I suspend from text mode with X not running and with unloaded modules 
+> > > radeon and drm and resume then and try to start X server. With DRI 
+> > > switched off in xorg.conf X resumes correctly.
+> > 
+> > Well, I think you'll need to file a bug repart at http://bugzilla.kernel.org
+> > (please add rjwysocki@sisk.pl to the Cc list).
 > 
->>Umount calls shrink_dcache_sb in "Special case for "unmounting" root".
->>Usually it happen only once, but in case OpenVZ it happens every time when any
->>Virtual server is stopped, each of them have own isolated root partition.
-> 
-> 
-> Where is that?  Are you talking about do_remount_sb()?
-AFAIR yes.
+> Actually, I'm not sure if this is not an X problem...
 
-Kirill
+Well, me too, but having that on a radar won't hurt.
+
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

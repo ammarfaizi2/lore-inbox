@@ -1,176 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752426AbWJ0TQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752427AbWJ0T1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752426AbWJ0TQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 15:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752429AbWJ0TQ1
+	id S1752427AbWJ0T1i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 15:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752430AbWJ0T1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 15:16:27 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:59325 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1752426AbWJ0TQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 15:16:26 -0400
-Date: Fri, 27 Oct 2006 12:08:37 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, gregkh <greg@kroah.com>, sam@ravnborg.org,
-       Ankita Garg <ankita@in.ibm.com>
-Subject: [PATCH 2/2] kconfig.debug menu dependencies
-Message-Id: <20061027120837.f694814d.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Fri, 27 Oct 2006 15:27:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39583 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752427AbWJ0T1h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 15:27:37 -0400
+To: Zach Brown <zach.brown@oracle.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dio: lock refcount operations
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
+References: <20061027181735.18631.43565.sendpatchset@tetsuo.zabbo.net>
+From: Jeff Moyer <jmoyer@redhat.com>
+Date: Fri, 27 Oct 2006 15:27:25 -0400
+In-Reply-To: <20061027181735.18631.43565.sendpatchset@tetsuo.zabbo.net> (Zach Brown's message of "Fri, 27 Oct 2006 11:17:35 -0700 (PDT)")
+Message-ID: <x49fyd9v9sy.fsf@segfault.boston.devel.redhat.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+==> Regarding [PATCH] dio: lock refcount operations; Zach Brown <zach.brown@oracle.com> adds:
 
-DEBUG_FS, HEADERS_CHECK, and UNWIND don't depend on DEBUG_KERNEL but
-they were stuck into the middle of the DEBUG_KERNEL menu, so move
-them up above it (since it continues wherever lib/Kconfig.debug was
-sourced into, hence below it won't work).
+zach.brown> dio: lock refcount operations The wait_for_more_bios() function
+zach.brown> name was poorly chosen.  While looking to clean it up it I
+zach.brown> noticed that the dio struct refcounting between the bio
+zach.brown> completion and dio submission paths was racey.
 
-Also make LKDTM depend on DEBUG_KERNEL, as other test modules do
-(e.g., RT MUTEX TESTER, RCU TORTURE TEST).
+zach.brown> The bio submission path was simply freeing the dio struct if
+zach.brown> atomic_dec_and_test() indicated that it dropped the final
+zach.brown> reference.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- lib/Kconfig.debug |   87 +++++++++++++++++++++++++++---------------------------
- 1 files changed, 44 insertions(+), 43 deletions(-)
+zach.brown> The aio bio completion path was dereferencing its dio struct
+zach.brown> pointer *after dropping its reference* based on the remaining
+zach.brown> number of references.
 
---- linux-2619-rc3-pv.orig/lib/Kconfig.debug
-+++ linux-2619-rc3-pv/lib/Kconfig.debug
-@@ -47,6 +47,48 @@ config UNUSED_SYMBOLS
- 	  you really need it, and what the merge plan to the mainline kernel for
- 	  your module is.
- 
-+config DEBUG_FS
-+	bool "Debug Filesystem"
-+	depends on SYSFS
-+	help
-+	  debugfs is a virtual file system that kernel developers use to put
-+	  debugging files into.  Enable this option to be able to read and
-+	  write to these files.
-+
-+	  If unsure, say N.
-+
-+config HEADERS_CHECK
-+	bool "Run 'make headers_check' when building vmlinux"
-+	depends on !UML
-+	help
-+	  This option will extract the user-visible kernel headers whenever
-+	  building the kernel, and will run basic sanity checks on them to
-+	  ensure that exported files do not attempt to include files which
-+	  were not exported, etc.
-+
-+	  If you're making modifications to header files which are
-+	  relevant for userspace, say 'Y', and check the headers
-+	  exported to $(INSTALL_HDR_PATH) (usually 'usr/include' in
-+	  your build tree), to make sure they're suitable.
-+
-+config UNWIND_INFO
-+	bool "Compile the kernel with frame unwind information"
-+	depends on !IA64 && !PARISC
-+	depends on !MODULES || !(MIPS || PPC || SUPERH || V850)
-+	help
-+	  If you say Y here the resulting kernel image will be slightly larger
-+	  but not slower, and it will give very useful debugging information.
-+	  If you don't debug the kernel, you can say N, but we may not be able
-+	  to solve problems without frame unwind information or frame pointers.
-+
-+config STACK_UNWIND
-+	bool "Stack unwind support"
-+	depends on UNWIND_INFO
-+	depends on X86
-+	help
-+	  This enables more precise stack traces, omitting all unrelated
-+	  occurrences of pointers into kernel code from the dump.
-+
- config DEBUG_KERNEL
- 	bool "Kernel debugging"
- 	help
-@@ -302,16 +344,6 @@ config DEBUG_INFO
- 
- 	  If unsure, say N.
- 
--config DEBUG_FS
--	bool "Debug Filesystem"
--	depends on SYSFS
--	help
--	  debugfs is a virtual file system that kernel developers use to put
--	  debugging files into.  Enable this option to be able to read and
--	  write to these files.
--
--	  If unsure, say N.
--
- config DEBUG_VM
- 	bool "Debug VM"
- 	depends on DEBUG_KERNEL
-@@ -340,24 +372,6 @@ config FRAME_POINTER
- 	  some architectures or if you use external debuggers.
- 	  If you don't debug the kernel, you can say N.
- 
--config UNWIND_INFO
--	bool "Compile the kernel with frame unwind information"
--	depends on !IA64 && !PARISC
--	depends on !MODULES || !(MIPS || PPC || SUPERH || V850)
--	help
--	  If you say Y here the resulting kernel image will be slightly larger
--	  but not slower, and it will give very useful debugging information.
--	  If you don't debug the kernel, you can say N, but we may not be able
--	  to solve problems without frame unwind information or frame pointers.
--
--config STACK_UNWIND
--	bool "Stack unwind support"
--	depends on UNWIND_INFO
--	depends on X86
--	help
--	  This enables more precise stack traces, omitting all unrelated
--	  occurrences of pointers into kernel code from the dump.
--
- config FORCED_INLINING
- 	bool "Force gcc to inline functions marked 'inline'"
- 	depends on DEBUG_KERNEL
-@@ -372,20 +386,6 @@ config FORCED_INLINING
- 	  become the default in the future, until then this option is there to
- 	  test gcc for this.
- 
--config HEADERS_CHECK
--	bool "Run 'make headers_check' when building vmlinux"
--	depends on !UML
--	help
--	  This option will extract the user-visible kernel headers whenever
--	  building the kernel, and will run basic sanity checks on them to
--	  ensure that exported files do not attempt to include files which
--	  were not exported, etc.
--
--	  If you're making modifications to header files which are
--	  relevant for userspace, say 'Y', and check the headers
--	  exported to $(INSTALL_HDR_PATH) (usually 'usr/include' in
--	  your build tree), to make sure they're suitable.
--
- config RCU_TORTURE_TEST
- 	tristate "torture tests for RCU"
- 	depends on DEBUG_KERNEL
-@@ -402,7 +402,7 @@ config RCU_TORTURE_TEST
- 
- config LKDTM
- 	tristate "Linux Kernel Dump Test Tool Module"
--	depends on KPROBES
-+	depends on DEBUG_KERNEL && KPROBES
- 	default n
- 	help
- 	This module enables testing of the different dumping mechanisms by
-@@ -413,3 +413,4 @@ config LKDTM
- 
- 	Documentation on how to use the module can be found in
- 	drivers/misc/lkdtm.c
-+
+zach.brown> These two paths could race and result in the aio bio completion
+zach.brown> path dereferencing a freed dio, though this was not observed in
+zach.brown> the wild.
 
+I don't believe that this can happen.  dio_bio_end_aio will only reference
+the dio if (remaining == 1 && waiter_holds_ref).  If the waiter is holding
+the reference, then the bio submission path would not have dropped its
+reference yet!
 
----
+-Jeff

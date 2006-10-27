@@ -1,57 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752202AbWJ0PuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWJ0PuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752202AbWJ0PuH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 11:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752321AbWJ0PuF
+	id S1750860AbWJ0PuL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 11:50:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWJ0PuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 11:50:05 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:23529 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752202AbWJ0PuD (ORCPT
+	Fri, 27 Oct 2006 11:50:11 -0400
+Received: from opensubscriber.com ([206.222.18.114]:10885 "EHLO
+	mail.opensubscriber.com") by vger.kernel.org with ESMTP
+	id S1750933AbWJ0PuK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 11:50:03 -0400
-Message-ID: <45422A94.1040402@watson.ibm.com>
-Date: Fri, 27 Oct 2006 11:49:40 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: David Rientjes <rientjes@cs.washington.edu>
-CC: Martin Tostrup Setek <martitse@student.matnat.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH: 2.6.18.1] delayacct: cpu_count in taskstats updated correctly
-References: <Pine.LNX.4.63.0610270440500.21448@honbori.ifi.uio.no> <Pine.LNX.4.64N.0610262027350.12347@attu2.cs.washington.edu>
-In-Reply-To: <Pine.LNX.4.64N.0610262027350.12347@attu2.cs.washington.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 11:50:10 -0400
+Date: Fri, 27 Oct 2006 23:50:09 +0800
+Message-ID: <5263041.1161964209062.JavaMail.websites@opensubscriber>
+From: saravanan_sprt@hotmail.com
+Reply-To: saravanan_sprt@hotmail.com
+To: linux-kernel@vger.kernel.org
+Subject: UCB1400 pxa2xx-ac97 failed with error -13 on PXA2xx
+In-Reply-To: <200507281729.j6SHTtTa005793@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Rientjes wrote:
-> On Fri, 27 Oct 2006, Martin Tostrup Setek wrote:
-> 
->> from: Martin T. Setek <martitse@ifi.uio.no>
->>
->> cpu_count in struct taskstats should be the same as the corresponding (third)
->> value found in /proc/<pid>/schedstat
-> 
-> I disagree in favor of Documentation/accounting/taskstats-struct.txt.
-> cpu_count is the number of delay values recorded, so accumulating them is 
-> appropriate.
-> 
-> 		David
+Hi, 
+I am facing the following problem with ALSA and UCB1400 codec on Colibri PXA270. After having applied Nicolas patches and platform entries in colibri.c, I get the following boot up error messages which annoys me a lot. 
+......... 
+ts: UCB1x00 touchscreen protocol output
+ts: Compaq touchscreen protocol output 
+Colibri MMC/SD setup done. 
+Advanced Linux Sound Architecture Driver Version 1.0.9rc2  (Thu Mar 24 10:33:39 2005 UTC). 
+pxa2xx_ac97_reset: cold reset timeout (GSR=0x0) 
+pxa2xx_ac97_reset: warm reset timeout (GSR=0x0) 
+pxa2xx_ac97_read: CAR_CAIP already set 
+pxa2xx_ac97_write: CAR_CAIP already set 
+pxa2xx_ac97_read: CAR_CAIP already set 
+pxa2xx_ac97_read: CAR_CAIP already set 
+ALSA sound/pci/ac97/ac97_codec.c:1932: AC'97 0 access error (not audio or modem codec) 
+pxa2xx-ac97: probe of pxa2xx-ac97 failed with error -13 
+ALSA device list: 
+  No soundcards found. 
+..... 
+Can anyone tell me what went wrong and here's the kernel config which I use similar to the previous posts by Takács Áron. 
+# 
+# Sound 
+# 
+CONFIG_SOUND=y 
+# 
+# Advanced Linux Sound Architecture 
+# 
+CONFIG_SND=y 
+CONFIG_SND_TIMER=y 
+CONFIG_SND_PCM=y 
+# CONFIG_SND_SEQUENCER is not set 
+CONFIG_SND_OSSEMUL=y 
+CONFIG_SND_MIXER_OSS=y 
+CONFIG_SND_PCM_OSS=y 
+CONFIG_SND_VERBOSE_PRINTK=y 
+CONFIG_SND_DEBUG=y 
+# CONFIG_SND_DEBUG_MEMORY is not set 
+# CONFIG_SND_DEBUG_DETECT is not set 
+# 
+# Generic devices 
+# 
+# CONFIG_SND_DUMMY is not set 
+# CONFIG_SND_MTPAV is not set 
+# CONFIG_SND_SERIAL_U16550 is not set 
+# CONFIG_SND_MPU401 is not set 
+CONFIG_SND_AC97_CODEC=y 
+# 
+# ALSA ARM devices 
+# 
+CONFIG_SND_PXA2xx_AC97=y 
+CONFIG_SND_PXA2xx_PCM=y 
+and made the following changes in the colibri.c for platform entries 
+static struct platform_device ucb1400_audio_device = { 
+.name = "pxa2xx-ac97", 
+.id = -1, 
+}; 
+static struct platform_device *devices[] __initdata = { 
+#ifdef CONFIG_DM9000 
+    &dm9000_device, 
+#endif 
+    &ucb1400_audio_device, 
+}; 
 
+It would be garteful, if anyone could help me to fix these issues. 
+Thanks 
+Sara 
 
-David's right. The delay accounting field cpu_count
-is measuring how many delay values are recorded in the field cpu_delay_total
-(so that one can divide one by the other to get an average if needed).
-
-For the delays reported for a single task (ie. __delayacct_add_tsk called only
-once for a given task), the effect will be what Martin wants i.e. cpu_count will be
-the same as /proc/pid/schedstat's third field (sched_info->pcnt)
-
-But when the delays are reported for a tgid, where *accumalation* of delays for
-all constituent pids is being done (by calling __delayacct_add_tsk repeatedly), what
-is desired is to accumalate both cpu_count and cpu_delay_total.
-
-So the patch proposed by Martin is incorrect.
-
---Shailabh
+--
+This message was sent on behalf of saravanan_sprt@hotmail.com at openSubscriber.com
+http://www.opensubscriber.com/message/linux-kernel@vger.kernel.org/1825733.html

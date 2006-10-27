@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWJ0XFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWJ0XIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWJ0XFF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 19:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWJ0XFF
+	id S1750988AbWJ0XIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 19:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWJ0XIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 19:05:05 -0400
-Received: from teetot.devrandom.net ([66.35.250.243]:52153 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1750975AbWJ0XFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 19:05:02 -0400
-Date: Fri, 27 Oct 2006 16:04:58 -0700
-From: thockin@hockin.org
-To: Luca Tettamanti <kronos.it@gmail.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>
-Subject: Re: AMD X2 unsynced TSC fix?
-Message-ID: <20061027230458.GA27976@hockin.org>
-References: <1161969308.27225.120.camel@mindpipe> <20061027201820.GA8394@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061027201820.GA8394@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4.1i
+	Fri, 27 Oct 2006 19:08:09 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:29368 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1750988AbWJ0XII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 19:08:08 -0400
+Message-ID: <45429020.4000107@oracle.com>
+Date: Fri, 27 Oct 2006 16:02:56 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Florin Malita <fmalita@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       proski@gnu.org, cate@debian.org, gianluca@abinetworks.biz
+Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
+References: <1161807069.3441.33.camel@dv>	 <1161808227.7615.0.camel@localhost.localdomain>	 <20061025205923.828c620d.akpm@osdl.org>	 <20061026102630.ad191d21.randy.dunlap@oracle.com>	 <1161959020.12281.1.camel@laptopd505.fenrus.org>	 <20061027082741.8476024a.randy.dunlap@oracle.com>	 <20061027112601.dbd83c32.akpm@osdl.org>  <45428EAD.6040005@gmail.com> <1161990307.16839.50.camel@localhost.localdomain>
+In-Reply-To: <1161990307.16839.50.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2006 at 10:18:20PM +0200, Luca Tettamanti wrote:
-> Lee Revell <rlrevell@joe-job.com> ha scritto:
-> > Someone recently pointed out to me that a Windows "CPU driver update"
-> > supplied by AMD fixes the unsynced TSC problem on dual core AMD64
-> > systems.
-> [...]
-> > other incorrect timing effects that these applications may experience on
-> > dual-core processor systems, by periodically adjusting the core
-> > time-stamp-counters, so that they are synchronized."
-> > 
-> > What are the chances of Linux getting a similar fix?
+Alan Cox wrote:
+> Ar Gwe, 2006-10-27 am 18:56 -0400, ysgrifennodd Florin Malita:
+>> Also, since driverloader is not GPL-compatible (MODULE_LICENSE("see
+>> LICENSE file; Copyright (c)2003-2004 Linuxant inc.")), that check is
+>> redundant. How about removing it (applies on top of Randy's patch)?
+>>
+>>
+>> Signed-off-by: Florin Malita <fmalita@gmail.com>
 > 
-> Zero? ;)
+> NAK
+> 
+> Older versions of Linuxant's driverloader claim GPL\0some other text and
+> systematically set out to abuse the license tag code. We should continue
+> to carry the code for this.
+> 
+> Alan
 
-Wrong.  We have a fix that has been under serious testing for a long time.
+I'm confused.  Do you mean that we should continue to treate driverloader
+as GPL?  Oh, I guess I see.  You mean that we should continue to have
+special code to override their "GPL\0other text" license.  OK.
 
-> There's always a window where the TSCs are not in sync (and userspace may
-> see a non-monotonic counter); furthermore when C'n'Q is active TSCs
-> aren't updated at a fixed frequency, userspace cannot use TSC for timing
-> anyway.
-
-Wrong, too.  We have a patch that will be coming SOON (trust me, I am
-pushing hard for the author to publish it).  With this patch applied you
-should never see the TSC go backwards.  Period.  It should be monotonic
-(to userspace, kernel rdtsc calls can still be wrong).  CPUs should stay
-very nearly in sync (again, to userspace).  The overhead of this patch is
-pretty minimal and costs nothing unless you actually read the TSC.
-
-The catch is that, while it is monotonic, it is not guaranteed to be
-perfectly linear.  For many applications, this will be good enough.  Time
-will always move forward, and you won't be subject to the weird HZ
-granularity gettimeofday that unsynced TSCs can show.
-
-I'm BCCing the author to poke him more publicly.
-
-Tim
+-- 
+~Randy

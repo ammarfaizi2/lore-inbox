@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWJ0XXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWJ0XZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWJ0XXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 19:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWJ0XXk
+	id S1750855AbWJ0XZu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 19:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWJ0XZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 19:23:40 -0400
-Received: from main.gmane.org ([80.91.229.2]:3220 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750837AbWJ0XXj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 19:23:39 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
-Date: Fri, 27 Oct 2006 23:23:01 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnek55j7.39b.olecom@flower.upol.cz>
-References: <1161807069.3441.33.camel@dv> <1161808227.7615.0.camel@localhost.localdomain> <20061025205923.828c620d.akpm@osdl.org> <20061026102630.ad191d21.randy.dunlap@oracle.com> <1161959020.12281.1.camel@laptopd505.fenrus.org> <20061027082741.8476024a.randy.dunlap@oracle.com> <20061027112601.dbd83c32.akpm@osdl.org> <45428EAD.6040005@gmail.com> <1161990307.16839.50.camel@localhost.localdomain>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Florin Malita <fmalita@gmail.com>, Andrew Morton <akpm@osdl.org>, Randy Dunlap <randy.dunlap@oracle.com>, Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org, proski@gnu.org, cate@debian.org, gianluca@abinetworks.biz
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Fri, 27 Oct 2006 19:25:50 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:51406 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1750843AbWJ0XZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 19:25:50 -0400
+Date: Fri, 27 Oct 2006 16:21:16 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: jesper.juhl@gmail.com, torvalds <torvalds@osdl.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] silence 'make xmldocs' warning by adding missing
+ description of 'raw' in nand_base.c:1485
+Message-Id: <20061027162116.deb9dafe.randy.dunlap@oracle.com>
+In-Reply-To: <200610272259.k9RMx3cq030980@hera.kernel.org>
+References: <200610272259.k9RMx3cq030980@hera.kernel.org>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-10-27, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Gwe, 2006-10-27 am 18:56 -0400, ysgrifennodd Florin Malita:
->> Also, since driverloader is not GPL-compatible (MODULE_LICENSE("see
->> LICENSE file; Copyright (c)2003-2004 Linuxant inc.")), that check is
->> redundant. How about removing it (applies on top of Randy's patch)?
->> 
->> 
->> Signed-off-by: Florin Malita <fmalita@gmail.com>
->
-> NAK
->
-> Older versions of Linuxant's driverloader claim GPL\0some other text and
-> systematically set out to abuse the license tag code. We should continue
-> to carry the code for this.
->
-> Alan
->
-ACK this NACK.
+On Fri, 27 Oct 2006 22:59:03 GMT Linux Kernel Mailing List wrote:
 
-Please, do not forget:
-Message-ID: <Pine.LNX.4.58.0404301401420.18014@ppc970.osdl.org>
-<http://permalink.gmane.org/gmane.linux.kernel/201265>
-____
+> commit efbfe96c5d839c367249bf1cd53249716450c0a2
+> tree 36a1a7d72586a2f8fd25feb225cd4e627cd275b3
+> parent 735a7ffb739b6efeaeb1e720306ba308eaaeb20e
+> author Jesper Juhl <jesper.juhl@gmail.com> 1161984287 +0200
+> committer Linus Torvalds <torvalds@g5.osdl.org> 1161988491 -0700
+> 
+> [PATCH] silence 'make xmldocs' warning by adding missing description of 'raw' in nand_base.c:1485
+> 
+> Add description of 'raw' in comments for
+> drivers/mtd/nand/nand_base.c::nand_write_page_syndrome() so 'make xmldocs'
+> will not spew a warning at us.
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> Acked-by: Thomas Gleixner <tglx@linutronix.de>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+>  drivers/mtd/nand/nand_base.c |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/mtd/nand/nand_base.c b/drivers/mtd/nand/nand_base.c
+> index baece61..41bfcae 100644
+> --- a/drivers/mtd/nand/nand_base.c
+> +++ b/drivers/mtd/nand/nand_base.c
+> @@ -1479,6 +1479,7 @@ static void nand_write_page_syndrome(str
+>   * @buf:	the data to write
+>   * @page:	page number to write
+>   * @cached:	cached programming
+> + * @raw:	use _raw version of write_page
+>   */
+>  static int nand_write_page(struct mtd_info *mtd, struct nand_chip *chip,
+>  			   const uint8_t *buf, int page, int cached, int raw)
+> -
 
+Hi Jesper,
+I'm still seeing a kernel-doc warning in include/linux/mtd/nand.h.
+Do you not see it also?
+
+Patch is here:
+http://marc.theaimsgroup.com/?l=linux-mm-commits&m=116189778426861&w=2
+
+---
+~Randy

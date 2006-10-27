@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752139AbWJ0Lo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWJ0LvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752139AbWJ0Lo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 07:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWJ0Lo2
+	id S1750814AbWJ0LvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 07:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbWJ0LvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 07:44:28 -0400
-Received: from nic.NetDirect.CA ([216.16.235.2]:35806 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1752139AbWJ0Lo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 07:44:27 -0400
-X-Originating-Ip: 72.57.81.197
-Date: Fri, 27 Oct 2006 07:42:31 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: so what's so special about sema_init() for alpha?
-In-Reply-To: <Pine.LNX.4.64.0610271323020.6762@scrub.home>
-Message-ID: <Pine.LNX.4.64.0610270730540.1899@localhost.localdomain>
-References: <Pine.LNX.4.64.0610242150460.28319@localhost.localdomain>
- <Pine.LNX.4.64.0610271323020.6762@scrub.home>
+	Fri, 27 Oct 2006 07:51:09 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:59326 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750814AbWJ0LvI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 07:51:08 -0400
+Message-ID: <4541F2A3.8050004@sw.ru>
+Date: Fri, 27 Oct 2006 15:50:59 +0400
+From: Vasily Averin <vvs@sw.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-MailScanner-From: rpjday@mindspring.com
+To: David Howells <dhowells@redhat.com>
+CC: Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
+       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
+       Kirill Korotaev <dev@openvz.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Q] missing unused dentry in prune_dcache()?
+References: <4541BDE2.6050703@sw.ru>  <45409DD5.7050306@sw.ru> <453F6D90.4060106@sw.ru> <453F58FB.4050407@sw.ru> <20792.1161784264@redhat.com> <21393.1161786209@redhat.com> <19898.1161869129@redhat.com> <22562.1161945769@redhat.com>
+In-Reply-To: <22562.1161945769@redhat.com>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006, Roman Zippel wrote:
+David,
 
-> Hi,
->
-> On Tue, 24 Oct 2006, Robert P. J. Day wrote:
->
-> >   i'm still curious as to why the implementation for sema_init()
-> > for the alpha can't be simplified as (allegedly) could all of the
-> > other architecture sema_init() calls.
->
-> Did you even look at the code it generates? It's not specific to
-> alpha at all. Unless the structure is small enough, gcc will first
-> generate a copy on the stack and then copy it to its final location.
+David Howells wrote:
+> Vasily Averin <vvs@sw.ru> wrote:
+>> Therefore I believe that my patch is optimal solution.
+> I'm not sure that prune_dcache() is particularly optimal.
 
-i'm sorry, i'm not familiar with the alpha architecture but now i'm
-more confused than before.  to recap, i was asking if there was an
-actual *reason* why the alpha sema_init() *required* the following
-implementation:
+I means that my patch is optimal for problem in subject. I would like to ask you
+to approve it and we will go to next issue.
 
-======================
-static inline void sema_init(struct semaphore *sem, int val)
-{
-        /*
-         * Logically,
-         *   *sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
-         * except that gcc produces better initializing by parts yet.
-         */
+> If we're looking to
+> prune for a specific superblock, it may scan most of the dentry_unused list
+> several times, once for each dentry it eliminates.
+> 
+> Imagine the list with a million dentries on it.  Imagine further that all the
+> dentries you're trying to eliminate are up near the head end: you're going to
+> have to scan most of the list several times unnecessarily; if you're asked to
+> kill 128 dentries, you might wind up examining on the order of 100,000,000
+> dentries, 99% of which you scan 128 times.
 
-        atomic_set(&sem->count, val);
-        init_waitqueue_head(&sem->wait);
-}
-======================
+I would note that we (Virtuozzo/OpenVZ team) have seen similar issue on praxis.
+We have kernel that handles a few dozens Virtual servers, and each of them have
+the several isolated filesystems. We have seen that umount (and remount) can
+work very slowly, it was cycled inside shrink_dcache_sb() up to several hours
+with taken s_umount semaphore.
 
-  on the one hand, as i recall, randy dunlap referred to the comment
-that "gcc produces better initializing by parts yet" as if that, by
-itself, explained the necessity, although it's not clear what that
-even means or what relevance it has.
+We are trying to resolve this issue by using per-sb lru list. I'm preparing the
+patch for 2.6.19-rc3 right now and going to send it soon.
 
-  on the other hand, you seem to be suggesting that there's nothing
-alpha-specific about this after all.  and the only reason i'm flogging
-this is because, once upon a time, i proposed just simplifying
-sema_init() across the board by having all of them just invoke
-__SEMAPHORE_INITIALIZER().  i didn't think this was such a big deal,
-but that idea has provoked some disagreement, although i'm still
-trying to figure out what the technical obstacle is, that's all.
-
-  so to keep things simple, the question remains, can that call be
-simplified for the alpha?  yes or no?  that's all i'm looking for.
-
-rday
+thank you,
+	Vasily Averin

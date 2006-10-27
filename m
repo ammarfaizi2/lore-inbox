@@ -1,51 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946143AbWJ0DhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946148AbWJ0Div@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946143AbWJ0DhR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 23:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946145AbWJ0DhR
+	id S1946148AbWJ0Div (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 23:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946149AbWJ0Div
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 23:37:17 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:34054 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1946143AbWJ0DhP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 23:37:15 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: lkml@newipnet.com (Carlos Velasco)
-Subject: Re: Networking messed up, bad checksum, incorrect length
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Organization: Core
-In-Reply-To: <454166A6.1090905@newipnet.com>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.net
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1GdIWp-0002qX-00@gondolin.me.apana.org.au>
-Date: Fri, 27 Oct 2006 13:37:07 +1000
+	Thu, 26 Oct 2006 23:38:51 -0400
+Received: from ozlabs.org ([203.10.76.45]:2732 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1946148AbWJ0Diu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 23:38:50 -0400
+Subject: [PATCH 1/4] Prep for paravirt: move pagetable includes.
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>
+Content-Type: text/plain
+Date: Fri, 27 Oct 2006 13:38:44 +1000
+Message-Id: <1161920325.17807.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlos Velasco <lkml@newipnet.com> wrote:
-> 
-> 03:12:22.484863 00:13:21:cc:54:a6 > 00:0d:bc:a0:e2:82, ethertype IPv4
-> (0x0800), length 12546: 192.168.128.182.59061 > 193.147.150.12.25: .
-> 68786:81266(12480) ack 228 win 40 <nop,nop,timestamp 9644391 425655748>
-> 
-> LENGTH: 12546 !!
+Move header includes for the nopud / nopmd types to the location of the
+actual pte / pgd type definitions.  This allows generic 4-level page
+type code to be written before the split 2/3 level page table headers are
+included.
 
-> But still worse, I wrote the full sniffer traces to a file for further
-> analysis with Ethereal, and there I see that not only these long packets
-> are above MTU, all they have bad TCP checksums.
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-These packets look like normal TSO packets.  Linux will send a
-packet containing more data than fits in a packet to the NIC.  The
-NIC will then segment the packet for us.
+===================================================================
+--- a/include/asm-i386/page.h
++++ b/include/asm-i386/page.h
+@@ -52,6 +52,7 @@ typedef struct { unsigned long long pgpr
+ #define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
+ #define __pmd(x) ((pmd_t) { (x) } )
+ #define HPAGE_SHIFT	21
++#include <asm-generic/pgtable-nopud.h>
+ #else
+ typedef struct { unsigned long pte_low; } pte_t;
+ typedef struct { unsigned long pgd; } pgd_t;
+@@ -59,6 +60,7 @@ typedef struct { unsigned long pgprot; }
+ #define boot_pte_t pte_t /* or would you rather have a typedef */
+ #define pte_val(x)	((x).pte_low)
+ #define HPAGE_SHIFT	22
++#include <asm-generic/pgtable-nopmd.h>
+ #endif
+ #define PTE_MASK	PAGE_MASK
+ 
+===================================================================
+--- a/include/asm-i386/pgtable-2level.h
++++ b/include/asm-i386/pgtable-2level.h
+@@ -1,7 +1,5 @@
+ #ifndef _I386_PGTABLE_2LEVEL_H
+ #define _I386_PGTABLE_2LEVEL_H
+-
+-#include <asm-generic/pgtable-nopmd.h>
+ 
+ #define pte_ERROR(e) \
+ 	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, (e).pte_low)
+===================================================================
+--- a/include/asm-i386/pgtable-3level.h
++++ b/include/asm-i386/pgtable-3level.h
+@@ -1,7 +1,5 @@
+ #ifndef _I386_PGTABLE_3LEVEL_H
+ #define _I386_PGTABLE_3LEVEL_H
+-
+-#include <asm-generic/pgtable-nopud.h>
+ 
+ /*
+  * Intel Physical Address Extension (PAE) Mode - three-level page
 
-In order to see what really goes out, you'll need to run a packet
-dump beyond the NIC.
 
-If that is not possible, you can try disabling TSO with ethtool -K.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

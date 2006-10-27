@@ -1,156 +1,370 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946474AbWJ0N0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWJ0Ne2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946474AbWJ0N0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 09:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946471AbWJ0N0Q
+	id S1750888AbWJ0Ne2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 09:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWJ0Ne2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 09:26:16 -0400
-Received: from mis011.exch011.intermedia.net ([64.78.21.10]:45993 "EHLO
-	mis011.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1946473AbWJ0N0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 09:26:15 -0400
-Message-ID: <454208EB.7080007@qumranet.com>
-Date: Fri, 27 Oct 2006 15:26:03 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
-Subject: Re: [PATCH 6/13] KVM: memory slot management
-References: <4540EE2B.9020606@qumranet.com> <200610270044.31382.arnd@arndb.de> <45419D73.1070106@qumranet.com> <200610270937.11646.arnd@arndb.de>
-In-Reply-To: <200610270937.11646.arnd@arndb.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Oct 2006 13:26:14.0036 (UTC) FILETIME=[79989D40:01C6F9CB]
+	Fri, 27 Oct 2006 09:34:28 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:4666 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750879AbWJ0Ne1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 09:34:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=OQLuHYGHKK+xcNt0/iVDNbsDbucrHfdKkg4+O227pDqPQvYnd2z9XKENMJVQPcUjoJJ+bE+QfgejuBMT7FBM4K0nZRdkbHs7vMQ+ofgk4mr/PmpPSddiHDcJT6A5NDCq3SGoMynQ9uItMYeKFNpqYUr6Zz0YdyQjFiwmIlPI9w0=
+Date: Fri, 27 Oct 2006 15:34:19 +0000
+From: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.19-rc1 update4] drivers: add LCD support
+Message-Id: <20061027153419.d98dbdd9.maxextreme@gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Friday 27 October 2006 07:47, Avi Kivity wrote:
->   
->> Arnd Bergmann wrote:
->>     
->>> - no need to preallocate memory that the guest doesn't actually use.
->>>   
->>>       
->> Well, a fully vitrualized guest will likely use all the memory it gets.  
->> Linux certainly will.
->>     
->
-> Only if it does lots of disk accesses that load stuff into
-> page/inode/dentry cache. Single-application guests don't necessarily
-> do that.
->
->   
+Andrew, here it is the same patch without locking. Thanks you.
+---
 
-Okay.  FWIW, you can demand allocate with other schemes as well.
+ - Adds mmaping support for the cfag12864bfb.
+ - Exchange the wiring drawing URL to a local ASCII drawing
+   at Documentation/auxdisplay/cfag12864b.
+ - Minor coding style and documentation fixes.
 
->>> - guest memory can be paged to disk.
->>> - you can mmap files into multiple guest for fast communication
->>> - you can use mmap host files as backing store for guest blockdevices,
->>>   including ext2 with the -o xip mount option to avoid double paging
->>>   
->>>       
->> What do you mean exactly? to respond to a block device read by mmap()ing 
->> the backing file into the pages the host requested?
->>
->> (e.g. turn a host bio read into a guest mmap)
->>     
->
-> The idea would be to mmap the file into the guest real address space.
-> With -o xip, the page cache for the virtual device would basically
-> reside in that high address range.
->   
+ Documentation/auxdisplay/cfag12864b |   57 +++++++++++++++++++-------
+ Documentation/auxdisplay/ks0108     |   14 ++----
+ drivers/auxdisplay/Kconfig          |    7 ---
+ drivers/auxdisplay/cfag12864b.c     |   28 +++++++-----
+ drivers/auxdisplay/cfag12864bfb.c   |   30 ++++++++++++-
+ 5 files changed, 93 insertions(+), 43 deletions(-)
 
-Ah, I see what you mean now.  Like the "memory technology device" thing.
-
-
-
-> Guest users reading/writing files on it cause a memcopy between guest
-> user space and the host file mapping, done by the guest file system
-> implementation.
->
-> The interesting point here is how to handle a host page fault on the
-> file mapping. The solution on z/VM for this is to generate a special
-> exception for this that will be caught by the guest kernel, telling
-> it to wait until the page is there. The guest kernel can then put the
-> current thread to sleep and do something else, until a second exception
-> tells it that the page has been loaded by the host. The guest then
-> wakes up the sleeping thread.
->
-> This can work the same way for host file backed (guest block device)
-> and host anonymous (guest RAM) memory.
->
->   
-
-Certainly something like that can be done, for paravirtualized guests.
-
->> If we allow the pages to be writable, the guest could write into the 
->> virtual block device just by modifying a read page (which might have be 
->> discarded and no longer related to the block device)
->>     
->
-> In your virtual mmu (or nested page table), you need to make sure that
-> the page is mapped with the intersection of the guest vm_prot and host
-> vm_prot into guest users.
->
->   
-
-Yes.  My comment was based on an incorrect understanding of your suggestion.
-
->> 2. The next mmu implementation, which caches guest translations.
->>
->> The potential problem above now becomes acute.  The guest will have 
->> kernel mappings for every page, and after a short while they'll all be 
->> faulted in and locked.  This defeats the swap integration which is IMO a 
->> very strong point.
->>
->> We can work around that by periodically forcing out translations (some 
->> kind of clock algorithm) at some rate so the host vm can have a go at 
->> them.  That can turn out to be expensive as we'll need to interrupt all 
->> running vcpus to flush (real) tlb entries.
->>     
->
-> Don't understand. Can't one CPU cause a TLB entry to be flushed on all
-> CPUs?
->
->   
-
-It's not about tlb entries.  The shadow page tables collaples a GV -> HV 
--> HP  double translation into a GV -> HP page table.  When the Linux vm 
-goes around evicting pages, it invalidates those mappings.
-
-There are two solutions possible: lock pages which participate in these 
-translations (and their number can be large) or modify the Linux vm to 
-consult a reverse mapping and remove the translations (in which case TLB 
-entries need to be removed).
-
->>   b.  we need to hide the userspace portion of the monitor from the 
->> guest physical address space
->>     
->
-> That depends on your trust model. You could simply say that you expect
-> the guest real mode to have the same privileges as the host application
-> (your monitor), and not care if a guest can shoot itself in the foot
-> by overwriting the monitor.
->   
-
-It can shoot not only its foot, but anything the monitor's uid has 
-access to.  Host files, the host network, other guests belonging to the 
-user, etc.
-
->>   c.  we need to extend host tlb invalidations to invalidate tlbs on guests
->>     
->
-> I don't understand much about the x86 specific memory management,
-> but shouldn't a TLB invalidate of a given page do the right thing
-> on all CPUs, even if they are currently running a guest?
->   
-It's worse than I thouht: tlb entries generated by guest accesses are 
-tagged with the guest virtual address, to if you remove a guest 
-physical/host virtual page you need to invalidate the entire guest tlb.
-
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+miguelojeda-2.6.19-rc1-drivers-add-LCD-support-4-mmaping-and-ascii-drawing.patch
+Signed-off-by: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+---
+diff -uprN -X dontdiff linux-2.6.19-rc1-modified/Documentation/auxdisplay/cfag12864b linux/Documentation/auxdisplay/cfag12864b
+--- linux-2.6.19-rc1-modified/Documentation/auxdisplay/cfag12864b	2006-10-26 16:57:38.000000000 +0000
++++ linux/Documentation/auxdisplay/cfag12864b	2006-10-27 15:33:01.000000000 +0000
+@@ -4,7 +4,7 @@
+ 
+ License:		GPLv2
+ Author & Maintainer:	Miguel Ojeda Sandonis <maxextreme@gmail.com>
+-Date:			2006-10-11
++Date:			2006-10-27
+ 
+ 
+ 
+@@ -15,7 +15,7 @@ Date:			2006-10-11
+ 	1. DRIVER INFORMATION
+ 	2. DEVICE INFORMATION
+ 	3. WIRING
+-	4. USER-SPACE PROGRAMMING
++	4. USERSPACE PROGRAMMING
+ 
+ 
+ ---------------------
+@@ -42,7 +42,8 @@ Controller:	ks0108
+ Controllers:	2
+ Pages:		8 each controller
+ Addresses:	64 each page
+-
++Data size:	1 byte each address
++Memory size:	2 * 8 * 64 * 1 = 1024 bytes = 1 Kbyte
+ 
+ 
+ ---------
+@@ -51,25 +52,53 @@ Addresses:	64 each page
+ 
+ The cfag12864b LCD Series don't have official wiring.
+ 
+-The common wiring is done to the parallel port:
+-
+-http://www.skippari.net/lcd/sekalaista/crystalfontz_cfag12864B-TMI-V.png
+-
+-You can get help at Crystalfontz and LCDInfo forums.
++The common wiring is done to the parallel port as shown:
+ 
++Parallel Port                          cfag12864b
++
++  Name Pin#                            Pin# Name
++
++Strobe ( 1)------------------------------(17) Enable
++Data 0 ( 2)------------------------------( 4) Data 0
++Data 1 ( 3)------------------------------( 5) Data 1
++Data 2 ( 4)------------------------------( 6) Data 2
++Data 3 ( 5)------------------------------( 7) Data 3
++Data 4 ( 6)------------------------------( 8) Data 4
++Data 5 ( 7)------------------------------( 9) Data 5
++Data 6 ( 8)------------------------------(10) Data 6
++Data 7 ( 9)------------------------------(11) Data 7
++       (10)                      [+5v]---( 1) Vdd
++       (11)                      [GND]---( 2) Ground
++       (12)                      [+5v]---(14) Reset
++       (13)                      [GND]---(15) Read / Write
++  Line (14)------------------------------(13) Controller Select 1
++       (15)               
++  Init (16)------------------------------(12) Controller Select 2
++Select (17)------------------------------(16) Data / Instruction
++Ground (18)---[GND]              [+5v]---(19) LED +
++Ground (19)---[GND]
++Ground (20)---[GND]              E    A             Values:
++Ground (21)---[GND]       [GND]---[P1]---(18) Vee    · R = Resistor = 22 ohm
++Ground (22)---[GND]                |                 · P1 = Preset = 10 Kohm
++Ground (23)---[GND]       ----   S ------( 3) V0     · P2 = Preset = 1 Kohm
++Ground (24)---[GND]       |  |
++Ground (25)---[GND] [GND]---[P2]---[R]---(20) LED -
+ 
+ 
+ ------------------------
+ 4. USERSPACE PROGRAMMING
+ ------------------------
+ 
+-The cfag12864bfb describes a framebuffer driver (/dev/fbX).
++The cfag12864bfb describes a framebuffer device (/dev/fbX).
+ 
+-It has a size of 128 * 64 / 8 = 1024 bytes = 1 kB.
++It has a size of 1024 bytes = 1 Kbyte.
+ Each bit represents one pixel. If the bit is high, the pixel will
+ turn on. If the pixel is low, the pixel will turn off.
+ 
+-You can mmap the framebuffer as usual.
++You can use the framebuffer as a file: fopen, fwrite, fclose...
++
++Also, you can mmap the framebuffer: open & mmap, munmap & close...
++which is the best option.
+ 
+ You can use a copy of this header in your userspace programs.
+ 
+@@ -79,7 +108,7 @@ You can use a copy of this header in you
+  * Description: cfag12864b LCD Display Driver Header for user-space apps
+  *
+  *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+- *        Date: 2006-10-11
++ *        Date: 2006-10-27
+  */
+ 
+ #ifndef _CFAG12864B_H_
+@@ -87,9 +116,7 @@ You can use a copy of this header in you
+ 
+ #define CFAG12864B_WIDTH	(128)
+ #define CFAG12864B_HEIGHT	(64)
+-#define CFAG12864B_SIZE		((CFAG12864B_CONTROLLERS) * \
+-				(CFAG12864B_PAGES) * \
+-				(CFAG12864B_ADDRESSES))
++#define CFAG12864B_SIZE		(1024)
+ 
+ #endif // _CFAG12864B_H_
+ ---8<---
+diff -uprN -X dontdiff linux-2.6.19-rc1-modified/Documentation/auxdisplay/ks0108 linux/Documentation/auxdisplay/ks0108
+--- linux-2.6.19-rc1-modified/Documentation/auxdisplay/ks0108	2006-10-26 16:57:38.000000000 +0000
++++ linux/Documentation/auxdisplay/ks0108	2006-10-27 15:32:48.000000000 +0000
+@@ -4,7 +4,7 @@
+ 
+ License:		GPLv2
+ Author & Maintainer:	Miguel Ojeda Sandonis <maxextreme@gmail.com>
+-Date:			2006-10-04
++Date:			2006-10-27
+ 
+ 
+ 
+@@ -39,7 +39,8 @@ Height:		64
+ Colors:		2 (B/N)
+ Pages:		8
+ Addresses:	64 each page
+-
++Data size:	1 byte each address
++Memory size:	8 * 64 * 1 = 512 bytes
+ 
+ 
+ ---------
+@@ -48,12 +49,9 @@ Addresses:	64 each page
+ 
+ The driver supports data parallel port wiring.
+ 
+-If you aren't creating a LCD related hardware, you should check
+-your LCD specific wiring information in the same folder, not this one.
+-
+-
+-Wiring example of a cfag12864b LCD which has two ks0108 controllers:
++If you aren't building LCD related hardware, you should check
++your LCD specific wiring information in the same folder.
+ 
+-http://www.skippari.net/lcd/sekalaista/crystalfontz_cfag12864B-TMI-V.png
++For example, check Documentation/auxdisplay/cfag12864b.
+ 
+ EOF
+diff -uprN -X dontdiff linux-2.6.19-rc1-modified/drivers/auxdisplay/cfag12864b.c linux/drivers/auxdisplay/cfag12864b.c
+--- linux-2.6.19-rc1-modified/drivers/auxdisplay/cfag12864b.c	2006-10-26 16:57:38.000000000 +0000
++++ linux/drivers/auxdisplay/cfag12864b.c	2006-10-27 15:23:04.000000000 +0000
+@@ -6,7 +6,7 @@
+  *     Depends: ks0108
+  *
+  *      Author: Copyright (C) Miguel Ojeda Sandonis <maxextreme@gmail.com>
+- *        Date: 2006-10-13
++ *        Date: 2006-10-26
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -182,7 +182,7 @@ static void cfag12864b_nop(void)
+  * cfag12864b Internal Commands
+  */
+ 
+-unsigned char *cfag12864b_cache;
++static unsigned char *cfag12864b_cache;
+ unsigned char *cfag12864b_buffer;
+ EXPORT_SYMBOL_GPL(cfag12864b_buffer);
+ 
+@@ -226,7 +226,7 @@ static void cfag12864b_update(void *arg)
+ 	unsigned char c;
+ 	unsigned short i, j, k, b;
+ 
+-	if(memcmp(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE)) {
++	if (memcmp(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE)) {
+ 		for (i = 0; i < CFAG12864B_CONTROLLERS; i++) {
+ 			cfag12864b_controller(i);
+ 			cfag12864b_nop();
+@@ -251,7 +251,7 @@ static void cfag12864b_update(void *arg)
+ 		memcpy(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE);
+ 	}
+ 
+-	if(cfag12864b_updating)
++	if (cfag12864b_updating)
+ 		queue_delayed_work(cfag12864b_workqueue, &cfag12864b_work,
+ 			HZ / cfag12864b_rate);
+ }
+@@ -264,12 +264,18 @@ static int __init cfag12864b_init(void)
+ {
+ 	int ret = -EINVAL;
+ 
+-	cfag12864b_buffer = vmalloc(sizeof(unsigned char) *
+-		CFAG12864B_SIZE);
++	if (PAGE_SIZE < CFAG12864B_SIZE) {
++		printk(KERN_ERR CFAG12864B_NAME ": ERROR: "
++			"page size (%i) < cfag12864b size (%i)\n",
++			(unsigned int)PAGE_SIZE, CFAG12864B_SIZE);
++		ret = -ENOMEM;
++		goto none;
++	}
++
++	cfag12864b_buffer = (unsigned char *) __get_free_page(GFP_KERNEL);
+ 	if (cfag12864b_buffer == NULL) {
+ 		printk(KERN_ERR CFAG12864B_NAME ": ERROR: "
+-			"can't v-alloc buffer (%i bytes)\n",
+-			CFAG12864B_SIZE);
++			"can't get a free page\n");
+ 		ret = -ENOMEM;
+ 		goto none;
+ 	}
+@@ -290,7 +296,7 @@ static int __init cfag12864b_init(void)
+ 	cfag12864b_on();
+ 
+ 	cfag12864b_workqueue = create_singlethread_workqueue(CFAG12864B_NAME);
+-	if(cfag12864b_workqueue == NULL)
++	if (cfag12864b_workqueue == NULL)
+ 		goto cachealloced;
+ 
+ 	cfag12864b_updating = 1;
+@@ -302,7 +308,7 @@ cachealloced:
+ 	kfree(cfag12864b_cache);
+ 
+ bufferalloced:
+-	vfree(cfag12864b_buffer);
++	free_page((unsigned long) cfag12864b_buffer);
+ 
+ none:
+ 	return ret;
+@@ -317,7 +323,7 @@ static void __exit cfag12864b_exit(void)
+ 	cfag12864b_off();
+ 
+ 	kfree(cfag12864b_cache);
+-	vfree(cfag12864b_buffer);
++	free_page((unsigned long) cfag12864b_buffer);
+ }
+ 
+ module_init(cfag12864b_init);
+diff -uprN -X dontdiff linux-2.6.19-rc1-modified/drivers/auxdisplay/cfag12864bfb.c linux/drivers/auxdisplay/cfag12864bfb.c
+--- linux-2.6.19-rc1-modified/drivers/auxdisplay/cfag12864bfb.c	2006-10-26 16:57:38.000000000 +0000
++++ linux/drivers/auxdisplay/cfag12864bfb.c	2006-10-27 15:23:12.000000000 +0000
+@@ -6,7 +6,7 @@
+  *     Depends: cfag12864b
+  *
+  *      Author: Copyright (C) Miguel Ojeda Sandonis <maxextreme@gmail.com>
+- *        Date: 2006-10-13
++ *        Date: 2006-10-26
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -40,7 +40,7 @@
+ #define CFAG12864BFB_NAME "cfag12864bfb"
+ 
+ static struct fb_fix_screeninfo cfag12864bfb_fix __initdata = {
+-	.id = "cfag12864b", 
++	.id = "cfag12864b",
+ 	.type = FB_TYPE_PACKED_PIXELS,
+ 	.visual = FB_VISUAL_MONO10,
+ 	.xpanstep = 0,
+@@ -66,11 +66,35 @@ static struct fb_var_screeninfo cfag1286
+ 	.vmode = FB_VMODE_NONINTERLACED,
+ };
+ 
++static struct page *cfag12864bfb_vma_nopage(struct vm_area_struct *vma,
++	unsigned long address, int *type)
++{
++	struct page *page = virt_to_page(cfag12864b_buffer);
++	get_page(page);
++
++	if(type)
++		*type = VM_FAULT_MINOR;
++
++	return page;
++}
++
++static struct vm_operations_struct cfag12864bfb_vm_ops = {
++	.nopage = cfag12864bfb_vma_nopage,
++};
++
++static int cfag12864bfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
++{
++	vma->vm_ops = &cfag12864bfb_vm_ops;
++	vma->vm_flags |= VM_RESERVED;
++	return 0;
++}
++
+ static struct fb_ops cfag12864bfb_ops = {
+ 	.owner = THIS_MODULE,
+ 	.fb_fillrect = cfb_fillrect,
+ 	.fb_copyarea = cfb_copyarea,
+ 	.fb_imageblit = cfb_imageblit,
++	.fb_mmap = cfag12864bfb_mmap,
+ };
+ 
+ static int __init cfag12864bfb_probe(struct platform_device *device)
+@@ -81,7 +105,7 @@ static int __init cfag12864bfb_probe(str
+ 	if (!info)
+ 		goto none;
+ 
+-	info->screen_base = (char __iomem *)cfag12864b_buffer;
++	info->screen_base = (char __iomem *) cfag12864b_buffer;
+ 	info->screen_size = CFAG12864B_SIZE;
+ 	info->fbops = &cfag12864bfb_ops;
+ 	info->fix = cfag12864bfb_fix;
+diff -uprN -X dontdiff linux-2.6.19-rc1-modified/drivers/auxdisplay/Kconfig linux/drivers/auxdisplay/Kconfig
+--- linux-2.6.19-rc1-modified/drivers/auxdisplay/Kconfig	2006-10-26 17:01:26.000000000 +0000
++++ linux/drivers/auxdisplay/Kconfig	2006-10-26 17:39:57.000000000 +0000
+@@ -71,12 +71,7 @@ config CFAG12864B
+ 	  say Y. You also need the ks0108 LCD Controller driver.
+ 
+ 	  For help about how to wire your LCD to the parallel port,
+-	  check this image:
+-	  
+-	  http://www.skippari.net/lcd/sekalaista/crystalfontz_cfag12864B-TMI-V.png
+-
+-	  Also, you can find help in Crystalfontz and LCDStudio forums.
+-	  Check Documentation/lcddisplay/cfag12864b for more information.
++	  check Documentation/auxdisplay/cfag12864b
+ 
+ 	  The LCD framebuffer driver can be attached to a console.
+ 	  It will work fine. However, you can't attach it to the fbdev driver

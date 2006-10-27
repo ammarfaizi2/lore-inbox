@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946148AbWJ0Div@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946144AbWJ0DmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946148AbWJ0Div (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 23:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946149AbWJ0Div
+	id S1946144AbWJ0DmR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 23:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946152AbWJ0DmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 23:38:51 -0400
-Received: from ozlabs.org ([203.10.76.45]:2732 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1946148AbWJ0Diu (ORCPT
+	Thu, 26 Oct 2006 23:42:17 -0400
+Received: from ozlabs.org ([203.10.76.45]:8364 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1946144AbWJ0DmR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 23:38:50 -0400
-Subject: [PATCH 1/4] Prep for paravirt: move pagetable includes.
+	Thu, 26 Oct 2006 23:42:17 -0400
+Subject: [PATCH 1/4] Prep for paravirt: Be careful about touching BIOS
+	address space
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: Andrew Morton <akpm@osdl.org>
 Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
        virtualization <virtualization@lists.osdl.org>
+In-Reply-To: <1161920325.17807.29.camel@localhost.localdomain>
+References: <1161920325.17807.29.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 27 Oct 2006 13:38:44 +1000
-Message-Id: <1161920325.17807.29.camel@localhost.localdomain>
+Date: Fri, 27 Oct 2006 13:42:14 +1000
+Message-Id: <1161920535.17807.33.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move header includes for the nopud / nopmd types to the location of the
-actual pte / pgd type definitions.  This allows generic 4-level page
-type code to be written before the split 2/3 level page table headers are
-included.
+(Andrew had already taken that last one, I meant to send this)
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+Subject: Be careful about touching BIOS address space
+
+BIOS ROM areas may not be mapped into the guest address space, so be careful
+when touching those addresses to make sure they appear to be mapped.
+
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
 ===================================================================
---- a/include/asm-i386/page.h
-+++ b/include/asm-i386/page.h
-@@ -52,6 +52,7 @@ typedef struct { unsigned long long pgpr
- #define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
- #define __pmd(x) ((pmd_t) { (x) } )
- #define HPAGE_SHIFT	21
-+#include <asm-generic/pgtable-nopud.h>
- #else
- typedef struct { unsigned long pte_low; } pte_t;
- typedef struct { unsigned long pgd; } pgd_t;
-@@ -59,6 +60,7 @@ typedef struct { unsigned long pgprot; }
- #define boot_pte_t pte_t /* or would you rather have a typedef */
- #define pte_val(x)	((x).pte_low)
- #define HPAGE_SHIFT	22
-+#include <asm-generic/pgtable-nopmd.h>
- #endif
- #define PTE_MASK	PAGE_MASK
+--- a/arch/i386/kernel/setup.c
++++ b/arch/i386/kernel/setup.c
+@@ -270,7 +270,14 @@ static struct resource standard_io_resou
+ 	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+ } };
  
+-#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
++static inline int romsignature(const unsigned char *x)
++{
++     unsigned short sig;
++     int ret = 0;
++     if (__get_user(sig, (const unsigned short *)x) == 0)
++	  ret = (sig == 0xaa55);
++     return ret;
++}
+ 
+ static int __init romchecksum(unsigned char *rom, unsigned long length)
+ {
 ===================================================================
---- a/include/asm-i386/pgtable-2level.h
-+++ b/include/asm-i386/pgtable-2level.h
-@@ -1,7 +1,5 @@
- #ifndef _I386_PGTABLE_2LEVEL_H
- #define _I386_PGTABLE_2LEVEL_H
--
--#include <asm-generic/pgtable-nopmd.h>
+--- a/arch/i386/pci/pcbios.c
++++ b/arch/i386/pci/pcbios.c
+@@ -5,6 +5,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <asm/uaccess.h>
+ #include "pci.h"
+ #include "pci-functions.h"
  
- #define pte_ERROR(e) \
- 	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, (e).pte_low)
-===================================================================
---- a/include/asm-i386/pgtable-3level.h
-+++ b/include/asm-i386/pgtable-3level.h
-@@ -1,7 +1,5 @@
- #ifndef _I386_PGTABLE_3LEVEL_H
- #define _I386_PGTABLE_3LEVEL_H
--
--#include <asm-generic/pgtable-nopud.h>
+@@ -301,7 +302,7 @@ static struct pci_raw_ops pci_bios_acces
  
- /*
-  * Intel Physical Address Extension (PAE) Mode - three-level page
+ static struct pci_raw_ops * __devinit pci_find_bios(void)
+ {
+-	union bios32 *check;
++	union bios32 *check, sig;
+ 	unsigned char sum;
+ 	int i, length;
+ 
+@@ -314,6 +315,10 @@ static struct pci_raw_ops * __devinit pc
+ 	for (check = (union bios32 *) __va(0xe0000);
+ 	     check <= (union bios32 *) __va(0xffff0);
+ 	     ++check) {
++		long sig;
++		if (__get_user(sig, &check->fields.signature))
++			continue;
++
+ 		if (check->fields.signature != BIOS32_SIGNATURE)
+ 			continue;
+ 		length = check->fields.length * 16;
 
+-- 
+ ccontrol: http://ccontrol.ozlabs.org
 

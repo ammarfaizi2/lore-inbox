@@ -1,46 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751777AbWJ0Lmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752139AbWJ0Lo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751777AbWJ0Lmt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 07:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752139AbWJ0Lms
+	id S1752139AbWJ0Lo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 07:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWJ0Lo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 07:42:48 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:34186 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751777AbWJ0Lmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 07:42:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=uLZ96KCY7MwRtxKhrGKQebwZfcPugQViKyIcGgLRBLMa8dytgu9XM3yjrIPhpFAQTslyMX39qANyBoYNn1rqoE0wSwr42owtzrbWn24Va76qUSZsw8HBw147tYE9GFG/aUHeQEEJUr2+RPxzNVOJKHn+6ctNbWfJ+A7JP9+a0y4=
-Subject: Re: O2 micro OZ711Mx mmc driver
-From: Islam Amer <pharon@gmail.com>
-Reply-To: pharon@gmail.com
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Denis Vlasenko <vda.linux@googlemail.com>, linux-kernel@vger.kernel.org,
-       Pierre Ossman <drzeus-mmc@drzeus.cx>
-In-Reply-To: <20061027151127.6e4c4edc.vsu@altlinux.ru>
-References: <1161936280.3937.4.camel@localhost.localdomain>
-	 <200610271205.14881.vda.linux@googlemail.com>
-	 <20061027151127.6e4c4edc.vsu@altlinux.ru>
-Content-Type: text/plain
-Date: Fri, 27 Oct 2006 13:41:56 +0200
-Message-Id: <1161949316.8814.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.9.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 07:44:28 -0400
+Received: from nic.NetDirect.CA ([216.16.235.2]:35806 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1752139AbWJ0Lo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 07:44:27 -0400
+X-Originating-Ip: 72.57.81.197
+Date: Fri, 27 Oct 2006 07:42:31 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: so what's so special about sema_init() for alpha?
+In-Reply-To: <Pine.LNX.4.64.0610271323020.6762@scrub.home>
+Message-ID: <Pine.LNX.4.64.0610270730540.1899@localhost.localdomain>
+References: <Pine.LNX.4.64.0610242150460.28319@localhost.localdomain>
+ <Pine.LNX.4.64.0610271323020.6762@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the inconvenience of the wiki page, it just didn't seem to be
-proper to attach the whole archive to the email.
+On Fri, 27 Oct 2006, Roman Zippel wrote:
 
-While trying to get this thing to compile, I didn't notice the files in
-the include subfolder, as they never appeared to be included in the
-compile... I will analyze the source some more. 
+> Hi,
+>
+> On Tue, 24 Oct 2006, Robert P. J. Day wrote:
+>
+> >   i'm still curious as to why the implementation for sema_init()
+> > for the alpha can't be simplified as (allegedly) could all of the
+> > other architecture sema_init() calls.
+>
+> Did you even look at the code it generates? It's not specific to
+> alpha at all. Unless the structure is small enough, gcc will first
+> generate a copy on the stack and then copy it to its final location.
 
-I hope we can do something useful with this mess, they have a
-specification data sheet on their website.
+i'm sorry, i'm not familiar with the alpha architecture but now i'm
+more confused than before.  to recap, i was asking if there was an
+actual *reason* why the alpha sema_init() *required* the following
+implementation:
 
-Thank you.
+======================
+static inline void sema_init(struct semaphore *sem, int val)
+{
+        /*
+         * Logically,
+         *   *sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+         * except that gcc produces better initializing by parts yet.
+         */
 
+        atomic_set(&sem->count, val);
+        init_waitqueue_head(&sem->wait);
+}
+======================
+
+  on the one hand, as i recall, randy dunlap referred to the comment
+that "gcc produces better initializing by parts yet" as if that, by
+itself, explained the necessity, although it's not clear what that
+even means or what relevance it has.
+
+  on the other hand, you seem to be suggesting that there's nothing
+alpha-specific about this after all.  and the only reason i'm flogging
+this is because, once upon a time, i proposed just simplifying
+sema_init() across the board by having all of them just invoke
+__SEMAPHORE_INITIALIZER().  i didn't think this was such a big deal,
+but that idea has provoked some disagreement, although i'm still
+trying to figure out what the technical obstacle is, that's all.
+
+  so to keep things simple, the question remains, can that call be
+simplified for the alpha?  yes or no?  that's all i'm looking for.
+
+rday

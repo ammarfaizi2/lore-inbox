@@ -1,105 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423716AbWJ0Guv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423750AbWJ0Gy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423716AbWJ0Guv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 02:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423738AbWJ0Guv
+	id S1423750AbWJ0Gy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 02:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423754AbWJ0Gy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 02:50:51 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:27964 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1423716AbWJ0Guv (ORCPT
+	Fri, 27 Oct 2006 02:54:57 -0400
+Received: from mail.gmx.net ([213.165.64.20]:41155 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1423750AbWJ0Gy4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 02:50:51 -0400
-Message-ID: <4541AC45.7030300@sw.ru>
-Date: Fri, 27 Oct 2006 10:50:45 +0400
-From: Vasily Averin <vvs@sw.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: aviro@redhat.com, Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
-       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
-       Kirill Korotaev <dev@openvz.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Q] missing unused dentry in prune_dcache()?
-References: <4540A0C5.60700@sw.ru>  <453F58FB.4050407@sw.ru> <19857.1161869015@redhat.com> <4541A803.9000004@sw.ru>
-In-Reply-To: <4541A803.9000004@sw.ru>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=KOI8-R
+	Fri, 27 Oct 2006 02:54:56 -0400
+X-Authenticated: #14349625
+Subject: Re: CPU Loading
+From: Mike Galbraith <efault@gmx.de>
+To: Indian Mogul <indian_mogul@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061027053731.57351.qmail@web54511.mail.yahoo.com>
+References: <20061027053731.57351.qmail@web54511.mail.yahoo.com>
+Content-Type: text/plain
+Date: Fri, 27 Oct 2006 07:26:28 +0000
+Message-Id: <1161933988.6102.28.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vasily Averin wrote:
-> David Howells wrote:
->> Vasily Averin <vvs@sw.ru> wrote:
->>
->>> I've noticed one more minor issue in your patch: in
->>> shrink_dcache_for_umount_subtree() function you decrement
->>> dentry_stat.nr_dentry without dcache_lock.
->> How about the attached patch?
-> I'm sorry, but your patch is wrong:
-> you have mixed calculation of 2 variables:
-> dentry_stat.nr_unused -- were correct, it was decremented under dcache_lock.
-> dentry_stat.nr_dentry -- were incorrect, it was decremented without dcache_lock.
-> 
-> You should correct dentry_stat.nr_dentry, but instead you broke calculation of
-> dentry_stat.nr_unused.
-> 
-> I've fixed this issue by following patch.
-corrected version, extra space were removed
+On Thu, 2006-10-26 at 22:37 -0700, Indian Mogul wrote:
 
-Thank you,
-	Vasily Averin
+> How can I load the CPU such that the scheduling time
+> slice is insuffucent for mplayer to playout the video?
+> To the mplayer the system thus appears "slow" ?
 
----
-VFS: Fix an error in dentry_stat.nr_dentry counting
+:) unusual request.
 
-From: Vasily Averin <vvs@sw.ru>
+The proglet below, which someone posted a while back, should meet your
+needs nicely.  Fire up a few copies in the background with args like
+5000 6000 7000 8000 9000.., and mplayer should become decidedly unhappy.
 
-Fix an error in dentry_stat.nr_dentry counting in
-shrink_dcache_for_umount_subtree() in which the count is modified without the
-dcache_lock held.
+The scheduler round robin schedules tasks which it has classified as
+interactive (tasks which sleep somewhat regularly basically) at a higher
+rate than their timeslice to reduce latency, but the more tasks
+circulating at the same priority (or above) as mplayer, the bigger the
+latency hit mplayer will take.
 
-Signed-Off-By: Vasily Averin <vvs@sw.ru>
+	-Mike
 
---- linux-2.6.19-rc3/fs/dcache.c.nrdntr	2006-10-26 15:14:51.000000000 +0400
-+++ linux-2.6.19-rc3/fs/dcache.c	2006-10-27 10:45:11.000000000 +0400
-@@ -554,6 +554,7 @@ repeat:
- static void shrink_dcache_for_umount_subtree(struct dentry *dentry)
- {
- 	struct dentry *parent;
-+	unsigned detached = 0;
+#include <stdlib.h>
+#include <unistd.h>
 
- 	BUG_ON(!IS_ROOT(dentry));
+static void burn_cpu(unsigned int x)
+{
+	static char buf[1024];
+	int i;
+	
+	for (i=0; i < x; ++i)
+		buf[i%sizeof(buf)] = (x-i)*3;
+}
 
-@@ -618,7 +619,7 @@ static void shrink_dcache_for_umount_sub
- 				atomic_dec(&parent->d_count);
+int main(int argc, char **argv)
+{
+	unsigned long burn;
+	if (argc != 2)
+		return 1;
+	burn = (unsigned long)atoi(argv[1]);
+	while(1) {
+		burn_cpu(burn*1000);
+		usleep(1);
+	}
+	return 0;
+}
 
- 			list_del(&dentry->d_u.d_child);
--			dentry_stat.nr_dentry--;	/* For d_free, below */
-+			detached++;
-
- 			inode = dentry->d_inode;
- 			if (inode) {
-@@ -636,7 +637,7 @@ static void shrink_dcache_for_umount_sub
- 			 * otherwise we ascend to the parent and move to the
- 			 * next sibling if there is one */
- 			if (!parent)
--				return;
-+				goto out;
-
- 			dentry = parent;
-
-@@ -645,6 +646,11 @@ static void shrink_dcache_for_umount_sub
- 		dentry = list_entry(dentry->d_subdirs.next,
- 				    struct dentry, d_u.d_child);
- 	}
-+out:
-+	/* several dentries were freed, need to correct nr_dentry */
-+	spin_lock(&dcache_lock);
-+	dentry_stat.nr_dentry -= detached;
-+	spin_unlock(&dcache_lock);
- }
-
- /*
 

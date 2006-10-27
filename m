@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946127AbWJ0Cve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161481AbWJ0DOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946127AbWJ0Cve (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 22:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946117AbWJ0Cve
+	id S1161481AbWJ0DOH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 23:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161480AbWJ0DOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 22:51:34 -0400
-Received: from [84.77.121.105] ([84.77.121.105]:61641 "EHLO
-	merak.nimastelecom.com") by vger.kernel.org with ESMTP
-	id S1161471AbWJ0Cvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 22:51:33 -0400
-Message-ID: <45417424.2040909@newipnet.com>
-Date: Fri, 27 Oct 2006 04:51:16 +0200
-From: Carlos Velasco <lkml@newipnet.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: Networking messed up, bad checksum, incorrect length
-References: <454166A6.1090905@newipnet.com>
-In-Reply-To: <454166A6.1090905@newipnet.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 26 Oct 2006 23:14:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11162 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161478AbWJ0DOD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 23:14:03 -0400
+Date: Thu, 26 Oct 2006 20:13:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+Cc: Jeff Garzik <jeff@garzik.org>, netdev <netdev@vger.kernel.org>,
+       Christoph Raisch <raisch@de.ibm.com>,
+       "Jan-Bernd Themann" <themann@de.ibm.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [PATCH 2.6.19-rc3 1/2] ehea: kzalloc GFP_ATOMIC fix
+Message-Id: <20061026201313.9c831fc9.akpm@osdl.org>
+In-Reply-To: <200610251311.43009.ossthema@de.ibm.com>
+References: <200610251311.43009.ossthema@de.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An Update.
+On Wed, 25 Oct 2006 13:11:42 +0200
+Jan-Bernd Themann <ossthema@de.ibm.com> wrote:
 
-When using kernel 2.6.16.29, I don't see the problem. Packets taken with
-tcpdump/libpcap are the real packets.
+> This patch fixes kzalloc parameters (GFP_ATOMIC instead of GFP_KERNEL)
 
-Linux Merak 2.6.16.29 #1 SMP Fri Oct 27 04:33:56 CEST 2006 x86_64 x86_64
-x86_64 GNU/Linux
-
-Regards,
-Carlos Velasco
-CCNP & CCDP Cisco Certified Network Professional
-
+why?

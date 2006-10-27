@@ -1,79 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752323AbWJ0Pex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752275AbWJ0PoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752323AbWJ0Pex (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 11:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752320AbWJ0Pex
+	id S1752275AbWJ0PoE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 11:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752321AbWJ0PoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 11:34:53 -0400
-Received: from systemlinux.org ([83.151.29.59]:35252 "EHLO m18s25.vlinux.de")
-	by vger.kernel.org with ESMTP id S1752318AbWJ0Pew (ORCPT
+	Fri, 27 Oct 2006 11:44:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28585 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752275AbWJ0PoB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 11:34:52 -0400
-Date: Fri, 27 Oct 2006 17:34:14 +0200
-From: Andre Noll <maan@systemlinux.org>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       linux-ext4@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>
-Subject: Re: ext3: bogus i_mode errors with 2.6.18.1
-Message-ID: <20061027153414.GA6446@skl-net.de>
-References: <20061023144556.GY22487@skl-net.de> <20061023164416.GM3509@schatzie.adilger.int> <20061023200242.GA5015@schatzie.adilger.int> <20061024091449.GZ22487@skl-net.de> <20061024202716.GX3509@schatzie.adilger.int> <20061025094418.GA22487@skl-net.de> <20061026093613.GM3509@schatzie.adilger.int> <20061026160241.GB12843@skl-net.de> <20061026180133.GN3509@schatzie.adilger.int>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
-Content-Disposition: inline
-In-Reply-To: <20061026180133.GN3509@schatzie.adilger.int>
-User-Agent: Mutt/1.5.9i
+	Fri, 27 Oct 2006 11:44:01 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil>  <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <2340.1161903200@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, aviro@redhat.com,
+       linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+       chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 27 Oct 2006 16:42:46 +0100
+Message-ID: <4786.1161963766@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> We might want more information passed into the hook, like the cache
+> directory itself,
 
-On 12:01, Andreas Dilger wrote:
-> On Oct 26, 2006  18:02 +0200, Andre Noll wrote:
-> > On 03:36, Andreas Dilger wrote:
-> > > The other issue is that you need to potentially set "num" bits in the
-> > > bitmap here, if those all overlap metadata.  In fact, it might just
-> > > make more sense at this stage to walk all of the bits in the bitmaps,
-> > > the inode table and the backup superblock and group descriptor to see
-> > > if they need fixing also.
-> >=20
-> > I tried to implement this, but I could not find out how to check at this
-> > point whether a given bit (in the block bitmap, say) needs fixing.
->=20
-> Well, since we know at least one bit needs fixing and results in the block
-> being written to disk then setting the bits for all of the other metadata
-> blocks in this group has no extra IO cost (only a tiny amount of CPU).
-> Re-setting the bits if they are already set is not harmful.
+I can do that.  I have the cache directory path and the cache tag name both
+available as strings.
 
-I.e, something like
+> 	int security_cache_set_context(struct vfsmount *mnt, struct dentry *dentry, u32 secid)
+> 	{
 
-        int i;
-        ext3_fsblk_t bit;
-        unsigned long gdblocks =3D EXT3_SB(sb)->s_gdb_count;
+Where are you envisioning this going?  In SELinux, in the LSM core or in
+cachefiles?  I was also wondering if I could generalise it to handle all cache
+types, but the permissions checks are probably going to be quite different for
+each type.  For instance, CacheFiles uses files on a mounted fs, whilst CacheFS
+uses a block device.
 
-        for (i =3D 0, bit =3D 1; i < gdblocks; i++, bit++)
-                ext3_set_bit(bit, gdp_bh->b_data);
+> We would either need to introduce new permission definitions to SELinux to
+> distinguish this operation, or we would need to map it to something similar,
+> e.g. apply the same checks that we would perform if the cache daemon was
+> directly trying to set its fscreate value to this context and create files in
+> that context.
 
-Is that correct?
+Mapping it to something similar sounds reasonable, though I'd quite like
+something general, so that I can check for any type of cache coming up.
 
-Andre
---=20
-The only person who always got his work done by Friday was Robinson Crusoe
+Also, with your multiple cache example, how would I bring each cachefilesd
+daemon up in a different context so that it could handle a different cache with
+a different context?
 
---envbJBWh7q8WU6mo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> > That sounds doable.  I presume I should attend to fsuid/fsgid myself, much
+> > as I'm doing now?
+> 
+> Yes, I think so, although you may want to make those values configurable
+> too (although it isn't clear that a cache daemon can be run as non-root
+> at present).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Actually, that's not something I had considered, but there's no particular
+reason that files in the cache have to be owned by root specifically; nor is
+there a reason why cachefilesd needs to run as root.  The main thing is that
+the files are owned by whatever user the daemon runs as.  It'd mean creating
+another special user for it, but we do that all the time...
 
-iD8DBQFFQib2Wto1QDEAkw8RAlR2AJ49PO4A8H+Lusutr5yTsZfzwMhPwACgmrR6
-CpmzqKaIWVk7G2KnDMAO5kA=
-=Hya/
------END PGP SIGNATURE-----
+> I think we likely also want to refer to the above secid as fscreateid or
+> similar instead of just fsecid for clarity, because it isn't quite the
+> same thing as a fsuid/fsgid; it is _only_ used for labeling of new
+> files, not as the label of the process for permission checking purposes.
+> So it would be security_getfscreateid() and security_setfscreateid().
+> Process labels and file labels are distinct.
 
---envbJBWh7q8WU6mo--
+Gotcha.
+
+David

@@ -1,61 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752383AbWJ0S0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752394AbWJ0Scf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752383AbWJ0S0a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 14:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752385AbWJ0S0a
+	id S1752394AbWJ0Scf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 14:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752392AbWJ0Scf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 14:26:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29839 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752372AbWJ0S03 (ORCPT
+	Fri, 27 Oct 2006 14:32:35 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24714 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1752393AbWJ0Sce (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 14:26:29 -0400
-Date: Fri, 27 Oct 2006 11:26:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       proski@gnu.org, Alan Cox <alan@lxorguk.ukuu.org.uk>, cate@debian.org,
-       gianluca@abinetworks.biz
-Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
-Message-Id: <20061027112601.dbd83c32.akpm@osdl.org>
-In-Reply-To: <20061027082741.8476024a.randy.dunlap@oracle.com>
-References: <1161807069.3441.33.camel@dv>
-	<1161808227.7615.0.camel@localhost.localdomain>
-	<20061025205923.828c620d.akpm@osdl.org>
-	<20061026102630.ad191d21.randy.dunlap@oracle.com>
-	<1161959020.12281.1.camel@laptopd505.fenrus.org>
-	<20061027082741.8476024a.randy.dunlap@oracle.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 14:32:34 -0400
+Date: Fri, 27 Oct 2006 10:09:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: + drivers-wait-for-threaded-probes-between-initcall-levels.patch added to -mm tree
+Message-ID: <20061027170951.GB9020@kroah.com>
+References: <200610260212.k9Q2CYvw031387@shell0.pdx.osdl.net> <20061026100939.24bbf536@gondolin.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061026100939.24bbf536@gondolin.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006 08:27:41 -0700
-Randy Dunlap <randy.dunlap@oracle.com> wrote:
+On Thu, Oct 26, 2006 at 10:09:39AM +0200, Cornelia Huck wrote:
+> On Wed, 25 Oct 2006 19:12:01 -0700,
+> akpm@osdl.org wrote:
+> 
+> > Subject: drivers: wait for threaded probes between initcall levels
+> > From: Andrew Morton <akpm@osdl.org>
+> > 
+> > The multithreaded-probing code has a problem: after one initcall level (eg,
+> > core_initcall) has been processed, we will then start processing the next
+> > level (postcore_initcall) while the kernel threads which are handling
+> > core_initcall are still executing.  This breaks the guarantees which the
+> > layered initcalls previously gave us.
+> > 
+> > IOW, we want to be multithreaded _within_ an initcall level, but not between
+> > different levels.
+> > 
+> > Fix that up by causing the probing code to wait for all outstanding probes at
+> > one level to complete before we start processing the next level.
+> > 
+> > Cc: Greg KH <greg@kroah.com>
+> > Signed-off-by: Andrew Morton <akpm@osdl.org>
+> 
+> Makes a lot of sense. I guess we could also get rid of
+> driver_probe_done() in prepare_namespace() with this patch...
+> 
+> 
+> > +#ifdef CONFIG_PCI_MULTITHREAD_PROBE
+> > +static int __init wait_for_probes(void)
+> > +{
+> > +	DEFINE_WAIT(wait);
+> > +
+> > +	if (!atomic_read(&probe_count))
+> > +		return 0;
+> > +	printk(KERN_INFO "%s: waiting for %d threads\n", __FUNCTION__,
+> > +			atomic_read(&probe_count));
+> > +	while (atomic_read(&probe_count)) {
+> > +		prepare_to_wait(&probe_waitqueue, &wait, TASK_UNINTERRUPTIBLE);
+> > +		if (atomic_read(&probe_count))
+> > +			schedule();
+> > +	}
+> > +	finish_wait(&probe_waitqueue, &wait);
+> > +	return 0;
+> > +}
+> > +
+> > +core_initcall_sync(wait_for_probes);
+> > +postcore_initcall_sync(wait_for_probes);
+> > +arch_initcall_sync(wait_for_probes);
+> > +subsys_initcall_sync(wait_for_probes);
+> > +fs_initcall_sync(wait_for_probes);
+> > +device_initcall_sync(wait_for_probes);
+> > +late_initcall_sync(wait_for_probes);
+> > +#endif
+> 
+> ...if we get rid of this #ifdef.
 
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> For ndiswrapper, don't set the module->taints flags,
-> just set the kernel global tainted flag.
-> This should allow ndiswrapper to continue to use GPL symbols.
-> Not tested.
-> 
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> ---
->  kernel/module.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-2619-rc3-pv.orig/kernel/module.c
-> +++ linux-2619-rc3-pv/kernel/module.c
-> @@ -1718,7 +1718,7 @@ static struct module *load_module(void _
->  	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
->  
->  	if (strcmp(mod->name, "ndiswrapper") == 0)
-> -		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
-> +		add_taint(TAINT_PROPRIETARY_MODULE);
->  	if (strcmp(mod->name, "driverloader") == 0)
->  		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
->  
+Yeah, let me play with this a bit, along with your proposed change, I
+think it can be cleaned up to be a little more cleaner.
 
-Could someone please test this for us?
+thanks,
+
+greg k-h

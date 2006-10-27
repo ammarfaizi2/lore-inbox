@@ -1,103 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423722AbWJ0F4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946024AbWJ0F6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423722AbWJ0F4E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 01:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423716AbWJ0F4E
+	id S1946024AbWJ0F6A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 01:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946032AbWJ0F6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 01:56:04 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:15822 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1423722AbWJ0F4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 01:56:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jVyB0xfumfgTAT0/cwqxIu2SwoaRK+1XxO7t37NPxMjzGLcOyUj6suhwkBf6qoEdNHL0c2a/5ifsRKTBQGOzRQkhogKXPL2ITMSoUVk2wMPqKD/eebCkPB5/o/pTx3NvvBizWggSVUMpEH/HfPDWidXq6xvYXyKVH6Ju7jEGBdA=
-Message-ID: <aec7e5c30610262256v5090bb6at2c62fb113a71828c@mail.gmail.com>
-Date: Fri, 27 Oct 2006 14:56:01 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: vgoyal@in.ibm.com
-Subject: Re: [PATCH] Kdump: Align 64-bit ELF crash notes correctly (x86_64, powerpc)
-Cc: "Magnus Damm" <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       "Andi Kleen" <ak@muc.de>, fastboot@lists.osdl.org,
-       Horms <horms@verge.net.au>, "Dave Anderson" <anderson@redhat.com>,
-       ebiederm@xmission.com
-In-Reply-To: <20061026144018.GB11284@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 01:58:00 -0400
+Received: from styx.suse.cz ([82.119.242.94]:13519 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1946024AbWJ0F57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 01:57:59 -0400
+Date: Fri, 27 Oct 2006 07:57:08 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@muc.de>
+Cc: Om Narasimhan <om.turyx@gmail.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org, randy.dunlap@oracle.com,
+       clemens@ladisch.de, bob.picco@hp.com
+Subject: Re: HPET : Legacy Routing Replacement Enable - 3rd try.
+Message-ID: <20061027055708.GA20270@suse.cz>
+References: <EB12A50964762B4D8111D55B764A8454C9608C@scsmsx413.amr.corp.intel.com> <6b4e42d10610251420x4365b840sa3232010e7bd7f73@mail.gmail.com> <20061027024238.GC58088@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061026094957.3410.45001.sendpatchset@localhost>
-	 <20061026144018.GB11284@in.ibm.com>
+In-Reply-To: <20061027024238.GC58088@muc.de>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vivek,
+On Fri, Oct 27, 2006 at 04:42:38AM +0200, Andi Kleen wrote:
 
-Thanks for the quick reply!
+> On Wed, Oct 25, 2006 at 02:20:22PM -0700, Om Narasimhan wrote:
+> > I tested against five different bioses (some with 8132, some with
+> > CK-804 ..etc) and I observed three different patterns.
+> > 
+> > 1. HW is LRR capable, HPET ACPI it is 1, timer interrupt is on INT2.
+> > Before the fix: Linux cannot get timer interrupts on INT0, goes for ACPI 
+> > timer.
+> 
+> What ACPI timer?  I don't think we have any fallback for int 0.
+> 
+> Not sure what you mean with INT2. Pin2 on ioapic 0 perhaps?
+> 
+> > After the fix : Works fine. This is according to hpet spec.
+> 
+> On what exact motherboard was that?
+> 
+> > 
+> > To handle case 3, I removed all references to acpi_hpet_lrr, explained
+> > this case in the code and decided to solely rely on the command line
+> > parameter for LRR capability. Rational for this approach is ,
+> 
+> This means the systems which you said fixes this would need the command
+> line parameter to work? 
+> 
+> > 1. At present, there are not many BIOSes which implement LRR (correctly)
+> > 2. People would see the bootup message (MP-BIOS bug...) if LRR is
+> > enabled and no timer interrupt on INT0. They can pass the hpet_lrr=1
+> > to make everything work fine.
+> > Is it the right approach?
+> 
+> Generally we try to work everywhere without command line parameter
+> unless something is terminally broken. 
 
-On 10/26/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> On Thu, Oct 26, 2006 at 06:49:57PM +0900, Magnus Damm wrote:
-> > Kdump: Align 64-bit ELF crash notes correctly (x86_64, powerpc)
-> >
-> > The current ELF code aligns data to 32-bit addresses, regardless if ELFCLASS32
-> > or ELFCLASS64 is used. This works well for the 32-bit case, but for 64-bit
-> > notes we should (of course) align to 64-bit addresses. At least if we intend
-> > to follow the "ELF-64 Object File Format, Version 1.5 Draft 2, May 27, 1998".
-> >
-> > Unfortunately this change affects 3 pieces of code:
-> > - The regular Linux kernel: See x86_64 and powerpc changes below.
-> > - The "crash" kernel: Needs to align properly when merging notes, see below.
-> > - The utilities that read the vmcore files: Crash, GDB and so on.
-> >
-> Hi Magnus,
->
-> Interesting observation. Going through the ELF-64 Object File format,
-> version 1.5, it does look like that note data should be aligned to
-> 8byte boundary for 64bit and not 4 byte boundary.
->
-> But given the fact that as of today, gdb, readelf parse the notes correctly,
-> then they are broken too and needs to be changed?
+JFYI: The new per-cpu timekeeping code doesn't need the HPET legacy bit,
+thus not replacing IRQ0 (PIT) and IRQ13 (RTC). It still can do that, but
+will work just as well without it.
 
-Well, yes, other tools needs to be updated as well.
-
-I just quickly went through the code for readelf from binutils-2.16.1
-and in readelf.c, process_corefile_note_segment() always treats
-alignment as 4. Broken. The bfd code in the same package seems to be
-correct in most 64-bit cases though, struct elf_size_info ->
-log_file_align seems to be the value we are looking for. It is set to
-3 for at least elf64-{alpha, hppa, mips, s390, sparc}. I've not been
-able to figure out the status for ppc and x86_64.
-
-I do however believe that no-one has been troubled by this so far
-because we happen to have well formed data. It seems like the only
-string that is passed to append_elf_note() in the kdump case is "CORE"
-and it is 5 bytes including terminating zero.
-
-The old code adds 3 bytes and divides by 4 to get 2 32-bit values.
-With my fix we would add 7 bytes and divide by 8 to get 1 64-bit value.
-
-In both cases we pad to a total of 8 bytes. So we seem to be lucky with "CORE".
-This also means that my fix doesn't affect the format of the data in
-the current case.
-
-> I just looked at process core dumper (binfmt_elf.c) and that too also
-> seems to be creating notes aligned at 4byte boundary (alignfile()).
->
-> Same seems to be the case of /proc/kcore ((storenote()). Notes seem to
-> be 4byte aligned.
->
-> So looks like, everywhere in kernel and tool chain we are still following
-> the assumption of notes being 4byte aligned even for 64bit.
->
-> I think if you are fixing it, then please fix it for /proc/kcore and
-> process core dumps too so that kernel exports a consistent image and then
-> tool chain folks can do the modifications.
-
-Yes, that makes sense. I will have a look at it. I assume that
-following the spec is what we want to do, but if someone disagrees
-please shout _now_!
-
-Thanks,
-
-/ magnus
+-- 
+Vojtech Pavlik
+Director SuSE Labs

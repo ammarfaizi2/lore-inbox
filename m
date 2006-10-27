@@ -1,111 +1,298 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWJ0UZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWJ0U13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWJ0UZI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 16:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752443AbWJ0UZH
+	id S1751416AbWJ0U13 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 16:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWJ0U12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 16:25:07 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:21872 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751397AbWJ0UZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 16:25:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jRiolYd79Pr3SXiI43bb+dzEsShLOdqvSOHkxbsh7/EEWKVn5Tm8OeAZAXFAV5YIY4/vlYzcj2cB+/qE5zPFuq6LnEMs6rtAXRJ/Ngw3fHXGwY5NQmmJR3rhaEZZwYJZFgPV4MzZf99ZXcM5UPP8InUS/OiOw7zjKZRwoOCBzl0=
-Message-ID: <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com>
-Date: Fri, 27 Oct 2006 20:25:03 +0000
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 27 Oct 2006 16:27:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14527 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751416AbWJ0U11 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 16:27:27 -0400
+Date: Fri, 27 Oct 2006 13:23:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, gregkh <greg@kroah.com>,
+       sam@ravnborg.org, Ankita Garg <ankita@in.ibm.com>
+Subject: Re: [PATCH 2/2] kconfig.debug menu dependencies
+Message-Id: <20061027132353.f280e854.akpm@osdl.org>
+In-Reply-To: <20061027120837.f694814d.randy.dunlap@oracle.com>
+References: <20061027120837.f694814d.randy.dunlap@oracle.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061013023218.31362830.maxextreme@gmail.com>
-	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>
-	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
-	 <453CE85B.2080702@innova-card.com>
-	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>
-	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>
-	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>
-	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/27/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
-> On 10/26/06, Miguel Ojeda <maxextreme@gmail.com> wrote:
-> > To be clearer. And you are wrong: you can write other modules which
-> > want to know what the LCD is showing, or use it; without worrying
-> > about framebuffer things. They can read / write "cfag12864b_buffer" as
-> > well as cfag12864bfb do. Why not?
-> >
->
-> Suppose I'm writing a user space application which uses your frame
-> buffer driver. I would naturaly mmap your device since it's the
-> easiest way to use a frame buffer. Now I want to display as fast as
-> possible a set of images. How am I sure that each image is sent to the
-> lcd ? For example, suppose the application just finished to copy image
-> A into the buffer,  and now it starts to copy image B into the buffer
-> but the work queue has not been scheduled yet...
->
+On Fri, 27 Oct 2006 12:08:37 -0700
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
 
-Refresh rate is fixed in this driver (the user can change it to other
-value at Kconfig or at loading time as a module parameter).
+> DEBUG_FS, HEADERS_CHECK, and UNWIND don't depend on DEBUG_KERNEL but
+> they were stuck into the middle of the DEBUG_KERNEL menu, so move
+> them up above it (since it continues wherever lib/Kconfig.debug was
+> sourced into, hence below it won't work).
+> 
+> Also make LKDTM depend on DEBUG_KERNEL, as other test modules do
+> (e.g., RT MUTEX TESTER, RCU TORTURE TEST).
 
-An application should not refresh images so fast (the LCD controller
-can handle it, but the readability is pretty bad). Having a refresh
-rate like 10 Hz for example, the application can be sure all images
-are displayed. Anyway, an animation of 10 Hz wouldn't be fine at this
-kind of LCDs, so it is pointless which the refresh rate of the driver
-is, as it is not useful to display images as fast as the driver
-refresh the LCD.
+This conflicts fairly seriously with the below.
 
-(I don't know if I'm explaining myself...)
+From: Don Mullis <dwm@meer.net>
 
->
-> Futhermore I'm not sure it's a common use case for such device, is it
-> ? I would say that the usual case for such LCD is to display an image
-> every now and then. If so do we really need to give the possibility to
-> mmap the device ? Is a simple synchrone write() enough ?
->
+Refactor Kconfig content to maximize nesting of menus by menuconfig and
+xconfig.
 
-Well, you can show a set of images, animations... althought it's not
-so useful. Usual cases:
-1. Display a static image / info.
-2. Display refreshed info every X seconds (like % usage of CPU and so
-on, the music you are listening to...)
-3. Display, maybe, a animated graph (like the wave created by your
-music), althought this one is not so usual, as it changes much more
-quickly than [2]. Still, there are apps in other SOs that show such
-kind of info.
+Tested by simultaneously running `make xconfig` with and without
+patch, and comparing displays.
 
-Well, mmaping is the best option, as it is the easiest and the
-fastest. Any use will be better using mmaping than doing synchrone
-write(). Yes, many uses just need a write() call, but other uses would
-need mmap.
+Signed-off-by: Don Mullis <dwm@meer.net>
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-> BTW how can the application retrieve the refresh rate from the driver ?
->
+ drivers/parport/Kconfig     |    6 +-
+ drivers/pci/hotplug/Kconfig |    3 -
+ drivers/serial/Kconfig      |   53 ++++++++++-----------
+ lib/Kconfig.debug           |   85 +++++++++++++++++-----------------
+ 4 files changed, 74 insertions(+), 73 deletions(-)
 
-Hum, right now one way is:
+diff -puN drivers/parport/Kconfig~kconfig-refactoring-for-better-menu-nesting drivers/parport/Kconfig
+--- a/drivers/parport/Kconfig~kconfig-refactoring-for-better-menu-nesting
++++ a/drivers/parport/Kconfig
+@@ -82,9 +82,6 @@ config PARPORT_PC_PCMCIA
+ 	  Say Y here if you need PCMCIA support for your PC-style parallel
+ 	  ports. If unsure, say N.
+ 
+-config PARPORT_NOT_PC
+-	bool
+-
+ config PARPORT_IP32
+ 	tristate "SGI IP32 builtin port (EXPERIMENTAL)"
+ 	depends on SGI_IP32 && PARPORT && EXPERIMENTAL
+@@ -158,5 +155,8 @@ config PARPORT_1284
+ 	  transfer modes. Also say Y if you want device ID information to
+ 	  appear in /proc/sys/dev/parport/*/autoprobe*. It is safe to say N.
+ 
++config PARPORT_NOT_PC
++	bool
++
+ endmenu
+ 
+diff -puN drivers/pci/hotplug/Kconfig~kconfig-refactoring-for-better-menu-nesting drivers/pci/hotplug/Kconfig
+--- a/drivers/pci/hotplug/Kconfig~kconfig-refactoring-for-better-menu-nesting
++++ a/drivers/pci/hotplug/Kconfig
+@@ -76,7 +76,8 @@ config HOTPLUG_PCI_IBM
+ 
+ config HOTPLUG_PCI_ACPI
+ 	tristate "ACPI PCI Hotplug driver"
+-	depends on (!ACPI_DOCK && ACPI && HOTPLUG_PCI) || (ACPI_DOCK && HOTPLUG_PCI)
++	depends on HOTPLUG_PCI
++	depends on (!ACPI_DOCK && ACPI) || (ACPI_DOCK)
+ 	help
+ 	  Say Y here if you have a system that supports PCI Hotplug using
+ 	  ACPI.
+diff -puN drivers/serial/Kconfig~kconfig-refactoring-for-better-menu-nesting drivers/serial/Kconfig
+--- a/drivers/serial/Kconfig~kconfig-refactoring-for-better-menu-nesting
++++ a/drivers/serial/Kconfig
+@@ -151,32 +151,6 @@ config SERIAL_8250_MANY_PORTS
+ 	  say N here to save some memory. You can also say Y if you have an
+ 	  "intelligent" multiport card such as Cyclades, Digiboards, etc.
+ 
+-config SERIAL_8250_SHARE_IRQ
+-	bool "Support for sharing serial interrupts"
+-	depends on SERIAL_8250_EXTENDED
+-	help
+-	  Some serial boards have hardware support which allows multiple dumb
+-	  serial ports on the same board to share a single IRQ. To enable
+-	  support for this in the serial driver, say Y here.
+-
+-config SERIAL_8250_DETECT_IRQ
+-	bool "Autodetect IRQ on standard ports (unsafe)"
+-	depends on SERIAL_8250_EXTENDED
+-	help
+-	  Say Y here if you want the kernel to try to guess which IRQ
+-	  to use for your serial port.
+-
+-	  This is considered unsafe; it is far better to configure the IRQ in
+-	  a boot script using the setserial command.
+-
+-	  If unsure, say N.
+-
+-config SERIAL_8250_RSA
+-	bool "Support RSA serial ports"
+-	depends on SERIAL_8250_EXTENDED
+-	help
+-	  ::: To be written :::
+-
+ #
+ # Multi-port serial cards
+ #
+@@ -199,7 +173,6 @@ config SERIAL_8250_ACCENT
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called 8250_accent.
+ 
+-
+ config SERIAL_8250_BOCA
+ 	tristate "Support Boca cards"
+ 	depends on SERIAL_8250 != n && ISA && SERIAL_8250_MANY_PORTS
+@@ -219,6 +192,32 @@ config SERIAL_8250_HUB6
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called 8250_hub6.
+ 
++config SERIAL_8250_SHARE_IRQ
++	bool "Support for sharing serial interrupts"
++	depends on SERIAL_8250_EXTENDED
++	help
++	  Some serial boards have hardware support which allows multiple dumb
++	  serial ports on the same board to share a single IRQ. To enable
++	  support for this in the serial driver, say Y here.
++
++config SERIAL_8250_DETECT_IRQ
++	bool "Autodetect IRQ on standard ports (unsafe)"
++	depends on SERIAL_8250_EXTENDED
++	help
++	  Say Y here if you want the kernel to try to guess which IRQ
++	  to use for your serial port.
++
++	  This is considered unsafe; it is far better to configure the IRQ in
++	  a boot script using the setserial command.
++
++	  If unsure, say N.
++
++config SERIAL_8250_RSA
++	bool "Support RSA serial ports"
++	depends on SERIAL_8250_EXTENDED
++	help
++	  ::: To be written :::
++
+ config SERIAL_8250_MCA
+ 	tristate "Support 8250-type ports on MCA buses"
+ 	depends on SERIAL_8250 != n && MCA
+diff -puN lib/Kconfig.debug~kconfig-refactoring-for-better-menu-nesting lib/Kconfig.debug
+--- a/lib/Kconfig.debug~kconfig-refactoring-for-better-menu-nesting
++++ a/lib/Kconfig.debug
+@@ -46,6 +46,48 @@ config UNUSED_SYMBOLS
+ 	  you really need it, and what the merge plan to the mainline kernel for
+ 	  your module is.
+ 
++config DEBUG_FS
++	bool "Debug Filesystem"
++	depends on SYSFS
++	help
++	  debugfs is a virtual file system that kernel developers use to put
++	  debugging files into.  Enable this option to be able to read and
++	  write to these files.
++
++	  If unsure, say N.
++
++config UNWIND_INFO
++	bool "Compile the kernel with frame unwind information"
++	depends on !IA64 && !PARISC
++	depends on !MODULES || !(MIPS || PPC || SUPERH || V850)
++	help
++	  If you say Y here the resulting kernel image will be slightly larger
++	  but not slower, and it will give very useful debugging information.
++	  If you don't debug the kernel, you can say N, but we may not be able
++	  to solve problems without frame unwind information or frame pointers.
++
++config STACK_UNWIND
++	bool "Stack unwind support"
++	depends on UNWIND_INFO
++	depends on X86
++	help
++	  This enables more precise stack traces, omitting all unrelated
++	  occurrences of pointers into kernel code from the dump.
++
++config HEADERS_CHECK
++	bool "Run 'make headers_check' when building vmlinux"
++	depends on !UML
++	help
++	  This option will extract the user-visible kernel headers whenever
++	  building the kernel, and will run basic sanity checks on them to
++	  ensure that exported files do not attempt to include files which
++	  were not exported, etc.
++
++	  If you're making modifications to header files which are
++	  relevant for userspace, say 'Y', and check the headers
++	  exported to $(INSTALL_HDR_PATH) (usually 'usr/include' in
++	  your build tree), to make sure they're suitable.
++
+ config DEBUG_KERNEL
+ 	bool "Kernel debugging"
+ 	help
+@@ -301,16 +343,6 @@ config DEBUG_INFO
+ 
+ 	  If unsure, say N.
+ 
+-config DEBUG_FS
+-	bool "Debug Filesystem"
+-	depends on SYSFS
+-	help
+-	  debugfs is a virtual file system that kernel developers use to put
+-	  debugging files into.  Enable this option to be able to read and
+-	  write to these files.
+-
+-	  If unsure, say N.
+-
+ config DEBUG_VM
+ 	bool "Debug VM"
+ 	depends on DEBUG_KERNEL
+@@ -339,24 +371,6 @@ config FRAME_POINTER
+ 	  some architectures or if you use external debuggers.
+ 	  If you don't debug the kernel, you can say N.
+ 
+-config UNWIND_INFO
+-	bool "Compile the kernel with frame unwind information"
+-	depends on !IA64 && !PARISC
+-	depends on !MODULES || !(MIPS || PPC || SUPERH || V850)
+-	help
+-	  If you say Y here the resulting kernel image will be slightly larger
+-	  but not slower, and it will give very useful debugging information.
+-	  If you don't debug the kernel, you can say N, but we may not be able
+-	  to solve problems without frame unwind information or frame pointers.
+-
+-config STACK_UNWIND
+-	bool "Stack unwind support"
+-	depends on UNWIND_INFO
+-	depends on X86
+-	help
+-	  This enables more precise stack traces, omitting all unrelated
+-	  occurrences of pointers into kernel code from the dump.
+-
+ config FORCED_INLINING
+ 	bool "Force gcc to inline functions marked 'inline'"
+ 	depends on DEBUG_KERNEL
+@@ -371,20 +385,6 @@ config FORCED_INLINING
+ 	  become the default in the future, until then this option is there to
+ 	  test gcc for this.
+ 
+-config HEADERS_CHECK
+-	bool "Run 'make headers_check' when building vmlinux"
+-	depends on !UML
+-	help
+-	  This option will extract the user-visible kernel headers whenever
+-	  building the kernel, and will run basic sanity checks on them to
+-	  ensure that exported files do not attempt to include files which
+-	  were not exported, etc.
+-
+-	  If you're making modifications to header files which are
+-	  relevant for userspace, say 'Y', and check the headers
+-	  exported to $(INSTALL_HDR_PATH) (usually 'usr/include' in
+-	  your build tree), to make sure they're suitable.
+-
+ config RCU_TORTURE_TEST
+ 	tristate "torture tests for RCU"
+ 	depends on DEBUG_KERNEL
+@@ -401,6 +401,7 @@ config RCU_TORTURE_TEST
+ 
+ config LKDTM
+ 	tristate "Linux Kernel Dump Test Tool Module"
++	depends on DEBUG_KERNEL
+ 	depends on KPROBES
+ 	default n
+ 	help
+_
 
-$ cat /sys/module/cfag12864b/parameters/cfag12864b_rate
-
-Yes, a more generic option would be better. Do the fbdevices have some
-standard way to retrieve such kind of info (like the bits per pixel,
-width, height...)? If not, which would be a good to retrieve the
-refresh rate?
-
-Anyway, a application which would like to use this LCD should know its
-specs and the user knows he shouldn't change the refresh rate without
-a good reason. If a user changes it to other value, he knows he can be
-breaking the apps, the same way you can break your kernel adding
-things you shouldn't; also the driver could stop working properly at
-higher rates.
-
->
->                 Franck
->

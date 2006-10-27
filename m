@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWJ0NmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWJ0NrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWJ0NmT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 09:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752184AbWJ0NmT
+	id S1751007AbWJ0NrH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 09:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752188AbWJ0NrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 09:42:19 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:54104 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750890AbWJ0NmS (ORCPT
+	Fri, 27 Oct 2006 09:47:06 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:16986 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751007AbWJ0NrF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 09:42:18 -0400
-Message-ID: <45420CAB.3060202@sw.ru>
-Date: Fri, 27 Oct 2006 17:42:03 +0400
+	Fri, 27 Oct 2006 09:47:05 -0400
+Message-ID: <45420DD4.9020602@sw.ru>
+Date: Fri, 27 Oct 2006 17:47:00 +0400
 From: Vasily Averin <vvs@sw.ru>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: David Howells <dhowells@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+To: David Howells <dhowells@redhat.com>
+CC: Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
+       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
+       Kirill Korotaev <dev@openvz.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org
-Subject: [PATCH 2.6.19-rc3] VFS: missing unused dentry in prune_dcache()
-References: <453F6D90.4060106@sw.ru>  <453F58FB.4050407@sw.ru> <20792.1161784264@redhat.com> <21393.1161786209@redhat.com>
-In-Reply-To: <21393.1161786209@redhat.com>
+       devel@openvz.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Q] missing unused dentry in prune_dcache()?
+References: <4541F2A3.8050004@sw.ru>  <4541BDE2.6050703@sw.ru> <45409DD5.7050306@sw.ru> <453F6D90.4060106@sw.ru> <453F58FB.4050407@sw.ru> <20792.1161784264@redhat.com> <21393.1161786209@redhat.com> <19898.1161869129@redhat.com> <22562.1161945769@redhat.com> <24249.1161951081@redhat.com>
+In-Reply-To: <24249.1161951081@redhat.com>
 X-Enigmail-Version: 0.94.1.0
 Content-Type: text/plain; charset=KOI8-R
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+David Howells wrote:
+> Vasily Averin <vvs@sw.ru> wrote:
+>> I would like to ask you to approve it and we will go to next issue.
+> 
+> I did ack it didn't I?  I must fix my mail client so that it doesn't
+> automatically remove my email address from the To/Cc fields when I'm replying
+> to a message:-/
 
-could you please use this patch instead of
-missing-unused-dentry-in-prune_dcache.patch
+To prevent any mistake I've resend this patch again to you and akpm@.
 
-As far as I understand David Howells have not any objections
+>> We have seen that umount (and remount) can work very slowly, it was cycled
+>> inside shrink_dcache_sb() up to several hours with taken s_umount semaphore.
+> 
+> umount at least should be fixed as that should no longer use
+> shrink_dcache_sb().
 
-Thank you,
+Umount calls shrink_dcache_sb in "Special case for "unmounting" root".
+Usually it happen only once, but in case OpenVZ it happens every time when any
+Virtual server is stopped, each of them have own isolated root partition.
+
+>> We are trying to resolve this issue by using per-sb lru list. I'm preparing
+>> the patch for 2.6.19-rc3 right now and going to send it soon.
+
+Please wait until my following email, it will be ready soon
+
+thank you,
 	Vasily Averin
-
----
-VFS: missing unused dentry in prune_dcache()
-
-From:	Vasily Averin <vvs@sw.ru>
-
-If we cannot delete dentry we should insert it back to the dentry_unused list.
-To prevent cycle and do not blocks prune_dcache() call from
-shrink_dcache_memory() we adding this dentry to head of list.
-
-Signed-off-by:	Vasily Averin <vvs@sw.ru>
-
---- linux-2.6.19-rc3/fs/dcache.c.prdch	2006-10-25 16:09:19.000000000 +0400
-+++ linux-2.6.19-rc3/fs/dcache.c	2006-10-26 15:14:51.000000000 +0400
-@@ -478,11 +478,9 @@ static void prune_dcache(int count, stru
- 			up_read(s_umount);
- 		}
- 		spin_unlock(&dentry->d_lock);
--		/* Cannot remove the first dentry, and it isn't appropriate
--		 * to move it to the head of the list, so give up, and try
--		 * later
--		 */
--		break;
-+		/* Inserting dentry to tail of the list leads to cycle */
-+ 		list_add(&dentry->d_lru, &dentry_unused);
-+		dentry_stat.nr_unused++;
- 	}
- 	spin_unlock(&dcache_lock);
- }
-

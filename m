@@ -1,82 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWJ0VMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752457AbWJ0VPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbWJ0VMw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 17:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWJ0VMv
+	id S1752457AbWJ0VPO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 17:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752458AbWJ0VPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 17:12:51 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:11731 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751488AbWJ0VMv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 17:12:51 -0400
-Date: Fri, 27 Oct 2006 16:12:28 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Subject: [PATCH] powerpc: EEH recovery tweaks
-Message-ID: <20061027211227.GJ6360@austin.ibm.com>
+	Fri, 27 Oct 2006 17:15:14 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:45608 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1752457AbWJ0VPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 17:15:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=EaVO7gEtCZy14wXscrlbJjm97qvtiSfTVlmn0QNYmt9kd+04eAUUXSmRKTon/9+p2DDBRVGpsWpRnW0tMagK+igb28I68z4O18KoSsPWehNylnlzDBx9X+lXiiKCCPEaZMivTc1Jbh8aeA0Q3ATU1u4Zt0lSpYgLFrpYDJwMeCI=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] NFS: nfsaclsvc_encode_getaclres() - Fix potential NULL deref and tiny optimization.
+Date: Fri, 27 Oct 2006 23:16:46 +0200
+User-Agent: KMail/1.9.4
+Cc: Andreas Gruenbacher <agruen@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
+       nfs@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+Message-Id: <200610272316.47089.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In fs/nfsd/nfs2acl.c::nfsaclsvc_encode_getaclres() I see a few issues.
 
-Paul,
+1) At the top of the function we assign to the 'inode' variable by 
+dereferencing 'dentry', but further down we test 'dentry' for NULL. So, if 
+'dentry' (which is really 'resp->fh.fh_dentry') can be NULL, then either 
+we have a potential NULL pointer deref bug or we have a superflous test.
 
-Please apply and forward upstream. This patch is not urgent,
-it provides fixes for a code path that is not currently used
-by any existing driver.
+2) In the case of  resp->fh.fh_dentry  != NULL  we have a duplicate 
+assignment to 'inode' - just one would do.
 
---linas
+3) There are two locations in the function where we may return before we 
+use the value of the variable 'w', but we compute it at the very top of the 
+function. So in the case where we return early we have wasted a few cycles 
+computing a value that was never used.
 
-If one attempts to create a device driver recovery sequence that
-does not depend on a hard reset of the device, but simply just
-attempts to resume processing, then one discovers that the 
-recovery sequence implemented on powerpc is not quite right.
-This patch fixes this up.
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+This patch solves these issues by :
 
-----
- arch/powerpc/platforms/pseries/eeh.c        |    1 +
- arch/powerpc/platforms/pseries/eeh_driver.c |   13 ++++++++++---
- 2 files changed, 11 insertions(+), 3 deletions(-)
+1) Moving the computation of 'w' to just before it is used, after the two 
+potential returns.
 
-Index: linux-2.6.19-rc1-git11/arch/powerpc/platforms/pseries/eeh_driver.c
-===================================================================
---- linux-2.6.19-rc1-git11.orig/arch/powerpc/platforms/pseries/eeh_driver.c	2006-10-26 16:21:06.000000000 -0500
-+++ linux-2.6.19-rc1-git11/arch/powerpc/platforms/pseries/eeh_driver.c	2006-10-26 16:33:19.000000000 -0500
-@@ -170,14 +170,19 @@ static void eeh_report_reset(struct pci_
- static void eeh_report_resume(struct pci_dev *dev, void *userdata)
+2) Remove the initial assignment of 'dentry->d_inode' 
+(aka resp->fh.fh_dentry->d_inode) to 'inode' so that the assignment only 
+happens once and happens after the NULL test.
+
+
+So we get 3 benefits from this patch : 
+
+1) We avoid a potential NULL pointer deref.
+
+2) We save a few CPU cycles from not computing 'w' in the case of an early 
+return as well as saving the assignment to 'inode' in the  dentry == NULL 
+case, and there's only a single assignment to 'inode' ever.
+
+3) We save a few bytes of .text in the object file.
+    before:
+        text    data     bss     dec     hex filename
+        2502     204       0    2706     a92 fs/nfsd/nfs2acl.o
+    after:
+        text    data     bss     dec     hex filename
+        2489     204       0    2693     a85 fs/nfsd/nfs2acl.o
+
+
+Patch is compile tested only since I don't currently have a setup where I 
+can meaningfully test it further.
+
+Please comment and/or apply.
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ fs/nfsd/nfs2acl.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/fs/nfsd/nfs2acl.c b/fs/nfsd/nfs2acl.c
+index e3eca08..d89d63f 100644
+--- a/fs/nfsd/nfs2acl.c
++++ b/fs/nfsd/nfs2acl.c
+@@ -221,12 +221,10 @@ static int nfsaclsvc_encode_getaclres(st
+ 		struct nfsd3_getaclres *resp)
  {
- 	struct pci_driver *driver = dev->driver;
-+	struct device_node *dn = pci_device_to_OF_node(dev);
+ 	struct dentry *dentry = resp->fh.fh_dentry;
+-	struct inode *inode = dentry->d_inode;
+-	int w = nfsacl_size(
+-		(resp->mask & NFS_ACL)   ? resp->acl_access  : NULL,
+-		(resp->mask & NFS_DFACL) ? resp->acl_default : NULL);
+ 	struct kvec *head = rqstp->rq_res.head;
++	struct inode *inode;
+ 	unsigned int base;
++	int w;
+ 	int n;
  
- 	dev->error_state = pci_channel_io_normal;
+ 	if (dentry == NULL || dentry->d_inode == NULL)
+@@ -239,6 +237,9 @@ static int nfsaclsvc_encode_getaclres(st
+ 		return 0;
+ 	base = (char *)p - (char *)head->iov_base;
  
- 	if (!driver)
- 		return;
--	if (!driver->err_handler)
--		return;
--	if (!driver->err_handler->resume)
-+
-+	if ((PCI_DN(dn)->eeh_mode) & EEH_MODE_IRQ_DISABLED) {
-+		PCI_DN(dn)->eeh_mode &= ~EEH_MODE_IRQ_DISABLED;
-+		enable_irq(dev->irq);
-+	}
-+	if (!driver->err_handler ||
-+	    !driver->err_handler->resume)
- 		return;
- 
- 	driver->err_handler->resume(dev);
-@@ -407,6 +412,8 @@ struct pci_dn * handle_eeh_events (struc
- 
- 		if (rc)
- 			result = PCI_ERS_RESULT_NEED_RESET;
-+		else
-+			result = PCI_ERS_RESULT_RECOVERED;
- 	}
- 
- 	/* If any device has a hard failure, then shut off everything. */
++	w = nfsacl_size(
++		(resp->mask & NFS_ACL)   ? resp->acl_access  : NULL,
++		(resp->mask & NFS_DFACL) ? resp->acl_default : NULL);
+ 	rqstp->rq_res.page_len = w;
+ 	while (w > 0) {
+ 		if (!rqstp->rq_respages[rqstp->rq_resused++])
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html
+
+

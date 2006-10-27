@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752333AbWJ0RWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752360AbWJ0RfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752333AbWJ0RWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 13:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752335AbWJ0RWZ
+	id S1752360AbWJ0RfV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 13:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752361AbWJ0RfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 13:22:25 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58595 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752314AbWJ0RWY (ORCPT
+	Fri, 27 Oct 2006 13:35:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4520 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752359AbWJ0RfU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 13:22:24 -0400
-Date: Fri, 27 Oct 2006 19:22:19 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [RFC: 2.6.19 patch] let PCI_MULTITHREAD_PROBE depend on BROKEN
-Message-ID: <20061027172219.GC30416@elf.ucw.cz>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061026224541.GQ27968@stusta.de> <20061027010252.GV27968@stusta.de> <20061027012058.GH5591@parisc-linux.org> <20061026182838.ac2c7e20.akpm@osdl.org> <20061026191131.003f141d@localhost.localdomain> <20061027170748.GA9020@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061027170748.GA9020@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 27 Oct 2006 13:35:20 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161968942.1306.87.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161968942.1306.87.camel@moss-spartans.epoch.ncsc.mil>  <1161965410.1306.47.camel@moss-spartans.epoch.ncsc.mil> <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil> <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <2340.1161903200@redhat.com> <4786.1161963766@redhat.com> <5506.1161966323@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, aviro@redhat.com,
+       linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+       chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 27 Oct 2006 18:34:10 +0100
+Message-ID: <7451.1161970450@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> > > > > PCI_MULTITHREAD_PROBE is an interesting feature, but in it's current 
-> > > > > state it seems to be more of a trap for users who accidentally
-> > > > > enable it.
-> > > > > 
-> > > > > This patch lets PCI_MULTITHREAD_PROBE depend on BROKEN for 2.6.19.
-> > > > > 
-> > > > > The intention is to get this patch reversed in -mm as soon as it's in 
-> > > > > Linus' tree, and reverse it for 2.6.20 or 2.6.21 after the fallout of 
-> > > > > in-kernel problems PCI_MULTITHREAD_PROBE causes got fixed.
-> > > > 
-> > > > People who enable features clearly marked as EXPERIMENTAL deserve what
-> > > > they get, IMO.
-> > > 
-> > > It's not the impact on "people" which is of concern - it's the impact on
-> > > kernel developers - specifically those who spend time looking at bug
-> > > reports :(
+> > You start the cache by mounting it:
 > > 
-> > Either it is broken and should be removed, or is barely working and
-> > should be fixed. If Greg wants to take bug reports then it can stay.
+> > 	mount -t cachefs /dev/hdx9 /cachefs
+> > 
+> > Then it's online.  However, you might want to check that whoever's calling
+> > mount has permission to bring a cache online...
 > 
-> I want to keep taking bug reports.
+> Hmmm...that raises a separate issue - how does SELinux label cachefs
+> inodes?  Does cachefs support xattrs?  Other option is to use a mount
+> context (mount -o context=...) to apply a single context to all inodes
+> within it.
+
+There are only two inodes publically available through cachefs - the root dir
+and a file of statistics - and they're both read only.  Everything else, for
+the moment, is strictly internal and unavailable to userspace.  In fact, there
+may not be any other inodes.
+
+> Where exactly is the cachefs code available?
+
+It'll need a little bit of work to make it compilable again; but I can probably
+get you a copy on Monday.  I've been concentrating on CacheFiles.
+
+> I'm also unclear on where you establish the binding between the files
+> being cached and the cache.  What specifies that e.g. a given NFS mount
+> should be backed to a given cache?  We need to be able to control that
+> relationship too, to establish that the cache is being protected
+> adequately for the source data.
+
+Yes.  I haven't worked that one out yet.  Currently it's not a problem as only
+CacheFiles is available at the moment, and that currently only supports one
+cache.
+
+But I have an idea that I need to work on to make it possible to associate
+directories and files with caches (or other useful parameters).
+
+> >  (1) Permission to bring a cache online or to take a cache offline.
 > 
-> I've found only 1 real bug from all of this.  The pci MSI initialization
-> issue.  It's on my queue of things to fix.  Andrew has also sent me
-> another "interesting" patch about making sure devices are found by the
-> time we hit another init level which I'll see about adding too.
+> At present, this will show up as the usual checking on mount (security
+> hooks in do_mount and vfs_kern_mount) and on umount (security hook in
+> do_umount) by SELinux.  I'm not sure whether you need anything specific
+> to the cache.
 
-And the swsusp vs. SATA issue? Currently, SATA can be initialized
-after swsusp, leading to swsusp not finding its image and failing...
+That doesn't apply to CacheFiles, but okay; we can always add it later if we
+decide we want it.
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+David

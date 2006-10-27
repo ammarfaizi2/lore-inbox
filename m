@@ -1,148 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752452AbWJ0VBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWJ0VMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752452AbWJ0VBc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 17:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752451AbWJ0VBc
+	id S1751488AbWJ0VMw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 17:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWJ0VMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 17:01:32 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:50115 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1752446AbWJ0VBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 17:01:31 -0400
-Date: Fri, 27 Oct 2006 17:01:11 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Holden Karau <holden@pigscanfly.ca>
-Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       holdenk@xandros.com, "akpm@osdl.org" <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, holden.karau@gmail.com
-Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes in fat_mirror_bhs [really unmangled]
-Message-ID: <20061027210110.GA22059@filer.fsl.cs.sunysb.edu>
-References: <4540A32E.5050602@pigscanfly.ca>
-Mime-Version: 1.0
+	Fri, 27 Oct 2006 17:12:51 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:11731 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751488AbWJ0VMv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 17:12:51 -0400
+Date: Fri, 27 Oct 2006 16:12:28 -0500
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Subject: [PATCH] powerpc: EEH recovery tweaks
+Message-ID: <20061027211227.GJ6360@austin.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4540A32E.5050602@pigscanfly.ca>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of these may overlap with what others suggested.
 
-On Thu, Oct 26, 2006 at 07:59:42AM -0400, Holden Karau wrote:
-...
-> --- a/fs/fat/fatent.c	2006-09-19 23:42:06.000000000 -0400
-> +++ b/fs/fat/fatent.c	2006-10-25 19:14:14.000000000 -0400
-...
-> -/* FIXME: We can write the blocks as more big chunk. */
->  static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
-> -			  int nr_bhs)
-> +			  int nr_bhs ) {
-> +  return fat_mirror_bhs_optw(sb , bhs , nr_bhs, 0);
-> +}
+Paul,
 
-Coding style... (brackets and indentation)
+Please apply and forward upstream. This patch is not urgent,
+it provides fixes for a code path that is not currently used
+by any existing driver.
 
-> +static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
-> +			       int nr_bhs , int wait)
->  {
->  	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-> -	struct buffer_head *c_bh;
-> +	struct buffer_head *c_bh[nr_bhs];
->  	int err, n, copy;
->  
-> +	/* Always wait if mounted -o sync */
-> +	if (sb->s_flags & MS_SYNCHRONOUS ) {
-> +	  wait = 1;
-> +	}
+--linas
 
-Ditto (indentation).
+If one attempts to create a device driver recovery sequence that
+does not depend on a hard reset of the device, but simply just
+attempts to resume processing, then one discovers that the 
+recovery sequence implemented on powerpc is not quite right.
+This patch fixes this up.
 
->  	err = 0;
-> +	err = fat_sync_bhs_optw( bhs  , nr_bhs , wait);
-> +	if (err)
-> +	  goto error;
->  	for (copy = 1; copy < sbi->fats; copy++) {
->  		sector_t backup_fat = sbi->fat_length * copy;
-> -
->  		for (n = 0; n < nr_bhs; n++) {
-> -			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
-> -			if (!c_bh) {
-> +	    c_bh[n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
-> +	    if (!c_bh[n]) {
->  				err = -ENOMEM;
->  				goto error;
->  			}
-> -			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
-> -			set_buffer_uptodate(c_bh);
-> -			mark_buffer_dirty(c_bh);
-> -			if (sb->s_flags & MS_SYNCHRONOUS)
-> -				err = sync_dirty_buffer(c_bh);
-> -			brelse(c_bh);
-> +	    set_buffer_uptodate(c_bh[n]);
-> +	    mark_buffer_dirty(c_bh[n]);
-> +	    memcpy(c_bh[n]->b_data, bhs[n]->b_data, sb->s_blocksize);
-> +	  }
-> +	  err = fat_sync_bhs_optw( c_bh  , nr_bhs , wait );
-> +	  for (n = 0; n < nr_bhs; n++ ) {
-> +	    brelse(c_bh[n]);
-> +	  }
->  			if (err)
->  				goto error;
->  		}
-> -	}
->  error:
->  	return err;
->  }
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
-Ditto.
+----
+ arch/powerpc/platforms/pseries/eeh.c        |    1 +
+ arch/powerpc/platforms/pseries/eeh_driver.c |   13 ++++++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-> @@ -505,9 +513,9 @@ out:
->  	fatent_brelse(&fatent);
->  	if (!err) {
->  		if (inode_needs_sync(inode))
-> -			err = fat_sync_bhs(bhs, nr_bhs);
-> -		if (!err)
-> -			err = fat_mirror_bhs(sb, bhs, nr_bhs);
-> +		  err = fat_mirror_bhs_optw(sb , bhs, nr_bhs , 1);
-> +		else
-> +		  err = fat_mirror_bhs_optw(sb, bhs, nr_bhs , 0 );
-
-Ditto.
-
-> --- a/fs/fat/misc.c	2006-09-19 23:42:06.000000000 -0400
-> +++ b/fs/fat/misc.c	2006-10-25 18:54:27.000000000 -0400
-> @@ -194,11 +194,17 @@ void fat_date_unix2dos(int unix_date, __
->  
->  EXPORT_SYMBOL_GPL(fat_date_unix2dos);
->  
-> -int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs)
-> +
-> +int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs ) {
-> +  return fat_sync_bhs_optw(bhs , nr_bhs , 1);
-> +}
-
-Indentation & bracket placement.
-
-> +int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs ,int wait)
->  {
->  	int i, err = 0;
->  
->  	ll_rw_block(SWRITE, nr_bhs, bhs);
-> +	if (wait) {
->  	for (i = 0; i < nr_bhs; i++) {
->  		wait_on_buffer(bhs[i]);
->  		if (buffer_eopnotsupp(bhs[i])) {
-> @@ -207,6 +213,7 @@ int fat_sync_bhs(struct buffer_head **bh
->  		} else if (!err && !buffer_uptodate(bhs[i]))
->  			err = -EIO;
->  	}
-> +	}
+Index: linux-2.6.19-rc1-git11/arch/powerpc/platforms/pseries/eeh_driver.c
+===================================================================
+--- linux-2.6.19-rc1-git11.orig/arch/powerpc/platforms/pseries/eeh_driver.c	2006-10-26 16:21:06.000000000 -0500
++++ linux-2.6.19-rc1-git11/arch/powerpc/platforms/pseries/eeh_driver.c	2006-10-26 16:33:19.000000000 -0500
+@@ -170,14 +170,19 @@ static void eeh_report_reset(struct pci_
+ static void eeh_report_resume(struct pci_dev *dev, void *userdata)
+ {
+ 	struct pci_driver *driver = dev->driver;
++	struct device_node *dn = pci_device_to_OF_node(dev);
  
-Indentation.
+ 	dev->error_state = pci_channel_io_normal;
  
-Josef "Jeff" Sipek.
-
--- 
-Mankind invented the atomic bomb, but no mouse would ever construct a
-mousetrap.
-		- Albert Einstein
+ 	if (!driver)
+ 		return;
+-	if (!driver->err_handler)
+-		return;
+-	if (!driver->err_handler->resume)
++
++	if ((PCI_DN(dn)->eeh_mode) & EEH_MODE_IRQ_DISABLED) {
++		PCI_DN(dn)->eeh_mode &= ~EEH_MODE_IRQ_DISABLED;
++		enable_irq(dev->irq);
++	}
++	if (!driver->err_handler ||
++	    !driver->err_handler->resume)
+ 		return;
+ 
+ 	driver->err_handler->resume(dev);
+@@ -407,6 +412,8 @@ struct pci_dn * handle_eeh_events (struc
+ 
+ 		if (rc)
+ 			result = PCI_ERS_RESULT_NEED_RESET;
++		else
++			result = PCI_ERS_RESULT_RECOVERED;
+ 	}
+ 
+ 	/* If any device has a hard failure, then shut off everything. */

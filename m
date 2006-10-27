@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946407AbWJ0Lav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946410AbWJ0LaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946407AbWJ0Lav (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 07:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946415AbWJ0Lav
+	id S1946410AbWJ0LaW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 07:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946412AbWJ0LaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 07:30:51 -0400
-Received: from science.horizon.com ([192.35.100.1]:50239 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1946407AbWJ0Lau
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 07:30:50 -0400
-Date: 27 Oct 2006 07:30:49 -0400
-Message-ID: <20061027113049.7236.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux@horizon.com, zippel@linux-m68k.org
-Subject: Re: 2.6.19-rc2 and very unstable NTP
-Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0610271250490.6761@scrub.home>
+	Fri, 27 Oct 2006 07:30:22 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2448 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1946410AbWJ0LaV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 07:30:21 -0400
+Date: Fri, 27 Oct 2006 13:30:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>
+Subject: Re: [PATCH 1/4] Prep for paravirt: Be careful about touching BIOS address space
+Message-ID: <20061027113001.GB8095@elf.ucw.cz>
+References: <1161920325.17807.29.camel@localhost.localdomain> <1161920535.17807.33.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161920535.17807.33.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> To analyze the kernel behaviour I would at least need the information fed 
-> to the kernel, e.g. by tracing the ntp daemon via "TZ=utc strace -f -tt 
-> -e trace=adjtimex -o ntpd.trace ..." and the ntp peer logs of same time 
-> period. Kernel boot messages and config might help as well.
+Hi!
 
-Actually, I just found it!  It's kind of a combination bug.
+> (Andrew had already taken that last one, I meant to send this)
+> 
+> Subject: Be careful about touching BIOS address space
+> 
+> BIOS ROM areas may not be mapped into the guest address space, so be careful
+> when touching those addresses to make sure they appear to be mapped.
+> 
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> ===================================================================
+> --- a/arch/i386/kernel/setup.c
+> +++ b/arch/i386/kernel/setup.c
+> @@ -270,7 +270,14 @@ static struct resource standard_io_resou
+>  	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+>  } };
+>  
+> -#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
+> +static inline int romsignature(const unsigned char *x)
+> +{
+> +     unsigned short sig;
+> +     int ret = 0;
+> +     if (__get_user(sig, (const unsigned short *)x) == 0)
+> +	  ret = (sig == 0xaa55);
 
-I had hacked NTP_MINPOLL to 2 in the ntpd source, and was using that
-value on the pps source.  But ntpd would copy that value, minus 4,
-into ntv.constant (and set ADJ_TIMECONST), and adjtimex() would complain
-and return EINVAL.
+Indentation is b0rken here.
 
-It wouldn't accept the passed-in values, but would still fill in the
-structure with the current values.
-
-But ntpd didn't notice or log this error, and would log the *returned*
-consstant.  Which was oddly dissociated from the expected one.
-
-The failure to check the return code is an ntpd bug.
-
-
-Now, in the kernel, I wonder what the allowed range should properly be.
-
-I notice that on the input side, you have
-	time_constant = min(txc->constant + 4, (long)MAXTC);
-but on the output side, it's
-	txc->constant      = time_constant;
-
-This is clearly inconsistent and wrong, but which side should be fixed
-is an interesting question I haven't got an answer to yet.
-
-For now, I've just hacked the kernel to allow values of time_constant
-down to 0 (txc->constant >= -4), as nothing will break with that
-value.  (The only complicated one is ntp.c:296, and SHIFT_PLL is 4,
-while SHIFT_NSEC is 12, so it all works.)
-
-(Also, is MAXTC high enough for ntpv4?  I think it's in "-4" space,
-so it should be time_constant = min(txc->constant, (long)MAXTC) + 4;)
-
-
-That was an interesting piece of debugging... I was all over the map
-before finding it.  And your suggestion of "strace -e adjtimex" was
-indeed exactly what found it in the end.
-
-So thanks!
+And... is get_user right primitive for accessing area that may not be
+there?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

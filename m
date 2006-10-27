@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161481AbWJ0DOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946130AbWJ0DS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161481AbWJ0DOH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 23:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161480AbWJ0DOG
+	id S1946130AbWJ0DS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 23:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161484AbWJ0DS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 23:14:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11162 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161478AbWJ0DOD (ORCPT
+	Thu, 26 Oct 2006 23:18:26 -0400
+Received: from pat.uio.no ([129.240.10.4]:34256 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1161483AbWJ0DSZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 23:14:03 -0400
-Date: Thu, 26 Oct 2006 20:13:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: Jeff Garzik <jeff@garzik.org>, netdev <netdev@vger.kernel.org>,
-       Christoph Raisch <raisch@de.ibm.com>,
-       "Jan-Bernd Themann" <themann@de.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [PATCH 2.6.19-rc3 1/2] ehea: kzalloc GFP_ATOMIC fix
-Message-Id: <20061026201313.9c831fc9.akpm@osdl.org>
-In-Reply-To: <200610251311.43009.ossthema@de.ibm.com>
-References: <200610251311.43009.ossthema@de.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Oct 2006 23:18:25 -0400
+Date: Fri, 27 Oct 2006 05:18:17 +0200 (CEST)
+From: Martin Tostrup Setek <martitse@student.matnat.uio.no>
+To: nagar@watson.ibm.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH: 2.6.18.1] delayacct: cpu_count in taskstats updated correctly
+Message-ID: <Pine.LNX.4.63.0610270440500.21448@honbori.ifi.uio.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5.401, required 12,
+	autolearn=disabled, AWL -0.40, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Oct 2006 13:11:42 +0200
-Jan-Bernd Themann <ossthema@de.ibm.com> wrote:
+from: Martin T. Setek <martitse@ifi.uio.no>
 
-> This patch fixes kzalloc parameters (GFP_ATOMIC instead of GFP_KERNEL)
+cpu_count in struct taskstats should be the same as the corresponding 
+(third) value found in /proc/<pid>/schedstat
+Signed-off-by: <martitse@ifi.uio.no>
+---
+Index: linux-2.6.18.1/kernel/delayacct.c
+===================================================================
+--- linux-2.6.18.1.orig/kernel/delayacct.c
++++ linux-2.6.18.1/kernel/delayacct.c
+@@ -124,7 +124,7 @@ int __delayacct_add_tsk(struct taskstats
+  	t2 = tsk->sched_info.run_delay;
+  	t3 = tsk->sched_info.cpu_time;
 
-why?
+-	d->cpu_count += t1;
++	d->cpu_count = t1;
+
+  	jiffies_to_timespec(t2, &ts);
+  	tmp = (s64)d->cpu_delay_total + timespec_to_ns(&ts);

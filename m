@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752440AbWJ0UIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWJ0USJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752440AbWJ0UIt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 16:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752441AbWJ0UIt
+	id S1751036AbWJ0USJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 16:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWJ0USJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 16:08:49 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:59938 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752440AbWJ0UIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 16:08:48 -0400
+	Fri, 27 Oct 2006 16:18:09 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:61262 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751036AbWJ0USH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 16:18:07 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aMj07C4gxIUban8D79540n/EZMhjZivUrNHUQDA5Fv0Kt9MWvWYWUYz4CBZuSyML/+weQafc69lozMZcqGlgo8LYNjLALQxynH+/8iKwKjbCwdSAoU2iiqw8QTsi80Vc8pmlB5/DgjYJos72HyHfwSeLWSDxnOxJTWVg0TwrAWs=
-Message-ID: <cda58cb80610271308v137a2de8vfb8123a422270144@mail.gmail.com>
-Date: Fri, 27 Oct 2006 22:08:47 +0200
-From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-To: "Miguel Ojeda" <maxextreme@gmail.com>
-Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <653402b90610260745w59b740d2x5961e40252f5b76@mail.gmail.com>
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=bHOWvypR4KVa3MzMYM682yaRMvMqiZ/w06+1yXxQ7p2lHeALdua5AyFNAQ9zNjlBg/EBxQgG3sgb95em2QEwvFRg9XBnFvJEYEB/pYyiSpf/VR1wZs4oG19cEJFKbSS1xtbQ7zUb/stYBjzXlGUcPROV7hQxtbMUqcFx14K4YpA=
+Date: Fri, 27 Oct 2006 22:18:20 +0200
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: AMD X2 unsynced TSC fix?
+Message-ID: <20061027201820.GA8394@dreamland.darkstar.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061013023218.31362830.maxextreme@gmail.com>
-	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>
-	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
-	 <453CE143.3070909@innova-card.com>
-	 <653402b90610230921j595446a4xda5e6d9444e108da@mail.gmail.com>
-	 <cda58cb80610230951l4a1319bbs6956fea5143c021a@mail.gmail.com>
-	 <653402b90610260745w59b740d2x5961e40252f5b76@mail.gmail.com>
+In-Reply-To: <1161969308.27225.120.camel@mindpipe>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/26/06, Miguel Ojeda <maxextreme@gmail.com> wrote:
-> No way. Each controller would have different wirings, pins, in-outs,
-> specifications (...) You will need to code an almost whole new fbdev
-> driver (althought maybe it will be so similar to cfag12864b so you
-> only need to make few little changes, but that is unsure).
->
+Lee Revell <rlrevell@joe-job.com> ha scritto:
+> Someone recently pointed out to me that a Windows "CPU driver update"
+> supplied by AMD fixes the unsynced TSC problem on dual core AMD64
+> systems.
+[...]
+> other incorrect timing effects that these applications may experience on
+> dual-core processor systems, by periodically adjusting the core
+> time-stamp-counters, so that they are synchronized."
+> 
+> What are the chances of Linux getting a similar fix?
 
-that's what I was trying to point out. I was wondering if you could
-make your driver a little more generic so another lcd could use your
-driver as is.
+Zero? ;)
+There's always a window where the TSCs are not in sync (and userspace may
+see a non-monotonic counter); furthermore when C'n'Q is active TSCs
+aren't updated at a fixed frequency, userspace cannot use TSC for timing
+anyway.
 
-> Well, you were right about mmaping, but you weren't about
-> "info->fix.smem_start". smem_start expects a physical address. RAM
-> addresses can't be mmapped as usual
 
-Sorry I don't understand your last sentence. Can you explain please ?
-
+Luca
 -- 
-               Franck
+> While we're on all of this, are we going to change "tained" to some
+> other less alarmist word?
+"screwed" -- Alexander Viro

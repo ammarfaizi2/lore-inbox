@@ -1,243 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946437AbWJ0LhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946442AbWJ0Li5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946437AbWJ0LhG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 07:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946435AbWJ0Lgm
+	id S1946442AbWJ0Li5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 07:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946438AbWJ0Li4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 07:36:42 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:63227 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1946424AbWJ0LgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 07:36:15 -0400
-Date: Fri, 27 Oct 2006 13:36:50 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Greg K-H <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [Patch 2/7] driver core fixes: sysfs_create_link() retval checks in
- core.c
-Message-ID: <20061027133650.4539f0c7@gondolin.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 07:38:56 -0400
+Received: from barracuda.s2io.com ([72.1.205.138]:15488 "EHLO
+	barracuda.s2io.com") by vger.kernel.org with ESMTP id S1946434AbWJ0Liy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 07:38:54 -0400
+X-ASG-Debug-ID: 1161949132-23207-18-2
+X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
+X-ASG-Whitelist: Client
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-ASG-Orig-Subj: RE: [PATCH] s2io: add PCI error recovery support
+Subject: RE: [PATCH] s2io: add PCI error recovery support
+Date: Fri, 27 Oct 2006 07:35:18 -0400
+Message-ID: <78C9135A3D2ECE4B8162EBDCE82CAD77DC20B7@nekter>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] s2io: add PCI error recovery support
+Thread-Index: Acb5UPIk+FuEC99QSEiibrVgsuI1OQAam68g
+From: "Ananda Raju" <Ananda.Raju@neterion.com>
+To: "Linas Vepstas" <linas@austin.ibm.com>
+Cc: "Wen Xiong" <wenxiong@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+       <linux-pci@atrey.karlin.mff.cuni.cz>, <netdev@vger.kernel.org>,
+       "Jeff Garzik" <jgarzik@pobox.com>, "Andrew Morton" <akpm@osdl.org>
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Looking at all scenarios I feel the first patch is OK. Can you add the
+watchdog timer fix to first initial patch and resubmit. 
 
-Check for return value of sysfs_create_link() in device_add()
-and device_rename().  Add helper functions device_add_class_symlinks() and
-device_remove_class_symlinks() to make the code easier to read.
+-----Original Message-----
+From: Linas Vepstas [mailto:linas@austin.ibm.com] 
+Sent: Thursday, October 26, 2006 3:52 PM
+To: Ananda Raju
+Cc: Wen Xiong; linux-kernel@vger.kernel.org;
+linux-pci@atrey.karlin.mff.cuni.cz; netdev@vger.kernel.org; Jeff Garzik;
+Andrew Morton
+Subject: Re: [PATCH] s2io: add PCI error recovery support
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Hi.
 
----
+On Thu, Oct 26, 2006 at 05:56:34AM -0400, Ananda Raju wrote:
+> Hi, 
+> Can you try attached patch. The attached patch is simple. We set card
+> state as down in error_detecct() so that all entry points return error
+> and don't proceed further.
+> 
+> In slot_reset() we do s2io_card_down() will reset adapter. 
+> In io_resume() we bringup the driver. 
 
- drivers/base/core.c |  133 +++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 97 insertions(+), 36 deletions(-)
+Simplicity is always better. However, some questions/comments:
 
---- linux-2.6.orig/drivers/base/core.c
-+++ linux-2.6/drivers/base/core.c
-@@ -365,6 +365,75 @@ static void klist_children_put(struct kl
- }
- 
- 
-+static int device_add_class_symlinks(struct device *dev)
-+{
-+	int error;
-+
-+	if (!dev->class)
-+		return 0;
-+	error = sysfs_create_link(&dev->kobj, &dev->class->subsys.kset.kobj,
-+				  "subsystem");
-+	if (error)
-+		goto out;
-+	error = sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
-+				  dev->bus_id);
-+	if (error)
-+		goto out_subsys;
-+#ifdef CONFIG_SYSFS_DEPRECATED
-+	if (dev->parent) {
-+		char *class_name;
-+
-+		error = sysfs_create_link(&dev->kobj, &dev->parent->kobj,
-+					  "device");
-+		if (error)
-+			goto out_busid;
-+		class_name = make_class_name(dev->class->name, &dev->kobj);
-+		if (!class_name) {
-+			error = -ENOMEM;
-+			goto out_busid;
-+		}
-+		error = sysfs_create_link(&dev->parent->kobj, &dev->kobj,
-+					  class_name);
-+		kfree(class_name);
-+		if (error)
-+			goto out_device;
-+	}
-+#endif
-+	return 0;
-+
-+#ifdef CONFIG_SYSFS_DEPRECATED
-+out_device:
-+	if (dev->parent)
-+		sysfs_remove_link(&dev->kobj, "device");
-+out_busid:
-+#endif
-+	sysfs_remove_link(&dev->class->subsys.kset.kobj, dev->bus_id);
-+out_subsys:
-+	sysfs_remove_link(&dev->kobj, "subsystem");
-+out:
-+	return error;
-+}
-+
-+static void device_remove_class_symlinks(struct device *dev)
-+{
-+	if (!dev->class)
-+		return;
-+#ifdef CONFIG_SYSFS_DEPRECATED
-+	if (dev->parent) {
-+		char *class_name;
-+
-+		class_name = make_class_name(dev->class->name, &dev->kobj);
-+		if (class_name) {
-+			sysfs_remove_link(&dev->parent->kobj, class_name);
-+			kfree(class_name);
-+		}
-+		sysfs_remove_link(&dev->kobj, "device");
-+	}
-+#endif
-+	sysfs_remove_link(&dev->class->subsys.kset.kobj, dev->bus_id);
-+	sysfs_remove_link(&dev->kobj, "subsystem");
-+}
-+
- /**
-  *	device_initialize - init device structure.
-  *	@dev:	device.
-@@ -442,7 +511,6 @@ int setup_parent(struct device *dev, str
- int device_add(struct device *dev)
- {
- 	struct device *parent = NULL;
--	char *class_name = NULL;
- 	struct class_interface *class_intf;
- 	int error = -EINVAL;
- 
-@@ -506,24 +574,8 @@ int device_add(struct device *dev)
- 		dev->devt_attr = attr;
- 	}
- 
--	if (dev->class) {
--		sysfs_create_link(&dev->kobj, &dev->class->subsys.kset.kobj,
--				  "subsystem");
--		sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
--				  dev->bus_id);
--#ifdef CONFIG_SYSFS_DEPRECATED
--		if (parent) {
--			sysfs_create_link(&dev->kobj, &dev->parent->kobj,
--							"device");
--			class_name = make_class_name(dev->class->name,
--							&dev->kobj);
--			if (class_name)
--				sysfs_create_link(&dev->parent->kobj,
--						  &dev->kobj, class_name);
--		}
--#endif
--	}
--
-+	if ((error = device_add_class_symlinks(dev)))
-+		goto SymlinkError;
- 	if ((error = device_add_attrs(dev)))
- 		goto AttrsError;
- 	if ((error = device_add_groups(dev)))
-@@ -550,7 +602,6 @@ int device_add(struct device *dev)
- 		up(&dev->class->sem);
- 	}
-  Done:
-- 	kfree(class_name);
- 	put_device(dev);
- 	return error;
-  AttachError:
-@@ -565,6 +616,8 @@ int device_add(struct device *dev)
-  GroupError:
-  	device_remove_attrs(dev);
-  AttrsError:
-+	device_remove_class_symlinks(dev);
-+ SymlinkError:
- 	if (dev->devt_attr) {
- 		device_remove_file(dev, dev->devt_attr);
- 		kfree(dev->devt_attr);
-@@ -864,7 +917,7 @@ int device_rename(struct device *dev, ch
- {
- 	char *old_class_name = NULL;
- 	char *new_class_name = NULL;
--	char *old_symlink_name = NULL;
-+	char *old_device_name = NULL;
- 	int error;
- 
- 	dev = get_device(dev);
-@@ -878,25 +931,28 @@ int device_rename(struct device *dev, ch
- 		old_class_name = make_class_name(dev->class->name, &dev->kobj);
- #endif
- 
--	if (dev->class) {
--		old_symlink_name = kmalloc(BUS_ID_SIZE, GFP_KERNEL);
--		if (!old_symlink_name) {
--			error = -ENOMEM;
--			goto out_free_old_class;
--		}
--		strlcpy(old_symlink_name, dev->bus_id, BUS_ID_SIZE);
-+	old_device_name = kmalloc(BUS_ID_SIZE, GFP_KERNEL);
-+	if (!old_device_name) {
-+		error = -ENOMEM;
-+		goto out;
- 	}
--
-+	strlcpy(old_device_name, dev->bus_id, BUS_ID_SIZE);
- 	strlcpy(dev->bus_id, new_name, BUS_ID_SIZE);
- 
- 	error = kobject_rename(&dev->kobj, new_name);
-+	if (error) {
-+		strlcpy(dev->bus_id, old_device_name, BUS_ID_SIZE);
-+		goto out;
-+	}
- 
- #ifdef CONFIG_SYSFS_DEPRECATED
- 	if (old_class_name) {
- 		new_class_name = make_class_name(dev->class->name, &dev->kobj);
- 		if (new_class_name) {
--			sysfs_create_link(&dev->parent->kobj, &dev->kobj,
--					  new_class_name);
-+			error = sysfs_create_link(&dev->parent->kobj,
-+						  &dev->kobj, new_class_name);
-+			if (error)
-+				goto out;
- 			sysfs_remove_link(&dev->parent->kobj, old_class_name);
- 		}
- 	}
-@@ -904,16 +960,21 @@ int device_rename(struct device *dev, ch
- 
- 	if (dev->class) {
- 		sysfs_remove_link(&dev->class->subsys.kset.kobj,
--				  old_symlink_name);
--		sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
--				  dev->bus_id);
-+				  old_device_name);
-+		error = sysfs_create_link(&dev->class->subsys.kset.kobj,
-+					  &dev->kobj, dev->bus_id);
-+		if (error) {
-+			/* Uh... how to unravel this if restoring can fail? */
-+			dev_err(dev, "%s: sysfs_create_link failed (%d)\n",
-+				__FUNCTION__, error);
-+		}
- 	}
-+ out:
- 	put_device(dev);
- 
- 	kfree(new_class_name);
--	kfree(old_symlink_name);
-- out_free_old_class:
- 	kfree(old_class_name);
-+	kfree(old_device_name);
- 
- 	return error;
- }
+> @@ -4175,6 +4186,10 @@ static irqreturn_t s2io_isr(int irq, voi
+>  	mac_info_t *mac_control;
+>  	struct config_param *config;
+>  
+> +	if (atomic_read(&sp->card_state) == CARD_DOWN) {
+> +		return IRQ_NONE;
+> +	}
+
+I used 
+
+    if ((sp->pdev->error_state != pci_channel_io_normal)
+
+here for a reason: the pdev->error_state is set even in an interrupt
+context, that is, it gets set even if interrups are disabled, and
+so it represents the actual state immediately. By contrast, the
+error callbacks do not get called until possibly much later, 
+and so sp->card_state = CARD_DOWN might not get set for a while.
+
+If, for any reason, e.g. some obscure corner case, the s2io 
+generates zillions of interupts, this could result in a soft-lockup.
+I actually saw this in the symbios device driver, which will
+regenerate an interrupt until its acknowledged -- and so it 
+sat there, spinning. :-(
+
+I was returning IRQ_HANDLED instead of IRQ_NONE, so as to avoid
+falling into handle_bad_irq() or report_bad_irq(). I haven't 
+seen this happen on s2io, but thought it would still be wise.
+
+If this can't happen, then there's no problem here.
+
+> +/**
+> + * s2io_io_slot_reset - called after the pci bus has been reset.
+> + * @pdev: Pointer to PCI device
+> + *
+> + * Restart the card from scratch, as if from a cold-boot.
+> + */
+> +static pci_ers_result_t s2io_io_slot_reset(struct pci_dev *pdev)
+> +{
+
+At this point, the card has just experienced a hardware reset,
+(the #RST wire was held low for 250 millisecs, followed by
+a settle time of 2 seconds, followed by whatever BIOS thinks
+it needed to do, followed by a restore of the pci config space
+to what it was after a cold boot. So the card is in a "fresh"
+state; in theory its identitcal to a cold boot. So ... 
+are you sure you want to "down" at this point? 
+
+> +		s2io_card_down(sp);
+> +		sp->device_close_flag = TRUE;	/* Device is shut down.
+*/
+
+
+One problem I'm having is that the watchdog timer sometimes
+pops and tries to reset the card before s2io_card_down()
+has a chance to run. I fixed this ... 
+
+======================
+So -- just for grins, I thought to myself, "Maybe I can make 
+s2io be the first adapter ever to fully recover without 
+a hard reset of the card."
+
+The idea is simple: 
+
+1) enable MMIO,
+2) call s2io_card_down()
+3) enable DMA
+4) cal s2io_card_up()
+
+I have a patch that does this, but then hit a few more snags.
+I haven't yet nailed down all the trouble spots, maybe tommorrow.
+
+--linas
+
+

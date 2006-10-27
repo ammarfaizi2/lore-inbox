@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946246AbWJ0IWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946248AbWJ0I1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946246AbWJ0IWS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 04:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946247AbWJ0IWS
+	id S1946248AbWJ0I1e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 04:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946247AbWJ0I1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 04:22:18 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:33895 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1946246AbWJ0IWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 04:22:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ejJ843KBlgnAv6Yg7szpBMFMOs1r0szUX4zYI6R5PsvkFekvStNY2sKAf6tRRrPYOQZooo/7qJ3bCS9nynk/mulCcNdaMZsbFBh7NfEcfvRxfQG+LCf0FU7mPztCFruT6QwcpRsO0ExCu5YF3Lp5k8kyoJwVClqe4VH/+WJ4FGc=  ;
-Message-ID: <4541C1B2.7070003@yahoo.com.au>
-Date: Fri, 27 Oct 2006 18:22:10 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 27 Oct 2006 04:27:34 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16052 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1946248AbWJ0I1d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 04:27:33 -0400
+Date: Fri, 27 Oct 2006 10:27:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [RFC: 2.6.19 patch] let PCI_MULTITHREAD_PROBE depend on BROKEN
+Message-ID: <20061027082726.GA1880@elf.ucw.cz>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061026224541.GQ27968@stusta.de> <20061027010252.GV27968@stusta.de> <20061027012058.GH5591@parisc-linux.org>
 MIME-Version: 1.0
-To: Richard Purdie <rpurdie@openedhand.com>
-CC: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH, RFC/T] Fix handling of write failures to swap devices
-References: <1161935995.5019.46.camel@localhost.localdomain>
-In-Reply-To: <1161935995.5019.46.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061027012058.GH5591@parisc-linux.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Purdie wrote:
-> Fix handling of write failures to swap devices.
+On Thu 2006-10-26 19:20:58, Matthew Wilcox wrote:
+> On Fri, Oct 27, 2006 at 03:02:52AM +0200, Adrian Bunk wrote:
+> > PCI_MULTITHREAD_PROBE is an interesting feature, but in it's current 
+> > state it seems to be more of a trap for users who accidentally
+> > enable it.
+> > 
+> > This patch lets PCI_MULTITHREAD_PROBE depend on BROKEN for 2.6.19.
+> > 
+> > The intention is to get this patch reversed in -mm as soon as it's in 
+> > Linus' tree, and reverse it for 2.6.20 or 2.6.21 after the fallout of 
+> > in-kernel problems PCI_MULTITHREAD_PROBE causes got fixed.
 > 
-> Calling SetPageError(page) marks the data in memory as bad and processes using
-> the page in question will die unexpectedly. This isn't necessary as the data 
-> in the memory page is still valid, just the copy on disk isn't. This patch 
-> therefore removes this call.
-> 
-> Setting set_page_dirty(page) is good as the memory page will be retained and 
-> processes don't die. It will try to write out the page again soon but a second 
-> attempt at a write is probably no more likely to succeed than the first 
-> resulting in IO loops. We can do better.
-> 
-> This patch attempts to unuse the page in a similar manner to swapoff. If 
-> successful, mark the swap page as bad and remove it from use. If we fail to
-> remove all references, we fall back on set_page_dirty above which will retry 
-> the write.
-> 
-> If we can mark the swap page as bad, adjust the VM accounting to reflect this.
-> 
-> Signed-off-by: Richard Purdie <rpurdie@openedhand.com>
-> 
-> ---
-> 
-> Comments and testing from people who know this area of code better than
-> me would be appreciated!
+> People who enable features clearly marked as EXPERIMENTAL deserve what
+> they get, IMO.
 
-This is the right approach to handling swap write errors. However, you need
-to cut down on the amount of code duplication. Also, if you hit that BUG_ON,
-then you probably have a bug, don't remove it!
+Eh? It is no longer "experimental". It went to "known broken in
+non-funny ways".
 
-Otherwise, this would be nice to have so it's great you're working on it,
-thanks.
+People normally use experimental features... (like cpu hotplug, acpi
+hotkeys, intel 830m framebuffer, USB CATC ethernet, SDHCI, kernel
+profiling) without expecting breakages. (Hmm, perhaps some of these
+should not be marked experimental any more?)
 
+I'd actually vote for removing MULTITHREAD_PROBE from kconfig,
+temporarily, but I guess BROKEN is okay, too.
+								Pavel
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

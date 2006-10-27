@@ -1,104 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752186AbWJ0NZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946474AbWJ0N0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752186AbWJ0NZa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 09:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752181AbWJ0NZa
+	id S1946474AbWJ0N0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 09:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946471AbWJ0N0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 09:25:30 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:8429 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1752179AbWJ0NZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 09:25:23 -0400
-Date: Fri, 27 Oct 2006 22:28:11 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com, tony.luck@intel.com, akpm@osdl.org,
-       kaneshige.kenji@jp.fujitsu.com, takeuchi_satoru@jp.fujitsu.com
-Subject: Re: [BUGFIX] [PATCH 1/2] cpu-hotplug: Fixing confliction between
- CPU hot-add and IPI
-Message-Id: <20061027222811.900b8008.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <87mz7ivxri.wl%takeuchi_satoru@jp.fujitsu.com>
-References: <87mz7ivxri.wl%takeuchi_satoru@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 27 Oct 2006 09:26:16 -0400
+Received: from mis011.exch011.intermedia.net ([64.78.21.10]:45993 "EHLO
+	mis011.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1946473AbWJ0N0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 09:26:15 -0400
+Message-ID: <454208EB.7080007@qumranet.com>
+Date: Fri, 27 Oct 2006 15:26:03 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
+Subject: Re: [PATCH 6/13] KVM: memory slot management
+References: <4540EE2B.9020606@qumranet.com> <200610270044.31382.arnd@arndb.de> <45419D73.1070106@qumranet.com> <200610270937.11646.arnd@arndb.de>
+In-Reply-To: <200610270937.11646.arnd@arndb.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Oct 2006 13:26:14.0036 (UTC) FILETIME=[79989D40:01C6F9CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006 19:49:53 +0900
-Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com> wrote:
+Arnd Bergmann wrote:
+> On Friday 27 October 2006 07:47, Avi Kivity wrote:
+>   
+>> Arnd Bergmann wrote:
+>>     
+>>> - no need to preallocate memory that the guest doesn't actually use.
+>>>   
+>>>       
+>> Well, a fully vitrualized guest will likely use all the memory it gets.  
+>> Linux certainly will.
+>>     
+>
+> Only if it does lots of disk accesses that load stuff into
+> page/inode/dentry cache. Single-application guests don't necessarily
+> do that.
+>
+>   
 
-> Fixing the confliction between CPU hot-add and IPI.
-> 
-Some more verbose inoformation ;)
+Okay.  FWIW, you can demand allocate with other schemes as well.
 
-This patch fixes following bug. found in our test.
-==
-Pid: 7905, CPU 4, comm:              memload
-psr : 0000121008022018 ifs : 800000000000038a ip  : [<a000000100054681>]    Not
-tainted
-ip is at handle_IPI+0x101/0x380
-unat: 0000000000000000 pfs : 000000000000040b rsc : 0000000000000003
-rnat: 0000000000565aa9 bsps: a0000001000943b0 pr  : 00000000005685a9
-ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c0270033f
-csd : 0000000000000000 ssd : 0000000000000000
-b0  : a0000001000e4340 b6  : a000000100054580 b7  : a000000000010640
-f6  : 000000000000000000000 f7  : 000000000000000000000
-f8  : 000000000000000000000 f9  : 1003effffffffffffc000
-f10 : 1003e0000000000000000 f11 : 000000000000000000000
-r1  : a000000100c14e40 r2  : fffffffffffffffe r3  : fffffffffffffffe
-r8  : 0000000000000001 r9  : 0000000000000000 r10 : 0000000000000000
-r11 : 0000000000017d00 r12 : e0000001341dfe30 r13 : e0000001341d8000
-r14 : 0000000000000001 r15 : e0000140040165f8 r16 : a000000100861400
-r17 : 0000000000000000 r18 : 0000000000000010 r19 : a000000100a2cc48
-r20 : 00000000000002fa r21 : ffffffffffff0028 r22 : a0000001009ce2c0
-r23 : a0000001009ce298 r24 : a000000100011a60 r25 : e0000001341dfe58
-r26 : c000000000000008 r27 : 000000000000000f r28 : a000000000010620
-r29 : a000000100879120 r30 : 0000000000000008 r31 : 0000000000550a41
+>>> - guest memory can be paged to disk.
+>>> - you can mmap files into multiple guest for fast communication
+>>> - you can use mmap host files as backing store for guest blockdevices,
+>>>   including ext2 with the -o xip mount option to avoid double paging
+>>>   
+>>>       
+>> What do you mean exactly? to respond to a block device read by mmap()ing 
+>> the backing file into the pages the host requested?
+>>
+>> (e.g. turn a host bio read into a guest mmap)
+>>     
+>
+> The idea would be to mmap the file into the guest real address space.
+> With -o xip, the page cache for the virtual device would basically
+> reside in that high address range.
+>   
 
-Call Trace:
- [<a000000100013e80>] show_stack+0x40/0xa0
-                                sp=e0000001341df9c0 bsp=e0000001341d9338
- [<a000000100014780>] show_regs+0x840/0x880
-                                sp=e0000001341dfb90 bsp=e0000001341d92e0
- [<a000000100037b60>] die+0x1c0/0x2a0
-                                sp=e0000001341dfb90 bsp=e0000001341d9298
- [<a000000100629040>] ia64_do_page_fault+0x8a0/0x9e0
-                                sp=e0000001341dfbb0 bsp=e0000001341d9248
- [<a00000010000c700>] __ia64_leave_kernel+0x0/0x280
-                                sp=e0000001341dfc60 bsp=e0000001341d9248
- [<a000000100054680>] handle_IPI+0x100/0x380
-                                sp=e0000001341dfe30 bsp=e0000001341d91f0
- [<a0000001000e4340>] handle_IRQ_event+0xa0/0x140
-                                sp=e0000001341dfe30 bsp=e0000001341d91b0
- [<a0000001000e4510>] __do_IRQ+0x130/0x3e0
-                                sp=e0000001341dfe30 bsp=e0000001341d9168
- [<a000000100011990>] ia64_handle_irq+0xf0/0x1a0
-                                sp=e0000001341dfe30 bsp=e0000001341d9138
- [<a00000010000c700>] __ia64_leave_kernel+0x0/0x280
-                                sp=e0000001341dfe30 bsp=e0000001341d9138
- <3>BUG: sleeping function called from invalid context at kernel/rwsem.c:20
-in_atomic():1, irqs_disabled():0
-==
-This is because handle_IPI() accesses call_data, which is NULL.
+Ah, I see what you mean now.  Like the "memory technology device" thing.
 
-The scenario is
 
-1. on CPU A: smp_call_funcion() is called.
-2. on CPU A: ncpus = num_online_cpus() - 1 is called. set ncpus=X.
-3. on CPU B: by cpu_hotplug, some cpus comes up to be online. changes online_map.
-4. on CPU A: smp_call_function() sends IPI. The targets of IPI is determined by
-   cpu_online_map(), which was changed. Then, IPIs are sent to *X+1* processors.
-5. on CPU A: wait for X(=ncpus) acks. 
-6. on CPU A: after getting all Acks. set call_data = NULL
-7. on some other cpu, which received *delayed* IPI(by some irq-disable ops)
-   will access call_data and panics.
 
-This patch moves ncpus=num_online_cpu() under ipi_call_lock.
-x86 implemtation does this. 
+> Guest users reading/writing files on it cause a memcopy between guest
+> user space and the host file mapping, done by the guest file system
+> implementation.
+>
+> The interesting point here is how to handle a host page fault on the
+> file mapping. The solution on z/VM for this is to generate a special
+> exception for this that will be caught by the guest kernel, telling
+> it to wait until the page is there. The guest kernel can then put the
+> current thread to sleep and do something else, until a second exception
+> tells it that the page has been loaded by the host. The guest then
+> wakes up the sleeping thread.
+>
+> This can work the same way for host file backed (guest block device)
+> and host anonymous (guest RAM) memory.
+>
+>   
 
--Kame
+Certainly something like that can be done, for paravirtualized guests.
+
+>> If we allow the pages to be writable, the guest could write into the 
+>> virtual block device just by modifying a read page (which might have be 
+>> discarded and no longer related to the block device)
+>>     
+>
+> In your virtual mmu (or nested page table), you need to make sure that
+> the page is mapped with the intersection of the guest vm_prot and host
+> vm_prot into guest users.
+>
+>   
+
+Yes.  My comment was based on an incorrect understanding of your suggestion.
+
+>> 2. The next mmu implementation, which caches guest translations.
+>>
+>> The potential problem above now becomes acute.  The guest will have 
+>> kernel mappings for every page, and after a short while they'll all be 
+>> faulted in and locked.  This defeats the swap integration which is IMO a 
+>> very strong point.
+>>
+>> We can work around that by periodically forcing out translations (some 
+>> kind of clock algorithm) at some rate so the host vm can have a go at 
+>> them.  That can turn out to be expensive as we'll need to interrupt all 
+>> running vcpus to flush (real) tlb entries.
+>>     
+>
+> Don't understand. Can't one CPU cause a TLB entry to be flushed on all
+> CPUs?
+>
+>   
+
+It's not about tlb entries.  The shadow page tables collaples a GV -> HV 
+-> HP  double translation into a GV -> HP page table.  When the Linux vm 
+goes around evicting pages, it invalidates those mappings.
+
+There are two solutions possible: lock pages which participate in these 
+translations (and their number can be large) or modify the Linux vm to 
+consult a reverse mapping and remove the translations (in which case TLB 
+entries need to be removed).
+
+>>   b.  we need to hide the userspace portion of the monitor from the 
+>> guest physical address space
+>>     
+>
+> That depends on your trust model. You could simply say that you expect
+> the guest real mode to have the same privileges as the host application
+> (your monitor), and not care if a guest can shoot itself in the foot
+> by overwriting the monitor.
+>   
+
+It can shoot not only its foot, but anything the monitor's uid has 
+access to.  Host files, the host network, other guests belonging to the 
+user, etc.
+
+>>   c.  we need to extend host tlb invalidations to invalidate tlbs on guests
+>>     
+>
+> I don't understand much about the x86 specific memory management,
+> but shouldn't a TLB invalidate of a given page do the right thing
+> on all CPUs, even if they are currently running a guest?
+>   
+It's worse than I thouht: tlb entries generated by guest accesses are 
+tagged with the guest virtual address, to if you remove a guest 
+physical/host virtual page you need to invalidate the entire guest tlb.
+
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

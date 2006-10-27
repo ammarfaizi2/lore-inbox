@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946166AbWJ0HXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946171AbWJ0HdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946166AbWJ0HXO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 03:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946165AbWJ0HXN
+	id S1946171AbWJ0HdW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 03:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946172AbWJ0HdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 03:23:13 -0400
-Received: from pat.uio.no ([129.240.10.4]:12225 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1946162AbWJ0HXM (ORCPT
+	Fri, 27 Oct 2006 03:33:22 -0400
+Received: from mail.gmx.net ([213.165.64.20]:63644 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1946171AbWJ0HdW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 03:23:12 -0400
-Date: Fri, 27 Oct 2006 09:23:05 +0200 (CEST)
-From: Martin Tostrup Setek <martitse@student.matnat.uio.no>
-To: David Rientjes <rientjes@cs.washington.edu>
-cc: Martin Tostrup Setek <martitse@student.matnat.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH: 2.6.18.1] delayacct: cpu_count in taskstats updated
- correctly
-In-Reply-To: <Pine.LNX.4.64N.0610262238510.30255@attu4.cs.washington.edu>
-Message-ID: <Pine.LNX.4.63.0610270919500.9454@honbori.ifi.uio.no>
-References: <Pine.LNX.4.63.0610270440500.21448@honbori.ifi.uio.no>
- <Pine.LNX.4.64N.0610262027350.12347@attu2.cs.washington.edu>
- <Pine.LNX.4.63.0610270545000.21448@honbori.ifi.uio.no>
- <Pine.LNX.4.64N.0610262238510.30255@attu4.cs.washington.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5.201, required 12,
-	autolearn=disabled, AWL -0.20, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 27 Oct 2006 03:33:22 -0400
+X-Authenticated: #14349625
+Subject: Re: [2.6.18-rt7] BUG: time warp detected!
+From: Mike Galbraith <efault@gmx.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1161929321.6102.2.camel@Homer.simpson.net>
+References: <1161847210.32585.14.camel@Homer.simpson.net>
+	 <1161897932.960.49.camel@localhost>
+	 <1161927940.6039.6.camel@Homer.simpson.net>
+	 <1161929321.6102.2.camel@Homer.simpson.net>
+Content-Type: text/plain
+Date: Fri, 27 Oct 2006 08:04:53 +0000
+Message-Id: <1161936293.6249.8.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2006, David Rientjes wrote:
-> I don't see a cpu_delay, I see a cpu_delay_total.  This is the CPU's
-> cumulative delay and is only accessible through the user-space accounting
-> program Documentation/accounting/getdelays.c.  It reports the number of
-> delay values recorded and the real total, virtual total, and delay total;
-> each of these are cumulative.
+On Fri, 2006-10-27 at 06:08 +0000, Mike Galbraith wrote:
+> On Fri, 2006-10-27 at 05:45 +0000, Mike Galbraith wrote:
+> > On Thu, 2006-10-26 at 14:25 -0700, john stultz wrote:
+> > > On Thu, 2006-10-26 at 07:20 +0000, Mike Galbraith wrote:
+> > > > $subject happened on my single P4/HT box sometime after resume from
+> > > > disk.  Hohum activity:  I had just read lkml and was retrieving latest
+> > > > glibc snapshot when I noticed the trace.  I also noticed that the kernel
+> > > > decided to use pit instead of tsc.
+> > > 
+> > > Huh. Was the PIT selected before or after the resume from disk?
+> > 
+> > Both.  If I don't specify tsc, it chooses pit.  I just removed freshly
+> > added clocksource=tsc, rebooted, and I'm back on pit again.
+> 
+> (hm. virgin 2.6.18 selects tsc properly... will rummage through rt7)
 
-Yes, I reread the docs more carefully. You are right, and I was wrong.
+#include <naughty_language.h>
 
-> In the use case for cpu_count, taking the difference of two successive
-> cpu_count readings as reported by getdelays.c would find the number of
-> delays experienced in that interval.  This is described in the program's
-> documentation so by definition the count must be cumulative.  It is also
-> possible to find the average delay but dividing cpu_delay_total by
-> cpu_count.
->
-> The original code is correct and accumulation is appropriate.
+#ifndef CONFIG_HIGH_RES_TIMERS
+		/* lower the rating if we already know its unstable: */
+		if (check_tsc_unstable())
+			clocksource_tsc.rating = 50;
+#else
+		/*
+		 * Mark TSC unsuitable for high resolution timers. TSC has so
+		 * many pitfalls: frequency changes, stop in idle ...  When we
+		 * switch to high resolution mode we can not longer detect a
+		 * firmware caused frequency change, as the emulated tick uses
+		 * TSC as reference. This results in a circular dependency.
+		 * Switch only to high resolution mode, if pm_timer or such
+		 * is available.
+		 */
+		clocksource_tsc.rating = 50;
+		clocksource_tsc.is_continuous = 0;
+#endif
 
-Thanks for setting me straight. I withdraw the patch.
 
-Martin

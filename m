@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752277AbWJ0POg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752278AbWJ0PQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752277AbWJ0POg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 11:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752278AbWJ0POf
+	id S1752278AbWJ0PQE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 11:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWJ0PQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 11:14:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6318 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752276AbWJ0POf (ORCPT
+	Fri, 27 Oct 2006 11:16:04 -0400
+Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:45965 "EHLO
+	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1752278AbWJ0PQC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 11:14:35 -0400
-Date: Fri, 27 Oct 2006 08:14:13 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Gianluca Alberici <gianluca@abinetworks.biz>, linux-kernel@vger.kernel.org
-Subject: Re: incorrect taint of ndiswrapper
-Message-ID: <20061027081413.04df9f7f@localhost.localdomain>
-In-Reply-To: <1161959098.12281.3.camel@laptopd505.fenrus.org>
-References: <1161807069.3441.33.camel@dv>
-	<1161808227.7615.0.camel@localhost.localdomain>
-	<20061025205923.828c620d.akpm@osdl.org>
-	<1161859199.12781.7.camel@localhost.localdomain>
-	<20061026090002.49b04f1b@freekitty>
-	<4540E1BB.1000101@abinetworks.biz>
-	<1161959098.12281.3.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 11:16:02 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH cciss: fix printk format warning
+Date: Fri, 27 Oct 2006 10:15:18 -0500
+Message-ID: <E717642AF17E744CA95C070CA815AE55B7E19A@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <5CCF5F0F2514664CBE20FD24BCE17614A6A76E@cceexc17.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH cciss: fix printk format warning
+Thread-Index: Acb5VmqMvMYJPHgBSzy7DAfyLZe40AAcwnVlAAQrfGA=
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Cameron, Steve" <steve.cameron@hp.com>,
+       "Randy Dunlap" <randy.dunlap@oracle.com>,
+       "Roland Dreier" <rdreier@cisco.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "ISS StorageDev" <iss_storagedev@hp.com>,
+       "lkml" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 27 Oct 2006 15:15:19.0362 (UTC) FILETIME=[B6EA1A20:01C6F9DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006 16:24:58 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
+ 
 
-> > >
-> > i've found:
+> -----Original Message-----
+> From: Cameron, Steve 
+> Sent: Friday, October 27, 2006 8:12 AM
+> To: Randy Dunlap; Roland Dreier
+> Cc: Andrew Morton; ISS StorageDev; lkml
+> Subject: RE: [PATCH cciss: fix printk format warning
+> 
+> > Roland Dreier wrote:
+> > >  > >  	if (*total_size != (__u32) 0)
+> > >  >
+> > >  > Why is cciss_read_capacity casting *total_size to u32?
+> > > 
+> > > It's not -- it's actually casting 0 to __32 -- there's no cast on 
+> > > the *total_size side of the comparison.  However that 
+> just makes the 
+> > > cast look even fishier.
+
+If the volume is >2TB read_capacity will return 8 F's. We've already
+added 1 to total_size which equals 0. I only care if the lower 32 bits
+are zero so that's the reason for the cast.
+Does that make sense or am I out in the weeds?
+
+mikem
+
+> > > 
+> > >  - R.
 > > 
-> > __create_workqueue
-> > queue_work
+> > OK, how about this one then?
+> > 
+> > 
+> > 	c->busaddr = (__u32) cmd_dma_handle;
+> > 
+> > where cmd_dma_handle is a dma_addr_t (u32 or u64)
+> 
+> The command register to which that value is written is a 32 
+> bit register.  Cast it or not, only 32 bits will be used.  
+> The DMA mask used to get that memory should ensure it's 32 
+> bit addressable.
+> 
+> > and then later:
+> >
+> >		pci_free_consistent(h->pdev, sizeof(CommandList_struct),
+> >				    c, (dma_addr_t) c->busaddr);
 > 
 > 
-> if you change the queue_work() calls to schedule_work() (and drop it's
-> first argument) and just remove the create_workqueue() entirely, does it
-> work then? (probably also need to remove destroy_workqueue() call)
-> if so, that's the real solution on the ndiswrapper side...
 > 
 > 
-
-Or maybe do equivalent delayed function calls by using a kthread.
+> 

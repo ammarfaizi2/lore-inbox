@@ -1,45 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752498AbWJ0Vct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752510AbWJ0VgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752498AbWJ0Vct (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 17:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752501AbWJ0Vct
+	id S1752510AbWJ0VgX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 17:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752509AbWJ0VgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 17:32:49 -0400
-Received: from wx-out-0506.google.com ([66.249.82.224]:59678 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1752498AbWJ0Vcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 17:32:48 -0400
+	Fri, 27 Oct 2006 17:36:23 -0400
+Received: from web54511.mail.yahoo.com ([206.190.49.161]:61075 "HELO
+	web54511.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1752510AbWJ0VgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 17:36:23 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=HcoZmrrR7CHI+LSlS4L7Dn5j3pj7RXUanrKeEl7+ciJVp9weo4BuLynfJpnJNkalXP+b1jRYwOkGDchHagy/DXJZlFzkuI2uRlBC6Ed1jNksu/X3j/ieHvmStxJ9Rs3avA8grYTmd+YCYfXfHn/X454Frc9sEzzNL0efFZWLOu8=
-Message-ID: <45427AFB.8070806@gmail.com>
-Date: Fri, 27 Oct 2006 17:32:43 -0400
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=4qF120CxuBVHZ+RQmcuYiE2PUtseGjE6+eykQqSMZWOJfhJZrWVxYHPWZMyyTNBnprTHglilSuHjmpDTsRVT4WYMu9FS4Tvnaonoyjass0ziQpXJwR5p0zb88dCSOkpK1VIzvMnY4IP73IBiBDg/SzrTcx1P+V1m7cOGtmvLXIE=  ;
+Message-ID: <20061027213622.89417.qmail@web54511.mail.yahoo.com>
+Date: Fri, 27 Oct 2006 14:36:21 -0700 (PDT)
+From: Indian Mogul <indian_mogul@yahoo.com>
+Subject: Re: CPU Loading
+To: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <1161933988.6102.28.camel@Homer.simpson.net>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org,
-       proski@gnu.org, Alan Cox <alan@lxorguk.ukuu.org.uk>, cate@debian.org,
-       gianluca@abinetworks.biz, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
-References: <1161807069.3441.33.camel@dv>	 <1161808227.7615.0.camel@localhost.localdomain>	 <20061025205923.828c620d.akpm@osdl.org>	 <20061026102630.ad191d21.randy.dunlap@oracle.com> <1161959020.12281.1.camel@laptopd505.fenrus.org>
-In-Reply-To: <1161959020.12281.1.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> (it's a separate question if ndiswrapper should be in this table;
-> driverloader should be, it's non-GPL at all, so that part of your patch
-> is broken)
->   
+Thanks for the code snippet.. One more question. I
+want to  load the cpu with x% load & take
+measurements. For eg, cpu_burn <x> should load the CPU
+ with x% occupancy.. Is there a way this could be
+done? Any program / pointers greatly appreciated..
 
-If driverloader is not GPLed then why does it need to be treated
-exceptionally to begin with? It taints the kernel anyway because of its
-license.
+Thanks,
+IM 
 
----
-fm
+--- Mike Galbraith <efault@gmx.de> wrote:
+
+> On Thu, 2006-10-26 at 22:37 -0700, Indian Mogul
+> wrote:
+> 
+> > How can I load the CPU such that the scheduling
+> time
+> > slice is insuffucent for mplayer to playout the
+> video?
+> > To the mplayer the system thus appears "slow" ?
+> 
+> :) unusual request.
+> 
+> The proglet below, which someone posted a while
+> back, should meet your
+> needs nicely.  Fire up a few copies in the
+> background with args like
+> 5000 6000 7000 8000 9000.., and mplayer should
+> become decidedly unhappy.
+> 
+> The scheduler round robin schedules tasks which it
+> has classified as
+> interactive (tasks which sleep somewhat regularly
+> basically) at a higher
+> rate than their timeslice to reduce latency, but the
+> more tasks
+> circulating at the same priority (or above) as
+> mplayer, the bigger the
+> latency hit mplayer will take.
+> 
+> 	-Mike
+> 
+> #include <stdlib.h>
+> #include <unistd.h>
+> 
+> static void burn_cpu(unsigned int x)
+> {
+> 	static char buf[1024];
+> 	int i;
+> 	
+> 	for (i=0; i < x; ++i)
+> 		buf[i%sizeof(buf)] = (x-i)*3;
+> }
+> 
+> int main(int argc, char **argv)
+> {
+> 	unsigned long burn;
+> 	if (argc != 2)
+> 		return 1;
+> 	burn = (unsigned long)atoi(argv[1]);
+> 	while(1) {
+> 		burn_cpu(burn*1000);
+> 		usleep(1);
+> 	}
+> 	return 0;
+> }
+>
+
+
+> 
+> 
+
+
+
+
+ 
+____________________________________________________________________________________
+Low, Low, Low Rates! Check out Yahoo! Messenger's cheap PC-to-Phone call rates 
+(http://voice.yahoo.com)
 

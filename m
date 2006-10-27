@@ -1,151 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946157AbWJ0Dpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946150AbWJ0Dqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946157AbWJ0Dpb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 23:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946158AbWJ0Dpb
+	id S1946150AbWJ0Dqo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 23:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946155AbWJ0Dqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 23:45:31 -0400
-Received: from ozlabs.org ([203.10.76.45]:3501 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1946157AbWJ0Dpa (ORCPT
+	Thu, 26 Oct 2006 23:46:44 -0400
+Received: from ozlabs.org ([203.10.76.45]:5805 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1946152AbWJ0Dqn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 23:45:30 -0400
-Subject: [PATCH 3/4] Prep for paravirt: desc.h clearer parameter names,
-	some code motion
+	Thu, 26 Oct 2006 23:46:43 -0400
+Subject: [PATCH 4/4] Prep for paravirt: rearrange processor.h
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: Andrew Morton <akpm@osdl.org>
 Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
        virtualization <virtualization@lists.osdl.org>
-In-Reply-To: <1161920622.17807.36.camel@localhost.localdomain>
+In-Reply-To: <1161920728.17807.39.camel@localhost.localdomain>
 References: <1161920325.17807.29.camel@localhost.localdomain>
 	 <1161920535.17807.33.camel@localhost.localdomain>
 	 <1161920622.17807.36.camel@localhost.localdomain>
+	 <1161920728.17807.39.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 27 Oct 2006 13:45:27 +1000
-Message-Id: <1161920728.17807.39.camel@localhost.localdomain>
+Date: Fri, 27 Oct 2006 13:46:40 +1000
+Message-Id: <1161920801.17807.41.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge's patch to clarify arg names in asm/desc.h
-
-"a" and "b" are better named "low" and "high"; Rusty mixed them up
-once with amusing results.  Also change __u32 to u32 while there (this
-must be kernel-only code, given the DECLARE_PER_CPU in the file
-above).
-
-Also moves set_ldt up higher in header, in preparation for paravirt.
+This patch simply moves processor.h functions around, to group all the
+ones which paravirt will override together (for one big ifdef).  No
+code changes.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
 ===================================================================
---- a/include/asm-i386/desc.h
-+++ b/include/asm-i386/desc.h
-@@ -32,19 +32,19 @@ extern struct desc_struct idt_table[];
- extern struct desc_struct idt_table[];
- extern void set_intr_gate(unsigned int irq, void * addr);
- 
--static inline void pack_descriptor(__u32 *a, __u32 *b,
-+static inline void pack_descriptor(u32 *low, u32 *high,
- 	unsigned long base, unsigned long limit, unsigned char type, unsigned char flags)
- {
--	*a = ((base & 0xffff) << 16) | (limit & 0xffff);
--	*b = (base & 0xff000000) | ((base & 0xff0000) >> 16) |
-+	*low = ((base & 0xffff) << 16) | (limit & 0xffff);
-+	*high = (base & 0xff000000) | ((base & 0xff0000) >> 16) |
- 		(limit & 0x000f0000) | ((type & 0xff) << 8) | ((flags & 0xf) << 20);
+--- a/include/asm-i386/processor.h
++++ b/include/asm-i386/processor.h
+@@ -145,58 +145,6 @@ static inline void detect_ht(struct cpui
+ 		: "0" (*eax), "2" (*ecx));
  }
  
--static inline void pack_gate(__u32 *a, __u32 *b,
-+static inline void pack_gate(u32 *low, u32 *high,
- 	unsigned long base, unsigned short seg, unsigned char type, unsigned char flags)
- {
--	*a = (seg << 16) | (base & 0xffff);
--	*b = (base & 0xffff0000) | ((type & 0xff) << 8) | (flags & 0xff);
-+	*low = (seg << 16) | (base & 0xffff);
-+	*high = (base & 0xffff0000) | ((type & 0xff) << 8) | (flags & 0xff);
- }
- 
- #define DESCTYPE_LDT 	0x82	/* present, system, DPL-0, LDT */
-@@ -78,47 +78,47 @@ static inline void load_TLS(struct threa
- #undef C
- }
- 
--static inline void write_dt_entry(void *dt, int entry, __u32 entry_a, __u32 entry_b)
+-/*
+- * Generic CPUID function
+- * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
+- * resulting in stale register contents being returned.
+- */
+-static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
 -{
--	__u32 *lp = (__u32 *)((char *)dt + entry*8);
--	*lp = entry_a;
--	*(lp+1) = entry_b;
+-	*eax = op;
+-	*ecx = 0;
+-	__cpuid(eax, ebx, ecx, edx);
 -}
 -
--#define write_ldt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
--#define write_gdt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
--#define write_idt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
--
--static inline void _set_gate(int gate, unsigned int type, void *addr, unsigned short seg)
+-/* Some CPUID calls want 'count' to be placed in ecx */
+-static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
+-			       int *edx)
 -{
--	__u32 a, b;
--	pack_gate(&a, &b, (unsigned long)addr, seg, type, 0);
--	write_idt_entry(idt_table, gate, a, b);
+-	*eax = op;
+-	*ecx = count;
+-	__cpuid(eax, ebx, ecx, edx);
 -}
 -
--static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, const void *addr)
+-/*
+- * CPUID functions returning a single datum
+- */
+-static inline unsigned int cpuid_eax(unsigned int op)
 -{
--	__u32 a, b;
--	pack_descriptor(&a, &b, (unsigned long)addr,
--			offsetof(struct tss_struct, __cacheline_filler) - 1,
--			DESCTYPE_TSS, 0);
--	write_gdt_entry(get_cpu_gdt_table(cpu), entry, a, b);
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return eax;
 -}
+-static inline unsigned int cpuid_ebx(unsigned int op)
+-{
+-	unsigned int eax, ebx, ecx, edx;
 -
- static inline void set_ldt(void *addr, unsigned int entries)
- {
- 	if (likely(entries == 0))
- 		__asm__ __volatile__("lldt %w0"::"q" (0));
- 	else {
- 		unsigned cpu = smp_processor_id();
--		__u32 a, b;
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return ebx;
+-}
+-static inline unsigned int cpuid_ecx(unsigned int op)
+-{
+-	unsigned int eax, ebx, ecx, edx;
 -
--		pack_descriptor(&a, &b, (unsigned long)addr,
-+		u32 low, high;
-+
-+		pack_descriptor(&low, &high, (unsigned long)addr,
- 				entries * sizeof(struct desc_struct) - 1,
- 				DESCTYPE_LDT, 0);
--		write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, a, b);
-+		write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, low, high);
- 		__asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8));
- 	}
-+}
-+
-+#define write_ldt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
-+#define write_gdt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
-+#define write_idt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
-+
-+static inline void write_dt_entry(void *dt, int entry, u32 entry_low, u32 entry_high)
-+{
-+	u32 *lp = (u32 *)((char *)dt + entry*8);
-+	lp[0] = entry_low;
-+	lp[1] = entry_high;
-+}
-+
-+static inline void _set_gate(int gate, unsigned int type, void *addr, unsigned short seg)
-+{
-+	u32 low, high;
-+	pack_gate(&low, &high, (unsigned long)addr, seg, type, 0);
-+	write_idt_entry(idt_table, gate, low, high);
-+}
-+
-+static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, const void *addr)
-+{
-+	u32 low, high;
-+	pack_descriptor(&low, &high, (unsigned long)addr,
-+			offsetof(struct tss_struct, __cacheline_filler) - 1,
-+			DESCTYPE_TSS, 0);
-+	write_gdt_entry(get_cpu_gdt_table(cpu), entry, low, high);
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return ecx;
+-}
+-static inline unsigned int cpuid_edx(unsigned int op)
+-{
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return edx;
+-}
+ 
+ #define load_cr3(pgdir) write_cr3(__pa(pgdir))
+ 
+@@ -493,16 +428,6 @@ struct thread_struct {
+ 	.io_bitmap	= { [ 0 ... IO_BITMAP_LONGS] = ~0 },		\
  }
  
- #define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
+-static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
+-{
+-	tss->esp0 = thread->esp0;
+-	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
+-	if (unlikely(tss->ss1 != thread->sysenter_cs)) {
+-		tss->ss1 = thread->sysenter_cs;
+-		wrmsr(MSR_IA32_SYSENTER_CS, thread->sysenter_cs, 0);
+-	}
+-}
+-
+ #define start_thread(regs, new_eip, new_esp) do {		\
+ 	__asm__("movl %0,%%fs": :"r" (0));			\
+ 	regs->xgs = 0;						\
+@@ -515,33 +440,6 @@ static inline void load_esp0(struct tss_
+ 	regs->esp = new_esp;					\
+ } while (0)
+ 
+-/*
+- * These special macros can be used to get or set a debugging register
+- */
+-#define get_debugreg(var, register)				\
+-		__asm__("movl %%db" #register ", %0"		\
+-			:"=r" (var))
+-#define set_debugreg(value, register)			\
+-		__asm__("movl %0,%%db" #register		\
+-			: /* no output */			\
+-			:"r" (value))
+-
+-/*
+- * Set IOPL bits in EFLAGS from given mask
+- */
+-static inline void set_iopl_mask(unsigned mask)
+-{
+-	unsigned int reg;
+-	__asm__ __volatile__ ("pushfl;"
+-			      "popl %0;"
+-			      "andl %1, %0;"
+-			      "orl %2, %0;"
+-			      "pushl %0;"
+-			      "popfl"
+-				: "=&r" (reg)
+-				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
+-}
+-
+ /* Forward declaration, a strange C thing */
+ struct task_struct;
+ struct mm_struct;
+@@ -632,6 +530,97 @@ static inline void rep_nop(void)
+ }
+ 
+ #define cpu_relax()	rep_nop()
++
++static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
++{
++	tss->esp0 = thread->esp0;
++
++	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
++	if (unlikely(tss->ss1 != thread->sysenter_cs)) {
++		tss->ss1 = thread->sysenter_cs;
++		wrmsr(MSR_IA32_SYSENTER_CS, thread->sysenter_cs, 0);
++	}
++}
++
++/*
++ * These special macros can be used to get or set a debugging register
++ */
++#define get_debugreg(var, register)				\
++		__asm__("movl %%db" #register ", %0"		\
++			:"=r" (var))
++#define set_debugreg(value, register)			\
++		__asm__("movl %0,%%db" #register		\
++			: /* no output */			\
++			:"r" (value))
++
++/*
++ * Set IOPL bits in EFLAGS from given mask
++ */
++static inline void set_iopl_mask(unsigned mask)
++{
++	unsigned int reg;
++	__asm__ __volatile__ ("pushfl;"
++			      "popl %0;"
++			      "andl %1, %0;"
++			      "orl %2, %0;"
++			      "pushl %0;"
++			      "popfl"
++				: "=&r" (reg)
++				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
++}
++
++/*
++ * Generic CPUID function
++ * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
++ * resulting in stale register contents being returned.
++ */
++static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
++{
++	*eax = op;
++	*ecx = 0;
++	__cpuid(eax, ebx, ecx, edx);
++}
++
++/* Some CPUID calls want 'count' to be placed in ecx */
++static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
++			       int *edx)
++{
++	*eax = op;
++	*ecx = count;
++	__cpuid(eax, ebx, ecx, edx);
++}
++
++/*
++ * CPUID functions returning a single datum
++ */
++static inline unsigned int cpuid_eax(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return eax;
++}
++static inline unsigned int cpuid_ebx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return ebx;
++}
++static inline unsigned int cpuid_ecx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return ecx;
++}
++static inline unsigned int cpuid_edx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return edx;
++}
+ 
+ /* generic versions from gas */
+ #define GENERIC_NOP1	".byte 0x90\n"
 
 

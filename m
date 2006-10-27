@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946218AbWJ0Hjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946231AbWJ0HtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946218AbWJ0Hjf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 03:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946220AbWJ0Hjf
+	id S1946231AbWJ0HtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 03:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946232AbWJ0HtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 03:39:35 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:18897 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1946218AbWJ0Hje convert rfc822-to-8bit (ORCPT
+	Fri, 27 Oct 2006 03:49:16 -0400
+Received: from smtp.boksi.fi ([195.10.143.42]:37343 "EHLO smtp1.boksi.fi")
+	by vger.kernel.org with ESMTP id S1946231AbWJ0HtQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 03:39:34 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 3/13] KVM: kvm data structures
-Date: Fri, 27 Oct 2006 09:39:31 +0200
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
-References: <4540EE2B.9020606@qumranet.com> <200610270055.45560.arnd@arndb.de> <45419EEC.6010901@qumranet.com>
-In-Reply-To: <45419EEC.6010901@qumranet.com>
+	Fri, 27 Oct 2006 03:49:16 -0400
+Message-ID: <4541B9E8.2030402@gmail.com>
+Date: Fri, 27 Oct 2006 10:48:56 +0300
+From: Mika Kukkonen <mikukkon@gmail.com>
+Organization: Koti
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610270939.31988.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+To: ecryptfs-devel@lists.sourceforge.net
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix bug in fs/ecryptfs/inode.c: ecryptfs_encode_filename()
+ returns int, not unsigned int
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 October 2006 07:53, Avi Kivity wrote:
-> > Assuming that you move to the host-user == guest-real memory
-> > model, will this data structure still be needed? It would
-> > be really nice if a guest could simply consist of a number
-> > of vcpu structures that happen to be used from threads in the
-> > same process address space, but I find it hard to tell if
-> > that is realistic.
-> >   
-> 
-> We'd still need the shadow page table data structures (or the nested 
-> page tables pgd).
+[PATCH] Fix bug in fs/ecryptfs/inode.c: ecryptfs_encode_filename()
+        returns int (with possible negative error value), not
+        unsigned int. Both callers in the file get it wrong (they
+        are also the only callers of this function). Found by gcc
+        extra warning flags (the return value is checked to be < 0,
+        which is pointless with unsigned). Compile tested only, but
+        should be OK, as the value computed in the function
+        internally is int too.
 
-One hack around this would be to have the shadow page tables hang
-off the mm_context_t, automatically allocated when a task first
-calls runs kvm. Don't know if that's worthwhile doing, considering
-that it's rather ugly.
+Signed-off-by: Mika Kukkonen <mikukkon@iki.fi>
 
-	Arnd <><
+---
+
+ fs/ecryptfs/inode.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
+index efdd2b7..692419c 100644
+--- a/fs/ecryptfs/inode.c
++++ b/fs/ecryptfs/inode.c
+@@ -338,7 +338,7 @@ static struct dentry *ecryptfs_lookup(st
+     struct vfsmount *lower_mnt;
+     struct dentry *tlower_dentry = NULL;
+     char *encoded_name;
+-    unsigned int encoded_namelen;
++    int encoded_namelen;
+     struct ecryptfs_crypt_stat *crypt_stat = NULL;
+     char *page_virt = NULL;
+     struct inode *lower_inode;
+@@ -520,7 +520,7 @@ static int ecryptfs_symlink(struct inode
+     struct dentry *lower_dir_dentry;
+     umode_t mode;
+     char *encoded_symname;
+-    unsigned int encoded_symlen;
++    int encoded_symlen;
+     struct ecryptfs_crypt_stat *crypt_stat = NULL;
+
+     lower_dentry = ecryptfs_dentry_to_lower(dentry);
+
+

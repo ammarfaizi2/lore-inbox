@@ -1,50 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWJ0XAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWJ0XBa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWJ0XAH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 19:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWJ0XAH
+	id S1750964AbWJ0XBa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 19:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWJ0XBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 19:00:07 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56254 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750945AbWJ0XAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 19:00:05 -0400
-Subject: Re: [patch] drivers: wait for threaded probes between initcall
-	levels
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20061027114237.d577c153.akpm@osdl.org>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
-	 <20061026224541.GQ27968@stusta.de> <20061027010252.GV27968@stusta.de>
-	 <20061027012058.GH5591@parisc-linux.org>
-	 <20061026182838.ac2c7e20.akpm@osdl.org>
-	 <20061026191131.003f141d@localhost.localdomain>
-	 <20061027170748.GA9020@kroah.com> <20061027172219.GC30416@elf.ucw.cz>
-	 <20061027113908.4a82c28a.akpm@osdl.org>
-	 <20061027114144.f8a5addc.akpm@osdl.org>
-	 <20061027114237.d577c153.akpm@osdl.org>
-Content-Type: text/plain
+	Fri, 27 Oct 2006 19:01:30 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:3249 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1750830AbWJ0XBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 19:01:30 -0400
+Message-ID: <45428E8D.2030709@oracle.com>
+Date: Fri, 27 Oct 2006 15:56:13 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Florin Malita <fmalita@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, proski@gnu.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, cate@debian.org,
+       gianluca@abinetworks.biz
+Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
+References: <1161807069.3441.33.camel@dv>	<1161808227.7615.0.camel@localhost.localdomain>	<20061025205923.828c620d.akpm@osdl.org>	<20061026102630.ad191d21.randy.dunlap@oracle.com>	<1161959020.12281.1.camel@laptopd505.fenrus.org>	<20061027082741.8476024a.randy.dunlap@oracle.com> <20061027112601.dbd83c32.akpm@osdl.org> <45428EAD.6040005@gmail.com>
+In-Reply-To: <45428EAD.6040005@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 27 Oct 2006 23:59:30 +0100
-Message-Id: <1161989970.16839.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-10-27 am 11:42 -0700, ysgrifennodd Andrew Morton:
-> IOW, we want to be multithreaded _within_ an initcall level, but not between
-> different levels.
+Florin Malita wrote:
+> Andrew Morton wrote:
+>> On Fri, 27 Oct 2006 08:27:41 -0700
+>> Randy Dunlap <randy.dunlap@oracle.com> wrote:
+>>   
+>>> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+>>> ---
+>>>  kernel/module.c |    2 +-
+>>>  1 files changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> --- linux-2619-rc3-pv.orig/kernel/module.c
+>>> +++ linux-2619-rc3-pv/kernel/module.c
+>>> @@ -1718,7 +1718,7 @@ static struct module *load_module(void _
+>>>  	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
+>>>  
+>>>  	if (strcmp(mod->name, "ndiswrapper") == 0)
+>>> -		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
+>>> +		add_taint(TAINT_PROPRIETARY_MODULE);
+>>>  	if (strcmp(mod->name, "driverloader") == 0)
+>>>  		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
+>>>  
+>>>     
+>> Could someone please test this for us?
+>>   
+> 
+> Tested, works (ndiswrapper 1.27).
 
-Thats actually insufficient. We have link ordered init sequences in
-large numbers of driver subtrees (ATA, watchdog, etc). We'll need
-several more initcall layers to fix that.
+Thanks.
 
-Alan
+> Also, since driverloader is not GPL-compatible (MODULE_LICENSE("see
+> LICENSE file; Copyright (c)2003-2004 Linuxant inc.")), that check is
+> redundant. How about removing it (applies on top of Randy's patch)?
 
+I agree.
+
+> Signed-off-by: Florin Malita <fmalita@gmail.com>
+> ---
+> 
+>  module.c |    2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/kernel/module.c b/kernel/module.c
+> index 67009bd..293eb4c 100644
+> --- a/kernel/module.c
+> +++ b/kernel/module.c
+> @@ -1719,8 +1719,6 @@ #endif
+>  
+>  	if (strcmp(mod->name, "ndiswrapper") == 0)
+>  		add_taint(TAINT_PROPRIETARY_MODULE);
+> -	if (strcmp(mod->name, "driverloader") == 0)
+> -		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
+>  
+>  	/* Set up MODINFO_ATTR fields */
+>  	setup_modinfo(mod, sechdrs, infoindex);
+> 
+> 
+
+
+-- 
+~Randy

@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423529AbWJ0EiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423545AbWJ0ErT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423529AbWJ0EiK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 00:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423485AbWJ0EiK
+	id S1423545AbWJ0ErT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 00:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423624AbWJ0ErT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 00:38:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40110 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423542AbWJ0EiI (ORCPT
+	Fri, 27 Oct 2006 00:47:19 -0400
+Received: from pat.uio.no ([129.240.10.4]:9439 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1423545AbWJ0ErT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 00:38:08 -0400
-Date: Thu, 26 Oct 2006 21:37:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/5] binfmt: fix uaccess handling
-Message-Id: <20061026213741.06f7ecb4.akpm@osdl.org>
-In-Reply-To: <20061026130146.GB7127@osiris.boeblingen.de.ibm.com>
-References: <20061026130010.GA7127@osiris.boeblingen.de.ibm.com>
-	<20061026130146.GB7127@osiris.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 00:47:19 -0400
+Date: Fri, 27 Oct 2006 06:47:12 +0200 (CEST)
+From: Martin Tostrup Setek <martitse@student.matnat.uio.no>
+To: David Rientjes <rientjes@cs.washington.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: 2.6.18.1] delayacct: cpu_count in taskstats updated
+ correctly
+In-Reply-To: <Pine.LNX.4.64N.0610262027350.12347@attu2.cs.washington.edu>
+Message-ID: <Pine.LNX.4.63.0610270545000.21448@honbori.ifi.uio.no>
+References: <Pine.LNX.4.63.0610270440500.21448@honbori.ifi.uio.no>
+ <Pine.LNX.4.64N.0610262027350.12347@attu2.cs.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5.272, required 12,
+	autolearn=disabled, AWL -0.27, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2006 15:01:46 +0200
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+On Thu, 26 Oct 2006, David Rientjes wrote:
+> On Fri, 27 Oct 2006, Martin Tostrup Setek wrote:
+>> from: Martin T. Setek <martitse@ifi.uio.no>
+>> cpu_count in struct taskstats should be the same as the corresponding (third)
+>> value found in /proc/<pid>/schedstat
+>
+> I disagree in favor of Documentation/accounting/taskstats-struct.txt.
+> cpu_count is the number of delay values recorded, so accumulating them is
+> appropriate.
 
-> @@ -254,7 +255,8 @@
->  	p = current->mm->arg_end = current->mm->arg_start;
->  	while (argc-- > 0) {
->  		size_t len;
-> -		__put_user((elf_addr_t)p, argv++);
-> +		if (__put_user((elf_addr_t)p, argv++))
-> +			return -EFAULT;
->  		len = strnlen_user((void __user *)p, PAGE_SIZE*MAX_ARG_PAGES);
->  		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
->  			return 0;
+Perhaps I'm mistaken, but the code accumulates the value it 
+finds in sched_info.pcnt in the task_struct. Now, in sched.h I found this:
 
-We return EFAULT, but if strnlen_user() gets a fault, we return zero.  But
-then, the return value of create_elf_tables() gets cheerfully ignored
-anyway.  So I assume we start up some new program with a
-partially-constructed environment and it then mysteriously malfunctions.
+struct sched_info {
+ 	/* cumulative counters */
+ 	unsigned long	cpu_time,	/* time spent on the cpu */
+ 			run_delay,	/* time spent waiting on a runqueue */
+ 			pcnt;		/* # of timeslices run on this cpu */
 
-Nice, eh?
+The comment says that these counters are cumulative... The code that 
+updates them (sched.c: sched_info_arrive()), does accumulate them.
+
+In include/linux/taskstats.h, I found:
+
+          * xxx_count is the number of delay values recorded
+          * xxx_delay_total is the corresponding cumulative delay in nanoseconds
+
+I interpret these comments as saying that:
+
+cpu_delay should be the total number of nanoseconds a task has been 
+waiting in a runqueue for a CPU, and cpu_count is equal to the number of 
+times the task got the CPU (or waited for it). If so, then the code 
+updates taskstats.cpu_delay_total incorrectly too (which my patch didn't 
+fix).
+
+If not, then the comments in taskstats.h are very confusing....
+
+Martin

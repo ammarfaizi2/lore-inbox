@@ -1,49 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946390AbWJ0LGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946389AbWJ0LLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946390AbWJ0LGj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 07:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946389AbWJ0LGj
+	id S1946389AbWJ0LLh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 07:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946391AbWJ0LLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 07:06:39 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:44604 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1946390AbWJ0LGi (ORCPT
+	Fri, 27 Oct 2006 07:11:37 -0400
+Received: from mivlgu.ru ([81.18.140.87]:17119 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S1946389AbWJ0LLg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 07:06:38 -0400
-Date: Fri, 27 Oct 2006 13:06:37 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to run an a.out file in a kernel module
-Message-ID: <20061027110636.GA2837@harddisk-recovery.com>
-References: <20061027101611.67643.qmail@web27406.mail.ukl.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061027101611.67643.qmail@web27406.mail.ukl.yahoo.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 27 Oct 2006 07:11:36 -0400
+Date: Fri, 27 Oct 2006 15:11:27 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+Cc: linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-mmc@drzeus.cx>
+Subject: Re: O2 micro OZ711Mx mmc driver
+Message-Id: <20061027151127.6e4c4edc.vsu@altlinux.ru>
+In-Reply-To: <200610271205.14881.vda.linux@googlemail.com>
+References: <1161936280.3937.4.camel@localhost.localdomain>
+	<200610271205.14881.vda.linux@googlemail.com>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.2; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__27_Oct_2006_15_11_27_+0400_=cQtPsz=51QMP8ua"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2006 at 11:16:11AM +0100, ranjith kumar wrote:
->           How to run an a.out file in a kernel module
->              I tried to include
->                                     system("./a.out");
->      in the C file. But I got compilation errors.
+--Signature=_Fri__27_Oct_2006_15_11_27_+0400_=cQtPsz=51QMP8ua
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Simple: you don't. There are a bunch of problems over here:
+On Fri, 27 Oct 2006 12:05:14 +0200 Denis Vlasenko wrote:
 
-1) The system() call is a userland libc call and doesn't exist in the
-   kernel
-2) You can't be sure you're in user context
-3) You don't know in what filesytem namespace you are
+> On Friday 27 October 2006 10:04, Islam Amer wrote:
+> > Hi all. Sorry for sending again, but my email didn't reach LKML, for
+> > some reason.
+> >
+> > Here it is through the web interface ..
+> >
+> > http://lkml.org/lkml/2006/10/26/181
+> >
+> > In short I have contacted O2 Micro for a driver for my MMC card reader
+> > OZ711Mx and they sent me a driver tarball under the GPL. It is made for
+> > 2.6.16 and doesn't compile with recent kernels.
+> >
+> > I fixed it to compile but it still doesn't work. I am trying as hard as
+> > I can to fix it but my programming knowledge is limited. Any help is
+> > appreciated.
+>
+> You need to provide more details. Just "doesn't work" is
+> nearly the worst bug report possible.
+>
+> I failed to find the tarball on that page.
 
-You could use call_usermodehelper() if you really need to call a
-usermode helper, but usually it's a sign of bad design if you need to.
+http://mmc.drzeus.cx/wiki/Controllers/O2/OZ711Mx?action=AttachFile
 
+(or select "Attach file" from the pulldown).
 
-Erik
+> If it is really GPLed, there is no reason why it cannot be merged
+> into mainline (after necessary cleanups).
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+presidio_source-2k50714.tar.gz contains GPL headers and
+MODULE_LICENSE("GPL") in *.[ch] files and even the GPL text in COPYING;
+however, apparently the module is linked with the o2media/test.o_shipped
+object file, sources for which are not included.  Sources for the o2sd
+part are available - maybe they contain enough information to get at
+least the SD/MMC part supported.
+
+mbx-nonATA.zip also contains drivers with MODULE_LICENSE("GPL") linked
+with binary-only parts; unfortunately, the object files have been
+stripped and therefore are unusable.  There are also strange files like
+ntddk.h there, which contain GPL notice sticked in front of the
+Microsoft copyright notice.  And OpenSource/mbx-v2.4.x/WdmLib.c contains
+lots of copied code from other places, including:
+
+/*
+ * Regular lowlevel cardbus driver ("yenta")
+ *
+ * (C) Copyright 1999, 2000 Linus Torvalds
+ */
+
+And they link this with that o2ext.o binary...
+
+--Signature=_Fri__27_Oct_2006_15_11_27_+0400_=cQtPsz=51QMP8ua
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFQellW82GfkQfsqIRAjQSAKCMM8WAS14hBqYzBw65OiRmKHzjogCdFklM
+BpY4D2X23B+5JzxKm4ygTrY=
+=uG8a
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__27_Oct_2006_15_11_27_+0400_=cQtPsz=51QMP8ua--

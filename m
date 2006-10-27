@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752472AbWJ0VXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752490AbWJ0V2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752472AbWJ0VXO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 17:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752473AbWJ0VXO
+	id S1752490AbWJ0V2g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 17:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752489AbWJ0V2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 17:23:14 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:55877 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1752472AbWJ0VXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 17:23:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=Y16bHa3lS3Kz4pIt/OdxlKFrUjls/aNp2PONcpQQH5DvYrDu4TXO5gX0Q2JjvhzEoR65TA3mZ2YdsOj0H0/XvCa1KFCRGJe23fKnxi5VSKA70w+N+EdLAL0it7FJhG9UjcFq0Mhm6TRMy3UVRUJmrsMkpj9VoVXnemoNDT4VaNg=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: tglx@linutronix.de
-Subject: Re: [PATCH] silence 'make xmldocs' warning by adding missing description of 'raw' in nand_base.c:1485
-Date: Fri, 27 Oct 2006 23:24:47 +0200
-User-Agent: KMail/1.9.4
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Steven J.Hill" <sjhill@realitydiluted.com>,
-       Linus Torvalds <torvalds@osdl.org>
-References: <200610260143.24694.jesper.juhl@gmail.com> <1161840423.31783.29.camel@localhost.localdomain>
-In-Reply-To: <1161840423.31783.29.camel@localhost.localdomain>
+	Fri, 27 Oct 2006 17:28:36 -0400
+Received: from hqemgate01.nvidia.com ([216.228.112.170]:46084 "EHLO
+	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
+	id S1752487AbWJ0V2f convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 17:28:35 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610272324.48087.jesper.juhl@gmail.com>
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] sata_nv ADMA/NCQ support for nForce4 (v7)
+Date: Fri, 27 Oct 2006 14:28:14 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B00E48D33E@hqemmail02.nvidia.com>
+In-Reply-To: <454045F6.7000704@shaw.ca>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] sata_nv ADMA/NCQ support for nForce4 (v7)
+Thread-Index: Acb4vr6pa09/x+pKSC+5u8X5pdZg2gBT8M8w
+From: "Allen Martin" <AMartin@nvidia.com>
+To: "Robert Hancock" <hancockr@shaw.ca>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: <linux-ide@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Andi Kleen" <ak@suse.de>, <pitt@segfault.info>
+X-OriginalArrivalTime: 27 Oct 2006 21:28:15.0591 (UTC) FILETIME=[D02FAF70:01C6FA0E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 October 2006 07:27, Thomas Gleixner wrote:
-> On Thu, 2006-10-26 at 01:43 +0200, Jesper Juhl wrote:
-> > 'make xmldocs' currently gives me this warning :
-> > 
-> >     Warning(/home/juhl/download/kernel/linux-2.6//drivers/mtd/nand/nand_base.c:1485): No description found for parameter 'raw'
-> > 
-> > This patch silences the warning by adding a description for 'raw'
-> > 
-> > 
-> > Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> 
-> ACK
-> 	tglx
-> 
-Thank you for the ACK Thomas.
+> Another update to this patch, now version 7. This greatly 
+> simplifies the 
+> interrupt handler and gets rid of some of the weird code 
+> relating to the 
+> notifier clear registers (as well as a potential uninitialized value 
+> usage that was in version 6). There still seems to be the 
+> need to do a 
+> notifier clear in the interrupt handler even when the notifiers are 
+> empty. I'm not sure why that is, it would be nice to get some 
+> input from 
+> NVIDIA or those with the hardware specs as to what writing values 
+> (including zero values) to the notifier clear registers actually does.
 
-Linus: Could you add this to your tree?  I believe it's still appropriate even at -rc3 since it doesn't make any code changes but simply fix an annoying warning.
-Patch included (again) below for your convenience : 
+You always have to write both notifiers even if one is 0, no interrupt
+ack takes place until both are written. 
 
-
-Add description of 'raw' in comments for 
-drivers/mtd/nand/nand_base.c::nand_write_page_syndrome() so 'make xmldocs' 
-will not spew a warning at us.
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- drivers/mtd/nand/nand_base.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/mtd/nand/nand_base.c b/drivers/mtd/nand/nand_base.c
-index baece61..41bfcae 100644
---- a/drivers/mtd/nand/nand_base.c
-+++ b/drivers/mtd/nand/nand_base.c
-@@ -1479,6 +1479,7 @@ static void nand_write_page_syndrome(str
-  * @buf:	the data to write
-  * @page:	page number to write
-  * @cached:	cached programming
-+ * @raw:	use _raw version of write_page
-  */
- static int nand_write_page(struct mtd_info *mtd, struct nand_chip *chip,
- 			   const uint8_t *buf, int page, int cached, int raw)
-
-
+-----------------------------------------------------------------------------------
+This email message is for the sole use of the intended recipient(s) and may contain
+confidential information.  Any unauthorized review, use, disclosure or distribution
+is prohibited.  If you are not the intended recipient, please contact the sender by
+reply email and destroy all copies of the original message.
+-----------------------------------------------------------------------------------

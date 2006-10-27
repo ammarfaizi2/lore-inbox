@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752180AbWJ0NTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWJ0NZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752180AbWJ0NTd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 09:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752181AbWJ0NTd
+	id S1750867AbWJ0NZE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 09:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752179AbWJ0NZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 09:19:33 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:13346 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1752180AbWJ0NTc (ORCPT
+	Fri, 27 Oct 2006 09:25:04 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:8113 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750867AbWJ0NZB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 09:19:32 -0400
-Message-ID: <454206EE.9080206@sw.ru>
-Date: Fri, 27 Oct 2006 17:17:34 +0400
-From: Vasily Averin <vvs@sw.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Fri, 27 Oct 2006 09:25:01 -0400
+Date: Fri, 27 Oct 2006 06:24:33 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: LKML <linux-kernel@vger.kernel.org>, ppc-dev <linuxppc-dev@ozlabs.org>,
+       paulus@samba.org, ak@suse.de, linux-mm@kvack.org
+Subject: Re: [PATCH 2/3] Create compat_sys_migrate_pages
+In-Reply-To: <20061027102834.5db261af.sfr@canb.auug.org.au>
+Message-ID: <Pine.LNX.4.64.0610270622480.7342@schroedinger.engr.sgi.com>
+References: <20061026132659.2ff90dd1.sfr@canb.auug.org.au>
+ <20061026133305.b0db54e6.sfr@canb.auug.org.au>
+ <Pine.LNX.4.64.0610261158130.2802@schroedinger.engr.sgi.com>
+ <20061027102834.5db261af.sfr@canb.auug.org.au>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org
-CC: devel@openvz.org
-Subject: Re: [Q] ide cdrom in native mode leads to irq storm?
-References: <453DC2A9.8000507@sw.ru> <453DC65C.8000408@sw.ru>
-In-Reply-To: <453DC65C.8000408@sw.ru>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vasily Averin wrote:
-> Vasily Averin wrote:
->> there is node with Intel 7520-based motherboard (MSI-9136), IDE cdrom (hda) and
->> SATA disc and 2.6.19-rc3 linux kernel.
->>
->> When I set IDE controller into the native mode, I get irq storm on the node and
->> this interrupt is disabled. If this interrupt is shared, the other subsystems
->> are stop working too.
->>
->> When I switch the IDE controller into legacy mode, all works correctly.
+On Fri, 27 Oct 2006, Stephen Rothwell wrote:
 
-I have reproduced the same issue on the another node:
+> No they aren't because they have compat routines that convert the bitmaps
+> before calling the "normal" syscall.  They, importantly, only use
+> compat_alloc_user_space once each.
 
-ASUSTeK P5GD1-VM,
-Intel 915G chipset,
-ICH6 IDE controller,
-IDE dvdrom: SONY DVD-ROM DDU1615 (hda),
-sata disk: WDC WD1600JS-00M
+Ah...
 
-when I switch IDE controller to the native mode, I see "Disabling IRQ" message,
-then kernel generates an oops in create_empty_buffers(), like I've reported earlier.
+> > Fixing get_nodes() to do the proper thing would fix all of these
+> > without having to touch sys_migrate_pages or creating a compat_ function
+> > (which usually is placed in kernel/compat.c)
+> 
+> You need the compat_ version of the syscalls to know if you were called
+> from a 32bit application in order to know if you may need to fixup the
+> bitmaps that are passed from/to user mode.
 
-Could somebody please help me to troubleshoot this issue? I've seen this issue
-on the customer nodes and would like to know how I can work-around this issue
-without any changes inside motherboard BIOS.
+The compat functions should be placed in kernel/compat.c next to 
+compat_sys_move_pages.
 
-thank you,
-	Vasily Averin

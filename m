@@ -1,58 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWJ0NrH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752190AbWJ0Nt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWJ0NrH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 09:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752188AbWJ0NrG
+	id S1752190AbWJ0Nt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 09:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752191AbWJ0Nt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 09:47:06 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:16986 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751007AbWJ0NrF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 09:47:05 -0400
-Message-ID: <45420DD4.9020602@sw.ru>
-Date: Fri, 27 Oct 2006 17:47:00 +0400
-From: Vasily Averin <vvs@sw.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Fri, 27 Oct 2006 09:49:56 -0400
+Received: from wx-out-0506.google.com ([66.249.82.224]:23030 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1752190AbWJ0Ntz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 09:49:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n4y2XyrCiitOYc7JPDm+wyEGXDoxoP9QNV0E/jBBnDFaqTJuxudXfbdpRNZpnW4Hm7OB11gi5QZubvKlE7M1z85NdYYCbLeAj8By0vda4KQP7s+u4Y1eH/QYcrT7HCqf6q/63Sssj8Pvc1E0PV2AdGJMR/i1XwE+N5C5vPdjx4E=
+Message-ID: <b6a2187b0610270649t4cc71781y8e1695f02e1c608e@mail.gmail.com>
+Date: Fri, 27 Oct 2006 21:49:54 +0800
+From: "Jeff Chua" <jeff.chua.linux@gmail.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: linux-2.6.19-rc2 tg3 problem
+Cc: linux-kernel@vger.kernel.org, "David Miller" <davem@davemloft.net>
+In-Reply-To: <20061026152455.GI27968@stusta.de>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
-       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
-       Kirill Korotaev <dev@openvz.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Q] missing unused dentry in prune_dcache()?
-References: <4541F2A3.8050004@sw.ru>  <4541BDE2.6050703@sw.ru> <45409DD5.7050306@sw.ru> <453F6D90.4060106@sw.ru> <453F58FB.4050407@sw.ru> <20792.1161784264@redhat.com> <21393.1161786209@redhat.com> <19898.1161869129@redhat.com> <22562.1161945769@redhat.com> <24249.1161951081@redhat.com>
-In-Reply-To: <24249.1161951081@redhat.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=KOI8-R
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com>
+	 <20061025013022.GG27968@stusta.de>
+	 <b6a2187b0610251754x7dc2c51aoad2244b8cdcb1c09@mail.gmail.com>
+	 <20061026152455.GI27968@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> Vasily Averin <vvs@sw.ru> wrote:
->> I would like to ask you to approve it and we will go to next issue.
-> 
-> I did ack it didn't I?  I must fix my mail client so that it doesn't
-> automatically remove my email address from the To/Cc fields when I'm replying
-> to a message:-/
+On 10/26/06, Adrian Bunk <bunk@stusta.de> wrote:
 
-To prevent any mistake I've resend this patch again to you and akpm@.
+> That wasn't clear from your bug report.
 
->> We have seen that umount (and remount) can work very slowly, it was cycled
->> inside shrink_dcache_sb() up to several hours with taken s_umount semaphore.
-> 
-> umount at least should be fixed as that should no longer use
-> shrink_dcache_sb().
+Sorry. Didn't want to bombard with too much unnecessary info.
 
-Umount calls shrink_dcache_sb in "Special case for "unmounting" root".
-Usually it happen only once, but in case OpenVZ it happens every time when any
-Virtual server is stopped, each of them have own isolated root partition.
 
->> We are trying to resolve this issue by using per-sb lru list. I'm preparing
->> the patch for 2.6.19-rc3 right now and going to send it soon.
+> You said 2.6.18-rc2 -> 2.6.19-rc2 broke.
+> Can you identify between which -rc kernels it broke?
 
-Please wait until my following email, it will be ready soon
+Ok, I managed to trace down to ..
 
-thank you,
-	Vasily Averin
+      2.6.18 ok
+      2.6.19-rc1 bad
+
+
+> Please send complete "dmesg -s 1000000" for the time after tg3 loads for
+> both the last working and the first non-working -rc kernel.
+
+
+2.6.18 (good) ...
+
+tg3.c:v3.65 (August 07, 2006)
+ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:02:00.0 to 64
+eth0: Tigon3 [partno(BCM5751PKFBG) rev 4001 PHY(5750)] (PCI Express)
+10/100/1000BaseT Ethernet 00:13:72:7b:2a:f0
+eth0: RXcsums[1] LinkChgREG[1] MIirq[1] ASF[0] Split[0] WireSpeed[1] TSOcap[1]
+eth0: dma_rwctrl[76180000] dma_mask[64-bit]
+ip_tables: (C) 2000-2006 Netfilter Core Team
+ip_conntrack version 2.4 (8192 buckets, 65536 max) - 224 bytes per conntrack
+tg3: eth0: Link is up at 100 Mbps, full duplex.
+tg3: eth0: Flow control is on for TX and on for RX.
+
+
+
+2.6.19 (bad) ...
+
+tg3.c:v3.66 (September 23, 2006)
+ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+tg3: Cannot find proper PCI device base address, aborting.
+ACPI: PCI interrupt for device 0000:02:00.0 disabled
+ip_tables: (C) 2000-2006 Netfilter Core Team
+ip_conntrack version 2.4 (8192 buckets, 65536 max) - 228 bytes per conntrack
+
+
+
+
+gcc version 3.4.5
+Dell Optiplex DualCore GX620.
+Intel(R) Pentium(R) D CPU 3.00GHz stepping 07
+
+
+Diff of the two config ...
+
+  .config (2.6.18) ...
+< CONFIG_TCP_CONG_BIC=y
+
+ .config (2.6.19-rc1) ...
+> CONFIG_HT_IRQ=y
+> CONFIG_INET_XFRM_MODE_BEET=y
+> CONFIG_TCP_CONG_CUBIC=y
+> CONFIG_DEFAULT_TCP_CONG="cubic"
+
+
+Thanks,
+Jeff.

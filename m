@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946051AbWJ0HKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946166AbWJ0HXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946051AbWJ0HKy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 03:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946050AbWJ0HKy
+	id S1946166AbWJ0HXO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 03:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946165AbWJ0HXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 03:10:54 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:27289
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1946051AbWJ0HKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 03:10:53 -0400
-Date: Fri, 27 Oct 2006 00:10:37 -0700 (PDT)
-Message-Id: <20061027.001037.74128782.davem@davemloft.net>
-To: supriyak@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Incorrect order of last two arguments of ptrace for requests
- PPC_PTRACE_GETREGS, SETREGS, GETFPREGS, SETFPREGS
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <4541B33D.6090704@in.ibm.com>
-References: <453F421A.6070507@in.ibm.com>
-	<20061025.134354.92582918.davem@davemloft.net>
-	<4541B33D.6090704@in.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Oct 2006 03:23:13 -0400
+Received: from pat.uio.no ([129.240.10.4]:12225 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1946162AbWJ0HXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 03:23:12 -0400
+Date: Fri, 27 Oct 2006 09:23:05 +0200 (CEST)
+From: Martin Tostrup Setek <martitse@student.matnat.uio.no>
+To: David Rientjes <rientjes@cs.washington.edu>
+cc: Martin Tostrup Setek <martitse@student.matnat.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: 2.6.18.1] delayacct: cpu_count in taskstats updated
+ correctly
+In-Reply-To: <Pine.LNX.4.64N.0610262238510.30255@attu4.cs.washington.edu>
+Message-ID: <Pine.LNX.4.63.0610270919500.9454@honbori.ifi.uio.no>
+References: <Pine.LNX.4.63.0610270440500.21448@honbori.ifi.uio.no>
+ <Pine.LNX.4.64N.0610262027350.12347@attu2.cs.washington.edu>
+ <Pine.LNX.4.63.0610270545000.21448@honbori.ifi.uio.no>
+ <Pine.LNX.4.64N.0610262238510.30255@attu4.cs.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5.201, required 12,
+	autolearn=disabled, AWL -0.20, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: supriya kannery <supriyak@in.ibm.com>
-Date: Fri, 27 Oct 2006 12:50:29 +0530
+On Thu, 26 Oct 2006, David Rientjes wrote:
+> I don't see a cpu_delay, I see a cpu_delay_total.  This is the CPU's
+> cumulative delay and is only accessible through the user-space accounting
+> program Documentation/accounting/getdelays.c.  It reports the number of
+> delay values recorded and the real total, virtual total, and delay total;
+> each of these are cumulative.
 
->     I checked in gdb and ltrace code. None of them are using PPC_PTRACE* 
-> options to get register values.
-> Man page also doesn't mention these options. Once this is fixed, these 
-> options could be added to man page also.
-> 
-> Irrespective of whether we fix this, documentation of these options in 
-> manpage will clarify its usage I guess.
+Yes, I reread the docs more carefully. You are right, and I was wrong.
 
-Yep.  Are the no current users at all?  That's strange...
+> In the use case for cpu_count, taking the difference of two successive
+> cpu_count readings as reported by getdelays.c would find the number of
+> delays experienced in that interval.  This is described in the program's
+> documentation so by definition the count must be cumulative.  It is also
+> possible to find the average delay but dividing cpu_delay_total by
+> cpu_count.
+>
+> The original code is correct and accumulation is appropriate.
+
+Thanks for setting me straight. I withdraw the patch.
+
+Martin

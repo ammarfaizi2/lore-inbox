@@ -1,86 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752278AbWJ0PQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946473AbWJ0P2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752278AbWJ0PQE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 11:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWJ0PQE
+	id S1946473AbWJ0P2L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 11:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752313AbWJ0P2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 11:16:04 -0400
-Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:45965 "EHLO
-	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1752278AbWJ0PQC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 11:16:02 -0400
-X-MIMEOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 27 Oct 2006 11:28:11 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:41999 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1752308AbWJ0P2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 11:28:10 -0400
+Date: Fri, 27 Oct 2006 11:28:09 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Ingo Molnar <mingo@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] workqueue: update kerneldoc
+Message-ID: <Pine.LNX.4.44L0.0610271116350.6443-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH cciss: fix printk format warning
-Date: Fri, 27 Oct 2006 10:15:18 -0500
-Message-ID: <E717642AF17E744CA95C070CA815AE55B7E19A@cceexc23.americas.cpqcorp.net>
-In-Reply-To: <5CCF5F0F2514664CBE20FD24BCE17614A6A76E@cceexc17.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH cciss: fix printk format warning
-Thread-Index: Acb5VmqMvMYJPHgBSzy7DAfyLZe40AAcwnVlAAQrfGA=
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Cameron, Steve" <steve.cameron@hp.com>,
-       "Randy Dunlap" <randy.dunlap@oracle.com>,
-       "Roland Dreier" <rdreier@cisco.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "ISS StorageDev" <iss_storagedev@hp.com>,
-       "lkml" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Oct 2006 15:15:19.0362 (UTC) FILETIME=[B6EA1A20:01C6F9DA]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+This patch (as812) changes the kerneldoc comments explaining the
+return values from queue_work(), queue_delayed_work(), and
+queue_delayed_work_on().  The updated comments explain more
+accurately the meaning of the return code and avoid suggesting that a
+0 value means the routine was unsuccessful.
 
-> -----Original Message-----
-> From: Cameron, Steve 
-> Sent: Friday, October 27, 2006 8:12 AM
-> To: Randy Dunlap; Roland Dreier
-> Cc: Andrew Morton; ISS StorageDev; lkml
-> Subject: RE: [PATCH cciss: fix printk format warning
-> 
-> > Roland Dreier wrote:
-> > >  > >  	if (*total_size != (__u32) 0)
-> > >  >
-> > >  > Why is cciss_read_capacity casting *total_size to u32?
-> > > 
-> > > It's not -- it's actually casting 0 to __32 -- there's no cast on 
-> > > the *total_size side of the comparison.  However that 
-> just makes the 
-> > > cast look even fishier.
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-If the volume is >2TB read_capacity will return 8 F's. We've already
-added 1 to total_size which equals 0. I only care if the lower 32 bits
-are zero so that's the reason for the cast.
-Does that make sense or am I out in the weeds?
+---
 
-mikem
+Andrew:
 
-> > > 
-> > >  - R.
-> > 
-> > OK, how about this one then?
-> > 
-> > 
-> > 	c->busaddr = (__u32) cmd_dma_handle;
-> > 
-> > where cmd_dma_handle is a dma_addr_t (u32 or u64)
-> 
-> The command register to which that value is written is a 32 
-> bit register.  Cast it or not, only 32 bits will be used.  
-> The DMA mask used to get that memory should ensure it's 32 
-> bit addressable.
-> 
-> > and then later:
-> >
-> >		pci_free_consistent(h->pdev, sizeof(CommandList_struct),
-> >				    c, (dma_addr_t) c->busaddr);
-> 
-> 
-> 
-> 
-> 
+After seeing how queue_work() and schedule_work() are used in practice,
+and in view of the recent discussion (concerning the PCI MWI routine)  
+about when it's appropriate to return an error code as opposed to just
+returning a non-zero value, I decided there wasn't any need to change
+queue_work() and friends.
+
+The 0 value they return is not a sign of an error; it simply means 
+that the work_struct had already been added to a workqueue.  The best way 
+to clear up any confusion is simply to improve the kerneldoc comment.
+
+Alan Stern
+
+
+Index: usb-2.6/kernel/workqueue.c
+===================================================================
+--- usb-2.6.orig/kernel/workqueue.c
++++ usb-2.6/kernel/workqueue.c
+@@ -99,7 +99,7 @@ static void __queue_work(struct cpu_work
+  * @wq: workqueue to use
+  * @work: work to queue
+  *
+- * Returns non-zero if it was successfully added.
++ * Returns 0 if @work was already on a queue, non-zero otherwise.
+  *
+  * We queue the work to the CPU it was submitted, but there is no
+  * guarantee that it will be processed by that CPU.
+@@ -138,7 +138,7 @@ void delayed_work_timer_fn(unsigned long
+  * @work: work to queue
+  * @delay: number of jiffies to wait before queueing
+  *
+- * Returns non-zero if it was successfully added.
++ * Returns 0 if @work was already on a queue, non-zero otherwise.
+  */
+ int fastcall queue_delayed_work(struct workqueue_struct *wq,
+ 				struct work_struct *work, unsigned long delay)
+@@ -170,7 +170,7 @@ EXPORT_SYMBOL_GPL(queue_delayed_work);
+  * @work: work to queue
+  * @delay: number of jiffies to wait before queueing
+  *
+- * Returns non-zero if it was successfully added.
++ * Returns 0 if @work was already on a queue, non-zero otherwise.
+  */
+ int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
+ 			struct work_struct *work, unsigned long delay)
+

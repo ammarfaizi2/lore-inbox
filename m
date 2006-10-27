@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946453AbWJ0MNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWJ0MZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946453AbWJ0MNe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 08:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946454AbWJ0MNe
+	id S1751781AbWJ0MZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 08:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWJ0MZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 08:13:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4521 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1946453AbWJ0MNd (ORCPT
+	Fri, 27 Oct 2006 08:25:58 -0400
+Received: from poczta.o2.pl ([193.17.41.142]:18576 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1751781AbWJ0MZ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 08:13:33 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <4541F2A3.8050004@sw.ru> 
-References: <4541F2A3.8050004@sw.ru>  <4541BDE2.6050703@sw.ru> <45409DD5.7050306@sw.ru> <453F6D90.4060106@sw.ru> <453F58FB.4050407@sw.ru> <20792.1161784264@redhat.com> <21393.1161786209@redhat.com> <19898.1161869129@redhat.com> <22562.1161945769@redhat.com> 
-To: Vasily Averin <vvs@sw.ru>
-Cc: Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
-       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
-       Kirill Korotaev <dev@openvz.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Q] missing unused dentry in prune_dcache()? 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 27 Oct 2006 13:11:21 +0100
-Message-ID: <24249.1161951081@redhat.com>
+	Fri, 27 Oct 2006 08:25:58 -0400
+Date: Fri, 27 Oct 2006 14:31:11 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: John M Flinchbaugh <john@hjsoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inconsistent lock state in 2.6.18.1
+Message-ID: <20061027123111.GA2898@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	John M Flinchbaugh <john@hjsoft.com>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061025110024.GA4320@hjsoft.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vasily Averin <vvs@sw.ru> wrote:
+On 25-10-2006 13:00, John M Flinchbaugh wrote:
+> I see this OOPS on boot with 2.6.18.1/amd64:
 
-> > Vasily Averin <vvs@sw.ru> wrote:
-> >> Therefore I believe that my patch is optimal solution.
-> > I'm not sure that prune_dcache() is particularly optimal.
-> 
-> I means that my patch is optimal for problem in subject.
+You mean this INFO?
 
-I didn't say it wasn't.
+> [  113.147347] =================================
+> [  113.147561] [ INFO: inconsistent lock state ]
+> [  113.147668] ---------------------------------
+> [  113.147775] inconsistent {in-hardirq-W} -> {hardirq-on-W} usage.
+> [  113.147883] dhclient3/1787 [HC0[0]:SC0[1]:HE1:SE0] takes:
+> [  113.147991]  (&ei_local->page_lock){+...}, at: [<ffffffff88080fbb>] ei_start_xmit+0x95/0x24e [8390]
+> [  113.148274] {in-hardirq-W} state was registered at:
+> [  113.148382]   [<ffffffff802443d5>] lock_acquire+0x7a/0xa1
+> [  113.148556]   [<ffffffff80438c09>] _spin_lock+0x2e/0x3c
+> [  113.148730]   [<ffffffff880808e0>] ei_interrupt+0x44/0x2fb [8390]
 
-> I would like to ask you to approve it and we will go to next issue.
+It looks there is a patch for this in 2.6.19-rc (8390.c). 
 
-I did ack it didn't I?  I must fix my mail client so that it doesn't
-automatically remove my email address from the To/Cc fields when I'm replying
-to a message:-/
-
-> We have seen that umount (and remount) can work very slowly, it was cycled
-> inside shrink_dcache_sb() up to several hours with taken s_umount semaphore.
-
-umount at least should be fixed as that should no longer use
-shrink_dcache_sb().
-
-> We are trying to resolve this issue by using per-sb lru list. I'm preparing
-> the patch for 2.6.19-rc3 right now and going to send it soon.
-
-That sounds tricky; you have to check all your LRU lists to find the LRU
-dentry.
-
-David
+Jarek P.

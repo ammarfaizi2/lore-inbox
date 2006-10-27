@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946152AbWJ0DtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422950AbWJ0Dts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946152AbWJ0DtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 23:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946155AbWJ0DtK
+	id S1422950AbWJ0Dts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 23:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423745AbWJ0Dts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 23:49:10 -0400
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:20445 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1946152AbWJ0DtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 23:49:08 -0400
-Date: Fri, 27 Oct 2006 09:19:25 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: ego@in.ibm.com, rusty@rustcorp.com.au, torvalds@osdl.org, mingo@elte.hu,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, paulmck@us.ibm.com,
-       vatsa@in.ibm.com, dipankar@in.ibm.com, gaughen@us.ibm.com,
-       arjan@linux.intel.org, davej@redhat.com, venkatesh.pallipadi@intel.com,
-       kiran@scalex86.org
-Subject: Re: [PATCH 4/5] lock_cpu_hotplug: Redesign - Lightweight implementation of lock_cpu_hotplug.
-Message-ID: <20061027034925.GA4023@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20061026104858.GA11803@in.ibm.com> <20061026105058.GB11803@in.ibm.com> <20061026105342.GC11803@in.ibm.com> <20061026105523.GD11803@in.ibm.com> <20061026105731.GE11803@in.ibm.com> <20061026141450.53b48b88.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061026141450.53b48b88.pj@sgi.com>
-User-Agent: Mutt/1.5.10i
+	Thu, 26 Oct 2006 23:49:48 -0400
+Received: from [84.77.121.105] ([84.77.121.105]:20683 "EHLO
+	merak.nimastelecom.com") by vger.kernel.org with ESMTP
+	id S1422950AbWJ0Dtr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 23:49:47 -0400
+Message-ID: <454181D1.1040904@newipnet.com>
+Date: Fri, 27 Oct 2006 05:49:37 +0200
+From: Carlos Velasco <lkml@newipnet.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Networking messed up, bad checksum, incorrect length
+References: <E1GdIWp-0002qX-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1GdIWp-0002qX-00@gondolin.me.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 26, 2006 at 02:14:50PM -0700, Paul Jackson wrote:
-> Gautham wrote:
-> + *- Readers assume control iff:					*
-> + *    a) No other reader has a reference and no writer is writing.	*
-> + *    OR								*
-> + *    b) Atleast one reader (on *any* cpu) has a reference.		*
+Herbert Xu escribió:
+
+> These packets look like normal TSO packets.  Linux will send a
+> packet containing more data than fits in a packet to the NIC.  The
+> NIC will then segment the packet for us.
 > 
-> Isn't this logically equivalent to stating:
-> 
->   *- Readers assume control iff no writer is writing
+> If that is not possible, you can try disabling TSO with ethtool -K.
 
-It is logically equivalent, but...
+I see...
+I have tracked the change to 2.6.18.
+Using kernel 2.6.17.14 and below makes tcpdump/libpcap to display the
+real packets.
+Could this be a change in the tg3 driver to support TSO committed in 2.6.18?
 
-> (Or if it's not equivalent, it might be interesting to state why.)
+And a question... how this TSO affects netfilter?
 
-I think it needs to be rephrased. 
+> In order to see what really goes out, you'll need to run a packet
+> dump beyond the NIC.
 
-Because there may be a situation where nr_readers = 0, when a writer
-arrives. The writer sets the flag to WRITER_WAITING and performs
-a synchronize_sched.
+They are here:
 
-During this time, if a new reader arrives at the scene, it would still
-go to sleep, because there are no other active readers in the system.
-This despite the fact that the writer is not *writing*.
+Sniffer traces taken through port mirroring in the switch
+(ethereal with filter: host flash.cnio.es):
+http://www.nimastelecom.com/smtptraces/smtptrace_portmirror.pcap
 
-Thanks for pointing that out :-)
 
-> 
-> -- 
->                   I won't rest till it's the best ...
->                   Programmer, Linux Scalability
->                   Paul Jackson <pj@sgi.com> 1.925.600.0401
+But still wondering how could this affect Netfilter... my real problem
+is that Netfilter drops ACK packets because it doesn't see the
+connection established/related.
 
-Regards
-gautham.
--- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, 
-which is still a bargain, because Freedom is priceless!"
+I will try to do some more research.
+
+Regards,
+Carlos Velasco
+CCNP & CCDP Cisco Certified Network Professional
+
+

@@ -1,46 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752193AbWJ0Nu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752206AbWJ0OG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752193AbWJ0Nu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 09:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752192AbWJ0Nu6
+	id S1752206AbWJ0OG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 10:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752209AbWJ0OG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 09:50:58 -0400
-Received: from mxsf12.cluster1.charter.net ([209.225.28.212]:53179 "EHLO
-	mxsf12.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1752191AbWJ0Nu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 09:50:57 -0400
-X-IronPort-AV: i="4.09,365,1157342400"; 
-   d="scan'208"; a="1875487711:sNHT48719742"
+	Fri, 27 Oct 2006 10:06:28 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:59377 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1752205AbWJ0OG1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 10:06:27 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 6/13] KVM: memory slot management
+Date: Fri, 27 Oct 2006 16:05:26 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
+References: <4540EE2B.9020606@qumranet.com> <200610270937.11646.arnd@arndb.de> <454208EB.7080007@qumranet.com>
+In-Reply-To: <454208EB.7080007@qumranet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17730.3765.293365.848005@smtp.charter.net>
-Date: Fri, 27 Oct 2006 09:50:45 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jiri Slaby <jirislaby@gmail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: removing drivers and ISA support? [Was: Char: correct
-	pci_get_device changes]
-In-Reply-To: <1161900446.12781.86.camel@localhost.localdomain>
-References: <4540F79C.7070705@gmail.com>
-	<1161900446.12781.86.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610271605.27600.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Friday 27 October 2006 15:26, Avi Kivity wrote:
+> > The idea would be to mmap the file into the guest real address space.
+> > With -o xip, the page cache for the virtual device would basically
+> > reside in that high address range.
+> >   
+> 
+> Ah, I see what you mean now.  Like the "memory technology device" thing.
 
-Alan> Ar Iau, 2006-10-26 am 19:59 +0200, ysgrifennodd Jiri Slaby:
->> Alan, do you consider some (char) driver to be removed now?
+Similar, but not quite. For an example, look at drivers/s390/block/dcssblk.c
 
-Alan> I think some of the drivers like epca we should seriously consider
-Alan> dropping and seeing if there is any complaint, my guess will be not.
+> > Guest users reading/writing files on it cause a memcopy between guest
+> > user space and the host file mapping, done by the guest file system
+> > implementation.
+> >
+> > The interesting point here is how to handle a host page fault on the
+> > file mapping. The solution on z/VM for this is to generate a special
+> > exception for this that will be caught by the guest kernel, telling
+> > it to wait until the page is there. The guest kernel can then put the
+> > current thread to sleep and do something else, until a second exception
+> > tells it that the page has been loaded by the host. The guest then
+> > wakes up the sleeping thread.
+> >
+> > This can work the same way for host file backed (guest block device)
+> > and host anonymous (guest RAM) memory.
+>
+> Certainly something like that can be done, for paravirtualized guests.
 
->> And what about (E)ISA support. When converting to pci probing,
->> should be ISA bus support preserved (how much is ISA used in
->> present)? -- it makes code ugly and long.
+Right. I forgot that the guest OS needs to at least be able to ignore
+the pseudo-fault. In z/VM, the pseudo-fault is delivered the first time
+that a guest accesses a page. If it tries to access the same page again
+without waiting for the second fault to be delivered, the hypervisor blocks
+the virtual CPU.
 
-I'm still using my Cyclom-Y ISA 8-port serial card.  But that probably
-won't be for too much longer if I get a new system... but it's still
-in use!
+> > Don't understand. Can't one CPU cause a TLB entry to be flushed on all
+> > CPUs?
+ 
+> It's not about tlb entries.  The shadow page tables collaples a GV -> HV 
+> -> HP  double translation into a GV -> HP page table.  When the Linux vm 
+> goes around evicting pages, it invalidates those mappings.
+> 
+> There are two solutions possible: lock pages which participate in these 
+> translations (and their number can be large) or modify the Linux vm to 
+> consult a reverse mapping and remove the translations (in which case TLB 
+> entries need to be removed).
+
+Ok, I see.
+
+> It can shoot not only its foot, but anything the monitor's uid has 
+> access to.  Host files, the host network, other guests belonging to the 
+> user, etc.
+
+Yes, that's what I meant. It's obviously nicer if the guest can't do that,
+but it's a tradeoff of the potential security impact against on how hard
+it is to implement hiding the addresses you don't want your guest to see.
+To put it into other words, do you want the optimal performance, or the
+optimal security?
+
+> >>   c.  we need to extend host tlb invalidations to invalidate tlbs on guests
+> >>     
+> >
+> > I don't understand much about the x86 specific memory management,
+> > but shouldn't a TLB invalidate of a given page do the right thing
+> > on all CPUs, even if they are currently running a guest?
+> >   
+> It's worse than I thouht: tlb entries generated by guest accesses are 
+> tagged with the guest virtual address, to if you remove a guest 
+> physical/host virtual page you need to invalidate the entire guest tlb.
+
+Ok, so it's the HW's fault. They either copied bad or decided doing the
+s390 approach was too expensive.
+
+	Arnd <><

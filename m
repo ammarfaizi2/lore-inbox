@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWJ0WBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWJ0WIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWJ0WBv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 18:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWJ0WBv
+	id S1750754AbWJ0WIW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 18:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWJ0WIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 18:01:51 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:58869 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1750739AbWJ0WBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 18:01:50 -0400
-Message-ID: <45427FEB.1000509@oracle.com>
-Date: Fri, 27 Oct 2006 14:53:47 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>, gregkh <greg@kroah.com>,
-       sam@ravnborg.org, Ankita Garg <ankita@in.ibm.com>
-Subject: Re: [PATCH 2/2] kconfig.debug menu dependencies
-References: <20061027120837.f694814d.randy.dunlap@oracle.com> <20061027132353.f280e854.akpm@osdl.org>
-In-Reply-To: <20061027132353.f280e854.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 27 Oct 2006 18:08:22 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:53716 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750754AbWJ0WIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 18:08:22 -0400
+Subject: Re: AMD X2 unsynced TSC fix?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>
+In-Reply-To: <45427E91.2000402@nortel.com>
+References: <1161969308.27225.120.camel@mindpipe>
+	 <200610271335.10178.ak@suse.de> <1161981682.27225.184.camel@mindpipe>
+	 <45427E91.2000402@nortel.com>
+Content-Type: text/plain
+Date: Fri, 27 Oct 2006 18:08:22 -0400
+Message-Id: <1161986902.27225.206.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 27 Oct 2006 12:08:37 -0700
-> Randy Dunlap <randy.dunlap@oracle.com> wrote:
+On Fri, 2006-10-27 at 15:48 -0600, Chris Friesen wrote:
+> Lee Revell wrote:
 > 
->> DEBUG_FS, HEADERS_CHECK, and UNWIND don't depend on DEBUG_KERNEL but
->> they were stuck into the middle of the DEBUG_KERNEL menu, so move
->> them up above it (since it continues wherever lib/Kconfig.debug was
->> sourced into, hence below it won't work).
->>
->> Also make LKDTM depend on DEBUG_KERNEL, as other test modules do
->> (e.g., RT MUTEX TESTER, RCU TORTURE TEST).
+> > What exactly does that AMD patch do?
 > 
-> This conflicts fairly seriously with the below.
+> "...by periodically adjusting the core time-stamp-counters, so that they 
+> are synchronized."
+> 
+> It sounds like they just periodically write a new value to the TSC. 
+> Presumably they set the "slower" one equal to the "faster" one.
+> 
+> You'd likely still have windows where time might run backwards, but it 
+> would be better than nothing.
 
-actually they are basically equivalent, so no worries.
+The patch also apparently changes boot params to make the OS use the
+ACPI PM timer, so it must not be a complete solution.
 
--- 
-~Randy
+Lee
+

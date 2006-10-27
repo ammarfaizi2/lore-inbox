@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752275AbWJ0PoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752269AbWJ0Pno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752275AbWJ0PoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 11:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752321AbWJ0PoE
+	id S1752269AbWJ0Pno (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 11:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752275AbWJ0Pno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 11:44:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28585 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752275AbWJ0PoB (ORCPT
+	Fri, 27 Oct 2006 11:43:44 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:37767 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752269AbWJ0Pno (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 11:44:01 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil> 
-References: <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil>  <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <2340.1161903200@redhat.com> 
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: David Howells <dhowells@redhat.com>, aviro@redhat.com,
-       linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-       chrisw@sous-sol.org, jmorris@namei.org
-Subject: Re: Security issues with local filesystem caching 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 27 Oct 2006 16:42:46 +0100
-Message-ID: <4786.1161963766@redhat.com>
+	Fri, 27 Oct 2006 11:43:44 -0400
+Message-ID: <4542292C.3080409@us.ibm.com>
+Date: Fri, 27 Oct 2006 10:43:40 -0500
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Avi Kivity <avi@qumranet.com>
+CC: Arnd Bergmann <arnd@arndb.de>, kvm-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [kvm-devel] [PATCH 6/13] KVM: memory slot management
+References: <4540EE2B.9020606@qumranet.com> <200610270044.31382.arnd@arndb.de>	<45419D73.1070106@qumranet.com> <200610270937.11646.arnd@arndb.de> <454208EB.7080007@qumranet.com>
+In-Reply-To: <454208EB.7080007@qumranet.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Avi Kivity wrote:
+>>> 2. The next mmu implementation, which caches guest translations.
+>>>
+>>> The potential problem above now becomes acute.  The guest will have 
+>>> kernel mappings for every page, and after a short while they'll all be 
+>>> faulted in and locked.  This defeats the swap integration which is IMO a 
+>>> very strong point.
+>>>
+>>> We can work around that by periodically forcing out translations (some 
+>>> kind of clock algorithm) at some rate so the host vm can have a go at 
+>>> them.  That can turn out to be expensive as we'll need to interrupt all 
+>>> running vcpus to flush (real) tlb entries.
+>>>     
+>>>       
+>> Don't understand. Can't one CPU cause a TLB entry to be flushed on all
+>> CPUs?
+>>
+>>   
+>>     
+>
+> It's not about tlb entries.  The shadow page tables collaples a GV -> HV 
+> -> HP  double translation into a GV -> HP page table.  When the Linux vm 
+> goes around evicting pages, it invalidates those mappings.
+>
+> There are two solutions possible: lock pages which participate in these 
+> translations (and their number can be large) or modify the Linux vm to 
+> consult a reverse mapping and remove the translations (in which case TLB 
+> entries need to be removed).
+>   
 
-> We might want more information passed into the hook, like the cache
-> directory itself,
+If you locked pages that have active shadow mappings, you could then use 
+a secondary mechanism to invalidate existing mappings when necessary.
 
-I can do that.  I have the cache directory path and the cache tag name both
-available as strings.
+You could even base this on a user-configurable heuristic (give this VM 
+1G of memory, with 512MB of dedicated memory for instance).
 
-> 	int security_cache_set_context(struct vfsmount *mnt, struct dentry *dentry, u32 secid)
-> 	{
+I seem to recall some discussion about having a memory pressure 
+notification mechanism.  If such a thing existed, this could be used to 
+reduce the guests actual memory foot print.  I'm woefully ignorant 
+though of any recent developments in this area...
 
-Where are you envisioning this going?  In SELinux, in the LSM core or in
-cachefiles?  I was also wondering if I could generalise it to handle all cache
-types, but the permissions checks are probably going to be quite different for
-each type.  For instance, CacheFiles uses files on a mounted fs, whilst CacheFS
-uses a block device.
+Regards,
 
-> We would either need to introduce new permission definitions to SELinux to
-> distinguish this operation, or we would need to map it to something similar,
-> e.g. apply the same checks that we would perform if the cache daemon was
-> directly trying to set its fscreate value to this context and create files in
-> that context.
+Anthony Liguori
 
-Mapping it to something similar sounds reasonable, though I'd quite like
-something general, so that I can check for any type of cache coming up.
-
-Also, with your multiple cache example, how would I bring each cachefilesd
-daemon up in a different context so that it could handle a different cache with
-a different context?
-
-> > That sounds doable.  I presume I should attend to fsuid/fsgid myself, much
-> > as I'm doing now?
-> 
-> Yes, I think so, although you may want to make those values configurable
-> too (although it isn't clear that a cache daemon can be run as non-root
-> at present).
-
-Actually, that's not something I had considered, but there's no particular
-reason that files in the cache have to be owned by root specifically; nor is
-there a reason why cachefilesd needs to run as root.  The main thing is that
-the files are owned by whatever user the daemon runs as.  It'd mean creating
-another special user for it, but we do that all the time...
-
-> I think we likely also want to refer to the above secid as fscreateid or
-> similar instead of just fsecid for clarity, because it isn't quite the
-> same thing as a fsuid/fsgid; it is _only_ used for labeling of new
-> files, not as the label of the process for permission checking purposes.
-> So it would be security_getfscreateid() and security_setfscreateid().
-> Process labels and file labels are distinct.
-
-Gotcha.
-
-David

@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946069AbWJ0A5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946066AbWJ0BCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946069AbWJ0A5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Oct 2006 20:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946070AbWJ0A5y
+	id S1946066AbWJ0BCy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Oct 2006 21:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946067AbWJ0BCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Oct 2006 20:57:54 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:48141 "HELO
+	Thu, 26 Oct 2006 21:02:54 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:51981 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1946069AbWJ0A5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Oct 2006 20:57:53 -0400
-Date: Fri, 27 Oct 2006 02:57:51 +0200
+	id S1946066AbWJ0BCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Oct 2006 21:02:54 -0400
+Date: Fri, 27 Oct 2006 03:02:52 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Sven-Haegar Koch <haegar@sdinet.de>
-Cc: Pavel Roskin <proski@gnu.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: incorrect taint of ndiswrapper
-Message-ID: <20061027005751.GU27968@stusta.de>
-References: <1161807069.3441.33.camel@dv> <1161808227.7615.0.camel@localhost.localdomain> <20061025205923.828c620d.akpm@osdl.org> <1161859199.12781.7.camel@localhost.localdomain> <1161890340.9087.28.camel@dv> <20061026214600.GL27968@stusta.de> <1161901793.9087.110.camel@dv> <20061026230002.GR27968@stusta.de> <Pine.LNX.4.64.0610270132290.6757@mercury.sdinet.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: [RFC: 2.6.19 patch] let PCI_MULTITHREAD_PROBE depend on BROKEN
+Message-ID: <20061027010252.GV27968@stusta.de>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061026224541.GQ27968@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610270132290.6757@mercury.sdinet.de>
+In-Reply-To: <20061026224541.GQ27968@stusta.de>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2006 at 01:36:41AM +0200, Sven-Haegar Koch wrote:
-> On Fri, 27 Oct 2006, Adrian Bunk wrote:
+On Fri, Oct 27, 2006 at 12:45:41AM +0200, Adrian Bunk wrote:
+>...
+> Subject    : swsusp initialized after SATA (CONFIG_PCI_MULTITHREAD_PROBE)
+> References : http://lkml.org/lkml/2006/10/14/31
+> Submitter  : Pavel Machek <pavel@ucw.cz>
+> Status     : unknown
 > 
-> >On Thu, Oct 26, 2006 at 06:29:53PM -0400, Pavel Roskin wrote:
-> >>Anyway, I don't think it's relevant to ndiswrapper.
-> >>...
-> >
-> >All non-GPL'ed modules are in a grey area, and the question isn't
-> >whether it's black or white but how light or dark the grey is...
 > 
-> ndiswrapper is GPL, but is (with the current code) not allowed to use the 
-> gpl-only'ed symbols.
+> Subject    : MSI errors during boot (CONFIG_PCI_MULTITHREAD_PROBE)
+> References : http://lkml.org/lkml/2006/10/16/291
+> Submitter  : Stephen Hemminger <shemminger@osdl.org>
+> Handled-By : Greg KH <greg@kroah.com>
+> Status     : Greg is working on a fix
+>...
 
-ndiswrapper is mostly a compatility layer for linking non-GPL'ed code 
-into the kernel.
 
-This is really a grey area, and the legal status might depend on the 
-jurisdiction and the judge.
+PCI_MULTITHREAD_PROBE is an interesting feature, but in it's current 
+state it seems to be more of a trap for users who accidentally
+enable it.
 
-Considering the vivid "cease and desist" business in Germany, I wouldn't 
-be surprised if some day someone would start sending "cease and desist" 
-letters against mirrors in Germany distributing code in this grey 
-area...
+This patch lets PCI_MULTITHREAD_PROBE depend on BROKEN for 2.6.19.
 
-> c'ya
-> sven
+The intention is to get this patch reversed in -mm as soon as it's in 
+Linus' tree, and reverse it for 2.6.20 or 2.6.21 after the fallout of 
+in-kernel problems PCI_MULTITHREAD_PROBE causes got fixed.
 
-cu
-Adrian
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.6/drivers/pci/Kconfig.old	2006-10-27 02:40:02.000000000 +0200
++++ linux-2.6/drivers/pci/Kconfig	2006-10-27 02:58:25.000000000 +0200
+@@ -19,7 +19,7 @@
+ 
+ config PCI_MULTITHREAD_PROBE
+ 	bool "PCI Multi-threaded probe (EXPERIMENTAL)"
+-	depends on PCI && EXPERIMENTAL
++	depends on PCI && EXPERIMENTAL && BROKEN
+ 	help
+ 	  Say Y here if you want the PCI core to spawn a new thread for
+ 	  every PCI device that is probed.  This can cause a huge
 

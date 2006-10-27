@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946386AbWJ0LAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946388AbWJ0LFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946386AbWJ0LAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 07:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946382AbWJ0LAZ
+	id S1946388AbWJ0LFc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 07:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946389AbWJ0LFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 07:00:25 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:38539 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1946386AbWJ0LAY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 07:00:24 -0400
-Date: Fri, 27 Oct 2006 12:58:37 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: linux@horizon.com
-cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc2 and very unstable NTP
-In-Reply-To: <20061027091508.14771.qmail@science.horizon.com>
-Message-ID: <Pine.LNX.4.64.0610271250490.6761@scrub.home>
-References: <20061027091508.14771.qmail@science.horizon.com>
+	Fri, 27 Oct 2006 07:05:32 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:31074 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1946388AbWJ0LFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 07:05:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=oJAzVtitQTpRWZzHpJsPPD9v5rItLB8eKtcjA/I0bK8mWiA8PhC8gzv7btre2dv75C3ib33m8xvjrp0ahZPYAcacf978aFF+qJ0KTCI4R5P0dY5oa0lhFDYKv44lvg029N1smTuVXOlVZNQmEULTLXcy9x2PrGGxxG9/I2JlPrk=
+Message-ID: <4541E7F6.40504@gmail.com>
+Date: Fri, 27 Oct 2006 13:05:03 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to run an a.out file in a kernel module
+References: <20061027101611.67643.qmail@web27406.mail.ukl.yahoo.com>
+In-Reply-To: <20061027101611.67643.qmail@web27406.mail.ukl.yahoo.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ranjith kumar wrote:
+> Hi,
+> 
+>           How to run an a.out file in a kernel module
+>              I tried to include
+>                                     system("./a.out");
+>      in the C file. But I got compilation errors.
 
-On Fri, 27 Oct 2006, linux@horizon.com wrote:
+And what exactly do you want kernel to do?
+If you want to create a process, see module loading procedure from kernel (i.e.
+calling modprobe) -- request_module function or calling 'init=' program --
+run_init_process.
 
-> And given that, in the course of my experiments, I managed to reproduce
-> the problem with 2.6.17+linuxpps and 2.6.19-rc3 with the ntp.c patch,
-> but managed to make it go away with 2.6.19-rc3+linuxpps with the pps
-> source marked "noselect" (which results in identical kernel activity,
-> but doesn't actually use the returned timestamp for anything), I'm
-> looking pretty hard at ntpd right now.
-
-To analyze the kernel behaviour I would at least need the information fed 
-to the kernel, e.g. by tracing the ntp daemon via "TZ=utc strace -f -tt 
--e trace=adjtimex -o ntpd.trace ..." and the ntp peer logs of same time 
-period. Kernel boot messages and config might help as well.
-
-bye, Roman
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

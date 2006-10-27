@@ -1,137 +1,223 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946442AbWJ0Li5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946427AbWJ0Lgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946442AbWJ0Li5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 07:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946438AbWJ0Li4
+	id S1946427AbWJ0Lgk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 07:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946434AbWJ0Lgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 07:38:56 -0400
-Received: from barracuda.s2io.com ([72.1.205.138]:15488 "EHLO
-	barracuda.s2io.com") by vger.kernel.org with ESMTP id S1946434AbWJ0Liy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 07:38:54 -0400
-X-ASG-Debug-ID: 1161949132-23207-18-2
-X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
-X-ASG-Whitelist: Client
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-ASG-Orig-Subj: RE: [PATCH] s2io: add PCI error recovery support
-Subject: RE: [PATCH] s2io: add PCI error recovery support
-Date: Fri, 27 Oct 2006 07:35:18 -0400
-Message-ID: <78C9135A3D2ECE4B8162EBDCE82CAD77DC20B7@nekter>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] s2io: add PCI error recovery support
-Thread-Index: Acb5UPIk+FuEC99QSEiibrVgsuI1OQAam68g
-From: "Ananda Raju" <Ananda.Raju@neterion.com>
-To: "Linas Vepstas" <linas@austin.ibm.com>
-Cc: "Wen Xiong" <wenxiong@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>, <netdev@vger.kernel.org>,
-       "Jeff Garzik" <jgarzik@pobox.com>, "Andrew Morton" <akpm@osdl.org>
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
+	Fri, 27 Oct 2006 07:36:37 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:36654 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1946429AbWJ0LgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 07:36:20 -0400
+Date: Fri, 27 Oct 2006 13:36:56 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Greg K-H <greg@kroah.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [Patch 6/7] driver core: Per-subsystem multithreaded probing.
+Message-ID: <20061027133656.43ed3d35@gondolin.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking at all scenarios I feel the first patch is OK. Can you add the
-watchdog timer fix to first initial patch and resubmit. 
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
------Original Message-----
-From: Linas Vepstas [mailto:linas@austin.ibm.com] 
-Sent: Thursday, October 26, 2006 3:52 PM
-To: Ananda Raju
-Cc: Wen Xiong; linux-kernel@vger.kernel.org;
-linux-pci@atrey.karlin.mff.cuni.cz; netdev@vger.kernel.org; Jeff Garzik;
-Andrew Morton
-Subject: Re: [PATCH] s2io: add PCI error recovery support
+Make multithreaded probing work per subsystem instead of per driver.
 
-Hi.
+It doesn't make much sense to probe the same device for multiple drivers in
+parallel (after all, only one driver can bind to the device). Instead, create
+a probing thread for each device that probes the drivers one after another.
+Also make the decision to use multi-threaded probe per bus instead of per
+device and adapt the pci code.
 
-On Thu, Oct 26, 2006 at 05:56:34AM -0400, Ananda Raju wrote:
-> Hi, 
-> Can you try attached patch. The attached patch is simple. We set card
-> state as down in error_detecct() so that all entry points return error
-> and don't proceed further.
-> 
-> In slot_reset() we do s2io_card_down() will reset adapter. 
-> In io_resume() we bringup the driver. 
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Simplicity is always better. However, some questions/comments:
+---
+ drivers/base/dd.c        |   62 +++++++++++++++++++++++------------------------
+ drivers/pci/pci-driver.c |    6 ----
+ include/linux/device.h   |    4 +--
+ include/linux/pci.h      |    2 -
+ 4 files changed, 34 insertions(+), 40 deletions(-)
 
-> @@ -4175,6 +4186,10 @@ static irqreturn_t s2io_isr(int irq, voi
->  	mac_info_t *mac_control;
->  	struct config_param *config;
->  
-> +	if (atomic_read(&sp->card_state) == CARD_DOWN) {
-> +		return IRQ_NONE;
-> +	}
-
-I used 
-
-    if ((sp->pdev->error_state != pci_channel_io_normal)
-
-here for a reason: the pdev->error_state is set even in an interrupt
-context, that is, it gets set even if interrups are disabled, and
-so it represents the actual state immediately. By contrast, the
-error callbacks do not get called until possibly much later, 
-and so sp->card_state = CARD_DOWN might not get set for a while.
-
-If, for any reason, e.g. some obscure corner case, the s2io 
-generates zillions of interupts, this could result in a soft-lockup.
-I actually saw this in the symbios device driver, which will
-regenerate an interrupt until its acknowledged -- and so it 
-sat there, spinning. :-(
-
-I was returning IRQ_HANDLED instead of IRQ_NONE, so as to avoid
-falling into handle_bad_irq() or report_bad_irq(). I haven't 
-seen this happen on s2io, but thought it would still be wise.
-
-If this can't happen, then there's no problem here.
-
-> +/**
-> + * s2io_io_slot_reset - called after the pci bus has been reset.
-> + * @pdev: Pointer to PCI device
-> + *
-> + * Restart the card from scratch, as if from a cold-boot.
-> + */
-> +static pci_ers_result_t s2io_io_slot_reset(struct pci_dev *pdev)
-> +{
-
-At this point, the card has just experienced a hardware reset,
-(the #RST wire was held low for 250 millisecs, followed by
-a settle time of 2 seconds, followed by whatever BIOS thinks
-it needed to do, followed by a restore of the pci config space
-to what it was after a cold boot. So the card is in a "fresh"
-state; in theory its identitcal to a cold boot. So ... 
-are you sure you want to "down" at this point? 
-
-> +		s2io_card_down(sp);
-> +		sp->device_close_flag = TRUE;	/* Device is shut down.
-*/
-
-
-One problem I'm having is that the watchdog timer sometimes
-pops and tries to reset the card before s2io_card_down()
-has a chance to run. I fixed this ... 
-
-======================
-So -- just for grins, I thought to myself, "Maybe I can make 
-s2io be the first adapter ever to fully recover without 
-a hard reset of the card."
-
-The idea is simple: 
-
-1) enable MMIO,
-2) call s2io_card_down()
-3) enable DMA
-4) cal s2io_card_up()
-
-I have a patch that does this, but then hit a few more snags.
-I haven't yet nailed down all the trouble spots, maybe tommorrow.
-
---linas
-
-
+--- linux-2.6.orig/drivers/base/dd.c
++++ linux-2.6/drivers/base/dd.c
+@@ -93,17 +93,9 @@ int device_bind_driver(struct device *de
+ 	return ret;
+ }
+ 
+-struct stupid_thread_structure {
+-	struct device_driver *drv;
+-	struct device *dev;
+-};
+-
+ static atomic_t probe_count = ATOMIC_INIT(0);
+-static int really_probe(void *void_data)
++static int really_probe(struct device *dev, struct device_driver *drv)
+ {
+-	struct stupid_thread_structure *data = void_data;
+-	struct device_driver *drv = data->drv;
+-	struct device *dev = data->dev;
+ 	int ret = 0;
+ 
+ 	atomic_inc(&probe_count);
+@@ -149,7 +141,6 @@ probe_failed:
+ 	 */
+ 	ret = 0;
+ done:
+-	kfree(data);
+ 	atomic_dec(&probe_count);
+ 	return ret;
+ }
+@@ -180,16 +171,14 @@ int driver_probe_done(void)
+  * format of the ID structures, nor what is to be considered a match and
+  * what is not.
+  *
+- * This function returns 1 if a match is found, an error if one occurs
+- * (that is not -ENODEV or -ENXIO), and 0 otherwise.
++ * This function returns 1 if a match is found, -ENODEV if the device is
++ * not registered, and 0 otherwise.
+  *
+  * This function must be called with @dev->sem held.  When called for a
+  * USB interface, @dev->parent->sem must be held as well.
+  */
+ int driver_probe_device(struct device_driver * drv, struct device * dev)
+ {
+-	struct stupid_thread_structure *data;
+-	struct task_struct *probe_task;
+ 	int ret = 0;
+ 
+ 	if (!device_is_registered(dev))
+@@ -200,19 +189,7 @@ int driver_probe_device(struct device_dr
+ 	pr_debug("%s: Matched Device %s with Driver %s\n",
+ 		 drv->bus->name, dev->bus_id, drv->name);
+ 
+-	data = kmalloc(sizeof(*data), GFP_KERNEL);
+-	if (!data)
+-		return -ENOMEM;
+-	data->drv = drv;
+-	data->dev = dev;
+-
+-	if (drv->multithread_probe) {
+-		probe_task = kthread_run(really_probe, data,
+-					 "probe-%s", dev->bus_id);
+-		if (IS_ERR(probe_task))
+-			ret = really_probe(data);
+-	} else
+-		ret = really_probe(data);
++	ret = really_probe(dev, drv);
+ 
+ done:
+ 	return ret;
+@@ -224,30 +201,53 @@ static int __device_attach(struct device
+ 	return driver_probe_device(drv, dev);
+ }
+ 
++static int device_probe_drivers(void *data)
++{
++	struct device *dev = data;
++	int ret = 0;
++
++	if (dev->bus) {
++		down(&dev->sem);
++		ret = bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++		up(&dev->sem);
++	}
++	return ret;
++}
++
+ /**
+  *	device_attach - try to attach device to a driver.
+  *	@dev:	device.
+  *
+  *	Walk the list of drivers that the bus has and call
+  *	driver_probe_device() for each pair. If a compatible
+- *	pair is found, break out and return.
++ *	pair is found, break out and return. If the bus specifies
++ *	multithreaded probing, walking the list of drivers is done
++ *	on a probing thread.
+  *
+  *	Returns 1 if the device was bound to a driver;
+- *	0 if no matching device was found; error code otherwise.
++ *	0 if no matching device was found or multithreaded probing is done;
++ *	error code otherwise.
+  *
+  *	When called for a USB interface, @dev->parent->sem must be held.
+  */
+ int device_attach(struct device * dev)
+ {
+ 	int ret = 0;
++	struct task_struct *probe_task = ERR_PTR(-ENOMEM);
+ 
+ 	down(&dev->sem);
+ 	if (dev->driver) {
+ 		ret = device_bind_driver(dev);
+ 		if (ret == 0)
+ 			ret = 1;
+-	} else
+-		ret = bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++	} else {
++		if (dev->bus->multithread_probe)
++			probe_task = kthread_run(device_probe_drivers, dev,
++						 "probe-%s", dev->bus_id);
++		if(IS_ERR(probe_task))
++			ret = bus_for_each_drv(dev->bus, NULL, dev,
++					       __device_attach);
++	}
+ 	up(&dev->sem);
+ 	return ret;
+ }
+--- linux-2.6.orig/drivers/pci/pci-driver.c
++++ linux-2.6/drivers/pci/pci-driver.c
+@@ -422,11 +422,6 @@ int __pci_register_driver(struct pci_dri
+ 	drv->driver.owner = owner;
+ 	drv->driver.kobj.ktype = &pci_driver_kobj_type;
+ 
+-	if (pci_multithread_probe)
+-		drv->driver.multithread_probe = pci_multithread_probe;
+-	else
+-		drv->driver.multithread_probe = drv->multithread_probe;
+-
+ 	spin_lock_init(&drv->dynids.lock);
+ 	INIT_LIST_HEAD(&drv->dynids.list);
+ 
+@@ -559,6 +554,7 @@ struct bus_type pci_bus_type = {
+ 
+ static int __init pci_driver_init(void)
+ {
++	pci_bus_type.multithread_probe = pci_multithread_probe;
+ 	return bus_register(&pci_bus_type);
+ }
+ 
+--- linux-2.6.orig/include/linux/device.h
++++ linux-2.6/include/linux/device.h
+@@ -59,6 +59,8 @@ struct bus_type {
+ 	int (*suspend_late)(struct device * dev, pm_message_t state);
+ 	int (*resume_early)(struct device * dev);
+ 	int (*resume)(struct device * dev);
++
++	unsigned int multithread_probe:1;
+ };
+ 
+ extern int __must_check bus_register(struct bus_type * bus);
+@@ -131,8 +133,6 @@ struct device_driver {
+ 	void	(*shutdown)	(struct device * dev);
+ 	int	(*suspend)	(struct device * dev, pm_message_t state);
+ 	int	(*resume)	(struct device * dev);
+-
+-	unsigned int multithread_probe:1;
+ };
+ 
+ 
+--- linux-2.6.orig/include/linux/pci.h
++++ linux-2.6/include/linux/pci.h
+@@ -356,8 +356,6 @@ struct pci_driver {
+ 	struct pci_error_handlers *err_handler;
+ 	struct device_driver	driver;
+ 	struct pci_dynids dynids;
+-
+-	int multithread_probe;
+ };
+ 
+ #define	to_pci_driver(drv) container_of(drv,struct pci_driver, driver)

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWJ0Wbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWJ0Wma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWJ0Wbf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 18:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWJ0Wbf
+	id S1750763AbWJ0Wma (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 18:42:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWJ0Wma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 18:31:35 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:9578 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750733AbWJ0Wbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 18:31:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dBZORg5N+JhdC5uHR2SdQIXjy+eOM+dj4RUcshmnwgtu9MBI6lHq75QumLLMFOHKGNs+tCuz3yi/2dJ6a5yR/d3fAGh4tCprM4wY5iNr2/nGa3v2XNBX4c1ydeSJFF2P13dTztZ2HfbxDoXWZh8TiSuz78HPBugkh73g9qV5hRA=
-Message-ID: <6b4e42d10610271531w51ec107s881389a9b541dbff@mail.gmail.com>
-Date: Fri, 27 Oct 2006 15:31:32 -0700
-From: "Om Narasimhan" <om.turyx@gmail.com>
-To: "=?ISO-8859-1?Q?Mika_Penttil=E4?=" <mika.penttila@kolumbus.fi>
-Subject: Re: HPET : Legacy Routing Replacement Enable - 3rd try.
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Andi Kleen" <ak@muc.de>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-kernel@vger.kernel.org, randy.dunlap@oracle.com,
-       clemens@ladisch.de, bob.picco@hp.com
-In-Reply-To: <4541A758.9010504@kolumbus.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 27 Oct 2006 18:42:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19428 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750763AbWJ0Wm3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 18:42:29 -0400
+Date: Fri, 27 Oct 2006 15:38:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Greg KH <greg@kroah.com>, Stephen Hemminger <shemminger@osdl.org>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [RFC: 2.6.19 patch] let PCI_MULTITHREAD_PROBE depend on BROKEN
+Message-Id: <20061027153854.b44c4ecb.akpm@osdl.org>
+In-Reply-To: <20061027222326.GC27968@stusta.de>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
+	<20061026224541.GQ27968@stusta.de>
+	<20061027010252.GV27968@stusta.de>
+	<20061027012058.GH5591@parisc-linux.org>
+	<20061026182838.ac2c7e20.akpm@osdl.org>
+	<20061026191131.003f141d@localhost.localdomain>
+	<20061027170748.GA9020@kroah.com>
+	<20061027222326.GC27968@stusta.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <EB12A50964762B4D8111D55B764A8454C9608C@scsmsx413.amr.corp.intel.com>
-	 <6b4e42d10610251420x4365b840sa3232010e7bd7f73@mail.gmail.com>
-	 <20061027024238.GC58088@muc.de> <20061027055708.GA20270@suse.cz>
-	 <4541A758.9010504@kolumbus.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> >
-> There seems to be lot of confusion here. Current code isn't using hpet
-> as tick source if legacy is not supported. This patch adds
-> hpet_lrr_force but it's not clear how it interacts with hpet_use_timer -
-> in some places it is hpet_use_timer and some (hpet_use_timer &&
-> hpet_lrr_force).
->
-> The timer is routed to ioapic pin 2 which is irq0 with source override.
-> With this patch with hpet_lrr_force=1 timer irq is set to 2 for x86_64
-> and 0 for i386, that can't be right?
-Hmm... if hpet_lrr_force=1, timer irq should be set to 2 both in
-x86_64 as well as i386.
-This is my mistake. I should test more thoroughly :-(
+On Sat, 28 Oct 2006 00:23:26 +0200
+Adrian Bunk <bunk@stusta.de> wrote:
 
-Thanks for comments.
-Om.
+> ...
+> > So no, this should not be marked BROKEN.
+> > 
+> > It's a very experimental feature, as the help text says.  If you can
+> > think of any harsher language to put in that text, please let me know.
+> 
+> The problem is that if only 1 out of 100 people who are compiling a 
+> kernel accidentally enable this option, linux-kernel will be swamped 
+> with bug reports...
+> 
 
->
-> --Mika
->
->
->
+Yes, that's a legitimate practical concern, IMO.
+
+I guess many of the people who test -rc kernels have sufficient familarity
+to know to disable this option, but a lot of the people who test major
+releases do not.  So how about we mark PCI_MULTITHREAD_PROBE as broken in
+2.6.19-rc6, then revert that change in 2.6.20-rc1, and keep doing that
+until the feature is ready?
+
+

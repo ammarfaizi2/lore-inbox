@@ -1,106 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752410AbWJ0S4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752419AbWJ0TJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752410AbWJ0S4V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 14:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752419AbWJ0S4U
+	id S1752419AbWJ0TJo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 15:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752387AbWJ0TJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 14:56:20 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:38430 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1752414AbWJ0S4S convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 14:56:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=qMvwrLeGS+2hqHCN63/B2dZCuw90HH1hBU3kzaczz3EUAhgXH+TOpw9xgNHZEzZFR/EOGQjjwDgOhM1q4AqEU45mvc1l8yiTyQR0Ct0C+xAFE10Mmoe3WP/zAAiNmndvVnx/DITxf2SdzBsBu2ZPFdyBJz2ArivGWrEUFJObKxA=
-Message-ID: <f46018bb0610271156p63e71eebg7992b99ec50ce005@mail.gmail.com>
-Date: Fri, 27 Oct 2006 14:56:16 -0400
-From: "Holden Karau" <holden@pigscanfly.ca>
-To: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>
-Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes in fat_mirror_bhs [really unmangled]
-Cc: "Josef Sipek" <jsipek@fsl.cs.sunysb.edu>, hirofumi@mail.parknet.co.jp,
-       linux-kernel@vger.kernel.org, holdenk@xandros.com,
-       "akpm@osdl.org" <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       holden.karau@gmail.com
-In-Reply-To: <20061026153037.GB12596@wohnheim.fh-wedel.de>
+	Fri, 27 Oct 2006 15:09:43 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:46241 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1752418AbWJ0TJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 15:09:43 -0400
+Message-ID: <45425976.3090508@vmware.com>
+Date: Fri, 27 Oct 2006 12:09:42 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061027145650.GA37582@muc.de>
+In-Reply-To: <20061027145650.GA37582@muc.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <4540A32E.5050602@pigscanfly.ca>
-	 <20061026153037.GB12596@wohnheim.fh-wedel.de>
-X-Google-Sender-Auth: d300ebc3d4655836
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jörn,
+Andi Kleen wrote:
+> On Thu, Oct 19, 2006 at 05:09:22PM -0700, Zachary Amsden wrote:
+>   
+>> Add a way to disable the timer IRQ routing check via a boot option.  The
+>> VMI timer code uses this to avoid triggering the pester Mingo code, which
+>> probes for some very unusual and broken motherboard routings.  It fires
+>> 100% of the time when using a paravirtual delay mechanism instead of
+>> using a realtime delay, since there is no elapsed real time, and the 4 timer
+>> IRQs have not yet been delivered.
+>>     
+>
+> You mean paravirtualized udelay will not actually wait? 
+>   
 
-Thanks for your time, I'll make those changes [along with a few other
-things I noticed while benchmarking it]. Before I put together a
-patch, does anyone else see any obvious stuff I should clean up?
+Yes, but even putting that problem aside, the timing element here is 
+tricky to get right in a VM.
 
-Cheers,
+> This implies that you can't ever use any real timer in that kind of guest,
+> right?
+>   
 
-Holden :-)
-
-On 10/26/06, Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
-> I didn't pay too much attention, but found some low hanging fruits.
->
-> On Thu, 26 October 2006 07:59:42 -0400, Holden Karau wrote:
-> >
-> > -/* FIXME: We can write the blocks as more big chunk. */
-> >  static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
-> > -                       int nr_bhs)
-> > +                       int nr_bhs ) {
-> > +  return fat_mirror_bhs_optw(sb , bhs , nr_bhs, 0);
-> > +}
-> > +
-> > +static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
-> > +                            int nr_bhs , int wait)
->
-> Does this compile without warnings?  Looks as if you should reverse
-> the order of the two functions.
->
-For some reason it compiles without warnings for me, but I'll switch the order.
-> >  {
-> >       struct msdos_sb_info *sbi = MSDOS_SB(sb);
-> > -     struct buffer_head *c_bh;
-> > +     struct buffer_head *c_bh[nr_bhs];
-> >       int err, n, copy;
-> >
-> > +     /* Always wait if mounted -o sync */
-> > +     if (sb->s_flags & MS_SYNCHRONOUS ) {
-> > +       wait = 1;
-> > +     }
->
-> Coding style.  Use a tab for indentation and don't use braces for
-> single-line conditional statements.
->
-Sorry about that. A lot of the places where I used braces are because
-I had some debugging output in there while I was hacking on it. I'll
-change it.
-> > +
-> >       err = 0;
-> > +     err = fat_sync_bhs_optw( bhs  , nr_bhs , wait);
->
-> The err=0; is superfluous now, isn't it?
->
-.... no comment :-)
-> > +     if (err)
-> > +       goto error;
->
-> Indentation.
->
-oops :-) I'll fix that.
-> Jörn
->
-> --
-> Fantasy is more important than knowledge. Knowledge is limited,
-> while fantasy embraces the whole world.
-> -- Albert Einstein
->
+No.  You can use a real timer just fine.  But there is no reason ever to 
+use udelay to busy wait for "hardware" in a virtual machine.  Drivers 
+which are used for real hardware may turn udelay back on selectively; 
+but this is another patch.
 
 
--- 
-Cell: 613-276-1645
+>> In addition, it is entirely possible, though improbable, that this bug
+>> could surface on real hardware which picks a particularly bad time to enter
+>> SMM mode, causing a long latency during one of the timer IRQs.
+>>     
+>
+> We already have a no timer check option. But:
+>   
+
+Really?  I didn't see one that disabled the broken motherboard detection 
+/ workaround code, which is what we are trying to avoid here.
+
+
+>> While here, make check_timer be __init.
+>>     
+>
+> So how is this supposed to work? The hypervisor would always pass that 
+> option?  If yes that would seem rather hackish to me. We should probably
+> instead probe in some way if we have the required timer hardware.
+> The paravirt kernel should know anyways it is paravirt and that it doesn't
+> need to probe for flakey hardware.
+>   
+
+That is what this patch is building towards, but the boot option is 
+"free", so why not?  In the meantime, it helps non-paravirt kernels 
+booted in a VM.
+
+Zach

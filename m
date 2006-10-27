@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751794AbWJ0NPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752180AbWJ0NTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751794AbWJ0NPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 09:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752179AbWJ0NPP
+	id S1752180AbWJ0NTd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 09:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752181AbWJ0NTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 09:15:15 -0400
-Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:39893 "EHLO
-	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1751794AbWJ0NPO convert rfc822-to-8bit (ORCPT
+	Fri, 27 Oct 2006 09:19:33 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:13346 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1752180AbWJ0NTc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 09:15:14 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 27 Oct 2006 09:19:32 -0400
+Message-ID: <454206EE.9080206@sw.ru>
+Date: Fri, 27 Oct 2006 17:17:34 +0400
+From: Vasily Averin <vvs@sw.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH cciss: fix printk format warning
-Date: Fri, 27 Oct 2006 08:11:46 -0500
-Message-ID: <5CCF5F0F2514664CBE20FD24BCE17614A6A76E@cceexc17.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH cciss: fix printk format warning
-Thread-Index: Acb5VmqMvMYJPHgBSzy7DAfyLZe40AAcwnVl
-References: <20061023214608.f09074e9.randy.dunlap@oracle.com>	<20061026160245.26f86ce2.akpm@osdl.org> <ada64e67jhf.fsf@cisco.com> <454144ED.4020101@oracle.com>
-From: "Cameron, Steve" <Steve.Cameron@hp.com>
-To: "Randy Dunlap" <randy.dunlap@oracle.com>,
-       "Roland Dreier" <rdreier@cisco.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "ISS StorageDev" <iss_storagedev@hp.com>,
-       "lkml" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Oct 2006 13:15:10.0934 (UTC) FILETIME=[EE5B4760:01C6F9C9]
+To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-ide@vger.kernel.org
+CC: devel@openvz.org
+Subject: Re: [Q] ide cdrom in native mode leads to irq storm?
+References: <453DC2A9.8000507@sw.ru> <453DC65C.8000408@sw.ru>
+In-Reply-To: <453DC65C.8000408@sw.ru>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Roland Dreier wrote:
-> >  > >  	if (*total_size != (__u32) 0)
-> >  > 
-> >  > Why is cciss_read_capacity casting *total_size to u32?
-> > 
-> > It's not -- it's actually casting 0 to __32 -- there's no cast on the
-> > *total_size side of the comparison.  However that just makes the cast
-> > look even fishier.
-> > 
-> >  - R.
-> 
-> OK, how about this one then?
-> 
-> 
-> 	c->busaddr = (__u32) cmd_dma_handle;
-> 
-> where cmd_dma_handle is a dma_addr_t (u32 or u64)
+Vasily Averin wrote:
+> Vasily Averin wrote:
+>> there is node with Intel 7520-based motherboard (MSI-9136), IDE cdrom (hda) and
+>> SATA disc and 2.6.19-rc3 linux kernel.
+>>
+>> When I set IDE controller into the native mode, I get irq storm on the node and
+>> this interrupt is disabled. If this interrupt is shared, the other subsystems
+>> are stop working too.
+>>
+>> When I switch the IDE controller into legacy mode, all works correctly.
 
-The command register to which that value is written
-is a 32 bit register.  Cast it or not, only 32 bits
-will be used.  The DMA mask used to get that memory
-should ensure it's 32 bit addressable.
+I have reproduced the same issue on the another node:
 
-> and then later:
->
->		pci_free_consistent(h->pdev, sizeof(CommandList_struct),
->				    c, (dma_addr_t) c->busaddr);
+ASUSTeK P5GD1-VM,
+Intel 915G chipset,
+ICH6 IDE controller,
+IDE dvdrom: SONY DVD-ROM DDU1615 (hda),
+sata disk: WDC WD1600JS-00M
 
+when I switch IDE controller to the native mode, I see "Disabling IRQ" message,
+then kernel generates an oops in create_empty_buffers(), like I've reported earlier.
 
+Could somebody please help me to troubleshoot this issue? I've seen this issue
+on the customer nodes and would like to know how I can work-around this issue
+without any changes inside motherboard BIOS.
 
-
+thank you,
+	Vasily Averin

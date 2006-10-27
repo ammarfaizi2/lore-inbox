@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752225AbWJ0Odt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946447AbWJ0OiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752225AbWJ0Odt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 10:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752228AbWJ0Odt
+	id S1946447AbWJ0OiS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 10:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752231AbWJ0OiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 10:33:49 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:59883 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1752225AbWJ0Ods convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 10:33:48 -0400
+	Fri, 27 Oct 2006 10:38:18 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:62699 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1752229AbWJ0OiR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 10:38:17 -0400
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: suspend to disk -> resume -> X with DRI extension on R100 chips hangs
-Date: Fri, 27 Oct 2006 16:32:28 +0200
+To: David Chinner <dgc@sgi.com>
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Date: Fri, 27 Oct 2006 16:37:21 +0200
 User-Agent: KMail/1.9.1
-Cc: Radim =?utf-8?q?Lu=C5=BEa?= <xluzar00@stud.fit.vutbr.cz>,
-       linux-kernel@vger.kernel.org
-References: <453F01CF.2040106@eva.fit.vutbr.cz> <200610252103.47886.rjw@sisk.pl> <20061027112316.GA8095@elf.ucw.cz>
-In-Reply-To: <20061027112316.GA8095@elf.ucw.cz>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610261111.30486.rjw@sisk.pl> <20061027013802.GQ8394166@melbourne.sgi.com>
+In-Reply-To: <20061027013802.GQ8394166@melbourne.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610271632.28928.rjw@sisk.pl>
+Message-Id: <200610271637.21863.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 27 October 2006 13:23, Pavel Machek wrote:
-> Hi!
-> 
-> > On Wednesday, 25 October 2006 08:18, Radim Luža wrote:
-> > > Good morning
+On Friday, 27 October 2006 03:38, David Chinner wrote:
+> On Thu, Oct 26, 2006 at 11:11:29AM +0200, Rafael J. Wysocki wrote:
+> > On Thursday, 26 October 2006 10:57, David Chinner wrote:
+> > > On Thu, Oct 26, 2006 at 06:18:29PM +1000, Nigel Cunningham wrote:
+> > > > As you have them at the moment, the threads seem to be freezing fine.
+> > > > The issue I've seen in the past related not to threads but to timer
+> > > > based activity. Admittedly it was 2.6.14 when I last looked at it, but
+> > > > there used to be a possibility for XFS to submit I/O from a timer when
+> > > > the threads are frozen but the bdev isn't frozen. Has that changed?
 > > > 
-> > > I noticed following problem:
-> > > After resuming from suspend to disk Xorg with DRI switched on hangs. 
-> > > System is not affected by Xorg hang. If I login via SSH I can kill X 
-> > > server and start it again - with same result. X server hangs even after 
-> > > I suspend from text mode with X not running and with unloaded modules 
-> > > radeon and drm and resume then and try to start X server. With DRI 
-> > > switched off in xorg.conf X resumes correctly.
+> > > I didn't think we've ever done that - periodic or delayed operations
+> > > are passed off to the kernel threads to execute. A stack trace
+> > > (if you still have it) would be really help here.
+> > > 
+> > > Hmmm - we have a couple of per-cpu work queues as well that are
+> > > used on I/O completion and that can, in some circumstances,
+> > > trigger new transactions. If we are only flush metadata, then
+> > > I don't think that any more I/o will be issued, but I could be
+> > > wrong (maze of twisty passages).
 > > 
-> > Well, I think you'll need to file a bug repart at http://bugzilla.kernel.org
-> > (please add rjwysocki@sisk.pl to the Cc list).
+> > Well, I think this exactly is the problem, because worker_threads run with
+> > PF_NOFREEZE set (as I've just said in another message).
 > 
-> Actually, I'm not sure if this is not an X problem...
+> Ok, so freezing the filesystem is the only way you can prevent
+> this as the workqueues are flushed as part of quiescing the filesystem.
 
-Well, me too, but having that on a radar won't hurt.
+Yes, I think so.
 
+Now at last I know what the problem actually is and why we need the freezing
+of filesystems, so thanks for helping me understand that. :-)
+
+Greetings,
 Rafael
 
 

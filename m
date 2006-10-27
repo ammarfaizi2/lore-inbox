@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946452AbWJ0MET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946453AbWJ0MNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946452AbWJ0MET (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 08:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946450AbWJ0MET
+	id S1946453AbWJ0MNe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 08:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946454AbWJ0MNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 08:04:19 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:46289 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1946447AbWJ0MES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 08:04:18 -0400
-Subject: [PATCH]: JMB 368 PATA detection
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-ide@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 27 Oct 2006 13:07:41 +0100
-Message-Id: <1161950862.16839.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 27 Oct 2006 08:13:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4521 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946453AbWJ0MNd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 08:13:33 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <4541F2A3.8050004@sw.ru> 
+References: <4541F2A3.8050004@sw.ru>  <4541BDE2.6050703@sw.ru> <45409DD5.7050306@sw.ru> <453F6D90.4060106@sw.ru> <453F58FB.4050407@sw.ru> <20792.1161784264@redhat.com> <21393.1161786209@redhat.com> <19898.1161869129@redhat.com> <22562.1161945769@redhat.com> 
+To: Vasily Averin <vvs@sw.ru>
+Cc: Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
+       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
+       Kirill Korotaev <dev@openvz.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Q] missing unused dentry in prune_dcache()? 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 27 Oct 2006 13:11:21 +0100
+Message-ID: <24249.1161951081@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Jmicron JMB368 is PATA only so has the PATA on function zero. Don't
-therefore skip function zero on this device when probing
+Vasily Averin <vvs@sw.ru> wrote:
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+> > Vasily Averin <vvs@sw.ru> wrote:
+> >> Therefore I believe that my patch is optimal solution.
+> > I'm not sure that prune_dcache() is particularly optimal.
+> 
+> I means that my patch is optimal for problem in subject.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc2-mm1/drivers/ide/pci/generic.c linux-2.6.19-rc2-mm1/drivers/ide/pci/generic.c
---- linux.vanilla-2.6.19-rc2-mm1/drivers/ide/pci/generic.c	2006-10-18 13:50:13.000000000 +0100
-+++ linux-2.6.19-rc2-mm1/drivers/ide/pci/generic.c	2006-10-27 12:31:46.000000000 +0100
-@@ -234,8 +234,10 @@
- 	    (!(PCI_FUNC(dev->devfn) & 1)))
- 		goto out;
- 
--	if (dev->vendor == PCI_VENDOR_ID_JMICRON && PCI_FUNC(dev->devfn) != 1)
--		goto out;
-+	if (dev->vendor == PCI_VENDOR_ID_JMICRON) {
-+		if (dev->device != PCI_DEVICE_ID_JMICRON_JMB368 && PCI_FUNC(dev->devfn) != 1)
-+			goto out;
-+	}
- 
- 	if (dev->vendor != PCI_VENDOR_ID_JMICRON) {
- 		pci_read_config_word(dev, PCI_COMMAND, &command);
+I didn't say it wasn't.
 
+> I would like to ask you to approve it and we will go to next issue.
+
+I did ack it didn't I?  I must fix my mail client so that it doesn't
+automatically remove my email address from the To/Cc fields when I'm replying
+to a message:-/
+
+> We have seen that umount (and remount) can work very slowly, it was cycled
+> inside shrink_dcache_sb() up to several hours with taken s_umount semaphore.
+
+umount at least should be fixed as that should no longer use
+shrink_dcache_sb().
+
+> We are trying to resolve this issue by using per-sb lru list. I'm preparing
+> the patch for 2.6.19-rc3 right now and going to send it soon.
+
+That sounds tricky; you have to check all your LRU lists to find the LRU
+dentry.
+
+David

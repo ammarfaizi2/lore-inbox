@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946248AbWJ0I1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbWJ0IeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946248AbWJ0I1e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 04:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946247AbWJ0I1e
+	id S965239AbWJ0IeM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 04:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWJ0IeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 04:27:34 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16052 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1946248AbWJ0I1d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 04:27:33 -0400
-Date: Fri, 27 Oct 2006 10:27:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [RFC: 2.6.19 patch] let PCI_MULTITHREAD_PROBE depend on BROKEN
-Message-ID: <20061027082726.GA1880@elf.ucw.cz>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061026224541.GQ27968@stusta.de> <20061027010252.GV27968@stusta.de> <20061027012058.GH5591@parisc-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Oct 2006 04:34:11 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:19371 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S965239AbWJ0IeK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 04:34:10 -0400
+Date: Fri, 27 Oct 2006 09:34:06 +0100
+To: akpm@osdl.org
+Cc: kmannth@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Calculation fix for memory holes beyong the end of physical memory
+Message-ID: <20061027083405.GA18899@skynet.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20061027012058.GH5591@parisc-linux.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.9i
+From: mel@skynet.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 2006-10-26 19:20:58, Matthew Wilcox wrote:
-> On Fri, Oct 27, 2006 at 03:02:52AM +0200, Adrian Bunk wrote:
-> > PCI_MULTITHREAD_PROBE is an interesting feature, but in it's current 
-> > state it seems to be more of a trap for users who accidentally
-> > enable it.
-> > 
-> > This patch lets PCI_MULTITHREAD_PROBE depend on BROKEN for 2.6.19.
-> > 
-> > The intention is to get this patch reversed in -mm as soon as it's in 
-> > Linus' tree, and reverse it for 2.6.20 or 2.6.21 after the fallout of 
-> > in-kernel problems PCI_MULTITHREAD_PROBE causes got fixed.
-> 
-> People who enable features clearly marked as EXPERIMENTAL deserve what
-> they get, IMO.
+absent_pages_in_range() made the assumption that users of the arch-independent
+zone-sizing API would not care about holes beyound the end of physical memory.
+This was not the case and was "fixed" in a patch called "Account for holes
+that are outside the range of physical memory". However, when given a range
+that started before a hole in "real" memory and ended beyond the end of memory,
+it would get the result wrong. The bug is in mainline but a patch is below.
 
-Eh? It is no longer "experimental". It went to "known broken in
-non-funny ways".
+It has been tested successfully on a number of machines and
+architectures. Additional credit to Keith Mannthey for discovering the problem,
+helping identify the correct fix and confirming it Worked For Him.
 
-People normally use experimental features... (like cpu hotplug, acpi
-hotkeys, intel 830m framebuffer, USB CATC ethernet, SDHCI, kernel
-profiling) without expecting breakages. (Hmm, perhaps some of these
-should not be marked experimental any more?)
-
-I'd actually vote for removing MULTITHREAD_PROBE from kconfig,
-temporarily, but I guess BROKEN is okay, too.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+---
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc2-mm2-clean/mm/page_alloc.c linux-2.6.19-rc2-mm2-fix_hole_pages/mm/page_alloc.c
+--- linux-2.6.19-rc2-mm2-clean/mm/page_alloc.c	2006-10-23 09:53:24.000000000 +0100
++++ linux-2.6.19-rc2-mm2-fix_hole_pages/mm/page_alloc.c	2006-10-26 10:33:30.000000000 +0100
+@@ -2511,7 +2511,7 @@ unsigned long __init __absent_pages_in_r
+ 
+ 	/* Account for ranges past physical memory on this node */
+ 	if (range_end_pfn > prev_end_pfn)
+-		hole_pages = range_end_pfn -
++		hole_pages += range_end_pfn -
+ 				max(range_start_pfn, prev_end_pfn);
+ 
+ 	return hole_pages;

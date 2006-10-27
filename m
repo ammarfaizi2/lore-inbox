@@ -1,115 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161455AbWJ0EWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWJ0Ec0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161455AbWJ0EWs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 00:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161478AbWJ0EWs
+	id S932274AbWJ0Ec0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 00:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWJ0Ec0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 00:22:48 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:49085 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1161455AbWJ0EWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 00:22:47 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.19-rc* and oprofile issues
-Date: Fri, 27 Oct 2006 06:23:11 +0200
-User-Agent: KMail/1.9.5
-Cc: oprofile-list@lists.sourceforge.net
+	Fri, 27 Oct 2006 00:32:26 -0400
+Received: from wx-out-0506.google.com ([66.249.82.236]:41261 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932274AbWJ0EcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 00:32:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=elYU0gbVSFO73H417mmAm89jkzW4MwKAbw06MjeFKJNZ0CRGjCUHTCVbkRtn9FkmsiTef4N9nUCc/a3pCffNXIBBKZw9vo/TES11CSuvmO8eElFYpWK5ILbr5BPALFV+yBtz0AnPf15RdzFP8cQXK2MQpwchZcBXSNg15tv21JQ=
+Message-ID: <45418BCF.8080108@gmail.com>
+Date: Fri, 27 Oct 2006 00:32:15 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2329980.Ly9JSC48hV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Andrew Morton <akpm@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, proski@gnu.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+References: <1161807069.3441.33.camel@dv>	<1161808227.7615.0.camel@localhost.localdomain> <20061025205923.828c620d.akpm@osdl.org>
+In-Reply-To: <20061025205923.828c620d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610270623.14741.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2329980.Ly9JSC48hV
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Andrew Morton wrote:
+> May be so.  But this patch was supposed to print a helpful taint message to
+> draw our attention to the fact that ndis-wrapper was in use.  The patch was
+> not intended to cause gpl'ed modules to stop loading (or if is was, that
+> effect was concealed from yours truly).
+>   
+It's an unintended side effect of recent per-module-taint changes which
+exposed the special nature of ndiswrapper & driverloader taints. Here's
+where it went wrong:
 
-Hi,
+Florin Malita wrote:
+> No need to keep 'license_gplok' around anymore, it should be equivalent
+> to !(taints & TAINT_PROPRIETARY_MODULE).
+>   
 
-I can't seem to get oprofile (0.9.2) working with current rc kernels an my=
-=20
-AMD64 platform. All works out of the box with 2.6.18 and earlier.
+That turns out to be true for every module under the sun except
+ndiswrapper & driverloader which are singled out and treated
+differently: their proprietary taint has nothing to do with their license.
 
-LC_ALL=3DC opcontrol -s
-/usr/bin/opcontrol: line 994: /dev/oprofile/0/enabled: No such file or=20
-directory
-/usr/bin/opcontrol: line 994: /dev/oprofile/0/event: No such file or direct=
-ory
-/usr/bin/opcontrol: line 994: /dev/oprofile/0/count: No such file or direct=
-ory
-/usr/bin/opcontrol: line 994: /dev/oprofile/0/kernel: No such file or=20
-directory
-/usr/bin/opcontrol: line 994: /dev/oprofile/0/user: No such file or directo=
-ry
-/usr/bin/opcontrol: line 994: /dev/oprofile/0/unit_mask: No such file or=20
-directory
-Using 2.6+ OProfile kernel interface.
-Using log file /var/lib/oprofile/oprofiled.log
-Daemon started.
-Profiler running.
+Randy's patch looks like a reasonable compromise to get them going again
+- the alternative being the reintroduction of license_gplok or some
+equivalent per-module flag just to support 2 hardcoded exceptions where
+GPL incompatibility and proprietary tainting are not correlated.
 
-ll /dev/oprofile/
-insgesamt 0
-drwxr-xr-x 1 root root 0 27. Okt 06:06 1
-drwxr-xr-x 1 root root 0 27. Okt 06:06 2
-drwxr-xr-x 1 root root 0 27. Okt 06:06 3
-=2Drw-r--r-- 1 root root 0 27. Okt 06:06 backtrace_depth
-=2Drw-r--r-- 1 root root 0 27. Okt 06:06 buffer
-=2Drw-r--r-- 1 root root 0 27. Okt 06:06 buffer_size
-=2Drw-r--r-- 1 root root 0 27. Okt 06:06 buffer_watershed
-=2Drw-r--r-- 1 root root 0 27. Okt 06:06 cpu_buffer_size
-=2Drw-r--r-- 1 root root 0 27. Okt 06:06 cpu_type
-=2Drw-rw-rw- 1 root root 0 27. Okt 06:06 dump
-=2Drw-r--r-- 1 root root 0 27. Okt 06:06 enable
-=2Drw-r--r-- 1 root root 0 27. Okt 06:06 pointer_size
-drwxr-xr-x 1 root root 0 27. Okt 06:06 stats
-
-So why isn't there a "0" directory?
-
-If I try to use 1 by setting
-
-CHOSEN_EVENTS_1=3DCPU_CLK_UNHALTED:100000:0:1:1
-NR_CHOSEN=3D1
-
-in daemonrc, I get:
-
-No events given.
-
-Am I doing something wrong or had the rc kernel something changed so that I=
-=20
-need trunk version of oprofile? Or is something broken in kernel module?
-
-dmesg + .config
-http://www.prakash.gmxhome.de/linux/2.6.19-rc1-4.txt.bz2
-
-cat /proc/interrupts for 2.6.19-rc1
-http://www.prakash.gmxhome.de/linux/irqs19.txt
-
-lspci can be found here:
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D115545986619977&w=3D2
-
-Cheers,
-=2D-=20
-(=C2=B0=3D                 =3D=C2=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
-
---nextPart2329980.Ly9JSC48hV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFQYmyxU2n/+9+t5gRAmq7AKDpyTELNhYy67vtR54kpGZVt2ik4ACfV39B
-ITXR5ohFLWhd9/VgbyEQnEw=
-=Ps8d
------END PGP SIGNATURE-----
-
---nextPart2329980.Ly9JSC48hV--
+---
+fm

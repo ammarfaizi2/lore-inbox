@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752240AbWJ0PBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752263AbWJ0PL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752240AbWJ0PBd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 11:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752241AbWJ0PBd
+	id S1752263AbWJ0PL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 11:11:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752264AbWJ0PL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 11:01:33 -0400
-Received: from mail29.messagelabs.com ([216.82.249.147]:16777 "HELO
-	mail29.messagelabs.com") by vger.kernel.org with SMTP
-	id S1752231AbWJ0PBc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 11:01:32 -0400
-X-VirusChecked: Checked
-X-Env-Sender: Scott_Kilau@digi.com
-X-Msg-Ref: server-16.tower-29.messagelabs.com!1161961175!27641984!7
-X-StarScan-Version: 5.5.10.7; banners=-,-,-
-X-Originating-IP: [66.77.174.21]
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: removing drivers and ISA support? [Was: Char: correct pci_get_device
-Date: Fri, 27 Oct 2006 10:01:00 -0500
-Message-ID: <335DD0B75189FB428E5C32680089FB9F804012@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: removing drivers and ISA support? [Was: Char: correct pci_get_device
-Thread-Index: Acb52LbEYhr/yUcIQ/Ws87+YWq0l/g==
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-X-OriginalArrivalTime: 27 Oct 2006 15:01:00.0744 (UTC) FILETIME=[B7236480:01C6F9D8]
+	Fri, 27 Oct 2006 11:11:59 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:64196 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1752262AbWJ0PL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 11:11:58 -0400
+Date: Fri, 27 Oct 2006 08:07:18 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: "Cameron, Steve" <Steve.Cameron@hp.com>
+Cc: "Roland Dreier" <rdreier@cisco.com>, "Andrew Morton" <akpm@osdl.org>,
+       "ISS StorageDev" <iss_storagedev@hp.com>,
+       "lkml" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH cciss: fix printk format warning
+Message-Id: <20061027080718.42674b06.randy.dunlap@oracle.com>
+In-Reply-To: <5CCF5F0F2514664CBE20FD24BCE17614A6A76E@cceexc17.americas.cpqcorp.net>
+References: <20061023214608.f09074e9.randy.dunlap@oracle.com>
+	<20061026160245.26f86ce2.akpm@osdl.org>
+	<ada64e67jhf.fsf@cisco.com>
+	<454144ED.4020101@oracle.com>
+	<5CCF5F0F2514664CBE20FD24BCE17614A6A76E@cceexc17.americas.cpqcorp.net>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan, all,
+On Fri, 27 Oct 2006 08:11:46 -0500 Cameron, Steve wrote:
 
-Alan Cox:
-> I think some of the drivers like epca we should seriously consider
-> dropping and seeing if there is any complaint, my guess will be not.
+> > Roland Dreier wrote:
+> > >  > >  	if (*total_size != (__u32) 0)
+> > >  > 
+> > >  > Why is cciss_read_capacity casting *total_size to u32?
+> > > 
+> > > It's not -- it's actually casting 0 to __32 -- there's no cast on the
+> > > *total_size side of the comparison.  However that just makes the cast
+> > > look even fishier.
+> > > 
+> > >  - R.
+> > 
+> > OK, how about this one then?
+> > 
+> > 
+> > 	c->busaddr = (__u32) cmd_dma_handle;
+> > 
+> > where cmd_dma_handle is a dma_addr_t (u32 or u64)
+> 
+> The command register to which that value is written
+> is a 32 bit register.  Cast it or not, only 32 bits
+> will be used.  The DMA mask used to get that memory
+> should ensure it's 32 bit addressable.
 
-You sure won't have any compliants from Digi International about
-removing
-the epca driver from the kernel tree.
+Got it.  Thanks for replying.
 
-That driver is *ancient* and I suspect no one actually uses it.
-(I am not sure its even useable in the current form in the kernel tree)
+> > and then later:
+> >
+> >		pci_free_consistent(h->pdev, sizeof(CommandList_struct),
+> >				    c, (dma_addr_t) c->busaddr);
 
-We (Digi) have a much newer "PCI-only, rewritten for 2.6.x" open source
-version of the driver called "dgap" that all our customers use now
-instead.
-
-Scott Kilau
+---
+~Randy

@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWJ0VqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWJ0VsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWJ0VqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 17:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWJ0VqY
+	id S1750704AbWJ0VsR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 17:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWJ0VsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 17:46:24 -0400
-Received: from mx1.cs.washington.edu ([128.208.5.52]:56788 "EHLO
-	mx1.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1750701AbWJ0VqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 17:46:24 -0400
-Date: Fri, 27 Oct 2006 14:46:03 -0700 (PDT)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org, Andreas Gruenbacher <agruen@suse.de>,
-       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] NFS: nfsaclsvc_encode_getaclres() - Fix potential NULL
- deref and tiny optimization.
-In-Reply-To: <200610272316.47089.jesper.juhl@gmail.com>
-Message-ID: <Pine.LNX.4.64N.0610271443500.31179@attu2.cs.washington.edu>
-References: <200610272316.47089.jesper.juhl@gmail.com>
+	Fri, 27 Oct 2006 17:48:17 -0400
+Received: from zrtps0kn.nortel.com ([47.140.192.55]:64390 "EHLO
+	zrtps0kn.nortel.com") by vger.kernel.org with ESMTP
+	id S1750704AbWJ0VsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 17:48:17 -0400
+Message-ID: <45427E91.2000402@nortel.com>
+Date: Fri, 27 Oct 2006 15:48:01 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: AMD X2 unsynced TSC fix?
+References: <1161969308.27225.120.camel@mindpipe> <200610271335.10178.ak@suse.de> <1161981682.27225.184.camel@mindpipe>
+In-Reply-To: <1161981682.27225.184.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Oct 2006 21:48:04.0359 (UTC) FILETIME=[94BF4970:01C6FA11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006, Jesper Juhl wrote:
+Lee Revell wrote:
 
-> In fs/nfsd/nfs2acl.c::nfsaclsvc_encode_getaclres() I see a few issues.
-> 
-> 1) At the top of the function we assign to the 'inode' variable by 
-> dereferencing 'dentry', but further down we test 'dentry' for NULL. So, if 
-> 'dentry' (which is really 'resp->fh.fh_dentry') can be NULL, then either 
-> we have a potential NULL pointer deref bug or we have a superflous test.
-> 
+> What exactly does that AMD patch do?
 
-resp->fh.fh_dentry cannot be NULL on nfsaclsvc_encode_getaclres so the 
-early assignment is appropriate for both *dentry and *inode.  *inode will 
-need to be checked for NULL in the conditional, however, and return 0 on 
-true.
+"...by periodically adjusting the core time-stamp-counters, so that they 
+are synchronized."
 
-> 3) There are two locations in the function where we may return before we 
-> use the value of the variable 'w', but we compute it at the very top of the 
-> function. So in the case where we return early we have wasted a few cycles 
-> computing a value that was never used.
-> 
+It sounds like they just periodically write a new value to the TSC. 
+Presumably they set the "slower" one equal to the "faster" one.
 
-w should be an unsigned int.
+You'd likely still have windows where time might run backwards, but it 
+would be better than nothing.
 
-		David
+Chris

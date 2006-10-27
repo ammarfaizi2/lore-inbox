@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752427AbWJ0T1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752430AbWJ0Tb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752427AbWJ0T1i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 15:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752430AbWJ0T1i
+	id S1752430AbWJ0Tb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 15:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752432AbWJ0Tb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 15:27:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39583 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752427AbWJ0T1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 15:27:37 -0400
-To: Zach Brown <zach.brown@oracle.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dio: lock refcount operations
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
-References: <20061027181735.18631.43565.sendpatchset@tetsuo.zabbo.net>
-From: Jeff Moyer <jmoyer@redhat.com>
-Date: Fri, 27 Oct 2006 15:27:25 -0400
-In-Reply-To: <20061027181735.18631.43565.sendpatchset@tetsuo.zabbo.net> (Zach Brown's message of "Fri, 27 Oct 2006 11:17:35 -0700 (PDT)")
-Message-ID: <x49fyd9v9sy.fsf@segfault.boston.devel.redhat.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+	Fri, 27 Oct 2006 15:31:58 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:37477 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1752430AbWJ0Tb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 15:31:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AnolKWc4j9byma1UQEtcbmge2LZYBNgvFux9ihgtu5FOvtdacH8CNNj4su/yFW7jeWhMr0kqqTS+uxQrOJZ9BH0XI0PpXpId/o4nt5+LhOyz6ehla4uiMCGhf4Hk3obIfm4mpxXS8OR5oG3HQ+fA70ogBDBLEVzkCpjj7So1AjQ=
+Message-ID: <1defaf580610271231p37aceacbl6d96f91cf390fc4a@mail.gmail.com>
+Date: Fri, 27 Oct 2006 21:31:55 +0200
+From: "Haavard Skinnemoen" <hskinnemoen@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: vmlinux.lds: consolidate initcall sections
+Cc: "Pavel Machek" <pavel@ucw.cz>, "Greg KH" <greg@kroah.com>,
+       "Stephen Hemminger" <shemminger@osdl.org>,
+       "Matthew Wilcox" <matthew@wil.cx>, "Adrian Bunk" <bunk@stusta.de>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20061027114144.f8a5addc.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
+	 <20061026224541.GQ27968@stusta.de> <20061027010252.GV27968@stusta.de>
+	 <20061027012058.GH5591@parisc-linux.org>
+	 <20061026182838.ac2c7e20.akpm@osdl.org>
+	 <20061026191131.003f141d@localhost.localdomain>
+	 <20061027170748.GA9020@kroah.com> <20061027172219.GC30416@elf.ucw.cz>
+	 <20061027113908.4a82c28a.akpm@osdl.org>
+	 <20061027114144.f8a5addc.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding [PATCH] dio: lock refcount operations; Zach Brown <zach.brown@oracle.com> adds:
+On 10/27/06, Andrew Morton <akpm@osdl.org> wrote:
+> From: Andrew Morton <akpm@osdl.org>
+>
+> Add a vmlinux.lds.h helper macro for defining the eight-level initcall table,
+> teach all the architectures to use it.
 
-zach.brown> dio: lock refcount operations The wait_for_more_bios() function
-zach.brown> name was poorly chosen.  While looking to clean it up it I
-zach.brown> noticed that the dio struct refcounting between the bio
-zach.brown> completion and dio submission paths was racey.
+Please include AVR32 as well while you're at it ;)
 
-zach.brown> The bio submission path was simply freeing the dio struct if
-zach.brown> atomic_dec_and_test() indicated that it dropped the final
-zach.brown> reference.
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ arch/avr32/kernel/vmlinux.lds.c |    8 +-------
+ 1 files changed, 1 insertions(+), 7 deletions(-)
 
-zach.brown> The aio bio completion path was dereferencing its dio struct
-zach.brown> pointer *after dropping its reference* based on the remaining
-zach.brown> number of references.
-
-zach.brown> These two paths could race and result in the aio bio completion
-zach.brown> path dereferencing a freed dio, though this was not observed in
-zach.brown> the wild.
-
-I don't believe that this can happen.  dio_bio_end_aio will only reference
-the dio if (remaining == 1 && waiter_holds_ref).  If the waiter is holding
-the reference, then the bio submission path would not have dropped its
-reference yet!
-
--Jeff
+diff --git a/arch/avr32/kernel/vmlinux.lds.c b/arch/avr32/kernel/vmlinux.lds.c
+index cdd627c..5c4424e 100644
+--- a/arch/avr32/kernel/vmlinux.lds.c
++++ b/arch/avr32/kernel/vmlinux.lds.c
+@@ -38,13 +38,7 @@ SECTIONS
+ 		__setup_end = .;
+ 		. = ALIGN(4);
+ 		__initcall_start = .;
+-			*(.initcall1.init)
+-			*(.initcall2.init)
+-			*(.initcall3.init)
+-			*(.initcall4.init)
+-			*(.initcall5.init)
+-			*(.initcall6.init)
+-			*(.initcall7.init)
++			INITCALLS
+ 		__initcall_end = .;
+ 		__con_initcall_start = .;
+ 			*(.con_initcall.init)
+-- 
+1.4.1.1

@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWJ0Q0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752231AbWJ0Qli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWJ0Q0a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 12:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWJ0Q0a
+	id S1752231AbWJ0Qli (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 12:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752304AbWJ0Qlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 12:26:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32465 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751093AbWJ0Q0a (ORCPT
+	Fri, 27 Oct 2006 12:41:37 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:9147 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1752231AbWJ0Qlh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 12:26:30 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1161965410.1306.47.camel@moss-spartans.epoch.ncsc.mil> 
-References: <1161965410.1306.47.camel@moss-spartans.epoch.ncsc.mil>  <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil> <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <2340.1161903200@redhat.com> <4786.1161963766@redhat.com> 
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: David Howells <dhowells@redhat.com>, aviro@redhat.com,
-       linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-       chrisw@sous-sol.org, jmorris@namei.org
-Subject: Re: Security issues with local filesystem caching 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 27 Oct 2006 17:25:23 +0100
-Message-ID: <5506.1161966323@redhat.com>
+	Fri, 27 Oct 2006 12:41:37 -0400
+Message-ID: <454236C0.2070805@perkel.com>
+Date: Fri, 27 Oct 2006 09:41:36 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hardware Problem - Asus A8N-VM CSM
+References: <1449F58C868D8D4E9C72945771150BDF153767@SAUSEXMB1.amd.com>
+In-Reply-To: <1449F58C868D8D4E9C72945771150BDF153767@SAUSEXMB1.amd.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> > I was also wondering if I could generalise it to handle all cache types,
-> > but the permissions checks are probably going to be quite different for
-> > each type.  For instance, CacheFiles uses files on a mounted fs, whilst
-> > CacheFS uses a block device.
-> 
-> So in the latter case, the daemon supplies the path of a block device
-> node?
 
-No.  In the latter case, there is no userspace daemon.  As there are no
-dentries, filenames and paths in CacheFS, keeping track of the cull table
-consumes a less space than for CacheFiles.
+Langsdorf, Mark wrote:
+>>> The problem. 2 out of the 4 sees all 4 gigs of ram. The other 2 see 
+>>> only 2.8 gigs of ram. And it's hardware related because in the bios 
+>>> setup the ones that show 2.8 show it in the bios.
+>>>
+>>> The motherboards were not prchased at the same time. All have 
+>>> different brands of ram. And the processors are different. 
+>>> The 2 that don't see all the ram are the newest ones.
+>>>
+>>> I tried swapping ram between one that saw 2.8 gigs and one 
+>>> that saw 4 gigs and the problem stays with the motherboard.
+>>> I haven't yet swapped out the processors.
+>>>
+>>> So - I'm a little stumped. Can someone point me in the 
+>>> right direction?
+>>>       
+>
+> Usually, missing memory comes from the PCI I/O hole, or the
+> IOMMU/AGP/framebuffer overlays.  Does your BIOS have an
+> options for creating a memory hole or hoisting memory?  If
+> so, are the settings between the 4G machines different from
+> the 2.8G machines?
+>
+> Also, do you have an IOMMU aperture enabled and if so, how
+> large?
+>
+> Are there any hardware differences between the systems, like
+> different AGP or PCI graphics cards?
+>
+>   
+>> Answering my own question perhaps. Could it be related to 
+>> whether or not the processor is a "revision e" chip?
+>>     
+>
+> Possibly, but I'd expect the RevE parts to see more DRAM than
+> the earlier parts.
+>
+>
+>   
 
-You start the cache by mounting it:
+I fixed the problem. It wasn't a Revision E issue after all. I just 
+pulled the battery and when it came up clean it saw all the memory. 
+Thanks for your help.
 
-	mount -t cachefs /dev/hdx9 /cachefs
-
-Then it's online.  However, you might want to check that whoever's calling
-mount has permission to bring a cache online...
-
-Actually, I think the permission to bring a cache online applies in all cases,
-and is probably separate from checking that CacheFiles(d) is permitted to
-mangle the filesystem it's using for a cache.  With CacheFS, we could do the
-equivalent and do a MAC check to make sure we're permitted to read and write
-the blockdev, as you suggest in the next bit:
-
-> I suppose the hook could internally check the type of inode to decide what
-> checks to apply, using the checks I previously sketched when it is a
-> directory and using a different set of checks for the block device
-> (substituting a write check against the block device for the
-> directory-specific checks).  The hook interface itself would look the same
-> IIUC, i.e. providing the (mnt, dentry) pair to which the path resolved and
-> the secid to which the context resolved.
-
-So, to summarise, is it worth having two checks:
-
- (1) Permission to bring a cache online or to take a cache offline.
-
- (2) Permission for the process bringing the cache online (cachefilesd or
-     mount) to access the backing store, be it a set of files and directories,
-     or be it a blockdev.
-
-David

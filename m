@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWJ0O7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752240AbWJ0PBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751063AbWJ0O7P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 10:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752201AbWJ0O7P
+	id S1752240AbWJ0PBd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 11:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752241AbWJ0PBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 10:59:15 -0400
-Received: from colin.muc.de ([193.149.48.1]:25864 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751057AbWJ0O7O (ORCPT
+	Fri, 27 Oct 2006 11:01:33 -0400
+Received: from mail29.messagelabs.com ([216.82.249.147]:16777 "HELO
+	mail29.messagelabs.com") by vger.kernel.org with SMTP
+	id S1752231AbWJ0PBc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 10:59:14 -0400
-Date: 27 Oct 2006 16:59:11 +0200
-Date: Fri, 27 Oct 2006 16:59:11 +0200
-From: Andi Kleen <ak@muc.de>
-To: Om Narasimhan <om.turyx@gmail.com>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-kernel@vger.kernel.org, randy.dunlap@oracle.com,
-       clemens@ladisch.de, vojtech@suse.cz, bob.picco@hp.com
-Subject: Re: HPET : Legacy Routing Replacement Enable - 3rd try.
-Message-ID: <20061027145911.GB37582@muc.de>
-References: <EB12A50964762B4D8111D55B764A8454C9608C@scsmsx413.amr.corp.intel.com> <6b4e42d10610251420x4365b840sa3232010e7bd7f73@mail.gmail.com> <20061027024238.GC58088@muc.de> <4541A325.6030102@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4541A325.6030102@gmail.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 27 Oct 2006 11:01:32 -0400
+X-VirusChecked: Checked
+X-Env-Sender: Scott_Kilau@digi.com
+X-Msg-Ref: server-16.tower-29.messagelabs.com!1161961175!27641984!7
+X-StarScan-Version: 5.5.10.7; banners=-,-,-
+X-Originating-IP: [66.77.174.21]
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: removing drivers and ISA support? [Was: Char: correct pci_get_device
+Date: Fri, 27 Oct 2006 10:01:00 -0500
+Message-ID: <335DD0B75189FB428E5C32680089FB9F804012@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: removing drivers and ISA support? [Was: Char: correct pci_get_device
+Thread-Index: Acb52LbEYhr/yUcIQ/Ws87+YWq0l/g==
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+X-OriginalArrivalTime: 27 Oct 2006 15:01:00.0744 (UTC) FILETIME=[B7236480:01C6F9D8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 26, 2006 at 11:11:49PM -0700, Om Narasimhan wrote:
-> Andi Kleen wrote:
-> >>1. HW is LRR capable, HPET ACPI it is 1, timer interrupt is on INT2.
-> >>Before the fix: Linux cannot get timer interrupts on INT0, goes for ACPI 
-> >>timer.
-> >
-> >What ACPI timer?  I don't think we have any fallback for int 0.
-> Sorry, Mea Culpa, I should have written APIC timer.
-> >
-> >Not sure what you mean with INT2. Pin2 on ioapic 0 perhaps?
-> Yes. PIN2 on IOAPIC #0.
-> >
-> >>After the fix : Works fine. This is according to hpet spec.
-> >
-> >On what exact motherboard was that?
-> SunFire X4600
-> >
-> >>To handle case 3, I removed all references to acpi_hpet_lrr, explained
-> >>this case in the code and decided to solely rely on the command line
-> >>parameter for LRR capability. Rational for this approach is ,
-> >
-> >This means the systems which you said fixes this would need the command
-> >line parameter to work? 
-> I feel I do not make things clear enough.
-> The command line parameter can be avoided entirely if majority of the 
-> BIOSes implement LRR routing correctly. I would rewrite the patch to avoid 
-> cmdline parameter and according to Andrew Morton's suggestions.
+Hi Alan, all,
 
-But on SunFire X4600 it would need to be set to work, correct? 
-I guess that would make the users of that machine unhappy because
-users usually don't want to set weird parameters to make their
-system boot.
+Alan Cox:
+> I think some of the drivers like epca we should seriously consider
+> dropping and seeing if there is any complaint, my guess will be not.
 
-Actually in theory the HPET driver should ignore the HPET if legacy
-replacement is not supported and fall back to PIT.  Or are you saying
-that PIT doesn't work on that system either?
+You sure won't have any compliants from Digi International about
+removing
+the epca driver from the kernel tree.
 
-Anyways I think we need some heuristics to do this all automatically
-without user involvement.
+That driver is *ancient* and I suspect no one actually uses it.
+(I am not sure its even useable in the current form in the kernel tree)
 
--Andi
+We (Digi) have a much newer "PCI-only, rewritten for 2.6.x" open source
+version of the driver called "dgap" that all our customers use now
+instead.
 
-
-> 
-> Thanks,
-> Om.
+Scott Kilau

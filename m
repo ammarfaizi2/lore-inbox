@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWJ0VsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWJ0V6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWJ0VsR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 17:48:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWJ0VsR
+	id S1750723AbWJ0V6r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 17:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWJ0V6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 17:48:17 -0400
-Received: from zrtps0kn.nortel.com ([47.140.192.55]:64390 "EHLO
-	zrtps0kn.nortel.com") by vger.kernel.org with ESMTP
-	id S1750704AbWJ0VsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 17:48:17 -0400
-Message-ID: <45427E91.2000402@nortel.com>
-Date: Fri, 27 Oct 2006 15:48:01 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
+	Fri, 27 Oct 2006 17:58:47 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:1028 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750723AbWJ0V6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 17:58:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent;
+        b=oApg+GxOky6tkzR5meqzl3wiiRL6E60v3bydM7Y81ClzctQqEe7ONNyLFGccQEQzXRwZN1HdjF5OTdJSHxH7dMsFV37hUhGf5ZUFiQG3b1K7AkbwdchkGHUfDMjDK5l5sE27QZw2J8VL1qDODjDAETrjorhxmH8PI0jUqiLLCzE=
+Date: Fri, 27 Oct 2006 22:58:43 +0100
+From: Friedrich =?iso-8859-1?Q?G=F6pel?= <shado23@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: AMD X2 unsynced TSC fix?
-References: <1161969308.27225.120.camel@mindpipe> <200610271335.10178.ak@suse.de> <1161981682.27225.184.camel@mindpipe>
-In-Reply-To: <1161981682.27225.184.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Oct 2006 21:48:04.0359 (UTC) FILETIME=[94BF4970:01C6FA11]
+Message-ID: <20061027215843.GA11614@localhost.ntlworld.com>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <1161969308.27225.120.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1161969308.27225.120.camel@mindpipe>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+On 13:15 Fri 27 Oct     , Lee Revell wrote:
+> Someone recently pointed out to me that a Windows "CPU driver update"
+> supplied by AMD fixes the unsynced TSC problem on dual core AMD64
+> systems.
+> 
+...
+> What are the chances of Linux getting a similar fix?
+> 
+> Lee
+> 
 
-> What exactly does that AMD patch do?
+Hi,
 
-"...by periodically adjusting the core time-stamp-counters, so that they 
-are synchronized."
+This post earlier seems to suggest someone is indeed working on
+something similar, if I'm understanding this correctly:
+http://lkml.org/lkml/2006/10/27/27
 
-It sounds like they just periodically write a new value to the TSC. 
-Presumably they set the "slower" one equal to the "faster" one.
+quote:
+> Jiri Bohac (jbohac@suse.cz) is currently working on a new timekeeping code for
+> x86-64 that takes a significantly different approach that allows for
+> precise and fast gettimeofday even on CPUs with unsynchronized TSCs.
 
-You'd likely still have windows where time might run backwards, but it 
-would be better than nothing.
+Cheers,
 
-Chris
+Friedrich Göpel

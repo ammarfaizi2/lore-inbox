@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWJ1Rgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWJ1RqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWJ1Rgm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 13:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWJ1Rgm
+	id S1751164AbWJ1RqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 13:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWJ1RqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 13:36:42 -0400
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:32743 "EHLO
-	mail.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751204AbWJ1Rgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 13:36:41 -0400
-Subject: Re: usb initialization order (usbhid vs. appletouch)
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200610281903.29510.oliver@neukum.org>
-References: <1161856438.5214.2.camel@no.intranet.wo.rk>
-	 <200610261436.47463.oliver@neukum.org> <1162054576.3769.15.camel@localhost>
-	 <200610281903.29510.oliver@neukum.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 28 Oct 2006 19:36:32 +0200
-Message-Id: <1162056992.9216.3.camel@localhost>
+	Sat, 28 Oct 2006 13:46:25 -0400
+Received: from colin.muc.de ([193.149.48.1]:29458 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751164AbWJ1RqY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 13:46:24 -0400
+Date: 28 Oct 2006 19:46:22 +0200
+Date: Sat, 28 Oct 2006 19:46:22 +0200
+From: Andi Kleen <ak@muc.de>
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       Muli Ben-Yehuda <muli@il.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
+Message-ID: <20061028174622.GB92790@muc.de>
+References: <86802c440610232115r76d98803o4293cdafce1fd95c@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86802c440610232115r76d98803o4293cdafce1fd95c@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-28 at 19:03 +0200, Oliver Neukum wrote:
-> Am Samstag, 28. Oktober 2006 18:56 schrieb Soeren Sonnenburg:
-> > Anyways, back to the above problem. Can one somehow tell the hid-core to
-> > load the appletouch driver when it detects any of these devices and then
-> > initialize on top of that ? The appletouch driver is completely ignored
-> > (doesn't even enter the atp_prope function as usb_register registers
-> > with device/product tuples that are already taken by hid....
-> > 
-> > Any ideas ?
+On Mon, Oct 23, 2006 at 09:15:31PM -0700, yhlu wrote:
+> in phys flat mode, when using set_xxx_irq_affinity to irq balance from
+> one cpu to another,  _assign_irq_vector will get to increase last used
+> vector and get new vector. this will use up the vector if enough
+> set_xxx_irq_affintiy are called. and end with using same vector in
+> different cpu for different irq. (that is not what we want, we only
+> want to use same vector in different cpu for different irq when more
+> than 0x240 irq needed). To keep it simple, the vector should be reused
+> instead of getting new vector.
 > 
-> Try udev to disconnect the hid driver, then load appletouch.
+> Also according to Eric's review, make it more generic to be used with
+> flat mode too.
+> 
+Added thanks
 
-I don't understand... I can disconnect the driver if I do on cmdline
-        libhid-detach-device 05ac:<id> ; modprobe appletouch .
-However then my keyboard is gone.
+> This patch need to be applied over Eric's irq: cpu_online_map patch.
 
-Of course there is the workaround of building both the appletouch and
-hid driver as modules and then loading them in this order ... but I was
-hoping to have them fix in the kernel. If this is however not doable we
-should mark it in Kconfig and I will have to live with it.
+Hmm, i'm not sure I got that. Which was patch was it exactly
 
-Soeren
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
+Or can you please double check it is ok in 2.6.19rc3 +
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/x86_64-2.6.19-rc3-061028-1.bz2
+
+Thanks,
+
+-Andi

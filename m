@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWJ1Szg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWJ1Szp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWJ1Szg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWJ1Szg
+	id S932099AbWJ1Szp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWJ1Szo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 28 Oct 2006 14:55:44 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:37727 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932099AbWJ1Szg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 28 Oct 2006 14:55:36 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54032 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932092AbWJ1Szf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:55:35 -0400
-Date: Sat, 28 Oct 2006 18:55:13 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: David Zeuthen <davidz@redhat.com>
-Cc: Richard Hughes <hughsient@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Shem Multinymous <multinymous@gmail.com>,
-       Dan Williams <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
-       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
-       greg@kroah.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061028185513.GD5152@ucw.cz>
-References: <1161710328.17816.10.camel@hughsie-laptop> <1161762158.27622.72.camel@shinybook.infradead.org> <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com> <1161778296.27622.85.camel@shinybook.infradead.org> <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com> <1161815138.27622.139.camel@shinybook.infradead.org> <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk>
-Mime-Version: 1.0
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=hU3Jj1HF5y7yD6fpJu+FH07kDmsfbTJiwoehs5NuBxrCvw9MQLONLdi1hug+Ja9PW5JmYDhP1Nr8AtY3bfp8UpggDWnMVieMJppN9uu1TSuRDDxVOq9MHSbFdLLEssIxa4xTeLGAMOeXINP48MwWaarOyQBoDNv4LfVxr32tDYU=
+Date: Sun, 29 Oct 2006 03:55:54 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andy Adamson <andros@citi.umich.edu>,
+       "J. Bruce Fields" <bfields@citi.umich.edu>,
+       Trond Myklebust <Trond.Myklebust@netapp.com>
+Subject: [PATCH] auth_gss: unregister gss_domain when unloading module
+Message-ID: <20061028185554.GM9973@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, Andy Adamson <andros@citi.umich.edu>,
+	"J. Bruce Fields" <bfields@citi.umich.edu>,
+	Trond Myklebust <Trond.Myklebust@netapp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1162048148.2723.61.camel@zelda.fubar.dk>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Reloading rpcsec_gss_krb5 or rpcsec_gss_spkm3 hit duplicate
+registration in svcauth_gss_register_pseudoflavor().
+(If DEBUG_PAGEALLOC is enabled, oops will happen at
+auth_domain_put() --> hlist_del() with uninitialized hlist_node)
 
-> > > Hm. Again we have the question of whether to export 'threshold_pct'
-> > > vs.'threshold_abs', or whether to have a separate string property
-> > > which says what the 'unit' of the threshold is. I don't care much --
-> > > I'll do whatever DavidZ prefers.
-> > 
-> > Unit is easier to process in HAL in my opinion.
-> 
-> What about just prepending the unit to the 'threshold' file? Then user
-> space can expect the contents of said file to be of the form "%d %s". I
-> don't think that violates the "only one value per file" sysfs mantra.
+svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name)
+{
+	...
 
-Bad idea... I bet someone will just ignore the units part, because all
-the machines he seen had mW there. Just put it into the name:
+        test = auth_domain_lookup(name, &new->h);
+        if (test != &new->h) { /* XXX Duplicate registration? */
+                auth_domain_put(&new->h);
+                /* dangling ref-count... */
+	...
+}
 
-power_avg_mV
+This patch unregisters gss_domain and free it when unloading
+modules (rpcsec_gss_krb5 or rpcsec_gss_spkm3 module call
+gss_mech_unregister())
 
-							Pavel
+Cc: Andy Adamson <andros@citi.umich.edu>
+Cc: "J. Bruce Fields" <bfields@citi.umich.edu>
+Cc: Trond Myklebust <Trond.Myklebust@netapp.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
--- 
-Thanks for all the (sleeping) penguins.
+ net/sunrpc/auth_gss/gss_mech_switch.c |    4 ++++
+ net/sunrpc/auth_gss/svcauth_gss.c     |    6 +++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
+Index: work-fault-inject/net/sunrpc/auth_gss/gss_mech_switch.c
+===================================================================
+--- work-fault-inject.orig/net/sunrpc/auth_gss/gss_mech_switch.c
++++ work-fault-inject/net/sunrpc/auth_gss/gss_mech_switch.c
+@@ -59,7 +59,11 @@ gss_mech_free(struct gss_api_mech *gm)
+ 	int i;
+ 
+ 	for (i = 0; i < gm->gm_pf_num; i++) {
++		struct auth_domain *dom;
++
+ 		pf = &gm->gm_pfs[i];
++		dom = auth_domain_find(pf->auth_domain_name);
++		auth_domain_put(dom);
+ 		kfree(pf->auth_domain_name);
+ 		pf->auth_domain_name = NULL;
+ 	}
+Index: work-fault-inject/net/sunrpc/auth_gss/svcauth_gss.c
+===================================================================
+--- work-fault-inject.orig/net/sunrpc/auth_gss/svcauth_gss.c
++++ work-fault-inject/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -765,9 +765,9 @@ svcauth_gss_register_pseudoflavor(u32 ps
+ 
+ 	test = auth_domain_lookup(name, &new->h);
+ 	if (test != &new->h) { /* XXX Duplicate registration? */
+-		auth_domain_put(&new->h);
+-		/* dangling ref-count... */
+-		goto out;
++		WARN_ON(1);
++		kfree(new->h.name);
++		goto out_free_dom;
+ 	}
+ 	return 0;
+ 

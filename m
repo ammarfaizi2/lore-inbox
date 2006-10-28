@@ -1,90 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWJ1PF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWJ1PJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWJ1PF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 11:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWJ1PF2
+	id S1750821AbWJ1PJm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 11:09:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWJ1PJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 11:05:28 -0400
-Received: from h155.mvista.com ([63.81.120.155]:22336 "EHLO imap.sh.mvista.com")
-	by vger.kernel.org with ESMTP id S1750761AbWJ1PF2 (ORCPT
+	Sat, 28 Oct 2006 11:09:42 -0400
+Received: from mx2.redhat.com ([66.187.237.31]:15258 "EHLO mx2.redhat.com")
+	by vger.kernel.org with ESMTP id S1750821AbWJ1PJl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 11:05:28 -0400
-Message-ID: <454371AC.4030902@ru.mvista.com>
-Date: Sat, 28 Oct 2006 19:05:16 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, tglx@linutronix.de, mgreer@mvista.com
-Subject: Re: [PATCH -rt] powerpc update
-References: <20061003155358.756788000@dwalker1.mvista.com> <20061018072858.GA29576@elte.hu>
-In-Reply-To: <20061018072858.GA29576@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 28 Oct 2006 11:09:41 -0400
+Subject: Re: [PATCH v2] Re: Battery class driver.
+From: David Zeuthen <davidz@redhat.com>
+To: Richard Hughes <hughsient@gmail.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Shem Multinymous <multinymous@gmail.com>,
+       Dan Williams <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
+       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
+       greg@kroah.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
+In-Reply-To: <1162041726.16799.1.camel@hughsie-laptop>
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+	 <1161631091.16366.0.camel@localhost.localdomain>
+	 <1161633509.4994.16.camel@hughsie-laptop>
+	 <1161636514.27622.30.camel@shinybook.infradead.org>
+	 <1161710328.17816.10.camel@hughsie-laptop>
+	 <1161762158.27622.72.camel@shinybook.infradead.org>
+	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
+	 <1161778296.27622.85.camel@shinybook.infradead.org>
+	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
+	 <1161815138.27622.139.camel@shinybook.infradead.org>
+	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
+	 <1162037754.19446.502.camel@pmac.infradead.org>
+	 <1162041726.16799.1.camel@hughsie-laptop>
+Content-Type: text/plain
+Date: Sat, 28 Oct 2006 11:09:08 -0400
+Message-Id: <1162048148.2723.61.camel@zelda.fubar.dk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-
-Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
-
->>Pay close attention to the fasteoi interrupt threading. I added usage 
->>of mask/unmask instead of using level handling, which worked well on 
->>PPC.
-
-> this is wrong - it should be doing mask+ack.
-
-    It's what it was doing effectively. And what was wrong was calling ack() 
-which OpenPIC driver didn't (and was not obliged to) support.
-
-> also note that you changed:
-
->>-		goto out_unlock;
-
-> to:
-
->>+		goto out;
-
-> and you even tried to hide your tracks:
+On Sat, 2006-10-28 at 14:22 +0100, Richard Hughes wrote:
+> On Sat, 2006-10-28 at 13:15 +0100, David Woodhouse wrote:
+> > 
+> > Hm. Again we have the question of whether to export 'threshold_pct'
+> > vs.'threshold_abs', or whether to have a separate string property
+> > which says what the 'unit' of the threshold is. I don't care much --
+> > I'll do whatever DavidZ prefers.
 > 
-> 
->> out:
->> 	desc->chip->eoi(irq);
->>-out_unlock:
->> 	spin_unlock(&desc->lock);
+> Unit is easier to process in HAL in my opinion.
 
-> :-)
+What about just prepending the unit to the 'threshold' file? Then user
+space can expect the contents of said file to be of the form "%d %s". I
+don't think that violates the "only one value per file" sysfs mantra.
 
-> really, the ->eoi() op should only be called for true fasteoi cases. 
+    David
 
-    Why is that? eoi() is effectively the same as ack() in this case. I must 
-note that what's the "standard" 8259 driver is doing in mask_ack() seems 
-misleading since it actually masks IRQ and sends EOI there.
 
-> What we want here is to turn the fasteoi handler into a handler that 
-> does mask+ack and then unmask. Not 'mask+eoi ... unmask' as your patch 
-> does.
-
-    That's effectively the same for OpenPIC. Maybe that implemetation just 
-didn't look graceful but it was *correct*. And the current one is at least 
-incomplete.
-
-    I can see 3 ways to get out of this situation now:
-
-1. Revert this change and use mask() + eoi() approach suggested by Daniel.
-
-2. Add the ack() handler to OpenPIC driver -- and point it to mpic_eoi().
-
-3. Do the same as x86 APIC driver does and use level/egde flows instead of 
-fasteoi for the case when IRQs are threaded -- that ensues doing (2) as well.
-
-    Note that all three aproaches lead to the effectively the same behavior 
-WRT OpenPIC (except for the edge-triggered IRQs in 3rd case). Opinions?
-
-> 	Ingo
-
-WBR, Sergei

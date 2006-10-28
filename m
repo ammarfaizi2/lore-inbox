@@ -1,104 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWJ1Q41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWJ1REX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWJ1Q41 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 12:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWJ1Q41
+	id S1751161AbWJ1REX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 13:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWJ1REW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 12:56:27 -0400
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:7371 "EHLO
-	mail.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751098AbWJ1Q40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 12:56:26 -0400
-Subject: Re: usb initialization order (usbhid vs. appletouch)
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200610261436.47463.oliver@neukum.org>
-References: <1161856438.5214.2.camel@no.intranet.wo.rk>
-	 <200610261220.05707.oliver@neukum.org>
-	 <1161863380.18657.38.camel@no.intranet.wo.rk>
-	 <200610261436.47463.oliver@neukum.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 28 Oct 2006 18:56:16 +0200
-Message-Id: <1162054576.3769.15.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Sat, 28 Oct 2006 13:04:22 -0400
+Received: from nic.NetDirect.CA ([216.16.235.2]:43954 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1751153AbWJ1REW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 13:04:22 -0400
+X-Originating-Ip: 72.57.81.197
+Date: Sat, 28 Oct 2006 13:02:35 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: why "probe_kernel_address()", not "probe_user_address()"?
+In-Reply-To: <20061028092906.6c1562e3.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0610281258060.2652@localhost.localdomain>
+References: <Pine.LNX.4.64.0610281153180.2091@localhost.localdomain>
+ <20061028092906.6c1562e3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-26 at 14:36 +0200, Oliver Neukum wrote:
-> Am Donnerstag, 26. Oktober 2006 13:49 schrieb Soeren Sonnenburg:
-> > On Thu, 2006-10-26 at 12:20 +0200, Oliver Neukum wrote:
-> > > Am Donnerstag, 26. Oktober 2006 11:53 schrieb Soeren Sonnenburg:
-> > > > Dear all,
-> > > > 
-> > > > I've noticed that the appletouch driver needs to be loaded *before* the
-> > > > usbhid driver to function. This is currently impossible when built into
-> > > > the kernel (and not modules). So I wonder how one can change the
-> > > > ordering of when the usb drivers are loaded.
-> > > > 
-> > > > Suggestions ?
-> > > 
-> > > Add a quirk to HID. Messing around with probing orders is not
-> > > a sure thing.
-> > 
-> > what do you have in mind ? if appletouch is turned on ignore IDs that
-> > appear in appletouch ?
-> 
-> Yes, or even make it unconditional. There is a specific driver for a device.
-> It exists for a reason.
+On Sat, 28 Oct 2006, Andrew Morton wrote:
 
-OK, so I tried adding all of them to the HID_QUIRK_IGNORE LIST, i.e.
+> On Sat, 28 Oct 2006 11:56:24 -0400 (EDT)
+> "Robert P. J. Day" <rpjday@mindspring.com> wrote:
+>
+> >
+> >   it seems odd that the purpose of the "probe_kernel_address()" macro
+> > is, in fact, to probe a *user* address (from linux/uaccess.h):
+> >
+> > #define probe_kernel_address(addr, retval)              \
+> >         ({                                              \
+> >                 long ret;                               \
+> >                                                         \
+> >                 inc_preempt_count();                    \
+> >                 ret = __get_user(retval, addr);         \
+> >                 dec_preempt_count();                    \
+> >                 ret;                                    \
+> >         })
+> >
+> >   given that that routine is referenced only 5 places in the entire
+> > source tree, wouldn't it be more meaningful to use a more appropriate
+> > name?
+> >
+>
+> You'll notice that all callers are indeed probing kernel addresses.
+> The function _could_ be used for user addresses and could perhaps be
+> called probe_address().
+>
+> One of the reasons this wrapper exists is to communicate that the
+> __get_user() it is in fact not being used to access user memory.
 
+one quick addition to this.  in arch/i386/kernel/traps.c, we have the
+code snippet:
 
-#define USB_DEVICE_ID_APPLE_GEYSER_ANSI 0x0214
-#define USB_DEVICE_ID_APPLE_GEYSER_ISO  0x0215
-#define USB_DEVICE_ID_APPLE_GEYSER_JIS  0x0216
-#define USB_DEVICE_ID_APPLE_GEYSER3_ANSI    0x0217
-#define USB_DEVICE_ID_APPLE_GEYSER3_ISO     0x0218
-#define USB_DEVICE_ID_APPLE_GEYSER3_JIS     0x0219
+        if (eip < PAGE_OFFSET)
+                return;
+        if (probe_kernel_address((unsigned short __user *)eip, ud2))
+                return;
+        if (ud2 != 0x0b0f)
+                return;
 
+        printk(KERN_EMERG "------------[ cut here ]------------\n");
 
-    { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, 0x030A, HID_QUIRK_IGNORE },
-    { USB_VENDOR_ID_APPLE, 0x030B, HID_QUIRK_IGNORE },
+#ifdef CONFIG_DEBUG_BUGVERBOSE
+        do {
+                unsigned short line;
+                char *file;
+                char c;
 
+                if (probe_kernel_address((unsigned short __user *)(eip + 2),
+                                        line))
+... etc etc ...
 
-however this did (and cannot) work, as the product id stands for both
-keyboard AND mouse. 
+  if those pointers qualified by "__user" *aren't* actually addresses
+into user space, that would seem to violate what i read in the book
+"linux device drivers (3rd ed)", p. 50:
 
-It will however work for the internal infrared receiver (which is also
-affected).
+"This [__user] annotation is a form of documentation, noting that a
+pointer is a user-space address that cannot be directly dereferenced.
+For normal compilation, __user has no effect, but it can be used by
+external checking software to find misuse of user-space addresses."
 
-#define USB_DEVICE_ID_APPLE_IR  0x8240
+  under the circumstances, wouldn't this show up as one of those
+misuses?
 
-{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IR, HID_QUIRK_IGNORE },
-
-Could someone please add this to the quirk list in hid-core.c in git ?
-Please note that one can even do this from userspace via
-
-        libhid-detach-device 05ac:8240
-        modprobe appleir
-
-
-Anyways, back to the above problem. Can one somehow tell the hid-core to
-load the appletouch driver when it detects any of these devices and then
-initialize on top of that ? The appletouch driver is completely ignored
-(doesn't even enter the atp_prope function as usb_register registers
-with device/product tuples that are already taken by hid....
-
-Any ideas ?
-
-Soeren
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
+rday

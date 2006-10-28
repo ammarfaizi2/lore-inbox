@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752021AbWJ1JXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752005AbWJ1Jbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752021AbWJ1JXK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 05:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752031AbWJ1JXK
+	id S1752005AbWJ1Jbx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 05:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752032AbWJ1Jbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 05:23:10 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:29711 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1752021AbWJ1JXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 05:23:08 -0400
-Date: Sat, 28 Oct 2006 10:22:54 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       matthew@wil.cx, pavel@ucw.cz, shemminger@osdl.org
-Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
-Message-ID: <20061028092254.GA23461@flint.arm.linux.org.uk>
-Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>, torvalds@osdl.org,
-	akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
-	linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-	matthew@wil.cx, pavel@ucw.cz, shemminger@osdl.org
-References: <200610280823.k9S8NZ2D004392@freya.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Oct 2006 05:31:53 -0400
+Received: from fallback.mail.ru ([194.67.57.14]:61713 "EHLO mx4.mail.ru")
+	by vger.kernel.org with ESMTP id S1752005AbWJ1Jbx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 05:31:53 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18: qconf.moc does not get rebuilt in separate build directory
+Date: Sat, 28 Oct 2006 11:29:38 +0400
+User-Agent: KMail/1.9.5
+Cc: sam@ravnborg.org
+References: <200610012134.53322.arvidjaar@mail.ru>
+In-Reply-To: <200610012134.53322.arvidjaar@mail.ru>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200610280823.k9S8NZ2D004392@freya.yggdrasil.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200610281129.42881.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2006 at 04:23:35PM +0800, Adam J. Richter wrote:
-> 	This interface would have problems with nesting.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Adam (and the rest of the parallel crowd),
+On Sunday 01 October 2006 21:34, Andrey Borzenkov wrote:
+> I am not sure what happened; but at some point it refused to do xconfig.
+> This is vanilla 2.6.18.
+>
+> {pts/1}% LC_ALL=C make -C $PWD O=$HOME/build/linux-2.6.18 V=1 xconfig
+> make: Entering directory `/home/bor/src/linux-git'
+> make -C /home/bor/build/linux-2.6.18 \
+>         KBUILD_SRC=/home/bor/src/linux-git \
+>         KBUILD_EXTMOD="" -f /home/bor/src/linux-git/Makefile xconfig
+> make -f /home/bor/src/linux-git/scripts/Makefile.build obj=scripts/basic
+> /bin/sh /home/bor/src/linux-git/scripts/mkmakefile \
+>             /home/bor/src/linux-git /home/bor/build/linux-2.6.18 2 6
+>   GEN     /home/bor/build/linux-2.6.18/Makefile
+> mkdir -p include/linux include/config
+> make -f /home/bor/src/linux-git/scripts/Makefile.build obj=scripts/kconfig
+> xconfig
+>
+> g++ -Wp,-MD,scripts/kconfig/.qconf.o.d -Iscripts/kconfig -O2 -DQT_SHARED
+> -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -D_REENTRANT  -I/usr/lib/qt3//include -D
+> LKC_DIRECT_LINK -c -o
+> scripts/kconfig/qconf.o /home/bor/src/linux-git/scripts/kconfig/qconf.cc
+> /home/bor/src/linux-git/scripts/kconfig/qconf.cc:30:21: error: qconf.moc:
+> No such file or directory
+> make[2]: *** [scripts/kconfig/qconf.o] Error 1
+> make[1]: *** [xconfig] Error 2
+> make: *** [xconfig] Error 2
+> make: Leaving directory `/home/bor/src/linux-git'
+>
+> {pts/1}% make --version
+> GNU Make 3.81
+> Copyright (C) 2006  Free Software Foundation, Inc.
+> This is free software; see the source for copying conditions.
+> There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+> PARTICULAR PURPOSE.
+>
+> This program built for i586-mandriva-linux-gnu
+>
 
-Just a passing thought (and nothing more)...
+Still the same problem with 2.6.18.1
 
-How does this behave with PCMCIA initialisation with a Cardbus card
-inserted?
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-This is one scenario which needs checking before any of this parallel
-probe code goes anywhere near mainline, since it's possible for the
-Cardbus (PCI) device to be added and therefore probed while the Yenta
-probe (PCI) is still running.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+iD8DBQFFQwbmR6LMutpd94wRArDfAKCvwPioBz2uDsNY1hTlZviJvxSgrACfe0yW
+w4S7IaMzIfc1YrwFEfOif3U=
+=QzN5
+-----END PGP SIGNATURE-----

@@ -1,74 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752135AbWJ1LWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752149AbWJ1Lb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752135AbWJ1LWA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 07:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752136AbWJ1LWA
+	id S1752149AbWJ1Lb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 07:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752140AbWJ1Lbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 07:22:00 -0400
-Received: from [87.201.200.205] ([87.201.200.205]:37534 "EHLO HasBox.COM")
-	by vger.kernel.org with ESMTP id S1752135AbWJ1LV7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 07:21:59 -0400
-Message-ID: <45433D3E.3070109@0Bits.COM>
-Date: Sat, 28 Oct 2006 15:21:34 +0400
-From: Mitch <Mitch@0Bits.COM>
-User-Agent: Thunderbird 3.0a1 (X11/20061027)
-MIME-Version: 1.0
-To: jdike@addtoit.com, linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
-       penberg@cs.helsinki.fi
-Subject: Re: More uml build failures on 2.16.19-rc3 and 2.6.18.1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Oct 2006 07:31:55 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:4519 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752136AbWJ1Lby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 07:31:54 -0400
+Date: Sat, 28 Oct 2006 12:31:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [patch 5/5] scsi: fix uaccess handling
+Message-ID: <20061028113143.GB14785@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Heiko Carstens <heiko.carstens@de.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	James Bottomley <James.Bottomley@steeleye.com>
+References: <20061026130010.GA7127@osiris.boeblingen.de.ibm.com> <20061026130452.GF7127@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061026130452.GF7127@osiris.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff, all,
-
-Sorry for the dealy but i've been out of the country.
-
-Anyhow i did some investigation and i've figured out the bug.
-
-Essentially if you try to compile a UML kernel on a 2.6.18.1 or above 
-*host* kernel it will fail with the error messages shown (essentially 
-offsetof macro undefined) because between 2.6.18 and 2.6.18.1 that macro 
-in /usr/include/linux/stddef.h is now wrapped in a #ifdef __KERNEL__ . 
-However since UML doesn't build it's sources with that defined we get an 
-undefined macro and a build failure.
-
-So i'm partly right and partly wrong in my statement below. Yes i did 
-compile a guest UML kernel 2.6.18 fine on host kernel of 2.6.18, and i 
-believe i will be able to compile 2.6.18.1 and above also on a host 
-kernel of 2.6.18 but if i change my host kernel to 2.6.18.1 or above all 
-UML guest builds will fail.
-
-Can someone confirm they can build guest UML kernels on a host kernel >= 
-2.6.18.1 ??
-
-Thanks
-M
-
--------- Original Message --------
-Subject: Re: More uml build failures on 2.16.19-rc3 and 2.6.18.1
-Date: Wed, 25 Oct 2006 11:41:30 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Mitch <Mitch@0Bits.COM>
-CC: linux-kernel@vger.kernel.org
-References: <453E7F07.9010804@0Bits.COM>
-
-On Wed, Oct 25, 2006 at 01:00:55AM +0400, Mitch wrote:
-> I've definetly not done any such change on my machine. Remember with the 
-> same compile, same environment, if i go back to 2.6.18 i can build uml 
-> fine. If i move to 2.6.18.1 or above it breaks...
-
-You're sure about that?  I just looked through the 2.6.18.1 changelog and
-I see nothing that would cause this.
-
-> I do notice my gcc stddef does have this defined
+On Thu, Oct 26, 2006 at 03:04:52PM +0200, Heiko Carstens wrote:
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+>  drivers/scsi/scsi_ioctl.c |   17 +++++++++-------
+>  drivers/scsi/sg.c         |   47 ++++++++++++++++++++++++----------------------
+>  2 files changed, 35 insertions(+), 29 deletions(-)
 > 
-> % grep offsetof /usr/lib/gcc/i686-linux/4.0.3/include/stddef.h
-> #define offsetof(TYPE, MEMBER) __builtin_offsetof (TYPE, MEMBER)
+> Index: linux-2.6/drivers/scsi/scsi_ioctl.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/scsi/scsi_ioctl.c	2006-10-26 14:40:55.000000000 +0200
+> +++ linux-2.6/drivers/scsi/scsi_ioctl.c	2006-10-26 14:42:14.000000000 +0200
+> @@ -217,13 +217,16 @@
+>  		if (!access_ok(VERIFY_WRITE, arg, sizeof(struct scsi_idlun)))
+>  			return -EFAULT;
+>  
+> -		__put_user((sdev->id & 0xff)
+> -			 + ((sdev->lun & 0xff) << 8)
+> -			 + ((sdev->channel & 0xff) << 16)
+> -			 + ((sdev->host->host_no & 0xff) << 24),
+> -			 &((struct scsi_idlun __user *)arg)->dev_id);
+> -		__put_user(sdev->host->unique_id,
+> -			 &((struct scsi_idlun __user *)arg)->host_unique_id);
+> +		if (__put_user((sdev->id & 0xff)
+> +			       + ((sdev->lun & 0xff) << 8)
+> +			       + ((sdev->channel & 0xff) << 16)
+> +			       + ((sdev->host->host_no & 0xff) << 24),
+> +			       &((struct scsi_idlun __user *)arg)->dev_id))
+> +			return -EFAULT;
+> +
 
-I would do a -E build and make sure that this header, or another one that
-defines offsetof is getting pulled in.
+While not your fault I'd suggest to fix the __put_user abuse at the same
+time, as in the untested patch below for scsi_ioctl.c:
 
-				Jeff
+Index: linux-2.6/drivers/scsi/scsi_ioctl.c
+===================================================================
+--- linux-2.6.orig/drivers/scsi/scsi_ioctl.c	2006-10-28 13:24:18.000000000 +0200
++++ linux-2.6/drivers/scsi/scsi_ioctl.c	2006-10-28 13:30:17.000000000 +0200
+@@ -173,6 +173,21 @@
+         return copy_to_user(arg, dev->bus_id, sizeof(dev->bus_id))? -EFAULT: 0;
+ }
+ 
++static int scsi_get_idlun(struct scsi_device *sdev,
++		struct scsi_idlun __user *arg)
++{
++	struct scsi_idlun karg = {
++		.dev_id		= (sdev->id & 0xff) +
++			          ((sdev->lun & 0xff) << 8) +
++				  ((sdev->channel & 0xff) << 16) +
++				  ((sdev->host->host_no & 0xff) << 24),
++		.host_unique_id	= sdev->host->unique_id
++	};
++
++	if (copy_to_user(arg, &karg, sizeof(struct scsi_idlun)))
++		return -EFAULT;
++	return 0;
++}
+ 
+ /*
+  * the scsi_ioctl() function differs from most ioctls in that it does
+@@ -214,17 +229,7 @@
+ 
+ 	switch (cmd) {
+ 	case SCSI_IOCTL_GET_IDLUN:
+-		if (!access_ok(VERIFY_WRITE, arg, sizeof(struct scsi_idlun)))
+-			return -EFAULT;
+-
+-		__put_user((sdev->id & 0xff)
+-			 + ((sdev->lun & 0xff) << 8)
+-			 + ((sdev->channel & 0xff) << 16)
+-			 + ((sdev->host->host_no & 0xff) << 24),
+-			 &((struct scsi_idlun __user *)arg)->dev_id);
+-		__put_user(sdev->host->unique_id,
+-			 &((struct scsi_idlun __user *)arg)->host_unique_id);
+-		return 0;
++		return scsi_get_idlun(sdev, arg);
+ 	case SCSI_IOCTL_GET_BUS_NUMBER:
+ 		return put_user(sdev->host->host_no, (int __user *)arg);
+ 	case SCSI_IOCTL_PROBE_HOST:

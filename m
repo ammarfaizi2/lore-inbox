@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWJ1G32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWJ1GcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWJ1G32 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 02:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWJ1G32
+	id S1751014AbWJ1GcW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 02:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWJ1GcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 02:29:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33194 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750943AbWJ1G30 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 02:29:26 -0400
-Date: Sat, 28 Oct 2006 02:29:21 -0400
-From: Dave Jones <davej@redhat.com>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Steven Truong <midair77@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Machine Check Exception on dual core Xeon
-Message-ID: <20061028062921.GA27101@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Randy Dunlap <rdunlap@xenotime.net>,
-	Kyle Moffett <mrmacman_g4@mac.com>,
-	Steven Truong <midair77@gmail.com>, linux-kernel@vger.kernel.org
-References: <28bb77d30610171634l5db9d909v2c4cd12972e9d5@mail.gmail.com> <90DB029B-222B-4D0C-8642-913CD81D5C9B@mac.com> <20061021033049.GC17706@redhat.com> <20061027222752.5560ad81.rdunlap@xenotime.net>
+	Sat, 28 Oct 2006 02:32:22 -0400
+Received: from teetot.devrandom.net ([66.35.250.243]:57304 "EHLO
+	teetot.devrandom.net") by vger.kernel.org with ESMTP
+	id S1751014AbWJ1GcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 02:32:21 -0400
+Date: Fri, 27 Oct 2006 23:32:13 -0700
+From: thockin@hockin.org
+To: Andi Kleen <ak@suse.de>
+Cc: vojtech@suse.cz, Jiri Bohac <jbohac@suse.cz>,
+       Luca Tettamanti <kronos.it@gmail.com>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: AMD X2 unsynced TSC fix?
+Message-ID: <20061028063213.GB6357@hockin.org>
+References: <1161969308.27225.120.camel@mindpipe> <68676e00610271700i741b949frc73bf790d38ab1f@mail.gmail.com> <20061028024638.GA16579@hockin.org> <200610272059.13753.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061027222752.5560ad81.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <200610272059.13753.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2006 at 10:27:52PM -0700, Randy Dunlap wrote:
- > On Fri, 20 Oct 2006 23:30:49 -0400 Dave Jones wrote:
- > 
- > >  > You missed the blatantly obvious error message:
- > >  > "This is not a software problem!"
- > >  > 
- > >  > Immediately followed by:
- > >  > "contact your hardware vendor"
- > >  > 
- > >  > Please follow that advice
- > > 
- > > Maybe someone needs to implement <blink> tags for printk ;-)
- > 
- > oops, I didn't do it for MCEs.. :)
- > and I used reverse video since I dislike blinking.
- > 
- > photo:  http://www.xenotime.net/linux/doc/kernel-msg-hilite.jpg
+On Fri, Oct 27, 2006 at 08:59:13PM -0700, Andi Kleen wrote:
+> > I fyou have a third-party clock you can get pretty darn close.
+> 
+> Not when powernow is involved on a multi socket system.
 
-Oh my.  People take me seriously far too often :-)
-Could be handy for some frequently ignored bits of text
-(like that mce msg), but if this gets overused it just looks
-like a horrible mess imo.
+When CPUs are in different P-States, any resync effort will become
+unsynced immediately.  I agree with that.  This is a further complication
+that I think our code does not handle perfectly, yet.
 
-Now I'm just waiting for someone to go one step further
-and make openbsd style 'white on blue' kernel text ;)
+> > Fortunately, we usually have an HPET, these days.  You can definitely
+> > resync and get near-linear values of RDTSC.
+> 
+> No we don't -- most BIOS still don't give us the HPET table 
+> even when it is there in hardware. In the future this will change sure
+> but people will still run a lot of older motherboards.
 
-	Dave
+If you know where the HPET base-address-register is, can't we program it
+ourselves?  Even without HPET, we have PM Timer.  As long as you don't
+need to resync the TSCs on most gtod(), you can still do better than not
+trying.
 
--- 
-http://www.codemonkey.org.uk
+> > There are few problems at hand.  I'm not familiar with the patch Andi's
+> > talking about but it has to solve all these problems to be really useful:
+> 
+> It's from Jiri and Vojtech.  Basically it will allow to use RDTSC
+> in gettimeofday even with unsynchronized TSCs by keeping
+> the necessary offsets CPU local.
+
+Offset from what?  With automatic clock ramping in C1, the rate is
+cycling up and down a lot.
+
+> > * TSC drift because of PM states, such as C1 (hlt) (semi-random, severe)
+> 
+> TSC drift with powernow -- CPUs run at different frequencies
+
+Yeah, C1 is workaround-able, because the clock returns to full frequency,
+and we never execute code in the reduced clock state.  Powernow makes it
+more fun.  Not only do you need some offset, but you need some scalar.
+
+Assume you resync TSCs to a clock (PM, HPET, whatever) any time any CPU
+changes p-state.  Then you can calculate the approximate TSC for now by:
+
+tsc_now = tsc_at_last_resync + ((rdtsc - tsc_at_last_resync) * pstate_scalar)
+
+Something like that.  Not pretty, but still possible to get close.  And
+close might be good enough.  As long as you can guarantee monotonicity and
+approximate linearity, you can make most apps happy ENOUGH.
+
+Tim

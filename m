@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752273AbWJ1NPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752317AbWJ1NWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752273AbWJ1NPY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 09:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752305AbWJ1NPY
+	id S1752317AbWJ1NWL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 09:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752321AbWJ1NWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 09:15:24 -0400
-Received: from wx-out-0506.google.com ([66.249.82.239]:24716 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1752273AbWJ1NPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 09:15:23 -0400
+	Sat, 28 Oct 2006 09:22:11 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:13987 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1752317AbWJ1NWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 09:22:09 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Wb/NA9CmXIuHrHUW6MSaOMBJg/nZj6504AN72gUywMozPJfD2A7ybt43iSmpQiNudio4EriarF4T3w5YeqCN8WjsnS09T/5fDKvFK+ANjrsNRMASWBigog9wIx1Os+hcsndFfuMpEyPnKmYlDvC+e2PZraZy7XyyTrXCCNwirgc=
-Message-ID: <5a4c581d0610280615m588f01f4m34095cba25cfb30d@mail.gmail.com>
-Date: Sat, 28 Oct 2006 15:15:22 +0200
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: 2.6.19-rc2 DWARF unwinder stuck ehci_iaa_watchdog
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=moqjwkvxpsItYzzle1/6N9gv9sDvG+dS+lLAKVEAnHUpkIUqYUeqvvPQfmUZmYi/Y6z/yjNH/IV6OTQYmnFN39+TyQooA3EBG/KhGlcQgzvkcNHlp8e+G8KGK4l8n5zV7FajO1uYd0nCE3UezXGl4tIhXepASLvtB19zGC9kGSs=
+Subject: Re: [PATCH v2] Re: Battery class driver.
+From: Richard Hughes <hughsient@gmail.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Shem Multinymous <multinymous@gmail.com>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       David Zeuthen <davidz@redhat.com>,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
+In-Reply-To: <1162037754.19446.502.camel@pmac.infradead.org>
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+	 <1161631091.16366.0.camel@localhost.localdomain>
+	 <1161633509.4994.16.camel@hughsie-laptop>
+	 <1161636514.27622.30.camel@shinybook.infradead.org>
+	 <1161710328.17816.10.camel@hughsie-laptop>
+	 <1161762158.27622.72.camel@shinybook.infradead.org>
+	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
+	 <1161778296.27622.85.camel@shinybook.infradead.org>
+	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
+	 <1161815138.27622.139.camel@shinybook.infradead.org>
+	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
+	 <1162037754.19446.502.camel@pmac.infradead.org>
+Content-Type: text/plain
+Date: Sat, 28 Oct 2006 14:22:06 +0100
+Message-Id: <1162041726.16799.1.camel@hughsie-laptop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Non-fatal trace coming from my K7-800 running FC5
- with a 2.6.19-rc2 kernel (which will soon be rebooted
- into 2.6.19-rc3-git4):
+On Sat, 2006-10-28 at 13:15 +0100, David Woodhouse wrote:
+> 
+> Hm. Again we have the question of whether to export 'threshold_pct'
+> vs.'threshold_abs', or whether to have a separate string property
+> which says what the 'unit' of the threshold is. I don't care much --
+> I'll do whatever DavidZ prefers.
 
-[73003.806189] BUG: warning at drivers/usb/host/ehci-hcd.c:274/ehci_iaa_watchdog
-()
-[73003.807155]  [<c0103037>] dump_trace+0x64/0x1cd
-[73003.807511]  [<c01031b2>] show_trace_log_lvl+0x12/0x25
-[73003.807889]  [<c01037b9>] show_trace+0xd/0x10
-[73003.808216]  [<c0103800>] dump_stack+0x19/0x1b
-[73003.808549]  [<e486ddbb>] ehci_iaa_watchdog+0x35/0x67 [ehci_hcd]
-[73003.808990]  [<c01196a5>] run_timer_softirq+0xed/0x145
-[73003.809500]  [<c0116d8f>] __do_softirq+0x55/0xb0
-[73003.809949]  [<c0104739>] do_softirq+0x58/0xbd
-[73003.810287]  [<c0116d2e>] irq_exit+0x3f/0x4b
-[73003.810712]  [<c0104854>] do_IRQ+0xb6/0xce
-[73003.811027]  [<c0102bf5>] common_interrupt+0x25/0x2c
-[73003.811384] DWARF2 unwinder stuck at common_interrupt+0x25/0x2c
-[73003.811759]
-[73003.811857] Leftover inexact backtrace:
-[73003.811861]
-[73003.812199]  [<c010eda3>] __wake_up+0x31/0x3b
-[73003.812501]  [<c02f81d6>] unix_write_space+0x4b/0x7a
-[73003.812847]  [<c02a74e6>] sock_wfree+0x26/0x3a
-[73003.813152]  [<c02a89fc>] __kfree_skb+0x8c/0xaf
-[73003.813459]  [<c02a8a47>] kfree_skb+0x28/0x2a
-[73003.813754]  [<c02f6dc4>] unix_stream_recvmsg+0x352/0x443
-[73003.814115]  [<c02a3c6f>] sock_aio_read+0xd2/0xe0
-[73003.814633]  [<c014b2d0>] do_sync_read+0xae/0xec
-[73003.815124]  [<c014ba75>] vfs_read+0x9b/0x136
-[73003.815589]  [<c014be30>] sys_read+0x3b/0x60
-[73003.816048]  [<c0102989>] sysenter_past_esp+0x56/0x8d
-[73003.816555]  =======================
+Unit is easier to process in HAL in my opinion.
 
-Since I found no googlable reference to this, I thought
- I'd just post it... thanks, ciao,
+Richard.
 
---alessandro
 
-"...when I get it, I _get_ it"
-
-     (Lara Eidemiller)

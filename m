@@ -1,70 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWJ1Vn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWJ1Vyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWJ1Vn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 17:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWJ1Vn6
+	id S964842AbWJ1Vyg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 17:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWJ1Vyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 17:43:58 -0400
-Received: from imladris.surriel.com ([66.92.77.98]:53966 "EHLO
-	imladris.surriel.com") by vger.kernel.org with ESMTP
-	id S964876AbWJ1Vn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 17:43:58 -0400
-Message-ID: <4543CF1C.7070604@surriel.com>
-Date: Sat, 28 Oct 2006 17:43:56 -0400
-From: Rik van Riel <riel@surriel.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sat, 28 Oct 2006 17:54:36 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:49357 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S964842AbWJ1Vyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 17:54:35 -0400
+X-Sasl-enc: JKje/HwN0p4WSoaJmkk16l2iGUBCtjQx4epyF1XNoG4u 1162072475
+Date: Sat, 28 Oct 2006 18:54:25 -0300
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Shem Multinymous <multinymous@gmail.com>,
+       Dan Williams <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
+       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
+       greg@kroah.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061028215424.GA23228@khazad-dum.debian.net>
+References: <1161778296.27622.85.camel@shinybook.infradead.org> <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com> <1161815138.27622.139.camel@shinybook.infradead.org> <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <20061028185513.GD5152@ucw.cz> <1162065236.2723.83.camel@zelda.fubar.dk> <20061028210509.GA30819@elf.ucw.cz>
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] kswapd: Kernel Swapper performance
-References: <200610282031.17451.a1426z@gawab.com>
-In-Reply-To: <200610282031.17451.a1426z@gawab.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061028210509.GA30819@elf.ucw.cz>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> One thing that has improved in 2.6, wrt 2.4, is swapper performance.  And the 
-> difference isn't small either: ~5 fold increase in swapin performance.
+On Sat, 28 Oct 2006, Pavel Machek wrote:
+> > > Just put it into the name:
+> > > 
+> > > power_avg_mV
+> > 
+> > Bad idea... it means user space will have to try to open different files
+> > and what happens when someone introduces a new unit? Ideally I'd like
+> > the unit to be part of the payload of the sysfs file. Second to that I
+> > think having the unit in a separate file is preferable.
 > 
-> But swapin performance still lags swapout performance by 50%, which is a bit 
-> odd, considering swapin to be a read from disk, usually faster, and swapout 
-> to be a write to disk, usually slower.
+> Introducing new unit *should* be hard. You know, when you introduce
+> new unit, you automatically break all the userspace.
 
-Ahhhhhh, but there's a catch...
+Well, I just wish whatever is done for battery is also done the same way for
+ACPI when it moves to sysfs, and if at all possible, also to hwmon: we *are*
+supposed to move stuff like ACPI temperatures to sysfs using hwmon
+conventions, AFAIK.
 
-You can queue up multiple writes, because the data you want
-to write to disk is already in memory.
+That said, wearing a userspace app writer hat, I'd really prefer if it is
+named in such a way that I can always extract the unit, like:
 
-However, at swapin time you need to read the first bit of
-data from disk, after which the program can continue, and
-only when the next page fault happens you know what data
-to read in next.
+power_avg:mV  or
+power_avg[mV]
 
-Linux does some swapin clustering, but there simply is no
-way to know which data will be needed next.
+or whatever (and I'd prefer :mV a lot more than [mV], it is much cleaner).
+LED seems already to be using ":" for such qualifiers (they use it for the
+colors).
 
-This means reads are serialized and synchronous wrt. program
-execution, while writes can overlap and be done asynchronously.
+I can't just trust that the last _foo is the unit, as it might be something
+that doesn't have an unit (it is the status quo in hwmon, for example).  If
+the kernel has this unit handling thing clearly defined, I can write a
+generic application that displays all battery attributes beautifully,
+instantly aware of the units (and even doing the intelligent thing if you
+have both power_avg in uV and mV...)
 
-It's a miracle reads are going at 50% of the speed of writes...
+> Having separate files is actually a *feature*. It allows you to
+> introduce new units while providing backwards compatibility.
 
-> Improving this ratio could possibly yield a dramatic improvement in system 
-> performance under memory load (think tmpfs/swsusp/...).
+Agreed.
 
-Let me know when you figure out how to look into the future.
+> Imagine going from mV to uV... With voltage_mV, you can have both
+> voltage_mV and voltage_uV. In your system, you'd have to change value
+> from mV to uV, breaking all the userspace....
 
-Actually, Keir Fraser and Fay Chang came up with a cool trick.
+I believe there is a school that says that "this is why userspace is
+supposed to use a single library helper which will have the knowledge on how
+to deal with this".
 
-    "Operating System I/O Speculation:
-   How Two Invocations Are Faster Than One"
-
-http://www.usenix.org/publications/library/proceedings/usenix03/tech/fraser.html
-
-It is somewhat complex though...
+I am not defending such a library approach.  But if the sysfs interface does
+not have the units anywhere, it better be strictly versioned and export
+that information somewhere, so that such a library is actually doable in a
+sane and robust way.
 
 -- 
-Who do you trust?
-The people with all the right answers?
-Or the people with the right questions?
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

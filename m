@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWJ1Pz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWJ1P6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbWJ1Pz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 11:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWJ1Pz3
+	id S1750946AbWJ1P6N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 11:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWJ1P6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 11:55:29 -0400
-Received: from xenotime.net ([66.160.160.81]:6303 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750941AbWJ1Pz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 11:55:29 -0400
-Date: Sat, 28 Oct 2006 08:51:04 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Dave Jones <davej@redhat.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Steven Truong <midair77@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Machine Check Exception on dual core Xeon
-Message-Id: <20061028085104.f7ae2f6a.rdunlap@xenotime.net>
-In-Reply-To: <20061028062921.GA27101@redhat.com>
-References: <28bb77d30610171634l5db9d909v2c4cd12972e9d5@mail.gmail.com>
-	<90DB029B-222B-4D0C-8642-913CD81D5C9B@mac.com>
-	<20061021033049.GC17706@redhat.com>
-	<20061027222752.5560ad81.rdunlap@xenotime.net>
-	<20061028062921.GA27101@redhat.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Oct 2006 11:58:13 -0400
+Received: from nic.NetDirect.CA ([216.16.235.2]:34444 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1750946AbWJ1P6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 11:58:13 -0400
+X-Originating-Ip: 72.57.81.197
+Date: Sat, 28 Oct 2006 11:56:24 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: why "probe_kernel_address()", not "probe_user_address()"?
+Message-ID: <Pine.LNX.4.64.0610281153180.2091@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Oct 2006 02:29:21 -0400 Dave Jones wrote:
 
-> On Fri, Oct 27, 2006 at 10:27:52PM -0700, Randy Dunlap wrote:
->  > On Fri, 20 Oct 2006 23:30:49 -0400 Dave Jones wrote:
->  > 
->  > >  > You missed the blatantly obvious error message:
->  > >  > "This is not a software problem!"
->  > >  > 
->  > >  > Immediately followed by:
->  > >  > "contact your hardware vendor"
->  > >  > 
->  > >  > Please follow that advice
->  > > 
->  > > Maybe someone needs to implement <blink> tags for printk ;-)
->  > 
->  > oops, I didn't do it for MCEs.. :)
->  > and I used reverse video since I dislike blinking.
->  > 
->  > photo:  http://www.xenotime.net/linux/doc/kernel-msg-hilite.jpg
-> 
-> Oh my.  People take me seriously far too often :-)
-> Could be handy for some frequently ignored bits of text
-> (like that mce msg), but if this gets overused it just looks
-> like a horrible mess imo.
+  it seems odd that the purpose of the "probe_kernel_address()" macro
+is, in fact, to probe a *user* address (from linux/uaccess.h):
 
-Nah, I just did it for fun/challenge/experience/blablabla.
-Yes, it could/would be overused too easily.  I recognized
-that very quickly.
+#define probe_kernel_address(addr, retval)              \
+        ({                                              \
+                long ret;                               \
+                                                        \
+                inc_preempt_count();                    \
+                ret = __get_user(retval, addr);         \
+                dec_preempt_count();                    \
+                ret;                                    \
+        })
 
-> Now I'm just waiting for someone to go one step further
-> and make openbsd style 'white on blue' kernel text ;)
+  given that that routine is referenced only 5 places in the entire
+source tree, wouldn't it be more meaningful to use a more appropriate
+name?
 
-nope.
-
----
-~Randy
+pedantically yours,
+rday

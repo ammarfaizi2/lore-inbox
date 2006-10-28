@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWJ1STP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWJ1SWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWJ1STP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWJ1STP
+	id S1751333AbWJ1SWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWJ1SWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:19:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30940 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751324AbWJ1STN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:19:13 -0400
-Date: Sat, 28 Oct 2006 11:14:54 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>, zaitcev@redhat.com
-Subject: Re: usb initialization order (usbhid vs. appletouch)
-Message-Id: <20061028111454.787894e8.zaitcev@redhat.com>
-In-Reply-To: <1162054576.3769.15.camel@localhost>
-References: <1161856438.5214.2.camel@no.intranet.wo.rk>
-	<200610261220.05707.oliver@neukum.org>
-	<1161863380.18657.38.camel@no.intranet.wo.rk>
-	<200610261436.47463.oliver@neukum.org>
-	<1162054576.3769.15.camel@localhost>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.6; i386-redhat-linux-gnu)
+	Sat, 28 Oct 2006 14:22:09 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:48805 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751333AbWJ1SWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:22:08 -0400
+Subject: Re: AMD X2 unsynced TSC fix?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andi Kleen <ak@suse.de>
+Cc: thockin@hockin.org, vojtech@suse.cz, Jiri Bohac <jbohac@suse.cz>,
+       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+In-Reply-To: <200610272059.13753.ak@suse.de>
+References: <1161969308.27225.120.camel@mindpipe>
+	 <68676e00610271700i741b949frc73bf790d38ab1f@mail.gmail.com>
+	 <20061028024638.GA16579@hockin.org>  <200610272059.13753.ak@suse.de>
+Content-Type: text/plain
+Date: Sat, 28 Oct 2006 14:22:11 -0400
+Message-Id: <1162059732.14733.8.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Oct 2006 18:56:16 +0200, Soeren Sonnenburg <kernel@nn7.de> wrote:
-
-> > > > > I've noticed that the appletouch driver needs to be loaded *before* the
-> > > > > usbhid driver to function. This is currently impossible when built into
-> > > > > the kernel (and not modules). So I wonder how one can change the
-> > > > > ordering of when the usb drivers are loaded.
-> > > > > 
-> > > > > Suggestions ?
-> > > > 
-> > > > Add a quirk to HID. Messing around with probing orders is not
-> > > > a sure thing.
-> > > 
-> > > what do you have in mind ? if appletouch is turned on ignore IDs that
-> > > appear in appletouch ?
-> > 
-> > Yes, or even make it unconditional. There is a specific driver for a device.
-> > It exists for a reason.
+On Fri, 2006-10-27 at 20:59 -0700, Andi Kleen wrote:
+> > Fortunately, we usually have an HPET, these days.  You can
+> definitely
+> > resync and get near-linear values of RDTSC.
 > 
-> OK, so I tried adding all of them to the HID_QUIRK_IGNORE LIST, i.e.
+> No we don't -- most BIOS still don't give us the HPET table 
+> even when it is there in hardware. In the future this will change sure
+> but people will still run a lot of older motherboards. 
 
-This, of course, cannot possibly work, as we discussed a month ago.
- http://lkml.org/lkml/2006/10/1/18
+I have exactly such a system (see thread "x86-64 with nvidia MCP51
+chipset: kernel does not find HPET").  Is there anything at all I can do
+to make the kernel see the HPET?  Can I try to guess the address?  BIOS
+upgrade?
 
-So, you two are just beating a dead horse. It's time to write the code
-which identifies Apple devices and not try to ride a quirk.
+Lee
 
--- Pete

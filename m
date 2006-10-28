@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWJ1R3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWJ1Rgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWJ1R3o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 13:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWJ1R3o
+	id S1751204AbWJ1Rgm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 13:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWJ1Rgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 13:29:44 -0400
-Received: from colin.muc.de ([193.149.48.1]:16900 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751190AbWJ1R3n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 13:29:43 -0400
-Date: 28 Oct 2006 19:29:41 +0200
-Date: Sat, 28 Oct 2006 19:29:41 +0200
-From: Andi Kleen <ak@muc.de>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Muli Ben-Yehuda <muli@il.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
-Message-ID: <20061028172941.GA92790@muc.de>
-References: <5986589C150B2F49A46483AC44C7BCA412D763@ssvlexmb2.amd.com> <m1ejsuqnyf.fsf@ebiederm.dsl.xmission.com> <86802c440610272244q750f35a7hcbed50e58546d97@mail.gmail.com>
+	Sat, 28 Oct 2006 13:36:42 -0400
+Received: from mail.first.fraunhofer.de ([194.95.169.2]:32743 "EHLO
+	mail.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751204AbWJ1Rgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 13:36:41 -0400
+Subject: Re: usb initialization order (usbhid vs. appletouch)
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200610281903.29510.oliver@neukum.org>
+References: <1161856438.5214.2.camel@no.intranet.wo.rk>
+	 <200610261436.47463.oliver@neukum.org> <1162054576.3769.15.camel@localhost>
+	 <200610281903.29510.oliver@neukum.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 28 Oct 2006 19:36:32 +0200
+Message-Id: <1162056992.9216.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c440610272244q750f35a7hcbed50e58546d97@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2006 at 10:44:36PM -0700, Yinghai Lu wrote:
-> revised version according to Eric. and it can be applied clearly to
-> current Linus's Tree.
+On Sat, 2006-10-28 at 19:03 +0200, Oliver Neukum wrote:
+> Am Samstag, 28. Oktober 2006 18:56 schrieb Soeren Sonnenburg:
+> > Anyways, back to the above problem. Can one somehow tell the hid-core to
+> > load the appletouch driver when it detects any of these devices and then
+> > initialize on top of that ? The appletouch driver is completely ignored
+> > (doesn't even enter the atp_prope function as usb_register registers
+> > with device/product tuples that are already taken by hid....
+> > 
+> > Any ideas ?
 > 
-> Clear the irq releated entries in irq_vector, irq_domain and vector_irq
-> instead of clearing irq_vector only. So when new irq is created, it
-> could reuse that vector. (actually is the second loop scanning from
-> FIRST_DEVICE_VECTOR+8). This could avoid the vectors are used up
-> with enough module inserting and removing
+> Try udev to disconnect the hid driver, then load appletouch.
 
-Added thanks.
+I don't understand... I can disconnect the driver if I do on cmdline
+        libhid-detach-device 05ac:<id> ; modprobe appletouch .
+However then my keyboard is gone.
 
-Does i386 need a similar patch?
+Of course there is the workaround of building both the appletouch and
+hid driver as modules and then loading them in this order ... but I was
+hoping to have them fix in the kernel. If this is however not doable we
+should mark it in Kconfig and I will have to live with it.
 
--Andi
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.

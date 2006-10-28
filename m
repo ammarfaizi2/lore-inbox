@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWJ1VNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWJ1VWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbWJ1VNt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 17:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWJ1VNt
+	id S964849AbWJ1VWl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 17:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWJ1VWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 17:13:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22186 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964850AbWJ1VNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 17:13:48 -0400
-Date: Sat, 28 Oct 2006 22:13:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>, toralf.foerster@gmx.de,
-       netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       link@miggy.org, greg@kroah.com, akpm@osdl.org, zippel@linux-m68k.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
-Message-ID: <20061028211342.GA23360@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Brownell <david-b@pacbell.net>,
-	Randy Dunlap <randy.dunlap@oracle.com>, toralf.foerster@gmx.de,
-	netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-	link@miggy.org, greg@kroah.com, akpm@osdl.org,
-	zippel@linux-m68k.org, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025165858.b76b4fd8.randy.dunlap@oracle.com> <20061028112122.GA14316@infradead.org> <200610281410.13679.david-b@pacbell.net>
+	Sat, 28 Oct 2006 17:22:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38106 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964849AbWJ1VWk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 17:22:40 -0400
+Date: Sat, 28 Oct 2006 14:22:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ken Moffat <zarniwhoop@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: NFS problem (r/o filesystem) with 2.6.19-rc3
+Message-Id: <20061028142228.da7350c2.akpm@osdl.org>
+In-Reply-To: <20061028184226.GA1225@deepthought.linux.bogus>
+References: <20061028184226.GA1225@deepthought.linux.bogus>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610281410.13679.david-b@pacbell.net>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2006 at 02:10:09PM -0700, David Brownell wrote:
-> On Saturday 28 October 2006 4:21 am, Christoph Hellwig wrote:
-> 
-> > This is really awkward and against what we do in any other driver.
-> 
-> Awkward, yes -- which is why I posted the non-awkward version,
-> which is repeated below.  (No thanks to "diff" for making the
-> patch ugly though; the resulting code is clean and non-awkward,
-> moving that function helped.)
-> 
-> Against what other drivers do?  Since "usbnet.c" is infrastructure
-> code, not a driver, your comment can't apply.  Infrastructure uses
-> conditional compilation routinely in such cases.
-> 
-> But remember that the actual drivers follow the standard convention
-> ("select MII") given Randy's patch #1 of 2.
+On Sat, 28 Oct 2006 19:42:27 +0100
+Ken Moffat <zarniwhoop@ntlworld.com> wrote:
 
-Ah sorry - I missed that.
+> Hi,
+> 
+>  yesterday I moved this desktop box to -rc3 from 2.6.18.  I have a
+> large amount of data on nfs mounts (r/w) and everything looks good.
+> But, for my backups I have cron jobs to mount a different nfs
+> filesystem and rsync to it.  That fails with 2.6.19-rc3, giving me
+> messages like
+> 
+> about to mount /nfs
+> Sat Oct 28 18:45:03 BST 2006 rsyncing
+> rsync: failed to set times on "/nfs/bluesbreaker/boot/.": Read-only
+> file system (30)
+> rsync: mkstemp "/nfs/bluesbreaker/boot/.map.c2Cj91" failed:
+> Read-only file system (30)
+> rsync: mkstemp
+> "/nfs/bluesbreaker/boot/.vmlinuz-2.6.19-rc3-sda8.pXKgH9" failed:
+> Read-only file system (30)
+> rsync: failed to set times on "/nfs/bluesbreaker/boot/.": Read-only
+> file system (30)
+> rsync error: some files could not be transferred (code 23) at
+> main.c(791)
+> rsync failed
+> umounting /nfs
+> 
+>  If I mount it manually, it seems to be ok -
+> root@bluesbreaker /home/ken #mount
+> /dev/sda8 on / type auto (rw)
+> [...]
+> deepthought:/data/staging on /nfs type nfs (rw,hard,intr,tcp,addr=192.168.0.10)
+> root@bluesbreaker /home/ken #
+> 
+>  But if I then try to touch a file I find the filesystem is r/o -
+> root@bluesbreaker /home/ken #touch /nfs/bluesbreaker/boot/vmlinuz-2.6.18-sda8 
+> touch: cannot touch `/nfs/bluesbreaker/boot/vmlinuz-2.6.18-sda8':
+> Read-only file system
+> 
+>  This filesystem is a 'staging' area where whichever of my desktop
+> machines are up can write.  From a different box using a 2.6.17.13
+> kernel the filesystem is r/w.  The system log on the machine running
+> rc3 only shows that rsync ended in error, there are no associated
+> kernel messages. 
+> 
+>  Suggestions, please ?
+> 
 
-I still don't quite like the approach.  What about simply putting
-the mii using functions into usbnet-mii.c and let makefile doing
-all the work?  This would require a second set of ethtool ops,
-but I'd actually consider that a cleanup, as it makes clear which
-one we're using and allows to kill all the checks for non-mii
-hardware in the methods.
-
+Is it this: http://lkml.org/lkml/2006/10/18/264 ?

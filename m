@@ -1,177 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752125AbWJ1K65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752138AbWJ1LV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752125AbWJ1K65 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 06:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752128AbWJ1K65
+	id S1752138AbWJ1LV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 07:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752136AbWJ1LV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 06:58:57 -0400
-Received: from verein.lst.de ([213.95.11.210]:54190 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1752125AbWJ1K64 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 06:58:56 -0400
-Date: Sat, 28 Oct 2006 12:57:55 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
-       Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>, Dominik Brodowski <linux@brodo.de>,
-       Harald Welte <laforge@netfilter.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jean Delvare <khali@linux-fr.org>
-Subject: Re: feature-removal-schedule obsoletes
-Message-ID: <20061028105755.GA20103@lst.de>
-References: <45324658.1000203@gmail.com> <20061016133352.GA23391@lst.de> <200610242124.49911.arnd@arndb.de> <4543162B.7030701@drzeus.cx>
+	Sat, 28 Oct 2006 07:21:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:64707 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752133AbWJ1LV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 07:21:28 -0400
+Date: Sat, 28 Oct 2006 12:21:22 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: David Brownell <david-b@pacbell.net>, toralf.foerster@gmx.de,
+       netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       link@miggy.org, greg@kroah.com, akpm@osdl.org, zippel@linux-m68k.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       dbrownell@users.sourceforge.net
+Subject: Re: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
+Message-ID: <20061028112122.GA14316@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Randy Dunlap <randy.dunlap@oracle.com>,
+	David Brownell <david-b@pacbell.net>, toralf.foerster@gmx.de,
+	netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+	link@miggy.org, greg@kroah.com, akpm@osdl.org,
+	zippel@linux-m68k.org, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025201341.GH21200@miggy.org> <20061025151737.1bf4898c.randy.dunlap@oracle.com> <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061025165858.b76b4fd8.randy.dunlap@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4543162B.7030701@drzeus.cx>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -0.349 () BAYES_30
+In-Reply-To: <20061025165858.b76b4fd8.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2006 at 10:34:51AM +0200, Pierre Ossman wrote:
-> > It seems that most of the users that are left are for pretty obscure
-> > functionality, so I wouldn't expect that to happen so soon. Maybe we
-> > should mark it as __deprecated in the declaration?
-> > 
+On Wed, Oct 25, 2006 at 04:58:58PM -0700, Randy Dunlap wrote:
+> On Wed, 25 Oct 2006 15:27:09 -0700 David Brownell wrote:
 > 
-> What should be used to replace it? The MMC block driver uses it to
-> manage the block device queue. I am not that intimate with the block
-> layer so I do not know the proper fix.
+> > Instead, "usbnet.c" should #ifdef the relevant ethtool hooks
+> > according to CONFIG_MII ... since it's completely legit to
+> > use usbnet with peripherals that don't need MII.
+> 
+> ---
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> 
+> usbnet driver should use mii_*() interfaces if they are available
+> in the kernel (config enabled) but usbnet does not require or depend
+> on these interfaces.
+> 
+> Build tested with CONFIG_MII=y, m, n.
 
-kthread_create/kthread_run.  Here's a draft patch (and it's against
-a rather old tree and untested due to lack of hardware so it really
-should be considered just a draft).
+This is really awkward and against what we do in any other driver.
+Lots of PCI ethernet drivers use the MII code but have non-MII variants,
+and I'd expect usb code to do the same.  If you really need to squeeze
+the last bytes out of usbnet for some embedded thing add a CONFIG_USB_NET_MII
+opention and explain in the help text which devices require it.  Otherwise
+a normal user has no way to find out why his mii-requiring usb device
+randomly stopped working.
 
-
-Index: linux-2.6/drivers/mmc/mmc_queue.c
-===================================================================
---- linux-2.6.orig/drivers/mmc/mmc_queue.c	2006-10-28 12:48:42.000000000 +0200
-+++ linux-2.6/drivers/mmc/mmc_queue.c	2006-10-28 12:57:12.000000000 +0200
-@@ -10,12 +10,12 @@
-  */
- #include <linux/module.h>
- #include <linux/blkdev.h>
-+#include <linux/kthread.h>
- 
- #include <linux/mmc/card.h>
- #include <linux/mmc/host.h>
- #include "mmc_queue.h"
- 
--#define MMC_QUEUE_EXIT		(1 << 0)
- #define MMC_QUEUE_SUSPENDED	(1 << 1)
- 
- /*
-@@ -59,7 +59,6 @@
- {
- 	struct mmc_queue *mq = d;
- 	struct request_queue *q = mq->queue;
--	DECLARE_WAITQUEUE(wait, current);
- 
- 	/*
- 	 * Set iothread to ensure that we aren't put to sleep by
-@@ -67,12 +66,7 @@
- 	 */
- 	current->flags |= PF_MEMALLOC|PF_NOFREEZE;
- 
--	daemonize("mmcqd");
--
--	complete(&mq->thread_complete);
--
- 	down(&mq->thread_sem);
--	add_wait_queue(&mq->thread_wq, &wait);
- 	do {
- 		struct request *req = NULL;
- 
-@@ -84,7 +78,7 @@
- 		spin_unlock_irq(q->queue_lock);
- 
- 		if (!req) {
--			if (mq->flags & MMC_QUEUE_EXIT)
-+			if (kthread_should_stop())
- 				break;
- 			up(&mq->thread_sem);
- 			schedule();
-@@ -95,10 +89,8 @@
- 
- 		mq->issue_fn(mq, req);
- 	} while (1);
--	remove_wait_queue(&mq->thread_wq, &wait);
- 	up(&mq->thread_sem);
- 
--	complete_and_exit(&mq->thread_complete, 0);
- 	return 0;
- }
- 
-@@ -113,7 +105,7 @@
- 	struct mmc_queue *mq = q->queuedata;
- 
- 	if (!mq->req)
--		wake_up(&mq->thread_wq);
-+		wake_up_process(mq->thread);
- }
- 
- /**
-@@ -152,36 +144,31 @@
- 			 GFP_KERNEL);
- 	if (!mq->sg) {
- 		ret = -ENOMEM;
--		goto cleanup;
-+		goto cleanup_queue;
- 	}
- 
--	init_completion(&mq->thread_complete);
--	init_waitqueue_head(&mq->thread_wq);
- 	init_MUTEX(&mq->thread_sem);
- 
--	ret = kernel_thread(mmc_queue_thread, mq, CLONE_KERNEL);
--	if (ret >= 0) {
--		wait_for_completion(&mq->thread_complete);
--		init_completion(&mq->thread_complete);
--		ret = 0;
--		goto out;
-+	mq->thread = kthread_run(mmc_queue_thread, mq, "mmcqd");
-+	if (IS_ERR(mq->thread)) {
-+		ret = PTR_ERR(mq->thread);
-+		goto free_sg;
- 	}
- 
-- cleanup:
-+	return 0;
-+
-+ free_sg:
- 	kfree(mq->sg);
- 	mq->sg = NULL;
--
-+ cleanup_queue:
- 	blk_cleanup_queue(mq->queue);
-- out:
- 	return ret;
- }
- EXPORT_SYMBOL(mmc_init_queue);
- 
- void mmc_cleanup_queue(struct mmc_queue *mq)
- {
--	mq->flags |= MMC_QUEUE_EXIT;
--	wake_up(&mq->thread_wq);
--	wait_for_completion(&mq->thread_complete);
-+	kthread_stop(mq->thread);
- 
- 	kfree(mq->sg);
- 	mq->sg = NULL;
-Index: linux-2.6/drivers/mmc/mmc_queue.h
-===================================================================
---- linux-2.6.orig/drivers/mmc/mmc_queue.h	2006-10-28 12:49:31.000000000 +0200
-+++ linux-2.6/drivers/mmc/mmc_queue.h	2006-10-28 12:54:54.000000000 +0200
-@@ -6,8 +6,7 @@
- 
- struct mmc_queue {
- 	struct mmc_card		*card;
--	struct completion	thread_complete;
--	wait_queue_head_t	thread_wq;
-+	struct task_struct	*thread;
- 	struct semaphore	thread_sem;
- 	unsigned int		flags;
- 	struct request		*req;
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> ---
+>  drivers/usb/net/usbnet.c |   18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+> 
+> --- linux-2619-rc3-pv.orig/drivers/usb/net/usbnet.c
+> +++ linux-2619-rc3-pv/drivers/usb/net/usbnet.c
+> @@ -47,6 +47,12 @@
+>  
+>  #define DRIVER_VERSION		"22-Aug-2005"
+>  
+> +#if defined(CONFIG_MII) || defined(CONFIG_MII_MODULE)
+> +#define HAVE_MII		1
+> +#else
+> +#define HAVE_MII		0
+> +#endif
+> +
+>  
+>  /*-------------------------------------------------------------------------*/
+>  
+> @@ -676,7 +682,10 @@ int usbnet_get_settings (struct net_devi
+>  	if (!dev->mii.mdio_read)
+>  		return -EOPNOTSUPP;
+>  
+> +#if HAVE_MII
+>  	return mii_ethtool_gset(&dev->mii, cmd);
+> +#endif
+> +	return -EOPNOTSUPP;
+>  }
+>  EXPORT_SYMBOL_GPL(usbnet_get_settings);
+>  
+> @@ -688,7 +697,11 @@ int usbnet_set_settings (struct net_devi
+>  	if (!dev->mii.mdio_write)
+>  		return -EOPNOTSUPP;
+>  
+> +#if HAVE_MII
+>  	retval = mii_ethtool_sset(&dev->mii, cmd);
+> +#else
+> +	retval = -EOPNOTSUPP;
+> +#endif
+>  
+>  	/* link speed/duplex might have changed */
+>  	if (dev->driver_info->link_reset)
+> @@ -721,9 +734,11 @@ u32 usbnet_get_link (struct net_device *
+>  	if (dev->driver_info->check_connect)
+>  		return dev->driver_info->check_connect (dev) == 0;
+>  
+> +#if HAVE_MII
+>  	/* if the device has mii operations, use those */
+>  	if (dev->mii.mdio_read)
+>  		return mii_link_ok(&dev->mii);
+> +#endif
+>  
+>  	/* Otherwise, say we're up (to avoid breaking scripts) */
+>  	return 1;
+> @@ -753,7 +768,10 @@ int usbnet_nway_reset(struct net_device 
+>  	if (!dev->mii.mdio_write)
+>  		return -EOPNOTSUPP;
+>  
+> +#if HAVE_MII
+>  	return mii_nway_restart(&dev->mii);
+> +#endif
+> +	return -EOPNOTSUPP;
+>  }
+>  EXPORT_SYMBOL_GPL(usbnet_nway_reset);
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+---end quoted text---

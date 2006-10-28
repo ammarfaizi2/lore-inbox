@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWJ1EzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWJ1FJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWJ1EzH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 00:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWJ1EzH
+	id S1751791AbWJ1FJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 01:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWJ1FJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 00:55:07 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:64182 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751032AbWJ1EzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 00:55:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=tNzHnQq8ygdS9X9TbecVdwqELFuT4oJBQAljGV3hsD52KQHw6LaO+x1/0x9xXz+FeKtlgObLlBoEcgdUz8t53KliubujyfFQQ9aCr4HMVKL3YXhIbzA1gs5XWT/FTZUX3So/8yx0TLLyRDoGU3oXSVj8iQy8Tf/HAyv5LOle1To=  ;
-Message-ID: <4542E2A4.2080400@yahoo.com.au>
-Date: Sat, 28 Oct 2006 14:55:00 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Purdie <rpurdie@openedhand.com>
-CC: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH, RFC/T] Fix handling of write failures to swap devices
-References: <1161935995.5019.46.camel@localhost.localdomain>	 <4541C1B2.7070003@yahoo.com.au> <1161938694.5019.83.camel@localhost.localdomain>
-In-Reply-To: <1161938694.5019.83.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Oct 2006 01:09:09 -0400
+Received: from colo.lackof.org ([198.49.126.79]:11210 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S1751791AbWJ1FJH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 01:09:07 -0400
+Date: Fri, 27 Oct 2006 23:09:05 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       Greg KH <greg@kroah.com>, Stephen Hemminger <shemminger@osdl.org>,
+       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
+Message-ID: <20061028050905.GB5560@colo.lackof.org>
+References: <20061027012058.GH5591@parisc-linux.org> <20061026182838.ac2c7e20.akpm@osdl.org> <20061026191131.003f141d@localhost.localdomain> <20061027170748.GA9020@kroah.com> <20061027172219.GC30416@elf.ucw.cz> <20061027113908.4a82c28a.akpm@osdl.org> <20061027114144.f8a5addc.akpm@osdl.org> <20061027114237.d577c153.akpm@osdl.org> <1161989970.16839.45.camel@localhost.localdomain> <20061027160626.8ac4a910.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061027160626.8ac4a910.akpm@osdl.org>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Purdie wrote:
-> On Fri, 2006-10-27 at 18:22 +1000, Nick Piggin wrote:
+On Fri, Oct 27, 2006 at 04:06:26PM -0700, Andrew Morton wrote:
+> On Fri, 27 Oct 2006 23:59:30 +0100
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 > 
->>Richard Purdie wrote:
->>
->>>Comments and testing from people who know this area of code better than
->>>me would be appreciated!
->>
->>This is the right approach to handling swap write errors. However, you need
->>to cut down on the amount of code duplication. 
+> > Ar Gwe, 2006-10-27 am 11:42 -0700, ysgrifennodd Andrew Morton:
+> > > IOW, we want to be multithreaded _within_ an initcall level, but not between
+> > > different levels.
+> > 
+> > Thats actually insufficient. We have link ordered init sequences in
+> > large numbers of driver subtrees (ATA, watchdog, etc). We'll need
+> > several more initcall layers to fix that.
+> > 
 > 
-> 
-> The code is subtly different to the swapoff code but I'll take another
-> look and see if I can refactor it now I have it all working.
+> It would be nice to express those dependencies in some clearer and less
+> fragile manner than link order.  I guess finer-grained initcall levels
+> would do that, but it doesn't scale very well.
 
-Subtly different code is the worst kind of code to be duplicating. It
-really needs improving, I think.
+Would making use of depmod data be a step in the right direction?
+ie nic driver calls extern function (e.g. pci_enable_device())
+and therefore must depend on module which provides that function.
 
->>Also, if you hit that BUG_ON, then you probably have a bug, don't
->>remove it!
-> 
-> 
-> I gave that a lot of thought. We are in a write handler and have to
-> handle the write error from there so the page will be marked as
-> writeback. That function appears to be safe to call with that set
-> through the new code path I added (which wouldn't have happened in the
-> past). I therefore decided it was safe and the simplest solution was to
-> remove the BUG_ON. If anyone can see a problem with a page being in
-> writeback in that function, please enlighten me though!
+My guess is this probably isn't 100% sufficient to replace all initcall
+levels.  But likely sufficient within a given initcall level.
+My main concern are circular dependencies (which are rare).
 
-It's just the wrong thing to do if the page has been set writeback with
-a valid mapping. Presently we don't do any mapping specific accounting
-in that path, but we could.
+> But whatever.  I think multithreaded probing just doesn't pass the
+> benefit-versus-hassle test, sorry.   Make it dependent on CONFIG_GREGKH ;)
 
-But now that I look at your patch, I don't think it is going to work.
-end_swap_bio_write can be called from interrupt context, so you can't
-lock the page, and you can't take any of those swap specific spinlocks
-either.
+Isn't already? :)
 
-You say that SetPageError makes the processes die unexpectedly? How and
-where? We use SetPageError for IO errors, and it doesn't mean the page
-has errors AFAIK.
+I thought parallel PCI and SCSI probing on system with multiple NICs and
+"SCSI" storage requires udev to create devices with consistent naming.
 
-The best policy would probably be to keep the end_page_writeback path as
-it is, and then detect the PageError in the swap out path somewhere.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+thanks,
+grant

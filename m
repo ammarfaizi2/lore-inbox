@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWJ1Tx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWJ1Tys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWJ1Tx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 15:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWJ1Tx7
+	id S932109AbWJ1Tys (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 15:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWJ1Tys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 15:53:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1711 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751367AbWJ1Tx6 (ORCPT
+	Sat, 28 Oct 2006 15:54:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26287 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751372AbWJ1Tyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 15:53:58 -0400
-Date: Sat, 28 Oct 2006 15:53:49 -0400
+	Sat, 28 Oct 2006 15:54:46 -0400
+Date: Sat, 28 Oct 2006 15:54:43 -0400
 From: Dave Jones <davej@redhat.com>
 To: Ben Collins <bcollins@ubuntu.com>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
        Pallipadi@pressure.kernelslacker.org,
        Venkatesh <venkatesh.pallipadi@intel.com>
 Subject: p4-clockmod N60 errata workaround.
-Message-ID: <20061028195349.GH27101@redhat.com>
+Message-ID: <20061028195443.GB8282@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>,
 	Ben Collins <bcollins@ubuntu.com>,
 	Linux Kernel <linux-kernel@vger.kernel.org>, Pallipadi,

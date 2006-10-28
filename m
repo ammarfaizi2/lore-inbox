@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752060AbWJ1KHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752082AbWJ1KIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752060AbWJ1KHH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 06:07:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752070AbWJ1KHH
+	id S1752082AbWJ1KIw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 06:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752070AbWJ1KIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 06:07:07 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:15595 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1752060AbWJ1KHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 06:07:04 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Subject: Re: feature-removal-schedule obsoletes
-Date: Sat, 28 Oct 2006 12:06:54 +0200
-User-Agent: KMail/1.9.5
-Cc: Christoph Hellwig <hch@lst.de>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>, Dominik Brodowski <linux@brodo.de>,
-       Harald Welte <laforge@netfilter.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jean Delvare <khali@linux-fr.org>
-References: <45324658.1000203@gmail.com> <200610242124.49911.arnd@arndb.de> <4543162B.7030701@drzeus.cx>
-In-Reply-To: <4543162B.7030701@drzeus.cx>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Oct 2006 06:08:52 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:53166 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1752074AbWJ1KIv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 06:08:51 -0400
+Date: Sat, 28 Oct 2006 14:08:15 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
+Subject: Re: [take21 2/4] kevent: poll/select() notifications.
+Message-ID: <20061028100815.GB15038@2ka.mipt.ru>
+References: <11619654012104@2ka.mipt.ru> <45432B1A.8020503@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200610281206.54940.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45432B1A.8020503@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 28 Oct 2006 14:08:15 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 October 2006 10:34, Pierre Ossman wrote:
+On Sat, Oct 28, 2006 at 12:04:10PM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
+> Evgeniy Polyakov a écrit :
 > 
-> What should be used to replace it? The MMC block driver uses it to
-> manage the block device queue. I am not that intimate with the block
-> layer so I do not know the proper fix.
+> >+	file = fget(k->event.id.raw[0]);
+> >+	if (!file)
+> >+		return -ENODEV;
 > 
-You should use kthread_create().
+> Please, do us a favor, and use EBADF instead of ENODEV.
+> 
+> EBADF : /* Bad file number */
+> 
+> ENODEV : /* No such device */
+> 
+> You have many ENODEV uses in your patches and that really hurts.
 
-	Arnd <><
+Ok :)
+
+> Eric
+
+-- 
+	Evgeniy Polyakov

@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWJ1TyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWJ1Tx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWJ1TyL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 15:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWJ1TyL
+	id S1751367AbWJ1Tx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 15:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWJ1Tx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 15:54:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9647 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751370AbWJ1TyK (ORCPT
+	Sat, 28 Oct 2006 15:53:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1711 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751367AbWJ1Tx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 15:54:10 -0400
-Subject: Re: [PATCH v2] Re: Battery class driver.
-From: David Zeuthen <davidz@redhat.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Richard Hughes <hughsient@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Shem Multinymous <multinymous@gmail.com>,
-       Dan Williams <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
-       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
-       greg@kroah.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
-In-Reply-To: <20061028185513.GD5152@ucw.cz>
-References: <1161710328.17816.10.camel@hughsie-laptop>
-	 <1161762158.27622.72.camel@shinybook.infradead.org>
-	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
-	 <1161778296.27622.85.camel@shinybook.infradead.org>
-	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
-	 <1161815138.27622.139.camel@shinybook.infradead.org>
-	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
-	 <1162037754.19446.502.camel@pmac.infradead.org>
-	 <1162041726.16799.1.camel@hughsie-laptop>
-	 <1162048148.2723.61.camel@zelda.fubar.dk>  <20061028185513.GD5152@ucw.cz>
-Content-Type: text/plain
-Date: Sat, 28 Oct 2006 15:53:56 -0400
-Message-Id: <1162065236.2723.83.camel@zelda.fubar.dk>
+	Sat, 28 Oct 2006 15:53:58 -0400
+Date: Sat, 28 Oct 2006 15:53:49 -0400
+From: Dave Jones <davej@redhat.com>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Pallipadi@pressure.kernelslacker.org,
+       Venkatesh <venkatesh.pallipadi@intel.com>
+Subject: p4-clockmod N60 errata workaround.
+Message-ID: <20061028195349.GH27101@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ben Collins <bcollins@ubuntu.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, Pallipadi,
+	Venkatesh <venkatesh.pallipadi@intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-28 at 18:55 +0000, Pavel Machek wrote:
-> Bad idea... I bet someone will just ignore the units part, because all
-> the machines he seen had mW there. 
+Ben,
+ For the best part of a year since that N60 errata workaround
+went in, I've had floods of complaints from users of that driver
+about this driver becoming even more useless than it was before
+"I had 8 frequencies, now I have 2" being the common complaint.
+which was to be expected given that the intention of the errata
+workaround was to cripple frequencies <2GHz.
 
-Sure, user space can do silly things. Just ask davej. Let's try to
-assume they don't.
+The point worth noting however, is that none of these users ever
+noticed any problems when we didn't have the workaround in place,
+so they were somewhat miffed when it stopped working.
 
-> Just put it into the name:
-> 
-> power_avg_mV
+The actual errata states..
 
-Bad idea... it means user space will have to try to open different files
-and what happens when someone introduces a new unit? Ideally I'd like
-the unit to be part of the payload of the sysfs file. Second to that I
-think having the unit in a separate file is preferable.
+"If a system de-asserts STPCLK# at a 12.5% duty cycle, the processor
+ is running below 2 GHz, and the processor thermal control circuit (TCC)
+ on-demand clock modulation is active, the processor may hang.
+ This erratum does not occur under the automatic mode of the TCC."
 
-     David
+I believe the reason we never saw any problems is that we _are_ using
+the TCC by default.  See the code in arch/i386/kernel/cpu/mcheck/p4.c
+intel_init_thermal() and friends.
 
+So my current feeling is that we're working around an errata that
+can never happen, and crippling functionality in the process for
+no good reason.  I'm leaning towards just removing this workaround.
 
+	Dave
+
+-- 
+http://www.codemonkey.org.uk

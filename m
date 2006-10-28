@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWJ1RqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWJ1RuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWJ1RqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 13:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWJ1RqZ
+	id S1751229AbWJ1RuA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 13:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWJ1RuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 13:46:25 -0400
-Received: from colin.muc.de ([193.149.48.1]:29458 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751164AbWJ1RqY (ORCPT
+	Sat, 28 Oct 2006 13:50:00 -0400
+Received: from colin.muc.de ([193.149.48.1]:40712 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751229AbWJ1Rt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 13:46:24 -0400
-Date: 28 Oct 2006 19:46:22 +0200
-Date: Sat, 28 Oct 2006 19:46:22 +0200
+	Sat, 28 Oct 2006 13:49:59 -0400
+Date: 28 Oct 2006 19:49:58 +0200
+Date: Sat, 28 Oct 2006 19:49:58 +0200
 From: Andi Kleen <ak@muc.de>
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
-Message-ID: <20061028174622.GB92790@muc.de>
-References: <86802c440610232115r76d98803o4293cdafce1fd95c@mail.gmail.com>
+To: Om Narasimhan <om.turyx@gmail.com>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org, randy.dunlap@oracle.com,
+       clemens@ladisch.de, vojtech@suse.cz, bob.picco@hp.com
+Subject: Re: HPET : Legacy Routing Replacement Enable - 3rd try.
+Message-ID: <20061028174958.GC92790@muc.de>
+References: <EB12A50964762B4D8111D55B764A8454C9608C@scsmsx413.amr.corp.intel.com> <6b4e42d10610251420x4365b840sa3232010e7bd7f73@mail.gmail.com> <20061027024238.GC58088@muc.de> <4541A325.6030102@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <86802c440610232115r76d98803o4293cdafce1fd95c@mail.gmail.com>
+In-Reply-To: <4541A325.6030102@gmail.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 09:15:31PM -0700, yhlu wrote:
-> in phys flat mode, when using set_xxx_irq_affinity to irq balance from
-> one cpu to another,  _assign_irq_vector will get to increase last used
-> vector and get new vector. this will use up the vector if enough
-> set_xxx_irq_affintiy are called. and end with using same vector in
-> different cpu for different irq. (that is not what we want, we only
-> want to use same vector in different cpu for different irq when more
-> than 0x240 irq needed). To keep it simple, the vector should be reused
-> instead of getting new vector.
-> 
-> Also according to Eric's review, make it more generic to be used with
-> flat mode too.
-> 
-Added thanks
+On Thu, Oct 26, 2006 at 11:11:49PM -0700, Om Narasimhan wrote:
+> Andi Kleen wrote:
+> >>1. HW is LRR capable, HPET ACPI it is 1, timer interrupt is on INT2.
+> >>Before the fix: Linux cannot get timer interrupts on INT0, goes for ACPI 
+> >>timer.
+> >
+> >What ACPI timer?  I don't think we have any fallback for int 0.
+> Sorry, Mea Culpa, I should have written APIC timer.
+> >
+> >Not sure what you mean with INT2. Pin2 on ioapic 0 perhaps?
+> Yes. PIN2 on IOAPIC #0.
+> >
+> >>After the fix : Works fine. This is according to hpet spec.
+> >
+> >On what exact motherboard was that?
+> SunFire X4600
+> >
+> >>To handle case 3, I removed all references to acpi_hpet_lrr, explained
+> >>this case in the code and decided to solely rely on the command line
+> >>parameter for LRR capability. Rational for this approach is ,
+> >
+> >This means the systems which you said fixes this would need the command
+> >line parameter to work? 
+> I feel I do not make things clear enough.
+> The command line parameter can be avoided entirely if majority of the 
+> BIOSes implement LRR routing correctly. I would rewrite the patch to avoid 
 
-> This patch need to be applied over Eric's irq: cpu_online_map patch.
+But they don't.
 
-Hmm, i'm not sure I got that. Which was patch was it exactly
+> cmdline parameter and according to Andrew Morton's suggestions.
 
-Or can you please double check it is ok in 2.6.19rc3 +
-ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/x86_64-2.6.19-rc3-061028-1.bz2
+What was that suggestion again? (sorry can't find it)
 
-Thanks,
+Anyways the goal is really to just work everywhere without command line
+parameters. Can we somehow detect the SunFire condition and only enable 
+it there?
 
--Andi
+-Andi (who must admit he still doesn't quite understand why the Sun machine
+needs this anyways)
+
+

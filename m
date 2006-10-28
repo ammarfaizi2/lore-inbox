@@ -1,64 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWJ2Uxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWJ2UzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbWJ2Uxo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 15:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWJ2Uxo
+	id S1030225AbWJ2UzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 15:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWJ2UzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 15:53:44 -0500
-Received: from main.gmane.org ([80.91.229.2]:33161 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030210AbWJ2Uxn (ORCPT
+	Sun, 29 Oct 2006 15:55:09 -0500
+Received: from holoclan.de ([62.75.158.126]:42411 "EHLO mail.holoclan.de")
+	by vger.kernel.org with ESMTP id S1030225AbWJ2UzG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 15:53:43 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 29 Oct 2006 15:55:06 -0500
+Date: Sat, 28 Oct 2006 22:01:51 +0200
+From: Martin Lorenz <martin@lorenz.eu.org>
 To: linux-kernel@vger.kernel.org
-From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Subject: Re: Slab panic on 2.6.19-rc3-git5 (-git4 was OK)
-Followup-To: gmane.linux.kernel
-Date: Sun, 29 Oct 2006 15:53:12 -0500
-Message-ID: <ei34bo$dhr$1@sea.gmane.org>
-References: <454442DC.9050703@google.com> <20061029000513.de5af713.akpm@osdl.org> <454471C3.2020005@yahoo.com.au>
-Mime-Version: 1.0
+Subject: 2.6.19-rc3: more DWARFs and strange messages
+Message-ID: <20061028200151.GC5619@gimli>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ool-18b86566.dyn.optonline.net
-User-Agent: KNode/0.10.4
-Cc: linux-mm@kvack.org
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  With my recent kernel pulled from git on friday I see
+	quite some DWARFs and other strange messages. lots of those:
+	[18038.721000] thinkpad_ec: thinkpad_ec_request_row: bad end STR3:
+	(0x11:0x00)->0x80 [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+With my recent kernel pulled from git on friday I see quite some DWARFs and
+other strange messages.
 
-> Andrew Morton wrote:
->> --- a/mm/vmalloc.c~__vmalloc_area_node-fix
->> +++ a/mm/vmalloc.c
->> @@ -428,7 +428,8 @@ void *__vmalloc_area_node(struct vm_stru
->>  area->nr_pages = nr_pages;
->>  /* Please note that the recursion is strictly bounded. */
->>  if (array_size > PAGE_SIZE) {
->> -            pages = __vmalloc_node(array_size, gfp_mask, PAGE_KERNEL, node);
->> +            pages = __vmalloc_node(array_size, gfp_mask & ~__GFP_HIGHMEM,
->> +                                    PAGE_KERNEL, node);
->>  area->flags |= VM_VPAGES;
->>  } else {
->>  pages = kmalloc_node(array_size,
-> 
-> Don't you actually *want* the page array to be allocated from highmem? So
-> the gfp mask here should be just for whether we're allowed to sleep /
-> reclaim (ie gfp_mask & ~(__GFP_DMA|__GFP_DMA32) | (__GFP_HIGHMEM))?
-> 
-> Slab allocations should be (gfp_mask &
-> ~(__GFP_DMA|__GFP_DMA32|__GFP_HIGHMEM)), which you could mask in
-> __get_vm_area_node
-> 
+lots of those:
+[18038.721000] thinkpad_ec: thinkpad_ec_request_row: bad end STR3:
+(0x11:0x00)->0x80
 
-Since gfp_mask there would also have GFP_ZERO, we need to mask off that too.
-How about my earlier suggestion of masking off flags in __get_vm_area_node
-with GFP_LEVEL_MASK?
+this was said to be triggered by the combination of hdaps and tp_smapi but I
+do not load the tp_smapi module ...
+hdaps is configured
 
-Giri
+and quite a few of those:
 
-PS: I am not sure if this mail gets to all recipients in the original
-thread - I am not subscribed to lkml and I haven't found a way to reply to
-all people and the group.
+[18504.980000] BUG: warning at kernel/cpu.c:56/unlock_cpu_hotplug()
+[18504.980000]  [<c0103bdd>] dump_trace+0x69/0x1af
+[18504.980000]  [<c0103d3b>] show_trace_log_lvl+0x18/0x2c
+[18504.980000]  [<c01043da>] show_trace+0xf/0x11
+[18504.980000]  [<c01044dd>] dump_stack+0x15/0x17
+[18504.980000]  [<c0135e94>] unlock_cpu_hotplug+0x3d/0x66
+[18504.980000]  [<f92e67f3>] do_dbs_timer+0x1c2/0x229 [cpufreq_ondemand]
+[18504.980000]  [<c012ccb1>] run_workqueue+0x83/0xc5
+[18504.980000]  [<c012d5d5>] worker_thread+0xd9/0x10c
+[18504.980000]  [<c012fb36>] kthread+0xc2/0xf0
+[18504.980000]  [<c010398b>] kernel_thread_helper+0x7/0x10
+[18504.980000] DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
+[18504.980000]
+[18504.980000] Leftover inexact backtrace:
+[18504.980000]
+[18504.980000]  =======================
 
+
+full config and dmesg is in
+http://www.lorenz.eu.org/~mlo/kernel/config.2.6.19-rc3-e1-ie-tp-43.3+1757-g18462d6b-dirty.gz
+http://www.lorenz.eu.org/~mlo/kernel/dmesg.2.6.19-rc3-e1-ie-tp-43.3+1757-g18462d6b-dirty.boot
+http://www.lorenz.eu.org/~mlo/kernel/dmesg.2.6.19-rc3-e1-ie-tp-43.3+1757-g18462d6b-dirty.run
+
+and more
+http://www.lorenz.eu.org/~mlo/kernel/?C=M;O=D
+
+greets
+  mlo
+--
+Dipl.-Ing. Martin Lorenz
+
+            They that can give up essential liberty 
+	    to obtain a little temporary safety 
+	    deserve neither liberty nor safety.
+                                   Benjamin Franklin
+
+please encrypt your mail to me
+GnuPG key-ID: F1AAD37D
+get it here:
+http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
+
+ICQ UIN: 33588107

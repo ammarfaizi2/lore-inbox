@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752214AbWJ1MQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752224AbWJ1Mgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752214AbWJ1MQD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 08:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752210AbWJ1MQC
+	id S1752224AbWJ1Mgg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 08:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752227AbWJ1Mgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 08:16:02 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:46525 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752204AbWJ1MQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 08:16:00 -0400
-Subject: Re: [PATCH v2] Re: Battery class driver.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Richard Hughes <hughsient@gmail.com>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       David Zeuthen <davidz@redhat.com>,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
-In-Reply-To: <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
-References: <1161628327.19446.391.camel@pmac.infradead.org>
-	 <1161631091.16366.0.camel@localhost.localdomain>
-	 <1161633509.4994.16.camel@hughsie-laptop>
-	 <1161636514.27622.30.camel@shinybook.infradead.org>
-	 <1161710328.17816.10.camel@hughsie-laptop>
-	 <1161762158.27622.72.camel@shinybook.infradead.org>
-	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
-	 <1161778296.27622.85.camel@shinybook.infradead.org>
-	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
-	 <1161815138.27622.139.camel@shinybook.infradead.org>
-	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 28 Oct 2006 13:15:54 +0100
-Message-Id: <1162037754.19446.502.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 28 Oct 2006 08:36:36 -0400
+Received: from sp604003mt.neufgp.fr ([84.96.92.56]:62954 "EHLO smTp.neuf.fr")
+	by vger.kernel.org with ESMTP id S1752222AbWJ1Mgf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 08:36:35 -0400
+Date: Sat, 28 Oct 2006 14:36:31 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [take21 1/4] kevent: Core files.
+In-reply-to: <20061028105340.GC15038@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
+Message-id: <45434ECF.4090209@cosmosbay.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=KOI8-R; format=flowed
+Content-transfer-encoding: 7BIT
+References: <11619654011980@2ka.mipt.ru> <454330BC.9000108@cosmosbay.com>
+ <20061028105340.GC15038@2ka.mipt.ru>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-26 at 01:39 +0200, Shem Multinymous wrote:
-> > They're simple enough to add. We can do it when the tp driver gets
-> > converted over.
+Evgeniy Polyakov a e'crit :
+> On Sat, Oct 28, 2006 at 12:28:12PM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
+>>
+>> I really dont understand how you manage to queue multiple kevents in the 
+>> 'overflow list'. You just queue one kevent at most. What am I missing ?
 > 
-> Sure. But It will require some thought. For example, the interface
-> will need to encompass the non-symmetric pair of force commands on
-> ThinkPads:
-> "discharge the battery until further notice" vs.
-> "don't charge the battery for N minutes".
-> 
-> Also, ThinkPads express  the start/stop charging thresholds in
-> percent, whereas I imagine some other hardware will represent it as
-> capacity.
+> There is no overflow list - it is a pointer to the first kevent in the
+> ready queue, which was not put into ring buffer. It is an optimisation, 
+> which allows to not search for that position each time new event should 
+> be placed into the buffer, when it starts to have an empty slot.
 
-Hm. Again we have the question of whether to export 'threshold_pct' vs.
-'threshold_abs', or whether to have a separate string property which
-says what the 'unit' of the threshold is. I don't care much -- I'll do
-whatever DavidZ prefers.
+This overflow list (you may call it differently, but still it IS a list), is 
+not complete. I feel you add it just to make me happy, but I am not (yet :) )
 
-The git tree now has support for battery information available from the
-PMU on Apple laptops. I _really_ don't like the way I have to register a
-fake platform_device just to be able to get sensible attribute
-callbacks. I suspect it should go back to being a class_device and we
-should fix the class_device attribute functions. Greg?
+For example, you make no test at kevent_finish_user_complete() time.
 
--- 
-dwmw2
+Obviously, you can have a dangling pointer, and crash your box in certain 
+conditions.
 
+static void kevent_finish_user_complete(struct kevent *k, int deq)
+{
+	struct kevent_user *u = k->user;
+	unsigned long flags;
+
+	if (deq)
+		kevent_dequeue(k);
+
+	spin_lock_irqsave(&u->ready_lock, flags);
+	if (k->flags & KEVENT_READY) {
++               if (u->overflow_event == k) {
++		/* MUST do something to change u->overflow_kevent */
++		}
+		list_del(&k->ready_entry);
+		k->flags &= ~KEVENT_READY;
+		u->ready_num--;
+	}
+	spin_unlock_irqrestore(&u->ready_lock, flags);
+
+	kevent_user_put(u);
+	call_rcu(&k->rcu_head, kevent_free_rcu);
+}
+
+Eric

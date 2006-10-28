@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWJ1Spb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWJ1Sqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWJ1Spb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWJ1Spb
+	id S932075AbWJ1Sqy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWJ1Sqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:45:31 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:52539 "EHLO
+	Sat, 28 Oct 2006 14:46:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:52544 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932075AbWJ1Spa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:45:30 -0400
+	id S932075AbWJ1Sqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:46:53 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=boLpdHZTJtkzdiY5tZRii+hpW3oRh+CxodkRu+hCuzHZRuYwbIIeWG03ujRZxcaMyvXxP0TmWxLtqJzF664BNd4Mc/SYVvqq/zJOmMzlof6PEC2QJs2yrGauH4gmuPWcJV4HJosFn7AO6cwmdeJ0CJeRDCKfkp4hozuxcvRpeu0=
-Date: Sun, 29 Oct 2006 03:45:48 +0900
+        b=gIiU2Uq603MaOXXIq+GOLTWunWvJR1V0zqAH6fcXqdI62df/Md3SYFwX5k5j1mERGCqtZasRoRrv2YmCgrVPeVbUHT5bITYaEk/gFiOZWe3mAxOrVspaSE/UybGXBSQYKAu7+M3ExF2ECPF62QBnKbTzsvjldUShjdVFMSd4I/w=
+Date: Sun, 29 Oct 2006 03:47:12 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Tim Waugh <tim@cyberelk.net>
-Subject: [PATCH] paride: return proper error code
-Message-ID: <20061028184548.GF9973@localhost>
+To: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+Cc: Jeff Garzik <jgarzik@pobox.com>, Krzysztof Halasa <khc@pm.waw.pl>
+Subject: [PATCH] n2: fix confusing error code
+Message-ID: <20061028184712.GG9973@localhost>
 Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, Tim Waugh <tim@cyberelk.net>
+	linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org,
+	Jeff Garzik <jgarzik@pobox.com>, Krzysztof Halasa <khc@pm.waw.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -28,125 +29,45 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes module init return proper value instead of -1 (-EPERM).
+modprobe n2 with no parameters or no such devices
+will get confusing error message.
 
-Cc: Tim Waugh <tim@cyberelk.net>
+# modprobe n2
+...  Kernel does not have module support
+
+This patch replaces return code from -ENOSYS to -EINVAL.
+
+Cc: Jeff Garzik <jgarzik@pobox.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
- drivers/block/paride/pcd.c |    8 ++++----
- drivers/block/paride/pf.c  |    8 ++++----
- drivers/block/paride/pg.c  |    4 ++--
- drivers/block/paride/pt.c  |    4 ++--
- 4 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/net/wan/n2.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Index: work-fault-inject/drivers/block/paride/pcd.c
+Index: work-fault-inject/drivers/net/wan/n2.c
 ===================================================================
---- work-fault-inject.orig/drivers/block/paride/pcd.c
-+++ work-fault-inject/drivers/block/paride/pcd.c
-@@ -912,12 +912,12 @@ static int __init pcd_init(void)
- 	int unit;
- 
- 	if (disable)
--		return -1;
-+		return -EINVAL;
- 
- 	pcd_init_units();
- 
- 	if (pcd_detect())
--		return -1;
-+		return -ENODEV;
- 
- 	/* get the atapi capabilities page */
- 	pcd_probe_capabilities();
-@@ -925,7 +925,7 @@ static int __init pcd_init(void)
- 	if (register_blkdev(major, name)) {
- 		for (unit = 0, cd = pcd; unit < PCD_UNITS; unit++, cd++)
- 			put_disk(cd->disk);
--		return -1;
-+		return -EBUSY;
+--- work-fault-inject.orig/drivers/net/wan/n2.c
++++ work-fault-inject/drivers/net/wan/n2.c
+@@ -500,7 +500,7 @@ static int __init n2_init(void)
+ #ifdef MODULE
+ 		printk(KERN_INFO "n2: no card initialized\n");
+ #endif
+-		return -ENOSYS;	/* no parameters specified, abort */
++		return -EINVAL;	/* no parameters specified, abort */
  	}
  
- 	pcd_queue = blk_init_queue(do_pcd_request, &pcd_lock);
-@@ -933,7 +933,7 @@ static int __init pcd_init(void)
- 		unregister_blkdev(major, name);
- 		for (unit = 0, cd = pcd; unit < PCD_UNITS; unit++, cd++)
- 			put_disk(cd->disk);
--		return -1;
-+		return -ENOMEM;
- 	}
+ 	printk(KERN_INFO "%s\n", version);
+@@ -538,11 +538,11 @@ static int __init n2_init(void)
+ 			n2_run(io, irq, ram, valid[0], valid[1]);
  
- 	for (unit = 0, cd = pcd; unit < PCD_UNITS; unit++, cd++) {
-Index: work-fault-inject/drivers/block/paride/pf.c
-===================================================================
---- work-fault-inject.orig/drivers/block/paride/pf.c
-+++ work-fault-inject/drivers/block/paride/pf.c
-@@ -933,25 +933,25 @@ static int __init pf_init(void)
- 	int unit;
+ 		if (*hw == '\x0')
+-			return first_card ? 0 : -ENOSYS;
++			return first_card ? 0 : -EINVAL;
+ 	}while(*hw++ == ':');
  
- 	if (disable)
--		return -1;
-+		return -EINVAL;
+ 	printk(KERN_ERR "n2: invalid hardware parameters\n");
+-	return first_card ? 0 : -ENOSYS;
++	return first_card ? 0 : -EINVAL;
+ }
  
- 	pf_init_units();
- 
- 	if (pf_detect())
--		return -1;
-+		return -ENODEV;
- 	pf_busy = 0;
- 
- 	if (register_blkdev(major, name)) {
- 		for (pf = units, unit = 0; unit < PF_UNITS; pf++, unit++)
- 			put_disk(pf->disk);
--		return -1;
-+		return -EBUSY;
- 	}
- 	pf_queue = blk_init_queue(do_pf_request, &pf_spin_lock);
- 	if (!pf_queue) {
- 		unregister_blkdev(major, name);
- 		for (pf = units, unit = 0; unit < PF_UNITS; pf++, unit++)
- 			put_disk(pf->disk);
--		return -1;
-+		return -ENOMEM;
- 	}
- 
- 	blk_queue_max_phys_segments(pf_queue, cluster);
-Index: work-fault-inject/drivers/block/paride/pg.c
-===================================================================
---- work-fault-inject.orig/drivers/block/paride/pg.c
-+++ work-fault-inject/drivers/block/paride/pg.c
-@@ -646,14 +646,14 @@ static int __init pg_init(void)
- 	int err;
- 
- 	if (disable){
--		err = -1;
-+		err = -EINVAL;
- 		goto out;
- 	}
- 
- 	pg_init_units();
- 
- 	if (pg_detect()) {
--		err = -1;
-+		err = -ENODEV;
- 		goto out;
- 	}
- 
-Index: work-fault-inject/drivers/block/paride/pt.c
-===================================================================
---- work-fault-inject.orig/drivers/block/paride/pt.c
-+++ work-fault-inject/drivers/block/paride/pt.c
-@@ -946,12 +946,12 @@ static int __init pt_init(void)
- 	int err;
- 
- 	if (disable) {
--		err = -1;
-+		err = -EINVAL;
- 		goto out;
- 	}
- 
- 	if (pt_detect()) {
--		err = -1;
-+		err = -ENODEV;
- 		goto out;
- 	}
  

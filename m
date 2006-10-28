@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWJ1Sh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWJ1SjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWJ1Sh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWJ1Sh6
+	id S1751345AbWJ1SjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWJ1SjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:37:58 -0400
-Received: from ns2.suse.de ([195.135.220.15]:41679 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751344AbWJ1Sh5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:37:57 -0400
-From: Andi Kleen <ak@suse.de>
-To: Willy Tarreau <w@1wt.eu>
-Subject: Re: AMD X2 unsynced TSC fix?
-Date: Sat, 28 Oct 2006 11:37:22 -0700
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>, thockin@hockin.org,
-       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-References: <1161969308.27225.120.camel@mindpipe> <1162006081.27225.257.camel@mindpipe> <20061028052837.GC1709@1wt.eu>
-In-Reply-To: <20061028052837.GC1709@1wt.eu>
+	Sat, 28 Oct 2006 14:39:24 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:31014 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751345AbWJ1SjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:39:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=g3l05vV4nAlLe00AD+VvJOoByNExpZD6uB5X6KZ2vWEeCIbWXRZBuHc/8wrX2ezTkLGOX2n++tDdCJym/IbQ5AIBNvG5j8TBfhKODbTRFyE2A6f/tC+FO1dPdTN/RNxkLYEFpIKFnOlwUyFy/0xtiAT8JmaQvdkpqZldCRvjG4c=
+Date: Sun, 29 Oct 2006 03:39:43 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@suse.de>,
+       Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Subject: [PATCH] acpiphp: fix use of list_for_each macro
+Message-ID: <20061028183943.GA9973@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
+	Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610281137.22451.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 October 2006 22:28, Willy Tarreau wrote:
-> On Fri, Oct 27, 2006 at 11:28:00PM -0400, Lee Revell wrote:
-> > On Fri, 2006-10-27 at 18:04 -0700, Andi Kleen wrote:
-> > > I don't think it makes too much sense to hack on pure RDTSC when
-> > > gtod is fast enough -- RDTSC will be always icky and hard to use.
-> >
-> > I agree FWIW, our application would be happy to just use gtod if it
-> > wasn't so slow on these machines.
->
-> Agreed, I had to turn about 20 dual-core servers to single core because
-> the only way to get a monotonic gtod made it so slow that it was not
-> worth using a dual-core. 
+This patch fixes invalid usage of list_for_each()
 
-Curious - what workload was that? 
+list_for_each (node, &bridge_list) {
+	bridge = (struct acpiphp_bridge *)node;
+	...
+}
 
-While gtod is time critical and often appears high on profile lists it is 
-normally not as time critical as you're claiming it is; especially not
-time critical enough to warrant such radical action.
+This code works while the member of list node is located at the
+head of struct acpiphp_bridge.
 
-> I initially considered buying one dual-core 
-> AMD for my own use, but after seeing this, I'm definitely sure I won't
-> ever buy one as long as this problem is not fixed, as it causes too
-> many problems.
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-It's somewhat slower, but I'm not sure what "too many problems" you're
-refering to.
+ drivers/pci/hotplug/acpiphp_glue.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
--Andi
+Index: work-fault-inject/drivers/pci/hotplug/acpiphp_glue.c
+===================================================================
+--- work-fault-inject.orig/drivers/pci/hotplug/acpiphp_glue.c
++++ work-fault-inject/drivers/pci/hotplug/acpiphp_glue.c
+@@ -1693,14 +1693,10 @@ void __exit acpiphp_glue_exit(void)
+  */
+ int __init acpiphp_get_num_slots(void)
+ {
+-	struct list_head *node;
+ 	struct acpiphp_bridge *bridge;
+-	int num_slots;
+-
+-	num_slots = 0;
++	int num_slots = 0;
+ 
+-	list_for_each (node, &bridge_list) {
+-		bridge = (struct acpiphp_bridge *)node;
++	list_for_each_entry (bridge, &bridge_list, list) {
+ 		dbg("Bus %04x:%02x has %d slot%s\n",
+ 				pci_domain_nr(bridge->pci_bus),
+ 				bridge->pci_bus->number, bridge->nr_slots,

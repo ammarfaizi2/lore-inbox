@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWJ1UIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWJ1ULl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWJ1UIy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 16:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWJ1UIy
+	id S964810AbWJ1ULl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 16:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWJ1ULl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 16:08:54 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14295 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964809AbWJ1UIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 16:08:53 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@muc.de>
-Cc: Yinghai Lu <yinghai.lu@amd.com>, Muli Ben-Yehuda <muli@il.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
-References: <5986589C150B2F49A46483AC44C7BCA412D763@ssvlexmb2.amd.com>
-	<m1ejsuqnyf.fsf@ebiederm.dsl.xmission.com>
-	<86802c440610272244q750f35a7hcbed50e58546d97@mail.gmail.com>
-	<20061028172941.GA92790@muc.de>
-Date: Sat, 28 Oct 2006 14:06:06 -0600
-In-Reply-To: <20061028172941.GA92790@muc.de> (Andi Kleen's message of "28 Oct
-	2006 19:29:41 +0200, Sat, 28 Oct 2006 19:29:41 +0200")
-Message-ID: <m1r6wsnr2p.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sat, 28 Oct 2006 16:11:41 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:13275 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964810AbWJ1ULl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 16:11:41 -0400
+From: Andi Kleen <ak@suse.de>
+To: Willy Tarreau <w@1wt.eu>
+Subject: Re: AMD X2 unsynced TSC fix?
+Date: Sat, 28 Oct 2006 13:11:14 -0700
+User-Agent: KMail/1.9.1
+Cc: Lee Revell <rlrevell@joe-job.com>, thockin@hockin.org,
+       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+References: <1161969308.27225.120.camel@mindpipe> <200610281233.27588.ak@suse.de> <20061028200439.GB1603@1wt.eu>
+In-Reply-To: <20061028200439.GB1603@1wt.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610281311.14665.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
+On Saturday 28 October 2006 13:04, Willy Tarreau wrote:
 
-> On Fri, Oct 27, 2006 at 10:44:36PM -0700, Yinghai Lu wrote:
->> revised version according to Eric. and it can be applied clearly to
->> current Linus's Tree.
->> 
->> Clear the irq releated entries in irq_vector, irq_domain and vector_irq
->> instead of clearing irq_vector only. So when new irq is created, it
->> could reuse that vector. (actually is the second loop scanning from
->> FIRST_DEVICE_VECTOR+8). This could avoid the vectors are used up
->> with enough module inserting and removing
+> I really think that the hardware was doing tricks far beyond my knowledge,
+> because on another Sun (a V40Z), there were 4 dual cores which I never saw
+> out of sync even after hours of testing. But the HPET was available in it,
+> I don't remember if it's used by default when detected.
+
+I think some system occasionally ramp the clock for thermal management,
+but that should be rare.
+
+> No I did not "force" anything at first. You take the RHEL3 CD, you install
+> it, reboot and watch your logs report negative times, then scratch your
+> head, first call red hat dumb ass, and after a few tests, apologize to the
+> poor innocent red hat 
+
+Well they should have fixed the kernel to fall back to another clock
+by backporting the appropiate fixes from mainline. I assume they
+did actually.
+
+> and call the box a total crap. To put it shortly 
+> (might be useful for people who Google for it) : Dual-core Sun x2100 is
+> unreliable out of the box under Linux.
+
+No that shouldn't be true with any modern kernel. It will just fallback
+to HPET or more likely PMtimer.
+
 >
-> Added thanks.
+> > In the default configuration there shouldn't be any problems
+> > like this, it will just run slower because the kernel falls back to a
+> > slower time source.
 >
-> Does i386 need a similar patch?
+> You have to specify "notsc" for this.
 
-i386 is good, as it doesn't deal with per cpu vectors, so it doesn't
-have the additional data structures.
+No, the kernel should work out of the box. Some older kernels didn't
+at various points of time though.
 
-Eric
+-Andi

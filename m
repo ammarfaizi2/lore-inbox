@@ -1,53 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWJ1W6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWJ1XHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbWJ1W6u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 18:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWJ1W6u
+	id S964907AbWJ1XHd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 19:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWJ1XHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 18:58:50 -0400
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:64327 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964905AbWJ1W6t convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 18:58:49 -0400
-Date: Sat, 28 Oct 2006 23:58:45 +0100
-From: Ken Moffat <zarniwhoop@ntlworld.com>
+	Sat, 28 Oct 2006 19:07:33 -0400
+Received: from quickstop.soohrt.org ([85.131.246.152]:12996 "EHLO
+	quickstop.soohrt.org") by vger.kernel.org with ESMTP
+	id S932113AbWJ1XHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 19:07:32 -0400
+Date: Sun, 29 Oct 2006 01:07:30 +0200
+From: Horst Schirmeier <horst@schirmeier.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: NFS problem (r/o filesystem) with 2.6.19-rc3
-Message-ID: <20061028225845.GA5185@deepthought.linux.bogus>
-References: <20061028184226.GA1225@deepthought.linux.bogus> <20061028142228.da7350c2.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Cc: Andi Kleen <ak@suse.de>, Jan Beulich <jbeulich@novell.com>,
+       Sam Ravnborg <sam@ravnborg.org>, jpdenheijer@gmail.com,
+       linux-kernel@vger.kernel.org, dsd@gentoo.org, draconx@gmail.com,
+       kernel@gentoo.org
+Subject: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
+Message-ID: <20061028230730.GA28966@quickstop.soohrt.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+	Jan Beulich <jbeulich@novell.com>, Sam Ravnborg <sam@ravnborg.org>,
+	jpdenheijer@gmail.com, linux-kernel@vger.kernel.org, dsd@gentoo.org,
+	draconx@gmail.com, kernel@gentoo.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061028142228.da7350c2.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2006 at 02:22:28PM -0700, Andrew Morton wrote:
-> On Sat, 28 Oct 2006 19:42:27 +0100
-> Ken Moffat <zarniwhoop@ntlworld.com> wrote:
-> 
-> >  But if I then try to touch a file I find the filesystem is r/o -
-> > root@bluesbreaker /home/ken #touch /nfs/bluesbreaker/boot/vmlinuz-2.6.18-sda8 
-> > touch: cannot touch `/nfs/bluesbreaker/boot/vmlinuz-2.6.18-sda8':
-> > Read-only file system
-> > 
-> >  This filesystem is a 'staging' area where whichever of my desktop
-> > machines are up can write.  From a different box using a 2.6.17.13
-> > kernel the filesystem is r/w.  The system log on the machine running
-> > rc3 only shows that rsync ended in error, there are no associated
-> > kernel messages. 
-> > 
-> >  Suggestions, please ?
-> > 
-> 
-> Is it this: http://lkml.org/lkml/2006/10/18/264 ?
+Hello,
 
-Yes, I think it is. 
+the kbuild-dont-put-temp-files-in-the-source-tree.patch (-mm patches) is
+implemented faultily and fails in its intention to put temporary files
+in $TMPDIR (or /tmp by default).
 
-Ken 
--- 
-das eine Mal als Tragödie, das andere Mal als Farce
+This is the code as it results from the patch:
+
+ASTMP = $(shell mktemp ${TMPDIR:-/tmp}/asXXXXXX)
+as-instr = $(shell if echo -e "$(1)" | $(AS) >/dev/null 2>&1 -W -Z -o $ASTMP ; \
+ 		   then echo "$(2)"; else echo "$(3)"; fi; \
+	           rm -f $ASTMP)
+
+1) $ needs to be escaped in the shell function call, otherwise make
+   tries to substitute with a (in this case not existing) make variable
+   with this name.
+
+2) Makefile variable names need to be put in parentheses; $ASTMP is
+   being interpreted as $(A)STMP, resulting in as-instr writing to a file
+   named after whatever is in $(A), followed by "STMP".
+
+3) ld-option also writes to a temporary file and needs the same
+   treatment.
+
+Please consider using the corrected patch below instead. Alternatively,
+we could also simply use -o /dev/null, as we are not interested in the
+output anyways. Daniel Drake already suggested this in a LKML post
+(message-id 452F9602.1050906@gentoo.org).
+
+It would also be nice if this would make it into the mainline kernel
+before 2.6.19 gets released; this would help avoiding the sandbox
+violation problems on Gentoo Linux [1] [2].
+
+Kind regards,
+ Horst Schirmeier
+
+[1] http://bugs.gentoo.org/show_bug.cgi?id=149307
+[2] LKML Message-ID: <451ABE0E.2030904@web.de>
+
+---
+http://bugzilla.kernel.org/show_bug.cgi?id=7261 berates us for putting a
+temporary file into the kernel source tree.  Use mktemp instead.
+
+Cc: Andi Kleen <ak@suse.de>
+Cc: Jan Beulich <jbeulich@novell.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: jpdenheijer@gmail.com,
+Signed-off-by: Horst Schirmeier <horst@schirmeier.com>
+---
+
+ Kbuild.include |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+--- linux-mm/scripts/Kbuild.include.orig	2006-10-29 00:39:35.000000000 +0200
++++ linux-mm/scripts/Kbuild.include	2006-10-29 00:41:43.000000000 +0200
+@@ -66,9 +66,10 @@ as-option = $(shell if $(CC) $(CFLAGS) $
+ # as-instr
+ # Usage: cflags-y += $(call as-instr, instr, option1, option2)
+ 
+-as-instr = $(shell if echo -e "$(1)" | $(AS) >/dev/null 2>&1 -W -Z -o astest$$$$.out ; \
++ASTMP = $(shell mktemp $${TMPDIR:-/tmp}/asXXXXXX)
++as-instr = $(shell if echo -e "$(1)" | $(AS) >/dev/null 2>&1 -W -Z -o $(ASTMP) ; \
+ 		   then echo "$(2)"; else echo "$(3)"; fi; \
+-	           rm -f astest$$$$.out)
++	           rm -f $(ASTMP))
+ 
+ # cc-option
+ # Usage: cflags-y += $(call cc-option, -march=winchip-c6, -march=i586)
+@@ -97,10 +98,11 @@ cc-ifversion = $(shell if [ $(call cc-ve
+ 
+ # ld-option
+ # Usage: ldflags += $(call ld-option, -Wl$(comma)--hash-style=both)
++LDTMP = $(shell mktemp $${TMPDIR:-/tmp}/ldXXXXXX)
+ ld-option = $(shell if $(CC) $(1) \
+-			     -nostdlib -o ldtest$$$$.out -xc /dev/null \
++			     -nostdlib -o $(LDTMP) -xc /dev/null \
+              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi; \
+-	     rm -f ldtest$$$$.out)
++	     rm -f $(LDTMP))
+ 
+ ###
+ # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=

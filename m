@@ -1,134 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWJ1U16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWJ1U3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbWJ1U16 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 16:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWJ1U16
+	id S1751390AbWJ1U3K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 16:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWJ1U3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 16:27:58 -0400
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:49114 "EHLO
-	mail.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751389AbWJ1U15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 16:27:57 -0400
-Subject: Re: Fwd: Re: [linux-usb-devel] usb initialization order (usbhid
-	vs. appletouch)
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Greg Kroah-Hartman <greg@kroah.com>
-Cc: Oliver Neukum <oliver@neukum.name>, Sergey Vlasov <vsu@altlinux.ru>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <200610282055.29423.oliver@neukum.name>
-References: <1161856438.5214.2.camel@no.intranet.wo.rk>
-	 <1162054576.3769.15.camel@localhost> <200610282043.59106.oliver@neukum.org>
-	 <200610282055.29423.oliver@neukum.name>
-Content-Type: multipart/mixed; boundary="=-7NoFUXBv8rQ38Cnp6vEq"
-Date: Sat, 28 Oct 2006 22:27:46 +0200
-Message-Id: <1162067266.4044.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Sat, 28 Oct 2006 16:29:09 -0400
+Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:45462
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751390AbWJ1U3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 16:29:08 -0400
+From: Rob Landley <rob@landley.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problems with /proc/mounts and statvfs (implementing df).
+Date: Sat, 28 Oct 2006 16:28:58 -0400
+User-Agent: KMail/1.9.1
+References: <200610281537.07145.rob@landley.net>
+In-Reply-To: <200610281537.07145.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610281628.58174.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 28 October 2006 3:37 pm, Rob Landley wrote:
+> Problem #2: statfs() and statvfs() are returning 0 in the f_fsid.
 
---=-7NoFUXBv8rQ38Cnp6vEq
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Which is apparently a known issue, the field has never worked and is useless, 
+and what you're supposed to do is a normal stat() on the sucker and and use 
+st_dev, which has been horribly abused to perform the function of uniquely 
+identifying things like tmpfs instances and /proc. :)
 
-On Sat, 2006-10-28 at 20:55 +0200, Oliver Neukum wrote: 
-> > From: Sergey Vlasov <vsu@altlinux.ru>
-> > Subject: usbhid: Add HID_QUIRK_IGNORE_MOUSE flag
-> > 
-> > Some HID devices by Apple have both keyboard and mouse interfaces; the
-> > keyboard interface is handled by usbhid, but the mouse (really
-> > touchpad) interface must be handled by the separate 'appletouch'
-> > driver.  Using HID_QUIRK_IGNORE will make hiddev ignore both
-> > interfaces, therefore a new quirk flag to ignore only the mouse
-> > interface is required.
-> 
-> Exactly. Combing both patches:
-> Soeren, if this works, please sign it off and send it to Greg.
+A fix to problem #1 would still be nice, but I can work around most of it...
 
-OK, this works, but as the same IDs need the FN key hacks I or'ed the FN
-and mouse quirk flags. Also I added the appleir (builtin infrared on the
-macbook/pro) to the list of ignored IDs. Therefore the patch though very
-similar is again slightly different.
+Thanks,
 
-But hey, it worked for me over the last hour on this mbp :-))
-Please comment/apply.
-
-Soeren.
+Rob
 -- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
-
---=-7NoFUXBv8rQ38Cnp6vEq
-Content-Disposition: attachment; filename=mbp-input.patch
-Content-Type: text/x-patch; name=mbp-input.patch; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-U2lnbmVkLW9mZi1ieTogU29lcmVuIFNvbm5lbmJ1cmcgPGtlcm5lbEBubjcuZGU+DQpTaWduZWQt
-b2ZmLWJ5OiBTZXJnZXkgVmxhc292IDx2c3VAYWx0bGludXgucnU+DQoNCi0tLSBsaW51eC0yLjYu
-MTguMS9kcml2ZXJzL3VzYi9pbnB1dC9oaWQuaAkyMDA2LTEwLTE0IDA1OjM0OjAzLjAwMDAwMDAw
-MCArMDIwMA0KKysrIGxpbnV4LTIuNi4xOC4xLXNvbm5lL2RyaXZlcnMvdXNiL2lucHV0L2hpZC5o
-CTIwMDYtMTAtMjggMjE6NDQ6MzIuMDAwMDAwMDAwICswMjAwDQpAQCAtMjYwLDYgKzI2MCw3IEBA
-DQogI2RlZmluZSBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTgkJMHgwMDAwMTAwMA0KICNkZWZp
-bmUgSElEX1FVSVJLX1BPV0VSQk9PS19GTl9PTgkJMHgwMDAwMjAwMA0KICNkZWZpbmUgSElEX1FV
-SVJLX0lOVkVSVF9IV0hFRUwJCQkweDAwMDA0MDAwDQorI2RlZmluZSBISURfUVVJUktfSUdOT1JF
-X01PVVNFICAgICAgICAgIDB4MDAwMDgwMDANCiANCiAvKg0KICAqIFRoaXMgaXMgdGhlIGdsb2Jh
-bCBlbnZpcm9ubWVudCBvZiB0aGUgcGFyc2VyLiBUaGlzIGluZm9ybWF0aW9uIGlzDQotLS0gbGlu
-dXgtMi42LjE4LjEvZHJpdmVycy91c2IvaW5wdXQvaGlkLWNvcmUuYwkyMDA2LTEwLTE0IDA1OjM0
-OjAzLjAwMDAwMDAwMCArMDIwMA0KKysrIGxpbnV4LTIuNi4xOC4xLXNvbm5lL2RyaXZlcnMvdXNi
-L2lucHV0L2hpZC1jb3JlLmMJMjAwNi0xMC0yOCAyMTo0Njo1MC4wMDAwMDAwMDAgKzAyMDANCkBA
-IC0xNTg1LDYgKzE1ODUsMTMgQEANCiANCiAjZGVmaW5lIFVTQl9WRU5ET1JfSURfQVBQTEUJCTB4
-MDVhYw0KICNkZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBMRV9NSUdIVFlNT1VTRQkweDAzMDQNCisj
-ZGVmaW5lIFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VSX0FOU0kJMHgwMjE0DQorI2RlZmluZSBV
-U0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUl9JU08JMHgwMjE1DQorI2RlZmluZSBVU0JfREVWSUNF
-X0lEX0FQUExFX0dFWVNFUl9KSVMJMHgwMjE2DQorI2RlZmluZSBVU0JfREVWSUNFX0lEX0FQUExF
-X0dFWVNFUjNfQU5TSQkweDAyMTcNCisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VS
-M19JU08JCTB4MDIxOA0KKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVIzX0pJUwkJ
-MHgwMjE5DQorI2RlZmluZSBVU0JfREVWSUNFX0lEX0FQUExFX0lSICAweDgyNDANCiANCiAjZGVm
-aW5lIFVTQl9WRU5ET1JfSURfQ0hFUlJZCQkweDA0NmENCiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURf
-Q0hFUlJZX0NZTU9USU9OCTB4MDAyMw0KQEAgLTE3MzEsMTYgKzE3MzgsMTggQEANCiANCiAJeyBV
-U0JfVkVORE9SX0lEX0NIRVJSWSwgVVNCX0RFVklDRV9JRF9DSEVSUllfQ1lNT1RJT04sIEhJRF9R
-VUlSS19DWU1PVElPTiB9LA0KIA0KLQl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIDB4MDIwRSwgSElE
-X1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCAweDAy
-MEYsIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIH0sDQotCXsgVVNCX1ZFTkRPUl9JRF9BUFBM
-RSwgMHgwMjE0LCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB9LA0KLQl7IFVTQl9WRU5ET1Jf
-SURfQVBQTEUsIDB4MDIxNSwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfSwNCi0JeyBVU0Jf
-VkVORE9SX0lEX0FQUExFLCAweDAyMTYsIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIH0sDQot
-CXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgMHgwMjE3LCBISURfUVVJUktfUE9XRVJCT09LX0hBU19G
-TiB9LA0KLQl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIDB4MDIxOCwgSElEX1FVSVJLX1BPV0VSQk9P
-S19IQVNfRk4gfSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCAweDAyMTksIEhJRF9RVUlSS19Q
-T1dFUkJPT0tfSEFTX0ZOIH0sDQotCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgMHgwMzBBLCBISURf
-UVVJUktfUE9XRVJCT09LX0hBU19GTiB9LA0KLQl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIDB4MDMw
-QiwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfSwNCisJeyBVU0JfVkVORE9SX0lEX0FQUExF
-LCBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUl9BTlNJLCBISURfUVVJUktfUE9XRVJCT09LX0hB
-U19GTiB8IEhJRF9RVUlSS19JR05PUkVfTU9VU0V9LA0KKwl7IFVTQl9WRU5ET1JfSURfQVBQTEUs
-IFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VSX0lTTywgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNf
-Rk4gfCBISURfUVVJUktfSUdOT1JFX01PVVNFfSwNCisJeyBVU0JfVkVORE9SX0lEX0FQUExFLCBV
-U0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUl9KSVMsIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZO
-IHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRX0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNC
-X0RFVklDRV9JRF9BUFBMRV9HRVlTRVIzX0FOU0ksIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZO
-IHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRX0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNC
-X0RFVklDRV9JRF9BUFBMRV9HRVlTRVIzX0lTTywgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4g
-fCBISURfUVVJUktfSUdOT1JFX01PVVNFfSwNCisJeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0Jf
-REVWSUNFX0lEX0FQUExFX0dFWVNFUjNfSklTLCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB8
-IEhJRF9RVUlSS19JR05PUkVfTU9VU0V9LA0KKwl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIDB4MDIw
-RSwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfCBISURfUVVJUktfSUdOT1JFX01PVVNFfSwN
-CisJeyBVU0JfVkVORE9SX0lEX0FQUExFLCAweDAyMEYsIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFT
-X0ZOIHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRX0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwg
-MHgwMzBBLCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB8IEhJRF9RVUlSS19JR05PUkVfTU9V
-U0V9LA0KKwl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIDB4MDMwQiwgSElEX1FVSVJLX1BPV0VSQk9P
-S19IQVNfRk4gfCBISURfUVVJUktfSUdOT1JFX01PVVNFfSwNCisNCisJeyBVU0JfVkVORE9SX0lE
-X0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0lSLCBISURfUVVJUktfSUdOT1JFIH0sDQogDQog
-CXsgVVNCX1ZFTkRPUl9JRF9QQU5KSVQsIDB4MDAwMSwgSElEX1FVSVJLX0lHTk9SRSB9LA0KIAl7
-IFVTQl9WRU5ET1JfSURfUEFOSklULCAweDAwMDIsIEhJRF9RVUlSS19JR05PUkUgfSwNCkBAIC0x
-ODM3LDYgKzE4NDYsMTAgQEANCiAJaWYgKHF1aXJrcyAmIEhJRF9RVUlSS19JR05PUkUpDQogCQly
-ZXR1cm4gTlVMTDsNCiANCisJaWYgKHF1aXJrcyAmIEhJRF9RVUlSS19JR05PUkVfTU9VU0UpDQor
-CQlpZiAoaW50ZXJmYWNlLT5kZXNjLmJJbnRlcmZhY2VQcm90b2NvbCA9PSBVU0JfSU5URVJGQUNF
-X1BST1RPQ09MX01PVVNFKQ0KKwkJCXJldHVybiBOVUxMOw0KKw0KIAlpZiAodXNiX2dldF9leHRy
-YV9kZXNjcmlwdG9yKGludGVyZmFjZSwgSElEX0RUX0hJRCwgJmhkZXNjKSAmJg0KIAkgICAgKCFp
-bnRlcmZhY2UtPmRlc2MuYk51bUVuZHBvaW50cyB8fA0KIAkgICAgIHVzYl9nZXRfZXh0cmFfZGVz
-Y3JpcHRvcigmaW50ZXJmYWNlLT5lbmRwb2ludFswXSwgSElEX0RUX0hJRCwgJmhkZXNjKSkpIHsN
-Cg==
-
-
---=-7NoFUXBv8rQ38Cnp6vEq--
+"Perfection is reached, not when there is no longer anything to add, but
+when there is no longer anything to take away." - Antoine de Saint-Exupery

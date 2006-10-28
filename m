@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751805AbWJ1Iez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752015AbWJ1JQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751805AbWJ1Iez (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 04:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751999AbWJ1Iez
+	id S1752015AbWJ1JQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 05:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752017AbWJ1JQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 04:34:55 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:58770 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751805AbWJ1Iey
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 04:34:54 -0400
-Message-ID: <4543162B.7030701@drzeus.cx>
-Date: Sat, 28 Oct 2006 10:34:51 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Christoph Hellwig <hch@lst.de>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>, Dominik Brodowski <linux@brodo.de>,
-       Harald Welte <laforge@netfilter.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jean Delvare <khali@linux-fr.org>
-Subject: Re: feature-removal-schedule obsoletes
-References: <45324658.1000203@gmail.com> <20061016133352.GA23391@lst.de> <200610242124.49911.arnd@arndb.de>
-In-Reply-To: <200610242124.49911.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Oct 2006 05:16:25 -0400
+Received: from styx.suse.cz ([82.119.242.94]:11486 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1752015AbWJ1JQZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 05:16:25 -0400
+Date: Sat, 28 Oct 2006 11:14:53 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: thockin@hockin.org, Jiri Bohac <jbohac@suse.cz>,
+       Luca Tettamanti <kronos.it@gmail.com>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: AMD X2 unsynced TSC fix?
+Message-ID: <20061028091453.GA17500@suse.cz>
+References: <1161969308.27225.120.camel@mindpipe> <68676e00610271700i741b949frc73bf790d38ab1f@mail.gmail.com> <20061028024638.GA16579@hockin.org> <200610272059.13753.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610272059.13753.ak@suse.de>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Monday 16 October 2006 15:33, Christoph Hellwig wrote:
->> On Sun, Oct 15, 2006 at 04:31:29PM +0159, Jiri Slaby wrote:
->>> What:   remove EXPORT_SYMBOL(kernel_thread)
->>> When:   August 2006
->>> Who:    Christoph Hellwig <hch@lst.de>
->> There are a lot of modular users left.  It'll go away as soon as these
->> users have disappeared.
-> 
-> It seems that most of the users that are left are for pretty obscure
-> functionality, so I wouldn't expect that to happen so soon. Maybe we
-> should mark it as __deprecated in the declaration?
-> 
+On Fri, Oct 27, 2006 at 08:59:13PM -0700, Andi Kleen wrote:
 
-What should be used to replace it? The MMC block driver uses it to
-manage the block device queue. I am not that intimate with the block
-layer so I do not know the proper fix.
+> > There are few problems at hand.  I'm not familiar with the patch Andi's
+> > talking about but it has to solve all these problems to be really useful:
+> 
+> It's from Jiri and Vojtech.  Basically it will allow to use RDTSC
+> in gettimeofday even with unsynchronized TSCs by keeping
+> the necessary offsets CPU local.
+> 
+> Drawback: for vsyscall you need RDTSCP, this means AMD F stepping
+> at least. But even as a syscall it will be still faster than before.
+> 
+> > * TSC skew across CPUs at bootup (Linux handles this already)
+> 
+> Just not very good. There is still a significant error when it's done.
+> 
+> > * TSC drift across CPUs at the "same" frequency (pretty constant, minimal)
+> 
+> It just adds up over time.
+> 
+> > * TSC drift because of PM states, such as C1 (hlt) (semi-random, severe)
+> 
+> TSC drift with powernow -- CPUs run at different frequencies
+ 
+And the patch does exactly that.
 
-Rgds
+It doesn't assume much about TSCs, except that they're individually
+monotonic and that without a warning (cpufreq notifier, c1 state
+enter/leave) the frequency doesn't change quickly. Slow frequency drift
+(spread spectrum modulation, thermal effects on Xtal) is compensated for.
+
+We still are testing the patch and fixing the issues we find, currently
+with our cpufreq handling, but I believe we're on a good way to have it
+working well.
+
 -- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+Vojtech Pavlik
+Director SuSE Labs

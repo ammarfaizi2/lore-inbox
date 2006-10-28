@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWJ1SIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWJ1SMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWJ1SIb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWJ1SIb
+	id S1751247AbWJ1SMo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWJ1SMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:08:31 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:5028 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751255AbWJ1SIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:08:30 -0400
-Subject: Re: AMD X2 unsynced TSC fix?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Andi Kleen <ak@suse.de>, thockin@hockin.org,
-       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-In-Reply-To: <20061028052837.GC1709@1wt.eu>
-References: <1161969308.27225.120.camel@mindpipe>
-	 <20061027201820.GA8394@dreamland.darkstar.lan>
-	 <20061027230458.GA27976@hockin.org> <200610271804.52727.ak@suse.de>
-	 <1162006081.27225.257.camel@mindpipe>  <20061028052837.GC1709@1wt.eu>
-Content-Type: text/plain
-Date: Sat, 28 Oct 2006 14:08:34 -0400
-Message-Id: <1162058915.14733.2.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 28 Oct 2006 14:12:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:24167 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751247AbWJ1SMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:12:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XwAB/Mo+2Sls9a4Jb6DHg+4kEE3Swiz5xcYpX1eTttnlKJNkNnV54tdzX4YYyqkqdN1Ek3oPFoNkPWhUVq8PNjV+n+HEx7BZUB2qm7ByXsqwcCq+zzJ83gOl+o5brmxrjtAlgU1Ei1/9UO+ySYpIr3aGJpS64ltcF3I+0cRc7lY=
+Message-ID: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
+Date: Sat, 28 Oct 2006 20:12:41 +0200
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "David Zeuthen" <davidz@redhat.com>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Cc: "Richard Hughes" <hughsient@gmail.com>,
+       "David Woodhouse" <dwmw2@infradead.org>,
+       "Dan Williams" <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
+       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
+       greg@kroah.com, benh@kernel.crashing.org,
+       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>,
+       "Pavel Machek" <pavel@suse.cz>, "Jean Delvare" <khali@linux-fr.org>
+In-Reply-To: <1162048148.2723.61.camel@zelda.fubar.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+	 <1161762158.27622.72.camel@shinybook.infradead.org>
+	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
+	 <1161778296.27622.85.camel@shinybook.infradead.org>
+	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
+	 <1161815138.27622.139.camel@shinybook.infradead.org>
+	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
+	 <1162037754.19446.502.camel@pmac.infradead.org>
+	 <1162041726.16799.1.camel@hughsie-laptop>
+	 <1162048148.2723.61.camel@zelda.fubar.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-28 at 07:28 +0200, Willy Tarreau wrote:
-> On Fri, Oct 27, 2006 at 11:28:00PM -0400, Lee Revell wrote:
-> > On Fri, 2006-10-27 at 18:04 -0700, Andi Kleen wrote:
-> > > I don't think it makes too much sense to hack on pure RDTSC when 
-> > > gtod is fast enough -- RDTSC will be always icky and hard to use.
-> > 
-> > I agree FWIW, our application would be happy to just use gtod if it
-> > wasn't so slow on these machines.
-> 
-> Agreed, I had to turn about 20 dual-core servers to single core because
-> the only way to get a monotonic gtod made it so slow that it was not
-> worth using a dual-core. I initially considered buying one dual-core
-> AMD for my own use, but after seeing this, I'm definitely sure I won't
-> ever buy one as long as this problem is not fixed, as it causes too
-> many problems.
+Hi David,
 
-Does anyone know if the problem will really be fixed in new CPUs, as AMD
-promised a year or so ago?
+On 10/28/06, David Zeuthen <davidz@redhat.com> wrote:
+> What about just prepending the unit to the 'threshold' file? Then user
+> space can expect the contents of said file to be of the form "%d %s". I
+> don't think that violates the "only one value per file" sysfs mantra.
 
-http://lkml.org/lkml/2005/11/4/173
+The tp_smapi battery driver did just this  ("16495 mW"). But I dropped
+it in a recent version when Pavel pointed out the rest of sysfs, hwmon
+included, uses undecorated integers.
+Consistency aside, it seems reasonable and convenient. You have to
+decree that writes to the attributes (where relevant) don't include
+the units, of course, so no one will expect the kernel to parse that.
 
-Since that post, there has been Socket F and AM2 which apparently have
-the same issue.
+There's an issue here if a drunk driver decides to specify (say)
+capacity_remaining in mWh and capacity_last_full in mAa, which will
+confuse anyone comparing those attributest. So don't do that.
 
-Were the AMD guys just blowing smoke?
+Jean, what's your opinion on letting hwmon-ish attributes specify
+units as "%d %s" where these are hardware-dependent?
 
-Lee
-
-
+  Shem

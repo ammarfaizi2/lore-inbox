@@ -1,100 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWJ1CnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751644AbWJ1Cqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbWJ1CnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 22:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751646AbWJ1Cmp
+	id S1751644AbWJ1Cqp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 22:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751642AbWJ1Cqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 22:42:45 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:18153 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751632AbWJ1Cmk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 22:42:40 -0400
-Date: Fri, 27 Oct 2006 19:41:48 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-Cc: Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Lameter <clameter@sgi.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Message-Id: <20061028024148.10809.19537.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20061028024112.10809.15841.sendpatchset@schroedinger.engr.sgi.com>
-References: <20061028024112.10809.15841.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 7/7] Call tasklet less frequently
+	Fri, 27 Oct 2006 22:46:45 -0400
+Received: from teetot.devrandom.net ([66.35.250.243]:19626 "EHLO
+	teetot.devrandom.net") by vger.kernel.org with ESMTP
+	id S1751413AbWJ1Cqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 22:46:44 -0400
+Date: Fri, 27 Oct 2006 19:46:39 -0700
+From: thockin@hockin.org
+To: Luca Tettamanti <kronos.it@gmail.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>
+Subject: Re: AMD X2 unsynced TSC fix?
+Message-ID: <20061028024638.GA16579@hockin.org>
+References: <1161969308.27225.120.camel@mindpipe> <20061027201820.GA8394@dreamland.darkstar.lan> <20061027230458.GA27976@hockin.org> <68676e00610271700i741b949frc73bf790d38ab1f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <68676e00610271700i741b949frc73bf790d38ab1f@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Schedule load balance tasklet less frequently
+On Sat, Oct 28, 2006 at 02:00:11AM +0200, Luca Tettamanti wrote:
 
-We schedule the tasklet before this patch always with the value in
-sd->interval. However, if the queue is busy then it is sufficient
-to schedule the tasklet with sd->interval*busy_factor.
+> I know that's it's possible to resync the TSCs, but:
+> 
+> >The catch is that, while it is monotonic, it is not guaranteed to be
+> >perfectly linear.  For many applications, this will be good enough.  Time
+> >will always move forward, and you won't be subject to the weird HZ
+> >granularity gettimeofday that unsynced TSCs can show.
+> 
+> As you say you cannot use it to do timing unless you disable any power
+> management on the CPU. Otherwise you can count the elapsed ticks but
+> you cannot convert the number to anything meaningful.
 
-So we modify the calculation of the next time to balance by taking
-the interval added to last_balance again. This is only the
-right value if the idle/busy situation continues as is.
+I fyou have a third-party clock you can get pretty darn close.
+Fortunately, we usually have an HPET, these days.  You can definitely
+resync and get near-linear values of RDTSC.
 
-There are two potential trouble spots:
-- If the queue was idle and now gets busy then we call rebalance
-  early. However, that is not a problem because we will then use
-  the longer interval for the next period.
+> You may be able to emulate rdtsc for userspace but then again the
+> whole point of using rdtsc is that it should be uber-fast... if rdtsc
+> is emulated then you can just use gettimeofday (which is also
+> optimized to be *very* fast). No?
 
-- If the queue was busy and becomes idle then we potentially
-  wait too long before rebalancing. However, when the task
-  goes idle then idle_balance is called. We add another calculation
-  of the next balance time based on sd->interval in idle_balance
-  so that we will rebalance soon.
+We're not emulating it at all.  The vast vast vast majority of rdtsc calls
+are nothing more than the RDTSC instruction.  RDTSC is faster than
+gettimeofday(), necessarily.  If gettimeofday() uses RDTSC, then the
+gettimeofday() vsyscall will be pretty good.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+But, if I recall, i386 does not support vsyscall?  32 bit binaries on
+x86_64 does not support vsyscall.  There is still a need for very fast
+pure RDTSC.
 
-Index: linux-2.6.19-rc3/kernel/sched.c
-===================================================================
---- linux-2.6.19-rc3.orig/kernel/sched.c	2006-10-27 20:36:37.269918493 -0500
-+++ linux-2.6.19-rc3/kernel/sched.c	2006-10-27 20:41:10.765080822 -0500
-@@ -2757,14 +2757,26 @@ out_balanced:
- static void idle_balance(int this_cpu, struct rq *this_rq)
- {
- 	struct sched_domain *sd;
-+	int pulled_task = 0;
-+	unsigned long next_balance = jiffies + 60 *  HZ;
- 
- 	for_each_domain(this_cpu, sd) {
- 		if (sd->flags & SD_BALANCE_NEWIDLE) {
- 			/* If we've pulled tasks over stop searching: */
--			if (load_balance_newidle(this_cpu, this_rq, sd))
-+			pulled_task = load_balance_newidle(this_cpu,
-+							this_rq, sd);
-+			next_balance = min(next_balance,
-+				sd->last_balance + sd->balance_interval);
-+			if (pulled_task)
- 				break;
- 		}
- 	}
-+	if (!pulled_task)
-+		/*
-+		 * We are going idle. next_balance may be set based on
-+		 * a busy processor. So reset next_balance.
-+		 */
-+		this_rq->next_balance = next_balance;
- }
- 
- /*
-@@ -2889,8 +2901,16 @@ static void rebalance_domains(unsigned l
- 			}
- 			sd->last_balance += interval;
- 		}
-+		/*
-+		 * Calculate the next balancing point assuming that
-+		 * the idle state does not change. If we are idle and then
-+		 * start running a process then this will be recalculated.
-+		 * If we are running a process and then become idle
-+		 * then idle_balance will reset next_balance so that we
-+		 * rebalance earlier.
-+		 */
- 		next_balance = min(next_balance,
--				sd->last_balance + sd->balance_interval);
-+				sd->last_balance + interval);
- 	}
- 	this_rq->next_balance = next_balance;
- }
+There are few problems at hand.  I'm not familiar with the patch Andi's
+talking about but it has to solve all these problems to be really useful:
+
+* TSC skew across CPUs at bootup (Linux handles this already)
+* TSC drift across CPUs at the "same" frequency (pretty constant, minimal)
+* TSC drift because of PM states, such as C1 (hlt) (semi-random, severe)
+
+Anyway, I hope that all solutions will be considered.  And I hope this
+patch comes soon.
+
+Tim

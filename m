@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWJ1P6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWJ1QS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWJ1P6N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 11:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWJ1P6N
+	id S1750957AbWJ1QS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 12:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWJ1QS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 11:58:13 -0400
-Received: from nic.NetDirect.CA ([216.16.235.2]:34444 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1750946AbWJ1P6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 11:58:13 -0400
-X-Originating-Ip: 72.57.81.197
-Date: Sat, 28 Oct 2006 11:56:24 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: why "probe_kernel_address()", not "probe_user_address()"?
-Message-ID: <Pine.LNX.4.64.0610281153180.2091@localhost.localdomain>
+	Sat, 28 Oct 2006 12:18:29 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:64169
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750955AbWJ1QS3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 12:18:29 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: "robert george" <robezy.kernel@gmail.com>
+Subject: Re: compiling bcm4xx module
+Date: Sat, 28 Oct 2006 18:17:27 +0200
+User-Agent: KMail/1.9.5
+References: <5d87a57d0610260408j641545c7oe9f9d74bdb19a321@mail.gmail.com>
+In-Reply-To: <5d87a57d0610260408j641545c7oe9f9d74bdb19a321@mail.gmail.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610281817.27633.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 26 October 2006 13:08, robert george wrote:
+>   How can i compile the driver separately???
 
-  it seems odd that the purpose of the "probe_kernel_address()" macro
-is, in fact, to probe a *user* address (from linux/uaccess.h):
+You can't.
 
-#define probe_kernel_address(addr, retval)              \
-        ({                                              \
-                long ret;                               \
-                                                        \
-                inc_preempt_count();                    \
-                ret = __get_user(retval, addr);         \
-                dec_preempt_count();                    \
-                ret;                                    \
-        })
-
-  given that that routine is referenced only 5 places in the entire
-source tree, wouldn't it be more meaningful to use a more appropriate
-name?
-
-pedantically yours,
-rday
+-- 
+Greetings Michael.

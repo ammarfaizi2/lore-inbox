@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWJ1R2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWJ1R3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWJ1R2c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 13:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWJ1R2c
+	id S1751190AbWJ1R3o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 13:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWJ1R3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 13:28:32 -0400
-Received: from [82.147.215.28] ([82.147.215.28]:39808 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751177AbWJ1R2c (ORCPT
+	Sat, 28 Oct 2006 13:29:44 -0400
+Received: from colin.muc.de ([193.149.48.1]:16900 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751190AbWJ1R3n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 13:28:32 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] kswapd: Kernel Swapper performance
-Date: Sat, 28 Oct 2006 20:31:17 +0300
-User-Agent: KMail/1.5
-MIME-Version: 1.0
+	Sat, 28 Oct 2006 13:29:43 -0400
+Date: 28 Oct 2006 19:29:41 +0200
+Date: Sat, 28 Oct 2006 19:29:41 +0200
+From: Andi Kleen <ak@muc.de>
+To: Yinghai Lu <yinghai.lu@amd.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Muli Ben-Yehuda <muli@il.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
+Message-ID: <20061028172941.GA92790@muc.de>
+References: <5986589C150B2F49A46483AC44C7BCA412D763@ssvlexmb2.amd.com> <m1ejsuqnyf.fsf@ebiederm.dsl.xmission.com> <86802c440610272244q750f35a7hcbed50e58546d97@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610282031.17451.a1426z@gawab.com>
+In-Reply-To: <86802c440610272244q750f35a7hcbed50e58546d97@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 27, 2006 at 10:44:36PM -0700, Yinghai Lu wrote:
+> revised version according to Eric. and it can be applied clearly to
+> current Linus's Tree.
+> 
+> Clear the irq releated entries in irq_vector, irq_domain and vector_irq
+> instead of clearing irq_vector only. So when new irq is created, it
+> could reuse that vector. (actually is the second loop scanning from
+> FIRST_DEVICE_VECTOR+8). This could avoid the vectors are used up
+> with enough module inserting and removing
 
-One thing that has improved in 2.6, wrt 2.4, is swapper performance.  And the 
-difference isn't small either: ~5 fold increase in swapin performance.
+Added thanks.
 
-But swapin performance still lags swapout performance by 50%, which is a bit 
-odd, considering swapin to be a read from disk, usually faster, and swapout 
-to be a write to disk, usually slower.
+Does i386 need a similar patch?
 
-Now, this slowdown could be explained by additional seek action, caused by 
-different apps paging-in at different times with different locations on 
-swap.
-
-Yet, even a single app paging-out consecutive pages, and paging-in the same 
-pages in one go, exhibits this upside-down swapout/swapin performance ratio.
-
-Improving this ratio could possibly yield a dramatic improvement in system 
-performance under memory load (think tmpfs/swsusp/...).
-
-
-Thanks!
-
---
-Al
-
+-Andi

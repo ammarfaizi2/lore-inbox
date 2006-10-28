@@ -1,172 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751678AbWJ1DU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751676AbWJ1DS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751678AbWJ1DU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Oct 2006 23:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751681AbWJ1DU3
+	id S1751676AbWJ1DS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Oct 2006 23:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWJ1DS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Oct 2006 23:20:29 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57610 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751678AbWJ1DU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Oct 2006 23:20:28 -0400
-Date: Sat, 28 Oct 2006 05:20:25 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Chua <jeff.chua.linux@gmail.com>, gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: linux-2.6.19-rc2 PCI problem
-Message-ID: <20061028032024.GD27968@stusta.de>
-References: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com> <20061025013022.GG27968@stusta.de> <b6a2187b0610251754x7dc2c51aoad2244b8cdcb1c09@mail.gmail.com> <20061026152455.GI27968@stusta.de> <b6a2187b0610270649t4cc71781y8e1695f02e1c608e@mail.gmail.com> <20061027203109.GZ27968@stusta.de> <b6a2187b0610271805w154ca251tb7db33ed0926623@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b6a2187b0610271805w154ca251tb7db33ed0926623@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 27 Oct 2006 23:18:58 -0400
+Received: from pool-72-66-199-112.ronkva.east.verizon.net ([72.66.199.112]:55237
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751665AbWJ1DS5 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Oct 2006 23:18:57 -0400
+Message-Id: <200610280318.k9S3Ie72012885@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2-mm2 - process_session-helper breaks /sbin/killall5
+In-Reply-To: Your message of "Fri, 20 Oct 2006 01:56:41 PDT."
+             <20061020015641.b4ed72e5.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1162005519_3365P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 27 Oct 2006 23:18:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg, is this 2.6.19-rc1 regression anything you've already heard about, 
-or should Jeff bisect for the commit that broke it?
+--==_Exmh_1162005519_3365P
+Content-Type: text/plain; charset=us-ascii
 
-On Sat, Oct 28, 2006 at 09:05:01AM +0800, Jeff Chua wrote:
-> On 10/28/06, Adrian Bunk <bunk@stusta.de> wrote:
+On Fri, 20 Oct 2006 01:56:41 PDT, Andrew Morton said:
 > 
-> >That's still pretty terse...
-> >If there is anything interesting in the dmesg, it's above this point
-> >(Please send complete "dmesg -s 1000000" for both cases).
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
+
+> +add-process_session-helper-routine.patch
+> +add-process_session-helper-routine-deprecate-old-field.patch
+> +add-process_session-helper-routine-deprecate-old-field-tidy.patch
+> +add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
+> +add-process_session-helper-routine-deprecate-old-field-fix-warnings-2.patch
+> +rename-struct-namespace-to-struct-mnt_namespace.patch
+> +add-an-identifier-to-nsproxy.patch
+> +rename-struct-pspace-to-struct-pid_namespace.patch
+> +add-pid_namespace-to-nsproxy.patch
+> +use-current-nsproxy-pid_ns.patch
+> +add-child-reaper-to-pid_namespace.patch
 > 
-> 
-> The working one (2.6.18) ...
-> 
-> Linux version 2.6.18 (root@indiana.corp.fedex.com) (gcc version 3.4.5) #3 
->...
-> Brought up 2 CPUs
-> migration_cost=325
-> NET: Registered protocol family 16
-> ACPI: bus type pci registered
-> PCI: Using MMCONFIG
-> Setting up standard PCI resources
-> ACPI: Interpreter enabled
-> ACPI: Using IOAPIC for interrupt routing
-> ACPI: PCI Root Bridge [PCI0] (0000:00)
-> PCI: Probing PCI hardware (bus 00)
-> ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
-> Boot video device is 0000:00:02.0
-> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-> PCI: Transparent bridge - 0000:00:1e.0
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI4._PRT]
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI2._PRT]
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI3._PRT]
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
-> ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 15)
-> ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 *10 11 12 15)
-> ACPI: PCI Interrupt Link [LNKC] (IRQs *3 4 5 6 7 9 10 11 12 15)
-> ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 10 11 12 15) *0, disabled.
-> ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 *5 6 7 9 10 11 12 15)
-> ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 *9 10 11 12 15)
-> ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 *5 6 7 9 10 11 12 15)
-> ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 9 *10 11 12 15)
-> Linux Plug and Play Support v0.97 (c) Adam Belay
-> pnp: PnP ACPI init
-> pnp: PnP ACPI: found 10 devices
-> SCSI subsystem initialized
-> usbcore: registered new driver usbfs
-> usbcore: registered new driver hub
-> PCI: Using ACPI for IRQ routing
-> PCI: Routing PCI interrupts for all devices because "pci=routeirq" specified
-> ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 16 (level, low) -> IRQ 16
-> ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 16 (level, low) -> IRQ 16
-> ACPI: PCI Interrupt 0000:00:1c.0[A] -> GSI 16 (level, low) -> IRQ 16
-> ACPI: PCI Interrupt 0000:00:1c.1[B] -> GSI 17 (level, low) -> IRQ 17
-> ACPI: PCI Interrupt 0000:00:1d.0[A] -> GSI 21 (level, low) -> IRQ 18
-> ACPI: PCI Interrupt 0000:00:1d.1[B] -> GSI 22 (level, low) -> IRQ 19
-> ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 20
-> ACPI: PCI Interrupt 0000:00:1d.3[D] -> GSI 23 (level, low) -> IRQ 21
-> ACPI: PCI Interrupt 0000:00:1d.7[A] -> GSI 21 (level, low) -> IRQ 18
-> ACPI: PCI Interrupt 0000:00:1e.2[A] -> GSI 23 (level, low) -> IRQ 21
-> ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 16 (level, low) -> IRQ 16
-> ACPI: PCI Interrupt 0000:00:1f.2[C] -> GSI 20 (level, low) -> IRQ 22
-> ACPI: PCI Interrupt 0000:00:1f.3[B] -> GSI 17 (level, low) -> IRQ 17
-> ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
-> NET: Registered protocol family 23
->...
-> The bad one (2.6.19-rc1) "diff" ..
->...
-> 134,135c151,153
-> < usbcore: registered new driver usbfs
-> < usbcore: registered new driver hub
-> ---
-> >usbcore: registered new interface driver usbfs
-> >usbcore: registered new interface driver hub
-> >usbcore: registered new device driver usb
-> 151a170,179
-> >PCI: Cannot allocate resource region 8 of bridge 0000:00:01.0
-> >PCI: Cannot allocate resource region 8 of bridge 0000:00:1c.0
-> >PCI: Cannot allocate resource region 8 of bridge 0000:00:1c.1
-> >PCI: Cannot allocate resource region 0 of device 0000:00:02.0
-> >PCI: Cannot allocate resource region 3 of device 0000:00:02.0
-> >PCI: Cannot allocate resource region 0 of device 0000:00:02.1
-> >PCI: Cannot allocate resource region 0 of device 0000:00:1d.7
-> 
-> >PCI: Cannot allocate resource region 2 of device 0000:00:1e.2
-> >PCI: Cannot allocate resource region 3 of device 0000:00:1e.2
-> >PCI: Cannot allocate resource region 0 of device 0000:02:00.0
-> 164a193,199
-> >PCI: Failed to allocate mem resource #8:100000@e1000000 for 0000:00:1c.0
-> >PCI: Failed to allocate mem resource #0:80000@e1000000 for 0000:00:02.0
-> >PCI: Failed to allocate mem resource #0:80000@e1000000 for 0000:00:02.1
-> >PCI: Failed to allocate mem resource #3:40000@e1000000 for 0000:00:02.0
-> >PCI: Failed to allocate mem resource #0:400@e1000000 for 0000:00:1d.7
-> >PCI: Failed to allocate mem resource #2:200@e1000000 for 0000:00:1e.2
-> >PCI: Failed to allocate mem resource #3:100@e1000000 for 0000:00:1e.2
-> 167c202
-> <   MEM window: fe900000-fe9fffff
-> ---
-> >  MEM window: disabled.
-> 168a204
-> >PCI: Failed to allocate mem resource #0:10000@0 for 0000:02:00.0
-> 171c207
-> <   MEM window: fe800000-fe8fffff
-> ---
-> >  MEM window: disabled.
-> 175c211
-> <   MEM window: fe700000-fe7fffff
-> ---
-> >  MEM window: disabled.
->...
+>  Start work on virtualising process sessions.
 
-So it's a PCI problem, not a tg3 issue.
+Sorry for the delay in spotting this one sooner (and I'm surprised apparently
+nobody else has).  Was busy, didn't get a chance to bisect it at all till
+today, and I only got as far as "one of the above patches".
 
-> 286,295c319,321
-> < PCI: Setting latency timer of device 0000:00:1d.7 to 64
-> < ehci_hcd 0000:00:1d.7: EHCI Host Controller
-> < ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-> < ehci_hcd 0000:00:1d.7: debug port 1
-> < PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-> < ehci_hcd 0000:00:1d.7: irq 18, io mem 0xffa80800
-> < ehci_hcd 0000:00:1d.7: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
-> < usb usb1: configuration #1 chosen from 1 choice
-> < hub 1-0:1.0: USB hub found
-> < hub 1-0:1.0: 8 ports detected
-> ---
-> >ACPI: PCI interrupt for device 0000:00:1d.7 disabled
-> >ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -16
-> >ehci_hcd: probe of 0000:00:1d.7 failed with error -16
->...
+System works fine, except when you go to shutdown.  When it hits the /sbin/killall5
+call in /etc/init.d/halt, it kills *all* the processes, and we get a
+nice message 'INIT: no more processes in current runlevel', and we're dead in
+the water.  Checking with alt-sysrg-T shows that in fact, the only things
+left running are the various kernel threads.  As near as I can tell, killall5
+wasn't able to tell that its parent process was part of its process group,
+so didn't refrain from killing it.
 
-And tg3 is even not the first driver that fails after this...
+Any ideas/clues?
 
-> Thanks,
-> Jeff.
+--==_Exmh_1162005519_3365P
+Content-Type: application/pgp-signature
 
-cu
-Adrian
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
--- 
+iD8DBQFFQswPcC3lWbTT17ARAkcSAKCNQfJe13ZVONv1go1zRBo299cxsgCgtmJc
+Aa7JTah5pCg2cQznWdgO2/Q=
+=Eyxy
+-----END PGP SIGNATURE-----
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--==_Exmh_1162005519_3365P--

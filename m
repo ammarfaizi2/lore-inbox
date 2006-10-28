@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWJ1TSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWJ1TSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWJ1TSG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 15:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWJ1TSG
+	id S1751360AbWJ1TSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 15:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWJ1TSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 15:18:06 -0400
-Received: from teetot.devrandom.net ([66.35.250.243]:55182 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1751359AbWJ1TSE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 15:18:04 -0400
-Date: Sat, 28 Oct 2006 12:18:00 -0700
-From: thockin@hockin.org
-To: Willy Tarreau <w@1wt.eu>
-Cc: Andi Kleen <ak@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: AMD X2 unsynced TSC fix?
-Message-ID: <20061028191800.GA20701@hockin.org>
-References: <1161969308.27225.120.camel@mindpipe> <1162006081.27225.257.camel@mindpipe> <20061028052837.GC1709@1wt.eu> <200610281137.22451.ak@suse.de> <20061028191515.GA1603@1wt.eu>
+	Sat, 28 Oct 2006 15:18:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8852 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751360AbWJ1TSP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 15:18:15 -0400
+Date: Sat, 28 Oct 2006 12:14:57 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Oliver Neukum <oliver@neukum.name>
+Cc: Sergey Vlasov <vsu@altlinux.ru>, Soeren Sonnenburg <kernel@nn7.de>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       zaitcev@redhat.com
+Subject: Fwd: Re: usb initialization order (usbhid vs. appletouch)
+Message-Id: <20061028121457.486c7405.zaitcev@redhat.com>
+In-Reply-To: <200610282055.29423.oliver@neukum.name>
+References: <1161856438.5214.2.camel@no.intranet.wo.rk>
+	<1162054576.3769.15.camel@localhost>
+	<200610282043.59106.oliver@neukum.org>
+	<200610282055.29423.oliver@neukum.name>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.6; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061028191515.GA1603@1wt.eu>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2006 at 09:15:15PM +0200, Willy Tarreau wrote:
-> > While gtod is time critical and often appears high on profile lists it is 
-> > normally not as time critical as you're claiming it is; especially not
-> > time critical enough to warrant such radical action.
+On Sat, 28 Oct 2006 20:55:03 +0200 (MEST), Oliver Neukum <oliver@neukum.name> wrote:
+
+> Exactly. Combing both patches:
+> Soeren, if this works, please sign it off and send it to Greg.
 > 
-> Yes it was, because the small gain of using a dual core with such
-> a workload was clearly lost by that change. IIRC, I reached 25000
-> sessions/s on dual core with TSC if I didn't care about the clock,
-> 20000 without TSC, and 18000 on single core+TSC. But with the sniffer,
-> it was even worse : I had 500 kpps in dual-core+TSC, 70kpps without
-> TSC and 300 kpps with single-core+TSC. Since I had to buy the same
-> machines for both uses, this last argument was enough for me to stick
-> to a single core.
+> Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
 
-Was the problem that they were not synced at poweron or that they would
-drift due to power-states?
+This looks good. However, the love of meaningless whitespace makes
+me uneasy. It sets us up for double-patching.
 
-Did you try running with idle=poll, to avoid ever entering C1 state (hlt)?
+> +#define USB_DEVICE_ID_APPLE_GEYSER3_JIS	0x0219
+>  #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
+>  
+> +
+>  #define USB_VENDOR_ID_CHERRY		0x046a
+>  #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
 
+-- Pete

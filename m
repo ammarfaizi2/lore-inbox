@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWJ1SWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWJ1Sae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWJ1SWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWJ1SWJ
+	id S1751325AbWJ1Sae (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWJ1Sae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:22:09 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:48805 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751333AbWJ1SWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:22:08 -0400
-Subject: Re: AMD X2 unsynced TSC fix?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andi Kleen <ak@suse.de>
-Cc: thockin@hockin.org, vojtech@suse.cz, Jiri Bohac <jbohac@suse.cz>,
-       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-In-Reply-To: <200610272059.13753.ak@suse.de>
-References: <1161969308.27225.120.camel@mindpipe>
-	 <68676e00610271700i741b949frc73bf790d38ab1f@mail.gmail.com>
-	 <20061028024638.GA16579@hockin.org>  <200610272059.13753.ak@suse.de>
-Content-Type: text/plain
-Date: Sat, 28 Oct 2006 14:22:11 -0400
-Message-Id: <1162059732.14733.8.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Oct 2006 14:30:34 -0400
+Received: from smtp-out001.kontent.com ([81.88.40.215]:23215 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S1751325AbWJ1Sad convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:30:33 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] usb initialization order (usbhid vs. appletouch)
+Date: Sat, 28 Oct 2006 20:30:46 +0200
+User-Agent: KMail/1.8
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Soeren Sonnenburg <kernel@nn7.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1161856438.5214.2.camel@no.intranet.wo.rk> <1162054576.3769.15.camel@localhost> <20061028111454.787894e8.zaitcev@redhat.com>
+In-Reply-To: <20061028111454.787894e8.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610282030.47076.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-27 at 20:59 -0700, Andi Kleen wrote:
-> > Fortunately, we usually have an HPET, these days.  You can
-> definitely
-> > resync and get near-linear values of RDTSC.
+Am Samstag, 28. Oktober 2006 20:14 schrieb Pete Zaitcev:
+> > OK, so I tried adding all of them to the HID_QUIRK_IGNORE LIST, i.e.
 > 
-> No we don't -- most BIOS still don't give us the HPET table 
-> even when it is there in hardware. In the future this will change sure
-> but people will still run a lot of older motherboards. 
+> This, of course, cannot possibly work, as we discussed a month ago.
+>  http://lkml.org/lkml/2006/10/1/18
+> 
+> So, you two are just beating a dead horse. It's time to write the code
+> which identifies Apple devices and not try to ride a quirk.
 
-I have exactly such a system (see thread "x86-64 with nvidia MCP51
-chipset: kernel does not find HPET").  Is there anything at all I can do
-to make the kernel see the HPET?  Can I try to guess the address?  BIOS
-upgrade?
+No, this will need a quirk, just one that is more specific. Globally
+triggering on Apple won't do.
 
-Lee
-
+	Regards
+		Oliver

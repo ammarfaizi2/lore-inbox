@@ -1,67 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWJ1SMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWJ1SOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWJ1SMo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWJ1SMn
+	id S1751258AbWJ1SOj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWJ1SOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:12:43 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:24167 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751247AbWJ1SMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:12:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XwAB/Mo+2Sls9a4Jb6DHg+4kEE3Swiz5xcYpX1eTttnlKJNkNnV54tdzX4YYyqkqdN1Ek3oPFoNkPWhUVq8PNjV+n+HEx7BZUB2qm7ByXsqwcCq+zzJ83gOl+o5brmxrjtAlgU1Ei1/9UO+ySYpIr3aGJpS64ltcF3I+0cRc7lY=
-Message-ID: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
-Date: Sat, 28 Oct 2006 20:12:41 +0200
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "David Zeuthen" <davidz@redhat.com>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Cc: "Richard Hughes" <hughsient@gmail.com>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Dan Williams" <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
-       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
-       greg@kroah.com, benh@kernel.crashing.org,
-       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>,
-       "Pavel Machek" <pavel@suse.cz>, "Jean Delvare" <khali@linux-fr.org>
-In-Reply-To: <1162048148.2723.61.camel@zelda.fubar.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Oct 2006 14:14:39 -0400
+Received: from [213.177.124.23] ([213.177.124.23]:18154 "EHLO procyon.home")
+	by vger.kernel.org with ESMTP id S1751258AbWJ1SOi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:14:38 -0400
+Date: Sat, 28 Oct 2006 22:14:18 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] usb initialization order (usbhid vs. appletouch)
+Message-ID: <20061028181417.GA26352@procyon.home>
+Mail-Followup-To: Soeren Sonnenburg <kernel@nn7.de>,
+	Oliver Neukum <oliver@neukum.org>,
+	linux-usb-devel@lists.sourceforge.net,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1161856438.5214.2.camel@no.intranet.wo.rk> <200610261220.05707.oliver@neukum.org> <1161863380.18657.38.camel@no.intranet.wo.rk> <200610261436.47463.oliver@neukum.org> <1162054576.3769.15.camel@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
 Content-Disposition: inline
-References: <1161628327.19446.391.camel@pmac.infradead.org>
-	 <1161762158.27622.72.camel@shinybook.infradead.org>
-	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
-	 <1161778296.27622.85.camel@shinybook.infradead.org>
-	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
-	 <1161815138.27622.139.camel@shinybook.infradead.org>
-	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
-	 <1162037754.19446.502.camel@pmac.infradead.org>
-	 <1162041726.16799.1.camel@hughsie-laptop>
-	 <1162048148.2723.61.camel@zelda.fubar.dk>
+In-Reply-To: <1162054576.3769.15.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
 
-On 10/28/06, David Zeuthen <davidz@redhat.com> wrote:
-> What about just prepending the unit to the 'threshold' file? Then user
-> space can expect the contents of said file to be of the form "%d %s". I
-> don't think that violates the "only one value per file" sysfs mantra.
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The tp_smapi battery driver did just this  ("16495 mW"). But I dropped
-it in a recent version when Pavel pointed out the rest of sysfs, hwmon
-included, uses undecorated integers.
-Consistency aside, it seems reasonable and convenient. You have to
-decree that writes to the attributes (where relevant) don't include
-the units, of course, so no one will expect the kernel to parse that.
+On Sat, Oct 28, 2006 at 06:56:16PM +0200, Soeren Sonnenburg wrote:
+[...]
+> OK, so I tried adding all of them to the HID_QUIRK_IGNORE LIST, i.e.
+>=20
+>=20
+> #define USB_DEVICE_ID_APPLE_GEYSER_ANSI 0x0214
+> #define USB_DEVICE_ID_APPLE_GEYSER_ISO  0x0215
+> #define USB_DEVICE_ID_APPLE_GEYSER_JIS  0x0216
+> #define USB_DEVICE_ID_APPLE_GEYSER3_ANSI    0x0217
+> #define USB_DEVICE_ID_APPLE_GEYSER3_ISO     0x0218
+> #define USB_DEVICE_ID_APPLE_GEYSER3_JIS     0x0219
+>=20
+>=20
+>     { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI, HID_QUIRK_IGN=
+ORE },
+>     { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO, HID_QUIRK_IGNO=
+RE },
+>     { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS, HID_QUIRK_IGNO=
+RE },
+>     { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI, HID_QUIRK_IG=
+NORE },
+>     { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO, HID_QUIRK_IGN=
+ORE },
+>     { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS, HID_QUIRK_IGN=
+ORE },
+>     { USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_IGNORE },
+>     { USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_IGNORE },
+>     { USB_VENDOR_ID_APPLE, 0x030A, HID_QUIRK_IGNORE },
+>     { USB_VENDOR_ID_APPLE, 0x030B, HID_QUIRK_IGNORE },
+>=20
+>=20
+> however this did (and cannot) work, as the product id stands for both
+> keyboard AND mouse.=20
 
-There's an issue here if a drunk driver decides to specify (say)
-capacity_remaining in mWh and capacity_last_full in mAa, which will
-confuse anyone comparing those attributest. So don't do that.
+You mean that the device has multiple HID interfaces, but only one of
+them should be ignored by usbhid and passed to appletouch?  Then you
+probably need to add a new quirk flag to hiddev (patch completely
+untested):
 
-Jean, what's your opinion on letting hwmon-ish attributes specify
-units as "%d %s" where these are hardware-dependent?
+---
 
-  Shem
+=46rom: Sergey Vlasov <vsu@altlinux.ru>
+Subject: usbhid: Add HID_QUIRK_IGNORE_MOUSE flag
+
+Some HID devices by Apple have both keyboard and mouse interfaces; the
+keyboard interface is handled by usbhid, but the mouse (really
+touchpad) interface must be handled by the separate 'appletouch'
+driver.  Using HID_QUIRK_IGNORE will make hiddev ignore both
+interfaces, therefore a new quirk flag to ignore only the mouse
+interface is required.
+
+Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
+
+diff --git a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+index 45f44fe..feb41e7 100644
+--- a/drivers/usb/input/hid-core.c
++++ b/drivers/usb/input/hid-core.c
+@@ -1872,6 +1872,9 @@ static struct hid_device *usb_hid_config
+=20
+ 	if (quirks & HID_QUIRK_IGNORE)
+ 		return NULL;
++	if ((quirks & HID_QUIRK_IGNORE_MOUSE) &&
++	    (interface->desc.bInterfaceProtocol =3D=3D USB_INTERFACE_PROTOCOL_MOU=
+SE))
++		return NULL;
+=20
+ 	if (usb_get_extra_descriptor(interface, HID_DT_HID, &hdesc) &&
+ 	    (!interface->desc.bNumEndpoints ||
+diff --git a/drivers/usb/input/hid.h b/drivers/usb/input/hid.h
+index 9b50eff..abd7b52 100644
+--- a/drivers/usb/input/hid.h
++++ b/drivers/usb/input/hid.h
+@@ -260,6 +260,7 @@ struct hid_item {
+ #define HID_QUIRK_POWERBOOK_HAS_FN		0x00001000
+ #define HID_QUIRK_POWERBOOK_FN_ON		0x00002000
+ #define HID_QUIRK_INVERT_HWHEEL			0x00004000
++#define HID_QUIRK_IGNORE_MOUSE			0x00008000
+=20
+ /*
+  * This is the global environment of the parser. This information is
+
+--LQksG6bCIzRHxTLp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFQ535W82GfkQfsqIRAqpFAKCS7wfwTE4LO4mkshla5J11aj6I7wCfVWhs
+XCjUlDXeuyscID6JdLg0ycI=
+=BIK6
+-----END PGP SIGNATURE-----
+
+--LQksG6bCIzRHxTLp--

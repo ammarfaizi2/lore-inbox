@@ -1,175 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752486AbWJ1NsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752225AbWJ1OQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752486AbWJ1NsN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 09:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752483AbWJ1NsN
+	id S1752225AbWJ1OQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 10:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752222AbWJ1OQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 09:48:13 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:43493 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1752479AbWJ1NsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 09:48:12 -0400
-Date: Sat, 28 Oct 2006 17:47:32 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
-Subject: Re: [take21 1/4] kevent: Core files.
-Message-ID: <20061028134732.GA27013@2ka.mipt.ru>
-References: <11619654011980@2ka.mipt.ru> <454330BC.9000108@cosmosbay.com> <20061028105340.GC15038@2ka.mipt.ru> <45434ECF.4090209@cosmosbay.com> <20061028130350.GA18737@2ka.mipt.ru> <454359DC.4020905@cosmosbay.com> <20061028132816.GA25452@2ka.mipt.ru> <45435C7C.10705@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Sat, 28 Oct 2006 10:16:57 -0400
+Received: from mo-p07-ob.rzone.de ([81.169.146.189]:56418 "EHLO
+	mo-p07-ob.rzone.de") by vger.kernel.org with ESMTP id S1752133AbWJ1OQ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 10:16:56 -0400
+Date: Sat, 28 Oct 2006 16:16:49 +0200 (MEST)
+From: Olaf Hering <olaf@aepfle.de>
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: cd media poll stuck in D state, arch bug?
+Message-ID: <20061028141650.GA20025@aepfle.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <45435C7C.10705@cosmosbay.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 28 Oct 2006 17:47:34 +0400 (MSD)
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2006 at 03:34:52PM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
-> >>>+	list_del(&k->ready_entry);
-> >>Arg... no
-> >>
-> >>You cannot call list_del() , then check overflow_kevent.
-> >>
-> >>I you call list_del on what happens to be the kevent pointed by 
-> >>overflow_kevent, you loose...
-> >
-> >This function is always called from appropriate context, where it is
-> >guaranteed that it is safe to call list_del:
-> >1. when kevent is removed. It is called after check, that given kevent 
-> >is in the ready queue.
-> >2. when dequeued from ready queue, which means that it can be removed
-> >from that queue.
-> >
-> 
-> Could you please check the list_del() function ?
-> 
-> file include/linux/list.h
-> 
-> static inline void list_del(struct list_head *entry)
-> {
->   __list_del(entry->prev, entry->next);
->   entry->next = LIST_POISON1;
->   entry->prev = LIST_POISON2;
-> }
-> 
-> So, after calling list_del(&k->read_entry);
-> next and prev are basically destroyed.
-> 
-> So when you write later :
-> 
-> +        if (!err || u->overflow_kevent == k) {
-> +            if (u->overflow_kevent->ready_entry.next == &u->ready_list)
-> +                u->overflow_kevent = NULL;
-> +            else
-> +                u->overflow_kevent = + 
-> list_entry(u->overflow_kevent->ready_entry.next, + 
-> struct kevent, ready_entry);
-> +        }
-> 
-> 
-> then you have a problem, since
-> 
-> list_entry(k->ready_entry.next, struct kevent, ready_entry);
-> 
-> will give you garbage.
 
-Ok, I understand you now.
-To remove this issue we can delete entry from the list after all checks
-with overflow_kevent pointer are completed, i.e. have something like
-this:
+The stacktrace below happens on 2.6.16 and 2.6.18.1.
+I see it on IBM p630 with BLK_DEV_SL82C105 and on iBook1 and PowerBook
+pismo BLK_DEV_IDE_PMAC. I think it happens when one actually
+changes CD during an installation.
 
-diff --git a/kernel/kevent/kevent_user.c b/kernel/kevent/kevent_user.c
-index 711a8a8..f3fec9b 100644
---- a/kernel/kevent/kevent_user.c
-+++ b/kernel/kevent/kevent_user.c
-@@ -235,6 +235,36 @@ static void kevent_free_rcu(struct rcu_h
- }
- 
- /*
-+ * Must be called under u->ready_lock.
-+ * This function removes kevent from ready queue and 
-+ * tries to add new kevent into ring buffer.
-+ */
-+static void kevent_remove_ready(struct kevent *k)
-+{
-+	struct kevent_user *u = k->user;
-+
-+	if (++u->pring[0]->uidx == KEVENT_MAX_EVENTS)
-+		u->pring[0]->uidx = 0;
-+
-+	if (u->overflow_kevent) {
-+		int err;
-+
-+		err = kevent_user_ring_add_event(u->overflow_kevent);
-+		if (!err || u->overflow_kevent == k) {
-+			if (u->overflow_kevent->ready_entry.next == &u->ready_list)
-+				u->overflow_kevent = NULL;
-+			else
-+				u->overflow_kevent = 
-+					list_entry(u->overflow_kevent->ready_entry.next, 
-+							struct kevent, ready_entry);
-+		}
-+	}
-+	list_del(&k->ready_entry);
-+	k->flags &= ~KEVENT_READY;
-+	u->ready_num--;
-+}
-+
-+/*
-  * Complete kevent removing - it dequeues kevent from storage list
-  * if it is requested, removes kevent from ready list, drops userspace
-  * control block reference counter and schedules kevent freeing through RCU.
-@@ -248,11 +278,8 @@ static void kevent_finish_user_complete(
- 		kevent_dequeue(k);
- 
- 	spin_lock_irqsave(&u->ready_lock, flags);
--	if (k->flags & KEVENT_READY) {
--		list_del(&k->ready_entry);
--		k->flags &= ~KEVENT_READY;
--		u->ready_num--;
--	}
-+	if (k->flags & KEVENT_READY)
-+		kevent_remove_ready(k);
- 	spin_unlock_irqrestore(&u->ready_lock, flags);
- 
- 	kevent_user_put(u);
-@@ -303,25 +330,7 @@ static struct kevent *kqueue_dequeue_rea
- 	spin_lock_irqsave(&u->ready_lock, flags);
- 	if (u->ready_num && !list_empty(&u->ready_list)) {
- 		k = list_entry(u->ready_list.next, struct kevent, ready_entry);
--		list_del(&k->ready_entry);
--		k->flags &= ~KEVENT_READY;
--		u->ready_num--;
--		if (++u->pring[0]->uidx == KEVENT_MAX_EVENTS)
--			u->pring[0]->uidx = 0;
--		
--		if (u->overflow_kevent) {
--			int err;
--
--			err = kevent_user_ring_add_event(u->overflow_kevent);
--			if (!err) {
--				if (u->overflow_kevent->ready_entry.next == &u->ready_list)
--					u->overflow_kevent = NULL;
--				else
--					u->overflow_kevent = 
--						list_entry(u->overflow_kevent->ready_entry.next, 
--								struct kevent, ready_entry);
--			}
--		}
-+		kevent_remove_ready(k);
- 	}
- 	spin_unlock_irqrestore(&u->ready_lock, flags);
- 
+This command does never timeout. Why does the kernel not recover and
+return -ETIMEDOUT to the app?
+Unfortunately I dont have a testcase to trigger it reliable.
 
-Thanks.
 
-> Eric
-
--- 
-	Evgeniy Polyakov
+hald-addon-st D 000000000fe9b824  9456  3488   3409          4155 (NOTLB)
+Call Trace:
+[C0000000FDB3AD20] [C0000000FDB3ADD0] 0xc0000000fdb3add0 (unreliable)
+[C0000000FDB3AEF0] [C00000000000F4FC] .__switch_to+0x12c/0x150
+[C0000000FDB3AF80] [C000000000372AF8] .schedule+0xce8/0xe48
+[C0000000FDB3B090] [C000000000372DF4] .wait_for_completion+0xe8/0x16c
+[C0000000FDB3B180] [C00000000027ADEC] .ide_do_drive_cmd+0x120/0x19c
+[C0000000FDB3B260] [D000000000316268] .cdrom_queue_packet_command+0x68/0x13c [ide_cd]
+[C0000000FDB3B340] [D000000000316624] .cdrom_check_status+0x80/0xa0 [ide_cd]
+[C0000000FDB3B500] [D000000000316678] .ide_cdrom_check_media_change_real+0x34/0x64 [ide_cd]
+[C0000000FDB3B580] [D00000000032B0C4] .media_changed+0x80/0xdc [cdrom]
+[C0000000FDB3B610] [D000000000316C34] .idecd_media_changed+0x18/0x2c [ide_cd]
+[C0000000FDB3B690] [C0000000000D2270] .check_disk_change+0x54/0xec
+[C0000000FDB3B720] [D000000000330BD0] .cdrom_open+0xb14/0xb80 [cdrom]
+[C0000000FDB3B940] [D000000000316E80] .idecd_open+0x128/0x19c [ide_cd]
+[C0000000FDB3B9E0] [C0000000000D2B2C] .do_open+0x3a0/0x5c4
+[C0000000FDB3BAA0] [C0000000000D3018] .blkdev_open+0x38/0x88
+[C0000000FDB3BB30] [C0000000000C4800] .__dentry_open+0x160/0x300
+[C0000000FDB3BBE0] [C0000000000C4B14] .do_filp_open+0x50/0x70
+[C0000000FDB3BD00] [C0000000000C4BA8] .do_sys_open+0x74/0x12c
+[C0000000FDB3BDB0] [C000000000101568] .compat_sys_open+0x24/0x38
+[C0000000FDB3BE30] [C00000000000871C] syscall_exit+0x0/0x40

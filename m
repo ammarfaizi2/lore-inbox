@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWJ1Swv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWJ1SxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWJ1Swv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWJ1Swv
+	id S932086AbWJ1SxF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWJ1SxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:52:51 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:245 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932085AbWJ1Swu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:52:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=fdDm+wS0MFKZCTMPoD9vGhs0tn3W2T+F3fgECC7yvz9p29LKNO5EGZOlZA0HRCtegbCCK045WGmq6qu6IcFZcSEVpuxTdgxRSD5rpSysg0gQbQk+J6aukMVW8rzig/QVHYyCO1Ce4rFUCeC/YiPUVP+UiDZgMr4OYL+9IayekJE=
-Date: Sun, 29 Oct 2006 03:53:13 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Cc: Len Brown <len.brown@intel.com>
-Subject: [PATCH] acpi: fix single linked list manipulation
-Message-ID: <20061028185313.GK9973@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-	Len Brown <len.brown@intel.com>
-MIME-Version: 1.0
+	Sat, 28 Oct 2006 14:53:04 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51472 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932086AbWJ1SxB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:53:01 -0400
+Date: Sat, 28 Oct 2006 18:52:44 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: David Zeuthen <davidz@redhat.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Shem Multinymous <multinymous@gmail.com>,
+       Richard Hughes <hughsient@gmail.com>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061028185244.GC5152@ucw.cz>
+References: <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com> <1161778296.27622.85.camel@shinybook.infradead.org> <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com> <1161815138.27622.139.camel@shinybook.infradead.org> <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <41840b750610280734q212fc138occ152f4a01ef67f5@mail.gmail.com> <1162046193.19446.521.camel@pmac.infradead.org> <1162047338.2723.49.camel@zelda.fubar.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1162047338.2723.49.camel@zelda.fubar.dk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes single linked list manipulation for sub_driver.
-If the remving entry is not on the head of the sub_driver list,
-it goes into infinate loop.
+Hi!
+> > If it makes enough sense that it's worth exporting it to userspace at
+> > all, then it can go into battery.h.
+> 
+> If it's non-standard please make sure to prefix the name with something
+> unique e.g.
+> 
+>  x_thinkpad_charging_inhibit [1]
 
-Though that infinate loop doesn't happen. Because the only user of
-acpi_pci_register_dirver() is acpiphp.
+> to avoid collisions, e.g. two drivers using the same name but the
 
-Cc: Len Brown <len.brown@intel.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+You were clearly exposed to harmful dose of smtp.
 
- drivers/acpi/pci_root.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+This is ugly, and unneccessary: kernel is centrally controlled. We
+*will* want to merge such attributes into something standard.
 
-Index: work-fault-inject/drivers/acpi/pci_root.c
-===================================================================
---- work-fault-inject.orig/drivers/acpi/pci_root.c
-+++ work-fault-inject/drivers/acpi/pci_root.c
-@@ -98,11 +98,12 @@ void acpi_pci_unregister_driver(struct a
- 
- 	struct acpi_pci_driver **pptr = &sub_driver;
- 	while (*pptr) {
--		if (*pptr != driver)
--			continue;
--		*pptr = (*pptr)->next;
--		break;
-+		if (*pptr == driver)
-+			break;
-+		pptr = &(*pptr)->next;
- 	}
-+	BUG_ON(!*pptr);
-+	*pptr = (*pptr)->next;
- 
- 	if (!driver->remove)
- 		return;
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

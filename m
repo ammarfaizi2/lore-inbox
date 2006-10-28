@@ -1,127 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWJ1U36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWJ1Ugu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWJ1U36 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 16:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWJ1U36
+	id S1750831AbWJ1Ugu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 16:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWJ1Ugu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 16:29:58 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:19885 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751392AbWJ1U35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 16:29:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=ramBngBXNBJMT3MiKCbYeCx8BoU9JsF3+2094B7DnJ2c8M+P2ztVgxQB0T7z5WpDhf8hW3vLplkLGsQ6x90d6oxgPkFtM6MQIOcXs/OA2t9N9Gb5ij3p2WvVhBwxn98C+d2YpmRZ4hQdW25VDWdUxGbUT+J4yS2k5zx2aJa25nE=
-Date: Sat, 28 Oct 2006 22:30:14 +0200
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why "probe_kernel_address()", not "probe_user_address()"?
-Message-ID: <20061028203014.GA7183@dreamland.darkstar.lan>
-MIME-Version: 1.0
+	Sat, 28 Oct 2006 16:36:50 -0400
+Received: from 1wt.eu ([62.212.114.60]:19972 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750831AbWJ1Ugu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 16:36:50 -0400
+Date: Sat, 28 Oct 2006 22:36:59 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Andi Kleen <ak@suse.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, thockin@hockin.org,
+       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: AMD X2 unsynced TSC fix?
+Message-ID: <20061028203659.GD1603@1wt.eu>
+References: <1161969308.27225.120.camel@mindpipe> <200610281233.27588.ak@suse.de> <20061028200439.GB1603@1wt.eu> <200610281311.14665.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610281258060.2652@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <200610281311.14665.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert P. J. Day <rpjday@mindspring.com> ha scritto:
-> On Sat, 28 Oct 2006, Andrew Morton wrote:
+On Sat, Oct 28, 2006 at 01:11:14PM -0700, Andi Kleen wrote:
+> On Saturday 28 October 2006 13:04, Willy Tarreau wrote:
 > 
->> On Sat, 28 Oct 2006 11:56:24 -0400 (EDT)
->> "Robert P. J. Day" <rpjday@mindspring.com> wrote:
->>
->> >
->> >   it seems odd that the purpose of the "probe_kernel_address()" macro
->> > is, in fact, to probe a *user* address (from linux/uaccess.h):
->> >
->> > #define probe_kernel_address(addr, retval)              \
->> >         ({                                              \
->> >                 long ret;                               \
->> >                                                         \
->> >                 inc_preempt_count();                    \
->> >                 ret = __get_user(retval, addr);         \
->> >                 dec_preempt_count();                    \
->> >                 ret;                                    \
->> >         })
->> >
->> >   given that that routine is referenced only 5 places in the entire
->> > source tree, wouldn't it be more meaningful to use a more appropriate
->> > name?
->> >
->>
->> You'll notice that all callers are indeed probing kernel addresses.
->> The function _could_ be used for user addresses and could perhaps be
->> called probe_address().
->>
->> One of the reasons this wrapper exists is to communicate that the
->> __get_user() it is in fact not being used to access user memory.
+> > I really think that the hardware was doing tricks far beyond my knowledge,
+> > because on another Sun (a V40Z), there were 4 dual cores which I never saw
+> > out of sync even after hours of testing. But the HPET was available in it,
+> > I don't remember if it's used by default when detected.
 > 
-> one quick addition to this.  in arch/i386/kernel/traps.c, we have the
-> code snippet:
-> 
->        if (eip < PAGE_OFFSET)
->                return;
->        if (probe_kernel_address((unsigned short __user *)eip, ud2))
->                return;
->        if (ud2 != 0x0b0f)
->                return;
-> 
->        printk(KERN_EMERG "------------[ cut here ]------------\n");
-> 
-> #ifdef CONFIG_DEBUG_BUGVERBOSE
->        do {
->                unsigned short line;
->                char *file;
->                char c;
-> 
->                if (probe_kernel_address((unsigned short __user *)(eip + 2),
->                                        line))
-> ... etc etc ...
-> 
+> I think some system occasionally ramp the clock for thermal management,
+> but that should be rare.
 
-I agree that it may be confusing. The whole point in using __get_user()
-is that it ensures that the source address is valid.
+I should say that at one moment, I've been wondering whether they were
+or not performing sort of an automatic overclocking under load, because
+those machines were really faster even in single-core than other opterons
+I had tested. Since such boxes are often compared on workloads such as
+SSL, doing so might have favored them in comparative benchmarks.
 
-When handle_BUG() is called the kernel is no more in a "sane" state,
-blindly using the content of the registers may lead to a page fault in
-kernel mode. So the code extract filename and line of the BUG checking
-that the line number is indeed readable, the address of the string (file
-name) is readable and it points to a readable memory location.
-
-probe_kernel_address wrapper is used to "hide" the fact that we are
-re-using the infrastructure provided by a function with a confusing name
-;) The cast to __user is needed to keep sparse quiet.
-
->  if those pointers qualified by "__user" *aren't* actually addresses
-> into user space, that would seem to violate what i read in the book
-> "linux device drivers (3rd ed)", p. 50:
+> > No I did not "force" anything at first. You take the RHEL3 CD, you install
+> > it, reboot and watch your logs report negative times, then scratch your
+> > head, first call red hat dumb ass, and after a few tests, apologize to the
+> > poor innocent red hat 
 > 
-> "This [__user] annotation is a form of documentation, noting that a
-> pointer is a user-space address that cannot be directly dereferenced.
-> For normal compilation, __user has no effect, but it can be used by
-> external checking software to find misuse of user-space addresses."
+> Well they should have fixed the kernel to fall back to another clock
+> by backporting the appropiate fixes from mainline. I assume they
+> did actually.
+
+But upon what trigger should they apply the fallback ? I don't see
+what can be detected. I see no such thing in 2.4 mainline (except
+TSC resync at boot), and do not seem to find any such fallback either
+in 2.6 (though I might not have looked deep enough as the code is more
+complex there).
+
+> > and call the box a total crap. To put it shortly 
+> > (might be useful for people who Google for it) : Dual-core Sun x2100 is
+> > unreliable out of the box under Linux.
 > 
->  under the circumstances, wouldn't this show up as one of those
-> misuses?
+> No that shouldn't be true with any modern kernel. It will just fallback
+> to HPET or more likely PMtimer.
 
-No, __user annotation ensure that sparse will notice things like:
+same comment as above :-)
 
-int random_pointer_from_userspace __user *data;
-...
-my_data = *data; /* <-- sparse will complain */
+> >
+> > > In the default configuration there shouldn't be any problems
+> > > like this, it will just run slower because the kernel falls back to a
+> > > slower time source.
+> >
+> > You have to specify "notsc" for this.
+> 
+> No, the kernel should work out of the box. Some older kernels didn't
+> at various points of time though.
 
-In this scenario 'data' is a pointer provided by userspace application
-and *cannot* be trusted; it shall be used only with functions that do
-check the address before using it, like __get_user(). (get_user() also
-checks that the address is a *userspace* address, it can't be used to
-read kernel memory).
+Anyway, if they started providing kernels which used TSC by default,
+I don't think they will change this afterwards, in order to avoid
+causing regressions.
 
-Luca
--- 
-Se alla sera, dopo una strepitosa vittoria, guardandoti allo
-specchio dovessi notare un secondo paio di palle, che il tuo 
-cuore non si riempia d'orgoglio, perche` vuol dire che ti 
-stanno inculando -- Saggio Cinese
+Could you please check if the fallbacks you're talking about are
+hard to backport in 2.4 ? Depending on their complexity and risk,
+I would not be against a small backport. I think for instance that
+automatically disabling TSC on SMP when HPET is present would not
+be a terrible regression and might help in a number of occasions.
+The user would then have to force the use of TSC if needed.
+
+Regards,
+Willy
+

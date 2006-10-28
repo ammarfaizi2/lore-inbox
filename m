@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWJ1Qtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWJ1QuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWJ1Qtz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 12:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbWJ1Qtz
+	id S1751086AbWJ1QuT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 12:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWJ1QuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 12:49:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45449 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751061AbWJ1Qty (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 12:49:54 -0400
-Date: Sat, 28 Oct 2006 09:49:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>,
-       Pekka J Enberg <penberg@cs.Helsinki.FI>, ego@in.ibm.com,
-       vatsa@in.ibm.com,
-       "Benzi Galili (Benzi@ScaleMP.com)" <benzi@scalemp.com>,
-       Alok Kataria <alok.kataria@calsoftinc.com>, shai@scalex86.org
-Subject: Re: [rfc] [patch] mm: Slab - Eliminate lock_cpu_hotplug from slab
-Message-Id: <20061028094931.65a0f218.akpm@osdl.org>
-In-Reply-To: <20061028011919.GA4653@localhost.localdomain>
-References: <20061028011919.GA4653@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sat, 28 Oct 2006 12:50:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:12741 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751061AbWJ1QuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 12:50:16 -0400
+Date: Sat, 28 Oct 2006 17:50:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH 2.6.19-rc1-mm1] Export jiffies_to_timespec()
+Message-ID: <20061028165002.GB22673@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Jeremy Fitzhardinge <jeremy@goop.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+	john stultz <johnstul@us.ibm.com>
+References: <452C3CA6.2060403@goop.org> <20061011161628.GA1873@infradead.org> <20061011111739.09c25a8e.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061011111739.09c25a8e.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006 18:19:19 -0700
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-
-> Another note.  Looks like a cpu hotplug event can send  CPU_UP_CANCELED to
-> a registered subsystem even if the subsystem did not receive CPU_UP_PREPARE.
-> This could be due to a subsystem registered for notification earlier than
-> the current subsystem crapping out with NOTIFY_BAD. Badness can occur with
-> in the CPU_UP_CANCELED code path at slab if this happens (The same would
-> apply for workqueue.c as well).
-
-yup, cancellation doesn't work at present.
-
->  To overcome this, we might have to use either
-> a) a per subsystem flag and avoid handling of CPU_UP_CANCELED, or
-> b) Use a special notifier events like LOCK_ACQUIRE/RELEASE as Gautham was
->    using in his experiments, or
-> c) Do not send CPU_UP_CANCELED to a subsystem which did not receive
->    CPU_UP_PREPARE.
+On Wed, Oct 11, 2006 at 11:17:39AM -0700, Andrew Morton wrote:
+> On Wed, 11 Oct 2006 17:16:28 +0100
+> Christoph Hellwig <hch@infradead.org> wrote:
 > 
-> I would prefer c).
+> > On Tue, Oct 10, 2006 at 05:36:54PM -0700, Jeremy Fitzhardinge wrote:
+> > > Export jiffies_to_timespec; previously modules used the inlined header 
+> > > version.
+> > 
+> > NACK, drivers shouldn know about these timekeeping details and no
+> > in-tree driver uses it (fortunately)
+> 
+> Disagree.
+> 
+> a) `jiffies' and `timepsec' are hardly "details".  They are basic
+>    kernel-wide concepts.  timespecs are even known to userspace.  Exporting
+>    a helper function which converts from one to the other is perfectly
+>    reasonable.
 
-c) would work.  I guess we could do that by simply counting the number of
-called handlers rather than having to record state within each one.
+That non one in tree ever uses it is a very good reason no to export it
+either.  While there are still far too many direct jiffy users there
+is no one directly convertin it to a timespec for good reason.
 
-It would require changes to the notifier_chain API, but I think the changes
-are needed - the problem is general.  Something like:
+> 
+> b) jiffies_to_timespec() was previously available to modules.  We
+>    changed that without notice and we changed it *by accident*.  There was
+>    no intention to withdraw jiffies_to_timespec() from the
+>    available-to-modules API.
 
+By that rationale everything errornously implemented as a macro or inline
+at some point will need to be exported.  Except for you we still maintain
+that we don't want to keep unused exports.  Arjan even put a formal mechanism
+in to warn about them and has gotten a global buy-in to kill them.  This
+will fall under this ASAP and only give people a short period to keep using
+it.  Not a very useful message.
 
-int __raw_notifier_call_chain(struct raw_notifier_head *nh,
-		unsigned long val, void *v, unsigned nr_to_call, int *nr_called);
-
-int raw_notifier_call_chain(struct raw_notifier_head *nh,
-		unsigned long val, void *v)
-{
-	return __raw_notifier_call_chain(nh, val, v, -1, NULL);
-}
-
+(especially when the only user is closed source crap where people should
+help the proper reverse-engineered driver instead)
 

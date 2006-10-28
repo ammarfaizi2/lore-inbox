@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWJ1FJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751803AbWJ1FMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751791AbWJ1FJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 01:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWJ1FJJ
+	id S1751803AbWJ1FMc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 01:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751814AbWJ1FMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 01:09:09 -0400
-Received: from colo.lackof.org ([198.49.126.79]:11210 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S1751791AbWJ1FJH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 01:09:07 -0400
-Date: Fri, 27 Oct 2006 23:09:05 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       Greg KH <greg@kroah.com>, Stephen Hemminger <shemminger@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
-Message-ID: <20061028050905.GB5560@colo.lackof.org>
-References: <20061027012058.GH5591@parisc-linux.org> <20061026182838.ac2c7e20.akpm@osdl.org> <20061026191131.003f141d@localhost.localdomain> <20061027170748.GA9020@kroah.com> <20061027172219.GC30416@elf.ucw.cz> <20061027113908.4a82c28a.akpm@osdl.org> <20061027114144.f8a5addc.akpm@osdl.org> <20061027114237.d577c153.akpm@osdl.org> <1161989970.16839.45.camel@localhost.localdomain> <20061027160626.8ac4a910.akpm@osdl.org>
+	Sat, 28 Oct 2006 01:12:32 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48653 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751803AbWJ1FMb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 01:12:31 -0400
+Date: Sat, 28 Oct 2006 05:12:16 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Richard Hughes <hughsient@gmail.com>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       David Zeuthen <davidz@redhat.com>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061028051215.GA4058@ucw.cz>
+References: <1161628327.19446.391.camel@pmac.infradead.org> <1161631091.16366.0.camel@localhost.localdomain> <1161633509.4994.16.camel@hughsie-laptop> <1161636514.27622.30.camel@shinybook.infradead.org> <1161710328.17816.10.camel@hughsie-laptop> <1161762158.27622.72.camel@shinybook.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061027160626.8ac4a910.akpm@osdl.org>
-X-Home-Page: http://www.parisc-linux.org/
+In-Reply-To: <1161762158.27622.72.camel@shinybook.infradead.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2006 at 04:06:26PM -0700, Andrew Morton wrote:
-> On Fri, 27 Oct 2006 23:59:30 +0100
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> 
-> > Ar Gwe, 2006-10-27 am 11:42 -0700, ysgrifennodd Andrew Morton:
-> > > IOW, we want to be multithreaded _within_ an initcall level, but not between
-> > > different levels.
-> > 
-> > Thats actually insufficient. We have link ordered init sequences in
-> > large numbers of driver subtrees (ATA, watchdog, etc). We'll need
-> > several more initcall layers to fix that.
-> > 
-> 
-> It would be nice to express those dependencies in some clearer and less
-> fragile manner than link order.  I guess finer-grained initcall levels
-> would do that, but it doesn't scale very well.
+Hi!
 
-Would making use of depmod data be a step in the right direction?
-ie nic driver calls extern function (e.g. pci_enable_device())
-and therefore must depend on module which provides that function.
+> I haven't (yet) changed from a single 'status' file to multiple
+> 'is_flag_0' 'is_flag_1' 'is_flag_2' files. I really don't like that idea
+> much -- it doesn't seem any more sensible than exposing each bit of the
+> voltage value through a separate file. These flags are _read_ together,
+> and _used_ together. I'd rather show it as a hex value 'flags' than
+> split it up. But I still think that the current 'present,charging,low'
+> is best.
 
-My guess is this probably isn't 100% sufficient to replace all initcall
-levels.  But likely sufficient within a given initcall level.
-My main concern are circular dependencies (which are rare).
+Please do this change. sysfs *is* one file per value.. if at least to
+be consistent with rest of code.
 
-> But whatever.  I think multithreaded probing just doesn't pass the
-> benefit-versus-hassle test, sorry.   Make it dependent on CONFIG_GREGKH ;)
+> @@ -0,0 +1,177 @@
+> +/*
+> + * Battery class core
+> + *
+> + *	?? 2006 David Woodhouse <dwmw2@infradead.org>
+> + *
+> + * Based on LED Class support, by John Lenz and Richard Purdie:
+> + *
+> + *	?? 2005 John Lenz <lenz@cs.wisc.edu>
+> + *	?? 2005-2006 Richard Purdie <rpurdie@openedhand.com>
 
-Isn't already? :)
+Could we get something ascii here? I'm not sure what you see instead
+of copyright... but I see ??. I could not find it in source, but if
+you use non-ascii character in file, please fix that, too.
 
-I thought parallel PCI and SCSI probing on system with multiple NICs and
-"SCSI" storage requires udev to create devices with consistent naming.
+> +ssize_t battery_attribute_show_ac_status(char *buf, unsigned long status)
+> +{
+> +	return 1 + sprintf(buf, "o%s-line\n", status?"n":"ff");
+> +}  
 
-thanks,
-grant
+I guess ac_online should show 0/1...
+
+> +	if (unlikely(err))
+> +		return err;
+> +
+> +        battery_dev->dev = device_create(battery_class, parent, 0,
+
+space/tab problem?
+
+
+-- 
+Thanks for all the (sleeping) penguins.

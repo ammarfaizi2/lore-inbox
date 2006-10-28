@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWJ1SxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWJ1Sxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWJ1SxF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWJ1SxE
+	id S932090AbWJ1Sxc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWJ1Sxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:53:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51472 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932086AbWJ1SxB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:53:01 -0400
-Date: Sat, 28 Oct 2006 18:52:44 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: David Zeuthen <davidz@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Shem Multinymous <multinymous@gmail.com>,
-       Richard Hughes <hughsient@gmail.com>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061028185244.GC5152@ucw.cz>
-References: <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com> <1161778296.27622.85.camel@shinybook.infradead.org> <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com> <1161815138.27622.139.camel@shinybook.infradead.org> <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <41840b750610280734q212fc138occ152f4a01ef67f5@mail.gmail.com> <1162046193.19446.521.camel@pmac.infradead.org> <1162047338.2723.49.camel@zelda.fubar.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Oct 2006 14:53:32 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:20312 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932087AbWJ1Sxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:53:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=QMre3aB2+uh06MIp9anEgYhPuLC0YSnGHcGYS7jQOrEOEYA3ryy97oGBSC2hYXf83PgTHUMA8Is8iWoL17R0ZlUVnJGIVUUlPdrVH2viKBD2ZGKOaXjmiiXx0gfOWoMXqzwlMna73c+d4u2EJOdkipmFM493QuVIrX3PLWKwem0=
+Message-ID: <86802c440610281153p71488109t97e34f6ea61628c@mail.gmail.com>
+Date: Sat, 28 Oct 2006 11:53:29 -0700
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@muc.de>
+Subject: Re: [PATCH] x86_64 irq: reuse vector for __assign_irq_vector
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Muli Ben-Yehuda" <muli@il.ibm.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Adrian Bunk" <bunk@stusta.de>
+In-Reply-To: <20061028174622.GB92790@muc.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1162047338.2723.49.camel@zelda.fubar.dk>
-User-Agent: Mutt/1.5.9i
+References: <86802c440610232115r76d98803o4293cdafce1fd95c@mail.gmail.com>
+	 <20061028174622.GB92790@muc.de>
+X-Google-Sender-Auth: 6ce5f28e0245c194
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-> > If it makes enough sense that it's worth exporting it to userspace at
-> > all, then it can go into battery.h.
-> 
-> If it's non-standard please make sure to prefix the name with something
-> unique e.g.
-> 
->  x_thinkpad_charging_inhibit [1]
+On 28 Oct 2006 19:46:22 +0200, Andi Kleen <ak@muc.de> wrote:
+> On Mon, Oct 23, 2006 at 09:15:31PM -0700, yhlu wrote:
 
-> to avoid collisions, e.g. two drivers using the same name but the
+> Hmm, i'm not sure I got that. Which was patch was it exactly
 
-You were clearly exposed to harmful dose of smtp.
 
-This is ugly, and unneccessary: kernel is centrally controlled. We
-*will* want to merge such attributes into something standard.
+Eric's online cpus patch is already in the maintream.
 
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+Please use the diff in
+
+http://lkml.org/lkml/2006/10/26/38
+
+Thanks
+
+YH

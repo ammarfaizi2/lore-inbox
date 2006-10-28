@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751840AbWJ1Ff7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWJ1Foj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751840AbWJ1Ff7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 01:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751842AbWJ1Ff7
+	id S1751842AbWJ1Foj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 01:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751846AbWJ1Foj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 01:35:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35515 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751840AbWJ1Ff6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 01:35:58 -0400
-Date: Fri, 27 Oct 2006 22:32:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Grant Grundler <grundler@parisc-linux.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       Greg KH <greg@kroah.com>, Stephen Hemminger <shemminger@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch] drivers: wait for threaded probes between initcall
- levels
-Message-Id: <20061027223228.e1679147.akpm@osdl.org>
-In-Reply-To: <20061027221925.1041cc5e.akpm@osdl.org>
-References: <20061027012058.GH5591@parisc-linux.org>
-	<20061026182838.ac2c7e20.akpm@osdl.org>
-	<20061026191131.003f141d@localhost.localdomain>
-	<20061027170748.GA9020@kroah.com>
-	<20061027172219.GC30416@elf.ucw.cz>
-	<20061027113908.4a82c28a.akpm@osdl.org>
-	<20061027114144.f8a5addc.akpm@osdl.org>
-	<20061027114237.d577c153.akpm@osdl.org>
-	<1161989970.16839.45.camel@localhost.localdomain>
-	<20061027160626.8ac4a910.akpm@osdl.org>
-	<20061028050905.GB5560@colo.lackof.org>
-	<20061027221925.1041cc5e.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Oct 2006 01:44:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:20017 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751842AbWJ1Foi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 01:44:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
+        b=frOmuGuR4HoncGqAiU65rf1IKaZzwNdx1Y/sUZyddfC4SYThkNoUTUutRlpgg1et9YVmlhP0RFdVD9VtPhr6Bta+k+xxzG7Bf16LZqktRzWn7IQOI3X96vT8DTg8y1XJKBD5vUYYliUR5SOdGK6IgIDkNtJFKeQ1TIJTIoJo9wQ=
+Message-ID: <86802c440610272244q750f35a7hcbed50e58546d97@mail.gmail.com>
+Date: Fri, 27 Oct 2006 22:44:36 -0700
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
+Cc: "Muli Ben-Yehuda" <muli@il.ibm.com>, "Andi Kleen" <ak@muc.de>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <m1ejsuqnyf.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_69251_21055565.1162014276979"
+References: <5986589C150B2F49A46483AC44C7BCA412D763@ssvlexmb2.amd.com>
+	 <m1ejsuqnyf.fsf@ebiederm.dsl.xmission.com>
+X-Google-Sender-Auth: 7ab9ccfd5d891123
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006 22:19:25 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+------=_Part_69251_21055565.1162014276979
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> The simplest implementation of "A needs B to have run" is for A to simply
-> call B, and B arranges to not allow itself to be run more than once.
-> 
-> But that doesn't work in the case "A needs B to be run, but only if B is
-> present".  Resolving this one would require something like a fancy
-> "synchronisation object" against which dependers and dependees can register
-> interest, and a core engine which takes care of the case where a depender
-> registers against something which no dependees have registered.
+revised version according to Eric. and it can be applied clearly to
+current Linus's Tree.
 
-otoh, we could stick with the simple "A calls B" solution, and A also
-provides an attribute-weak implementation of B to cover the "A needs B but
-only if B is present" problems.
+Clear the irq releated entries in irq_vector, irq_domain and vector_irq
+instead of clearing irq_vector only. So when new irq is created, it
+could reuse that vector. (actually is the second loop scanning from
+FIRST_DEVICE_VECTOR+8). This could avoid the vectors are used up
+with enough module inserting and removing
 
-Had to say, really - one would need to study some specific problem cases.
+Cc: Eric W. Biedierman <ebiederm@xmission.com>
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>
+Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
+
+------=_Part_69251_21055565.1162014276979
+Content-Type: text/x-patch; name=io_apic_clear_irq_vector_1027.diff; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ettl4wte
+Content-Disposition: attachment; filename="io_apic_clear_irq_vector_1027.diff"
+
+ZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGljLmMgYi9hcmNoL3g4Nl82NC9r
+ZXJuZWwvaW9fYXBpYy5jCmluZGV4IGZlNDI5ZTUuLjk3NjYzNGMgMTAwNjQ0Ci0tLSBhL2FyY2gv
+eDg2XzY0L2tlcm5lbC9pb19hcGljLmMKKysrIGIvYXJjaC94ODZfNjQva2VybmVsL2lvX2FwaWMu
+YwpAQCAtNjg0LDYgKzY4NCwyMiBAQCBzdGF0aWMgaW50IGFzc2lnbl9pcnFfdmVjdG9yKGludCBp
+cnEsIGNwCiAJcmV0dXJuIHZlY3RvcjsKIH0KIAorc3RhdGljIHZvaWQgX19jbGVhcl9pcnFfdmVj
+dG9yKGludCBpcnEpCit7CisJY3B1bWFza190IG1hc2s7CisJaW50IGNwdSwgdmVjdG9yOworCisJ
+QlVHX09OKCFpcnFfdmVjdG9yW2lycV0pOworCisJdmVjdG9yID0gaXJxX3ZlY3RvcltpcnFdOwor
+CWNwdXNfYW5kKG1hc2ssIGlycV9kb21haW5baXJxXSwgY3B1X29ubGluZV9tYXApOworCWZvcl9l
+YWNoX2NwdV9tYXNrKGNwdSwgbWFzaykKKwkJcGVyX2NwdSh2ZWN0b3JfaXJxLCBjcHUpW3ZlY3Rv
+cl0gPSAtMTsKKworCWlycV92ZWN0b3JbaXJxXSA9IDA7CisJaXJxX2RvbWFpbltpcnFdID0gQ1BV
+X01BU0tfTk9ORTsKK30KKwogdm9pZCBfX3NldHVwX3ZlY3Rvcl9pcnEoaW50IGNwdSkKIHsKIAkv
+KiBJbml0aWFsaXplIHZlY3Rvcl9pcnEgb24gYSBuZXcgY3B1ICovCkBAIC0xNzcxLDcgKzE3ODcs
+NyBAQCB2b2lkIGRlc3Ryb3lfaXJxKHVuc2lnbmVkIGludCBpcnEpCiAJZHluYW1pY19pcnFfY2xl
+YW51cChpcnEpOwogCiAJc3Bpbl9sb2NrX2lycXNhdmUoJnZlY3Rvcl9sb2NrLCBmbGFncyk7Ci0J
+aXJxX3ZlY3RvcltpcnFdID0gMDsKKwlfX2NsZWFyX2lycV92ZWN0b3IoaXJxKTsKIAlzcGluX3Vu
+bG9ja19pcnFyZXN0b3JlKCZ2ZWN0b3JfbG9jaywgZmxhZ3MpOwogfQogCg==
+------=_Part_69251_21055565.1162014276979--

@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWJ1Psy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWJ1Pz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbWJ1Psy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 11:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWJ1Psy
+	id S1750944AbWJ1Pz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 11:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWJ1Pz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 11:48:54 -0400
-Received: from linux-geeks.de ([213.133.99.198]:36614 "EHLO linux-geeks.de")
-	by vger.kernel.org with ESMTP id S1750929AbWJ1Psy (ORCPT
+	Sat, 28 Oct 2006 11:55:29 -0400
+Received: from xenotime.net ([66.160.160.81]:6303 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750941AbWJ1Pz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 11:48:54 -0400
-Mime-Version: 1.0 (Apple Message framework v752.2)
+	Sat, 28 Oct 2006 11:55:29 -0400
+Date: Sat, 28 Oct 2006 08:51:04 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Dave Jones <davej@redhat.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Steven Truong <midair77@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Machine Check Exception on dual core Xeon
+Message-Id: <20061028085104.f7ae2f6a.rdunlap@xenotime.net>
+In-Reply-To: <20061028062921.GA27101@redhat.com>
+References: <28bb77d30610171634l5db9d909v2c4cd12972e9d5@mail.gmail.com>
+	<90DB029B-222B-4D0C-8642-913CD81D5C9B@mac.com>
+	<20061021033049.GC17706@redhat.com>
+	<20061027222752.5560ad81.rdunlap@xenotime.net>
+	<20061028062921.GA27101@redhat.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <65EE3C45-1966-4C31-97DF-555967976709@terpstra.ca>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: linux-kernel@vger.kernel.org
-From: "Wesley W. Terpstra" <wesley@terpstra.ca>
-Subject: Extended attributes on symlinks --> EPERM ?
-Date: Sat, 28 Oct 2006 17:48:45 +0200
-X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good evening!
+On Sat, 28 Oct 2006 02:29:21 -0400 Dave Jones wrote:
 
-Setting extended attributes on symlinks is forbidden with EPERM.  
-Certainly, if you follow the symlink, it can set the value on the  
-destination file, but I want to set extended attributes on the  
-symlink itself.
+> On Fri, Oct 27, 2006 at 10:27:52PM -0700, Randy Dunlap wrote:
+>  > On Fri, 20 Oct 2006 23:30:49 -0400 Dave Jones wrote:
+>  > 
+>  > >  > You missed the blatantly obvious error message:
+>  > >  > "This is not a software problem!"
+>  > >  > 
+>  > >  > Immediately followed by:
+>  > >  > "contact your hardware vendor"
+>  > >  > 
+>  > >  > Please follow that advice
+>  > > 
+>  > > Maybe someone needs to implement <blink> tags for printk ;-)
+>  > 
+>  > oops, I didn't do it for MCEs.. :)
+>  > and I used reverse video since I dislike blinking.
+>  > 
+>  > photo:  http://www.xenotime.net/linux/doc/kernel-msg-hilite.jpg
+> 
+> Oh my.  People take me seriously far too often :-)
+> Could be handy for some frequently ignored bits of text
+> (like that mce msg), but if this gets overused it just looks
+> like a horrible mess imo.
 
-Is this correct behaviour?:
-	pumpkin:/backup/x# touch y
-	pumpkin:/backup/x# ln -s y x
-	pumpkin:/backup/x# setfattr -h -n user.key1 -v val1 y
-	pumpkin:/backup/x# setfattr -h -n user.key2 -v val2 x
-	setfattr: x: Operation not permitted
+Nah, I just did it for fun/challenge/experience/blablabla.
+Yes, it could/would be overused too easily.  I recognized
+that very quickly.
 
-This happens on linux-2.6.18 with ext3/xfs and backports of extended  
-attributes to 2.4.20 with ext3.
+> Now I'm just waiting for someone to go one step further
+> and make openbsd style 'white on blue' kernel text ;)
 
-The same thing works with extended attributes on osx. I have no other  
-platforms with extended attributes to compare against.
+nope.
 
-It seems desirable to be able to store extended attributes on  
-symlinks: meta-data can apply to anything. In fact, this is causing  
-trouble with an rsync option that stores ownership, device number,  
-and mode in an extended attribute. This would allow backups to a root- 
-less rsync server which uses no special file-system permissions in  
-backing up client computers.
-
-Please CC me on replies.
-Thank you for your time!
+---
+~Randy

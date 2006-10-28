@@ -1,93 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWJ1Ugu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWJ1Uuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWJ1Ugu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 16:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWJ1Ugu
+	id S1751413AbWJ1Uuh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 16:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWJ1Uuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 16:36:50 -0400
-Received: from 1wt.eu ([62.212.114.60]:19972 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1750831AbWJ1Ugu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 16:36:50 -0400
-Date: Sat, 28 Oct 2006 22:36:59 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Andi Kleen <ak@suse.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, thockin@hockin.org,
-       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: AMD X2 unsynced TSC fix?
-Message-ID: <20061028203659.GD1603@1wt.eu>
-References: <1161969308.27225.120.camel@mindpipe> <200610281233.27588.ak@suse.de> <20061028200439.GB1603@1wt.eu> <200610281311.14665.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610281311.14665.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Sat, 28 Oct 2006 16:50:37 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:396 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751413AbWJ1Uuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 16:50:37 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4543C22A.2060203@s5r6.in-berlin.de>
+Date: Sat, 28 Oct 2006 22:48:42 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>
+CC: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
+References: <20061026191131.003f141d@localhost.localdomain> <20061027170748.GA9020@kroah.com> <20061027172219.GC30416@elf.ucw.cz> <20061027113908.4a82c28a.akpm@osdl.org> <20061027114144.f8a5addc.akpm@osdl.org> <20061027114237.d577c153.akpm@osdl.org> <1161989970.16839.45.camel@localhost.localdomain> <20061027160626.8ac4a910.akpm@osdl.org> <20061028050905.GB5560@colo.lackof.org> <20061027221925.1041cc5e.akpm@osdl.org> <20061028060833.GC5560@colo.lackof.org>
+In-Reply-To: <20061028060833.GC5560@colo.lackof.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2006 at 01:11:14PM -0700, Andi Kleen wrote:
-> On Saturday 28 October 2006 13:04, Willy Tarreau wrote:
+Grant Grundler wrote:
+> On Fri, Oct 27, 2006 at 10:19:25PM -0700, Andrew Morton wrote:
+>>> I thought parallel PCI and SCSI probing on system with multiple NICs and
+>>> "SCSI" storage requires udev to create devices with consistent naming.
+>> For some reason people get upset when we rename all their devices.  They're
+>> a humourless lot.
 > 
-> > I really think that the hardware was doing tricks far beyond my knowledge,
-> > because on another Sun (a V40Z), there were 4 dual cores which I never saw
-> > out of sync even after hours of testing. But the HPET was available in it,
-> > I don't remember if it's used by default when detected.
+> Hey! I resemble that remark! ;)
 > 
-> I think some system occasionally ramp the clock for thermal management,
-> but that should be rare.
+> (yeah, I've been a victim of that problem way too many times.)
 
-I should say that at one moment, I've been wondering whether they were
-or not performing sort of an automatic overclocking under load, because
-those machines were really faster even in single-core than other opterons
-I had tested. Since such boxes are often compared on workloads such as
-SSL, doing so might have favored them in comparative benchmarks.
-
-> > No I did not "force" anything at first. You take the RHEL3 CD, you install
-> > it, reboot and watch your logs report negative times, then scratch your
-> > head, first call red hat dumb ass, and after a few tests, apologize to the
-> > poor innocent red hat 
-> 
-> Well they should have fixed the kernel to fall back to another clock
-> by backporting the appropiate fixes from mainline. I assume they
-> did actually.
-
-But upon what trigger should they apply the fallback ? I don't see
-what can be detected. I see no such thing in 2.4 mainline (except
-TSC resync at boot), and do not seem to find any such fallback either
-in 2.6 (though I might not have looked deep enough as the code is more
-complex there).
-
-> > and call the box a total crap. To put it shortly 
-> > (might be useful for people who Google for it) : Dual-core Sun x2100 is
-> > unreliable out of the box under Linux.
-> 
-> No that shouldn't be true with any modern kernel. It will just fallback
-> to HPET or more likely PMtimer.
-
-same comment as above :-)
-
-> >
-> > > In the default configuration there shouldn't be any problems
-> > > like this, it will just run slower because the kernel falls back to a
-> > > slower time source.
-> >
-> > You have to specify "notsc" for this.
-> 
-> No, the kernel should work out of the box. Some older kernels didn't
-> at various points of time though.
-
-Anyway, if they started providing kernels which used TSC by default,
-I don't think they will change this afterwards, in order to avoid
-causing regressions.
-
-Could you please check if the fallbacks you're talking about are
-hard to backport in 2.4 ? Depending on their complexity and risk,
-I would not be against a small backport. I think for instance that
-automatically disabling TSC on SMP when HPET is present would not
-be a terrible regression and might help in a number of occasions.
-The user would then have to force the use of TSC if needed.
-
-Regards,
-Willy
-
+I hear network interfaces can be selected by their MACs, which are
+globally unique and persistent. Most SCSI hardware has globally unique
+and persistent unit properties too, and udev indeed uses them these days.
+-- 
+Stefan Richter
+-=====-=-==- =-=- ===--
+http://arcgraph.de/sr/

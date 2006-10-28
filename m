@@ -1,28 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWJ1SjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWJ1SkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWJ1SjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 14:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWJ1SjY
+	id S1751318AbWJ1SkY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 14:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWJ1SkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 14:39:24 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:31014 "EHLO
+	Sat, 28 Oct 2006 14:40:23 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:56361 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751345AbWJ1SjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 14:39:24 -0400
+	id S1751318AbWJ1SkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 14:40:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=g3l05vV4nAlLe00AD+VvJOoByNExpZD6uB5X6KZ2vWEeCIbWXRZBuHc/8wrX2ezTkLGOX2n++tDdCJym/IbQ5AIBNvG5j8TBfhKODbTRFyE2A6f/tC+FO1dPdTN/RNxkLYEFpIKFnOlwUyFy/0xtiAT8JmaQvdkpqZldCRvjG4c=
-Date: Sun, 29 Oct 2006 03:39:43 +0900
+        b=chTJPxd8xtbwncDOr2taEwcsezxNY7k/cKRoopVeRtfcJVp7JX8gC0erXKnoQpZqDmgwE8c7OVFldsV6Gk3BN9W06zJQRkEb/hYuJYOiK4KYy5OWj3W3JFRslWjFl28EaHKMkd3Q26YFGdPEfsbaBlTcFiQX59XGoBjm1+nxJfo=
+Date: Sun, 29 Oct 2006 03:40:42 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@suse.de>,
-       Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-Subject: [PATCH] acpiphp: fix use of list_for_each macro
-Message-ID: <20061028183943.GA9973@localhost>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH] pci: fix __pci_register_driver error handling
+Message-ID: <20061028184042.GB9973@localhost>
 Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
-	Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+	linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -30,41 +28,31 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes invalid usage of list_for_each()
-
-list_for_each (node, &bridge_list) {
-	bridge = (struct acpiphp_bridge *)node;
-	...
-}
-
-This code works while the member of list node is located at the
-head of struct acpiphp_bridge.
+__pci_register_driver() error path forgot to unwind.
+driver_unregister() needs to be called when pci_create_newid_file() failed.
 
 Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
- drivers/pci/hotplug/acpiphp_glue.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/pci/pci-driver.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-Index: work-fault-inject/drivers/pci/hotplug/acpiphp_glue.c
+Index: work-fault-inject/drivers/pci/pci-driver.c
 ===================================================================
---- work-fault-inject.orig/drivers/pci/hotplug/acpiphp_glue.c
-+++ work-fault-inject/drivers/pci/hotplug/acpiphp_glue.c
-@@ -1693,14 +1693,10 @@ void __exit acpiphp_glue_exit(void)
-  */
- int __init acpiphp_get_num_slots(void)
- {
--	struct list_head *node;
- 	struct acpiphp_bridge *bridge;
--	int num_slots;
--
--	num_slots = 0;
-+	int num_slots = 0;
+--- work-fault-inject.orig/drivers/pci/pci-driver.c
++++ work-fault-inject/drivers/pci/pci-driver.c
+@@ -445,9 +445,12 @@ int __pci_register_driver(struct pci_dri
  
--	list_for_each (node, &bridge_list) {
--		bridge = (struct acpiphp_bridge *)node;
-+	list_for_each_entry (bridge, &bridge_list, list) {
- 		dbg("Bus %04x:%02x has %d slot%s\n",
- 				pci_domain_nr(bridge->pci_bus),
- 				bridge->pci_bus->number, bridge->nr_slots,
+ 	/* register with core */
+ 	error = driver_register(&drv->driver);
++	if (error)
++		return error;
+ 
+-	if (!error)
+-		error = pci_create_newid_file(drv);
++	error = pci_create_newid_file(drv);
++	if (error)
++		driver_unregister(&drv->driver);
+ 
+ 	return error;
+ }

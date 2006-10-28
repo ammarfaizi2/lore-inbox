@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWJ1PZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWJ1P2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWJ1PZA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 11:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWJ1PZA
+	id S1750896AbWJ1P2g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 11:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWJ1P2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 11:25:00 -0400
-Received: from [139.30.44.16] ([139.30.44.16]:53003 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1750877AbWJ1PY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 11:24:59 -0400
-Date: Sat, 28 Oct 2006 17:24:57 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-cc: Al Viro <viro@ftp.linux.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: dealing with excessive includes
-Message-ID: <Pine.LNX.4.63.0610281712180.29510@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 28 Oct 2006 11:28:36 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:24791 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750893AbWJ1P2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 11:28:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=DDsUrDXgWEIE5tVcZD5m20WffoVqG2f3kGCu6l9aOEv6K7mUfj0uqtFMizWSBc+iCgnZMYT8nhzGMYiCKwREMmMP8H/OmX7KCw2fAVGehYhDy1qfIr3z8oZ6lcomwwN6c5itRX4rnRHtFtemB2nNNZ4xYf5aN0FryT0D2DryuCA=
+Date: Sat, 28 Oct 2006 19:28:34 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mikael Starvik <starvik@axis.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] cryptocop: double spin_lock_irqsave()
+Message-ID: <20061028152834.GA31651@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006 10:31:26 +0100, Al Viro wrote:
-> On Wed, Oct 18, 2006 at 01:19:44PM +0400, Alexey Dobriyan wrote:
-> > > module.h is trickier.  First of all, we want extern for wake_up_process().
-> > 
-> > When I came up with this to l-k, Nick and Christoph told me that duplicate
-> > proto sucks. So module.h/sched.h is
-> > a) uninline module_put()
-> > b) remove #include <linux/sched.h>
-> 
-> Works for me...  OTOH, wake_up_process() is not likely to change
-> prototype, so I'm not sure how strong that argument actually is.
-> 
-> Anyway, that patch is obviously preliminary - at the very least
-> it needs be checked on more configs (and more targets - e.g. mips and
-> parisc hadn't been checked at all).  Probably worth putting in -mm for
-> a while, too, or we'll get fun breakage on the next big merge from -mm.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-So, has a patch emerged yet? I'd like to help checking and fixing things.
+ arch/cris/arch-v32/drivers/cryptocop.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-There shouldn't be too much fallout from that. I had a patch to uninclude 
-sched.h from module.h in -mm for some time about a year ago.
-All fixes necessary at that time should be in Linus' tree by now, just the 
-final patch to module.h got dropped.
+--- a/arch/cris/arch-v32/drivers/cryptocop.c
++++ b/arch/cris/arch-v32/drivers/cryptocop.c
+@@ -2051,7 +2051,6 @@ static void cryptocop_job_queue_close(vo
+ 	spin_lock_irqsave(&cryptocop_process_lock, process_flags);
+ 
+ 	/* Empty the job queue. */
+-	spin_lock_irqsave(&cryptocop_process_lock, process_flags);
+ 	for (i = 0; i < cryptocop_prio_no_prios; i++){
+ 		if (!list_empty(&(cryptocop_job_queues[i].jobs))){
+ 			list_for_each_safe(node, tmp, &(cryptocop_job_queues[i].jobs)) {
 
-Tim

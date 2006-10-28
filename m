@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWJ1QuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWJ1QyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWJ1QuT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 12:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWJ1QuT
+	id S1751079AbWJ1QyK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 12:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWJ1QyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 12:50:19 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12741 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751061AbWJ1QuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 12:50:16 -0400
-Date: Sat, 28 Oct 2006 17:50:02 +0100
-From: Christoph Hellwig <hch@infradead.org>
+	Sat, 28 Oct 2006 12:54:09 -0400
+Received: from nic.NetDirect.CA ([216.16.235.2]:58540 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1751079AbWJ1QyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 12:54:08 -0400
+X-Originating-Ip: 72.57.81.197
+Date: Sat, 28 Oct 2006 12:52:13 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH 2.6.19-rc1-mm1] Export jiffies_to_timespec()
-Message-ID: <20061028165002.GB22673@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-	john stultz <johnstul@us.ibm.com>
-References: <452C3CA6.2060403@goop.org> <20061011161628.GA1873@infradead.org> <20061011111739.09c25a8e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061011111739.09c25a8e.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: why "probe_kernel_address()", not "probe_user_address()"?
+In-Reply-To: <20061028092906.6c1562e3.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0610281246160.2537@localhost.localdomain>
+References: <Pine.LNX.4.64.0610281153180.2091@localhost.localdomain>
+ <20061028092906.6c1562e3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 11:17:39AM -0700, Andrew Morton wrote:
-> On Wed, 11 Oct 2006 17:16:28 +0100
-> Christoph Hellwig <hch@infradead.org> wrote:
-> 
-> > On Tue, Oct 10, 2006 at 05:36:54PM -0700, Jeremy Fitzhardinge wrote:
-> > > Export jiffies_to_timespec; previously modules used the inlined header 
-> > > version.
-> > 
-> > NACK, drivers shouldn know about these timekeeping details and no
-> > in-tree driver uses it (fortunately)
-> 
-> Disagree.
-> 
-> a) `jiffies' and `timepsec' are hardly "details".  They are basic
->    kernel-wide concepts.  timespecs are even known to userspace.  Exporting
->    a helper function which converts from one to the other is perfectly
->    reasonable.
+On Sat, 28 Oct 2006, Andrew Morton wrote:
 
-That non one in tree ever uses it is a very good reason no to export it
-either.  While there are still far too many direct jiffy users there
-is no one directly convertin it to a timespec for good reason.
+> On Sat, 28 Oct 2006 11:56:24 -0400 (EDT)
+> "Robert P. J. Day" <rpjday@mindspring.com> wrote:
+>
+> >
+> >   it seems odd that the purpose of the "probe_kernel_address()" macro
+> > is, in fact, to probe a *user* address (from linux/uaccess.h):
+> >
+> > #define probe_kernel_address(addr, retval)              \
+> >         ({                                              \
+> >                 long ret;                               \
+> >                                                         \
+> >                 inc_preempt_count();                    \
+> >                 ret = __get_user(retval, addr);         \
+> >                 dec_preempt_count();                    \
+> >                 ret;                                    \
+> >         })
+> >
+> >   given that that routine is referenced only 5 places in the
+> > entire source tree, wouldn't it be more meaningful to use a more
+> > appropriate name?
+>
+> You'll notice that all callers are indeed probing kernel addresses.
+> The function _could_ be used for user addresses and could perhaps be
+> called probe_address().
+>
+> One of the reasons this wrapper exists is to communicate that the
+> __get_user() it is in fact not being used to access user memory.
 
-> 
-> b) jiffies_to_timespec() was previously available to modules.  We
->    changed that without notice and we changed it *by accident*.  There was
->    no intention to withdraw jiffies_to_timespec() from the
->    available-to-modules API.
+um ... ok.  i think.  i agree that "probe_address()" would be a more
+appropriate name, but i'm still a bit confused as to why
+"__get_user()" would be used to access something *not* in user memory,
+given this seemingly unambiguous explanation in
+include/asm-i386/uaccess.h:
 
-By that rationale everything errornously implemented as a macro or inline
-at some point will need to be exported.  Except for you we still maintain
-that we don't want to keep unused exports.  Arjan even put a formal mechanism
-in to warn about them and has gotten a global buy-in to kill them.  This
-will fall under this ASAP and only give people a short period to keep using
-it.  Not a very useful message.
+=====
+ * get_user: - Get a simple variable from user space.
+ * @x:   Variable to store result.
+ * @ptr: Source address, in user space.
+ *
+ * Context: User context only.  This function may sleep.
+ *
+ * This macro copies a single simple variable from user space to kernel
+ * space.  It supports simple types like char and int, but not larger
+ * data types like structures or arrays.
+  ...
+=====
 
-(especially when the only user is closed source crap where people should
-help the proper reverse-engineered driver instead)
+  so having probe_kernel_address() invoke __get_user() does seem to be
+just a wee bit confusing for us newbies.  in any event, i'll leave the
+clarification for someone much higher up the food chain.
 
+rday

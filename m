@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964769AbWJ1Tmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWJ1TrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964769AbWJ1Tmt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 15:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWJ1Tmt
+	id S932101AbWJ1TrB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 15:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWJ1TrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 15:42:49 -0400
-Received: from teetot.devrandom.net ([66.35.250.243]:221 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S932101AbWJ1Tms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 15:42:48 -0400
-Date: Sat, 28 Oct 2006 12:42:45 -0700
-From: thockin@hockin.org
-To: Willy Tarreau <w@1wt.eu>
-Cc: Andi Kleen <ak@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Luca Tettamanti <kronos.it@gmail.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: AMD X2 unsynced TSC fix?
-Message-ID: <20061028194245.GA24083@hockin.org>
-References: <1161969308.27225.120.camel@mindpipe> <1162006081.27225.257.camel@mindpipe> <20061028052837.GC1709@1wt.eu> <200610281137.22451.ak@suse.de> <20061028191515.GA1603@1wt.eu> <20061028191800.GA20701@hockin.org> <20061028193217.GD1709@1wt.eu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061028193217.GD1709@1wt.eu>
-User-Agent: Mutt/1.4.1i
+	Sat, 28 Oct 2006 15:47:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5567 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932101AbWJ1TrA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 15:47:00 -0400
+Date: Sat, 28 Oct 2006 12:41:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       matthew@wil.cx, pavel@ucw.cz, shemminger@osdl.org
+Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
+In-Reply-To: <200610280823.k9S8NZ2D004392@freya.yggdrasil.com>
+Message-ID: <Pine.LNX.4.64.0610281238460.3849@g5.osdl.org>
+References: <200610280823.k9S8NZ2D004392@freya.yggdrasil.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2006 at 09:32:18PM +0200, Willy Tarreau wrote:
-> > Was the problem that they were not synced at poweron or that they would
-> > drift due to power-states?
+
+
+On Sat, 28 Oct 2006, Adam J. Richter wrote:
+
+> On Fri, 27 Oct 2006 13:42:44 -0700 (PDT), Linus Torvals wrote:
+> >        static struct semaphore outstanding;
+> [...]
+> >        static void allow_parallel(int n)
+> [...]
+> >        static void wait_for_parallel(int n)
+> [...]
+> >        static void execute_in_parallel(int (*fn)(void *), void *arg)
 > 
-> They resynced at power up, but would constantly drift. I don't even know
-> if it was caused by power states. When the machine was loaded, a single
-> task moving across the cores could see its time jump back and forth 
-> several times a second by an offset sometimes close to +2/-2s.
+> 	This interface would have problems with nesting.
 
-That sounds like C1, to me.
+You miss the point.
 
-> > Did you try running with idle=poll, to avoid ever entering C1 state (hlt)?
-> 
-> Yes, I remember trying such things. I also tried 'nohlt', completely
-> disabling power management, including ACPI, etc... I also tried vanilla
-> kernels as well as severely patched ones, but the problem remained the
-> same in all circumstances, that only 'notsc' could solve.
+They _wouldn't_ be nested.
 
-That's exceedingly strange.  On my dual-socket dual-core, I can get
-roughly synced TSCs (no appreciable drift) by just using idle=poll.  If
-that did not work for you, I'd really want to poke at the system more.
+The "allow_parallel()" and "wait_for_parallel()" calls would be at some 
+top-level situation (ie initcalls looping).
 
-> BTW, I've just found a remain of dmesg capture after boot in case you'd
-> like to look for anything in it.
+Nobody else than the top level would _ever_ use them. Anything under that 
+level would just say "I want to do this in parallel" - which is just a 
+statement, and has no nesting issues in itself.
 
-A dmesg won't be that useful, I'd actually have to poke at the system.
+The whole notion of "I want to do this in parallel" is basically 
+non-nesting. If something is parallel, it's by definition not ordered, and 
+thus nesting cannot make sense. All the "ordered" stuff would be either 
+done without using "execute_in_parallel()" at all, or it would be ordered 
+_within_ one thread that is executed in parallel.
+
+		Linus

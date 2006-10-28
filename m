@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWJ1VKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWJ1VNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWJ1VKd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 17:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWJ1VKc
+	id S964850AbWJ1VNt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 17:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWJ1VNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 17:10:32 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16064 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964846AbWJ1VKc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 17:10:32 -0400
-Date: Sat, 28 Oct 2006 23:10:08 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Zeuthen <davidz@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Shem Multinymous <multinymous@gmail.com>,
-       Richard Hughes <hughsient@gmail.com>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061028211008.GB30819@elf.ucw.cz>
-References: <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com> <1161815138.27622.139.camel@shinybook.infradead.org> <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <41840b750610280734q212fc138occ152f4a01ef67f5@mail.gmail.com> <1162046193.19446.521.camel@pmac.infradead.org> <1162047338.2723.49.camel@zelda.fubar.dk> <20061028185244.GC5152@ucw.cz> <1162064934.2723.77.camel@zelda.fubar.dk>
-MIME-Version: 1.0
+	Sat, 28 Oct 2006 17:13:49 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:22186 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964850AbWJ1VNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 17:13:48 -0400
+Date: Sat, 28 Oct 2006 22:13:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, toralf.foerster@gmx.de,
+       netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       link@miggy.org, greg@kroah.com, akpm@osdl.org, zippel@linux-m68k.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
+Message-ID: <20061028211342.GA23360@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Brownell <david-b@pacbell.net>,
+	Randy Dunlap <randy.dunlap@oracle.com>, toralf.foerster@gmx.de,
+	netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+	link@miggy.org, greg@kroah.com, akpm@osdl.org,
+	zippel@linux-m68k.org, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025165858.b76b4fd8.randy.dunlap@oracle.com> <20061028112122.GA14316@infradead.org> <200610281410.13679.david-b@pacbell.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1162064934.2723.77.camel@zelda.fubar.dk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <200610281410.13679.david-b@pacbell.net>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 2006-10-28 15:48:54, David Zeuthen wrote:
-> On Sat, 2006-10-28 at 18:52 +0000, Pavel Machek wrote:
-> > This is ugly, and unneccessary: kernel is centrally controlled. We
-> > *will* want to merge such attributes into something standard.
+On Sat, Oct 28, 2006 at 02:10:09PM -0700, David Brownell wrote:
+> On Saturday 28 October 2006 4:21 am, Christoph Hellwig wrote:
 > 
-> Uh, such standards don't happen overnight as this thread painfully
-> demonstrates, i.e. there is not yet any "standard" for handling
-> batteries until dwmw2 actually stepped up. That alone says something.
-> And we're at 2.6.19 about 15 years into development of Linux?
+> > This is really awkward and against what we do in any other driver.
+> 
+> Awkward, yes -- which is why I posted the non-awkward version,
+> which is repeated below.  (No thanks to "diff" for making the
+> patch ugly though; the resulting code is clean and non-awkward,
+> moving that function helped.)
+> 
+> Against what other drivers do?  Since "usbnet.c" is infrastructure
+> code, not a driver, your comment can't apply.  Infrastructure uses
+> conditional compilation routinely in such cases.
+> 
+> But remember that the actual drivers follow the standard convention
+> ("select MII") given Randy's patch #1 of 2.
 
-And we have sys_open. Not sys_x_ext2_open.
+Ah sorry - I missed that.
 
-> You may or may not like it... but battery class drivers will have such
-> non-standard things. I'm merely suggesting to tag these as non-standard
-> so it's bloody evident they are non-standard. For the record, I also
-> think that making non standard attributes ugly will help accelerate us
-> in standardizing on it. You can also easier grep through the sources to
-> find offending code when you do decide to standardize it.
+I still don't quite like the approach.  What about simply putting
+the mii using functions into usbnet-mii.c and let makefile doing
+all the work?  This would require a second set of ethtool ops,
+but I'd actually consider that a cleanup, as it makes clear which
+one we're using and allows to kill all the checks for non-mii
+hardware in the methods.
 
-You can simply _not merge offending code in the first place_.
-
-"Lets design it so that stupid things can be grepped for" is stupid,
-when we can simply "not allow stupid things to be merged".
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

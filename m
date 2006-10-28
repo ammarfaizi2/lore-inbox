@@ -1,119 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752114AbWJ1Knx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752115AbWJ1KyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752114AbWJ1Knx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 06:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752115AbWJ1Knx
+	id S1752115AbWJ1KyR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 06:54:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752123AbWJ1KyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 06:43:53 -0400
-Received: from o-hand.com ([70.86.75.186]:27084 "EHLO o-hand.com")
-	by vger.kernel.org with ESMTP id S1752114AbWJ1Knw (ORCPT
+	Sat, 28 Oct 2006 06:54:16 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:37824 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1752115AbWJ1KyP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 06:43:52 -0400
-Subject: Re: [PATCH, RFC/T] Fix handling of write failures to swap devices
-From: Richard Purdie <richard@openedhand.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Hugh Dickins <hugh@veritas.com>
-In-Reply-To: <4542E2A4.2080400@yahoo.com.au>
-References: <1161935995.5019.46.camel@localhost.localdomain>
-	 <4541C1B2.7070003@yahoo.com.au>
-	 <1161938694.5019.83.camel@localhost.localdomain>
-	 <4542E2A4.2080400@yahoo.com.au>
-Content-Type: text/plain
-Date: Sat, 28 Oct 2006 11:43:47 +0100
-Message-Id: <1162032227.5555.65.camel@localhost.localdomain>
+	Sat, 28 Oct 2006 06:54:15 -0400
+Date: Sat, 28 Oct 2006 14:53:40 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
+Subject: Re: [take21 1/4] kevent: Core files.
+Message-ID: <20061028105340.GC15038@2ka.mipt.ru>
+References: <11619654011980@2ka.mipt.ru> <454330BC.9000108@cosmosbay.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <454330BC.9000108@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 28 Oct 2006 14:53:41 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-28 at 14:55 +1000, Nick Piggin wrote:
-> Richard Purdie wrote:
-> > On Fri, 2006-10-27 at 18:22 +1000, Nick Piggin wrote:
-> >>This is the right approach to handling swap write errors. However, you need
-> >>to cut down on the amount of code duplication. 
-> > 
-> > The code is subtly different to the swapoff code but I'll take another
-> > look and see if I can refactor it now I have it all working.
+On Sat, Oct 28, 2006 at 12:28:12PM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
+> +/*
+> + * Called under kevent_user->ready_lock, so updates are always protected.
+> + */
+> +int kevent_user_ring_add_event(struct kevent *k)
+> +{
+> +	unsigned int pidx, off;
+> +	struct kevent_mring *ring, *copy_ring;
+> +	
+> +	ring = k->user->pring[0];
+> +
+> +	if ((ring->kidx + 1 == ring->uidx) ||
+> +			((ring->kidx + 1 == KEVENT_MAX_EVENTS) && ring->uidx 
+> == 0)) {
+> +		if (k->user->overflow_kevent == NULL)
+> +			k->user->overflow_kevent = k;
+> +		return -EAGAIN;
+> +	}
+> +
 > 
-> Subtly different code is the worst kind of code to be duplicating. It
-> really needs improving, I think.
+> 
+> I really dont understand how you manage to queue multiple kevents in the 
+> 'overflow list'. You just queue one kevent at most. What am I missing ?
 
-I'm open to suggestions as to how to do it. The main problem was that in
-in order to mark the page bad you needed to hold an extra reference on
-the page so that the "mark bad" code would be the last code to touch the
-page. The swapoff code doesn't need this and I don't like the idea of
-passing some count value to a common function as that would be
-confusing. I guess swapoff could start taking an extra reference but I
-can see people objecting to that too as it doesn't need it. 
+There is no overflow list - it is a pointer to the first kevent in the
+ready queue, which was not put into ring buffer. It is an optimisation, 
+which allows to not search for that position each time new event should 
+be placed into the buffer, when it starts to have an empty slot.
+ 
+> 
+> >+
+> >+	for (i=0; i<KEVENT_MAX_PAGES; ++i) {
+> >+		u->pring[i] = (struct kevent_mring 
+> >*)__get_free_page(GFP_KERNEL);
+> >+		if (!u->pring[i])
+> >+			break;
+> >+	}
+> >+
+> >+	if (i != KEVENT_MAX_PAGES)
+> >+		goto err_out_free;
+> 
+> Why dont you use goto directly ?
+> 
+> 	if (!u->pring[i])
+> 		goto err_out_free;
+> 
+ 
+I used a fallback mode here which allowed to use smaller number of pages
+for kevent ring buffer, but then decided to drop it.
+So it is possible to use goto directly.
+ 
+> >+
+> >+	u->pring[0]->uidx = u->pring[0]->kidx = 0;
+> >+
+> >+	return 0;
+> >+
+> >+err_out_free:
+> >+	for (i=0; i<KEVENT_MAX_PAGES; ++i) {
+> >+		if (!u->pring[i])
+> >+			break;
+> >+
+> >+		free_page((unsigned long)u->pring[i]);
+> >+	}
+> >+	return k;
+> >+}
+> >+
+> 
+> 
+> 
+> 
+> >+static int kevent_user_ctl_add(struct kevent_user *u, unsigned int num, 
+> >void __user *arg)
+> >+{
+> >+	int err, cerr = 0, knum = 0, rnum = 0, i;
+> >+	void __user *orig = arg;
+> >+	struct ukevent uk;
+> >+
+> >+	mutex_lock(&u->ctl_mutex);
+> >+
+> >+	err = -EINVAL;
+> >+	if (num > KEVENT_MIN_BUFFS_ALLOC) {
+> >+		struct ukevent *ukev;
+> >+
+> >+		ukev = kevent_get_user(num, arg);
+> >+		if (ukev) {
+> >+			for (i = 0; i < num; ++i) {
+> >+				err = kevent_user_add_ukevent(&ukev[i], u);
+> >+				if (err) {
+> >+					kevent_stat_im(u);
+> >+					if (i != rnum)
+> >+						memcpy(&ukev[rnum], 
+> >&ukev[i], sizeof(struct ukevent));
+> >+					rnum++;
+> >+				} else
+> >+					knum++;
+> 
+> 
+> Why are you using/counting knum ?
+ 
+It should go avay. 
+ 
+> >+			}
+> >+			if (copy_to_user(orig, ukev, rnum*sizeof(struct 
+> >ukevent)))
+> >+				cerr = -EFAULT;
+> >+			kfree(ukev);
+> >+			goto out_setup;
+> >+		}
+> >+	}
+> >+
+> >+	for (i = 0; i < num; ++i) {
+> >+		if (copy_from_user(&uk, arg, sizeof(struct ukevent))) {
+> >+			cerr = -EFAULT;
+> >+			break;
+> >+		}
+> >+		arg += sizeof(struct ukevent);
+> >+
+> >+		err = kevent_user_add_ukevent(&uk, u);
+> >+		if (err) {
+> >+			kevent_stat_im(u);
+> >+			if (copy_to_user(orig, &uk, sizeof(struct ukevent))) 
+> >{
+> >+				cerr = -EFAULT;
+> >+				break;
+> >+			}
+> >+			orig += sizeof(struct ukevent);
+> >+			rnum++;
+> >+		} else
+> >+			knum++;
+> >+	}
+> >+
+> >+out_setup:
+> >+	if (cerr < 0) {
+> >+		err = cerr;
+> >+		goto out_remove;
+> >+	}
+> >+
+> >+	err = rnum;
+> >+out_remove:
+> >+	mutex_unlock(&u->ctl_mutex);
+> >+
+> >+	return err;
+> >+}
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-> It's just the wrong thing to do if the page has been set writeback with
-> a valid mapping. Presently we don't do any mapping specific accounting
-> in that path, but we could.
-
-Ok, I couldn't find a specific problem with calling that code with a
-page set as writeback and I don't know enough about that code to realise
-its the "wrong thing to do". I didn't really want to duplicate the set
-of delete_from_swap_cache functions.
-
-> But now that I look at your patch, I don't think it is going to work.
-> end_swap_bio_write can be called from interrupt context, so you can't
-> lock the page, and you can't take any of those swap specific spinlocks
-> either.
-
-This would seem to be a major problem. My tests were done with a driver
-that wouldn't use interrupt context there. Is the writeback lock enough
-or is the page lock really needed? I suspect some of the functions don't
-like being called without the page lock.
-
-> You say that SetPageError makes the processes die unexpectedly? How and
-> where? We use SetPageError for IO errors, and it doesn't mean the page
-> has errors AFAIK.
-
-Most of the testing I did was on ARM. If you mark a page with
-SetPageError, the next time userspace tries to access it, you get a data
-abort and the process dies with a SIGBUS or other faults (even if the
-page is marked as up to date). The effect was very clear and I just
-assumed it was behaving as intended. It was this problem I started to
-address as I didn't like processes randomly dieing...
-
-Ignoring the filesystem calls to PageError(), the remaining two are
-wait_on_page_writeback_range() and write_one_page() which something
-like:
-
-if (PageError(page))
-	return -EIO;
-
-I'd guess something somewhere acts on the EIO and ignores the fact the
-page is uptodate. I'm struggling a bit to work out the exact codepaths
-though.
-
-> The best policy would probably be to keep the end_page_writeback path as
-> it is, and then detect the PageError in the swap out path somewhere.
-
-I wanted to do it this way but couldn't as you end up with processes
-dieing if you don't correct the PageError before the page is accessed.
-Can someone comment on exactly what PageError should/shouldn't meant? Is
-this an ARM specific issue or does it happen on other architectures too?
-
-The possible solutions I can see are:
-
-1. ARM has the PageError behaviour wrong somewhere and if so, there
-might be different ways to handle this. 
-2. The PageError behaviour is correct so we need to find some other way
-to mark a page as needing marking as bad and do so out of interrupt
-context.
-3. Any other ideas?
-
-Can you give me a hint as to where in the swap out path you might want
-to detect the error? The only way I can see is to have the end of
-swap_writepage() wait_on_page_writeback() but that would appear to have
-significant performance implications. I'm struggling to see a way you
-can do this which is always outside interrupt context.
-
-Cheers,
-
-Richard
-
-
+-- 
+	Evgeniy Polyakov

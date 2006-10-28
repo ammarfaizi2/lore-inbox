@@ -1,193 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752483AbWJ1O1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752488AbWJ1Oey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752483AbWJ1O1E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 10:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752484AbWJ1O1E
+	id S1752488AbWJ1Oey (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 10:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752489AbWJ1Oey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 10:27:04 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:15570 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1752483AbWJ1O1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 10:27:01 -0400
-Subject: [PATCH] lockdep: annotate DECLARE_WAIT_QUEUE_HEAD
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Cc: marcel@holtmann.org,
-       "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       Greg KH <gregkh@suse.de>, Markus Lidel <markus.lidel@shadowconnect.com>,
-       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>
-Content-Type: text/plain
-Date: Sat, 28 Oct 2006 16:27:39 +0200
-Message-Id: <1162045659.24143.149.camel@taijtu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Sat, 28 Oct 2006 10:34:54 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:29014 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1752488AbWJ1Oex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 10:34:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q0JDpcXmdLITmn9q6vRcVXUAGPf2oT93l/OvqgcXkj7DZ1Cbl4gigXKGx/3tliPsAfldcrOc82lAH5aClDRlR1kqVRs2NxdwYWlvCLtyi7fzyGtGS8Zjh+qFpeAmlTr0lO19M86AIcBoMQCKod7MYfUhi0a9cyGdl00RnrVDwaI=
+Message-ID: <41840b750610280734q212fc138occ152f4a01ef67f5@mail.gmail.com>
+Date: Sat, 28 Oct 2006 16:34:52 +0200
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Richard Hughes" <hughsient@gmail.com>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Cc: "David Woodhouse" <dwmw2@infradead.org>, "Dan Williams" <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       "David Zeuthen" <davidz@redhat.com>,
+       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>
+In-Reply-To: <1162041726.16799.1.camel@hughsie-laptop>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+	 <1161710328.17816.10.camel@hughsie-laptop>
+	 <1161762158.27622.72.camel@shinybook.infradead.org>
+	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
+	 <1161778296.27622.85.camel@shinybook.infradead.org>
+	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
+	 <1161815138.27622.139.camel@shinybook.infradead.org>
+	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
+	 <1162037754.19446.502.camel@pmac.infradead.org>
+	 <1162041726.16799.1.camel@hughsie-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/28/06, Richard Hughes <hughsient@gmail.com> wrote:
+> On Sat, 2006-10-28 at 13:15 +0100, David Woodhouse wrote:
+> >
+> > Hm. Again we have the question of whether to export 'threshold_pct'
+> > vs.'threshold_abs', or whether to have a separate string property
+> > which says what the 'unit' of the threshold is. I don't care much --
+> > I'll do whatever DavidZ prefers.
+>
+> Unit is easier to process in HAL in my opinion.
 
-kernel: INFO: trying to register non-static key.
-kernel: the code is fine but needs lockdep annotation.
-kernel: turning off the locking correctness validator.
-kernel:  [<c04051ed>] show_trace_log_lvl+0x58/0x16a
-kernel:  [<c04057fa>] show_trace+0xd/0x10
-kernel:  [<c0405913>] dump_stack+0x19/0x1b
-kernel:  [<c043b1e2>] __lock_acquire+0xf0/0x90d
-kernel:  [<c043bf70>] lock_acquire+0x4b/0x6b
-kernel:  [<c061472f>] _spin_lock_irqsave+0x22/0x32
-kernel:  [<c04363d3>] prepare_to_wait+0x17/0x4b
-kernel:  [<f89a24b6>] lpfc_do_work+0xdd/0xcc2 [lpfc]
-kernel:  [<c04361b9>] kthread+0xc3/0xf2
-kernel:  [<c0402005>] kernel_thread_helper+0x5/0xb
+That's harder for modifiable attributes, because apps need to know the
+minimum and maximum values (e.g., for  sane GUI). So it's either
+multiple sets, or strings with fixed semantics (say, "percent" and
+"capacity"), or adding *_min and *_max read-only attributes.
 
-Another case of non-static lockdep keys; duplicate the paradigm set by
-DECLARE_COMPLETION_ONSTACK and introduce DECLARE_WAIT_QUEUE_HEAD_ONSTACK.
+Speaking of which, battery.h says this:
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- drivers/bluetooth/bluecard_cs.c  |    2 +-
- drivers/message/i2o/exec-osm.c   |    2 +-
- drivers/scsi/dpt/dpti_i2o.h      |    2 +-
- drivers/scsi/imm.c               |    2 +-
- drivers/scsi/lpfc/lpfc_hbadisc.c |    2 +-
- drivers/scsi/lpfc/lpfc_sli.c     |    4 ++--
- drivers/scsi/ppa.c               |    2 +-
- drivers/usb/net/usbnet.c         |    2 +-
- include/linux/wait.h             |    9 +++++++++
- 9 files changed, 18 insertions(+), 9 deletions(-)
+* Thou shalt not export any attributes in sysfs except these, and
+    with these units: */
 
-Index: linux-2.6/drivers/bluetooth/bluecard_cs.c
-===================================================================
---- linux-2.6.orig/drivers/bluetooth/bluecard_cs.c
-+++ linux-2.6/drivers/bluetooth/bluecard_cs.c
-@@ -282,7 +282,7 @@ static void bluecard_write_wakeup(blueca
- 		clear_bit(ready_bit, &(info->tx_state));
- 
- 		if (bt_cb(skb)->pkt_type & 0x80) {
--			DECLARE_WAIT_QUEUE_HEAD(wq);
-+			DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wq);
- 			DEFINE_WAIT(wait);
- 
- 			unsigned char baud_reg;
-Index: linux-2.6/drivers/message/i2o/exec-osm.c
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/exec-osm.c
-+++ linux-2.6/drivers/message/i2o/exec-osm.c
-@@ -124,7 +124,7 @@ static void i2o_exec_wait_free(struct i2
- int i2o_msg_post_wait_mem(struct i2o_controller *c, struct i2o_message *msg,
- 			  unsigned long timeout, struct i2o_dma *dma)
- {
--	DECLARE_WAIT_QUEUE_HEAD(wq);
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wq);
- 	struct i2o_exec_wait *wait;
- 	static u32 tcntxt = 0x80000000;
- 	unsigned long flags;
-Index: linux-2.6/drivers/scsi/dpt/dpti_i2o.h
-===================================================================
---- linux-2.6.orig/drivers/scsi/dpt/dpti_i2o.h
-+++ linux-2.6/drivers/scsi/dpt/dpti_i2o.h
-@@ -49,7 +49,7 @@
- 
- #include <linux/wait.h>
- typedef wait_queue_head_t adpt_wait_queue_head_t;
--#define ADPT_DECLARE_WAIT_QUEUE_HEAD(wait) DECLARE_WAIT_QUEUE_HEAD(wait)
-+#define ADPT_DECLARE_WAIT_QUEUE_HEAD(wait) DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wait)
- typedef wait_queue_t adpt_wait_queue_t;
- 
- /*
-Index: linux-2.6/drivers/scsi/imm.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/imm.c
-+++ linux-2.6/drivers/scsi/imm.c
-@@ -1153,7 +1153,7 @@ static int __imm_attach(struct parport *
- {
- 	struct Scsi_Host *host;
- 	imm_struct *dev;
--	DECLARE_WAIT_QUEUE_HEAD(waiting);
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(waiting);
- 	DEFINE_WAIT(wait);
- 	int ports;
- 	int modes, ppb;
-Index: linux-2.6/drivers/scsi/lpfc/lpfc_hbadisc.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ linux-2.6/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -305,7 +305,7 @@ lpfc_do_work(void *p)
- {
- 	struct lpfc_hba *phba = p;
- 	int rc;
--	DECLARE_WAIT_QUEUE_HEAD(work_waitq);
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(work_waitq);
- 
- 	set_user_nice(current, -20);
- 	phba->work_wait = &work_waitq;
-Index: linux-2.6/drivers/scsi/lpfc/lpfc_sli.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/lpfc/lpfc_sli.c
-+++ linux-2.6/drivers/scsi/lpfc/lpfc_sli.c
-@@ -2983,7 +2983,7 @@ lpfc_sli_issue_iocb_wait(struct lpfc_hba
- 			 struct lpfc_iocbq * prspiocbq,
- 			 uint32_t timeout)
- {
--	DECLARE_WAIT_QUEUE_HEAD(done_q);
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(done_q);
- 	long timeleft, timeout_req = 0;
- 	int retval = IOCB_SUCCESS;
- 	uint32_t creg_val;
-@@ -3061,7 +3061,7 @@ int
- lpfc_sli_issue_mbox_wait(struct lpfc_hba * phba, LPFC_MBOXQ_t * pmboxq,
- 			 uint32_t timeout)
- {
--	DECLARE_WAIT_QUEUE_HEAD(done_q);
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(done_q);
- 	DECLARE_WAITQUEUE(wq_entry, current);
- 	uint32_t timeleft = 0;
- 	int retval;
-Index: linux-2.6/drivers/scsi/ppa.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/ppa.c
-+++ linux-2.6/drivers/scsi/ppa.c
-@@ -1012,7 +1012,7 @@ static LIST_HEAD(ppa_hosts);
- static int __ppa_attach(struct parport *pb)
- {
- 	struct Scsi_Host *host;
--	DECLARE_WAIT_QUEUE_HEAD(waiting);
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(waiting);
- 	DEFINE_WAIT(wait);
- 	ppa_struct *dev;
- 	int ports;
-Index: linux-2.6/drivers/usb/net/usbnet.c
-===================================================================
---- linux-2.6.orig/drivers/usb/net/usbnet.c
-+++ linux-2.6/drivers/usb/net/usbnet.c
-@@ -554,7 +554,7 @@ static int usbnet_stop (struct net_devic
- {
- 	struct usbnet		*dev = netdev_priv(net);
- 	int			temp;
--	DECLARE_WAIT_QUEUE_HEAD (unlink_wakeup); 
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK (unlink_wakeup);
- 	DECLARE_WAITQUEUE (wait, current);
- 
- 	netif_stop_queue (net);
-Index: linux-2.6/include/linux/wait.h
-===================================================================
---- linux-2.6.orig/include/linux/wait.h
-+++ linux-2.6/include/linux/wait.h
-@@ -79,6 +79,15 @@ struct task_struct;
- 
- extern void init_waitqueue_head(wait_queue_head_t *q);
- 
-+#ifdef CONFIG_LOCKDEP
-+# define __WAIT_QUEUE_HEAD_INIT_ONSTACK(name) \
-+	({ init_waitqueue_head(&name); name; })
-+# define DECLARE_WAIT_QUEUE_HEAD_ONSTACK(name) \
-+	wait_queue_head_t name = __WAIT_QUEUE_HEAD_INIT_ONSTACK(name)
-+#else
-+# define DECLARE_WAIT_QUEUE_HEAD_ONSTACK(name) DECLARE_WAIT_QUEUE_HEAD(name)
-+#endif
-+
- static inline void init_waitqueue_entry(wait_queue_t *q, struct task_struct *p)
- {
- 	q->flags = 0;
+Drivers *will* want to violate this. For example, the "inhibit
+charging for N minutes" command on ThinkPads seems too arcane to be
+worthy of generalization. I would add a more sensible boolean
+"charging_inhibit" attribute to battery.h, and let the ThinkPad driver
+implement it as well as it can. The driver will then expose a
+non-stadard "charging_inhibit_minutes" attribute to reveal the finer
+level of access to those who care.
 
-
+  Shem

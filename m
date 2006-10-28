@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752202AbWJ1MOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752214AbWJ1MQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752202AbWJ1MOa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 08:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752205AbWJ1MOa
+	id S1752214AbWJ1MQD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 08:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752210AbWJ1MQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 08:14:30 -0400
-Received: from mail.tnnet.fi ([217.112.240.26]:46988 "EHLO mail.tnnet.fi")
-	by vger.kernel.org with ESMTP id S1752196AbWJ1MO3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 08:14:29 -0400
-Message-ID: <4543499D.67317564@users.sourceforge.net>
-Date: Sat, 28 Oct 2006 15:14:21 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-To: linux-crypto@nl.linux.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v3.1e file/swap crypto package
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Oct 2006 08:16:02 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:46525 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752204AbWJ1MQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 08:16:00 -0400
+Subject: Re: [PATCH v2] Re: Battery class driver.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Richard Hughes <hughsient@gmail.com>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       David Zeuthen <davidz@redhat.com>,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>
+In-Reply-To: <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+	 <1161631091.16366.0.camel@localhost.localdomain>
+	 <1161633509.4994.16.camel@hughsie-laptop>
+	 <1161636514.27622.30.camel@shinybook.infradead.org>
+	 <1161710328.17816.10.camel@hughsie-laptop>
+	 <1161762158.27622.72.camel@shinybook.infradead.org>
+	 <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com>
+	 <1161778296.27622.85.camel@shinybook.infradead.org>
+	 <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com>
+	 <1161815138.27622.139.camel@shinybook.infradead.org>
+	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 28 Oct 2006 13:15:54 +0100
+Message-Id: <1162037754.19446.502.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop-AES changes since previous release:
-- Changed swapon program to use getpagesize() instead of PAGE_SIZE macro.
-  Fixes build failure on some architectures. Patch form Max Vozeler.
-- Fixed some confusing bits in README. Fix from Jens Lechtenboerger.
-- Work around vanished <linux/config.h> in 2.6.19-rc2 kernel. Fixes build
-  failure.
-- Changed loop code to use kthread_create() instead of kernel_thread() on
-  2.6.19-rc and newer kernels.
-- Changed losetup and mount programs to output error message if gpg program
-  does not exist when gpg encrypted key file is used.
+On Thu, 2006-10-26 at 01:39 +0200, Shem Multinymous wrote:
+> > They're simple enough to add. We can do it when the tp driver gets
+> > converted over.
+> 
+> Sure. But It will require some thought. For example, the interface
+> will need to encompass the non-symmetric pair of force commands on
+> ThinkPads:
+> "discharge the battery until further notice" vs.
+> "don't charge the battery for N minutes".
+> 
+> Also, ThinkPads express  the start/stop charging thresholds in
+> percent, whereas I imagine some other hardware will represent it as
+> capacity.
 
-bzip2 compressed tarball is here:
+Hm. Again we have the question of whether to export 'threshold_pct' vs.
+'threshold_abs', or whether to have a separate string property which
+says what the 'unit' of the threshold is. I don't care much -- I'll do
+whatever DavidZ prefers.
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.1e.tar.bz2
-    md5sum 021d6a83e05a13ad84cd601d5e5ecefb
-
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.1e.tar.bz2.sign
+The git tree now has support for battery information available from the
+PMU on Apple laptops. I _really_ don't like the way I have to register a
+fake platform_device just to be able to get sensible attribute
+callbacks. I suspect it should go back to being a class_device and we
+should fix the class_device attribute functions. Greg?
 
 -- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+dwmw2
+

@@ -1,103 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965333AbWJ2TXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965331AbWJ2TXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965333AbWJ2TXn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 14:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965331AbWJ2TXf
+	id S965331AbWJ2TXo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 14:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965328AbWJ2TUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 14:23:35 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:26839 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S965341AbWJ2TX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 14:23:29 -0500
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VCD not readable under 2.6.18
-Date: Sun, 29 Oct 2006 21:23:25 +0200
-User-Agent: KMail/1.9.5
-Cc: wixor <wixorpeek@gmail.com>, linux-kernel@vger.kernel.org
-References: <c43b2e150610161153x28fef90bw4922f808714b93fd@mail.gmail.com> <c43b2e150610191039h504b6000u242cadf8d146de9@mail.gmail.com> <1161349545.26440.19.camel@localhost.localdomain>
-In-Reply-To: <1161349545.26440.19.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3232033.Zrf0sKdSB9";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610292123.25776.caglar@pardus.org.tr>
+	Sun, 29 Oct 2006 14:20:41 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:54350 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S965329AbWJ2TUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 14:20:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
+  b=BRb8RPXhR/6Wh1H+/fuFujDrf3PPlU5q9VEQcbKA0MlpWqCL5CN8KLrDChLArwy+iplt8dOJk4WlhXj/9HwIYWCgHwhlRRlL5iKEPyuaqADODpImJQLMPcQuGoQm9Fnjlt7IsNeGlYLpifdi30SWvqzdpvjB37gf3BT6rTjvxCY=  ;
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 02/11] uml ubd driver: document some struct fields
+Date: Sun, 29 Oct 2006 20:20:27 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Message-Id: <20061029192026.12292.21143.stgit@americanbeauty.home.lan>
+In-Reply-To: <20061029191723.12292.50164.stgit@americanbeauty.home.lan>
+References: <20061029191723.12292.50164.stgit@americanbeauty.home.lan>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3232033.Zrf0sKdSB9
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-20 Eki 2006 Cum 16:05 tarihinde, Alan Cox =C5=9Funlar=C4=B1 yazm=C4=B1=C5=
-=9Ft=C4=B1:=20
-> No. It looks to me like an application problem from what has been posted
-> so far. Its hard to be sure however. Can you try 2.6.18.1 which fixed
-> one or two problems with CD handling that might be enough to have
-> confused Xine.
+Add documentation about some fields in struct ubd, whose meaning is non-obvious
+due to struct names (should change names altogether, I agree).
 
-With 2.6.18.1 and with 10 different VCD's (all of them are original copy an=
-d=20
-they work with my VCD player without a problem) dmesg flooded with followin=
-g;
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-hdb: command error: status=3D0x51 { DriveReady SeekComplete Error }
-hdb: command error: error=3D0x50 { LastFailedSense=3D0x05 }
-ide: failed opcode was: unknown
-ATAPI device hdb:
-  Error: Illegal request -- (Sense key=3D0x05)
-  Illegal mode for this track or incompatible medium -- (asc=3D0x64, ascq=
-=3D0x00)
-  The failed "Read 10" packet command was:
-  "28 00 00 01 5e ec 00 00 02 00 00 00 00 00 00 00 "
-end_request: I/O error, dev hdb, sector 359344
-Buffer I/O error on device hdb, logical block 44918
-hdb: command error: status=3D0x51 { DriveReady SeekComplete Error }
-hdb: command error: error=3D0x50 { LastFailedSense=3D0x05 }
-ide: failed opcode was: unknown
-ATAPI device hdb:
-  Error: Illegal request -- (Sense key=3D0x05)
-  Illegal mode for this track or incompatible medium -- (asc=3D0x64, ascq=
-=3D0x00)
-  The failed "Read 10" packet command was:
-  "28 00 00 01 5e ee 00 00 02 00 00 00 00 00 00 00 "
-end_request: I/O error, dev hdb, sector 359352
-Buffer I/O error on device hdb, logical block 44919
-hdb: command error: status=3D0x51 { DriveReady SeekComplete Error }
-hdb: command error: error=3D0x50 { LastFailedSense=3D0x05 }
-ide: failed opcode was: unknown
-ATAPI device hdb:
-  Error: Illegal request -- (Sense key=3D0x05)
-  Illegal mode for this track or incompatible medium -- (asc=3D0x64, ascq=
-=3D0x00)
-  The failed "Read 10" packet command was:
-  "28 00 00 01 5e ec 00 00 02 00 00 00 00 00 00 00 "
-end_request: I/O error, dev hdb, sector 359344
-Buffer I/O error on device hdb, logical block 44918
+ arch/um/drivers/ubd_kern.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-Cheers
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
-
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
-
---nextPart3232033.Zrf0sKdSB9
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFRP+ty7E6i0LKo6YRAhvlAJ4qgFxHZ/1GGCLFOfwt7O4cU0gNgQCfSWkr
-9GGfrAffxTEUFXevpYrHMDw=
-=R056
------END PGP SIGNATURE-----
-
---nextPart3232033.Zrf0sKdSB9--
+diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
+index 984b5da..e034ca4 100644
+--- a/arch/um/drivers/ubd_kern.c
++++ b/arch/um/drivers/ubd_kern.c
+@@ -150,8 +150,9 @@ #endif
+ static struct openflags global_openflags = OPEN_FLAGS;
+ 
+ struct cow {
+-	/* This is the backing file, actually */
++	/* backing file name */
+ 	char *file;
++	/* backing file fd */
+ 	int fd;
+ 	unsigned long *bitmap;
+ 	unsigned long bitmap_len;
+@@ -160,6 +161,8 @@ struct cow {
+ };
+ 
+ struct ubd {
++	/* name (and fd, below) of the file opened for writing, either the
++	 * backing or the cow file. */
+ 	char *file;
+ 	int count;
+ 	int fd;
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

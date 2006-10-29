@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965248AbWJ2Pul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751751AbWJ2Px4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965248AbWJ2Pul (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 10:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965193AbWJ2Pul
+	id S1751751AbWJ2Px4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 10:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965193AbWJ2Px4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 10:50:41 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:40336 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S965248AbWJ2Pui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 10:50:38 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Sun, 29 Oct 2006 10:48:43 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Alexey Dobriyan <adobriyan@gmail.com>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: why test for "__GNUC__"?
-In-Reply-To: <20061029120534.GA4906@martell.zuzino.mipt.ru>
-Message-ID: <Pine.LNX.4.64.0610291044230.9726@localhost.localdomain>
-References: <Pine.LNX.4.64.0610290610020.6502@localhost.localdomain>
- <Pine.LNX.4.61.0610291244310.15986@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0610290742310.7457@localhost.localdomain>
- <20061029120534.GA4906@martell.zuzino.mipt.ru>
+	Sun, 29 Oct 2006 10:53:56 -0500
+Received: from web32405.mail.mud.yahoo.com ([68.142.207.198]:6499 "HELO
+	web32405.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751751AbWJ2Pxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 10:53:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=jfX4jKk1TQYBAAjCff8TfIEULmyQhudZOmV+905XpKbbWapbxtWuovDZov0ADAvtIM5XF6Dt7LcIfzyVHODkugclF58Av9kUW9PtOXwGCaM+6YLuJz5kn3LjYHR4S/Yh1rsO3P2RC76FXFPpBnTRwEp9uQ7E0+bH4E4u6cdi/4Y=  ;
+Message-ID: <20061029155354.12118.qmail@web32405.mail.mud.yahoo.com>
+Date: Sun, 29 Oct 2006 07:53:54 -0800 (PST)
+From: Giridhar Pemmasani <pgiri@yahoo.com>
+Subject: Re: Slab panic on 2.6.19-rc3-git5 (-git4 was OK)
+To: "Martin J. Bligh" <mbligh@google.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Andy Whitcroft <apw@shadowen.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <4544C709.6070305@google.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Oct 2006, Alexey Dobriyan wrote:
+--- "Martin J. Bligh" <mbligh@google.com> wrote:
 
-> On Sun, Oct 29, 2006 at 07:44:18AM -0500, Robert P. J. Day wrote:
-> > p.s.  is there, in fact, any part of the kernel source tree that has a
-> > preprocessor directive to identify the use of ICC?  just curious.
->
-> Please, do
->
-> 	ls include/linux/compiler-*
+> Thanks for the patch ... but more worrying is how this got broken.
+> Wasn't the point of having the -mm tree that patches like this went
+> through it for testing, and we avoid breaking mainline? especially
+> this late in the -rc cycle.
 
-but according to compiler.h:
+I don't know how it got into Linus's tree, but the breakage was due to my
+earlier patch - sorry.
 
-/* Intel compiler defines __GNUC__. So we will overwrite implementations
- * coming from above header files here
- */
+Giri
 
-so even ICC will define __GNUC__, which means that testing for
-__GNUC__ is *still*, under the circumstances, redundant, isn't that
-right?
 
-rday
+ 
+____________________________________________________________________________________
+Get your email and see which of your friends are online - Right on the New Yahoo.com 
+(http://www.yahoo.com/preview) 
+

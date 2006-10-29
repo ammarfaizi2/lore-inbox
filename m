@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWJ2BFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWJ2BUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWJ2BFb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Oct 2006 21:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWJ2BFb
+	id S964894AbWJ2BUo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Oct 2006 21:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWJ2BUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Oct 2006 21:05:31 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:28632 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751452AbWJ2BFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Oct 2006 21:05:30 -0400
-Date: Sat, 28 Oct 2006 18:05:02 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-cc: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 5/7] Move idle stat calculation into rebalance_tick()
-In-Reply-To: <20061028105727.A9917@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0610281804370.14100@schroedinger.engr.sgi.com>
-References: <20061028024112.10809.15841.sendpatchset@schroedinger.engr.sgi.com>
- <20061028024138.10809.27755.sendpatchset@schroedinger.engr.sgi.com>
- <20061028105727.A9917@unix-os.sc.intel.com>
+	Sat, 28 Oct 2006 21:20:44 -0400
+Received: from wx-out-0506.google.com ([66.249.82.239]:58695 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932117AbWJ2BUn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Oct 2006 21:20:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=d4C7/LDa7aZ1ZC3famCv4mcuDRgE/7Je4Nfw42G8YYfQL5IfiR5v1Xxs5JAM89t2TXW7T47V6HUiPTKZ4ITy6nFpbWv6wSKOLJy/+IBtH4GTqFU0QLttwQkzW+zFHuyIpDN7aK+cbDOWrJ1wiCJ3k1LznyOLNVckP/I5ap/IMUY=
+Message-ID: <b6a2187b0610281820k95f57f9t5e0a4be0e30845d4@mail.gmail.com>
+Date: Sun, 29 Oct 2006 09:20:42 +0800
+From: "Jeff Chua" <jeff.chua.linux@gmail.com>
+To: "Matthew Wilcox" <matthew@wil.cx>
+Subject: Re: linux-2.6.19-rc2 PCI problem
+Cc: "Adrian Bunk" <bunk@stusta.de>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, "David Miller" <davem@davemloft.net>,
+       linux-pci@atrey.karlin.mff.cuni.cz, "Yinghai Lu" <yinghai.lu@amd.com>
+In-Reply-To: <20061028154534.GR5591@parisc-linux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com>
+	 <20061025013022.GG27968@stusta.de>
+	 <b6a2187b0610251754x7dc2c51aoad2244b8cdcb1c09@mail.gmail.com>
+	 <20061026152455.GI27968@stusta.de>
+	 <b6a2187b0610270649t4cc71781y8e1695f02e1c608e@mail.gmail.com>
+	 <20061027203109.GZ27968@stusta.de>
+	 <b6a2187b0610271805w154ca251tb7db33ed0926623@mail.gmail.com>
+	 <20061028032024.GD27968@stusta.de>
+	 <b6a2187b0610280324s66b06067od4691fa9f79420a7@mail.gmail.com>
+	 <20061028154534.GR5591@parisc-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Oct 2006, Siddha, Suresh B wrote:
+On 10/28/06, Matthew Wilcox <matthew@wil.cx> wrote:
 
-> comment needs to be fixed and also please mention that in case of SMT nice,
-> nr_running will determine if the processor is idle or not(rather than
-> checking for current task is idle)
+> BIOS isn't a great option to choose ... how does Direct work out for
+> you?
+>
+> I suspect you're having problems with the MMConfig method; confirming
+> that would be a good step towards debugging the problem.
 
-Ah.. Thanks! Would this be okay?
+Matthew,
 
-Index: linux-2.6.19-rc3/kernel/sched.c
-===================================================================
---- linux-2.6.19-rc3.orig/kernel/sched.c	2006-10-28 20:00:07.000000000 -0500
-+++ linux-2.6.19-rc3/kernel/sched.c	2006-10-28 20:04:08.721364884 -0500
-@@ -2869,10 +2869,10 @@ static void rebalance_domains(unsigned l
- 	unsigned long interval;
- 	struct sched_domain *sd;
- 	/*
--	 * A task is idle if this is the idle queue
--	 * and we have no runnable task
-+	 * We are idle if there are no processes running. This
-+	 * is valid even if we are the idle process (SMT).
- 	 */
--	enum idle_type idle = (this_rq->idle && !this_rq->nr_running) ?
-+	enum idle_type idle = !this_rq->nr_running ?
- 				SCHED_IDLE : NOT_IDLE;
- 	/* Earliest time when we have to call rebalance_domains again */
- 	unsigned long next_balance = jiffies + 60*HZ;
+Ok, just tried DIRECT, and it works.
 
+
+Thanks,
+Jeff.

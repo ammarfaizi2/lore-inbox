@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWJ2PmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751708AbWJ2PuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751647AbWJ2PmG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 10:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751651AbWJ2PmG
+	id S1751708AbWJ2PuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 10:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751730AbWJ2PuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 10:42:06 -0500
-Received: from deine-taler.de ([217.160.107.63]:63693 "EHLO
-	p15091797.pureserver.info") by vger.kernel.org with ESMTP
-	id S1751647AbWJ2PmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 10:42:03 -0500
-Message-ID: <4544CBC8.5090305@deine-taler.de>
-Date: Sun, 29 Oct 2006 16:42:00 +0100
-From: Uli Kunitz <kune@deine-taler.de>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Sun, 29 Oct 2006 10:50:06 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:2215 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751708AbWJ2PuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 10:50:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=pb/6J4k23NhuqW8NluJTxtYhpiyxxsh1U7gE1IOg0CbgHjNPsqarvL9taR/uod9IaVhLRBwRzXKK9fc3PEEcwKhRUu1WJmDnSTeh8AqxO0DF2BEaJcvMLoKhlfgEj4pKgd3dmDXP/vwYZZePKOGD8thbXnq6iqV8KR09j4S38yM=
+Date: Sun, 29 Oct 2006 16:49:58 +0100
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why "probe_kernel_address()", not "probe_user_address()"?
+Message-ID: <20061029154957.GA25370@dreamland.darkstar.lan>
+References: <20061028203014.GA7183@dreamland.darkstar.lan> <Pine.LNX.4.64.0610281659250.4741@localhost.localdomain>
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Holden Karau <holden@pigscanfly.ca>, zd1211-devs@lists.sourceforge.net,
-       linville@tuxdriver.com, netdev <netdev@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, holdenk@xandros.com
-Subject: Re: [PATCH] wireless-2.6 zd1211rw check against regulatory domain
- rather than hardcoded value of 11
-References: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>	 <453D48E5.8040100@gentoo.org> <f46018bb0610240709y203d8cdbw95cdf66db23aa1ce@mail.gmail.com> <453E2C9A.7010604@gentoo.org>
-In-Reply-To: <453E2C9A.7010604@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610281659250.4741@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Holden Karau wrote:
->> I've changed the patch based on your suggestions :-)
-> 
-> Thanks, looks fine. Let's just wait for an OK from Ulrich, then you can 
-> send it to John, without broken tabs/lines, with signoff and description.
-> 
-> Daniel
+Il Sat, Oct 28, 2006 at 05:01:31PM -0400, Robert P. J. Day ha scritto: 
+> ok, i'm going to defer to people who are clearly much smarter about
+> this than me, and i'll go back and read that entire response more
+> carefully until i understand it. 
 
-I'm not so sure about this. This patching might be US-specific and we 
-cannot simply apply the setting for top channel of another domain 
-instead of channel 11. One option would be to set the value only under 
-the US regulatory domain.
+Well, if you tell me what is not clear I can try to re-explain it.
 
-Kind regards,
+> thanks for explaining it.
 
-Uli
+No problem, the best way to learn about the kernel is reading the source
+and asking questions ;)
 
+Luca
 -- 
-Uli Kunitz (kune@deine-taler.de)
+Mi piace avere amici rispettabili;
+Mi piace essere il peggiore della compagnia.

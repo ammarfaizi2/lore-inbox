@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965302AbWJ2RZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965308AbWJ2Rfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965302AbWJ2RZg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 12:25:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965303AbWJ2RZg
+	id S965308AbWJ2Rfn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 12:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965309AbWJ2Rfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 12:25:36 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:54534 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965302AbWJ2RZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 12:25:36 -0500
-Date: Sun, 29 Oct 2006 18:25:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: predator@mt9.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: -W -Wno-unused -Wno-sign-compare compile flags
-Message-ID: <20061029172535.GG27968@stusta.de>
-References: <web-577743@televic-cs.ru>
+	Sun, 29 Oct 2006 12:35:43 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5020 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965308AbWJ2Rfm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 12:35:42 -0500
+Date: Sun, 29 Oct 2006 18:35:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Chinner <dgc@sgi.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Message-ID: <20061029173537.GA3022@elf.ucw.cz>
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <1161850709.17293.23.camel@nigel.suspend2.net> <20061026085700.GI8394166@melbourne.sgi.com> <200610261111.30486.rjw@sisk.pl> <20061027013802.GQ8394166@melbourne.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <web-577743@televic-cs.ru>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061027013802.GQ8394166@melbourne.sgi.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29, 2006 at 05:22:48PM +0300, predator@mt9.ru wrote:
-> Hello !linux-kernel
+Hi!
+
+> > > > As you have them at the moment, the threads seem to be freezing fine.
+> > > > The issue I've seen in the past related not to threads but to timer
+> > > > based activity. Admittedly it was 2.6.14 when I last looked at it, but
+> > > > there used to be a possibility for XFS to submit I/O from a timer when
+> > > > the threads are frozen but the bdev isn't frozen. Has that changed?
+> > > 
+> > > I didn't think we've ever done that - periodic or delayed operations
+> > > are passed off to the kernel threads to execute. A stack trace
+> > > (if you still have it) would be really help here.
+> > > 
+> > > Hmmm - we have a couple of per-cpu work queues as well that are
+> > > used on I/O completion and that can, in some circumstances,
+> > > trigger new transactions. If we are only flush metadata, then
+> > > I don't think that any more I/o will be issued, but I could be
+> > > wrong (maze of twisty passages).
+> > 
+> > Well, I think this exactly is the problem, because worker_threads run with
+> > PF_NOFREEZE set (as I've just said in another message).
 > 
-> Does anybody try to compile latest linux-kernel with -W 
-> -Wno-unused -Wno-sign-compare CFLAGS? There is a tons of 
-> warnings :(
-> Recent versions of grsecurity patches adds this flags to 
-> default. When I asked to grsec developers, why did they do 
-> that, they answered: to show, how messy linux code is...
-> Is there any objections about it?
+> Ok, so freezing the filesystem is the only way you can prevent
+> this as the workqueues are flushed as part of quiescing the filesystem.
 
--W gives many warnings, some of them indicate possible improvements 
-while some of them warn about things that are perfectly OK.
+Well, alternative is to teach XFS to sense that we are being frozen
+and stop disk writes in such case.
 
-While getting such warnings is a task that is sometimes worked on, it's 
-neither realistic nor required to get all warnings with -W fixed.
-
-cu
-Adrian
-
+OTOH freeze_bdevs is perhaps not that bad solution... 
+									Pavel
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

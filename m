@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965267AbWJ2P4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965276AbWJ2QSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965267AbWJ2P4n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 10:56:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965269AbWJ2P4n
+	id S965276AbWJ2QSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 11:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965275AbWJ2QSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 10:56:43 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:7 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S965267AbWJ2P4m (ORCPT
+	Sun, 29 Oct 2006 11:18:23 -0500
+Received: from main.gmane.org ([80.91.229.2]:35009 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965276AbWJ2QSW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 10:56:42 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] read_cache_pages() cleanup
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 30 Oct 2006 00:56:37 +0900
-Message-ID: <873b97und6.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Oct 2006 11:18:22 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: why test for "__GNUC__"?
+Date: Sun, 29 Oct 2006 16:17:51 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnek9le5.2vm.olecom@flower.upol.cz>
+References: <Pine.LNX.4.64.0610290610020.6502@localhost.localdomain> <Pine.LNX.4.61.0610291244310.15986@yvahk01.tjqt.qr> <Pine.LNX.4.64.0610290742310.7457@localhost.localdomain> <20061029120534.GA4906@martell.zuzino.mipt.ru> <Pine.LNX.4.64.0610291044230.9726@localhost.localdomain>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This uses put_pages_list() instead of opencoded one.
+Hallo.
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+On 2006-10-29, Robert P. J. Day wrote:
+> On Sun, 29 Oct 2006, Alexey Dobriyan wrote:
+>
+>> On Sun, Oct 29, 2006 at 07:44:18AM -0500, Robert P. J. Day wrote:
+>> > p.s.  is there, in fact, any part of the kernel source tree that has a
+>> > preprocessor directive to identify the use of ICC?  just curious.
+>>
+>> Please, do
+>>
+>> 	ls include/linux/compiler-*
+>
+> but according to compiler.h:
+>
+> /* Intel compiler defines __GNUC__. So we will overwrite implementations
+>  * coming from above header files here
+>  */
+>
+> so even ICC will define __GNUC__, which means that testing for
+> __GNUC__ is *still*, under the circumstances, redundant, isn't that
+> right?
 
- mm/readahead.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+Does it introduce bugs? Just think of it as legacy, if you want.
 
-diff -puN mm/readahead.c~read_cache_pages-cleanup mm/readahead.c
---- linux-2.6/mm/readahead.c~read_cache_pages-cleanup	2006-10-30 00:12:20.000000000 +0900
-+++ linux-2.6-hirofumi/mm/readahead.c	2006-10-30 00:12:20.000000000 +0900
-@@ -148,13 +148,7 @@ int read_cache_pages(struct address_spac
- 		if (!pagevec_add(&lru_pvec, page))
- 			__pagevec_lru_add(&lru_pvec);
- 		if (ret) {
--			while (!list_empty(pages)) {
--				struct page *victim;
--
--				victim = list_to_page(pages);
--				list_del(&victim->lru);
--				page_cache_release(victim);
--			}
-+			put_pages_list(pages);
- 			break;
- 		}
- 	}
-_
+And if you can, please, help with development or bugs, not this.
+____
+

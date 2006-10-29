@@ -1,48 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWJ2XJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbWJ2XOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030421AbWJ2XJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 18:09:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030422AbWJ2XJ6
+	id S1030427AbWJ2XOE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 18:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWJ2XOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 18:09:58 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:30404 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1030421AbWJ2XJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 18:09:58 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4545349C.1070009@s5r6.in-berlin.de>
-Date: Mon, 30 Oct 2006 00:09:16 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+	Sun, 29 Oct 2006 18:14:03 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:6153 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030427AbWJ2XOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 18:14:00 -0500
+Date: Mon, 30 Oct 2006 00:13:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Chua <jeff.chua.linux@gmail.com>, gregkh@suse.de,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Prakash Punnoor <prakash@punnoor.de>, phil.el@wanadoo.fr,
+       oprofile-list@lists.sourceforge.net,
+       Martin Lorenz <martin@lorenz.eu.org>, len.brown@intel.com,
+       linux-acpi@vger.kernel.org, "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Thierry Vignaud <tvignaud@mandriva.com>, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org, Alex Romosan <romosan@sycorax.lbl.gov>,
+       Jens Axboe <jens.axboe@oracle.com>, Komuro <komurojun-mbn@nifty.com>,
+       Thomas Gleixner <tglx@linutronix.de>, Christian <christiand59@web.de>,
+       Mark Langsdorf <mark.langsdorf@amd.com>, davej@codemonkey.org.uk,
+       cpufreq@lists.linux.org.uk
+Subject: 2.6.19-rc3: known unfixed regressions (v3)
+Message-ID: <20061029231358.GI27968@stusta.de>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
 MIME-Version: 1.0
-To: Andrew Paprocki <andrew@ishiboo.com>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: 2.6 git kernel reporting bug in knodemgrd_0 during boot
-References: <76366b180610291341y7342a968ycd244753ce9bbbb7@mail.gmail.com> <20061029223822.GH27968@stusta.de>
-In-Reply-To: <20061029223822.GH27968@stusta.de>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sun, Oct 29, 2006 at 04:41:54PM -0500, Andrew Paprocki wrote:
->> I just upgraded my dev box to the latest 2.6 source via git and this
->> is now printing out in dmesg upon every boot.
-...
+This email lists some known regressions in 2.6.19-rc3 compared to 2.6.18
+that are not yet fixed in Linus' tree.
 
-Andrew, what was the last kernel which didn't log this?
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
-This seems to be either a previously unknown but old problem in the
-csr1212 library or a new problem outside of the ieee1394 subsystem.
+Due to the huge amount of recipients, please trim the Cc when answering.
 
-> The ieee1394 maintainers (Cc'ed) might be the best contact.
-...
-Thanks Adrian. (I watch lkml but it's easy to miss posts due to lkml's
-high traffic.)
--- 
-Stefan Richter
--=====-=-==- =-=- ===-=
-http://arcgraph.de/sr/
+
+Subject    : PCI: MMCONFIG breakage
+References : http://lkml.org/lkml/2006/10/23/182
+Submitter  : Jeff Chua <jeff.chua.linux@gmail.com>
+Status     : unknown, both BIOS and Direct work
+
+
+Subject    : x86_64: oprofile doesn't work
+References : http://lkml.org/lkml/2006/10/27/3
+Submitter  : Prakash Punnoor <prakash@punnoor.de>
+Status     : unknown
+
+
+Subject    : X60s: BUG()s, lose ACPI events after suspend/resume
+References : http://lkml.org/lkml/2006/10/10/39
+Submitter  : Martin Lorenz <martin@lorenz.eu.org>
+Status     : unknown
+
+
+Subject    : T60 stops triggering any ACPI events
+References : http://lkml.org/lkml/2006/10/4/425
+             http://lkml.org/lkml/2006/10/16/262
+             http://bugzilla.kernel.org/show_bug.cgi?id=7408
+Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
+Status     : unknown
+
+
+Subject    : sata-via doesn't detect anymore disks attached to VIA vt6421
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7255
+Submitter  : Thierry Vignaud <tvignaud@mandriva.com>
+Status     : unknown
+
+
+Subject    : unable to rip cd
+References : http://lkml.org/lkml/2006/10/13/100
+Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
+Status     : unknown
+
+
+Subject    : SMP kernel can not generate ISA irq properly
+References : http://lkml.org/lkml/2006/10/22/15
+Submitter  : Komuro <komurojun-mbn@nifty.com>
+Handled-By : Thomas Gleixner <tglx@linutronix.de>
+Status     : Thomas will investigate
+
+
+Subject    : cpufreq not working on AMD K8
+References : http://lkml.org/lkml/2006/10/10/114
+Submitter  : Christian <christiand59@web.de>
+Handled-By : Mark Langsdorf <mark.langsdorf@amd.com>
+Status     : Mark is investigating
+
+

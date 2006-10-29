@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWJ2MZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWJ2Ma7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWJ2MZR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 07:25:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWJ2MZR
+	id S932222AbWJ2Ma7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 07:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWJ2Ma7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 07:25:17 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:23968 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S932307AbWJ2MZP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 07:25:15 -0500
-Date: Sun, 29 Oct 2006 16:24:49 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Graf <tgraf@suug.ch>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] taskstats: fix? sk_buff leak
-Message-ID: <20061029132449.GA1142@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sun, 29 Oct 2006 07:30:59 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:27624 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932222AbWJ2Ma6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 07:30:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=V99ofh9o9Dpu4cZhUIAR2pi+SYJ8ncXowicP9AiV3fzltH5oyoMgQRnPHnme4emaksMWPMM9nRDMGl91TpSZtR8oBGFe7kc6gPpbngMnvA7jwyRRw0VEEIq7f179J1Pyz38MzA1unS6n5h5NpRGQ2eZIwv5Wd7fNcGJhwdWnrRc=
+Message-ID: <45449F13.7060202@gmail.com>
+Date: Sun, 29 Oct 2006 13:30:52 +0059
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to run an a.out file in a kernel module
+References: <20061029111953.51907.qmail@web27408.mail.ukl.yahoo.com>
+In-Reply-To: <20061029111953.51907.qmail@web27408.mail.ukl.yahoo.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile tested only, and I know nothing about net/. Needs an ack from
-maintainer.
+Do NOT top-post.
 
-'return genlmsg_cancel()' in taskstats_user_cmd/taskstats_exit_send looks
-wrong to me. Unless we pass 'rep_skb' to the netlink layer we own sk_buff,
-yes? This means we should always do kfree_skb() on failure.
+ranjith kumar wrote:
+> Hi,
+>     1) What is the synatx of call_usermodehelper()
+> function?
+>         I found out that it takes 4 arguments. But
+> what values  we have to pass as argumets.
+> I did searched in internet. But could not find out.
+> Sorry to post this question.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+grep -r call_usermodehelper linux/
 
---- STATS/kernel/taskstats.c~1_skb	2006-10-29 15:12:51.000000000 +0300
-+++ STATS/kernel/taskstats.c	2006-10-29 16:16:05.000000000 +0300
-@@ -411,7 +411,7 @@ static int taskstats_user_cmd(struct sk_
- 	return send_reply(rep_skb, info->snd_pid);
- 
- nla_put_failure:
--	return genlmsg_cancel(rep_skb, reply);
-+	genlmsg_cancel(rep_skb, reply);
- err:
- 	nlmsg_free(rep_skb);
- 	return rc;
-@@ -507,7 +507,6 @@ send:
- 
- nla_put_failure:
- 	genlmsg_cancel(rep_skb, reply);
--	goto ret;
- err_skb:
- 	nlmsg_free(rep_skb);
- ret:
+> 2) How to print something  using C code such that it
+> will be displayed when corresponding a.out file is
+> called in a kernel module using call_usermodehelper()
+> function.
 
+By adding printk to call_usermodehelper?
+
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

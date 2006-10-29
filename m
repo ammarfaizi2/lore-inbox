@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965331AbWJ2TXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965359AbWJ2Tm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965331AbWJ2TXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 14:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965328AbWJ2TUl
+	id S965359AbWJ2Tm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 14:42:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965358AbWJ2Tm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 14:20:41 -0500
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:54350 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S965329AbWJ2TUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 14:20:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=BRb8RPXhR/6Wh1H+/fuFujDrf3PPlU5q9VEQcbKA0MlpWqCL5CN8KLrDChLArwy+iplt8dOJk4WlhXj/9HwIYWCgHwhlRRlL5iKEPyuaqADODpImJQLMPcQuGoQm9Fnjlt7IsNeGlYLpifdi30SWvqzdpvjB37gf3BT6rTjvxCY=  ;
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 02/11] uml ubd driver: document some struct fields
-Date: Sun, 29 Oct 2006 20:20:27 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Message-Id: <20061029192026.12292.21143.stgit@americanbeauty.home.lan>
-In-Reply-To: <20061029191723.12292.50164.stgit@americanbeauty.home.lan>
-References: <20061029191723.12292.50164.stgit@americanbeauty.home.lan>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.11
+	Sun, 29 Oct 2006 14:42:58 -0500
+Received: from smtp-out.rrz.uni-koeln.de ([134.95.19.53]:8430 "EHLO
+	smtp-out.rrz.uni-koeln.de") by vger.kernel.org with ESMTP
+	id S965359AbWJ2Tm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 14:42:57 -0500
+Message-ID: <45450422.4030706@rrz.uni-koeln.de>
+Date: Sun, 29 Oct 2006 20:42:26 +0100
+From: Berthold Cogel <cogel@rrz.uni-koeln.de>
+User-Agent: IceDove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: Samuel Ortiz <samuel@sortiz.org>
+CC: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
+Subject: Re: Oops in __wake_up_common with irda, linux-2.6.18
+References: <45426EC0.3070004@rrz.uni-koeln.de> <20061029175024.GA5356@sortiz.org>
+In-Reply-To: <20061029175024.GA5356@sortiz.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Samuel Ortiz schrieb:
+> Hi Berthold,
+> 
+> On Fri, Oct 27, 2006 at 10:40:32PM +0200, Berthold Cogel wrote:
+>> Hello!
+>>
+>> I got a kernel Oops in __wake_up_common while receiving a file on my
+>> notebook via irda  from a Pocket PC with 'ircp -r' (sending files to the
+>> PocketPC works).
+> Could you try applying this patch:
+> http://marc.theaimsgroup.com/?l=linux-netdev&m=115792756816966&w=2
+> 
+> It's supposed to fix this OOPS. Please let me know.
+> 
+> Cheers,
+> Samuel.
 
-Add documentation about some fields in struct ubd, whose meaning is non-obvious
-due to struct names (should change names altogether, I agree).
+Hello Samuel,
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+with 2.6.18 parts of the patch failed:
 
- arch/um/drivers/ubd_kern.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+acer01:/usr/src/linux# patch -p1 < ../irda_patch.txt
+patching file net/irda/af_irda.c
+Hunk #1 FAILED at 132.
+Hunk #2 FAILED at 1213.
+Hunk #3 FAILED at 1223.
+Hunk #4 succeeded at 1356 with fuzz 2.
+Hunk #5 succeeded at 1409 with fuzz 2.
+3 out of 5 hunks FAILED -- saving rejects to file net/irda/af_irda.c.rej
 
-diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
-index 984b5da..e034ca4 100644
---- a/arch/um/drivers/ubd_kern.c
-+++ b/arch/um/drivers/ubd_kern.c
-@@ -150,8 +150,9 @@ #endif
- static struct openflags global_openflags = OPEN_FLAGS;
- 
- struct cow {
--	/* This is the backing file, actually */
-+	/* backing file name */
- 	char *file;
-+	/* backing file fd */
- 	int fd;
- 	unsigned long *bitmap;
- 	unsigned long bitmap_len;
-@@ -160,6 +161,8 @@ struct cow {
- };
- 
- struct ubd {
-+	/* name (and fd, below) of the file opened for writing, either the
-+	 * backing or the cow file. */
- 	char *file;
- 	int count;
- 	int fd;
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+This happens with 2.6.18.1 too. I haven't tried 2.6.19-rc... yet.
+
+I've attached af_irda.c.rej for 2.6.18.
+
+Berthold

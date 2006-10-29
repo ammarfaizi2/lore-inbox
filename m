@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965415AbWJ2UZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965419AbWJ2U0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965415AbWJ2UZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 15:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965419AbWJ2UZZ
+	id S965419AbWJ2U0H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 15:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965420AbWJ2U0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 15:25:25 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:26028 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S965415AbWJ2UZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 15:25:24 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <45450E23.9060005@s5r6.in-berlin.de>
-Date: Sun, 29 Oct 2006 21:25:07 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PULL] ieee1394 update
-References: <tkrat.d9b5fcaacce06b28@s5r6.in-berlin.de> <Pine.LNX.4.64.0610291218480.25218@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610291218480.25218@g5.osdl.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 29 Oct 2006 15:26:07 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:26557 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S965419AbWJ2U0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 15:26:06 -0500
+Subject: Re: [PATCH -mm] swsusp: Fix freezer.h breakage
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <200610291316.07182.rjw@sisk.pl>
+References: <200610291316.07182.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Mon, 30 Oct 2006 07:26:01 +1100
+Message-Id: <1162153561.32001.5.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Sun, 29 Oct 2006, Stefan Richter wrote:
->> Linus, please pull from the for-linus branch at
->>
->>     git://git.kernel.org/pub/scm/linux/kernel/git/ieee1394/linux1394-2.6.git for-linus
-> 
-> 	"Already up-to-date."
-> 
-> Did you forget to push?
+Hi.
 
-Sorry, I had a typo in my local .git/remotes/. I properly pushed to
-master.kernel.org now. Thanks.
--- 
-Stefan Richter
--=====-=-==- =-=- ===-=
-http://arcgraph.de/sr/
+On Sun, 2006-10-29 at 13:16 +0100, Rafael J. Wysocki wrote:
+> Make swsusp compile again.
+> 
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+Ack.
+
+I sent this last week, but think it got lost in the flood of emails :)
+
+Nigel
+

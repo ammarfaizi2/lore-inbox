@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbWJ2Wwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbWJ2XAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030397AbWJ2Wwg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 17:52:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbWJ2Wwg
+	id S1030417AbWJ2XAS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 18:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbWJ2XAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 17:52:36 -0500
-Received: from pasmtpb.tele.dk ([80.160.77.98]:16035 "EHLO pasmtpB.tele.dk")
-	by vger.kernel.org with ESMTP id S1030397AbWJ2Wwg (ORCPT
+	Sun, 29 Oct 2006 18:00:18 -0500
+Received: from dvhart.com ([64.146.134.43]:13984 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1030417AbWJ2XAQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 17:52:36 -0500
-Date: Sun, 29 Oct 2006 23:52:34 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Jan Beulich <jbeulich@novell.com>, jpdenheijer@gmail.com,
-       dsd@gentoo.org, draconx@gmail.com, kernel@gentoo.org
-Subject: Re: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
-Message-ID: <20061029225234.GA31648@uranus.ravnborg.org>
-References: <20061028230730.GA28966@quickstop.soohrt.org> <200610281907.20673.ak@suse.de> <20061029120858.GB3491@quickstop.soohrt.org> <200610290816.55886.ak@suse.de> <slrnek9qv0.2vm.olecom@flower.upol.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrnek9qv0.2vm.olecom@flower.upol.cz>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 29 Oct 2006 18:00:16 -0500
+Message-ID: <4545325D.8080905@mbligh.org>
+Date: Sun, 29 Oct 2006 14:59:41 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@google.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Slab panic on 2.6.19-rc3-git5 (-git4 was OK)
+References: <454442DC.9050703@google.com> <20061029000513.de5af713.akpm@osdl.org> <4544E92C.8000103@shadowen.org>
+In-Reply-To: <4544E92C.8000103@shadowen.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29, 2006 at 05:58:56PM +0000, Oleg Verych wrote:
-> 
-> On 2006-10-29, Andi Kleen wrote:
-> >> Why not use -o /dev/null, as Daniel Drake already suggested in [1]? In
-> >> both as-instr and ld-option, the tmp file is being deleted
-> >> unconditionally right after its creation anyways.
-> >
-> > Because then when the compilation runs as root some as versions
-> > will delete /dev/null on a error. This has happened in the past.
-> 
-> OK, but let users, who still build kernels as root, alone.
-This needs to work - there are too much people that continue to do so.
-And gentoo books recommended this last time I looked.
 
+>>> kernel BUG in cache_grow at mm/slab.c:2705!
+>> This?
+>>
+>> --- a/mm/vmalloc.c~__vmalloc_area_node-fix
+>> +++ a/mm/vmalloc.c
+>> @@ -428,7 +428,8 @@ void *__vmalloc_area_node(struct vm_stru
+>>  	area->nr_pages = nr_pages;
+>>  	/* Please note that the recursion is strictly bounded. */
+>>  	if (array_size > PAGE_SIZE) {
+>> -		pages = __vmalloc_node(array_size, gfp_mask, PAGE_KERNEL, node);
+>> +		pages = __vmalloc_node(array_size, gfp_mask & ~__GFP_HIGHMEM,
+>> +					PAGE_KERNEL, node);
+>>  		area->flags |= VM_VPAGES;
+>>  	} else {
+>>  		pages = kmalloc_node(array_size,
+>> _
 > 
-> In `19-rc3/include/Kbuild.include', just below `as-instr' i see:
-> ,--
-> |cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-> |             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
-> |
-> |# cc-option-yn
-> |# Usage: flag := $(call cc-option-yn, -march=winchip-c6)
-> |cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-> |                 > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
-> `--
-> so, change to `-o /dev/null' in `as-instr' will just follow this.
+> /me shoves it into the tests... results in a couple of hours.
 
-gcc does not delete files specified with -o - but binutils does.
-So using /dev/null in this case is not an option.
+Seems like that doesn't fix it, I'm afraid.
 
-	Sam
+M.

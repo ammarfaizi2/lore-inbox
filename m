@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965416AbWJ2UVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965382AbWJ2UWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965416AbWJ2UVg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 15:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965418AbWJ2UVg
+	id S965382AbWJ2UWW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 15:22:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965373AbWJ2UWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 15:21:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33687 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965416AbWJ2UVf (ORCPT
+	Sun, 29 Oct 2006 15:22:21 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:29795 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S965382AbWJ2UWU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 15:21:35 -0500
-Date: Sun, 29 Oct 2006 12:17:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [0/3] 2.6.19-rc2: known regressions
-In-Reply-To: <Pine.LNX.4.60.0610291056470.4303@poirot.grange>
-Message-ID: <Pine.LNX.4.64.0610291211160.25218@g5.osdl.org>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
- <20061014111458.GI30596@stusta.de> <Pine.LNX.4.60.0610291056470.4303@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Oct 2006 15:22:20 -0500
+X-IronPort-AV: i="4.09,369,1157353200"; 
+   d="scan'208"; a="422613058:sNHT642694992"
+Subject: Re: [PATCH 1/2] sunrpc: add missing spin_unlock
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andy Adamson <andros@citi.umich.edu>,
+       "J. Bruce Fields" <bfields@citi.umich.edu>,
+       Olaf Kirch <okir@monad.swb.de>, Neil Brown <neilb@suse.de>
+In-Reply-To: <20061029133700.GA10295@localhost>
+References: <20061028185554.GM9973@localhost>
+	 <20061029133551.GA10072@localhost>  <20061029133700.GA10295@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Network Appliance Inc
+Date: Sun, 29 Oct 2006 15:21:59 -0500
+Message-Id: <1162153319.5545.62.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 29 Oct 2006 20:22:00.0353 (UTC) FILETIME=[E3960110:01C6FB97]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-10-29 at 22:37 +0900, Akinobu Mita wrote:
+> auth_domain_put() forgot to unlock acquired spinlock.
 
+ACK. (and added Neil to the CC list).
 
-On Sun, 29 Oct 2006, Guennadi Liakhovetski wrote:
+Cheers,
+  Trond
+
 > 
-> I did search the archives, but it does seem to be the new one. r8169 
-> network driver introduced in 2.6.19-rcX a set_mac_address function, which 
-> doesn't work for me. It should resolve the bugreport 
-> http://bugzilla.kernel.org/show_bug.cgi?id=6032 but, as you see from the 
-> last comment from the original reporter and from my following comment, it 
-> doesn't seem to. I think, it should either be fixed or reverted. My 
-> test-system, was a ppc NAS (KuroboxHG):
-
-Can you please test the things that Francois asks you to test in the last 
-comment?
-
-That said, it does appear that the patch breaks things for some people, 
-and the upsides seem very limited - only relevant when somebody tries to 
-change the MAC address, which is not a very normal thing to do anyway.
-
-So maybe reverting it is the right thing to do. Guennadi, can you confirm 
-that it is commit a2b98a69 ("r8169: mac address change support") that 
-breaks it, and that reverting just that one commit fixes things for you?
-
-But please check the things that are suggested in the bugzilla entry 
-first.
-
-Francois? Jeff?
-
-		Linus
+> Cc: Olaf Kirch <okir@monad.swb.de>
+> Cc: Andy Adamson <andros@citi.umich.edu>
+> Cc: J. Bruce Fields <bfields@citi.umich.edu>
+> Cc: Trond Myklebust <Trond.Myklebust@netapp.com>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> 
+> Index: work-fault-inject/net/sunrpc/svcauth.c
+> ===================================================================
+> --- work-fault-inject.orig/net/sunrpc/svcauth.c
+> +++ work-fault-inject/net/sunrpc/svcauth.c
+> @@ -126,6 +126,7 @@ void auth_domain_put(struct auth_domain 
+>  	if (atomic_dec_and_lock(&dom->ref.refcount, &auth_domain_lock)) {
+>  		hlist_del(&dom->hash);
+>  		dom->flavour->domain_release(dom);
+> +		spin_unlock(&auth_domain_lock);
+>  	}
+>  }
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

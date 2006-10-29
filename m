@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWJ2KgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWJ2Kd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWJ2KgW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 05:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWJ2KgW
+	id S932164AbWJ2Kd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 05:33:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWJ2Kd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 05:36:22 -0500
-Received: from sitemail2.everyone.net ([216.200.145.36]:60288 "EHLO
-	omta14.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S932168AbWJ2KgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 05:36:22 -0500
-X-Eon-Dm: pop15
-X-Eon-Sig: AQK/0KdFRIQls5zXAgIAAAAB,45d3ab7e99064b93513e997e05028850
-Message-ID: <4544840E.8060808@buckeye-express.com>
-Date: Sun, 29 Oct 2006 05:35:58 -0500
-From: Jason Pool <believe@buckeye-express.com>
-User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+	Sun, 29 Oct 2006 05:33:29 -0500
+Received: from mail.gmx.net ([213.165.64.20]:21995 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751030AbWJ2Kd2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 05:33:28 -0500
+X-Authenticated: #20450766
+Date: Sun, 29 Oct 2006 11:33:23 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [0/3] 2.6.19-rc2: known regressions
+In-Reply-To: <20061014111458.GI30596@stusta.de>
+Message-ID: <Pine.LNX.4.60.0610291056470.4303@poirot.grange>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
+ <20061014111458.GI30596@stusta.de>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Bug causing problems with USB KVM switch
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having problems with my IOgear USB KVM switch.  I am running on a 
-Athlon XP with an Abit NF7 nForce2 motherboard.  Using Kubuntu 6.10 with 
-stock kernel 2.6.18.1 and Ubuntu kernel 2.6.17-10-generic with the KVM 
-plugged in, I get this in /var/log/messages every few seconds:
+Hi
 
-Oct 29 02:53:28 zanzibar kernel: [  105.489309] usb 1-1.1: reset low 
-speed USB device using ohci_hcd and address 7
+I did search the archives, but it does seem to be the new one. r8169 
+network driver introduced in 2.6.19-rcX a set_mac_address function, which 
+doesn't work for me. It should resolve the bugreport 
+http://bugzilla.kernel.org/show_bug.cgi?id=6032 but, as you see from the 
+last comment from the original reporter and from my following comment, it 
+doesn't seem to. I think, it should either be fixed or reverted. My 
+test-system, was a ppc NAS (KuroboxHG):
 
-This c auses my USB keyboard to temporarily become unresponsive, and 
-also makes the last key typed when being reset stick leading to 
-"tyinnnnng lkeee thssssssss".  The problem goes away with the keyboard 
-plugged directly into the machine without the KVM, and my USB mouse 
-seems unaffected either way.
+0000:00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit Ethernet (rev 10)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 128 (8000ns min, 16000ns max), Cache Line Size: 0x08 (32 bytes)        Interrupt: pin A routed to IRQ 16
+        Region 0: I/O ports at bfff00 [size=256]
+        Region 1: Memory at bfffff00 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [dc] Power Management version 0
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-I tried installing Fedora Core 6, and the installer and installation 
-gave me the same trouble, as well as the gparted 0.3.1 boot cd.  This 
-has only been a problem recently, Ubuntu 6.06 gave me no problems (a 
-version of 2.6.15), so I reverted to a Debian 2.6.16 kernel to see how 
-that went, and it works fine.
-
-Some change in 2.6.17 (or possibly later in 2.6.16) seems to have 
-started this problem for me.
-
-Any help would be appreciated.  I've tried to leave the relevant 
-information, but as its late(early?) and I'm about to zonk out, I may 
-have forgotten something.  I'd be more than happy to provide any 
-additional information if needed.
-
-
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

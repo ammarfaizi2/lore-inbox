@@ -1,101 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965351AbWJ2TrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965354AbWJ2Tw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965351AbWJ2TrF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 14:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965360AbWJ2TrF
+	id S965354AbWJ2Tw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 14:52:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965328AbWJ2Tw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 14:47:05 -0500
-Received: from mx2.netapp.com ([216.240.18.37]:62297 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S965351AbWJ2TrD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 14:47:03 -0500
-X-IronPort-AV: i="4.09,369,1157353200"; 
-   d="scan'208"; a="422602527:sNHT288763096"
-Subject: Re: [PATCH] auth_gss: unregister gss_domain when unloading module
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Andy Adamson <andros@citi.umich.edu>,
-       "J. Bruce Fields" <bfields@citi.umich.edu>
-In-Reply-To: <20061028185554.GM9973@localhost>
-References: <20061028185554.GM9973@localhost>
-Content-Type: text/plain
+	Sun, 29 Oct 2006 14:52:27 -0500
+Received: from wx-out-0506.google.com ([66.249.82.229]:63522 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965354AbWJ2Tw1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 14:52:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LV6BkffQ3yjQh5BsmXo1pwzsGdiBDOAfMFaG89FYCrsPw0R/iqt4QBD9L2y25UD526mbqTx0MiFi0wjoK6cFXhG36HkTC/wYf3WE7JqRM2SVMUfZb8+pIB2Ow870sudsRiJz4UoNn7y3FVLrAbUdEm5fY7rKvsXapUJvaakOz0M=
+Message-ID: <5a4c581d0610291152r7f538188m4ce52fba1f5f4683@mail.gmail.com>
+Date: Sun, 29 Oct 2006 20:52:26 +0100
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Subject: Re: loading EHCI_HCD slows down IDE disk performance by 50%
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1162146560.14733.65.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: Network Appliance Inc
-Date: Sun, 29 Oct 2006 14:46:59 -0500
-Message-Id: <1162151219.5545.40.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-OriginalArrivalTime: 29 Oct 2006 19:47:23.0606 (UTC) FILETIME=[0DBF8F60:01C6FB93]
+Content-Disposition: inline
+References: <5a4c581d0610291013w40c1b0e6g408051a79534956a@mail.gmail.com>
+	 <1162146560.14733.65.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-29 at 03:55 +0900, Akinobu Mita wrote:
-> Reloading rpcsec_gss_krb5 or rpcsec_gss_spkm3 hit duplicate
-> registration in svcauth_gss_register_pseudoflavor().
-> (If DEBUG_PAGEALLOC is enabled, oops will happen at
-> auth_domain_put() --> hlist_del() with uninitialized hlist_node)
-> 
-> svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name)
-> {
-> 	...
-> 
->         test = auth_domain_lookup(name, &new->h);
->         if (test != &new->h) { /* XXX Duplicate registration? */
->                 auth_domain_put(&new->h);
->                 /* dangling ref-count... */
-> 	...
-> }
-> 
-> This patch unregisters gss_domain and free it when unloading
-> modules (rpcsec_gss_krb5 or rpcsec_gss_spkm3 module call
-> gss_mech_unregister())
-> 
-> Cc: Andy Adamson <andros@citi.umich.edu>
-> Cc: "J. Bruce Fields" <bfields@citi.umich.edu>
-> Cc: Trond Myklebust <Trond.Myklebust@netapp.com>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> 
->  net/sunrpc/auth_gss/gss_mech_switch.c |    4 ++++
->  net/sunrpc/auth_gss/svcauth_gss.c     |    6 +++---
->  2 files changed, 7 insertions(+), 3 deletions(-)
-> 
-> Index: work-fault-inject/net/sunrpc/auth_gss/gss_mech_switch.c
-> ===================================================================
-> --- work-fault-inject.orig/net/sunrpc/auth_gss/gss_mech_switch.c
-> +++ work-fault-inject/net/sunrpc/auth_gss/gss_mech_switch.c
-> @@ -59,7 +59,11 @@ gss_mech_free(struct gss_api_mech *gm)
->  	int i;
->  
->  	for (i = 0; i < gm->gm_pf_num; i++) {
-> +		struct auth_domain *dom;
-> +
->  		pf = &gm->gm_pfs[i];
-> +		dom = auth_domain_find(pf->auth_domain_name);
-> +		auth_domain_put(dom);
+On 10/29/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Sun, 2006-10-29 at 19:13 +0100, Alessandro Suardi wrote:
+> > Any hints/tips about what to try with this issue will be
+> >  of course very welcome.
+>
+> git bisect
 
-Since auth_domain_find() takes a reference on "dom", and
-auth_domain_put() releases it, won't this just be a no-op?
+As I clarified to Lee in private email, this method doesn't
+ seem to apply in this situation, as the problem appeared
+ when I selected CONFIG_EHCI_HCD in my build due to the
+ purchase of the USB2.0 disk, back in the 2.6.16-rc cycle;
+ so if the combination of high performance IDE + EHCI_HCD
+ ever existed, it must be earlier than 2.6.16-rc5-git8.
 
->  		kfree(pf->auth_domain_name);
->  		pf->auth_domain_name = NULL;
->  	}
-> Index: work-fault-inject/net/sunrpc/auth_gss/svcauth_gss.c
-> ===================================================================
-> --- work-fault-inject.orig/net/sunrpc/auth_gss/svcauth_gss.c
-> +++ work-fault-inject/net/sunrpc/auth_gss/svcauth_gss.c
-> @@ -765,9 +765,9 @@ svcauth_gss_register_pseudoflavor(u32 ps
->  
->  	test = auth_domain_lookup(name, &new->h);
->  	if (test != &new->h) { /* XXX Duplicate registration? */
-> -		auth_domain_put(&new->h);
-> -		/* dangling ref-count... */
-> -		goto out;
-> +		WARN_ON(1);
-> +		kfree(new->h.name);
-> +		goto out_free_dom;
->  	}
->  	return 0;
->  
+Lacking any input I'll try to find out more in the next week
+ by starting out at 2.6.10 and eventually earlier.
 
-Cheers,
-  Trond
+Thanks, ciao,
+
+--alessandro
+
+"...when I get it, I _get_ it"
+
+     (Lara Eidemiller)

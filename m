@@ -1,130 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWJ2U7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWJ2VAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWJ2U7q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 15:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWJ2U7p
+	id S1030244AbWJ2VAB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 16:00:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWJ2VAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 15:59:45 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:40457 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030240AbWJ2U7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 15:59:45 -0500
+	Sun, 29 Oct 2006 16:00:00 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:45440 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030247AbWJ2U75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 15:59:57 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=S+n2/yRdJOIYou6peJxtMUqbO7ISPTHhHjdH+/Qv7i38XWZo/tPDWE/wCSM1ropKoLRiwITZgXzIyUky0dMVR76ods7yc/bapqkMYAGug0Occ/AyDwHx/sC2rReF9xugNleIu0CIiAu2USSU4SoUvqiFbPM4zfz+ETzcaSGRkH4=
-Date: Sun, 29 Oct 2006 22:58:03 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Eric Sesterhenn <snakebyte@gmx.de>
-Subject: [PATCH] drivers/video/*: use kmemdup()
-Message-ID: <20061029195803.GC4900@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=LNmt8eukdTgZHf45yJBpJIOIcHAztFYKiR+NIWlXOoFtP+GZbxUesp+dHffjVfS6ZVnN9iDwAdimLvmA72CZeX7BzySF17Oy5l52n0tLQjwqepeG1cxFnFkt5Y275rSzcRYbTFj3oMUCQG5YQaRiuKa3DKd1sT0IvKaqvfbC4EI=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: 2.6.18 forcedeth GSO panic on send
+Date: Sun, 29 Oct 2006 22:57:54 +0100
+User-Agent: KMail/1.8.2
+Cc: Manfred Spraul <manfred@colorfullife.com>, Jeff Garzik <jeff@garzik.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+References: <200610270117.57877.vda.linux@googlemail.com> <20061029141029.GA5084@gondor.apana.org.au> <200610292245.40702.vda.linux@googlemail.com>
+In-Reply-To: <200610292245.40702.vda.linux@googlemail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200610292257.54655.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric Sesterhenn <snakebyte@gmx.de>
+On Sunday 29 October 2006 22:45, Denis Vlasenko wrote:
+> On Sunday 29 October 2006 15:10, Herbert Xu wrote:
+> > On Sun, Oct 29, 2006 at 01:55:56PM +0100, Denis Vlasenko wrote:
+> > > With "echo 1 >/proc/sys/kernel/panic_on_oops" I've got
+> > > what you're requested. See screenshot:
+> > > 
+> > > http://busybox.net/~vda/gso_panic/forcedeth_gso_panic2.jpg
+> > 
+> > Thanks!
+> > 
+> > Please let me know if this patch fixes it:
+> > 
+> > [NET]: Fix segmentation of linear packets
+> 
+> Okay, will test now.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Patch seems to fix the issue. Thanks.
 
- drivers/video/aty/radeon_monitor.c  |    3 +--
- drivers/video/i810/i810-i2c.c       |    4 +---
- drivers/video/intelfb/intelfbdrv.c  |    3 +--
- drivers/video/nvidia/nv_i2c.c       |    7 ++-----
- drivers/video/nvidia/nv_of.c        |    3 +--
- drivers/video/savage/savagefb-i2c.c |    7 ++-----
- 6 files changed, 8 insertions(+), 19 deletions(-)
+> setting on it? Also what is the ethtool -k setting on the
+> interface where you expect ssh to go out?
 
---- a/drivers/video/aty/radeon_monitor.c
-+++ b/drivers/video/aty/radeon_monitor.c
-@@ -104,10 +104,9 @@ static int __devinit radeon_parse_montyp
- 	if (pedid == NULL)
- 		return mt;
- 
--	tmp = (u8 *)kmalloc(EDID_LENGTH, GFP_KERNEL);
-+	tmp = (u8 *)kmemdup(pedid, EDID_LENGTH, GFP_KERNEL);
- 	if (!tmp)
- 		return mt;
--	memcpy(tmp, pedid, EDID_LENGTH);
- 	*out_EDID = tmp;
- 	return mt;
- }
---- a/drivers/video/i810/i810-i2c.c
-+++ b/drivers/video/i810/i810-i2c.c
-@@ -162,9 +162,7 @@ int i810_probe_i2c_connector(struct fb_i
- 
- 		if (e != NULL) {
- 			DPRINTK("i810-i2c: Getting EDID from BIOS\n");
--			edid = kmalloc(EDID_LENGTH, GFP_KERNEL);
--			if (edid)
--				memcpy(edid, e, EDID_LENGTH);
-+			edid = kmemdup(e, EDID_LENGTH, GFP_KERNEL);
- 		}
- 	}
- 
---- a/drivers/video/intelfb/intelfbdrv.c
-+++ b/drivers/video/intelfb/intelfbdrv.c
-@@ -1058,10 +1058,9 @@ intelfb_init_var(struct intelfb_info *di
- 		u8 *edid_d = NULL;
- 
- 		if (edid_s) {
--			edid_d = kmalloc(EDID_LENGTH, GFP_KERNEL);
-+			edid_d = kmemdup(edid_s, EDID_LENGTH, GFP_KERNEL);
- 
- 			if (edid_d) {
--				memcpy(edid_d, edid_s, EDID_LENGTH);
- 				fb_edid_to_monspecs(edid_d,
- 						    &dinfo->info->monspecs);
- 				kfree(edid_d);
---- a/drivers/video/nvidia/nv_i2c.c
-+++ b/drivers/video/nvidia/nv_i2c.c
-@@ -210,11 +210,8 @@ int nvidia_probe_i2c_connector(struct fb
- 		/* try to get from firmware */
- 		const u8 *e = fb_firmware_edid(info->device);
- 
--		if (e != NULL) {
--			edid = kmalloc(EDID_LENGTH, GFP_KERNEL);
--			if (edid)
--				memcpy(edid, e, EDID_LENGTH);
--		}
-+		if (e != NULL)
-+			edid = kmemdup(e, EDID_LENGTH, GFP_KERNEL);
- 	}
- 
- 	*out_edid = edid;
---- a/drivers/video/nvidia/nv_of.c
-+++ b/drivers/video/nvidia/nv_of.c
-@@ -72,10 +72,9 @@ int nvidia_probe_of_connector(struct fb_
- 		}
- 	}
- 	if (pedid) {
--		*out_edid = kmalloc(EDID_LENGTH, GFP_KERNEL);
-+		*out_edid = kmemdup(pedid, EDID_LENGTH, GFP_KERNEL);
- 		if (*out_edid == NULL)
- 			return -1;
--		memcpy(*out_edid, pedid, EDID_LENGTH);
- 		printk(KERN_DEBUG "nvidiafb: Found OF EDID for head %d\n", conn);
- 		return 0;
- 	}
---- a/drivers/video/savage/savagefb-i2c.c
-+++ b/drivers/video/savage/savagefb-i2c.c
-@@ -227,11 +227,8 @@ int savagefb_probe_i2c_connector(struct 
- 		/* try to get from firmware */
- 		const u8 *e = fb_firmware_edid(info->device);
- 
--		if (e) {
--			edid = kmalloc(EDID_LENGTH, GFP_KERNEL);
--			if (edid)
--				memcpy(edid, e, EDID_LENGTH);
--		}
-+		if (e)
-+			edid = kmemdup(e, EDID_LENGTH, GFP_KERNEL);
- 	}
- 
- 	*out_edid = edid;
-
+# ethtool -k if
+Offload parameters for if:
+rx-checksumming: on
+tx-checksumming: on
+scatter-gather: on
+tcp segmentation offload: on
+--
+vda

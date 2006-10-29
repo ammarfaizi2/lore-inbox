@@ -1,103 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965237AbWJ2Nmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965270AbWJ2OLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965237AbWJ2Nmh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 08:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWJ2Nmh
+	id S965270AbWJ2OLK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 09:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbWJ2OLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 08:42:37 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15806 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965221AbWJ2Nmg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 08:42:36 -0500
-Date: Sun, 29 Oct 2006 13:42:33 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Akinobu Mita <akinobu.mita@gmail.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, Len Brown <len.brown@intel.com>
-Subject: Re: [PATCH -mm] acpi: use list.h API for sub_driver list
-Message-ID: <20061029134233.GA22902@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-	linux-acpi@vger.kernel.org, Len Brown <len.brown@intel.com>
-References: <20061028185313.GK9973@localhost> <20061028190254.GA7070@infradead.org> <20061029134003.GC10295@localhost>
+	Sun, 29 Oct 2006 09:11:10 -0500
+Received: from rhun.apana.org.au ([64.62.148.172]:61453 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S965250AbWJ2OLG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 09:11:06 -0500
+Date: Mon, 30 Oct 2006 01:10:29 +1100
+To: Denis Vlasenko <vda.linux@googlemail.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, Jeff Garzik <jeff@garzik.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: 2.6.18 forcedeth GSO panic on send
+Message-ID: <20061029141029.GA5084@gondor.apana.org.au>
+References: <200610270117.57877.vda.linux@googlemail.com> <20061027035858.GA11129@gondor.apana.org.au> <200610291355.56196.vda.linux@googlemail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061029134003.GC10295@localhost>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200610291355.56196.vda.linux@googlemail.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29, 2006 at 10:40:03PM +0900, Akinobu Mita wrote:
-> On Sat, Oct 28, 2006 at 08:02:54PM +0100, Christoph Hellwig wrote:
-> > Any chance to just switch the driver to use the list.h APIs instead
-> > of opencoding lists?
+On Sun, Oct 29, 2006 at 01:55:56PM +0100, Denis Vlasenko wrote:
 > 
-> Subject: [PATCH -mm] acpi: use list.h API for sub_driver list
+> With "echo 1 >/proc/sys/kernel/panic_on_oops" I've got
+> what you're requested. See screenshot:
 > 
-> Use the list.h APIs instead of opencoding lists.
+> http://busybox.net/~vda/gso_panic/forcedeth_gso_panic2.jpg
 
-Maybe it's just me but I don't see a place where we actually ever
-iterate this list.  Len, do you plan to introduce users of the list anytime
-soon?  In that case the patch below looks good to me, else we should just
-rip it out completely.
+Thanks!
 
-> Cc: Len Brown <len.brown@intel.com>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> 
-> Index: work-fault-inject/drivers/acpi/pci_root.c
-> ===================================================================
-> --- work-fault-inject.orig/drivers/acpi/pci_root.c
-> +++ work-fault-inject/drivers/acpi/pci_root.c
-> @@ -65,17 +65,14 @@ struct acpi_pci_root {
->  
->  static LIST_HEAD(acpi_pci_roots);
->  
-> -static struct acpi_pci_driver *sub_driver;
-> +static LIST_HEAD(sub_driver);
->  
->  int acpi_pci_register_driver(struct acpi_pci_driver *driver)
->  {
->  	int n = 0;
->  	struct list_head *entry;
->  
-> -	struct acpi_pci_driver **pptr = &sub_driver;
-> -	while (*pptr)
-> -		pptr = &(*pptr)->next;
-> -	*pptr = driver;
-> +	list_add_tail(&driver->list, &sub_driver);
->  
->  	if (!driver->add)
->  		return 0;
-> @@ -96,14 +93,7 @@ void acpi_pci_unregister_driver(struct a
->  {
->  	struct list_head *entry;
->  
-> -	struct acpi_pci_driver **pptr = &sub_driver;
-> -	while (*pptr) {
-> -		if (*pptr == driver)
-> -			break;
-> -		pptr = &(*pptr)->next;
-> -	}
-> -	BUG_ON(!*pptr);
-> -	*pptr = (*pptr)->next;
-> +	list_del(&driver->list);
->  
->  	if (!driver->remove)
->  		return;
-> Index: work-fault-inject/include/linux/acpi.h
-> ===================================================================
-> --- work-fault-inject.orig/include/linux/acpi.h
-> +++ work-fault-inject/include/linux/acpi.h
-> @@ -480,7 +480,7 @@ void acpi_penalize_isa_irq(int irq, int 
->  void acpi_pci_irq_disable (struct pci_dev *dev);
->  
->  struct acpi_pci_driver {
-> -	struct acpi_pci_driver *next;
-> +	struct list_head list;
->  	int (*add)(acpi_handle handle);
->  	void (*remove)(acpi_handle handle);
->  };
----end quoted text---
+Please let me know if this patch fixes it:
+
+[NET]: Fix segmentation of linear packets
+
+skb_segment fails to segment linear packets correctly because it
+tries to write all linear parts of the original skb into each
+segment.  This will always panic as each segment only contains
+enough space for one MSS.
+
+This was not detected earlier because linear packets should be
+rare for GSO.  In fact it still remains to be seen what exactly
+created the linear packets that triggered this bug.  Basically
+the only time this should happen is if someone enables GSO
+emulation on an interface that does not support SG.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+The fact that you're triggering this bug at all means that
+something else has gone wrong.  First of all your picture
+shows a device setting of "lo".  This does not tally with
+the fact that the BUG was triggered by ssh.  Do you have
+any idea why this is the case? Do you have any netfilter
+rules that might cause this?
+
+If it is indeed lo, could you please check the ethtool -k
+setting on it? Also what is the ethtool -k setting on the
+interface where you expect ssh to go out?
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 3c23760..f735455 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -1946,7 +1946,7 @@ struct sk_buff *skb_segment(struct sk_bu
+ 	do {
+ 		struct sk_buff *nskb;
+ 		skb_frag_t *frag;
+-		int hsize, nsize;
++		int hsize;
+ 		int k;
+ 		int size;
+ 
+@@ -1957,11 +1957,10 @@ struct sk_buff *skb_segment(struct sk_bu
+ 		hsize = skb_headlen(skb) - offset;
+ 		if (hsize < 0)
+ 			hsize = 0;
+-		nsize = hsize + doffset;
+-		if (nsize > len + doffset || !sg)
+-			nsize = len + doffset;
++		if (hsize > len || !sg)
++			hsize = len;
+ 
+-		nskb = alloc_skb(nsize + headroom, GFP_ATOMIC);
++		nskb = alloc_skb(hsize + doffset + headroom, GFP_ATOMIC);
+ 		if (unlikely(!nskb))
+ 			goto err;
+ 

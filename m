@@ -1,33 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWJ2OWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWJ2O5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWJ2OWw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 09:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWJ2OWw
+	id S932336AbWJ2O5b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 09:57:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWJ2O5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 09:22:52 -0500
-Received: from [212.45.6.2] ([212.45.6.2]:10964 "EHLO televic-cs.ru")
-	by vger.kernel.org with ESMTP id S932315AbWJ2OWv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 09:22:51 -0500
-From: <predator@mt9.ru>
-Subject: -W -Wno-unused -Wno-sign-compare compile flags
-To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro WebUser Interface v.4.3.11
-Date: Sun, 29 Oct 2006 17:22:48 +0300
-Message-ID: <web-577743@televic-cs.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Sun, 29 Oct 2006 09:57:31 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:28102 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S932336AbWJ2O5b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 09:57:31 -0500
+Date: Sun, 29 Oct 2006 18:57:16 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Thomas Graf <tgraf@suug.ch>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@sgi.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] taskstats: fix? sk_buff size calculation
+Message-ID: <20061029155716.GA1213@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !linux-kernel
+Again, I am not sure this patch is correct, it needs an ack...
 
-Does anybody try to compile latest linux-kernel with -W 
--Wno-unused -Wno-sign-compare CFLAGS? There is a tons of 
-warnings :(
-Recent versions of grsecurity patches adds this flags to 
-default. When I asked to grsec developers, why did they do 
-that, they answered: to show, how messy linux code is...
-Is there any objections about it?
+prepare_reply() adds GENL_HDRLEN to the payload (genlmsg_total_size()),
+but then it does genlmsg_put()->nlmsg_put(). This means we forget to
+reserve a room for 'struct nlmsghdr', no?
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- STATS/kernel/taskstats.c~2_size	2006-10-29 16:39:10.000000000 +0300
++++ STATS/kernel/taskstats.c	2006-10-29 18:35:40.000000000 +0300
+@@ -77,7 +77,8 @@ static int prepare_reply(struct genl_inf
+ 	/*
+ 	 * If new attributes are added, please revisit this allocation
+ 	 */
+-	skb = nlmsg_new(genlmsg_total_size(size), GFP_KERNEL);
++	size = nlmsg_total_size(genlmsg_total_size(size));
++	skb = nlmsg_new(size, GFP_KERNEL);
+ 	if (!skb)
+ 		return -ENOMEM;
+ 
+

@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbWJ2MqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbWJ2MqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965170AbWJ2MqV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 07:46:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbWJ2MqV
+	id S965164AbWJ2MqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 07:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWJ2MqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 07:46:21 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:4503 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S965170AbWJ2MqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 07:46:20 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Sun, 29 Oct 2006 07:44:18 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: why test for "__GNUC__"?
-In-Reply-To: <Pine.LNX.4.61.0610291244310.15986@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0610290742310.7457@localhost.localdomain>
-References: <Pine.LNX.4.64.0610290610020.6502@localhost.localdomain>
- <Pine.LNX.4.61.0610291244310.15986@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Sun, 29 Oct 2006 07:46:13 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:16290 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S965164AbWJ2MqN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 07:46:13 -0500
+Date: Sun, 29 Oct 2006 16:45:58 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] taskstats: fix? sk_buff leak
+Message-ID: <20061029134557.GA1500@oleg>
+References: <20061029132449.GA1142@oleg> <20061029123352.GC12964@postel.suug.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061029123352.GC12964@postel.suug.ch>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Oct 2006, Jan Engelhardt wrote:
-
+On 10/29, Thomas Graf wrote:
 >
-> >  since (as i understand it) the linux kernel *requires* gcc these
-> >days, what is the point of the numerous preprocessor tests of the
-> >form:
->
-> ICC is said to work too.
+> * Oleg Nesterov <oleg@tv-sign.ru> 2006-10-29 16:24
+> >  nla_put_failure:
+> > -	return genlmsg_cancel(rep_skb, reply);
+> > +	genlmsg_cancel(rep_skb, reply);
+> 
+> rc = genlmsg_cancel(...) or return value is undefined.
 
-ah, i was not aware of that.  but does that mean that ICC is (or will
-be) *officially* supported?  or does it just *happen* to work at the
-moment with no guarantees of future compatibility?
+Thanks!
 
-rday
+[PATCH] taskstats: fix sk_buff leak
 
-p.s.  is there, in fact, any part of the kernel source tree that has a
-preprocessor directive to identify the use of ICC?  just curious.
+Compile tested.
+
+'return genlmsg_cancel()' in taskstats_user_cmd/taskstats_exit_send looks
+wrong to me. Unless we pass 'rep_skb' to the netlink layer we own sk_buff.
+This means we should always do kfree_skb() on failure.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- STATS/kernel/taskstats.c~1_skb	2006-10-29 15:12:51.000000000 +0300
++++ STATS/kernel/taskstats.c	2006-10-29 16:39:10.000000000 +0300
+@@ -411,7 +411,7 @@ static int taskstats_user_cmd(struct sk_
+ 	return send_reply(rep_skb, info->snd_pid);
+ 
+ nla_put_failure:
+-	return genlmsg_cancel(rep_skb, reply);
++	rc = genlmsg_cancel(rep_skb, reply);
+ err:
+ 	nlmsg_free(rep_skb);
+ 	return rc;
+@@ -507,7 +507,6 @@ send:
+ 
+ nla_put_failure:
+ 	genlmsg_cancel(rep_skb, reply);
+-	goto ret;
+ err_skb:
+ 	nlmsg_free(rep_skb);
+ ret:
+

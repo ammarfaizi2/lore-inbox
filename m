@@ -1,87 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWJ2LTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWJ2LT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWJ2LTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 06:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWJ2LTI
+	id S932210AbWJ2LT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 06:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWJ2LTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 06:19:08 -0500
-Received: from adsl-ull-63-235.42-151.net24.it ([151.42.235.63]:15401 "EHLO
-	apollo.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S932208AbWJ2LTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 06:19:07 -0500
-Message-ID: <4544900F.3060706@abinetworks.biz>
-Date: Sun, 29 Oct 2006 12:27:11 +0100
-From: Gianluca Alberici <gianluca@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Sun, 29 Oct 2006 06:19:55 -0500
+Received: from web27408.mail.ukl.yahoo.com ([217.146.177.184]:61877 "HELO
+	web27408.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932213AbWJ2LTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 06:19:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.uk;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=jx7dhoBmuv1eNmkbXscIlnjTtyWjSwktTbj0c6Nk5+IsirmUEnBadb+Dn9vUxZqQ5pMIJt5FXdwxJJcL4f0I50DGzvHtlCj81/mWcYItogQEBupgk/UlnSHdeHZ/isalegbGlc3CBZ6XrXwQZz56CQWvaFmQznfETEGhqV210l4=  ;
+Message-ID: <20061029111953.51907.qmail@web27408.mail.ukl.yahoo.com>
+Date: Sun, 29 Oct 2006 11:19:53 +0000 (GMT)
+From: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
+Subject: Re: How to run an a.out file in a kernel module
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20061027110636.GA2837@harddisk-recovery.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH ??] Re: incorrect taint of ndiswrapper
-References: <1161807069.3441.33.camel@dv>	<1161808227.7615.0.camel@localhost.localdomain>	<20061025205923.828c620d.akpm@osdl.org>	<20061026102630.ad191d21.randy.dunlap@oracle.com>	<1161959020.12281.1.camel@laptopd505.fenrus.org>	<20061027082741.8476024a.randy.dunlap@oracle.com> <20061027112601.dbd83c32.akpm@osdl.org>
-In-Reply-To: <20061027112601.dbd83c32.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi,
+    1) What is the synatx of call_usermodehelper()
+function?
+        I found out that it takes 4 arguments. But
+what values  we have to pass as argumets.
+I did searched in internet. But could not find out.
+Sorry to post this question.
 
->On Fri, 27 Oct 2006 08:27:41 -0700
->Randy Dunlap <randy.dunlap@oracle.com> wrote:
->
->  
->
->>From: Randy Dunlap <randy.dunlap@oracle.com>
->>
->>For ndiswrapper, don't set the module->taints flags,
->>just set the kernel global tainted flag.
->>This should allow ndiswrapper to continue to use GPL symbols.
->>Not tested.
->>
->>Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
->>---
->> kernel/module.c |    2 +-
->> 1 files changed, 1 insertion(+), 1 deletion(-)
->>
->>--- linux-2619-rc3-pv.orig/kernel/module.c
->>+++ linux-2619-rc3-pv/kernel/module.c
->>@@ -1718,7 +1718,7 @@ static struct module *load_module(void _
->> 	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
->> 
->> 	if (strcmp(mod->name, "ndiswrapper") == 0)
->>-		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
->>+		add_taint(TAINT_PROPRIETARY_MODULE);
->> 	if (strcmp(mod->name, "driverloader") == 0)
->> 		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
->> 
->>    
->>
->
->Could someone please test this for us
->  
->
+2) How to print something  using C code such that it
+will be displayed when corresponding a.out file is
+called in a kernel module using call_usermodehelper()
+function.
 
-tested on rc2-mm2. It works.
+Thanks in advance.
 
-I think it would be really good to hear somebody from the ndiswrapper 
-group about this thread. During these 6 months (?) i believe both the 
-kernel and ndiswrapper could go very far with a good collaboration.
+--- Erik Mouw <erik@harddisk-recovery.com> wrote:
 
-Another thing: shouldnt be more efficent and readable to remove those 
-"if ((strcmp...." from modules.c and to put all the tainted modules 
-names into a separate source file into, say, a string array ? What if we 
-had 250 tainted modules ?
+> On Fri, Oct 27, 2006 at 11:16:11AM +0100, ranjith
+> kumar wrote:
+> >           How to run an a.out file in a kernel
+> module
+> >              I tried to include
+> >                                    
+> system("./a.out");
+> >      in the C file. But I got compilation errors.
+> 
+> Simple: you don't. There are a bunch of problems
+> over here:
+> 
+> 1) The system() call is a userland libc call and
+> doesn't exist in the
+>    kernel
+> 2) You can't be sure you're in user context
+> 3) You don't know in what filesytem namespace you
+> are
+> 
+> You could use call_usermodehelper() if you really
+> need to call a
+> usermode helper, but usually it's a sign of bad
+> design if you need to.
+> 
+> 
+> Erik
+> 
+> -- 
+> +-- Erik Mouw -- www.harddisk-recovery.com -- +31 70
+> 370 12 90 --
+> | Lab address: Delftechpark 26, 2628 XH, Delft, The
+> Netherlands
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-And finally, it seems to me that ideas are not perfectly clear about 
-what Linux should / should not do in respect to
 
-- GPLed
-- NON GPLed
-- (???) GPLed
 
-drivers. I believe policies and potential problems should be cristal 
-clear before making any implementation.
-
-Regards,
-
-Gianluca
+		
+___________________________________________________________ 
+All New Yahoo! Mail – Tired of Vi@gr@! come-ons? Let our SpamGuard protect you. http://uk.docs.yahoo.com/nowyoucan.html

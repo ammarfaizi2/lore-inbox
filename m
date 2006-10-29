@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965295AbWJ2Q76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965299AbWJ2RCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965295AbWJ2Q76 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 11:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbWJ2Q76
+	id S965299AbWJ2RCc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 12:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965303AbWJ2RCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 11:59:58 -0500
-Received: from pool-72-66-199-112.ronkva.east.verizon.net ([72.66.199.112]:60869
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S965295AbWJ2Q76 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 11:59:58 -0500
-Message-Id: <200610291659.k9TGxnwZ011825@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+	Sun, 29 Oct 2006 12:02:32 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:8050 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965299AbWJ2RCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 12:02:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=Fxz42NeShHvmWVVDjMmHlnxRgkK7+Q9rr7y5e8t+TtprrOmlEshH22TkJruk9CYtK07InXMHjTjx24wi5vCELQxWecw3dzqxipBQ7sKzKxJ+vx+8JSWhVqr1CbdZRj+hUarRdMlvYaoCdfgsZqE9Qek4PoSaMElB1B72wHgiLuk=
+Date: Sun, 29 Oct 2006 18:02:26 +0100
+From: Luca Tettamanti <kronos.it@gmail.com>
 To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: why test for "__GNUC__"?
-In-Reply-To: Your message of "Sun, 29 Oct 2006 10:48:43 EST."
-             <Pine.LNX.4.64.0610291044230.9726@localhost.localdomain>
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.64.0610290610020.6502@localhost.localdomain> <Pine.LNX.4.61.0610291244310.15986@yvahk01.tjqt.qr> <Pine.LNX.4.64.0610290742310.7457@localhost.localdomain> <20061029120534.GA4906@martell.zuzino.mipt.ru>
-            <Pine.LNX.4.64.0610291044230.9726@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1162141188_6875P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 29 Oct 2006 11:59:48 -0500
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "signed" versus "__signed__" versus "__signed" in arch-specific  "types.h" files
+Message-ID: <20061029170226.GA29903@dreamland.darkstar.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610290537290.6187@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1162141188_6875P
-Content-Type: text/plain; charset=us-ascii
+Robert P. J. Day <rpjday@mindspring.com> ha scritto:
+>  so the keyword alias "__signed__" is used early on in nearly every
+> types.h file but, if __KERNEL__ is defined, the file falls back to
+> just using "signed".  (the use of "unsigned" is, of course, consistent
+> throughout.)
 
-On Sun, 29 Oct 2006 10:48:43 EST, "Robert P. J. Day" said:
-> On Sun, 29 Oct 2006, Alexey Dobriyan wrote:
-> 
-> > On Sun, Oct 29, 2006 at 07:44:18AM -0500, Robert P. J. Day wrote:
-> > > p.s.  is there, in fact, any part of the kernel source tree that has a
-> > > preprocessor directive to identify the use of ICC?  just curious.
-> >
-> > Please, do
-> >
-> > 	ls include/linux/compiler-*
-> 
-> but according to compiler.h:
-> 
-> /* Intel compiler defines __GNUC__. So we will overwrite implementations
->  * coming from above header files here
->  */
-> 
-> so even ICC will define __GNUC__, which means that testing for
-> __GNUC__ is *still*, under the circumstances, redundant, isn't that
-> right?
+When __KERNEL__ is not defined then that part of the header may be
+exposed to userspace[1]. Older compilers (or newer versions of gcc with
+-traditional used to compile old programs) don't recognize the keyword
+'signed', hence the alternate keyword is used.
+Extreme backward compatibility I'd say ;) I doubt that today is
+possibile to compile anything with -traditional on a distro recent
+enough to use kernel 2.6.
 
-The Intel compiler started defining __GNUC__ fairly recently (within the
-last 2-3 years).  Most likely the tests date from long ago and far away,
-before it did so.
-
---==_Exmh_1162141188_6875P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFRN4EcC3lWbTT17ARAkuWAJ0VLzuYtxLlaH7616NndCkWW3rqFACfQYuY
-RZLEEcz9HXxJ2Dc9YoWGKow=
-=fA3l
------END PGP SIGNATURE-----
-
---==_Exmh_1162141188_6875P--
+Luca
+[1] You'd better use the cleaned up version of the headers though.
+-- 
+"It is more complicated than you think"
+                -- The Eighth Networking Truth from RFC 1925

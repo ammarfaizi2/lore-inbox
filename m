@@ -1,61 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965359AbWJ2Tm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965351AbWJ2TrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965359AbWJ2Tm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 14:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965358AbWJ2Tm6
+	id S965351AbWJ2TrF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 14:47:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965360AbWJ2TrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 14:42:58 -0500
-Received: from smtp-out.rrz.uni-koeln.de ([134.95.19.53]:8430 "EHLO
-	smtp-out.rrz.uni-koeln.de") by vger.kernel.org with ESMTP
-	id S965359AbWJ2Tm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 14:42:57 -0500
-Message-ID: <45450422.4030706@rrz.uni-koeln.de>
-Date: Sun, 29 Oct 2006 20:42:26 +0100
-From: Berthold Cogel <cogel@rrz.uni-koeln.de>
-User-Agent: IceDove 1.5.0.7 (X11/20061013)
-MIME-Version: 1.0
-To: Samuel Ortiz <samuel@sortiz.org>
-CC: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
-Subject: Re: Oops in __wake_up_common with irda, linux-2.6.18
-References: <45426EC0.3070004@rrz.uni-koeln.de> <20061029175024.GA5356@sortiz.org>
-In-Reply-To: <20061029175024.GA5356@sortiz.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 29 Oct 2006 14:47:05 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:62297 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S965351AbWJ2TrD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 14:47:03 -0500
+X-IronPort-AV: i="4.09,369,1157353200"; 
+   d="scan'208"; a="422602527:sNHT288763096"
+Subject: Re: [PATCH] auth_gss: unregister gss_domain when unloading module
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andy Adamson <andros@citi.umich.edu>,
+       "J. Bruce Fields" <bfields@citi.umich.edu>
+In-Reply-To: <20061028185554.GM9973@localhost>
+References: <20061028185554.GM9973@localhost>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: Network Appliance Inc
+Date: Sun, 29 Oct 2006 14:46:59 -0500
+Message-Id: <1162151219.5545.40.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 29 Oct 2006 19:47:23.0606 (UTC) FILETIME=[0DBF8F60:01C6FB93]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Ortiz schrieb:
-> Hi Berthold,
+On Sun, 2006-10-29 at 03:55 +0900, Akinobu Mita wrote:
+> Reloading rpcsec_gss_krb5 or rpcsec_gss_spkm3 hit duplicate
+> registration in svcauth_gss_register_pseudoflavor().
+> (If DEBUG_PAGEALLOC is enabled, oops will happen at
+> auth_domain_put() --> hlist_del() with uninitialized hlist_node)
 > 
-> On Fri, Oct 27, 2006 at 10:40:32PM +0200, Berthold Cogel wrote:
->> Hello!
->>
->> I got a kernel Oops in __wake_up_common while receiving a file on my
->> notebook via irda  from a Pocket PC with 'ircp -r' (sending files to the
->> PocketPC works).
-> Could you try applying this patch:
-> http://marc.theaimsgroup.com/?l=linux-netdev&m=115792756816966&w=2
+> svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name)
+> {
+> 	...
 > 
-> It's supposed to fix this OOPS. Please let me know.
+>         test = auth_domain_lookup(name, &new->h);
+>         if (test != &new->h) { /* XXX Duplicate registration? */
+>                 auth_domain_put(&new->h);
+>                 /* dangling ref-count... */
+> 	...
+> }
 > 
-> Cheers,
-> Samuel.
+> This patch unregisters gss_domain and free it when unloading
+> modules (rpcsec_gss_krb5 or rpcsec_gss_spkm3 module call
+> gss_mech_unregister())
+> 
+> Cc: Andy Adamson <andros@citi.umich.edu>
+> Cc: "J. Bruce Fields" <bfields@citi.umich.edu>
+> Cc: Trond Myklebust <Trond.Myklebust@netapp.com>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> 
+>  net/sunrpc/auth_gss/gss_mech_switch.c |    4 ++++
+>  net/sunrpc/auth_gss/svcauth_gss.c     |    6 +++---
+>  2 files changed, 7 insertions(+), 3 deletions(-)
+> 
+> Index: work-fault-inject/net/sunrpc/auth_gss/gss_mech_switch.c
+> ===================================================================
+> --- work-fault-inject.orig/net/sunrpc/auth_gss/gss_mech_switch.c
+> +++ work-fault-inject/net/sunrpc/auth_gss/gss_mech_switch.c
+> @@ -59,7 +59,11 @@ gss_mech_free(struct gss_api_mech *gm)
+>  	int i;
+>  
+>  	for (i = 0; i < gm->gm_pf_num; i++) {
+> +		struct auth_domain *dom;
+> +
+>  		pf = &gm->gm_pfs[i];
+> +		dom = auth_domain_find(pf->auth_domain_name);
+> +		auth_domain_put(dom);
 
-Hello Samuel,
+Since auth_domain_find() takes a reference on "dom", and
+auth_domain_put() releases it, won't this just be a no-op?
 
-with 2.6.18 parts of the patch failed:
+>  		kfree(pf->auth_domain_name);
+>  		pf->auth_domain_name = NULL;
+>  	}
+> Index: work-fault-inject/net/sunrpc/auth_gss/svcauth_gss.c
+> ===================================================================
+> --- work-fault-inject.orig/net/sunrpc/auth_gss/svcauth_gss.c
+> +++ work-fault-inject/net/sunrpc/auth_gss/svcauth_gss.c
+> @@ -765,9 +765,9 @@ svcauth_gss_register_pseudoflavor(u32 ps
+>  
+>  	test = auth_domain_lookup(name, &new->h);
+>  	if (test != &new->h) { /* XXX Duplicate registration? */
+> -		auth_domain_put(&new->h);
+> -		/* dangling ref-count... */
+> -		goto out;
+> +		WARN_ON(1);
+> +		kfree(new->h.name);
+> +		goto out_free_dom;
+>  	}
+>  	return 0;
+>  
 
-acer01:/usr/src/linux# patch -p1 < ../irda_patch.txt
-patching file net/irda/af_irda.c
-Hunk #1 FAILED at 132.
-Hunk #2 FAILED at 1213.
-Hunk #3 FAILED at 1223.
-Hunk #4 succeeded at 1356 with fuzz 2.
-Hunk #5 succeeded at 1409 with fuzz 2.
-3 out of 5 hunks FAILED -- saving rejects to file net/irda/af_irda.c.rej
-
-This happens with 2.6.18.1 too. I haven't tried 2.6.19-rc... yet.
-
-I've attached af_irda.c.rej for 2.6.18.
-
-Berthold
+Cheers,
+  Trond

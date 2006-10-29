@@ -1,101 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbWJ2XOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbWJ2XUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030427AbWJ2XOE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 18:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWJ2XOD
+	id S1030434AbWJ2XUX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 18:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbWJ2XUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 18:14:03 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:6153 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030427AbWJ2XOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 18:14:00 -0500
-Date: Mon, 30 Oct 2006 00:13:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Chua <jeff.chua.linux@gmail.com>, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Prakash Punnoor <prakash@punnoor.de>, phil.el@wanadoo.fr,
-       oprofile-list@lists.sourceforge.net,
-       Martin Lorenz <martin@lorenz.eu.org>, len.brown@intel.com,
-       linux-acpi@vger.kernel.org, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Thierry Vignaud <tvignaud@mandriva.com>, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org, Alex Romosan <romosan@sycorax.lbl.gov>,
-       Jens Axboe <jens.axboe@oracle.com>, Komuro <komurojun-mbn@nifty.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Christian <christiand59@web.de>,
-       Mark Langsdorf <mark.langsdorf@amd.com>, davej@codemonkey.org.uk,
-       cpufreq@lists.linux.org.uk
-Subject: 2.6.19-rc3: known unfixed regressions (v3)
-Message-ID: <20061029231358.GI27968@stusta.de>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
+	Sun, 29 Oct 2006 18:20:23 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:33567 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030434AbWJ2XUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 18:20:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=UK1If+MC8XxmKOdGl5CkLFF/zVzluWTANYmA8Alh2y+yNJ/40ZyG5h0q7I5Npb2R9zdy8d7gdmdQl3x+i+p3JjBwVjvmhaWsqw3pDLANTp0vr4pHwbVfVqWCfysxc5Rfydcg3iHUYyFGAc4PO0nbUmXZRLoMi/mRSGdn220hbKg=
+Message-ID: <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com>
+Date: Sun, 29 Oct 2006 18:20:19 -0500
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: "Dmitry Torokhov" <dtor@insightbb.com>
+Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
+Cc: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Vojtech Pavlik" <vojtech@suse.cz>
+In-Reply-To: <200608232311.07599.dtor@insightbb.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <200608232311.07599.dtor@insightbb.com>
+X-Google-Sender-Auth: 09d977260ceb5f09
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.19-rc3 compared to 2.6.18
-that are not yet fixed in Linus' tree.
+On 8/23/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
+> Hi everyone,
+>
+> Here is another version of the patch removing polling timer from i8042
+> which is needed if we want tickless kernel. Keyboards should now work
+> on boxes that do not have mouse plugged in. PLease give it a test.
 
-If you find your name in the Cc header, you are either submitter of one
-of the bugs, maintainer of an affectected subsystem or driver, a patch
-of you caused a breakage or I'm considering you in any other way possibly
-involved with one or more of these issues.
+ What's the intent of this; just to allow tickless? Or is it also to
+make the i8042 driver less racy? I ask because I've applied this over
+(a modified) 2.6.18 on my Compaq Presario X1010us laptop which has
+been driving me crazy w/ Synaptics problems and keyboard problems
+(intermittent, but   frequent enough lately that I finally figured I
+needed to do something about it).
 
-Due to the huge amount of recipients, please trim the Cc when answering.
+If removing raciness is part of the goal, isn't the window in
+i8042_aux_write still a problem?
 
+	if (port->mux == -1)
+		retval = i8042_command(&c, I8042_CMD_AUX_SEND);
+	else
+		retval = i8042_command(&c, I8042_CMD_MUX_SEND + port->mux);
 
-Subject    : PCI: MMCONFIG breakage
-References : http://lkml.org/lkml/2006/10/23/182
-Submitter  : Jeff Chua <jeff.chua.linux@gmail.com>
-Status     : unknown, both BIOS and Direct work
+        /* i8042_command has re-enabled interrupts;
+           what happens if real interrupt happens here, before we call
+the ISR ourselves? */
 
+	i8042_interrupt(0, NULL, NULL);
+	return retval;
+}
 
-Subject    : x86_64: oprofile doesn't work
-References : http://lkml.org/lkml/2006/10/27/3
-Submitter  : Prakash Punnoor <prakash@punnoor.de>
-Status     : unknown
+I don't really know if or how much the races in this driver are
+contributing to my problems (keyboard getting stuck repeating last
+key, or ignoring interrupts, or synaptics touchpad freezing, last of
+which requires cold boot to fix). Maybe more likely an ACPI thing?
 
+Anyway, thought I'd point this out and see if this patch is actually
+going in someone's queue. I think I'll keep running w/ the patch since
+w/ the polling in there and HZ set to 1000, it seemed like there were
+an awful lot of opportunities for the driver to get confused, and even
+if it's not causing my problems it doesn't seem like it could be
+helping.
 
-Subject    : X60s: BUG()s, lose ACPI events after suspend/resume
-References : http://lkml.org/lkml/2006/10/10/39
-Submitter  : Martin Lorenz <martin@lorenz.eu.org>
-Status     : unknown
-
-
-Subject    : T60 stops triggering any ACPI events
-References : http://lkml.org/lkml/2006/10/4/425
-             http://lkml.org/lkml/2006/10/16/262
-             http://bugzilla.kernel.org/show_bug.cgi?id=7408
-Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
-Status     : unknown
-
-
-Subject    : sata-via doesn't detect anymore disks attached to VIA vt6421
-References : http://bugzilla.kernel.org/show_bug.cgi?id=7255
-Submitter  : Thierry Vignaud <tvignaud@mandriva.com>
-Status     : unknown
-
-
-Subject    : unable to rip cd
-References : http://lkml.org/lkml/2006/10/13/100
-Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
-Status     : unknown
-
-
-Subject    : SMP kernel can not generate ISA irq properly
-References : http://lkml.org/lkml/2006/10/22/15
-Submitter  : Komuro <komurojun-mbn@nifty.com>
-Handled-By : Thomas Gleixner <tglx@linutronix.de>
-Status     : Thomas will investigate
-
-
-Subject    : cpufreq not working on AMD K8
-References : http://lkml.org/lkml/2006/10/10/114
-Submitter  : Christian <christiand59@web.de>
-Handled-By : Mark Langsdorf <mark.langsdorf@amd.com>
-Status     : Mark is investigating
-
-
+Dave

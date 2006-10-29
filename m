@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965276AbWJ2QSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbWJ2QRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965276AbWJ2QSX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 11:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965275AbWJ2QSX
+	id S965191AbWJ2QRw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 11:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbWJ2QRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 11:18:23 -0500
-Received: from main.gmane.org ([80.91.229.2]:35009 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965276AbWJ2QSW (ORCPT
+	Sun, 29 Oct 2006 11:17:52 -0500
+Received: from ns1.suse.de ([195.135.220.2]:18108 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965191AbWJ2QRv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 11:18:22 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: why test for "__GNUC__"?
-Date: Sun, 29 Oct 2006 16:17:51 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnek9le5.2vm.olecom@flower.upol.cz>
-References: <Pine.LNX.4.64.0610290610020.6502@localhost.localdomain> <Pine.LNX.4.61.0610291244310.15986@yvahk01.tjqt.qr> <Pine.LNX.4.64.0610290742310.7457@localhost.localdomain> <20061029120534.GA4906@martell.zuzino.mipt.ru> <Pine.LNX.4.64.0610291044230.9726@localhost.localdomain>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Sun, 29 Oct 2006 11:17:51 -0500
+From: Andi Kleen <ak@suse.de>
+To: Horst Schirmeier <horst@schirmeier.com>
+Subject: Re: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
+Date: Sun, 29 Oct 2006 08:16:55 -0800
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Jan Beulich <jbeulich@novell.com>,
+       Sam Ravnborg <sam@ravnborg.org>, jpdenheijer@gmail.com,
+       linux-kernel@vger.kernel.org, dsd@gentoo.org, draconx@gmail.com,
+       kernel@gentoo.org
+References: <20061028230730.GA28966@quickstop.soohrt.org> <200610281907.20673.ak@suse.de> <20061029120858.GB3491@quickstop.soohrt.org>
+In-Reply-To: <20061029120858.GB3491@quickstop.soohrt.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610290816.55886.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo.
 
-On 2006-10-29, Robert P. J. Day wrote:
-> On Sun, 29 Oct 2006, Alexey Dobriyan wrote:
->
->> On Sun, Oct 29, 2006 at 07:44:18AM -0500, Robert P. J. Day wrote:
->> > p.s.  is there, in fact, any part of the kernel source tree that has a
->> > preprocessor directive to identify the use of ICC?  just curious.
->>
->> Please, do
->>
->> 	ls include/linux/compiler-*
->
-> but according to compiler.h:
->
-> /* Intel compiler defines __GNUC__. So we will overwrite implementations
->  * coming from above header files here
->  */
->
-> so even ICC will define __GNUC__, which means that testing for
-> __GNUC__ is *still*, under the circumstances, redundant, isn't that
-> right?
+> Why not use -o /dev/null, as Daniel Drake already suggested in [1]? In
+> both as-instr and ld-option, the tmp file is being deleted
+> unconditionally right after its creation anyways.
 
-Does it introduce bugs? Just think of it as legacy, if you want.
+Because then when the compilation runs as root some as versions
+will delete /dev/null on a error. This has happened in the past.
 
-And if you can, please, help with development or bugs, not this.
-____
-
+-Andi

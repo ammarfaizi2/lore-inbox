@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965403AbWJ2UTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965401AbWJ2UT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965403AbWJ2UTx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 15:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965409AbWJ2UTw
+	id S965401AbWJ2UT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 15:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965403AbWJ2UT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 15:19:52 -0500
-Received: from mx2.netapp.com ([216.240.18.37]:7776 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S965403AbWJ2UTv (ORCPT
+	Sun, 29 Oct 2006 15:19:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38038 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965401AbWJ2UT1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 15:19:51 -0500
-X-IronPort-AV: i="4.09,369,1157353200"; 
-   d="scan'208"; a="422612374:sNHT17446600"
-Subject: Re: [PATCH] nfs: Fix nfs_readpages() error path
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061029121613.4fbc5c74.akpm@osdl.org>
-References: <877iyjundz.fsf@duaron.myhome.or.jp>
-	 <1162149038.5545.37.camel@lade.trondhjem.org>
-	 <20061029121613.4fbc5c74.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance Inc
-Date: Sun, 29 Oct 2006 15:19:48 -0500
-Message-Id: <1162153188.5545.59.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-OriginalArrivalTime: 29 Oct 2006 20:20:11.0853 (UTC) FILETIME=[A2EA37D0:01C6FB97]
+	Sun, 29 Oct 2006 15:19:27 -0500
+Date: Sun, 29 Oct 2006 12:19:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PULL] ieee1394 update
+In-Reply-To: <tkrat.d9b5fcaacce06b28@s5r6.in-berlin.de>
+Message-ID: <Pine.LNX.4.64.0610291218480.25218@g5.osdl.org>
+References: <tkrat.d9b5fcaacce06b28@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-29 at 12:16 -0800, Andrew Morton wrote:
-> On Sun, 29 Oct 2006 14:10:38 -0500
-> Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
-> 
-> > Instead of the BUG_ON(), why can't we just stick a put_pages_list() into
-> > __do_page_cache_readahead() and then get rid of all that duplicated
-> > error handling in mpage_readpages(), nfs_readpages(), fuse_readpages(),
-> > etc?
-> 
-> I don't recall anything which would prevent that from being done.  iirc it
-> was one of those things which never happen.  Then things changed and it
-> happened once and was hence a special case.  Then more things changed and
-> it happened again, etc.
 
-OK. I'll try to get round to doing it tomorrow (got to change to winter
-tyres on my car today :-)).
 
-Cheers,
-  Trond
+On Sun, 29 Oct 2006, Stefan Richter wrote:
+>
+> Linus, please pull from the for-linus branch at
+> 
+>     git://git.kernel.org/pub/scm/linux/kernel/git/ieee1394/linux1394-2.6.git for-linus
+
+	"Already up-to-date."
+
+Did you forget to push?
+
+		Linus

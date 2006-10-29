@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbWJ2Xtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbWJ2X7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030456AbWJ2Xtn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 18:49:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWJ2Xtn
+	id S1030460AbWJ2X7p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 18:59:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWJ2X7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 18:49:43 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:26392 "EHLO
+	Sun, 29 Oct 2006 18:59:45 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:51248 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030456AbWJ2Xtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 18:49:42 -0500
+	id S1030460AbWJ2X7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 18:59:44 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=igtAwCBBT3Ql3wmUcNK/DwHrl9HuNPqe3qL/Sl9J8eRStjlhDLvSN62/EHYoGcAvtboBGZPTzDrV6FfepjODErtOdtljlqA2PgfsZ4pIKO76GCoKikcx4dGHzgZE8MyQ712T+l6QvPniKvSwJH9rxhupITPnfAVhfRiUz7ixi2U=
-Message-ID: <76366b180610291549p1d4aecf1p2e0480b3c841b66c@mail.gmail.com>
-Date: Sun, 29 Oct 2006 18:49:41 -0500
-From: "Andrew Paprocki" <andrew@ishiboo.com>
-To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
-Subject: Re: 2.6 git kernel reporting bug in knodemgrd_0 during boot
-Cc: "Adrian Bunk" <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-In-Reply-To: <454538AA.9000104@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=omqtuPcZ7Mz9HyHPhRPmGniZhKa3qQSs4GRQbfCaArn6OPE7trdWYqoKeBWm6qI0L45o39XFeUHswHGvFQnrzvfBubWvraKDi7CuJg7NHv4xPBtuUfB/xAjGEtKcfM2rvtb0DTlWDTkzG6d52bcP3Ucu4hGnOC6EqXHT40JwCn8=
+Date: Mon, 30 Oct 2006 01:58:04 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Compile-time check re world-writeable module params
+Message-ID: <20061029225804.GB9197@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <76366b180610291341y7342a968ycd244753ce9bbbb7@mail.gmail.com>
-	 <20061029223822.GH27968@stusta.de>
-	 <4545349C.1070009@s5r6.in-berlin.de>
-	 <454538AA.9000104@s5r6.in-berlin.de>
-X-Google-Sender-Auth: 44841610585337d4
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Andrew, what was the last kernel which didn't log this?
+One of mistakes module_param() user can make is to supply default value
+of module parameter as the last argument. module_param() accepts
+permissions instead. If default value is, say, 3 (-------wx), parameter
+becomes world-writeable.
 
-I was previously using a stock Debian snapshot from 2006-10-11 which
-comes with the 2.6.17 kernel standard (vmlinuz-2.6.17-2-486 is what it
-installs).
-I had already rebuilt the 2.6.17 source that comes with that install,
-tweaking the configuration for the VIA motherboard and it did not
-report any problems. Last night I just git'd the latest 2.6 source and
-copied the same .config from the previous kernel over, and answered
-any new questions that popped up during make config for the newer
-source.
+So far, the only remedy was to apply grep(1) and read drivers submitted
+to -mm. BTDT.
 
-> And did you change any of the IEEE1394 options in the kernel configuration?
+With this patch applied, compiler will finally do some job.
 
-I copied the .config from the working kernel over, and I don't believe
-I changed anything from the working 2.6.17 configuration. These are
-the options currently set:
+*) bounds checking on permissions
+*) world-writeable bit checking on permissions
+*) compile breakage if checks trigger
 
-# grep IEEE .config
-# CONFIG_IEEE80211 is not set
-# IEEE 1394 (FireWire) support
-CONFIG_IEEE1394=y
-# CONFIG_IEEE1394_VERBOSEDEBUG is not set
-CONFIG_IEEE1394_OUI_DB=y
-CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
-CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
-# CONFIG_IEEE1394_EXPORT_FULL_API is not set
-# CONFIG_IEEE1394_PCILYNX is not set
-CONFIG_IEEE1394_OHCI1394=y
-# CONFIG_IEEE1394_VIDEO1394 is not set
-CONFIG_IEEE1394_SBP2=y
-CONFIG_IEEE1394_SBP2_PHYS_DMA=y
-# CONFIG_IEEE1394_ETH1394 is not set
-# CONFIG_IEEE1394_DV1394 is not set
-# CONFIG_IEEE1394_RAWIO is not set
+First version of this check (only "& 2" part) directly caught 4 out of 7
+places during my last grep.
 
--Andrew
+    Subject: Neverending module_param() bugs
+    [X] drivers/acpi/sbs.c:101:module_param(capacity_mode, int, CAPACITY_UNIT);
+    [X] drivers/acpi/sbs.c:102:module_param(update_mode, int, UPDATE_MODE);
+    [ ] drivers/acpi/sbs.c:103:module_param(update_info_mode, int, UPDATE_INFO_MODE);
+    [ ] drivers/acpi/sbs.c:104:module_param(update_time, int, UPDATE_TIME);
+    [ ] drivers/acpi/sbs.c:105:module_param(update_time2, int, UPDATE_TIME2);
+    [X] drivers/char/watchdog/sbc8360.c:203:module_param(timeout, int, 27);
+    [X] drivers/media/video/tuner-simple.c:13:module_param(offset, int, 0666);
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+ include/linux/moduleparam.h |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/include/linux/moduleparam.h
++++ b/include/linux/moduleparam.h
+@@ -63,6 +63,9 @@ struct kparam_array
+    not there, read bits mean it's readable, write bits mean it's
+    writable. */
+ #define __module_param_call(prefix, name, set, get, arg, perm)		\
++	/* Default value instead of permissions? */			\
++	static int __param_perm_check_##name __attribute__((unused)) =	\
++	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2));	\
+ 	static char __param_str_##name[] = prefix #name;		\
+ 	static struct kernel_param const __param_##name			\
+ 	__attribute_used__						\
+

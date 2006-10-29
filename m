@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWJ2EuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbWJ2F6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbWJ2EuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 00:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWJ2EuJ
+	id S965029AbWJ2F6g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 01:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbWJ2F6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 00:50:09 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:60012 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S965003AbWJ2EuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 00:50:07 -0400
-Date: Sat, 28 Oct 2006 22:49:32 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Frustrated with Linux, Asus, and nVidia, and AMD
-In-reply-to: <fa.i/oIAoig46I/apLGccQ0BesB0W8@ifi.uio.no>
-To: Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andi Kleen <ak@suse.de>
-Message-id: <454432DC.9030006@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.nWSYbiDM13Z4b2OlxoSzmqud/lI@ifi.uio.no>
- <fa.NxAEaSXPSQSEviWvGDBmTZn07UE@ifi.uio.no>
- <fa.i/oIAoig46I/apLGccQ0BesB0W8@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Sun, 29 Oct 2006 01:58:36 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:55680 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965029AbWJ2F6f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 01:58:35 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:cc:
+	subject:content-type:content-transfer-encoding;
+	b=PpUFo2cuJLYNgezENyt89QxaF9jHfvTFKYU8IvGeu+O2N3JJzRL5/Lxavxrt5hqSa
+	RIUbUEqXmyV6hNZI4QkNA==
+Message-ID: <454442DC.9050703@google.com>
+Date: Sat, 28 Oct 2006 22:57:48 -0700
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: linux-mm <linux-mm@kvack.org>, Andy Whitcroft <apw@shadowen.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Slab panic on 2.6.19-rc3-git5 (-git4 was OK)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 2.6.18 is the latest released kernel, I don't think calling one release 
-> back "ancient" is really advancing the solution. The problem seems to 
-> have been reported in August, and is still not fixed, I do understand 
-> that he would feel there is no progress.
-> 
-> How long will you wait before putting in the fix Marc Perkel suggested, 
-> perhaps with a warning logged that it's a band-aid? Many users will not 
-> be astute enough to find this discussion, the bug report, the fix, 
-> configure and build a kernel, etc. And not all distributions will 
-> address it either.
+-git4 was fine. -git5 is broken (on PPC64 blade)
 
-As far as the "fix" of disabling the skip-ACPI-timer-override, that is 
-not something that can be put in the kernel as it will break other 
-boards that require the ACPI timer override not to be used (like many 
-nForce2 boards for example). Breaking working setups in order to fix 
-others isn't acceptable.
+As -rc2-mm2 seemed fine on this box, I'm guessing it's something
+that didn't go via Andrew ;-( Looks like it might be something
+JFS or slab specific. Bigger PPC64 box with different config
+was OK though.
 
-There are clearly some NVIDIA chipsets which require the override be 
-skipped, and some which require it not be. I think the ball is currently 
-in NVIDIA's court to provide a way of figuring out which chipsets 
-require the quirk and which don't..
+Full log is here: http://test.kernel.org/abat/59046/debug/console.log
+Good -git4 run: http://test.kernel.org/abat/58997/debug/console.log
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+kernel BUG in cache_grow at mm/slab.c:2705!
+cpu 0x1: Vector: 700 (Program Check) at [c0000000fffb7710]
+     pc: c0000000000c8ad4: .cache_grow+0x64/0x4f0
+     lr: c0000000000c91a8: .cache_alloc_refill+0x248/0x2cc
+     sp: c0000000fffb7990
+    msr: 8000000000021032
+   current = 0xc0000000fffab800
+   paca    = 0xc00000000047e780
+     pid   = 1, comm = swapper
+kernel BUG in cache_grow at mm/slab.c:2705!
+enter ? for help
+[c0000000fffb7a60] c0000000000c91a8 .cache_alloc_refill+0x248/0x2cc
+[c0000000fffb7b20] c0000000000c9708 .kmem_cache_alloc_node+0xd0/0x10c
+[c0000000fffb7bc0] c0000000000b69cc .__get_vm_area_node+0xcc/0x230
+[c0000000fffb7c70] c0000000000b7640 .__vmalloc_node+0x60/0xc0
+[c0000000fffb7d10] c0000000001ad4c8 .txInit+0x2a0/0x3a8
+[c0000000fffb7e20] c00000000044c1ec .init_jfs_fs+0x78/0x27c
+[c0000000fffb7ec0] c0000000000094c0 .init+0x1f4/0x3e4
+[c0000000fffb7f90] c000000000027270 .kernel_thread+0x4c/0x68

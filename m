@@ -1,45 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965369AbWJ2UCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751827AbWJ2UFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965369AbWJ2UCh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 15:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965370AbWJ2UCh
+	id S1751827AbWJ2UFh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 15:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751847AbWJ2UFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 15:02:37 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61325 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965369AbWJ2UCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 15:02:36 -0500
-Date: Sun, 29 Oct 2006 12:02:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/11] UBD driver little cleanups for 2.6.19
-Message-Id: <20061029120224.d25e3204.akpm@osdl.org>
-In-Reply-To: <20061029191723.12292.50164.stgit@americanbeauty.home.lan>
-References: <20061029191723.12292.50164.stgit@americanbeauty.home.lan>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Oct 2006 15:05:37 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:1450 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751827AbWJ2UFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 15:05:36 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Sun, 29 Oct 2006 21:05:18 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [GIT PULL] ieee1394 update
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-ID: <tkrat.d9b5fcaacce06b28@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Oct 2006 20:17:23 +0100
-"Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it> wrote:
+Linus, please pull from the for-linus branch at
 
-> Many cleanups for the UBD driver; these are mostly microfixes, I was waiting to
-> finish and reorder also locking fixes (the code works, it is only to resplit,
-> reproof-read and changelogs must be written) but I decided to send these ones
-> for now. The rest will maybe be merged for 2.6.20.
+    git://git.kernel.org/pub/scm/linux/kernel/git/ieee1394/linux1394-2.6.git for-linus
 
-None of this really looks like -rc3 material.  Why do you think it's
-serious enough to justify late inclusion?
+to receive the following patch...
 
-I'm not particularly fussed about UBD though - if you and Jeff particularly
-want this lot in 2.6.19 then the world won't end.
+Stefan Richter (1):
+      ieee1394: ohci1394: revert fail on error in suspend
 
-"[PATCH 03/11] uml ubd driver: var renames" didn't apply due to
-dummy_device_release not being present, which doesn't inspire confidence. 
-What tree are you patching?
+ drivers/ieee1394/ohci1394.c |   19 ++++++++++++++-----
+ 1 files changed, 14 insertions(+), 5 deletions(-)
+
+...or just apply it from this mail.  This fixes a regression since -rc1:
+Some machines, esp. PPC_PMAC, cannot suspend if ohci1394 is loaded.
+
+
+
+Date: Sun, 29 Oct 2006 19:52:49 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: ieee1394: ohci1394: revert fail on error in suspend
+
+Some errors during preparation for suspended state can be skipped with a
+warning instead of a failure of the whole suspend transition, notably an
+error in pci_set_power_state.
+
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+Index: linux/drivers/ieee1394/ohci1394.c
+===================================================================
+--- linux.orig/drivers/ieee1394/ohci1394.c
++++ linux/drivers/ieee1394/ohci1394.c
+@@ -3552,12 +3552,21 @@ static int ohci1394_pci_suspend (struct
+ {
+ 	int err;
+ 
++	printk(KERN_INFO "%s does not fully support suspend and resume yet\n",
++	       OHCI1394_DRIVER_NAME);
++
+ 	err = pci_save_state(pdev);
+-	if (err)
+-		goto out;
++	if (err) {
++		printk(KERN_ERR "%s: pci_save_state failed with %d\n",
++		       OHCI1394_DRIVER_NAME, err);
++		return err;
++	}
+ 	err = pci_set_power_state(pdev, pci_choose_state(pdev, state));
++#ifdef OHCI1394_DEBUG
+ 	if (err)
+-		goto out;
++		printk(KERN_DEBUG "%s: pci_set_power_state failed with %d\n",
++		       OHCI1394_DRIVER_NAME, err);
++#endif /* OHCI1394_DEBUG */
+ 
+ /* PowerMac suspend code comes last */
+ #ifdef CONFIG_PPC_PMAC
+@@ -3570,8 +3579,8 @@ #ifdef CONFIG_PPC_PMAC
+ 			pmac_call_feature(PMAC_FTR_1394_ENABLE, of_node, 0, 0);
+ 	}
+ #endif /* CONFIG_PPC_PMAC */
+-out:
+-	return err;
++
++	return 0;
+ }
+ #endif /* CONFIG_PM */
+ 
+
 

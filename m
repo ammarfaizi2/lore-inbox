@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWJ2MRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWJ2MZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWJ2MRl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 07:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWJ2MRl
+	id S932307AbWJ2MZR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 07:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWJ2MZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 07:17:41 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:55691 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932306AbWJ2MRk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 07:17:40 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Sun, 29 Oct 2006 07:25:17 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:23968 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S932307AbWJ2MZP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 07:25:15 -0500
+Date: Sun, 29 Oct 2006 16:24:49 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH -mm] swsusp: Fix freezer.h breakage
-Date: Sun, 29 Oct 2006 13:16:06 +0100
-User-Agent: KMail/1.9.1
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Pavel Machek <pavel@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Cc: Thomas Graf <tgraf@suug.ch>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] taskstats: fix? sk_buff leak
+Message-ID: <20061029132449.GA1142@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610291316.07182.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make swsusp compile again.
+Compile tested only, and I know nothing about net/. Needs an ack from
+maintainer.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
----
- kernel/power/disk.c |    1 +
- kernel/power/main.c |    1 +
- kernel/power/user.c |    1 +
- 3 files changed, 3 insertions(+)
+'return genlmsg_cancel()' in taskstats_user_cmd/taskstats_exit_send looks
+wrong to me. Unless we pass 'rep_skb' to the netlink layer we own sk_buff,
+yes? This means we should always do kfree_skb() on failure.
 
-Index: linux-2.6.19-rc2-mm2/kernel/power/disk.c
-===================================================================
---- linux-2.6.19-rc2-mm2.orig/kernel/power/disk.c
-+++ linux-2.6.19-rc2-mm2/kernel/power/disk.c
-@@ -10,6 +10,7 @@
-  */
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- STATS/kernel/taskstats.c~1_skb	2006-10-29 15:12:51.000000000 +0300
++++ STATS/kernel/taskstats.c	2006-10-29 16:16:05.000000000 +0300
+@@ -411,7 +411,7 @@ static int taskstats_user_cmd(struct sk_
+ 	return send_reply(rep_skb, info->snd_pid);
  
- #include <linux/suspend.h>
-+#include <linux/freezer.h>
- #include <linux/syscalls.h>
- #include <linux/reboot.h>
- #include <linux/string.h>
-Index: linux-2.6.19-rc2-mm2/kernel/power/main.c
-===================================================================
---- linux-2.6.19-rc2-mm2.orig/kernel/power/main.c
-+++ linux-2.6.19-rc2-mm2/kernel/power/main.c
-@@ -10,6 +10,7 @@
+ nla_put_failure:
+-	return genlmsg_cancel(rep_skb, reply);
++	genlmsg_cancel(rep_skb, reply);
+ err:
+ 	nlmsg_free(rep_skb);
+ 	return rc;
+@@ -507,7 +507,6 @@ send:
  
- #include <linux/module.h>
- #include <linux/suspend.h>
-+#include <linux/freezer.h>
- #include <linux/kobject.h>
- #include <linux/string.h>
- #include <linux/delay.h>
-Index: linux-2.6.19-rc2-mm2/kernel/power/user.c
-===================================================================
---- linux-2.6.19-rc2-mm2.orig/kernel/power/user.c
-+++ linux-2.6.19-rc2-mm2/kernel/power/user.c
-@@ -10,6 +10,7 @@
-  */
- 
- #include <linux/suspend.h>
-+#include <linux/freezer.h>
- #include <linux/syscalls.h>
- #include <linux/reboot.h>
- #include <linux/string.h>
+ nla_put_failure:
+ 	genlmsg_cancel(rep_skb, reply);
+-	goto ret;
+ err_skb:
+ 	nlmsg_free(rep_skb);
+ ret:
+

@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965457AbWJ2Uku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWJ2Ulb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965457AbWJ2Uku (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 15:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965458AbWJ2Uku
+	id S1030190AbWJ2Ulb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 15:41:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWJ2Ulb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 15:40:50 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:7687 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S965457AbWJ2Uku (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 15:40:50 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       cluster-devel@redhat.com
-Subject: Re: [PATCH] nfs: Fix nfs_readpages() error path
-References: <877iyjundz.fsf@duaron.myhome.or.jp>
-	<1162149038.5545.37.camel@lade.trondhjem.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 30 Oct 2006 05:40:42 +0900
-In-Reply-To: <1162149038.5545.37.camel@lade.trondhjem.org> (Trond Myklebust's message of "Sun\, 29 Oct 2006 14\:10\:38 -0500")
-Message-ID: <87pscaua7p.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Oct 2006 15:41:31 -0500
+Received: from [61.49.148.168] ([61.49.148.168]:60041 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id S1030190AbWJ2Ula (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 15:41:30 -0500
+Date: Mon, 30 Oct 2006 04:38:50 +0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200610292038.k9TKcok4018316@freya.yggdrasil.com>
+To: torvalds@osdl.org
+Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
+Cc: akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       matthew@wil.cx, pavel@ucw.cz, shemminger@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <Trond.Myklebust@netapp.com> writes:
-
-> On Mon, 2006-10-30 at 00:56 +0900, OGAWA Hirofumi wrote:
->> ------------[ cut here ]------------
->> kernel BUG at /devel/linux/works/linux-2.6/mm/readahead.c:315!
+On 2006-10-28 23:55:42, Linus Torvalds wrote:
+>On Sun, 29 Oct 2006, Adam J. Richter wrote:
 >> 
->> The a_ops->readpages() is nfs_readpages(), and it seems to don't free
->> pages list in error path. So, it hit the
->> BUG_ON(!list_empty(&page_pool)) in __do_page_cache_readahead.
+>>       If only calls to execute_in_parallel nest, your original
+>> implementation would always deadlock when the nesting depth exceeds
+>> the allowed number of threads, and [...]
 >
-> Wait. Why do we have this insane cleanup semantic anyway? I've just
-> grepped through the various readpages() methods out there. None of them
-> do anything more sophisticated than to call put_pages_list() in case of
-> error, and several of them get that wrong (including NFS, and CIFS).
->
-> Instead of the BUG_ON(), why can't we just stick a put_pages_list() into
-> __do_page_cache_readahead() and then get rid of all that duplicated
-> error handling in mpage_readpages(), nfs_readpages(), fuse_readpages(),
-> etc?
+>No, I'm saying that nesting simply shouldn't be _done_. There's no real 
+>reason. Any user would be already either parallel or doesn't need to be 
+>parallel at all. Why would something that already _is_ parallel start 
+>another parallel task?
 
-Yes, I thought it too. Probably, author thought passed pages's owner
-is readpages side, and owner can use that list with favorite way.
+	Suppose the system is initializing PCI cards in parallel.  The
+thread that is initializing one particular PCI card discovers that it
+is initializing a firewire controller.  After the already "parallel"
+PCI firewire probe function initializes the card, it is going to
+enumerate the devices attached to the firewire cable and spawn
+separate threads to initialize drivers for each of these several
+firewire devices.
 
-Well, both seems right things for me. So, the patch was done by
-minimum change for -rc. If you want it, I'll do.
+	One way avoid this depth-first descent would be to change
+device_attach() in drivers/base/dd.c to queue its work to helper daemon.
 
+	Either way, we're talking about a few lines of code in
+execute_in_parallel that can easily be added later if needed.  If you
+really think all calls to execute_parallel will be done by the main
+kernel thread, I suggest someone add a BUG_ON() statement to that
+effect to execute_parallel to see.
 
-BTW, umm.. now I think, gfs2_readpages() seems to have a bug in error
-path by different way. unlock_page() is really needed?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+	I would also like to suggest a very different approach, which
+would not be quite as fast, but which I think would be more flexible
+and would work partly by making the kernel do _less_.
+
+	Perhaps we could offer a boot option to limit device_attach to
+consider only drivers named by that option, such as
+"limit_drivers=vc,ramdisk".  (If a user screwed his boot process with
+the wrong limit_drivers= options, fixing the problem would be just a
+matter of just eliminating the option.)  All other driver-device
+bindings would be done explicitly by a user level mechanism, which
+would implicitly provide the process context for blocking.  That is,
+the parallelization would occur by a sysfs watcher like udev spawning
+separate threads to call the user level sysfs interface for attaching
+devices to drivers.  User level would also handle matching driver and
+device ID information, determining parallelization limits, probe
+order, choosing between multiple drivers available for devices or
+deliberately not binding a driver to a device, and perhaps executing
+other custom user level code along the way.
+
+	Because the threads involved would come from clone() executed
+by a user level daemon sysfs watcher like udev, execute_in_parallel()
+would be less used, perhaps not used at all, depending on whether
+parts the boot process besides walking the device tree would benefit
+much from parallelization.
+
+Adam Richter

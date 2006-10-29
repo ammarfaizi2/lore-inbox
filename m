@@ -1,77 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWJ2TKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWJ2TUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbWJ2TKl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 14:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWJ2TKl
+	id S932434AbWJ2TUV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 14:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWJ2TUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 14:10:41 -0500
-Received: from mx2.netapp.com ([216.240.18.37]:8207 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S932430AbWJ2TKk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 14:10:40 -0500
-X-IronPort-AV: i="4.09,369,1157353200"; 
-   d="scan'208"; a="422592006:sNHT20910088"
-Subject: Re: [PATCH] nfs: Fix nfs_readpages() error path
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <877iyjundz.fsf@duaron.myhome.or.jp>
-References: <877iyjundz.fsf@duaron.myhome.or.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance Inc
-Date: Sun, 29 Oct 2006 14:10:38 -0500
-Message-Id: <1162149038.5545.37.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-OriginalArrivalTime: 29 Oct 2006 19:11:02.0748 (UTC) FILETIME=[F9DB09C0:01C6FB8D]
+	Sun, 29 Oct 2006 14:20:21 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:28547 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932434AbWJ2TUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 14:20:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=qiE/DHwhsxeQNyXELyc6hph1PK0sW56VReN/UqAPWP2ugJNXI8RxZVPWggBF40hNULJF/E4zwAbxel/6/pnAUxs9xTGrb5lcw3lWcSMy2a/CXXVEzWf/rQ1qxosn4i5FhpiV5QLFLgpNobMZyS1Nb5Cl5YRhbcHdIznMi1sVI4g=
+Message-ID: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com>
+Date: Sun, 29 Oct 2006 20:20:17 +0100
+From: "Gregor Jasny" <gjasny@googlemail.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Jeff Garzik" <jgarzik@pobox.com>, linux-ide@vger.kernel.org
+Subject: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_59512_4416021.1162149617391"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-30 at 00:56 +0900, OGAWA Hirofumi wrote:
-> I've got the following oops.
-> 
-> ------------[ cut here ]------------
-> kernel BUG at /devel/linux/works/linux-2.6/mm/readahead.c:315!
-> invalid opcode: 0000 [#1]
-> SMP
-> 
-> [...]
-> 
-> EFLAGS: 00210283   (2.6.19-rc3 #3)
-> EIP is at __do_page_cache_readahead+0x1a4/0x1b7
-> eax: f260db64   ebx: f8f9aa18   ecx: 00000001   edx: f7710594
-> esi: f6042b94   edi: f6042b84   ebp: f260db78   esp: f260db0c
-> ds: 007b   es: 007b   ss: 0068
-> Process emacs (pid: 3694, ti=f260d000 task=f670caa0 task.ti=f260d000)
-> Stack: 00000001 000001ac f25dd88c 0000085e 0000001e 00000001 00001000 d7f4a48c
->        d7f4a50c d7f4a50c 00001000 d7f4a50c f260db60 00200246 00000001 22222222
->        22222222 d7f4a50c d7f4a50c 00001000 d7f4a48c f260db68 c13cb9f8 c13cb9f8
-> Call Trace:
->  [<c0140a3a>] do_page_cache_readahead+0x43/0x4d
->  [<c013ce9b>] filemap_nopage+0x14e/0x328
->  [<c0145b8e>] __handle_mm_fault+0x146/0x7b6
->  [<c01463cc>] get_user_pages+0x1ce/0x293
->  [<c017f0a8>] elf_core_dump+0xa05/0xba5
->  [<c015b8a7>] do_coredump+0x565/0x5d1
->  [<c0123acb>] get_signal_to_deliver+0x701/0x758
->  [<c010246b>] do_notify_resume+0x8b/0x6c4
->  [<c0102ede>] work_notifysig+0x13/0x19
-> 
-> The a_ops->readpages() is nfs_readpages(), and it seems to don't free
-> pages list in error path. So, it hit the
-> BUG_ON(!list_empty(&page_pool)) in __do_page_cache_readahead.
+------=_Part_59512_4416021.1162149617391
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Wait. Why do we have this insane cleanup semantic anyway? I've just
-grepped through the various readpages() methods out there. None of them
-do anything more sophisticated than to call put_pages_list() in case of
-error, and several of them get that wrong (including NFS, and CIFS).
+Hi,
 
-Instead of the BUG_ON(), why can't we just stick a put_pages_list() into
-__do_page_cache_readahead() and then get rid of all that duplicated
-error handling in mpage_readpages(), nfs_readpages(), fuse_readpages(),
-etc?
+Today I tried the new cdparanoia from Debian Sid (3.10+debian~pre0-2).
+When I started ripping with "cdparanoia -d /dev/scd0 1" my system
+freezes after some seconds. There is no oops and even the console
+cursor stops blinking.
 
-Cheers,
-  Trond
+If I start cdparanoia with -g /dev/scd0 it starts ripping and but the
+kernel prints many "program cdparanoia not setting count and/or
+reply_len properly" warnings. But this seems to be a cdparanoia bug.
+
+My CDROM:
+Vendor:                    PIONEER
+Product:                   DVD-ROM DVD-106
+Revision level:            1.22
+
+
+
+
+
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=391901
+
+------=_Part_59512_4416021.1162149617391
+Content-Type: text/plain; name=backtrace.txt; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_etvt2pmu
+Content-Disposition: attachment; filename="backtrace.txt"
+
+KGdkYikgYnQgZnVsbAojMCAgMHhiN2VkMTYwMCBpbiBpb2N0bCAoKSBmcm9tIC9saWIvdGxzL2k2
+ODYvY21vdi9saWJjLnNvLjYKTm8gc3ltYm9sIHRhYmxlIGluZm8gYXZhaWxhYmxlLgojMSAgMHgw
+ODA1MGRlYSBpbiBzZ2lvX2hhbmRsZV9zY3NpX2NtZCAoZD0weDgwNmIwYTgsIGNtZD0weGJmOTc0
+ODEyICJcMDIyIiwgY21kX2xlbj02LCBpbl9zaXplPTAsIG91dF9zaXplPTU2LCBieXRlZmlsbD0y
+NTUgJ/8nLCBieXRlY2hlY2s9MSwKICAgIHNlbnNlPTB4YmY5NzQ4MTggIiIpIGF0IHNjc2lfaW50
+ZXJmYWNlLmM6MzUyCiAgICAgICAgc3RhdHVzID0gMAogICAgICAgIGhkciA9IHtpbnRlcmZhY2Vf
+aWQgPSA4MywgZHhmZXJfZGlyZWN0aW9uID0gLTQsIGNtZF9sZW4gPSA2ICdcMDA2JywgbXhfc2Jf
+bGVuID0gMTYgJ1wwMjAnLCBpb3ZlY19jb3VudCA9IDAsIGR4ZmVyX2xlbiA9IDU2LCBkeGZlcnAg
+PSAweDgwNmI0ZDgsCiAgY21kcCA9IDB4YmY5NzQ4MTIgIlwwMjIiLCBzYnAgPSAweGJmOTc0ODE4
+ICIiLCB0aW1lb3V0ID0gNTAwMDAsIGZsYWdzID0gMSwgcGFja19pZCA9IDAsIHVzcl9wdHIgPSAw
+eDAsIHN0YXR1cyA9IDAgJ1wwJywgbWFza2VkX3N0YXR1cyA9IDAgJ1wwJywKICBtc2dfc3RhdHVz
+ID0gMCAnXDAnLCBzYl9sZW5fd3IgPSAwICdcMCcsIGhvc3Rfc3RhdHVzID0gMCwgZHJpdmVyX3N0
+YXR1cyA9IDAsIHJlc2lkID0gMCwgZHVyYXRpb24gPSAwLCBpbmZvID0gMH0KIzIgIDB4MDgwNTBl
+ZjQgaW4gaGFuZGxlX3Njc2lfY21kIChkPTB4ODA2YjBhOCwgY21kPTB4YmY5NzQ4MTIgIlwwMjIi
+LCBjbWRfbGVuPTYsIGluX3NpemU9MCwgb3V0X3NpemU9NTYsIGJ5dGVmaWxsPTI1NSAn/ycsIGJ5
+dGVjaGVjaz0xLCBzZW5zZT0weGJmOTc0ODE4ICIiKQogICAgYXQgc2NzaV9pbnRlcmZhY2UuYzoz
+OTEKTm8gbG9jYWxzLgojMyAgMHgwODA1M2ZmNiBpbiBzY3NpX2lucXVpcnkgKGQ9MHg4MDZiMGE4
+KSBhdCBzY3NpX2ludGVyZmFjZS5jOjE1MzUKICAgICAgICBzZW5zZSA9ICJcMDAwXDAwMFwwMDBc
+MDAwXDAwMVwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDFcMDAyXDAwMFwwMDAiCiAgICAgICAg
+Y21kID0gIlwwMjJcMDAwXDAwMFwwMDA4IgojNCAgMHgwODA0ZTE0NiBpbiBjZGRhX2lkZW50aWZ5
+X3Njc2kgKGdlbmVyaWNfZGV2aWNlPTB4MCwgc3BlY2lhbGl6ZWRfZGV2aWNlPTB4ODA2YjA5OCAi
+L2Rldi9zY2QwIiwgbWVzc2FnZWRlc3Q9MCwgbWVzc2FnZXM9MHgwKSBhdCBzY2FuX2RldmljZXMu
+Yzo3MDMKICAgICAgICBkID0gKGNkcm9tX2RyaXZlICopIDB4ODA2YjBhOAogICAgICAgIGlfc3Qg
+PSB7c3RfZGV2ID0gMTQsIF9fcGFkMSA9IDAsIHN0X2lubyA9IDIwMjgsIHN0X21vZGUgPSAyNTAw
+OCwgc3RfbmxpbmsgPSAxLCBzdF91aWQgPSAwLCBzdF9naWQgPSAyNCwgc3RfcmRldiA9IDI4MTYs
+IF9fcGFkMiA9IDAsIHN0X3NpemUgPSAwLAogIHN0X2Jsa3NpemUgPSA0MDk2LCBzdF9ibG9ja3Mg
+PSAwLCBzdF9hdGltID0ge3R2X3NlYyA9IDExNjIxNTAzMTQsIHR2X25zZWMgPSAzMjQ5Mjc2MjB9
+LCBzdF9tdGltID0ge3R2X3NlYyA9IDExNjIxNTAzMTQsIHR2X25zZWMgPSAzMjQ5Mjc2MjB9LCBz
+dF9jdGltID0gewogICAgdHZfc2VjID0gMTE2MjE1MDMxNCwgdHZfbnNlYyA9IDMyNDkyNzYyMH0s
+IF9fdW51c2VkNCA9IDAsIF9fdW51c2VkNSA9IDB9CiAgICAgICAgZ19zdCA9IHtzdF9kZXYgPSAx
+NDExMzYzMDE5Mjk3Njk3MDAsIF9fcGFkMSA9IDAsIHN0X2lubyA9IDQ4LCBzdF9tb2RlID0gMzA3
+MDIzMDUyOCwgc3RfbmxpbmsgPSAwLCBzdF91aWQgPSAwLCBzdF9naWQgPSA5OTE0NjU2LCBzdF9y
+ZGV2ID0gODU4OTkzNDY0MSwKICBfX3BhZDIgPSA2NTUzNSwgc3Rfc2l6ZSA9IC0xMjA4ODA2MTU2
+LCBzdF9ibGtzaXplID0gLTEyMDkyMDQ4ODIsIHN0X2Jsb2NrcyA9IC0xMjA4NzY2NDc2LCBzdF9h
+dGltID0ge3R2X3NlYyA9IDMsIHR2X25zZWMgPSAtMTA4MDYwMDk2MH0sIHN0X210aW0gPSB7CiAg
+ICB0dl9zZWMgPSAtMTA4MDYwNDM4NCwgdHZfbnNlYyA9IC0xMjA5MjMwNjg1fSwgc3RfY3RpbSA9
+IHt0dl9zZWMgPSAzLCB0dl9uc2VjID0gLTEwODA2MDQ0ODh9LCBfX3VudXNlZDQgPSAzMjE0MzYy
+OTcyLCBfX3VudXNlZDUgPSAxNH0KICAgICAgICB1c2Vfc2dpbyA9IDEKICAgICAgICBpX2ZkID0g
+NgogICAgICAgIGkgPSAtMTA4MDYwNDM2MAogICAgICAgIGdfZmQgPSA3CiAgICAgICAgdmVyc2lv
+biA9IDMKICAgICAgICB0eXBlID0gMTEKICAgICAgICBwID0gMHhiZjk3NDk1YyAiXDAxNiIKIzUg
+IDB4MDgwNGNkNGUgaW4gY2RkYV9pZGVudGlmeSAoZGV2aWNlPTB4ODA2YjAwOCAiL2Rldi9zY2Qw
+IiwgbWVzc2FnZWRlc3Q9MCwgbWVzc2FnZXM9MHgwKSBhdCBzY2FuX2RldmljZXMuYzoxMjMKICAg
+ICAgICBzdCA9IHtzdF9kZXYgPSAxNCwgX19wYWQxID0gMCwgc3RfaW5vID0gMjAyOCwgc3RfbW9k
+ZSA9IDI1MDA4LCBzdF9ubGluayA9IDEsIHN0X3VpZCA9IDAsIHN0X2dpZCA9IDI0LCBzdF9yZGV2
+ID0gMjgxNiwgX19wYWQyID0gMCwgc3Rfc2l6ZSA9IDAsCiAgc3RfYmxrc2l6ZSA9IDQwOTYsIHN0
+X2Jsb2NrcyA9IDAsIHN0X2F0aW0gPSB7dHZfc2VjID0gMTE2MjE1MDMxNCwgdHZfbnNlYyA9IDMy
+NDkyNzYyMH0sIHN0X210aW0gPSB7dHZfc2VjID0gMTE2MjE1MDMxNCwgdHZfbnNlYyA9IDMyNDky
+NzYyMH0sIHN0X2N0aW0gPSB7CiAgICB0dl9zZWMgPSAxMTYyMTUwMzE0LCB0dl9uc2VjID0gMzI0
+OTI3NjIwfSwgX191bnVzZWQ0ID0gMCwgX191bnVzZWQ1ID0gMH0KICAgICAgICBkID0gKGNkcm9t
+X2RyaXZlICopIDB4MAojNiAgMHgwODA0YTQ4NSBpbiBtYWluIChhcmdjPTQsIGFyZ3Y9MHhiZjk3
+NTZmNCkgYXQgbWFpbi5jOjc5NAogICAgICAgIHRvY19iaWFzID0gMAogICAgICAgIHRvY19vZmZz
+ZXQgPSAwCiAgICAgICAgc2FtcGxlX29mZnNldCA9IDAKICAgICAgICBmb3JjZV9jZHJvbV9lbmRp
+YW4gPSAtMQogICAgICAgIGZvcmNlX2Nkcm9tX3NlY3RvcnMgPSAtMQogICAgICAgIGZvcmNlX2Nk
+cm9tX292ZXJsYXAgPSAtMQogICAgICAgIGZvcmNlX2Nkcm9tX2RldmljZSA9IDB4ODA2YjAwOCAi
+L2Rldi9zY2QwIgogICAgICAgIGZvcmNlX2dlbmVyaWNfZGV2aWNlID0gMHgwCiAgICAgICAgZm9y
+Y2VfY2Ryb21fc3BlZWQgPSAtMQogICAgICAgIG1heF9yZXRyaWVzID0gMjAKICAgICAgICBzcGFu
+ID0gMHg4MDZiMDE4ICIxIgogICAgICAgIG91dHB1dF90eXBlID0gMQogICAgICAgIG91dHB1dF9l
+bmRpYW4gPSAwCiAgICAgICAgcXVlcnlfb25seSA9IDAKICAgICAgICBiYXRjaCA9IDAKICAgICAg
+ICBpID0gMAogICAgICAgIHBhcmFub2lhX21vZGUgPSAyMjMKICAgICAgICBpbmZvX2ZpbGUgPSAw
+eDAKICAgICAgICBvdXQgPSAwCiAgICAgICAgc2VhcmNoID0gMAogICAgICAgIGMgPSAtMQogICAg
+ICAgIGxvbmdfb3B0aW9uX2luZGV4ID0gMAooZ2RiKSBsaXN0IHNjc2lfaW50ZXJmYWNlLmM6MTUz
+NQoxNTMwICAgIC8qIHJlcXVlc3QgdmVuZG9yIGJyYW5kIGFuZCBtb2RlbCAqLwoxNTMxICAgIHVu
+c2lnbmVkIGNoYXIgKnNjc2lfaW5xdWlyeShjZHJvbV9kcml2ZSAqZCl7CjE1MzIgICAgICB1bnNp
+Z25lZCBjaGFyIHNlbnNlW1NHX01BWF9TRU5TRV07CjE1MzMgICAgICB1bnNpZ25lZCBjaGFyIGNt
+ZFs2XT17IDB4MTIsMCwwLDAsNTYsMCB9OwoxNTM0CjE1MzUgICAgICBpZihoYW5kbGVfc2NzaV9j
+bWQoZCxjbWQsNiwgMCwgNTYsJ1wzNzcnLDEsc2Vuc2UpKSB7CjE1MzYgICAgICAgIGNkZXJyb3Io
+ZCwiMDA4OiBVbmFibGUgdG8gaWRlbnRpZnkgQ0RST00gbW9kZWxcbiIpOwoxNTM3ICAgICAgICBy
+ZXR1cm4oTlVMTCk7CjE1MzggICAgICB9CjE1MzkgICAgICByZXR1cm4gKGQtPnNnX2J1ZmZlcik7
+CgoK
+------=_Part_59512_4416021.1162149617391--

@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWJ2JwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWJ2JzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWJ2JwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 04:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWJ2JwJ
+	id S932143AbWJ2JzW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 04:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWJ2JzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 04:52:09 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:15251 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932142AbWJ2JwH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 04:52:07 -0500
-Message-ID: <454479C5.3090402@drzeus.cx>
-Date: Sun, 29 Oct 2006 10:52:05 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Sun, 29 Oct 2006 04:55:22 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:21127 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932143AbWJ2JzV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 04:55:21 -0500
+Date: Sun, 29 Oct 2006 10:55:18 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.18 is problematic in VMware
+Message-ID: <Pine.LNX.4.61.0610290953010.4585@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Carlos Aguiar <carlos.aguiar@indt.org.br>
-CC: linux-kernel@vger.kernel.org, linux-omap-open-source@linux.omap.com,
-       David Brownell <david-b@pacbell.net>, Tony Lindgren <tony@atomide.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, ilias.biris@indt.org.br
-Subject: Re: [patch 4/6] [RFC] Add MMC Password Protection (lock/unlock) support
- V5
-References: <20061020164914.012378000@localhost.localdomain> <20061020165135.852337000@localhost.localdomain>
-In-Reply-To: <20061020165135.852337000@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlos Aguiar wrote:
-> Patch to add the host MMC lock/unlock capability support for OMAP platform.
->   
+Hello list,
 
-Now what could possibly be the purpose of this? What hardware feature is
-required to support these commands?
 
-Rgds
+I have observed a strange slowdown with the 2.6.18 kernel in VMware. 
+This happened both with the SUSE flavor and with the FC6 installer CD 
+(which I am trying right now). In both cases, the kernel "takes its 
+time" after the following text strings:
 
+* Checking if this processor honours the WP bit even in supervisor mode... Ok.
+* Checking 'hlt' instruction... OK.
+
+What's with that?
+
+
+	-`J'
 -- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
-

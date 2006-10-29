@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWJ2VvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWJ2V6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030357AbWJ2VvO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 16:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbWJ2VvN
+	id S1030366AbWJ2V6J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 16:58:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbWJ2V6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 16:51:13 -0500
-Received: from outbound0.mx.meer.net ([209.157.153.23]:24840 "EHLO
-	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
-	id S1030359AbWJ2VvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 16:51:12 -0500
-Subject: Re: [PATCH] Re: [PATCH 3/4] Prep for paravirt: desc.h clearer
-	parameter names, some code motion
-From: Don Mullis <dwm@meer.net>
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200610291306.36148.ak@suse.de>
-References: <1161920325.17807.29.camel@localhost.localdomain>
-	 <1161920728.17807.39.camel@localhost.localdomain>
-	 <1162152071.23311.28.camel@localhost.localdomain>
-	 <200610291306.36148.ak@suse.de>
+	Sun, 29 Oct 2006 16:58:09 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:22107 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1030366AbWJ2V6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 16:58:08 -0500
+X-IronPort-AV: i="4.09,369,1157353200"; 
+   d="scan'208"; a="422634576:sNHT15646480"
+Subject: Re: [PATCH] nfs: Fix nfs_readpages() error path
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       cluster-devel@redhat.com
+In-Reply-To: <87pscaua7p.fsf@duaron.myhome.or.jp>
+References: <877iyjundz.fsf@duaron.myhome.or.jp>
+	 <1162149038.5545.37.camel@lade.trondhjem.org>
+	 <87pscaua7p.fsf@duaron.myhome.or.jp>
 Content-Type: text/plain
-Date: Sun, 29 Oct 2006 13:44:19 -0800
-Message-Id: <1162158259.23311.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
+Organization: Network Appliance Inc
+Date: Sun, 29 Oct 2006 16:58:06 -0500
+Message-Id: <1162159086.5545.70.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 29 Oct 2006 21:58:07.0182 (UTC) FILETIME=[50E246E0:01C6FBA5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-29 at 13:06 -0800, Andi Kleen wrote:
-> On Sunday 29 October 2006 12:01, Don Mullis wrote:
-> > Fix build where CONFIG_CC_OPTIMIZE_FOR_SIZE is not set.
-> >
-> > Tested by build and boot.
-> 
-> What error does that fix?
+On Mon, 2006-10-30 at 05:40 +0900, OGAWA Hirofumi wrote:
+> Well, both seems right things for me. So, the patch was done by
+> minimum change for -rc. If you want it, I'll do.
 
-The build aborts with:
+Feel free. I should have time to work on it tomorrow, in case you don't
+find time today.
 
-  include/asm/desc.h: In function 'set_ldt':
-  include/asm/desc.h:92: error: implicit declaration of function 'write_gdt_entry'
+> BTW, umm.. now I think, gfs2_readpages() seems to have a bug in error
+> path by different way. unlock_page() is really needed?
 
-The patch is a follow-on to my earlier reply to "[PATCH 1/4]".
+That looks like a definite bug too.
 
-DM
-
+Cheers,
+  Trond

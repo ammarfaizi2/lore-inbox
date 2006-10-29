@@ -1,94 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWJ2KWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWJ2KgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWJ2KWF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 05:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWJ2KWE
+	id S932168AbWJ2KgW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 05:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWJ2KgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 05:22:04 -0500
-Received: from asia.telenet-ops.be ([195.130.137.74]:13009 "EHLO
-	asia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S1750923AbWJ2KWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 05:22:01 -0500
-Date: Sun, 29 Oct 2006 11:21:51 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Haavard Skinnemoen <hskinnemoen@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-       Greg KH <greg@kroah.com>, Stephen Hemminger <shemminger@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Geert Uytterhoeven <Geert.Uytterhoeven@telenet.be>
-Subject: Re: vmlinux.lds: consolidate initcall sections
-In-Reply-To: <1defaf580610271231p37aceacbl6d96f91cf390fc4a@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0610291120210.5767@anakin>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
- <20061026224541.GQ27968@stusta.de> <20061027010252.GV27968@stusta.de>
- <20061027012058.GH5591@parisc-linux.org> <20061026182838.ac2c7e20.akpm@osdl.org>
- <20061026191131.003f141d@localhost.localdomain> <20061027170748.GA9020@kroah.com>
- <20061027172219.GC30416@elf.ucw.cz> <20061027113908.4a82c28a.akpm@osdl.org>
- <20061027114144.f8a5addc.akpm@osdl.org> <1defaf580610271231p37aceacbl6d96f91cf390fc4a@mail.gmail.com>
+	Sun, 29 Oct 2006 05:36:22 -0500
+Received: from sitemail2.everyone.net ([216.200.145.36]:60288 "EHLO
+	omta14.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S932168AbWJ2KgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 05:36:22 -0500
+X-Eon-Dm: pop15
+X-Eon-Sig: AQK/0KdFRIQls5zXAgIAAAAB,45d3ab7e99064b93513e997e05028850
+Message-ID: <4544840E.8060808@buckeye-express.com>
+Date: Sun, 29 Oct 2006 05:35:58 -0500
+From: Jason Pool <believe@buckeye-express.com>
+User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Bug causing problems with USB KVM switch
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2006, Haavard Skinnemoen wrote:
-> On 10/27/06, Andrew Morton <akpm@osdl.org> wrote:
-> > From: Andrew Morton <akpm@osdl.org>
-> > 
-> > Add a vmlinux.lds.h helper macro for defining the eight-level initcall
-> > table,
-> > teach all the architectures to use it.
-> 
-> Please include AVR32 as well while you're at it ;)
+I'm having problems with my IOgear USB KVM switch.  I am running on a 
+Athlon XP with an Abit NF7 nForce2 motherboard.  Using Kubuntu 6.10 with 
+stock kernel 2.6.18.1 and Ubuntu kernel 2.6.17-10-generic with the KVM 
+plugged in, I get this in /var/log/messages every few seconds:
 
-And m68k :-)
+Oct 29 02:53:28 zanzibar kernel: [  105.489309] usb 1-1.1: reset low 
+speed USB device using ohci_hcd and address 7
 
-Signed-Off-By: Geert Uytterhoeven <geert@linux-m68k.org>
+This c auses my USB keyboard to temporarily become unresponsive, and 
+also makes the last key typed when being reset stick leading to 
+"tyinnnnng lkeee thssssssss".  The problem goes away with the keyboard 
+plugged directly into the machine without the KVM, and my USB mouse 
+seems unaffected either way.
 
---- linux/arch/m68k/kernel/vmlinux-std.lds	2006-09-25 22:34:27.000000000 +0200
-+++ linux-m68k/arch/m68k/kernel/vmlinux-std.lds	2006-10-29 11:15:18.000000000 +0100
-@@ -54,13 +54,7 @@ SECTIONS
-   __setup_end = .;
-   __initcall_start = .;
-   .initcall.init : {
--	*(.initcall1.init)
--	*(.initcall2.init)
--	*(.initcall3.init)
--	*(.initcall4.init)
--	*(.initcall5.init)
--	*(.initcall6.init)
--	*(.initcall7.init)
-+	INITCALLS
-   }
-   __initcall_end = .;
-   __con_initcall_start = .;
---- linux/arch/m68k/kernel/vmlinux-sun3.lds	2006-09-25 22:34:27.000000000 +0200
-+++ linux-m68k/arch/m68k/kernel/vmlinux-sun3.lds	2006-10-29 11:14:50.000000000 +0100
-@@ -48,13 +48,7 @@ __init_begin = .;
- 	__setup_end = .;
- 	__initcall_start = .;
- 	.initcall.init : {
--		*(.initcall1.init)
--		*(.initcall2.init)
--		*(.initcall3.init)
--		*(.initcall4.init)
--		*(.initcall5.init)
--		*(.initcall6.init)
--		*(.initcall7.init)
-+		INITCALLS
- 	}
- 	__initcall_end = .;
- 	__con_initcall_start = .;
+I tried installing Fedora Core 6, and the installer and installation 
+gave me the same trouble, as well as the gparted 0.3.1 boot cd.  This 
+has only been a problem recently, Ubuntu 6.06 gave me no problems (a 
+version of 2.6.15), so I reverted to a Debian 2.6.16 kernel to see how 
+that went, and it works fine.
 
-Gr{oetje,eeting}s,
+Some change in 2.6.17 (or possibly later in 2.6.16) seems to have 
+started this problem for me.
 
-						Geert
+Any help would be appreciated.  I've tried to leave the relevant 
+information, but as its late(early?) and I'm about to zonk out, I may 
+have forgotten something.  I'd be more than happy to provide any 
+additional information if needed.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

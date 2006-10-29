@@ -1,88 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965312AbWJ2Rle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965315AbWJ2RsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965312AbWJ2Rle (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 12:41:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965313AbWJ2Rle
+	id S965315AbWJ2RsK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 12:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965316AbWJ2RsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 12:41:34 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:64221 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S965312AbWJ2Rld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 12:41:33 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Sun, 29 Oct 2006 12:37:36 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Adrian Bunk <bunk@stusta.de>
-cc: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: why test for "__GNUC__"?
-In-Reply-To: <20061029171855.GF27968@stusta.de>
-Message-ID: <Pine.LNX.4.64.0610291223520.31583@localhost.localdomain>
-References: <Pine.LNX.4.64.0610290610020.6502@localhost.localdomain>
- <Pine.LNX.4.61.0610291244310.15986@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0610290742310.7457@localhost.localdomain>
- <20061029120534.GA4906@martell.zuzino.mipt.ru>
- <Pine.LNX.4.64.0610291044230.9726@localhost.localdomain>
- <slrnek9le5.2vm.olecom@flower.upol.cz> <20061029171855.GF27968@stusta.de>
+	Sun, 29 Oct 2006 12:48:10 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:19978 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S965315AbWJ2RsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 12:48:09 -0500
+Message-ID: <4544E92C.8000103@shadowen.org>
+Date: Sun, 29 Oct 2006 17:47:24 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-2.54, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_20 -0.74)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+To: Andrew Morton <akpm@osdl.org>
+CC: "Martin J. Bligh" <mbligh@google.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Slab panic on 2.6.19-rc3-git5 (-git4 was OK)
+References: <454442DC.9050703@google.com> <20061029000513.de5af713.akpm@osdl.org>
+In-Reply-To: <20061029000513.de5af713.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Oct 2006, Adrian Bunk wrote:
+Andrew Morton wrote:
+> On Sat, 28 Oct 2006 22:57:48 -0700
+> "Martin J. Bligh" <mbligh@google.com> wrote:
+> 
+>> -git4 was fine. -git5 is broken (on PPC64 blade)
+>>
+>> As -rc2-mm2 seemed fine on this box, I'm guessing it's something
+>> that didn't go via Andrew ;-( Looks like it might be something
+>> JFS or slab specific. Bigger PPC64 box with different config
+>> was OK though.
+>>
+>> Full log is here: http://test.kernel.org/abat/59046/debug/console.log
+>> Good -git4 run: http://test.kernel.org/abat/58997/debug/console.log
+>>
+>> kernel BUG in cache_grow at mm/slab.c:2705!
+> 
+> This?
+> 
+> --- a/mm/vmalloc.c~__vmalloc_area_node-fix
+> +++ a/mm/vmalloc.c
+> @@ -428,7 +428,8 @@ void *__vmalloc_area_node(struct vm_stru
+>  	area->nr_pages = nr_pages;
+>  	/* Please note that the recursion is strictly bounded. */
+>  	if (array_size > PAGE_SIZE) {
+> -		pages = __vmalloc_node(array_size, gfp_mask, PAGE_KERNEL, node);
+> +		pages = __vmalloc_node(array_size, gfp_mask & ~__GFP_HIGHMEM,
+> +					PAGE_KERNEL, node);
+>  		area->flags |= VM_VPAGES;
+>  	} else {
+>  		pages = kmalloc_node(array_size,
+> _
 
-> On Sun, Oct 29, 2006 at 04:17:51PM +0000, Oleg Verych wrote:
-> >...
-> > On 2006-10-29, Robert P. J. Day wrote:
-> >>...
-> > And if you can, please, help with development or bugs, not this.
->
-> Cleanup of the kernel source is also a valuable task (and as a side
-> effect it even sometimes finds bugs).
+/me shoves it into the tests... results in a couple of hours.
 
-on that note, i realize that most of my postings are addressing
-nitpicky/aesthetic issues that don't actually *hurt* anything, but for
-someone who's clawing his way through the kernel code for the first
-time, a lot of it is unnecessarily confusing.
+-apw
 
-for better or worse, i generally assume that whatever i'm looking at
-is there for a *reason* and i might spend some time puzzling over a
-bit of code until it finally dawns on me that it's just historical
-cruft that has no value.  it's not a bug, it just doesn't *do*
-anything anymore.
 
-in my case, it's sometimes easier to spot things like this since i'm
-following along in some book, like r. love's "linux kernel
-development."  so when he writes that the linux kernel is wedded to
-gcc, and yet i see tests for "__GNUC__" throughout the code, my little
-antenna stalks perk up a bit.
-
-having someone point out that ICC is also an option clarifies that
-briefly ... until i notice that ICC *also* defines __GNUC__ equal to
-4, so i'm back to being confused.  (as an aside, i downloaded the most
-recent ICC earlier today and did a test compile of the latest git
-pull.  man, the stuff under scripts/ needs to be cleaned something
-fierce.  :-)
-
-then there's the apparently historical stuff related to "signed"
-versus "__signed" versus "__signed__".  sure, it all works, but it's
-needlessly complicated and verbose and might also lead someone astray
-trying to figure out what the rationale is.  (and don't even get me
-started on semaphores. :-)
-
-in any event, i'm most emphatically *not* (yet) at the level where i'm
-going to be able to contribute bleeding-edge code.  but i'm certainly
-capable of poring over the *existing* code and pointing out the places
-that might lead someone to mutter, "what the hell...?"
-
-maybe there's a better forum for me to make these observations.  i'm
-open to suggestions.  i've made a list of these observations and i'd
-be happy to send them to the right person.
-
-rday

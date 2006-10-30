@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWJ3Mnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWJ3NBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbWJ3Mnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 07:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWJ3Mnr
+	id S964797AbWJ3NBp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 08:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWJ3NBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 07:43:47 -0500
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:45002 "EHLO
-	mail.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932427AbWJ3Mnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 07:43:46 -0500
-Subject: Re: Fwd: Re: [linux-usb-devel] usb initialization order
-	(usbhid	vs. appletouch)
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Joseph Fannin <jhf@columbus.rr.com>
-Cc: Greg Kroah-Hartman <greg@kroah.com>, Oliver Neukum <oliver@neukum.name>,
-       Sergey Vlasov <vsu@altlinux.ru>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20061030101202.GB9265@nineveh.rivenstone.net>
-References: <1161856438.5214.2.camel@no.intranet.wo.rk>
-	 <1162054576.3769.15.camel@localhost> <200610282043.59106.oliver@neukum.org>
-	 <200610282055.29423.oliver@neukum.name> <1162067266.4044.2.camel@localhost>
-	 <20061030101202.GB9265@nineveh.rivenstone.net>
-Content-Type: text/plain
+	Mon, 30 Oct 2006 08:01:45 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:53160 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964797AbWJ3NBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 08:01:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=EjFMqJ2VQ56Bk7+hSx7B0kUBUZOm6xDv8rsfK69scvid9MFSyW0Adip1XPnA7XNb4e+skv1aLCIq4mIN0+auhQ3AfL2Zt8LSnYKnZ0NJ+RawWHxsXz27cGn7HaeDDqHbfld2Iis4Du0SAAhmplN8oI2fVQq3oTD9+tQGTqeF8m8=
+Message-ID: <161717d50610300501w240a8ce1h4d58b1f3f2f759bf@mail.gmail.com>
+Date: Mon, 30 Oct 2006 08:01:42 -0500
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
+Cc: "Dmitry Torokhov" <dtor@insightbb.com>,
+       LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <20061030090851.GA2687@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 30 Oct 2006 13:43:31 +0100
-Message-Id: <1162212211.3512.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Disposition: inline
+References: <200608232311.07599.dtor@insightbb.com>
+	 <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com>
+	 <200610292234.02487.dtor@insightbb.com>
+	 <20061030090851.GA2687@suse.cz>
+X-Google-Sender-Auth: 727b87ff33a2c688
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-30 at 05:12 -0500, Joseph Fannin wrote:
-> On Sat, Oct 28, 2006 at 10:27:46PM +0200, Soeren Sonnenburg wrote:
-> > On Sat, 2006-10-28 at 20:55 +0200, Oliver Neukum wrote:
-> > > > From: Sergey Vlasov <vsu@altlinux.ru>
-> > > > Subject: usbhid: Add HID_QUIRK_IGNORE_MOUSE flag
-> > > >
-> > > > Some HID devices by Apple have both keyboard and mouse interfaces; the
-> > > > keyboard interface is handled by usbhid, but the mouse (really
-> > > > touchpad) interface must be handled by the separate 'appletouch'
-> > > > driver.  Using HID_QUIRK_IGNORE will make hiddev ignore both
-> > > > interfaces, therefore a new quirk flag to ignore only the mouse
-> > > > interface is required.
-> 
->     The appletouch driver doesn't work properly on the MacBook
-> (non-Pro).  It claims the device, and sort of functions, but is
-> basically unusable.
-> 
->     If this goes in, and blacklists the MacBook touchpad too, Macbook
-> users will be unhappy.  I think the MacBook and the -Pro use the same
-> IDs, though, which makes a problem for this patch until appletouch is
-> fixed on MacBooks.
+On 10/30/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Sun, Oct 29, 2006 at 10:34:00PM -0500, Dmitry Torokhov wrote:
+> > Hi Dave,
+> >
+> > i8042_interrupt() uses spinlock to serialize access to the KBC so if real
+> > interrupt happens before we call i8042_interrupt() manually (and it should
+> > normally happen) it will just process the response and second i8042_interrupt()
+> > will be just a no-op.
+>
+> This would, however, create two reads of the i8042 controller
+> back-to-back, which has been a problem on old i8042's: IIRC IBM
+> documentation states that between the reads there should be a delay.
+>
 
-Can you please be a bit more specific on this ? Other sites mention it
-works http://bbbart.ulyssis.be/gentoomacbook/ ... what are you missing ?
-Sensitivity and such can all be tweaked in xorg.conf ...
+Maybe I'm missing something, (well actually I'm sure I'm missing
+somethng). Looking at the code again, it's unclear to me why there is
+even a call to the ISR in i8042_aux_write, since the latter function
+already calls i8042_read_data.
 
-Soeren
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world oaround you, but you're still dreaming.
+Dave

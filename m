@@ -1,89 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWJ3SPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751963AbWJ3SSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWJ3SPF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 13:15:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751694AbWJ3SPF
+	id S1751963AbWJ3SSf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 13:18:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751965AbWJ3SSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 13:15:05 -0500
-Received: from smtp-out.google.com ([216.239.33.17]:22058 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751539AbWJ3SPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:15:01 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=KQEz9O+FKyx6uqEB/kG5cAdPtThJFaqLUsVdJRt+xzRlD+hnNgV7sgO7um+WjarlF
-	vIDwvfCSUK4A5lFxoumiQ==
-Message-ID: <6599ad830610301014l1bf78ce8q998229483d055a90@mail.gmail.com>
-Date: Mon, 30 Oct 2006 10:14:44 -0800
-From: "Paul Menage" <menage@google.com>
-To: balbir@in.ibm.com
-Subject: Re: [ckrm-tech] RFC: Memory Controller
-Cc: dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com
-In-Reply-To: <4545FDCD.3080107@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 30 Oct 2006 13:18:35 -0500
+Received: from mga03.intel.com ([143.182.124.21]:4144 "EHLO mga03.intel.com")
+	by vger.kernel.org with ESMTP id S1751694AbWJ3SSe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 13:18:34 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,371,1157353200"; 
+   d="scan'208"; a="138259472:sNHT22936263"
+Date: Mon, 30 Oct 2006 11:18:45 -0800
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: linux-acpi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
+Subject: [patch] acpi: use mutex instead of spinlock in dock driver
+Message-Id: <20061030111845.7fdb6d37.kristen.c.accardi@intel.com>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com>
-	 <6599ad830610300304l58e235f7td54ef8744e462a55@mail.gmail.com>
-	 <4545FDCD.3080107@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/30/06, Balbir Singh <balbir@in.ibm.com> wrote:
->
-> You'll also end up with per zone page cache pools for each zone. A list of
-> active/inactive pages per zone (which will split up the global LRU list).
+http://bugzilla.kernel.org/show_bug.cgi?id=7303
 
-Yes, these are some of the inefficiencies that we're ironing out.
+Use a mutex instead of a spinlock for locking the
+hotplug list because we need to call into the acpi
+subsystem which might sleep.
 
-> What about the hard-partitioning. If a container/cpuset is not using its full
-> 64MB of a fake node, can some other node use it?
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+---
+ drivers/acpi/dock.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-No. So the granularity at which you can divide up the system depends
-on how big your fake nodes are. For our purposes, we figure that 64MB
-granularity should be fine.
-
-> Also, won't you end up
-> with a big zonelist?
-
-Yes - but PaulJ's recent patch to speed up the zone selection helped
-reduce the overhead of this a lot.
-
->
-> Consider the other side of the story. lets say we have a shared lib shared
-> among quite a few containers. We limit the usage of the inode containing
-> the shared library to 50M. Tasks A and B use some part of the library
-> and cause the container "C" to reach the limit. Container C is charged
-> for all usage of the shared library. Now no other task, irrespective of which
-> container it belongs to, can touch any new pages of the shared library.
-
-Well, if the pages aren't mlocked then presumably some of the existing
-pages can be flushed out to disk and replaced with other pages.
-
->
-> What you are suggesting is to virtually group the inodes by container rather
-> than task. It might make sense in some cases, but not all.
-
-Right - I think it's an important feature to be able to support, but I
-agree that it's not suitable for all situations.
-
->
-> We could consider implementing the controllers in phases
->
-> 1. RSS control (anon + mapped pages)
-> 2. Page Cache control
-
-Page cache control is actually more essential that RSS control, in our
-experience - it's pretty easy to track RSS values from userspace, and
-react reasonably quickly to kill things that go over their limit, but
-determining page cache usage (i.e. determining which job on the system
-is flooding the page cache with dirty buffers) is pretty much
-impossible currently.
-
-Paul
+--- 2.6-git.orig/drivers/acpi/dock.c
++++ 2.6-git/drivers/acpi/dock.c
+@@ -44,7 +44,7 @@ struct dock_station {
+ 	unsigned long last_dock_time;
+ 	u32 flags;
+ 	spinlock_t dd_lock;
+-	spinlock_t hp_lock;
++	struct mutex hp_lock;
+ 	struct list_head dependent_devices;
+ 	struct list_head hotplug_devices;
+ };
+@@ -114,9 +114,9 @@ static void
+ dock_add_hotplug_device(struct dock_station *ds,
+ 			struct dock_dependent_device *dd)
+ {
+-	spin_lock(&ds->hp_lock);
++	mutex_lock(&ds->hp_lock);
+ 	list_add_tail(&dd->hotplug_list, &ds->hotplug_devices);
+-	spin_unlock(&ds->hp_lock);
++	mutex_unlock(&ds->hp_lock);
+ }
+ 
+ /**
+@@ -130,9 +130,9 @@ static void
+ dock_del_hotplug_device(struct dock_station *ds,
+ 			struct dock_dependent_device *dd)
+ {
+-	spin_lock(&ds->hp_lock);
++	mutex_lock(&ds->hp_lock);
+ 	list_del(&dd->hotplug_list);
+-	spin_unlock(&ds->hp_lock);
++	mutex_unlock(&ds->hp_lock);
+ }
+ 
+ /**
+@@ -295,7 +295,7 @@ static void hotplug_dock_devices(struct 
+ {
+ 	struct dock_dependent_device *dd;
+ 
+-	spin_lock(&ds->hp_lock);
++	mutex_lock(&ds->hp_lock);
+ 
+ 	/*
+ 	 * First call driver specific hotplug functions
+@@ -317,7 +317,7 @@ static void hotplug_dock_devices(struct 
+ 		else
+ 			dock_create_acpi_device(dd->handle);
+ 	}
+-	spin_unlock(&ds->hp_lock);
++	mutex_unlock(&ds->hp_lock);
+ }
+ 
+ static void dock_event(struct dock_station *ds, u32 event, int num)
+@@ -625,7 +625,7 @@ static int dock_add(acpi_handle handle)
+ 	INIT_LIST_HEAD(&dock_station->dependent_devices);
+ 	INIT_LIST_HEAD(&dock_station->hotplug_devices);
+ 	spin_lock_init(&dock_station->dd_lock);
+-	spin_lock_init(&dock_station->hp_lock);
++	mutex_init(&dock_station->hp_lock);
+ 	ATOMIC_INIT_NOTIFIER_HEAD(&dock_notifier_list);
+ 
+ 	/* Find dependent devices */

@@ -1,148 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161208AbWJ3KZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161211AbWJ3K3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161208AbWJ3KZx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 05:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161209AbWJ3KZw
+	id S1161211AbWJ3K3J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 05:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161212AbWJ3K3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 05:25:52 -0500
-Received: from imag.imag.fr ([129.88.30.1]:56261 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S1161208AbWJ3KZw (ORCPT
+	Mon, 30 Oct 2006 05:29:09 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:42891 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161211AbWJ3K3H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 05:25:52 -0500
-Message-ID: <4545D2FA.3030802@imag.fr>
-Date: Mon, 30 Oct 2006 11:24:58 +0100
-From: Videau Brice <brice.videau@imag.fr>
-Reply-To: brice.videau@imag.fr
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Strange connect behavior
-Content-Type: multipart/mixed;
- boundary="------------060104070701000504030508"
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Mon, 30 Oct 2006 11:25:02 +0100 (CET)
-X-IMAG-MailScanner-Information: Please contact IMAG DMI for more information
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-SpamCheck: 
-X-IMAG-MailScanner-From: brice.videau@imag.fr
+	Mon, 30 Oct 2006 05:29:07 -0500
+Date: Mon, 30 Oct 2006 16:03:56 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: dev@openvz.org, sekharan@us.ibm.com, menage@google.com
+Cc: pj@sgi.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       rohitseth@google.com, balbir@in.ibm.com, dipankar@in.ibm.com,
+       matthltc@us.ibm.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: [RFC] Resource Management - Infrastructure choices
+Message-ID: <20061030103356.GA16833@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060104070701000504030508
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Over the last couple of months, we have seen a number of proposals for
+resource management infrastructure/controllers and also good discussions
+surrounding those proposals. These discussions has resulted in few
+consensus points and few other points that are still being debated.
 
-Hello,
+This RFC is an attempt to:
 
-While writing some client server application in c, we noticed a strange 
-behavior : if we try to connect endlessly to a given local port where 
-nobody is listening, and if the port is >= to 32768, after several 
-thousands tries ( Connection refused ) connect will return 0.
-This behavior is not exhibited when port is < 32768.
+	o summarize various proposals to date for infrastructure
 
-We confirmed this behavior in kernel 2.6.17-10, 2.6.18-1, 2.6.8, on x86 
-and 2.4.21-32 on ia64, on several hardware configurations.
-Distribution is debian or ubuntu.
+	o summarize consensus/debated points for infrastructure
 
-Attached is a source file that demonstrate this behavior.
-./a.out port_number
+	o (more importantly) get various stakeholders agree on what is a good 
+	  compromise for infrastructure in going forward
 
-Sample execution :
+Couple of questions that I am trying to address in this RFC:
 
-./a.out 35489
-Out port : 35489
-connect try 1 failed : Connection refused
-connect try 2 failed : Connection refused
-connect try 3 failed : Connection refused
-.....
-connect try 6089 failed : Connection refused
-connect try 6090 failed : Connection refused
-Connection success : 6091 try
-Connection closed
-last error : Connection refused
+	- Do we wait till controllers are worked out before merging
+	  any infrastructure?
+
+		IMHO, its good if we can merge some basic infrastructure now
+		and incrementally enhance it and add controllers based on it. 
+		This perspective leads to the second question below ..
+
+	- Paul Menage's patches present a rework of existing code, which makes 
+	  it simpler to get it in. Does it meet container (Openvz/Linux
+	  VServer) and resource management requirements?
+
+		Paul has ported over the CKRM code on top of his patches. So I 
+		am optimistic that it meets resource management requirements in 
+		general.
+
+	  	One shortcoming I have seen in it is that it lacks an 
+		efficient method to retrieve tasks associated with a group. 
+		This may be needed by few controllers implementations if they 
+		have to support, say, change of resource limits. This however 
+		I think could be addressed quite easily (by a linked list
+		hanging off each container structure).
+
+Resource Management - Goals
+---------------------------
+
+Develop mechanisms for isolating use of shared resources like cpu, memory 
+between various applications. This includes:
+
+	- mechanism to group tasks by some attribute (ex: containers, 
+	  CKRM/RG class, cpuset etc)
+
+	- mechanism to monitor and control usage of a variety of resources by 
+	  such groups of tasks
+
+Resources to be managed:
+
+	- Memory, CPU and disk I/O bandwidth (of high interest perhaps)
+	- network bandwidth, number of tasks/file-descriptors/sockets etc.
 
 
-Is this behavior to be expected?
-Can it be disabled?
+Proposals to date for infrastructure
+------------------------------------
 
-Thanks in advance.
+	- CKRM/RG
+	- UBC
+	- Container implementation (by Paul Menage) based on generalization of 	
+	  cpusets.
 
+
+A. Class-based Kernel Resource Management/Resource Groups
+
+	Framework to monitor/control use of various resources by a group of 
+	tasks as per specified guarantee/limits.
+
+	Provides a config-fs based interface to:
+
+		- create/delete task-groups
+		- allow a task to change its (or some other task's) association 
+		  from one group to other (provided it has the right 
+		  privileges). New children of the affected task inherit the 
+		  same group association.
+		- list tasks present in a group (A group can exist without any 
+		  tasks associated with it)
+		- specify group's min/max use of various resources. A special 
+		  value "DONT_CARE" specifies that the group doesn't care for 
+		  how much resource it gets.
+		- obtain resource usage statistics
+		- Supports heirarchy depth of 1 (??)
+
+	In addition to this user-interface, it provides a framework for 
+	controllers to:
+
+		- register/deregister themselves
+		- be intimated about changes in resource allocation for a group
+		- be intimated about task movements between groups
+		- be intimated about creation/deletion of groups
+		- know which group a task belongs to
+
+B. UBC
+
+	Framework to account and limit usage of various resources by a 
+	container (group of tasks).
+
+	Provides a system call based interface to:
+
+		- set a task's beancounter id. If the id does not exist, a new 
+		  beancounter object is created
+		- change a task's association from one beancounter to other
+		- return beancounter id to which the calling task belongs
+		- set limits of consumption of a particular resource by a 
+		  beancounter
+		- return statistics information for a given beancounter and 
+		  resource.
+
+
+	Provides a framework for controllers to:
+
+		- register various resources
+		- lookup beancounter object given a particular id
+		- charge/uncharge usage of some resource to a beancounter by 
+	 	  some amount
+			- also know if the resulting usage is above the allowed 
+			  soft/hard limit.
+		- change a task's accounting beancounter (usefull in, say, 
+		  interrupt handling)
+		- know when the resource limits change for a beancounter
+
+C. Paul Menage's container patches
+
+	Provides a generic heirarchial process grouping mechanism based on 
+	cpusets, which can be used for resource management purposes.
+
+	Provides a filesystem-based interface to:
+
+		- create/destroy containers
+		- change a task's association from one container to other
+		- retrieve all the tasks associated with a container
+		- know which container a task belongs to (from /proc)
+		- know when the last task belonging to a container has exited
+
+
+Consensus/Debated Points
+------------------------
+
+Consensus:
+
+	- Provide resource control over a group of tasks 
+	- Support movement of task from one resource group to another
+	- Dont support heirarchy for now
+	- Support limit (soft and/or hard depending on the resource
+	  type) in controllers. Guarantee feature could be indirectly
+	  met thr limits.
+
+Debated:
+	- syscall vs configfs interface
+	- Interaction of resource controllers, containers and cpusets
+		- Should we support, for instance, creation of resource
+		  groups/containers under a cpuset?
+	- Should we have different groupings for different resources?
+	- Support movement of all threads of a process from one group
+	  to another atomically?
+
+-- 
 Regards,
-
-Brice Videau
-
---------------060104070701000504030508
-Content-Type: text/x-csrc;
- name="client.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="client.c"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <errno.h>
-
-int main(int argc, char **argv) {
-   unsigned short out_port = 35000;
-   char * endptr;
-   struct sockaddr_in server_address;
-   int out_socket;
-   int i=1;
-
-   if( argc > 1 ) {
-      out_port = (unsigned short) strtol(argv[1], &endptr, 10);
-      errno = 0;
-      if(errno != 0 || out_port == 0 || endptr == argv[1] ) {
-         perror("Invalid port number");
-         exit(1);
-      }
-   }
-   printf( "Out port : %hu\n", out_port );
-   fflush(NULL);
-
-   memset( &server_address, 0, sizeof(struct sockaddr_in) );
-   server_address.sin_family = AF_INET;
-   server_address.sin_port = htons(out_port);
-   if ( inet_pton( AF_INET, "127.0.0.1", &(server_address.sin_addr) ) <= 0 ) {
-      perror("inet_pton error");
-      exit(1);
-   }
-
-   if ( (out_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-      perror("socket error");
-      exit(1);
-   }
-
-   while (connect(out_socket, (struct sockaddr *) &server_address, sizeof(struct sockaddr_in)) < 0)
-   {
-      fprintf(stderr,"connect try %i failed : ",i);
-      perror("");
-      fflush(NULL);
-      i++;
-   }
-
-   printf("Connection success : %i try\n",i);
-   fflush(NULL);
-
-   if( close(out_socket) < 0 ) {
-      perror("close error");
-      exit(1);
-   }
-
-   printf("Connection closed\n");
-   fflush(NULL);
-
-   fprintf(stderr,"last error : ");
-   perror("");
-
-   return 0;
-}
-
---------------060104070701000504030508--
+vatsa

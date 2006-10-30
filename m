@@ -1,169 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWJ3MQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWJ3MTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWJ3MQE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 07:16:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWJ3MQE
+	id S1751403AbWJ3MTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 07:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWJ3MTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 07:16:04 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:53939 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1751302AbWJ3MQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 07:16:01 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Mon, 30 Oct 2006 07:13:29 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: trivial@kernel.org
-Subject: [PATCH] semaphore.h : remove unnecessary initializations of "sleepers"
- struct member
-Message-ID: <Pine.LNX.4.64.0610300710520.7832@localhost.localdomain>
+	Mon, 30 Oct 2006 07:19:16 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:26104 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751403AbWJ3MTP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 07:19:15 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH][RFC] KVM: prepare user interface for smp guests
+Date: Mon, 30 Oct 2006 13:19:10 +0100
+User-Agent: KMail/1.9.5
+Cc: kvm-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <4544AD24.4040801@qumranet.com> <200610300101.11245.arnd@arndb.de> <4545C110.8080204@qumranet.com>
+In-Reply-To: <4545C110.8080204@qumranet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610301319.10710.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 30 October 2006 10:08, Avi Kivity wrote:
+> > Your concept of allocating
+> > a new context on each open is already weird, but there have been other
+> > examples of that before.
+>
+> Actually that seemed to me quite natural.
 
-Delete the irrelevant initializations of "sleepers" in the semaphore
-initialization macro.
+It's described in LDD2 and other books, but the traditional view is
+still that one device node in /dev refers to an actual device or
+at least something that acts like a device (e.g. /dev/null, dev/tty).
 
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
----
- asm-arm26/semaphore.h  |    1 -
- asm-h8300/semaphore.h  |    1 -
- asm-i386/semaphore.h   |    1 -
- asm-ia64/semaphore.h   |    1 -
- asm-m32r/semaphore.h   |    1 -
- asm-sh/semaphore.h     |    1 -
- asm-sh64/semaphore.h   |    1 -
- asm-sparc/semaphore.h  |    1 -
- asm-x86_64/semaphore.h |    1 -
- asm-xtensa/semaphore.h |    1 -
- 10 files changed, 10 deletions(-)
+> BTW, what does lsof show for spufs users?  I thought lsof /dev/kvm would 
+> be a good way to look for virtual machines.
 
-diff --git a/include/asm-arm26/semaphore.h b/include/asm-arm26/semaphore.h
-index 1fda543..2bab1d2 100644
---- a/include/asm-arm26/semaphore.h
-+++ b/include/asm-arm26/semaphore.h
-@@ -21,7 +21,6 @@ struct semaphore {
- #define __SEMAPHORE_INIT(name, n)					\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait),	\
- }
+It does what you expect. Since spufs is mounted, 'ls /spu/' shows you
+the existing spu contexts, 'lsof /spu/*' shows you the tasks using those.
 
-diff --git a/include/asm-h8300/semaphore.h b/include/asm-h8300/semaphore.h
-index 81bae2a..0691963 100644
---- a/include/asm-h8300/semaphore.h
-+++ b/include/asm-h8300/semaphore.h
-@@ -31,7 +31,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
-diff --git a/include/asm-i386/semaphore.h b/include/asm-i386/semaphore.h
-index 4e34a46..74c0e56 100644
---- a/include/asm-i386/semaphore.h
-+++ b/include/asm-i386/semaphore.h
-@@ -51,7 +51,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
-diff --git a/include/asm-ia64/semaphore.h b/include/asm-ia64/semaphore.h
-index f483eeb..547b23a 100644
---- a/include/asm-ia64/semaphore.h
-+++ b/include/asm-ia64/semaphore.h
-@@ -20,7 +20,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
-diff --git a/include/asm-m32r/semaphore.h b/include/asm-m32r/semaphore.h
-index 41e45d7..a55744f 100644
---- a/include/asm-m32r/semaphore.h
-+++ b/include/asm-m32r/semaphore.h
-@@ -27,7 +27,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
-diff --git a/include/asm-sh/semaphore.h b/include/asm-sh/semaphore.h
-index 489f784..c7a8265 100644
---- a/include/asm-sh/semaphore.h
-+++ b/include/asm-sh/semaphore.h
-@@ -29,7 +29,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
-diff --git a/include/asm-sh64/semaphore.h b/include/asm-sh64/semaphore.h
-index 4695264..3933993 100644
---- a/include/asm-sh64/semaphore.h
-+++ b/include/asm-sh64/semaphore.h
-@@ -36,7 +36,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
-diff --git a/include/asm-sparc/semaphore.h b/include/asm-sparc/semaphore.h
-index f74ba31..3c49de5 100644
---- a/include/asm-sparc/semaphore.h
-+++ b/include/asm-sparc/semaphore.h
-@@ -18,7 +18,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC24_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
-diff --git a/include/asm-x86_64/semaphore.h b/include/asm-x86_64/semaphore.h
-index 1194888..013ba50 100644
---- a/include/asm-x86_64/semaphore.h
-+++ b/include/asm-x86_64/semaphore.h
-@@ -52,7 +52,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
-diff --git a/include/asm-xtensa/semaphore.h b/include/asm-xtensa/semaphore.h
-index f10c348..80becb0 100644
---- a/include/asm-xtensa/semaphore.h
-+++ b/include/asm-xtensa/semaphore.h
-@@ -25,7 +25,6 @@ struct semaphore {
- #define __SEMAPHORE_INITIALIZER(name,n)					\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
--	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
- }
-
+	Arnd <><

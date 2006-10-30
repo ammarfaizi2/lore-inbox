@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161293AbWJ3Ln0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWJ3Lv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161293AbWJ3Ln0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 06:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWJ3Ln0
+	id S965265AbWJ3Lv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 06:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965507AbWJ3LvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 06:43:26 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:52496 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S932448AbWJ3LnZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 06:43:25 -0500
-Date: Mon, 30 Oct 2006 12:45:03 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Gregor Jasny <gjasny@googlemail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org
-Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
-Message-ID: <20061030114503.GW4563@kernel.dk>
-References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 30 Oct 2006 06:51:25 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:9343 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965265AbWJ3LvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 06:51:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=N8EXU24ztm6pZe0kJ/VWdNxOrzfdJ+nIcyQdC6JuXlwVkPiEhXRNUiKjnfnHv1TJkat0GCtFOm7D+geaGFvcWpY5u0NNGAw/Sn/TyVpLWI2+7d09zV7WQ03TQVBrczhO4AORAr3E8+u7Y4KUxwXqH/MIIvTgf9taKWvidD47fnk=
+Message-ID: <d48dcd3c0610300351g6cb67b0eob3e6bfdf1d1fedc2@mail.gmail.com>
+Date: Mon, 30 Oct 2006 22:51:23 +1100
+From: "Anindha Parthy" <anindha@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: accurate serial timestamp
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29 2006, Gregor Jasny wrote:
-> Hi,
-> 
-> Today I tried the new cdparanoia from Debian Sid (3.10+debian~pre0-2).
-> When I started ripping with "cdparanoia -d /dev/scd0 1" my system
-> freezes after some seconds. There is no oops and even the console
-> cursor stops blinking.
-> 
-> If I start cdparanoia with -g /dev/scd0 it starts ripping and but the
-> kernel prints many "program cdparanoia not setting count and/or
-> reply_len properly" warnings. But this seems to be a cdparanoia bug.
-> 
-> My CDROM:
-> Vendor:                    PIONEER
-> Product:                   DVD-ROM DVD-106
-> Revision level:            1.22
+Hello,
 
-Can you confirm that 2.6.18 works?
+I would like to take a high accuracy timestamp whenever data is
+received on the serial port.
 
--- 
-Jens Axboe
+I think the best place to do this is in the tty_flip_buffer_push
+method of the tty_io.c file.
 
+   2652 void tty_flip_buffer_push(struct tty_struct *tty)
+   2653 {
+   2654     if (tty->low_latency)
+   2655         flush_to_ldisc((void *) tty);
+   2656     else
+   2657         schedule_delayed_work(&tty->flip.work, 1);
+   2658 }
+
+I would buffer the timestamps, and access them using an ioctl.
+
+Is this the best way of doing this?
+
+I am currently using the 2.6.15 kernel.
+
+Regards,
+
+Anindha

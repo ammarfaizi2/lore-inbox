@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030523AbWJ3JIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965496AbWJ3JZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030523AbWJ3JIz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 04:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbWJ3JIz
+	id S965496AbWJ3JZi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 04:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965497AbWJ3JZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 04:08:55 -0500
-Received: from styx.suse.cz ([82.119.242.94]:16563 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1030523AbWJ3JIx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 04:08:53 -0500
-Date: Mon, 30 Oct 2006 10:08:51 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Dave Neuer <mr.fred.smoothie@pobox.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
-Message-ID: <20061030090851.GA2687@suse.cz>
-References: <200608232311.07599.dtor@insightbb.com> <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com> <200610292234.02487.dtor@insightbb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610292234.02487.dtor@insightbb.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+	Mon, 30 Oct 2006 04:25:38 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:14613 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965496AbWJ3JZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 04:25:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=HJ+KdowI4qQhZnv5WlUtZY7p9WPaDd/rBqQpRAZ/vhQgkMsSk9vhEv5EpRQqJJcJDiuGz4JsLCZuH57sYLqc2E9SN2Sk3XxyuTEtPeT44sxrYnBTujAg/50tO0WJ6F0Au/je0FsXCCGH9ZOqcvyYyNZk63YOxsejIJ8HxUjlZSQ=
+Message-ID: <4545C52A.5010105@innova-card.com>
+Date: Mon, 30 Oct 2006 10:26:02 +0100
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Miguel Ojeda <maxextreme@gmail.com>
+CC: Franck Bui-Huu <vagabon.xyz@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+References: <20061013023218.31362830.maxextreme@gmail.com>	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>	 <453CE85B.2080702@innova-card.com>	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com> <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com>
+In-Reply-To: <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29, 2006 at 10:34:00PM -0500, Dmitry Torokhov wrote:
-> On Sunday 29 October 2006 18:20, Dave Neuer wrote:
-> > On 8/23/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
-> > > Hi everyone,
-> > >
-> > > Here is another version of the patch removing polling timer from i8042
-> > > which is needed if we want tickless kernel. Keyboards should now work
-> > > on boxes that do not have mouse plugged in. PLease give it a test.
-> > 
-> >  What's the intent of this; just to allow tickless? Or is it also to
-> > make the i8042 driver less racy? I ask because I've applied this over
-> > (a modified) 2.6.18 on my Compaq Presario X1010us laptop which has
-> > been driving me crazy w/ Synaptics problems and keyboard problems
-> > (intermittent, but   frequent enough lately that I finally figured I
-> > needed to do something about it).
-> > 
-> > If removing raciness is part of the goal, isn't the window in
-> > i8042_aux_write still a problem?
-> > 
-> > 	if (port->mux == -1)
-> > 		retval = i8042_command(&c, I8042_CMD_AUX_SEND);
-> > 	else
-> > 		retval = i8042_command(&c, I8042_CMD_MUX_SEND + port->mux);
-> > 
-> >         /* i8042_command has re-enabled interrupts;
-> >            what happens if real interrupt happens here, before we call
-> > the ISR ourselves? */
-> > 
-> > 	i8042_interrupt(0, NULL, NULL);
-> > 	return retval;
-> > }
+Miguel Ojeda wrote:
+> Refresh rate is fixed in this driver (the user can change it to other
+> value at Kconfig or at loading time as a module parameter).
 > 
-> Hi Dave,
+> An application should not refresh images so fast (the LCD controller
+> can handle it, but the readability is pretty bad). Having a refresh
+> rate like 10 Hz for example, the application can be sure all images
+> are displayed. Anyway, an animation of 10 Hz wouldn't be fine at this
+> kind of LCDs, so it is pointless which the refresh rate of the driver
+> is, as it is not useful to display images as fast as the driver
+> refresh the LCD.
 > 
-> i8042_interrupt() uses spinlock to serialize access to the KBC so if real
-> interrupt happens before we call i8042_interrupt() manually (and it should
-> normally happen) it will just process the response and second i8042_interrupt()
-> will be just a no-op.
 
-This would, however, create two reads of the i8042 controller
-back-to-back, which has been a problem on old i8042's: IIRC IBM
-documentation states that between the reads there should be a delay.
+An application might want to display quickly a set of images, not for
+doing animations but rather displaying 'fake' greyscale images.
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+> Well, mmaping is the best option, as it is the easiest and the
+> fastest. Any use will be better using mmaping than doing synchrone
+> write(). Yes, many uses just need a write() call, but other uses would
+> need mmap.
+> 
+
+That's true for devices which have a frame buffer. But it's not your
+case. You _emulate_ this behaviour and I can see big drawbacks to
+this design:
+
+  - You need to keep synchrone your buffer and the display every
+    100ms. It makes your CPU busy even if nothing has been written in
+    LCD for a while. Futhermore this kind of display is likely to run
+    on embedded system where CPU speed can be less than 100MHz.
+
+  - All accesses to the device depend on the previous behaviour whereas
+    write(), read() syscall could be synchrone and easier to use for
+    fast writing of image sets. Actually the refresh stuff is really
+    needed only if you mmap the device. And it seems not really used
+    for now since it was broken on your last patch.
+
+  - Your driver _is_ a frame buffer driver by design, I think you
+    don't need to seperate cfa12864cb.c and cfa12864cfb.c
+
+So ok you code is very small with this design but IMHO it is not the
+most polyvalent if you want to address all needs. Why not starting the
+refresh stuff only if you mmap the device and keep the rest synch ?
+
+
+> $ cat /sys/module/cfag12864b/parameters/cfag12864b_rate
+> 
+> Yes, a more generic option would be better. Do the fbdevices have some
+> standard way to retrieve such kind of info (like the bits per pixel,
+> width, height...)? If not, which would be a good to retrieve the
+> refresh rate?
+
+maybe fb_ioctl() can return that. Or your driver can have its own
+ioctl() method which could return such specific info.
+
+		Franck

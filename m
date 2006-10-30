@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161462AbWJ3XTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161532AbWJ3XSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161462AbWJ3XTA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 18:19:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161542AbWJ3XTA
+	id S1161532AbWJ3XSc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 18:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161464AbWJ3XSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 18:19:00 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:32896 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161462AbWJ3XS6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 18:18:58 -0500
-Message-ID: <45468860.5060103@us.ibm.com>
-Date: Mon, 30 Oct 2006 15:18:56 -0800
+	Mon, 30 Oct 2006 18:18:32 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:2497 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161435AbWJ3XSb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 18:18:31 -0500
+Message-ID: <45468845.20400@us.ibm.com>
+Date: Mon, 30 Oct 2006 15:18:29 -0800
 From: "Darrick J. Wong" <djwong@us.ibm.com>
 Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
 Organization: IBM LTC
@@ -19,141 +19,62 @@ MIME-Version: 1.0
 To: linux-scsi <linux-scsi@vger.kernel.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 CC: Alexis Bruemmer <alexisb@us.ibm.com>
-Subject: [PATCH] 3/3: Handle REQ_TASK_ABORT in aic94xx
+Subject: [PATCH] 0/3: Fix EH problems in libsas and implement more error handling
 X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch straightens out the code that distinguishes the various escb
-opcodes in escb_tasklet_complete so that they can be handled correctly. 
-It also provides all the necessary code to create a workqueue item that
-tells libsas to abort a sas_task.
+Hi all,
 
-Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+The following three patches are early drafts of a series of patches to
+fix error handling in libsas so that the scsi_eh_* functions are called
+so that we can attempt to retry failed commands later.  There is also a
+patch to aic94xx to make escb errors are detected correctly,
+REQ_TASK_ABORT is handled, and the beginnings of a handler for
+REQ_DEVICE_RESET.
 
---
+However, there are a number of issues with these patches that I wish to
+bring to the attention of this mailing list for further input:
 
-diff --git a/drivers/scsi/aic94xx/aic94xx_scb.c b/drivers/scsi/aic94xx/aic94xx_scb.c
-index 7ee49b5..1911c5d 100644
---- a/drivers/scsi/aic94xx/aic94xx_scb.c
-+++ b/drivers/scsi/aic94xx/aic94xx_scb.c
-@@ -25,6 +25,7 @@
-  */
- 
- #include <linux/pci.h>
-+#include <scsi/scsi_host.h>
- 
- #include "aic94xx.h"
- #include "aic94xx_reg.h"
-@@ -342,6 +343,18 @@ void asd_invalidate_edb(struct asd_ascb 
- 	}
- }
- 
-+/* start up the ABORT TASK tmf... */
-+static void task_kill_later(struct asd_ascb *ascb)
-+{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
-+	struct Scsi_Host *shost = sas_ha->core.shost;
-+	struct sas_task *task = ascb->uldd_task;
-+
-+	INIT_WORK(&task->abort_work, (void (*)(void *))sas_task_abort, task);
-+	queue_work(shost->work_q, &task->abort_work);
-+}
-+
- static void escb_tasklet_complete(struct asd_ascb *ascb,
- 				  struct done_list_struct *dl)
- {
-@@ -368,6 +381,58 @@ static void escb_tasklet_complete(struct
- 			    ascb->scb->header.opcode);
- 	}
- 
-+	/* Catch these before we mask off the sb_opcode bits */
-+	switch (sb_opcode) {
-+	case REQ_TASK_ABORT: {
-+		struct asd_ascb *a, *b;
-+		u16 tc_abort;
-+
-+		tc_abort = *((u16*)(&dl->status_block[1]));
-+		tc_abort = le16_to_cpu(tc_abort);
-+
-+		ASD_DPRINTK("%s: REQ_TASK_ABORT, reason=0x%X\n",
-+			    __FUNCTION__, dl->status_block[3]);
-+
-+		/* Find the pending task and abort it. */
-+		list_for_each_entry_safe(a, b, &asd_ha->seq.pend_q, list)
-+			if (a->tc_index == tc_abort) {
-+				task_kill_later(a);
-+				break;
-+			}
-+		goto out;
-+	}
-+	case REQ_DEVICE_RESET: {
-+		struct asd_ascb *a, *b;
-+		u16 conn_handle;
-+
-+		conn_handle = *((u16*)(&dl->status_block[1]));
-+		conn_handle = le16_to_cpu(conn_handle);
-+
-+		ASD_DPRINTK("%s: REQ_DEVICE_RESET, reason=0x%X\n", __FUNCTION__,
-+			    dl->status_block[3]);
-+
-+		/* Kill all pending tasks and reset the device */
-+		list_for_each_entry_safe(a, b, &asd_ha->seq.pend_q, list) {
-+			struct sas_task *task = a->uldd_task;
-+			struct domain_device *dev = task->dev;
-+			u16 x;
-+
-+			x = *((u16*)(&dev->lldd_dev));
-+			if (x == conn_handle)
-+				task_kill_later(a);
-+		}
-+
-+		/* FIXME: Reset device port (huh?) */
-+		goto out;
-+	}
-+	case SIGNAL_NCQ_ERROR:
-+		ASD_DPRINTK("%s: SIGNAL_NCQ_ERROR\n", __FUNCTION__);
-+		goto out;
-+	case CLEAR_NCQ_ERROR:
-+		ASD_DPRINTK("%s: CLEAR_NCQ_ERROR\n", __FUNCTION__);
-+		goto out;
-+	}
-+
- 	sb_opcode &= ~DL_PHY_MASK;
- 
- 	switch (sb_opcode) {
-@@ -397,22 +462,6 @@ static void escb_tasklet_complete(struct
- 		sas_phy_disconnected(sas_phy);
- 		sas_ha->notify_port_event(sas_phy, PORTE_TIMER_EVENT);
- 		break;
--	case REQ_TASK_ABORT:
--		ASD_DPRINTK("%s: phy%d: REQ_TASK_ABORT\n", __FUNCTION__,
--			    phy_id);
--		break;
--	case REQ_DEVICE_RESET:
--		ASD_DPRINTK("%s: phy%d: REQ_DEVICE_RESET\n", __FUNCTION__,
--			    phy_id);
--		break;
--	case SIGNAL_NCQ_ERROR:
--		ASD_DPRINTK("%s: phy%d: SIGNAL_NCQ_ERROR\n", __FUNCTION__,
--			    phy_id);
--		break;
--	case CLEAR_NCQ_ERROR:
--		ASD_DPRINTK("%s: phy%d: CLEAR_NCQ_ERROR\n", __FUNCTION__,
--			    phy_id);
--		break;
- 	default:
- 		ASD_DPRINTK("%s: phy%d: unknown event:0x%x\n", __FUNCTION__,
- 			    phy_id, sb_opcode);
-@@ -432,7 +481,7 @@ static void escb_tasklet_complete(struct
- 
- 		break;
- 	}
--
-+out:
- 	asd_invalidate_edb(ascb, edb);
- }
- 
+First, the aic94xx sequencer can send back an ESCB with an error code of
+"REQ_TASK_ABORT", which means that the kernel has to send an ABORT TASK
+TMF to sequencer to unjam things.  Until this happens, the sequencer
+neither services commands nor sends back completions.  If we want to
+wait for the error handler to send the ABORT TASK, we end up waiting for
+_all_ pending commands to time out so that the EH can wake up.  This
+effectively stalls the system for 30 seconds every time we see
+REQ_TASK_ABORT.
+
+On the assumption that we'd like to get on with things sooner than
+later, the current iteration of these patches aborts the task as soon as
+possible so that the other pending commands will flush out on their own.
+ However, this also necessitates the addition of a new sas_task flag
+(SAS_TASK_INITIATOR_ABORTED) to indicate "Task aborted, but still
+waiting for the EH to call task_done."  From what I can tell,
+SAS_TASK_STATE_ABORTED means that the task will be lldd_abort_task'd by
+the EH at some point, but does not indicate if that has been done yet,
+and SAS_TASK_STATE_DONE is set after everything is done.
+
+The second issue is the manual decrementing of shost->host_failed in the
+error handler.  So long as we use the scsi_eh_* commands this value is
+decremented automatically--however, it appears that sas_scsi_clear_* is
+pulling scsi_cmnds off the error queue and ... dropping them so that
+they never go through the error handler.  Is this a desirable behavior,
+or am I reading the code incorrectly?  Or...?
+
+The third pertains to REQ_DEVICE_RESET: I've not yet figured out how to
+reset a device port as has been hinted that I must do.  I don't know if
+a phy reset is sufficient or if I'm barking up the wrong tree.
+
+In any case, these patches have been tested on a x206m, x260 and a x366.
+ They seemed pretty stable, though YMMV.  The patches should apply
+against linux-2.6.19-rc3 + scsi-misc + scsi-rc-fixes + aic94xx git trees
+in the order that they are posted.  They may also eat your disks.
+
+Questions/comments?  This is still very much a work in progress and at
+this stage I'm merely seeking constructive feedback to mould this code
+into better shape.
+
+--D

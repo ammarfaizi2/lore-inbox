@@ -1,375 +1,279 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965498AbWJ3Kpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161237AbWJ3Kpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965498AbWJ3Kpq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 05:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965501AbWJ3Kpq
+	id S1161237AbWJ3Kpf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 05:45:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161238AbWJ3Kpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 05:45:46 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:60826 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965467AbWJ3Kpo
+	Mon, 30 Oct 2006 05:45:35 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:60058 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161237AbWJ3Kpe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 05:45:44 -0500
+	Mon, 30 Oct 2006 05:45:34 -0500
 To: linux-arch@vger.kernel.org
-Subject: [PATCH 2/7] severing fs.h, radix-tree.h -> sched.h
+Subject: [PATCH 1/7] severing module.h->sched.h
 Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Message-Id: <E1GeUeF-0002o7-6s@ZenIV.linux.org.uk>
+Message-Id: <E1GeUe5-0002nt-63@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 30 Oct 2006 10:45:43 +0000
+Date: Mon, 30 Oct 2006 10:45:33 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- arch/i386/kernel/acpi/cstate.c |    1 +
- drivers/acpi/dock.c            |    1 +
- drivers/char/hw_random/core.c  |    1 +
- drivers/char/tpm/tpm.h         |    1 +
- drivers/hwmon/hdaps.c          |    1 +
- drivers/spi/spi_butterfly.c    |    1 +
- fs/9p/conv.c                   |    1 +
- fs/9p/fcall.c                  |    1 +
- fs/9p/fid.c                    |    1 +
- fs/9p/v9fs.c                   |    1 +
- fs/9p/vfs_dir.c                |    1 +
- fs/9p/vfs_file.c               |    1 +
- fs/inotify.c                   |    1 +
- fs/jffs2/acl.c                 |    1 +
- fs/jffs2/wbuf.c                |    1 +
- fs/jfs/ioctl.c                 |    1 +
- fs/proc/root.c                 |    1 +
- fs/super.c                     |   18 ++++++++++++++++++
- fs/sync.c                      |    1 +
- fs/utimes.c                    |    1 +
- include/linux/fs.h             |   37 +++++++------------------------------
- include/linux/radix-tree.h     |    1 -
- 22 files changed, 44 insertions(+), 31 deletions(-)
+ arch/i386/kernel/alternative.c            |    1 +
+ arch/i386/kernel/cpu/mcheck/therm_throt.c |    1 +
+ drivers/base/cpu.c                        |    1 +
+ drivers/hwmon/abituguru.c                 |    1 +
+ drivers/leds/ledtrig-ide-disk.c           |    1 +
+ drivers/leds/ledtrig-timer.c              |    1 +
+ drivers/scsi/scsi_transport_sas.c         |    1 +
+ drivers/w1/slaves/w1_therm.c              |    1 +
+ include/asm-x86_64/elf.h                  |    1 -
+ include/linux/acct.h                      |    1 +
+ include/linux/module.h                    |   13 +------------
+ include/linux/phy.h                       |    2 ++
+ include/scsi/libiscsi.h                   |    2 ++
+ kernel/latency.c                          |    1 +
+ kernel/module.c                           |   15 ++++++++++++++-
+ lib/random32.c                            |    1 +
+ 16 files changed, 30 insertions(+), 14 deletions(-)
 
-diff --git a/arch/i386/kernel/acpi/cstate.c b/arch/i386/kernel/acpi/cstate.c
-index 20563e5..4664b55 100644
---- a/arch/i386/kernel/acpi/cstate.c
-+++ b/arch/i386/kernel/acpi/cstate.c
-@@ -11,6 +11,7 @@ #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/acpi.h>
- #include <linux/cpu.h>
+diff --git a/arch/i386/kernel/alternative.c b/arch/i386/kernel/alternative.c
+index 583c238..535f979 100644
+--- a/arch/i386/kernel/alternative.c
++++ b/arch/i386/kernel/alternative.c
+@@ -1,4 +1,5 @@
+ #include <linux/module.h>
 +#include <linux/sched.h>
- 
- #include <acpi/processor.h>
- #include <asm/acpi.h>
-diff --git a/drivers/acpi/dock.c b/drivers/acpi/dock.c
-index 578b99b..bf5b79e 100644
---- a/drivers/acpi/dock.c
-+++ b/drivers/acpi/dock.c
-@@ -27,6 +27,7 @@ #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/types.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <asm/alternative.h>
+diff --git a/arch/i386/kernel/cpu/mcheck/therm_throt.c b/arch/i386/kernel/cpu/mcheck/therm_throt.c
+index 2d8703b..bad8b44 100644
+--- a/arch/i386/kernel/cpu/mcheck/therm_throt.c
++++ b/arch/i386/kernel/cpu/mcheck/therm_throt.c
+@@ -20,6 +20,7 @@ #include <linux/sysdev.h>
+ #include <linux/cpu.h>
+ #include <asm/cpu.h>
  #include <linux/notifier.h>
 +#include <linux/jiffies.h>
- #include <acpi/acpi_bus.h>
- #include <acpi/acpi_drivers.h>
+ #include <asm/therm_throt.h>
  
-diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index 154a81d..b8c9417 100644
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -36,6 +36,7 @@ #include <linux/hw_random.h>
+ /* How long to wait between reporting thermal events */
+diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
+index 4bef76a..1f745f1 100644
+--- a/drivers/base/cpu.c
++++ b/drivers/base/cpu.c
+@@ -5,6 +5,7 @@
+ #include <linux/sysdev.h>
  #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/fs.h>
+ #include <linux/init.h>
++#include <linux/sched.h>
+ #include <linux/cpu.h>
+ #include <linux/topology.h>
+ #include <linux/device.h>
+diff --git a/drivers/hwmon/abituguru.c b/drivers/hwmon/abituguru.c
+index e5cb0fd..b1dc63e 100644
+--- a/drivers/hwmon/abituguru.c
++++ b/drivers/hwmon/abituguru.c
+@@ -21,6 +21,7 @@
+     etc voltage & frequency control is not supported!
+ */
+ #include <linux/module.h>
 +#include <linux/sched.h>
  #include <linux/init.h>
- #include <linux/miscdevice.h>
- #include <linux/delay.h>
-diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-index 050ced2..bb9a43c 100644
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -22,6 +22,7 @@ #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/delay.h>
- #include <linux/fs.h>
-+#include <linux/sched.h>
- #include <linux/miscdevice.h>
- #include <linux/platform_device.h>
- #include <linux/io.h>
-diff --git a/drivers/hwmon/hdaps.c b/drivers/hwmon/hdaps.c
-index 26be4ea..e8ef62b 100644
---- a/drivers/hwmon/hdaps.c
-+++ b/drivers/hwmon/hdaps.c
-@@ -33,6 +33,7 @@ #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/timer.h>
- #include <linux/dmi.h>
-+#include <linux/jiffies.h>
- #include <asm/io.h>
- 
- #define HDAPS_LOW_PORT		0x1600	/* first port used by hdaps */
-diff --git a/drivers/spi/spi_butterfly.c b/drivers/spi/spi_butterfly.c
-index 39d9b20..c2f601f 100644
---- a/drivers/spi/spi_butterfly.c
-+++ b/drivers/spi/spi_butterfly.c
-@@ -23,6 +23,7 @@ #include <linux/delay.h>
- #include <linux/platform_device.h>
- #include <linux/parport.h>
- 
-+#include <linux/sched.h>
- #include <linux/spi/spi.h>
- #include <linux/spi/spi_bitbang.h>
- #include <linux/spi/flash.h>
-diff --git a/fs/9p/conv.c b/fs/9p/conv.c
-index 56d88c1..a3ed571 100644
---- a/fs/9p/conv.c
-+++ b/fs/9p/conv.c
-@@ -27,6 +27,7 @@
- #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
-+#include <linux/sched.h>
- #include <linux/idr.h>
- #include <asm/uaccess.h>
- #include "debug.h"
-diff --git a/fs/9p/fcall.c b/fs/9p/fcall.c
-index 8556097..dc336a6 100644
---- a/fs/9p/fcall.c
-+++ b/fs/9p/fcall.c
-@@ -27,6 +27,7 @@
- #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
-+#include <linux/sched.h>
- #include <linux/idr.h>
- 
- #include "debug.h"
-diff --git a/fs/9p/fid.c b/fs/9p/fid.c
-index 70492cc..2750720 100644
---- a/fs/9p/fid.c
-+++ b/fs/9p/fid.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
-+#include <linux/sched.h>
- #include <linux/idr.h>
- 
- #include "debug.h"
-diff --git a/fs/9p/v9fs.c b/fs/9p/v9fs.c
-index 0f62804..0b96fae 100644
---- a/fs/9p/v9fs.c
-+++ b/fs/9p/v9fs.c
-@@ -26,6 +26,7 @@
- #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
-+#include <linux/sched.h>
- #include <linux/parser.h>
- #include <linux/idr.h>
- 
-diff --git a/fs/9p/vfs_dir.c b/fs/9p/vfs_dir.c
-index e32d597..905c882 100644
---- a/fs/9p/vfs_dir.c
-+++ b/fs/9p/vfs_dir.c
-@@ -30,6 +30,7 @@ #include <linux/file.h>
- #include <linux/stat.h>
- #include <linux/string.h>
- #include <linux/smp_lock.h>
-+#include <linux/sched.h>
- #include <linux/inet.h>
- #include <linux/idr.h>
- 
-diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
-index c3c47ed..79e6f9c 100644
---- a/fs/9p/vfs_file.c
-+++ b/fs/9p/vfs_file.c
-@@ -26,6 +26,7 @@
- #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
-+#include <linux/sched.h>
- #include <linux/file.h>
- #include <linux/stat.h>
- #include <linux/string.h>
-diff --git a/fs/inotify.c b/fs/inotify.c
-index 723836a..f5099d8 100644
---- a/fs/inotify.c
-+++ b/fs/inotify.c
-@@ -27,6 +27,7 @@ #include <linux/spinlock.h>
- #include <linux/idr.h>
  #include <linux/slab.h>
- #include <linux/fs.h>
-+#include <linux/sched.h>
+ #include <linux/jiffies.h>
+diff --git a/drivers/leds/ledtrig-ide-disk.c b/drivers/leds/ledtrig-ide-disk.c
+index fa65188..54b155c 100644
+--- a/drivers/leds/ledtrig-ide-disk.c
++++ b/drivers/leds/ledtrig-ide-disk.c
+@@ -12,6 +12,7 @@
+  */
+ 
+ #include <linux/module.h>
++#include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/timer.h>
+diff --git a/drivers/leds/ledtrig-timer.c b/drivers/leds/ledtrig-timer.c
+index 29a8818..d756bdb 100644
+--- a/drivers/leds/ledtrig-timer.c
++++ b/drivers/leds/ledtrig-timer.c
+@@ -12,6 +12,7 @@
+  */
+ 
+ #include <linux/module.h>
++#include <linux/jiffies.h>
+ #include <linux/kernel.h>
  #include <linux/init.h>
  #include <linux/list.h>
- #include <linux/writeback.h>
-diff --git a/fs/jffs2/acl.c b/fs/jffs2/acl.c
-index 0ae3cd1..73f0d60 100644
---- a/fs/jffs2/acl.c
-+++ b/fs/jffs2/acl.c
-@@ -11,6 +11,7 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/fs.h>
-+#include <linux/sched.h>
- #include <linux/time.h>
- #include <linux/crc32.h>
- #include <linux/jffs2.h>
-diff --git a/fs/jffs2/wbuf.c b/fs/jffs2/wbuf.c
-index b9b7007..7070730 100644
---- a/fs/jffs2/wbuf.c
-+++ b/fs/jffs2/wbuf.c
-@@ -19,6 +19,7 @@ #include <linux/mtd/mtd.h>
- #include <linux/crc32.h>
- #include <linux/mtd/nand.h>
- #include <linux/jiffies.h>
-+#include <linux/sched.h>
+diff --git a/drivers/scsi/scsi_transport_sas.c b/drivers/scsi/scsi_transport_sas.c
+index b5b0c2c..5c0b75b 100644
+--- a/drivers/scsi/scsi_transport_sas.c
++++ b/drivers/scsi/scsi_transport_sas.c
+@@ -25,6 +25,7 @@
  
- #include "nodelist.h"
- 
-diff --git a/fs/jfs/ioctl.c b/fs/jfs/ioctl.c
-index 37db524..ed814b1 100644
---- a/fs/jfs/ioctl.c
-+++ b/fs/jfs/ioctl.c
-@@ -9,6 +9,7 @@ #include <linux/fs.h>
- #include <linux/ctype.h>
- #include <linux/capability.h>
- #include <linux/time.h>
-+#include <linux/sched.h>
- #include <asm/current.h>
- #include <asm/uaccess.h>
- 
-diff --git a/fs/proc/root.c b/fs/proc/root.c
-index ffe66c3..64d242b 100644
---- a/fs/proc/root.c
-+++ b/fs/proc/root.c
-@@ -13,6 +13,7 @@ #include <linux/time.h>
- #include <linux/proc_fs.h>
- #include <linux/stat.h>
  #include <linux/init.h>
-+#include <linux/sched.h>
  #include <linux/module.h>
- #include <linux/bitops.h>
- #include <linux/smp_lock.h>
-diff --git a/fs/super.c b/fs/super.c
-index 47e554c..84c320f 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -221,6 +221,24 @@ static int grab_super(struct super_block
++#include <linux/jiffies.h>
+ #include <linux/err.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+diff --git a/drivers/w1/slaves/w1_therm.c b/drivers/w1/slaves/w1_therm.c
+index 5372cfc..b022fff 100644
+--- a/drivers/w1/slaves/w1_therm.c
++++ b/drivers/w1/slaves/w1_therm.c
+@@ -24,6 +24,7 @@ #include <asm/types.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/sched.h>
+ #include <linux/device.h>
+ #include <linux/types.h>
+ #include <linux/delay.h>
+diff --git a/include/asm-x86_64/elf.h b/include/asm-x86_64/elf.h
+index a406fcb..6d24ea7 100644
+--- a/include/asm-x86_64/elf.h
++++ b/include/asm-x86_64/elf.h
+@@ -45,7 +45,6 @@ #define ELF_ARCH	EM_X86_64
+ 
+ #ifdef __KERNEL__
+ #include <asm/processor.h>
+-#include <asm/compat.h>
+ 
+ /*
+  * This is used to ensure we don't load something for the wrong architecture.
+diff --git a/include/linux/acct.h b/include/linux/acct.h
+index 0496d1f..302eb72 100644
+--- a/include/linux/acct.h
++++ b/include/linux/acct.h
+@@ -119,6 +119,7 @@ #ifdef __KERNEL__
+ #ifdef CONFIG_BSD_PROCESS_ACCT
+ struct vfsmount;
+ struct super_block;
++struct pacct_struct;
+ extern void acct_auto_close_mnt(struct vfsmount *m);
+ extern void acct_auto_close(struct super_block *sb);
+ extern void acct_init_pacct(struct pacct_struct *pacct);
+diff --git a/include/linux/module.h b/include/linux/module.h
+index d1d00ce..ea993ea 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -6,7 +6,6 @@ #define _LINUX_MODULE_H
+  * Rewritten by Richard Henderson <rth@tamu.edu> Dec 1996
+  * Rewritten again by Rusty Russell, 2002
+  */
+-#include <linux/sched.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <linux/stat.h>
+@@ -410,17 +409,7 @@ static inline int try_module_get(struct 
+ 	return ret;
  }
  
- /*
-+ * Superblock locking.  We really ought to get rid of these two.
-+ */
-+void lock_super(struct super_block * sb)
-+{
-+	get_fs_excl();
-+	mutex_lock(&sb->s_lock);
-+}
-+
-+void unlock_super(struct super_block * sb)
-+{
-+	put_fs_excl();
-+	mutex_unlock(&sb->s_lock);
-+}
-+
-+EXPORT_SYMBOL(lock_super);
-+EXPORT_SYMBOL(unlock_super);
-+
-+/*
-  * Write out and wait upon all dirty data associated with this
-  * superblock.  Filesystem data as well as the underlying block
-  * device.  Takes the superblock lock.  Requires a second blkdev
-diff --git a/fs/sync.c b/fs/sync.c
-index 1de747b..865f32b 100644
---- a/fs/sync.c
-+++ b/fs/sync.c
-@@ -6,6 +6,7 @@ #include <linux/kernel.h>
- #include <linux/file.h>
- #include <linux/fs.h>
- #include <linux/module.h>
-+#include <linux/sched.h>
- #include <linux/writeback.h>
- #include <linux/syscalls.h>
- #include <linux/linkage.h>
-diff --git a/fs/utimes.c b/fs/utimes.c
-index 1bcd852..99cf2cb 100644
---- a/fs/utimes.c
-+++ b/fs/utimes.c
-@@ -2,6 +2,7 @@ #include <linux/compiler.h>
- #include <linux/fs.h>
- #include <linux/linkage.h>
- #include <linux/namei.h>
-+#include <linux/sched.h>
- #include <linux/utime.h>
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 2fe6e3f..cac7b1e 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -276,7 +276,7 @@ #include <linux/list.h>
- #include <linux/radix-tree.h>
- #include <linux/prio_tree.h>
- #include <linux/init.h>
--#include <linux/sched.h>
-+#include <linux/pid.h>
- #include <linux/mutex.h>
- 
- #include <asm/atomic.h>
-@@ -977,36 +977,13 @@ enum {
- #define vfs_check_frozen(sb, level) \
- 	wait_event((sb)->s_wait_unfrozen, ((sb)->s_frozen < (level)))
- 
--static inline void get_fs_excl(void)
+-static inline void module_put(struct module *module)
 -{
--	atomic_inc(&current->fs_excl);
+-	if (module) {
+-		unsigned int cpu = get_cpu();
+-		local_dec(&module->ref[cpu].count);
+-		/* Maybe they're waiting for us to drop reference? */
+-		if (unlikely(!module_is_live(module)))
+-			wake_up_process(module->waiter);
+-		put_cpu();
+-	}
 -}
--
--static inline void put_fs_excl(void)
--{
--	atomic_dec(&current->fs_excl);
--}
--
--static inline int has_fs_excl(void)
--{
--	return atomic_read(&current->fs_excl);
--}
-+#define get_fs_excl() atomic_inc(&current->fs_excl)
-+#define put_fs_excl() atomic_dec(&current->fs_excl)
-+#define has_fs_excl() atomic_read(&current->fs_excl)
++extern void module_put(struct module *module);
  
--
--/*
-- * Superblock locking.
-- */
--static inline void lock_super(struct super_block * sb)
--{
--	get_fs_excl();
--	mutex_lock(&sb->s_lock);
--}
--
--static inline void unlock_super(struct super_block * sb)
--{
--	put_fs_excl();
--	mutex_unlock(&sb->s_lock);
--}
-+/* not quite ready to be deprecated, but... */
-+extern void lock_super(struct super_block *);
-+extern void unlock_super(struct super_block *);
+ #else /*!CONFIG_MODULE_UNLOAD*/
+ static inline int try_module_get(struct module *module)
+diff --git a/include/linux/phy.h b/include/linux/phy.h
+index 9447a57..f7c2dca 100644
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -20,6 +20,8 @@ #define __PHY_H
  
- /*
-  * VFS helper functions..
-diff --git a/include/linux/radix-tree.h b/include/linux/radix-tree.h
-index 9158a68..cbfa115 100644
---- a/include/linux/radix-tree.h
-+++ b/include/linux/radix-tree.h
-@@ -19,7 +19,6 @@
- #ifndef _LINUX_RADIX_TREE_H
- #define _LINUX_RADIX_TREE_H
+ #include <linux/spinlock.h>
+ #include <linux/device.h>
++#include <linux/workqueue.h>
++#include <linux/timer.h>
  
--#include <linux/sched.h>
- #include <linux/preempt.h>
+ #define PHY_BASIC_FEATURES	(SUPPORTED_10baseT_Half | \
+ 				 SUPPORTED_10baseT_Full | \
+diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
+index 61eebec..ea0816d 100644
+--- a/include/scsi/libiscsi.h
++++ b/include/scsi/libiscsi.h
+@@ -25,6 +25,8 @@ #define LIBISCSI_H
+ 
  #include <linux/types.h>
+ #include <linux/mutex.h>
++#include <linux/timer.h>
++#include <linux/workqueue.h>
+ #include <scsi/iscsi_proto.h>
+ #include <scsi/iscsi_if.h>
  
+diff --git a/kernel/latency.c b/kernel/latency.c
+index 258f255..e63fcac 100644
+--- a/kernel/latency.c
++++ b/kernel/latency.c
+@@ -36,6 +36,7 @@ #include <linux/spinlock.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/notifier.h>
++#include <linux/jiffies.h>
+ #include <asm/atomic.h>
+ 
+ struct latency_info {
+diff --git a/kernel/module.c b/kernel/module.c
+index 5072a94..e3eb11c 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -34,10 +34,10 @@ #include <linux/errno.h>
+ #include <linux/err.h>
+ #include <linux/vermagic.h>
+ #include <linux/notifier.h>
++#include <linux/sched.h>
+ #include <linux/stop_machine.h>
+ #include <linux/device.h>
+ #include <linux/string.h>
+-#include <linux/sched.h>
+ #include <linux/mutex.h>
+ #include <linux/unwind.h>
+ #include <asm/uaccess.h>
+@@ -790,6 +790,19 @@ static struct module_attribute refcnt = 
+ 	.show = show_refcnt,
+ };
+ 
++void module_put(struct module *module)
++{
++	if (module) {
++		unsigned int cpu = get_cpu();
++		local_dec(&module->ref[cpu].count);
++		/* Maybe they're waiting for us to drop reference? */
++		if (unlikely(!module_is_live(module)))
++			wake_up_process(module->waiter);
++		put_cpu();
++	}
++}
++EXPORT_SYMBOL(module_put);
++
+ #else /* !CONFIG_MODULE_UNLOAD */
+ static void print_unload_info(struct seq_file *m, struct module *mod)
+ {
+diff --git a/lib/random32.c b/lib/random32.c
+index 4a15ce5..ec7f81d 100644
+--- a/lib/random32.c
++++ b/lib/random32.c
+@@ -36,6 +36,7 @@
+ #include <linux/types.h>
+ #include <linux/percpu.h>
+ #include <linux/module.h>
++#include <linux/jiffies.h>
+ #include <linux/random.h>
+ 
+ struct rnd_state {
 -- 
 1.4.2.GIT
 

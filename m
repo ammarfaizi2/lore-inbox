@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWJ3PG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbWJ3PG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbWJ3PG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 10:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWJ3PG1
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 10:06:27 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49825 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030389AbWJ3PG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030388AbWJ3PG0 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 30 Oct 2006 10:06:26 -0500
-Subject: Re: [patch] drivers: wait for threaded probes between initcall
-	levels
-From: Arjan van de Ven <arjan@infradead.org>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Linus Torvalds <torvalds@osdl.org>,
-       "Adam J. Richter" <adam@yggdrasil.com>, akpm@osdl.org, bunk@stusta.de,
-       greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, matthew@wil.cx, pavel@ucw.cz,
-       shemminger@osdl.org
-In-Reply-To: <1162220452.30605.47.camel@frg-rhel40-em64t-03>
-References: <200610282350.k9SNoljL020236@freya.yggdrasil.com>
-	 <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org>
-	 <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com>
-	 <1162219080.2948.21.camel@laptopd505.fenrus.org>
-	 <1162220452.30605.47.camel@frg-rhel40-em64t-03>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 30 Oct 2006 16:05:57 +0100
-Message-Id: <1162220757.2948.29.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbWJ3PG0
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 30 Oct 2006 10:06:26 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:2431 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964990AbWJ3PGZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 10:06:25 -0500
+Message-ID: <454616BE.7040900@sw.ru>
+Date: Mon, 30 Oct 2006 18:14:06 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Vasily Averin <vvs@sw.ru>, David Howells <dhowells@redhat.com>,
+       Neil Brown <neilb@suse.de>, Jan Blunck <jblunck@suse.de>,
+       Olaf Hering <olh@suse.de>, Balbir Singh <balbir@in.ibm.com>,
+       Kirill Korotaev <dev@openvz.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org
+Subject: Re: [PATCH 2.6.19-rc3] VFS: per-sb dentry lru list
+References: <4541F2A3.8050004@sw.ru>	<4541BDE2.6050703@sw.ru>	<45409DD5.7050306@sw.ru>	<453F6D90.4060106@sw.ru>	<453F58FB.4050407@sw.ru>	<20792.1161784264@redhat.com>	<21393.1161786209@redhat.com>	<19898.1161869129@redhat.com>	<22562.1161945769@redhat.com>	<24249.1161951081@redhat.com>	<4542123E.4030309@sw.ru> <20061027110645.b906839f.akpm@osdl.org>
+In-Reply-To: <20061027110645.b906839f.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-30 at 16:00 +0100, Xavier Bestel wrote:
-> On Mon, 2006-10-30 at 15:38 +0100, Arjan van de Ven wrote:
+Andrew,
+
+>>Virtuozzo/OpenVZ linux kernel team has discovered that umount/remount can last
+>>for hours looping in shrink_dcache_sb() without much successes. Since during
+>>shrinking s_umount semaphore is taken lots of other unrelated operations like
+>>sync can stop working until shrink finished.
 > 
-> > how much of this complexity goes away if you consider the
-> > scanning/probing as a series of "work elements", and you end up with a
-> > queue of work elements that threads can pull work off one at a time (so
-> > that if one element blocks the others just continue to flow). If you
-> > then find, say, a new PCI bus you just put another work element to
-> > process it at the end of the queue, or you process it synchronously. Etc
-> > etc.
-> > 
-> > All you need to scale then is the number of worker threads on the
-> > system, which should be relatively easy to size....
-> > (check every X miliseconds if there are more than X outstanding work
-> > elements, if there are, spawn one new worker thread if the total number
-> > of worker threads is less than the system wide max. Worker threads die
-> > if they have nothing to do for more than Y miliseconds)
 > 
-> Instead of checking every X ms, just check at each job insertion.
+> Did you consider altering shrink_dcache_sb() so that it holds onto
+> dcache_lock and moves all the to-be-pruned dentries onto a private list in
+> a single pass, then prunes them all outside the lock?
 
-that would lead to a too eager amount of threads if processing the jobs
-is really really quick ...
+moving dentries from global list to the local one can take arbitrary number
+of milliseconds (with huge amount of memory), so nothing good here from latency
+view point.
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Thanks,
+Kirill
 

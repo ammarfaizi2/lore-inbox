@@ -1,91 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbWJ3AUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbWJ3A2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030477AbWJ3AUu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 19:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWJ3AUt
+	id S965230AbWJ3A2q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 19:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965353AbWJ3A2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 19:20:49 -0500
-Received: from mail.gmx.net ([213.165.64.20]:53192 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030474AbWJ3AUt (ORCPT
+	Sun, 29 Oct 2006 19:28:46 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:8893 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S965230AbWJ3A2p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 19:20:49 -0500
-X-Authenticated: #20450766
-Date: Mon, 30 Oct 2006 01:20:45 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tmattox@gmail.com, spiky.kiwi@gmail.com, r.bhatia@ipax.at
-Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known
- regressions)
-In-Reply-To: <20061029223410.GA15413@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.60.0610300032190.1435@poirot.grange>
-References: <20061029223410.GA15413@electric-eye.fr.zoreil.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Sun, 29 Oct 2006 19:28:45 -0500
+Date: Sun, 29 Oct 2006 19:28:28 -0500
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+Subject: [git pull] pcmcia: bugfixes for 2.6.19-rc3
+Message-ID: <20061030002828.GB24534@dominikbrodowski.de>
+Mail-Followup-To: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+	linux-pcmcia@lists.infradead.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Oct 2006, Francois Romieu wrote:
+Hej Linus,
 
-> Linus Torvalds <torvalds@osdl.org> :
-> [regression related to r8169 MAC address change]
-> > Francois ? Jeff ?
-> 
-> Go revert it.
-> 
-> Despite what I claimed, I can not find a third-party confirmation by email
-> that it works elsewhere.
-> 
-> It would probably be enough to remove the call to __rtl8169_set_mac_addr()
-> in rtl8169_hw_start() though.
-> 
-> In place of the test suggested in bugzilla, I'd rather see Guennadi test
-> the thing below (acked on netdev by the initial victim if someone wonders
-> why it has not changed the status of bugzilla so far):
+The following eleven bugfix or "ID" patches have all been queued in -mm for
+quite some time; please pull them from
 
-AFAIU, you wanted it applied on the top of the "non-working" kernel 
-(2.6.19-rc2-ish)? No, it didn't work. And, worse yet, I think, it is after 
-testing that patch that the interface got into a state, when netconsole 
-worked, ping worked, but ssh didn't. A poweroff was needed to recover. In 
-case you still need it, here's the info you requested:
+git://git.kernel.org/pub/scm/linux/kernel/git/brodo/pcmcia-fixes-2.6.git
 
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit Ethernet (rev 10)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 128 (8000ns min, 16000ns max), Cache Line Size: 32 bytes
-        Interrupt: pin A routed to IRQ 16
-        Region 0: I/O ports at febfff00 [size=256]
-        Region 1: Memory at bffffc00 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [dc] Power Management version 0
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: ec 10 69 81 17 00 b0 02 10 00 00 02 08 80 00 00
-10: 01 ff bf 00 00 fc ff bf 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 10 01 20 40
+I won't send out individual patches this time, for these patches are the
+same as those sent out as [RFC] on Oct 25th (
+http://lkml.org/lkml/2006/10/25/245 ).
 
-dmesg when it didn't work (I do use netconsole, don't think it matters?):
+Thanks,
+	Dominik
 
-r8169 Gigabit Ethernet driver 2.2LK loaded
-eth0: RTL8169s/8110s at 0xc9004c00, 00:0d:0b:99:44:70, IRQ 16
-netconsole: device eth0 not up yet, forcing it
-r8169: eth0: link down
-r8169: eth0: link up
 
-The same when it's working.
+ drivers/net/wireless/hostap/hostap_cs.c |    7 +++++++
+ drivers/pcmcia/at91_cf.c                |   28 +++++++++-------------------
+ drivers/pcmcia/au1000_generic.c         |   25 +++++++++++++++++++------
+ drivers/pcmcia/ds.c                     |   29 ++++++++++++++++++++++++-----
+ drivers/pcmcia/i82092.c                 |    9 +++++----
+ drivers/pcmcia/m8xx_pcmcia.c            |   12 ++++++++----
+ drivers/pcmcia/omap_cf.c                |    3 ++-
+ drivers/pcmcia/pcmcia_ioctl.c           |   11 ++++++++---
+ drivers/pcmcia/pcmcia_resource.c        |    2 +-
+ drivers/pcmcia/pd6729.c                 |    4 ++++
+ drivers/pcmcia/soc_common.c             |    1 +
+ drivers/pcmcia/yenta_socket.c           |   22 +++++++++++++++++-----
+ 12 files changed, 105 insertions(+), 48 deletions(-)
 
-Yes, just commenting out the line
+----
+Alexey Dobriyan (2):
+      CONFIG_PM=n slim: drivers/pcmcia/*
+      i82092: wire up errors from pci_register_driver()
 
-	__rtl8169_set_mac_addr(dev, ioaddr);
+Amol Lad (1):
+      ioremap balanced with iounmap for drivers/pcmcia
 
-fixes it (without the patch from your previous email).
+David Brownell (1):
+      pcmcia: at91_cf update
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Dominik Brodowski (2):
+      pcmcia: add more IDs to hostap_cs.c
+      PCMCIA: fix __must_check warnings
+
+Jeff Garzik (1):
+      PCMCIA: handle sysfs, PCI errors
+
+Jonathan McDowell (1):
+      Export soc_common_drv_pcmcia_remove to allow modular PCMCIA.
+
+Kaustav Majumdar (1):
+      pcmcia: update alloc_io_space for conflict checking for multifunction PC card
+
+Om Narasimhan (1):
+      pcmcia: au1000_generic fix
+
+Randy Dunlap (1):
+      pcmcia/ds: driver layer error checking

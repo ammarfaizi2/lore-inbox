@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWJ3OwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWJ3Oxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbWJ3OwT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 09:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWJ3OwT
+	id S964965AbWJ3Oxb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 09:53:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWJ3Oxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 09:52:19 -0500
-Received: from fogou.chygwyn.com ([195.171.2.24]:37299 "EHLO fogou.chygwyn.com")
-	by vger.kernel.org with ESMTP id S964940AbWJ3OwS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 09:52:18 -0500
-Subject: Re: [PATCH] nfs: Fix nfs_readpages() error path
-From: Steven Whitehouse <steve@chygwyn.com>
+	Mon, 30 Oct 2006 09:53:31 -0500
+Received: from wx-out-0506.google.com ([66.249.82.233]:21954 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964965AbWJ3Oxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 09:53:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=ooPSvK3BR2joRJNUzqInKJfKwosq2pkNSNpz3lCFB45351pUd3XaQlEBKbz7tBYTX2tI2qc2WefyWDfwJJZlogrH2VjVPBY7Ts9JUHGSCvXSj3yV/K+z+q/FEL7V71WQ2v86OTXPiQRdxu7D2j7IiZQvl2leaXGbe4nfjpjtTEA=
+Date: Mon, 30 Oct 2006 23:54:04 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
 To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       cluster-devel@redhat.com
-In-Reply-To: <1162159086.5545.70.camel@lade.trondhjem.org>
-References: <877iyjundz.fsf@duaron.myhome.or.jp>
-	 <1162149038.5545.37.camel@lade.trondhjem.org>
-	 <87pscaua7p.fsf@duaron.myhome.or.jp>
-	 <1162159086.5545.70.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Organization: ChyGwyn Limited
-Date: Mon, 30 Oct 2006 14:57:14 +0000
-Message-Id: <1162220234.27980.274.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "fogou.chygwyn.com", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Sun, 2006-10-29 at 16:58 -0500, Trond Myklebust
-	wrote: > On Mon, 2006-10-30 at 05:40 +0900, OGAWA Hirofumi wrote: > >
-	Well, both seems right things for me. So, the patch was done by > >
-	minimum change for -rc. If you want it, I'll do. > > Feel free. I should
-	have time to work on it tomorrow, in case you don't > find time today. >
-	> > BTW, umm.. now I think, gfs2_readpages() seems to have a bug in
-	error > > path by different way. unlock_page() is really needed? > >
-	That looks like a definite bug too. > > Cheers, > Trond [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+Cc: linux-kernel@vger.kernel.org, Andy Adamson <andros@citi.umich.edu>,
+       "J. Bruce Fields" <bfields@citi.umich.edu>,
+       Olaf Kirch <okir@monad.swb.de>
+Subject: Re: [PATCH 2/2] auth_gss: unregister gss_domain when unloading module
+Message-ID: <20061030145404.GA7258@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Trond Myklebust <Trond.Myklebust@netapp.com>,
+	linux-kernel@vger.kernel.org, Andy Adamson <andros@citi.umich.edu>,
+	"J. Bruce Fields" <bfields@citi.umich.edu>,
+	Olaf Kirch <okir@monad.swb.de>
+References: <20061028185554.GM9973@localhost> <20061029133551.GA10072@localhost> <20061029133700.GA10295@localhost> <20061029133816.GB10295@localhost> <1162152960.5545.57.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1162152960.5545.57.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Oct 29, 2006 at 03:15:59PM -0500, Trond Myklebust wrote:
 
-On Sun, 2006-10-29 at 16:58 -0500, Trond Myklebust wrote:
-> On Mon, 2006-10-30 at 05:40 +0900, OGAWA Hirofumi wrote:
-> > Well, both seems right things for me. So, the patch was done by
-> > minimum change for -rc. If you want it, I'll do.
+> > +void svcauth_gss_unregister_pseudoflavor(char *name)
+> > +{
+> > +	struct auth_domain *dom;
+> > +
+> > +	dom = auth_domain_find(name);
+> > +	if (dom) {
+> > +		auth_domain_put(dom);
+> > +		auth_domain_put(dom);
+> > +	}
+> > +}
 > 
-> Feel free. I should have time to work on it tomorrow, in case you don't
-> find time today.
+> Strictly speaking, if you want to be smp-safe, you probably need
+> something like the following:
 > 
-> > BTW, umm.. now I think, gfs2_readpages() seems to have a bug in error
-> > path by different way. unlock_page() is really needed?
+> 	dom = auth_domain_find(name);
+> 	if (dom) {
+> 		spin_lock(&auth_domain_lock);
+> 		if (!hlist_unhashed(dom->hash)) {
+> 			hlist_del_init(dom->hash);
+> 			spin_unlock(&auth_domain_lock);
+> 			auth_domain_put(dom);
+> 		} else
+> 			spin_unlock(&auth_domain_lock);
+> 		auth_domain_put(dom);
+> 	}
 > 
-> That looks like a definite bug too.
-> 
-> Cheers,
->   Trond
+> and then add a test for hlist_unhashed into auth_domain_put(). If not,
+> some other processor could race you inside
+> svcauth_gss_unregister_pseudoflavor.
 
-Agreed. It will be fixed fairly shortly as part of a patch related to a
-race when reading and truncating "stuffed" files,
-
-Steve.
-
-
+But auth_domain_table is protected by auth_domain_lock while we are
+using auth_domain_put()/auth_domain_lookup()/auth_domain_find().
+So I think there is not big difference.

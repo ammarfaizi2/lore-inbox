@@ -1,139 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161546AbWJ3XTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161463AbWJ3XY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161546AbWJ3XTz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 18:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161545AbWJ3XTx
+	id S1161463AbWJ3XY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 18:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161541AbWJ3XY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 18:19:53 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:30340 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161311AbWJ3XTw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 18:19:52 -0500
-Message-ID: <4546885A.8060202@us.ibm.com>
-Date: Mon, 30 Oct 2006 15:18:50 -0800
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Organization: IBM LTC
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Mon, 30 Oct 2006 18:24:57 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:41661 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1161463AbWJ3XY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 18:24:56 -0500
+Message-ID: <454689C7.6030009@vmware.com>
+Date: Mon, 30 Oct 2006 15:24:55 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: linux-scsi <linux-scsi@vger.kernel.org>,
+To: Andi Kleen <ak@muc.de>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Alexis Bruemmer <alexisb@us.ibm.com>
-Subject: [PATCH] 2/3: Add sas_abort_task to libsas
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com> <200610271416.12548.ak@suse.de> <4546669F.8020706@vmware.com> <20061030225016.GA95732@muc.de> <45468620.5060805@vmware.com> <20061030231251.GB98768@muc.de>
+In-Reply-To: <20061030231251.GB98768@muc.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds an external function, sas_abort_task, to enable LLDDs
-to abort sas_tasks.  It also adds a work_struct so that the actual
-work of aborting a task can be shifted from tasklet context (in the
-LLDD) onto the scsi_host's workqueue.
+Andi Kleen wrote:
+>> That is the one that can panic, for now.  Fixing the paravirtualized 
+>> case is easy, but we can't assume paravirtualization just yet.
+>>     
+>
+> Hmm, this means standard vmware boot is not reliable unless that magic option
+> is set?   That doesn't sound good.  
+>   
 
-Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+It doesn't happen often, but it is a possibility that the kernel 
+calibrates the delay wrong because of timing glitches caused by CPU 
+migration, paging, or other phenomena which are supposed to be 
+transparent to the kernel (but cause temporal lapse).  In that case, the 
+kernel may not make enough progress in a spin delay loop to properly 
+reach the number of microseconds required for N number of timer ticks to 
+occur.  In theory this can happen on a real machine, as SMM mode could 
+be active, doing USB device emulation or something that takes a while 
+during the lpj calibration and throwing the computation off.
 
---
+By changing the parameters (N ticks at K Hz in T seconds), it is easy to 
+create an unstable measurement that can achieve high failure rates, 
+although in practice the Linux parameters appear to be reasonable enough 
+that it is not a major problem.
 
-diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
-index 50aac70..8bb8eea 100644
---- a/drivers/scsi/libsas/sas_scsi_host.c
-+++ b/drivers/scsi/libsas/sas_scsi_host.c
-@@ -34,6 +34,7 @@ #include <scsi/scsi_transport.h>
- #include <scsi/scsi_transport_sas.h>
- #include <scsi/sas_ata.h>
- #include "../scsi_sas_internal.h"
-+#include "../scsi_transport_api.h"
- 
- #include <linux/err.h>
- #include <linux/blkdev.h>
-@@ -855,6 +856,64 @@ void sas_target_destroy(struct scsi_targ
- 	return;
- }
- 
-+static int do_sas_task_abort(struct sas_task *task)
-+{
-+	struct scsi_cmnd *sc = task->uldd_task;
-+	struct sas_internal *si =
-+		to_sas_internal(task->dev->port->ha->core.shost->transportt);
-+	unsigned long flags;
-+	int res;
-+
-+	spin_lock_irqsave(&task->task_state_lock, flags);
-+	if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
-+		spin_unlock_irqrestore(&task->task_state_lock, flags);
-+		SAS_DPRINTK("%s: Task %p already aborted.\n", __FUNCTION__,
-+			    task);
-+		return 0;
-+	}
-+
-+	task->task_state_flags |= SAS_TASK_INITIATOR_ABORTED;
-+	if (!(task->task_state_flags & SAS_TASK_STATE_DONE))
-+		task->task_state_flags |= SAS_TASK_STATE_ABORTED;
-+	spin_unlock_irqrestore(&task->task_state_lock, flags);
-+
-+	if (!si->dft->lldd_abort_task)
-+		return -ENODEV;
-+
-+	res = si->dft->lldd_abort_task(task);
-+	if ((task->task_state_flags & SAS_TASK_STATE_DONE) ||
-+	    (res == TMF_RESP_FUNC_COMPLETE))
-+	{
-+		/* SMP commands don't have scsi_cmds(?) */
-+		if (!sc) {
-+			task->task_done(task);
-+			return 0;
-+		}
-+		scsi_req_abort_cmd(sc);
-+		scsi_schedule_eh(sc->device->host);
-+		return 0;
-+	}
-+
-+	spin_lock_irqsave(&task->task_state_lock, flags);
-+	task->task_state_flags &= ~SAS_TASK_INITIATOR_ABORTED;
-+	if (!(task->task_state_flags & SAS_TASK_STATE_DONE))
-+		task->task_state_flags &= ~SAS_TASK_STATE_ABORTED;
-+	spin_unlock_irqrestore(&task->task_state_lock, flags);
-+
-+	return -EAGAIN;
-+}
-+
-+void sas_task_abort(struct sas_task *task)
-+{
-+	int i;
-+
-+	for (i = 0; i < 5; i++)
-+		if (!do_sas_task_abort(task))
-+			return;
-+
-+	SAS_DPRINTK("%s: Could not kill task!\n", __FUNCTION__);
-+}
-+
- EXPORT_SYMBOL_GPL(sas_queuecommand);
- EXPORT_SYMBOL_GPL(sas_target_alloc);
- EXPORT_SYMBOL_GPL(sas_slave_configure);
-@@ -865,3 +924,4 @@ EXPORT_SYMBOL_GPL(sas_bios_param);
- EXPORT_SYMBOL_GPL(sas_slave_alloc);
- EXPORT_SYMBOL_GPL(sas_target_destroy);
- EXPORT_SYMBOL_GPL(sas_ioctl);
-+EXPORT_SYMBOL_GPL(sas_task_abort);
-diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
-index 914019a..7da678d 100644
---- a/include/scsi/libsas.h
-+++ b/include/scsi/libsas.h
-@@ -536,6 +536,8 @@ struct sas_task {
- 
- 	void   *lldd_task;	  /* for use by LLDDs */
- 	void   *uldd_task;
-+
-+	struct work_struct abort_work;
- };
- 
- 
-@@ -639,5 +641,6 @@ void sas_init_dev(struct domain_device *
- extern void sas_target_destroy(struct scsi_target *);
- extern int sas_slave_alloc(struct scsi_device *);
- extern int sas_ioctl(struct scsi_device *sdev, int cmd, void __user *arg);
-+void sas_task_abort(struct sas_task *task);
- 
- #endif /* _SASLIB_H_ */
+Zach

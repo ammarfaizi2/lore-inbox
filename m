@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWJ3FIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWJ3FL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbWJ3FIp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 00:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161020AbWJ3FIp
+	id S1161028AbWJ3FL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 00:11:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWJ3FL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 00:08:45 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:62526 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161015AbWJ3FIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 00:08:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=Myy0Xkdk62cspQJwiRqm1Djl81Bz45g2/0zm+OTVSCypuJ6/nWR32zwbwGayKyxj7OKGoWkX8hKrfr4MqdeXyd9fLz3cEg/lrTkPE/1v+mvMddfYjoFyRM0ZIZruZczovUSF3ryhX+IXJ9Zsierw7jeS8iTTAd9dEcg+gj38A7I=
-Message-ID: <76366b180610292108o62b0b480v91356fb957fbebcc@mail.gmail.com>
-Date: Mon, 30 Oct 2006 00:08:43 -0500
-From: "Andrew Paprocki" <andrew@ishiboo.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fixed uninitialized variable warning in drivers/md/dm-exception-store.c.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Google-Sender-Auth: a809169df23c5409
+	Mon, 30 Oct 2006 00:11:59 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:56541 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1161028AbWJ3FL6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 00:11:58 -0500
+Date: Mon, 30 Oct 2006 16:11:49 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Kristian Mueller <Kristian-M@Kristian-M.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] APM: URL of APM 1.2 specs has changed
+Message-Id: <20061030161149.435c98be.sfr@canb.auug.org.au>
+In-Reply-To: <1162139863.10790.25.camel@pismo>
+References: <1162139863.10790.25.camel@pismo>
+X-Mailer: Sylpheed version 2.3.0beta3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__30_Oct_2006_16_11_49_+1100_p_M55EwI6Y51uUqw"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixed uninitialized variable warning in drivers/md/dm-exception-store.c.
+--Signature=_Mon__30_Oct_2006_16_11_49_+1100_p_M55EwI6Y51uUqw
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Andrew Paprocki <andrew@ishiboo.com>
+On Mon, 30 Oct 2006 00:37:43 +0800 Kristian Mueller <Kristian-M@Kristian-M.de> wrote:
+>
+> APM BIOS Interface Secification can now be found at
+> http://www.microsoft.com/whdc/archive/amp_12.mspx
+>
+> Signed-off-by: Kristian Mueller <Kristian-M@Kristian-M.de>
 
----
- drivers/md/dm-exception-store.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Acked-by: Stephen Rothwell <sfr@canb.auug.org.au>
 
-diff --git a/drivers/md/dm-exception-store.c b/drivers/md/dm-exception-store.c
-index 99cdffa..d50ffde 100644
---- a/drivers/md/dm-exception-store.c
-+++ b/drivers/md/dm-exception-store.c
-@@ -413,7 +413,7 @@ static void persistent_destroy(struct ex
-
- static int persistent_read_metadata(struct exception_store *store)
- {
--       int r, new_snapshot;
-+       int r, new_snapshot = 0;
-        struct pstore *ps = get_info(store);
-
-        /*
 --
-1.4.1.1
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Mon__30_Oct_2006_16_11_49_+1100_p_M55EwI6Y51uUqw
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFRYmVFdBgD/zoJvwRAlULAJwMPd074qvoRtcn/c1ULJVoFDefQACfbqC+
+YeDV/R5SCIaydVuyhRDARjM=
+=vlO2
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__30_Oct_2006_16_11_49_+1100_p_M55EwI6Y51uUqw--

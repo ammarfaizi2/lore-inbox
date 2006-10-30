@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWJ3Us5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161346AbWJ3Ut7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422638AbWJ3Us5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 15:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbWJ3Us4
+	id S1161346AbWJ3Ut7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 15:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161439AbWJ3Ut7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 15:48:56 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:32416 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1422638AbWJ3Us4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 15:48:56 -0500
-Date: Mon, 30 Oct 2006 23:48:43 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
-       Jay Lan <jlan@sgi.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] taskstats_exit_alloc: optimize/simplify
-Message-ID: <20061030204843.GA1135@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 30 Oct 2006 15:49:59 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:4507 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1161346AbWJ3Ut6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 15:49:58 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.19-rc3-mm1 - udev doesn't work (was: ATI SATA controller not detected)
+Date: Mon, 30 Oct 2006 21:48:33 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>
+References: <20061029160002.29bb2ea1.akpm@osdl.org> <200610302115.37688.rjw@sisk.pl> <20061030202251.GA1235@kroah.com>
+In-Reply-To: <20061030202251.GA1235@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200610302148.34218.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If there are no listeners, every task does unneeded kmem_cache alloc/free on
-exit. We don't need listeners->sem for 'if (!list_empty())' check. Yes, we may
-have a false positive, but this doesn't differ from the case when the listener
-is unregistered after we drop the semaphore. So we don't need to do allocation
-beforehand.
+On Monday, 30 October 2006 21:22, Greg KH wrote:
+> On Mon, Oct 30, 2006 at 09:15:37PM +0100, Rafael J. Wysocki wrote:
+> > Sorry, I was wrong.
+> > 
+> > The controller _is_ detected and handled properly, but udev is apparently
+> > unable to create the special device files for SATA drives/partitions even
+> > though CONFIG_SYSFS_DEPRECATED is set.
+> 
+> This config option should not affect the block device sysfs files at all
+> at this point in time.
+> 
+> What does 'tree /sys/block/' show?
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+I can't run 'tree', but 'ls' works somehow (can't mount the root fs).  The
+block device sysfs files seem to be present
 
---- STATS/kernel/taskstats.c~1_alloc	2006-10-29 18:35:40.000000000 +0300
-+++ STATS/kernel/taskstats.c	2006-10-30 23:45:20.000000000 +0300
-@@ -421,7 +421,6 @@ err:
- void taskstats_exit_alloc(struct taskstats **ptidstats, unsigned int *mycpu)
- {
- 	struct listener_list *listeners;
--	struct taskstats *tmp;
- 	/*
- 	 * This is the cpu on which the task is exiting currently and will
- 	 * be the one for which the exit event is sent, even if the cpu
-@@ -429,19 +428,11 @@ void taskstats_exit_alloc(struct tasksta
- 	 */
- 	*mycpu = raw_smp_processor_id();
- 
--	*ptidstats = NULL;
--	tmp = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
--	if (!tmp)
--		return;
--
- 	listeners = &per_cpu(listener_array, *mycpu);
--	down_read(&listeners->sem);
--	if (!list_empty(&listeners->list)) {
--		*ptidstats = tmp;
--		tmp = NULL;
--	}
--	up_read(&listeners->sem);
--	kfree(tmp);
-+
-+	*ptidstats = NULL;
-+	if (!list_empty(&listeners->list))
-+		*ptidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
- }
- 
- /* Send pid data out on exit */
+> If the files show up there properly, udev should handle them just fine.
 
+It doesn't.
+
+Well, I can binary search for the offending patch if that helps.
+
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

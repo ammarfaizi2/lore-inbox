@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030525AbWJ3Ja4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030526AbWJ3Jes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030525AbWJ3Ja4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 04:30:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965498AbWJ3Ja4
+	id S1030526AbWJ3Jes (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 04:34:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965499AbWJ3Jes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 04:30:56 -0500
-Received: from [213.46.243.16] ([213.46.243.16]:23418 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S965488AbWJ3Jaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 04:30:55 -0500
-Subject: [PATCH 2/2] lockdep: annotate bcsp driver - v2
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>, Jiri Kosina <jikos@jikos.cz>,
-       Marcel Holtmann <marcel@holtmann.org>,
-       David Woodhouse <dwmw2@infradead.org>
-In-Reply-To: <1162199192.24143.172.camel@taijtu>
-References: <1162199005.24143.169.camel@taijtu>
-	 <1162199192.24143.172.camel@taijtu>
-Content-Type: text/plain
-Date: Mon, 30 Oct 2006 10:31:43 +0100
-Message-Id: <1162200703.24143.177.camel@taijtu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Oct 2006 04:34:48 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:11651 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S965488AbWJ3Jer (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 04:34:47 -0500
+Date: Mon, 30 Oct 2006 10:33:18 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Compile-time check re world-writeable module params
+In-Reply-To: <20061029225804.GB9197@martell.zuzino.mipt.ru>
+Message-ID: <Pine.LNX.4.61.0610301030550.8678@yvahk01.tjqt.qr>
+References: <20061029225804.GB9197@martell.zuzino.mipt.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-=============================================
-[ INFO: possible recursive locking detected ]
-2.6.18-1.2699.fc6 #1
----------------------------------------------
-swapper/0 is trying to acquire lock:
- (&list->lock#3){+...}, at: [<c05ad307>] skb_dequeue+0x12/0x43
+>One of mistakes module_param() user can make is to supply default value
+>of module parameter as the last argument. module_param() accepts
+>permissions instead. If default value is, say, 3 (-------wx), parameter
+>becomes world-writeable.
+>
+>First version of this check (only "& 2" part) directly caught 4 out of 7
+>places during my last grep.
 
-but task is already holding lock:
- (&list->lock#3){+...}, at: [<df98cd79>] bcsp_dequeue+0x6a/0x11e [hci_uart]
+It could probably do "& 0013" or "& ~664", because -x seems quite 
+useless in module parameters. That would also catch perm<0 and 
+perm>0777.
 
-Moving a skb from the unack'ed to the rel(iable) list nests the two list locks.
-Reliable packets are never moved the other way, hence no circular dependency
-exists.
-
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- drivers/bluetooth/hci_bcsp.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux-2.6/drivers/bluetooth/hci_bcsp.c
-===================================================================
---- linux-2.6.orig/drivers/bluetooth/hci_bcsp.c
-+++ linux-2.6/drivers/bluetooth/hci_bcsp.c
-@@ -330,7 +330,7 @@ static struct sk_buff *bcsp_dequeue(stru
- 	   reliable packet if the number of packets sent but not yet ack'ed
- 	   is < than the winsize */
- 
--	spin_lock_irqsave(&bcsp->unack.lock, flags);
-+	spin_lock_irqsave_nested(&bcsp->unack.lock, flags, SINGLE_DEPTH_NESTING);
- 
- 	if (bcsp->unack.qlen < BCSP_TXWINSIZE && (skb = skb_dequeue(&bcsp->rel)) != NULL) {
- 		struct sk_buff *nskb = bcsp_prepare_pkt(bcsp, skb->data, skb->len, bt_cb(skb)->pkt_type);
-@@ -696,7 +696,7 @@ static void bcsp_timed_event(unsigned lo
- 
- 	BT_DBG("hu %p retransmitting %u pkts", hu, bcsp->unack.qlen);
- 
--	spin_lock_irqsave(&bcsp->unack.lock, flags);
-+	spin_lock_irqsave_nested(&bcsp->unack.lock, flags, SINGLE_DEPTH_NESTING);
- 
- 	while ((skb = __skb_dequeue_tail(&bcsp->unack)) != NULL) {
- 		bcsp->msgq_txseq = (bcsp->msgq_txseq - 1) & 0x07;
+> #define __module_param_call(prefix, name, set, get, arg, perm)		\
+>+	/* Default value instead of permissions? */			\
+>+	static int __param_perm_check_##name __attribute__((unused)) =	\
+>+	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2));	\
+> 	static char __param_str_##name[] = prefix #name;		\
+> 	static struct kernel_param const __param_##name			\
+> 	__attribute_used__						\
 
 
+	-`J'
+-- 

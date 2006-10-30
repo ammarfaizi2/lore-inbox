@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161318AbWJ3ShH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161341AbWJ3SoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161318AbWJ3ShH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 13:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030569AbWJ3ShH
+	id S1161341AbWJ3SoO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 13:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030573AbWJ3SoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 13:37:07 -0500
-Received: from mga03.intel.com ([143.182.124.21]:25382 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S1030568AbWJ3ShF (ORCPT
+	Mon, 30 Oct 2006 13:44:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58586 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030572AbWJ3SoN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:37:05 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,371,1157353200"; 
-   d="scan'208"; a="138269725:sNHT546915859"
-Date: Mon, 30 Oct 2006 11:37:15 -0800
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH] acpiphp: fix use of list_for_each macro
-Message-Id: <20061030113715.b5e8ddec.kristen.c.accardi@intel.com>
-In-Reply-To: <20061028183943.GA9973@localhost>
-References: <20061028183943.GA9973@localhost>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+	Mon, 30 Oct 2006 13:44:13 -0500
+Date: Mon, 30 Oct 2006 18:43:31 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: herbert@gondor.apana.org.au
+Cc: linux-kernel@vger.kernel.org, Stefan Schmidt <stefan@datenfreihafen.org>,
+       dm-devel@redhat.com, dm-crypt@saout.de,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org
+Subject: Re: [BUG] dmsetup table output changed from 2.6.18 to 2.6.19-rc3 and breaks yaird.
+Message-ID: <20061030184331.GY3928@agk.surrey.redhat.com>
+Mail-Followup-To: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+	Stefan Schmidt <stefan@datenfreihafen.org>, dm-devel@redhat.com,
+	dm-crypt@saout.de, Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
+References: <20061030151930.GQ27337@susi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061030151930.GQ27337@susi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Oct 2006 03:39:43 +0900
-Akinobu Mita <akinobu.mita@gmail.com> wrote:
+On Mon, Oct 30, 2006 at 04:19:30PM +0100, Stefan Schmidt wrote:
+> dmsetup table on 2.6.18 reports: aes-cbc-essiv:sha256
+> dmsetup table on 2.6.19-rc3 reports: cbc(aes)-cbc-essiv:sha256
 
-> This patch fixes invalid usage of list_for_each()
-> 
-> list_for_each (node, &bridge_list) {
-> 	bridge = (struct acpiphp_bridge *)node;
-> 	...
-> }
-> 
-> This code works while the member of list node is located at the
-> head of struct acpiphp_bridge.
-> 
-> Cc: Greg Kroah-Hartman <gregkh@suse.de>
-> Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> The problem seems to be on the kernel side here. Herbert Xu changed
+> the output with d1806f6a97a536b043fe50e6d8a25b061755cf50
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=d1806f6a97a536b043fe50e6d8a25b061755cf50
 
-Acked-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+> The question is if this change was intentional and yaird should be
+> fixed, or it's a kernel API breakage.
+ 
+It cannot have been intentional as there was no mention of the change to the
+userspace interface in the git changelog (and the interface version number
+was not changed).
 
-> 
->  drivers/pci/hotplug/acpiphp_glue.c |    8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
-> 
-> Index: work-fault-inject/drivers/pci/hotplug/acpiphp_glue.c
-> ===================================================================
-> --- work-fault-inject.orig/drivers/pci/hotplug/acpiphp_glue.c
-> +++ work-fault-inject/drivers/pci/hotplug/acpiphp_glue.c
-> @@ -1693,14 +1693,10 @@ void __exit acpiphp_glue_exit(void)
->   */
->  int __init acpiphp_get_num_slots(void)
->  {
-> -	struct list_head *node;
->  	struct acpiphp_bridge *bridge;
-> -	int num_slots;
-> -
-> -	num_slots = 0;
-> +	int num_slots = 0;
->  
-> -	list_for_each (node, &bridge_list) {
-> -		bridge = (struct acpiphp_bridge *)node;
-> +	list_for_each_entry (bridge, &bridge_list, list) {
->  		dbg("Bus %04x:%02x has %d slot%s\n",
->  				pci_domain_nr(bridge->pci_bus),
->  				bridge->pci_bus->number, bridge->nr_slots,
+A new patch is needed to revert the part of the patch that changed the
+userspace interface.
+
+Please don't forget to copy in the appropriate maintainers when you send
+messages like this one:
+  http://marc.theaimsgroup.com/?l=linux-netdev&m=115547174417490&w=2
+so they can provide acks:-)
+
+Alasdair
+-- 
+agk@redhat.com

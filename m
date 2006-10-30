@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030497AbWJ3DXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbWJ3Dde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030497AbWJ3DXv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 22:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030498AbWJ3DXv
+	id S1030499AbWJ3Dde (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 22:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbWJ3Dde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 22:23:51 -0500
-Received: from wx-out-0506.google.com ([66.249.82.230]:61716 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030497AbWJ3DXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 22:23:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:date:message-id:subject;
-        b=ZLjtFbOLFa/rw7Sf1Rlppxtn0MhlBZtrBTVFYjtAPmqM9+xgAXDelMEPC1yPmzQGU5jo0lfKBXxVrNNZhIl7B6G+jwIFG12Qh+TIsFHq8pBvV8VENanNDb6dhBriHpzSJqhqUWRCY43ZDiKTcAsfHKzZwLjrDUvt/A95T275hew=
-From: Albert Cahalan <acahalan@gmail.com>
-To: Albert Cahalan <acahalan@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Cc: Albert Cahalan <acahalan@gmail.com>
-Date: Sun, 29 Oct 2006 22:26:17 -0500
-Message-Id: <20061030032617.9875.86052.sendpatchset@cube>
-Subject: [PATCH] i386 regparm=3 RT signal handlers on x86_64
+	Sun, 29 Oct 2006 22:33:34 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:40845 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1030499AbWJ3Ddd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Oct 2006 22:33:33 -0500
+Date: Sun, 29 Oct 2006 19:29:07 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] update some docbook comments
+Message-Id: <20061029192907.a45fac43.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The recent change to make x86_64 support i386 binaries compiled
-with -mregparm=3 only covered signal handlers without SA_SIGINFO.
-(the 3-arg "real-time" ones) This is useful for klibc at least.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Signed-off-by: Albert Cahalan <acahalan@gmail.com>
+Correct a few comments in kernel-doc Doc and source files.
 
-diff -Naurd old/arch/x86_64/ia32/ia32_signal.c new/arch/x86_64/ia32/ia32_signal.c
---- old/arch/x86_64/ia32/ia32_signal.c	2006-10-29 20:36:01.000000000 -0500
-+++ new/arch/x86_64/ia32/ia32_signal.c	2006-10-29 21:58:01.000000000 -0500
-@@ -579,6 +579,11 @@
- 	regs->rsp = (unsigned long) frame;
- 	regs->rip = (unsigned long) ka->sa.sa_handler;
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ Documentation/kernel-doc-nano-HOWTO.txt |    1 +
+ scripts/basic/docproc.c                 |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+--- linux-2619-rc3g5.orig/Documentation/kernel-doc-nano-HOWTO.txt
++++ linux-2619-rc3g5/Documentation/kernel-doc-nano-HOWTO.txt
+@@ -17,7 +17,7 @@ are:
+   special place-holders for where the extracted documentation should
+   go.
  
-+	/* Make -mregparm=3 work */
-+	regs->rax = sig;
-+	regs->rdx = (unsigned long) &frame->info;
-+	regs->rcx = (unsigned long) &frame->uc;
-+
- 	asm volatile("movl %0,%%ds" :: "r" (__USER32_DS)); 
- 	asm volatile("movl %0,%%es" :: "r" (__USER32_DS)); 
- 	
+-- scripts/docproc.c
++- scripts/basic/docproc.c
+ 
+   This is a program for converting SGML template files into SGML
+   files. When a file is referenced it is searched for symbols
+--- linux-2619-rc3g5.orig/scripts/basic/docproc.c
++++ linux-2619-rc3g5/scripts/basic/docproc.c
+@@ -250,7 +250,7 @@ void intfunc(char * filename) {	docfunct
+ void extfunc(char * filename) { docfunctions(filename, FUNCTION);   }
+ 
+ /*
+- * Document sp_ecific function(s) in a file.
++ * Document specific function(s) in a file.
+  * Call kernel-doc with the following parameters:
+  * kernel-doc -docbook -function function1 [-function function2]
+  */
+
+
+---

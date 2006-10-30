@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030564AbWJ3Rd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030567AbWJ3Rd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030564AbWJ3Rd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 12:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030566AbWJ3Rd7
+	id S1030567AbWJ3Rd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 12:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030566AbWJ3Rd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 12:33:59 -0500
-Received: from outbound-fra.frontbridge.com ([62.209.45.174]:19129 "EHLO
-	outbound1-fra-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1030564AbWJ3Rd5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 12:33:57 -0500
-X-BigFish: VP
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 30 Oct 2006 12:33:28 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:36221 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030564AbWJ3Rd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 12:33:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lodfD+PNTc9M9BRtf3+iqBQQbdaB2EDWHEsA410EzmfMBAQI+5FMCKpFDVrS6hE2EwiIMS7Xkc1ShD6LOJJu5HkVFjxcDHw5krUli94wRMxF1RnwPVk1wOcpKM8SkPw40qWDlQ8H5FLymN1jxD9S+reG8+m43j7gjBbeX1yX04k=
+Message-ID: <9a8748490610300933t793e0aaew1016f03410f2f96@mail.gmail.com>
+Date: Mon, 30 Oct 2006 18:33:25 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Metathronius Galabant" <m.galabant@googlemail.com>
+Subject: Re: user-space command "ipcs" seems broken on 2.6.18.1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1b270aae0610300515u502e5819g256c9de438d064f8@mail.gmail.com>
 MIME-Version: 1.0
-Subject: RE: AMD X2 unsynced TSC fix?
-Date: Mon, 30 Oct 2006 11:22:45 -0600
-Message-ID: <1449F58C868D8D4E9C72945771150BDF153775@SAUSEXMB1.amd.com>
-In-Reply-To: <1162058915.14733.2.camel@mindpipe>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: AMD X2 unsynced TSC fix?
-Thread-Index: Acb6vCNI2iQIilqMRjmEnvBD8ZrqYwBi3aiQ
-From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-To: "Lee Revell" <rlrevell@joe-job.com>
-cc: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 30 Oct 2006 17:22:45.0765 (UTC)
- FILETIME=[03C3DB50:01C6FC48]
-X-WSS-ID: 6958EB6C280967181-02-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1b270aae0610300414u4175fec6i30a1396dde260ca1@mail.gmail.com>
+	 <9a8748490610300432m45e560f8gdaeb951877e2532e@mail.gmail.com>
+	 <1b270aae0610300437u1529b5ddo5a365a06f16611c@mail.gmail.com>
+	 <1b270aae0610300515u502e5819g256c9de438d064f8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Agreed, I had to turn about 20 dual-core servers to single 
-> > core because the only way to get a monotonic gtod made it
-> > so slow that it was not worth using a dual-core. I initially
-> > considered buying one dual-core AMD for my own use, but after
-> > seeing this, I'm definitely sure I won't ever buy one as
-> > long as this problem is not fixed, as it causes too
-> > many problems.
-> 
-> Does anyone know if the problem will really be fixed in new 
-> CPUs, as AMD promised a year or so ago?
-> 
-> http://lkml.org/lkml/2005/11/4/173
-> 
-> Since that post, there has been Socket F and AM2 which apparently have
-> the same issue. 
-> Were the AMD guys just blowing smoke?
+On 30/10/06, Metathronius Galabant <m.galabant@googlemail.com> wrote:
+> > Can you identify the latest kernel where it works OK?
+>
+> I can't reproduce that behaviour on another SMP machine with the same
+> kernel-config for 2.6.18.1 (only storage and network device drivers
+> differ).
+> The affected one is a production machine I can't use to test, and
+> furthermore the only one I've got of that series.
+>
+Ok, can you then at least tell us what the latest kernel you have used
+that was OK was?
+Just to try and narrow things down a bit.
 
-AMD was not blowing smoke.  Future AMD processors will have 
-pstate/cstate invariant TSCs detectable by a CPUID bit.
+> Has to wait until the weekend. Any remote clue so I know where to look?
 
-Unfortunately, those processors have not be released yet, and
-I can't comment on their release timeframe, other than to say
-they are on our roadmap.
+Well, with a simple good/bad test case like you have, the obvious
+thing to do would be to find a resonably new kernel that's good and
+one that's bad and then do a git bisection search to find the exact
+commit that broke things for you. Short of that, narrowing it down to
+a released version, a -rc or -git snapshot is also good.
 
--Mark Langsdorf
-AMD, Inc.
+You could also start browsing through changelogs looking for changes
+to IPC and then try revert patches that look likely. But  git bisect
+is probably a lot easier.
 
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

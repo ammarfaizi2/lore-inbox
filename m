@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161399AbWJ3TNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161415AbWJ3TQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161399AbWJ3TNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 14:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161261AbWJ3TNJ
+	id S1161415AbWJ3TQk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 14:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161417AbWJ3TQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 14:13:09 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:37289 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1161399AbWJ3TNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 14:13:08 -0500
-Date: Mon, 30 Oct 2006 12:13:07 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Adam J. Richter" <adam@yggdrasil.com>,
-       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       pavel@ucw.cz, shemminger@osdl.org
-Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
-Message-ID: <20061030191307.GE10235@parisc-linux.org>
-References: <200610282350.k9SNoljL020236@freya.yggdrasil.com> <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org> <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com> <20061030144259.GD10235@parisc-linux.org> <87F87E8E-9434-4844-AA3F-ED850BEFAD29@mac.com>
-MIME-Version: 1.0
+	Mon, 30 Oct 2006 14:16:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25743 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161415AbWJ3TQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 14:16:39 -0500
+Date: Mon, 30 Oct 2006 19:15:54 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+       Stefan Schmidt <stefan@datenfreihafen.org>, dm-devel@redhat.com,
+       dm-crypt@saout.de, Christophe Saout <christophe@saout.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG] dmsetup table output changed from 2.6.18 to 2.6.19-rc3 and breaks yaird.
+Message-ID: <20061030191554.GN1319@agk.surrey.redhat.com>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+	Stefan Schmidt <stefan@datenfreihafen.org>, dm-devel@redhat.com,
+	dm-crypt@saout.de, Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>
+References: <20061030151930.GQ27337@susi> <20061030184331.GY3928@agk.surrey.redhat.com> <Pine.LNX.4.64.0610301053010.25218@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87F87E8E-9434-4844-AA3F-ED850BEFAD29@mac.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <Pine.LNX.4.64.0610301053010.25218@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 01:47:53PM -0500, Kyle Moffett wrote:
-> Well, yes, but it would help some architectures.  It would seem  
-> rather stupid to build a hardware limitation into a 64+ cpu system  
-> such that it cannot initialize or reconfigure multiple pieces of  
-> hardware at once.  It also would help for more "mundane" systems such  
-> as my "Quad" G5 desktop which takes an appreciable time to probe all  
-> the various PCI, USB, SATA, and  Firewire devices in the system.
+On Mon, Oct 30, 2006 at 11:00:29AM -0800, Linus Torvalds wrote:
+> (maybe something like this trivial one? Totally untested, but it would 
+> seem to be the sane approach)
+ 
+> diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
+> index a625576..645e3ce 100644
+> --- a/drivers/md/dm-crypt.c
+> +++ b/drivers/md/dm-crypt.c
+> @@ -925,8 +925,7 @@ static int crypt_status(struct dm_target
+>  		break;
+>  
+>  	case STATUSTYPE_TABLE:
+> -		cipher = crypto_blkcipher_name(cc->tfm);
+> -
+> +		cipher = cc->cipher;
+>  		chainmode = cc->chainmode;
+>  
+>  		if (cc->iv_mode)
+> 
+> 
 
-Probing PCI devices really doesn't take that long.  It's the extra stuff
-the drivers do at ->probe that takes the time.  And the stand-out
-offender here is SCSI (and FC), which I'm working to fix.  Firewire, USB
-and SATA are somewhere intermediate.
+Looks correct.
+
+The point of STATUSTYPE_TABLE is to return (readable) output to userspace in
+a format that the crypt_ctr() function would accept back in.
+
+So crypt_ctr() now stores a private copy of cipher and chainmode for
+crypt_status() to regurgitate when requested.
+
+Alasdair
+-- 
+agk@redhat.com

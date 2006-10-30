@@ -1,92 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161134AbWJ3JyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWJ3KHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161134AbWJ3JyY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 04:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161148AbWJ3JyY
+	id S1161179AbWJ3KHO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 05:07:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161202AbWJ3KHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 04:54:24 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:53771 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1161134AbWJ3JyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 04:54:23 -0500
-Message-ID: <4545CB9B.2040502@shadowen.org>
-Date: Mon, 30 Oct 2006 09:53:31 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       "Martin J. Bligh" <mbligh@google.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: Slab panic on 2.6.19-rc3-git5 (-git4 was OK)
-References: <454442DC.9050703@google.com> <20061029000513.de5af713.akpm@osdl.org> <4544E92C.8000103@shadowen.org> <4545325D.8080905@mbligh.org> <Pine.LNX.4.64.0610291718481.25218@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610291718481.25218@g5.osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 30 Oct 2006 05:07:14 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:54563 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1161179AbWJ3KHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 05:07:12 -0500
+Subject: [PATCH] lockdep: annotate sk_lock nesting in AF_BLUETOOTH -v2
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       David Miller <davem@davemloft.net>,
+       Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <1162196186.24143.158.camel@taijtu>
+References: <1162196186.24143.158.camel@taijtu>
+Content-Type: text/plain
+Date: Mon, 30 Oct 2006 11:08:02 +0100
+Message-Id: <1162202882.24143.182.camel@taijtu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sun, 29 Oct 2006, Martin J. Bligh wrote:
->> Seems like that doesn't fix it, I'm afraid.
-> 
-> Does the one in the current -git tree? It's commit 
-> 5211e6e6c671f0d4b1e1a1023384d20227d8ee65, as below..
-> 
-> 		Linus
+Today I suck, in an attempt to avoid more damage this shall be my last
+patch for today.
 
-Submitted that commit, results in a couple of hours.
+---
 
--apw
+=============================================
+[ INFO: possible recursive locking detected ]
+2.6.18-1.2726.fc6 #1
+---------------------------------------------
+hidd/2271 is trying to acquire lock:
+ (sk_lock-AF_BLUETOOTH){--..}, at: [<f8d16241>] bt_accept_dequeue+0x26/0xc6
+[bluetooth]
 
-> 
-> ---
-> commit 5211e6e6c671f0d4b1e1a1023384d20227d8ee65
-> Author: Giridhar Pemmasani <pgiri@yahoo.com>
-> Date:   Sun Oct 29 04:46:55 2006 -0800
-> 
->     [PATCH] Fix GFP_HIGHMEM slab panic
->     
->     As reported by Martin J. Bligh <mbligh@google.com>, we let through some
->     non-slab bits to slab allocation through __get_vm_area_node when doing a
->     vmalloc.
->     
->     I haven't been able to reproduce this, although I understand why it
->     happens: vmalloc allocates memory with
->     
->     GFP_KERNEL | __GFP_HIGHMEM
->     
->     and commit 52fd24ca1db3a741f144bbc229beefe044202cac resulted in the same
->     flags are passed down to cache_alloc_refill, causing the BUG.  The
->     following patch fixes it.
->     
->     Note that when calling kmalloc_node, I am masking off __GFP_HIGHMEM with
->     GFP_LEVEL_MASK, whereas __vmalloc_area_node does the same with
->     
->     ~(__GFP_HIGHMEM | __GFP_ZERO).
->     
->     IMHO, using GFP_LEVEL_MASK is preferable, but either should fix this
->     problem.
->     
->     Signed-off-by: Giridhar Pemmasani (pgiri@yahoo.com)
->     Cc: Martin J. Bligh <mbligh@google.com>
->     Cc: Andrew Morton <akpm@osdl.org>
->     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> 
-> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> index 6d381df..46606c1 100644
-> --- a/mm/vmalloc.c
-> +++ b/mm/vmalloc.c
-> @@ -182,7 +182,7 @@ static struct vm_struct *__get_vm_area_n
->  	addr = ALIGN(start, align);
->  	size = PAGE_ALIGN(size);
->  
-> -	area = kmalloc_node(sizeof(*area), gfp_mask, node);
-> +	area = kmalloc_node(sizeof(*area), gfp_mask & GFP_LEVEL_MASK, node);
->  	if (unlikely(!area))
->  		return NULL;
->  
+but task is already holding lock:
+ (sk_lock-AF_BLUETOOTH){--..}, at: [<f8bce088>] l2cap_sock_accept+0x41/0x11e [l2cap]
+
+other info that might help us debug this:
+1 lock held by hidd/2271:
+ #0:  (sk_lock-AF_BLUETOOTH){--..}, at: [<f8bce088>]
+l2cap_sock_accept+0x41/0x11e [l2cap]
+
+stack backtrace:
+ [<c04051ed>] show_trace_log_lvl+0x58/0x16a
+ [<c04057fa>] show_trace+0xd/0x10
+ [<c0405913>] dump_stack+0x19/0x1b
+ [<c043b7dc>] __lock_acquire+0x6ea/0x90d
+ [<c043bf70>] lock_acquire+0x4b/0x6b
+ [<c05b203b>] lock_sock+0xac/0xbc
+ [<f8d16241>] bt_accept_dequeue+0x26/0xc6 [bluetooth]
+ [<f8bce129>] l2cap_sock_accept+0xe2/0x11e [l2cap]
+ [<c05b142e>] sys_accept+0xd8/0x179
+ [<c05b1576>] sys_socketcall+0xa7/0x186
+ [<c0403fb7>] syscall_call+0x7/0xb
+
+classical case of nesting; bt_accept_dequeue() locks the children of the object
+locked by l2cap_sock_accept().
+
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ include/net/sock.h    |    8 +++++++-
+ net/bluetooth/l2cap.c |    4 ++--
+ net/core/sock.c       |    6 +++---
+ 3 files changed, 12 insertions(+), 6 deletions(-)
+
+Index: linux-2.6/include/net/sock.h
+===================================================================
+--- linux-2.6.orig/include/net/sock.h
++++ linux-2.6/include/net/sock.h
+@@ -745,7 +745,13 @@ static inline int sk_stream_wmem_schedul
+  */
+ #define sock_owned_by_user(sk)	((sk)->sk_lock.owner)
+ 
+-extern void FASTCALL(lock_sock(struct sock *sk));
++extern void FASTCALL(lock_sock_nested(struct sock *sk, int subclass));
++
++static inline void lock_sock(struct sock *sk)
++{
++	lock_sock_nested(sk, 0);
++}
++
+ extern void FASTCALL(release_sock(struct sock *sk));
+ 
+ /* BH context may only use the following locking interface. */
+Index: linux-2.6/net/bluetooth/l2cap.c
+===================================================================
+--- linux-2.6.orig/net/bluetooth/l2cap.c
++++ linux-2.6/net/bluetooth/l2cap.c
+@@ -770,7 +770,7 @@ static int l2cap_sock_accept(struct sock
+ 	long timeo;
+ 	int err = 0;
+ 
+-	lock_sock(sk);
++	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 
+ 	if (sk->sk_state != BT_LISTEN) {
+ 		err = -EBADFD;
+@@ -792,7 +792,7 @@ static int l2cap_sock_accept(struct sock
+ 
+ 		release_sock(sk);
+ 		timeo = schedule_timeout(timeo);
+-		lock_sock(sk);
++		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 
+ 		if (sk->sk_state != BT_LISTEN) {
+ 			err = -EBADFD;
+Index: linux-2.6/net/core/sock.c
+===================================================================
+--- linux-2.6.orig/net/core/sock.c
++++ linux-2.6/net/core/sock.c
+@@ -1527,7 +1527,7 @@ void sock_init_data(struct socket *sock,
+ 	atomic_set(&sk->sk_refcnt, 1);
+ }
+ 
+-void fastcall lock_sock(struct sock *sk)
++void fastcall lock_sock_nested(struct sock *sk, int subclass)
+ {
+ 	might_sleep();
+ 	spin_lock_bh(&sk->sk_lock.slock);
+@@ -1538,11 +1538,11 @@ void fastcall lock_sock(struct sock *sk)
+ 	/*
+ 	 * The sk_lock has mutex_lock() semantics here:
+ 	 */
+-	mutex_acquire(&sk->sk_lock.dep_map, 0, 0, _RET_IP_);
++	mutex_acquire(&sk->sk_lock.dep_map, subclass, 0, _RET_IP_);
+ 	local_bh_enable();
+ }
+ 
+-EXPORT_SYMBOL(lock_sock);
++EXPORT_SYMBOL(lock_sock_nested);
+ 
+ void fastcall release_sock(struct sock *sk)
+ {
+
 

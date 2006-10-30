@@ -1,93 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161223AbWJ3KhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161230AbWJ3Khl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161223AbWJ3KhI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 05:37:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161228AbWJ3KhI
+	id S1161230AbWJ3Khl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 05:37:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161233AbWJ3Khk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 05:37:08 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:29622 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161223AbWJ3KhH
+	Mon, 30 Oct 2006 05:37:40 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:32950 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161230AbWJ3Khg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 05:37:07 -0500
+	Mon, 30 Oct 2006 05:37:36 -0500
 To: marcel@holtmann.org
-Subject: [PATCH] bnep endianness bug: filtering by packet type
+Subject: [PATCH] rfcomm endianness bug: param_mask is little-endian on the wire
 Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Message-Id: <E1GeUVt-0002WO-SH@ZenIV.linux.org.uk>
+Message-Id: <E1GeUWN-0002XK-TQ@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 30 Oct 2006 10:37:05 +0000
+Date: Mon, 30 Oct 2006 10:37:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-<= and => don't work well on net-endian...
-
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- net/bluetooth/bnep/core.c   |   16 ++++++++--------
- net/bluetooth/bnep/netdev.c |   11 ++++++-----
- 2 files changed, 14 insertions(+), 13 deletions(-)
+ net/bluetooth/rfcomm/core.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/bluetooth/bnep/core.c b/net/bluetooth/bnep/core.c
-index 4d3424c..4e822f0 100644
---- a/net/bluetooth/bnep/core.c
-+++ b/net/bluetooth/bnep/core.c
-@@ -117,14 +117,14 @@ #ifdef CONFIG_BT_BNEP_PROTO_FILTER
- static inline void bnep_set_default_proto_filter(struct bnep_session *s)
- {
- 	/* (IPv4, ARP)  */
--	s->proto_filter[0].start = htons(0x0800);
--	s->proto_filter[0].end   = htons(0x0806);
-+	s->proto_filter[0].start = ETH_P_IP;
-+	s->proto_filter[0].end   = ETH_P_ARP;
- 	/* (RARP, AppleTalk) */
--	s->proto_filter[1].start = htons(0x8035);
--	s->proto_filter[1].end   = htons(0x80F3);
-+	s->proto_filter[1].start = ETH_P_RARP;
-+	s->proto_filter[1].end   = ETH_P_AARP;
- 	/* (IPX, IPv6) */
--	s->proto_filter[2].start = htons(0x8137);
--	s->proto_filter[2].end   = htons(0x86DD);
-+	s->proto_filter[2].start = ETH_P_IPX;
-+	s->proto_filter[2].end   = ETH_P_IPV6;
- }
- #endif
+diff --git a/net/bluetooth/rfcomm/core.c b/net/bluetooth/rfcomm/core.c
+index f3e5b7e..278c867 100644
+--- a/net/bluetooth/rfcomm/core.c
++++ b/net/bluetooth/rfcomm/core.c
+@@ -854,7 +854,7 @@ int rfcomm_send_rpn(struct rfcomm_sessio
+ 	rpn->flow_ctrl     = flow_ctrl_settings;
+ 	rpn->xon_char      = xon_char;
+ 	rpn->xoff_char     = xoff_char;
+-	rpn->param_mask    = param_mask;
++	rpn->param_mask    = cpu_to_le16(param_mask);
  
-@@ -150,8 +150,8 @@ #ifdef CONFIG_BT_BNEP_PROTO_FILTER
- 		int i;
+ 	*ptr = __fcs(buf); ptr++;
  
- 		for (i = 0; i < n; i++) {
--			f[i].start = get_unaligned(data++);
--			f[i].end   = get_unaligned(data++);
-+			f[i].start = ntohs(get_unaligned(data++));
-+			f[i].end   = ntohs(get_unaligned(data++));
+@@ -1343,7 +1343,7 @@ static int rfcomm_recv_rpn(struct rfcomm
+ 	/* Check for sane values, ignore/accept bit_rate, 8 bits, 1 stop bit,
+ 	 * no parity, no flow control lines, normal XON/XOFF chars */
  
- 			BT_DBG("proto filter start %d end %d",
- 				f[i].start, f[i].end);
-diff --git a/net/bluetooth/bnep/netdev.c b/net/bluetooth/bnep/netdev.c
-index 7f7b27d..67a002a 100644
---- a/net/bluetooth/bnep/netdev.c
-+++ b/net/bluetooth/bnep/netdev.c
-@@ -158,14 +158,15 @@ #ifdef CONFIG_BT_BNEP_PROTO_FILTER
- static inline u16 bnep_net_eth_proto(struct sk_buff *skb)
- {
- 	struct ethhdr *eh = (void *) skb->data;
-+	u16 proto = ntohs(eh->h_proto);
- 	
--	if (ntohs(eh->h_proto) >= 1536)
--		return eh->h_proto;
-+	if (proto >= 1536)
-+		return proto;
- 		
--	if (get_unaligned((u16 *) skb->data) == 0xFFFF)
--		return htons(ETH_P_802_3);
-+	if (get_unaligned((__be16 *) skb->data) == htons(0xFFFF))
-+		return ETH_P_802_3;
- 		
--	return htons(ETH_P_802_2);
-+	return ETH_P_802_2;
- }
+-	if (rpn->param_mask & RFCOMM_RPN_PM_BITRATE) {
++	if (rpn->param_mask & cpu_to_le16(RFCOMM_RPN_PM_BITRATE)) {
+ 		bit_rate = rpn->bit_rate;
+ 		if (bit_rate != RFCOMM_RPN_BR_115200) {
+ 			BT_DBG("RPN bit rate mismatch 0x%x", bit_rate);
+@@ -1352,7 +1352,7 @@ static int rfcomm_recv_rpn(struct rfcomm
+ 		}
+ 	}
  
- static inline int bnep_net_proto_filter(struct sk_buff *skb, struct bnep_session *s)
+-	if (rpn->param_mask & RFCOMM_RPN_PM_DATA) {
++	if (rpn->param_mask & cpu_to_le16(RFCOMM_RPN_PM_DATA)) {
+ 		data_bits = __get_rpn_data_bits(rpn->line_settings);
+ 		if (data_bits != RFCOMM_RPN_DATA_8) {
+ 			BT_DBG("RPN data bits mismatch 0x%x", data_bits);
+@@ -1361,7 +1361,7 @@ static int rfcomm_recv_rpn(struct rfcomm
+ 		}
+ 	}
+ 
+-	if (rpn->param_mask & RFCOMM_RPN_PM_STOP) {
++	if (rpn->param_mask & cpu_to_le16(RFCOMM_RPN_PM_STOP)) {
+ 		stop_bits = __get_rpn_stop_bits(rpn->line_settings);
+ 		if (stop_bits != RFCOMM_RPN_STOP_1) {
+ 			BT_DBG("RPN stop bits mismatch 0x%x", stop_bits);
+@@ -1370,7 +1370,7 @@ static int rfcomm_recv_rpn(struct rfcomm
+ 		}
+ 	}
+ 
+-	if (rpn->param_mask & RFCOMM_RPN_PM_PARITY) {
++	if (rpn->param_mask & cpu_to_le16(RFCOMM_RPN_PM_PARITY)) {
+ 		parity = __get_rpn_parity(rpn->line_settings);
+ 		if (parity != RFCOMM_RPN_PARITY_NONE) {
+ 			BT_DBG("RPN parity mismatch 0x%x", parity);
+@@ -1379,7 +1379,7 @@ static int rfcomm_recv_rpn(struct rfcomm
+ 		}
+ 	}
+ 
+-	if (rpn->param_mask & RFCOMM_RPN_PM_FLOW) {
++	if (rpn->param_mask & cpu_to_le16(RFCOMM_RPN_PM_FLOW)) {
+ 		flow_ctrl = rpn->flow_ctrl;
+ 		if (flow_ctrl != RFCOMM_RPN_FLOW_NONE) {
+ 			BT_DBG("RPN flow ctrl mismatch 0x%x", flow_ctrl);
+@@ -1388,7 +1388,7 @@ static int rfcomm_recv_rpn(struct rfcomm
+ 		}
+ 	}
+ 
+-	if (rpn->param_mask & RFCOMM_RPN_PM_XON) {
++	if (rpn->param_mask & cpu_to_le16(RFCOMM_RPN_PM_XON)) {
+ 		xon_char = rpn->xon_char;
+ 		if (xon_char != RFCOMM_RPN_XON_CHAR) {
+ 			BT_DBG("RPN XON char mismatch 0x%x", xon_char);
+@@ -1397,7 +1397,7 @@ static int rfcomm_recv_rpn(struct rfcomm
+ 		}
+ 	}
+ 
+-	if (rpn->param_mask & RFCOMM_RPN_PM_XOFF) {
++	if (rpn->param_mask & cpu_to_le16(RFCOMM_RPN_PM_XOFF)) {
+ 		xoff_char = rpn->xoff_char;
+ 		if (xoff_char != RFCOMM_RPN_XOFF_CHAR) {
+ 			BT_DBG("RPN XOFF char mismatch 0x%x", xoff_char);
 -- 
 1.4.2.GIT
 

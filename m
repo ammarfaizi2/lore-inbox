@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965346AbWJ3REM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965334AbWJ3RJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965346AbWJ3REM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 12:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965334AbWJ3REM
+	id S965334AbWJ3RJl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 12:09:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965349AbWJ3RJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 12:04:12 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:47257 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965347AbWJ3REK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 12:04:10 -0500
-Date: Mon, 30 Oct 2006 22:39:16 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: dev@openvz.org, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       balbir@in.ibm.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       menage@google.com, devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-ID: <20061030170916.GA9588@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061030103356.GA16833@in.ibm.com> <20061030024320.962b4a88.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061030024320.962b4a88.pj@sgi.com>
-User-Agent: Mutt/1.5.11
+	Mon, 30 Oct 2006 12:09:41 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:8010 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965334AbWJ3RJk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 12:09:40 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=QSs37G33Ssw2Q71XE3GNKnlnFheyA2PfMrC/wpqC9PIE0dfJamXwisFRQkJoOgwo/
+	9zVWWl39HgwJ4W3qsTojA==
+Message-ID: <454631C1.5010003@google.com>
+Date: Mon, 30 Oct 2006 09:09:21 -0800
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+References: <20061029160002.29bb2ea1.akpm@osdl.org>	<45461977.3020201@shadowen.org>	<45461E74.1040408@google.com> <20061030084722.ea834a08.akpm@osdl.org>
+In-Reply-To: <20061030084722.ea834a08.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 02:43:20AM -0800, Paul Jackson wrote:
-> > Consensus:
-> > 	...
-> > 	- Dont support heirarchy for now
+>>Setting up network interfaces:
+>>      lo
+>>     lo        IP address: 127.0.0.1/8
+>>7[?25l[1A[80C[10D[1;32mdone[m8[?25h    eth0
+>>               No configuration found for eth0
+>>7[?25l[1A[80C[10D[1munused[m8[?25h    eth1
+>>             No configuration found for eth1
+>>
+>>for all 8 cards.
 > 
-> Looks like this item can be dropped from the concensus ... ;).
 > 
-> I for one would recommend getting the hierarchy right from the
-> beginning.
-> 
-> Though I can appreciate that others were trying to "keep it simple"
-> and postpone dealing with such complications.  I don't agree.
-> 
-> Such stuff as this deeply affects all that sits on it.  Get the
-> basic data shape presented by the kernel-user API right up front.
-> The rest will follow, much easier.
+> What version of udev is being used?
 
-Hierarchy has implications in not just the kernel-user API, but also on
-the controller design. I would prefer to progressively enhance the
-controller, not supporting hierarchy in the begining.
+Buggered if I know. If we could quit breaking it, that'd be good though.
+If it printed its version during boot somewhere, that'd help too.
 
-However you do have a valid concern that, if we dont design the user-kernel 
-API keeping hierarchy in mind, then we may break this interface when we 
-latter add hierarchy support, which will be bad. 
+> Was CONFIG_SYSFS_DEPRECATED set?
 
-One possibility is to design the user-kernel interface that supports hierarchy
-but not support creating hierarchical depths more than 1 in the initial 
-versions. Would that work?
+No.
 
--- 
-Regards,
-vatsa
+M.

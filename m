@@ -1,57 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbWJ3VKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161489AbWJ3VXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422664AbWJ3VKs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 16:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161489AbWJ3VKr
+	id S1161489AbWJ3VXj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 16:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161495AbWJ3VXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 16:10:47 -0500
-Received: from sp604003mt.neufgp.fr ([84.96.92.56]:42911 "EHLO smTp.neuf.fr")
-	by vger.kernel.org with ESMTP id S1161366AbWJ3VKr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 16:10:47 -0500
-Date: Mon, 30 Oct 2006 22:09:46 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] vmalloc : optimization, cleanup, bugfixes
-In-reply-to: <Pine.LNX.4.64.0610301234500.20628@montezuma.fsmlabs.com>
-To: Zwane Mwaikambo <zwane@infradead.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Message-id: <45466A1A.706@cosmosbay.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <453C3A29.4010606@intel.com>
- <20061022214508.6c4f30c6.akpm@osdl.org>
- <200610231036.10418.dada1@cosmosbay.com> <453C87A6.4060602@yahoo.com.au>
- <Pine.LNX.4.64.0610301234500.20628@montezuma.fsmlabs.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Mon, 30 Oct 2006 16:23:39 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:38590 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1161489AbWJ3VXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 16:23:38 -0500
+X-Originating-Ip: 72.57.81.197
+Date: Mon, 30 Oct 2006 16:20:55 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: trivial@kernel.org
+Subject: [PATCH] atomic.h : atomic_t "counter" members should be volatile
+Message-ID: <Pine.LNX.4.64.0610301616160.13077@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo a écrit :
-> On Mon, 23 Oct 2006, Nick Piggin wrote:
-> 
->> Eric Dumazet wrote:
->>> [PATCH] vmalloc : optimization, cleanup, bugfixes
->>>
->>> This patch does three things
->>>
->>> 1) reorder 'struct vm_struct' to speedup lookups on CPUS with small cache
->>> lines. The fields 'next,addr,size' should be now in the same cache line, to
->>> speedup lookups.
->>>
->>> 2) One minor cleanup in __get_vm_area_node()
->>>
->>> 3) Bugfixes in vmalloc_user() and vmalloc_32_user()
->>> NULL returns from __vmalloc() and __find_vm_area() were not tested.
->> Hmm, so they weren't. As far as testing the return of __find_vm_area,
->> you can just turn that into a BUG_ON(!area), because at that point,
->> we've established that the vmalloc succeeded.
-> 
-> No need for a BUG_ON it'll simply be a NULL dereference, at which point 
-> we're back to the original code.
 
-Indeed
+Make sure all typedef struct's for atomic_t have a "volatile" counter
+member.
 
-This is what Andrew said one week ago :)
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+---
+  According to what I read, it's highly recommended that that counter
+member be declared with storage class "volatile".  This patch just
+makes it consistently volatile across all architectures.
+
+ asm-frv/atomic.h       |    2 +-
+ asm-h8300/atomic.h     |    2 +-
+ asm-m68k/atomic.h      |    2 +-
+ asm-m68knommu/atomic.h |    2 +-
+ asm-v850/atomic.h      |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/include/asm-frv/atomic.h b/include/asm-frv/atomic.h
+index 066386a..df564bb 100644
+--- a/include/asm-frv/atomic.h
++++ b/include/asm-frv/atomic.h
+@@ -35,7 +35,7 @@ #define smp_mb__before_atomic_inc()	barr
+ #define smp_mb__after_atomic_inc()	barrier()
+
+ typedef struct {
+-	int counter;
++	volatile int counter;
+ } atomic_t;
+
+ #define ATOMIC_INIT(i)		{ (i) }
+diff --git a/include/asm-h8300/atomic.h b/include/asm-h8300/atomic.h
+index 21f5442..3436bda 100644
+--- a/include/asm-h8300/atomic.h
++++ b/include/asm-h8300/atomic.h
+@@ -6,7 +6,7 @@ #define __ARCH_H8300_ATOMIC__
+  * resource counting etc..
+  */
+
+-typedef struct { int counter; } atomic_t;
++typedef struct { volatile int counter; } atomic_t;
+ #define ATOMIC_INIT(i)	{ (i) }
+
+ #define atomic_read(v)		((v)->counter)
+diff --git a/include/asm-m68k/atomic.h b/include/asm-m68k/atomic.h
+index d5eed64..4a8c625 100644
+--- a/include/asm-m68k/atomic.h
++++ b/include/asm-m68k/atomic.h
+@@ -13,7 +13,7 @@ #include <asm/system.h>	/* local_irq_XXX
+  * We do not have SMP m68k systems, so we don't have to deal with that.
+  */
+
+-typedef struct { int counter; } atomic_t;
++typedef struct { volatile int counter; } atomic_t;
+ #define ATOMIC_INIT(i)	{ (i) }
+
+ #define atomic_read(v)		((v)->counter)
+diff --git a/include/asm-m68knommu/atomic.h b/include/asm-m68knommu/atomic.h
+index 6c4e4b6..c77e601 100644
+--- a/include/asm-m68knommu/atomic.h
++++ b/include/asm-m68knommu/atomic.h
+@@ -12,7 +12,7 @@ #include <asm/system.h>	/* local_irq_XXX
+  * We do not have SMP m68k systems, so we don't have to deal with that.
+  */
+
+-typedef struct { int counter; } atomic_t;
++typedef struct { volatile int counter; } atomic_t;
+ #define ATOMIC_INIT(i)	{ (i) }
+
+ #define atomic_read(v)		((v)->counter)
+diff --git a/include/asm-v850/atomic.h b/include/asm-v850/atomic.h
+index e4e57de..527480e 100644
+--- a/include/asm-v850/atomic.h
++++ b/include/asm-v850/atomic.h
+@@ -21,7 +21,7 @@ #ifdef CONFIG_SMP
+ #error SMP not supported
+ #endif
+
+-typedef struct { int counter; } atomic_t;
++typedef struct { volatile int counter; } atomic_t;
+
+ #define ATOMIC_INIT(i)	{ (i) }
 

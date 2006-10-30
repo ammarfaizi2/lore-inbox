@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161393AbWJ3TAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161429AbWJ3TCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161393AbWJ3TAS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 14:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161396AbWJ3TAR
+	id S1161429AbWJ3TCn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 14:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161418AbWJ3TCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 14:00:17 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:7570 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1161393AbWJ3S7x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:59:53 -0500
-Date: Mon, 30 Oct 2006 21:00:10 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-Message-ID: <20061030190010.GB4442@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061030183522.GL27968@stusta.de>
+	Mon, 30 Oct 2006 14:02:43 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:31292 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1161413AbWJ3TCl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 14:02:41 -0500
+Date: Mon, 30 Oct 2006 20:04:21 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Mark Lord <liml@rtr.ca>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
+Subject: Re: 2.6.19-rc3-git7: scsi_device_unbusy: inconsistent lock state
+Message-ID: <20061030190421.GM14055@kernel.dk>
+References: <1162225002.2948.45.camel@laptopd505.fenrus.org> <20061030162621.GK4563@kernel.dk> <1162225915.2948.49.camel@laptopd505.fenrus.org> <20061030175224.GB14055@kernel.dk> <45463C5B.7070900@rtr.ca> <45464064.2090108@rtr.ca> <20061030181645.GF14055@kernel.dk> <454644C1.4080702@rtr.ca> <20061030185214.GH14055@kernel.dk> <45464BA0.8070106@rtr.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061030183522.GL27968@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <45464BA0.8070106@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Adrian Bunk <bunk@stusta.de>:
-> Martin, Michael, can you send complete "dmesg -s 1000000" for both 
-> 2.6.18.1 and a non-working 2.6.19-rc kernel after resume?
-> I don't have high hopes, but perhaps looking at the dmesg and/or 
-> diff'ing them might give a hint.
+On Mon, Oct 30 2006, Mark Lord wrote:
+> Jens Axboe wrote:
+> >
+> >Bingo, that's a lot better! So that's the real bug, I'm guessing this
+> >got introduced when the ioprio stuff got juggled around recently. Pretty
+> >straight forward, this should fix it for you.
+> 
+> And it does indeed fix it, thanks!
 
-OK, I'll try to go back to this, just not today.
+Cool, thanks for retesting Mark! Patch is sent upstream, so should
+appear in the next snapshots and -rc.
 
 -- 
-MST
+Jens Axboe
+

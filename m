@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030528AbWJ3PbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030533AbWJ3Pdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030528AbWJ3PbH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 10:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030480AbWJ3PbH
+	id S1030533AbWJ3Pdj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 10:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030534AbWJ3Pdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 10:31:07 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:63057 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030533AbWJ3PbG (ORCPT
+	Mon, 30 Oct 2006 10:33:38 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:51645 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1030533AbWJ3Pdi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 10:31:06 -0500
-Message-ID: <454619B9.8030705@openvz.org>
-Date: Mon, 30 Oct 2006 18:26:49 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Mon, 30 Oct 2006 10:33:38 -0500
+Message-ID: <45461B59.2060607@cfl.rr.com>
+Date: Mon, 30 Oct 2006 10:33:45 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
-       sekharan@us.ibm.com, menage@google.com, ckrm-tech@lists.sourceforge.net,
-       balbir@in.ibm.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-References: <20061030103356.GA16833@in.ibm.com>	<45460743.8000501@openvz.org>	<20061030062332.856dcc32.pj@sgi.com>	<45460E69.7070505@openvz.org> <20061030071838.7988d3e1.pj@sgi.com>
-In-Reply-To: <20061030071838.7988d3e1.pj@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Tejun Heo <htejun@gmail.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Background scan of sata drives
+References: <453EDF44.3090308@cfl.rr.com> <45459B10.6080702@gmail.com>
+In-Reply-To: <45459B10.6080702@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Oct 2006 15:33:42.0224 (UTC) FILETIME=[C782BD00:01C6FC38]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14782.003
+X-TM-AS-Result: No--13.910700-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Pavel wrote:
->>>> 3. Configfs may be easily implemented later as an additional
->>>>    interface. I propose the following solution:
->>>>      ...
->> Resource controller has nothing common with confgifs.
->> That's the same as if we make netfilter depend on procfs.
+I could have sworn I saw a patch in the last month or two that made the 
+modprobe scan NON blocking, and added a new dummy module you could 
+modprobe that would block until the scan was complete.  Am I imagining this?
+
+Tejun Heo wrote:
+> Phillip Susi wrote:
+>> I seem to recall seeing mention flow by on the lkml at some point that 
+>> sata disks are now scanned in the background rather than blocking in 
+>> the modprobe, but that there is a new dummy module you can load that 
+>> just blocks until all drives have been scanned.  I tried but was 
+>> unable to find the thread that mentioned this, so does anyone know 
+>> what that module was?
 > 
-> Well ... if you used configfs as an interface to resource
-> controllers, as you said was easily done, then they would
-> have something to do with each other, right ;)?
-
-Right. We'll create a dependency that is not needed.
-
-> Choose the right data structure for the job, and then reuse
-> what fits for that choice.
+> Scanning during boot and module loading is blocking.  modprobe will wait 
+> in the kernel until the initial scan is complete.  But user initiated 
+> scan (echo - - - > /sys/class/scsi_host/hostX/scan) doesn't wait for 
+> completion.  Patch to make user scan blocking is pending.
 > 
-> Neither avoid nor encouraging code reuse is the key question.
-> 
-> What's the best fit, long term, for the style of kernel-user
-> API, for this use?  That's the key question.
 
-I agree, but you've cut some importaint questions away,
-so I ask them again:
-
- > What if if user creates a controller (configfs directory)
- > and doesn't remove it at all. Should controller stay in
- > memory even if nobody uses it?
-
-This is importaint to solve now - wether we want or not to
-keep "empty" beancounters in memory. If we do not then configfs
-usage is not acceptible.
-
- > The same can be said about system calls interface, isn't it?
-
-I haven't seen any objections against system calls yet.

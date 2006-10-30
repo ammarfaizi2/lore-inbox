@@ -1,76 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWJ3NtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWJ3NuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751454AbWJ3NtG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 08:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWJ3NtG
+	id S1751459AbWJ3NuL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 08:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751581AbWJ3NuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 08:49:06 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:49348 "EHLO
+	Mon, 30 Oct 2006 08:50:10 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:17350 "EHLO
 	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1751454AbWJ3NtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 08:49:03 -0500
-Message-ID: <454602B3.7000306@in.ibm.com>
-Date: Mon, 30 Oct 2006 19:18:35 +0530
+	id S1751459AbWJ3NuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 08:50:08 -0500
+Message-ID: <45460302.4080904@in.ibm.com>
+Date: Mon, 30 Oct 2006 19:19:54 +0530
 From: Balbir Singh <balbir@in.ibm.com>
 Reply-To: balbir@in.ibm.com
 Organization: IBM
 User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, "Martin T. Setek" <martitse@ifi.uio.no>
-CC: Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: [PATCH: 2.6.18.1] delayacct: cpu_count in taskstats updated
- correctly
-References: <20061026223653.bc871cf2.akpm@osdl.org>
-In-Reply-To: <20061026223653.bc871cf2.akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+CC: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Jay Lan <jlan@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] fill_tgid: fix task_struct leak and possible oops
+References: <20061026232052.GA520@oleg>
+In-Reply-To: <20061026232052.GA520@oleg>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oleg Nesterov wrote:
+> 1. fill_tgid() forgets to do put_task_struct(first).
+> 
+
+Looks good!
+
+> 2. release_task(first) can happen after fill_tgid() drops tasklist_lock,
+>    it is unsafe to dereference first->signal.
+> 
+
+But, we have a reference to first via get_task_struct(). release_task()
+would do just a put_task_struct(). Am I missing something?
 
 
-> Begin forwarded message:
+> This is a temporary fix, imho the locking should be reworked.
 > 
-> Date: Fri, 27 Oct 2006 05:18:17 +0200 (CEST)
-> From: Martin Tostrup Setek <martitse@student.matnat.uio.no>
-> To: nagar@watson.ibm.com
-> Cc: linux-kernel@vger.kernel.org
-> Subject: [PATCH: 2.6.18.1] delayacct: cpu_count in taskstats updated correctly
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 > 
-> 
-> from: Martin T. Setek <martitse@ifi.uio.no>
-> 
-> cpu_count in struct taskstats should be the same as the corresponding 
-> (third) value found in /proc/<pid>/schedstat
-> Signed-off-by: <martitse@ifi.uio.no>
-> ---
-> Index: linux-2.6.18.1/kernel/delayacct.c
-> ===================================================================
-> --- linux-2.6.18.1.orig/kernel/delayacct.c
-> +++ linux-2.6.18.1/kernel/delayacct.c
-> @@ -124,7 +124,7 @@ int __delayacct_add_tsk(struct taskstats
->   	t2 = tsk->sched_info.run_delay;
->   	t3 = tsk->sched_info.cpu_time;
-> 
-> -	d->cpu_count += t1;
-> +	d->cpu_count = t1;
-> 
->   	jiffies_to_timespec(t2, &ts);
->   	tmp = (s64)d->cpu_delay_total + timespec_to_ns(&ts);
+> --- STATS/kernel/taskstats.c~1_fix_sig	2006-10-22 18:24:03.000000000 +0400
+> +++ STATS/kernel/taskstats.c	2006-10-26 23:44:32.000000000 +0400
+> @@ -237,14 +237,17 @@ static int fill_tgid(pid_t tgid, struct 
+>  	} else
+>  		get_task_struct(first);
+>  
+> -	/* Start with stats from dead tasks */
+> -	spin_lock_irqsave(&first->signal->stats_lock, flags);
+> -	if (first->signal->stats)
+> -		memcpy(stats, first->signal->stats, sizeof(*stats));
+> -	spin_unlock_irqrestore(&first->signal->stats_lock, flags);
+>  
+>  	tsk = first;
+>  	read_lock(&tasklist_lock);
+> +	/* Start with stats from dead tasks */
+> +	if (first->signal) {
+> +		spin_lock_irqsave(&first->signal->stats_lock, flags);
+> +		if (first->signal->stats)
+> +			memcpy(stats, first->signal->stats, sizeof(*stats));
+> +		spin_unlock_irqrestore(&first->signal->stats_lock, flags);
+> +	}
+> +
+>  	do {
+>  		if (tsk->exit_state == EXIT_ZOMBIE && thread_group_leader(tsk))
+>  			continue;
+> @@ -264,7 +267,7 @@ static int fill_tgid(pid_t tgid, struct 
+>  	 * Accounting subsytems can also add calls here to modify
+>  	 * fields of taskstats.
+>  	 */
 > -
+> +	put_task_struct(first);
+>  	return 0;
+>  }
+>  
+> 
 
-I was off from work and just saw this message.
-
-The first field "d" in __delayacct_add_task() acts as an accumulator of
-statistics (specially useful for fill_tgid() and called just once for
-fill_pid() with cpu_count of "d" initialized to 0).
-
-We sum up in d->cpu_count, since the same value of "d" is passed each time from
-fill_tgid(). The proposed change is incorrect as we would overwrite the value
-each time.
-
-Balbir
 
 -- 
 

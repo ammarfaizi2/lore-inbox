@@ -1,71 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWJ3Wy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161533AbWJ3W7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422737AbWJ3Wy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 17:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422732AbWJ3Wy5
+	id S1161533AbWJ3W7e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 17:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161532AbWJ3W7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 17:54:57 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:26629 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422737AbWJ3Wy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 17:54:56 -0500
-Date: Mon, 30 Oct 2006 23:54:55 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Freezes during disk IO on Asus M2NPV-VM nVidia chipset - raid 0 related?
-Message-ID: <20061030225455.GM27968@stusta.de>
-References: <4546400C.1090500@perkel.com>
+	Mon, 30 Oct 2006 17:59:34 -0500
+Received: from deine-taler.de ([217.160.107.63]:52178 "EHLO
+	p15091797.pureserver.info") by vger.kernel.org with ESMTP
+	id S1161353AbWJ3W7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 17:59:33 -0500
+Message-ID: <454683D1.4030200@deine-taler.de>
+Date: Mon, 30 Oct 2006 23:59:29 +0100
+From: Uli Kunitz <kune@deine-taler.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4546400C.1090500@perkel.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Daniel Drake <dsd@gentoo.org>, Holden Karau <holden@pigscanfly.ca>,
+       zd1211-devs@lists.sourceforge.net, linville@tuxdriver.com,
+       netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       holdenk@xandros.com
+Subject: Re: [PATCH] wireless-2.6 zd1211rw check against regulatory domain
+ rather than hardcoded value of 11
+References: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>	 <453D48E5.8040100@gentoo.org>	 <f46018bb0610240709y203d8cdbw95cdf66db23aa1ce@mail.gmail.com>	 <453E2C9A.7010604@gentoo.org>  <4544CBC8.5090305@deine-taler.de> <1162197749.2854.5.camel@ux156>
+In-Reply-To: <1162197749.2854.5.camel@ux156>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 10:10:20AM -0800, Marc Perkel wrote:
-> Trying to track down my remaining lockup problem with Linux using my 
-> first AMD AM2 motherboard. It's been a nightmare, but it's getting 
-> better. but I think it might be a Linux bug. But I have some specific 
-> info that might lead to something.
+Johannes Berg wrote:
+>> I'm not so sure about this. This patching might be US-specific and we 
+>> cannot simply apply the setting for top channel of another domain 
+>> instead of channel 11. One option would be to set the value only under 
+>> the US regulatory domain.
 > 
-> This motherboard use nVidia GeForce 6150 chipset
-> The computer seems to only freeze up during disk IO - specifically when 
-> downloading using rsync.
-> It also seems to lock up when writing data to a RAID 0 EXT3 filesystem. 
-> I'm using software raid.
+> ??
+> What the patch does is replace the top channel which is hardcoded to 11
+> by the top channel given by the current regulatory domain. How can that
+> be wrong? Except that you may want to init the regulatory domain from
+> the EEPROM but I'm not sure how the ieee80211 code works wrt. that.
 > 
-> I'm currently running the stock Fedora Core 6 kernel based on 1.6.18.1
+> johannes
 
-A stock ftp.kernel.org kernel with as many debug options as possible 
-turned on might be a better choice.
+The problem is not so much that I don't trust the geo code, but whether
+setting the register to that band-edge value for a higher channel is
+the right thing to do. It looks like that this is a hack for FFC
+compliance. Therefore I suggest to patch CR128 only
+for the US regulatory domain.
 
-> After several lockups I tried reformatting the partition to see if 
-> perhaps the data was so screwed up that it was the problem. The reformat 
-> didn't fix it.
-> 
-> It also seems that when it does crash that recovery isn't as clean as it 
-> usually is. It seems that I have to run e2fsck manually more often than 
-> usual and that it find more things to fix. Other drives that are not 
-> part of raid seem to not have this issue.
-> 
-> I hope this is enough information to help track this down.
+Here is the code from the GPL vendor driver (zdhw.c):
 
-Unfortunately, it doesn't help at all.
+    if (pObj->HWFeature & BIT_21)  //6321 for FCC regulation, enabled HWFeature 6M band edge bit (for AL2230, AL2230S)
+     {
+         if (ChannelNo == 1 || ChannelNo == 11)  //MARK_003, band edge, these may depend on PCB layout
+         {
+             pObj->SetReg(reg, ZD_CR128, 0x12);
+             pObj->SetReg(reg, ZD_CR129, 0x12);
+             pObj->SetReg(reg, ZD_CR130, 0x10);
+             pObj->SetReg(reg, ZD_CR47, 0x1E);
+         }
+         else //(ChannelNo 2 ~ 10, 12 ~ 14)
+         {
+             pObj->SetReg(reg, ZD_CR128, 0x14);
+             pObj->SetReg(reg, ZD_CR129, 0x12);
+             pObj->SetReg(reg, ZD_CR130, 0x10);
+             pObj->SetReg(reg, ZD_CR47, 0x1E);
+         }
+     }
 
-Please send a complete "dmesg -s 1000000".
+The patch from Holden would set ZD_CR128 to 0x12 for the highest channel,
+which would not reflect the logic of the vendor driver.
 
-Please follow Lee's suggestion and report any messages you see (a 
-photo with a digital camera is OK).
+Kind regards,
 
-cu
-Adrian
+Uli
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Uli Kunitz (kune@deine-taler.de)

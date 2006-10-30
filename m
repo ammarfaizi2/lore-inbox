@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751846AbWJ3Of7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWJ3Oir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751846AbWJ3Of7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 09:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWJ3Of7
+	id S1751931AbWJ3Oir (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 09:38:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751957AbWJ3Oir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 09:35:59 -0500
-Received: from raven.upol.cz ([158.194.120.4]:52445 "EHLO raven.upol.cz")
-	by vger.kernel.org with ESMTP id S1751846AbWJ3Of6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 09:35:58 -0500
-To: "Jan Beulich" <jbeulich@novell.com>, Oleg Verych <olecom@flower.upol.cz>,
-       <dsd@gentoo.org>, <kernel@gentoo.org>, <draconx@gmail.com>,
-       <jpdenheijer@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Sam Ravnborg" <sam@ravnborg.org>, "Andi Kleen" <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Posted-To: gmane.linux.kernel
-Subject: Re: [PATCH -mm] replacement for broken	kbuild-dont-put-temp-files-in-the-source-tree.patch
-Organization: Palacky University in Olomouc, experimental physics department.
-In-Reply-To: <45460E6C.76E4.0078.0@novell.com>
-References: <20061028230730.GA28966@quickstop.soohrt.org>
- <200610281907.20673.ak@suse.de>
- <20061029120858.GB3491@quickstop.soohrt.org>
- <200610290816.55886.ak@suse.de> <slrnek9qv0.2vm.olecom@flower.upol.cz>
- <20061029225234.GA31648@uranus.ravnborg.org>
- <4545C2D8.76E4.0078.0@novell.com> <slrnekbv60.2vm.olecom@flower.upol.cz>
-Date: Mon, 30 Oct 2006 14:42:16 +0000
-Message-ID: <slrnekc3q8.2vm.olecom@flower.upol.cz>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
-From: Oleg Verych <olecom@flower.upol.cz>
+	Mon, 30 Oct 2006 09:38:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:14315 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751931AbWJ3Oiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 09:38:46 -0500
+Subject: Re: [patch] drivers: wait for threaded probes between initcall
+	levels
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Adam J. Richter" <adam@yggdrasil.com>,
+       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       matthew@wil.cx, pavel@ucw.cz, shemminger@osdl.org
+In-Reply-To: <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com>
+References: <200610282350.k9SNoljL020236@freya.yggdrasil.com>
+	 <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org>
+	 <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 30 Oct 2006 15:38:00 +0100
+Message-Id: <1162219080.2948.21.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2006-10-30, Jan Beulich wrote:
->
->>>gcc does not delete files specified with -o - but binutils does.
->>>So using /dev/null in this case is not an option.
->>
->>Hmm. What's the preblem to invoke `as' via the GNU C compiler, then?
->
->Older gas, whether invoked from gcc or the command line or elsewhere,
->deletes its output on error, regardless of whether this is a special file
->(device). gcc can't make gas not do so.
+> I admit the complexity is a bit high, but since the maximum nesting  
+> is bounded by the complexity of the hardware and the number of  
+> busses, and the maximum memory-allocation is strictly limited in the  
+> single-threaded case this could allow 64-way systems to probe all  
+> their hardware an order of magnitude faster than today without  
+> noticeably impacting an embedded system even in the absolute worst case.
 
-So, how about (using your btmp directory) create symlink to /dev/null in
-the (dev) sub-directory and then set no write permission? No tmp,
-things are local to build output, old gas's happy:
-,__
-|olecom@flower:/tmp/_build_2.6.19-rc3/btmp
-!__$ mkdir dev
-,__
-|olecom@flower:/tmp/_build_2.6.19-rc3/btmp
-!__$ cd dev ; ln -s /dev/null null ; chmod u-w . ; ls -la
-total 0
-dr-xr-x--- 2 olecom root 60 2006-10-30 15:34 .
-drwxr-x--- 3 olecom root 80 2006-10-30 15:34 ..
-lrwxrwxrwx 1 olecom root  9 2006-10-30 15:34 null -> /dev/null
-,__
-|olecom@flower:/tmp/_build_2.6.19-rc3/btmp/dev
-!__$ cd .. ; rm dev/null
-rm: cannot remove dev/null': Permission denied
-,__
-|olecom@flower:/tmp/_build_2.6.19-rc3/btmp
-!__$ echo ok > dev/null
-,__
-|olecom@flower:/tmp/_build_2.6.19-rc3/btmp
-!__$
 
-New featured dev/null may be set in some kind of make variable, say
-$(null) in scripts/Kbuild.include.
-____
+how much of this complexity goes away if you consider the
+scanning/probing as a series of "work elements", and you end up with a
+queue of work elements that threads can pull work off one at a time (so
+that if one element blocks the others just continue to flow). If you
+then find, say, a new PCI bus you just put another work element to
+process it at the end of the queue, or you process it synchronously. Etc
+etc.
+
+All you need to scale then is the number of worker threads on the
+system, which should be relatively easy to size....
+(check every X miliseconds if there are more than X outstanding work
+elements, if there are, spawn one new worker thread if the total number
+of worker threads is less than the system wide max. Worker threads die
+if they have nothing to do for more than Y miliseconds)
+
+Oh and... we have a concept for this already, or at least mostly, via
+the work queue mechanism :)
+
+

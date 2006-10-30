@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWJ3OaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWJ3Oce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWJ3OaH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 09:30:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWJ3OaG
+	id S1751785AbWJ3Oce (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 09:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751795AbWJ3Oce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 09:30:06 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5086 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750706AbWJ3OaE (ORCPT
+	Mon, 30 Oct 2006 09:32:34 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:49488 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751785AbWJ3Ocd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 09:30:04 -0500
-Date: Mon, 30 Oct 2006 06:29:44 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com, menage@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061030062944.c5f73661.pj@sgi.com>
-In-Reply-To: <454609DE.9060901@openvz.org>
-References: <20061030103356.GA16833@in.ibm.com>
-	<20061030024320.962b4a88.pj@sgi.com>
-	<454609DE.9060901@openvz.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 30 Oct 2006 09:32:33 -0500
+Message-ID: <45460CEF.2060801@sw.ru>
+Date: Mon, 30 Oct 2006 17:32:15 +0300
+From: Vasily Averin <vvs@sw.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Howells <dhowells@redhat.com>, Jan Blunck <jblunck@suse.de>,
+       Andrew Morton <akpm@osdl.org>, Alexander Viro <viro@zeniv.linux.org.uk>
+CC: Kirill Korotaev <dev@openvz.org>, devel@openvz.org
+Subject: [PATCH 2.6.19-rc3-mm1] VFS: BKL is not required for remount_fs()
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=KOI8-R
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel wrote:
-> My point is that a good infrastrucure doesn't care wether
-> or not beancounter (group controller) has a parent.
+From: Vasily Averin <vvs@sw.ru>
 
-I am far more interested in the API, including the shape
-of the data model, that we present to the user across the
-kernel-user boundary.
+according to Documentation/filesystems/Locking remount_fs() is not requires BKL
 
-Getting one, good, stable API for the long haul is worth alot.
+Signed-off-by:	Vasily Averin <vvs@sw.ru>
 
-Whether or not some substantial semantic change in this, such
-as going from a flat to a tree shape, can be done in a single
-line of kernel code, or a thousand lines, is less important.
+--- linux-2.6.19-rc3-mm1/fs/namespace.c.blkrm	2006-10-30 14:36:09.000000000 +0300
++++ linux-2.6.19-rc3-mm1/fs/namespace.c	2006-10-30 14:33:05.000000000 +0300
+@@ -594,10 +594,8 @@ static int do_umount(struct vfsmount *mn
+ 		 */
+ 		down_write(&sb->s_umount);
+ 		if (!(sb->s_flags & MS_RDONLY)) {
+-			lock_kernel();
+ 			DQUOT_OFF(sb);
+ 			retval = do_remount_sb(sb, MS_RDONLY, NULL, 0);
+-			unlock_kernel();
+ 		}
+ 		up_write(&sb->s_umount);
+ 		return retval;
+--- linux-2.6.19-rc3-mm1/fs/super.c.blkrm	2006-10-30 14:36:01.000000000 +0300
++++ linux-2.6.19-rc3-mm1/fs/super.c	2006-10-30 14:33:05.000000000 +0300
+@@ -609,16 +609,8 @@ static void do_emergency_remount(unsigne
+ 		sb->s_count++;
+ 		spin_unlock(&sb_lock);
+ 		down_read(&sb->s_umount);
+-		if (sb->s_root && sb->s_bdev && !(sb->s_flags & MS_RDONLY)) {
+-			/*
+-			 * ->remount_fs needs lock_kernel().
+-			 *
+-			 * What lock protects sb->s_flags??
+-			 */
+-			lock_kernel();
++		if (sb->s_root && sb->s_bdev && !(sb->s_flags & MS_RDONLY))
+ 			do_remount_sb(sb, MS_RDONLY, NULL, 1);
+-			unlock_kernel();
+-		}
+ 		drop_super(sb);
+ 		spin_lock(&sb_lock);
+ 	}
 
-What is the right long term kernel-user API and data model?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

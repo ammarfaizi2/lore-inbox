@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161184AbWJ3IOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161191AbWJ3IU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161184AbWJ3IOc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 03:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161190AbWJ3IOb
+	id S1161191AbWJ3IU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 03:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161194AbWJ3IU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 03:14:31 -0500
-Received: from gwmail.nue.novell.com ([195.135.221.19]:57493 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1161184AbWJ3IOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 03:14:31 -0500
-Message-Id: <4545C2D8.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Mon, 30 Oct 2006 09:16:08 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: "Oleg Verych" <olecom@flower.upol.cz>, <dsd@gentoo.org>,
-       <kernel@gentoo.org>, <draconx@gmail.com>, <jpdenheijer@gmail.com>,
-       "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>,
-       "LKML" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] replacement for broken
-	kbuild-dont-put-temp-files-in-the-source-tree.patch
-References: <20061028230730.GA28966@quickstop.soohrt.org>
- <200610281907.20673.ak@suse.de>
- <20061029120858.GB3491@quickstop.soohrt.org>
- <200610290816.55886.ak@suse.de> <slrnek9qv0.2vm.olecom@flower.upol.cz>
- <20061029225234.GA31648@uranus.ravnborg.org>
-In-Reply-To: <20061029225234.GA31648@uranus.ravnborg.org>
+	Mon, 30 Oct 2006 03:20:56 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:15878 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1161191AbWJ3IU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 03:20:56 -0500
+Date: Mon, 30 Oct 2006 09:22:33 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Ravi Krishnamurthy <Ravi_Krishnamurthy@adaptec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: Block driver freezes when using CFQ]
+Message-ID: <20061030082233.GL4563@kernel.dk>
+References: <454313C9.4010602@adaptec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <454313C9.4010602@adaptec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> In `19-rc3/include/Kbuild.include', just below `as-instr' i see:
->> ,--
->> |cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
->> |             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
->> |
->> |# cc-option-yn
->> |# Usage: flag := $(call cc-option-yn, -march=winchip-c6)
->> |cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
->> |                 > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
->> `--
->> so, change to `-o /dev/null' in `as-instr' will just follow this.
->
->gcc does not delete files specified with -o - but binutils does.
->So using /dev/null in this case is not an option.
+On Sat, Oct 28 2006, Ravi Krishnamurthy wrote:
+> Hi all,
+> 
+>    I have written a block driver that registers a virtual device and
+> routes requests to appropriate real devices after some re-mapping of
+> the requests. I am testing the driver by creating a filesystem on the
+> virtual device and copying a large number of files on to it. The test
+> causes the device to become unresponsive after some time. After some
+> debugging, I noticed that this happens only if the I/O scheduler being
+> used is CFQ. I have not had any trouble if the scheduler is noop,
+> anticipatory or deadline. The problem occurs on all the kernels I have
+> tested - 2.6.18-rc2, 2.6.18-rc4, 2.6.19-rc3.
+> 
+> Below are some details about the driver and what I have observed during
+> testing:
+> 
+> The request function registered by my driver is a simple loop -
+> 
+>   while ((req = elv_next_request(q))) {
+>         blkdev_dequeue_request(req);
+> 
+>         /*
+>          Add request to an internal queue for further processing
+>          Wake up thread to start processing the queue
+>          Update some variables for book-keeping
+>          */
+>   }
+> 
+> Completed requests are handled in a different thread -
+>   while (work to be done) {
+>       /*
+>         Dequeue completed requests from internal queue
+>         Call end_that_request_first() and end_that_request_last()
+>         Update some variables for book-keeping
+>       */
+>   }
 
-While I fixed this quite some time ago (after running into it myself), it
-obviously still is a problem with older versions. However, using as' -Z
-option seems to help here.
-On the other hand, I long wanted to compose a patch to do away
-with all the .tmp_* things at the build root, and move them into a
-single .tmp/ directory - this would also seem to make a nice place to
-put all sort of other temporary files in... I just never found the time
-to actually do that, sorry.
+The io scheduler is not obligated to recall your request handling
+function, _unless_ you have no pending io at the point where
+elv_next_request() returns NULL but there are things pending. IOW, when
+you complete your requests you want to just recall your request handling
+function. Just insert something ala:
 
-Jan
+        if (elv_next_request(q))
+                q->request_fn(q);
+
+when you are done completing requests.
+
+Does that fix it?
+
+-- 
+Jens Axboe
+

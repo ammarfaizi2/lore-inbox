@@ -1,99 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161557AbWJ3Xq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422757AbWJ3XuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161557AbWJ3Xq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 18:46:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161558AbWJ3Xq2
+	id S1422757AbWJ3XuF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 18:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422756AbWJ3XuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 18:46:28 -0500
-Received: from smtp3.netcabo.pt ([212.113.174.30]:14513 "EHLO
-	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1161557AbWJ3Xq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 18:46:27 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Ao8CACcdRkVThFhodGdsb2JhbACBTIpq
-X-IronPort-AV: i="4.09,372,1157324400"; 
-   d="p7s'?scan'208"; a="116578665:sNHT2991754602"
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.128.105):SA:0(-1.3/5.0):. Processed in 2.69831 secs Process 27380)
-Subject: Re: Linux Freezes during disk IO on Asus M2NPV-VM nVidia chipset -
-	raid 0 related?
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4546400C.1090500@perkel.com>
-References: <4546400C.1090500@perkel.com>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-W35NO+Bv8Iw0eWDu2GUe"
-Date: Mon, 30 Oct 2006 23:46:15 +0000
-Message-Id: <1162251975.2911.15.camel@localhost.portugal>
+	Mon, 30 Oct 2006 18:50:05 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:33935 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S932280AbWJ3XuE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 18:50:04 -0500
+Date: Tue, 31 Oct 2006 00:44:25 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tmattox@gmail.com, spiky.kiwi@gmail.com, r.bhatia@ipax.at
+Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
+Message-ID: <20061030234425.GB6038@electric-eye.fr.zoreil.com>
+References: <20061029223410.GA15413@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610300032190.1435@poirot.grange> <20061030120158.GA28123@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610302148560.9723@poirot.grange> <Pine.LNX.4.60.0610302214350.9723@poirot.grange>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-X-OriginalArrivalTime: 30 Oct 2006 23:46:25.0165 (UTC) FILETIME=[9C658BD0:01C6FC7D]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0610302214350.9723@poirot.grange>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Guennadi Liakhovetski <g.liakhovetski@gmx.de> :
+[...]
+> The "seems" above was the key word. Once again I had a case, when after 
+> re-compiling the kernel again with the disabled call to 
+> __rtl8169_set_mac_addr only ping worked. And a power-off was required to 
+> recover. So, that phy_reset doesn't seem to be very safe either.
 
---=-W35NO+Bv8Iw0eWDu2GUe
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Can you replace phy_reset by the patch below and try it twice ?
 
-On Mon, 2006-10-30 at 10:10 -0800, Marc Perkel wrote:
-> Trying to track down my remaining lockup problem with Linux using my=20
-> first AMD AM2 motherboard. It's been a nightmare, but it's getting=20
-> better. but I think it might be a Linux bug. But I have some specific=20
-> info that might lead to something.
+It's interesting to know if it does not always behave the same.
 
-boot always with report_lost_ticks
-try boot with notsc
-
-
---=20
-S=E9rgio M.B.
-
---=-W35NO+Bv8Iw0eWDu2GUe
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
-ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
-ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
-bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
-m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
-kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
-EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
-eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
-VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
-MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
-hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
-dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
-8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
-BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
-MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
-MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
-dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
-ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
-7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
-1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
-LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
-pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
-Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
-0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
-c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
-dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjEwMzAyMzQ2MTFaMCMGCSqGSIb3DQEJBDEWBBR9SSoaLpoQKdh16yTS2rgF
-OC/+8zANBgkqhkiG9w0BAQEFAASCAQCKtJblPWAIMFoc0l5tfKA7iE6lY8gMAFRgL/xqZZCpjR0a
-KNrUC021SYEUyu/S1LMq8EXWFHl1VgW62kx24C8TZvzUEY7MWFKzUI72yCGsGYkhtJ59i2xEs/8F
-ElCD9nl/UFlG7nww9keu+XoyEsZzcCG3vADmcYE0Su4p7t85pvx1KSEhU71owXhnLgr0PsOkizms
-2YpB2FP8H3ZQ8fIabzAzEp6xczFFMiix1VGQhhLedlzSOcl10kOtlA2gbE5GUdmAFQcm83HfTjaL
-yYPogvtcfGziT7UhUg9djcvRMF+n1aN0+LGWIHVuUHJla3pxKYb4knQj8Rif5473faDyAAAAAAAA
-
-
-
---=-W35NO+Bv8Iw0eWDu2GUe--
+diff --git a/drivers/net/r8169.c b/drivers/net/r8169.c
+index f1c7575..4b05dea 100644
+--- a/drivers/net/r8169.c
++++ b/drivers/net/r8169.c
+@@ -570,8 +570,8 @@ static void rtl8169_xmii_reset_enable(vo
+ {
+ 	unsigned int val;
+ 
+-	val = (mdio_read(ioaddr, MII_BMCR) | BMCR_RESET) & 0xffff;
+-	mdio_write(ioaddr, MII_BMCR, val);
++	mdio_write(ioaddr, MII_BMCR, BMCR_RESET);
++	val = mdio_read(ioaddr, MII_BMCR);
+ }
+ 
+ static void rtl8169_check_link_status(struct net_device *dev,
+@@ -1440,6 +1440,22 @@ static void rtl8169_release_board(struct
+ 	free_netdev(dev);
+ }
+ 
++static void rtl8169_phy_reset(struct net_device *dev,
++			      struct rtl8169_private *tp)
++{
++	void __iomem *ioaddr = tp->mmio_addr;
++	int i;
++
++	tp->phy_reset_enable(ioaddr);
++	for (i = 0; i < 100; i++) {
++		if (!tp->phy_reset_pending(ioaddr))
++			return;
++		msleep(1);
++	}
++	if (netif_msg_link(tp))
++		printk(KERN_ERR "%s: PHY reset failed.\n", dev->name);
++}
++
+ static void rtl8169_init_phy(struct net_device *dev, struct rtl8169_private *tp)
+ {
+ 	void __iomem *ioaddr = tp->mmio_addr;
+@@ -1468,6 +1484,8 @@ static void rtl8169_init_phy(struct net_
+ 
+ 	rtl8169_link_option(board_idx, &autoneg, &speed, &duplex);
+ 
++	rtl8169_phy_reset(dev, tp);
++
+ 	rtl8169_set_speed(dev, autoneg, speed, duplex);
+ 
+ 	if ((RTL_R8(PHYstatus) & TBI_Enable) && netif_msg_link(tp))

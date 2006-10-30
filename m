@@ -1,58 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030464AbWJ3AFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbWJ3AUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030464AbWJ3AFy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Oct 2006 19:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbWJ3AFx
+	id S1030477AbWJ3AUu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Oct 2006 19:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWJ3AUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Oct 2006 19:05:53 -0500
-Received: from ozlabs.org ([203.10.76.45]:56285 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030464AbWJ3AFx (ORCPT
+	Sun, 29 Oct 2006 19:20:49 -0500
+Received: from mail.gmx.net ([213.165.64.20]:53192 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030474AbWJ3AUt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Oct 2006 19:05:53 -0500
-Subject: Re: [PATCH] Re: [PATCH 3/4] Prep for paravirt: desc.h clearer
-	parameter names, some code motion
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Don Mullis <dwm@meer.net>
-Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1162158259.23311.35.camel@localhost.localdomain>
-References: <1161920325.17807.29.camel@localhost.localdomain>
-	 <1161920728.17807.39.camel@localhost.localdomain>
-	 <1162152071.23311.28.camel@localhost.localdomain>
-	 <200610291306.36148.ak@suse.de>
-	 <1162158259.23311.35.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 30 Oct 2006 11:05:50 +1100
-Message-Id: <1162166750.9802.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Oct 2006 19:20:49 -0500
+X-Authenticated: #20450766
+Date: Mon, 30 Oct 2006 01:20:45 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Francois Romieu <romieu@fr.zoreil.com>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tmattox@gmail.com, spiky.kiwi@gmail.com, r.bhatia@ipax.at
+Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known
+ regressions)
+In-Reply-To: <20061029223410.GA15413@electric-eye.fr.zoreil.com>
+Message-ID: <Pine.LNX.4.60.0610300032190.1435@poirot.grange>
+References: <20061029223410.GA15413@electric-eye.fr.zoreil.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-29 at 13:44 -0800, Don Mullis wrote:
-> On Sun, 2006-10-29 at 13:06 -0800, Andi Kleen wrote:
-> > On Sunday 29 October 2006 12:01, Don Mullis wrote:
-> > > Fix build where CONFIG_CC_OPTIMIZE_FOR_SIZE is not set.
-> > >
-> > > Tested by build and boot.
-> > 
-> > What error does that fix?
+On Sun, 29 Oct 2006, Francois Romieu wrote:
+
+> Linus Torvalds <torvalds@osdl.org> :
+> [regression related to r8169 MAC address change]
+> > Francois ? Jeff ?
 > 
-> The build aborts with:
+> Go revert it.
 > 
->   include/asm/desc.h: In function 'set_ldt':
->   include/asm/desc.h:92: error: implicit declaration of function 'write_gdt_entry'
+> Despite what I claimed, I can not find a third-party confirmation by email
+> that it works elsewhere.
 > 
-> The patch is a follow-on to my earlier reply to "[PATCH 1/4]".
+> It would probably be enough to remove the call to __rtl8169_set_mac_addr()
+> in rtl8169_hw_start() though.
+> 
+> In place of the test suggested in bugzilla, I'd rather see Guennadi test
+> the thing below (acked on netdev by the initial victim if someone wonders
+> why it has not changed the status of bugzilla so far):
 
-Yes, I caught this immediately after I sent; I sent the fix straight to
-akpm, as I didn't expect anyone else to be applying the patches.
+AFAIU, you wanted it applied on the top of the "non-working" kernel 
+(2.6.19-rc2-ish)? No, it didn't work. And, worse yet, I think, it is after 
+testing that patch that the interface got into a state, when netconsole 
+worked, ping worked, but ssh didn't. A poweroff was needed to recover. In 
+case you still need it, here's the info you requested:
 
-The patch was the same as yours.
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit Ethernet (rev 10)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 128 (8000ns min, 16000ns max), Cache Line Size: 32 bytes
+        Interrupt: pin A routed to IRQ 16
+        Region 0: I/O ports at febfff00 [size=256]
+        Region 1: Memory at bffffc00 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [dc] Power Management version 0
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: ec 10 69 81 17 00 b0 02 10 00 00 02 08 80 00 00
+10: 01 ff bf 00 00 fc ff bf 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 10 01 20 40
 
-Thanks!
-Rusty.
+dmesg when it didn't work (I do use netconsole, don't think it matters?):
 
+r8169 Gigabit Ethernet driver 2.2LK loaded
+eth0: RTL8169s/8110s at 0xc9004c00, 00:0d:0b:99:44:70, IRQ 16
+netconsole: device eth0 not up yet, forcing it
+r8169: eth0: link down
+r8169: eth0: link up
 
+The same when it's working.
+
+Yes, just commenting out the line
+
+	__rtl8169_set_mac_addr(dev, ioaddr);
+
+fixes it (without the patch from your previous email).
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

@@ -1,118 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161382AbWJ3S64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWJ3S7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161382AbWJ3S64 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 13:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161381AbWJ3S64
+	id S1161383AbWJ3S7n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 13:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161385AbWJ3S7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 13:58:56 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:6290 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1161372AbWJ3S6y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:58:54 -0500
-Date: Mon, 30 Oct 2006 20:58:44 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-Message-ID: <20061030185844.GA4442@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
+	Mon, 30 Oct 2006 13:59:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:28553 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161383AbWJ3S7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 13:59:41 -0500
+Subject: Re: ipw3945?
+From: Arjan van de Ven <arjan@infradead.org>
+To: dragoran <dragoran@feuerpokemon.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <45464A55.20803@feuerpokemon.de>
+References: <45464A55.20803@feuerpokemon.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 30 Oct 2006 19:59:39 +0100
+Message-Id: <1162234779.2948.67.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Linus Torvalds <torvalds@osdl.org>:
-> Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-> 
-> 
-> 
-> On Mon, 30 Oct 2006, Jun'ichi Nomura wrote:
-> > 
-> > Please revert the patch. I'll fix the wrong error handling.
-> > 
-> > I'm not sure reverting the patch solves the ACPI problem
-> > because Michael's kernel seems not having any user of
-> > bd_claim_by_kobject.
-> 
-> Yeah, doing a grep does seem to imply that there is no way that those 
-> changes could matter.
-> 
-> Michael, can you double-check? I think Jun'ichi is right - in your kernel, 
-> according to the config posted on bugzilla, I don't think there should be 
-> a single caller of bd_claim_by_disk, since CONFIG_MD is disabled.
+On Mon, 2006-10-30 at 19:54 +0100, dragoran wrote:
+> The ipw3945 driver has been out for a while and is not yet upstream.
+> It requires a binary only daemon to work, but I still see no reason not
+> to merge it.
+> Many wlan drivers require binary firmware anyway, so I don't see a
+> reason not to merge it.
 
-I will, just maybe not today.
+has Intel submitted it for inclusion?
 
-> So it does seem strange. But if you bisected to that patch, and it 
-> reliably does _not_ have problems with the patch reverted, maybe there is 
-> some strange preprocessor thing that makes "grep" not find the caller.
-> 
-> Michael, you also reported:
-> 
-> > Reset to d7dd8fd9557840162b724a8ac1366dd78a12dff seems to hide part of 
-> > the issue (I have ACPI after kernel build, but not after 
-> > suspend/resume).  Both reverting this patch, and reset to the parent of
-> > this patch seem to solve (or at least, hide) both problems for me (no 
-> > ACPI after suspend/resume and no ACPI after kernel build).
-> 
-> (where that "d7dd8f.." is actually missing the initial "4" - I think you 
-> cut-and-pasted things incorrectly). 
+No.
 
-Yes.
+> It seems that the development of the driver has stopped since july,
+> maybe because it never will get merged and intel decided to stop working
+> on it?
 
-> So I wonder.. You still had ACPI working _after_ the kernel build even 
-> with that patch in place, and it seems that suspend/resume is the real 
-> issue. Martin Lorenz reports on the same bugzilla entry, and he only has 
-> problems with suspend/resume.
-> 
-> I assume that "compile the kernel" just triggers some magic ACPI event 
-> (probably fan-related due to heat), and I wonder if the bisection faked 
-> you out because once you get "close enough" the differences are small 
-> enough that the kernel compile is quick and the heat event doesn't 
-> actually trigger?
-> 
-> See what I'm saying? Maybe the act of bisecting itself changed the 
-> results, and then when you just revert the patch, you end up in the same 
-> situation: you only recompile a small part (you only recompile that 
-> particular file), and the problem doesn't occur, so you'd think that the 
-> revert "fixed" it.
-> 
-> If it's heat-related, it should probably trigger by anything that does a 
-> lot of CPU (and perhaps disk) accesses, not just kernel builds. It might 
-> be good to try to find another test-case for it than a kernel recompile, 
-> one that doesn't depend on how much changed in the kernel..
-> 
-> 		Linus
-> 
-> 
+No this is not correct. I'll let James comment on what we are doing
+though, he can explain that a lot better than I can.
 
-Linus, I agree something fishy is going on, I'm just not sure how to debug.
-It kind of looks like some memory corruption, or something.
-I plan double-checking sometime later.
-
-2 points I'd like to clarify:
-1. When I git-bisected, I tested ACPI after suspend/resume,
-   this is much faster to test but might be a separate issue.
-   I really tested several times, and unless I repeated
-   same mistake several times just switching between commit above 
-   and its parent made ACPI after resume work/not work.
-
-2. When I test kernel compile, I do
-git clone -s ~/scm/linux-2.6
-cd linux-2.6
-make defconfig
-make -j 4
-
-so the build I do in testing is repeatable.
 
 -- 
-MST
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

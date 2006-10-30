@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161518AbWJ3VhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161519AbWJ3ViJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161518AbWJ3VhE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 16:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161519AbWJ3VhD
+	id S1161519AbWJ3ViJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 16:38:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161520AbWJ3ViJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 16:37:03 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:27340 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1161518AbWJ3VhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 16:37:01 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Mon, 30 Oct 2006 16:34:08 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: David Rientjes <rientjes@cs.washington.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] sched.c : correct comment for this_rq_lock() routine
-In-Reply-To: <Pine.LNX.4.64N.0610301308290.17544@attu2.cs.washington.edu>
-Message-ID: <Pine.LNX.4.64.0610301623360.13169@localhost.localdomain>
-References: <Pine.LNX.4.64.0610301600550.12811@localhost.localdomain>
- <Pine.LNX.4.64N.0610301308290.17544@attu2.cs.washington.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Mon, 30 Oct 2006 16:38:09 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:38346 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1161519AbWJ3ViG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 16:38:06 -0500
+Date: Tue, 31 Oct 2006 00:37:49 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
+       Jay Lan <jlan@sgi.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] taskstats: fix sub-threads accounting
+Message-ID: <20061030213749.GA3035@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006, David Rientjes wrote:
+If there are no listeners, taskstats_exit_send() just returns because
+taskstats_exit_alloc() didn't allocate *tidstats. This is wrong, each
+sub-thread should do fill_tgid_exit() on exit, otherwise its ->delays
+is not recorded in ->signal->stats and lost.
 
-> On Mon, 30 Oct 2006, Robert P. J. Day wrote:
->
-> >
-> > Correct the comment for the this_rq_lock() routine.
-> >
->
-> You submitted this same patch two days ago.
->
-> 		http://lkml.org/lkml/2006/10/28/54
+Q: We don't send TASKSTATS_TYPE_AGGR_TGID when single-threaded process
+exits. Is it good? How can the listener figure out that it was actually
+a process exit, not sub-thread?
 
-that's right, i did.  and given that it was a trivial, aesthetic patch
-but a couple "git pull" cycles went by without it being applied, i
-figured i might as well submit it again.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-quite honestly, at this point, given that it's this much trouble to
-fix a freaking comment in a single file, i'm seriously losing interest
-in wasting any more of my time at this.  life is just too short to
-volunteer unpaid labour that just gets dropped on the floor because
-you don't know the secret handshake.
+--- STATS/kernel/taskstats.c~2_send	2006-10-30 23:47:46.000000000 +0300
++++ STATS/kernel/taskstats.c	2006-10-31 00:14:42.000000000 +0300
+@@ -446,10 +446,9 @@ void taskstats_exit_send(struct task_str
+ 	int is_thread_group;
+ 	struct nlattr *na;
+ 
+-	if (!family_registered || !tidstats)
++	if (!family_registered)
+ 		return;
+ 
+-	rc = 0;
+ 	/*
+ 	 * Size includes space for nested attributes
+ 	 */
+@@ -457,8 +456,15 @@ void taskstats_exit_send(struct task_str
+ 		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
+ 
+ 	is_thread_group = (tsk->signal->stats != NULL);
+-	if (is_thread_group)
+-		size = 2 * size;	/* PID + STATS + TGID + STATS */
++	if (is_thread_group) {
++		/* PID + STATS + TGID + STATS */
++		size = 2 * size;
++		/* fill the tsk->signal->stats structure */
++		fill_tgid_exit(tsk);
++	}
++
++	if (!tidstats)
++		return;
+ 
+ 	rc = prepare_reply(NULL, TASKSTATS_CMD_NEW, &rep_skb, &reply, size);
+ 	if (rc < 0)
+@@ -478,11 +484,8 @@ void taskstats_exit_send(struct task_str
+ 		goto send;
+ 
+ 	/*
+-	 * tsk has/had a thread group so fill the tsk->signal->stats structure
+ 	 * Doesn't matter if tsk is the leader or the last group member leaving
+ 	 */
+-
+-	fill_tgid_exit(tsk);
+ 	if (!group_dead)
+ 		goto send;
+ 
 
-rday

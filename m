@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030536AbWJ3PmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030543AbWJ3PnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030536AbWJ3PmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 10:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030540AbWJ3PmZ
+	id S1030543AbWJ3PnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 10:43:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030541AbWJ3PnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 10:42:25 -0500
-Received: from [82.147.217.150] ([82.147.217.150]:8064 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1030536AbWJ3PmY (ORCPT
+	Mon, 30 Oct 2006 10:43:09 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:35884 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1030544AbWJ3PnF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 10:42:24 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Rik van Riel <riel@surriel.com>
-Subject: Re: [RFC] kswapd: Kernel Swapper performance
-Date: Mon, 30 Oct 2006 18:45:00 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200610282031.17451.a1426z@gawab.com> <4543CF1C.7070604@surriel.com>
-In-Reply-To: <4543CF1C.7070604@surriel.com>
-MIME-Version: 1.0
+	Mon, 30 Oct 2006 10:43:05 -0500
+Date: Mon, 30 Oct 2006 16:44:44 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Mark Lord <liml@rtr.ca>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
+Subject: Re: 2.6.19-rc3-git7: scsi_device_unbusy: inconsistent lock state
+Message-ID: <20061030154444.GH4563@kernel.dk>
+References: <45460D52.3000404@rtr.ca> <20061030144315.GG4563@kernel.dk> <1162220239.2948.27.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610301845.00206.a1426z@gawab.com>
+In-Reply-To: <1162220239.2948.27.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> Al Boldi wrote:
-> > One thing that has improved in 2.6, wrt 2.4, is swapper performance. 
-> > And the difference isn't small either: ~5 fold increase in swapin
-> > performance.
-> >
-> > But swapin performance still lags swapout performance by 50%, which is a
-> > bit odd, considering swapin to be a read from disk, usually faster, and
-> > swapout to be a write to disk, usually slower.
->
-> Ahhhhhh, but there's a catch...
->
-> You can queue up multiple writes, because the data you want
-> to write to disk is already in memory.
->
-> However, at swapin time you need to read the first bit of
-> data from disk, after which the program can continue, and
-> only when the next page fault happens you know what data
-> to read in next.
->
-> Linux does some swapin clustering, but there simply is no
-> way to know which data will be needed next.
->
-> This means reads are serialized and synchronous wrt. program
-> execution, while writes can overlap and be done asynchronously.
->
-> It's a miracle reads are going at 50% of the speed of writes...
->
-> > Improving this ratio could possibly yield a dramatic improvement in
-> > system performance under memory load (think tmpfs/swsusp/...).
->
-> Let me know when you figure out how to look into the future.
->
-> Actually, Keir Fraser and Fay Chang came up with a cool trick.
->
->     "Operating System I/O Speculation:
->    How Two Invocations Are Faster Than One"
->
-> http://www.usenix.org/publications/library/proceedings/usenix03/tech/frase
->r.html
->
-> It is somewhat complex though...
+On Mon, Oct 30 2006, Arjan van de Ven wrote:
+> 
+> > which has always been considered safe, while not very pretty.
+> 
+> 
+> actually it's different I think (based on a brief inspection of the
+> code, I could well be wrong): 
+> get_request_wait() causes a get_request() call with a GFP_NOIO gfp_mask
+> which perculates upto cfq_set_request() as argument.
+> cfq_set_request() then calls the inline cfq_get_queue() (which isn't in
+> the backtrace due to inlining) which does
+>                 } else if (gfp_mask & __GFP_WAIT) {
+>                         /* 
+>                          * Inform the allocator of the fact that we will
+>                          * just repeat this allocation if it fails, to allow
+>                          * the allocator to do whatever it needs to attempt to
+>                          * free memory.
+>                          */
+>                         spin_unlock_irq(cfqd->queue->queue_lock);
+> 
+> which enables interrupts right smack in the middle of holding a whole
+> bunch of locks.....
 
-Thanks for the link, but I was more thinking about improving consecutive 
-swapin rather than random swapin.
+Where do you get 'a bunch' from? If you call get_request() with a
+gfp_mask that includes __GFP_WAIT with a spinlock held, it's a bug. Just
+as if you had called kmalloc() or similar with __GFP_WAIT set and
+holding a lock. cfq even includes a warning check:
 
-Right now, consecutive swapin looks suspiciously slow, and should be at least 
-as fast as swapout, if not faster.
+        might_sleep_if(gfp_mask & __GFP_WAIT);
 
+So there's no bug there, cfq even grabbed the lock on its own before
+calling cfq_get_queue().
 
-Thanks!
+> so to me it looks like lockdep at least has the appearance of moaning
+> about a reasonably fishy situation...
 
---
-Al
+To me it looks more about lockdep complaining because it doesn't grok
+the full picture. The question is how to shut it up.
+
+-- 
+Jens Axboe
 

@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWJ3InR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWJ3Ilm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWJ3InR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 03:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965273AbWJ3InR
+	id S1751381AbWJ3Ilm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 03:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWJ3Ilm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 03:43:17 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:60248 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964786AbWJ3InQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 03:43:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=JEKtrJen2KphFURmfw7JRKOoCAHcaatFGCvnlZShsghNTycB3DJ9NkWL6ai8D4bhMkyjMM78Ijh29DPSBC2/Si1GKXgAlLJiPoGoaFAKD/VyBECxXeo+bHUhRlXbaTr2hjUdcWYWz96lQtkFQdQy/nWdy0Hjaji6T+KatejAAhg=
-Message-ID: <4545BB3E.7030503@innova-card.com>
-Date: Mon, 30 Oct 2006 09:43:42 +0100
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Miguel Ojeda <maxextreme@gmail.com>
-CC: Franck Bui-Huu <vagabon.xyz@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
-References: <20061013023218.31362830.maxextreme@gmail.com>	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>	 <453CE143.3070909@innova-card.com>	 <653402b90610230921j595446a4xda5e6d9444e108da@mail.gmail.com>	 <cda58cb80610230951l4a1319bbs6956fea5143c021a@mail.gmail.com>	 <653402b90610260745w59b740d2x5961e40252f5b76@mail.gmail.com>	 <cda58cb80610271308v137a2de8vfb8123a422270144@mail.gmail.com> <653402b90610271338t6e2e4d31idffefe4b6b1ce639@mail.gmail.com>
-In-Reply-To: <653402b90610271338t6e2e4d31idffefe4b6b1ce639@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 30 Oct 2006 03:41:42 -0500
+Received: from crystal.sipsolutions.net ([195.210.38.204]:5298 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1751381AbWJ3Ill
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 03:41:41 -0500
+Subject: Re: [PATCH] wireless-2.6 zd1211rw check against regulatory domain
+	rather than hardcoded value of 11
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Uli Kunitz <kune@deine-taler.de>
+Cc: Daniel Drake <dsd@gentoo.org>, Holden Karau <holden@pigscanfly.ca>,
+       zd1211-devs@lists.sourceforge.net, linville@tuxdriver.com,
+       netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       holdenk@xandros.com
+In-Reply-To: <4544CBC8.5090305@deine-taler.de>
+References: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>
+	 <453D48E5.8040100@gentoo.org>
+	 <f46018bb0610240709y203d8cdbw95cdf66db23aa1ce@mail.gmail.com>
+	 <453E2C9A.7010604@gentoo.org>  <4544CBC8.5090305@deine-taler.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
+Date: Mon, 30 Oct 2006 09:42:29 +0100
+Message-Id: <1162197749.2854.5.camel@ux156>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-sips-origin: local
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Ojeda wrote:
-> 
-> Sorry, I meant: You can't mmap a RAM address using functions like the
-> usual remap_pfn_range (as such functions doesn't like physical RAM
-> addresses, they want I/O ports for example, like 0x378). So, you can't
-> use smem_start. You need to code your own mmap & nopage function. (It
-> is explained in LDD3 very well).
-> 
 
-well I must admit that I don't understand why... I suppose you refered
-to that section in ldd3:
+> I'm not so sure about this. This patching might be US-specific and we 
+> cannot simply apply the setting for top channel of another domain 
+> instead of channel 11. One option would be to set the value only under 
+> the US regulatory domain.
 
-	An interesting limitation of remap_pfn_range is that it gives
-	access only to reserved pages and physical addresses above the
-	top of physical memory.
+??
+What the patch does is replace the top channel which is hardcoded to 11
+by the top channel given by the current regulatory domain. How can that
+be wrong? Except that you may want to init the regulatory domain from
+the EEPROM but I'm not sure how the ieee80211 code works wrt. that.
 
-I take a quick look at the implementation of remap_pfn_range() and
-there's no such limitation I can see (fortunately).
-
-		Franck
+johannes

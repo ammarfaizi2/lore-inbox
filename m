@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965468AbWJ3JC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965470AbWJ3JFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965468AbWJ3JC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 04:02:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965470AbWJ3JC5
+	id S965470AbWJ3JFi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 04:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965471AbWJ3JFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 04:02:57 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:27347 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965468AbWJ3JCz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 04:02:55 -0500
-Date: Mon, 30 Oct 2006 10:02:31 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc3] i386/io_apic: fix compiler warning in create_irq
-Message-ID: <20061030090231.GA27146@elte.hu>
-References: <tkrat.b1c929dd899e625a@s5r6.in-berlin.de>
+	Mon, 30 Oct 2006 04:05:38 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:26035 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S965470AbWJ3JFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 04:05:37 -0500
+Subject: [PATCH 2/2] lockdep: annotate bcsp driver
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Jiri Kosina <jikos@jikos.cz>, Marcel Holtmann <marcel@holtmann.org>,
+       David Woodhouse <dwmw2@infradead.org>
+In-Reply-To: <1162199005.24143.169.camel@taijtu>
+References: <1162199005.24143.169.camel@taijtu>
+Content-Type: text/plain
+Date: Mon, 30 Oct 2006 10:06:32 +0100
+Message-Id: <1162199192.24143.172.camel@taijtu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tkrat.b1c929dd899e625a@s5r6.in-berlin.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+=============================================
+[ INFO: possible recursive locking detected ]
+2.6.18-1.2699.fc6 #1
+---------------------------------------------
+swapper/0 is trying to acquire lock:
+ (&list->lock#3){+...}, at: [<c05ad307>] skb_dequeue+0x12/0x43
 
-> Fix warning
-> arch/i386/kernel/io_apic.c: In function `create_irq':
-> arch/i386/kernel/io_apic.c:2420: warning: 'vector' might be used uninitialized in this function
+but task is already holding lock:
+ (&list->lock#3){+...}, at: [<df98cd79>] bcsp_dequeue+0x6a/0x11e [hci_uart]
 
-> @@ -2421,6 +2421,7 @@ int create_irq(void)
->  	unsigned long flags;
->  
->  	irq = -ENOSPC;
-> +	vector = 0;
 
-NAK - the code is fine, and this is fixed in Jeff's gcc-warnings tree 
-via annotation.
+Two different list locks nest, annotate so.
 
-	Ingo
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ drivers/bluetooth/hci_bcsp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6/drivers/bluetooth/hci_bcsp.c
+===================================================================
+--- linux-2.6.orig/drivers/bluetooth/hci_bcsp.c
++++ linux-2.6/drivers/bluetooth/hci_bcsp.c
+@@ -330,7 +330,7 @@ static struct sk_buff *bcsp_dequeue(stru
+ 	   reliable packet if the number of packets sent but not yet ack'ed
+ 	   is < than the winsize */
+ 
+-	spin_lock_irqsave(&bcsp->unack.lock, flags);
++	spin_lock_irqsave_nested(&bcsp->unack.lock, flags, SINGLE_DEPTH_NESTING);
+ 
+ 	if (bcsp->unack.qlen < BCSP_TXWINSIZE && (skb = skb_dequeue(&bcsp->rel)) != NULL) {
+ 		struct sk_buff *nskb = bcsp_prepare_pkt(bcsp, skb->data, skb->len, bt_cb(skb)->pkt_type);
+
+

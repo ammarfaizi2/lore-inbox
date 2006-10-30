@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161351AbWJ3Suh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161350AbWJ3SuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161351AbWJ3Suh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 13:50:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161352AbWJ3Suh
+	id S1161350AbWJ3SuR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 13:50:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161351AbWJ3SuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 13:50:37 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:34827 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1161351AbWJ3Suf (ORCPT
+	Mon, 30 Oct 2006 13:50:17 -0500
+Received: from smtpout.mac.com ([17.250.248.186]:52703 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1161350AbWJ3SuP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:50:35 -0500
-Date: Mon, 30 Oct 2006 19:52:14 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Mark Lord <liml@rtr.ca>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
-Subject: Re: 2.6.19-rc3-git7: scsi_device_unbusy: inconsistent lock state
-Message-ID: <20061030185214.GH14055@kernel.dk>
-References: <1162220239.2948.27.camel@laptopd505.fenrus.org> <20061030154444.GH4563@kernel.dk> <1162225002.2948.45.camel@laptopd505.fenrus.org> <20061030162621.GK4563@kernel.dk> <1162225915.2948.49.camel@laptopd505.fenrus.org> <20061030175224.GB14055@kernel.dk> <45463C5B.7070900@rtr.ca> <45464064.2090108@rtr.ca> <20061030181645.GF14055@kernel.dk> <454644C1.4080702@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <454644C1.4080702@rtr.ca>
+	Mon, 30 Oct 2006 13:50:15 -0500
+In-Reply-To: <20061030144259.GD10235@parisc-linux.org>
+References: <200610282350.k9SNoljL020236@freya.yggdrasil.com> <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org> <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com> <20061030144259.GD10235@parisc-linux.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <87F87E8E-9434-4844-AA3F-ED850BEFAD29@mac.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Adam J. Richter" <adam@yggdrasil.com>,
+       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       pavel@ucw.cz, shemminger@osdl.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
+Date: Mon, 30 Oct 2006 13:47:53 -0500
+To: Matthew Wilcox <matthew@wil.cx>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAA==
+X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30 2006, Mark Lord wrote:
-> (gdb) l *cfq_set_request+0x33e
-> 0xc021780e is in cfq_set_request (block/cfq-iosched.c:1224).
-> 1219            if (unlikely(!cfqd))
-> 1220                    return;
-> 1221
-> 1222            spin_lock(cfqd->queue->queue_lock);
-> 1223
-> 1224            cfqq = cic->cfqq[ASYNC];
-> 1225            if (cfqq) {
-> 1226                    struct cfq_queue *new_cfqq;
-> 1227                    new_cfqq = cfq_get_queue(cfqd, CFQ_KEY_ASYNC, 
-> cic->ioc->task,
-> 1228                                             GFP_ATOMIC);
+On Oct 30, 2006, at 09:42:59, Matthew Wilcox wrote:
+> On Mon, Oct 30, 2006 at 09:23:10AM -0500, Kyle Moffett wrote:
+>> recursive make invocations and nested directories).  Likewise in  
+>> the context of recursively nested busses and devices; multiple PCI  
+>> domains, USB, Firewire, etc.
+>
+> I don't think you know what a PCI domain is ...
 
-Bingo, that's a lot better! So that's the real bug, I'm guessing this
-got introduced when the ioprio stuff got juggled around recently. Pretty
-straight forward, this should fix it for you.
+Fair enough, I guess I don't, really...
 
+>> Well, perhaps it does.  If I have (hypothetically) a 64-way system  
+>> with several PCI domains, I should be able to not only start  
+>> scanning each PCI domain individually,  but once each domain has  
+>> been scanned it should be able to launch multiple probing threads,  
+>> one for each device on the PCI bus.  That is, assuming that I have  
+>> properly set up my udev to statically name devices.
+>
+> There's still one spinlock that protects *all* accesses to PCI  
+> config space.  Maybe we should make it one per PCI root bridge or  
+> something, but even that wouldn't help some architectures.
 
-diff --git a/block/cfq-iosched.c b/block/cfq-iosched.c
-index d3d7613..25c4e7e 100644
---- a/block/cfq-iosched.c
-+++ b/block/cfq-iosched.c
-@@ -1215,11 +1215,12 @@ static inline void changed_ioprio(struct
- {
- 	struct cfq_data *cfqd = cic->key;
- 	struct cfq_queue *cfqq;
-+	unsigned long flags;
- 
- 	if (unlikely(!cfqd))
- 		return;
- 
--	spin_lock(cfqd->queue->queue_lock);
-+	spin_lock_irqsave(cfqd->queue->queue_lock, flags);
- 
- 	cfqq = cic->cfqq[ASYNC];
- 	if (cfqq) {
-@@ -1236,7 +1237,7 @@ static inline void changed_ioprio(struct
- 	if (cfqq)
- 		cfq_mark_cfqq_prio_changed(cfqq);
- 
--	spin_unlock(cfqd->queue->queue_lock);
-+	spin_unlock_irqrestore(cfqd->queue->queue_lock, flags);
- }
- 
- static void cfq_ioc_set_ioprio(struct io_context *ioc)
+Well, yes, but it would help some architectures.  It would seem  
+rather stupid to build a hardware limitation into a 64+ cpu system  
+such that it cannot initialize or reconfigure multiple pieces of  
+hardware at once.  It also would help for more "mundane" systems such  
+as my "Quad" G5 desktop which takes an appreciable time to probe all  
+the various PCI, USB, SATA, and  Firewire devices in the system.
 
--- 
-Jens Axboe
-
+Cheers,
+Kyle Moffett

@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161416AbWJ3TI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161478AbWJ3TLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161416AbWJ3TI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 14:08:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161460AbWJ3TI2
+	id S1161478AbWJ3TLS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 14:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161477AbWJ3TLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 14:08:28 -0500
-Received: from excu-mxob-1.symantec.com ([198.6.49.12]:26619 "EHLO
-	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1161416AbWJ3TI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 14:08:26 -0500
-Date: Mon, 30 Oct 2006 19:06:21 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Adrian Bunk <bunk@stusta.de>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-In-Reply-To: <20061030183522.GL27968@stusta.de>
-Message-ID: <Pine.LNX.4.64.0610301900350.5198@blonde.wat.veritas.com>
-References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il>
- <45462591.7020200@ce.jp.nec.com> <Pine.LNX.4.64.0610300834060.25218@g5.osdl.org>
- <454637BE.6090309@ce.jp.nec.com> <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
- <20061030183522.GL27968@stusta.de>
+	Mon, 30 Oct 2006 14:11:18 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:54471 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1161478AbWJ3TLR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 14:11:17 -0500
+Message-ID: <45464E67.7030004@cfl.rr.com>
+Date: Mon, 30 Oct 2006 14:11:35 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 30 Oct 2006 19:06:07.0548 (UTC) FILETIME=[7450D7C0:01C6FC56]
+To: Daniel Drake <ddrake@brontes3d.com>
+CC: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: splice blocks indefinitely when len > 64k?
+References: <1162226390.7280.18.camel@systems03.lan.brontes3d.com>
+In-Reply-To: <1162226390.7280.18.camel@systems03.lan.brontes3d.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Oct 2006 19:11:29.0845 (UTC) FILETIME=[346B7650:01C6FC57]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14782.003
+X-TM-AS-Result: No--13.655800-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006, Adrian Bunk wrote:
-> 
-> Martin's original bug report stated "now I loose ACPI events after 
-> suspend/resume. not every time, but roughly 3 out of 4 times."
-> This seems to support your theory.
-> 
-> But considering that two people have independently reported this as a 
-> 2.6.19-rc regression for similar hardware (Michael for a T60 and Martin 
-> for an X60), a problem in the kernel seems to be involved.
+While it should not simply hang, the splice size needs to be an even 
+multiple of the page size.
 
-Add me to the list, on a T43p.  I believe it was happening in -rc1,
-but seems worse with -rc3 and current.  But it's one of those things
-which doesn't happen if you just go to test it out, only when you
-need to suspend and resume for real.
+Daniel Drake wrote:
+> Hi,
+> 
+> I'm experimenting with splice and have run into some unusual behaviour.
+> 
+> I am using the utilities in git://brick.kernel.dk/data/git/splice.git
+> 
+> In splice.h, when changing SPLICE_SIZE from:
+> 
+> #define SPLICE_SIZE (64*1024)
+> 
+> to
+> 
+> #define SPLICE_SIZE ((64*1024)+1)
+> 
+> splice-cp hangs indefinitely when copying files sized 65537 bytes or
+> more. It hangs on the first splice() call.
+> 
+> Is this a bug? I'd like to be able to copy much more than 64kb on a
+> single splice call.
+> 
+> Thanks!
+> Daniel
 
-Hugh 

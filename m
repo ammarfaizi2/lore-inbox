@@ -1,81 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161519AbWJ3ViJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161523AbWJ3Vil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161519AbWJ3ViJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 16:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161520AbWJ3ViJ
+	id S1161523AbWJ3Vil (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 16:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161522AbWJ3Vil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 16:38:09 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:38346 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1161519AbWJ3ViG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 16:38:06 -0500
-Date: Tue, 31 Oct 2006 00:37:49 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
-       Jay Lan <jlan@sgi.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] taskstats: fix sub-threads accounting
-Message-ID: <20061030213749.GA3035@oleg>
+	Mon, 30 Oct 2006 16:38:41 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44691 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161523AbWJ3Vij (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 16:38:39 -0500
+Date: Mon, 30 Oct 2006 13:38:25 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: xemul@openvz.org, dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+Message-Id: <20061030133825.3d10c8c1.pj@sgi.com>
+In-Reply-To: <6599ad830610301020y3bc515dbse4f278aad8b03e33@mail.gmail.com>
+References: <20061030103356.GA16833@in.ibm.com>
+	<4545D51A.1060808@in.ibm.com>
+	<4546212B.4010603@openvz.org>
+	<6599ad830610301020y3bc515dbse4f278aad8b03e33@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If there are no listeners, taskstats_exit_send() just returns because
-taskstats_exit_alloc() didn't allocate *tidstats. This is wrong, each
-sub-thread should do fill_tgid_exit() on exit, otherwise its ->delays
-is not recorded in ->signal->stats and lost.
+> - they require touching every architecture to add the new system calls
+> - they're harder to debug from userspace, since you can't using useful
+>   tools such as echo and cat
+> - changing the interface is harder since it's (presumably) a binary API
 
-Q: We don't send TASKSTATS_TYPE_AGGR_TGID when single-threaded process
-exits. Is it good? How can the listener figure out that it was actually
-a process exit, not sub-thread?
+To my mind these are rather secondary selection criteria.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+If say we were adding a single, per-thread scalar value that each
+thread could query of and perhaps modify for itself, then a system call
+would be an alternative worthy of further consideration.
 
---- STATS/kernel/taskstats.c~2_send	2006-10-30 23:47:46.000000000 +0300
-+++ STATS/kernel/taskstats.c	2006-10-31 00:14:42.000000000 +0300
-@@ -446,10 +446,9 @@ void taskstats_exit_send(struct task_str
- 	int is_thread_group;
- 	struct nlattr *na;
- 
--	if (!family_registered || !tidstats)
-+	if (!family_registered)
- 		return;
- 
--	rc = 0;
- 	/*
- 	 * Size includes space for nested attributes
- 	 */
-@@ -457,8 +456,15 @@ void taskstats_exit_send(struct task_str
- 		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
- 
- 	is_thread_group = (tsk->signal->stats != NULL);
--	if (is_thread_group)
--		size = 2 * size;	/* PID + STATS + TGID + STATS */
-+	if (is_thread_group) {
-+		/* PID + STATS + TGID + STATS */
-+		size = 2 * size;
-+		/* fill the tsk->signal->stats structure */
-+		fill_tgid_exit(tsk);
-+	}
-+
-+	if (!tidstats)
-+		return;
- 
- 	rc = prepare_reply(NULL, TASKSTATS_CMD_NEW, &rep_skb, &reply, size);
- 	if (rc < 0)
-@@ -478,11 +484,8 @@ void taskstats_exit_send(struct task_str
- 		goto send;
- 
- 	/*
--	 * tsk has/had a thread group so fill the tsk->signal->stats structure
- 	 * Doesn't matter if tsk is the leader or the last group member leaving
- 	 */
--
--	fill_tgid_exit(tsk);
- 	if (!group_dead)
- 		goto send;
- 
+Representing complicated, nested, structured information via custom
+system calls is a pain.  We have more luck using classic file system
+structures, and abstracting the representation a layer up.  Of course
+there are still system calls, but they are the classic Unix calls such
+as mkdir, chdir, rmdir, creat, unlink, open, read, write and close.
 
+The same thing happens in designing network and web services.  There
+are always low level protocols, such as physical and link and IP.
+And sometimes these have to be extended, such as IPv4 versus IPv6.
+But we don't code AJAX down at that level - AJAX sits on top of things
+like Javascript and XML, higher up in the protocol stack.
+
+And we didn't start coding AJAX as a series of IP hacks, saying we can
+add a higher level protocol alternative later on.  That would have been
+useless.
+
+Figuring out where in the protocol stack one is targeting ones new
+feature work is a foundation decision.  Get it right, up front,
+forevermore, or risk ending up in Documentation/ABI/obsolete or
+Documentation/ABI/removed in a few years, if your work doesn't
+just die sooner without a whimper.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

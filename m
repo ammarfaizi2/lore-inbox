@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422728AbWJ3Wqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422730AbWJ3WuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422728AbWJ3Wqs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 17:46:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422730AbWJ3Wqs
+	id S1422730AbWJ3WuT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 17:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422731AbWJ3WuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 17:46:48 -0500
-Received: from ns1.suse.de ([195.135.220.2]:43676 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422728AbWJ3Wqr (ORCPT
+	Mon, 30 Oct 2006 17:50:19 -0500
+Received: from colin.muc.de ([193.149.48.1]:20228 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1422730AbWJ3WuS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 17:46:47 -0500
-From: Neil Brown <neilb@suse.de>
-To: "Andreas Paulsson" <andreas.paulsson@itgarden.se>
-Date: Tue, 31 Oct 2006 09:46:42 +1100
-MIME-Version: 1.0
+	Mon, 30 Oct 2006 17:50:18 -0500
+Date: 30 Oct 2006 23:50:16 +0100
+Date: Mon, 30 Oct 2006 23:50:16 +0100
+From: Andi Kleen <ak@muc.de>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+Message-ID: <20061030225016.GA95732@muc.de>
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com> <200610271416.12548.ak@suse.de> <4546669F.8020706@vmware.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17734.32978.304514.114875@cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: SV: PROBLEM: raid5 just dies
-In-Reply-To: message from Andreas Paulsson on Monday October 30
-References: <6FDE26082D451C41BE1A3742966200B3B51C67@DR2EX01.hosting.itg>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <4546669F.8020706@vmware.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday October 30, andreas.paulsson@itgarden.se wrote:
-> >Exactly how are aes-loop and raid5 connected together?
+On Mon, Oct 30, 2006 at 12:54:55PM -0800, Zachary Amsden wrote:
+> Andi Kleen wrote:
+> >no_timer_check. But it's only there on x86-64 in mainline - although there
+> >were some patches to add it to i386 too.
+> >  
 > 
-> We use 5x300gb drives in a raid5 array, which is then used as a physical
-> disk in an lvm volume, with one logical volume. This logical volume is
-> then encrypted with "losetup -e aes /dev/loop1 /dev/vg0/lv0", and then
-> formatted with ReiserFS.
+> I can rename to match the x86-64 name.
 
-Thanks.
+I will do that in my tree.
 
-It could be a hardware problem....
-The symptom is that we try to free some memory and a consistency check
-tells us that the memory wasn't allocated.  So a single bit error in
-the address could be the cause.  Running memtest86 for a while
-wouldn't hurt if you haven't already done that.
+> >>That is what this patch is building towards, but the boot option is
+> >>"free", so why not?  In the meantime, it helps non-paravirt kernels
+> >>booted in a VM.
+> >>    
+> >
+> >Hmm, you meant they paniced before?  If they just fail a few tests
+> >that is not particularly worrying (real hardware does that often too)
+> >  
+> 
+> Yes, they sometimes fail to boot, and the failure message used to ask us 
+> to pester mingo.
 
-You have three layers here: loop over dm over md/raid5.
-So if it is a software problem it could be in any of these layers, or
-in an interaction between two of them.
+I still think we should figure that out automatically. Letting
+the Hypervisor pass magic boot options seems somehow unclean.
 
-1/ how repeatable is this?
-2/ how much room have you got to experiment?
- Could you remake the array without the loop/aes and see if you can
- reproduce the problem?
- Could you remake the array without the LVM layer and see if you can
- reproduce the problem?
+But i suppose it will only work for the paravirtualized case,
+not for the case of kernel running "native" under a hypervisor
+I suppose? Or does that one not panic?
 
-Do you have CONFIG_DEBUG_PAGEALLOC and CONFIG_DEBUG_SLAB set?  If not
-could you recompile with those set to see if they provide more helpful
-information. 
 
-I must admit I am somewhat at a loss.  I cannot see much room for
-problems leading to that particular point in the code that would not
-be seen by lots more people than just you.
-
-NeilBrown
+-Andi

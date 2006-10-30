@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965472AbWJ3JIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030523AbWJ3JIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965472AbWJ3JIM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 04:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965475AbWJ3JIM
+	id S1030523AbWJ3JIz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 04:08:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbWJ3JIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 04:08:12 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:8376 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965472AbWJ3JIK (ORCPT
+	Mon, 30 Oct 2006 04:08:55 -0500
+Received: from styx.suse.cz ([82.119.242.94]:16563 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1030523AbWJ3JIx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 04:08:10 -0500
-Date: Mon, 30 Oct 2006 10:07:12 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Jiri Kosina <jikos@jikos.cz>,
-       Marcel Holtmann <marcel@holtmann.org>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH 1/2] lockdep: spin_lock_irqsave_nested()
-Message-ID: <20061030090712.GB28026@elte.hu>
-References: <1162199005.24143.169.camel@taijtu>
+	Mon, 30 Oct 2006 04:08:53 -0500
+Date: Mon, 30 Oct 2006 10:08:51 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Dave Neuer <mr.fred.smoothie@pobox.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
+Message-ID: <20061030090851.GA2687@suse.cz>
+References: <200608232311.07599.dtor@insightbb.com> <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com> <200610292234.02487.dtor@insightbb.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1162199005.24143.169.camel@taijtu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <200610292234.02487.dtor@insightbb.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-
-> From: Arjan van de Ven <arjan@linux.intel.com>
-> Subject: spin_lock_irqsave_nested()
+On Sun, Oct 29, 2006 at 10:34:00PM -0500, Dmitry Torokhov wrote:
+> On Sunday 29 October 2006 18:20, Dave Neuer wrote:
+> > On 8/23/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
+> > > Hi everyone,
+> > >
+> > > Here is another version of the patch removing polling timer from i8042
+> > > which is needed if we want tickless kernel. Keyboards should now work
+> > > on boxes that do not have mouse plugged in. PLease give it a test.
+> > 
+> >  What's the intent of this; just to allow tickless? Or is it also to
+> > make the i8042 driver less racy? I ask because I've applied this over
+> > (a modified) 2.6.18 on my Compaq Presario X1010us laptop which has
+> > been driving me crazy w/ Synaptics problems and keyboard problems
+> > (intermittent, but   frequent enough lately that I finally figured I
+> > needed to do something about it).
+> > 
+> > If removing raciness is part of the goal, isn't the window in
+> > i8042_aux_write still a problem?
+> > 
+> > 	if (port->mux == -1)
+> > 		retval = i8042_command(&c, I8042_CMD_AUX_SEND);
+> > 	else
+> > 		retval = i8042_command(&c, I8042_CMD_MUX_SEND + port->mux);
+> > 
+> >         /* i8042_command has re-enabled interrupts;
+> >            what happens if real interrupt happens here, before we call
+> > the ISR ourselves? */
+> > 
+> > 	i8042_interrupt(0, NULL, NULL);
+> > 	return retval;
+> > }
 > 
-> Introduce spin_lock_irqsave_nested(); implementation from:
->  http://lkml.org/lkml/2006/6/1/122
-> Patch from:
->  http://lkml.org/lkml/2006/9/13/258
+> Hi Dave,
 > 
-> Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-> Signed-off-by: Jiri Kosina <jikos@jikos.cz>
-> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> i8042_interrupt() uses spinlock to serialize access to the KBC so if real
+> interrupt happens before we call i8042_interrupt() manually (and it should
+> normally happen) it will just process the response and second i8042_interrupt()
+> will be just a no-op.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+This would, however, create two reads of the i8042 controller
+back-to-back, which has been a problem on old i8042's: IIRC IBM
+documentation states that between the reads there should be a delay.
 
-	Ingo
+-- 
+Vojtech Pavlik
+Director SuSE Labs

@@ -1,109 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161310AbWJ3LZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWJ3Ljg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161310AbWJ3LZK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 06:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161311AbWJ3LZK
+	id S932442AbWJ3Ljg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 06:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWJ3Ljg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 06:25:10 -0500
-Received: from imag.imag.fr ([129.88.30.1]:25528 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S1161310AbWJ3LZI (ORCPT
+	Mon, 30 Oct 2006 06:39:36 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:36487 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S932442AbWJ3Ljg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 06:25:08 -0500
-Message-ID: <4545E0D7.6010608@imag.fr>
-Date: Mon, 30 Oct 2006 12:24:07 +0100
-From: Videau Brice <brice.videau@imag.fr>
-Reply-To: brice.videau@imag.fr
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Mon, 30 Oct 2006 06:39:36 -0500
+Message-ID: <4545E471.7080906@gmail.com>
+Date: Mon, 30 Oct 2006 12:39:29 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange connect behavior
-References: <4545D2FA.3030802@imag.fr> <200610301132.57769.dada1@cosmosbay.com>
-In-Reply-To: <200610301132.57769.dada1@cosmosbay.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Andrew Paprocki <andrew@ishiboo.com>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Fixed uninitialized variable warning in drivers/md/dm-exception-store.c.
+References: <76366b180610292108o62b0b480v91356fb957fbebcc@mail.gmail.com>
+In-Reply-To: <76366b180610292108o62b0b480v91356fb957fbebcc@mail.gmail.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Mon, 30 Oct 2006 12:24:12 +0100 (CET)
-X-IMAG-MailScanner-Information: Please contact IMAG DMI for more information
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-SpamCheck: 
-X-IMAG-MailScanner-From: brice.videau@imag.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It all makes sense now!
+Andrew Paprocki wrote:
+> Fixed uninitialized variable warning in drivers/md/dm-exception-store.c.
+> 
+> Signed-off-by: Andrew Paprocki <andrew@ishiboo.com>
+> 
+> ---
+> drivers/md/dm-exception-store.c |    2 +-
+> 1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/md/dm-exception-store.c
+> b/drivers/md/dm-exception-store.c
+> index 99cdffa..d50ffde 100644
+> --- a/drivers/md/dm-exception-store.c
+> +++ b/drivers/md/dm-exception-store.c
+> @@ -413,7 +413,7 @@ static void persistent_destroy(struct ex
+> 
+> static int persistent_read_metadata(struct exception_store *store)
+> {
+> -       int r, new_snapshot;
+> +       int r, new_snapshot = 0;
+>        struct pstore *ps = get_info(store);
+> 
+>        /*
 
-Thank you very much.
+Already in -mm.
 
-Regards,
-
-Brice
-
-
-
-Eric Dumazet wrote:
-> On Monday 30 October 2006 11:24, Videau Brice wrote:
->   
->> Hello,
->>
->> While writing some client server application in c, we noticed a strange
->> behavior : if we try to connect endlessly to a given local port where
->> nobody is listening, and if the port is >= to 32768, after several
->> thousands tries ( Connection refused ) connect will return 0.
->> This behavior is not exhibited when port is < 32768.
->>
->>     
->
-> Hello Brice
->
-> Yes, it's quite possible your attempts are hitting themselves.
->
-> Hint :
->
-> cat /proc/sys/net/ipv4/ip_local_port_range
->
-> When you connect(), TCP stack automatically chose a source port and bind your 
-> outgoing socket. If the chosen port happens to be 35489 (your 'destination' 
-> port), then the connect succeeds (you're connected to yourself), as specified 
-> by TCP specs.
->
->
->   
->> We confirmed this behavior in kernel 2.6.17-10, 2.6.18-1, 2.6.8, on x86
->> and 2.4.21-32 on ia64, on several hardware configurations.
->> Distribution is debian or ubuntu.
->>
->> Attached is a source file that demonstrate this behavior.
->> ./a.out port_number
->>
->> Sample execution :
->>
->> ./a.out 35489
->> Out port : 35489
->> connect try 1 failed : Connection refused
->> connect try 2 failed : Connection refused
->> connect try 3 failed : Connection refused
->> .....
->> connect try 6089 failed : Connection refused
->> connect try 6090 failed : Connection refused
->> Connection success : 6091 try
->> Connection closed
->> last error : Connection refused
->>
->>
->> Is this behavior to be expected?
->> Can it be disabled?
->>
->> Thanks in advance.
->>
->> Regards,
->>
->> Brice Videau
->>     
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->   
-
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

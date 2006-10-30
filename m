@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbWJ3PUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbWJ3PV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030426AbWJ3PUA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 10:20:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030430AbWJ3PUA
+	id S1030458AbWJ3PV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 10:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWJ3PV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 10:20:00 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59361 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030426AbWJ3PT7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 10:19:59 -0500
-Date: Mon, 30 Oct 2006 07:18:38 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: xemul@openvz.org, vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       menage@google.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com, devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061030071838.7988d3e1.pj@sgi.com>
-In-Reply-To: <45460E69.7070505@openvz.org>
-References: <20061030103356.GA16833@in.ibm.com>
-	<45460743.8000501@openvz.org>
-	<20061030062332.856dcc32.pj@sgi.com>
-	<45460E69.7070505@openvz.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 30 Oct 2006 10:21:56 -0500
+Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:57992 "EHLO
+	bipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1030458AbWJ3PVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 10:21:55 -0500
+Message-ID: <45461890.2000007@grupopie.com>
+Date: Mon, 30 Oct 2006 15:21:52 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Miguel Ojeda <maxextreme@gmail.com>
+CC: Franck <vagabon.xyz@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+References: <20061013023218.31362830.maxextreme@gmail.com>	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>	 <453CE85B.2080702@innova-card.com>	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com>	 <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com>	 <4545C52A.5010105@innova-card.com> <4545FCB1.8030900@grupopie.com> <653402b90610300611ucdc46d9y88f016800b498538@mail.gmail.com>
+In-Reply-To: <653402b90610300611ucdc46d9y88f016800b498538@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel wrote:
-> >> 3. Configfs may be easily implemented later as an additional
-> >>    interface. I propose the following solution:
-> >>      ...
-> >
-> Resource controller has nothing common with confgifs.
-> That's the same as if we make netfilter depend on procfs.
+Miguel Ojeda wrote:
+>[...]
+>> In this case, if nothing was ever written to the display, the CPU usage
+>> would be _zero_ (as it should), and it would work nicely with dynticks
+>> and such.
+> 
+> Hum, interesting. But what happens if...
+> 
+> 1. For example, the userspace app maps the fb (nopage is called, dirty
+> flag set, timer created), and then the app doesn't use the fb. The
+> timer will refresh the LCD, without anything new to refresh, so we are
+> wasting CPU time. After refreshing, the driver clears the dirty flag
+> and unmap the buffer.
+> 
+> 2. After some seconds, the userspace app decides to write the buffer.
+> As it is not mmaped anymore, it will simply get a segmentation fault,
+> right? AFAIK nopage() is not called again because we have destroyed
+> the mmapping information, and Linux can't know what are the nopage()
+> ops to call to.
 
-Well ... if you used configfs as an interface to resource
-controllers, as you said was easily done, then they would
-have something to do with each other, right ;)?
+No, this is not the sequence I thought of at all. I don't remember the 
+exact API functions you need to call (I have to read LDD3 again ;), but 
+if the hardware supports it, there must be a way. The plan is something 
+like:
 
-Choose the right data structure for the job, and then reuse
-what fits for that choice.
+  - at mmap time you return a pointer to something that is not actually 
+mapped, and do nothing else
 
-Neither avoid nor encouraging code reuse is the key question.
+  - when userspace actually writes to that area, you get a page fault, 
+and nopage is called. At this point you map the page, and set the dirty 
+state. All other writes from userspace until the timer completes are 
+done without faulting.
 
-What's the best fit, long term, for the style of kernel-user
-API, for this use?  That's the key question.
+  - when the timer completes, you unmap the page so that the next access 
+will generate a fault again
+
+As I said, I don't remember the exact details, but this should be doable.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Paulo Marques - www.grupopie.com
+
+"The face of a child can say it all, especially the
+mouth part of the face."

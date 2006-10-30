@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbWJ3Qdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965266AbWJ3Qrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbWJ3Qdj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 11:33:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWJ3Qdj
+	id S965266AbWJ3Qrs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 11:47:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965257AbWJ3Qrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 11:33:39 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:60305 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S965136AbWJ3Qdi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 11:33:38 -0500
-Date: Mon, 30 Oct 2006 18:32:23 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
-       Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-Message-ID: <20061030163223.GK1941@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <45462591.7020200@ce.jp.nec.com>
-Mime-Version: 1.0
+	Mon, 30 Oct 2006 11:47:48 -0500
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:41525 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S965161AbWJ3Qrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 11:47:47 -0500
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH 2/7] severing fs.h, radix-tree.h -> sched.h
+X-Message-Flag: Warning: May contain useful information
+References: <E1GeUeF-0002o7-6s@ZenIV.linux.org.uk>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 30 Oct 2006 08:47:44 -0800
+In-Reply-To: <E1GeUeF-0002o7-6s@ZenIV.linux.org.uk> (Al Viro's message of "Mon, 30 Oct 2006 10:45:43 +0000")
+Message-ID: <adak62hyclr.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45462591.7020200@ce.jp.nec.com>
-User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 30 Oct 2006 16:47:45.0253 (UTC) FILETIME=[1FC32950:01C6FC43]
+Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Jun'ichi Nomura <j-nomura@ce.jp.nec.com>:
-> Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-> 
-> Hi Michael,
-> 
->  > 2.6.19-rc3 without reverting
->  > d7dd8fd9557840162b724a8ac1366dd78a12dff stops receiving ACPI events after some
->  > use (sometimes after suspend/resume, sometimes after kernel build stress).  Now,
->  > what does this tell us? Andrew, any idea?
-> 
-> The code is related to bd_claim_by_disk which is called when
-> device-mapper or md tries to mark the underlying devices
-> for exclusive use and creates symlinks from/to the devices
-> in sysfs. The patch added error handlings which weren't in
-> the original code.
-> 
-> I have no idea how it affects ACPI event handling.
+Trivial comment:
 
-It's a mystery. Probably exposes a bug somewhere?
+ >  /*
+ > + * Superblock locking.  We really ought to get rid of these two.
+ > + */
+ > +void lock_super(struct super_block * sb)
+ > +{
+ > +	get_fs_excl();
+ > +	mutex_lock(&sb->s_lock);
+ > +}
+ > +
+ > +void unlock_super(struct super_block * sb)
+ > +{
+ > +	put_fs_excl();
+ > +	mutex_unlock(&sb->s_lock);
+ > +}
+ > +
+ > +EXPORT_SYMBOL(lock_super);
+ > +EXPORT_SYMBOL(unlock_super);
 
-> Are you using dm and/or md on your machine?
+isn't the current fashion to do this like:
 
-The .config is attached to bugzilla.
+void lock_super(struct super_block * sb)
+{
+	get_fs_excl();
+	mutex_lock(&sb->s_lock);
+}
+EXPORT_SYMBOL(lock_super);
 
-> Have you seen any unusual kernel messages or symptoms regarding
-> dm/md before the ACPI problem occurs?
-
-I haven't.
-
--- 
-MST
+void unlock_super(struct super_block * sb)
+{
+	put_fs_excl();
+	mutex_unlock(&sb->s_lock);
+}
+EXPORT_SYMBOL(unlock_super);

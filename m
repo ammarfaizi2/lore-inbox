@@ -1,76 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWJ3SfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161318AbWJ3ShH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030430AbWJ3SfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 13:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030532AbWJ3SfZ
+	id S1161318AbWJ3ShH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 13:37:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030569AbWJ3ShH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 13:35:25 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20498 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030430AbWJ3SfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:35:23 -0500
-Date: Mon, 30 Oct 2006 19:35:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-Message-ID: <20061030183522.GL27968@stusta.de>
-References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il> <45462591.7020200@ce.jp.nec.com> <Pine.LNX.4.64.0610300834060.25218@g5.osdl.org> <454637BE.6090309@ce.jp.nec.com> <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 30 Oct 2006 13:37:07 -0500
+Received: from mga03.intel.com ([143.182.124.21]:25382 "EHLO mga03.intel.com")
+	by vger.kernel.org with ESMTP id S1030568AbWJ3ShF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 13:37:05 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,371,1157353200"; 
+   d="scan'208"; a="138269725:sNHT546915859"
+Date: Mon, 30 Oct 2006 11:37:15 -0800
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH] acpiphp: fix use of list_for_each macro
+Message-Id: <20061030113715.b5e8ddec.kristen.c.accardi@intel.com>
+In-Reply-To: <20061028183943.GA9973@localhost>
+References: <20061028183943.GA9973@localhost>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 10:16:34AM -0800, Linus Torvalds wrote:
->...
-> I assume that "compile the kernel" just triggers some magic ACPI event 
-> (probably fan-related due to heat), and I wonder if the bisection faked 
-> you out because once you get "close enough" the differences are small 
-> enough that the kernel compile is quick and the heat event doesn't 
-> actually trigger?
+On Sun, 29 Oct 2006 03:39:43 +0900
+Akinobu Mita <akinobu.mita@gmail.com> wrote:
+
+> This patch fixes invalid usage of list_for_each()
 > 
-> See what I'm saying? Maybe the act of bisecting itself changed the 
-> results, and then when you just revert the patch, you end up in the same 
-> situation: you only recompile a small part (you only recompile that 
-> particular file), and the problem doesn't occur, so you'd think that the 
-> revert "fixed" it.
+> list_for_each (node, &bridge_list) {
+> 	bridge = (struct acpiphp_bridge *)node;
+> 	...
+> }
 > 
-> If it's heat-related, it should probably trigger by anything that does a 
-> lot of CPU (and perhaps disk) accesses, not just kernel builds. It might 
-> be good to try to find another test-case for it than a kernel recompile, 
-> one that doesn't depend on how much changed in the kernel..
+> This code works while the member of list node is located at the
+> head of struct acpiphp_bridge.
+> 
+> Cc: Greg Kroah-Hartman <gregkh@suse.de>
+> Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-Martin's original bug report stated "now I loose ACPI events after 
-suspend/resume. not every time, but roughly 3 out of 4 times."
-This seems to support your theory.
+Acked-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 
-But considering that two people have independently reported this as a 
-2.6.19-rc regression for similar hardware (Michael for a T60 and Martin 
-for an X60), a problem in the kernel seems to be involved.
-
-Martin, Michael, can you send complete "dmesg -s 1000000" for both 
-2.6.18.1 and a non-working 2.6.19-rc kernel after resume?
-I don't have high hopes, but perhaps looking at the dmesg and/or 
-diff'ing them might give a hint.
-
-> 		Linus
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+> 
+>  drivers/pci/hotplug/acpiphp_glue.c |    8 ++------
+>  1 file changed, 2 insertions(+), 6 deletions(-)
+> 
+> Index: work-fault-inject/drivers/pci/hotplug/acpiphp_glue.c
+> ===================================================================
+> --- work-fault-inject.orig/drivers/pci/hotplug/acpiphp_glue.c
+> +++ work-fault-inject/drivers/pci/hotplug/acpiphp_glue.c
+> @@ -1693,14 +1693,10 @@ void __exit acpiphp_glue_exit(void)
+>   */
+>  int __init acpiphp_get_num_slots(void)
+>  {
+> -	struct list_head *node;
+>  	struct acpiphp_bridge *bridge;
+> -	int num_slots;
+> -
+> -	num_slots = 0;
+> +	int num_slots = 0;
+>  
+> -	list_for_each (node, &bridge_list) {
+> -		bridge = (struct acpiphp_bridge *)node;
+> +	list_for_each_entry (bridge, &bridge_list, list) {
+>  		dbg("Bus %04x:%02x has %d slot%s\n",
+>  				pci_domain_nr(bridge->pci_bus),
+>  				bridge->pci_bus->number, bridge->nr_slots,

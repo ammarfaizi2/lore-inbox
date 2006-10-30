@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161203AbWJ3Rep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161163AbWJ3Rej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161203AbWJ3Rep (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 12:34:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161245AbWJ3Rep
+	id S1161163AbWJ3Rej (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 12:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWJ3Rej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 12:34:45 -0500
-Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:25751 "EHLO
+	Mon, 30 Oct 2006 12:34:39 -0500
+Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:20375 "EHLO
 	smtp151.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S1161203AbWJ3Reo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 12:34:44 -0500
-Subject: Re: [PATCH] jfs: Add splice support
+	id S1161163AbWJ3Rei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 12:34:38 -0500
+Subject: splice blocks indefinitely when len > 64k?
 From: Daniel Drake <ddrake@brontes3d.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <1162227415.24229.2.camel@kleikamp.austin.ibm.com>
-References: <20061030163148.2412D7B40A0@zog.reactivated.net>
-	 <1162227415.24229.2.camel@kleikamp.austin.ibm.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Mon, 30 Oct 2006 12:29:19 -0500
-Message-Id: <1162229359.7280.20.camel@systems03.lan.brontes3d.com>
+Date: Mon, 30 Oct 2006 11:39:50 -0500
+Message-Id: <1162226390.7280.18.camel@systems03.lan.brontes3d.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-30 at 10:56 -0600, Dave Kleikamp wrote:
-> On Mon, 2006-10-30 at 16:31 +0000, Daniel Drake wrote:
-> > This allows the splice() and tee() syscalls to be used with JFS.
-> 
-> Gosh, that was easy.  Why couldn't I do that?  :-)
-> 
-> Answer: I would have had to test it.
-> 
-> I'm assuming you did?
+Hi,
 
-Yep:
+I'm experimenting with splice and have run into some unusual behaviour.
 
-Created a 100mb file from /dev/urandom on an ext3 partition
-Used splice-cp to copy it onto a JFS partition
-Used splice-cp to copy it from that JFS partition onto another JFS
-partition
+I am using the utilities in git://brick.kernel.dk/data/git/splice.git
 
-I checked md5sums at all stages, seems to work fine.
+In splice.h, when changing SPLICE_SIZE from:
+
+#define SPLICE_SIZE (64*1024)
+
+to
+
+#define SPLICE_SIZE ((64*1024)+1)
+
+splice-cp hangs indefinitely when copying files sized 65537 bytes or
+more. It hangs on the first splice() call.
+
+Is this a bug? I'd like to be able to copy much more than 64kb on a
+single splice call.
 
 Thanks!
 Daniel

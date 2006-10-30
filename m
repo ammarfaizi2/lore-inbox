@@ -1,60 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161244AbWJ3QJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030557AbWJ3QQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161244AbWJ3QJf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 11:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWJ3QJe
+	id S1030557AbWJ3QQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 11:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030556AbWJ3QQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 11:09:34 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:35730 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1161232AbWJ3QJe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 11:09:34 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Kirill Korotaev <dev@sw.ru>
-Subject: Re: [PATCH 2.6.19-rc3] VFS: per-sb dentry lru list
-Date: Mon, 30 Oct 2006 17:09:31 +0100
-User-Agent: KMail/1.9.5
-Cc: Vasily Averin <vvs@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>, Neil Brown <neilb@suse.de>,
-       Jan Blunck <jblunck@suse.de>, Olaf Hering <olh@suse.de>,
-       Balbir Singh <balbir@in.ibm.com>, Kirill Korotaev <dev@openvz.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org
-References: <4541F2A3.8050004@sw.ru> <200610301608.25861.dada1@cosmosbay.com> <45461BA0.9000405@sw.ru>
-In-Reply-To: <45461BA0.9000405@sw.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 30 Oct 2006 11:16:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41666 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030555AbWJ3QQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 11:16:47 -0500
+Subject: Re: 2.6.19-rc3-git7: scsi_device_unbusy: inconsistent lock state
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Mark Lord <liml@rtr.ca>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
+In-Reply-To: <20061030154444.GH4563@kernel.dk>
+References: <45460D52.3000404@rtr.ca> <20061030144315.GG4563@kernel.dk>
+	 <1162220239.2948.27.camel@laptopd505.fenrus.org>
+	 <20061030154444.GH4563@kernel.dk>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 30 Oct 2006 17:16:42 +0100
+Message-Id: <1162225002.2948.45.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610301709.31993.dada1@cosmosbay.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 October 2006 16:34, Kirill Korotaev wrote:
-> > Quick search maybe, but your patch adds 2 pointers to each dentry in the
-> > system... That's pretty expensive, as dentries are already using a *lot*
-> > of ram.
->
-> I don't see much problems with it... it is cache and it can be pruned if
-> needed. Some time ago, for example, my patch introducing the same list for
-> inodes was commited.
 
-The ratio of dentries/PAGE is higher than ration of inodes/PAGE.
-(On a x86_64 machine, 19 dentries per PAGE, 5 ext3 inodes per PAGE=
+> 
+> > so to me it looks like lockdep at least has the appearance of moaning
+> > about a reasonably fishy situation...
+> 
+> To me it looks more about lockdep complaining because it doesn't grok
+> the full picture. The question is how to shut it up.
 
-Therefore I suspect that the number of pages locked in dentry_cache because of 
-one inuse dentry is higher.
+ok that is quite possible. But I do think you read the original output
+incorrectly so let me at least phrase it in english:
 
->
-> > Maybe an alternative would be to not have anymore a global dentry_unused,
-> > but only per-sb unused dentries lists ?
->
-> I don't know global LRU implementation based on per-sb lists, do you?
-> If someone suggest the algorithm for more or less fair global LRU
-> based on non-global list we will implement it. However, so far,
-> AFAICS there were problems with it.
 
-Using 32 bytes per dentry for unused LRUs sounds too much, maybe we should 
-revert LRUS handling to timestamps or things like that.
+__queue_lock is used in softirq context like this:
+  [<c0361c59>] _spin_lock+0x29/0x40
+  [<c029fa24>] scsi_device_unbusy+0x64/0x90
+  [<c029a5bc>] scsi_finish_command+0x1c/0xa0
+  [<c02115c2>] blk_done_softirq+0x62/0x70
+  [<c0122a27>] __do_softirq+0x87/0x100
+  [<c0122af5>] do_softirq+0x55/0x60
+  [<c0122f3c>] ksoftirqd+0x7c/0xd0
+  [<c0130f76>] kthread+0xf6/0x100
+
+which means that it always has to be taken _irq / _irqsave and one never
+can enable interrupts while holding this lock. This backtrace is from
+the first time the lock was taken in irq context.
+
+Now a new situation has arisen that violates this constraint, and it
+looks like this:
+
+
+ [<c0219091>] cfq_set_request+0x351/0x3b0
+ [<c020c7fc>] elv_set_request+0x1c/0x40
+ [<c020fcff>] get_request+0x23f/0x270
+ [<c0210537>] get_request_wait+0x27/0x120
+ [<c02107ca>] __make_request+0x5a/0x350
+ [<c020f40f>] generic_make_request+0x16f/0x220
+ [<c02117e4>] submit_bio+0x64/0x110
+
+now cfq_set_request() uses several inlines which muddies the situation,
+but lockdep claims one of them is not done correctly. (eg either it
+takes the lock incorrectly or something does spin_unlock_irq while the
+lock is held)
+
+
+I get the impression you assumed lockdep was complaining about
+scsi_device_unbusy; but it's not; that function is only referenced since
+it's the first place since boot where the lock was taken in softirq
+context... not because the violation is occuring there.
+
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

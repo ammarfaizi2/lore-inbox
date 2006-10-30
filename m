@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030532AbWJ3Sfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWJ3SfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030532AbWJ3Sfn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 13:35:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030558AbWJ3Sfn
+	id S1030430AbWJ3SfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 13:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030532AbWJ3SfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 13:35:43 -0500
-Received: from rtr.ca ([64.26.128.89]:51465 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1030546AbWJ3Sfl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:35:41 -0500
-Message-ID: <454645FA.3060203@rtr.ca>
-Date: Mon, 30 Oct 2006 13:35:38 -0500
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Mon, 30 Oct 2006 13:35:25 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20498 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030430AbWJ3SfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 13:35:23 -0500
+Date: Mon, 30 Oct 2006 19:35:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
+Message-ID: <20061030183522.GL27968@stusta.de>
+References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il> <45462591.7020200@ce.jp.nec.com> <Pine.LNX.4.64.0610300834060.25218@g5.osdl.org> <454637BE.6090309@ce.jp.nec.com> <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
 MIME-Version: 1.0
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
-Subject: Re: 2.6.19-rc3-git7: scsi_device_unbusy: inconsistent lock state
-References: <45460D52.3000404@rtr.ca> <20061030144315.GG4563@kernel.dk> <1162220239.2948.27.camel@laptopd505.fenrus.org> <20061030154444.GH4563@kernel.dk> <1162225002.2948.45.camel@laptopd505.fenrus.org> <20061030162621.GK4563@kernel.dk> <1162225915.2948.49.camel@laptopd505.fenrus.org> <20061030175224.GB14055@kernel.dk> <45463C5B.7070900@rtr.ca> <45464064.2090108@rtr.ca> <20061030181645.GF14055@kernel.dk> <454644C1.4080702@rtr.ca>
-In-Reply-To: <454644C1.4080702@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And while we're at it:
+On Mon, Oct 30, 2006 at 10:16:34AM -0800, Linus Torvalds wrote:
+>...
+> I assume that "compile the kernel" just triggers some magic ACPI event 
+> (probably fan-related due to heat), and I wonder if the bisection faked 
+> you out because once you get "close enough" the differences are small 
+> enough that the kernel compile is quick and the heat event doesn't 
+> actually trigger?
 > 
-> (gdb) l *cfq_set_request+0x33e
-> 0xc021780e is in cfq_set_request (block/cfq-iosched.c:1224).
-> 1219            if (unlikely(!cfqd))
-> 1220                    return;
-> 1221
-> 1222            spin_lock(cfqd->queue->queue_lock);
-> 1223
-> 1224            cfqq = cic->cfqq[ASYNC];
-> 1225            if (cfqq) {
-> 1226                    struct cfq_queue *new_cfqq;
-> 1227                    new_cfqq = cfq_get_queue(cfqd, CFQ_KEY_ASYNC, cic->ioc->task,
-> 1228                                             GFP_ATOMIC);
+> See what I'm saying? Maybe the act of bisecting itself changed the 
+> results, and then when you just revert the patch, you end up in the same 
+> situation: you only recompile a small part (you only recompile that 
+> particular file), and the problem doesn't occur, so you'd think that the 
+> revert "fixed" it.
+> 
+> If it's heat-related, it should probably trigger by anything that does a 
+> lot of CPU (and perhaps disk) accesses, not just kernel builds. It might 
+> be good to try to find another test-case for it than a kernel recompile, 
+> one that doesn't depend on how much changed in the kernel..
 
-(gdb) l *scsi_device_unbusy+0x67
-0xc029ee87 is in scsi_device_unbusy (drivers/scsi/scsi_lib.c:466).
-461                          (shost->host_failed || shost->host_eh_scheduled)))
-462                     scsi_eh_wakeup(shost);
-463             spin_unlock(shost->host_lock);
-464             spin_lock(sdev->request_queue->queue_lock);
-465             sdev->device_busy--;
-466             spin_unlock_irqrestore(sdev->request_queue->queue_lock, flags);
-467     }
-468
-469     /*
-470      * Called for single_lun devices on IO completion. Clear starget_sdev_user,
+Martin's original bug report stated "now I loose ACPI events after 
+suspend/resume. not every time, but roughly 3 out of 4 times."
+This seems to support your theory.
+
+But considering that two people have independently reported this as a 
+2.6.19-rc regression for similar hardware (Michael for a T60 and Martin 
+for an X60), a problem in the kernel seems to be involved.
+
+Martin, Michael, can you send complete "dmesg -s 1000000" for both 
+2.6.18.1 and a non-working 2.6.19-rc kernel after resume?
+I don't have high hopes, but perhaps looking at the dmesg and/or 
+diff'ing them might give a hint.
+
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965334AbWJ3RJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030541AbWJ3RQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965334AbWJ3RJl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 12:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965349AbWJ3RJl
+	id S1030541AbWJ3RQh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 12:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030549AbWJ3RQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 12:09:41 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:8010 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S965334AbWJ3RJk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 12:09:40 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=QSs37G33Ssw2Q71XE3GNKnlnFheyA2PfMrC/wpqC9PIE0dfJamXwisFRQkJoOgwo/
-	9zVWWl39HgwJ4W3qsTojA==
-Message-ID: <454631C1.5010003@google.com>
-Date: Mon, 30 Oct 2006 09:09:21 -0800
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Mon, 30 Oct 2006 12:16:37 -0500
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:60559 "EHLO
+	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1030541AbWJ3RQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 12:16:37 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Date: Mon, 30 Oct 2006 12:16:04 -0500
+User-Agent: KMail/1.9.5
+Cc: dev@openvz.org, linux-kernel@vger.kernel.org, devel@openvz.org
+References: <20061030103356.GA16833@in.ibm.com> <20061030024320.962b4a88.pj@sgi.com> <20061030170916.GA9588@in.ibm.com>
+In-Reply-To: <20061030170916.GA9588@in.ibm.com>
+Organization: IBM LTC
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
-       Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-References: <20061029160002.29bb2ea1.akpm@osdl.org>	<45461977.3020201@shadowen.org>	<45461E74.1040408@google.com> <20061030084722.ea834a08.akpm@osdl.org>
-In-Reply-To: <20061030084722.ea834a08.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610301116.04780.dmccr@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Setting up network interfaces:
->>      lo
->>     lo        IP address: 127.0.0.1/8
->>7[?25l[1A[80C[10D[1;32mdone[m8[?25h    eth0
->>               No configuration found for eth0
->>7[?25l[1A[80C[10D[1munused[m8[?25h    eth1
->>             No configuration found for eth1
->>
->>for all 8 cards.
+On Monday 30 October 2006 11:09 am, Srivatsa Vaddagiri wrote:
+> Hierarchy has implications in not just the kernel-user API, but also on
+> the controller design. I would prefer to progressively enhance the
+> controller, not supporting hierarchy in the begining.
 > 
-> 
-> What version of udev is being used?
+> However you do have a valid concern that, if we dont design the user-kernel
+> API keeping hierarchy in mind, then we may break this interface when we
+> latter add hierarchy support, which will be bad.
+>
+> One possibility is to design the user-kernel interface that supports
+> hierarchy but not support creating hierarchical depths more than 1 in the
+> initial versions. Would that work?
 
-Buggered if I know. If we could quit breaking it, that'd be good though.
-If it printed its version during boot somewhere, that'd help too.
+Is there any user demand for heirarchy right now?  I agree that we should 
+design the API to allow heirarchy, but unless there is a current need for it 
+I think we should not support actually creating heirarchies.  In addition to 
+the reduction in code complexity, it will simplify the paradigm presented to 
+the users.  I'm a firm believer in not giving users options they will never 
+use.
 
-> Was CONFIG_SYSFS_DEPRECATED set?
-
-No.
-
-M.
+Dave McCracken

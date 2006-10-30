@@ -1,131 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161188AbWJ3IPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161184AbWJ3IOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161188AbWJ3IPu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 03:15:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161190AbWJ3IPu
+	id S1161184AbWJ3IOc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 03:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161190AbWJ3IOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 03:15:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17344 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161188AbWJ3IPt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 03:15:49 -0500
-Subject: [PATCH] lockdep: annotate sk_lock nesting in AF_BLUETOOTH
-From: Peter Zijlstra <pzijlstr@redhat.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, David Miller <davem@davemloft.net>,
-       Marcel Holtmann <marcel@holtmann.org>
-Content-Type: text/plain
-Date: Mon, 30 Oct 2006 09:16:26 +0100
-Message-Id: <1162196186.24143.158.camel@taijtu>
+	Mon, 30 Oct 2006 03:14:31 -0500
+Received: from gwmail.nue.novell.com ([195.135.221.19]:57493 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1161184AbWJ3IOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 03:14:31 -0500
+Message-Id: <4545C2D8.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Mon, 30 Oct 2006 09:16:08 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: "Oleg Verych" <olecom@flower.upol.cz>, <dsd@gentoo.org>,
+       <kernel@gentoo.org>, <draconx@gmail.com>, <jpdenheijer@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>,
+       "LKML" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] replacement for broken
+	kbuild-dont-put-temp-files-in-the-source-tree.patch
+References: <20061028230730.GA28966@quickstop.soohrt.org>
+ <200610281907.20673.ak@suse.de>
+ <20061029120858.GB3491@quickstop.soohrt.org>
+ <200610290816.55886.ak@suse.de> <slrnek9qv0.2vm.olecom@flower.upol.cz>
+ <20061029225234.GA31648@uranus.ravnborg.org>
+In-Reply-To: <20061029225234.GA31648@uranus.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> In `19-rc3/include/Kbuild.include', just below `as-instr' i see:
+>> ,--
+>> |cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+>> |             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+>> |
+>> |# cc-option-yn
+>> |# Usage: flag := $(call cc-option-yn, -march=winchip-c6)
+>> |cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+>> |                 > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
+>> `--
+>> so, change to `-o /dev/null' in `as-instr' will just follow this.
+>
+>gcc does not delete files specified with -o - but binutils does.
+>So using /dev/null in this case is not an option.
 
-=============================================
-[ INFO: possible recursive locking detected ]
-2.6.18-1.2726.fc6 #1
----------------------------------------------
-hidd/2271 is trying to acquire lock:
- (sk_lock-AF_BLUETOOTH){--..}, at: [<f8d16241>] bt_accept_dequeue+0x26/0xc6
-[bluetooth]
+While I fixed this quite some time ago (after running into it myself), it
+obviously still is a problem with older versions. However, using as' -Z
+option seems to help here.
+On the other hand, I long wanted to compose a patch to do away
+with all the .tmp_* things at the build root, and move them into a
+single .tmp/ directory - this would also seem to make a nice place to
+put all sort of other temporary files in... I just never found the time
+to actually do that, sorry.
 
-but task is already holding lock:
- (sk_lock-AF_BLUETOOTH){--..}, at: [<f8bce088>] l2cap_sock_accept+0x41/0x11e [l2cap]
-
-other info that might help us debug this:
-1 lock held by hidd/2271:
- #0:  (sk_lock-AF_BLUETOOTH){--..}, at: [<f8bce088>]
-l2cap_sock_accept+0x41/0x11e [l2cap]
-
-stack backtrace:
- [<c04051ed>] show_trace_log_lvl+0x58/0x16a
- [<c04057fa>] show_trace+0xd/0x10
- [<c0405913>] dump_stack+0x19/0x1b
- [<c043b7dc>] __lock_acquire+0x6ea/0x90d
- [<c043bf70>] lock_acquire+0x4b/0x6b
- [<c05b203b>] lock_sock+0xac/0xbc
- [<f8d16241>] bt_accept_dequeue+0x26/0xc6 [bluetooth]
- [<f8bce129>] l2cap_sock_accept+0xe2/0x11e [l2cap]
- [<c05b142e>] sys_accept+0xd8/0x179
- [<c05b1576>] sys_socketcall+0xa7/0x186
- [<c0403fb7>] syscall_call+0x7/0xb
-
-classical case of nesting; bt_accept_dequeue() locks the children of the object
-locked by l2cap_sock_accept().
-
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- include/net/sock.h    |   13 ++++++++++++-
- net/bluetooth/l2cap.c |    2 +-
- net/core/sock.c       |    6 +++---
- 3 files changed, 16 insertions(+), 5 deletions(-)
-
-Index: linux-2.6/include/net/sock.h
-===================================================================
---- linux-2.6.orig/include/net/sock.h
-+++ linux-2.6/include/net/sock.h
-@@ -745,7 +745,18 @@ static inline int sk_stream_wmem_schedul
-  */
- #define sock_owned_by_user(sk)	((sk)->sk_lock.owner)
- 
--extern void FASTCALL(lock_sock(struct sock *sk));
-+extern void FASTCALL(_lock_sock(struct sock *sk, int subclass));
-+
-+static inline void lock_sock(struct sock *sk)
-+{
-+	_lock_sock(sk, 0);
-+}
-+
-+static inline void lock_sock_nested(struct sock *sk, int subclass)
-+{
-+	_lock_sock(sk, subclass);
-+}
-+
- extern void FASTCALL(release_sock(struct sock *sk));
- 
- /* BH context may only use the following locking interface. */
-Index: linux-2.6/net/bluetooth/l2cap.c
-===================================================================
---- linux-2.6.orig/net/bluetooth/l2cap.c
-+++ linux-2.6/net/bluetooth/l2cap.c
-@@ -770,7 +770,7 @@ static int l2cap_sock_accept(struct sock
- 	long timeo;
- 	int err = 0;
- 
--	lock_sock(sk);
-+	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
- 
- 	if (sk->sk_state != BT_LISTEN) {
- 		err = -EBADFD;
-Index: linux-2.6/net/core/sock.c
-===================================================================
---- linux-2.6.orig/net/core/sock.c
-+++ linux-2.6/net/core/sock.c
-@@ -1527,7 +1527,7 @@ void sock_init_data(struct socket *sock,
- 	atomic_set(&sk->sk_refcnt, 1);
- }
- 
--void fastcall lock_sock(struct sock *sk)
-+void fastcall _lock_sock(struct sock *sk, int subclass)
- {
- 	might_sleep();
- 	spin_lock_bh(&sk->sk_lock.slock);
-@@ -1538,11 +1538,11 @@ void fastcall lock_sock(struct sock *sk)
- 	/*
- 	 * The sk_lock has mutex_lock() semantics here:
- 	 */
--	mutex_acquire(&sk->sk_lock.dep_map, 0, 0, _RET_IP_);
-+	mutex_acquire(&sk->sk_lock.dep_map, subclass, 0, _RET_IP_);
- 	local_bh_enable();
- }
- 
--EXPORT_SYMBOL(lock_sock);
-+EXPORT_SYMBOL(_lock_sock);
- 
- void fastcall release_sock(struct sock *sk)
- {
-
-
+Jan

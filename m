@@ -1,49 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161246AbWJ3LBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161233AbWJ3LEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161246AbWJ3LBY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 06:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWJ3LBY
+	id S1161233AbWJ3LEe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 06:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161234AbWJ3LEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 06:01:24 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:19209 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1161246AbWJ3LBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 06:01:23 -0500
-Date: Mon, 30 Oct 2006 11:01:11 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: pHilipp Zabel <philipp.zabel@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc[123]: Oops in __wake_up_common during htc magician resume.
-Message-ID: <20061030110111.GA27373@flint.arm.linux.org.uk>
-Mail-Followup-To: pHilipp Zabel <philipp.zabel@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <74d0deb30610250346u1f444a5brbc2c32b4ab83d3e2@mail.gmail.com> <74d0deb30610291413r5b651d17o12d3ccce3b212ee8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 30 Oct 2006 06:04:34 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:50449 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1161233AbWJ3LEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 06:04:33 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=L1LXJ/qHDzJeX5vSEj/fHBW0lNXmneDozwCc7u7LUDaiPYmP02r0zoSkIoeWlI23l
+	1lzRgwMQsU/Vx4tboMt6w==
+Message-ID: <6599ad830610300304l58e235f7td54ef8744e462a55@mail.gmail.com>
+Date: Mon, 30 Oct 2006 03:04:21 -0800
+From: "Paul Menage" <menage@google.com>
+To: balbir@in.ibm.com
+Subject: Re: RFC: Memory Controller
+Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com, pj@sgi.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, rohitseth@google.com,
+       dipankar@in.ibm.com, matthltc@us.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4545D51A.1060808@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <74d0deb30610291413r5b651d17o12d3ccce3b212ee8@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29, 2006 at 11:13:53PM +0100, pHilipp Zabel wrote:
-> On 10/25/06, pHilipp Zabel <philipp.zabel@gmail.com> wrote:
-> >When I switched from 2.6.18 to 2.6.19-rc1 processes started to get killed
-> >during resume due to an oops in __wake_up_common on my arm
-> >pxa272 device (htc magician). The patches I used are at
-> >http://userpage.fu-berlin.de/~zabel/magician/magician-patches-2.6.19-rc3-20061025.tar.bz2
-> 
-> The issue was that I had a device_driver on the platform bus.
-> In a git bisect this error somehow didn't show up until
-> [386415d88b1ae50304f9c61aa3e0db082fa90428] PM: platform_bus and
-> late_suspend/early_resume
-> After turning the offending device_driver into a platform_driver,
-> everything works as expected.
+On 10/30/06, Balbir Singh <balbir@in.ibm.com> wrote:
+> +----+---------+------+---------+------------+----------------+-----------+
+> |ii  |  No     | Yes  | configfs| Memory,    | Plans to       |   Yes     |
+> |    |         |      |         | task limit.| provide a      |           |
+> |    |         |      |         | Plans to   | framework      |           |
+> |    |         |      |         | allow      | to write new   |           |
+> |    |         |      |         | CPU and I/O| controllers    |           |
 
-I recently fixed a similar bug in the PXA2xx PCMCIA code, though it
-had different symptoms.
+I have a port of Rohit's memory controller to run over my generic containers.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+>
+> d. Fake NUMA Nodes
+>
+> This approach was suggested while discussing the memory controller
+>
+> Advantages
+>
+> (i)   Accounting for zones is already present
+> (ii)  Reclaim code can directly deal with zones
+>
+> Disadvantages
+>
+> (i)   The approach leads to hard partitioning of memory.
+> (ii)  It's complex to
+>       resize the node. Resizing is required to allow change of limits for
+>       resource management.
+> (ii)  Addition/Deletion of a resource group would require memory hotplug
+>       support for add/delete a node. On deletion of node, its memory is
+>       not utilized until a new node of a same or lesser size is created.
+>       Addition of node, requires reserving memory for it upfront.
+
+A much simpler way of adding/deleting/resizing resource groups is to
+partition the system at boot time into a large number of fake numa
+nodes (say one node per 64MB in the system) and then use cpusets to
+assign the appropriate number of nodes each group. We're finding a few
+ineffiencies in the current code when using such a large number of
+small nodes (e.g. slab alien node caches), but we're confident that we
+can iron those out.
+
+> (iv)   How do we account for shared pages? Should it be charged to the first
+>        container which touches the page or should it be charged equally among
+>        all containers sharing the page?
+
+A third option is to allow inodes to be associated with containers in
+their own right, and charge all pages for those inodes to the
+associated container. So if several different containers are sharing a
+large data file, you can put that file in its own container, and you
+then have an exact count of how many pages are in use in that shared
+file.
+
+This is cheaper than having to keep track of multiple users of a page,
+and is also useful when you're trying to do scheduling, to decide who
+to evict. Suppose you have two jobs each allocating 100M of anonymous
+memory and each accessing all of a 1G shared file, and you need to
+free up 500M of memory in order to run a higher-priority job.
+
+If you charge the first user, then it will appear that the first job
+is using 1.1G of memory and the second is using 100M of memory. So you
+might evict the first job, thinking it would free up 1.1G of memory -
+but it would actually only free up 100M of memory, since the shared
+pages would still be in use by the second job.
+
+If you share the charge between both users, then it would appear that
+each job is using 600M of memory - but it's still the case that
+evicting either one would only free up 100M of memory.
+
+If you can see that the shared file that they're both using is
+accounting for 1G of the memory total, and that they're each using
+100M of anon memory, then it's easier to see that you'd need to evict
+*both* jobs in order to free up 500M of memory.
+
+Paul

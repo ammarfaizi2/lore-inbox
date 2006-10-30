@@ -1,59 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161352AbWJ3S5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161382AbWJ3S64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161352AbWJ3S5z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 13:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161372AbWJ3S5z
+	id S1161382AbWJ3S64 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 13:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161381AbWJ3S64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 13:57:55 -0500
-Received: from smtpout.mac.com ([17.250.248.186]:34551 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1161352AbWJ3S5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:57:54 -0500
-In-Reply-To: <1162219080.2948.21.camel@laptopd505.fenrus.org>
-References: <200610282350.k9SNoljL020236@freya.yggdrasil.com> <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org> <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com> <1162219080.2948.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <D8540CD5-5223-4010-B1C3-8F90C0C422D9@mac.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Adam J. Richter" <adam@yggdrasil.com>,
-       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       matthew@wil.cx, pavel@ucw.cz, shemminger@osdl.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [patch] drivers: wait for threaded probes between initcall	levels
-Date: Mon, 30 Oct 2006 13:56:45 -0500
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
+	Mon, 30 Oct 2006 13:58:56 -0500
+Received: from dev.mellanox.co.il ([194.90.237.44]:6290 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1161372AbWJ3S6y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 13:58:54 -0500
+Date: Mon, 30 Oct 2006 20:58:44 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
+       Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
+Message-ID: <20061030185844.GA4442@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 30, 2006, at 09:38:00, Arjan van de Ven wrote:
->> I admit the complexity is a bit high, but since the maximum  
->> nesting is bounded by the complexity of the hardware and the  
->> number of busses, and the maximum memory-allocation is strictly  
->> limited in the single-threaded case this could allow 64-way  
->> systems to probe all their hardware an order of magnitude faster  
->> than today without noticeably impacting an embedded system even in  
->> the absolute worst case.
->
-> how much of this complexity goes away if you consider the scanning/ 
-> probing as a series of "work elements", and you end up with a queue  
-> of work elements that threads can pull work off one at a time (so  
-> that if one element blocks the others just continue to flow). If  
-> you then find, say, a new PCI bus you just put another work element  
-> to process it at the end of the queue, or you process it  
-> synchronously. Etc etc.
+Quoting r. Linus Torvalds <torvalds@osdl.org>:
+> Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
+> 
+> 
+> 
+> On Mon, 30 Oct 2006, Jun'ichi Nomura wrote:
+> > 
+> > Please revert the patch. I'll fix the wrong error handling.
+> > 
+> > I'm not sure reverting the patch solves the ACPI problem
+> > because Michael's kernel seems not having any user of
+> > bd_claim_by_kobject.
+> 
+> Yeah, doing a grep does seem to imply that there is no way that those 
+> changes could matter.
+> 
+> Michael, can you double-check? I think Jun'ichi is right - in your kernel, 
+> according to the config posted on bugzilla, I don't think there should be 
+> a single caller of bd_claim_by_disk, since CONFIG_MD is disabled.
 
-Well, I suppose the "trick" would be to ensure that the top-level  
-code can probe multiple independent busses in parallel, while  
-allowing certain of those to serialize their execution order for  
-whatever reason without changing the resulting linear order.  This  
-would make it possible to have independent pci.multithread_probe=1  
-and scsi.multithread_probe=1 arguments so the sysadmin can force  
-serialization for one subsystem if they don't have their device- 
-numbering issues with that subsystem entirely sorted out.
+I will, just maybe not today.
 
-Cheers,
-Kyle Movvett
+> So it does seem strange. But if you bisected to that patch, and it 
+> reliably does _not_ have problems with the patch reverted, maybe there is 
+> some strange preprocessor thing that makes "grep" not find the caller.
+> 
+> Michael, you also reported:
+> 
+> > Reset to d7dd8fd9557840162b724a8ac1366dd78a12dff seems to hide part of 
+> > the issue (I have ACPI after kernel build, but not after 
+> > suspend/resume).  Both reverting this patch, and reset to the parent of
+> > this patch seem to solve (or at least, hide) both problems for me (no 
+> > ACPI after suspend/resume and no ACPI after kernel build).
+> 
+> (where that "d7dd8f.." is actually missing the initial "4" - I think you 
+> cut-and-pasted things incorrectly). 
+
+Yes.
+
+> So I wonder.. You still had ACPI working _after_ the kernel build even 
+> with that patch in place, and it seems that suspend/resume is the real 
+> issue. Martin Lorenz reports on the same bugzilla entry, and he only has 
+> problems with suspend/resume.
+> 
+> I assume that "compile the kernel" just triggers some magic ACPI event 
+> (probably fan-related due to heat), and I wonder if the bisection faked 
+> you out because once you get "close enough" the differences are small 
+> enough that the kernel compile is quick and the heat event doesn't 
+> actually trigger?
+> 
+> See what I'm saying? Maybe the act of bisecting itself changed the 
+> results, and then when you just revert the patch, you end up in the same 
+> situation: you only recompile a small part (you only recompile that 
+> particular file), and the problem doesn't occur, so you'd think that the 
+> revert "fixed" it.
+> 
+> If it's heat-related, it should probably trigger by anything that does a 
+> lot of CPU (and perhaps disk) accesses, not just kernel builds. It might 
+> be good to try to find another test-case for it than a kernel recompile, 
+> one that doesn't depend on how much changed in the kernel..
+> 
+> 		Linus
+> 
+> 
+
+Linus, I agree something fishy is going on, I'm just not sure how to debug.
+It kind of looks like some memory corruption, or something.
+I plan double-checking sometime later.
+
+2 points I'd like to clarify:
+1. When I git-bisected, I tested ACPI after suspend/resume,
+   this is much faster to test but might be a separate issue.
+   I really tested several times, and unless I repeated
+   same mistake several times just switching between commit above 
+   and its parent made ACPI after resume work/not work.
+
+2. When I test kernel compile, I do
+git clone -s ~/scm/linux-2.6
+cd linux-2.6
+make defconfig
+make -j 4
+
+so the build I do in testing is repeatable.
+
+-- 
+MST

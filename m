@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWJ3O50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWJ3PBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbWJ3O50 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 09:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbWJ3O50
+	id S964978AbWJ3PBE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 10:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWJ3PBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 09:57:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:13499 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964977AbWJ3O5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 09:57:25 -0500
-Subject: Re: 2.6.19-rc3-git7: scsi_device_unbusy: inconsistent lock state
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Mark Lord <liml@rtr.ca>,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
-In-Reply-To: <20061030144315.GG4563@kernel.dk>
-References: <45460D52.3000404@rtr.ca>  <20061030144315.GG4563@kernel.dk>
+	Mon, 30 Oct 2006 10:01:03 -0500
+Received: from smtp19.orange.fr ([80.12.242.18]:8539 "EHLO
+	smtp-msa-out19.orange.fr") by vger.kernel.org with ESMTP
+	id S1030330AbWJ3PBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 10:01:01 -0500
+X-ME-UUID: 20061030150100217.352311C000B0@mwinf1918.orange.fr
+Subject: Re: [patch] drivers: wait for threaded probes between initcall
+	levels
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Linus Torvalds <torvalds@osdl.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, akpm@osdl.org, bunk@stusta.de,
+       greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, matthew@wil.cx, pavel@ucw.cz,
+       shemminger@osdl.org
+In-Reply-To: <1162219080.2948.21.camel@laptopd505.fenrus.org>
+References: <200610282350.k9SNoljL020236@freya.yggdrasil.com>
+	 <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org>
+	 <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com>
+	 <1162219080.2948.21.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 30 Oct 2006 15:57:19 +0100
-Message-Id: <1162220239.2948.27.camel@laptopd505.fenrus.org>
+Date: Mon, 30 Oct 2006 16:00:52 +0100
+Message-Id: <1162220452.30605.47.camel@frg-rhel40-em64t-03>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-10-30 at 15:38 +0100, Arjan van de Ven wrote:
 
-> which has always been considered safe, while not very pretty.
+> how much of this complexity goes away if you consider the
+> scanning/probing as a series of "work elements", and you end up with a
+> queue of work elements that threads can pull work off one at a time (so
+> that if one element blocks the others just continue to flow). If you
+> then find, say, a new PCI bus you just put another work element to
+> process it at the end of the queue, or you process it synchronously. Etc
+> etc.
+> 
+> All you need to scale then is the number of worker threads on the
+> system, which should be relatively easy to size....
+> (check every X miliseconds if there are more than X outstanding work
+> elements, if there are, spawn one new worker thread if the total number
+> of worker threads is less than the system wide max. Worker threads die
+> if they have nothing to do for more than Y miliseconds)
 
+Instead of checking every X ms, just check at each job insertion.
 
-actually it's different I think (based on a brief inspection of the
-code, I could well be wrong): 
-get_request_wait() causes a get_request() call with a GFP_NOIO gfp_mask
-which perculates upto cfq_set_request() as argument.
-cfq_set_request() then calls the inline cfq_get_queue() (which isn't in
-the backtrace due to inlining) which does
-                } else if (gfp_mask & __GFP_WAIT) {
-                        /* 
-                         * Inform the allocator of the fact that we will
-                         * just repeat this allocation if it fails, to allow
-                         * the allocator to do whatever it needs to attempt to
-                         * free memory.
-                         */
-                        spin_unlock_irq(cfqd->queue->queue_lock);
-
-which enables interrupts right smack in the middle of holding a whole
-bunch of locks.....
-
-so to me it looks like lockdep at least has the appearance of moaning
-about a reasonably fishy situation...
-
-
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+	Xav
 

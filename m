@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161359AbWJ3XLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161401AbWJ3XMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161359AbWJ3XLj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 18:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161425AbWJ3XLj
+	id S1161401AbWJ3XMx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 18:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161425AbWJ3XMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 18:11:39 -0500
-Received: from colin.muc.de ([193.149.48.1]:42506 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1161359AbWJ3XLi (ORCPT
+	Mon, 30 Oct 2006 18:12:53 -0500
+Received: from colin.muc.de ([193.149.48.1]:26130 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1161401AbWJ3XMx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 18:11:38 -0500
-Date: 31 Oct 2006 00:11:32 +0100
-Date: Tue, 31 Oct 2006 00:11:32 +0100
+	Mon, 30 Oct 2006 18:12:53 -0500
+Date: 31 Oct 2006 00:12:51 +0100
+Date: Tue, 31 Oct 2006 00:12:51 +0100
 From: Andi Kleen <ak@muc.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Zachary Amsden <zach@vmware.com>
 Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/7] Add APIC accessors to paravirt-ops.
-Message-ID: <20061030231132.GA98768@muc.de>
-References: <20061029024504.760769000@sous-sol.org> <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de> <1162178936.9802.34.camel@localhost.localdomain>
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+Message-ID: <20061030231251.GB98768@muc.de>
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com> <200610271416.12548.ak@suse.de> <4546669F.8020706@vmware.com> <20061030225016.GA95732@muc.de> <45468620.5060805@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1162178936.9802.34.camel@localhost.localdomain>
+In-Reply-To: <45468620.5060805@vmware.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Subject: Paravirtualization Kleenups
+> That is the one that can panic, for now.  Fixing the paravirtualized 
+> case is easy, but we can't assume paravirtualization just yet.
 
-Thanks. 
-
-Chris, can you please merge those into the original patchkit? 
-
-I could do it myself, but then retransmits from Chris would be difficult
-if anything else would need to be changed.
-
-Also fixing that !-Os compile error in the original patches would be good.
+Hmm, this means standard vmware boot is not reliable unless that magic option
+is set?   That doesn't sound good.  
 
 -Andi

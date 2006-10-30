@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWJ3FL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWJ3FQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161028AbWJ3FL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 00:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWJ3FL7
+	id S1161008AbWJ3FQU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 00:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWJ3FQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 00:11:59 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:56541 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1161028AbWJ3FL6 (ORCPT
+	Mon, 30 Oct 2006 00:16:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58278 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161008AbWJ3FQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 00:11:58 -0500
-Date: Mon, 30 Oct 2006 16:11:49 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Kristian Mueller <Kristian-M@Kristian-M.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] APM: URL of APM 1.2 specs has changed
-Message-Id: <20061030161149.435c98be.sfr@canb.auug.org.au>
-In-Reply-To: <1162139863.10790.25.camel@pismo>
-References: <1162139863.10790.25.camel@pismo>
-X-Mailer: Sylpheed version 2.3.0beta3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Mon, 30 Oct 2006 00:16:19 -0500
+Date: Sun, 29 Oct 2006 21:16:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc3-mm1
+Message-Id: <20061029211604.41114b13.akpm@osdl.org>
+In-Reply-To: <20061030035430.GA4045@kroah.com>
+References: <20061029160002.29bb2ea1.akpm@osdl.org>
+	<20061030025000.GA8896@redhat.com>
+	<20061030035430.GA4045@kroah.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__30_Oct_2006_16_11_49_+1100_p_M55EwI6Y51uUqw"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__30_Oct_2006_16_11_49_+1100_p_M55EwI6Y51uUqw
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Sun, 29 Oct 2006 19:54:30 -0800
+Greg KH <greg@kroah.com> wrote:
 
-On Mon, 30 Oct 2006 00:37:43 +0800 Kristian Mueller <Kristian-M@Kristian-M.de> wrote:
->
-> APM BIOS Interface Secification can now be found at
-> http://www.microsoft.com/whdc/archive/amp_12.mspx
->
-> Signed-off-by: Kristian Mueller <Kristian-M@Kristian-M.de>
+> On Sun, Oct 29, 2006 at 09:50:00PM -0500, Dave Jones wrote:
+> > On Sun, Oct 29, 2006 at 04:00:02PM -0800, Andrew Morton wrote:
+> > 
+> >  > - For some reason Greg has resurrected the patches which detect whether
+> >  >   you're using old versions of udev and if so, punish you for it.
+> >  > 
+> >  >   If weird stuff happens, try upgrading udev.
+> > 
+> > Where "old" is how old exactly ?
+> 
+> As per the Kconfig help entry, any version of udev released before 2006
+> will probably have problems with the new config option.  So follow the
+> text and enable the option if you are running an old version of udev and
+> you should be fine.
 
-Acked-by: Stephen Rothwell <sfr@canb.auug.org.au>
+<hunts>
 
---
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Greg is referring to CONFIG_SYSFS_DEPRECATED.  I didn't know it existed. 
+If I had known I'd have saved maybe an hour and I perhaps wouldn't have had
+to revert gregkh-driver-tty-device.patch
 
---Signature=_Mon__30_Oct_2006_16_11_49_+1100_p_M55EwI6Y51uUqw
-Content-Type: application/pgp-signature
+What mailing list was this discussed and reviewed on?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+The option should default to "y".
 
-iD8DBQFFRYmVFdBgD/zoJvwRAlULAJwMPd074qvoRtcn/c1ULJVoFDefQACfbqC+
-YeDV/R5SCIaydVuyhRDARjM=
-=vlO2
------END PGP SIGNATURE-----
+The changelog is wrong.  Or garbled.  Certainly confusing.
 
---Signature=_Mon__30_Oct_2006_16_11_49_+1100_p_M55EwI6Y51uUqw--

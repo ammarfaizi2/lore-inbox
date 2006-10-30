@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030590AbWJ3UOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422627AbWJ3UPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030590AbWJ3UOI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 15:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030586AbWJ3UOH
+	id S1422627AbWJ3UPo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 15:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422626AbWJ3UPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 15:14:07 -0500
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:37272 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030590AbWJ3UOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 15:14:03 -0500
-Date: Mon, 30 Oct 2006 21:14:32 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-Message-ID: <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <45463481.80601@shadowen.org>
-References: <20061029160002.29bb2ea1.akpm@osdl.org>
-	<45461977.3020201@shadowen.org>
-	<45461E74.1040408@google.com>
-	<20061030084722.ea834a08.akpm@osdl.org>
-	<454631C1.5010003@google.com>
-	<45463481.80601@shadowen.org>
-X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 30 Oct 2006 15:15:44 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:23452 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030591AbWJ3UPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 15:15:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=lmgKDNPYzToYIt79a7BqzuAUD8IuLhE2Y77tIfN7yndXORkxgwf6j6ikTYraVp5yH5jXs+yHYE00fCENQoDQnHJhr7ajTJKCFLoUMvzztmZ0ikhwwJhVkUdTS6e0kAKEqYEDKpAd48vAL0AbgOd33qW3uuTmPmcWtlaTuiGVcSs=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ISDN: Avoid a potential NULL ptr deref in ippp
+Date: Mon, 30 Oct 2006 21:17:24 +0100
+User-Agent: KMail/1.9.4
+Cc: Michael Hipp <Michael.Hipp@student.uni-tuebingen.de>,
+       Karsten Keil <kkeil@suse.de>,
+       Kai Germaschewski <kai.germaschewski@gmx.de>,
+       isdn4linux@listserv.isdn4linux.de, Jesper Juhl <jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610302117.24760.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006 17:21:05 +0000,
-Andy Whitcroft <apw@shadowen.org> wrote:
 
-> Martin Bligh wrote:
-> >>> Setting up network interfaces:
-> >>>      lo
-> >>>     lo        IP address: 127.0.0.1/8
-> >>> 7[?25l[1A[80C[10D[1;32mdone[m8[?25h    eth0
-> >>>               No configuration found for eth0
-> >>> 7[?25l[1A[80C[10D[1munused[m8[?25h    eth1
-> >>>             No configuration found for eth1
-> >>>
-> >>> for all 8 cards.
-> >>
-> >>
-> >> What version of udev is being used?
-> > 
-> > Buggered if I know. If we could quit breaking it, that'd be good though.
-> > If it printed its version during boot somewhere, that'd help too.
-> > 
-> >> Was CONFIG_SYSFS_DEPRECATED set?
-> > 
-> > No.
-> > 
-> > M.
-> 
-> These all sounds pretty old.  I'll rerun them all with
-> CONFIG_SYSFS_DEPRECATED set and see what pans out.
+There's a potential problem in isdn_ppp.c::isdn_ppp_decompress().
+dev_alloc_skb() may fail and return NULL. If it does we will be passing a
+NULL skb_out to ipc->decompress() and may also end up
+dereferencing a NULL pointer at 
+    *proto = isdn_ppp_strip_proto(skb_out);
+Correct this by testing 'skb_out' against NULL early and bail out.
 
-With CONFIG_SYSFS_DEPRECATED set, you'll get errors for devices which
-have no parent set. The kobject's parent is set to the class
-subsystem's kobject, meaning there is a child with name bus_id (e.
-g. /sys/class/net/lo). Unfortunately, we also try to create a link
-named bus_id in /sys/class/<foo>, which will fail with -EEXIST... We
-should probably drop that link if we have no parent.
 
-FWIW, my s390 system (modified FC 4) works fine with
-CONFIG_SYSFS_DEPRECATED not set (parent-less devices showing up under
-virtual/):
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-[root@t2930034 ~]# ls -l /sys/class/net/
-total 0
-lrwxrwxrwx  1 root root 0 Oct 30 20:57 dummy0-> ../../devices/virtual/net/dummy0
-lrwxrwxrwx  1 root root 0 Oct 30 20:57 eth0-> ../../devices/qeth/0.0.f5f0/eth0
-lrwxrwxrwx  1 root root 0 Oct 30 20:57 lo-> ../../devices/virtual/net/lo
-lrwxrwxrwx  1 root root 0 Oct 30 20:57 sit0 -> ../../devices/virtual/net/sit0
-lrwxrwxrwx  1 root root 0 Oct 30 20:57 tunl0 -> ../../devices/virtual/net/tunl0
+ drivers/isdn/i4l/isdn_ppp.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
-Maybe the initscripts have problems coping with the new layout
-(symlinks instead of real devices)?
-
--- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com
+diff --git a/drivers/isdn/i4l/isdn_ppp.c b/drivers/isdn/i4l/isdn_ppp.c
+index 119412d..5a97ce6 100644
+--- a/drivers/isdn/i4l/isdn_ppp.c
++++ b/drivers/isdn/i4l/isdn_ppp.c
+@@ -2536,6 +2536,11 @@ static struct sk_buff *isdn_ppp_decompre
+   		rsparm.maxdlen = IPPP_RESET_MAXDATABYTES;
+   
+   		skb_out = dev_alloc_skb(is->mru + PPP_HDRLEN);
++  		if (!skb_out) {
++  			kfree_skb(skb);
++  			printk(KERN_ERR "ippp: decomp memory allocation failure\n");
++			return NULL;
++  		}  		
+ 		len = ipc->decompress(stat, skb, skb_out, &rsparm);
+ 		kfree_skb(skb);
+ 		if (len <= 0) {

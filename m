@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWJ3MHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWJ3MH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWJ3MHw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 07:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWJ3MHw
+	id S1750980AbWJ3MH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 07:07:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWJ3MH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 07:07:52 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:41130 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1751091AbWJ3MHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 07:07:50 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Mon, 30 Oct 2006 07:03:10 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] semaphore.h: add missing "sleepers = 0" initialization
-In-Reply-To: <20061030105451.GN29920@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0610300659370.7577@localhost.localdomain>
-References: <Pine.LNX.4.64.0610300540140.7056@localhost.localdomain>
- <20061030105451.GN29920@ftp.linux.org.uk>
+	Mon, 30 Oct 2006 07:07:29 -0500
+Received: from smtp-out.google.com ([216.239.33.17]:50170 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750980AbWJ3MH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 07:07:26 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=ktgnDc9uWILYKAsxFWewkxHfghTunfNiqkO+8Guc8/nEaMFKEbsXU65+h3nIz7GXO
+	DWO/mATwutsbq6tSQFmPg==
+Message-ID: <6599ad830610300407x674059ebh8337d05a4e8ebe85@mail.gmail.com>
+Date: Mon, 30 Oct 2006 04:07:20 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+In-Reply-To: <20061030030635.98563962.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061030103356.GA16833@in.ibm.com>
+	 <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
+	 <20061030030635.98563962.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006, Al Viro wrote:
+On 10/30/06, Paul Jackson <pj@sgi.com> wrote:
+> I get away with this in the cpuset code because:
+>  1) I have the cpuset pointer directly in 'task_struct', so don't
+>     have to chase down anything, for each task, while scanning the
+>     task list.  I just have to ask, for each task, if its cpuset
+>     pointer points to the cpuset of interest.
 
-> On Mon, Oct 30, 2006 at 05:43:14AM -0500, Robert P. J. Day wrote:
-> >
-> >   Add the missing initialization of "sleepers" to 0 in two semaphore
-> > initialization macros.
->
-> Umm...  What the hell for?  Both for struct initializer and for
-> compound literals all named fields that had not been mentioned get
-> initialized as they would for static objects.  So that's simply
-> adding more work to parser for no reason whatsoever.
+That's the same when it's transferred to containers - each task_struct
+now has a container pointer, and you can just see whether the
+container pointer matches the container that you're interested in.
 
-i did that simply to make those initializations *consistent* across
-all of the other dozen or so semaphore.h files that *do* explicitly
-initialize that structure member (as you point out, for no good
-reason).  i'm just as happy to whack out all of those useless
-initializations, though, and submit another patch.  either way works
-for me.
+>  2) I don't care if I get an inconsistent answer, so I don't have
+>     to lock each task, nor do I even lockout the rest of the cpuset
+>     code.  All I know, at the end of the scan, is that each task that
+>     I claim is attached to the cpuset in question was attached to it at
+>     some point during my scan, not necessarilly all at the same time.
 
-rday
+Well, anything that can be accomplished from within the tasklist_lock
+can get a consistent result without any additional lists or
+synchronization - it seems that it would be good to come up with a
+real-world example of something that *can't* make do with this before
+adding extra book-keeping.
+
+Paul

@@ -1,91 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWJ3L7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWJ3MAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWJ3L7B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 06:59:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWJ3L7A
+	id S1750705AbWJ3MAr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 07:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWJ3MAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 06:59:00 -0500
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:23175 "EHLO
+	Mon, 30 Oct 2006 07:00:47 -0500
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:45959 "EHLO
 	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S1750709AbWJ3L7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 06:59:00 -0500
+	id S1750705AbWJ3MAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 07:00:46 -0500
 From: "Peter Pearse" <peter.pearse@arm.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: [RFC 1/7][PATCH] AMBA DMA: Provide drivers/amba/Kconfig. 
-Date: Mon, 30 Oct 2006 11:58:55 -0000
+Subject: [RFC 2/7][PATCH] AMBA DMA: Implement /proc/dma for arm DMA 
+Date: Mon, 30 Oct 2006 12:00:42 -0000
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: Acb8GsaDauUbLYKcT4yhUPCvvgeT0g==
+Thread-Index: Acb8GwXp5u3YC9EmQKGWil0kTAuqhg==
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-Message-ID: <CAM-OWA16YlkoqCDtbv00000002@cam-owa1.Emea.Arm.com>
-X-OriginalArrivalTime: 30 Oct 2006 11:58:58.0814 (UTC) FILETIME=[C86661E0:01C6FC1A]
+Message-ID: <CAM-OWA1KgRKmKNEJM100000003@cam-owa1.Emea.Arm.com>
+X-OriginalArrivalTime: 30 Oct 2006 12:00:45.0252 (UTC) FILETIME=[07D78840:01C6FC1B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The new file allows
-- display of all AMBA peripherals on the platform
-- configuration of the drivers for these.
+Adds the necessary functions to arch/arm/kernel/dma.c.
 
 Signed-off-by: Peter M Pearse <peter.pearse@arm.com> 
 
 ---
+diff -purN arm_amba/arch/arm/kernel/dma.c
+arm_amba_proc_dma/arch/arm/kernel/dma.c
+--- arm_amba/arch/arm/kernel/dma.c	2006-10-17 13:28:37.000000000 +0100
++++ arm_amba_proc_dma/arch/arm/kernel/dma.c	2006-10-17
+17:05:21.000000000 +0100
+@@ -15,6 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/spinlock.h>
+ #include <linux/errno.h>
++#include <linux/proc_fs.h>
+ 
+ #include <asm/dma.h>
+ 
+@@ -258,6 +259,47 @@ int get_dma_residue(dmach_t channel)
+ }
+ EXPORT_SYMBOL(get_dma_residue);
+ 
++#ifdef CONFIG_PROC_FS
++static int proc_dma_show(struct seq_file *m, void *v)
++{
++	int i;
++
++	for (i = 0 ; i < MAX_DMA_CHANNELS ; i++) {
++		if (dma_chan[i].lock) {
++			seq_printf(m, "%2d: %14s %s\n", i,
++				   dma_chan[i].d_ops->type,
+dma_chan[i].device_id);
++		}
++	}
++	return 0;
++}
++static int proc_dma_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, proc_dma_show, NULL);
++}
++
++static struct file_operations proc_dma_operations = {
++	.open		= proc_dma_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= single_release,
++};
++
++static int __init proc_dma_init(void)
++{
++	if(MAX_DMA_CHANNELS > 0){
++		struct proc_dir_entry *e;
++
++		e = create_proc_entry("dma", 0, NULL);
++		if (e)
++			e->proc_fops = &proc_dma_operations;
++	}
++	return 0;
++}
++
++__initcall(proc_dma_init);
++
++#endif
++
+ static int __init init_dma(void)
+ {
+ 	arch_dma_init(dma_chan);
 
-diff -purN origin_arm/arch/arm/Kconfig arm_amba/arch/arm/Kconfig
---- origin_arm/arch/arm/Kconfig	2006-10-17 15:51:44.000000000 +0100
-+++ arm_amba/arch/arm/Kconfig	2006-10-17 16:56:34.000000000 +0100
-@@ -395,8 +395,7 @@ config FORCE_MAX_ZONEORDER
- 
- menu "Bus support"
- 
--config ARM_AMBA
--	bool
-+source "drivers/amba/Kconfig"
- 
- config ISA
- 	bool
-diff -purN origin_arm/drivers/amba/Kconfig arm_amba/drivers/amba/Kconfig
---- origin_arm/drivers/amba/Kconfig	1970-01-01 01:00:00.000000000 +0100
-+++ arm_amba/drivers/amba/Kconfig	2006-10-17 16:50:42.000000000 +0100
-@@ -0,0 +1,32 @@
-+#
-+# This file holds details regarding the AMBA bus of the chosen platform 
-+#
-+config ARM_AMBA	 
-+	bool "Platform has an AMBA bus"
-+	depends on ARCH_AAEC2000 || ARCH_INTEGRATOR || ARCH_REALVIEW ||
-ARCH_VERSATILE || ARCH_EP93XX
-+	---help---
-+	 This motherboard has AMBA an bus.
-+
-+menu 	"AMBA devices"
-+	depends on ARM_AMBA
-+
-+comment "Any AMBA devices on the platform are shown here"
-+comment "Drivers for the devices may need to be selected in the relevant
-configuration section"
-+
-+config HAS_ARM_AMBA_PL041
-+	string "AMBA PrimeCell AACI AC'97" if (ARCH_VERSATILE_PB ||
-MACH_VERSATILE_AB || ARCH_REALVIEW)
-+	depends on ARM_AMBA
-+	---help---
-+	 This board has an AMBA PrimeCell Advanced Audio Codec Interface.
-+	 It's driver may be selected under sound/Advanced Linux Sound
-Architecture/ALSA ARM devices.
-+	 (CONFIG_SND_ARMAACI)
-+
-+config HAS_ARM_AMBA_PL080
-+	depends on ARM_AMBA
-+	string "AMBA PrimeCell DMAC PL080" if (ARCH_VERSATILE_PB ||
-MACH_VERSATILE_AB || ARCH_REALVIEW)
-+	---help---  
-+	 This board has an AMBA PrimeCell PL080 DMA Controller.
-+	 There is no driver implemented in this kernel.
-+
-+endmenu
-+
 
 

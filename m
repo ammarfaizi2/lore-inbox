@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422630AbWJ3UsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWJ3Us5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422630AbWJ3UsR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 15:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422636AbWJ3UsR
+	id S1422638AbWJ3Us5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 15:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbWJ3Us4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 15:48:17 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:2442 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1422630AbWJ3UsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 15:48:16 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=A/Zefo/ct9+y7PEPJ2ClhMBAYd3QtEGQTitQYEuFbRPgGsB3KDqqi6RYfMVVgtZsG
-	QUT7kf8DHO5deq8uipJZA==
-Message-ID: <6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com>
-Date: Mon, 30 Oct 2006 12:47:59 -0800
-From: "Paul Menage" <menage@google.com>
-To: "Paul Jackson" <pj@sgi.com>
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Cc: dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-In-Reply-To: <20061030123652.d1574176.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Oct 2006 15:48:56 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:32416 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1422638AbWJ3Us4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 15:48:56 -0500
+Date: Mon, 30 Oct 2006 23:48:43 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
+       Jay Lan <jlan@sgi.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] taskstats_exit_alloc: optimize/simplify
+Message-ID: <20061030204843.GA1135@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061030103356.GA16833@in.ibm.com>
-	 <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
-	 <20061030031531.8c671815.pj@sgi.com>
-	 <6599ad830610300404v1e036bb7o7ed9ec0bc341864e@mail.gmail.com>
-	 <20061030042714.fa064218.pj@sgi.com>
-	 <6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com>
-	 <20061030123652.d1574176.pj@sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/30/06, Paul Jackson <pj@sgi.com> wrote:
->
-> In other words you are recommending delivering a system that internally
-> tracks separate hierarchies for each resource control entity, but where
-> the user can conveniently overlap some of these hierarchies and deal
-> with them as a single hierarchy.
+If there are no listeners, every task does unneeded kmem_cache alloc/free on
+exit. We don't need listeners->sem for 'if (!list_empty())' check. Yes, we may
+have a false positive, but this doesn't differ from the case when the listener
+is unregistered after we drop the semaphore. So we don't need to do allocation
+beforehand.
 
-More or less. More concretely:
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-- there is a single hierarchy of process containers
-- each process is a member of exactly one process container
+--- STATS/kernel/taskstats.c~1_alloc	2006-10-29 18:35:40.000000000 +0300
++++ STATS/kernel/taskstats.c	2006-10-30 23:45:20.000000000 +0300
+@@ -421,7 +421,6 @@ err:
+ void taskstats_exit_alloc(struct taskstats **ptidstats, unsigned int *mycpu)
+ {
+ 	struct listener_list *listeners;
+-	struct taskstats *tmp;
+ 	/*
+ 	 * This is the cpu on which the task is exiting currently and will
+ 	 * be the one for which the exit event is sent, even if the cpu
+@@ -429,19 +428,11 @@ void taskstats_exit_alloc(struct tasksta
+ 	 */
+ 	*mycpu = raw_smp_processor_id();
+ 
+-	*ptidstats = NULL;
+-	tmp = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
+-	if (!tmp)
+-		return;
+-
+ 	listeners = &per_cpu(listener_array, *mycpu);
+-	down_read(&listeners->sem);
+-	if (!list_empty(&listeners->list)) {
+-		*ptidstats = tmp;
+-		tmp = NULL;
+-	}
+-	up_read(&listeners->sem);
+-	kfree(tmp);
++
++	*ptidstats = NULL;
++	if (!list_empty(&listeners->list))
++		*ptidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
+ }
+ 
+ /* Send pid data out on exit */
 
-- for each resource controller, there's a hierarchy of resource "nodes"
-- each process container is associated with exactly one resource node
-of each type
-
-- by default, the process container hierarchy and the resource node
-hierarchies are isomorphic, but that can be controlled by userspace.
-
-Paul

@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161346AbWJ3Ut7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWJ3Uy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161346AbWJ3Ut7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 15:49:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161439AbWJ3Ut7
+	id S1422650AbWJ3Uy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 15:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422652AbWJ3Uy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 15:49:59 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:4507 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1161346AbWJ3Ut6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 15:49:58 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.19-rc3-mm1 - udev doesn't work (was: ATI SATA controller not detected)
-Date: Mon, 30 Oct 2006 21:48:33 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>
-References: <20061029160002.29bb2ea1.akpm@osdl.org> <200610302115.37688.rjw@sisk.pl> <20061030202251.GA1235@kroah.com>
-In-Reply-To: <20061030202251.GA1235@kroah.com>
+	Mon, 30 Oct 2006 15:54:56 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:27524 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1422650AbWJ3Uy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 15:54:56 -0500
+Message-ID: <4546669F.8020706@vmware.com>
+Date: Mon, 30 Oct 2006 12:54:55 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com> <200610271416.12548.ak@suse.de>
+In-Reply-To: <200610271416.12548.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610302148.34218.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 30 October 2006 21:22, Greg KH wrote:
-> On Mon, Oct 30, 2006 at 09:15:37PM +0100, Rafael J. Wysocki wrote:
-> > Sorry, I was wrong.
-> > 
-> > The controller _is_ detected and handled properly, but udev is apparently
-> > unable to create the special device files for SATA drives/partitions even
-> > though CONFIG_SYSFS_DEPRECATED is set.
-> 
-> This config option should not affect the block device sysfs files at all
-> at this point in time.
-> 
-> What does 'tree /sys/block/' show?
+Andi Kleen wrote:
+> no_timer_check. But it's only there on x86-64 in mainline - although there
+> were some patches to add it to i386 too.
+>   
 
-I can't run 'tree', but 'ls' works somehow (can't mount the root fs).  The
-block device sysfs files seem to be present
-
-> If the files show up there properly, udev should handle them just fine.
-
-It doesn't.
-
-Well, I can binary search for the offending patch if that helps.
-
-Greetings,
-Rafael
+I can rename to match the x86-64 name.
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+>> That is what this patch is building towards, but the boot option is
+>> "free", so why not?  In the meantime, it helps non-paravirt kernels
+>> booted in a VM.
+>>     
+>
+> Hmm, you meant they paniced before?  If they just fail a few tests
+> that is not particularly worrying (real hardware does that often too)
+>   
+
+Yes, they sometimes fail to boot, and the failure message used to ask us 
+to pester mingo.
+
+Zach

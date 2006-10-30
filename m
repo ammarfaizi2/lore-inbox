@@ -1,368 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965511AbWJ3Kqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965512AbWJ3Kqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965511AbWJ3Kqy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 05:46:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965516AbWJ3Kqo
+	id S965512AbWJ3Kqm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 05:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965504AbWJ3KqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 05:46:44 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37863 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965505AbWJ3KqY
+	Mon, 30 Oct 2006 05:46:22 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:61850 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965505AbWJ3KqE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 05:46:24 -0500
+	Mon, 30 Oct 2006 05:46:04 -0500
 To: linux-arch@vger.kernel.org
-Subject: [PATCH 6/7] severing skbuff.h -> mm.h
+Subject: [PATCH 4/7] severing skbuff.h -> highmem.h
 Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Message-Id: <E1GeUet-0002pU-8b@ZenIV.linux.org.uk>
+Message-Id: <E1GeUeZ-0002ol-7q@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 30 Oct 2006 10:46:23 +0000
+Date: Mon, 30 Oct 2006 10:46:03 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- drivers/isdn/divert/isdn_divert.c           |    2 ++
- drivers/net/ehea/ehea_qmr.c                 |    1 +
- drivers/net/lance.c                         |    1 +
- drivers/net/ne3210.c                        |    1 +
- drivers/net/sk98lin/skge.c                  |    2 ++
- drivers/net/starfire.c                      |    1 +
- drivers/net/sungem.c                        |    1 +
- drivers/net/sunhme.c                        |    1 +
- drivers/net/typhoon.c                       |    1 +
- include/linux/igmp.h                        |    1 +
- include/linux/kernelcapi.h                  |    1 +
- include/linux/netdevice.h                   |    1 +
- include/linux/netfilter_ipv4/ip_conntrack.h |    1 +
- include/linux/skbuff.h                      |    1 -
- include/net/irda/timer.h                    |    1 +
- include/net/netlink.h                       |    1 +
- include/net/sock.h                          |    1 +
- net/ieee80211/ieee80211_crypt_tkip.c        |    1 +
- net/ieee80211/ieee80211_crypt_wep.c         |    1 +
- net/ipv4/ipvs/ip_vs_lblc.c                  |    1 +
- net/ipv4/ipvs/ip_vs_lblcr.c                 |    1 +
- net/ipv4/netfilter/ipt_hashlimit.c          |    1 +
- net/irda/discovery.c                        |    1 +
- net/irda/iriap.c                            |    1 +
- net/irda/irttp.c                            |    1 +
- net/netfilter/x_tables.c                    |    1 +
- 26 files changed, 27 insertions(+), 1 deletions(-)
+ drivers/infiniband/ulp/iser/iser_memory.c |    1 +
+ drivers/net/sun3lance.c                   |    1 +
+ fs/compat.c                               |    1 +
+ include/linux/skbuff.h                    |   19 -------------------
+ kernel/auditsc.c                          |    1 +
+ net/appletalk/ddp.c                       |    1 +
+ net/core/kmap_skb.h                       |   19 +++++++++++++++++++
+ net/core/skbuff.c                         |    3 ++-
+ net/core/sock.c                           |    1 +
+ net/ipv4/ip_output.c                      |    1 +
+ net/packet/af_packet.c                    |    1 +
+ 11 files changed, 29 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/isdn/divert/isdn_divert.c b/drivers/isdn/divert/isdn_divert.c
-index 1f5ebe9..03319ea 100644
---- a/drivers/isdn/divert/isdn_divert.c
-+++ b/drivers/isdn/divert/isdn_divert.c
-@@ -10,6 +10,8 @@
-  */
- 
- #include <linux/proc_fs.h>
-+#include <linux/timer.h>
-+#include <linux/jiffies.h>
- 
- #include "isdn_divert.h"
- 
-diff --git a/drivers/net/ehea/ehea_qmr.c b/drivers/net/ehea/ehea_qmr.c
-index 3e18623..01c21b7 100644
---- a/drivers/net/ehea/ehea_qmr.c
-+++ b/drivers/net/ehea/ehea_qmr.c
-@@ -26,6 +26,7 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
-+#include <linux/mm.h>
- #include "ehea.h"
- #include "ehea_phyp.h"
- #include "ehea_qmr.h"
-diff --git a/drivers/net/lance.c b/drivers/net/lance.c
-index 6efbd49..4256c13 100644
---- a/drivers/net/lance.c
-+++ b/drivers/net/lance.c
-@@ -57,6 +57,7 @@ #include <linux/init.h>
- #include <linux/netdevice.h>
- #include <linux/etherdevice.h>
+diff --git a/drivers/infiniband/ulp/iser/iser_memory.c b/drivers/infiniband/ulp/iser/iser_memory.c
+index 0606744..5e12250 100644
+--- a/drivers/infiniband/ulp/iser/iser_memory.c
++++ b/drivers/infiniband/ulp/iser/iser_memory.c
+@@ -35,6 +35,7 @@ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/mm.h>
++#include <linux/highmem.h>
+ #include <asm/io.h>
+ #include <asm/scatterlist.h>
+ #include <linux/scatterlist.h>
+diff --git a/drivers/net/sun3lance.c b/drivers/net/sun3lance.c
+index b865db3..47a1c09 100644
+--- a/drivers/net/sun3lance.c
++++ b/drivers/net/sun3lance.c
+@@ -38,6 +38,7 @@ #include <linux/etherdevice.h>
  #include <linux/skbuff.h>
-+#include <linux/mm.h>
  #include <linux/bitops.h>
  
++#include <asm/cacheflush.h>
+ #include <asm/setup.h>
+ #include <asm/irq.h>
  #include <asm/io.h>
-diff --git a/drivers/net/ne3210.c b/drivers/net/ne3210.c
-index d663289..1a6fed7 100644
---- a/drivers/net/ne3210.c
-+++ b/drivers/net/ne3210.c
-@@ -36,6 +36,7 @@ #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/netdevice.h>
- #include <linux/etherdevice.h>
-+#include <linux/mm.h>
+diff --git a/fs/compat.c b/fs/compat.c
+index 50624d4..0f06acb 100644
+--- a/fs/compat.c
++++ b/fs/compat.c
+@@ -45,6 +45,7 @@ #include <linux/nfsd/syscall.h>
+ #include <linux/personality.h>
+ #include <linux/rwsem.h>
+ #include <linux/tsacct_kern.h>
++#include <linux/highmem.h>
+ #include <linux/mm.h>
  
- #include <asm/io.h>
- #include <asm/system.h>
-diff --git a/drivers/net/sk98lin/skge.c b/drivers/net/sk98lin/skge.c
-index d4913c3..96bdbb7 100644
---- a/drivers/net/sk98lin/skge.c
-+++ b/drivers/net/sk98lin/skge.c
-@@ -113,6 +113,8 @@ #include	<linux/moduleparam.h>
- #include	<linux/init.h>
- #include	<linux/dma-mapping.h>
- #include	<linux/ip.h>
-+#include	<linux/mm_types.h>
-+#include	<asm/page.h>
- 
- #include	"h/skdrv1st.h"
- #include	"h/skdrv2nd.h"
-diff --git a/drivers/net/starfire.c b/drivers/net/starfire.c
-index 7a0aee6..bf873ea 100644
---- a/drivers/net/starfire.c
-+++ b/drivers/net/starfire.c
-@@ -41,6 +41,7 @@ #include <linux/crc32.h>
- #include <linux/ethtool.h>
- #include <linux/mii.h>
- #include <linux/if_vlan.h>
-+#include <linux/mm.h>
- #include <asm/processor.h>		/* Processor type for cache alignment. */
- #include <asm/uaccess.h>
- #include <asm/io.h>
-diff --git a/drivers/net/sungem.c b/drivers/net/sungem.c
-index 253e96e..d1c07ea 100644
---- a/drivers/net/sungem.c
-+++ b/drivers/net/sungem.c
-@@ -56,6 +56,7 @@ #include <linux/workqueue.h>
- #include <linux/if_vlan.h>
- #include <linux/bitops.h>
- #include <linux/mutex.h>
-+#include <linux/mm.h>
- 
- #include <asm/system.h>
- #include <asm/io.h>
-diff --git a/drivers/net/sunhme.c b/drivers/net/sunhme.c
-index 9d7cd13..204b94e 100644
---- a/drivers/net/sunhme.c
-+++ b/drivers/net/sunhme.c
-@@ -32,6 +32,7 @@ #include <linux/errno.h>
- #include <linux/netdevice.h>
- #include <linux/etherdevice.h>
- #include <linux/skbuff.h>
-+#include <linux/mm.h>
- #include <linux/bitops.h>
- 
- #include <asm/system.h>
-diff --git a/drivers/net/typhoon.c b/drivers/net/typhoon.c
-index 3bf9e63..467b10f 100644
---- a/drivers/net/typhoon.c
-+++ b/drivers/net/typhoon.c
-@@ -117,6 +117,7 @@ #include <linux/pci.h>
- #include <linux/netdevice.h>
- #include <linux/etherdevice.h>
- #include <linux/skbuff.h>
-+#include <linux/mm.h>
- #include <linux/init.h>
- #include <linux/delay.h>
- #include <linux/ethtool.h>
-diff --git a/include/linux/igmp.h b/include/linux/igmp.h
-index 03f43e2..014940e 100644
---- a/include/linux/igmp.h
-+++ b/include/linux/igmp.h
-@@ -127,6 +127,7 @@ #define IGMP_LOCAL_GROUP_MASK	htonl(0xFF
- 
- #ifdef __KERNEL__
- #include <linux/skbuff.h>
-+#include <linux/timer.h>
- #include <linux/in.h>
- 
- extern int sysctl_igmp_max_memberships;
-diff --git a/include/linux/kernelcapi.h b/include/linux/kernelcapi.h
-index 891bb2c..f8a0ff8 100644
---- a/include/linux/kernelcapi.h
-+++ b/include/linux/kernelcapi.h
-@@ -47,6 +47,7 @@ #ifdef __KERNEL__
- 
- #include <linux/list.h>
- #include <linux/skbuff.h>
-+#include <linux/workqueue.h>
- 
- #define	KCI_CONTRUP	0	/* arg: struct capi_profile */
- #define	KCI_CONTRDOWN	1	/* arg: NULL */
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 9264139..5c55676 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -30,6 +30,7 @@ #include <linux/if_ether.h>
- #include <linux/if_packet.h>
- 
- #ifdef __KERNEL__
-+#include <linux/timer.h>
- #include <asm/atomic.h>
- #include <asm/cache.h>
- #include <asm/byteorder.h>
-diff --git a/include/linux/netfilter_ipv4/ip_conntrack.h b/include/linux/netfilter_ipv4/ip_conntrack.h
-index 64e8680..9657019 100644
---- a/include/linux/netfilter_ipv4/ip_conntrack.h
-+++ b/include/linux/netfilter_ipv4/ip_conntrack.h
-@@ -9,6 +9,7 @@ #include <linux/bitops.h>
- #include <linux/compiler.h>
- #include <asm/atomic.h>
- 
-+#include <linux/timer.h>
- #include <linux/netfilter_ipv4/ip_conntrack_tcp.h>
- #include <linux/netfilter_ipv4/ip_conntrack_icmp.h>
- #include <linux/netfilter_ipv4/ip_conntrack_proto_gre.h>
+ #include <net/sock.h>		/* siocdevprivate_ioctl */
 diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 6aa8b11..60be90a 100644
+index 85577a4..c9c83ae 100644
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -22,7 +22,6 @@ #include <linux/cache.h>
- #include <asm/atomic.h>
+@@ -23,7 +23,6 @@ #include <asm/atomic.h>
  #include <asm/types.h>
  #include <linux/spinlock.h>
--#include <linux/mm.h>
+ #include <linux/mm.h>
+-#include <linux/highmem.h>
+ #include <linux/poll.h>
  #include <linux/net.h>
  #include <linux/textsearch.h>
- #include <net/checksum.h>
-diff --git a/include/net/irda/timer.h b/include/net/irda/timer.h
-index 2c5d886..cb61568 100644
---- a/include/net/irda/timer.h
-+++ b/include/net/irda/timer.h
-@@ -28,6 +28,7 @@ #ifndef TIMER_H
- #define TIMER_H
+@@ -1293,24 +1292,6 @@ static inline int pskb_trim_rcsum(struct
+ 	return __pskb_trim(skb, len);
+ }
  
- #include <linux/timer.h>
-+#include <linux/jiffies.h>
+-static inline void *kmap_skb_frag(const skb_frag_t *frag)
+-{
+-#ifdef CONFIG_HIGHMEM
+-	BUG_ON(in_irq());
+-
+-	local_bh_disable();
+-#endif
+-	return kmap_atomic(frag->page, KM_SKB_DATA_SOFTIRQ);
+-}
+-
+-static inline void kunmap_skb_frag(void *vaddr)
+-{
+-	kunmap_atomic(vaddr, KM_SKB_DATA_SOFTIRQ);
+-#ifdef CONFIG_HIGHMEM
+-	local_bh_enable();
+-#endif
+-}
+-
+ #define skb_queue_walk(queue, skb) \
+ 		for (skb = (queue)->next;					\
+ 		     prefetch(skb->next), (skb != (struct sk_buff *)(queue));	\
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 42f2f11..ab97e51 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -64,6 +64,7 @@ #include <linux/list.h>
+ #include <linux/tty.h>
+ #include <linux/selinux.h>
+ #include <linux/binfmts.h>
++#include <linux/highmem.h>
+ #include <linux/syscalls.h>
  
- #include <asm/param.h>  /* for HZ */
+ #include "audit.h"
+diff --git a/net/appletalk/ddp.c b/net/appletalk/ddp.c
+index 708e2e0..a5b0f1a 100644
+--- a/net/appletalk/ddp.c
++++ b/net/appletalk/ddp.c
+@@ -61,6 +61,7 @@ #include <net/sock.h>
+ #include <net/tcp_states.h>
+ #include <net/route.h>
+ #include <linux/atalk.h>
++#include "../core/kmap_skb.h"
  
-diff --git a/include/net/netlink.h b/include/net/netlink.h
-index ce5cba1..6798847 100644
---- a/include/net/netlink.h
-+++ b/include/net/netlink.h
-@@ -3,6 +3,7 @@ #define __NET_NETLINK_H
+ struct datalink_proto *ddp_dl, *aarp_dl;
+ static const struct proto_ops atalk_dgram_ops;
+diff --git a/net/core/kmap_skb.h b/net/core/kmap_skb.h
+new file mode 100644
+index 0000000..283c2b9
+--- /dev/null
++++ b/net/core/kmap_skb.h
+@@ -0,0 +1,19 @@
++#include <linux/highmem.h>
++
++static inline void *kmap_skb_frag(const skb_frag_t *frag)
++{
++#ifdef CONFIG_HIGHMEM
++	BUG_ON(in_irq());
++
++	local_bh_disable();
++#endif
++	return kmap_atomic(frag->page, KM_SKB_DATA_SOFTIRQ);
++}
++
++static inline void kunmap_skb_frag(void *vaddr)
++{
++	kunmap_atomic(vaddr, KM_SKB_DATA_SOFTIRQ);
++#ifdef CONFIG_HIGHMEM
++	local_bh_enable();
++#endif
++}
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 3c23760..12e0c04 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -56,7 +56,6 @@ #include <linux/skbuff.h>
+ #include <linux/cache.h>
+ #include <linux/rtnetlink.h>
+ #include <linux/init.h>
+-#include <linux/highmem.h>
  
- #include <linux/types.h>
- #include <linux/netlink.h>
-+#include <linux/jiffies.h>
+ #include <net/protocol.h>
+ #include <net/dst.h>
+@@ -67,6 +66,8 @@ #include <net/xfrm.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
  
- /* ========================================================================
-  *         Netlink Messages and Attributes Interface (As Seen On TV)
-diff --git a/include/net/sock.h b/include/net/sock.h
-index ac286a3..2f90f63 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -47,6 +47,7 @@ #include <linux/module.h>
- #include <linux/lockdep.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>	/* struct sk_buff */
-+#include <linux/mm.h>
- #include <linux/security.h>
++#include "kmap_skb.h"
++
+ static kmem_cache_t *skbuff_head_cache __read_mostly;
+ static kmem_cache_t *skbuff_fclone_cache __read_mostly;
  
- #include <linux/filter.h>
-diff --git a/net/ieee80211/ieee80211_crypt_tkip.c b/net/ieee80211/ieee80211_crypt_tkip.c
-index 4200ec5..fc1f99a 100644
---- a/net/ieee80211/ieee80211_crypt_tkip.c
-+++ b/net/ieee80211/ieee80211_crypt_tkip.c
-@@ -16,6 +16,7 @@ #include <linux/slab.h>
- #include <linux/random.h>
- #include <linux/skbuff.h>
- #include <linux/netdevice.h>
-+#include <linux/mm.h>
- #include <linux/if_ether.h>
- #include <linux/if_arp.h>
- #include <asm/string.h>
-diff --git a/net/ieee80211/ieee80211_crypt_wep.c b/net/ieee80211/ieee80211_crypt_wep.c
-index 1b2efff..7a95c3d 100644
---- a/net/ieee80211/ieee80211_crypt_wep.c
-+++ b/net/ieee80211/ieee80211_crypt_wep.c
-@@ -15,6 +15,7 @@ #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/random.h>
- #include <linux/skbuff.h>
-+#include <linux/mm.h>
- #include <asm/string.h>
+diff --git a/net/core/sock.c b/net/core/sock.c
+index d472db4..058fc97 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -111,6 +111,7 @@ #include <linux/interrupt.h>
+ #include <linux/poll.h>
+ #include <linux/tcp.h>
+ #include <linux/init.h>
++#include <linux/highmem.h>
  
- #include <net/ieee80211.h>
-diff --git a/net/ipv4/ipvs/ip_vs_lblc.c b/net/ipv4/ipvs/ip_vs_lblc.c
-index 524751e..a4385a2 100644
---- a/net/ipv4/ipvs/ip_vs_lblc.c
-+++ b/net/ipv4/ipvs/ip_vs_lblc.c
-@@ -45,6 +45,7 @@ #include <linux/ip.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/skbuff.h>
-+#include <linux/jiffies.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index fc195a4..fb1b21f 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -53,6 +53,7 @@ #include <linux/sched.h>
+ #include <linux/mm.h>
+ #include <linux/string.h>
+ #include <linux/errno.h>
++#include <linux/highmem.h>
  
- /* for sysctl */
- #include <linux/fs.h>
-diff --git a/net/ipv4/ipvs/ip_vs_lblcr.c b/net/ipv4/ipvs/ip_vs_lblcr.c
-index 0899019..fe1af5d 100644
---- a/net/ipv4/ipvs/ip_vs_lblcr.c
-+++ b/net/ipv4/ipvs/ip_vs_lblcr.c
-@@ -43,6 +43,7 @@ #include <linux/ip.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/skbuff.h>
-+#include <linux/jiffies.h>
- 
- /* for sysctl */
- #include <linux/fs.h>
-diff --git a/net/ipv4/netfilter/ipt_hashlimit.c b/net/ipv4/netfilter/ipt_hashlimit.c
-index 33ccdbf..906eda8 100644
---- a/net/ipv4/netfilter/ipt_hashlimit.c
-+++ b/net/ipv4/netfilter/ipt_hashlimit.c
-@@ -31,6 +31,7 @@ #include <linux/vmalloc.h>
+ #include <linux/socket.h>
+ #include <linux/sockios.h>
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index f4ccb90..6c2313c 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -71,6 +71,7 @@ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/ioctls.h>
+ #include <asm/page.h>
++#include <asm/cacheflush.h>
+ #include <asm/io.h>
  #include <linux/proc_fs.h>
  #include <linux/seq_file.h>
- #include <linux/list.h>
-+#include <linux/mm.h>
- 
- #include <linux/netfilter_ipv4/ip_tables.h>
- #include <linux/netfilter_ipv4/ipt_hashlimit.h>
-diff --git a/net/irda/discovery.c b/net/irda/discovery.c
-index 3fefc82..89fd2a2 100644
---- a/net/irda/discovery.c
-+++ b/net/irda/discovery.c
-@@ -32,6 +32,7 @@
- 
- #include <linux/string.h>
- #include <linux/socket.h>
-+#include <linux/fs.h>
- #include <linux/seq_file.h>
- 
- #include <net/irda/irda.h>
-diff --git a/net/irda/iriap.c b/net/irda/iriap.c
-index 415cf4e..d640889 100644
---- a/net/irda/iriap.c
-+++ b/net/irda/iriap.c
-@@ -27,6 +27,7 @@
- #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/skbuff.h>
-+#include <linux/fs.h>
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/seq_file.h>
-diff --git a/net/irda/irttp.c b/net/irda/irttp.c
-index 3c2e70b..6a56165 100644
---- a/net/irda/irttp.c
-+++ b/net/irda/irttp.c
-@@ -26,6 +26,7 @@
- 
- #include <linux/skbuff.h>
- #include <linux/init.h>
-+#include <linux/fs.h>
- #include <linux/seq_file.h>
- 
- #include <asm/byteorder.h>
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index 58522fc..8996584 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -21,6 +21,7 @@ #include <linux/seq_file.h>
- #include <linux/string.h>
- #include <linux/vmalloc.h>
- #include <linux/mutex.h>
-+#include <linux/mm.h>
- 
- #include <linux/netfilter/x_tables.h>
- #include <linux/netfilter_arp.h>
 -- 
 1.4.2.GIT
 

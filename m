@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030542AbWJ3PrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030548AbWJ3Pr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030542AbWJ3PrU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 10:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030545AbWJ3PrU
+	id S1030548AbWJ3Pr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 10:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030545AbWJ3Pr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 10:47:20 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:50860 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030542AbWJ3PrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 10:47:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=oC8MbWNY235r2PWndAod70F79OOQoqTw1pGzrK06iXORODNl3GRDaMrSovuB3JxOT35/8aLHsVW9aQCL8TamFiaz3ixPOiLzD5fnWm0f7u+95FM/CA2mcqoY4P9/+dPQpFR06BnewK5jMgPbxBQe21xZwScTbhUHUjUQ4ISF3vs=
-Message-ID: <84144f020610300747q2652e185u6499510659a54a8c@mail.gmail.com>
-Date: Mon, 30 Oct 2006 17:47:18 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Andy Whitcroft" <apw@shadowen.org>
-Subject: Re: Re: Slab panic on 2.6.19-rc3-git5 (-git4 was OK)
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Martin J. Bligh" <mbligh@google.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <45461BC7.5050609@shadowen.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 30 Oct 2006 10:47:59 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:27810 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030547AbWJ3Pr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 10:47:58 -0500
+Subject: Re: loading EHCI_HCD slows down IDE disk performance by 50%
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a4c581d0610291152r7f538188m4ce52fba1f5f4683@mail.gmail.com>
+References: <5a4c581d0610291013w40c1b0e6g408051a79534956a@mail.gmail.com>
+	 <1162146560.14733.65.camel@mindpipe>
+	 <5a4c581d0610291152r7f538188m4ce52fba1f5f4683@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 30 Oct 2006 10:48:10 -0500
+Message-Id: <1162223291.14733.119.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <454442DC.9050703@google.com>
-	 <20061029000513.de5af713.akpm@osdl.org>
-	 <4544E92C.8000103@shadowen.org> <4545325D.8080905@mbligh.org>
-	 <Pine.LNX.4.64.0610291718481.25218@g5.osdl.org>
-	 <45461BC7.5050609@shadowen.org>
-X-Google-Sender-Auth: 6d0ae703210507b1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/30/06, Andy Whitcroft <apw@shadowen.org> wrote:
-> Test results are back on the version of the slab panic fix which Linus'
-> has committed in his tree.  This change on top of 2.6.19-rc3-git5 is
-> good.  2.6.19-rc3-git6 is also showing good on this machine.
+On Sun, 2006-10-29 at 20:52 +0100, Alessandro Suardi wrote:
+> On 10/29/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> > On Sun, 2006-10-29 at 19:13 +0100, Alessandro Suardi wrote:
+> > > Any hints/tips about what to try with this issue will be
+> > >  of course very welcome.
+> >
+> > git bisect
+> 
+> As I clarified to Lee in private email, this method doesn't
+>  seem to apply in this situation, as the problem appeared
+>  when I selected CONFIG_EHCI_HCD in my build due to the
+>  purchase of the USB2.0 disk, back in the 2.6.16-rc cycle;
+>  so if the combination of high performance IDE + EHCI_HCD
+>  ever existed, it must be earlier than 2.6.16-rc5-git8.
+> 
+> Lacking any input I'll try to find out more in the next week
+>  by starting out at 2.6.10 and eventually earlier.
 
-FWIW, the patch looks correct to me also.
+Maybe you could close the Bugzilla ticket you posted, as most of the
+comments relate to HAL and polling for media changes which you seem to
+be saying have nothing to do with this bug?
 
-                           Pekka
+Lee
+

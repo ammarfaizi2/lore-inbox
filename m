@@ -1,71 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbWJ3PV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWJ3PXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030458AbWJ3PV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 10:21:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWJ3PV4
+	id S1030473AbWJ3PXV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 10:23:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030482AbWJ3PXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 10:21:56 -0500
-Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:57992 "EHLO
-	bipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S1030458AbWJ3PVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 10:21:55 -0500
-Message-ID: <45461890.2000007@grupopie.com>
-Date: Mon, 30 Oct 2006 15:21:52 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Miguel Ojeda <maxextreme@gmail.com>
-CC: Franck <vagabon.xyz@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
-References: <20061013023218.31362830.maxextreme@gmail.com>	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>	 <453CE85B.2080702@innova-card.com>	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com>	 <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com>	 <4545C52A.5010105@innova-card.com> <4545FCB1.8030900@grupopie.com> <653402b90610300611ucdc46d9y88f016800b498538@mail.gmail.com>
-In-Reply-To: <653402b90610300611ucdc46d9y88f016800b498538@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 30 Oct 2006 10:23:21 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:64714 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1030473AbWJ3PXU (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 10:23:20 -0500
+Message-Id: <200610301522.k9UFMXmM004701@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: Jan Beulich <jbeulich@novell.com>, dsd@gentoo.org, kernel@gentoo.org,
+       draconx@gmail.com, jpdenheijer@gmail.com, Andrew Morton <akpm@osdl.org>,
+       Sam Ravnborg <sam@ravnborg.org>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
+In-Reply-To: Your message of "Mon, 30 Oct 2006 14:42:16 GMT."
+             <slrnekc3q8.2vm.olecom@flower.upol.cz>
+From: Valdis.Kletnieks@vt.edu
+References: <20061028230730.GA28966@quickstop.soohrt.org> <200610281907.20673.ak@suse.de> <20061029120858.GB3491@quickstop.soohrt.org> <200610290816.55886.ak@suse.de> <slrnek9qv0.2vm.olecom@flower.upol.cz> <20061029225234.GA31648@uranus.ravnborg.org> <4545C2D8.76E4.0078.0@novell.com> <slrnekbv60.2vm.olecom@flower.upol.cz>
+            <slrnekc3q8.2vm.olecom@flower.upol.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1162221753_3894P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 30 Oct 2006 10:22:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Ojeda wrote:
->[...]
->> In this case, if nothing was ever written to the display, the CPU usage
->> would be _zero_ (as it should), and it would work nicely with dynticks
->> and such.
-> 
-> Hum, interesting. But what happens if...
-> 
-> 1. For example, the userspace app maps the fb (nopage is called, dirty
-> flag set, timer created), and then the app doesn't use the fb. The
-> timer will refresh the LCD, without anything new to refresh, so we are
-> wasting CPU time. After refreshing, the driver clears the dirty flag
-> and unmap the buffer.
-> 
-> 2. After some seconds, the userspace app decides to write the buffer.
-> As it is not mmaped anymore, it will simply get a segmentation fault,
-> right? AFAIK nopage() is not called again because we have destroyed
-> the mmapping information, and Linux can't know what are the nopage()
-> ops to call to.
+--==_Exmh_1162221753_3894P
+Content-Type: text/plain; charset=us-ascii
 
-No, this is not the sequence I thought of at all. I don't remember the 
-exact API functions you need to call (I have to read LDD3 again ;), but 
-if the hardware supports it, there must be a way. The plan is something 
-like:
+On Mon, 30 Oct 2006 14:42:16 GMT, Oleg Verych said:
 
-  - at mmap time you return a pointer to something that is not actually 
-mapped, and do nothing else
+> So, how about (using your btmp directory) create symlink to /dev/null in
+> the (dev) sub-directory and then set no write permission? No tmp,
+> things are local to build output, old gas's happy:
+> ,__
+> |olecom@flower:/tmp/_build_2.6.19-rc3/btmp
+> !__$ mkdir dev
+> ,__
+> |olecom@flower:/tmp/_build_2.6.19-rc3/btmp
+> !__$ cd dev ; ln -s /dev/null null ; chmod u-w . ; ls -la
+> total 0
+> dr-xr-x--- 2 olecom root 60 2006-10-30 15:34 .
+> drwxr-x--- 3 olecom root 80 2006-10-30 15:34 ..
+> lrwxrwxrwx 1 olecom root  9 2006-10-30 15:34 null -> /dev/null
+> ,__
+> |olecom@flower:/tmp/_build_2.6.19-rc3/btmp/dev
+> !__$ cd .. ; rm dev/null
+> rm: cannot remove dev/null': Permission denied
 
-  - when userspace actually writes to that area, you get a page fault, 
-and nopage is called. At this point you map the page, and set the dirty 
-state. All other writes from userspace until the timer completes are 
-done without faulting.
+Did you try this as root, which is where the original "/dev/null dissapears"
+problem shows up?
 
-  - when the timer completes, you unmap the page so that the next access 
-will generate a fault again
+[/tmp]3 id
+uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel) context=valdis:staff_r:staff_t
+[/tmp]3 mkdir z9
+[/tmp]3 touch z9/foo
+[/tmp]3 chmod 0 z9
+[/tmp]3 rm z9/foo
+[/tmp]3 ln -s /dev/null z9
+[/tmp]3 ls -l z9
+total 0
+lrwxrwxrwx 1 root root 9 Oct 30 10:20 null -> /dev/null
+[/tmp]3 rm z9/null
+[/tmp]3 ls -ld z9
+d--------- 2 root root 40 Oct 30 10:21 z9
 
-As I said, I don't remember the exact details, but this should be doable.
+Hmm.. and even the 'ln' worked even when z9 was chmod 0. ;)
 
--- 
-Paulo Marques - www.grupopie.com
 
-"The face of a child can say it all, especially the
-mouth part of the face."
+--==_Exmh_1162221753_3894P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFRhi5cC3lWbTT17ARAmcRAJ9B2/zWMtWMjjTNLzLMVTTABQ+gawCgwLZJ
+nNabey12AEenA7yYyUOcChA=
+=yywR
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1162221753_3894P--

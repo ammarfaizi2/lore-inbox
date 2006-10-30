@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161330AbWJ3Rya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161338AbWJ3Ry6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161330AbWJ3Rya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 12:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161289AbWJ3Rya
+	id S1161338AbWJ3Ry6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 12:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161337AbWJ3Ry6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 12:54:30 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36813 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1161257AbWJ3Ry3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 12:54:29 -0500
-Date: Mon, 30 Oct 2006 18:54:00 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Mark Lord <liml@rtr.ca>,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc3-git7: scsi_device_unbusy: inconsistent lock state
-Message-ID: <20061030175400.GA31581@elte.hu>
-References: <45460D52.3000404@rtr.ca> <20061030144315.GG4563@kernel.dk> <1162220239.2948.27.camel@laptopd505.fenrus.org> <20061030154444.GH4563@kernel.dk> <1162225002.2948.45.camel@laptopd505.fenrus.org> <20061030162621.GK4563@kernel.dk> <1162225915.2948.49.camel@laptopd505.fenrus.org> <20061030175224.GB14055@kernel.dk>
+	Mon, 30 Oct 2006 12:54:58 -0500
+Received: from dev.mellanox.co.il ([194.90.237.44]:2450 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1161331AbWJ3Ry4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 12:54:56 -0500
+Date: Mon, 30 Oct 2006 19:54:49 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Cc: Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
+       Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
+Message-ID: <20061030175449.GP1941@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <4546345E.3050706@ce.jp.nec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061030175224.GB14055@kernel.dk>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <4546345E.3050706@ce.jp.nec.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Jens Axboe <jens.axboe@oracle.com> wrote:
-
-> > > things may be allocated from that path, so we pass gfp_mask around. I'll
-> > > double check it tonight, but I don't currently see what could be wrong.
-> > > Would lockdep complain about:
-> > > 
-> > >         spin_lock_irqsave(lock, flags);
-> > >         ...
-> > >         spin_unlock_irq(lock);
-> > >         ...
-> > >         spin_lock_irq(lock);
-> > >         ...
-> > >         spin_unlock_irqrestore(lock, flags);
-> > 
-> > this is fine for lockdep IF and only IF there is no "out lock" held
-> > around this that requires irqs to be off. So if you do
-> > 
-> > spin_lock_irqsave(lock1, flags);
-> > ...
-> > spin_lock_irqsave(lock2, flags);
-> > spin_unlock_irq(lock2)
-> > ...
-> > 
-> > then lockdep WILL complain, and rightfully so, about a violation since
-> > lock1 gets violated here ;)
+Quoting r. Jun'ichi Nomura <j-nomura@ce.jp.nec.com>:
+> Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
 > 
-> Naturally, that is a bug fair and simple, nothing to do with lockdep.
+> Hi Michael,
+> 
+> Michael S. Tsirkin wrote:
+> >> The code is related to bd_claim_by_disk which is called when
+> >> device-mapper or md tries to mark the underlying devices
+> >> for exclusive use and creates symlinks from/to the devices
+> >> in sysfs. The patch added error handlings which weren't in
+> >> the original code.
+> >>
+> >> I have no idea how it affects ACPI event handling.
+> > 
+> > It's a mystery. Probably exposes a bug somewhere?
+> > 
+> >> Are you using dm and/or md on your machine?
+> > 
+> > The .config is attached to bugzilla.
+> 
+> OK, I found you disabled CONFIG_MD, which means neither
+> dm.ko nor md.ko was built.
+> Do you have any out-of-tree kernel modules which call either
+> bd_claim_by_kobject or bd_claim_by_disk?
 
-well, finding such locking bugs is the main purpose of lockdep, so there 
-is at least some connection i'd say ;-)
+No, I don't have any out-of-tree modules.
 
-	Ingo
+> If you aren't using either of them, I'm afraid reverting
+> the patch doesn't really solve your problem because the patched
+> code is called only from them.
+
+I agree this could be just papering over some issue.
+The test results (of both git-bisect and reverting the patch) seem to be pretty
+consistent so far though. Keep me posted if you rework the patch.
+
+> >> Have you seen any unusual kernel messages or symptoms regarding
+> >> dm/md before the ACPI problem occurs?
+> > 
+> > I haven't.
+> 
+> Thanks,
+
+-- 
+MST

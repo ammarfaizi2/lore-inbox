@@ -1,39 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161538AbWJ3XGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161374AbWJ3XJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161538AbWJ3XGa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 18:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161532AbWJ3XG3
+	id S1161374AbWJ3XJW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 18:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161384AbWJ3XJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 18:06:29 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8867
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161371AbWJ3XG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 18:06:29 -0500
-Date: Mon, 30 Oct 2006 15:06:24 -0800 (PST)
-Message-Id: <20061030.150624.97264919.davem@davemloft.net>
-To: heiko.carstens@de.ibm.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [patch 3/5] net: fix uaccess handling
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061026130317.GD7127@osiris.boeblingen.de.ibm.com>
-References: <20061026130010.GA7127@osiris.boeblingen.de.ibm.com>
-	<20061026130317.GD7127@osiris.boeblingen.de.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 30 Oct 2006 18:09:22 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:7582 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1161374AbWJ3XJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 18:09:21 -0500
+Message-ID: <45468620.5060805@vmware.com>
+Date: Mon, 30 Oct 2006 15:09:20 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com> <200610271416.12548.ak@suse.de> <4546669F.8020706@vmware.com> <20061030225016.GA95732@muc.de>
+In-Reply-To: <20061030225016.GA95732@muc.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Thu, 26 Oct 2006 15:03:17 +0200
+Andi Kleen wrote:
+> On Mon, Oct 30, 2006 at 12:54:55PM -0800, Zachary Amsden wrote:
+>   
+>> Andi Kleen wrote:
+>>     
+>>> no_timer_check. But it's only there on x86-64 in mainline - although there
+>>> were some patches to add it to i386 too.
+>>>  
+>>>       
+>> I can rename to match the x86-64 name.
+>>     
+>
+> I will do that in my tree.
+>
+>   
+>>>> That is what this patch is building towards, but the boot option is
+>>>> "free", so why not?  In the meantime, it helps non-paravirt kernels
+>>>> booted in a VM.
+>>>>    
+>>>>         
+>>> Hmm, you meant they paniced before?  If they just fail a few tests
+>>> that is not particularly worrying (real hardware does that often too)
+>>>  
+>>>       
+>> Yes, they sometimes fail to boot, and the failure message used to ask us 
+>> to pester mingo.
+>>     
+>
+> I still think we should figure that out automatically. Letting
+> the Hypervisor pass magic boot options seems somehow unclean.
+>
+> But i suppose it will only work for the paravirtualized case,
+> not for the case of kernel running "native" under a hypervisor
+> I suppose? Or does that one not panic?
+>   
 
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
->  net/ipv4/raw.c           |   17 +++++++++++------
->  net/ipv6/raw.c           |   17 +++++++++++------
->  net/netlink/af_netlink.c |    5 +++--
->  3 files changed, 25 insertions(+), 14 deletions(-)
+That is the one that can panic, for now.  Fixing the paravirtualized 
+case is easy, but we can't assume paravirtualization just yet.
 
-Patch applied, thanks.
+Zach
+
+

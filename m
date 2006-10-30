@@ -1,88 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030552AbWJ3Pyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161166AbWJ3P5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030552AbWJ3Pyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 10:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbWJ3Pyf
+	id S1161166AbWJ3P5J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 10:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161194AbWJ3P5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 10:54:35 -0500
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:29376 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1030552AbWJ3Pye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 10:54:34 -0500
-Message-ID: <45462036.5070104@comcast.net>
-Date: Mon, 30 Oct 2006 10:54:30 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Avoidable floating point save/restore?
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Oct 2006 10:57:09 -0500
+Received: from il.qumranet.com ([62.219.232.206]:18648 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1161166AbWJ3P5G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 10:57:06 -0500
+Subject: [PATCH] KVM: Dynamically determine which msrs to load and save
+From: Avi Kivity <avi@qumranet.com>
+Date: Mon, 30 Oct 2006 15:57:01 -0000
+To: kvm-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20061030155701.C80B025013C@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Different cpus have different msrs available.  The Core (not Core 2)
+cpu lacks the STAR msr, so kvm faults when accessing it.
 
-I found this from comp.os.minix (actually part of a MINIX FAQ):
+Fix by determining which msrs are available dynamically, and only loading
+and saving available msrs.
 
-=====CUT=====
-From: kjb=733301@cs.vu.nl (Kees J Bot)
-Subject: Re: MMX/3DNow support was RE: MINIX Development?
-Date: Wed, 23 Jul 2003 20:15:03 +0200
-
-This is really a hardware floating point issue, because the MMX
-registers share the FP registers. This was done so that MMX unaware OSen
-can still support MMX programs, because when they save and restore the
-FP registers then the MMX state is also saved and restored if that
-happens to be what the FP registers are used for. This saving and
-restoring is what Minix doesn't do. So if two processes use FP/MMX then
-a context switch from one to the other will clobber the FP state of
-both. What is needed to make this work is a trap handler that reacts to
-the use of FP, so that Minix can save the FP state of the process that
-last used FP and load the FP state of the current process. On a context
-switch Minix merely sets the "don't use FP" bit in some register. Costs?
-One FP interrupt handler, some FP save/restore/setup code, some memory
-per process to store the FP state into, and some memory to store the FP
-state when a user process catches a signal. (Not sure about the signal
-business, much check with Philip.) This isn't much work, we can simply
-take Minix-vmd's code, but I haven't seen any need yet. Minix has to use
-software FP as distributed, or it won't run on your old 386, so Minix
-itself doesn't need it. Anyone here who wants to use Minix for some
-heavy number crunching? If so then I could be persuaded to add an
-ENABLE_FPU to the next release, by default off. I don't care about MMX,
-that's way too exotic for Minix.
-=====CUT=====
-
-I'm trying to make heads or tails about what in the heck is going on
-here.  It looks like they're saying you don't need to save/restore FP
-registers between context switches unless one process uses FP and the
-other uses MMX; but that doesn't make ANY sense at all.  If
-gnome-session divides 3.14/2.28 and then gimp divides 3.33/2.22 and then
-we switch BACK to gnome-session and it wants to divide the result by
-1.92, wouldn't we need the FPU registers back in the exact state they
-were at before switching away?
-
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRUYgNAs1xW0HCTEFAQJnqBAAgMjqTSA0OC6ThwUSoG4lO0uFCdUERJKl
-O0Mxtq9XqKOU4W7XnCtIkBF0Gy1HdMm8/L1MXLRM0FMv6jz17nNb3TGvLRC/4KKh
-vgl4KN/2D6tYYdKyh+v0n/zgVYGJ0lZn3sNQdBhxXet1Zjm6n7REFvJJD07PzIcm
-XK5vciaVHYfNb0N3SdSL7JBJdMHzrbq2DmqUD5OsVOok37e1F3S4+T3EBZy+mk/i
-D6lcx2KJzp8vIWmoskN+WLBox8fihSoNtxOK/oLComHwyJ3z1FEuILTvYqEjGUGg
-k1TdEQYhTrFCjkpLgK5lhn1hD8dZRldN4bVEt9uWU5WiRCGiykPog3wlVz7T6bQr
-SOAVKA4157kfDvG3KY55pNTxy0j8TgBWQhPyh/dTcRlzYbZuqccRcHQbYyBEGByZ
-Of7tVUnHzgNd8kuzWqVh4ULDJ7YyNj+INFegoluLi/3JcQFL/EhoUYX/QNbX1VK1
-vkrwGOneAC2KttjaH/cZHUuYfwZ1hkMmDjbkHlGmb4z56TRKOtUt03ziMDDhO4Fv
-WWjVn+CdAiOTkhuVgIQ+EpnNCSP/yRUTmxDrI3+KJaIW6zlaAZyS29KoWA+EH75K
-mJldV7amMcD+6KGVP7tHuTOpGXKYa2tCCfwtGI65Z7rWvGD6RUzz+waiT4kPav1G
-1lObgtnarqY=
-=fw5+
------END PGP SIGNATURE-----
+Index: linux-2.6/drivers/kvm/kvm.h
+===================================================================
+--- linux-2.6.orig/drivers/kvm/kvm.h
++++ linux-2.6/drivers/kvm/kvm.h
+@@ -167,6 +167,7 @@ struct kvm_vcpu {
+ 	unsigned long cr8;
+ 	u64 shadow_efer;
+ 	u64 apic_base;
++	int nmsrs;
+ 	struct vmx_msr_entry *guest_msrs;
+ 	struct vmx_msr_entry *host_msrs;
+ 
+Index: linux-2.6/drivers/kvm/kvm_main.c
+===================================================================
+--- linux-2.6.orig/drivers/kvm/kvm_main.c
++++ linux-2.6/drivers/kvm/kvm_main.c
+@@ -59,22 +59,21 @@ static struct kvm_stats_debugfs_item {
+ static struct dentry *debugfs_dir;
+ 
+ static const u32 vmx_msr_index[] = {
+-	MSR_EFER, MSR_K6_STAR,
+ #ifdef __x86_64__
+-	MSR_CSTAR, MSR_KERNEL_GS_BASE, MSR_SYSCALL_MASK, MSR_LSTAR
++	MSR_SYSCALL_MASK, MSR_LSTAR, MSR_CSTAR, MSR_KERNEL_GS_BASE,
+ #endif
++	MSR_EFER, MSR_K6_STAR,
+ };
+ #define NR_VMX_MSR (sizeof(vmx_msr_index) / sizeof(*vmx_msr_index))
+ 
+-
+ #ifdef __x86_64__
+ /*
+  * avoid save/load MSR_SYSCALL_MASK and MSR_LSTAR by std vt
+  * mechanism (cpu bug AA24)
+  */
+-#define NUM_AUTO_MSRS (NR_VMX_MSR-2)
++#define NR_BAD_MSRS 2
+ #else
+-#define NUM_AUTO_MSRS NR_VMX_MSR
++#define NR_BAD_MSRS 0
+ #endif
+ 
+ #define TSS_IOPB_BASE_OFFSET 0x66
+@@ -107,8 +106,8 @@ static struct vmx_msr_entry *find_msr_en
+ {
+ 	int i;
+ 
+-	for (i = 0; i < NR_VMX_MSR; ++i)
+-		if (vmx_msr_index[i] == msr)
++	for (i = 0; i < vcpu->nmsrs; ++i)
++		if (vcpu->guest_msrs[i].index == msr)
+ 			return &vcpu->guest_msrs[i];
+ 	return 0;
+ }
+@@ -1110,6 +1109,7 @@ static int kvm_vcpu_setup(struct kvm_vcp
+ 	int i;
+ 	int ret;
+ 	u64 tsc;
++	int nr_good_msrs;
+ 
+ 
+ 	if (!init_rmode_tss(vcpu->kvm)) {
+@@ -1250,12 +1250,6 @@ static int kvm_vcpu_setup(struct kvm_vcp
+ 	rdmsrl(MSR_IA32_SYSENTER_EIP, a);
+ 	vmcs_writel(HOST_IA32_SYSENTER_EIP, a);   /* 22.2.3 */
+ 
+-	vmcs_write32_fixedbits(MSR_IA32_VMX_EXIT_CTLS_MSR, VM_EXIT_CONTROLS,
+-		     	       (HOST_IS_64 << 9));  /* 22.2,1, 20.7.1 */
+-	vmcs_write32(VM_EXIT_MSR_STORE_COUNT, NUM_AUTO_MSRS); /* 22.2.2 */
+-	vmcs_write32(VM_EXIT_MSR_LOAD_COUNT, NUM_AUTO_MSRS);  /* 22.2.2 */
+-	vmcs_write32(VM_ENTRY_MSR_LOAD_COUNT, NUM_AUTO_MSRS); /* 22.2.2 */
+-
+ 	ret = -ENOMEM;
+ 	vcpu->guest_msrs = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!vcpu->guest_msrs)
+@@ -1266,18 +1260,34 @@ static int kvm_vcpu_setup(struct kvm_vcp
+ 
+ 	for (i = 0; i < NR_VMX_MSR; ++i) {
+ 		u32 index = vmx_msr_index[i];
++		u32 data_low, data_high;
+ 		u64 data;
++		int j = vcpu->nmsrs;
+ 
+-		rdmsrl(index, data);
+-		vcpu->host_msrs[i].index = index;
+-		vcpu->host_msrs[i].reserved = 0;
+-		vcpu->host_msrs[i].data = data;
+-		vcpu->guest_msrs[i] = vcpu->host_msrs[i];
+-	}
++		if (rdmsr_safe(index, &data_low, &data_high) < 0)
++			continue;
++		data = data_low | ((u64)data_high << 32);
++		vcpu->host_msrs[j].index = index;
++		vcpu->host_msrs[j].reserved = 0;
++		vcpu->host_msrs[j].data = data;
++		vcpu->guest_msrs[j] = vcpu->host_msrs[j];
++		++vcpu->nmsrs;
++	}
++	printk("msrs: %d\n", vcpu->nmsrs);
++
++	nr_good_msrs = vcpu->nmsrs - NR_BAD_MSRS;
++	vmcs_writel(VM_ENTRY_MSR_LOAD_ADDR,
++		    virt_to_phys(vcpu->guest_msrs + NR_BAD_MSRS));
++	vmcs_writel(VM_EXIT_MSR_STORE_ADDR,
++		    virt_to_phys(vcpu->guest_msrs + NR_BAD_MSRS));
++	vmcs_writel(VM_EXIT_MSR_LOAD_ADDR,
++		    virt_to_phys(vcpu->host_msrs + NR_BAD_MSRS));
++	vmcs_write32_fixedbits(MSR_IA32_VMX_EXIT_CTLS_MSR, VM_EXIT_CONTROLS,
++		     	       (HOST_IS_64 << 9));  /* 22.2,1, 20.7.1 */
++	vmcs_write32(VM_EXIT_MSR_STORE_COUNT, nr_good_msrs); /* 22.2.2 */
++	vmcs_write32(VM_EXIT_MSR_LOAD_COUNT, nr_good_msrs);  /* 22.2.2 */
++	vmcs_write32(VM_ENTRY_MSR_LOAD_COUNT, nr_good_msrs); /* 22.2.2 */
+ 
+-	vmcs_writel(VM_ENTRY_MSR_LOAD_ADDR, virt_to_phys(vcpu->guest_msrs));
+-	vmcs_writel(VM_EXIT_MSR_STORE_ADDR, virt_to_phys(vcpu->guest_msrs));
+-	vmcs_writel(VM_EXIT_MSR_LOAD_ADDR, virt_to_phys(vcpu->host_msrs));
+ 
+ 	/* 22.2.1, 20.8.1 */
+ 	vmcs_write32_fixedbits(MSR_IA32_VMX_ENTRY_CTLS_MSR,
+@@ -2539,18 +2549,20 @@ static void kvm_guest_debug_pre(struct k
+ 	}
+ }
+ 
+-static void load_msrs(struct vmx_msr_entry *e)
++static void load_msrs(struct vmx_msr_entry *e, int n)
+ {
+ 	int i;
+ 
+-	for (i = NUM_AUTO_MSRS; i < NR_VMX_MSR; ++i)
++	for (i = 0; i < n; ++i)
+ 		wrmsrl(e[i].index, e[i].data);
+ }
+ 
+-static void save_msrs(struct vmx_msr_entry *e, int msr_index)
++static void save_msrs(struct vmx_msr_entry *e, int n)
+ {
+-	for (; msr_index < NR_VMX_MSR; ++msr_index)
+-		rdmsrl(e[msr_index].index, e[msr_index].data);
++	int i;
++
++	for (i = 0; i < n; ++i)
++		rdmsrl(e[i].index, e[i].data);
+ }
+ 
+ static int kvm_dev_ioctl_run(struct kvm *kvm, struct kvm_run *kvm_run)
+@@ -2611,8 +2623,8 @@ again:
+ 	fx_save(vcpu->host_fx_image);
+ 	fx_restore(vcpu->guest_fx_image);
+ 
+-	save_msrs(vcpu->host_msrs, 0);
+-	load_msrs(vcpu->guest_msrs);
++	save_msrs(vcpu->host_msrs, vcpu->nmsrs);
++	load_msrs(vcpu->guest_msrs, NR_BAD_MSRS);
+ 
+ 	asm (
+ 		/* Store host registers */
+@@ -2735,8 +2747,8 @@ again:
+ 
+ 	++kvm_stat.exits;
+ 
+-	save_msrs(vcpu->guest_msrs, NUM_AUTO_MSRS);
+-	load_msrs(vcpu->host_msrs);
++	save_msrs(vcpu->guest_msrs, NR_BAD_MSRS);
++	load_msrs(vcpu->host_msrs, NR_BAD_MSRS);
+ 
+ 	fx_save(vcpu->guest_fx_image);
+ 	fx_restore(vcpu->host_fx_image);

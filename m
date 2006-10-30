@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752000AbWJ3Uhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWJ3UjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752000AbWJ3Uhx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 15:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751997AbWJ3Uhx
+	id S1030330AbWJ3UjS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 15:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030565AbWJ3UjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 15:37:53 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37518 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1752000AbWJ3Uhw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 15:37:52 -0500
-Date: Mon, 30 Oct 2006 12:36:52 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Paul Menage" <menage@google.com>
-Cc: dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061030123652.d1574176.pj@sgi.com>
-In-Reply-To: <6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com>
-References: <20061030103356.GA16833@in.ibm.com>
-	<6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
-	<20061030031531.8c671815.pj@sgi.com>
-	<6599ad830610300404v1e036bb7o7ed9ec0bc341864e@mail.gmail.com>
-	<20061030042714.fa064218.pj@sgi.com>
-	<6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 30 Oct 2006 15:39:18 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:35854 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1030330AbWJ3UjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 15:39:17 -0500
+Message-ID: <454662C5.8070607@shadowen.org>
+Date: Mon, 30 Oct 2006 20:38:29 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Andy Whitcroft <apw@shadowen.org>, Martin Bligh <mbligh@google.com>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+References: <20061029160002.29bb2ea1.akpm@osdl.org>	<45461977.3020201@shadowen.org>	<45461E74.1040408@google.com> <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com> <45463481.80601@shadowen.org>
+In-Reply-To: <45463481.80601@shadowen.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes - let the sysadmin define the process groupings, and how those
-> groupings get associated with resource control entities. The default
-> should be that all the hierarchies are the same, since I think that's
-> likely to be the common case.
+Andy Whitcroft wrote:
+> Martin Bligh wrote:
+>>>> Setting up network interfaces:
+>>>>      lo
+>>>>     lo        IP address: 127.0.0.1/8
+>>>> 7[?25l[1A[80C[10D[1;32mdone[m8[?25h    eth0
+>>>>               No configuration found for eth0
+>>>> 7[?25l[1A[80C[10D[1munused[m8[?25h    eth1
+>>>>             No configuration found for eth1
+>>>>
+>>>> for all 8 cards.
+>>>
+>>> What version of udev is being used?
+>> Buggered if I know. If we could quit breaking it, that'd be good though.
+>> If it printed its version during boot somewhere, that'd help too.
+>>
+>>> Was CONFIG_SYSFS_DEPRECATED set?
+>> No.
+>>
+>> M.
+> 
+> These all sounds pretty old.  I'll rerun them all with
+> CONFIG_SYSFS_DEPRECATED set and see what pans out.
+> 
 
-Ah - I had thought earlier you were saying let the user define whether
-or not (speaking metaphorically) their car had multiple gears in its
-transmission, or just one gear.  That would have been kind of insane.
+Ok, these have all popped through.  Three of the four seems unchanged,
+so I am inclined to think that turning on SYSFS_DEPRECATED has not
+helped us.
 
-You meant we deliver a car with multiple gears, and its up to the user
-when and if to ever shift.  That makes more sense.
+One seems to have blown up differently:
 
-In other words you are recommending delivering a system that internally
-tracks separate hierarchies for each resource control entity, but where
-the user can conveniently overlap some of these hierarchies and deal
-with them as a single hierarchy.
+Badness in enter_rtas at arch/powerpc/kernel/entry_64.S:641
+Call Trace:
+[C0000000FFF83080] [C000000000010470] .show_stack+0x74/0x1b4 (unreliable)
+[C0000000FFF83130] [C00000000039FD84] .program_check_exception+0x1f4/0x6c8
+[C0000000FFF83210] [C000000000004774] program_check_common+0xf4/0x100
+--- Exception: 700 at .enter_rtas+0xa0/0x10c
+    LR = .xmon_core+0x474/0x864
+[C0000000FFF83500] [C0000000004D8D1C] 0xc0000000004d8d1c (unreliable)
+[C0000000FFF836E0] [C00000000004FF60] .xmon_core+0x474/0x864
+[C0000000FFF83870] [C0000000000505A8] .xmon+0x34/0x44
+[C0000000FFF83A40] [C000000000025D80] .die+0x5c/0x1b8
+[C0000000FFF83AD0] [C00000000002F248] .bad_page_fault+0xc4/0xe0
+[C0000000FFF83B50] [C000000000004B98] .handle_page_fault+0x3c/0x54
+--- Exception: 300 at .llc_init+0x34/0x8c
+    LR = .init+0x1f4/0x3e4
+[C0000000FFF83E40] [C00000000045CAB8] .md_init+0xf0/0x124 (unreliable)
+[C0000000FFF83EC0] [C000000000009540] .init+0x1f4/0x3e4
+[C0000000FFF83F90] [C0000000000275FC] .kernel_thread+0x4c/0x68
+enter ? for help
+[c0000000fff83ec0] c000000000009540 .init+0x1f4/0x3e4
+[c0000000fff83f90] c0000000000275fc .kernel_thread+0x4c/0x68
 
-What you are suggesting goes beyond the question of whether the kernel
-has just and exactly and nevermore than one hierarchy, to suggest that
-not only should the kernel support multiple hierarchies for different
-resource control entities, but furthermore the kernel should make it
-convenient for users to "bind" two or more of these hierarchies and
-treat them as one.
-
-Ok.  Sounds useful.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-apw

@@ -1,59 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWJ3NDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWJ3NHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWJ3NDD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 08:03:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWJ3NDD
+	id S964804AbWJ3NHO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 08:07:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbWJ3NHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 08:03:03 -0500
-Received: from main.gmane.org ([80.91.229.2]:4833 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964817AbWJ3NDA (ORCPT
+	Mon, 30 Oct 2006 08:07:14 -0500
+Received: from mx.go2.pl ([193.17.41.41]:53413 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S964804AbWJ3NHM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 08:03:00 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
-Date: Mon, 30 Oct 2006 13:02:23 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnekbubl.2vm.olecom@flower.upol.cz>
-References: <Pine.LNX.4.64.0610291211160.25218@g5.osdl.org> <20061029223410.GA15413@electric-eye.fr.zoreil.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Francois Romieu <romieu@fr.zoreil.com>, Linus Torvalds <torvalds@osdl.org>, Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Adrian Bunk <bunk@stusta.de>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Mon, 30 Oct 2006 08:07:12 -0500
+Date: Mon, 30 Oct 2006 14:12:41 +0100
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Ingo Molnar <mingo@elte.hu>, Jiri Kosina <jikos@jikos.cz>,
+       Marcel Holtmann <marcel@holtmann.org>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH 1/2] lockdep: spin_lock_irqsave_nested()
+Message-ID: <20061030131241.GA1657@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>,
+	linux-kernel@vger.kernel.org,
+	Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+	Jiri Kosina <jikos@jikos.cz>, Marcel Holtmann <marcel@holtmann.org>,
+	David Woodhouse <dwmw2@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1162199005.24143.169.camel@taijtu>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-10-29, Francois Romieu wrote:
->
-> Linus Torvalds <torvalds@osdl.org> :
-> [regression related to r8169 MAC address change]
->> Francois ? Jeff ?
->
-> Go revert it.
->
-> Despite what I claimed, I can not find a third-party confirmation by email
-> that it works elsewhere.
+Here are some doubts...
 
-It works for me:
-,--
-|root@flower:/home/olecom# ip l set eth0 addr 00:00:00:00:00:02
-|root@flower:/home/olecom# ip l set eth0 addr 00:00:00:00:00:03
-|root@flower:/home/olecom# ip l set eth0 addr 00:00:00:00:00:04
-|root@flower:/home/olecom# ip l set eth0 addr 04:44:44:44:44:04
-|root@flower:/home/olecom# ip l show
-|1: lo: <LOOPBACK,UP,10000> mtu 16436 qdisc noqueue
-|    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-|    2: eth0: <BROADCAST,MULTICAST,UP,10000> mtu 1500 qdisc pfifo_fast qlen 1000
-|    link/ether 04:44:44:44:44:04 brd ff:ff:ff:ff:ff:ff
-|root@flower:/home/olecom# lspci -v | grep Realtek
-|    02:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-|RTL8111/8168B PCI Express Gigabit Ethernet controller (rev 01)
-|root@flower:/home/olecom#
-|root@flower:/home/olecom# uname -a
-|Linux flower 2.6.19-rc2-vanilla-ai #4 SMP PREEMPT Tue Oct 17 02:19:16
-|UTC 2006 x86_64 GNU/Linux
-|root@flower:/home/olecom#
-`--
-____
+Jarek P.
 
+On 30-10-2006 10:03, Peter Zijlstra wrote:
+> From: Arjan van de Ven <arjan@linux.intel.com>
+> Subject: spin_lock_irqsave_nested()
+> 
+> Introduce spin_lock_irqsave_nested(); implementation from:
+>  http://lkml.org/lkml/2006/6/1/122
+> Patch from:
+>  http://lkml.org/lkml/2006/9/13/258
+> 
+> Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+> Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> ---
+>  include/linux/spinlock.h         |    5 +++++
+>  include/linux/spinlock_api_smp.h |    2 ++
+>  include/linux/spinlock_api_up.h  |    1 +
+>  kernel/spinlock.c                |   21 +++++++++++++++++++++
+>  4 files changed, 29 insertions(+)
+> 
+> Index: linux-2.6/include/linux/spinlock_api_smp.h
+> ===================================================================
+> --- linux-2.6.orig/include/linux/spinlock_api_smp.h
+> +++ linux-2.6/include/linux/spinlock_api_smp.h
+> @@ -32,6 +32,8 @@ void __lockfunc _read_lock_irq(rwlock_t 
+>  void __lockfunc _write_lock_irq(rwlock_t *lock)		__acquires(lock);
+>  unsigned long __lockfunc _spin_lock_irqsave(spinlock_t *lock)
+>  							__acquires(lock);
+> +unsigned long __lockfunc _spin_lock_irqsave_nested(spinlock_t *lock, int subclass)
+> +							__acquires(spinlock_t);
+
+According to neighbours rather:
+ +							__acquires(lock);
+
+>  unsigned long __lockfunc _read_lock_irqsave(rwlock_t *lock)
+>  							__acquires(lock);
+>  unsigned long __lockfunc _write_lock_irqsave(rwlock_t *lock)
+> Index: linux-2.6/include/linux/spinlock_api_up.h
+> ===================================================================
+> --- linux-2.6.orig/include/linux/spinlock_api_up.h
+> +++ linux-2.6/include/linux/spinlock_api_up.h
+> @@ -59,6 +59,7 @@
+>  #define _read_lock_irq(lock)			__LOCK_IRQ(lock)
+>  #define _write_lock_irq(lock)			__LOCK_IRQ(lock)
+>  #define _spin_lock_irqsave(lock, flags)		__LOCK_IRQSAVE(lock, flags)
+> +#define _spin_lock_irqsave_nested(lock, flags, subclass) __LOCK_IRQSAVE(lock, flags, subclass)
+
+Is __LOCK_IRQSAVE() with 3 args defined?
+
+>  #define _read_lock_irqsave(lock, flags)		__LOCK_IRQSAVE(lock, flags)
+>  #define _write_lock_irqsave(lock, flags)	__LOCK_IRQSAVE(lock, flags)
+>  #define _spin_trylock(lock)			({ __LOCK(lock); 1; })
+> Index: linux-2.6/include/linux/spinlock.h
+> ===================================================================
+> --- linux-2.6.orig/include/linux/spinlock.h
+> +++ linux-2.6/include/linux/spinlock.h
+> @@ -186,6 +186,11 @@ do {								\
+>  #define spin_lock_irqsave(lock, flags)	flags = _spin_lock_irqsave(lock)
+>  #define read_lock_irqsave(lock, flags)	flags = _read_lock_irqsave(lock)
+>  #define write_lock_irqsave(lock, flags)	flags = _write_lock_irqsave(lock)
+> +#ifdef CONFIG_DEBUG_LOCK_ALLOC
+> +#define spin_lock_irqsave_nested(lock, flags, subclass)	flags = _spin_lock_irqsave_nested(lock, subclass)
+> +#else
+> +#define spin_lock_irqsave_nested(lock, flags, subclass)	flags = _spin_lock_irqsave(lock)
+> +#endif
+>  #else
+
+Plus for api_up:
+
++#ifdef CONFIG_DEBUG_LOCK_ALLOC
++#define spin_lock_irqsave_nested(lock, flags, subclass)	_spin_lock_irqsave_nested(lock, flags, subclass)
++#else
++#define spin_lock_irqsave_nested(lock, flags, subclass)	_spin_lock_irqsave(lock, flags)
++#endif
+
+>  #define spin_lock_irqsave(lock, flags)	_spin_lock_irqsave(lock, flags)
+>  #define read_lock_irqsave(lock, flags)	_read_lock_irqsave(lock, flags)
+> Index: linux-2.6/kernel/spinlock.c
+> ===================================================================
+> --- linux-2.6.orig/kernel/spinlock.c
+> +++ linux-2.6/kernel/spinlock.c
+> @@ -293,6 +293,27 @@ void __lockfunc _spin_lock_nested(spinlo
+>  }
+>  
+>  EXPORT_SYMBOL(_spin_lock_nested);
+> +unsigned long __lockfunc _spin_lock_irqsave_nested(spinlock_t *lock, int subclass)
+> +{
+> +	unsigned long flags;
+> +
+> +	local_irq_save(flags);
+> +	preempt_disable();
+> +	spin_acquire(&lock->dep_map, subclass, 0, _RET_IP_);
+> +	/*
+> +	 * On lockdep we dont want the hand-coded irq-enable of
+> +	 * _raw_spin_lock_flags() code, because lockdep assumes
+> +	 * that interrupts are not re-enabled during lock-acquire:
+> +	 */
+> +#ifdef CONFIG_PROVE_SPIN_LOCKING
+> +	_raw_spin_lock(lock);
+> +#else
+> +	_raw_spin_lock_flags(lock, &flags);
+> +#endif
+> +	return flags;
+> +}
+> +
+> +EXPORT_SYMBOL(_spin_lock_irqsave_nested);
+>  
+>  #endif
+>  
+> 
+
+Shouldn't this _nested locks be considered in: 
+#else /* CONFIG_PREEMPT: */
+part?

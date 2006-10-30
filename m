@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030562AbWJ3Rck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030564AbWJ3Rd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030562AbWJ3Rck (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 12:32:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030565AbWJ3Rck
+	id S1030564AbWJ3Rd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 12:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030566AbWJ3Rd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 12:32:40 -0500
-Received: from wr-out-0506.google.com ([64.233.184.225]:14062 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030562AbWJ3Rcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 12:32:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=b0fju2/M2LI+AlBdPVQ0nPTWF6EdZo9kJ0hNS9lar+W6hM9VccE9FezfzZpZXsQSp5XXVZzGaC8n1h32HDyiwGw0upDqz2hVWdkMGBTeYtiS8HiTbm9fwWlyDM3zi/n3RHFjz3xqzIrC8TkRFgz1VyGdeXtYsuPVq4pBxAT4dGQ=
-Message-ID: <653402b90610300932r3c96445bxb8e5d34f8f768ec4@mail.gmail.com>
-Date: Mon, 30 Oct 2006 18:32:37 +0100
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Paulo Marques" <pmarques@grupopie.com>
-Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
-Cc: Franck <vagabon.xyz@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <45461890.2000007@grupopie.com>
+	Mon, 30 Oct 2006 12:33:59 -0500
+Received: from outbound-fra.frontbridge.com ([62.209.45.174]:19129 "EHLO
+	outbound1-fra-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1030564AbWJ3Rd5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 12:33:57 -0500
+X-BigFish: VP
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061013023218.31362830.maxextreme@gmail.com>
-	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>
-	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>
-	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>
-	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com>
-	 <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com>
-	 <4545C52A.5010105@innova-card.com> <4545FCB1.8030900@grupopie.com>
-	 <653402b90610300611ucdc46d9y88f016800b498538@mail.gmail.com>
-	 <45461890.2000007@grupopie.com>
+Subject: RE: AMD X2 unsynced TSC fix?
+Date: Mon, 30 Oct 2006 11:22:45 -0600
+Message-ID: <1449F58C868D8D4E9C72945771150BDF153775@SAUSEXMB1.amd.com>
+In-Reply-To: <1162058915.14733.2.camel@mindpipe>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: AMD X2 unsynced TSC fix?
+Thread-Index: Acb6vCNI2iQIilqMRjmEnvBD8ZrqYwBi3aiQ
+From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+cc: linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 30 Oct 2006 17:22:45.0765 (UTC)
+ FILETIME=[03C3DB50:01C6FC48]
+X-WSS-ID: 6958EB6C280967181-02-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/30/06, Paulo Marques <pmarques@grupopie.com> wrote:
->
-> No, this is not the sequence I thought of at all. I don't remember the
-> exact API functions you need to call (I have to read LDD3 again ;), but
-> if the hardware supports it, there must be a way. The plan is something
-> like:
->
->   - at mmap time you return a pointer to something that is not actually
-> mapped, and do nothing else
->
->   - when userspace actually writes to that area, you get a page fault,
-> and nopage is called. At this point you map the page, and set the dirty
-> state. All other writes from userspace until the timer completes are
-> done without faulting.
->
->   - when the timer completes, you unmap the page so that the next access
-> will generate a fault again
->
-> As I said, I don't remember the exact details, but this should be doable.
->
+> > Agreed, I had to turn about 20 dual-core servers to single 
+> > core because the only way to get a monotonic gtod made it
+> > so slow that it was not worth using a dual-core. I initially
+> > considered buying one dual-core AMD for my own use, but after
+> > seeing this, I'm definitely sure I won't ever buy one as
+> > long as this problem is not fixed, as it causes too
+> > many problems.
+> 
+> Does anyone know if the problem will really be fixed in new 
+> CPUs, as AMD promised a year or so ago?
+> 
+> http://lkml.org/lkml/2005/11/4/173
+> 
+> Since that post, there has been Socket F and AM2 which apparently have
+> the same issue. 
+> Were the AMD guys just blowing smoke?
 
-Yes, I get the idea, you mean to "unmap" the page but don't remove the
-vma so a page fault is raised and nopage() op must be called again.
-May it decrease performance? (Linux /you must take care of a page
-fault calling nopage() each time you write/refresh the LCD, then
-actually use it).
+AMD was not blowing smoke.  Future AMD processors will have 
+pstate/cstate invariant TSCs detectable by a CPUID bit.
 
-      Miguel Ojeda
+Unfortunately, those processors have not be released yet, and
+I can't comment on their release timeframe, other than to say
+they are on our roadmap.
+
+-Mark Langsdorf
+AMD, Inc.
+
+

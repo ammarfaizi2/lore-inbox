@@ -1,86 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751970AbWJ3SU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751981AbWJ3SUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751970AbWJ3SU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 13:20:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751968AbWJ3SU0
+	id S1751981AbWJ3SUm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 13:20:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751975AbWJ3SUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 13:20:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19418 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751970AbWJ3SUY (ORCPT
+	Mon, 30 Oct 2006 13:20:41 -0500
+Received: from rtr.ca ([64.26.128.89]:22024 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751968AbWJ3SUj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 13:20:24 -0500
-Date: Mon, 30 Oct 2006 10:16:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-In-Reply-To: <454637BE.6090309@ce.jp.nec.com>
-Message-ID: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
-References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il>
- <45462591.7020200@ce.jp.nec.com> <Pine.LNX.4.64.0610300834060.25218@g5.osdl.org>
- <454637BE.6090309@ce.jp.nec.com>
+	Mon, 30 Oct 2006 13:20:39 -0500
+Message-ID: <45464275.9040601@rtr.ca>
+Date: Mon, 30 Oct 2006 13:20:37 -0500
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
+Subject: Re: 2.6.19-rc3-git7: scsi_device_unbusy: inconsistent lock state
+References: <45460D52.3000404@rtr.ca> <20061030144315.GG4563@kernel.dk> <1162220239.2948.27.camel@laptopd505.fenrus.org> <20061030154444.GH4563@kernel.dk> <1162225002.2948.45.camel@laptopd505.fenrus.org> <20061030162621.GK4563@kernel.dk> <1162225915.2948.49.camel@laptopd505.fenrus.org> <20061030175224.GB14055@kernel.dk> <45463C5B.7070900@rtr.ca> <45464064.2090108@rtr.ca>
+In-Reply-To: <45464064.2090108@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 30 Oct 2006, Jun'ichi Nomura wrote:
+Mark Lord wrote:
 > 
-> Please revert the patch. I'll fix the wrong error handling.
-> 
-> I'm not sure reverting the patch solves the ACPI problem
-> because Michael's kernel seems not having any user of
-> bd_claim_by_kobject.
+>I also see it with the SLES10 kernel 2.6.16.21-0.8.
+..
 
-Yeah, doing a grep does seem to imply that there is no way that those 
-changes could matter.
+Obvious self-correction: not the same problem in the SLES10 kernel.
+I just got confused juggling five kernels around.  :)
 
-Michael, can you double-check? I think Jun'ichi is right - in your kernel, 
-according to the config posted on bugzilla, I don't think there should be 
-a single caller of bd_claim_by_disk, since CONFIG_MD is disabled.
+But problem is still there in 2.6.19*.
+Rebuilding kernel now with frame pointers and DEBUG_INFO enabled.
 
-So it does seem strange. But if you bisected to that patch, and it 
-reliably does _not_ have problems with the patch reverted, maybe there is 
-some strange preprocessor thing that makes "grep" not find the caller.
-
-Michael, you also reported:
-
-> Reset to d7dd8fd9557840162b724a8ac1366dd78a12dff seems to hide part of 
-> the issue (I have ACPI after kernel build, but not after 
-> suspend/resume).  Both reverting this patch, and reset to the parent of
-> this patch seem to solve (or at least, hide) both problems for me (no 
-> ACPI after suspend/resume and no ACPI after kernel build).
-
-(where that "d7dd8f.." is actually missing the initial "4" - I think you 
-cut-and-pasted things incorrectly). 
-
-So I wonder.. You still had ACPI working _after_ the kernel build even 
-with that patch in place, and it seems that suspend/resume is the real 
-issue. Martin Lorenz reports on the same bugzilla entry, and he only has 
-problems with suspend/resume.
-
-I assume that "compile the kernel" just triggers some magic ACPI event 
-(probably fan-related due to heat), and I wonder if the bisection faked 
-you out because once you get "close enough" the differences are small 
-enough that the kernel compile is quick and the heat event doesn't 
-actually trigger?
-
-See what I'm saying? Maybe the act of bisecting itself changed the 
-results, and then when you just revert the patch, you end up in the same 
-situation: you only recompile a small part (you only recompile that 
-particular file), and the problem doesn't occur, so you'd think that the 
-revert "fixed" it.
-
-If it's heat-related, it should probably trigger by anything that does a 
-lot of CPU (and perhaps disk) accesses, not just kernel builds. It might 
-be good to try to find another test-case for it than a kernel recompile, 
-one that doesn't depend on how much changed in the kernel..
-
-		Linus
+Cheers

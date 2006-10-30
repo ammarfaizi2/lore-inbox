@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030565AbWJ3Umf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422629AbWJ3Ulm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030565AbWJ3Umf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 15:42:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030593AbWJ3Umf
+	id S1422629AbWJ3Ulm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 15:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030592AbWJ3Ulm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 15:42:35 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:37318 "EHLO
-	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1030565AbWJ3Ume (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 15:42:34 -0500
-Date: Mon, 30 Oct 2006 12:42:30 -0800 (PST)
-From: Zwane Mwaikambo <zwane@infradead.org>
-Subject: Re: [PATCH] vmalloc : optimization, cleanup, bugfixes
-In-reply-to: <453C87A6.4060602@yahoo.com.au>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.64.0610301234500.20628@montezuma.fsmlabs.com>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-References: <453C3A29.4010606@intel.com>
- <20061022214508.6c4f30c6.akpm@osdl.org>
- <200610231036.10418.dada1@cosmosbay.com> <453C87A6.4060602@yahoo.com.au>
+	Mon, 30 Oct 2006 15:41:42 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:6799 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030565AbWJ3Ulk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 15:41:40 -0500
+Date: Mon, 30 Oct 2006 12:41:02 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: dmccr@us.ibm.com, dev@openvz.org, linux-kernel@vger.kernel.org,
+       devel@openvz.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Message-Id: <20061030124102.f8957d06.pj@sgi.com>
+In-Reply-To: <6599ad830610301007n2c974199m407f3818dd77365a@mail.gmail.com>
+References: <20061030103356.GA16833@in.ibm.com>
+	<20061030024320.962b4a88.pj@sgi.com>
+	<20061030170916.GA9588@in.ibm.com>
+	<200610301116.04780.dmccr@us.ibm.com>
+	<6599ad830610301007n2c974199m407f3818dd77365a@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Oct 2006, Nick Piggin wrote:
+>  I believe that
+> there are people out there who depend on them (right, PaulJ?)
 
-> Eric Dumazet wrote:
-> > [PATCH] vmalloc : optimization, cleanup, bugfixes
-> > 
-> > This patch does three things
-> > 
-> > 1) reorder 'struct vm_struct' to speedup lookups on CPUS with small cache
-> > lines. The fields 'next,addr,size' should be now in the same cache line, to
-> > speedup lookups.
-> > 
-> > 2) One minor cleanup in __get_vm_area_node()
-> > 
-> > 3) Bugfixes in vmalloc_user() and vmalloc_32_user()
-> > NULL returns from __vmalloc() and __find_vm_area() were not tested.
-> 
-> Hmm, so they weren't. As far as testing the return of __find_vm_area,
-> you can just turn that into a BUG_ON(!area), because at that point,
-> we've established that the vmalloc succeeded.
+Yes.  For example a common usage pattern has the system admin carve
+off a big chunk of CPUs and Memory Nodes into a cpuset for the batch
+scheduler to manage, within which the batch scheduler creates child
+cpusets, roughly one for each job under its control.
 
-No need for a BUG_ON it'll simply be a NULL dereference, at which point 
-we're back to the original code.
-
-	Zwane
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

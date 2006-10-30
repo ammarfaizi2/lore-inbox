@@ -1,132 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161221AbWJ3Kgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWJ3KhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161221AbWJ3Kgc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 05:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161223AbWJ3Kgc
+	id S1161225AbWJ3KhS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 05:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161228AbWJ3KhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 05:36:32 -0500
-Received: from tornado.reub.net ([203.222.131.131]:49892 "EHLO
-	tornado.reub.net") by vger.kernel.org with ESMTP id S1161221AbWJ3Kgb
+	Mon, 30 Oct 2006 05:37:18 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:30390 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161225AbWJ3KhQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 05:36:31 -0500
-Message-ID: <4545D5AF.1090800@reub.net>
-Date: Mon, 30 Oct 2006 21:36:31 +1100
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 2.0b1pre (Windows/20061027)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.19-rc3-mm1
-References: <20061029160002.29bb2ea1.akpm@osdl.org>
-In-Reply-To: <20061029160002.29bb2ea1.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Oct 2006 05:37:16 -0500
+To: marcel@holtmann.org
+Subject: [PATCH] bnep endianness annotations
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Message-Id: <E1GeUW3-0002Wk-Su@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Mon, 30 Oct 2006 10:37:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ net/bluetooth/bnep/bnep.h |    4 ++--
+ net/bluetooth/bnep/core.c |   12 ++++++------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-On 30/10/2006 11:00 AM, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc3/2.6.19-rc3-mm1/
-> 
-> - ia64 doesn't compile due to improvements in acpi.  I already fixed a huge
->   string of build errors due to this and it's someone else's turn.
-> 
-> - For some reason Greg has resurrected the patches which detect whether
->   you're using old versions of udev and if so, punish you for it.
-> 
->   If weird stuff happens, try upgrading udev.
-
-udev-095 here.
-
-Some slightly odd messages in dmesg.  Overall this -mm boots and runs and seems 
-to be reasonably good (the last -mm didn't boot for me).
-
-1. NMI message - I too, am dazed and confused about this one:
-
-Linux version 2.6.19-rc3-mm1 (root@tornado.reub.net) (gcc version 4.1.1 20061025 
-(Red Hat 4.1.1-31)) #1 SMP Mon Oct 30 11:15:58
-  EST 2006
-Command line: ro root=/dev/md0 panic=60 console=ttyS0,57600
-
-...
-
-CPU: Trace cache: 12K uops, L1 D cache: 16K
-CPU: L2 cache: 2048K
-using mwait in idle threads.
-CPU: Physical Processor ID: 0
-CPU: Processor Core ID: 0
-CPU0: Thermal monitoring enabled (TM1)
-Freeing SMP alternatives: 28k freed
-ACPI: Core revision 20061011
-Using local APIC timer interrupts.
-result 12500379
-Detected 12.500 MHz APIC timer.
-lockdep: not fixing up alternatives.
-Booting processor 1/2 APIC 0x1
-Initializing CPU#1
-Calibrating delay using timer specific routine.. 6000.02 BogoMIPS (lpj=12000044)
-CPU: Trace cache: 12K uops, L1 D cache: 16K
-CPU: L2 cache: 2048K
-CPU: Physical Processor ID: 0
-CPU: Processor Core ID: 0
-CPU1: Thermal monitoring enabled (TM1)
-               Intel(R) Pentium(R) 4 CPU 3.00GHz stepping 03
-Brought up 2 CPUs
-testing NMI watchdog ... CPU#0: NMI appears to be stuck (58->63)!
-OK.
-time.c: Using 14.318180 MHz WALL HPET GTOD HPET/TSC timer.
-Uhhuh. NMI received for unknown reason 3c.
-Do you have a strange power saving mode enabled?
-Dazed and confused, but trying to continue
-time.c: Detected 3000.114 MHz processor.
-migration_cost=21
-
-It's a desktop PC/server, no strange power saving mode going on here.  Unsure 
-who looks after this or why it would occur.
-
-
-2. Think this is ok, but still - timeouts, frozen - all words that suggest 
-suboptimal things have gone on:
-
-ata_piix 0000:00:1f.1: version 2.00ac7
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 18
-PCI: Setting latency timer of device 0000:00:1f.1 to 64
-ata1: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0x20B0 irq 14
-ata2: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0x20B8 irq 15
-scsi0 : ata_piix
-ata1.00: ATAPI, max UDMA/66
-ata1.00: configured for UDMA/66
-scsi1 : ata_piix
-ata2: port disabled. ignoring.
-ATA: abnormal status 0xFF on port 0x177
-ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata1.00: (BMDMA stat 0x24)
-ata1.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
-ata1: soft resetting port
-ata1.00: configured for UDMA/66
-ata1: EH complete
-ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata1.00: (BMDMA stat 0x24)
-ata1.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
-ata1: soft resetting port
-ata1.00: configured for UDMA/66
-ata1: EH complete
-scsi 0:0:0:0: CD-ROM            PIONEER  DVD-RW  DVR-111D 1.23 PQ: 0 ANSI: 5
-scsi 0:0:0:0: Attached scsi generic sg0 type 5
-ata_piix 0000:00:1f.2: MAP [ P0 P2 P1 P3 ]
-ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 19
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata3: SATA max UDMA/133 cmd 0x20C8 ctl 0x20EE bmdma 0x20A0 irq 19
-ata4: SATA max UDMA/133 cmd 0x20C0 ctl 0x20EA bmdma 0x20A8 irq 19
-scsi2 : ata_piix
-
-The device on ata1 is the DVD-RW Atapi.
-
-All devices seem to be detected and work, so it may be just cosmetic.  Alan?
-
-Reuben
-
-
+diff --git a/net/bluetooth/bnep/bnep.h b/net/bluetooth/bnep/bnep.h
+index bbb1ed7..0b6cd0e 100644
+--- a/net/bluetooth/bnep/bnep.h
++++ b/net/bluetooth/bnep/bnep.h
+@@ -95,14 +95,14 @@ struct bnep_setup_conn_req {
+ struct bnep_set_filter_req {
+ 	__u8  type;
+ 	__u8  ctrl;
+-	__u16 len;
++	__be16 len;
+ 	__u8  list[0];
+ } __attribute__((packed));
+ 
+ struct bnep_control_rsp {
+ 	__u8  type;
+ 	__u8  ctrl;
+-	__u16 resp;
++	__be16 resp;
+ } __attribute__((packed));
+ 
+ struct bnep_ext_hdr {
+diff --git a/net/bluetooth/bnep/core.c b/net/bluetooth/bnep/core.c
+index 4e822f0..7ba6470 100644
+--- a/net/bluetooth/bnep/core.c
++++ b/net/bluetooth/bnep/core.c
+@@ -128,7 +128,7 @@ static inline void bnep_set_default_prot
+ }
+ #endif
+ 
+-static int bnep_ctrl_set_netfilter(struct bnep_session *s, u16 *data, int len)
++static int bnep_ctrl_set_netfilter(struct bnep_session *s, __be16 *data, int len)
+ {
+ 	int n;
+ 
+@@ -180,7 +180,7 @@ static int bnep_ctrl_set_mcfilter(struct
+ 	if (len < 2)
+ 		return -EILSEQ;
+ 
+-	n = ntohs(get_unaligned((u16 *) data)); 
++	n = ntohs(get_unaligned((__be16 *) data));
+ 	data += 2; len -= 2;
+ 
+ 	if (len < n)
+@@ -332,7 +332,7 @@ static inline int bnep_rx_frame(struct b
+ 	if (!skb_pull(skb, __bnep_rx_hlen[type & BNEP_TYPE_MASK]))
+ 		goto badframe;
+ 
+-	s->eh.h_proto = get_unaligned((u16 *) (skb->data - 2));
++	s->eh.h_proto = get_unaligned((__be16 *) (skb->data - 2));
+ 
+ 	if (type & BNEP_EXT_HEADER) {
+ 		if (bnep_rx_extension(s, skb) < 0)
+@@ -343,7 +343,7 @@ static inline int bnep_rx_frame(struct b
+ 	if (ntohs(s->eh.h_proto) == 0x8100) {
+ 		if (!skb_pull(skb, 4))
+ 			goto badframe;
+-		s->eh.h_proto = get_unaligned((u16 *) (skb->data - 2));
++		s->eh.h_proto = get_unaligned((__be16 *) (skb->data - 2));
+ 	}
+ 	
+ 	/* We have to alloc new skb and copy data here :(. Because original skb
+@@ -365,7 +365,7 @@ static inline int bnep_rx_frame(struct b
+ 	case BNEP_COMPRESSED_SRC_ONLY:
+ 		memcpy(__skb_put(nskb, ETH_ALEN), s->eh.h_dest, ETH_ALEN);
+ 		memcpy(__skb_put(nskb, ETH_ALEN), skb->mac.raw, ETH_ALEN);
+-		put_unaligned(s->eh.h_proto, (u16 *) __skb_put(nskb, 2));
++		put_unaligned(s->eh.h_proto, (__be16 *) __skb_put(nskb, 2));
+ 		break;
+ 
+ 	case BNEP_COMPRESSED_DST_ONLY:
+@@ -375,7 +375,7 @@ static inline int bnep_rx_frame(struct b
+ 
+ 	case BNEP_GENERAL:
+ 		memcpy(__skb_put(nskb, ETH_ALEN * 2), skb->mac.raw, ETH_ALEN * 2);
+-		put_unaligned(s->eh.h_proto, (u16 *) __skb_put(nskb, 2));
++		put_unaligned(s->eh.h_proto, (__be16 *) __skb_put(nskb, 2));
+ 		break;
+ 	}
+ 
+-- 
+1.4.2.GIT
 
 

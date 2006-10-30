@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWJ3OYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWJ3OYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751769AbWJ3OYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 09:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWJ3OYJ
+	id S1751852AbWJ3OYv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 09:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751931AbWJ3OYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 09:24:09 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:42205 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751769AbWJ3OYF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 09:24:05 -0500
-Date: Mon, 30 Oct 2006 06:23:32 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com, menage@google.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com, devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061030062332.856dcc32.pj@sgi.com>
-In-Reply-To: <45460743.8000501@openvz.org>
-References: <20061030103356.GA16833@in.ibm.com>
-	<45460743.8000501@openvz.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Oct 2006 09:24:50 -0500
+Received: from extu-mxob-2.symantec.com ([216.10.194.135]:62372 "EHLO
+	extu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
+	id S1751785AbWJ3OYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 09:24:43 -0500
+X-AuditID: d80ac287-9ea02bb00000720f-a0-45460b2ad5d0 
+Date: Mon, 30 Oct 2006 14:24:57 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Franck Bui-Huu <vagabon.xyz@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Miguel Ojeda Sandonis <maxextreme@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 update4] drivers: add LCD support
+In-Reply-To: <4545C756.30403@innova-card.com>
+Message-ID: <Pine.LNX.4.64.0610301419090.32176@blonde.wat.veritas.com>
+References: <20061026174858.b7c5eab1.maxextreme@gmail.com>
+ <20061026220703.37182521.akpm@osdl.org> <4545C756.30403@innova-card.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 30 Oct 2006 14:24:42.0259 (UTC) FILETIME=[23E63630:01C6FC2F]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel wrote:
-> 1. One of the major configfs ideas is that lifetime of
->    the objects is completely driven by userspace.
->    Resource controller shouldn't live as long as user
->    want. It "may", but not "must"!
+On Mon, 30 Oct 2006, Franck Bui-Huu wrote:
+> 
+> Any idea why LDD3 states:
+> 
+> 	An interesting limitation of remap_pfn_range is that it gives
+> 	access only to reserved pages and physical addresses above the
+> 	top of physical memory.
 
-I had trouble understanding what you are saying here.
+It was true until 2.6.15, when VM_PFNMAP removed that restriction to
+PageReserved (or struct-page-less) pages.
 
-What does the phrase "live as long as user want" mean?
-
-
-> 2. Having configfs as the only interface doesn't alow
->    people having resource controll facility w/o configfs.
->    Resource controller must not depend on any "feature".
->
-> 3. Configfs may be easily implemented later as an additional
->    interface. I propose the following solution:
->      - First we make an interface via any common kernel
->        facility (syscall, ioctl, etc);
->      - Later we may extend this with configfs. This will
->        alow one to have configfs interface build as a module.
-
-So you would add bloat to the kernel, with two interfaces
-to the same facility, because you don't want the resource
-controller to depend on configfs.
-
-I am familiar with what is wrong with kernel bloat.
-
-Can you explain to me what is wrong with having resource
-groups depend on configfs?  Is there something wrong with
-configfs that would be a significant problem for some systems
-needing resource groups?
-
-It is better where possible, I would think, to reuse common
-infrastructure and minimize redundancy.  If there is something
-wrong with configfs that makes this a problem, perhaps we
-should fix that.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Hugh

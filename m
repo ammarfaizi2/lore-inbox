@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWJ3IbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWJ3InR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbWJ3IbL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 03:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751958AbWJ3IbL
+	id S964786AbWJ3InR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 03:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965273AbWJ3InR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 03:31:11 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:39144 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751377AbWJ3IbJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 03:31:09 -0500
-Subject: Re: [PATCH] lockdep: annotate DECLARE_WAIT_QUEUE_HEAD
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       Greg KH <gregkh@suse.de>, Markus Lidel <markus.lidel@shadowconnect.com>,
-       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <1162045659.24143.149.camel@taijtu>
-References: <1162045659.24143.149.camel@taijtu>
-Content-Type: text/plain
-Date: Mon, 30 Oct 2006 09:30:35 +0100
-Message-Id: <1162197035.24333.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Mon, 30 Oct 2006 03:43:17 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:60248 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964786AbWJ3InQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 03:43:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=JEKtrJen2KphFURmfw7JRKOoCAHcaatFGCvnlZShsghNTycB3DJ9NkWL6ai8D4bhMkyjMM78Ijh29DPSBC2/Si1GKXgAlLJiPoGoaFAKD/VyBECxXeo+bHUhRlXbaTr2hjUdcWYWz96lQtkFQdQy/nWdy0Hjaji6T+KatejAAhg=
+Message-ID: <4545BB3E.7030503@innova-card.com>
+Date: Mon, 30 Oct 2006 09:43:42 +0100
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Miguel Ojeda <maxextreme@gmail.com>
+CC: Franck Bui-Huu <vagabon.xyz@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+References: <20061013023218.31362830.maxextreme@gmail.com>	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>	 <453CE143.3070909@innova-card.com>	 <653402b90610230921j595446a4xda5e6d9444e108da@mail.gmail.com>	 <cda58cb80610230951l4a1319bbs6956fea5143c021a@mail.gmail.com>	 <653402b90610260745w59b740d2x5961e40252f5b76@mail.gmail.com>	 <cda58cb80610271308v137a2de8vfb8123a422270144@mail.gmail.com> <653402b90610271338t6e2e4d31idffefe4b6b1ce639@mail.gmail.com>
+In-Reply-To: <653402b90610271338t6e2e4d31idffefe4b6b1ce639@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
-
-> kernel: INFO: trying to register non-static key.
-> kernel: the code is fine but needs lockdep annotation.
-> kernel: turning off the locking correctness validator.
-> kernel:  [<c04051ed>] show_trace_log_lvl+0x58/0x16a
-> kernel:  [<c04057fa>] show_trace+0xd/0x10
-> kernel:  [<c0405913>] dump_stack+0x19/0x1b
-> kernel:  [<c043b1e2>] __lock_acquire+0xf0/0x90d
-> kernel:  [<c043bf70>] lock_acquire+0x4b/0x6b
-> kernel:  [<c061472f>] _spin_lock_irqsave+0x22/0x32
-> kernel:  [<c04363d3>] prepare_to_wait+0x17/0x4b
-> kernel:  [<f89a24b6>] lpfc_do_work+0xdd/0xcc2 [lpfc]
-> kernel:  [<c04361b9>] kthread+0xc3/0xf2
-> kernel:  [<c0402005>] kernel_thread_helper+0x5/0xb
+Miguel Ojeda wrote:
 > 
-> Another case of non-static lockdep keys; duplicate the paradigm set by
-> DECLARE_COMPLETION_ONSTACK and introduce DECLARE_WAIT_QUEUE_HEAD_ONSTACK.
+> Sorry, I meant: You can't mmap a RAM address using functions like the
+> usual remap_pfn_range (as such functions doesn't like physical RAM
+> addresses, they want I/O ports for example, like 0x378). So, you can't
+> use smem_start. You need to code your own mmap & nopage function. (It
+> is explained in LDD3 very well).
 > 
-> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-for the Bluetooth subsystem part of this patch:
+well I must admit that I don't understand why... I suppose you refered
+to that section in ldd3:
 
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+	An interesting limitation of remap_pfn_range is that it gives
+	access only to reserved pages and physical addresses above the
+	top of physical memory.
 
-Regards
+I take a quick look at the implementation of remap_pfn_range() and
+there's no such limitation I can see (fortunately).
 
-Marcel
-
-
+		Franck

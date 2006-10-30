@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWJ3Uy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161354AbWJ3U52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422650AbWJ3Uy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 15:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422652AbWJ3Uy4
+	id S1161354AbWJ3U52 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 15:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161439AbWJ3U52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 15:54:56 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:27524 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1422650AbWJ3Uy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 15:54:56 -0500
-Message-ID: <4546669F.8020706@vmware.com>
-Date: Mon, 30 Oct 2006 12:54:55 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/5] Skip timer works.patch
-References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com> <200610271416.12548.ak@suse.de>
-In-Reply-To: <200610271416.12548.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 30 Oct 2006 15:57:28 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24720 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161354AbWJ3U51 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 15:57:27 -0500
+Date: Mon, 30 Oct 2006 12:56:27 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Message-Id: <20061030125627.3b8d6472.pj@sgi.com>
+In-Reply-To: <6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com>
+References: <20061030103356.GA16833@in.ibm.com>
+	<6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
+	<20061030031531.8c671815.pj@sgi.com>
+	<6599ad830610300404v1e036bb7o7ed9ec0bc341864e@mail.gmail.com>
+	<20061030042714.fa064218.pj@sgi.com>
+	<6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com>
+	<20061030123652.d1574176.pj@sgi.com>
+	<6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> no_timer_check. But it's only there on x86-64 in mainline - although there
-> were some patches to add it to i386 too.
->   
+> More concretely:
+> 
+> - there is a single hierarchy of process containers
+> - each process is a member of exactly one process container
+> 
+> - for each resource controller, there's a hierarchy of resource "nodes"
+> - each process container is associated with exactly one resource node
+>   of each type
+> 
+> - by default, the process container hierarchy and the resource node
+>   hierarchies are isomorphic, but that can be controlled by userspace.
 
-I can rename to match the x86-64 name.
+nice
 
-
->> That is what this patch is building towards, but the boot option is
->> "free", so why not?  In the meantime, it helps non-paravirt kernels
->> booted in a VM.
->>     
->
-> Hmm, you meant they paniced before?  If they just fail a few tests
-> that is not particularly worrying (real hardware does that often too)
->   
-
-Yes, they sometimes fail to boot, and the failure message used to ask us 
-to pester mingo.
-
-Zach
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

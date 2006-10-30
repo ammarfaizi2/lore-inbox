@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWJ3NBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWJ3NDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWJ3NBp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 08:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWJ3NBp
+	id S964817AbWJ3NDD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 08:03:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWJ3NDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 08:01:45 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:53160 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964797AbWJ3NBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 08:01:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=EjFMqJ2VQ56Bk7+hSx7B0kUBUZOm6xDv8rsfK69scvid9MFSyW0Adip1XPnA7XNb4e+skv1aLCIq4mIN0+auhQ3AfL2Zt8LSnYKnZ0NJ+RawWHxsXz27cGn7HaeDDqHbfld2Iis4Du0SAAhmplN8oI2fVQq3oTD9+tQGTqeF8m8=
-Message-ID: <161717d50610300501w240a8ce1h4d58b1f3f2f759bf@mail.gmail.com>
-Date: Mon, 30 Oct 2006 08:01:42 -0500
-From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
-Cc: "Dmitry Torokhov" <dtor@insightbb.com>,
-       LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <20061030090851.GA2687@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608232311.07599.dtor@insightbb.com>
-	 <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com>
-	 <200610292234.02487.dtor@insightbb.com>
-	 <20061030090851.GA2687@suse.cz>
-X-Google-Sender-Auth: 727b87ff33a2c688
+	Mon, 30 Oct 2006 08:03:03 -0500
+Received: from main.gmane.org ([80.91.229.2]:4833 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964817AbWJ3NDA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 08:03:00 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
+Date: Mon, 30 Oct 2006 13:02:23 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnekbubl.2vm.olecom@flower.upol.cz>
+References: <Pine.LNX.4.64.0610291211160.25218@g5.osdl.org> <20061029223410.GA15413@electric-eye.fr.zoreil.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Francois Romieu <romieu@fr.zoreil.com>, Linus Torvalds <torvalds@osdl.org>, Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Adrian Bunk <bunk@stusta.de>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/30/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Sun, Oct 29, 2006 at 10:34:00PM -0500, Dmitry Torokhov wrote:
-> > Hi Dave,
-> >
-> > i8042_interrupt() uses spinlock to serialize access to the KBC so if real
-> > interrupt happens before we call i8042_interrupt() manually (and it should
-> > normally happen) it will just process the response and second i8042_interrupt()
-> > will be just a no-op.
+On 2006-10-29, Francois Romieu wrote:
 >
-> This would, however, create two reads of the i8042 controller
-> back-to-back, which has been a problem on old i8042's: IIRC IBM
-> documentation states that between the reads there should be a delay.
+> Linus Torvalds <torvalds@osdl.org> :
+> [regression related to r8169 MAC address change]
+>> Francois ? Jeff ?
 >
+> Go revert it.
+>
+> Despite what I claimed, I can not find a third-party confirmation by email
+> that it works elsewhere.
 
-Maybe I'm missing something, (well actually I'm sure I'm missing
-somethng). Looking at the code again, it's unclear to me why there is
-even a call to the ISR in i8042_aux_write, since the latter function
-already calls i8042_read_data.
+It works for me:
+,--
+|root@flower:/home/olecom# ip l set eth0 addr 00:00:00:00:00:02
+|root@flower:/home/olecom# ip l set eth0 addr 00:00:00:00:00:03
+|root@flower:/home/olecom# ip l set eth0 addr 00:00:00:00:00:04
+|root@flower:/home/olecom# ip l set eth0 addr 04:44:44:44:44:04
+|root@flower:/home/olecom# ip l show
+|1: lo: <LOOPBACK,UP,10000> mtu 16436 qdisc noqueue
+|    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+|    2: eth0: <BROADCAST,MULTICAST,UP,10000> mtu 1500 qdisc pfifo_fast qlen 1000
+|    link/ether 04:44:44:44:44:04 brd ff:ff:ff:ff:ff:ff
+|root@flower:/home/olecom# lspci -v | grep Realtek
+|    02:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+|RTL8111/8168B PCI Express Gigabit Ethernet controller (rev 01)
+|root@flower:/home/olecom#
+|root@flower:/home/olecom# uname -a
+|Linux flower 2.6.19-rc2-vanilla-ai #4 SMP PREEMPT Tue Oct 17 02:19:16
+|UTC 2006 x86_64 GNU/Linux
+|root@flower:/home/olecom#
+`--
+____
 
-Dave

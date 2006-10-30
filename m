@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161415AbWJ3TQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161361AbWJ3TRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161415AbWJ3TQk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 14:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161417AbWJ3TQk
+	id S1161361AbWJ3TRG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 14:17:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161432AbWJ3TRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 14:16:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:25743 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161415AbWJ3TQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 14:16:39 -0500
-Date: Mon, 30 Oct 2006 19:15:54 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
-       Stefan Schmidt <stefan@datenfreihafen.org>, dm-devel@redhat.com,
-       dm-crypt@saout.de, Christophe Saout <christophe@saout.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG] dmsetup table output changed from 2.6.18 to 2.6.19-rc3 and breaks yaird.
-Message-ID: <20061030191554.GN1319@agk.surrey.redhat.com>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
-	Stefan Schmidt <stefan@datenfreihafen.org>, dm-devel@redhat.com,
-	dm-crypt@saout.de, Christophe Saout <christophe@saout.de>,
-	Andrew Morton <akpm@osdl.org>
-References: <20061030151930.GQ27337@susi> <20061030184331.GY3928@agk.surrey.redhat.com> <Pine.LNX.4.64.0610301053010.25218@g5.osdl.org>
+	Mon, 30 Oct 2006 14:17:06 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:19853 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1161361AbWJ3TRD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 14:17:03 -0500
+Date: Mon, 30 Oct 2006 15:14:54 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Cc: Andrew Morton <akpm@osdl.org>, user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 03/11] uml ubd driver: var renames
+Message-ID: <20061030201454.GA6079@ccure.user-mode-linux.org>
+References: <20061029191723.12292.50164.stgit@americanbeauty.home.lan> <20061029192029.12292.15703.stgit@americanbeauty.home.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610301053010.25218@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061029192029.12292.15703.stgit@americanbeauty.home.lan>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 11:00:29AM -0800, Linus Torvalds wrote:
-> (maybe something like this trivial one? Totally untested, but it would 
-> seem to be the sane approach)
- 
-> diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
-> index a625576..645e3ce 100644
-> --- a/drivers/md/dm-crypt.c
-> +++ b/drivers/md/dm-crypt.c
-> @@ -925,8 +925,7 @@ static int crypt_status(struct dm_target
->  		break;
->  
->  	case STATUSTYPE_TABLE:
-> -		cipher = crypto_blkcipher_name(cc->tfm);
-> -
-> +		cipher = cc->cipher;
->  		chainmode = cc->chainmode;
->  
->  		if (cc->iv_mode)
+On Sun, Oct 29, 2006 at 08:20:29PM +0100, Paolo 'Blaisorblade' Giarrusso wrote:
+> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 > 
-> 
+> and then call any "struct ubd" ubd_dev instead of dev, which doesn't
+> make clear what we're treating (and no, it's not hungarian notation -
+> not any more than calling all vm_area_struct vma or all inodes
+> inode).
 
-Looks correct.
+I can't say that I like this part of it.  I don't see any alternate
+interpretation of a variable called 'dev', and renaming it to
+'ubd_dev' seems redundant, given that we are in the ubd driver.
 
-The point of STATUSTYPE_TABLE is to return (readable) output to userspace in
-a format that the crypt_ctr() function would accept back in.
+Plus, this change sent a couple of lines over the 80-character
+boundary.
 
-So crypt_ctr() now stores a private copy of cipher and chainmode for
-crypt_status() to regurgitate when requested.
+				Jeff
 
-Alasdair
--- 
-agk@redhat.com
+Work email - jdike at linux dot intel dot com

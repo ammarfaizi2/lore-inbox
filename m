@@ -1,73 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030527AbWJ3Jex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030531AbWJ3JoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030527AbWJ3Jex (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 04:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030529AbWJ3Jex
+	id S1030531AbWJ3JoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 04:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030532AbWJ3JoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 04:34:53 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:25405 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030527AbWJ3Jew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 04:34:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=HC+qt1WRfbq1SK7YBKjgnQGrfuXQct8Nb1P841FBEM1ZXcJV9vDSOHbYEtMBGfUjBIsYPiWsex7tPoTIbM1HvR654mX2zIR0C1Ok83Qj5bw9UeG1r2aM3vwucaTj0Sqkyb1Otn22pm6apg83QKF0KqZKjt77HIQF8sjUX0Leeu4=
-Message-ID: <4545C756.30403@innova-card.com>
-Date: Mon, 30 Oct 2006 10:35:18 +0100
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
+	Mon, 30 Oct 2006 04:44:09 -0500
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:20475 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030531AbWJ3JoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 04:44:06 -0500
+Date: Mon, 30 Oct 2006 10:44:35 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-CC: Miguel Ojeda Sandonis <maxextreme@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1 update4] drivers: add LCD support
-References: <20061026174858.b7c5eab1.maxextreme@gmail.com> <20061026220703.37182521.akpm@osdl.org>
-In-Reply-To: <20061026220703.37182521.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       Greg KH <greg@kroah.com>, Stephen Hemminger <shemminger@osdl.org>,
+       Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [patch] drivers: wait for threaded probes between initcall
+ levels
+Message-ID: <20061030104435.623fd057@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20061027160626.8ac4a910.akpm@osdl.org>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
+	<20061026224541.GQ27968@stusta.de>
+	<20061027010252.GV27968@stusta.de>
+	<20061027012058.GH5591@parisc-linux.org>
+	<20061026182838.ac2c7e20.akpm@osdl.org>
+	<20061026191131.003f141d@localhost.localdomain>
+	<20061027170748.GA9020@kroah.com>
+	<20061027172219.GC30416@elf.ucw.cz>
+	<20061027113908.4a82c28a.akpm@osdl.org>
+	<20061027114144.f8a5addc.akpm@osdl.org>
+	<20061027114237.d577c153.akpm@osdl.org>
+	<1161989970.16839.45.camel@localhost.localdomain>
+	<20061027160626.8ac4a910.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Fri, 27 Oct 2006 16:06:26 -0700,
+Andrew Morton <akpm@osdl.org> wrote:
 
-Andrew Morton wrote:
-> On Thu, 26 Oct 2006 17:48:58 +0000
-> Miguel Ojeda Sandonis <maxextreme@gmail.com> wrote:
+> On Fri, 27 Oct 2006 23:59:30 +0100
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 > 
-[snip]
+> > Ar Gwe, 2006-10-27 am 11:42 -0700, ysgrifennodd Andrew Morton:
+> > > IOW, we want to be multithreaded _within_ an initcall level, but not between
+> > > different levels.
+> > 
+> > Thats actually insufficient. We have link ordered init sequences in
+> > large numbers of driver subtrees (ATA, watchdog, etc). We'll need
+> > several more initcall layers to fix that.
+> > 
 > 
->> +struct page *cfag12864bfb_vma_nopage(struct vm_area_struct *vma,
->> +	unsigned long address, int *type)
-> 
-> This function can have static scope.
-> 
->> +{
->> +	struct page *page;
->> +	down(&cfag12864bfb_sem);
->> +
->> +	page = virt_to_page(cfag12864b_buffer);
->> +	get_page(page);
->> +
->> +	if(type)
->> +		*type = VM_FAULT_MINOR;
->> +
->> +	up(&cfag12864bfb_sem);
->> +	return page;
->> +}
-> 
+> It would be nice to express those dependencies in some clearer and less
+> fragile manner than link order.  I guess finer-grained initcall levels
+> would do that, but it doesn't scale very well.
 
-Any idea why LDD3 states:
+Would it be sufficient just to make the busses wait until all their
+devices are through with their setup? This is what the ccw bus on s390
+does:
+- Increase counter for device and start device recognition for it
+- Continue for next device
+- When async device recognition (and probable enablement) is finished,
+  register device and decrease counter
+- ccw bus init function waits till counter has dropped to 0
 
-	An interesting limitation of remap_pfn_range is that it gives
-	access only to reserved pages and physical addresses above the
-	top of physical memory.
+This has worked fine for us since 2.5. OTOH, s390 doesn't have such a
+diverse set as hardware as a PC :)
 
-Is that true we can't do:
-
-	buf = (char *)__get_free_page(...);
-	pfn = PFN_DOWN(virt_to_phys(buf));
-	remap_pfn_range(vma, vma->vm_start, pfn, PAGE_SIZE, vma->vm_page_prot);
-
-Thanks
-		Franck
+-- 
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

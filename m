@@ -1,96 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161206AbWJ3KRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161208AbWJ3KZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161206AbWJ3KRI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 05:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161207AbWJ3KRI
+	id S1161208AbWJ3KZx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 05:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161209AbWJ3KZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 05:17:08 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:23695 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161206AbWJ3KRF (ORCPT
+	Mon, 30 Oct 2006 05:25:52 -0500
+Received: from imag.imag.fr ([129.88.30.1]:56261 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S1161208AbWJ3KZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 05:17:05 -0500
-Date: Mon, 30 Oct 2006 15:52:06 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       Pekka J Enberg <penberg@cs.Helsinki.FI>, ego@in.ibm.com,
-       "Benzi Galili (Benzi@ScaleMP.com)" <benzi@scalemp.com>,
-       Alok Kataria <alok.kataria@calsoftinc.com>, shai@scalex86.org
-Subject: Re: [rfc] [patch] mm: Slab - Eliminate lock_cpu_hotplug from slab
-Message-ID: <20061030102206.GA26669@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061028011919.GA4653@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061028011919.GA4653@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Mon, 30 Oct 2006 05:25:52 -0500
+Message-ID: <4545D2FA.3030802@imag.fr>
+Date: Mon, 30 Oct 2006 11:24:58 +0100
+From: Videau Brice <brice.videau@imag.fr>
+Reply-To: brice.videau@imag.fr
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Strange connect behavior
+Content-Type: multipart/mixed;
+ boundary="------------060104070701000504030508"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Mon, 30 Oct 2006 11:25:02 +0100 (CET)
+X-IMAG-MailScanner-Information: Please contact IMAG DMI for more information
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-SpamCheck: 
+X-IMAG-MailScanner-From: brice.videau@imag.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2006 at 06:19:19PM -0700, Ravikiran G Thirumalai wrote:
-> This patch also takes the cache_chain_sem at kmem_cache_shrink to
-> protect sanity of cpu_online_map at __cache_shrink, as viewed by slab.
-> (kmem_cache_shrink->__cache_shrink->drain_cpu_caches).  But, really,
+This is a multi-part message in MIME format.
+--------------060104070701000504030508
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-drain_cpu_caches uses on_each_cpu() ..which does a preempt_disable()
-before using the cpu_online_map. That should be a safe enough access to the
-bitmap?
+Hello,
 
-> kmem_cache_shrink is used at just one place in the acpi subsystem!
-> Do we really need to keep kmem_cache_shrink at all?
-> 
-> Another note.  Looks like a cpu hotplug event can send  CPU_UP_CANCELED to
-> a registered subsystem even if the subsystem did not receive CPU_UP_PREPARE.
-> This could be due to a subsystem registered for notification earlier than
-> the current subsystem crapping out with NOTIFY_BAD. Badness can occur with
-> in the CPU_UP_CANCELED code path at slab if this happens (The same would
-> apply for workqueue.c as well).  To overcome this, we might have to use either
-> a) a per subsystem flag and avoid handling of CPU_UP_CANCELED, or
-> b) Use a special notifier events like LOCK_ACQUIRE/RELEASE as Gautham was
->    using in his experiments, or
-> c) Do not send CPU_UP_CANCELED to a subsystem which did not receive
->    CPU_UP_PREPARE.
-> 
-> I would prefer c).
+While writing some client server application in c, we noticed a strange 
+behavior : if we try to connect endlessly to a given local port where 
+nobody is listening, and if the port is >= to 32768, after several 
+thousands tries ( Connection refused ) connect will return 0.
+This behavior is not exhibited when port is < 32768.
 
-I think we need both b) and c).
+We confirmed this behavior in kernel 2.6.17-10, 2.6.18-1, 2.6.8, on x86 
+and 2.4.21-32 on ia64, on several hardware configurations.
+Distribution is debian or ubuntu.
 
-Let me explain.
+Attached is a source file that demonstrate this behavior.
+./a.out port_number
 
-The need for c) is straightforward.
+Sample execution :
 
-The need for b) comes from the fact that _cpu_down messes with the
-tsk->cpus_allowed mask (to possibly jump off the dying CPU). This would cause 
-sched_getaffinity() to potentially return a false value back to the user and 
-hence it was modified to take lock_cpu_hotplug() before reading 
-tsk->cpus_allowed.
-
-If we are discarding this whole lock_cpu_hotplug(), then IMO, we should
-use LOCK_ACQUIRE/RELEASE, where ACQUIRE notification is sent *before*
-messing with tsk->cpus_allowed and RELEASE notification sent *after*
-restoring tsk->cpus_allowed (something like below):
-
-@@ -186,13 +186,14 @@ int cpu_down(unsigned int cpu)
- {
-        int err = 0;
-
--       mutex_lock(&cpu_add_remove_lock);
-+       blocking_notifier_call_chain(&cpu_chain, CPU_LOCK_ACQUIRE,
-+                                               (void *)(long)cpu);
-        if (cpu_hotplug_disabled)
-                err = -EBUSY;
-        else
-                err = _cpu_down(cpu);
--
--       mutex_unlock(&cpu_add_remove_lock);
-+       blocking_notifier_call_chain(&cpu_chain, CPU_LOCK_RELEASE,
-+                                               (void *)(long)cpu);
-        return err;
- }
+./a.out 35489
+Out port : 35489
+connect try 1 failed : Connection refused
+connect try 2 failed : Connection refused
+connect try 3 failed : Connection refused
+.....
+connect try 6089 failed : Connection refused
+connect try 6090 failed : Connection refused
+Connection success : 6091 try
+Connection closed
+last error : Connection refused
 
 
--- 
+Is this behavior to be expected?
+Can it be disabled?
+
+Thanks in advance.
+
 Regards,
-vatsa
+
+Brice Videau
+
+--------------060104070701000504030508
+Content-Type: text/x-csrc;
+ name="client.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="client.c"
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <errno.h>
+
+int main(int argc, char **argv) {
+   unsigned short out_port = 35000;
+   char * endptr;
+   struct sockaddr_in server_address;
+   int out_socket;
+   int i=1;
+
+   if( argc > 1 ) {
+      out_port = (unsigned short) strtol(argv[1], &endptr, 10);
+      errno = 0;
+      if(errno != 0 || out_port == 0 || endptr == argv[1] ) {
+         perror("Invalid port number");
+         exit(1);
+      }
+   }
+   printf( "Out port : %hu\n", out_port );
+   fflush(NULL);
+
+   memset( &server_address, 0, sizeof(struct sockaddr_in) );
+   server_address.sin_family = AF_INET;
+   server_address.sin_port = htons(out_port);
+   if ( inet_pton( AF_INET, "127.0.0.1", &(server_address.sin_addr) ) <= 0 ) {
+      perror("inet_pton error");
+      exit(1);
+   }
+
+   if ( (out_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+      perror("socket error");
+      exit(1);
+   }
+
+   while (connect(out_socket, (struct sockaddr *) &server_address, sizeof(struct sockaddr_in)) < 0)
+   {
+      fprintf(stderr,"connect try %i failed : ",i);
+      perror("");
+      fflush(NULL);
+      i++;
+   }
+
+   printf("Connection success : %i try\n",i);
+   fflush(NULL);
+
+   if( close(out_socket) < 0 ) {
+      perror("close error");
+      exit(1);
+   }
+
+   printf("Connection closed\n");
+   fflush(NULL);
+
+   fprintf(stderr,"last error : ");
+   perror("");
+
+   return 0;
+}
+
+--------------060104070701000504030508--

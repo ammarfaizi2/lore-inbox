@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161138AbWJ3G0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWJ3GlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161138AbWJ3G0d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 01:26:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161139AbWJ3G0c
+	id S1161145AbWJ3GlA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 01:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161152AbWJ3GlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 01:26:32 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:45301 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161138AbWJ3G0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 01:26:32 -0500
+	Mon, 30 Oct 2006 01:41:00 -0500
+Received: from wx-out-0506.google.com ([66.249.82.231]:18412 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161145AbWJ3GlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 01:41:00 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=JFiHd/aiQ6hc/0l8joO9sKXaXbKqYN9ya+HdWtRXijompPYEbNzEAmESYZ3szHeUa+eu08zqmz2y4hLus9XVxVYVmBZ2PMSVZUzy5tS8HZrqBGDEiCdf4ktzdMIb2rwDZX4jc9iXwNMqOL0iREQHu7YplChRpjfbjqahEKl4Skc=
-Message-ID: <45459B10.6080702@gmail.com>
-Date: Mon, 30 Oct 2006 15:26:24 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Ygi/otZYIjsPOd+EHwgh6wz06HcO9/6r9Htb+sF6dawswtKR5FCnHhPC2RjBPn95YEhU6YDYJvifcSbfydfzlMWZn0SN2eTuTId8uaaS4ZHrowmJAajmIZOvJm5IrPS2KxjGOuUl4pxNMSMDUN1WZv7Z0Z76ISAvqhHsBO38qZQ=
+Message-ID: <9b33a9230610292240m68ff7652lcd9ecc1c67db7135@mail.gmail.com>
+Date: Sun, 29 Oct 2006 22:40:59 -0800
+From: "sudhnesh adapawar" <sudhnesh@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fork of an application with huge pages when no huge pages are left !
 MIME-Version: 1.0
-To: Phillip Susi <psusi@cfl.rr.com>
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Background scan of sata drives
-References: <453EDF44.3090308@cfl.rr.com>
-In-Reply-To: <453EDF44.3090308@cfl.rr.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi wrote:
-> I seem to recall seeing mention flow by on the lkml at some point that 
-> sata disks are now scanned in the background rather than blocking in the 
-> modprobe, but that there is a new dummy module you can load that just 
-> blocks until all drives have been scanned.  I tried but was unable to 
-> find the thread that mentioned this, so does anyone know what that 
-> module was?
-
-Scanning during boot and module loading is blocking.  modprobe will wait 
-in the kernel until the initial scan is complete.  But user initiated 
-scan (echo - - - > /sys/class/scsi_host/hostX/scan) doesn't wait for 
-completion.  Patch to make user scan blocking is pending.
-
--- 
-tejun
+Hey all !
+I am a newbie ! Recently I read a to do related huge pages on
+linux-mm.org the statement being :
+"Fork of an application with huge pages when no huge pages are left -
+must fail over to small pages."
+- Firstly,according to COW whenever the write is occured then the copy
+of huge pages will start
+- Now if no huge page is left we need to go for 4Kb pages....But the
+application requires the huge page !
+- One solution for this might be to use bunch of 4Kb pages to satisfy
+the requirement....Moreover there is no demand paging or swapping
+concept for huge pages !
+Will this topic be feasible to go forward to....?

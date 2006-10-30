@@ -1,30 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161541AbWJ3X3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422749AbWJ3Xa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161541AbWJ3X3E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 18:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161544AbWJ3X3E
+	id S1422749AbWJ3Xa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 18:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161545AbWJ3Xa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 18:29:04 -0500
-Received: from 8.ctyme.com ([69.50.231.8]:8393 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S1161541AbWJ3X3B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 18:29:01 -0500
-Message-ID: <45468ABC.1060100@perkel.com>
-Date: Mon, 30 Oct 2006 15:29:00 -0800
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: usb device descriptor read/64, error -110
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
+	Mon, 30 Oct 2006 18:30:29 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:54962 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1161544AbWJ3Xa2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 18:30:28 -0500
+Date: Tue, 31 Oct 2006 00:25:13 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tmattox@gmail.com, spiky.kiwi@gmail.com, r.bhatia@ipax.at
+Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
+Message-ID: <20061030232513.GA6038@electric-eye.fr.zoreil.com>
+References: <20061029223410.GA15413@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610300032190.1435@poirot.grange> <20061030120158.GA28123@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610302148560.9723@poirot.grange>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0610302148560.9723@poirot.grange>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running the latest FC6 kernel based on 2.6.18.1. What does this error mean?
+Guennadi Liakhovetski <g.liakhovetski@gmx.de> :
+[...]
+> doesn't get printed. If I uncomment __rtl8169_set_mac_addr it stops 
+> working again. What does it tell us about the original set_mac_address 
+> problem?
 
-device descriptor read/64, error -110
+Probably that it is issued too early/bluntly. I'll redo it later.
 
-Is this a kernel bug? Thanks in advance?
+[...]
+> The kernel is not 2.6.19-rc3 either. It is a clone of the powerpc git some 
+> time shortly after 2.6.19-rc2.
 
+You miss 73f5e28b336772c4b08ee82e5bf28ab872898ee1 and
+733b736c91dd2c556f35dffdcf77e667cf10cefc. It should not matter.
+
+-- 
+Ueimor

@@ -1,70 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030553AbWJ3TdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030579AbWJ3TiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030553AbWJ3TdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 14:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030577AbWJ3TdZ
+	id S1030579AbWJ3TiG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 14:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWJ3TiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 14:33:25 -0500
-Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:56537 "EHLO
-	smtp151.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S1030559AbWJ3TdX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 14:33:23 -0500
-Subject: Re: splice blocks indefinitely when len > 64k?
-From: Daniel Drake <ddrake@brontes3d.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: jens.axboe@oracle.com, linux-kernel@vger.kernel.org
-In-Reply-To: <45464E67.7030004@cfl.rr.com>
-References: <1162226390.7280.18.camel@systems03.lan.brontes3d.com>
-	 <45464E67.7030004@cfl.rr.com>
-Content-Type: text/plain
-Date: Mon, 30 Oct 2006 14:32:54 -0500
-Message-Id: <1162236774.7280.38.camel@systems03.lan.brontes3d.com>
+	Mon, 30 Oct 2006 14:38:06 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:47245 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1030580AbWJ3TiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 14:38:05 -0500
+Date: Mon, 30 Oct 2006 15:36:02 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/11] UBD driver little cleanups for 2.6.19
+Message-ID: <20061030203602.GA6122@ccure.user-mode-linux.org>
+References: <20061029191723.12292.50164.stgit@americanbeauty.home.lan> <20061029120224.d25e3204.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061029120224.d25e3204.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-30 at 14:11 -0500, Phillip Susi wrote:
-> While it should not simply hang, the splice size needs to be an even 
-> multiple of the page size.
+On Sun, Oct 29, 2006 at 12:02:24PM -0800, Andrew Morton wrote:
+> I'm not particularly fussed about UBD though - if you and Jeff particularly
+> want this lot in 2.6.19 then the world won't end.
 
-I don't think that is true, at least on this level. Firstly, splice-cp
-does this:
+I'm fine with these - I have a stylistic quibble here and there, but
+the changes are either no-ops or small bug fixes.
 
-#define BS	SPLICE_SIZE
-int this_len = min((off_t) BS, sb.st_size);
-int ret = splice(in_fd, NULL, pfds[1], NULL, this_len, 0);
+				Jeff
 
-No considerations are made regarding page size.
-
-Secondly, the problem still exists when I increase SPLICE_SIZE to
-(128*1024)
-
-Daniel
-
-> Daniel Drake wrote:
-> > Hi,
-> > 
-> > I'm experimenting with splice and have run into some unusual behaviour.
-> > 
-> > I am using the utilities in git://brick.kernel.dk/data/git/splice.git
-> > 
-> > In splice.h, when changing SPLICE_SIZE from:
-> > 
-> > #define SPLICE_SIZE (64*1024)
-> > 
-> > to
-> > 
-> > #define SPLICE_SIZE ((64*1024)+1)
-> > 
-> > splice-cp hangs indefinitely when copying files sized 65537 bytes or
-> > more. It hangs on the first splice() call.
-> > 
-> > Is this a bug? I'd like to be able to copy much more than 64kb on a
-> > single splice call.
-> > 
-> > Thanks!
-> > Daniel
-> 
-
+-- 
+Work email - jdike at linux dot intel dot com

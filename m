@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161338AbWJ3Ry6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161334AbWJ3RzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161338AbWJ3Ry6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 12:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161337AbWJ3Ry6
+	id S1161334AbWJ3RzI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 12:55:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161337AbWJ3RzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 12:54:58 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:2450 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1161331AbWJ3Ry4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 12:54:56 -0500
-Date: Mon, 30 Oct 2006 19:54:49 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
-       Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-Message-ID: <20061030175449.GP1941@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <4546345E.3050706@ce.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 30 Oct 2006 12:55:07 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:28504 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1161334AbWJ3RzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 12:55:05 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=XXAN0zclkJ7j998+MmH3U15Vpjkm1uiCmn8tu55q4qN9hb3Rua6HxINAhb4P3Szsi
+	JOAJ7xm0e5j/pPOMygb+A==
+Message-ID: <6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com>
+Date: Mon, 30 Oct 2006 09:53:28 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Cc: dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+In-Reply-To: <20061030042714.fa064218.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4546345E.3050706@ce.jp.nec.com>
-User-Agent: Mutt/1.4.2.1i
+References: <20061030103356.GA16833@in.ibm.com>
+	 <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
+	 <20061030031531.8c671815.pj@sgi.com>
+	 <6599ad830610300404v1e036bb7o7ed9ec0bc341864e@mail.gmail.com>
+	 <20061030042714.fa064218.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Jun'ichi Nomura <j-nomura@ce.jp.nec.com>:
-> Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-> 
-> Hi Michael,
-> 
-> Michael S. Tsirkin wrote:
-> >> The code is related to bd_claim_by_disk which is called when
-> >> device-mapper or md tries to mark the underlying devices
-> >> for exclusive use and creates symlinks from/to the devices
-> >> in sysfs. The patch added error handlings which weren't in
-> >> the original code.
-> >>
-> >> I have no idea how it affects ACPI event handling.
-> > 
-> > It's a mystery. Probably exposes a bug somewhere?
-> > 
-> >> Are you using dm and/or md on your machine?
-> > 
-> > The .config is attached to bugzilla.
-> 
-> OK, I found you disabled CONFIG_MD, which means neither
-> dm.ko nor md.ko was built.
-> Do you have any out-of-tree kernel modules which call either
-> bd_claim_by_kobject or bd_claim_by_disk?
+On 10/30/06, Paul Jackson <pj@sgi.com> wrote:
+>
+> You mean let the system admin, say, of a system determine
+> whether or not CKRM/RG and cpusets have one shared, or two
+> separate, hierarchies?
 
-No, I don't have any out-of-tree modules.
+Yes - let the sysadmin define the process groupings, and how those
+groupings get associated with resource control entities. The default
+should be that all the hierarchies are the same, since I think that's
+likely to be the common case.
 
-> If you aren't using either of them, I'm afraid reverting
-> the patch doesn't really solve your problem because the patched
-> code is called only from them.
-
-I agree this could be just papering over some issue.
-The test results (of both git-bisect and reverting the patch) seem to be pretty
-consistent so far though. Keep me posted if you rework the patch.
-
-> >> Have you seen any unusual kernel messages or symptoms regarding
-> >> dm/md before the ACPI problem occurs?
-> > 
-> > I haven't.
-> 
-> Thanks,
-
--- 
-MST
+Paul

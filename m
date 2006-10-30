@@ -1,95 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030551AbWJ3PwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030552AbWJ3Pyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030551AbWJ3PwX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 10:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030552AbWJ3PwX
+	id S1030552AbWJ3Pyf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 10:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbWJ3Pyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 10:52:23 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:56376 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030551AbWJ3PwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 10:52:22 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:mime-version:to:cc:
-	subject:references:in-reply-to:content-type:content-transfer-encoding;
-	b=ocmBxr2Z2wabAm/J14aNjeTlCIsZZXUz8SviAHMXPAp2gNHYCDDWHgRQEw1fXQDD3
-	BUL/9OZE5qTEAOTJAaZ+w==
-Message-ID: <45461E74.1040408@google.com>
-Date: Mon, 30 Oct 2006 07:47:00 -0800
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Mon, 30 Oct 2006 10:54:35 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:29376 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1030552AbWJ3Pye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 10:54:34 -0500
+Message-ID: <45462036.5070104@comcast.net>
+Date: Mon, 30 Oct 2006 10:54:30 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-To: Andy Whitcroft <apw@shadowen.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-References: <20061029160002.29bb2ea1.akpm@osdl.org> <45461977.3020201@shadowen.org>
-In-Reply-To: <45461977.3020201@shadowen.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Avoidable floating point save/restore?
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft wrote:
-> Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc3/2.6.19-rc3-mm1/
->>
->> - ia64 doesn't compile due to improvements in acpi.  I already fixed a huge
->>   string of build errors due to this and it's someone else's turn.
->>
->> - For some reason Greg has resurrected the patches which detect whether
->>   you're using old versions of udev and if so, punish you for it.
->>
->>   If weird stuff happens, try upgrading udev.
-> 
-> I have four machines showing problems with 2.6.19-rc3-mm1.  In each case
-> they appear to have lost their ethernet cards completely.  I have a
-> ppc64 using ibm_veth, two ppc64's using e1000's and an x86_64 using a
-> Tigon 3.
-> 
-> Before I had results from the non e1000 machines I did try backing out
-> all e1000 patches to no effect.  I also had a quick scan of the
-> changelogs for net/ and nothing jumped out at me.
-> 
-> Any suggestions what to hack out next?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-At least on one machine with 8 tg3 cards, it finds all its interfaces,
-but then drops into:
+I found this from comp.os.minix (actually part of a MINIX FAQ):
 
+=====CUT=====
+From: kjb=733301@cs.vu.nl (Kees J Bot)
+Subject: Re: MMX/3DNow support was RE: MINIX Development?
+Date: Wed, 23 Jul 2003 20:15:03 +0200
 
+This is really a hardware floating point issue, because the MMX
+registers share the FP registers. This was done so that MMX unaware OSen
+can still support MMX programs, because when they save and restore the
+FP registers then the MMX state is also saved and restored if that
+happens to be what the FP registers are used for. This saving and
+restoring is what Minix doesn't do. So if two processes use FP/MMX then
+a context switch from one to the other will clobber the FP state of
+both. What is needed to make this work is a trap handler that reacts to
+the use of FP, so that Minix can save the FP state of the process that
+last used FP and load the FP state of the current process. On a context
+switch Minix merely sets the "don't use FP" bit in some register. Costs?
+One FP interrupt handler, some FP save/restore/setup code, some memory
+per process to store the FP state into, and some memory to store the FP
+state when a user process catches a signal. (Not sure about the signal
+business, much check with Philip.) This isn't much work, we can simply
+take Minix-vmd's code, but I haven't seen any need yet. Minix has to use
+software FP as distributed, or it won't run on your old 386, so Minix
+itself doesn't need it. Anyone here who wants to use Minix for some
+heavy number crunching? If so then I could be persuaded to add an
+ENABLE_FPU to the next release, by default off. I don't care about MMX,
+that's way too exotic for Minix.
+=====CUT=====
 
-Setting up network interfaces:
-      lo
-     lo        IP address: 127.0.0.1/8
-7[?25l[1A[80C[10D[1;32mdone[m8[?25h    eth0
-               No configuration found for eth0
-7[?25l[1A[80C[10D[1munused[m8[?25h    eth1
-             No configuration found for eth1
+I'm trying to make heads or tails about what in the heck is going on
+here.  It looks like they're saying you don't need to save/restore FP
+registers between context switches unless one process uses FP and the
+other uses MMX; but that doesn't make ANY sense at all.  If
+gnome-session divides 3.14/2.28 and then gimp divides 3.33/2.22 and then
+we switch BACK to gnome-session and it wants to divide the result by
+1.92, wouldn't we need the FPU registers back in the exact state they
+were at before switching away?
 
-for all 8 cards.
-(
+- --
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-
-Other ones just do this:
-
-
-          .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 
-  .  .  .7[?25l[80C[10D[1;32mdone[m8[?25h
-[m[?25hSetting up network interfaces:
-e1000: 0000:c8:01.0: e1000_probe: (PCI-X:133MHz:64-bit) 00:09:6b:6e:80:42
-     lo
-e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
-     lo        IP address: 127.0.0.1/8
-7[?25l[1A[80C[10D[1;32mdone[m8[?25hWaiting for mandatory devices: 
-eth-id-00:09:6b:6e:80:42
-19 e1000: 0000:c8:01.1: e1000_probe: (PCI-X:133MHz:64-bit) 00:09:6b:6e:80:43
-e1000: eth1: e1000_probe: Intel(R) PRO/1000 Network Connection
-18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-     eth-id-00:09:6b:6e:80:42            No interface found
-
-(http://test.kernel.org/abat/59143/debug/console.log)
-
-Sorry about the jibberish logs. Seems like SLES takes it upon itself
-to spew random "enhanced" shit on bootup.
-
-M.
+iQIVAwUBRUYgNAs1xW0HCTEFAQJnqBAAgMjqTSA0OC6ThwUSoG4lO0uFCdUERJKl
+O0Mxtq9XqKOU4W7XnCtIkBF0Gy1HdMm8/L1MXLRM0FMv6jz17nNb3TGvLRC/4KKh
+vgl4KN/2D6tYYdKyh+v0n/zgVYGJ0lZn3sNQdBhxXet1Zjm6n7REFvJJD07PzIcm
+XK5vciaVHYfNb0N3SdSL7JBJdMHzrbq2DmqUD5OsVOok37e1F3S4+T3EBZy+mk/i
+D6lcx2KJzp8vIWmoskN+WLBox8fihSoNtxOK/oLComHwyJ3z1FEuILTvYqEjGUGg
+k1TdEQYhTrFCjkpLgK5lhn1hD8dZRldN4bVEt9uWU5WiRCGiykPog3wlVz7T6bQr
+SOAVKA4157kfDvG3KY55pNTxy0j8TgBWQhPyh/dTcRlzYbZuqccRcHQbYyBEGByZ
+Of7tVUnHzgNd8kuzWqVh4ULDJ7YyNj+INFegoluLi/3JcQFL/EhoUYX/QNbX1VK1
+vkrwGOneAC2KttjaH/cZHUuYfwZ1hkMmDjbkHlGmb4z56TRKOtUt03ziMDDhO4Fv
+WWjVn+CdAiOTkhuVgIQ+EpnNCSP/yRUTmxDrI3+KJaIW6zlaAZyS29KoWA+EH75K
+mJldV7amMcD+6KGVP7tHuTOpGXKYa2tCCfwtGI65Z7rWvGD6RUzz+waiT4kPav1G
+1lObgtnarqY=
+=fw5+
+-----END PGP SIGNATURE-----

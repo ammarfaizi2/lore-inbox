@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422717AbWJ3WiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422728AbWJ3Wqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422717AbWJ3WiL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 17:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422718AbWJ3WiL
+	id S1422728AbWJ3Wqs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 17:46:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422730AbWJ3Wqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 17:38:11 -0500
-Received: from mail.gmx.net ([213.165.64.20]:19389 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422717AbWJ3WiJ (ORCPT
+	Mon, 30 Oct 2006 17:46:48 -0500
+Received: from ns1.suse.de ([195.135.220.2]:43676 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422728AbWJ3Wqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 17:38:09 -0500
-X-Authenticated: #20450766
-Date: Mon, 30 Oct 2006 21:59:47 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tmattox@gmail.com, spiky.kiwi@gmail.com, r.bhatia@ipax.at
-Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known
- regressions)
-In-Reply-To: <20061030120158.GA28123@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.60.0610302148560.9723@poirot.grange>
-References: <20061029223410.GA15413@electric-eye.fr.zoreil.com>
- <Pine.LNX.4.60.0610300032190.1435@poirot.grange>
- <20061030120158.GA28123@electric-eye.fr.zoreil.com>
+	Mon, 30 Oct 2006 17:46:47 -0500
+From: Neil Brown <neilb@suse.de>
+To: "Andreas Paulsson" <andreas.paulsson@itgarden.se>
+Date: Tue, 31 Oct 2006 09:46:42 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17734.32978.304514.114875@cse.unsw.edu.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SV: PROBLEM: raid5 just dies
+In-Reply-To: message from Andreas Paulsson on Monday October 30
+References: <6FDE26082D451C41BE1A3742966200B3B51C67@DR2EX01.hosting.itg>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006, Francois Romieu wrote:
-
-> Guennadi Liakhovetski <g.liakhovetski@gmx.de> :
-> [...]
-> > AFAIU, you wanted it applied on the top of the "non-working" kernel 
-> > (2.6.19-rc2-ish)?
+On Monday October 30, andreas.paulsson@itgarden.se wrote:
+> >Exactly how are aes-loop and raid5 connected together?
 > 
-> No. Please apply it on top of a 2.6.19-rc3 where the mac address change
-> feature has been reverted (or where __rtl8169_set_mac_addr has been
-> commented out at your option). 
+> We use 5x300gb drives in a raid5 array, which is then used as a physical
+> disk in an lvm volume, with one logical volume. This logical volume is
+> then encrypted with "losetup -e aes /dev/loop1 /dev/vg0/lv0", and then
+> formatted with ReiserFS.
 
-Ok, with just __rtl8169_set_mac_addr disabled it works. With netconsole 
-disabled, and your phy_reset patch applied it seems to still work. The 
-printk
+Thanks.
 
-+		printk(KERN_ERR "%s: PHY reset failed.\n", dev->name);
+It could be a hardware problem....
+The symptom is that we try to free some memory and a consistency check
+tells us that the memory wasn't allocated.  So a single bit error in
+the address could be the cause.  Running memtest86 for a while
+wouldn't hurt if you haven't already done that.
 
-doesn't get printed. If I uncomment __rtl8169_set_mac_addr it stops 
-working again. What does it tell us about the original set_mac_address 
-problem?
+You have three layers here: loop over dm over md/raid5.
+So if it is a software problem it could be in any of these layers, or
+in an interaction between two of them.
 
-I haven't said it's an on-board chip, not a plug-in card. Don't know how 
-setting the mac address worked in your configuration, but if it is storred 
-in a prom, maybe it is just missing on my board?
+1/ how repeatable is this?
+2/ how much room have you got to experiment?
+ Could you remake the array without the loop/aes and see if you can
+ reproduce the problem?
+ Could you remake the array without the LVM layer and see if you can
+ reproduce the problem?
 
-The kernel is not 2.6.19-rc3 either. It is a clone of the powerpc git some 
-time shortly after 2.6.19-rc2.
+Do you have CONFIG_DEBUG_PAGEALLOC and CONFIG_DEBUG_SLAB set?  If not
+could you recompile with those set to see if they provide more helpful
+information. 
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+I must admit I am somewhat at a loss.  I cannot see much room for
+problems leading to that particular point in the code that would not
+be seen by lots more people than just you.
+
+NeilBrown

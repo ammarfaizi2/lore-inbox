@@ -1,81 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751959AbWJ3Omx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWJ3OnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751959AbWJ3Omx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 09:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751961AbWJ3Omx
+	id S964899AbWJ3OnE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 09:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWJ3OnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 09:42:53 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:65415 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751959AbWJ3Omw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 09:42:52 -0500
-Message-ID: <45460E69.7070505@openvz.org>
-Date: Mon, 30 Oct 2006 17:38:33 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Mon, 30 Oct 2006 09:43:03 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:2709 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S964899AbWJ3OnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 09:43:00 -0500
+Date: Mon, 30 Oct 2006 07:42:59 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Adam J. Richter" <adam@yggdrasil.com>,
+       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       pavel@ucw.cz, shemminger@osdl.org
+Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
+Message-ID: <20061030144259.GD10235@parisc-linux.org>
+References: <200610282350.k9SNoljL020236@freya.yggdrasil.com> <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org> <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com>
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
-       sekharan@us.ibm.com, menage@google.com, ckrm-tech@lists.sourceforge.net,
-       balbir@in.ibm.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-References: <20061030103356.GA16833@in.ibm.com>	<45460743.8000501@openvz.org> <20061030062332.856dcc32.pj@sgi.com>
-In-Reply-To: <20061030062332.856dcc32.pj@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Pavel wrote:
->> 1. One of the major configfs ideas is that lifetime of
->>    the objects is completely driven by userspace.
->>    Resource controller shouldn't live as long as user
->>    want. It "may", but not "must"!
-> 
-> I had trouble understanding what you are saying here.
-> 
-> What does the phrase "live as long as user want" mean?
+On Mon, Oct 30, 2006 at 09:23:10AM -0500, Kyle Moffett wrote:
+> recursive make invocations and nested directories).  Likewise in the  
+> context of recursively nested busses and devices; multiple PCI  
+> domains, USB, Firewire, etc.
 
-What if if user creates a controller (configfs directory)
-and doesn't remove it at all. Should controller stay in memory
-even if nobody uses it?
+I don't think you know what a PCI domain is ...
 
-> 
-> 
->> 2. Having configfs as the only interface doesn't alow
->>    people having resource controll facility w/o configfs.
->>    Resource controller must not depend on any "feature".
->>
->> 3. Configfs may be easily implemented later as an additional
->>    interface. I propose the following solution:
->>      - First we make an interface via any common kernel
->>        facility (syscall, ioctl, etc);
->>      - Later we may extend this with configfs. This will
->>        alow one to have configfs interface build as a module.
-> 
-> So you would add bloat to the kernel, with two interfaces
-> to the same facility, because you don't want the resource
-> controller to depend on configfs.
-> 
-> I am familiar with what is wrong with kernel bloat.
-> 
-> Can you explain to me what is wrong with having resource
-> groups depend on configfs?  Is there something wrong with
+> Well, perhaps it does.  If I have (hypothetically) a 64-way system  
+> with several PCI domains, I should be able to not only start scanning  
+> each PCI domain individually,  but once each domain has been scanned  
+> it should be able to launch multiple probing threads, one for each  
+> device on the PCI bus.  That is, assuming that I have properly set up  
+> my udev to statically name devices.
 
-Resource controller has nothing common with confgifs.
-That's the same as if we make netfilter depend on procfs.
+There's still one spinlock that protects *all* accesses to PCI config
+space.  Maybe we should make it one per PCI root bridge or something,
+but even that wouldn't help some architectures.
 
-> configfs that would be a significant problem for some systems
-> needing resource groups?
+> I admit the complexity is a bit high, but since the maximum nesting  
+> is bounded by the complexity of the hardware and the number of  
+> busses, and the maximum memory-allocation is strictly limited in the  
+> single-threaded case this could allow 64-way systems to probe all  
+> their hardware an order of magnitude faster than today without  
+> noticeably impacting an embedded system even in the absolute worst case.
 
-Why do we need to make some dependency if we can avoid it?
+To be honest, I think just scaling PARALLEL to NR_CPUS*4 or something
+would be a reasonable way to go.
 
-> It is better where possible, I would think, to reuse common
-> infrastructure and minimize redundancy.  If there is something
-> wrong with configfs that makes this a problem, perhaps we
-> should fix that.
+If people actually want to get serious about this, I know the PPC folks
+have some openfirmware call that tells them about power domains and how
+many scsi discs they can spin up at one time (for example).  Maybe
+that's not necessary; if we can figure out what the system's max power
+draw is and how close we are to it, we can decide whether to spawn
+another thread or not.
 
-The same can be said about system calls interface, isn't it?
+It's quite complicated.  You can spin up a disc over *here*, but not
+over *there* ... this really is a gigantic can of worms being opened.

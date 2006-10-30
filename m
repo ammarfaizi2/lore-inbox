@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWJ3NRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWJ3NRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbWJ3NRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 08:17:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWJ3NRK
+	id S964869AbWJ3NRE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 08:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWJ3NRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 08:17:10 -0500
-Received: from hu-out-0506.google.com ([72.14.214.237]:24753 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964912AbWJ3NRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 08:17:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Qfa4ijiu8tSMMG61hjTYkYpspM2MD7WKm0i8dPmt9llZH4IJgSzMc/tiGnaFqOaZP2T5VYWYiWX7KsD7ncjLtCFvUYynnFgUHp3mWxegdCAlsAlRHNEd6TV9sjKWRKZGVJjI3Wodd2U8YM0yQGRZNihdmngu6ZindIiH3WPmu/M=
-Message-ID: <9d2cd630610300517q5187043eieb0880047ddd03eb@mail.gmail.com>
-Date: Mon, 30 Oct 2006 14:17:06 +0100
-From: "Gregor Jasny" <gjasny@googlemail.com>
-To: "Jens Axboe" <jens.axboe@oracle.com>
-Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Jeff Garzik" <jgarzik@pobox.com>, linux-ide@vger.kernel.org
-In-Reply-To: <20061030114503.GW4563@kernel.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com>
-	 <20061030114503.GW4563@kernel.dk>
+	Mon, 30 Oct 2006 08:17:03 -0500
+Received: from main.gmane.org ([80.91.229.2]:12165 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964869AbWJ3NRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 08:17:01 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
+Date: Mon, 30 Oct 2006 13:16:25 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnekbv60.2vm.olecom@flower.upol.cz>
+References: <20061028230730.GA28966@quickstop.soohrt.org> <200610281907.20673.ak@suse.de> <20061029120858.GB3491@quickstop.soohrt.org> <200610290816.55886.ak@suse.de> <slrnek9qv0.2vm.olecom@flower.upol.cz> <20061029225234.GA31648@uranus.ravnborg.org> <4545C2D8.76E4.0078.0@novell.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, "Jan Beulich" <jbeulich@novell.com>, "Sam Ravnborg" <sam@ravnborg.org>, <dsd@gentoo.org>, <kernel@gentoo.org>, <draconx@gmail.com>, <jpdenheijer@gmail.com>, "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/10/30, Jens Axboe <jens.axboe@oracle.com>:
-> Can you confirm that 2.6.18 works?
+On 2006-10-30, Jan Beulich wrote:
+>
+>>> In `19-rc3/include/Kbuild.include', just below `as-instr' i see:
+>>> ,--
+>>> |cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+>>> |             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+>>> |
+>>> |# cc-option-yn
+>>> |# Usage: flag := $(call cc-option-yn, -march=winchip-c6)
+>>> |cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+>>> |                 > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
+>>> `--
+>>> so, change to `-o /dev/null' in `as-instr' will just follow this.
+>>
+>>gcc does not delete files specified with -o - but binutils does.
+>>So using /dev/null in this case is not an option.
 
-The reporter of [1] states that his SATA Thinkpad freezes with 2.6.17
-and 2.6.18, too.
+Hmm. What's the preblem to invoke `as' via the GNU C compiler, then?
 
-Gregor
+> While I fixed this quite some time ago (after running into it myself), it
+> obviously still is a problem with older versions. However, using as' -Z
+> option seems to help here.
+> On the other hand, I long wanted to compose a patch to do away
+> with all the .tmp_* things at the build root, and move them into a
+> single .tmp/ directory - this would also seem to make a nice place to
+> put all sort of other temporary files in... I just never found the time
+> to actually do that, sorry.
 
-[1] http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=391901
+Maybe it's good idea, let me try, as i already bound to kbuild fixes.
+
+But now, i'm just using KBUILD_OUTPUT=/tmp/, and /tmp/ is /dev/shm/.
+It speeds up things on testing and small amounts of stuff to build.
+Source tree is for patching only.
+____
+

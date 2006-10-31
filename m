@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423544AbWJaQPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423548AbWJaQP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423544AbWJaQPU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 11:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423548AbWJaQPU
+	id S1423548AbWJaQP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 11:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423550AbWJaQP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 11:15:20 -0500
-Received: from main.gmane.org ([80.91.229.2]:14754 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1423544AbWJaQPT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 11:15:19 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Rolf Offermanns <roffermanns@gmail.com>
-Subject: Re: mmaping a kernel buffer to user space
-Date: Tue, 31 Oct 2006 17:10:47 +0100
-Message-ID: <ei7si7$1sl$1@sea.gmane.org>
-References: <4547150F.8070408@ti.uni-mannheim.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 62.8.134.2
-User-Agent: KNode/0.10.4
+	Tue, 31 Oct 2006 11:15:29 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:49219 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1423548AbWJaQP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 11:15:28 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:cc:
+	subject:references:in-reply-to:content-type:content-transfer-encoding;
+	b=BKND9n/zVFfGETvaLz1wi8KGUFV8n3pmSsz1l6hJ4FOmJpjfZ2BqwwhgYg4wFNoea
+	bnkH6UZTkrbQvj8u9a62g==
+Message-ID: <45477668.4070801@google.com>
+Date: Tue, 31 Oct 2006 08:14:32 -0800
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Subject: Re: Linux 2.6.19-rc4
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061030213454.8266fcb6.akpm@osdl.org> <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillermo Marcus wrote:
-> I recently run with the following situation while developing a PCI
-> driver. The driver allocates memory for a PCI device using
-> pci_alloc_consistent as this memory is going to be used to perform DMA
-> transfers. To pass the data from/to the user application, I mmap the
-> buffer into userspace. However, if I try to use remap_pfn_range
-> (>=2.6.10) or the older remap_page_range(<=2.6.9) for mmaping, it ends
-> up creating a new buffer, because they do not support RAM mapping, then
-> pagefaulting to the VMA and by default allocating new pages. Therefore,
-> I had to implement the nopage method and mmap one page at a time as they
-> fault.
+> But I've become innoculated against warnings, just because we have too 
+> many of the totally useless noise about deprecation and crud, and ppc has 
+> it's own set of bogus compiler-and-linker-generated warnings..
 > 
-> However, to my point of view, this is unnecessary. The memory is already
-> allocated, the memory is locked because it is consistent, and it may be
-> a (very small) performance and stability issue to do them one-by-one.
-> Why can't I simply mmap it all at once? am I missing some function? More
-> important, why can't remap_{pfn/page}_range handle it?
-> 
-Here is what I did some time ago:
+> At some point we should get rid of all the "politeness" warnings, just 
+> because they can end up hiding the _real_ ones.
 
--> Reserve mem at boot time (mem=realmem-size_of_mem_you_need) / bigphysmem 
--> I used the highmem allocator from the LDD2/3 examples to get a pointer
-the this reserved memory at runtime.
--> Use ioremap() to remap the memory to kernelspace
--> do some magic (I don't remember the background, sorry) with the vma_flags
-in your mmap() function:
+Yay! Couldn't agree more. Does this mean you'll take patches for all the
+uninitialized variable crap from gcc 4.x ?
 
-        vma->vm_flags |= VM_RESERVED;
-        vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);      
+> "pm_register is deprecated" etc - I get almost a hundred lines of warnings 
+> in my default build (and half of those are sadly due to powerpc binutils, 
+> that I can't do anythign about: "section .init.text exceeds stub group 
+> size" etc, which is harmless _other_ than the fact that it helped hide the 
+> real warnings just because I've grown too used to not looking too 
+> closely).
 
-and then do a remap_pfn_range() as usualy.
+Doesn't turning off CONFIG_PM_LEGACY fix those? it did for me.
 
-HTH,
-Rolf
+M.
 
-
+PS. I still think -Werror is a good plan. But I acknowledge that's
+fairly extreme.

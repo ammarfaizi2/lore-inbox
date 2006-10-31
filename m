@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423458AbWJaO4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423462AbWJaPDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423458AbWJaO4q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 09:56:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423461AbWJaO4q
+	id S1423462AbWJaPDR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 10:03:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423463AbWJaPDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 09:56:46 -0500
-Received: from outbound-blu.frontbridge.com ([65.55.251.16]:47749 "EHLO
-	outbound1-blu-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1423458AbWJaO4o convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 09:56:44 -0500
-X-BigFish: V
-Content-class: urn:content-classes:message
-Subject: PCI CLASS: SATA should be added
+	Tue, 31 Oct 2006 10:03:17 -0500
+Received: from nz-out-0102.google.com ([64.233.162.194]:63664 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1423462AbWJaPDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 10:03:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=QJp20mE3LXM5dTDXc70cIXhzxS+ValDslJPFczFCVQPEmmioQgsbG9ju0g3+WHE4E9E0sXNc3ihOs1Rlb5G1iHIURccdM7UPemXovW/kxeIVmRVUeW8pvsU/VW8O5BzwJksLflPWutOwij7mjDearV16V7T7cqUMonroBl1j3ec=
+Message-ID: <53f38ab60610310703p65084dc4w9be16a996da44a70@mail.gmail.com>
+Date: Tue, 31 Oct 2006 20:33:15 +0530
+From: "adheer chandravanshi" <adheerchandravanshi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: huge page corner cases???
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 31 Oct 2006 22:56:16 +0800
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Message-ID: <FFECF24D2A7F6D418B9511AF6F358602F2CE97@shacnexch2.atitech.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PCI CLASS: SATA should be added
-Thread-Index: Acb8/LdmtHTgfao/S9+lCQTW87fguQ==
-From: "Conke Hu" <conke.hu@amd.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 31 Oct 2006 14:56:21.0783 (UTC) FILETIME=[BA845270:01C6FCFC]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, 
-	The PCI class code of SATA controller is 0x0106, and it should
-be added to pci_ids.h.
+Hey all,
 
-[PATCH]
-diff -Nur linux-2.6.17/include/linux/pci_ids.h
-linux-2.6.17-sata-id/include/linux/pci_ids.h
---- linux-2.6.17/include/linux/pci_ids.h	2006-06-18
-09:49:35.000000000 +0800
-+++ linux-2.6.17-sata-id/include/linux/pci_ids.h	2006-10-31
-22:42:48.000000000 +0800
-@@ -15,6 +15,7 @@
- #define PCI_CLASS_STORAGE_FLOPPY	0x0102
- #define PCI_CLASS_STORAGE_IPI		0x0103
- #define PCI_CLASS_STORAGE_RAID		0x0104
-+#define PCI_CLASS_STORAGE_SATA		0x0106
- #define PCI_CLASS_STORAGE_SAS		0x0107
- #define PCI_CLASS_STORAGE_OTHER		0x018
+I am a Linux newbie.
+
+I read about the huge page corner cases i.e problems may occur on
+using hueg pages in Linux , the linux of the page is:
+http://linux-mm.org/HugePageCornerCases
+
+The first corner case is given as
+
+-NUMA-aware allocation - don't want all the memory accesses going
+through a common controller.
+
+Can anyone please specify what the statement means as I didn't clearly
+get its meaning? And what can be a possible solution for it?
 
 
-
-Best regards,
-Conke @ AMD, Inc.
-
-
-
-
+-Adheer

@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423486AbWJaPYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423490AbWJaPan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423486AbWJaPYV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 10:24:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423487AbWJaPYV
+	id S1423490AbWJaPan (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 10:30:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423491AbWJaPan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 10:24:21 -0500
-Received: from rubidium.solidboot.com ([81.22.244.175]:34011 "EHLO
-	mail.solidboot.com") by vger.kernel.org with ESMTP id S1423486AbWJaPYV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 10:24:21 -0500
-Message-ID: <45476AA3.6070505@solidboot.com>
-Date: Tue, 31 Oct 2006 17:24:19 +0200
-From: Juha Yrjola <juha.yrjola@solidboot.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
+	Tue, 31 Oct 2006 10:30:43 -0500
+Received: from DENETHOR.UNI-MUENSTER.DE ([128.176.180.180]:33507 "EHLO
+	denethor.uni-muenster.de") by vger.kernel.org with ESMTP
+	id S1423490AbWJaPam convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 10:30:42 -0500
+Date: Tue, 31 Oct 2006 16:30:21 +0100
+From: Borislav Petkov <petkov@math.uni-muenster.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: David Rientjes <rientjes@cs.washington.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched.c : correct comment for this_rq_lock() routine
+Message-ID: <20061031153021.GA14505@gollum.tnic>
+Reply-To: petkov@math.uni-muenster.de
+References: <Pine.LNX.4.64.0610301600550.12811@localhost.localdomain> <Pine.LNX.4.64N.0610301308290.17544@attu2.cs.washington.edu> <Pine.LNX.4.64.0610301623360.13169@localhost.localdomain>
 MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-       Timo Teras <timo.teras@solidboot.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MMC: Select only one voltage bit in OCR response
-References: <20061009150044.GB1637@mail.solidboot.com> <20061009165317.GA6431@flint.arm.linux.org.uk> <20061009172350.GC1637@mail.solidboot.com> <453327EC.1000402@drzeus.cx> <20061031100503.GB19812@flint.arm.linux.org.uk>
-In-Reply-To: <20061031100503.GB19812@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610301623360.13169@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-
->>> Maybe something like "ocr &= 3 << bit;" would be more approriate?
->>>   
->> Russell? Comments? Do you still have the offending card?
+On Mon, Oct 30, 2006 at 04:34:08PM -0500, Robert P. J. Day wrote:
+> On Mon, 30 Oct 2006, David Rientjes wrote:
 > 
-> It wasn't my cards, but was reported by several other folk.  I don't think
-> we can revert on this without breakage.
+> > On Mon, 30 Oct 2006, Robert P. J. Day wrote:
+> >
+> > >
+> > > Correct the comment for the this_rq_lock() routine.
+> > >
+> >
+> > You submitted this same patch two days ago.
+> >
+> > 		http://lkml.org/lkml/2006/10/28/54
 > 
-> However, we should probably ensure that we don't end up setting voltage
-> bits which the cards don't support.  So maybe masking the resulting OCR
-> value with the received combined OCR would be a good idea?  Such as:
+> that's right, i did.  and given that it was a trivial, aesthetic patch
+> but a couple "git pull" cycles went by without it being applied, i
+> figured i might as well submit it again.
+> 
+> quite honestly, at this point, given that it's this much trouble to
+> fix a freaking comment in a single file, i'm seriously losing interest
+> in wasting any more of my time at this.  life is just too short to
+> volunteer unpaid labour that just gets dropped on the floor because
+> you don't know the secret handshake.
 
-Isn't this exactly what Timo is proposing above?
+In case you're still doubtful about volunteering:
 
-Cheers,
-Juha
+http://lkml.org/lkml/2004/12/20/255
 
-> diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
-> index ee8863c..45e0598 100644
-> --- a/drivers/mmc/mmc.c
-> +++ b/drivers/mmc/mmc.c
-> @@ -467,23 +467,24 @@ static inline void mmc_delay(unsigned in
->   */
->  static u32 mmc_select_voltage(struct mmc_host *host, u32 ocr)
->  {
-> +	u32 selected_ocr;
->  	int bit;
->  
-> -	ocr &= host->ocr_avail;
-> +	selected_ocr = ocr & host->ocr_avail;
->  
-> -	bit = ffs(ocr);
-> +	bit = ffs(selected_ocr);
->  	if (bit) {
->  		bit -= 1;
->  
-> -		ocr = 3 << bit;
-> +		selected_ocr = 3 << bit;
->  
->  		host->ios.vdd = bit;
->  		mmc_set_ios(host);
->  	} else {
-> -		ocr = 0;
-> +		selected_ocr = 0;
->  	}
->  
-> -	return ocr;
-> +	return selected_ocr & ocr;
->  }
+-- 
+Regards/Gruﬂ,
+    Boris.

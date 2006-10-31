@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423528AbWJaQEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423531AbWJaQFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423528AbWJaQEp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 11:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423529AbWJaQEp
+	id S1423531AbWJaQFL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 11:05:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423529AbWJaQFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 11:04:45 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:13729 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1423528AbWJaQEo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 11:04:44 -0500
-Message-ID: <45477411.9030808@gmail.com>
-Date: Tue, 31 Oct 2006 17:04:33 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Tue, 31 Oct 2006 11:05:11 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:10075 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423531AbWJaQFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 11:05:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ROeY9rS/rVkqfjitzOzygRHKeD6qk2PYER96a6d8LiMt+9BLhKSgwc+tgTHkAFvWiLV7mmNDyKRGWragLOizN3oSKEKCsj+JkzqxuPeiB21yfm7wigv061DG9OEPlmnmkhFYps923/fF3W74tdtA8J/WlOCeIL4otjUJd/rDVwo=
+Message-ID: <82ecf08e0610310805x6a77c2d3pd46eb2f76f75af67@mail.gmail.com>
+Date: Tue, 31 Oct 2006 14:05:06 -0200
+From: "Thiago Galesi" <thiagogalesi@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [ANNOUNCE] pahole and other DWARF2 utilities
+Cc: "Arnaldo Carvalho de Melo" <acme@mandriva.com>,
+       linux-kernel@vger.kernel.org, lwn@lwn.net
+In-Reply-To: <20061030203334.09caa368.akpm@osdl.org>
 MIME-Version: 1.0
-To: Sun Zongjun-E5739C <E5739C@motorola.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Can't compile linux-2.6.10 on FC5
-References: <565F40B9893580489B94B8D324460AF4E9FF86@zmy16exm63.ds.mot.com>
-In-Reply-To: <565F40B9893580489B94B8D324460AF4E9FF86@zmy16exm63.ds.mot.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
+Content-Disposition: inline
+References: <20061030213318.GA5319@mandriva.com>
+	 <20061030203334.09caa368.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sun Zongjun-E5739C wrote:
-> Hi, 
-> 
-> I prepare to compile linux-2.6.10 on FC5. But it report the following
-> errors when compiling the function of show_regs defined
-> arch/i386/kernel/process.c
-> 
-> {standard input}: Assembler messages:
-> {standard input}: 797: Error: suffix or operands invalid for 'mov'
-> ....
-> 
-> My GCC is 4.1, binutils is 2.16.91.0.6. It does not work too even after
-> I used CC=gcc32 make bzImage
-> 
-> I have searched it via Google. And found many such problems. How can fix
-> it?
+> >       Further ideas on how to use the DWARF2 information include tools
+> > that will show where inlines are being used, how much code is added by
+> > inline functions,
+>
+> It would be quite useful to be able to identify inlined functions which are
+> good candidates for uninlining.
+>
+> -
 
-Probably by installing older `as'.
+Arnaldo, can't we get a call count for functions? (yes, it is not a
+run-time call count, but rather, how many times the function if called
+in the code) I guess this would help for this purpose of finding
+candidates for inlining, uninlining.
 
-regards,
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+-
+Thiago Galesi

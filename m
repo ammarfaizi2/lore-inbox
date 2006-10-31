@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423333AbWJaOMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423323AbWJaOXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423333AbWJaOMe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 09:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423340AbWJaOMe
+	id S1423323AbWJaOXg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 09:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423338AbWJaOXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 09:12:34 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:12187 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1423333AbWJaOMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 09:12:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=F9CHNputhToAxIUv6JhDfY+GEsUpJmkg1jB8NWfDz/r44/7v62y+dyfISsF936iNTIJlCx708sbGbOQ+InsE3vXSG8+gsTTMlD7X4YbVRmAn0p9Y3q3V/MTUA/lTHWCJ9RrvP4BVmVsWEKYo3XjOHQL+aeSSlB62QiyJvmW1T8Y=
-Message-ID: <653402b90610310612l2a2a07du91fd6d0bc6f2477a@mail.gmail.com>
-Date: Tue, 31 Oct 2006 15:12:31 +0100
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: Franck <vagabon.xyz@gmail.com>
-Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
-Cc: "Paulo Marques" <pmarques@grupopie.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <45470513.4070507@innova-card.com>
+	Tue, 31 Oct 2006 09:23:36 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:10604 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1423323AbWJaOXf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 09:23:35 -0500
+Message-ID: <45475B64.2090301@openvz.org>
+Date: Tue, 31 Oct 2006 17:19:16 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: balbir@in.ibm.com, menage@google.com
+CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
+       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
+       linux-mm@kvack.org
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org> <454638D2.7050306@in.ibm.com> <45470DF4.70405@openvz.org> <45472B68.1050506@in.ibm.com> <4547305A.9070903@openvz.org> <454743F2.6010305@in.ibm.com>
+In-Reply-To: <454743F2.6010305@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061013023218.31362830.maxextreme@gmail.com>
-	 <453CE85B.2080702@innova-card.com>
-	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>
-	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>
-	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>
-	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com>
-	 <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com>
-	 <4545C52A.5010105@innova-card.com> <4545FCB1.8030900@grupopie.com>
-	 <45470513.4070507@innova-card.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/31/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
-> Paulo Marques wrote:
->
-> starting the refresh stuff _only_ when the device is
-> mmaped seems to me a good trade off.
->
+[snip]
 
-Well, if someone writes to /dev/fbX the LCD won't get updated. We
-would need also to start/stop at the write/release fbfops as well. Let
-me check.
+> A quick code review showed that most of the accounting is the
+> same.
+> 
+> I see that most of the mmap accounting code, it seems to do
+> the equivalent of security_vm_enough_memory() when VM_ACCOUNT
+> is set. May be we could merge the accounting code to handle
+> even containers.
+> 
+> I looked at
+> 
+> do_mmap_pgoff
+> acct_stack_growth
+> __do_brk (
+> do_mremap
+
+I'm sure this is possible. I'll take this into account
+in the next patch series. Thank you.
+
+>> [snip]
+>>
+>>> Please see the patching of Rohit's memory controller for user
+>>> level patching. It seems much simpler.
+>> Could you send me an URL where to get the patch from, please.
+>> Or the patch itself directly to me. Thank you.
+> 
+> Please see http://lkml.org/lkml/2006/9/19/283
+
+Thanks. I'll review it in a couple of days and comment.
+
+[snip]
+
+> I think the interface should depend on the controllers and not
+> the other way around. I fear that the infrastructure discussion might
+> hold us back and no fruitful work will happen on the controllers.
+> Once we add and agree on the controller, we can then look at the
+> interface requirements (like persistence if kernel memory is being
+> tracked, etc). What do you think?
+
+I do agree with you. But we have to make an agreement with
+Paul in this also...

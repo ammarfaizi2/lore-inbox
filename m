@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423712AbWJaR3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423711AbWJaR2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423712AbWJaR3l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 12:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423714AbWJaR3k
+	id S1423711AbWJaR2z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 12:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423706AbWJaR2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 12:29:40 -0500
-Received: from mx1.mandriva.com ([212.85.150.183]:20881 "EHLO mx1.mandriva.com")
-	by vger.kernel.org with ESMTP id S1423712AbWJaR3j (ORCPT
+	Tue, 31 Oct 2006 12:28:55 -0500
+Received: from mx2.suse.de ([195.135.220.15]:22171 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423711AbWJaR2y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 12:29:39 -0500
-Date: Tue, 31 Oct 2006 14:28:57 -0300
-From: Arnaldo Carvalho de Melo <acme@mandriva.com>
-To: Thiago Galesi <thiagogalesi@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, lwn@lwn.net
-Subject: Re: [ANNOUNCE] pahole and other DWARF2 utilities
-Message-ID: <20061031172856.GE5319@mandriva.com>
-References: <20061030213318.GA5319@mandriva.com> <20061030203334.09caa368.akpm@osdl.org> <82ecf08e0610310805x6a77c2d3pd46eb2f76f75af67@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 31 Oct 2006 12:28:54 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: 2.6.19-rc3: more DWARFs and strange messages
+Date: Tue, 31 Oct 2006 18:28:52 +0100
+User-Agent: KMail/1.9.5
+Cc: "Martin Lorenz" <martin@lorenz.eu.org>, linux-kernel@vger.kernel.org
+References: <20061028200151.GC5619@gimli> <20061031160815.GM27390@gimli> <454787AB.76E4.0078.0@novell.com>
+In-Reply-To: <454787AB.76E4.0078.0@novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <82ecf08e0610310805x6a77c2d3pd46eb2f76f75af67@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200610311828.52980.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 02:05:06PM -0200, Thiago Galesi wrote:
-> >>       Further ideas on how to use the DWARF2 information include tools
-> >> that will show where inlines are being used, how much code is added by
-> >> inline functions,
-> >
-> >It would be quite useful to be able to identify inlined functions which are
-> >good candidates for uninlining.
-> >
-> >-
-> 
-> Arnaldo, can't we get a call count for functions? (yes, it is not a
-> run-time call count, but rather, how many times the function if called
-> in the code) I guess this would help for this purpose of finding
-> candidates for inlining, uninlining.
+On Tuesday 31 October 2006 17:28, Jan Beulich wrote:
+> Can you perhaps get us arch/i386/kernel/{entry,process}.o,
+> .config, and (assuming you can reproduce the original problem)
+> the raw stack dump obtained with a sufficiently high kstack=
+> option?
 
-At least for inline expansions, yes, for normal function calls I have to
-study more the DWARF2 documentation, but I guess its feasible.
+WARN_ON unfortunately doesn't dump the raw stack at all (maybe that
+should be fixed) 
 
-- Arnaldo
+-Andi

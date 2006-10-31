@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965466AbWJaKXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422863AbWJaK3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965466AbWJaKXY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 05:23:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965525AbWJaKXY
+	id S1422863AbWJaK3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 05:29:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422866AbWJaK3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 05:23:24 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:9032 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965466AbWJaKXY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 05:23:24 -0500
-Message-ID: <45472317.7060800@openvz.org>
-Date: Tue, 31 Oct 2006 13:19:03 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Tue, 31 Oct 2006 05:29:25 -0500
+Received: from orion2.pixelized.ch ([195.190.190.13]:25540 "EHLO
+	mail.pixelized.ch") by vger.kernel.org with ESMTP id S1422863AbWJaK3Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 05:29:24 -0500
+Message-ID: <4547257B.7090101@cateee.net>
+Date: Tue, 31 Oct 2006 11:29:15 +0100
+From: "Giacomo A. Catenazzi" <cate@cateee.net>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       menage@google.com, linux-mm@kvack.org,
-       Vaidyanathan S <svaidy@in.ibm.com>
-Subject: Re: [ckrm-tech] RFC: Memory Controller
-References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org> <454638D2.7050306@in.ibm.com> <45463F70.1010303@in.ibm.com> <45470FEE.6040605@openvz.org> <45471510.4070407@in.ibm.com> <45471679.90103@openvz.org> <45472133.9090109@in.ibm.com>
-In-Reply-To: <45472133.9090109@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Panic with 2.6.19-rc3-ga7aacdf9: Invalid opcode at acpi_os_read_pci_configuration
+References: <45470810.4040905@cateee.net> <20061031021810.dd48361f.akpm@osdl.org>
+In-Reply-To: <20061031021810.dd48361f.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-[snip]
-
->>> Since it is easy to push the page out (as you said), it should be
->>> easy to impose a limit on the page cache usage of a container.
->> If a group is limited with memory _consumption_ it won't fill
->> the page cache...
+Andrew Morton wrote:
+> On Tue, 31 Oct 2006 09:23:44 +0100
+> Giacomo Catenazzi <cate@cateee.net> wrote:
+> 
+>> Since few days I have this bug (not sure if it
+>> caused by changed configuration or if it is a regretion).
+>> The fololowing trace is from last git.
 >>
+>> ...
+>>
+>>
+>> [    0.012497] Brought up 4 CPUs
+>> [    0.174941] migration_cost=19,713
+>> [    0.215588] NET: Registered protocol family 16
+>> [    0.268807] ACPI: bus type pci registered
+>> [    0.316660] PCI: Fatal: No config space access function found
 > 
-> So you mean the memory _consumption_ limit is already controlling
-> the page cache? That's what we need the ability for a container
-> not to fill up the page cache :)
-
-I mean page cache limiting is not needed. We need to make
-sure group eats less that N physical pages. That can be
-achieved by controlling page faults, setup_arg_pages(), etc.
-Page cache is not to be touched.
-
-> I don't remember correctly, but do you account for dirty page cache usage in
-> the latest patches of BC?
-
-We do not account for page cache itself. We track only
-physical pages regardless of where they are.
-
-[snip]
-
-> The idea of pre-allocation was discussed as a possibility in the case
-> that somebody needed hard guarantees, but most of us don't need it.
-> I was in the RFC for the sake of completeness.
+> That looks pretty bad.
 > 
-> Coming back to your question
+>> [    0.385262] Setting up standard PCI resources
+>> [    0.452566] ACPI: Access to PCI configuration space unavailable
+>> [    0.527856] ACPI: Interpreter enabled
+>> [    0.571564] ACPI: Using IOAPIC for interrupt routing
+>> [    0.631370] ACPI: PCI Root Bridge [PCI0] (0000:00)
+>> [    0.690684] ------------[ cut here ]------------
+>> [    0.745825] kernel BUG at drivers/acpi/osl.c:461!
 > 
-> Why do you need to select a NUMA node? For performance?
+> And acpi keeled over as a result.
+> 
+> Do you have CONFIG_PCI_MULTITHREAD_PROBE=y?   If so, try disabling it.
 
-Of course! Otherwise what do we need kmem_cache_alloc_node() etc
-calls in kernel?
+No:
+# CONFIG_PCI_MULTITHREAD_PROBE is not set
 
-The second question is - what if two processes from different
-beancounters try to share one page. I remember that the current
-solution is to take the page from the first user's reserve. OK.
-Consider then that this first user stops using the page. When
-this happens one page must be put back to it's reserve, right?
-But where to get this page from?
+The config is in:
+http://www.cateee.net/kernel/config
 
-Note that making guarantee through limiting doesn't care about
-where the page is get from.
+and for reference hte kernel log:
+http://www.cateee.net/kernel/kern
+
+ciao
+	cate

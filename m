@@ -1,93 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423611AbWJaUpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423624AbWJaUrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423611AbWJaUpq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 15:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423619AbWJaUpq
+	id S1423624AbWJaUrT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 15:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423625AbWJaUrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 15:45:46 -0500
-Received: from mx1.mandriva.com ([212.85.150.183]:19119 "EHLO mx1.mandriva.com")
-	by vger.kernel.org with ESMTP id S1423611AbWJaUpp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 15:45:45 -0500
-Date: Tue, 31 Oct 2006 17:45:32 -0300
-From: Arnaldo Carvalho de Melo <acme@mandriva.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lwn@lwn.net
-Subject: Re: [ANNOUNCE] pahole and other DWARF2 utilities
-Message-ID: <20061031204532.GG5319@mandriva.com>
-References: <20061030213318.GA5319@mandriva.com> <20061030203334.09caa368.akpm@osdl.org> <20061031172237.GD5319@mandriva.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 31 Oct 2006 15:47:19 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:38892 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1423623AbWJaUrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 15:47:18 -0500
+Date: Tue, 31 Oct 2006 13:47:17 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, jeff@garzik.org, openib-general@openib.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, David Miller <davem@davemloft.net>
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+Message-ID: <20061031204717.GG26964@parisc-linux.org>
+References: <20061024214724.GS25210@parisc-linux.org> <adar6wxbcwt.fsf@cisco.com> <20061024223631.GT25210@parisc-linux.org> <20061024.154347.77057163.davem@davemloft.net> <aday7r4a3d7.fsf@cisco.com> <adad588tijq.fsf@cisco.com> <20061031195312.GD5950@mellanox.co.il> <019301c6fd2c$044d7010$0732700a@djlaptop>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061031172237.GD5319@mandriva.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <019301c6fd2c$044d7010$0732700a@djlaptop>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 02:22:37PM -0300, Arnaldo Carvalho de Melo wrote:
-> On Mon, Oct 30, 2006 at 08:33:34PM -0800, Andrew Morton wrote:
-> > On Mon, 30 Oct 2006 18:33:19 -0300
-> > Arnaldo Carvalho de Melo <acme@mandriva.com> wrote:
-> > 
-> > > 	I've been working on some DWARF2 utilities and thought that it
-> > > is about time I announce it to the community, so that what is already
-> > > available can be used by people interested in reducing structure sizes
-> > > and otherwise taking advantage of the information available in the elf
-> > > sections of files compiled with 'gcc -g' or in the case of the kernel
-> > > with CONFIG_DEBUG_INFO enabled, so here it goes the description of said
-> > > tools:
-> > > 
-> > > pahole: Poke-a-Hole is a tool to find out holes in structures, holes
-> > > being defined as the space between members of functions due to alignemnt
-> > > rules that could be used for new struct entries or to reorganize
-> > > existing structures to reduce its size, without more ado lets see what
-> > > that means:
-> > > 
-> > > ...
-> > >
-> > > 	Further ideas on how to use the DWARF2 information include tools
-> > > that will show where inlines are being used, how much code is added by
-> > > inline functions,
-> > 
-> > It would be quite useful to be able to identify inlined functions which are
-> > good candidates for uninlining.
+On Tue, Oct 31, 2006 at 03:34:47PM -0500, Richard B. Johnson wrote:
+> If you write to the PCI bus and then you read the result, the read 
+> __might__ be the
+> read that flushes any posted writes rather than the read of device 
 
-For now people can take a look at:
+Config space writes aren't posted, they're delayed.  So, for example,
+you can do the config write on the primary bus, then it hits a bridge on
+its way to the destination device.  The bridge is entitled (obviously,
+it's unlikely to) drop it, and then the config read can pass by the
+config write.
 
-http://oops.merseine.nu:81/acme/net.ipv4.tcp.o.pahole
+I'm beginning to think Michael Tsirkin has the only solution to this
+-- architectures need to check that their hardware blocks until the
+config write completion has occurred (and if not, simulate that it has
+in software).
 
-Where all the types in headers included from net/ipv4/tcp.c that have
-holes can be seen, for instance:
-
-/* /pub/scm/linux/kernel/git/acme/net-2.6/include/linux/dqblk_xfs.h:143
- * */
-struct fs_quota_stat {
-        __s8             qs_version;           /*     0     1 */
-
-        /* XXX 1 bytes hole, try to pack */
-
-        __u16            qs_flags;             /*     2     2 */
-        __s8             qs_pad;               /*     4     1 */
-
-        /* XXX 3 bytes hole, try to pack */
-
-        fs_qfilestat_t   qs_uquota;            /*     8    20 */
-        fs_qfilestat_t   qs_gquota;            /*    28    20 */
-        __u32            qs_incoredqs;         /*    48     4 */
-        __s32            qs_btimelimit;        /*    52     4 */
-        __s32            qs_itimelimit;        /*    56     4 */
-        __s32            qs_rtbtimelimit;      /*    60     4 */
-        __u16            qs_bwarnlimit;        /*    64     2 */
-        __u16            qs_iwarnlimit;        /*    66     2 */
-}; /* size: 68, sum members: 64, holes: 2, sum holes: 4 */
-
-
-	See? two holes, that can be combined and reduce the size of this
-struct by 4 bytes, just moving qs_pad to be defined just before
-qs_flags, many more holes are there to harvest :-)
-
-	Of course, mistakes from the past for structs that are exported
-to userspace have to be kept that way, and in other cases where grouping
-members for cacheline locality optimizations, etc.
-
-- Arnaldo

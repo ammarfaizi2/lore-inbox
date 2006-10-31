@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965513AbWJaLKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbWJaLNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965513AbWJaLKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 06:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965505AbWJaLKk
+	id S965161AbWJaLNU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 06:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965514AbWJaLNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 06:10:40 -0500
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:21257 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S965467AbWJaLKj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 06:10:39 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 31 Oct 2006 06:13:20 -0500
+Received: from 120.eimlf01.mxsweep.com ([82.195.154.120]:3344 "EHLO
+	red.mxsweep.com") by vger.kernel.org with ESMTP id S965161AbWJaLNT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 06:13:19 -0500
+Message-ID: <45472FAF.6080704@draigBrady.com>
+Date: Tue, 31 Oct 2006 11:12:47 +0000
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Patch 2/2] SCSI: Add nvidia SATA controllers of MCP67 support to sata_nv.c
-Date: Tue, 31 Oct 2006 19:10:17 +0800
-Message-ID: <15F501D1A78BD343BE8F4D8DB854566B0C42D7F8@hkemmail01.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch 2/2] SCSI: Add nvidia SATA controllers of MCP67 support to sata_nv.c
-Thread-Index: Acb8wDUe6bzb7vNjT5eAtbRlXAhmbAAAkpmQAAaboZA=
-From: "Peer Chen" <pchen@nvidia.com>
-To: "Peer Chen" <pchen@nvidia.com>, <jgarzik@pobox.com>,
-       <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 31 Oct 2006 11:10:24.0408 (UTC) FILETIME=[29B11180:01C6FCDD]
+To: Willy Tarreau <w@1wt.eu>
+CC: Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
+       thockin@hockin.org, Luca Tettamanti <kronos.it@gmail.com>,
+       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+Subject: Re: AMD X2 unsynced TSC fix?
+References: <1161969308.27225.120.camel@mindpipe> <20061027201820.GA8394@dreamland.darkstar.lan> <20061027230458.GA27976@hockin.org> <200610271804.52727.ak@suse.de> <1162006081.27225.257.camel@mindpipe> <20061028052837.GC1709@1wt.eu>
+In-Reply-To: <20061028052837.GC1709@1wt.eu>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mlf-Version: 5.0.0.8233
+X-Mlf-UniqueId: o200610311114250167326
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Peer Chen <pchen@nvidia.com>
+Willy Tarreau wrote:
+> On Fri, Oct 27, 2006 at 11:28:00PM -0400, Lee Revell wrote:
+> 
+>>On Fri, 2006-10-27 at 18:04 -0700, Andi Kleen wrote:
+>>
+>>>I don't think it makes too much sense to hack on pure RDTSC when 
+>>>gtod is fast enough -- RDTSC will be always icky and hard to use.
+>>
+>>I agree FWIW, our application would be happy to just use gtod if it
+>>wasn't so slow on these machines.
+> 
+> 
+> Agreed, I had to turn about 20 dual-core servers to single core because
+> the only way to get a monotonic gtod made it so slow that it was not
+> worth using a dual-core. I initially considered buying one dual-core
+> AMD for my own use, but after seeing this, I'm definitely sure I won't
+> ever buy one as long as this problem is not fixed, as it causes too
+> many problems.
 
-=============================
+For the record, in my previous job we were implementing
+a very fast packet sniffer/timestamper using 2x3.2GHz P4 Xeons + linux 2.4.20 (with gtod)
+Very rarely we would see inter packet times jump by (2^32)/CPU_Hz seconds,
+when sniffing about 1.2 million packets per second on 2 e1000 links,
+which suggested a wrap around of a 32 bit comparison somewhere.
+This lead to the fix below which was never picked up
+(I guessed because it was addressed elsewhere?).
+Note we were only interested in millisecond resolution for the timestamps,
+but the approximation is very good in general as you know the TSCs are very
+close to each other when this condition happens.
+Note power management was not used on our systems.
 
---- linux-2.6.18/include/linux/pci_ids.h.orig	2006-10-31
-15:47:12.000000000 +0800
-+++ linux-2.6.18/include/linux/pci_ids.h	2006-10-31
-18:22:51.000000000 +0800
-@@ -1211,6 +1211,15 @@
- #define PCI_DEVICE_ID_NVIDIA_NVENET_21              0x0451
- #define PCI_DEVICE_ID_NVIDIA_NVENET_22              0x0452
- #define PCI_DEVICE_ID_NVIDIA_NVENET_23              0x0453
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA      0x045C
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2     0x045D
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3     0x045E
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4     0x045F
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SATA      0x0550
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SATA2     0x0551
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SATA3     0x0552
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SATA4     0x0553
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_IDE       0x0560
- 
- #define PCI_VENDOR_ID_IMS		0x10e0
- #define PCI_DEVICE_ID_IMS_TT128		0x9128
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+Pádraig.
+
+diff -Naru linux-2.4.20/arch/i386/kernel/time.c linux-2.4.20-corvil/arch/i386/kernel/time.c
+--- linux-2.4.20/arch/i386/kernel/time.c    2002-11-28 23:53:09.000000000 +0000
++++ linux-2.4.20-pb/arch/i386/kernel/time.c 2005-07-07 10:32:34.000000000 +0100
+@@ -94,6 +94,9 @@
+
+        /* .. relative to previous jiffy (32 bits is enough) */
+        eax -= last_tsc_low;    /* tsc_low delta */
++        if ((signed)eax < 0) { /* workaround for drifting TSCs */
++            eax = 0;
++            printk(KERN_INFO "tsc wrap around applied\n"); /* rare */
++        }
+
+        /*
+          * Time offset = (tsc_low delta) * fast_gettimeoffset_quotient

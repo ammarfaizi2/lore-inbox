@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751987AbWJaFjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965533AbWJaFkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751987AbWJaFjW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 00:39:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752025AbWJaFjW
+	id S965533AbWJaFkF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 00:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752025AbWJaFkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 00:39:22 -0500
-Received: from colo.lackof.org ([198.49.126.79]:51844 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S1751987AbWJaFjV (ORCPT
+	Tue, 31 Oct 2006 00:40:04 -0500
+Received: from msr49.hinet.net ([168.95.4.149]:64410 "EHLO msr49.hinet.net")
+	by vger.kernel.org with ESMTP id S1752045AbWJaFkD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 00:39:21 -0500
-Date: Mon, 30 Oct 2006 22:39:19 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Linus Torvalds <torvalds@osdl.org>,
-       "Adam J. Richter" <adam@yggdrasil.com>, akpm@osdl.org, bunk@stusta.de,
-       greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, pavel@ucw.cz, shemminger@osdl.org
-Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
-Message-ID: <20061031053919.GA4726@colo.lackof.org>
-References: <200610282350.k9SNoljL020236@freya.yggdrasil.com> <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org> <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com> <20061030144259.GD10235@parisc-linux.org> <87F87E8E-9434-4844-AA3F-ED850BEFAD29@mac.com> <20061030191307.GE10235@parisc-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061030191307.GE10235@parisc-linux.org>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+	Tue, 31 Oct 2006 00:40:03 -0500
+Message-ID: <013d01c6fcae$ffed7920$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Jesse Huang" <jesse@icplus.com.tw>, <linux-kernel@vger.kernel.org>,
+       <netdev@vger.kernel.org>, <akpm@osdl.org>, <jgarzik@pobox.com>
+References: <1160855860.2266.9.camel@localhost.localdomain>
+Subject: How about current IP100A status? 10/31/2006
+Date: Tue, 31 Oct 2006 13:39:57 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 12:13:07PM -0700, Matthew Wilcox wrote:
-> Probing PCI devices really doesn't take that long.
+Dear All:
 
-Yeah - usually measured in "milliseconds".
+How about current IP100A, sundance.c status? Should it be put into kernel or
+not?
+Is there any sentence should I need to modify?
 
-> It's the extra stuff
-> the drivers do at ->probe that takes the time.  And the stand-out
-> offender here is SCSI (and FC), which I'm working to fix.  Firewire, USB
-> and SATA are somewhere intermediate.
+Thanks for your help!
 
-ISTR that the SATA Port timeout is 5 seconds or something like that.
-And some cards have lots of ports...so my impression is SATA would
-benefit alot from parallelism as well.
+Jesse Huang
 
-I'm certainly no SATA expert...maybe someone else could speak
-more definitely on the topic of worst case SATA timeout.
+----- Original Message ----- 
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
+<akpm@osdl.org>; <jgarzik@pobox.com>; <jesse@icplus.com.tw>
+Sent: Sunday, October 15, 2006 3:57 AM
+Subject: [PATCH 5/5] Solve host error problem in low performance
+embeddedsystem when continune down and up.
 
-thanks,
-grant
+
+From: Jesse Huang <jesse@icplus.com.tw>
+
+
+

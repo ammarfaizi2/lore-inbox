@@ -1,125 +1,306 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWJaAnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161543AbWJaAmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422658AbWJaAnT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 19:43:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWJaAm4
+	id S1161543AbWJaAmR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 19:42:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161559AbWJaAmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 19:42:56 -0500
-Received: from av1.karneval.cz ([81.27.192.123]:31333 "EHLO av1.karneval.cz")
-	by vger.kernel.org with ESMTP id S1422646AbWJaAmv (ORCPT
+	Mon, 30 Oct 2006 19:42:16 -0500
+Received: from av2.karneval.cz ([81.27.192.122]:47120 "EHLO av2.karneval.cz")
+	by vger.kernel.org with ESMTP id S1161543AbWJaAmK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 19:42:51 -0500
-Message-id: <2044923011515715924@karneval.cz>
-Subject: [PATCH 8/9] Char: sx, use pci_iomap
+	Mon, 30 Oct 2006 19:42:10 -0500
+Message-id: <17859287641876623669@karneval.cz>
+Subject: [PATCH 4/9] Char: sx, remove unneeded stuff
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
 Cc: <R.E.Wolff@BitWizard.nl>
 Cc: <support@specialix.co.uk>
-Date: Tue, 31 Oct 2006 01:42:48 +0100 (CET)
+Date: Tue, 31 Oct 2006 01:42:06 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sx, use pci_iomap
+sx, remove unneeded stuff
 
-use pci_ friends for memory remapping of pci devices.
+remove #if 0's and commented code. We have version control for this purpose.
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit 28c8bfb1722518d33c00129afe2c49f4f6421bc0
-tree 20d91ba360d6e59e195dd08fce965b97388e67af
-parent c1124b32f6ab775db247b56206e3bc6f28f3f741
-author Jiri Slaby <jirislaby@gmail.com> Tue, 31 Oct 2006 00:58:07 +0100
-committer Jiri Slaby <jirislaby@gmail.com> Tue, 31 Oct 2006 00:58:07 +0100
+commit 10fd13e67b848584d1553b524d2e925ad60a1b4f
+tree 6a6750db2865877d6c7c31a5f8406e53e79af787
+parent b7dbf65a81c1707405982cb66aa5df5a9ada464e
+author Jiri Slaby <jirislaby@gmail.com> Tue, 31 Oct 2006 00:43:11 +0100
+committer Jiri Slaby <jirislaby@gmail.com> Tue, 31 Oct 2006 00:43:11 +0100
 
- drivers/char/sx.c |   26 ++++++++++++++------------
- 1 files changed, 14 insertions(+), 12 deletions(-)
+ drivers/char/sx.c |  132 -----------------------------------------------------
+ 1 files changed, 1 insertions(+), 131 deletions(-)
 
 diff --git a/drivers/char/sx.c b/drivers/char/sx.c
-index 339f278..96c2e26 100644
+index 7395c13..fe5fabb 100644
 --- a/drivers/char/sx.c
 +++ b/drivers/char/sx.c
-@@ -2355,7 +2355,8 @@ static void __exit sx_release_drivers(vo
- 	func_exit();
- }
+@@ -252,29 +252,6 @@ #endif
+ /* Am I paranoid or not ? ;-) */
+ #undef SX_PARANOIA_CHECK
  
--static void __devexit sx_remove_card(struct sx_board *board)
-+static void __devexit sx_remove_card(struct sx_board *board,
-+		struct pci_dev *pdev)
- {
- 	if (board->flags & SX_BOARD_INITIALIZED) {
- 		/* The board should stop messing with us. (actually I mean the
-@@ -2366,7 +2367,10 @@ static void __devexit sx_remove_card(str
- 
- 		/* It is safe/allowed to del_timer a non-active timer */
- 		del_timer(&board->timer);
--		iounmap(board->base);
-+		if (pdev)
-+			pci_iounmap(pdev, board->base);
-+		else
-+			iounmap(board->base);
- 
- 		board->flags &= ~(SX_BOARD_INITIALIZED | SX_BOARD_PRESENT);
+-/* 20 -> 2000 per second. The card should rate-limit interrupts at 100
+-   Hz, but it is user configurable. I don't recommend going above 1000
+-   Hz. The interrupt ratelimit might trigger if the interrupt is
+-   shared with a very active other device. */
+-#define IRQ_RATE_LIMIT 20
+-
+-/* Sharing interrupts is possible now. If the other device wants more
+-   than 2000 interrupts per second, we'd gracefully decline further
+-   interrupts. That's not what we want. On the other hand, if the
+-   other device interrupts 2000 times a second, don't use the SX
+-   interrupt. Use polling. */
+-#undef IRQ_RATE_LIMIT
+-
+-#if 0
+-/* Not implemented */
+-/* 
+- * The following defines are mostly for testing purposes. But if you need
+- * some nice reporting in your syslog, you can define them also.
+- */
+-#define SX_REPORT_FIFO
+-#define SX_REPORT_OVERRUN
+-#endif
+-
+ /* Function prototypes */
+ static void sx_disable_tx_interrupts(void *ptr);
+ static void sx_enable_tx_interrupts(void *ptr);
+@@ -1011,7 +988,7 @@ #define CFLAG port->gs.tty->termios->c_c
  	}
-@@ -2429,7 +2433,7 @@ static int __devexit sx_eisa_remove(stru
- {
- 	struct sx_board *board = dev_get_drvdata(dev);
- 
--	sx_remove_card(board);
-+	sx_remove_card(board, NULL);
- 
+ 	sx_dprintk(SX_DEBUG_TERMIOS, "oflags: %x(%d)\n",
+ 			port->gs.tty->termios->c_oflag, O_OTHER(port->gs.tty));
+-	/* port->c_dcd = sx_get_CD (port); */
++
+ 	func_exit();
  	return 0;
  }
-@@ -2488,7 +2492,7 @@ static int __devinit sx_pci_probe(struct
- 				  const struct pci_device_id *ent)
+@@ -1173,7 +1150,6 @@ static inline void sx_receive_chars(stru
+ 		/* Tell the rest of the system the news. Great news. New 
+ 		   characters! */
+ 		tty_flip_buffer_push(tty);
+-		/*    tty_schedule_flip (tty); */
+ 	}
+ 
+ 	func_exit();
+@@ -1254,9 +1230,6 @@ static irqreturn_t sx_interrupt(int irq,
+ 	/* AAargh! The order in which to do these things is essential and
+ 	   not trivial. 
+ 
+-	   - Rate limit goes before "recursive". Otherwise a series of
+-	   recursive calls will hang the machine in the interrupt routine. 
+-
+ 	   - hardware twiddling goes before "recursive". Otherwise when we
+ 	   poll the card, and a recursive interrupt happens, we won't
+ 	   ack the card, so it might keep on interrupting us. (especially
+@@ -1271,28 +1244,6 @@ static irqreturn_t sx_interrupt(int irq,
+ 	   - The initialized test goes before recursive. 
+ 	 */
+ 
+-#ifdef IRQ_RATE_LIMIT
+-	/* Aaargh! I'm ashamed. This costs more lines-of-code than the
+-	   actual interrupt routine!. (Well, used to when I wrote that
+-	   comment) */
+-	{
+-		static int lastjif;
+-		static int nintr = 0;
+-
+-		if (lastjif == jiffies) {
+-			if (++nintr > IRQ_RATE_LIMIT) {
+-				free_irq(board->irq, board);
+-				printk(KERN_ERR "sx: Too many interrupts. "
+-						"Turning off interrupt %d.\n",
+-						board->irq);
+-			}
+-		} else {
+-			lastjif = jiffies;
+-			nintr = 0;
+-		}
+-	}
+-#endif
+-
+ 	if (board->irq == irq) {
+ 		/* Tell the card we've noticed the interrupt. */
+ 
+@@ -1401,7 +1352,6 @@ static void sx_enable_tx_interrupts(void
+ 
+ static void sx_disable_rx_interrupts(void *ptr)
  {
- 	struct sx_board *board;
--	unsigned int i;
-+	unsigned int i, reg;
- 	int retval = -EIO;
+-	/*  struct sx_port *port = ptr; */
+ 	func_enter();
  
- 	mutex_lock(&sx_boards_lock);
-@@ -2510,12 +2514,10 @@ static int __devinit sx_pci_probe(struct
- 		SX_CFPCI_BOARD;
+ 	func_exit();
+@@ -1409,7 +1359,6 @@ static void sx_disable_rx_interrupts(voi
  
- 	/* CF boards use base address 3.... */
--	if (IS_CF_BOARD(board))
--		board->hw_base = pci_resource_start(pdev, 3);
--	else
--		board->hw_base = pci_resource_start(pdev, 2);
-+	reg = IS_CF_BOARD(board) ? 3 : 2;
-+	board->hw_base = pci_resource_start(pdev, reg);
- 	board->base2 =
--	board->base = ioremap(board->hw_base, WINDOW_LEN(board));
-+	board->base = pci_iomap(pdev, reg, WINDOW_LEN(board));
- 	if (!board->base) {
- 		dev_err(&pdev->dev, "ioremap failed\n");
- 		goto err_flag;
-@@ -2541,7 +2543,7 @@ static int __devinit sx_pci_probe(struct
- 
- 	return 0;
- err_unmap:
--	iounmap(board->base2);
-+	pci_iounmap(pdev, board->base);
- err_flag:
- 	board->flags &= ~SX_BOARD_PRESENT;
- err:
-@@ -2552,7 +2554,7 @@ static void __devexit sx_pci_remove(stru
+ static void sx_enable_rx_interrupts(void *ptr)
  {
- 	struct sx_board *board = pci_get_drvdata(pdev);
+-	/*  struct sx_port *port = ptr; */
+ 	func_enter();
  
--	sx_remove_card(board);
-+	sx_remove_card(board, pdev);
+ 	func_exit();
+@@ -1505,13 +1454,8 @@ static int sx_open(struct tty_struct *tt
+ 	if (port->gs.count <= 1)
+ 		sx_setsignals(port, 1, 1);
+ 
+-#if 0
+-	if (sx_debug & SX_DEBUG_OPEN)
+-		my_hd(port, sizeof(*port));
+-#else
+ 	if (sx_debug & SX_DEBUG_OPEN)
+ 		my_hd_io(port->board->base + port->ch_base, sizeof(*port));
+-#endif
+ 
+ 	if (port->gs.count <= 1) {
+ 		if (sx_send_command(port, HS_LOPEN, -1, HS_IDLE_OPEN) != 1) {
+@@ -1535,7 +1479,6 @@ #endif
+ 
+ 		return retval;
+ 	}
+-	/* tty->low_latency = 1; */
+ 
+ 	port->c_dcd = sx_get_CD(port);
+ 	sx_dprintk(SX_DEBUG_OPEN, "at open: cd=%d\n", port->c_dcd);
+@@ -1576,9 +1519,6 @@ static void sx_close(void *ptr)
+ 	if (port->gs.count) {
+ 		sx_dprintk(SX_DEBUG_CLOSE, "WARNING port count:%d\n",
+ 				port->gs.count);
+-		/*printk("%s SETTING port count to zero: %p count: %d\n",
+-				__FUNCTION__, port, port->gs.count);
+-		port->gs.count = 0;*/
+ 	}
+ 
+ 	func_exit();
+@@ -1641,52 +1581,6 @@ #undef W1
+ #undef R0
+ #undef R1
+ 
+-#define MARCHUP		for (i = min; i < max; i += 2)
+-#define MARCHDOWN	for (i = max - 1; i >= min; i -= 2)
+-#define W0		write_sx_word(board, i, 0x55aa)
+-#define W1		write_sx_word(board, i, 0xaa55)
+-#define R0		if (read_sx_word(board, i) != 0x55aa) return 1
+-#define R1		if (read_sx_word(board, i) != 0xaa55) return 1
+-
+-#if 0
+-/* This memtest takes a human-noticable time. You normally only do it
+-   once a boot, so I guess that it is worth it. */
+-static int do_memtest_w(struct sx_board *board, int min, int max)
+-{
+-	int i;
+-
+-	MARCHUP {
+-		W0;
+-	}
+-	MARCHUP {
+-		R0;
+-		W1;
+-		R1;
+-		W0;
+-		R0;
+-		W1;
+-	}
+-	MARCHUP {
+-		R1;
+-		W0;
+-		W1;
+-	}
+-	MARCHDOWN {
+-		R1;
+-		W0;
+-		W1;
+-		W0;
+-	}
+-	MARCHDOWN {
+-		R0;
+-		W1;
+-		W0;
+-	}
+-
+-	return 0;
+-}
+-#endif
+-
+ static int sx_fw_ioctl(struct inode *inode, struct file *filp,
+ 		unsigned int cmd, unsigned long arg)
+ {
+@@ -1700,13 +1594,8 @@ static int sx_fw_ioctl(struct inode *ino
+ 
+ 	func_enter();
+ 
+-#if 0
+ 	/* Removed superuser check: Sysops can use the permissions on the device
+ 	   file to restrict access. Recommendation: Root only. (root.root 600) */
+-	if (!capable(CAP_SYS_ADMIN)) {
+-		return -EPERM;
+-	}
+-#endif
+ 
+ 	sx_dprintk(SX_DEBUG_FIRMWARE, "IOCTL %x: %lx\n", cmd, arg);
+ 
+@@ -1756,10 +1645,8 @@ #endif
+ 			rc = do_memtest(board, 0, 0x7000);
+ 			if (!rc)
+ 				rc = do_memtest(board, 0, 0x7000);
+-			/*if (!rc) rc = do_memtest_w (board, 0, 0x7000); */
+ 		} else {
+ 			rc = do_memtest(board, 0, 0x7ff8);
+-			/* if (!rc) rc = do_memtest_w (board, 0, 0x7ff8); */
+ 		}
+ 		sx_dprintk(SX_DEBUG_FIRMWARE, "returning memtest result= %d\n",
+ 			   rc);
+@@ -1893,8 +1780,6 @@ static int sx_ioctl(struct tty_struct *t
+ 	void __user *argp = (void __user *)arg;
+ 	int ival;
+ 
+-	/* func_enter2(); */
+-
+ 	rc = 0;
+ 	switch (cmd) {
+ 	case TIOCGSOFTCAR:
+@@ -1919,7 +1804,6 @@ static int sx_ioctl(struct tty_struct *t
+ 		break;
+ 	}
+ 
+-	/* func_exit(); */
+ 	return rc;
  }
  
- /* Specialix has a whole bunch of cards with 0x2000 as the device ID. They say
-@@ -2687,7 +2689,7 @@ #ifdef CONFIG_ISA
- 	for (i = 0; i < SX_NBOARDS; i++) /* only static ISAs */
- 		if (boards[i].flags & (SX_ISA_BOARD | SI_ISA_BOARD |
- 					SI1_ISA_BOARD))
--			sx_remove_card(&boards[i]);
-+			sx_remove_card(&boards[i], NULL);
- #endif
+@@ -2030,7 +1914,6 @@ static int sx_init_board(struct sx_board
+ 	}
  
- 	if (misc_deregister(&sx_fw_device) < 0) {
+ 	/* grab the first module type... */
+-	/* board->ta_type = mod_compat_type (read_sx_byte (board, 0x80 + 0x08)); */
+ 	board->ta_type = mod_compat_type(sx_read_module_byte(board, 0x80,
+ 				mc_chip));
+ 
+@@ -2075,17 +1958,6 @@ static int sx_init_board(struct sx_board
+ 			chans = 0;
+ 			break;
+ 		}
+-#if 0				/* Problem fixed: firmware 3.05 */
+-		if (IS_SX_BOARD(board) && (type == TA8)) {
+-			/* There are some issues with the firmware and the DCD/RTS
+-			   lines. It might work if you tie them together or something.
+-			   It might also work if you get a newer sx_firmware.   Therefore
+-			   this is just a warning. */
+-			printk(KERN_WARNING
+-			       "sx: The SX host doesn't work too well "
+-			       "with the TA8 adapters.\nSpecialix is working on it.\n");
+-		}
+-#endif
+ 	}
+ 
+ 	if (chans) {
+@@ -2465,8 +2337,6 @@ #endif
+ 			}
+ 			sx_dprintk(SX_DEBUG_PROBE, "\n");
+ 		}
+-		/* This has to be done earlier. */
+-		/* board->flags |= SX_BOARD_INITIALIZED; */
+ 	}
+ 
+ 	func_exit();

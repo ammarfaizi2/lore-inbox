@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945908AbWJaUjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423618AbWJaUja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945908AbWJaUjo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 15:39:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945969AbWJaUjo
+	id S1423618AbWJaUja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 15:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423620AbWJaUja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 15:39:44 -0500
-Received: from mx4.cs.washington.edu ([128.208.4.190]:52624 "EHLO
-	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1945908AbWJaUjn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 15:39:43 -0500
-Date: Tue, 31 Oct 2006 12:39:22 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: Andreas Gruenbacher <agruen@suse.de>
-cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] NFS: nfsaclsvc_encode_getaclres() - Fix potential NULL
- deref and tiny optimization.
-In-Reply-To: <200610311726.00411.agruen@suse.de>
-Message-ID: <Pine.LNX.4.64N.0610311232190.30578@attu4.cs.washington.edu>
-References: <200610272316.47089.jesper.juhl@gmail.com>
- <Pine.LNX.4.64N.0610271443500.31179@attu2.cs.washington.edu>
- <200610280001.49272.jesper.juhl@gmail.com> <200610311726.00411.agruen@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 31 Oct 2006 15:39:30 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:5646 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1423618AbWJaUj3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 15:39:29 -0500
+Date: Tue, 31 Oct 2006 21:39:28 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: Re: Cooling the cache
+Message-ID: <20061031203928.GA34717@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	"Hack inc." <linux-kernel@vger.kernel.org>
+References: <20061031171204.GA8230@dspnet.fr.eu.org> <20061031172310.GA30739@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061031172310.GA30739@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2006, Andreas Gruenbacher wrote:
-
-> > > w should be an unsigned int.
-> >
-> > Makes sense.
+On Tue, Oct 31, 2006 at 06:23:10PM +0100, Jörn Engel wrote:
+> On Tue, 31 October 2006 18:12:04 +0100, Olivier Galibert wrote:
+> > 
+> > In order to measure reliably some worst-case latencies, is there a way
+> > to have the system (cleanly) drop as much as possible of its
+> > page/directory cache?  Being able to specify which device would be a
+> > plus ;-)
 > 
-> No, this breaks the while loop further below: with an unsigned int, the loop 
-> counter underflows and wraps.
-> 
+> grep -A5 drop_caches Documentation/filesystems/proc.txt
 
-This is not a problem with w being an unsigned int, it's a problem with 
-the while loop.  nfsacl_size() returns unsigned int as it should and the 
-while loop can be written to respect that since integer division in C 
-truncates:
+Excellent, thanks.
 
-	for (n = w / PAGE_SIZE; n > 0; n--)
-		if (!rqstp->rq_respages[rqstp->rq_resused++];
+  OG.

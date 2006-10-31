@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422911AbWJaInY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422973AbWJaIoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422911AbWJaInY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422972AbWJaInY
+	id S1422973AbWJaIoX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422888AbWJaIoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:43:24 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:21661 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1422911AbWJaInX (ORCPT
+	Tue, 31 Oct 2006 03:44:23 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:50791 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1422973AbWJaIoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:43:23 -0500
-Date: Tue, 31 Oct 2006 09:43:01 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Marco Berizzi <pupilla@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: where is Linux 2.6.19-rc4?
-In-Reply-To: <BAY103-F2FD8C4C7A2FBAE2B285BAB2F90@phx.gbl>
-Message-ID: <Pine.LNX.4.61.0610310942230.23540@yvahk01.tjqt.qr>
-References: <BAY103-F2FD8C4C7A2FBAE2B285BAB2F90@phx.gbl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Tue, 31 Oct 2006 03:44:22 -0500
+Date: Tue, 31 Oct 2006 09:46:04 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>, Daniel Drake <ddrake@brontes3d.com>,
+       axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] jfs: Add splice support
+Message-ID: <20061031084604.GB14055@kernel.dk>
+References: <20061030163148.2412D7B40A0@zog.reactivated.net> <1162227415.24229.2.camel@kleikamp.austin.ibm.com> <Pine.LNX.4.61.0610310931020.23540@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0610310931020.23540@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> I have seen a message from Linus announcing
-> linux 2.6.19-rc4, but I cannot find the tarball
-> patch. Am I missing anything?
+On Tue, Oct 31 2006, Jan Engelhardt wrote:
+> 
+> >> This allows the splice() and tee() syscalls to be used with JFS.
+> >
+> >Gosh, that was easy.  Why couldn't I do that?  :-)
+> 
+> You could add it to all the other filesystems that lack it. (Cautionary 
+> question: Does that work at an instant like it did with jfs?)
+> 
+> Seems like only ext[234] gfs2 reiserfs and xfs have splice_read 
+> currently.
 
-Either ftp.kernel.org has not received it yet, or it was quickly taken 
-away again after Andrew discovered the patch problem with the bd 
-cleanup.
+If the file system uses the generic page cache functions for reading and
+writing, it should be able to use the generic splice read/write
+functions as well. If it doesn't, then more work is likely involved. In
+short, check the .read/.write and .aio_read/.aio_write parts of the
+file_operations[] structure. jfs uses the generic handlers, hence splice
+support should just be the two-liner posted.
 
-
-	-`J'
 -- 
+Jens Axboe
+

@@ -1,74 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423694AbWJaRWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423707AbWJaRXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423694AbWJaRWv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 12:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423699AbWJaRWv
+	id S1423707AbWJaRXW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 12:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423703AbWJaRXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 12:22:51 -0500
-Received: from mx1.mandriva.com ([212.85.150.183]:61327 "EHLO mx1.mandriva.com")
-	by vger.kernel.org with ESMTP id S1423694AbWJaRWu (ORCPT
+	Tue, 31 Oct 2006 12:23:22 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:59396 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1423700AbWJaRXA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 12:22:50 -0500
-Date: Tue, 31 Oct 2006 14:22:38 -0300
-From: Arnaldo Carvalho de Melo <acme@mandriva.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lwn@lwn.net
-Subject: Re: [ANNOUNCE] pahole and other DWARF2 utilities
-Message-ID: <20061031172237.GD5319@mandriva.com>
-References: <20061030213318.GA5319@mandriva.com> <20061030203334.09caa368.akpm@osdl.org>
+	Tue, 31 Oct 2006 12:23:00 -0500
+Date: Tue, 31 Oct 2006 18:22:58 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: Reading a bunch of file as fast a possible
+Message-ID: <20061031172258.GB8230@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	"Hack inc." <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061030203334.09caa368.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 08:33:34PM -0800, Andrew Morton wrote:
-> On Mon, 30 Oct 2006 18:33:19 -0300
-> Arnaldo Carvalho de Melo <acme@mandriva.com> wrote:
-> 
-> > 	I've been working on some DWARF2 utilities and thought that it
-> > is about time I announce it to the community, so that what is already
-> > available can be used by people interested in reducing structure sizes
-> > and otherwise taking advantage of the information available in the elf
-> > sections of files compiled with 'gcc -g' or in the case of the kernel
-> > with CONFIG_DEBUG_INFO enabled, so here it goes the description of said
-> > tools:
-> > 
-> > pahole: Poke-a-Hole is a tool to find out holes in structures, holes
-> > being defined as the space between members of functions due to alignemnt
-> > rules that could be used for new struct entries or to reorganize
-> > existing structures to reduce its size, without more ado lets see what
-> > that means:
-> > 
-> > ...
-> >
-> > 	Further ideas on how to use the DWARF2 information include tools
-> > that will show where inlines are being used, how much code is added by
-> > inline functions,
-> 
-> It would be quite useful to be able to identify inlined functions which are
-> good candidates for uninlining.
+After searching for kinda-keywords in a locked-in-memory index, I get
+a list of 50-100 files out of several hundred thousands I want to read
+as fast as possible.  I can ensure that the directory structure in hot
+in the dcache by re-reading it from time to time, but there isn't
+enough memory to lock the documents there.  So I'd like to read 50-100
+files for which I have the sizes (I put them in the index) and memory
+space as fast as possible (less than 0.1s would be great) from
+cold-ish cache.
 
-I'm working on making good use of this information:
+The best way is I think to find a way to give all the requests to the
+system and have it sort them optimally at the elevator level.  But how
+can I do that?  Can aio do it, or something else?
 
---------------- 8< --------------
+  OG.
 
-3.3.8.2 Concrete Inlined Instances
-
-Each inline expansion of an inlinable subroutine is represented by a
-debugging information entry with the tag DW_TAG_inlined_subroutine.
-Each such entry should be a direct child of the entry that represents
-the scope with in which the inlining occurs.
-
---------------- 8< --------------
-
-To write this tool:
-
-<Ralf> So imagine a tool which says function x was inlined y times
-bloating the code by z bytes :)
-
-:-)
-
-- Arnaldo

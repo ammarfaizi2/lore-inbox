@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422822AbWJaIMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422963AbWJaINQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422822AbWJaIMd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:12:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWJaIMd
+	id S1422963AbWJaINQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:13:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWJaINQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:12:33 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:44782 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422822AbWJaIMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:12:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=t+h8CnfPNZD1xPNCFiiZsHeOfvKFGsAMrp7KZNwTw2JoWiIsQhKQs3Qwyqa/HEV9UuPAOGsss1I4qHTmfuSzIbxE4AfHrFGR9zNf+87TOzqXlGAuBmnTrP78tIQZOH+/cODafAoO630SESg8iBR02PPBO4H03N/pnIO0KAnO2kM=
-Message-ID: <4547058D.9090607@innova-card.com>
-Date: Tue, 31 Oct 2006 09:13:01 +0100
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 31 Oct 2006 03:13:16 -0500
+Received: from smtp.ocgnet.org ([64.20.243.3]:23775 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S1422963AbWJaINO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 03:13:14 -0500
+Date: Tue, 31 Oct 2006 17:12:39 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Jun Sun <jsun@junsun.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reserve memory in low physical address - possible?
+Message-ID: <20061031081239.GA9539@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Jun Sun <jsun@junsun.net>, linux-kernel@vger.kernel.org
+References: <20061031072203.GA10744@srv.junsun.net>
 MIME-Version: 1.0
-To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1 update4] drivers: add LCD support
-References: <20061027153419.d98dbdd9.maxextreme@gmail.com>
-In-Reply-To: <20061027153419.d98dbdd9.maxextreme@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061031072203.GA10744@srv.junsun.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Ojeda Sandonis wrote:
-> Andrew, here it is the same patch without locking. Thanks you.
+On Mon, Oct 30, 2006 at 11:22:03PM -0800, Jun Sun wrote:
+> I understand it is possible to reserve some memory at the end by
+> specifying "mem=xxxM" option in kernel command line.  I looked into
+> "memmap=xxxM" option but it appears not helpful for what I want.
+> 
+memmap takes multiple arguments, including the start address for the
+memory map. You could also bump min_low_pfn manually if memmap= isn't
+suitable for you, something like:
 
-Last concern: did you think about cache aliasings ?
+	magic_space = PFN_UP(init_pg_tables_end);
+	min_low_pfn = magic_space + magic_size;
 
-bye
-		Franck
-
+(assuming magic_size is rounded up already), should work fine. Though
+memmap= already takes care of most of this for you, could you explain why
+it's unsuitable?

@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423075AbWJaKSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965466AbWJaKXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423075AbWJaKSS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 05:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423080AbWJaKSS
+	id S965466AbWJaKXY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 05:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965525AbWJaKXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 05:18:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:31414 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423075AbWJaKSR (ORCPT
+	Tue, 31 Oct 2006 05:23:24 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:9032 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965466AbWJaKXY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 05:18:17 -0500
-Date: Tue, 31 Oct 2006 02:18:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Giacomo Catenazzi <cate@cateee.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Panic with 2.6.19-rc3-ga7aacdf9: Invalid opcode at
- acpi_os_read_pci_configuration
-Message-Id: <20061031021810.dd48361f.akpm@osdl.org>
-In-Reply-To: <45470810.4040905@cateee.net>
-References: <45470810.4040905@cateee.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 31 Oct 2006 05:23:24 -0500
+Message-ID: <45472317.7060800@openvz.org>
+Date: Tue, 31 Oct 2006 13:19:03 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
+       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
+       menage@google.com, linux-mm@kvack.org,
+       Vaidyanathan S <svaidy@in.ibm.com>
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org> <454638D2.7050306@in.ibm.com> <45463F70.1010303@in.ibm.com> <45470FEE.6040605@openvz.org> <45471510.4070407@in.ibm.com> <45471679.90103@openvz.org> <45472133.9090109@in.ibm.com>
+In-Reply-To: <45472133.9090109@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2006 09:23:44 +0100
-Giacomo Catenazzi <cate@cateee.net> wrote:
 
-> Since few days I have this bug (not sure if it
-> caused by changed configuration or if it is a regretion).
-> The fololowing trace is from last git.
+[snip]
+
+>>> Since it is easy to push the page out (as you said), it should be
+>>> easy to impose a limit on the page cache usage of a container.
+>> If a group is limited with memory _consumption_ it won't fill
+>> the page cache...
+>>
 > 
-> ...
->
+> So you mean the memory _consumption_ limit is already controlling
+> the page cache? That's what we need the ability for a container
+> not to fill up the page cache :)
+
+I mean page cache limiting is not needed. We need to make
+sure group eats less that N physical pages. That can be
+achieved by controlling page faults, setup_arg_pages(), etc.
+Page cache is not to be touched.
+
+> I don't remember correctly, but do you account for dirty page cache usage in
+> the latest patches of BC?
+
+We do not account for page cache itself. We track only
+physical pages regardless of where they are.
+
+[snip]
+
+> The idea of pre-allocation was discussed as a possibility in the case
+> that somebody needed hard guarantees, but most of us don't need it.
+> I was in the RFC for the sake of completeness.
 > 
-> [    0.012497] Brought up 4 CPUs
-> [    0.174941] migration_cost=19,713
-> [    0.215588] NET: Registered protocol family 16
-> [    0.268807] ACPI: bus type pci registered
-> [    0.316660] PCI: Fatal: No config space access function found
+> Coming back to your question
+> 
+> Why do you need to select a NUMA node? For performance?
 
-That looks pretty bad.
+Of course! Otherwise what do we need kmem_cache_alloc_node() etc
+calls in kernel?
 
-> [    0.385262] Setting up standard PCI resources
-> [    0.452566] ACPI: Access to PCI configuration space unavailable
-> [    0.527856] ACPI: Interpreter enabled
-> [    0.571564] ACPI: Using IOAPIC for interrupt routing
-> [    0.631370] ACPI: PCI Root Bridge [PCI0] (0000:00)
-> [    0.690684] ------------[ cut here ]------------
-> [    0.745825] kernel BUG at drivers/acpi/osl.c:461!
+The second question is - what if two processes from different
+beancounters try to share one page. I remember that the current
+solution is to take the page from the first user's reserve. OK.
+Consider then that this first user stops using the page. When
+this happens one page must be put back to it's reserve, right?
+But where to get this page from?
 
-And acpi keeled over as a result.
-
-Do you have CONFIG_PCI_MULTITHREAD_PROBE=y?   If so, try disabling it.
-
+Note that making guarantee through limiting doesn't care about
+where the page is get from.

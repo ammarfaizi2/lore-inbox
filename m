@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161451AbWJaA17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161491AbWJaAfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161451AbWJaA17 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 19:27:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751737AbWJaA17
+	id S1161491AbWJaAfo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 19:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161493AbWJaAfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 19:27:59 -0500
-Received: from quickstop.soohrt.org ([85.131.246.152]:23769 "EHLO
-	quickstop.soohrt.org") by vger.kernel.org with ESMTP
-	id S1751319AbWJaA16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 19:27:58 -0500
-Date: Tue, 31 Oct 2006 01:27:57 +0100
-From: Horst Schirmeier <horst@schirmeier.com>
-To: Oleg Verych <olecom@flower.upol.cz>
-Cc: Valdis.Kletnieks@vt.edu, Jan Beulich <jbeulich@novell.com>, dsd@gentoo.org,
-       kernel@gentoo.org, draconx@gmail.com, jpdenheijer@gmail.com,
-       Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
-Message-ID: <20061031002757.GF2933@quickstop.soohrt.org>
-Mail-Followup-To: Oleg Verych <olecom@flower.upol.cz>,
-	Valdis.Kletnieks@vt.edu, Jan Beulich <jbeulich@novell.com>,
-	dsd@gentoo.org, kernel@gentoo.org, draconx@gmail.com,
-	jpdenheijer@gmail.com, Andrew Morton <akpm@osdl.org>,
-	Sam Ravnborg <sam@ravnborg.org>, Andi Kleen <ak@suse.de>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20061029120858.GB3491@quickstop.soohrt.org> <200610290816.55886.ak@suse.de> <slrnek9qv0.2vm.olecom@flower.upol.cz> <20061029225234.GA31648@uranus.ravnborg.org> <4545C2D8.76E4.0078.0@novell.com> <slrnekbv60.2vm.olecom@flower.upol.cz> <slrnekc3q8.2vm.olecom@flower.upol.cz> <200610301522.k9UFMXmM004701@turing-police.cc.vt.edu> <slrnekc8np.2vm.olecom@flower.upol.cz> <slrnekcu6m.2vm.olecom@flower.upol.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrnekcu6m.2vm.olecom@flower.upol.cz>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 30 Oct 2006 19:35:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33416 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161491AbWJaAfn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 19:35:43 -0500
+Date: Mon, 30 Oct 2006 16:34:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: sylvain.bertrand@gmail.com
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Chris Wedgwood <cw@f00f.org>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>
+Subject: Re: [Bugme-new] [Bug 7437] New: VIA VT8233 seems to suffer from the
+ via latency quirk
+Message-Id: <20061030163458.4fb8cee1.akpm@osdl.org>
+In-Reply-To: <200610310020.k9V0KGQK003237@fire-2.osdl.org>
+References: <200610310020.k9V0KGQK003237@fire-2.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006, Oleg Verych wrote:
-> +# Immortal null for mortals and roots
-> +define null
-> +  $(shell \
-> +    if test -L null; \
-> +      then echo null; \
-> +      else rm -f null; ln -s /dev/null null; \
-> +    fi)
-> +endef
 
-Another remark: the 'else' branch should echo null, too.
+(switched to email - please retain all cc's)
 
-# Immortal null for mortals and roots
-define null
-  $(shell \
-    if test ! -L null; \
-      then rm -f null; ln -s /dev/null null; \
-    fi; \
-    echo null)
-endef
+On Mon, 30 Oct 2006 16:20:16 -0800
+bugme-daemon@bugzilla.kernel.org wrote:
 
-My patch proposal (the $(M) one) has the same bug.
+> http://bugzilla.kernel.org/show_bug.cgi?id=7437
+> 
+>            Summary: VIA VT8233 seems to suffer from the via latency quirk
+>     Kernel Version: 2.6.19-rc3
+>             Status: NEW
+>           Severity: normal
+>              Owner: greg@kroah.com
+>          Submitter: sylvain.bertrand@gmail.com
+> 
+> 
+> Most recent kernel where this bug did not occur: 2.6.19-rc3
 
-Kind regards,
- Horst
+Nope.  We're asking which kernel did _not_ have this bug?
 
--- 
-PGP-Key 0xD40E0E7A
+> Distribution: All
+> Hardware Environment: ASUS A7V266-E motherboad (northbridge VIA KT266A,
+> southbridge VIA 8233), PCI SB LIVE!, onboard promise IDE controller, additional
+> PCI USB2 card.
+> Software Environment: any
+> 
+> Problem Description: Fear to load the PCI bus, because it seems to cause a hard
+> crash with hard drive data corruption. Too much similar to quirk_vialatency in 
+> drivers/pci/quirks.c (see description line 163) to be innocent.
+> 
+> Steps to reproduce: Load the PCI bus with, for instance, a big file transfer
+> from an usb mass storage media v2 connected on a PCI USB2 card to the main hard
+> drive and at the same time play music. Randomly crashes the computer and
+> corrupts hard drive data (sometimes beyond repair).
+> 
+
+argh.  Are you able to identify a change to the via quirk-handling code
+which prevents this from happening?
+

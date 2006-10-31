@@ -1,116 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423539AbWJaQKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423535AbWJaQJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423539AbWJaQKY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 11:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423541AbWJaQKX
+	id S1423535AbWJaQJk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 11:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423541AbWJaQJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 11:10:23 -0500
-Received: from holoclan.de ([62.75.158.126]:37288 "EHLO mail.holoclan.de")
-	by vger.kernel.org with ESMTP id S1423539AbWJaQKV (ORCPT
+	Tue, 31 Oct 2006 11:09:40 -0500
+Received: from maximus.itgardendrift.se ([193.138.74.3]:2634 "EHLO
+	DR2EX01.hosting.itg") by vger.kernel.org with ESMTP
+	id S1423535AbWJaQJj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 11:10:21 -0500
-Date: Tue, 31 Oct 2006 17:08:15 +0100
-From: Martin Lorenz <martin@lorenz.eu.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, jbeulich@novell.com
-Subject: Re: 2.6.19-rc3: more DWARFs and strange messages
-Message-ID: <20061031160815.GM27390@gimli>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-	jbeulich@novell.com
-References: <20061028200151.GC5619@gimli> <p73hcxklfoy.fsf@verdi.suse.de>
+	Tue, 31 Oct 2006 11:09:39 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73hcxklfoy.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Tue, Oct 31, 2006 at 03:31:41PM +0100, Andi Kleen
-	wrote: > Martin Lorenz <martin@lorenz.eu.org> writes: > > > and quite a
-	few of those: > > > > [18504.980000] BUG: warning at
-	kernel/cpu.c:56/unlock_cpu_hotplug() > > [18504.980000] [<c0103bdd>]
-	dump_trace+0x69/0x1af > > [18504.980000] [<c0103d3b>]
-	show_trace_log_lvl+0x18/0x2c > > [18504.980000] [<c01043da>]
-	show_trace+0xf/0x11 > > [18504.980000] [<c01044dd>] dump_stack+0x15/0x17
-	> > [18504.980000] [<c0135e94>] unlock_cpu_hotplug+0x3d/0x66 > >
-	[18504.980000] [<f92e67f3>] do_dbs_timer+0x1c2/0x229 [cpufreq_ondemand]
-	> > [18504.980000] [<c012ccb1>] run_workqueue+0x83/0xc5 > >
-	[18504.980000] [<c012d5d5>] worker_thread+0xd9/0x10c > > [18504.980000]
-	[<c012fb36>] kthread+0xc2/0xf0 > > [18504.980000] [<c010398b>]
-	kernel_thread_helper+0x7/0x10 > > [18504.980000] DWARF2 unwinder stuck
-	at kernel_thread_helper+0x7/0x10 > > What gcc / binutils version do you
-	use? $ gcc --version gcc (GCC) 4.1.2 20061020 (prerelease) (Debian
-	4.1.1-17) [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: RE: RE: PROBLEM: raid5 just dies
+Date: Tue, 31 Oct 2006 17:09:54 +0100
+Message-ID: <6FDE26082D451C41BE1A3742966200B3BAED1F@DR2EX01.hosting.itg>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RE: RE: RE: PROBLEM: raid5 just dies
+Thread-Index: Acb8dV0jc59rSL74QNCft+NBPu0E4wAkQk6g
+From: "Andreas Paulsson" <andreas.paulsson@itgarden.se>
+To: "Neil Brown" <neilb@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 03:31:41PM +0100, Andi Kleen wrote:
-> Martin Lorenz <martin@lorenz.eu.org> writes:
-> 
-> > and quite a few of those:
-> > 
-> > [18504.980000] BUG: warning at kernel/cpu.c:56/unlock_cpu_hotplug()
-> > [18504.980000]  [<c0103bdd>] dump_trace+0x69/0x1af
-> > [18504.980000]  [<c0103d3b>] show_trace_log_lvl+0x18/0x2c
-> > [18504.980000]  [<c01043da>] show_trace+0xf/0x11
-> > [18504.980000]  [<c01044dd>] dump_stack+0x15/0x17
-> > [18504.980000]  [<c0135e94>] unlock_cpu_hotplug+0x3d/0x66
-> > [18504.980000]  [<f92e67f3>] do_dbs_timer+0x1c2/0x229 [cpufreq_ondemand]
-> > [18504.980000]  [<c012ccb1>] run_workqueue+0x83/0xc5
-> > [18504.980000]  [<c012d5d5>] worker_thread+0xd9/0x10c
-> > [18504.980000]  [<c012fb36>] kthread+0xc2/0xf0
-> > [18504.980000]  [<c010398b>] kernel_thread_helper+0x7/0x10
-> > [18504.980000] DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
-> 
-> What gcc / binutils version do you use?
-$ gcc --version
-gcc (GCC) 4.1.2 20061020 (prerelease) (Debian 4.1.1-17)
+>On Monday October 30, andreas.paulsson@itgarden.se wrote:
+>> >Exactly how are aes-loop and raid5 connected together?
+>> 
+>> We use 5x300gb drives in a raid5 array, which is then used as a 
+>> physical disk in an lvm volume, with one logical volume. This logical
 
-dpkg says:
-ii  gcc                        4.1.1-13
+>> volume is then encrypted with "losetup -e aes /dev/loop1 
+>> /dev/vg0/lv0", and then formatted with ReiserFS.
 
-$ ar --version
-GNU ar 2.17 Debian GNU/Linux
+>Thanks.
+>
+>It could be a hardware problem....
+>The symptom is that we try to free some memory and a
+>consistency check tells us that the memory wasn't allocated.
+>So a single bit error in the address could be thecause.
+>Running memtest86 for a while wouldn't hurt if you haven't
+>already done that.
 
-dpkg says:
-ii  binutils                   2.17-3
+I'll see if I get get someone to do a memtest for me (the box is 600km
+away).
 
+>You have three layers here: loop over dm over md/raid5.
+>So if it is a software problem it could be in any of these layers,
+>or in an interaction between two of them.
 
-> 
-> > [18504.980000]
-> > [18504.980000] Leftover inexact backtrace:
-> > [18504.980000]
-> > [18504.980000]  =======================
-> > 
-> 
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>1/ how repeatable is this?
 
-gruss
-  mlo
---
-Dipl.-Ing. Martin Lorenz
+cp -arv source target
+.. and then wait for a while, and it crashes. That is, 100% repeatable.
 
-            They that can give up essential liberty 
-	    to obtain a little temporary safety 
-	    deserve neither liberty nor safety.
-                                   Benjamin Franklin
+>2/ how much room have you got to experiment?
+> Could you remake the array without the loop/aes and see if you can
+>reproduce the problem?
 
-please encrypt your mail to me
-GnuPG key-ID: F1AAD37D
-get it here:
-http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
+I could, but then I would need to redo all the work again, since we need
+the disk to be encrypted too.
 
-ICQ UIN: 33588107
+>Could you remake the array without the LVM layer and see if you can
+>reproduce the problem?
+
+No, this is impossible, we need to have LVM because we are making one
+big volume that consists of raid5 and raid1 devices.
+
+>Do you have CONFIG_DEBUG_PAGEALLOC and CONFIG_DEBUG_SLAB set?
+>If not could you >recompile with those set to see if they
+>provide more helpful information.
+
+I can try and see if it helps.
+
+>I must admit I am somewhat at a loss.
+>I cannot see much room for problems leading to that
+>particular point in the code that would not be seen
+>by lots more people than just you.
+
+Heh, you're not the only one that's lost.
+
+>NeilBrown
+
+/Andreas

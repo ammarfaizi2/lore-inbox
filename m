@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423067AbWJaKQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423075AbWJaKSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423067AbWJaKQR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 05:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423075AbWJaKQR
+	id S1423075AbWJaKSS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 05:18:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423080AbWJaKSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 05:16:17 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:16338 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1423067AbWJaKQR (ORCPT
+	Tue, 31 Oct 2006 05:18:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:31414 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423075AbWJaKSR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 05:16:17 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: nkalmala <nkalmala@gmail.com>
-Subject: Re: [patch]trivial: un-needed add-store operation wastes a few bytes
-Date: Tue, 31 Oct 2006 11:01:55 +0100
-User-Agent: KMail/1.9.5
-Cc: trivial@kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <45469F2D.9030602@gmail.com>
-In-Reply-To: <45469F2D.9030602@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2752038.RB4LgW9m7H";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 31 Oct 2006 05:18:17 -0500
+Date: Tue, 31 Oct 2006 02:18:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Giacomo Catenazzi <cate@cateee.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Panic with 2.6.19-rc3-ga7aacdf9: Invalid opcode at
+ acpi_os_read_pci_configuration
+Message-Id: <20061031021810.dd48361f.akpm@osdl.org>
+In-Reply-To: <45470810.4040905@cateee.net>
+References: <45470810.4040905@cateee.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610311101.56011.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2752038.RB4LgW9m7H
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 31 Oct 2006 09:23:44 +0100
+Giacomo Catenazzi <cate@cateee.net> wrote:
 
-nkalmala wrote:
-> Un-needed add-store operation wastes a few bytes.
-> 8 bytes wasted with -O2, on a ppc.
+> Since few days I have this bug (not sure if it
+> caused by changed configuration or if it is a regretion).
+> The fololowing trace is from last git.
+> 
+> ...
 >
-> Signed-off-by: nkalmala <nkalmala@gmail.com>
+> 
+> [    0.012497] Brought up 4 CPUs
+> [    0.174941] migration_cost=19,713
+> [    0.215588] NET: Registered protocol family 16
+> [    0.268807] ACPI: bus type pci registered
+> [    0.316660] PCI: Fatal: No config space access function found
 
-Documentation/SubmittingPatches:
+That looks pretty bad.
 
-using your real name (sorry, no pseudonyms or anonymous contributions.)
+> [    0.385262] Setting up standard PCI resources
+> [    0.452566] ACPI: Access to PCI configuration space unavailable
+> [    0.527856] ACPI: Interpreter enabled
+> [    0.571564] ACPI: Using IOAPIC for interrupt routing
+> [    0.631370] ACPI: PCI Root Bridge [PCI0] (0000:00)
+> [    0.690684] ------------[ cut here ]------------
+> [    0.745825] kernel BUG at drivers/acpi/osl.c:461!
 
-Greetings,
+And acpi keeled over as a result.
 
-Eike
+Do you have CONFIG_PCI_MULTITHREAD_PROBE=y?   If so, try disabling it.
 
---nextPart2752038.RB4LgW9m7H
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBFRx8TXKSJPmm5/E4RApXkAJ9zDJ0PDDe5ISUzhh1moVd7MnW72ACePws1
-uUf+Qrjhw4bWHZiuKbLmpDg=
-=/yjF
------END PGP SIGNATURE-----
-
---nextPart2752038.RB4LgW9m7H--

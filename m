@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422974AbWJaIrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422988AbWJaIwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422974AbWJaIrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422975AbWJaIrZ
+	id S1422988AbWJaIwE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422989AbWJaIwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:47:25 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:50055 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422974AbWJaIrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:47:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=EqF5JMf+07D1yH97Ow/TF6FfKCqZtUgUTsx4O2XWTky9C+eTWVRfpHRNEbyDEAlOj2gvJBezMGcVX2Y2vIDXYriHj2CiNIlf1cC/SI2OSfxPZ7KprJXjGvyhplsxG0n51NETZuCteE/HXvaWsPbsFRHFpr4QF2G2d1qkSB6CFKA=
-Message-ID: <45470DB8.5020906@innova-card.com>
-Date: Tue, 31 Oct 2006 09:47:52 +0100
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 31 Oct 2006 03:52:03 -0500
+Received: from poczta2.linux.webserwer.pl ([193.178.241.17]:43437 "EHLO
+	poczta2.linux.webserwer.pl") by vger.kernel.org with ESMTP
+	id S1422988AbWJaIwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 03:52:01 -0500
+Message-ID: <45470EAA.1060901@limcore.pl>
+Date: Tue, 31 Oct 2006 09:51:54 +0100
+From: "lkml-2006i-ticket@limcore.pl" <lkml-2006i-ticket@limcore.pl>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-To: Miguel Ojeda <maxextreme@gmail.com>
-CC: Franck <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1 update4] drivers: add LCD support
-References: <20061026174858.b7c5eab1.maxextreme@gmail.com>	 <20061026220703.37182521.akpm@osdl.org>	 <4545C756.30403@innova-card.com> <653402b90610300553t405c67e6u69dee3c83c22dae5@mail.gmail.com>
-In-Reply-To: <653402b90610300553t405c67e6u69dee3c83c22dae5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.18.1 + grsecurity JFS failed with dbAllocNext: Corrupt dmap page
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Ojeda wrote:
-> Again: Please read LDD3. It explains it well. Read all the "Remapping
-> RAM" chapter and you will understand what I've done, or just try to
-> remap RAM yourself with remap_pfn_range. 
 
-Well, I'm trying to get an explanation here and here is what I get
-from you:
+Hello,
+on 2.6.18.1 + grsecurity I totally lost an JFS partition.
 
-MO  > LDD3 states it must work like this. (Note: it doesn't explain
-      why though)
-FBH > Weird I read the implementation of remap_pfn_range() and it 
-      doesn't seem to have such restriction, I'm wondering how
-      things work...
-MO  > Again it's stated in LDD3, read again.
+I was doing regular work on freshly installed debian stable (on
+olerd/rather tested hardware that worked 24/24 7/7)
+I installed 2.6.18.1 + grsecurity, started memtest and stress in the
+background, enabled swap with encryption, and played a bit with SysRq -
+using it to dump CPU state and tasks list (playing around).
 
-Do you really think you explain anything with such replies ?
+After a while I got tons of errors like
+ERROR: (device hda3): DT_GETPAGE: dtree page corrupt
+ERROR: (device hda3): dbAllocNext: Corrupt dmap page
 
-Fortunately, Hugh Dickins gives a hint and it appears that the
-restriction doesn't hold anymore.
+about 10 per second. I rebooted (computer hanged)
 
-> (I really tried it using
-> different ways and I couldn't map it with remap_pfn_range, it returns
-> you a place full with zeros, as LDD3 states).
+After reset the partition used - hda3 (as /, it was the only rw mounted
+partition) was gone, unable to repair "since both master and secondary
+superblocks are damaged".
 
-I'm really wondering how did you test the thing... ;)
+If anyone is interested I saved first 100 MB of this ~6 GB partition
+using dd, it looks totally different in hexdump then other partition (at
+least the begin) so it suggests that indeed superblock and other data
+was totally shreded / filled with garbage.
 
-bye
-		Franck
+The config it Althon 1700 with 512 RAM, kernel 2.6.18.1 + grsecurity.
+Config: in 250 Hz timer frequency, with Voluntary Kernel Preemption,
+with no privilaged ioports, possible with some additional kernel hackng
+options (like vm debugging),
+
+otherwise config was like the 2.6.18 (but not .1) that run perfectly on
+other machines.
+
+The failure occured during heavy load and stress testing while playing
+with SysRq at same time (but only non-destructive things like -p -t -m)
+
+The smartctrl shows 2 UDMA errors for this device (but they might be
+very old).
+
+Possible that this is hardware fault, but letting now perhaps anyone had
+simmilar problems...
+
+
+ERROR: (device hda3): DT_GETPAGE: dtree page corrupt
+ERROR: (device hda3): dbAllocNext: Corrupt dmap page
+
+
+-- 
+LimCore    C++ Software Architect / Team Lead
+---> oo    Linux programs
+limcore
+software
+
+

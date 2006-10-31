@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965520AbWJaFKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751986AbWJaFaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965520AbWJaFKU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 00:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965518AbWJaFKT
+	id S1751986AbWJaFaz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 00:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWJaFaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 00:10:19 -0500
-Received: from nz-out-0102.google.com ([64.233.162.202]:17591 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965520AbWJaFKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 00:10:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=d1ebbA6ebVvFyyR/egQIdJBCLUo06AwO+n6yO0uA3ylKt1s3T0Zw7MkBbcQ9+2vc//CkCXB+oDKjC2DtVGRx6Nh7nRcHfKy2T5P9E7usJ4RpwNRrWNz+yBP/pqg2olKTov1fuER0/3NUN1WHbU656dWtgVGEBXWGLTB273UcimI=
-Reply-To: andrew.j.wade@gmail.com
-To: Greg KH <greg@kroah.com>
-Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
-Date: Tue, 31 Oct 2006 00:09:54 -0500
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, andrew.j.wade@gmail.com,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       Kay Sievers <kay.sievers@vrfy.org>
-References: <20061029160002.29bb2ea1.akpm@osdl.org> <20061030201123.5685529f.akpm@osdl.org> <20061031042032.GA12729@kroah.com>
-In-Reply-To: <20061031042032.GA12729@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 31 Oct 2006 00:30:55 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:11066 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751476AbWJaFay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 00:30:54 -0500
+Date: Mon, 30 Oct 2006 21:26:29 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Marc Perkel <marc@perkel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: io_apic compile error
+Message-Id: <20061030212629.8f9e9499.randy.dunlap@oracle.com>
+In-Reply-To: <4546D8AA.30309@perkel.com>
+References: <4546CFA2.8000504@perkel.com>
+	<20061030203408.ec2ee5ce.randy.dunlap@oracle.com>
+	<4546D8AA.30309@perkel.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610310010.09759.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 October 2006 23:20, Greg KH wrote:
-> On Mon, Oct 30, 2006 at 08:11:23PM -0800, Andrew Morton wrote:
-> > On Mon, 30 Oct 2006 22:58:11 -0500
-> > Andrew James Wade <andrew.j.wade@gmail.com> wrote:
-> > 
-> > > I've just found out that unsetting CONFIG_SYSFS_DEPRECATED makes the
-> > > crash go away.
-> > 
-> > How bizarre.  sysfs changes cause unexpected pte protection values?
-
-Perhaps one of the drivers is responding badly to device_create
-failing? (-EEXIST, if I'm not mistaken). 
+On Mon, 30 Oct 2006 21:01:30 -0800 Marc Perkel wrote:
 
 > 
-> That's just wrong.  Something odd is happening here.  Can you try to
-> bisect things to determine the patch that is causing the problem?
+> 
+> Randy Dunlap wrote:
+> > On Mon, 30 Oct 2006 20:22:58 -0800 Marc Perkel wrote:
+> >
+> >   
+> >> getting a compile error when compiling 2.6.19rc3. Thought someone might want to fix this.
+> >>
+> >>   CC      arch/x86_64/kernel/io_apic.o
+> >> arch/x86_64/kernel/io_apic.c: In function 'ioapic_pirq_setup':
+> >> arch/x86_64/kernel/io_apic.c:412: error: 'MAX_PIRQS' undeclared (first use in this function)
+> >> arch/x86_64/kernel/io_apic.c:412: error: (Each undeclared identifier is reported only once
+> >> arch/x86_64/kernel/io_apic.c:412: error: for each function it appears in.)
+> >> arch/x86_64/kernel/io_apic.c:417: error: 'pirq_entries' undeclared (first use in this function)
+> >> arch/x86_64/kernel/io_apic.c:419: error: 'pirqs_enabled' undeclared (first use in this function)
+> >> arch/x86_64/kernel/io_apic.c:412: warning: unused variable 'ints'
+> >> make[1]: *** [arch/x86_64/kernel/io_apic.o] Error 1
+> >> make: *** [arch/x86_64/kernel] Error 2
+> >>     
+> >
+> > Hm, it builds for me.  Please post your .config file.
+> >
+> >
+> >   
+> ok - here it is
+> 
+> #
+> # Automatically generated make config: don't edit
+> # Linux kernel version: 2.6.19-rc3
+> # Mon Oct 30 20:20:25 2006
 
-Sure. 
+Odd.  That .config builds fine for me too.
 
-Andrew Wade
+Is this a unmodified 2.6.19-rc3?  How did you get it?
+
+Maybe someone else can discover the problem.
+
+---
+~Randy

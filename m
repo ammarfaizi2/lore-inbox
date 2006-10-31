@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422988AbWJaIwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422985AbWJaIvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422988AbWJaIwE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422989AbWJaIwD
+	id S1422985AbWJaIvu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422987AbWJaIvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:52:03 -0500
-Received: from poczta2.linux.webserwer.pl ([193.178.241.17]:43437 "EHLO
-	poczta2.linux.webserwer.pl") by vger.kernel.org with ESMTP
-	id S1422988AbWJaIwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:52:01 -0500
-Message-ID: <45470EAA.1060901@limcore.pl>
-Date: Tue, 31 Oct 2006 09:51:54 +0100
-From: "lkml-2006i-ticket@limcore.pl" <lkml-2006i-ticket@limcore.pl>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.18.1 + grsecurity JFS failed with dbAllocNext: Corrupt dmap page
-Content-Type: text/plain; charset=UTF-8
+	Tue, 31 Oct 2006 03:51:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:732 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422985AbWJaIvt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 03:51:49 -0500
+Subject: Re: [PATCH 4/4] gfs2: ->readpages() fixes
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org, cluster-devel@redhat.com, akpm@osdl.org
+In-Reply-To: <87slh5lgbo.fsf@duaron.myhome.or.jp>
+References: <87slh5lgbo.fsf@duaron.myhome.or.jp>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Tue, 31 Oct 2006 08:56:45 +0000
+Message-Id: <1162285005.27980.278.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hello,
-on 2.6.18.1 + grsecurity I totally lost an JFS partition.
+On Tue, 2006-10-31 at 05:05 +0900, OGAWA Hirofumi wrote:
+> This just ignore the remaining pages, and remove unneeded unlock_pages().
+> 
+> Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Acked-by: Steven Whitehouse <swhiteho@redhat.com>
 
-I was doing regular work on freshly installed debian stable (on
-olerd/rather tested hardware that worked 24/24 7/7)
-I installed 2.6.18.1 + grsecurity, started memtest and stress in the
-background, enabled swap with encryption, and played a bit with SysRq -
-using it to dump CPU state and tasks list (playing around).
+Thanks for fixing this,
 
-After a while I got tons of errors like
-ERROR: (device hda3): DT_GETPAGE: dtree page corrupt
-ERROR: (device hda3): dbAllocNext: Corrupt dmap page
-
-about 10 per second. I rebooted (computer hanged)
-
-After reset the partition used - hda3 (as /, it was the only rw mounted
-partition) was gone, unable to repair "since both master and secondary
-superblocks are damaged".
-
-If anyone is interested I saved first 100 MB of this ~6 GB partition
-using dd, it looks totally different in hexdump then other partition (at
-least the begin) so it suggests that indeed superblock and other data
-was totally shreded / filled with garbage.
-
-The config it Althon 1700 with 512 RAM, kernel 2.6.18.1 + grsecurity.
-Config: in 250 Hz timer frequency, with Voluntary Kernel Preemption,
-with no privilaged ioports, possible with some additional kernel hackng
-options (like vm debugging),
-
-otherwise config was like the 2.6.18 (but not .1) that run perfectly on
-other machines.
-
-The failure occured during heavy load and stress testing while playing
-with SysRq at same time (but only non-destructive things like -p -t -m)
-
-The smartctrl shows 2 UDMA errors for this device (but they might be
-very old).
-
-Possible that this is hardware fault, but letting now perhaps anyone had
-simmilar problems...
+Steve.
 
 
-ERROR: (device hda3): DT_GETPAGE: dtree page corrupt
-ERROR: (device hda3): dbAllocNext: Corrupt dmap page
-
-
--- 
-LimCore    C++ Software Architect / Team Lead
----> oo    Linux programs
-limcore
-software
-
+> ---
+> 
+>  fs/gfs2/ops_address.c |    7 -------
+>  1 file changed, 7 deletions(-)
+> 
+> diff -puN fs/gfs2/ops_address.c~readpages-fixes-gfs2 fs/gfs2/ops_address.c
+> --- linux-2.6/fs/gfs2/ops_address.c~readpages-fixes-gfs2	2006-10-31 04:26:20.000000000 +0900
+> +++ linux-2.6-hirofumi/fs/gfs2/ops_address.c	2006-10-31 04:26:20.000000000 +0900
+> @@ -337,13 +337,6 @@ out:
+>  out_noerror:
+>  	ret = 0;
+>  out_unlock:
+> -	/* unlock all pages, we can't do any I/O right now */
+> -	for (page_idx = 0; page_idx < nr_pages; page_idx++) {
+> -		struct page *page = list_entry(pages->prev, struct page, lru);
+> -		list_del(&page->lru);
+> -		unlock_page(page);
+> -		page_cache_release(page);
+> -	}
+>  	if (do_unlock)
+>  		gfs2_holder_uninit(&gh);
+>  	goto out;
+> _
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

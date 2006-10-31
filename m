@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423659AbWJaVgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423658AbWJaVmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423659AbWJaVgj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 16:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423658AbWJaVgj
+	id S1423658AbWJaVmA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 16:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423666AbWJaVmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 16:36:39 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:61584
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1423650AbWJaVgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 16:36:38 -0500
-Date: Tue, 31 Oct 2006 13:36:39 -0800 (PST)
-Message-Id: <20061031.133639.112620851.davem@davemloft.net>
-To: shemminger@osdl.org
-Cc: peter.hicks@poggs.co.uk, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Thousands of interfaces
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061031102222.7ab1ed6b@freekitty>
-References: <20061031092550.GA8201@tufnell.london.poggs.net>
-	<20061031.013154.122620846.davem@davemloft.net>
-	<20061031102222.7ab1ed6b@freekitty>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 31 Oct 2006 16:42:00 -0500
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:42971 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1423658AbWJaVl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 16:41:59 -0500
+Date: Tue, 31 Oct 2006 22:41:46 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Pierre Ossman <drzeus-list@drzeus.cx>, Arnd Bergmann <arnd@arndb.de>,
+       Christoph Hellwig <hch@lst.de>, Jiri Slaby <jirislaby@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>, Dominik Brodowski <linux@brodo.de>,
+       Harald Welte <laforge@netfilter.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jean Delvare <khali@linux-fr.org>
+Subject: Re: feature-removal-schedule obsoletes
+Message-ID: <20061031214146.GB30739@wohnheim.fh-wedel.de>
+References: <45324658.1000203@gmail.com> <20061016133352.GA23391@lst.de> <200610242124.49911.arnd@arndb.de> <4543162B.7030701@drzeus.cx> <20061031155756.GA23021@wohnheim.fh-wedel.de> <20061031193212.GC26625@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061031193212.GC26625@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Tue, 31 Oct 2006 10:22:22 -0800
+On Tue, 31 October 2006 19:32:12 +0000, Russell King wrote:
+> On Tue, Oct 31, 2006 at 04:57:56PM +0100, J?rn Engel wrote:
+> > 
+> > Why does the MMC block driver use a thread?  Is there a technical
+> > reason for this or could it be done in original process context as
+> > well, removing some code and useless cpu scheduler overhead?
+> 
+> As I understand it, there is no guarantee that a block drivers request
+> function will be called in process context - it could be called in
+> interrupt context.
 
-> On Tue, 31 Oct 2006 01:31:54 -0800 (PST)
-> David Miller <davem@davemloft.net> wrote:
-> 
-> > From: Peter Hicks <peter.hicks@poggs.co.uk>
-> > Date: Tue, 31 Oct 2006 09:25:50 +0000
-> > 
-> > [ Discussion belongs on netdev@vger.kernel.org, added to CC: ]
-> > 
-> > > I have a dual 3GHz Xeon machine with a 2.4.21 kernel and thousands (15k+) of
-> > > ipip tunnel interfaces.  These are being used to tunnel traffic from remote
-> > > routers, over a private network, and handed off to a third party.
-> >  ...
-> > > Is it possible to speed up creation of the interfaces?  Currently it takes
-> > > around 24 hours.  Is there are more efficient way to handle a very large
-> > > number of IP-IP tunnels?  Would upgrading to a 2.6 kernel be of use?
-> > 
-> 
-> 
-> 2.4 has a several N^2 searches for interfaces (and is in deep freeze by now).
-> 2.6 had several changes to handle 1000's of interfaces.
+Makes some sense.  I would still like to understand when a request
+function is called from interrupt context, but if it is, the thread is
+certainly necessary.
 
-Oops I didn't notice this was with 2.4.x.  Indeed, 2.4.x definitely
-cannot handle large numbers of networking interfaces at all without
-major surgery.  2.6.x should handle this significantly better.
+Jörn
+
+-- 
+This above all: to thine own self be true.
+-- Shakespeare

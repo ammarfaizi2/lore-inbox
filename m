@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751973AbWJaFaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWJaFfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751973AbWJaFaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 00:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWJaFaj
+	id S1751476AbWJaFfA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 00:35:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWJaFfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 00:30:39 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:49949 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751476AbWJaFai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 00:30:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=W9nCqHr5R/iuA6jdzfKxmqH5gAXP4pntXXnRU8SBRr70+Y4DMsD/qSNIcGrq1UHt92a/pX9Q0x03Gcfe3XUgVmg6nxeGHqCpSuaSdGW8z69HyW9jZTRnAEc8+TfLyzUqPyytXM6uMIHo5+Ty1gxXjL0VioHV0nf1hZa0tfR+i0E=
-Message-ID: <6d6a94c50610302130u55fc3f59n7be157a73c50805e@mail.gmail.com>
-Date: Tue, 31 Oct 2006 13:30:36 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: How to add a device file to sysfs?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 31 Oct 2006 00:35:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7378 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751476AbWJaFe7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 00:34:59 -0500
+Date: Mon, 30 Oct 2006 21:34:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Subject: Re: Linux 2.6.19-rc4
+Message-Id: <20061030213454.8266fcb6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 30 Oct 2006 20:27:17 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-When a misc device file is registered, there are two files under my
-own class directory:
+> Jun'ichi Nomura (2):
+>       fix bd_claim_by_kobject error handling
+>       clean up add_bd_holder()
 
-/sys --> class --> misc --> myprog --> dev
-                                                   --> uevent
-                                                   --> myprog_show (to be added)
+That didn't go so well.  I guess the below was intended, but I wonder if
+we actually merged the correct patch?
 
-Now, my question is, is it possbile to add the third file
-"myprog_show" under "myprog" directory without modify any common code?
 
-I've read the doc under linux-2.6.x/Documentation, I can add it to
-some other directory, but not found a way to add it to my own
-directory.
+From: Andrew Morton <akpm@osdl.org>
 
-Thanks for any help.
--Aubrey
+fs/block_dev.c: In function 'find_bd_holder':
+fs/block_dev.c:666: warning: return makes integer from pointer without a cast
+fs/block_dev.c:669: warning: return makes integer from pointer without a cast
+fs/block_dev.c: In function 'add_bd_holder':
+fs/block_dev.c:685: warning: unused variable 'tmp'
+fs/block_dev.c: In function 'bd_claim_by_kobject':
+fs/block_dev.c:773: warning: assignment makes pointer from integer without a cast
+
+Cc: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ fs/block_dev.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN fs/block_dev.c~find_bd_holder-fix fs/block_dev.c
+--- a/fs/block_dev.c~find_bd_holder-fix
++++ a/fs/block_dev.c
+@@ -656,7 +656,8 @@ static void free_bd_holder(struct bd_hol
+  * If found, increment the reference count and return the pointer.
+  * If not found, returns NULL.
+  */
+-static int find_bd_holder(struct block_device *bdev, struct bd_holder *bo)
++static struct bd_holder *find_bd_holder(struct block_device *bdev,
++					struct bd_holder *bo)
+ {
+ 	struct bd_holder *tmp;
+ 
+@@ -682,7 +683,6 @@ static int find_bd_holder(struct block_d
+  */
+ static int add_bd_holder(struct block_device *bdev, struct bd_holder *bo)
+ {
+-	struct bd_holder *tmp;
+ 	int ret;
+ 
+ 	if (!bo)
+_
+

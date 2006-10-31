@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423811AbWJaTXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423810AbWJaTZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423811AbWJaTXK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 14:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423810AbWJaTXK
+	id S1423810AbWJaTZM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 14:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423814AbWJaTZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 14:23:10 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:31139 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423811AbWJaTXI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 14:23:08 -0500
-Date: Tue, 31 Oct 2006 12:36:10 -0600
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: akpm@osdl.org
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] eCryptfs: Fix pointer deref
-Message-ID: <20061031183610.GA3230@us.ibm.com>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <20061030233209.GC3458@us.ibm.com> <20061030233637.GB21515@us.ibm.com>
+	Tue, 31 Oct 2006 14:25:11 -0500
+Received: from [71.30.118.248] ([71.30.118.248]:27837 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1423810AbWJaTZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 14:25:09 -0500
+Subject: Re: [PATCH]: PCI Error Recovery: Symbios SCSI device driver
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Linas Vepstas <linas@austin.ibm.com>, linux-scsi@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20061031185506.GE26964@parisc-linux.org>
+References: <20061020180510.GN6537@austin.ibm.com>
+	 <20061031185506.GE26964@parisc-linux.org>
+Content-Type: text/plain
+Date: Tue, 31 Oct 2006 14:24:01 -0500
+Message-Id: <1162322643.13859.54.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061030233637.GB21515@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 05:36:37PM -0600, Michael Halcrow wrote:
-> +	algified_name_len = (chaining_modifier_len + cipher_name_len + 3);
-> +	(*algified_name) = kmalloc(algified_name_len, GFP_KERNEL);
-> +	if (!(algified_name)) {
-> +		rc = -ENOMEM;
-> +		goto out;
-> +	}
+On Tue, 2006-10-31 at 11:55 -0700, Matthew Wilcox wrote:
+> Is it safe / reasonable / a good idea to sleep for 35 seconds in the EH
+> handler?  I'm not that familiar with how the EH code works.  It has its
+> own thread, so I suppose that's OK.
 
-I missed a pointer dereference in this kmalloc result check.
+Yes, each host has its own thread.  Ordinarily it would be impolite to
+delay recovery this long, but I assume that since the card is wedged
+there's nothing else it could be doing anyway.
 
-Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+Just for my own edification, what happens on the dual function (dual
+channel) boards?  We have two threads there and two separate I/O
+processors.  I assume a PCI error will kill both, do we need to do
+something about this?
 
----
+James
 
- fs/ecryptfs/crypto.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-b30f5b01ff79d9250dbd9e39db1c1aae7719c815
-diff --git a/fs/ecryptfs/crypto.c b/fs/ecryptfs/crypto.c
-index 3f83613..9333fa3 100644
---- a/fs/ecryptfs/crypto.c
-+++ b/fs/ecryptfs/crypto.c
-@@ -134,7 +134,7 @@ int ecryptfs_crypto_api_algify_cipher_na
- 
- 	algified_name_len = (chaining_modifier_len + cipher_name_len + 3);
- 	(*algified_name) = kmalloc(algified_name_len, GFP_KERNEL);
--	if (!(algified_name)) {
-+	if (!(*algified_name)) {
- 		rc = -ENOMEM;
- 		goto out;
- 	}
--- 
-1.3.3
+
+> I generally prefer not to be so perlish in conditionals, ie:
+> 
+>         if ((np->s.device->error_state != pci_channel_io_normal) &&
+>             (np->s.device->error_state != 0) {
+>                 int timed_out = wait_for_completion_timeout(
+>                         &np->s.io_reset_wait, WAIT_FOR_PCI_RECOVERY*HZ);
+>                 if (!timed_out)
+>                         return SCSI_FAILED;
+>         }
+> 
+> Why is the condition so complicated though?  What does 0 mean if it's
+> not io_normal?  At least let's hide that behind a convenience macro:
+> 
 

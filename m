@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030587AbWJaIhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422891AbWJaIjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030587AbWJaIhS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:37:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbWJaIhR
+	id S1422891AbWJaIjR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:39:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422881AbWJaIjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:37:17 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:33223 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1030587AbWJaIhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:37:16 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <45470B23.6070901@s5r6.in-berlin.de>
-Date: Tue, 31 Oct 2006 09:36:51 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+	Tue, 31 Oct 2006 03:39:17 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:32609 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1422891AbWJaIjP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 03:39:15 -0500
+Message-ID: <45470AB3.4050107@openvz.org>
+Date: Tue, 31 Oct 2006 11:34:59 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-To: maneesh@in.ibm.com
-CC: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: NULL pointer dereference in sysfs_readdir
-References: <4539DDC5.80207@s5r6.in-berlin.de> <20061030123605.GA19814@in.ibm.com>
-In-Reply-To: <20061030123605.GA19814@in.ibm.com>
-X-Enigmail-Version: 0.94.1.0
+To: Matt Helsley <matthltc@us.ibm.com>
+CC: Pavel Emelianov <xemul@openvz.org>, Paul Jackson <pj@sgi.com>,
+       vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
+       menage@google.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       rohitseth@google.com, devel@openvz.org
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+References: <20061030103356.GA16833@in.ibm.com>	 <45460743.8000501@openvz.org>	<20061030062332.856dcc32.pj@sgi.com>	 <45460E69.7070505@openvz.org> <20061030071838.7988d3e1.pj@sgi.com>	 <454619B9.8030705@openvz.org> <1162254377.2715.169.camel@localhost.localdomain>
+In-Reply-To: <1162254377.2715.169.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni wrote on 2006-10-30:
-> On Sat, Oct 21, 2006 at 10:43:49AM +0200, Stefan Richter wrote:
-...
->> A quick look at linux-2.6.19-rc2/fs/sysfs/dir.c::sysfs_readdir shows a
->> list_move, a traversal through a list, and some accesses to data with no
->> apparent protection by mutexes.
->>
-> Most of the sysfs locking is done by parent inode's i_mutex. And for
-> sysfs_readdir(), i_mutex is held at VFS layer in vfs_readdir().
+[snip]
 
-OK, thanks.
-
-> If this is not happening during boot, could you please recreate the
-> oops with at kdump? I guess kdump should work well on FC.
-
-The report came from someone else; I notified him. I cannot reproduce
-it, I don't have FC nor hald. BTW the reporter mentioned that the
-machine freezes completely much more often than merely throwing an oops.
-(Both caused by hald.)
-
-> (http://fedoraproject.org/wiki/FC6KdumpKexecHowTo?highlight=%28FC6KdumpKexecHowTo%29)
+> 	Yes. The controller should stay in memory until userspace decides that
+> control of the resource is no longer desired. Though not all controllers
+> should be removable since that may impose unreasonable restrictions on
+> what useful/performant controllers can be implemented.
 > 
->> Is there reason to be worried...?
+> 	That doesn't mean that the controller couldn't reclaim memory it uses
+> when it's no longer needed.
 > 
-> Though locking looks fine to me.. but oops is a reason enough to
-> be worried about.
 
-I referred to the locking. :-) Thanks for the hints,
--- 
-Stefan Richter
--=====-=-==- =-=- =====
-http://arcgraph.de/sr/
+
+I've already answered Paul Menage about this. Shortly:
+
+... I agree that some users may want to create some
+kind of "persistent" beancounters, but this must not be
+the only way to control them...
+... I think that we may have something [like this] - a flag
+BC_PERSISTENT to keep beancounters with zero refcounter in
+memory to reuse them...
+... I have nothing against using configfs as additional,
+optional interface, but I do object using it as the only
+window inside BC world...
+
+Please, refer to my full reply for comments.

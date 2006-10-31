@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422905AbWJaHbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422906AbWJaHbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422905AbWJaHbI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422906AbWJaHbI
+	id S1422906AbWJaHbp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422912AbWJaHbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:31:08 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:64927 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1422905AbWJaHbE (ORCPT
+	Tue, 31 Oct 2006 02:31:44 -0500
+Received: from mail.gmx.de ([213.165.64.20]:6346 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422910AbWJaHbn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:31:04 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.19-rc3-mm1 - udev doesn't work (was: ATI SATA controller not detected)
-Date: Tue, 31 Oct 2006 08:29:28 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org
-References: <20061029160002.29bb2ea1.akpm@osdl.org> <200610302148.34218.rjw@sisk.pl> <20061030205742.GA4084@kroah.com>
-In-Reply-To: <20061030205742.GA4084@kroah.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200610310829.31554.rjw@sisk.pl>
-X-Length: 2284
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 31 Oct 2006 02:31:43 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+From: Mike Galbraith <efault@gmx.de>
+To: Greg KH <gregkh@suse.de>
+Cc: "Martin J. Bligh" <mbligh@google.com>,
+       Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+In-Reply-To: <20061031072145.GA7306@suse.de>
+References: <45461E74.1040408@google.com>
+	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
+	 <45463481.80601@shadowen.org>
+	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
+	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
+	 <1162277642.5970.4.camel@Homer.simpson.net> <20061031071347.GA7027@suse.de>
+	 <1162278909.6416.5.camel@Homer.simpson.net> <20061031072145.GA7306@suse.de>
+Content-Type: text/plain
+Date: Tue, 31 Oct 2006 08:31:13 +0100
+Message-Id: <1162279873.6416.11.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Resending due to a network problem on my side.]
-
-On Monday, 30 October 2006 21:57, Greg KH wrote:
-> On Mon, Oct 30, 2006 at 09:48:33PM +0100, Rafael J. Wysocki wrote:
-> > On Monday, 30 October 2006 21:22, Greg KH wrote:
-> > > On Mon, Oct 30, 2006 at 09:15:37PM +0100, Rafael J. Wysocki wrote:
-> > > > Sorry, I was wrong.
-> > > > 
-> > > > The controller _is_ detected and handled properly, but udev is apparently
-> > > > unable to create the special device files for SATA drives/partitions even
-> > > > though CONFIG_SYSFS_DEPRECATED is set.
+On Mon, 2006-10-30 at 23:21 -0800, Greg KH wrote:
+> On Tue, Oct 31, 2006 at 08:15:09AM +0100, Mike Galbraith wrote:
+> > On Mon, 2006-10-30 at 23:13 -0800, Greg KH wrote:
+> > > On Tue, Oct 31, 2006 at 07:54:02AM +0100, Mike Galbraith wrote:
+> > > > I just straced /sbin/getcfg again, and confirmed that that is indeed
+> > > > what is still happening here.  It's a known issue (for SuSE at least).
 > > > 
-> > > This config option should not affect the block device sysfs files at all
-> > > at this point in time.
-> > > 
-> > > What does 'tree /sys/block/' show?
+> > > Ick, is this 10.1?  Or 10.2?  Or something else?
 > > 
-> > I can't run 'tree', but 'ls' works somehow (can't mount the root fs).  The
-> > block device sysfs files seem to be present
+> > 10.1 fully updated.
 > 
-> If they are there, then udev should work just fine.
-> 
-> > > If the files show up there properly, udev should handle them just fine.
-> > 
-> > It doesn't.
-> > 
-> > Well, I can binary search for the offending patch if that helps.
-> 
-> That would be very helpful, thanks.
+> Crap, the libsysfs hooks were more intrusive than I expected.  10.2
+> should not have this issue anymore.  Until then, just enable that config
+> option and you should be fine.
 
-It's one of these:
+I just grabbed latest sysfsutils and configutils srpms, and will see if
+the problem has been fixed yet.
 
-git-acpi.patch
-git-acpi-fixup.patch
-git-acpi-more-build-fixes.patch
+(oh... gregkh@suse.de.  i guess you're already sure:)
 
-Greetings,
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423763AbWJaWa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423762AbWJaWbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423763AbWJaWa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 17:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423762AbWJaWa2
+	id S1423762AbWJaWbS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 17:31:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423844AbWJaWbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 17:30:28 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:63559 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1423724AbWJaWa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 17:30:27 -0500
-To: Matthew Wilcox <matthew@wil.cx>, John Partridge <johnip@sgi.com>
-Cc: "Richard B. Johnson" <jmodem@AbominableFirebug.com>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, jeff@garzik.org, openib-general@openib.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, David Miller <davem@davemloft.net>
-Subject: Re: Ordering between PCI config space writes and MMIO reads?
-X-Message-Flag: Warning: May contain useful information
-References: <20061024214724.GS25210@parisc-linux.org>
-	<adar6wxbcwt.fsf@cisco.com> <20061024223631.GT25210@parisc-linux.org>
-	<20061024.154347.77057163.davem@davemloft.net>
-	<aday7r4a3d7.fsf@cisco.com> <adad588tijq.fsf@cisco.com>
-	<20061031195312.GD5950@mellanox.co.il>
-	<019301c6fd2c$044d7010$0732700a@djlaptop>
-	<20061031204717.GG26964@parisc-linux.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 31 Oct 2006 14:30:13 -0800
-In-Reply-To: <20061031204717.GG26964@parisc-linux.org> (Matthew Wilcox's message of "Tue, 31 Oct 2006 13:47:17 -0700")
-Message-ID: <ada4ptkt8y2.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 31 Oct 2006 17:31:18 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:17189 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423762AbWJaWbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 17:31:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=jPebDUDHGb8lTk+E6evFUfK8yrenknQiys4+Y4IO9KZCmLQncF54UHMK3KY0rkVXU3R9RjDJLi9XFokoL6LGEMSluqG3tUpwLPbpi7BHCk0nUAm+md5IxEqYHxQ/ZUGnO7vzyrkpbdJUP1R2QzBF7Hg+AIU1UZvxsGJPj4jweJ4=
+Message-ID: <fc94aae90610311431q19a1490asc7f7c3fef2b7036c@mail.gmail.com>
+Date: Tue, 31 Oct 2006 22:31:15 +0000
+From: "Michael Lothian" <mike@fireburn.co.uk>
+To: "John Richard Moser" <nigelenki@comcast.net>
+Subject: Re: Suspend to disk: do we HAVE to use swap?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4546C637.5080504@comcast.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 31 Oct 2006 22:30:15.0077 (UTC) FILETIME=[22D33550:01C6FD3C]
-Authentication-Results: sj-dkim-6.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4546C637.5080504@comcast.net>
+X-Google-Sender-Auth: e1ca0adc229e964c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > I'm beginning to think Michael Tsirkin has the only solution to this
- > -- architectures need to check that their hardware blocks until the
- > config write completion has occurred (and if not, simulate that it has
- > in software).
+Sorry but don't all these featues exist already in suspend2?
 
-OK, I guess I'm convinced.  The vague language in the base PCI 3.0
-spec about "dependencies" made me think that a read of a config
-register had to wait until all previous writes to the same register
-are done.  So I'll drop this patch for now.
+Available at http://www.suspend2.net/
 
-John, you'll need to try and come up with a way to solve this in the
-Altix implementation of pci_write_config_xxx().
+It uses either swap of a file and also does compression
 
- - R.
+Mike

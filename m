@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946050AbWJaWIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946048AbWJaWNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946050AbWJaWIy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 17:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946056AbWJaWIy
+	id S1946048AbWJaWNN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 17:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946055AbWJaWNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 17:08:54 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:63736 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1946050AbWJaWIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 17:08:53 -0500
-Date: Tue, 31 Oct 2006 23:08:38 +0100
-From: Joerg.Schilling@fokus.fraunhofer.de (Joerg Schilling)
-To: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
-Subject: SCSI over USB showstopper bug?
-Message-ID: <4547c966.8oyAB/pzCZ7bGUza%Joerg.Schilling@fokus.fraunhofer.de>
-User-Agent: nail 11.22 3/20/05
+	Tue, 31 Oct 2006 17:13:13 -0500
+Received: from mx4.cs.washington.edu ([128.208.4.190]:32426 "EHLO
+	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S1946048AbWJaWNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 17:13:12 -0500
+Date: Tue, 31 Oct 2006 14:13:04 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: linux-kernel@vger.kernel.org, Giuliano Pochini <pochini@shiny.it>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH] Fix potential NULL pointer dereference in echoaudio
+ midi.
+In-Reply-To: <200610312221.41089.jesper.juhl@gmail.com>
+Message-ID: <Pine.LNX.4.64N.0610311411000.2572@attu4.cs.washington.edu>
+References: <200610312221.41089.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 31 Oct 2006, Jesper Juhl wrote:
 
-it looks as if SG_GET_RESERVED_SIZE & SG_SET_RESERVED_SIZE
-are not in interaction with the underlying SCSI transport.
+> In sound/pci/echoaudio/midi.c::snd_echo_midi_output_write(), there's a risk
+> of dereferencing a NULL 'chip->midi_out'.
+> This patch contains the obvious fix as also used a bit higher up in the 
+> same function.
+> 
 
-Programs like readcd and cdda2wav that try to get very large SCSI
-transfer buffers get a confirmation for nearly any SCSI transfer size 
-but later when readcd/cdda2wav try to transfer data with an
-actual SCSI command, they fail with ENOMEM.
+How about just adding an early test:
+	if (!chip->midi_out)
+		goto out;
 
-Correct fix: let sg.c make a callback to the underlying SCSI transport
-		and let it get a confirmation tfor the buffer size.
+and adding a label for out before the chip->lock unlock?  We still need to 
+clear chip->midi_full so we still require the spinlock, but there's no 
+reason we should be testing chip->midi_out multiple times since the 
+remaining code path in its entirety depends on it.
 
-Quick and dirty fix: reduce the maximum allowed DMA size to the smallest
-		max DMA size of all SCSI transports.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+		David

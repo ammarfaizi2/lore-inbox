@@ -1,100 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965521AbWJaBvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965519AbWJaB5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965521AbWJaBvx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 20:51:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965520AbWJaBvx
+	id S965519AbWJaB5O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 20:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965522AbWJaB5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 20:51:53 -0500
-Received: from cantor.suse.de ([195.135.220.2]:50109 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965518AbWJaBvw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 20:51:52 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 31 Oct 2006 12:51:45 +1100
-Message-Id: <1061031015145.24246@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jens Axboe <jens.axboe@oracle.com>, stable@kernel.org
-Subject: [PATCH] Check bio address after mapping through partitions.
-References: <20061031124940.24199.patches@notabene>
+	Mon, 30 Oct 2006 20:57:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:5789 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965519AbWJaB5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 20:57:13 -0500
+Message-ID: <4546AD6D.3080605@torque.net>
+Date: Mon, 30 Oct 2006 20:57:01 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+CC: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>
+Subject: Re: [PATCH] 0/3: Fix EH problems in libsas and implement more error
+ handling
+References: <45468845.20400@us.ibm.com>
+In-Reply-To: <45468845.20400@us.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This would be good for 2.6.19 and even 18.2, if it is seens acceptable.
-raid0 at least (possibly other) can be made to Oops with a bad partition 
-table and best fix seem to be to not let out-of-range request get down
-to the device.
+Darrick J. Wong wrote:
+> Hi all,
+> 
+> The following three patches are early drafts of a series of patches to
+> fix error handling in libsas so that the scsi_eh_* functions are called
+> so that we can attempt to retry failed commands later.  There is also a
+> patch to aic94xx to make escb errors are detected correctly,
+> REQ_TASK_ABORT is handled, and the beginnings of a handler for
+> REQ_DEVICE_RESET.
+> 
+> However, there are a number of issues with these patches that I wish to
+> bring to the attention of this mailing list for further input:
+> 
+> First, the aic94xx sequencer can send back an ESCB with an error code of
+> "REQ_TASK_ABORT", which means that the kernel has to send an ABORT TASK
+> TMF to sequencer to unjam things.  Until this happens, the sequencer
+> neither services commands nor sends back completions.  If we want to
+> wait for the error handler to send the ABORT TASK, we end up waiting for
+> _all_ pending commands to time out so that the EH can wake up.  This
+> effectively stalls the system for 30 seconds every time we see
+> REQ_TASK_ABORT.
+> 
+> On the assumption that we'd like to get on with things sooner than
+> later, the current iteration of these patches aborts the task as soon as
+> possible so that the other pending commands will flush out on their own.
+>  However, this also necessitates the addition of a new sas_task flag
+> (SAS_TASK_INITIATOR_ABORTED) to indicate "Task aborted, but still
+> waiting for the EH to call task_done."  From what I can tell,
+> SAS_TASK_STATE_ABORTED means that the task will be lldd_abort_task'd by
+> the EH at some point, but does not indicate if that has been done yet,
+> and SAS_TASK_STATE_DONE is set after everything is done.
+> 
+> The second issue is the manual decrementing of shost->host_failed in the
+> error handler.  So long as we use the scsi_eh_* commands this value is
+> decremented automatically--however, it appears that sas_scsi_clear_* is
+> pulling scsi_cmnds off the error queue and ... dropping them so that
+> they never go through the error handler.  Is this a desirable behavior,
+> or am I reading the code incorrectly?  Or...?
+> 
+> The third pertains to REQ_DEVICE_RESET: I've not yet figured out how to
+> reset a device port as has been hinted that I must do.  I don't know if
+> a phy reset is sufficient or if I'm barking up the wrong tree.
 
-### Comments for Changeset
+Darrick,
+REQ_DEVICE_RESET would seem to translate in SAS to a
+hard reset (which is a specialization of link reset).
+Hard reset has the effect of resetting the target device
+and all logical units attached to that target.
 
-Partitions are not limited to live within a device.  So
-we should range check after partition mapping.
+Hard resets are sent by telling the phy attached to
+the SSP target in question to do a hard reset.
+There are two cases:
+  a) the SSP target device (to reset) is attached to a HBA
+  b) the SSP target device is attached to an expander
 
-Note that 'maxsector' was being used for two different things.  I have
-split off the second usage into 'old_sector' so that maxsector can be
-still be used for it's primary usage later in the function.
+In case a) you need to get a phy in the HBA to do
+a hard reset. Is that functionality available in the SAS
+transport layer? [If not it should be.]
 
-Cc: Jens Axboe <jens.axboe@oracle.com>
-Signed-off-by: Neil Brown <neilb@suse.de>
+In case b) you need to send a SMP PHY CONTROL function
+with phy_operation=hard_reset to the appropriate phy
+on the expander.
 
-### Diffstat output
- ./block/ll_rw_blk.c |   24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+For wide links the hard reset can be sent on any phy
+that is part of the wide link.
 
-diff .prev/block/ll_rw_blk.c ./block/ll_rw_blk.c
---- .prev/block/ll_rw_blk.c	2006-10-31 11:43:33.000000000 +1100
-+++ ./block/ll_rw_blk.c	2006-10-31 12:47:07.000000000 +1100
-@@ -3007,6 +3007,7 @@ static inline void __generic_make_reques
- {
- 	request_queue_t *q;
- 	sector_t maxsector;
-+	sector_t old_sector;
- 	int ret, nr_sectors = bio_sectors(bio);
- 	dev_t old_dev;
- 
-@@ -3035,7 +3036,7 @@ static inline void __generic_make_reques
- 	 * NOTE: we don't repeat the blk_size check for each new device.
- 	 * Stacking drivers are expected to know what they are doing.
- 	 */
--	maxsector = -1;
-+	old_sector = -1;
- 	old_dev = 0;
- 	do {
- 		char b[BDEVNAME_SIZE];
-@@ -3069,15 +3070,30 @@ end_io:
- 		 */
- 		blk_partition_remap(bio);
- 
--		if (maxsector != -1)
-+		if (old_sector != -1)
- 			blk_add_trace_remap(q, bio, old_dev, bio->bi_sector, 
--					    maxsector);
-+					    old_sector);
- 
- 		blk_add_trace_bio(q, bio, BLK_TA_QUEUE);
- 
--		maxsector = bio->bi_sector;
-+		old_sector = bio->bi_sector;
- 		old_dev = bio->bi_bdev->bd_dev;
- 
-+		maxsector = bio->bi_bdev->bd_inode->i_size >> 9;
-+		if (maxsector) {
-+			sector_t sector = bio->bi_sector;
-+
-+			if (maxsector < nr_sectors || maxsector - nr_sectors < sector) {
-+				/*
-+				 * This may well happen - partitions are not checked
-+				 * to make sure they are within the size of the
-+				 * whole device.
-+				 */
-+				handle_bad_sector(bio);
-+				goto end_io;
-+			}
-+		}
-+
- 		ret = q->make_request_fn(q, bio);
- 	} while (ret);
- }
+
+As for link resets as far as I can see they perturd
+the lower level SAS state machines at both ends of
+a physical link without having an impact on the higher
+level SAS state machines.
+
+Doug Gilbert

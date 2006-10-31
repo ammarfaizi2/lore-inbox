@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423862AbWJaWjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946087AbWJaWqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423862AbWJaWjO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 17:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423863AbWJaWjO
+	id S1946087AbWJaWqX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 17:46:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946092AbWJaWqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 17:39:14 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:23448 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1423862AbWJaWjN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 17:39:13 -0500
-Date: Tue, 31 Oct 2006 22:39:06 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: Dave Jones <davej@redhat.com>, ray-gmail@madrabbit.org,
-       "Martin J. Bligh" <mbligh@google.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Subject: Re: Linux 2.6.19-rc4
-Message-ID: <20061031223906.GR29920@ftp.linux.org.uk>
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061030213454.8266fcb6.akpm@osdl.org> <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org> <45477668.4070801@google.com> <2c0942db0610310834i6244c0abm10c81e984565ed8a@mail.gmail.com> <20061031165133.GB23354@redhat.com> <200610312126.k9VLQtCB003616@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610312126.k9VLQtCB003616@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+	Tue, 31 Oct 2006 17:46:23 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:63343 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1946087AbWJaWqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 17:46:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=fDFHLk37oa2fHx4Hhl0SrdP8l0AXAhcDuqwEtj3YWFN4uYF984P9H9yaTsV99vj75oc56+chXoFVqA5UvaI7DjLSvmhaMqSKli8ID1SUgsbYO7dHXuDpxiT+EPZ1Ur+DFB4C9lRIThnPD3PWxAvgsxgkToseQ94lXIb9g+Tov9k=  ;
+Message-ID: <4547D23A.3090007@yahoo.com.au>
+Date: Wed, 01 Nov 2006 09:46:18 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Borislav Petkov <petkov@math.uni-muenster.de>,
+       David Rientjes <rientjes@cs.washington.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched.c : correct comment for this_rq_lock() routine
+References: <Pine.LNX.4.64.0610301600550.12811@localhost.localdomain> <Pine.LNX.4.64N.0610301308290.17544@attu2.cs.washington.edu> <Pine.LNX.4.64.0610301623360.13169@localhost.localdomain> <20061031153021.GA14505@gollum.tnic> <Pine.LNX.4.64.0610311250500.22528@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0610311250500.22528@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 04:26:55PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 31 Oct 2006 11:51:33 EST, Dave Jones said:
-> > On Tue, Oct 31, 2006 at 08:34:23AM -0800, Ray Lee wrote:
-> >  > On 10/31/06, Martin J. Bligh <mbligh@google.com> wrote:
-> >  > > > At some point we should get rid of all the "politeness" warnings, just
-> >  > > > because they can end up hiding the _real_ ones.
-> >  > >
-> >  > > Yay! Couldn't agree more. Does this mean you'll take patches for all the
-> >  > > uninitialized variable crap from gcc 4.x ?
-> >  > 
-> >  > What would be useful in the short term is a tool that shows only the
-> >  > new warnings that didn't exist in the last point release.
-> > 
-> > git clone git://git.kernel.org/pub/scm/linux/kernel/git/viro/remapper.git
-> 
-> As somebody proves me wrong on the fact it's not easy.  Of course, it's
-> Al's git tree, which is probably saying something. :)
+Robert P. J. Day wrote:
 
-It is easy, actually.  Key observation: unidiff with 0 context lines contains
-everything you need to find out which lines survive and where do they move;
-just ignore the actual changes in the diff and look at @@... and diff headers.
-There are two parts - one takes such diff and generates a fate map for lines
-(basically, "this range gets shifted to this place, this range doesn't make it
-at all" + file removals + file renames if diff has been generated by git-diff
-and contains that information).  Another is a very simple filter; it takes
-map file as argument, reads it and uses the map to massage lines it reads
-from stdin.  When we see <affected pathname>:<number> in the beginning of the
-line or after a space, see if that line is in surviving range; if it is,
-replace pathname and shift line number, otherwise add a prefix ("O:" by
-default).  That's it.  About 10K of sparse C - both filter and map generator.
+>example, i was just poking around the source for the various
+>"atomic.h" files and noticed a couple possible cleanups:
+>
+>  1) make sure *everyone* uses "volatile" in the typedef struct (which
+>	i actually submitted recently)
+>
 
-	Two-clause BSD license, so feel free to use it in any way you want.
-I don't think there will be serious changes down the road; I'll need to
-sit down and turn a description of that puppy into a proper manpage, but
-that's about it.
+I don't see why. There is nothing in atomic (eg. atomic_read) that says
+there must be a compiler barrier around the operation.
+
+Have you checked that the architecture implementation actually needs the
+volatile where you've added it?
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

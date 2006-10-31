@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422661AbWJaBBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422769AbWJaBDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422661AbWJaBBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 20:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161509AbWJaBBK
+	id S1422769AbWJaBDI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 20:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161514AbWJaBDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 20:01:10 -0500
-Received: from mx4.cs.washington.edu ([128.208.4.190]:43711 "EHLO
-	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1161497AbWJaBBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 20:01:09 -0500
-Date: Mon, 30 Oct 2006 17:01:07 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: starvik@axis.com, dev-etrax@axis.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers cris: return on NULL dev_alloc_skb()
-In-Reply-To: <Pine.LNX.4.64N.0610301410350.17544@attu2.cs.washington.edu>
-Message-ID: <Pine.LNX.4.64N.0610301659530.10486@attu3.cs.washington.edu>
-References: <200610302117.24760.jesper.juhl@gmail.com>
- <Pine.LNX.4.64N.0610301410350.17544@attu2.cs.washington.edu>
+	Mon, 30 Oct 2006 20:03:08 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:36853 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161497AbWJaBDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 20:03:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=edmbeHOxR6zj6j3SUUjKBx517CsjSKBTV79JdGQ2T+5AngspFEzowVoH1MTqHpwVzS6eHTgewANsoFsd4MAy/YSJIGeKW5nZvi+yxb/q4Ho7wFVhmO6IadiTIknyMaPy+DHcj+RfLhQwBqiK9QOBkfpVFDQq2/BOyDm/nnrbuLo=
+Message-ID: <d512a4f30610301703r68dfa848s116475b68435f136@mail.gmail.com>
+Date: Tue, 31 Oct 2006 02:03:02 +0100
+From: "Sylvain Bertrand" <sylvain.bertrand@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [Bugme-new] [Bug 7437] New: VIA VT8233 seems to suffer from the via latency quirk
+Cc: linux-kernel@vger.kernel.org, "Greg KH" <greg@kroah.com>,
+       "Chris Wedgwood" <cw@f00f.org>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>
+In-Reply-To: <20061030163458.4fb8cee1.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200610310020.k9V0KGQK003237@fire-2.osdl.org>
+	 <20061030163458.4fb8cee1.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the next descriptor array entry cannot be allocated by dev_alloc_skb(),
-return immediately so it is not dereferenced later.  We cannot register 
-the device with a partial descriptor list.
+Unfortunately, this has always happened since kernel 2.4 from years
+back, even with USB1 devices and I had to drop software raid 0.
+As far as I understand the quirk code, it's not enabled for the VT8233
+southbridge.
+I can add the PCI ID of this VT8233 for this quirk code, if it's
+compatible, and do some crash tests. Crashes are usually easy to
+produce and not hardware destructive since I got plenty of them. But
+you may want to proceed in another way.
 
-Cc: Mikael Starvik <starvik@axis.com>
-Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
----
- drivers/net/cris/eth_v10.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/net/cris/eth_v10.c b/drivers/net/cris/eth_v10.c
-index 966b563..a03d781 100644
---- a/drivers/net/cris/eth_v10.c
-+++ b/drivers/net/cris/eth_v10.c
-@@ -509,6 +509,8 @@ etrax_ethernet_init(void)
- 		 * does not share cacheline with any other data (to avoid cache bug)
- 		 */
- 		RxDescList[i].skb = dev_alloc_skb(MAX_MEDIA_DATA_SIZE + 2 * L1_CACHE_BYTES);
-+		if (!RxDescList[i].skb)
-+			return -ENOMEM;
- 		RxDescList[i].descr.ctrl   = 0;
- 		RxDescList[i].descr.sw_len = MAX_MEDIA_DATA_SIZE;
- 		RxDescList[i].descr.next   = virt_to_phys(&RxDescList[i + 1]);
+2006/10/31, Andrew Morton <akpm@osdl.org>:
+>
+> (switched to email - please retain all cc's)
+>
+> On Mon, 30 Oct 2006 16:20:16 -0800
+> bugme-daemon@bugzilla.kernel.org wrote:
+>
+> > http://bugzilla.kernel.org/show_bug.cgi?id=7437
+> >
+> >            Summary: VIA VT8233 seems to suffer from the via latency quirk
+> >     Kernel Version: 2.6.19-rc3
+> >             Status: NEW
+> >           Severity: normal
+> >              Owner: greg@kroah.com
+> >          Submitter: sylvain.bertrand@gmail.com
+> >
+> >
+> > Most recent kernel where this bug did not occur: 2.6.19-rc3
+>
+> Nope.  We're asking which kernel did _not_ have this bug?
+>
+> > Distribution: All
+> > Hardware Environment: ASUS A7V266-E motherboad (northbridge VIA KT266A,
+> > southbridge VIA 8233), PCI SB LIVE!, onboard promise IDE controller, additional
+> > PCI USB2 card.
+> > Software Environment: any
+> >
+> > Problem Description: Fear to load the PCI bus, because it seems to cause a hard
+> > crash with hard drive data corruption. Too much similar to quirk_vialatency in
+> > drivers/pci/quirks.c (see description line 163) to be innocent.
+> >
+> > Steps to reproduce: Load the PCI bus with, for instance, a big file transfer
+> > from an usb mass storage media v2 connected on a PCI USB2 card to the main hard
+> > drive and at the same time play music. Randomly crashes the computer and
+> > corrupts hard drive data (sometimes beyond repair).
+> >
+>
+> argh.  Are you able to identify a change to the via quirk-handling code
+> which prevents this from happening?
+>
+>

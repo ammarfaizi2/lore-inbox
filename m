@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423498AbWJaPsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423502AbWJaPxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423498AbWJaPsm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 10:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423499AbWJaPsm
+	id S1423502AbWJaPxu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 10:53:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423493AbWJaPxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 10:48:42 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:53841 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1423498AbWJaPsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 10:48:41 -0500
-Date: Tue, 31 Oct 2006 07:43:45 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: "Peer Chen" <pchen@nvidia.com>, <alsa-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>, Andy Currid <ACurrid@nvidia.com>,
-       Brian Lazara <BLazara@nvidia.com>, jgarzik@pobox.com,
-       Emily Jiang <ejiang@nvidia.com>
-Subject: Re: [Alsa-devel] [Patch] Audio: Add nvidia HD Audio controllers of
- MCP67 support to hda_intel.c
-Message-Id: <20061031074345.18d57e88.randy.dunlap@oracle.com>
-In-Reply-To: <s5hr6wotukx.wl%tiwai@suse.de>
-References: <15F501D1A78BD343BE8F4D8DB854566B0C42D52B@hkemmail01.nvidia.com>
-	<s5hr6wotukx.wl%tiwai@suse.de>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 31 Oct 2006 10:53:50 -0500
+Received: from ns2.lanforge.com ([66.165.47.211]:4320 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S1422840AbWJaPxt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 10:53:49 -0500
+Message-ID: <454771D8.9080307@candelatech.com>
+Date: Tue, 31 Oct 2006 07:55:04 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>
+CC: peter.hicks@poggs.co.uk, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Thousands of interfaces
+References: <20061031092550.GA8201@tufnell.london.poggs.net> <20061031.013154.122620846.davem@davemloft.net>
+In-Reply-To: <20061031.013154.122620846.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2006 15:42:54 +0100 Takashi Iwai wrote:
+David Miller wrote:
+> From: Peter Hicks <peter.hicks@poggs.co.uk>
+> Date: Tue, 31 Oct 2006 09:25:50 +0000
+>
+> [ Discussion belongs on netdev@vger.kernel.org, added to CC: ]
+>
+>   
+>> I have a dual 3GHz Xeon machine with a 2.4.21 kernel and thousands (15k+) of
+>> ipip tunnel interfaces.  These are being used to tunnel traffic from remote
+>> routers, over a private network, and handed off to a third party.
+>>     
+>  ...
+>   
+>> Is it possible to speed up creation of the interfaces?  Currently it takes
+>> around 24 hours.  Is there are more efficient way to handle a very large
+>> number of IP-IP tunnels?  Would upgrading to a 2.6 kernel be of use?
+>>     
+>
+>   
+2.6 (and the associated 'ip' tool) does have some improvements for 
+showing very
+large numbers of interfaces.  I haven't tried more than a few thousand 
+though...
 
-> At Tue, 31 Oct 2006 15:33:58 +0800,
-> Peer Chen wrote:
-> > 
-> > Add the support for HD audio controllers of MCP51,MCP55,MCP61,MCP65 & MCP67.
-> > The following hda_intel.c patch is based on kernel 2.6.18.
-> > 
-> > Signed-off by: Peer Chen <pchen@nvidia.com>
-> 
-> Applied to ALSA tree.  But I didn't add it to push-to-2.6.19-tree
-> because apparently no one has tested the patch well yet.
-> 
-> (BTW, your patch attached there was broken, so I had to apply it
-> manually.  At the next time, please either inline the patch in a text
-> mail, or attach a plain text patch if inlining is not possible with
-> your MUA/MTA.)
+Ben
 
-Patches should also be sent made to apply to a current kernel
-tree, like 2.6.19-rc3, 2.6.19-rc4, 2.6.19-rc3-git8,
-Linus's git tree, or Andrew's -mm tree if that is the only
-place where the patch fits, or even to a subsystem tree (e.g., ALSA).
 
----
-~Randy
+-- 
+Ben Greear <greearb@candelatech.com> 
+Candela Technologies Inc  http://www.candelatech.com
+
+

@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423515AbWJaRkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423622AbWJaRmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423515AbWJaRkM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 12:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423609AbWJaRkM
+	id S1423622AbWJaRmy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 12:42:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423715AbWJaRmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 12:40:12 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:37282 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1423515AbWJaRkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 12:40:11 -0500
+	Tue, 31 Oct 2006 12:42:54 -0500
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:8809 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1423622AbWJaRmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 12:42:53 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=KnkiCTTOSOBw6YoDwLoBD3fEVKBr7uPA2WOUgAi8hRsUyE8U2Xl9VK/wRU/1qzZ0z6rPMtiZ5FlfwS25v+BZRfNeLMyHQQZ0pilU+qST0+3I//6DmZS/vQidkySLfM5iCXYM2rsjyYxF0Y9imuJVfmx3FUySL1KQG9SuaDewaDs=
-Date: Tue, 31 Oct 2006 18:40:06 +0100
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org, John Richard Moser <nigelenki@comcast.net>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: Suspend to disk:  do we HAVE to use swap?
-Message-ID: <20061031174006.GA31555@dreamland.darkstar.lan>
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=2jGYLc2fK0d3ZCstSnBVrySEPnD6O4p659UcwAVUvxQA2hNys1FuoTDqq79/9zlNcoqSbnn9J7B4TYrlVgruWyuM1VFPfIry2FwW5nQL0JmAIPbWBRBUqR6wBAeB2O5FoglCtBA7PWaSEy1X1xLBOUUR2RHMIW+Jw8dtqz4DAw8=  ;
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
+Date: Tue, 31 Oct 2006 10:40:15 -0700
+User-Agent: KMail/1.7.1
+Cc: Adrian Bunk <bunk@stusta.de>, Randy Dunlap <randy.dunlap@oracle.com>,
+       akpm@osdl.org, zippel@linux-m68k.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, link@miggy.org,
+       Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
+       greg@kroah.com, toralf.foerster@gmx.de
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <200610281410.13679.david-b@pacbell.net> <20061028213918.GE27968@stusta.de>
+In-Reply-To: <20061028213918.GE27968@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610311348.59069.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200610310940.16619.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan <s0348365@sms.ed.ac.uk> ha scritto:
-> On Tuesday 31 October 2006 06:16, Rafael J. Wysocki wrote:
-> [snip]
->> However, we already have code that allows us to use swap files for the
->> suspend and turning a regular file into a swap file is as easy as running
->> 'mkswap' and 'swapon' on it.
+
+> > +#if defined(CONFIG_MII) || defined(CONFIG_MII_MODULE)
+> > +#define HAVE_MII
+> >...
 > 
-> How is this feature enabled? I don't see it in 2.6.19-rc4.
+> This seems to cause a CONFIG_USB_USBNET=y, CONFIG_MII=m breakage
+> (as already described earlier in this thread)?
 
-Swap files have been supported for ages. suspend-to-swapfile is very
-new, you need a -mm kernel and userspace suspend from CVS:
-http://suspend.sf.net
+Well, "alluded to" not described.  Fixable by the equivalent of
 
-Luca
--- 
-"Sei l'unica donna della mia vita".
-(Adamo)
+	config USB_USBNET
+		...
+		depends on MII if MII != n
+
+except that Kconfig doesn't comprehend conditionals like that.
+
+

@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423299AbWJaOb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423388AbWJaObr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423299AbWJaOb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 09:31:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423375AbWJaOb1
+	id S1423388AbWJaObr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 09:31:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423392AbWJaObr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 09:31:27 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:1163 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1423299AbWJaOb0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 09:31:26 -0500
-Date: Tue, 31 Oct 2006 17:30:56 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Balbir Singh <balbir@in.ibm.com>,
-       Jay Lan <jlan@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] taskstats: fix sub-threads accounting
-Message-ID: <20061031143056.GA3114@oleg>
-References: <20061030213749.GA3035@oleg> <4546BCE7.6020800@watson.ibm.com>
-Mime-Version: 1.0
+	Tue, 31 Oct 2006 09:31:47 -0500
+Received: from ns.suse.de ([195.135.220.2]:45011 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1423388AbWJaObp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 09:31:45 -0500
+To: Martin Lorenz <martin@lorenz.eu.org>
+Cc: linux-kernel@vger.kernel.org, jbeulich@novell.com
+Subject: Re: 2.6.19-rc3: more DWARFs and strange messages
+References: <20061028200151.GC5619@gimli>
+From: Andi Kleen <ak@suse.de>
+Date: 31 Oct 2006 15:31:41 +0100
+In-Reply-To: <20061028200151.GC5619@gimli>
+Message-ID: <p73hcxklfoy.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4546BCE7.6020800@watson.ibm.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/30, Shailabh Nagar wrote:
+Martin Lorenz <martin@lorenz.eu.org> writes:
+
+> and quite a few of those:
 > 
-> Oleg Nesterov wrote:
-> >
-> >Q: We don't send TASKSTATS_TYPE_AGGR_TGID when single-threaded process
-> >exits. Is it good? How can the listener figure out that it was actually
-> >a process exit, not sub-thread?
+> [18504.980000] BUG: warning at kernel/cpu.c:56/unlock_cpu_hotplug()
+> [18504.980000]  [<c0103bdd>] dump_trace+0x69/0x1af
+> [18504.980000]  [<c0103d3b>] show_trace_log_lvl+0x18/0x2c
+> [18504.980000]  [<c01043da>] show_trace+0xf/0x11
+> [18504.980000]  [<c01044dd>] dump_stack+0x15/0x17
+> [18504.980000]  [<c0135e94>] unlock_cpu_hotplug+0x3d/0x66
+> [18504.980000]  [<f92e67f3>] do_dbs_timer+0x1c2/0x229 [cpufreq_ondemand]
+> [18504.980000]  [<c012ccb1>] run_workqueue+0x83/0xc5
+> [18504.980000]  [<c012d5d5>] worker_thread+0xd9/0x10c
+> [18504.980000]  [<c012fb36>] kthread+0xc2/0xf0
+> [18504.980000]  [<c010398b>] kernel_thread_helper+0x7/0x10
+> [18504.980000] DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
+
+What gcc / binutils version do you use?
+
+> [18504.980000]
+> [18504.980000] Leftover inexact backtrace:
+> [18504.980000]
+> [18504.980000]  =======================
 > 
-> We had a detailed discussion on this on lkml earlier. The overhead of
-> sending essentially the same data twice (once as AGGR_TGID and once as
-> PID) was deemed too heavy esp. as the taskstats structure size grew.
-> Also, single threaded exit is a common case.
-> 
-> Using process events, its possible for user space to distinguish single
-> threaded process exits.
 
-Ok, I see.
-
-The taskstats's code is very clean and understandable, the only thing
-I can't get is: why these listeners are per-cpu? It is very easy to add
-'int exited_on_this_cpu' to struct taskstats.
-
-Probaly this was done to filter out unneeded events (cpusets) ? In that
-case it seems better to add cpumask_t to 'struct listener' but have a
-single listener_array list.
-
-Thanks!
-
-Oleg.
-
+-Andi

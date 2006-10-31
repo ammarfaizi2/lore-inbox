@@ -1,93 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423018AbWJaMdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423142AbWJaMg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423018AbWJaMdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 07:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423037AbWJaMdM
+	id S1423142AbWJaMg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 07:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423141AbWJaMg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 07:33:12 -0500
-Received: from smtp01.dc2.safesecureweb.com ([65.36.177.68]:33222 "EHLO
-	smtp01.dc2.safesecureweb.com") by vger.kernel.org with ESMTP
-	id S1423018AbWJaMdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 07:33:11 -0500
-Message-ID: <02f201c6fce8$a660ece0$0732700a@djlaptop>
-From: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
-To: "Jun Sun" <jsun@junsun.net>, <linux-kernel@vger.kernel.org>
-References: <20061031072203.GA10744@srv.junsun.net>
-Subject: Re: reserve memory in low physical address - possible?
-Date: Tue, 31 Oct 2006 07:32:37 -0500
+	Tue, 31 Oct 2006 07:36:57 -0500
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:5089 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1423137AbWJaMg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 07:36:56 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] SCSI: Add the SGPIO support for sata_nv.c
+Date: Tue, 31 Oct 2006 13:37:27 +0100
+User-Agent: KMail/1.9.5
+Cc: Peer Chen <pchen@nvidia.com>, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Kuan Luo <kluo@nvidia.com>
+References: <15F501D1A78BD343BE8F4D8DB854566B059FE0B3@hkemmail01.nvidia.com> <15F501D1A78BD343BE8F4D8DB854566B0C42D636@hkemmail01.nvidia.com> <20061031104055.GA8898@infradead.org>
+In-Reply-To: <20061031104055.GA8898@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+Content-Type: multipart/signed;
+  boundary="nextPart1295795.XoU7xPujRX";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Message-Id: <200610311337.27495.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1295795.XoU7xPujRX
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
------ Original Message ----- 
-From: "Jun Sun" <jsun@junsun.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, October 31, 2006 2:22 AM
-Subject: reserve memory in low physical address - possible?
-
-
+Am Dienstag 31 Oktober 2006 11:40 schrieb Christoph Hellwig:
+> On Tue, Oct 31, 2006 at 04:43:19PM +0800, Peer Chen wrote:
+> > +	u32 cb_add, temp32;
+> > +	struct device *dev =3D pci_dev_to_dev(pdev);
+> > +	struct ata_host_set *host_set =3D dev_get_drvdata(dev);
+> > +	u8 pro=3D0;
+> > +	if (!(pro&0x40))
+> > +		return;
+> > +
+> > +	temp32 =3D csr_add;
+> > +	phost->host_sgpio.pcsr =3D (void *)temp32;
+> > +	phost->host_sgpio.pcb =3D phys_to_virt(cb_add);
 >
-> This question is specific to i386 architecture.  While I am fairly
-> comfortable with Linux kernel, I am not familiar with i386 arch.
->
-> My objective is to reserve, or hide from kernel, some memory space in low
-> physical address range starting from 0.  The memory amount is in the order
-> of 100MB to 200MB.  The total memory is assumed to be around 512MB.
->
-> Is this possible?
->
-> I understand it is possible to reserve some memory at the end by
-> specifying "mem=xxxM" option in kernel command line.  I looked into
-> "memmap=xxxM" option but it appears not helpful for what I want.
->
+> Use of phys_to_virt is generally a bug.  What are you trying to do here?
 
-For special purpose (DMA to user-space, etc.), it has become commonplace to 
-reserve some high memory.
-Then, in your driver, you can find the end of kernel memory as 
-(num_physpages * PAGE_SIZE).
+I am also wondering whether casting of temp32 to a pointer is very 64bit=20
+friendly? At least my compiler on x86_64 gives a warning...
 
-You will not be able to reserve any address space starting at 0 anyway, but 
-your driver or even
-user-space code can memory-map it.
+I also found=20
 
-> While searching on the web I also found things like DMA zone and loaders
-> etc that all seem to assume the existence low-addressed physical
-> memory.  True?
->
+http://lkml.org/lkml/2006/8/21/324
 
-Some early (ISA) boards couldn't access address-space beyoond 16 megabytes, 
-hense the "low" memory
-for DMA.
+which looks alike at first glance and it seems NVidia didn't really fix wha=
+t=20
+Andrew Morton told them to do so...
 
-> I can certainly workaround the loader issue.  I can also re-code the 
-> real-mode
-> part of kernel code to migrate to higher addresses.  The DMA zone might be
-> a thorny one.  Any clues?  Are modern PCs still subject to
-> the 16MB DMA zone restriction?
->
+Cheers,
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-Anything that plugs into a PCI bus will __not__ have a low address 
-restriction.
+--nextPart1295795.XoU7xPujRX
+Content-Type: application/pgp-signature
 
-> Am I too far off from what I want to do?
->
-> Thanks.
->
-> Jun
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
+iD8DBQBFR0OHxU2n/+9+t5gRAnReAKDBA6qZKRKwi8WZO/sIPzldg8hmMgCgvtaB
+ikzzUEzN83a0ourqFWFva58=
+=6Ifa
+-----END PGP SIGNATURE-----
 
+--nextPart1295795.XoU7xPujRX--

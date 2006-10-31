@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423795AbWJaTCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423800AbWJaTFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423795AbWJaTCy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 14:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423799AbWJaTCx
+	id S1423800AbWJaTFi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 14:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423801AbWJaTFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 14:02:53 -0500
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:52285 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1423795AbWJaTCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 14:02:52 -0500
-To: linux-kernel@vger.kernel.org
-Cc: David Miller <davem@davemloft.net>, matthew@wil.cx, jeff@garzik.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       openib-general@openib.org, johnip@sgi.com
-Subject: Re: Ordering between PCI config space writes and MMIO reads?
-X-Message-Flag: Warning: May contain useful information
-References: <20061024214724.GS25210@parisc-linux.org>
-	<adar6wxbcwt.fsf@cisco.com> <20061024223631.GT25210@parisc-linux.org>
-	<20061024.154347.77057163.davem@davemloft.net>
-	<aday7r4a3d7.fsf@cisco.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 31 Oct 2006 11:02:49 -0800
-In-Reply-To: <aday7r4a3d7.fsf@cisco.com> (Roland Dreier's message of "Wed, 25 Oct 2006 07:15:16 -0700")
-Message-ID: <adad588tijq.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 31 Oct 2006 14:05:38 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:36102 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1423800AbWJaTFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 14:05:37 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Luca Tettamanti <kronos.it@gmail.com>
+Subject: Re: Suspend to disk:  do we HAVE to use swap?
+Date: Tue, 31 Oct 2006 19:05:33 +0000
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, John Richard Moser <nigelenki@comcast.net>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+References: <20061031174006.GA31555@dreamland.darkstar.lan>
+In-Reply-To: <20061031174006.GA31555@dreamland.darkstar.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 31 Oct 2006 19:02:50.0533 (UTC) FILETIME=[294C7D50:01C6FD1F]
-Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610311905.33667.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The discussion fizzled out without really reaching a definitive
-answer, so I'm going to apply the original patch (below), since I
-pretty much convinced myself that only the driver doing the config
-access has enough information to fix this reliably.
+On Tuesday 31 October 2006 17:40, Luca Tettamanti wrote:
+> Alistair John Strachan <s0348365@sms.ed.ac.uk> ha scritto:
+> > On Tuesday 31 October 2006 06:16, Rafael J. Wysocki wrote:
+> > [snip]
+> >
+> >> However, we already have code that allows us to use swap files for the
+> >> suspend and turning a regular file into a swap file is as easy as
+> >> running 'mkswap' and 'swapon' on it.
+> >
+> > How is this feature enabled? I don't see it in 2.6.19-rc4.
+>
+> Swap files have been supported for ages. suspend-to-swapfile is very
+> new, you need a -mm kernel and userspace suspend from CVS:
+> http://suspend.sf.net
 
- - R.
+I know, I use swap files, and not a partition. This has prevented me from 
+using suspend to disk "for ages". ;-)
 
-Author: John Partridge <johnip@sgi.com>
-Date:   Tue Oct 31 11:00:04 2006 -0800
+Is userspace suspend REQUIRED for this feature?
 
-    IB/mthca: Make sure all PCI config writes reach device before doing MMIO
-    
-    During initialization, mthca writes some PCI config space registers
-    and then does an MMIO read from one of the BARs it just enabled.  This
-    MMIO read sometimes failed and caused a crash on SGI Altix machines,
-    because the PCI-X host bridge (legitimately, according to the PCI
-    spec) allowed the MMIO read to start before the config write completed.
-    
-    To fix this, add a config read after all config writes to make sure
-    they are all done before starting the MMIO read.
-    
-    Signed-off-by: John Partridge <johnip@sgi.com>
-    Signed-off-by: Roland Dreier <rolandd@cisco.com>
+-- 
+Cheers,
+Alistair.
 
-diff --git a/drivers/infiniband/hw/mthca/mthca_reset.c b/drivers/infiniband/hw/mthca/mthca_reset.c
-index 91934f2..578dc7c 100644
---- a/drivers/infiniband/hw/mthca/mthca_reset.c
-+++ b/drivers/infiniband/hw/mthca/mthca_reset.c
-@@ -281,6 +281,20 @@ good:
- 		goto out;
- 	}
- 
-+	/*
-+	 * Perform a "flush" of the PCI config writes here by reading
-+	 * the PCI_COMMAND register.  This is needed to make sure that
-+	 * we don't try to touch other PCI BARs before the config
-+	 * writes are done -- otherwise an MMIO cycle could start
-+	 * before the config writes are done and reach the HCA before
-+	 * the BAR is actually enabled.
-+	 */
-+	if (pci_read_config_dword(mdev->pdev, PCI_COMMAND, hca_header)) {
-+		err = -ENODEV;
-+		mthca_err(mdev, "Couldn't access HCA memory after restoring, "
-+			  "aborting.\n");
-+	}
-+
- out:
- 	if (bridge)
- 		pci_dev_put(bridge);
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

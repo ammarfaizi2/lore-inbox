@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423329AbWJaOGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423333AbWJaOMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423329AbWJaOGL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 09:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423336AbWJaOGL
+	id S1423333AbWJaOMe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 09:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423340AbWJaOMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 09:06:11 -0500
-Received: from rtr.ca ([64.26.128.89]:49168 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1423329AbWJaOGK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 09:06:10 -0500
-Message-ID: <4547584F.6000702@rtr.ca>
-Date: Tue, 31 Oct 2006 09:06:07 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Tue, 31 Oct 2006 09:12:34 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:12187 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423333AbWJaOMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 09:12:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=F9CHNputhToAxIUv6JhDfY+GEsUpJmkg1jB8NWfDz/r44/7v62y+dyfISsF936iNTIJlCx708sbGbOQ+InsE3vXSG8+gsTTMlD7X4YbVRmAn0p9Y3q3V/MTUA/lTHWCJ9RrvP4BVmVsWEKYo3XjOHQL+aeSSlB62QiyJvmW1T8Y=
+Message-ID: <653402b90610310612l2a2a07du91fd6d0bc6f2477a@mail.gmail.com>
+Date: Tue, 31 Oct 2006 15:12:31 +0100
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: Franck <vagabon.xyz@gmail.com>
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+Cc: "Paulo Marques" <pmarques@grupopie.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <45470513.4070507@innova-card.com>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Zachary Amsden <zach@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 is problematic in VMware
-References: <Pine.LNX.4.61.0610290953010.4585@yvahk01.tjqt.qr> <45463B7D.8050002@vmware.com> <Pine.LNX.4.61.0610310857280.23540@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0610310857280.23540@yvahk01.tjqt.qr>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061013023218.31362830.maxextreme@gmail.com>
+	 <453CE85B.2080702@innova-card.com>
+	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>
+	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>
+	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>
+	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com>
+	 <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com>
+	 <4545C52A.5010105@innova-card.com> <4545FCB1.8030900@grupopie.com>
+	 <45470513.4070507@innova-card.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>> I have observed a strange slowdown with the 2.6.18 kernel in VMware. This
->>> happened both with the SUSE flavor and with the FC6 installer CD (which I
->>> am trying right now). In both cases, the kernel "takes its time" after the
->>> following text strings:
->>>
->>> * Checking if this processor honours the WP bit even in supervisor mode...
->>> Ok.
->>> * Checking 'hlt' instruction... OK.
->>>
->>> What's with that?
->> Thanks.  It is perhaps the jiffies calibration taking a while because of the
->> precise timing loop.  Are you reasonably confident that it is a regression in
->> performance over 2.6.17?
-> 
-> Yes. I am not exactly sure if it's something in jiffies calibration 
-> (because of the 'WP bit/supervisor' thing too), so maybe I thought it 
-> was the newly-introduced SMP alternatives. I gotta check that.
-> 
->> The boot sequence is pretty complicated, and a lot of
->> it is difficult / slow to virtualize, so it could just be alternate timing
->> makes the boot output appear to stall, when in fact the raw time is still about
->> the same.  I will run some experiments.
-> 
-> Booting with 'time' shows that the virtual time increases as usual, i.e.
-> 
-> [ 9.00] checking if wp bit...
-> [15.00] next message here
+On 10/31/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
+> Paulo Marques wrote:
+>
+> starting the refresh stuff _only_ when the device is
+> mmaped seems to me a good trade off.
+>
 
-My experience with VMware on several recent processors (mostly P-M family)
-is that it crawls unless I force this first:
-      echo 1 > /sys/module/processor/parameters/max_cstate
-
-So I use a wrapper script around VMware (workstation) to save max_cstate,
-set it to 1, and restore it again on exit.
-
-Cheers
+Well, if someone writes to /dev/fbX the LCD won't get updated. We
+would need also to start/stop at the write/release fbfops as well. Let
+me check.

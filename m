@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423499AbWJaRYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423496AbWJaR2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423499AbWJaRYh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 12:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423711AbWJaRYh
+	id S1423496AbWJaR2y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 12:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423712AbWJaR2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 12:24:37 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:20107 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1423499AbWJaRYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 12:24:35 -0500
-Subject: [PATCH] Allow a hyphenated range in get_options
-From: Derek Fults <dfults@sgi.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 31 Oct 2006 11:25:16 -0600
-Message-Id: <1162315517.9542.372.camel@lnx-dfults.americas.sgi.com>
+	Tue, 31 Oct 2006 12:28:54 -0500
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:12146 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1423706AbWJaR2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 12:28:53 -0500
+Date: Tue, 31 Oct 2006 18:29:19 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: "Martin J. Bligh" <mbligh@google.com>
+Cc: Greg KH <gregkh@suse.de>, Mike Galbraith <efault@gmx.de>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+Message-ID: <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <4547833C.5040302@google.com>
+References: <45461977.3020201@shadowen.org>
+	<45461E74.1040408@google.com>
+	<20061030084722.ea834a08.akpm@osdl.org>
+	<454631C1.5010003@google.com>
+	<45463481.80601@shadowen.org>
+	<20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
+	<1162276206.5959.9.camel@Homer.simpson.net>
+	<4546EF3B.1090503@google.com>
+	<20061031065912.GA13465@suse.de>
+	<4546FB79.1060607@google.com>
+	<20061031075825.GA8913@suse.de>
+	<45477131.4070501@google.com>
+	<20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com>
+	<4547833C.5040302@google.com>
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This allows a hyphenated range of positive numbers in the string passed
-to command line helper function, get_options.    
+On Tue, 31 Oct 2006 09:09:16 -0800,
+"Martin J. Bligh" <mbligh@google.com> wrote:
 
-Signed-off-by: Derek Fults <dfults@sgi.com>  
+> Cornelia Huck wrote:
+> > That's because /sys/class/net/<interface> is now a symlink instead of a
+> > directory (and that hasn't anything to do with acpi, but rather with
+> > the conversions in the driver tree). Seems the directory -> symlink
+> > change shouldn't be done since it's impacting user space...
+> 
+> You know which individual patch in -mm broke that? Can't see it easily.
+> Then we can just test across all the machines with just that one backed
+> out.
 
-Index: linux/lib/cmdline.c
-===================================================================
---- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
-+++ linux/lib/cmdline.c	2006-10-30 10:39:13.351641023 -0600
-@@ -29,6 +29,10 @@
-  *	0 : no int in string
-  *	1 : int found, no subsequent comma
-  *	2 : int found including a subsequent comma
-+ *  -(int): int found with a subsequent hyphen to denote a range.
-+ *          The negative number is the number of integers in the range
-+ *          used to increment the counter in the while loop.
-+ *      
-  */
- 
- int get_option (char **str, int *pint)
-@@ -44,7 +48,16 @@
- 		(*str)++;
- 		return 2;
- 	}
-+	if (**str == '-') {
-+	    int x,inc_counter= 0, upper_range = 0;
- 
-+	    (*str)++;
-+	    upper_range = simple_strtol ((*str), NULL, 0);
-+	    inc_counter = upper_range - *pint ;
-+	    for (x=*pint; x < upper_range; x++) 
-+		    *pint++ = x;
-+	    return -inc_counter;
-+	}
- 	return 1;
- }
- 
-@@ -55,7 +68,8 @@
-  *	@ints: integer array
-  *
-  *	This function parses a string containing a comma-separated
-- *	list of integers.  The parse halts when the array is
-+ *	list of integers, a hyphen-separated range of _positive_ integers,
-+ *      or a combination of both.  The parse halts when the array is
-  *	full, or when no more numbers can be retrieved from the
-  *	string.
-  *
-@@ -75,6 +89,11 @@
- 		i++;
- 		if (res == 1)
- 			break;
-+		if (res < 0) 
-+		        /* Decrement the result by one to leave out the 
-+			   last number in the range.  The next iteration 
-+			   will handle the upper number in the range */
-+		        i += ((-res) - 1);
- 	}
- 	ints[0] = i - 1;
- 	return (char *)str;
-
+I'd try reverting gregkh-driver-network-device.patch for the network
+device stuff.

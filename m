@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423502AbWJaPxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423505AbWJaPz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423502AbWJaPxu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 10:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423493AbWJaPxu
+	id S1423505AbWJaPz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 10:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423511AbWJaPz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 10:53:50 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:4320 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1422840AbWJaPxt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 10:53:49 -0500
-Message-ID: <454771D8.9080307@candelatech.com>
-Date: Tue, 31 Oct 2006 07:55:04 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Tue, 31 Oct 2006 10:55:57 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:41279 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1423505AbWJaPz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 10:55:56 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:cc:
+	subject:references:in-reply-to:content-type:content-transfer-encoding;
+	b=Wk3CN6MYSOoEN5+d0V3OlsS++ZCAHsn7jkRxizrVu7D0MIMjyg1gHmTIFawd4VfTw
+	iuqQmyWOQ2xz6KM36ZrQA==
+Message-ID: <45477131.4070501@google.com>
+Date: Tue, 31 Oct 2006 07:52:17 -0800
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: peter.hicks@poggs.co.uk, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Thousands of interfaces
-References: <20061031092550.GA8201@tufnell.london.poggs.net> <20061031.013154.122620846.davem@davemloft.net>
-In-Reply-To: <20061031.013154.122620846.davem@davemloft.net>
+To: Greg KH <gregkh@suse.de>
+CC: Mike Galbraith <efault@gmx.de>, Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+References: <45461977.3020201@shadowen.org> <45461E74.1040408@google.com> <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com> <45463481.80601@shadowen.org> <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com> <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com> <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com> <20061031075825.GA8913@suse.de>
+In-Reply-To: <20061031075825.GA8913@suse.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
-> From: Peter Hicks <peter.hicks@poggs.co.uk>
-> Date: Tue, 31 Oct 2006 09:25:50 +0000
->
-> [ Discussion belongs on netdev@vger.kernel.org, added to CC: ]
->
->   
->> I have a dual 3GHz Xeon machine with a 2.4.21 kernel and thousands (15k+) of
->> ipip tunnel interfaces.  These are being used to tunnel traffic from remote
->> routers, over a private network, and handed off to a third party.
->>     
->  ...
->   
->> Is it possible to speed up creation of the interfaces?  Currently it takes
->> around 24 hours.  Is there are more efficient way to handle a very large
->> number of IP-IP tunnels?  Would upgrading to a 2.6 kernel be of use?
->>     
->
->   
-2.6 (and the associated 'ip' tool) does have some improvements for 
-showing very
-large numbers of interfaces.  I haven't tried more than a few thousand 
-though...
+>>> Merely change CONFIG_SYSFS_DEPRECATED to be set to yes, and it should
+>>> all work just fine.  Doesn't anyone read the Kconfig help entries for
+>>> new kernel options?
+>> 1. This doesn't fix it.
+> 
+> I think acpi is now being fingered here, right?
 
-Ben
+Eh? How. Backing out all your patches from -mm fixes it.
+The deprecated stuff does not fix it, it's the same as before.
 
+Unless it's some strange interaction between driver-core/sysfs and ACPI,
+I don't see how it can be ACPI's fault?
 
--- 
-Ben Greear <greearb@candelatech.com> 
-Candela Technologies Inc  http://www.candelatech.com
+>> 2. Breaking things by default with an option to unbreak them is not
+>> the finest of plans ;-)
+> 
+> Yes, I have now changed the default for that option to be on to help
+> guide people even better than before.
 
+There's still some other problem there though. See:
 
+http://test.kernel.org/abat/59232/debug/console.log
+
+who's config is here:
+
+http://test.kernel.org/abat/59232/build/dotconfig
+
+A working log from that machine is here:
+
+http://test.kernel.org/abat/59306/debug/console.log
+
+M.

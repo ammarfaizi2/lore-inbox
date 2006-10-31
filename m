@@ -1,82 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946034AbWJaV2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946040AbWJaV3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946034AbWJaV2K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 16:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946036AbWJaV2K
+	id S1946040AbWJaV3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 16:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946030AbWJaV3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 16:28:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43675 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1946034AbWJaV2I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 16:28:08 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <16969.1161771256@redhat.com> 
-References: <16969.1161771256@redhat.com> 
-To: sds@tycho.nsa.gov, Karl MacMillan <kmacmill@redhat.com>
-Cc: David Howells <dhowells@redhat.com>, jmorris@namei.org,
-       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com
-Subject: Re: Security issues with local filesystem caching 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 31 Oct 2006 21:26:48 +0000
-Message-ID: <31035.1162330008@redhat.com>
+	Tue, 31 Oct 2006 16:29:16 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:5093 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1946041AbWJaV3P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 16:29:15 -0500
+Date: Tue, 31 Oct 2006 21:29:03 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: ray-gmail@madrabbit.org, "Martin J. Bligh" <mbligh@google.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Subject: Re: Linux 2.6.19-rc4
+Message-ID: <20061031212903.GQ29920@ftp.linux.org.uk>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061030213454.8266fcb6.akpm@osdl.org> <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org> <45477668.4070801@google.com> <2c0942db0610310834i6244c0abm10c81e984565ed8a@mail.gmail.com> <200610312053.k9VKr0Fm007201@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610312053.k9VKr0Fm007201@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 31, 2006 at 03:53:00PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 31 Oct 2006 08:34:23 PST, Ray Lee said:
+> > On 10/31/06, Martin J. Bligh <mbligh@google.com> wrote:
+> > > > At some point we should get rid of all the "politeness" warnings, just
+> > > > because they can end up hiding the _real_ ones.
+> > >
+> > > Yay! Couldn't agree more. Does this mean you'll take patches for all the
+> > > uninitialized variable crap from gcc 4.x ?
+> > 
+> > What would be useful in the short term is a tool that shows only the
+> > new warnings that didn't exist in the last point release.
+> 
+> Harder to do than you might think - it has to deal with the fact that
+> 2.6.N might have a warning about 'used unintialized on line 430', and
+> in 2.6.N+1 you get two warnings, one on line 420 and one on 440.  Which
+> one is new and which one just moved 10 lines up or down?  Or did a patch
+> fix the one on 430 and add 2 new ones?
 
-David Howells <dhowells@redhat.com> wrote:
+So you take the old log and replace the line numbers with those of
+corresponding lines in new tree.  Marking ones that do not survive
+unchanged with recognisable prefix.  _Then_ you diff logs.
 
-> Some issues have been raised by Christoph Hellwig over how I'm handling
-> filesystem security in my CacheFiles module, and I'd like advice on how to
-> deal with them.
+In reality (and I'd been doing that for ranges like 2.6.14 -> 2.6.19-rc1)
+you get very little noise.
 
-Having discussed this with Stephen Smally and Karl MacMillan, this is, I think,
-the security model for CacheFiles:
-
- (*) There will be four security labels per cache:
-
-     (a) A security label attached to the caching directory and all the files
-     	 and directories contained therein.  This identifies those files as
-     	 being part of a particular cache's working set.
-
-     (b) A security label that defines the context under which the daemon
-     	 (cachefilesd) operates.  This permits cachefilesd to be restricted to
-     	 only accessing files labelled in (a), and only to do things like stat,
-     	 list and delete them - not read or write them.
-
-     (c) A security label that defines the context under which the module
-     	 operates when accessing the cache.  This allows the module, when
-     	 accessing the cache, to only operate within the bounds of the cache.
-     	 It also permits the module to set a common security label on all the
-     	 files it creates in the cache.
-
-     (d) A security label to attached to the cachefiles control character
-     	 device.  This limits access to processes with label (b).
-
- (*) The module will obtain label (a) - the security label with which to label
-     the files it creates (create_sid) - by reading the security label on the
-     cache base directory (inode->i_security->sid).
-
- (*) The module will obtain label (c) by reading label (b) from the cachefilesd
-     process when it opens the cachefiles control chardev and then passing it
-     through security_change_sid() to ask the security policy to for label (c).
-
- (*) When accessing the cache to look up a cache object (equivalent to NFS read
-     inode), the CacheFiles module will make temporary substitutions for the
-     following process security attributes:
-
-     (1) current->fsuid and current->fsgid will both become 0.
-
-     (2) current->security->create_sid will be set to label (a) so that
-         vfs_mkdir() and vfs_create() will set the correct labels.
-
-     (3) current->security->sid will be set to label (c) so that vfs_mkdir(),
-         vfs_create() and lookup ops will check for the correct labels.
-
-     After the access, the old label will be restored.
-
-     Point (3) shouldn't cause a cross-thread race as it would appear that the
-     security label can only be changed on single-threaded processes.  Attempts
-     to do so on multi-threaded processes are rejected.
-
-David
+Again, see remapper mentioned in this thread; it really works.

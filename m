@@ -1,261 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423415AbWJaOnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423456AbWJaOyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423415AbWJaOnb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 09:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423441AbWJaOnb
+	id S1423456AbWJaOyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 09:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423458AbWJaOyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 09:43:31 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:5081 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1423415AbWJaOn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 09:43:29 -0500
-Date: Tue, 31 Oct 2006 06:43:00 -0800
-From: Paul Jackson <pj@sgi.com>
-To: dino@in.ibm.com
-Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, mbligh@google.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
-       suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset:  Explicit dynamic sched domain cpuset flag
-Message-Id: <20061031064300.10a97c13.pj@sgi.com>
-In-Reply-To: <20061030212922.GA20369@in.ibm.com>
-References: <20061030212615.GA10567@in.ibm.com>
-	<20061030212922.GA20369@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 31 Oct 2006 09:54:49 -0500
+Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:22507 "EHLO
+	bipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1423456AbWJaOys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 09:54:48 -0500
+Message-ID: <454763B5.1050204@grupopie.com>
+Date: Tue, 31 Oct 2006 14:54:45 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Franck <vagabon.xyz@gmail.com>
+CC: Miguel Ojeda <maxextreme@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+References: <20061013023218.31362830.maxextreme@gmail.com>	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>	 <453CE85B.2080702@innova-card.com>	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com> <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com> <4545C52A.5010105@innova-card.com> <4545FCB1.8030900@grupopie.com> <45470513.4070507@innova-card.com>
+In-Reply-To: <45470513.4070507@innova-card.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for doing this, Dinakar.
+Franck Bui-Huu wrote:
+> Paulo Marques wrote:
+>> Franck Bui-Huu wrote:
+>>> An application might want to display quickly a set of images, not for
+>>> doing animations but rather displaying 'fake' greyscale images.
+>>
+>> To do "fake" greyscale you would need to synchronize with the actual
+>> refresh of the controller or you will have very ugly aliasing artifacts.
+>>
+>> Since there is no hardware interface to know when the controller is
+>> refreshing, I don't think this is one viable usage scenario.
+> 
+> eh ?? Did you read my email before ? That was the point I was trying
+> to raise... and starting the refresh stuff _only_ when the device is
+> mmaped seems to me a good trade off.
 
-A couple of million messages earlier in this discussion, at its
-beginning, I submitted a patch on October 18:
+I think we are violently agreeing about the optimal way of doing things.
 
-  Cpuset: explicit dynamic sched domain control flags
-  http://lkml.org/lkml/2006/10/18/48
+But maybe I didn't explain my point about the "fake" greyscale in the 
+best way, though.
 
-It too had a 'sched_domain' flag.  Some of my comments will
-examine the differences between that patch and yours.
+There are two distinct "refresh"'s involved here: one is when the driver 
+writes its software buffer into the display internal memory using the 
+parallel port interface.
 
-Lets call my old patch P1, and this current patch of yours P2.
+The other is when the actual display controller refresh that goes 
+through all the common lines, etc., using the values on its internal 
+memory to update the segment voltages.
 
-Now comments on your patch, P2:
+The problem is that there is no way to know about the internal refresh 
+that the controller does. So if you update its memory very frequently to 
+try to produce a "fake" greyscale image, your updates will alias with 
+the refresh rate of the actual display controller and you will see all 
+sorts of strange effects on the display.
 
-1) P1 also had a sched_domain_enabled flag, per-cpuset, to toggle
-   between the old cpu_exclusive and this new sched_domain flags
-   for defining sched domains.  Since then I threw out the old
-   behaviour, as not worth preserving, and not creating a sufficient
-   incompatibility that we needed to preserve the old way.
+> Aynywas it seems that the discusion about the design is closed and
+> won't lead to interesting things...
 
-   So I agree with P2, not providing this sched_domain_enabled flag.
+Only because we're mostly in agreement about what should be done ;)
 
-2) P1 had a rule that sibling cpusets marked 'sched_domain' could
-   not overlap.  P2 has a rule that cpusets marked 'sched_domain'
-   must also be marked 'cpu_exclusive.'
+But if you have other interesting things to suggest, I haven't seen 
+Miguel reject any suggestions by other developers, yet (very much on the 
+contrary, to be honest).
 
-   I suspect I prefer P1 here.  That rule seems easier for users to
-   code to.  It doesn't entangle these two flags.  But I am not sure
-   I understand this detail correctly.
-   
-   I think it should be ok to have two overlapping sibling cpusets,
-   one of which is marked as a sched domain and one of which is not.
-   
-   Ah - no - I'm wrong.  The "real" meaning of the 'sched_domain'
-   is that cpusets so marked might *not* be sched domains!  This
-   'sched_domain' name is bad, it is the reverse of what it should be.
-   
-   The 'sched_domain' flag name should be some variation of, say:
-   
-   	sched_ok_not_to_load_balance	# default to off (0)
-
-   It is exactly the cpusets so marked which the user is allowing
-   the kernel to carve up into sched domain partitions, disabling
-   load balancing between these isolated partitions.
-
-   And then this rule that cpusets marked with this flag must also
-   be marked cpu_exclusive ensures that we don't have sibling cpusets
-   that do require load balancing partially overlapping with cpusets
-   that do not require it.  Such overlap would result in tasks stuck
-   in no-man's land, expecting load balancing but stuck on a cpu
-   that some other cpuset decreed need not be entirely load balanced.
-
-3) In any case, this flag name must change.  It names the wrong thing,
-   it's backwards, and its vague.
-   
-   (For the record - looks like I introduced the name 'sched_domain'
-   in P1.  -pj)
-   
-    * This flags name must focus on whether load balancing is required.
-      That's the publicly exposed affect of this flag.
-      
-      The construction of dynamic sched domains and partitioning them
-      into isolated domains is an internal implementation detail,
-      and as I guess Nick has been figuring for a while, should remain
-      the private business of the kernel.
-      
-      The deal the kernel is offering the user is simply:
-
-       	    Let us selectively disable load balancing, and
-	    in turn we will give you better performance.
-      
-    * This flags name must correctly suggest the sense of setting it.
-      To suggest in the name that we are setting up a sched domain when
-      in fact we are using this flag to allow ripping sched domains
-      asunder is backwards.
-
-4) The following wording in P2 (and in earlier versions) is not clear to me:
-
-  * For a given cpuset cur, partition the system as follows
-  * a. All cpus in the parent cpuset's cpus_allowed that are not part of any
-  *    child cpusets defining sched domain
-  * b. All cpus in the current cpuset's cpus_allowed that are not part of any
-  *    child cpusets defining sched domain
-  * Build these two partitions by calling partition_sched_domains
-
-   The first reference to 'child cpusets' confuses me - child of the
-   parent (aka the current cpusets siblings) or child of the current
-   cpuset.  And more essentially, the invariates are not clearly
-   spelled out.  Granted, I can be dense at times.  But I have
-   literally spent hours puzzling over the meaning of these lines,
-   and the associated code, and I'm still figuring it out.
-
-   How about this wording, using the flag renaming from (2) above:
-
-
-  * By default, the kernel scheduler load balances across all CPUs
-  * in the system.  This can get expensive on high CPU count systems.
-  *
-  * The per-cpuset flag 'sched_ok_not_to_load_balance' can be set by
-  * the user to reduce this load balancing performance penalty.
-  * If set in a cpuset, this tells the kernel it is ok not to load
-  * balance tasks in that cpuset.  If such a cpuset overlaps other
-  * cpusets that still require load balancing, the kernel may decide
-  * to load balance these CPUs anyway - that's the kernel's choice.
-  *
-  * The kernel implements this by partitioning the CPUs in the system
-  * into as many separate, isolated scheduler domains as it can, and
-  * still avoid dividing any cpuset that -does- require load balancing
-  * across two or more such partitions.
-  *
-  * A 'partition' P of a set S is a set of subsets of S, such that:
-  *  1) the union of the members of P equals S,
-  *  2) no two members of P overlap each other, and
-  *  3) no member of P is empty.
-  *
-  * Marking a cpuset 'sched_ok_not_to_load_balance' grants the kernel
-  * permission to partition the CPUs in that cpuset across multiple
-  * isolated sched domains.  No load balancing is done between such
-  * isolated domains.
-  *
-  * If 'C' is a cpuset marked 'sched_ok_not_to_load_balance',
-  * then its set of CPUs are either a member of this partition,
-  * or equal to the union of multiple members of this partition,
-  * including the members corresponding to the cpuset descendents of
-  * 'C' which are marked sched_ok_not_to_load_balance.
-  *
-  * If 'C' is a cpuset marked 'sched_ok_not_to_load_balance', and if
-  * some of its child cpusets are also marked, and if there are any
-  * left over CPUs in 'C' that are not in any of those child cpusets
-  * so marked, then these left over cpus form a separate member of
-  * the sched domain partition.
-  *
-  * Because we gather up such left over cpus to form another partition
-  * member, therefore whenever we change this flag on a cpuset, we
-  * have to recompute the partition for the parent of the affected
-  * cpuset as well as for the affected cpuset itself.
-  *
-  * Similarly, if a cpuset that is so marked has child cpusets also
-  * marked, and if it has CPUs added or removed, then we have to
-  * recompute the partition for its child cpusets, as the left over
-  * CPUs will have changed.
-
-5) The above remarks just try to clarify what is with comments and
-   name changes.
-   
-   There is one remaining capability that is missing.
-   
-   Batch schedulers, for example, can end up with multiple overlapping
-   sibling cpusets, for a mix of active and inactive jobs.  At any point
-   in time the active cpusets don't overlap, and to improve performance,
-   the batch scheduler would like to partition the sched domains along
-   the lines of its active jobs.
-   
-   For this to work, the sched_ok_not_to_load_balance flag has to become
-   advisory rather than mandatory.
-   
-   That is, instead of imposing the rules up front:
-     * must be cpu_exclusive, and
-     * must have parent set too,
-   rather let any cpuset be marked  sched_ok_not_to_load_balance,
-   and then discover the finest grained sched domain partitioning
-   consistent with those markings.  This discovery could be done in
-   an N**2 algorithm, where N is the number of cpusets, by scanning
-   over all cpusets, clustering any overlapping cpusets that require
-   load balancing (don't have sched_ok_not_to_load_balance set.)
-   
-   Currently, anytime this flag, or the CPUs in a cpuset so marked,
-   change, we immediately drive a new partitioning, along those lines.
-   
-   Instead, anytime the set of cpusets requiring load balancing
-   (the cpusets with sched_ok_not_to_load_balance not set) changes,
-   adding or remove such a cpuset or CPUs to or from such a cpuset,
-   we should rediscover the partitioning, clustering into the same
-   partition member any overlapping cpusets requiring balancing.
-
-6) Now for some nits:
-
-    @@ -1005,6 +1074,11 @@
- 	    cs->flags = trialcs.flags;
- 	    mutex_unlock(&callback_mutex);
-
-    +	sched_domain_changed =
-    +		(is_sched_domain(cs) != is_sched_domain(&trialcs));
-
-   This looks borked.  You are looking for differences in the
-   flags of cs and trialcs, just after the assignment making
-   them the same.  I predict that "sched_domain_changed" will
-   always be False.  You probably have to set sched_domain_changed
-   earlier in the code.
-   
-7) The patch would be slightly easier to read if done with a "diff -p"
-   option, displaying the procedure name for each diff chunk.
-
-8) Looks like a cut+paste comment from earlier code did not change
-   some mentions of cpu_exclusive to sched_domain:
-   
-    + * If the cpuset being removed is marked cpu_exclusive, then simulate
-    + * turning cpu_exclusive off, which will call update_cpu_domains().
-
-   Also:
-   
-    + - Also a cpu_exclusive cpuset would be associated with a sched
-    +   domain, if the sched_domain flag is turned on.
-
-   And:
-   
-    +A cpuset that is cpu_exclusive can be used to define a scheduler
-    +(sched) domain if the sched_domain flag is turned on. The sched domain
-    +consists of all CPUs in the current cpuset that are not part of any
-    +exclusive child cpusets that also define sched domains.
-
-9) Finally, we really do need a way, on a production system, for user
-   space to ask the kernel where load balancing is limited.
-   
-   For example one possible interface would have user space pass a
-   cpumask to the kernel, and get back a Boolean value, indicating
-   whether or not there are any limitations on load balancing between
-   any two CPUs specified in that cpumask.  Internally, the kernel
-   would answer this by seeing if the provided mask was a subset of
-   one of the partition members, or not.
-   
-   A performance aware batch scheduler, for instance, could use this
-   API to verify that load balancing really was limited on its top
-   level and other large, inactive, cpusets.
-   
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Paulo Marques
+Software Development Department - Grupo PIE, S.A.
+Phone: +351 252 290600, Fax: +351 252 290601
+Web: www.grupopie.com
+
+"The face of a child can say it all, especially the
+mouth part of the face."

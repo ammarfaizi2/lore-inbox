@@ -1,80 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWJaHti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422726AbWJaHxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422651AbWJaHti (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161616AbWJaHth
+	id S1422726AbWJaHxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422732AbWJaHxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:49:37 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:12192 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1161612AbWJaHtf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:49:35 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc3-mm1 - udev doesn't work (was: ATI SATA controller not detected)
-Date: Tue, 31 Oct 2006 08:48:01 +0100
-User-Agent: KMail/1.9.1
-Cc: Greg KH <greg@kroah.com>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org
-References: <20061029160002.29bb2ea1.akpm@osdl.org> <200610310829.31554.rjw@sisk.pl> <20061030234008.51da7d9a.akpm@osdl.org>
-In-Reply-To: <20061030234008.51da7d9a.akpm@osdl.org>
+	Tue, 31 Oct 2006 02:53:11 -0500
+Received: from web31805.mail.mud.yahoo.com ([68.142.207.68]:22915 "HELO
+	web31805.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422726AbWJaHxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 02:53:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=KmvlLZrFX19ag6YPNjf4RTnFgNJnmOlNaJRFS9FiKq+BAT+RwgeOKNKTvCZozRblEkT4vUQJWfFntG03JOPmMhbVv0bzjQeltCyIXk1AFwlfXBtWp18eOEFizW+iDtYH2T/RX87SFTKpum3KQUYOqEdpi37mlElF3TK97aNrlc4=  ;
+X-YMail-OSG: 2UYuzzkVM1nv_vY4XhNcwu6FKQ9rMAp1GjhAl8PtOWgi_mFbQ7U61skXTLnsYHOXAth_dHNDEHa6iw_XsP61wfKuwMuAFcqZk7UePpt6qTJham0mBpJlpMPQ5gYL9FXoTMQZ7pZHyYk-
+Date: Mon, 30 Oct 2006 23:53:08 -0800 (PST)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: [PATCH] 3/3: Handle REQ_TASK_ABORT in aic94xx
+To: "Darrick J. Wong" <djwong@us.ibm.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alexis Bruemmer <alexisb@us.ibm.com>
+In-Reply-To: <45468860.5060103@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610310848.02739.rjw@sisk.pl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <355151.48546.qm@web31805.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 31 October 2006 08:40, Andrew Morton wrote:
-> On Tue, 31 Oct 2006 08:29:28 +0100
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+--- "Darrick J. Wong" <djwong@us.ibm.com> wrote:
+> This patch straightens out the code that distinguishes the various escb
+> opcodes in escb_tasklet_complete so that they can be handled correctly. 
+> It also provides all the necessary code to create a workqueue item that
+> tells libsas to abort a sas_task.
 > 
-> > [Resending due to a network problem on my side.]
-> > 
-> > On Monday, 30 October 2006 21:57, Greg KH wrote:
-> > > On Mon, Oct 30, 2006 at 09:48:33PM +0100, Rafael J. Wysocki wrote:
-> > > > On Monday, 30 October 2006 21:22, Greg KH wrote:
-> > > > > On Mon, Oct 30, 2006 at 09:15:37PM +0100, Rafael J. Wysocki wrote:
-> > > > > > Sorry, I was wrong.
-> > > > > > 
-> > > > > > The controller _is_ detected and handled properly, but udev is apparently
-> > > > > > unable to create the special device files for SATA drives/partitions even
-> > > > > > though CONFIG_SYSFS_DEPRECATED is set.
-> > > > > 
-> > > > > This config option should not affect the block device sysfs files at all
-> > > > > at this point in time.
-> > > > > 
-> > > > > What does 'tree /sys/block/' show?
-> > > > 
-> > > > I can't run 'tree', but 'ls' works somehow (can't mount the root fs).  The
-> > > > block device sysfs files seem to be present
-> > > 
-> > > If they are there, then udev should work just fine.
-> > > 
-> > > > > If the files show up there properly, udev should handle them just fine.
-> > > > 
-> > > > It doesn't.
-> > > > 
-> > > > Well, I can binary search for the offending patch if that helps.
-> > > 
-> > > That would be very helpful, thanks.
-> > 
-> > It's one of these:
-> > 
-> > git-acpi.patch
-> > git-acpi-fixup.patch
-> > git-acpi-more-build-fixes.patch
-> > 
+> Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 > 
-> You might need to resend the original report so the acpi guys can see it.
+> --
+> 
+> diff --git a/drivers/scsi/aic94xx/aic94xx_scb.c b/drivers/scsi/aic94xx/aic94xx_scb.c
+> index 7ee49b5..1911c5d 100644
+> --- a/drivers/scsi/aic94xx/aic94xx_scb.c
+> +++ b/drivers/scsi/aic94xx/aic94xx_scb.c
+> @@ -25,6 +25,7 @@
+>   */
+>  
+>  #include <linux/pci.h>
+> +#include <scsi/scsi_host.h>
+>  
+>  #include "aic94xx.h"
+>  #include "aic94xx_reg.h"
+> @@ -342,6 +343,18 @@ void asd_invalidate_edb(struct asd_ascb 
+>  	}
+>  }
+>  
+> +/* start up the ABORT TASK tmf... */
+> +static void task_kill_later(struct asd_ascb *ascb)
+> +{
+> +	struct asd_ha_struct *asd_ha = ascb->ha;
+> +	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
+> +	struct Scsi_Host *shost = sas_ha->core.shost;
+> +	struct sas_task *task = ascb->uldd_task;
+> +
+> +	INIT_WORK(&task->abort_work, (void (*)(void *))sas_task_abort, task);
+> +	queue_work(shost->work_q, &task->abort_work);
+> +}
+> +
+>  static void escb_tasklet_complete(struct asd_ascb *ascb,
+>  				  struct done_list_struct *dl)
+>  {
+> @@ -368,6 +381,58 @@ static void escb_tasklet_complete(struct
+>  			    ascb->scb->header.opcode);
+>  	}
+>  
+> +	/* Catch these before we mask off the sb_opcode bits */
+> +	switch (sb_opcode) {
+> +	case REQ_TASK_ABORT: {
+> +		struct asd_ascb *a, *b;
+> +		u16 tc_abort;
+> +
+> +		tc_abort = *((u16*)(&dl->status_block[1]));
+> +		tc_abort = le16_to_cpu(tc_abort);
+> +
+> +		ASD_DPRINTK("%s: REQ_TASK_ABORT, reason=0x%X\n",
+> +			    __FUNCTION__, dl->status_block[3]);
+> +
+> +		/* Find the pending task and abort it. */
+> +		list_for_each_entry_safe(a, b, &asd_ha->seq.pend_q, list)
+> +			if (a->tc_index == tc_abort) {
+> +				task_kill_later(a);
+> +				break;
+> +			}
+> +		goto out;
+> +	}
+> +	case REQ_DEVICE_RESET: {
+> +		struct asd_ascb *a, *b;
+> +		u16 conn_handle;
+> +
+> +		conn_handle = *((u16*)(&dl->status_block[1]));
+> +		conn_handle = le16_to_cpu(conn_handle);
+> +
+> +		ASD_DPRINTK("%s: REQ_DEVICE_RESET, reason=0x%X\n", __FUNCTION__,
+> +			    dl->status_block[3]);
+> +
+> +		/* Kill all pending tasks and reset the device */
+> +		list_for_each_entry_safe(a, b, &asd_ha->seq.pend_q, list) {
+> +			struct sas_task *task = a->uldd_task;
+> +			struct domain_device *dev = task->dev;
+> +			u16 x;
+> +
+> +			x = *((u16*)(&dev->lldd_dev));
+> +			if (x == conn_handle)
+> +				task_kill_later(a);
+> +		}
+> +
+> +		/* FIXME: Reset device port (huh?) */
+> +		goto out;
 
-Okay, I will.
+"huh?" -- LOL, that's a very funny comment.
 
-> Meanwhile, I'll have to drop the acpi tree.
+Good luck!
+   Luben
 
-Well, I'd prefer to find the offending commit within the tree, as the majority
-of changes look pretty innocent.  Are the commits available somewhere as
-individual patches?
+> +	}
+> +	case SIGNAL_NCQ_ERROR:
+> +		ASD_DPRINTK("%s: SIGNAL_NCQ_ERROR\n", __FUNCTION__);
+> +		goto out;
+> +	case CLEAR_NCQ_ERROR:
+> +		ASD_DPRINTK("%s: CLEAR_NCQ_ERROR\n", __FUNCTION__);
+> +		goto out;
+> +	}
+> +
+>  	sb_opcode &= ~DL_PHY_MASK;
+>  
+>  	switch (sb_opcode) {
+> @@ -397,22 +462,6 @@ static void escb_tasklet_complete(struct
+>  		sas_phy_disconnected(sas_phy);
+>  		sas_ha->notify_port_event(sas_phy, PORTE_TIMER_EVENT);
+>  		break;
+> -	case REQ_TASK_ABORT:
+> -		ASD_DPRINTK("%s: phy%d: REQ_TASK_ABORT\n", __FUNCTION__,
+> -			    phy_id);
+> -		break;
+> -	case REQ_DEVICE_RESET:
+> -		ASD_DPRINTK("%s: phy%d: REQ_DEVICE_RESET\n", __FUNCTION__,
+> -			    phy_id);
+> -		break;
+> -	case SIGNAL_NCQ_ERROR:
+> -		ASD_DPRINTK("%s: phy%d: SIGNAL_NCQ_ERROR\n", __FUNCTION__,
+> -			    phy_id);
+> -		break;
+> -	case CLEAR_NCQ_ERROR:
+> -		ASD_DPRINTK("%s: phy%d: CLEAR_NCQ_ERROR\n", __FUNCTION__,
+> -			    phy_id);
+> -		break;
+>  	default:
+>  		ASD_DPRINTK("%s: phy%d: unknown event:0x%x\n", __FUNCTION__,
+>  			    phy_id, sb_opcode);
+> @@ -432,7 +481,7 @@ static void escb_tasklet_complete(struct
+>  
+>  		break;
+>  	}
+> -
+> +out:
+>  	asd_invalidate_edb(ascb, edb);
+>  }
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+

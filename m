@@ -1,27 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423534AbWJaQHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423540AbWJaQIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423534AbWJaQHb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 11:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423533AbWJaQHb
+	id S1423540AbWJaQIo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 11:08:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423543AbWJaQIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 11:07:31 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:21374 "EHLO
+	Tue, 31 Oct 2006 11:08:44 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:33409 "EHLO
 	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1423529AbWJaQHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 11:07:30 -0500
-Date: Tue, 31 Oct 2006 08:02:35 -0800
+	id S1423540AbWJaQIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 11:08:43 -0500
+Message-ID: <4547732D.8070600@oracle.com>
+Date: Tue, 31 Oct 2006 08:00:45 -0800
 From: Randy Dunlap <randy.dunlap@oracle.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, mm-commits@vger.kernel.org, adobriyan@gmail.com,
-       ankita@in.ibm.com, vgoyal@in.ibm.com
-Subject: Re: + lkdtm-module_param-fixes.patch added to -mm tree
-Message-Id: <20061031080235.4f9948df.randy.dunlap@oracle.com>
-In-Reply-To: <200610310837.k9V8bxII022722@shell0.pdx.osdl.net>
-References: <200610310837.k9V8bxII022722@shell0.pdx.osdl.net>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: Peer Chen <pchen@nvidia.com>, alsa-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Andy Currid <ACurrid@nvidia.com>,
+       Brian Lazara <BLazara@nvidia.com>, jgarzik@pobox.com,
+       Emily Jiang <ejiang@nvidia.com>
+Subject: Re: [Alsa-devel] [Patch] Audio: Add nvidia HD Audio controllers of
+ MCP67 support to hda_intel.c
+References: <15F501D1A78BD343BE8F4D8DB854566B0C42D52B@hkemmail01.nvidia.com>	<s5hr6wotukx.wl%tiwai@suse.de>	<20061031074345.18d57e88.randy.dunlap@oracle.com> <s5hk62gtqxc.wl%tiwai@suse.de>
+In-Reply-To: <s5hk62gtqxc.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Brightmail-Tracker: AAAAAQAAAAI=
 X-Brightmail-Tracker: AAAAAQAAAAI=
@@ -30,52 +32,33 @@ X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2006 00:37:59 -0800 akpm@osdl.org wrote:
-
-This patch is even cleaner:
-http://lkml.org/lkml/2006/10/23/390
-
-Did you drop it?  never see/have it?
-
-
-> ------------------------------------------------------
-> Subject: lkdtm: module_param fixes
-> From: Andrew Morton <akpm@osdl.org>
+Takashi Iwai wrote:
+> At Tue, 31 Oct 2006 07:43:45 -0800,
+> Randy Dunlap wrote:
+>> On Tue, 31 Oct 2006 15:42:54 +0100 Takashi Iwai wrote:
+>>
+>>> At Tue, 31 Oct 2006 15:33:58 +0800,
+>>> Peer Chen wrote:
+>>>> Add the support for HD audio controllers of MCP51,MCP55,MCP61,MCP65 & MCP67.
+>>>> The following hda_intel.c patch is based on kernel 2.6.18.
+>>>>
+>>>> Signed-off by: Peer Chen <pchen@nvidia.com>
+>>> Applied to ALSA tree.  But I didn't add it to push-to-2.6.19-tree
+>>> because apparently no one has tested the patch well yet.
+>>>
+>>> (BTW, your patch attached there was broken, so I had to apply it
+>>> manually.  At the next time, please either inline the patch in a text
+>>> mail, or attach a plain text patch if inlining is not possible with
+>>> your MUA/MTA.)
+>> Patches should also be sent made to apply to a current kernel
+>> tree, like 2.6.19-rc3, 2.6.19-rc4, 2.6.19-rc3-git8,
+>> Linus's git tree, or Andrew's -mm tree if that is the only
+>> place where the patch fits, or even to a subsystem tree (e.g., ALSA).
 > 
-> A assume these permissions were a typo - Alexey's
-> compile-time-check-re-world-writeable-module-params.patch catches it.
-> 
-> Fix a typo in the help string too.
-> 
-> Cc: Alexey Dobriyan <adobriyan@gmail.com>
-> Cc: Ankita Garg <ankita@in.ibm.com>
-> Cc: Vivek Goyal <vgoyal@in.ibm.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  drivers/misc/lkdtm.c |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff -puN drivers/misc/lkdtm.c~lkdtm-module_param-fixes drivers/misc/lkdtm.c
-> --- a/drivers/misc/lkdtm.c~lkdtm-module_param-fixes
-> +++ a/drivers/misc/lkdtm.c
-> @@ -116,14 +116,14 @@ static enum ctype cptype = NONE;
->  static int count = DEFAULT_COUNT;
->  
->  module_param(recur_count, int, 0644);
-> -MODULE_PARM_DESC(recur_count, "Recurcion level for the stack overflow test,\
-> +MODULE_PARM_DESC(recur_count, "Recursion level for the stack overflow test,\
->  				 default is 10");
->  module_param(cpoint_name, charp, 0644);
->  MODULE_PARM_DESC(cpoint_name, "Crash Point, where kernel is to be crashed");
-> -module_param(cpoint_type, charp, 06444);
-> +module_param(cpoint_type, charp, 0644);
->  MODULE_PARM_DESC(cpoint_type, "Crash Point Type, action to be taken on\
->  				hitting the crash point");
-> -module_param(cpoint_count, int, 06444);
-> +module_param(cpoint_count, int, 0644);
->  MODULE_PARM_DESC(cpoint_count, "Crash Point Count, number of times the \
->  				crash point is to be hit to trigger action");
+> Since I already applied it to ALSA tree, the next mm tree will include
+> it (automatically taken it from alsa.git#mm branch).
 
----
+Sure, I'm just trying to get Peer to DTRT (do the right thing).
+
+-- 
 ~Randy

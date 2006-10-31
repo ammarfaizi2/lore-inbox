@@ -1,87 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423560AbWJaQ23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423558AbWJaQ3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423560AbWJaQ23 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 11:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423559AbWJaQ23
+	id S1423558AbWJaQ3L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 11:29:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423561AbWJaQ3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 11:28:29 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:52611 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1423549AbWJaQ22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 11:28:28 -0500
-Date: Tue, 31 Oct 2006 09:28:25 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Holden Karau <holdenk@xandros.com>
-Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, hirofumi@mail.parknet.co.jp,
-       linux-kernel@vger.kernel.org, "akpm@osdl.org" <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, holden@pigscanfly.ca,
-       holden.karau@gmail.com, Nick Piggin <nickpiggin@yahoo.com.au>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>
-Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes revised
-Message-ID: <20061031162825.GD26964@parisc-linux.org>
-References: <454765AC.1050905@xandros.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <454765AC.1050905@xandros.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 31 Oct 2006 11:29:11 -0500
+Received: from mail.gmx.de ([213.165.64.20]:29674 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1423558AbWJaQ3J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 11:29:09 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+From: Mike Galbraith <efault@gmx.de>
+To: Greg KH <gregkh@suse.de>
+Cc: "Martin J. Bligh" <mbligh@google.com>,
+       Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+In-Reply-To: <20061031072241.GB7306@suse.de>
+References: <45461977.3020201@shadowen.org> <45461E74.1040408@google.com>
+	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
+	 <45463481.80601@shadowen.org>
+	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
+	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
+	 <20061031065912.GA13465@suse.de>
+	 <1162278594.6416.4.camel@Homer.simpson.net> <20061031072241.GB7306@suse.de>
+Content-Type: text/plain
+Date: Tue, 31 Oct 2006 17:28:46 +0100
+Message-Id: <1162312126.5918.12.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 10:03:08AM -0500, Holden Karau wrote:
-> @@ -343,52 +344,65 @@ int fat_ent_read(struct inode *inode, st
->  	return ops->ent_get(fatent);
->  }
->  
-> -/* FIXME: We can write the blocks as more big chunk. */
-> -static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
-> -			  int nr_bhs)
-> +
-> +static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
-> +			       int nr_bhs , int wait)
->  {
->  	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-> -	struct buffer_head *c_bh;
-> +	struct buffer_head *c_bh[nr_bhs*(sbi->fats)];
->  	int err, n, copy;
->  
-> +	/* Always wait if mounted -o sync */
-> +	if (sb->s_flags & MS_SYNCHRONOUS ) 
-> +		wait = 1;
->  	err = 0;
->  	for (copy = 1; copy < sbi->fats; copy++) {
->  		sector_t backup_fat = sbi->fat_length * copy;
-> -
-> -		for (n = 0; n < nr_bhs; n++) {
-> -			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
-> -			if (!c_bh) {
-> +		for (n = 0 ; n < nr_bhs ;  n++ ) {
-> +			c_bh[(copy-1)*nr_bhs+n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
-> +			if (!c_bh[(copy-1)*nr_bhs+n]) {
-> +				printk(KERN_CRIT "fat: out of memory while copying backup fat. possible data loss\n");
+On Mon, 2006-10-30 at 23:22 -0800, Greg KH wrote:
+> On Tue, Oct 31, 2006 at 08:09:54AM +0100, Mike Galbraith wrote:
 
-I don't like that at all.
+> > > Merely change CONFIG_SYSFS_DEPRECATED to be set to yes, and it should
+> > > all work just fine.  Doesn't anyone read the Kconfig help entries for
+> > > new kernel options?
+> > 
+> > That's terminal here atm:  kernel BUG at arch/i386/mm/pageattr.c:165!
+> > 
+> > I did have it set, but had to disable it to not panic.
+> 
+> I think there are two different issues here.  That kernel config option
+> should not be causing an oops in mm code.
+> 
+> Can you bisect the different patches to see which one causes the
+> problem?
 
->  				err = -ENOMEM;
->  				goto error;
->  			}
-> -			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
-> -			set_buffer_uptodate(c_bh);
-> -			mark_buffer_dirty(c_bh);
-> -			if (sb->s_flags & MS_SYNCHRONOUS)
-> -				err = sync_dirty_buffer(c_bh);
-> -			brelse(c_bh);
-> -			if (err)
-> -				goto error;
-> +		memcpy(c_bh[(copy-1)*nr_bhs+n]->b_data, bhs[n]->b_data, sb->s_blocksize);
-> +		set_buffer_uptodate(c_bh[(copy-1)*nr_bhs+n]);
-> +		mark_buffer_dirty(c_bh[(copy-1)*nr_bhs+n]);
->  		}
->  	}
-> +
-> +	if (wait) {
-> +		for (n = 0 ; n < nr_bhs ; n++) {
-> +			printk("copying to %d to  %d\n" ,n,  nr_bhs*(sbi->fats-1)+n);
+I'm not bisecting, but I'm making progress anyway.  Definitely seems to
+be one of the driver-core-* patches.  I'm applying things to 2.6.19-rc3
+virgin group wise, and as soon as I applied those, wham.  
 
-Is this the right version of the patch?  The printk should never be left in.
-Plus, as far as I can tell, that whole loop is actually just memcpy().
+With only [1] *acpi*, gregkh-driver*, and gregkk-pci* and all was well
+(except it didn't cure my eth0 woes).
+
+Still poking at it.
+
+	-Mike
+

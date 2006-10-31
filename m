@@ -1,102 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945992AbWJaVCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423628AbWJaUvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945992AbWJaVCY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 16:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945993AbWJaVCY
+	id S1423628AbWJaUvO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 15:51:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423627AbWJaUvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 16:02:24 -0500
-Received: from web31807.mail.mud.yahoo.com ([68.142.207.70]:47758 "HELO
-	web31807.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1945992AbWJaVCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 16:02:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=OKjIhEThVBrTk9NaSuQ7KVVwmHJkAwjBMOgISz3yU0osIzOC98LVUxJ1f7GWJ5Lmzvv2O34w2VR0/ANYN6AlJ2OQo35dGXoRCE82LwpKqiDHjQT4JeakSXR8N3GIkkc0Jszx5v896gtrE8rtZ56vjcJNcG8+VyGqio5JnXjvoVw=  ;
-X-YMail-OSG: 1e1B6OcVM1lDaBZ3gBxxAtNkEWQRtUhmf67iG_2YUG2aJzGD6utP4w8OizRQSoj.z6_BalaQOz.Y94F2ZbKRJrm9or2cIZk1yvMiIZ1W4r4ptVaHDTzY8yqO_vl_FrTJ5OLOeFDJORM-
-Date: Tue, 31 Oct 2006 13:02:21 -0800 (PST)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: [PATCH] 0/3: Fix EH problems in libsas and implement more error handling
-To: "Darrick J. Wong" <djwong@us.ibm.com>, Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>
-In-Reply-To: <454791A5.9000202@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <684926.92247.qm@web31807.mail.mud.yahoo.com>
+	Tue, 31 Oct 2006 15:51:14 -0500
+Received: from dev.mellanox.co.il ([194.90.237.44]:45714 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1423625AbWJaUvN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 15:51:13 -0500
+Date: Tue, 31 Oct 2006 22:50:04 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: "Richard B. Johnson" <jmodem@abominablefirebug.com>
+Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, jeff@garzik.org, matthew@wil.cx,
+       openib-general@openib.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       David Miller <davem@davemloft.net>
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+Message-ID: <20061031205004.GB6866@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <019301c6fd2c$044d7010$0732700a@djlaptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <019301c6fd2c$044d7010$0732700a@djlaptop>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "Darrick J. Wong" <djwong@us.ibm.com> wrote:
-> Muli Ben-Yehuda wrote:
+Quoting r. Richard B. Johnson <jmodem@abominablefirebug.com>:
+> Subject: Re: Ordering between PCI config space writes and MMIO reads?
 > 
-> > I'm still seeing this on my x366 with the V17 sequencer firmware (with
-> > the old Razor sequencer it happens as well, but rarely).
-> > 
-> > aic94xx: escb_tasklet_complete: REQ_TASK_ABORT, reason=0x6
-> > aic94xx: tmf tasklet complete
-> > aic94xx: tmf resp tasklet
-> > aic94xx: tmf came back
-> > aic94xx: task not done, clearing nexus
-> > aic94xx: asd_clear_nexus_tag: PRE
-> > aic94xx: asd_clear_nexus_tag: POST
-> > aic94xx: asd_clear_nexus_tag: clear nexus posted, waiting...
-> > aic94xx: task 0xffff81015ee59580 done with opcode 0x23 resp 0x0 stat 0x8d but aborted by upper
-> layer!
-> > aic94xx: asd_clear_nexus_tasklet_complete: here
-> > aic94xx: asd_clear_nexus_tasklet_complete: opcode: 0x0
-> > aic94xx: came back from clear nexus
-> > aic94xx: task 0xffff81015ee59580 aborted, res: 0x0
-> > sas: command 0xffff8100e2afcb00, task 0xffff81015ee59580, aborted by initiator: EH_NOT_HANDLED
-> > sas: Enter sas_scsi_recover_host
-> > sas: going over list...
-> > sas: trying to find task 0xffff81015ee59580
-> > sas: sas_scsi_find_task: task 0xffff81015ee59580 already aborted
-> > sas: sas_scsi_recover_host: task 0xffff81015ee59580 is aborted
-> > sas: --- Exit sas_scsi_recover_host
 > 
-> Yes, the patch doesn't eliminate these errors; it merely does something
-> more intelligent with the error code than "Sit around and wait for
-> everything to time out"... despite the scary error messages, it looks
+> ----- Original Message ----- 
+> From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+> To: "Roland Dreier" <rdreier@cisco.com>
+> Cc: <linux-kernel@vger.kernel.org>; <linux-ia64@vger.kernel.org>; 
+> <jeff@garzik.org>; <matthew@wil.cx>; <openib-general@openib.org>; 
+> <linux-pci@atrey.karlin.mff.cuni.cz>; "David Miller" <davem@davemloft.net>
+> Sent: Tuesday, October 31, 2006 2:53 PM
+> Subject: Re: Ordering between PCI config space writes and MMIO reads?
+> 
+> 
+> > Quoting r. Roland Dreier <rdreier@cisco.com>:
+> >> Subject: Re: Ordering between PCI config space writes and MMIO reads?
+> >>
+> >> The discussion fizzled out without really reaching a definitive
+> >> answer, so I'm going to apply the original patch (below), since I
+> >> pretty much convinced myself that only the driver doing the config
+> >> access has enough information to fix this reliably.
+> >>
+> >>  - R.
+> >>
+> >> Author: John Partridge <johnip@sgi.com>
+> >> Date:   Tue Oct 31 11:00:04 2006 -0800
+> >>
+> >>     IB/mthca: Make sure all PCI config writes reach device before doing 
+> >> MMIO
+> >>
+> >>     During initialization, mthca writes some PCI config space registers
+> >>     and then does an MMIO read from one of the BARs it just enabled. 
+> >> This
+> >>     MMIO read sometimes failed and caused a crash on SGI Altix machines,
+> >>     because the PCI-X host bridge (legitimately, according to the PCI
+> >>     spec) allowed the MMIO read to start before the config write 
+> >> completed.
+> >>
+> >>     To fix this, add a config read after all config writes to make sure
+> >>     they are all done before starting the MMIO read.
+> >>
+> >>     Signed-off-by: John Partridge <johnip@sgi.com>
+> >>     Signed-off-by: Roland Dreier <rolandd@cisco.com>
+> >>
+> >> diff --git a/drivers/infiniband/hw/mthca/mthca_reset.c 
+> >> b/drivers/infiniband/hw/mthca/mthca_reset.c
+> >> index 91934f2..578dc7c 100644
+> >> --- a/drivers/infiniband/hw/mthca/mthca_reset.c
+> >> +++ b/drivers/infiniband/hw/mthca/mthca_reset.c
+> >> @@ -281,6 +281,20 @@ good:
+> >>  goto out;
+> >>  }
+> >>
+> >> + /*
+> >> + * Perform a "flush" of the PCI config writes here by reading
+> >> + * the PCI_COMMAND register.  This is needed to make sure that
+> >> + * we don't try to touch other PCI BARs before the config
+> >> + * writes are done -- otherwise an MMIO cycle could start
+> >> + * before the config writes are done and reach the HCA before
+> >> + * the BAR is actually enabled.
+> >> + */
+> >> + if (pci_read_config_dword(mdev->pdev, PCI_COMMAND, hca_header)) {
+> >> + err = -ENODEV;
+> >> + mthca_err(mdev, "Couldn't access HCA memory after restoring, "
+> >> +   "aborting.\n");
+> >> + }
+> >> +
+> >>  out:
+> >>  if (bridge)
+> >>  pci_dev_put(bridge);
+> >
+> > Here's what I don't understand: according to PCI rules, pci config read
+> > can bypass pci config write (both are non-posted).
+> > So why does doing it help flush the writes as the comment claims?
+> >
+> > Isn't this more the case of
+> > /* pci_config_write seems to complete asynchronously on Altix systems.
+> > * This is probably broken but its not clear what's the best
+> > * thing to do is - for now, do pci_read_config_dword which seems to flush
+> > * everything out. */
+> >
+> 
+> If you write to the PCI bus and then you read the result, the read __might__
+> be the read that flushes any posted writes rather than the read of device
+> registers that would occur after the BARs were configured (hardware may be
+> slower than the CPU). So, it's best to do the required configuration cycles
+> first, then after all is done, read  something before you actually need to use
+> data from subsequent read/write cycles.
 
-The code as was submitted last year to this list did _NOT_ "sit around
-and wait for everything to time out".
+But why should it help? Accordig to the spec, read does not flush configuration
+writes (unlike regular writes).
 
-It is unfortunate (but clever tactic by bottomley) that the code was
-NOT pulled from my git trees into scsi-misc and then "worked on", but
-was instead "worked on" in private and then committed to scsi-misc.
-So the code has no git history/revision history before it was "edited by"
-by bottomley, as we'd seen with the SAS event processing.
-
-BTW, I do have git trees of the code and an uninterruptible git
-history of the code from the very beginning.
-
-I.e. uninterruptible continued git history after initial
-posting date of 09/09/2005, 
-http://marc.theaimsgroup.com/?l=linux-scsi&m=112629423714248&w=2
-The git trees were then hosted by http://linux.adaptec.com/sas/ .
-
-> like it's doing the right thing.  However, it'd be useful to have
-> timestamps on the printks to know for sure.
-> 
-> > aic94xx: escb_tasklet_complete: REQ_TASK_ABORT, reason=0x5
-> 
-> Break recv'd... that's a new one.
-> 
-> > sas: DOING DISCOVERY on port 0, pid:1105
-> > scsi 0:0:0:0: Direct-Access     IBM-ESXS ST936701SS    F  B512 PQ: 0 ANSI: 4
-> 
-> Hrm, you might want to update your disks to the latest firmware levels
-> (B51C)... be wary that the firmware updates occasionally nuke everything
-> on the drive. :(
-> 
-> --D
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
+-- 
+MST

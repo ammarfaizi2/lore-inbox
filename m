@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422705AbWJaEdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161481AbWJaEid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422705AbWJaEdm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 23:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422710AbWJaEdm
+	id S1161481AbWJaEid (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 23:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161626AbWJaEid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 23:33:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44742 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422705AbWJaEdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 23:33:41 -0500
-Date: Mon, 30 Oct 2006 20:33:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arnaldo Carvalho de Melo <acme@mandriva.com>
-Cc: linux-kernel@vger.kernel.org, lwn@lwn.net
-Subject: Re: [ANNOUNCE] pahole and other DWARF2 utilities
-Message-Id: <20061030203334.09caa368.akpm@osdl.org>
-In-Reply-To: <20061030213318.GA5319@mandriva.com>
-References: <20061030213318.GA5319@mandriva.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Mon, 30 Oct 2006 23:38:33 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:26591 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1161481AbWJaEid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 23:38:33 -0500
+Date: Mon, 30 Oct 2006 20:34:08 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Marc Perkel <marc@perkel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: io_apic compile error
+Message-Id: <20061030203408.ec2ee5ce.randy.dunlap@oracle.com>
+In-Reply-To: <4546CFA2.8000504@perkel.com>
+References: <4546CFA2.8000504@perkel.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006 18:33:19 -0300
-Arnaldo Carvalho de Melo <acme@mandriva.com> wrote:
+On Mon, 30 Oct 2006 20:22:58 -0800 Marc Perkel wrote:
 
-> Hi,
+> getting a compile error when compiling 2.6.19rc3. Thought someone might want to fix this.
 > 
-> 	I've been working on some DWARF2 utilities and thought that it
-> is about time I announce it to the community, so that what is already
-> available can be used by people interested in reducing structure sizes
-> and otherwise taking advantage of the information available in the elf
-> sections of files compiled with 'gcc -g' or in the case of the kernel
-> with CONFIG_DEBUG_INFO enabled, so here it goes the description of said
-> tools:
-> 
-> pahole: Poke-a-Hole is a tool to find out holes in structures, holes
-> being defined as the space between members of functions due to alignemnt
-> rules that could be used for new struct entries or to reorganize
-> existing structures to reduce its size, without more ado lets see what
-> that means:
-> 
-> ...
->
-> 	Further ideas on how to use the DWARF2 information include tools
-> that will show where inlines are being used, how much code is added by
-> inline functions,
+>   CC      arch/x86_64/kernel/io_apic.o
+> arch/x86_64/kernel/io_apic.c: In function 'ioapic_pirq_setup':
+> arch/x86_64/kernel/io_apic.c:412: error: 'MAX_PIRQS' undeclared (first use in this function)
+> arch/x86_64/kernel/io_apic.c:412: error: (Each undeclared identifier is reported only once
+> arch/x86_64/kernel/io_apic.c:412: error: for each function it appears in.)
+> arch/x86_64/kernel/io_apic.c:417: error: 'pirq_entries' undeclared (first use in this function)
+> arch/x86_64/kernel/io_apic.c:419: error: 'pirqs_enabled' undeclared (first use in this function)
+> arch/x86_64/kernel/io_apic.c:412: warning: unused variable 'ints'
+> make[1]: *** [arch/x86_64/kernel/io_apic.o] Error 1
+> make: *** [arch/x86_64/kernel] Error 2
 
-It would be quite useful to be able to identify inlined functions which are
-good candidates for uninlining.
+Hm, it builds for me.  Please post your .config file.
 
+---
+~Randy

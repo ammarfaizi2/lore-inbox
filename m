@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423800AbWJaTFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423801AbWJaTI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423800AbWJaTFi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 14:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423801AbWJaTFi
+	id S1423801AbWJaTI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 14:08:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423805AbWJaTI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 14:05:38 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.8]:36102 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1423800AbWJaTFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 14:05:37 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Luca Tettamanti <kronos.it@gmail.com>
-Subject: Re: Suspend to disk:  do we HAVE to use swap?
-Date: Tue, 31 Oct 2006 19:05:33 +0000
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, John Richard Moser <nigelenki@comcast.net>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-References: <20061031174006.GA31555@dreamland.darkstar.lan>
-In-Reply-To: <20061031174006.GA31555@dreamland.darkstar.lan>
+	Tue, 31 Oct 2006 14:08:28 -0500
+Received: from mx2.suse.de ([195.135.220.15]:25259 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423801AbWJaTI2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 14:08:28 -0500
+Date: Tue, 31 Oct 2006 11:07:54 -0800
+From: Greg KH <gregkh@suse.de>
+To: Mike Galbraith <efault@gmx.de>
+Cc: "Martin J. Bligh" <mbligh@google.com>,
+       Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+Message-ID: <20061031190754.GA15413@suse.de>
+References: <45463481.80601@shadowen.org> <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com> <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com> <1162277642.5970.4.camel@Homer.simpson.net> <20061031071347.GA7027@suse.de> <1162278909.6416.5.camel@Homer.simpson.net> <20061031072145.GA7306@suse.de> <1162279873.6416.11.camel@Homer.simpson.net> <1162281794.9664.1.camel@Homer.simpson.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610311905.33667.s0348365@sms.ed.ac.uk>
+In-Reply-To: <1162281794.9664.1.camel@Homer.simpson.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 October 2006 17:40, Luca Tettamanti wrote:
-> Alistair John Strachan <s0348365@sms.ed.ac.uk> ha scritto:
-> > On Tuesday 31 October 2006 06:16, Rafael J. Wysocki wrote:
-> > [snip]
-> >
-> >> However, we already have code that allows us to use swap files for the
-> >> suspend and turning a regular file into a swap file is as easy as
-> >> running 'mkswap' and 'swapon' on it.
-> >
-> > How is this feature enabled? I don't see it in 2.6.19-rc4.
->
-> Swap files have been supported for ages. suspend-to-swapfile is very
-> new, you need a -mm kernel and userspace suspend from CVS:
-> http://suspend.sf.net
+On Tue, Oct 31, 2006 at 09:03:14AM +0100, Mike Galbraith wrote:
+> On Tue, 2006-10-31 at 08:31 +0100, Mike Galbraith wrote:
+> > On Mon, 2006-10-30 at 23:21 -0800, Greg KH wrote:
+> >  
+> > > Crap, the libsysfs hooks were more intrusive than I expected.  10.2
+> > > should not have this issue anymore.  Until then, just enable that config
+> > > option and you should be fine.
+> > 
+> > I just grabbed latest sysfsutils and configutils srpms, and will see if
+> > the problem has been fixed yet.
+> > 
+> > (oh... gregkh@suse.de.  i guess you're already sure:)
+> 
+> (i tested it anyway, and of course you're right, it's fixed)
 
-I know, I use swap files, and not a partition. This has prevented me from 
-using suspend to disk "for ages". ;-)
+Thanks for verifying this, I appreciate it.
 
-Is userspace suspend REQUIRED for this feature?
-
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+greg k-h

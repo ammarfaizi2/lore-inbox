@@ -1,60 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422915AbWJaH7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422703AbWJaIBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422915AbWJaH7t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:59:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422799AbWJaH7t
+	id S1422703AbWJaIBe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422804AbWJaIBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:59:49 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:36059 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1422915AbWJaH7s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:59:48 -0500
-Date: Tue, 31 Oct 2006 08:59:22 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Zachary Amsden <zach@vmware.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 is problematic in VMware
-In-Reply-To: <45463B7D.8050002@vmware.com>
-Message-ID: <Pine.LNX.4.61.0610310857280.23540@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0610290953010.4585@yvahk01.tjqt.qr>
- <45463B7D.8050002@vmware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Tue, 31 Oct 2006 03:01:34 -0500
+Received: from bay103-f2.bay103.hotmail.com ([65.54.174.12]:59704 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1422703AbWJaIBd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 03:01:33 -0500
+Message-ID: <BAY103-F2FD8C4C7A2FBAE2B285BAB2F90@phx.gbl>
+X-Originating-IP: [85.36.106.198]
+X-Originating-Email: [pupilla@hotmail.com]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: where is Linux 2.6.19-rc4?
+Date: Tue, 31 Oct 2006 09:01:32 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 31 Oct 2006 08:01:33.0368 (UTC) FILETIME=[C7DD9380:01C6FCC2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have seen a message from Linus announcing
+linux 2.6.19-rc4, but I cannot find the tarball
+patch. Am I missing anything?
 
->> I have observed a strange slowdown with the 2.6.18 kernel in VMware. This
->> happened both with the SUSE flavor and with the FC6 installer CD (which I
->> am trying right now). In both cases, the kernel "takes its time" after the
->> following text strings:
->> 
->> * Checking if this processor honours the WP bit even in supervisor mode...
->> Ok.
->> * Checking 'hlt' instruction... OK.
->> 
->> What's with that?
->
-> Thanks.  It is perhaps the jiffies calibration taking a while because of the
-> precise timing loop.  Are you reasonably confident that it is a regression in
-> performance over 2.6.17?
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
 
-Yes. I am not exactly sure if it's something in jiffies calibration 
-(because of the 'WP bit/supervisor' thing too), so maybe I thought it 
-was the newly-introduced SMP alternatives. I gotta check that.
-
-> The boot sequence is pretty complicated, and a lot of
-> it is difficult / slow to virtualize, so it could just be alternate timing
-> makes the boot output appear to stall, when in fact the raw time is still about
-> the same.  I will run some experiments.
-
-Booting with 'time' shows that the virtual time increases as usual, i.e.
-
-[ 9.00] checking if wp bit...
-[15.00] next message here
-
-
-	-`J'
--- 

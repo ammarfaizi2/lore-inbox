@@ -1,44 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946048AbWJaWNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946056AbWJaWQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946048AbWJaWNN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 17:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946055AbWJaWNN
+	id S1946056AbWJaWQO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 17:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946057AbWJaWQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 17:13:13 -0500
-Received: from mx4.cs.washington.edu ([128.208.4.190]:32426 "EHLO
-	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1946048AbWJaWNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 17:13:12 -0500
-Date: Tue, 31 Oct 2006 14:13:04 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org, Giuliano Pochini <pochini@shiny.it>,
-       Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH] Fix potential NULL pointer dereference in echoaudio
- midi.
-In-Reply-To: <200610312221.41089.jesper.juhl@gmail.com>
-Message-ID: <Pine.LNX.4.64N.0610311411000.2572@attu4.cs.washington.edu>
-References: <200610312221.41089.jesper.juhl@gmail.com>
+	Tue, 31 Oct 2006 17:16:14 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:9051 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1946056AbWJaWQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 17:16:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Jk21QM7oF6nZ1gkfcjfUouMGsA/8Q/HDSw3drP2DDJoFfPH2GUIWU0HW+EAvwUyop4d3Y4xy8DAKp6sW/IxgtST8ir7pvA5SKNs9SLUzmfnDcqAy8ewlUUlrQEo1TAE3e/6T2Ob2u1DWpZUWQK2hAHN5WPDL5I1ezLmgHSpfAWE=  ;
+Message-ID: <4547CB25.3080603@yahoo.com.au>
+Date: Wed, 01 Nov 2006 09:16:05 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: [PATCH] splice : two smp_mb() can be omitted
+References: <1162199005.24143.169.camel@taijtu> <4546FA81.1020804@cosmosbay.com> <45471A05.20205@yahoo.com.au> <200610311151.33104.dada1@cosmosbay.com>
+In-Reply-To: <200610311151.33104.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2006, Jesper Juhl wrote:
+Eric Dumazet wrote:
 
-> In sound/pci/echoaudio/midi.c::snd_echo_midi_output_write(), there's a risk
-> of dereferencing a NULL 'chip->midi_out'.
-> This patch contains the obvious fix as also used a bit higher up in the 
-> same function.
-> 
+>On Tuesday 31 October 2006 10:40, Nick Piggin wrote:
+>
+>
+>>Uh, there is nothing that says mutex_unlock or any unlock
+>>functions contain an implicit smp_mb(). What is given is that the
+>>lock and unlock obey aquire and release memory ordering,
+>>respectively.
+>>
+>>a = x;
+>>xxx_unlock
+>>b = y;
+>>
+>>In this situation, the load of y can be executed before that of x.
+>>And some architectures will even do so (i386 can, because the
+>>unlock is an unprefixed store; ia64 can, because it uses a release
+>>barrier in the unlock).
+>>
+>
+>Hum... it seems your mutex_unlock() i386/x86_64 copy is not same as mine :)
+>
 
-How about just adding an early test:
-	if (!chip->midi_out)
-		goto out;
+OK, replace xxx with mutex, and what I've said still holds true for ia64.
 
-and adding a label for out before the chip->lock unlock?  We still need to 
-clear chip->midi_full so we still require the spinlock, but there's no 
-reason we should be testing chip->midi_out multiple times since the 
-remaining code path in its entirety depends on it.
+>Maybe we could document the fact that mutex_{lock|unlock}() has or has not an 
+>implicit smp_mb().
+>
 
-		David
+It does not, none of the unlock functions ever have.
+
+>If not, delete smp_mb() calls from include/asm-generic/mutex-dec.h 
+>
+
+They should be deleted (and from mutex-xchg). NOT because there is no 
+need for
+a memory barrier, but because the atomic_alter_value_and_return_something
+functions always provide a barrier before and after the operation, as per
+Documentation/atomic_ops.txt
+
+Again, lock / unlock operations require acquire / release consistency. 
+This is a
+memory ordering operation. It is not equivalent to smp_mb, though.
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

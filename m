@@ -1,90 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423064AbWJaKFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422812AbWJaKMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423064AbWJaKFM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 05:05:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423066AbWJaKFM
+	id S1422812AbWJaKMD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 05:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423067AbWJaKMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 05:05:12 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:1292 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1423064AbWJaKFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 05:05:10 -0500
-Date: Tue, 31 Oct 2006 10:05:03 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Timo Teras <timo.teras@solidboot.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MMC: Select only one voltage bit in OCR response
-Message-ID: <20061031100503.GB19812@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	Timo Teras <timo.teras@solidboot.com>, linux-kernel@vger.kernel.org
-References: <20061009150044.GB1637@mail.solidboot.com> <20061009165317.GA6431@flint.arm.linux.org.uk> <20061009172350.GC1637@mail.solidboot.com> <453327EC.1000402@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <453327EC.1000402@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+	Tue, 31 Oct 2006 05:12:03 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:9197 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1422812AbWJaKMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 05:12:01 -0500
+Message-ID: <45472133.9090109@in.ibm.com>
+Date: Tue, 31 Oct 2006 15:40:59 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: Pavel Emelianov <xemul@openvz.org>
+CC: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
+       dipankar@in.ibm.com, rohitseth@google.com, menage@google.com,
+       linux-mm@kvack.org, Vaidyanathan S <svaidy@in.ibm.com>
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org> <454638D2.7050306@in.ibm.com> <45463F70.1010303@in.ibm.com> <45470FEE.6040605@openvz.org> <45471510.4070407@in.ibm.com> <45471679.90103@openvz.org>
+In-Reply-To: <45471679.90103@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 08:34:20AM +0200, Pierre Ossman wrote:
-> Timo Teras wrote:
-> > I see. But if we do send an OCR with an unsupported bit set, the card will
-> > go to inactive state and is unusable. This problem is masked on controllers
-> > with only 3.3V support, but I'm working with a controller supporting several
-> > different voltages.
-> >
-> > For example, I have a card giving an OCR reply of 0x0ff80080. The current
-> > code will reply to this with 0x00000180 which is clearly incorrect.
-> >
-> > Maybe something like "ocr &= 3 << bit;" would be more approriate?
-> >   
+Pavel Emelianov wrote:
+> Balbir Singh wrote:
+>> Pavel Emelianov wrote:
+>>> [snip]
+>>>
+>>>>> But in general I agree, these are the three important resources for
+>>>>> accounting and control
+>>>> I missed out to mention, I hope you were including the page cache in
+>>>> your definition of reclaimable memory.
+>>> As far as page cache is concerned my opinion is the following.
+>>> (If I misunderstood you, please correct me.)
+>>>
+>>> Page cache is designed to keep in memory as much pages as
+>>> possible to optimize performance. If we start limiting the page
+>>> cache usage we cut the performance. What is to be controlled is
+>>> _used_ resources (touched pages, opened file descriptors, mapped
+>>> areas, etc), but not the cached ones. I see nothing bad if the
+>>> page that belongs to a file, but is not used by ANY task in BC,
+>>> stays in memory. I think this is normal. If kernel wants it may
+>>> push this page out easily it won't event need to try_to_unmap()
+>>> it. So cached pages must not be accounted.
+>>>
+>> The idea behind limiting the page cache is this
+>>
+>> 1. Lets say one container fills up the page cache.
+>> 2. The other containers will not be able to allocate memory (even
+>> though they are within their limits) without the overhead of having
+>> to flush the page cache and freeing up occupied cache. The kernel
+>> will have to pageout() the dirty pages in the page cache.
+>>
+>> Since it is easy to push the page out (as you said), it should be
+>> easy to impose a limit on the page cache usage of a container.
 > 
-> Russell? Comments? Do you still have the offending card?
+> If a group is limited with memory _consumption_ it won't fill
+> the page cache...
+> 
 
-It wasn't my cards, but was reported by several other folk.  I don't think
-we can revert on this without breakage.
+So you mean the memory _consumption_ limit is already controlling
+the page cache? That's what we need the ability for a container
+not to fill up the page cache :)
 
-However, we should probably ensure that we don't end up setting voltage
-bits which the cards don't support.  So maybe masking the resulting OCR
-value with the received combined OCR would be a good idea?  Such as:
+I don't remember correctly, but do you account for dirty page cache usage in
+the latest patches of BC?
 
-diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
-index ee8863c..45e0598 100644
---- a/drivers/mmc/mmc.c
-+++ b/drivers/mmc/mmc.c
-@@ -467,23 +467,24 @@ static inline void mmc_delay(unsigned in
-  */
- static u32 mmc_select_voltage(struct mmc_host *host, u32 ocr)
- {
-+	u32 selected_ocr;
- 	int bit;
- 
--	ocr &= host->ocr_avail;
-+	selected_ocr = ocr & host->ocr_avail;
- 
--	bit = ffs(ocr);
-+	bit = ffs(selected_ocr);
- 	if (bit) {
- 		bit -= 1;
- 
--		ocr = 3 << bit;
-+		selected_ocr = 3 << bit;
- 
- 		host->ios.vdd = bit;
- 		mmc_set_ios(host);
- 	} else {
--		ocr = 0;
-+		selected_ocr = 0;
- 	}
- 
--	return ocr;
-+	return selected_ocr & ocr;
- }
- 
- #define UNSTUFF_BITS(resp,start,size)					\
+>>> I've also noticed that you've [snip]-ed on one of my questions.
+>>>
+>>>  > How would you allocate memory on NUMA in advance?
+>>>
+>>> Please, clarify this.
+>> I am not quite sure I understand the question. Could you please rephrase
+>> it and highlight some of the difficulty?
+> 
+> I'd like to provide a guarantee for a newly created group. According
+> to your idea I have to preallocate some pages in advance. OK. How to
+> select a NUMA node to allocate them from?
 
+The idea of pre-allocation was discussed as a possibility in the case
+that somebody needed hard guarantees, but most of us don't need it.
+I was in the RFC for the sake of completeness.
+
+Coming back to your question
+
+Why do you need to select a NUMA node? For performance?
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

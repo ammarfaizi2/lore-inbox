@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423029AbWJaJ3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423032AbWJaJb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423029AbWJaJ3b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 04:29:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422773AbWJaJ3b
+	id S1423032AbWJaJb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 04:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423031AbWJaJb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 04:29:31 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:59960 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1423029AbWJaJ3a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 04:29:30 -0500
-Message-ID: <45471679.90103@openvz.org>
-Date: Tue, 31 Oct 2006 12:25:13 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       menage@google.com, linux-mm@kvack.org,
-       Vaidyanathan S <svaidy@in.ibm.com>
-Subject: Re: [ckrm-tech] RFC: Memory Controller
-References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org> <454638D2.7050306@in.ibm.com> <45463F70.1010303@in.ibm.com> <45470FEE.6040605@openvz.org> <45471510.4070407@in.ibm.com>
-In-Reply-To: <45471510.4070407@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 31 Oct 2006 04:31:57 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31886
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1422773AbWJaJb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 04:31:56 -0500
+Date: Tue, 31 Oct 2006 01:31:54 -0800 (PST)
+Message-Id: <20061031.013154.122620846.davem@davemloft.net>
+To: peter.hicks@poggs.co.uk
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Thousands of interfaces
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061031092550.GA8201@tufnell.london.poggs.net>
+References: <20061031092550.GA8201@tufnell.london.poggs.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-> Pavel Emelianov wrote:
->> [snip]
->>
->>>> But in general I agree, these are the three important resources for
->>>> accounting and control
->>> I missed out to mention, I hope you were including the page cache in
->>> your definition of reclaimable memory.
->> As far as page cache is concerned my opinion is the following.
->> (If I misunderstood you, please correct me.)
->>
->> Page cache is designed to keep in memory as much pages as
->> possible to optimize performance. If we start limiting the page
->> cache usage we cut the performance. What is to be controlled is
->> _used_ resources (touched pages, opened file descriptors, mapped
->> areas, etc), but not the cached ones. I see nothing bad if the
->> page that belongs to a file, but is not used by ANY task in BC,
->> stays in memory. I think this is normal. If kernel wants it may
->> push this page out easily it won't event need to try_to_unmap()
->> it. So cached pages must not be accounted.
->>
-> 
-> The idea behind limiting the page cache is this
-> 
-> 1. Lets say one container fills up the page cache.
-> 2. The other containers will not be able to allocate memory (even
-> though they are within their limits) without the overhead of having
-> to flush the page cache and freeing up occupied cache. The kernel
-> will have to pageout() the dirty pages in the page cache.
-> 
-> Since it is easy to push the page out (as you said), it should be
-> easy to impose a limit on the page cache usage of a container.
+From: Peter Hicks <peter.hicks@poggs.co.uk>
+Date: Tue, 31 Oct 2006 09:25:50 +0000
 
-If a group is limited with memory _consumption_ it won't fill
-the page cache...
+[ Discussion belongs on netdev@vger.kernel.org, added to CC: ]
 
->> I've also noticed that you've [snip]-ed on one of my questions.
->>
->>  > How would you allocate memory on NUMA in advance?
->>
->> Please, clarify this.
-> 
-> I am not quite sure I understand the question. Could you please rephrase
-> it and highlight some of the difficulty?
+> I have a dual 3GHz Xeon machine with a 2.4.21 kernel and thousands (15k+) of
+> ipip tunnel interfaces.  These are being used to tunnel traffic from remote
+> routers, over a private network, and handed off to a third party.
+ ...
+> Is it possible to speed up creation of the interfaces?  Currently it takes
+> around 24 hours.  Is there are more efficient way to handle a very large
+> number of IP-IP tunnels?  Would upgrading to a 2.6 kernel be of use?
 
-I'd like to provide a guarantee for a newly created group. According
-to your idea I have to preallocate some pages in advance. OK. How to
-select a NUMA node to allocate them from?
+We just simply never imagined people would use IP tunnels on
+this scale.
+
+The following kernel patch is a quick hack that will get things to
+work quickly for you, but longer term we need to add dynamic hash
+table growth to this thing (and SIT tunnel, and IP GRE tunnel,
+etc. etc. etc.)
+
+diff --git a/net/ipv4/ipip.c b/net/ipv4/ipip.c
+index 0c45565..78055cf 100644
+--- a/net/ipv4/ipip.c
++++ b/net/ipv4/ipip.c
+@@ -117,8 +117,8 @@ #include <net/ipip.h>
+ #include <net/inet_ecn.h>
+ #include <net/xfrm.h>
+ 
+-#define HASH_SIZE  16
+-#define HASH(addr) ((addr^(addr>>4))&0xF)
++#define HASH_SIZE  16384
++#define HASH(addr) ((addr^(addr>>14))&(HASH_SIZE - 1))
+ 
+ static int ipip_fb_tunnel_init(struct net_device *dev);
+ static int ipip_tunnel_init(struct net_device *dev);

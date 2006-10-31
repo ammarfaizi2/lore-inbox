@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161625AbWJaEVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422690AbWJaEXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161625AbWJaEVM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 23:21:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161481AbWJaEVM
+	id S1422690AbWJaEXA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 23:23:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422701AbWJaEW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 23:21:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62861 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161625AbWJaEVL (ORCPT
+	Mon, 30 Oct 2006 23:22:59 -0500
+Received: from 8.ctyme.com ([69.50.231.8]:12172 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1422690AbWJaEW7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 23:21:11 -0500
-Date: Mon, 30 Oct 2006 20:20:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: andrew.j.wade@gmail.com, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
-Message-ID: <20061031042032.GA12729@kroah.com>
-References: <20061029160002.29bb2ea1.akpm@osdl.org> <200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20061030191340.1c7f8620.akpm@osdl.org> <200610302258.31613.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20061030201123.5685529f.akpm@osdl.org>
+	Mon, 30 Oct 2006 23:22:59 -0500
+Message-ID: <4546CFA2.8000504@perkel.com>
+Date: Mon, 30 Oct 2006 20:22:58 -0800
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061030201123.5685529f.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-kernel@vger.kernel.org
+Subject: io_apic compile error
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 08:11:23PM -0800, Andrew Morton wrote:
-> On Mon, 30 Oct 2006 22:58:11 -0500
-> Andrew James Wade <andrew.j.wade@gmail.com> wrote:
-> 
-> > I've just found out that unsetting CONFIG_SYSFS_DEPRECATED makes the
-> > crash go away.
-> 
-> How bizarre.  sysfs changes cause unexpected pte protection values?
+getting a compile error when compiling 2.6.19rc3. Thought someone might want to fix this.
 
-That's just wrong.  Something odd is happening here.  Can you try to
-bisect things to determine the patch that is causing the problem?
+  CC      arch/x86_64/kernel/io_apic.o
+arch/x86_64/kernel/io_apic.c: In function 'ioapic_pirq_setup':
+arch/x86_64/kernel/io_apic.c:412: error: 'MAX_PIRQS' undeclared (first use in this function)
+arch/x86_64/kernel/io_apic.c:412: error: (Each undeclared identifier is reported only once
+arch/x86_64/kernel/io_apic.c:412: error: for each function it appears in.)
+arch/x86_64/kernel/io_apic.c:417: error: 'pirq_entries' undeclared (first use in this function)
+arch/x86_64/kernel/io_apic.c:419: error: 'pirqs_enabled' undeclared (first use in this function)
+arch/x86_64/kernel/io_apic.c:412: warning: unused variable 'ints'
+make[1]: *** [arch/x86_64/kernel/io_apic.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
 
-thanks,
-
-greg k-h

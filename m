@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422961AbWJaIMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422822AbWJaIMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422961AbWJaIMx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:12:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWJaIMw
+	id S1422822AbWJaIMd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWJaIMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:12:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13968 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422828AbWJaIMv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:12:51 -0500
-Date: Tue, 31 Oct 2006 00:12:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: andrew.j.wade@gmail.com, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
-Message-Id: <20061031001238.7d8b273f.akpm@osdl.org>
-In-Reply-To: <20061031080132.GA9155@kroah.com>
-References: <20061029160002.29bb2ea1.akpm@osdl.org>
-	<200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-	<20061030191340.1c7f8620.akpm@osdl.org>
-	<200610302258.31613.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-	<20061030211046.1c3d62b9.akpm@osdl.org>
-	<20061031070351.GB14713@kroah.com>
-	<20061030233432.d75955c5.akpm@osdl.org>
-	<20061031080132.GA9155@kroah.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 31 Oct 2006 03:12:33 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:44782 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422822AbWJaIMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 03:12:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=t+h8CnfPNZD1xPNCFiiZsHeOfvKFGsAMrp7KZNwTw2JoWiIsQhKQs3Qwyqa/HEV9UuPAOGsss1I4qHTmfuSzIbxE4AfHrFGR9zNf+87TOzqXlGAuBmnTrP78tIQZOH+/cODafAoO630SESg8iBR02PPBO4H03N/pnIO0KAnO2kM=
+Message-ID: <4547058D.9090607@innova-card.com>
+Date: Tue, 31 Oct 2006 09:13:01 +0100
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 update4] drivers: add LCD support
+References: <20061027153419.d98dbdd9.maxextreme@gmail.com>
+In-Reply-To: <20061027153419.d98dbdd9.maxextreme@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2006 00:01:32 -0800
-Greg KH <greg@kroah.com> wrote:
+Miguel Ojeda Sandonis wrote:
+> Andrew, here it is the same patch without locking. Thanks you.
 
-> > Here's one: http://userweb.kernel.org/~akpm/s5000364.jpg
-> 
-> That function (snd_register_device_for_dev), isn't even in 2.6.19-rc3,
-> so I don't see how any of my changes could have affected it :)
+Last concern: did you think about cache aliasings ?
 
-It runs OK without gregkh-driver-* and oopses with them, so perhaps there's
-some interaction there.
-
+bye
+		Franck
 

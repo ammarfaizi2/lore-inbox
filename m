@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161618AbWJaEBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161609AbWJaELa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161618AbWJaEBB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 23:01:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161620AbWJaEBB
+	id S1161609AbWJaELa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 23:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161620AbWJaELa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 23:01:01 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62637 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161618AbWJaEBA (ORCPT
+	Mon, 30 Oct 2006 23:11:30 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21442 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161609AbWJaEL3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 23:01:00 -0500
-Date: Mon, 30 Oct 2006 20:00:53 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Paul Menage" <menage@google.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Allow a larger buffer for writes to cpuset files
-Message-Id: <20061030200053.f9836cce.pj@sgi.com>
-In-Reply-To: <6599ad830610301838i65a00d85g82647435ea4581a4@mail.gmail.com>
-References: <6599ad830610301838i65a00d85g82647435ea4581a4@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Mon, 30 Oct 2006 23:11:29 -0500
+Date: Mon, 30 Oct 2006 20:11:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: andrew.j.wade@gmail.com
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       Greg KH <greg@kroah.com>, Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
+Message-Id: <20061030201123.5685529f.akpm@osdl.org>
+In-Reply-To: <200610302258.31613.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <20061029160002.29bb2ea1.akpm@osdl.org>
+	<200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+	<20061030191340.1c7f8620.akpm@osdl.org>
+	<200610302258.31613.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul M wrote:
-> @@ -1292,7 +1292,7 @@ static ssize_t cpuset_common_file_write(
->  	int retval = 0;
-> 
->  	/* Crude upper limit on largest legitimate cpulist user might write. */
-> -	if (nbytes > 100 + 6 * NR_CPUS)
-> +	if (nbytes >= PAGE_SIZE)
+On Mon, 30 Oct 2006 22:58:11 -0500
+Andrew James Wade <andrew.j.wade@gmail.com> wrote:
 
-On a system with 4 Kbyte pages, this imposes a tighter limit
-if NR_CPUS is > 666.
+> I've just found out that unsetting CONFIG_SYSFS_DEPRECATED makes the
+> crash go away.
 
-On a system with 16 Kbyte pages, this imposes a tighter limit
-if NR_CPUS is > 2714.
+How bizarre.  sysfs changes cause unexpected pte protection values?
 
-Those CPU counts don't look that futuristic to me.
+> I can hack around the resulting udev incompatibility.
 
-And it makes the limit more aribitrary ... like what the heck does
-that check have to do with PAGE_SIZE ?
-
-How about coding for the possibility that either NR_CPUS or MAX_NUMNODES
-is larger, and removing 'cpu' from the comment:
-
-	/* Crude upper limit on largest legitimate list user might write. */
-	if (nbytes > 100 + 6 * max(NR_CPUS, MAX_NUMNODES))
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+ok..

@@ -1,85 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752028AbWJaDDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965483AbWJaDEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752028AbWJaDDy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 22:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752036AbWJaDDy
+	id S965483AbWJaDEt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 22:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965487AbWJaDEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 22:03:54 -0500
-Received: from nz-out-0102.google.com ([64.233.162.198]:33935 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1752028AbWJaDDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 22:03:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=OgRrqwd9k+qM99TeFLR7fqnrUwLF7a38oqCw93FGM1JlqEwps/lCb8ENrsFudzPSi1XbNIAMQ1567sWtF4A+EvAb7DccgTF3IlZHGmfCd6phVuIACfyvb0kTA+oSO/PhM/sHshVNkYxht3PUqWKxPH81WUYAvlQc4tvWGFijTzI=
-Reply-To: andrew.j.wade@gmail.com
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
-Date: Mon, 30 Oct 2006 22:03:36 -0500
-User-Agent: KMail/1.9.1
-Cc: andrew.j.wade@gmail.com, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-References: <20061029160002.29bb2ea1.akpm@osdl.org> <200610302026.24724.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20061030180430.2466212f.akpm@osdl.org>
-In-Reply-To: <20061030180430.2466212f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+	Mon, 30 Oct 2006 22:04:49 -0500
+Received: from mta2.srv.hcvlny.cv.net ([167.206.4.197]:27333 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S965483AbWJaDEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 22:04:48 -0500
+Date: Mon, 30 Oct 2006 22:04:47 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Subject: Re: [PATCH] taskstats_exit_alloc: optimize/simplify
+In-reply-to: <20061030204843.GA1135@oleg>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Balbir Singh <balbir@in.ibm.com>,
+       Jay Lan <jlan@sgi.com>, linux-kernel@vger.kernel.org
+Message-id: <4546BD4F.4050406@watson.ibm.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+References: <20061030204843.GA1135@oleg>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 October 2006 21:04, Andrew Morton wrote:
-> On Mon, 30 Oct 2006 20:26:24 -0500
-> Andrew James Wade <andrew.j.wade@gmail.com> wrote:
-> 
-> > I got the BUG below while booting. -rc2-mm2 worked fine, but with a
-> > different .config. I'm going to try and narrow this down further.
-> > 
-> > cheers,
-> > Andrew Wade
-> > 
-> > agpgart: Detected VIA KT266/KY266x/KT333 chipset
-> > agpgart: unable to get minor: 175
-> > agpgart: agp_frontend_initialize() failed.
-> > ------------[ cut here ]------------
-> > kernel BUG at arch/i386/mm/pageattr.c:165!
-> > invalid opcode: 0000 [#1]
-> > last sysfs file: 
-> > CPU:    0
-> > EIP:    0060:[<c010fdd7>]    Not tainted VLI
-> > EFLAGS: 00010082   (2.6.19-rc3-mm1 #1)
-> > EIP is at change_page_attr+0x167/0x234
-> > eax: 1fc001e3   ebx: c1009c80   ecx: dfc20000   edx: c04e4dfc
-> > esi: 1fc20000   edi: e0820000   ebp: 00000005   esp: dffc5e7c
-> > ds: 007b   es: 007b   ss: 0068
-> > Process swapper (pid: 1, ti=dffc4000 task=dffc3530 task.ti=dffc4000)
-> > Stack: 00000011 c13f8400 00000010 00000292 c04e4dfc dfc20000 00000163 00000163 
-> >        c13f8200 dfe66984 e0820000 00000005 c010fab8 c03ee740 c03ee740 dfe2334c 
-> >        00000004 e080f000 c0289195 dfe2334c dfe2334c e080f000 c02881f6 fffffffb 
-> > Call Trace:
-> >  [<c010fab8>] iounmap+0xaa/0xdc
-> >  [<00000004>] 0x4
-> >  =======================
-> > Code: 84 b7 00 00 00 eb d2 ff 43 0c eb 23 84 c0 78 1b 0b 74 24 1c 8b 54 24 10 89 32 8b 43 0c 85 c0 75 04 0f 0b eb fe 48 89 43 0c eb 04 <0f> 0b eb fe 8b 03 f6 c4 04 75 6c f6 05 0c 7c 45 c0 08 74 63 83 
-> > EIP: [<c010fdd7>] change_page_attr+0x167/0x234 SS:ESP 0068:dffc5e7c
-> >  <0>Kernel panic - not syncing: Attempted to kill init!
-> 
-> I'd be suspecting x86_64-mm-i386-clflush-size.patch and
-> x86_64-mm-i386-cpa-clflush.patch.  Because x86_64-mm-cpa-clflush.patch made
-> my x86_64 box instacrash in a similar manner, so I reverted that.
-> 
-> below is a ptch which reverts x86_64-mm-i386-clflush-size.patch and
-> x86_64-mm-i386-cpa-clflush.patch.  Can you test it please?
+Oleg Nesterov wrote:
+> If there are no listeners, every task does unneeded kmem_cache alloc/free on
+> exit. We don't need listeners->sem for 'if (!list_empty())' check. Yes, we may
+> have a false positive, but this doesn't differ from the case when the listener
+> is unregistered after we drop the semaphore. So we don't need to do allocation
+> beforehand.
 
-Same crash I'm afraid.
-However, I was too aggressive in trimming the kernel log: there are
-some earlier errors:
-Unable to create device for VGA+; errno = -17
-...
-Unable to create device for frame buffer device; errno = -17
+Sounds reasonable.
 
-Hope this helps.
+
+> 
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+Acked-by: Shailabh Nagar <nagar@watson.ibm.com>
+
+
+> 
+> --- STATS/kernel/taskstats.c~1_alloc	2006-10-29 18:35:40.000000000 +0300
+> +++ STATS/kernel/taskstats.c	2006-10-30 23:45:20.000000000 +0300
+> @@ -421,7 +421,6 @@ err:
+>  void taskstats_exit_alloc(struct taskstats **ptidstats, unsigned int *mycpu)
+>  {
+>  	struct listener_list *listeners;
+> -	struct taskstats *tmp;
+>  	/*
+>  	 * This is the cpu on which the task is exiting currently and will
+>  	 * be the one for which the exit event is sent, even if the cpu
+> @@ -429,19 +428,11 @@ void taskstats_exit_alloc(struct tasksta
+>  	 */
+>  	*mycpu = raw_smp_processor_id();
+>  
+> -	*ptidstats = NULL;
+> -	tmp = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
+> -	if (!tmp)
+> -		return;
+> -
+>  	listeners = &per_cpu(listener_array, *mycpu);
+> -	down_read(&listeners->sem);
+> -	if (!list_empty(&listeners->list)) {
+> -		*ptidstats = tmp;
+> -		tmp = NULL;
+> -	}
+> -	up_read(&listeners->sem);
+> -	kfree(tmp);
+> +
+> +	*ptidstats = NULL;
+> +	if (!list_empty(&listeners->list))
+> +		*ptidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
+>  }
+>  
+>  /* Send pid data out on exit */
+> 
+

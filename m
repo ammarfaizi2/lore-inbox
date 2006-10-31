@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422901AbWJaHab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422905AbWJaHbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422901AbWJaHab (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422905AbWJaHab
+	id S1422905AbWJaHbI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422906AbWJaHbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:30:31 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:18757 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1422901AbWJaHaa (ORCPT
+	Tue, 31 Oct 2006 02:31:08 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:64927 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1422905AbWJaHbE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:30:30 -0500
-Date: Tue, 31 Oct 2006 08:32:12 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] splice : two smp_mb() can be omitted
-Message-ID: <20061031073212.GW14055@kernel.dk>
-References: <1162199005.24143.169.camel@taijtu> <20061030224802.f73842b8.akpm@osdl.org> <4546FA81.1020804@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 Oct 2006 02:31:04 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.19-rc3-mm1 - udev doesn't work (was: ATI SATA controller not detected)
+Date: Tue, 31 Oct 2006 08:29:28 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org
+References: <20061029160002.29bb2ea1.akpm@osdl.org> <200610302148.34218.rjw@sisk.pl> <20061030205742.GA4084@kroah.com>
+In-Reply-To: <20061030205742.GA4084@kroah.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <4546FA81.1020804@cosmosbay.com>
+Message-Id: <200610310829.31554.rjw@sisk.pl>
+X-Length: 2284
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31 2006, Eric Dumazet wrote:
-> This patch deletes two calls to smp_mb() that were done after 
-> mutex_unlock() that contains an implicit memory barrier.
-> 
-> The first one in splice_to_pipe(), where 'do_wakeup' is set to true only if 
-> pipe->inode is set (and in this case the
-> if (pipe->inode)
->    mutex_unlock(&pipe->inode->i_mutex);
-> is done too)
-> 
-> The second one in link_pipe(), following inode_double_unlock() that 
-> contains calls to mutex_unlock() too.
+[Resending due to a network problem on my side.]
 
-NAK on that patch, the smp_mb() follows the waitqueue_active(). If you
-later change the code and move the locks or whatnot, you have lost that
-connection.
+On Monday, 30 October 2006 21:57, Greg KH wrote:
+> On Mon, Oct 30, 2006 at 09:48:33PM +0100, Rafael J. Wysocki wrote:
+> > On Monday, 30 October 2006 21:22, Greg KH wrote:
+> > > On Mon, Oct 30, 2006 at 09:15:37PM +0100, Rafael J. Wysocki wrote:
+> > > > Sorry, I was wrong.
+> > > > 
+> > > > The controller _is_ detected and handled properly, but udev is apparently
+> > > > unable to create the special device files for SATA drives/partitions even
+> > > > though CONFIG_SYSFS_DEPRECATED is set.
+> > > 
+> > > This config option should not affect the block device sysfs files at all
+> > > at this point in time.
+> > > 
+> > > What does 'tree /sys/block/' show?
+> > 
+> > I can't run 'tree', but 'ls' works somehow (can't mount the root fs).  The
+> > block device sysfs files seem to be present
+> 
+> If they are there, then udev should work just fine.
+> 
+> > > If the files show up there properly, udev should handle them just fine.
+> > 
+> > It doesn't.
+> > 
+> > Well, I can binary search for the offending patch if that helps.
+> 
+> That would be very helpful, thanks.
 
-If you change the patch to insert a comment, then it may be more
-applicable.
+It's one of these:
+
+git-acpi.patch
+git-acpi-fixup.patch
+git-acpi-more-build-fixes.patch
+
+Greetings,
+Rafael
+
 
 -- 
-Jens Axboe
-
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

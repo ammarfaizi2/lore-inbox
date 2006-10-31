@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWJaFfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751987AbWJaFjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751476AbWJaFfA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 00:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWJaFfA
+	id S1751987AbWJaFjW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 00:39:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752025AbWJaFjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 00:35:00 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:7378 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751476AbWJaFe7 (ORCPT
+	Tue, 31 Oct 2006 00:39:22 -0500
+Received: from colo.lackof.org ([198.49.126.79]:51844 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S1751987AbWJaFjV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 00:34:59 -0500
-Date: Mon, 30 Oct 2006 21:34:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Subject: Re: Linux 2.6.19-rc4
-Message-Id: <20061030213454.8266fcb6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 31 Oct 2006 00:39:21 -0500
+Date: Mon, 30 Oct 2006 22:39:19 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Linus Torvalds <torvalds@osdl.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, akpm@osdl.org, bunk@stusta.de,
+       greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, pavel@ucw.cz, shemminger@osdl.org
+Subject: Re: [patch] drivers: wait for threaded probes between initcall levels
+Message-ID: <20061031053919.GA4726@colo.lackof.org>
+References: <200610282350.k9SNoljL020236@freya.yggdrasil.com> <Pine.LNX.4.64.0610281651340.3849@g5.osdl.org> <A2B15573-3DDD-4F70-AC04-C37DBA3AC752@mac.com> <20061030144259.GD10235@parisc-linux.org> <87F87E8E-9434-4844-AA3F-ED850BEFAD29@mac.com> <20061030191307.GE10235@parisc-linux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061030191307.GE10235@parisc-linux.org>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006 20:27:17 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Mon, Oct 30, 2006 at 12:13:07PM -0700, Matthew Wilcox wrote:
+> Probing PCI devices really doesn't take that long.
 
-> Jun'ichi Nomura (2):
->       fix bd_claim_by_kobject error handling
->       clean up add_bd_holder()
+Yeah - usually measured in "milliseconds".
 
-That didn't go so well.  I guess the below was intended, but I wonder if
-we actually merged the correct patch?
+> It's the extra stuff
+> the drivers do at ->probe that takes the time.  And the stand-out
+> offender here is SCSI (and FC), which I'm working to fix.  Firewire, USB
+> and SATA are somewhere intermediate.
 
+ISTR that the SATA Port timeout is 5 seconds or something like that.
+And some cards have lots of ports...so my impression is SATA would
+benefit alot from parallelism as well.
 
-From: Andrew Morton <akpm@osdl.org>
+I'm certainly no SATA expert...maybe someone else could speak
+more definitely on the topic of worst case SATA timeout.
 
-fs/block_dev.c: In function 'find_bd_holder':
-fs/block_dev.c:666: warning: return makes integer from pointer without a cast
-fs/block_dev.c:669: warning: return makes integer from pointer without a cast
-fs/block_dev.c: In function 'add_bd_holder':
-fs/block_dev.c:685: warning: unused variable 'tmp'
-fs/block_dev.c: In function 'bd_claim_by_kobject':
-fs/block_dev.c:773: warning: assignment makes pointer from integer without a cast
-
-Cc: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- fs/block_dev.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN fs/block_dev.c~find_bd_holder-fix fs/block_dev.c
---- a/fs/block_dev.c~find_bd_holder-fix
-+++ a/fs/block_dev.c
-@@ -656,7 +656,8 @@ static void free_bd_holder(struct bd_hol
-  * If found, increment the reference count and return the pointer.
-  * If not found, returns NULL.
-  */
--static int find_bd_holder(struct block_device *bdev, struct bd_holder *bo)
-+static struct bd_holder *find_bd_holder(struct block_device *bdev,
-+					struct bd_holder *bo)
- {
- 	struct bd_holder *tmp;
- 
-@@ -682,7 +683,6 @@ static int find_bd_holder(struct block_d
-  */
- static int add_bd_holder(struct block_device *bdev, struct bd_holder *bo)
- {
--	struct bd_holder *tmp;
- 	int ret;
- 
- 	if (!bo)
-_
-
+thanks,
+grant

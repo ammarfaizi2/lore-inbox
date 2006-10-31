@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423251AbWJaNmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423254AbWJaNpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423251AbWJaNmO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 08:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423254AbWJaNmO
+	id S1423254AbWJaNpP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 08:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423257AbWJaNpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 08:42:14 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:26077 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1423251AbWJaNmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 08:42:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SUsk8Hhv+oRNAKWFApkw4hq2THHseOpnmQbg8g+oYIKeiHi9o4LZblysOsRQht/rj9hQ8+E13uJDsdkuShwmRauekfpU+8SgtgqZli5FhBy0RXjrIHOPhoYc9y9tGrVROAUZMp0pH0XqgDATZoiPI/Q5QGq9cwQiwewJ7z/CwBY=
-Message-ID: <41840b750610310542u2bbcf4b6y5f9f812ebd12445@mail.gmail.com>
-Date: Tue, 31 Oct 2006 15:42:12 +0200
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Jean Delvare" <khali@linux-fr.org>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Cc: davidz@redhat.com, "Richard Hughes" <hughsient@gmail.com>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Dan Williams" <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
-       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
-       greg@kroah.com, benh@kernel.crashing.org,
-       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>,
-       "Pavel Machek" <pavel@suse.cz>
-In-Reply-To: <6DP6m926.1162281579.9733640.khali@localhost>
+	Tue, 31 Oct 2006 08:45:14 -0500
+Received: from raven.upol.cz ([158.194.120.4]:38886 "EHLO raven.upol.cz")
+	by vger.kernel.org with ESMTP id S1423254AbWJaNpN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 08:45:13 -0500
+Date: Tue, 31 Oct 2006 14:51:36 +0100
+To: Horst Schirmeier <horst@schirmeier.com>, Andi Kleen <ak@suse.de>,
+       Valdis.Kletnieks@vt.edu, Jan Beulich <jbeulich@novell.com>,
+       dsd@gentoo.org, kernel@gentoo.org, draconx@gmail.com,
+       jpdenheijer@gmail.com, Andrew Morton <akpm@osdl.org>,
+       Sam Ravnborg <sam@ravnborg.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
+Message-ID: <20061031135136.GB16063@flower.upol.cz>
+References: <20061029120858.GB3491@quickstop.soohrt.org> <slrnekcu6m.2vm.olecom@flower.upol.cz> <20061031001235.GE2933@quickstop.soohrt.org> <200610310119.10567.ak@suse.de> <20061031011416.GG2933@quickstop.soohrt.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
-	 <6DP6m926.1162281579.9733640.khali@localhost>
+In-Reply-To: <20061031011416.GG2933@quickstop.soohrt.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Oleg Verych <olecom@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean,
+On Tue, Oct 31, 2006 at 02:14:16AM +0100, Horst Schirmeier wrote:
+> On Tue, 31 Oct 2006, Andi Kleen wrote:
+> > 
+> > > The problem is, this brings us back to the problem where this whole
+> > > patch orgy began: Gentoo Portage sandbox violations when writing (the
+> > > null symlink) to the kernel tree when building external modules. What
+> > > about using $(M) as a base directory if it is defined?
+> > 
+> > I think Jan's $(objdir)/.tmp proposal would be cleanest. Just someone
+> > has to implement it :)
+> > 
+> > -Andi
 
-On 10/31/06, Jean Delvare <khali@linux-fr.org> wrote:
-> On 10/28/2006, someone who remains multinymous wrote:
-> >On 10/28/06, David Zeuthen <davidz@redhat.com> wrote:
-> >> What about just prepending the unit to the 'threshold' file? Then user
-> >> space can expect the contents of said file to be of the form "%d %s". I
-> >> don't think that violates the "only one value per file" sysfs mantra.
+$(objtree) here,
 
-> >Jean, what's your opinion on letting hwmon-ish attributes specify
-> >units as "%d %s" where these are hardware-dependent?
->
-> I fail to see any benefit in doing so, while I see several problems (see
-> above) and potential for confusion. So my opinion is: please don't do
-> that.
+> I'm not sure what you mean by $(objdir); I just got something to work
+> which creates the /dev/null symlink in a (newly created if necessary)
+> directory named
 
-Well, we have to do *something* about those devices that don't have
-fixed units (see my mail to Greg from a few minutes ago), so which
-alternative do you prefer?
+$(objtree) is a directory for all possible outputs of the build precess,
+it's set up by `O=' or `KBUILD_OUTPUT', and this is *not* output for ready
+external modules `$(M)'. Try to play with this, please.
 
-
-> >The tp_smapi battery driver did just this  ("16495 mW"). But I dropped
-> >it in a recent version when Pavel pointed out the rest of sysfs, hwmon
-> >included, uses undecorated integers.
-> >Consistency aside, it seems reasonable and convenient. You have to
-> >decree that writes to the attributes (where relevant) don't include
-> >the units, of course, so no one will expect the kernel to parse that.
->
-> But what value should then be written? One in an absolute aribtrary unit?
-> That would make reads and writes to the sysfs files inconsistent, in
-> direct violation of the sysfs standard. Or in the same unit read from
-> the file? It means that userspace must first read from the file, parse
-> the unit, then convert the value to be written. This doesn't match my
-> definition of "convenient".
-
-The latter. Yes, writing is not as convenient as reading; but the same
-drawback exists in the other two suggestions for dynamic units - you
-still have to read another attribute, or parse a filename, to get the
-units.
-
-The "capacity_remaining:mV" option at least saves you the parsing if
-your're only interested in mV readouts. But battery gauge applets, for
-examples, shouldn't be hardcoded to specific units, so they will have
-to do the filename parsing dance.
-
-
- Shem
+I'm looking for Sam to say something, if we must go further with this.
+____

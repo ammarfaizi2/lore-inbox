@@ -1,63 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946012AbWJaVPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946013AbWJaVQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946012AbWJaVPp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 16:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946011AbWJaVPp
+	id S1946013AbWJaVQu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 16:16:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946014AbWJaVQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 16:15:45 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:48274 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1946005AbWJaVPo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 16:15:44 -0500
-Date: Tue, 31 Oct 2006 23:15:38 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       Martin Lorenz <martin@lorenz.eu.org>, Pavel Machek <pavel@suse.cz>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
-Message-ID: <20061031211538.GC6866@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
-Mime-Version: 1.0
+	Tue, 31 Oct 2006 16:16:50 -0500
+Received: from mail.suse.de ([195.135.220.2]:30646 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1946010AbWJaVQt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 16:16:49 -0500
+Date: Tue, 31 Oct 2006 13:16:15 -0800
+From: Greg KH <gregkh@suse.de>
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001 of 6] md: Send online/offline uevents when an md array starts/stops.
+Message-ID: <20061031211615.GC21597@suse.de>
+References: <20061031164814.4884.patches@notabene> <1061031060046.5034@suse.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610300953150.25218@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1061031060046.5034@suse.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Linus Torvalds <torvalds@osdl.org>:
-> Subject: Re: 2.6.19-rc3: known unfixed regressions (v3)
+On Tue, Oct 31, 2006 at 05:00:46PM +1100, NeilBrown wrote:
 > 
+> This allows udev to do something intelligent when an
+> array becomes available.
 > 
-> 
-> On Mon, 30 Oct 2006, Jun'ichi Nomura wrote:
-> > 
-> > Please revert the patch. I'll fix the wrong error handling.
-> > 
-> > I'm not sure reverting the patch solves the ACPI problem
-> > because Michael's kernel seems not having any user of
-> > bd_claim_by_kobject.
-> 
-> Yeah, doing a grep does seem to imply that there is no way that those 
-> changes could matter.
-> 
-> Michael, can you double-check? I think Jun'ichi is right - in your kernel, 
-> according to the config posted on bugzilla, I don't think there should be 
-> a single caller of bd_claim_by_disk, since CONFIG_MD is disabled.
+> cc: gregkh@suse.de
+> Signed-off-by: Neil Brown <neilb@suse.de>
 
-I double-checked, and of course you are right - the issues resurfaced after some
-more use, even with the patch reverted.  I've written some scripts that do some
-compiles from scratch, and suspend/resume several times.  Plan to try bi-secting
-with that and see what that will come up with.
-
-OTOH, from the discussion it seems just randomly pointing a finger at a patch
-has uncovered some bugs - so maybe we should do this a bit more :)
-
-
--- 
-MST
+Acked-by: Greg Kroah-Hartman <gregkh@suse.de>

@@ -1,76 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423740AbWJaSLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423734AbWJaSKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423740AbWJaSLI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 13:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423750AbWJaSLH
+	id S1423734AbWJaSKp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 13:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423728AbWJaSKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 13:11:07 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:13798 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423743AbWJaSLF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 13:11:05 -0500
-Message-ID: <454791A5.9000202@us.ibm.com>
-Date: Tue, 31 Oct 2006 10:10:45 -0800
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Organization: IBM LTC
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Tue, 31 Oct 2006 13:10:45 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:42071 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423734AbWJaSKo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 13:10:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Dye0ZPGCO/zd5Odnb6a6jJx5m8KOnjb72T8crAJtUf56uGlqIqZP8jLCU0HtGYXngeZUhBdaRPVR/O1eR4X+eTohOoE44MDekAZBRqaWZkqs5EMgANx36mfJHFjG4leNRY0bR0i2JLmRi5P64F+B7p+e0PbACxv9T/YxKbRRr48=
+Message-ID: <f46018bb0610311010w4400dcb9n10eb872babd86cc1@mail.gmail.com>
+Date: Tue, 31 Oct 2006 13:10:42 -0500
+From: "Holden Karau" <holden@pigscanfly.ca>
+To: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>
+Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes revised
+Cc: "Holden Karau" <holdenk@xandros.com>,
+       "Josef Sipek" <jsipek@fsl.cs.sunysb.edu>, hirofumi@mail.parknet.co.jp,
+       linux-kernel@vger.kernel.org, "akpm@osdl.org" <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org, "Nick Piggin" <nickpiggin@yahoo.com.au>
+In-Reply-To: <20061031163002.GC23021@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-CC: linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>
-Subject: Re: [PATCH] 0/3: Fix EH problems in libsas and implement more error
- handling
-References: <45468845.20400@us.ibm.com> <20061031105452.GD28239@rhun.haifa.ibm.com>
-In-Reply-To: <20061031105452.GD28239@rhun.haifa.ibm.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <454765AC.1050905@xandros.com>
+	 <20061031163002.GC23021@wohnheim.fh-wedel.de>
+X-Google-Sender-Auth: f71f6ed243ea1621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda wrote:
+On 10/31/06, Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+> On Tue, 31 October 2006 10:03:08 -0500, Holden Karau wrote:
+> > +static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
+> > +                            int nr_bhs , int wait)
+> >  {
+> >       struct msdos_sb_info *sbi = MSDOS_SB(sb);
+> > -     struct buffer_head *c_bh;
+> > +     struct buffer_head *c_bh[nr_bhs*(sbi->fats)];
+>
+> Variable-sized array on the kernel-stack?  That can easily explode in
+> your hands.  Unless you are _very_ sure about the bounds, you should
+> do an explicit kmalloc.  And if you were that sure, you could just as
+> well have an array with fixed size.
+>
+sbi->fats has a range of 2 to 4, but I suppose that might concievably
+change if someone decides they want a fat filesystem with a lot of
+backup FATs and modifies some other parts of the driver to support
+that. I'll change it to use kmalloc.
+> > +     if (sb->s_flags & MS_SYNCHRONOUS )
+> [...]
+> > +             }
+> [...]
+> > +                              int nr_bhs )
+>
+> Trailing whitespace in those lines.
+..... oops. I'll fix that.
+>
+> Jörn
+>
+> --
+> Prosperity makes friends, adversity tries them.
+> -- Publilius Syrus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-> I'm still seeing this on my x366 with the V17 sequencer firmware (with
-> the old Razor sequencer it happens as well, but rarely).
-> 
-> aic94xx: escb_tasklet_complete: REQ_TASK_ABORT, reason=0x6
-> aic94xx: tmf tasklet complete
-> aic94xx: tmf resp tasklet
-> aic94xx: tmf came back
-> aic94xx: task not done, clearing nexus
-> aic94xx: asd_clear_nexus_tag: PRE
-> aic94xx: asd_clear_nexus_tag: POST
-> aic94xx: asd_clear_nexus_tag: clear nexus posted, waiting...
-> aic94xx: task 0xffff81015ee59580 done with opcode 0x23 resp 0x0 stat 0x8d but aborted by upper layer!
-> aic94xx: asd_clear_nexus_tasklet_complete: here
-> aic94xx: asd_clear_nexus_tasklet_complete: opcode: 0x0
-> aic94xx: came back from clear nexus
-> aic94xx: task 0xffff81015ee59580 aborted, res: 0x0
-> sas: command 0xffff8100e2afcb00, task 0xffff81015ee59580, aborted by initiator: EH_NOT_HANDLED
-> sas: Enter sas_scsi_recover_host
-> sas: going over list...
-> sas: trying to find task 0xffff81015ee59580
-> sas: sas_scsi_find_task: task 0xffff81015ee59580 already aborted
-> sas: sas_scsi_recover_host: task 0xffff81015ee59580 is aborted
-> sas: --- Exit sas_scsi_recover_host
 
-Yes, the patch doesn't eliminate these errors; it merely does something
-more intelligent with the error code than "Sit around and wait for
-everything to time out"... despite the scary error messages, it looks
-like it's doing the right thing.  However, it'd be useful to have
-timestamps on the printks to know for sure.
-
-> aic94xx: escb_tasklet_complete: REQ_TASK_ABORT, reason=0x5
-
-Break recv'd... that's a new one.
-
-> sas: DOING DISCOVERY on port 0, pid:1105
-> scsi 0:0:0:0: Direct-Access     IBM-ESXS ST936701SS    F  B512 PQ: 0 ANSI: 4
-
-Hrm, you might want to update your disks to the latest firmware levels
-(B51C)... be wary that the firmware updates occasionally nuke everything
-on the drive. :(
-
---D
+-- 
+Cell: 613-276-1645

@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422863AbWJaK3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422874AbWJaKh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422863AbWJaK3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 05:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422866AbWJaK3Z
+	id S1422874AbWJaKh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 05:37:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752053AbWJaKh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 05:29:25 -0500
-Received: from orion2.pixelized.ch ([195.190.190.13]:25540 "EHLO
-	mail.pixelized.ch") by vger.kernel.org with ESMTP id S1422863AbWJaK3Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 05:29:24 -0500
-Message-ID: <4547257B.7090101@cateee.net>
-Date: Tue, 31 Oct 2006 11:29:15 +0100
-From: "Giacomo A. Catenazzi" <cate@cateee.net>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Tue, 31 Oct 2006 05:37:26 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:17304 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1751714AbWJaKhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 05:37:25 -0500
+Message-ID: <45472736.8030701@in.ibm.com>
+Date: Tue, 31 Oct 2006 16:06:38 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Panic with 2.6.19-rc3-ga7aacdf9: Invalid opcode at acpi_os_read_pci_configuration
-References: <45470810.4040905@cateee.net> <20061031021810.dd48361f.akpm@osdl.org>
-In-Reply-To: <20061031021810.dd48361f.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
+       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
+       menage@google.com, linux-mm@kvack.org,
+       Vaidyanathan S <svaidy@in.ibm.com>
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+References: <20061030103356.GA16833@in.ibm.com>	<4545D51A.1060808@in.ibm.com>	<4546212B.4010603@openvz.org>	<454638D2.7050306@in.ibm.com>	<45463F70.1010303@in.ibm.com>	<45470FEE.6040605@openvz.org>	<45471510.4070407@in.ibm.com> <20061031014243.1153655b.akpm@osdl.org>
+In-Reply-To: <20061031014243.1153655b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew Morton wrote:
-> On Tue, 31 Oct 2006 09:23:44 +0100
-> Giacomo Catenazzi <cate@cateee.net> wrote:
+> On Tue, 31 Oct 2006 14:49:12 +0530
+> Balbir Singh <balbir@in.ibm.com> wrote:
 > 
->> Since few days I have this bug (not sure if it
->> caused by changed configuration or if it is a regretion).
->> The fololowing trace is from last git.
+>> The idea behind limiting the page cache is this
 >>
->> ...
->>
->>
->> [    0.012497] Brought up 4 CPUs
->> [    0.174941] migration_cost=19,713
->> [    0.215588] NET: Registered protocol family 16
->> [    0.268807] ACPI: bus type pci registered
->> [    0.316660] PCI: Fatal: No config space access function found
+>> 1. Lets say one container fills up the page cache.
+>> 2. The other containers will not be able to allocate memory (even
+>> though they are within their limits) without the overhead of having
+>> to flush the page cache and freeing up occupied cache. The kernel
+>> will have to pageout() the dirty pages in the page cache.
 > 
-> That looks pretty bad.
+> There's a vast difference between clean pagecache and dirty pagecache in this
+> context.  It is terribly imprecise to use the term "pagecache".  And it would be
+> a poor implementation which failed to distinguish between clean pagecache and
+> dirty pagecache.
 > 
->> [    0.385262] Setting up standard PCI resources
->> [    0.452566] ACPI: Access to PCI configuration space unavailable
->> [    0.527856] ACPI: Interpreter enabled
->> [    0.571564] ACPI: Using IOAPIC for interrupt routing
->> [    0.631370] ACPI: PCI Root Bridge [PCI0] (0000:00)
->> [    0.690684] ------------[ cut here ]------------
->> [    0.745825] kernel BUG at drivers/acpi/osl.c:461!
-> 
-> And acpi keeled over as a result.
-> 
-> Do you have CONFIG_PCI_MULTITHREAD_PROBE=y?   If so, try disabling it.
 
-No:
-# CONFIG_PCI_MULTITHREAD_PROBE is not set
+Yes, I agree, it will be a good idea to distinguish between the two.
 
-The config is in:
-http://www.cateee.net/kernel/config
+-- 
 
-and for reference hte kernel log:
-http://www.cateee.net/kernel/kern
-
-ciao
-	cate
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

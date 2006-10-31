@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422700AbWJaH7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422915AbWJaH7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422700AbWJaH7D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:59:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbWJaH7C
+	id S1422915AbWJaH7t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422799AbWJaH7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:59:02 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:19892 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422700AbWJaH7A (ORCPT
+	Tue, 31 Oct 2006 02:59:49 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:36059 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422915AbWJaH7s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:59:00 -0500
-Date: Mon, 30 Oct 2006 23:58:25 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Martin J. Bligh" <mbligh@google.com>
-Cc: Mike Galbraith <efault@gmx.de>, Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-Message-ID: <20061031075825.GA8913@suse.de>
-References: <45461977.3020201@shadowen.org> <45461E74.1040408@google.com> <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com> <45463481.80601@shadowen.org> <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com> <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com> <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com>
+	Tue, 31 Oct 2006 02:59:48 -0500
+Date: Tue, 31 Oct 2006 08:59:22 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Zachary Amsden <zach@vmware.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18 is problematic in VMware
+In-Reply-To: <45463B7D.8050002@vmware.com>
+Message-ID: <Pine.LNX.4.61.0610310857280.23540@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0610290953010.4585@yvahk01.tjqt.qr>
+ <45463B7D.8050002@vmware.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4546FB79.1060607@google.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 11:30:01PM -0800, Martin J. Bligh wrote:
-> Greg KH wrote:
-> >On Mon, Oct 30, 2006 at 10:37:47PM -0800, Martin J. Bligh wrote:
-> >>Mike Galbraith wrote:
-> >>>On Mon, 2006-10-30 at 21:14 +0100, Cornelia Huck wrote:
-> >>>
-> >>>>Maybe the initscripts have problems coping with the new layout
-> >>>>(symlinks instead of real devices)?
-> >>>SuSE's /sbin/getcfg for one uses libsysfs, which apparently doesn't
-> >>>follow symlinks (bounces off symlink and does nutty stuff instead).  If
-> >>>any of the boxen you're having troubles with use libsysfs in their init
-> >>>stuff, that's likely the problem.
-> >>If that is what's happening, then the problem is breaking previously
-> >>working boxes by changing a userspace API. I don't know exactly which
-> >>patch broke it, but reverting all Greg's patches (except USB) from
-> >>-mm fixes the issue.
-> >
-> >Merely change CONFIG_SYSFS_DEPRECATED to be set to yes, and it should
-> >all work just fine.  Doesn't anyone read the Kconfig help entries for
-> >new kernel options?
-> 
-> 1. This doesn't fix it.
 
-I think acpi is now being fingered here, right?
+>> I have observed a strange slowdown with the 2.6.18 kernel in VMware. This
+>> happened both with the SUSE flavor and with the FC6 installer CD (which I
+>> am trying right now). In both cases, the kernel "takes its time" after the
+>> following text strings:
+>> 
+>> * Checking if this processor honours the WP bit even in supervisor mode...
+>> Ok.
+>> * Checking 'hlt' instruction... OK.
+>> 
+>> What's with that?
+>
+> Thanks.  It is perhaps the jiffies calibration taking a while because of the
+> precise timing loop.  Are you reasonably confident that it is a regression in
+> performance over 2.6.17?
 
-> 2. Breaking things by default with an option to unbreak them is not
-> the finest of plans ;-)
+Yes. I am not exactly sure if it's something in jiffies calibration 
+(because of the 'WP bit/supervisor' thing too), so maybe I thought it 
+was the newly-introduced SMP alternatives. I gotta check that.
 
-Yes, I have now changed the default for that option to be on to help
-guide people even better than before.
+> The boot sequence is pretty complicated, and a lot of
+> it is difficult / slow to virtualize, so it could just be alternate timing
+> makes the boot output appear to stall, when in fact the raw time is still about
+> the same.  I will run some experiments.
 
-thanks,
+Booting with 'time' shows that the virtual time increases as usual, i.e.
 
-greg k-h
+[ 9.00] checking if wp bit...
+[15.00] next message here
+
+
+	-`J'
+-- 

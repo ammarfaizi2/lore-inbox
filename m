@@ -1,96 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbWJaIfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030575AbWJaIhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030467AbWJaIfr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:35:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030575AbWJaIfr
+	id S1030575AbWJaIhO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbWJaIhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:35:47 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:3101 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030467AbWJaIfq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:35:46 -0500
-Message-ID: <454709E0.1000409@openvz.org>
-Date: Tue, 31 Oct 2006 11:31:28 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Tue, 31 Oct 2006 03:37:14 -0500
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:37021 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1030575AbWJaIhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 03:37:11 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: fatih.asici@gmail.com
+Subject: Re: [Alsa-devel] [RFC: 2.6.19 patch] snd-hda-intel: default MSI to off
+Date: Tue, 31 Oct 2006 09:37:38 +0100
+User-Agent: KMail/1.9.5
+Cc: "Takashi Iwai" <tiwai@suse.de>, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org, mingo@redhat.com, hnguyen@de.ibm.com,
+       perex@suse.cz, "Stephen Hemminger" <shemminger@osdl.org>
+References: <200610050938.10997.prakash@punnoor.de> <s5hhcxv1bc3.wl%tiwai@suse.de> <5aa69f860610302256u61e30b2aj2501e5c1f5b7335@mail.gmail.com>
+In-Reply-To: <5aa69f860610302256u61e30b2aj2501e5c1f5b7335@mail.gmail.com>
 MIME-Version: 1.0
-To: Paul Menage <menage@google.com>
-CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-References: <20061030103356.GA16833@in.ibm.com> <45460743.8000501@openvz.org> <6599ad830610301001i2ad35290u63839e920d82a5f4@mail.gmail.com>
-In-Reply-To: <6599ad830610301001i2ad35290u63839e920d82a5f4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed;
+  boundary="nextPart3068189.yOAyV9dVk0";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200610310937.42576.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Menage wrote:
-> On 10/30/06, Pavel Emelianov <xemul@openvz.org> wrote:
->> > Debated:
->> >       - syscall vs configfs interface
->>
->> 1. One of the major configfs ideas is that lifetime of
->>    the objects is completely driven by userspace.
->>    Resource controller shouldn't live as long as user
->>    want. It "may", but not "must"! As you have seen from
->>    our (beancounters) patches beancounters disapeared
->>    as soon as the last reference was dropped.
-> 
-> Why is this an important feature for beancounters? All the other
-> resource control approaches seem to prefer having userspace handle
-> removing empty/dead groups/containers.
+--nextPart3068189.yOAyV9dVk0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-That's functionality user may want. I agree that some users
-may want to create some kind of "persistent" beancounters, but
-this must not be the only way to control them. I like the way
-TUN devices are done. Each has TUN_PERSIST flag controlling
-whether or not to destroy device right on closing. I think that
-we may have something similar - a flag BC_PERSISTENT to keep
-beancounters with zero refcounter in memory to reuse them.
+Am Dienstag 31 Oktober 2006 07:56 schrieb Fatih Asici:
+> On 10/23/06, Takashi Iwai <tiwai@suse.de> wrote:
+> > At Sun, 22 Oct 2006 22:29:13 +0200,
+> >
+> > Prakash Punnoor wrote:
+> > > Am Mittwoch 18 Oktober 2006 19:21 schrieb Takashi Iwai:
+> > > > > Yes, it would be better to check the value and reset chip->msi if
+> > > > > not successful.  But it's not a fatal error, so the current code
+> > > > > should work.
+> > > >
+> > > > The below is the revised patch.
+> > >
+> > > I tried it and it works fine for me now (with the driver not using msi
+> > > automatically now).
+> >
+> > Thanks for checking.  I applied the patch to ALSA tree for the next
+> > push round.
+>
+> It does not solve my problem. I still need to boot with pci=3Dnomsi optio=
+n.
+>
+> Prakash: did you use Takashi's patch or Andrian's patch?
 
-Objections?
+I used Takashi's revised patch, but rc3 works w/o patching:
 
->> 2. Having configfs as the only interface doesn't alow
->>    people having resource controll facility w/o configfs.
->>    Resource controller must not depend on any "feature".
-> 
-> Why is depending on a feature like configfs worse than depending on a
-> feature of being able to extend the system call interface?
+dvanced Linux Sound Architecture Driver Version 1.0.13 (Sun Oct 22 08:56:16=
+=20
+2006 UTC).
+ACPI: PCI Interrupt Link [AAZA] enabled at IRQ 23
+ACPI: PCI Interrupt 0000:00:10.1[B] -> Link [AAZA] -> GSI 23 (level, low) -=
+>=20
+IRQ 23
+PCI: Setting latency timer of device 0000:00:10.1 to 64
+input: ImPS/2 Generic Wheel Mouse as /class/input/input1
+hda_intel: No response from codec, disabling MSI...
+ALSA device list:
+  #0: HDA NVidia at 0xfe028000 irq 316
 
-Because configfs is a _feature_, while system calls interface is
-a mandatory part of a kernel. Since "resource beancounters" is a
-core thing it shouldn't depend on "optional" kernel stuff. E.g.
-procfs is the way userspace gets information about running tasks,
-but disabling procfs doesn't disable such core functionality
-as fork-ing and execve-ing.
+And it disables MSI automatically.
+=2D-=20
+(=C2=B0=3D                 =3D=C2=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-Moreover, I hope you agree that beancounters can't be made as
-module. If so user will have to built-in configfs, and thus
-CONFIG_CONFIGFS_FS essentially becomes "bool", not a "tristate".
+--nextPart3068189.yOAyV9dVk0
+Content-Type: application/pgp-signature
 
-I have nothing against using configfs as additional, optional
-interface, but I do object using it as the only window inside
-BC world.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
->> >       - Interaction of resource controllers, containers and cpusets
->> >               - Should we support, for instance, creation of resource
->> >                 groups/containers under a cpuset?
->> >       - Should we have different groupings for different resources?
->>
->> This breaks the idea of groups isolation.
-> 
-> That's fine - some people don't want total isolation. If we're looking
-> for a solution that fits all the different requirements, then we need
-> that flexibility. I agree that the default would probably want to be
-> that the groupings be the same for all resource controllers /
-> subsystems.
+iD8DBQBFRwtWxU2n/+9+t5gRAvG4AKDLJUK+KHGL708uwjMgWrXY3IN+vQCgxKVg
+8Kh/XWS5wdiJWkt+JXbX0m0=
+=onh0
+-----END PGP SIGNATURE-----
 
-Hm... OK, I don't mind although don't see any reasonable use of it.
-Thus we add one more point to our "agreement" list
-http://wiki.openvz.org/Containers/UBC_discussion
-
- - all resource groups are independent
+--nextPart3068189.yOAyV9dVk0--

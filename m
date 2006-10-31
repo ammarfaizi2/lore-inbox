@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423723AbWJaSHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423726AbWJaSJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423723AbWJaSHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 13:07:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423727AbWJaSHP
+	id S1423726AbWJaSJa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 13:09:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423728AbWJaSJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 13:07:15 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9743 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1423723AbWJaSHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 13:07:14 -0500
-Date: Tue, 31 Oct 2006 19:07:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Randy Dunlap <randy.dunlap@oracle.com>, akpm@osdl.org,
-       zippel@linux-m68k.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, link@miggy.org,
-       Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
-       greg@kroah.com, toralf.foerster@gmx.de
-Subject: Re: [linux-usb-devel] [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
-Message-ID: <20061031180712.GQ27968@stusta.de>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <200610281410.13679.david-b@pacbell.net> <20061028213918.GE27968@stusta.de> <200610310940.16619.david-b@pacbell.net>
+	Tue, 31 Oct 2006 13:09:29 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:30287 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423726AbWJaSJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 13:09:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=P12cVdSoQ9cDUnZ6EnnVXISGMajOGFtRGiaGlzmvi9UhgUenWP1zRWWZ/SnPA9KHtmwOrHEQ7I6S7hmsdHFpiqtwRJ+naeyucWVPg/UkuFZVt8uUP0a/q1cqf4hw1M/6mwha4WLqsSoucBbTbyYjXZtzRAPv1PacHS1joCgniiE=
+Message-ID: <787b0d920610311009i17b4101cg85229603df64880e@mail.gmail.com>
+Date: Tue, 31 Oct 2006 13:09:26 -0500
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Linus Torvalds" <torvalds@osdl.org>, "Andi Kleen" <ak@suse.de>
+Subject: [PATCH] SA_SIGINFO was forgotten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200610310940.16619.david-b@pacbell.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 10:40:15AM -0700, David Brownell wrote:
-> 
-> > > +#if defined(CONFIG_MII) || defined(CONFIG_MII_MODULE)
-> > > +#define HAVE_MII
-> > >...
-> > 
-> > This seems to cause a CONFIG_USB_USBNET=y, CONFIG_MII=m breakage
-> > (as already described earlier in this thread)?
-> 
-> Well, "alluded to" not described.  Fixable by the equivalent of
-> 
-> 	config USB_USBNET
-> 		...
-> 		depends on MII if MII != n
-> 
-> except that Kconfig doesn't comprehend conditionals like that.
+The recent change to make x86_64 support i386 binaries compiled
+with -mregparm=3 only covered signal handlers without SA_SIGINFO.
+(the 3-arg "real-time" ones)
 
-You can express this in Kconfig:
-	depends MII || MII=n
+To be compatible with i386, both types should be supported.
 
-But my suggestion was:
-#if defined(CONFIG_MII) || (defined(CONFIG_MII_MODULE) && defined(MODULE))
+Signed-off-by: Albert Cahalan <acahalan@gmail.com>
 
-Or simply select MII ...
+diff -Naurd old/arch/x86_64/ia32/ia32_signal.c
+new/arch/x86_64/ia32/ia32_signal.c
+--- old/arch/x86_64/ia32/ia32_signal.c  2006-10-29 20:36:01.000000000 -0500
++++ new/arch/x86_64/ia32/ia32_signal.c  2006-10-29 21:58:01.000000000 -0500
+@@ -579,6 +579,11 @@
+       regs->rsp = (unsigned long) frame;
+       regs->rip = (unsigned long) ka->sa.sa_handler;
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
++       /* Make -mregparm=3 work */
++       regs->rax = sig;
++       regs->rdx = (unsigned long) &frame->info;
++       regs->rcx = (unsigned long) &frame->uc;
++
+       asm volatile("movl %0,%%ds" :: "r" (__USER32_DS));
+       asm volatile("movl %0,%%es" :: "r" (__USER32_DS));

@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422935AbWJaIHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422950AbWJaIHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422935AbWJaIHy (ORCPT <rfc822;willy@w.ods.org>);
+	id S1422950AbWJaIHy (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 31 Oct 2006 03:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422943AbWJaIHb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422949AbWJaIHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:07:31 -0500
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:58641 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S1422949AbWJaIHP convert rfc822-to-8bit (ORCPT
+	Tue, 31 Oct 2006 03:07:35 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:24213 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422948AbWJaIHJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:07:15 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 31 Oct 2006 03:07:09 -0500
+Date: Tue, 31 Oct 2006 09:04:29 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Roland Dreier <rdreier@cisco.com>
+cc: Al Viro <viro@ftp.linux.org.uk>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 2/7] severing fs.h, radix-tree.h -> sched.h
+In-Reply-To: <adak62hyclr.fsf@cisco.com>
+Message-ID: <Pine.LNX.4.61.0610310903080.23540@yvahk01.tjqt.qr>
+References: <E1GeUeF-0002o7-6s@ZenIV.linux.org.uk> <adak62hyclr.fsf@cisco.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [Patch] Audio: Add nvidia HD Audio controllers of MCP67 support to hda_intel.c
-Date: Tue, 31 Oct 2006 16:03:42 +0800
-Message-ID: <15F501D1A78BD343BE8F4D8DB854566B0C42D5A3@hkemmail01.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] Audio: Add nvidia HD Audio controllers of MCP67 support to hda_intel.c
-Thread-Index: Acb8vu2NQ2MILa8LRF6jliRYyUc2LwABAKYQ
-From: "Peer Chen" <pchen@nvidia.com>
-To: <alsa-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Cc: <jgarzik@pobox.com>
-X-OriginalArrivalTime: 31 Oct 2006 08:04:09.0786 (UTC) FILETIME=[251911A0:01C6FCC3]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	0.0 UPPERCASE_25_50        message body is 25-50% uppercase
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the support for HD audio controllers of MCP51,MCP55,MCP61,MCP65 &
-MCP67.
-The following hda_intel.c patch is based on kernel 2.6.18.
 
-Signed-off by: Peer Chen <pchen@nvidia.com>
-===================================
+> > +EXPORT_SYMBOL(lock_super);
+> > +EXPORT_SYMBOL(unlock_super);
+>
+>isn't the current fashion to do this like:
+>
+>void lock_super(struct super_block * sb)
+>{
+>	get_fs_excl();
+>	mutex_lock(&sb->s_lock);
+>}
+>EXPORT_SYMBOL(lock_super);
+>
+>void unlock_super(struct super_block * sb)
+>{
+>	put_fs_excl();
+>	mutex_unlock(&sb->s_lock);
+>}
+>EXPORT_SYMBOL(unlock_super);
 
---- hda_intel.c.orig	2006-10-30 14:13:08.000000000 +0800
-+++ hda_intel.c	2006-10-31 13:44:36.000000000 +0800
-@@ -1640,8 +1640,14 @@ static struct pci_device_id azx_ids[] = 
- 	{ 0x1106, 0x3288, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_VIA
-}, /* VIA VT8251/VT8237A */
- 	{ 0x1039, 0x7502, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_SIS
-}, /* SIS966 */
- 	{ 0x10b9, 0x5461, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ULI
-}, /* ULI M5461 */
--	{ 0x10de, 0x026c, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA 026c */
--	{ 0x10de, 0x0371, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA 0371 */
-+	{ 0x10de, 0x026c, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA MCP51 */
-+	{ 0x10de, 0x0371, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA MCP55 */
-+	{ 0x10de, 0x03e4, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA MCP61 */
-+	{ 0x10de, 0x03f0, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA MCP61 */
-+	{ 0x10de, 0x044a, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA MCP65 */
-+	{ 0x10de, 0x044b, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA MCP65 */
-+	{ 0x10de, 0x055c, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA MCP67 */
-+	{ 0x10de, 0x055d, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-AZX_DRIVER_NVIDIA }, /* NVIDIA MCP67 */
- 	{ 0, }
- };
- MODULE_DEVICE_TABLE(pci, azx_ids);
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+
+Seems to be a draw:
+
+fs$ grep -nr EXPORT .
+./dcache.c:2113:EXPORT_SYMBOL(d_move);
+./dcache.c:2114:EXPORT_SYMBOL_GPL(d_materialise_unique);
+./dcache.c:2115:EXPORT_SYMBOL(d_path);
+./dcache.c:2116:EXPORT_SYMBOL(d_prune_aliases);
+./dcache.c:2117:EXPORT_SYMBOL(d_rehash);
+./dcache.c:2118:EXPORT_SYMBOL(d_splice_alias);
+./dcache.c:2119:EXPORT_SYMBOL(d_validate);
+
+vs
+
+./debugfs/file.c:86:EXPORT_SYMBOL_GPL(debugfs_create_u8);
+./debugfs/file.c:127:EXPORT_SYMBOL_GPL(debugfs_create_u16);
+./debugfs/file.c:168:EXPORT_SYMBOL_GPL(debugfs_create_u32);
+./debugfs/file.c:247:EXPORT_SYMBOL_GPL(debugfs_create_bool);
+./debugfs/file.c:292:EXPORT_SYMBOL_GPL(debugfs_create_blob);
+
+
+
+	-`J'
+-- 

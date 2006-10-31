@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423679AbWJaREj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423688AbWJaRIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423679AbWJaREj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 12:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423682AbWJaREj
+	id S1423688AbWJaRIU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 12:08:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423692AbWJaRIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 12:04:39 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:9897 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1423679AbWJaREi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 12:04:38 -0500
-Subject: Re: [ckrm-tech] RFC: Memory Controller
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: balbir@in.ibm.com, vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       pj@sgi.com, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com, menage@google.com
-In-Reply-To: <45470DF4.70405@openvz.org>
-References: <20061030103356.GA16833@in.ibm.com>
-	 <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org>
-	 <454638D2.7050306@in.ibm.com>  <45470DF4.70405@openvz.org>
-Content-Type: text/plain
-Date: Tue, 31 Oct 2006 09:04:08 -0800
-Message-Id: <1162314249.28876.120.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 31 Oct 2006 12:08:20 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:936 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1423688AbWJaRIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 12:08:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=Qeh10aPt2KF4kkSZNJavpq0gE99b5/8z5NrQrPzSqNsH12K7F8DAnk5qGAgho/3BBe0I1azRL1Ls3LN7GRMyTd8x1r/jiKgx4DxOzCMsiUBvBomBmjm0WhMelzsI+S94bS2af40NMnpjMqo+GZiwF/ZvBQDXYrc7ig0iqftO40k=
+Message-ID: <4547831B.8070704@innova-card.com>
+Date: Tue, 31 Oct 2006 18:08:43 +0100
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Guillermo Marcus <marcus@ti.uni-mannheim.de>, linux-kernel@vger.kernel.org
+Subject: Re: mmaping a kernel buffer to user space
+References: <4547150F.8070408@ti.uni-mannheim.de> <4547733B.9040801@gmail.com> <45477912.7070903@ti.uni-mannheim.de> <45477EA8.8060809@gmail.com>
+In-Reply-To: <45477EA8.8060809@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-31 at 11:48 +0300, Pavel Emelianov wrote:
-> If memory is considered to be unreclaimable then actions should be
-> taken at mmap() time, not later! Rejecting mmap() is the only way to
-> limit user in unreclaimable memory consumption.
+Hi,
 
-I don't think this is necessarily true.  Today, if a kernel exceeds its
-allocation limits (runs out of memory) it gets killed.  Doing the
-limiting at mmap() time instead of fault time will keep a sparse memory
-applications from even being able to run.
+Jiri Slaby wrote:
+> Guillermo Marcus wrote:
+>> Hi Jiri,
+>>
+>> The fact that it does not works with RAM is well documented in LDD3,
+>> pages 430++. It says (and I tested) that remap_xxx_range does not work
+>> in this case. They suggest a method using nopage, similar to the one I
+>> implement.
+> 
+> Could somebody confirm, that this still holds?
 
-Now, failing an mmap() is a wee bit more graceful than a SIGBUS, but it
-certainly introduces its own set of problems.
+Apparently this restriction has been removed since 2.6.15 when
+VM_PFNMAP flag has been introduced, see commit
+6aab341e0a28aff100a09831c5300a2994b8b986
 
--- Dave
+Why there's such restriction before 2.6.15, I haven't searched
+yet, but any hints would be appreciated.
 
+Thanks
+		Franck

@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423622AbWJaRmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423714AbWJaR4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423622AbWJaRmy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 12:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423715AbWJaRmy
+	id S1423714AbWJaR4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 12:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423529AbWJaR4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 12:42:54 -0500
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:8809 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1423622AbWJaRmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 12:42:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=2jGYLc2fK0d3ZCstSnBVrySEPnD6O4p659UcwAVUvxQA2hNys1FuoTDqq79/9zlNcoqSbnn9J7B4TYrlVgruWyuM1VFPfIry2FwW5nQL0JmAIPbWBRBUqR6wBAeB2O5FoglCtBA7PWaSEy1X1xLBOUUR2RHMIW+Jw8dtqz4DAw8=  ;
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
-Date: Tue, 31 Oct 2006 10:40:15 -0700
-User-Agent: KMail/1.7.1
-Cc: Adrian Bunk <bunk@stusta.de>, Randy Dunlap <randy.dunlap@oracle.com>,
-       akpm@osdl.org, zippel@linux-m68k.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, link@miggy.org,
-       Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
-       greg@kroah.com, toralf.foerster@gmx.de
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <200610281410.13679.david-b@pacbell.net> <20061028213918.GE27968@stusta.de>
-In-Reply-To: <20061028213918.GE27968@stusta.de>
+	Tue, 31 Oct 2006 12:56:55 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:35602 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1423714AbWJaR4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 12:56:54 -0500
+Message-ID: <45478E2C.7020803@shadowen.org>
+Date: Tue, 31 Oct 2006 17:55:56 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+CC: "Martin J. Bligh" <mbligh@google.com>, Greg KH <gregkh@suse.de>,
+       Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+References: <45461977.3020201@shadowen.org>	<45461E74.1040408@google.com>	<20061030084722.ea834a08.akpm@osdl.org>	<454631C1.5010003@google.com>	<45463481.80601@shadowen.org>	<20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>	<1162276206.5959.9.camel@Homer.simpson.net>	<4546EF3B.1090503@google.com>	<20061031065912.GA13465@suse.de>	<4546FB79.1060607@google.com>	<20061031075825.GA8913@suse.de>	<45477131.4070501@google.com>	<20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com>	<4547833C.5040302@google.com> <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610310940.16619.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > +#if defined(CONFIG_MII) || defined(CONFIG_MII_MODULE)
-> > +#define HAVE_MII
-> >...
+Cornelia Huck wrote:
+> On Tue, 31 Oct 2006 09:09:16 -0800,
+> "Martin J. Bligh" <mbligh@google.com> wrote:
 > 
-> This seems to cause a CONFIG_USB_USBNET=y, CONFIG_MII=m breakage
-> (as already described earlier in this thread)?
+>> Cornelia Huck wrote:
+>>> That's because /sys/class/net/<interface> is now a symlink instead of a
+>>> directory (and that hasn't anything to do with acpi, but rather with
+>>> the conversions in the driver tree). Seems the directory -> symlink
+>>> change shouldn't be done since it's impacting user space...
+>> You know which individual patch in -mm broke that? Can't see it easily.
+>> Then we can just test across all the machines with just that one backed
+>> out.
+> 
+> I'd try reverting gregkh-driver-network-device.patch for the network
+> device stuff.
 
-Well, "alluded to" not described.  Fixable by the equivalent of
+Ok, I've done a bisection which came back to:
 
-	config USB_USBNET
-		...
-		depends on MII if MII != n
+    gregkh-driver-mem-devices
 
-except that Kconfig doesn't comprehend conditionals like that.
+But as it seems somewhat nonsensical I'll submit two tests one with that
+backed out and one with the patch below backed out:
 
+    gregkh-driver-network-device
 
+Results should be out on TKO in a few hours.  Will report back tommorrow
+in detail.
+
+-apw

@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161623AbWJaER5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161625AbWJaEVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161623AbWJaER5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 23:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161624AbWJaER5
+	id S1161625AbWJaEVM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 23:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161481AbWJaEVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 23:17:57 -0500
-Received: from mail128.messagelabs.com ([216.82.250.131]:17084 "HELO
-	mail128.messagelabs.com") by vger.kernel.org with SMTP
-	id S1161623AbWJaER4 convert rfc822-to-8bit (ORCPT
+	Mon, 30 Oct 2006 23:21:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:62861 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161625AbWJaEVL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 23:17:56 -0500
-X-VirusChecked: Checked
-X-Env-Sender: E5739C@motorola.com
-X-Msg-Ref: server-8.tower-128.messagelabs.com!1162268275!5580288!1
-X-StarScan-Version: 5.5.10.7; banners=-,-,-
-X-Originating-IP: [129.188.136.8]
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 30 Oct 2006 23:21:11 -0500
+Date: Mon, 30 Oct 2006 20:20:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: andrew.j.wade@gmail.com, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>, Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
+Message-ID: <20061031042032.GA12729@kroah.com>
+References: <20061029160002.29bb2ea1.akpm@osdl.org> <200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20061030191340.1c7f8620.akpm@osdl.org> <200610302258.31613.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20061030201123.5685529f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Can't compile linux-2.6.10 on FC5
-Date: Tue, 31 Oct 2006 12:17:51 +0800
-Message-ID: <565F40B9893580489B94B8D324460AF4E9FF86@zmy16exm63.ds.mot.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Can't compile linux-2.6.10 on FC5
-thread-index: Acb8o4fjCCJIDATHRvm6KN9o0VJYkg==
-From: "Sun Zongjun-E5739C" <E5739C@motorola.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061030201123.5685529f.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 30, 2006 at 08:11:23PM -0800, Andrew Morton wrote:
+> On Mon, 30 Oct 2006 22:58:11 -0500
+> Andrew James Wade <andrew.j.wade@gmail.com> wrote:
+> 
+> > I've just found out that unsetting CONFIG_SYSFS_DEPRECATED makes the
+> > crash go away.
+> 
+> How bizarre.  sysfs changes cause unexpected pte protection values?
 
-Hi, 
+That's just wrong.  Something odd is happening here.  Can you try to
+bisect things to determine the patch that is causing the problem?
 
-I prepare to compile linux-2.6.10 on FC5. But it report the following
-errors when compiling the function of show_regs defined
-arch/i386/kernel/process.c
+thanks,
 
-{standard input}: Assembler messages:
-{standard input}: 797: Error: suffix or operands invalid for 'mov'
-....
-
-My GCC is 4.1, binutils is 2.16.91.0.6. It does not work too even after
-I used CC=gcc32 make bzImage
-
-I have searched it via Google. And found many such problems. How can fix
-it?
-
-Thanks very much for you kind support.
-
-Best Regards
-Zongjun
+greg k-h

@@ -1,80 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423666AbWJaVwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946051AbWJaWGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423666AbWJaVwV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 16:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423670AbWJaVwV
+	id S1946051AbWJaWGE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 17:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946048AbWJaWGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 16:52:21 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:14610 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1423666AbWJaVwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 16:52:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=B8paefeQjP6cnOr4tIgamYvK/c/qkpLmzNRk5ahXMYx3hwTfDchu8/bnAaU2T5oOb+oRoCB6jlMINXuj6FSM86bMuXhPhnC4CiQOLlpf6ONhdBLObe3ZrBfu7XbTTWbAxv3uStlQHl3mucmfgY4f0R8EhAueDfgjZCPgmAEzlMs=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][RFC] potential NULL pointer deref in XFS on failed mount
-Date: Tue, 31 Oct 2006 22:54:00 +0100
-User-Agent: KMail/1.9.4
-Cc: xfs@oss.sgi.com, xfs-masters@oss.sgi.com, nathans@sgi.com,
-       Jesper Juhl <jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Oct 2006 17:06:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60089 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946047AbWJaWGB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 17:06:01 -0500
+Date: Tue, 31 Oct 2006 17:06:00 -0500
+From: Andy Gospodarek <andy@greyhouse.net>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH] 2.6.19-rc4 - netlink messages created with bad flags in soft_irq context
+Message-ID: <20061031220559.GA10119@gospo.rdu.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610312254.00320.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted a potential problem in XFS.
+I've got a kernel built where 
 
-The problem is that if, in xfs_mount(), this code triggers:
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
 
-	...
-	if (!mp->m_logdev_targp)
-		goto error0;
-	...
+is in the config and I've noticed some interesting behavior when
+bringing up bonds in balance-alb mode.  When I start to enslave devices
+to a bond I get the following in the ring buffer:
 
-Then we'll end up calling xfs_unmountfs_close() with a NULL 
-'mp->m_logdev_targp'. 
-This in turn will result in a call to xfs_free_buftarg() with its 'btp' 
-argument == NULL. xfs_free_buftarg() dereferences 'btp' leading to
-a NULL pointer dereference and crash.
+BUG: sleeping function called from invalid context at mm/slab.c:3007
+in_atomic():1, irqs_disabled():0
 
-I think this can happen, since the fatal call to xfs_free_buftarg() 
-happens when 'm_logdev_targp != m_ddev_targp' and due to a check of
-'m_ddev_targp' against NULL in xfs_mount() (and subsequent return if it is 
-NULL) the two will never both be NULL when we hit the error0 label from 
-the two lines cited above.
+along with a nice backtrace of the error that pointed to the cause of
+this message.  The bonding code was calling for the device to set its
+MAC address and the netlink message that would be send as a result of
+this notification was being created with the flag GFP_KERNEL instead of
+GFP_ATOMIC.  
 
-Comments welcome (please keep me on Cc: on replies).
-
-Here's a proposed patch to fix this by testing 'btp' against NULL in 
-xfs_free_buftarg().
+After I did this, I noticed I didn't completely clear the error (since
+this call eventually tries to talk the rtnl_lock), but it gets us
+closer.  I'm still trying to decide how best to approach the remaining
+problem and will hopefully post a solution soon, but I wanted to get
+this in and/or get some feedback on this patch/direction first.
 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
 ---
 
- fs/xfs/linux-2.6/xfs_buf.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ rtnetlink.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xfs/linux-2.6/xfs_buf.c b/fs/xfs/linux-2.6/xfs_buf.c
-index db5f5a3..6ef1860 100644
---- a/fs/xfs/linux-2.6/xfs_buf.c
-+++ b/fs/xfs/linux-2.6/xfs_buf.c
-@@ -1450,6 +1450,9 @@ xfs_free_buftarg(
- 	xfs_buftarg_t		*btp,
- 	int			external)
- {
-+	if (unlikely(!btp))
-+		return;
-+
- 	xfs_flush_buftarg(btp, 1);
- 	if (external)
- 		xfs_blkdev_put(btp->bt_bdev);
-
-
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 221e403..93d6fb3 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -159,7 +159,7 @@ int rtnetlink_send(struct sk_buff *skb, 
+ 	NETLINK_CB(skb).dst_group = group;
+ 	if (echo)
+ 		atomic_inc(&skb->users);
+-	netlink_broadcast(rtnl, skb, pid, group, GFP_KERNEL);
++	netlink_broadcast(rtnl, skb, pid, group, GFP_ATOMIC);
+ 	if (echo)
+ 		err = netlink_unicast(rtnl, skb, pid, MSG_DONTWAIT);
+ 	return err;
+@@ -589,7 +589,7 @@ #endif	/* CONFIG_NET_WIRELESS_RTNETLINK 
+ 
+ 	payload = NLMSG_ALIGN(sizeof(struct ifinfomsg) +
+ 			      nla_total_size(iw_buf_len));
+-	nskb = nlmsg_new(nlmsg_total_size(payload), GFP_KERNEL);
++	nskb = nlmsg_new(nlmsg_total_size(payload), GFP_ATOMIC);
+ 	if (nskb == NULL) {
+ 		err = -ENOBUFS;
+ 		goto errout;
+@@ -639,7 +639,7 @@ void rtmsg_ifinfo(int type, struct net_d
+ 	struct sk_buff *skb;
+ 	int err = -ENOBUFS;
+ 
+-	skb = nlmsg_new(NLMSG_GOODSIZE, GFP_KERNEL);
++	skb = nlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
+ 	if (skb == NULL)
+ 		goto errout;
+ 
+@@ -649,7 +649,7 @@ void rtmsg_ifinfo(int type, struct net_d
+ 		goto errout;
+ 	}
+ 
+-	err = rtnl_notify(skb, 0, RTNLGRP_LINK, NULL, GFP_KERNEL);
++	err = rtnl_notify(skb, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
+ errout:
+ 	if (err < 0)
+ 		rtnl_set_sk_err(RTNLGRP_LINK, err);

@@ -1,64 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423540AbWJaQIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423539AbWJaQKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423540AbWJaQIo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 11:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423543AbWJaQIo
+	id S1423539AbWJaQKY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 11:10:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423541AbWJaQKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 11:08:44 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:33409 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1423540AbWJaQIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 11:08:43 -0500
-Message-ID: <4547732D.8070600@oracle.com>
-Date: Tue, 31 Oct 2006 08:00:45 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Tue, 31 Oct 2006 11:10:23 -0500
+Received: from holoclan.de ([62.75.158.126]:37288 "EHLO mail.holoclan.de")
+	by vger.kernel.org with ESMTP id S1423539AbWJaQKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 11:10:21 -0500
+Date: Tue, 31 Oct 2006 17:08:15 +0100
+From: Martin Lorenz <martin@lorenz.eu.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, jbeulich@novell.com
+Subject: Re: 2.6.19-rc3: more DWARFs and strange messages
+Message-ID: <20061031160815.GM27390@gimli>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+	jbeulich@novell.com
+References: <20061028200151.GC5619@gimli> <p73hcxklfoy.fsf@verdi.suse.de>
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Peer Chen <pchen@nvidia.com>, alsa-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Andy Currid <ACurrid@nvidia.com>,
-       Brian Lazara <BLazara@nvidia.com>, jgarzik@pobox.com,
-       Emily Jiang <ejiang@nvidia.com>
-Subject: Re: [Alsa-devel] [Patch] Audio: Add nvidia HD Audio controllers of
- MCP67 support to hda_intel.c
-References: <15F501D1A78BD343BE8F4D8DB854566B0C42D52B@hkemmail01.nvidia.com>	<s5hr6wotukx.wl%tiwai@suse.de>	<20061031074345.18d57e88.randy.dunlap@oracle.com> <s5hk62gtqxc.wl%tiwai@suse.de>
-In-Reply-To: <s5hk62gtqxc.wl%tiwai@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73hcxklfoy.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  On Tue, Oct 31, 2006 at 03:31:41PM +0100, Andi Kleen
+	wrote: > Martin Lorenz <martin@lorenz.eu.org> writes: > > > and quite a
+	few of those: > > > > [18504.980000] BUG: warning at
+	kernel/cpu.c:56/unlock_cpu_hotplug() > > [18504.980000] [<c0103bdd>]
+	dump_trace+0x69/0x1af > > [18504.980000] [<c0103d3b>]
+	show_trace_log_lvl+0x18/0x2c > > [18504.980000] [<c01043da>]
+	show_trace+0xf/0x11 > > [18504.980000] [<c01044dd>] dump_stack+0x15/0x17
+	> > [18504.980000] [<c0135e94>] unlock_cpu_hotplug+0x3d/0x66 > >
+	[18504.980000] [<f92e67f3>] do_dbs_timer+0x1c2/0x229 [cpufreq_ondemand]
+	> > [18504.980000] [<c012ccb1>] run_workqueue+0x83/0xc5 > >
+	[18504.980000] [<c012d5d5>] worker_thread+0xd9/0x10c > > [18504.980000]
+	[<c012fb36>] kthread+0xc2/0xf0 > > [18504.980000] [<c010398b>]
+	kernel_thread_helper+0x7/0x10 > > [18504.980000] DWARF2 unwinder stuck
+	at kernel_thread_helper+0x7/0x10 > > What gcc / binutils version do you
+	use? $ gcc --version gcc (GCC) 4.1.2 20061020 (prerelease) (Debian
+	4.1.1-17) [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
-> At Tue, 31 Oct 2006 07:43:45 -0800,
-> Randy Dunlap wrote:
->> On Tue, 31 Oct 2006 15:42:54 +0100 Takashi Iwai wrote:
->>
->>> At Tue, 31 Oct 2006 15:33:58 +0800,
->>> Peer Chen wrote:
->>>> Add the support for HD audio controllers of MCP51,MCP55,MCP61,MCP65 & MCP67.
->>>> The following hda_intel.c patch is based on kernel 2.6.18.
->>>>
->>>> Signed-off by: Peer Chen <pchen@nvidia.com>
->>> Applied to ALSA tree.  But I didn't add it to push-to-2.6.19-tree
->>> because apparently no one has tested the patch well yet.
->>>
->>> (BTW, your patch attached there was broken, so I had to apply it
->>> manually.  At the next time, please either inline the patch in a text
->>> mail, or attach a plain text patch if inlining is not possible with
->>> your MUA/MTA.)
->> Patches should also be sent made to apply to a current kernel
->> tree, like 2.6.19-rc3, 2.6.19-rc4, 2.6.19-rc3-git8,
->> Linus's git tree, or Andrew's -mm tree if that is the only
->> place where the patch fits, or even to a subsystem tree (e.g., ALSA).
+On Tue, Oct 31, 2006 at 03:31:41PM +0100, Andi Kleen wrote:
+> Martin Lorenz <martin@lorenz.eu.org> writes:
 > 
-> Since I already applied it to ALSA tree, the next mm tree will include
-> it (automatically taken it from alsa.git#mm branch).
+> > and quite a few of those:
+> > 
+> > [18504.980000] BUG: warning at kernel/cpu.c:56/unlock_cpu_hotplug()
+> > [18504.980000]  [<c0103bdd>] dump_trace+0x69/0x1af
+> > [18504.980000]  [<c0103d3b>] show_trace_log_lvl+0x18/0x2c
+> > [18504.980000]  [<c01043da>] show_trace+0xf/0x11
+> > [18504.980000]  [<c01044dd>] dump_stack+0x15/0x17
+> > [18504.980000]  [<c0135e94>] unlock_cpu_hotplug+0x3d/0x66
+> > [18504.980000]  [<f92e67f3>] do_dbs_timer+0x1c2/0x229 [cpufreq_ondemand]
+> > [18504.980000]  [<c012ccb1>] run_workqueue+0x83/0xc5
+> > [18504.980000]  [<c012d5d5>] worker_thread+0xd9/0x10c
+> > [18504.980000]  [<c012fb36>] kthread+0xc2/0xf0
+> > [18504.980000]  [<c010398b>] kernel_thread_helper+0x7/0x10
+> > [18504.980000] DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
+> 
+> What gcc / binutils version do you use?
+$ gcc --version
+gcc (GCC) 4.1.2 20061020 (prerelease) (Debian 4.1.1-17)
 
-Sure, I'm just trying to get Peer to DTRT (do the right thing).
+dpkg says:
+ii  gcc                        4.1.1-13
 
--- 
-~Randy
+$ ar --version
+GNU ar 2.17 Debian GNU/Linux
+
+dpkg says:
+ii  binutils                   2.17-3
+
+
+> 
+> > [18504.980000]
+> > [18504.980000] Leftover inexact backtrace:
+> > [18504.980000]
+> > [18504.980000]  =======================
+> > 
+> 
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+gruss
+  mlo
+--
+Dipl.-Ing. Martin Lorenz
+
+            They that can give up essential liberty 
+	    to obtain a little temporary safety 
+	    deserve neither liberty nor safety.
+                                   Benjamin Franklin
+
+please encrypt your mail to me
+GnuPG key-ID: F1AAD37D
+get it here:
+http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
+
+ICQ UIN: 33588107

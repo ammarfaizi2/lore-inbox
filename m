@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423545AbWJaQL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423544AbWJaQPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423545AbWJaQL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 11:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423541AbWJaQL0
+	id S1423544AbWJaQPU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 11:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423548AbWJaQPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 11:11:26 -0500
-Received: from mail.tmr.com ([64.65.253.246]:20357 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1423545AbWJaQLZ (ORCPT
+	Tue, 31 Oct 2006 11:15:20 -0500
+Received: from main.gmane.org ([80.91.229.2]:14754 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1423544AbWJaQPT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 11:11:25 -0500
-Message-ID: <454775C6.5030604@tmr.com>
-Date: Tue, 31 Oct 2006 11:11:50 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lspci output needed was Re: Frustrated with Linux, Asus, and
- nVidia, and AMD
-References: <fa.nWSYbiDM13Z4b2OlxoSzmqud/lI@ifi.uio.no> <fa.i/oIAoig46I/apLGccQ0BesB0W8@ifi.uio.no> <454432DC.9030006@shaw.ca> <200610311528.20013.ak@suse.de>
-In-Reply-To: <200610311528.20013.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Oct 2006 11:15:19 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Rolf Offermanns <roffermanns@gmail.com>
+Subject: Re: mmaping a kernel buffer to user space
+Date: Tue, 31 Oct 2006 17:10:47 +0100
+Message-ID: <ei7si7$1sl$1@sea.gmane.org>
+References: <4547150F.8070408@ti.uni-mannheim.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 62.8.134.2
+User-Agent: KNode/0.10.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+Guillermo Marcus wrote:
+> I recently run with the following situation while developing a PCI
+> driver. The driver allocates memory for a PCI device using
+> pci_alloc_consistent as this memory is going to be used to perform DMA
+> transfers. To pass the data from/to the user application, I mmap the
+> buffer into userspace. However, if I try to use remap_pfn_range
+> (>=2.6.10) or the older remap_page_range(<=2.6.9) for mmaping, it ends
+> up creating a new buffer, because they do not support RAM mapping, then
+> pagefaulting to the VMA and by default allocating new pages. Therefore,
+> I had to implement the nopage method and mmap one page at a time as they
+> fault.
+> 
+> However, to my point of view, this is unnecessary. The memory is already
+> allocated, the memory is locked because it is consistent, and it may be
+> a (very small) performance and stability issue to do them one-by-one.
+> Why can't I simply mmap it all at once? am I missing some function? More
+> important, why can't remap_{pfn/page}_range handle it?
+> 
+Here is what I did some time ago:
 
->>There are clearly some NVIDIA chipsets which require the override be 
->>skipped, and some which require it not be. I think the ball is currently 
->>in NVIDIA's court to provide a way of figuring out which chipsets 
->>require the quirk and which don't..
->>    
->>
->
->My current plan is to switch in 2.6.20 to automatic probing of more pins
->for the timer routing (suggested by Tim Hockin, I've got a test patch). 
->  
->
-Thank you, Tim!
+-> Reserve mem at boot time (mem=realmem-size_of_mem_you_need) / bigphysmem 
+-> I used the highmem allocator from the LDD2/3 examples to get a pointer
+the this reserved memory at runtime.
+-> Use ioremap() to remap the memory to kernelspace
+-> do some magic (I don't remember the background, sorry) with the vma_flags
+in your mmap() function:
 
->But that's too risky for .19.
->
->For 2.6.19 we'll likely add some more PCI-IDs disabling the quirk
->and a command line option to disable the skip timer override quirk. 
->  
->
-That should be safe, and timer override as an option should give 
-everyone a way to get what they need on any given system.
+        vma->vm_flags |= VM_RESERVED;
+        vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);      
 
->Doing this per PCI ID isn't that bad because afaik Vista certification
->requires enabling the HPET table and I assume most boards will get
->Vista certification soon. This will force Asus to fix their BIOS.
->  
->
-And nVidia to release more information? Hopefully.
+and then do a remap_pfn_range() as usualy.
 
->Can people who use a Nvidia based AM2/SocketF board (especially when they have timer 
->troubles but otherwise would be useful too) please report their lspcis in private 
->mail to me?
->
->-Andi
->
->
->  
->
+HTH,
+Rolf
 
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
 

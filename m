@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161343AbWJaHWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965524AbWJaHWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161343AbWJaHWP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:22:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030575AbWJaHWP
+	id S965524AbWJaHWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:22:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965525AbWJaHWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:22:15 -0500
-Received: from ns2.suse.de ([195.135.220.15]:50607 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030467AbWJaHWN (ORCPT
+	Tue, 31 Oct 2006 02:22:09 -0500
+Received: from junsun.net ([66.29.16.26]:58122 "EHLO junsun.net")
+	by vger.kernel.org with ESMTP id S965524AbWJaHWH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:22:13 -0500
-Date: Mon, 30 Oct 2006 23:21:45 -0800
-From: Greg KH <gregkh@suse.de>
-To: Mike Galbraith <efault@gmx.de>
-Cc: "Martin J. Bligh" <mbligh@google.com>,
-       Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-Message-ID: <20061031072145.GA7306@suse.de>
-References: <45461E74.1040408@google.com> <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com> <45463481.80601@shadowen.org> <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com> <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com> <1162277642.5970.4.camel@Homer.simpson.net> <20061031071347.GA7027@suse.de> <1162278909.6416.5.camel@Homer.simpson.net>
-MIME-Version: 1.0
+	Tue, 31 Oct 2006 02:22:07 -0500
+Date: Mon, 30 Oct 2006 23:22:03 -0800
+From: Jun Sun <jsun@junsun.net>
+To: linux-kernel@vger.kernel.org
+Subject: reserve memory in low physical address - possible?
+Message-ID: <20061031072203.GA10744@srv.junsun.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1162278909.6416.5.camel@Homer.simpson.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 08:15:09AM +0100, Mike Galbraith wrote:
-> On Mon, 2006-10-30 at 23:13 -0800, Greg KH wrote:
-> > On Tue, Oct 31, 2006 at 07:54:02AM +0100, Mike Galbraith wrote:
-> > > I just straced /sbin/getcfg again, and confirmed that that is indeed
-> > > what is still happening here.  It's a known issue (for SuSE at least).
-> > 
-> > Ick, is this 10.1?  Or 10.2?  Or something else?
-> 
-> 10.1 fully updated.
 
-Crap, the libsysfs hooks were more intrusive than I expected.  10.2
-should not have this issue anymore.  Until then, just enable that config
-option and you should be fine.
+This question is specific to i386 architecture.  While I am fairly 
+comfortable with Linux kernel, I am not familiar with i386 arch. 
 
-thanks,
+My objective is to reserve, or hide from kernel, some memory space in low
+physical address range starting from 0.  The memory amount is in the order
+of 100MB to 200MB.  The total memory is assumed to be around 512MB.
 
-greg k-h
+Is this possible?
+
+I understand it is possible to reserve some memory at the end by
+specifying "mem=xxxM" option in kernel command line.  I looked into
+"memmap=xxxM" option but it appears not helpful for what I want.
+
+While searching on the web I also found things like DMA zone and loaders
+etc that all seem to assume the existence low-addressed physical
+memory.  True?
+
+I can certainly workaround the loader issue.  I can also re-code the real-mode
+part of kernel code to migrate to higher addresses.  The DMA zone might be
+a thorny one.  Any clues?  Are modern PCs still subject to
+the 16MB DMA zone restriction?
+
+Am I too far off from what I want to do?
+
+Thanks.
+
+Jun

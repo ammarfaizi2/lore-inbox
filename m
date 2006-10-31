@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422950AbWJaIHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422960AbWJaIKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422950AbWJaIHy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422949AbWJaIHf
+	id S1422960AbWJaIKk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422961AbWJaIKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:07:35 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:24213 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1422948AbWJaIHJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:07:09 -0500
-Date: Tue, 31 Oct 2006 09:04:29 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Roland Dreier <rdreier@cisco.com>
-cc: Al Viro <viro@ftp.linux.org.uk>, linux-arch@vger.kernel.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 2/7] severing fs.h, radix-tree.h -> sched.h
-In-Reply-To: <adak62hyclr.fsf@cisco.com>
-Message-ID: <Pine.LNX.4.61.0610310903080.23540@yvahk01.tjqt.qr>
-References: <E1GeUeF-0002o7-6s@ZenIV.linux.org.uk> <adak62hyclr.fsf@cisco.com>
+	Tue, 31 Oct 2006 03:10:39 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:5351 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422960AbWJaIKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 03:10:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=mw+d8HhmvCDQsW0f0Zk3JSeA5d7JMiIiMtvkdPUFppFIpTTLBzec7/GeaiUe2Rw4eGku0YbVcaHJ02PHzjeYND8Mgt37q/hvVcnOKmDFI3R86z7EsWS+uavg7qQe460Akm5LXyCMD1ilkb7VcV1Ee1ZGQPbnF1nVGHJCTwm665E=
+Message-ID: <45470513.4070507@innova-card.com>
+Date: Tue, 31 Oct 2006 09:10:59 +0100
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	0.0 UPPERCASE_25_50        message body is 25-50% uppercase
+To: Paulo Marques <pmarques@grupopie.com>
+CC: Franck <vagabon.xyz@gmail.com>, Miguel Ojeda <maxextreme@gmail.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+References: <20061013023218.31362830.maxextreme@gmail.com>	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>	 <453CE85B.2080702@innova-card.com>	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>	 <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>	 <653402b90610260755t75b3a539rb5f54bad0688c3c1@mail.gmail.com>	 <cda58cb80610271303p29f6f1a2vc3ebd895ab36eb53@mail.gmail.com> <653402b90610271325l1effa77eq179ca1bda135445@mail.gmail.com> <4545C52A.5010105@innova-card.com> <4545FCB1.8030900@grupopie.com>
+In-Reply-To: <4545FCB1.8030900@grupopie.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paulo Marques wrote:
+> Franck Bui-Huu wrote:
+>> Miguel Ojeda wrote:
+>>> [...]
+>>> Anyway, an animation of 10 Hz wouldn't be fine at this
+>>> kind of LCDs, so it is pointless which the refresh rate of the driver
+>>> is, as it is not useful to display images as fast as the driver
+>>> refresh the LCD.
+>>
+>> An application might want to display quickly a set of images, not for
+>> doing animations but rather displaying 'fake' greyscale images.
+> 
+> To do "fake" greyscale you would need to synchronize with the actual
+> refresh of the controller or you will have very ugly aliasing artifacts.
+> 
+> Since there is no hardware interface to know when the controller is
+> refreshing, I don't think this is one viable usage scenario.
+> 
 
-> > +EXPORT_SYMBOL(lock_super);
-> > +EXPORT_SYMBOL(unlock_super);
->
->isn't the current fashion to do this like:
->
->void lock_super(struct super_block * sb)
->{
->	get_fs_excl();
->	mutex_lock(&sb->s_lock);
->}
->EXPORT_SYMBOL(lock_super);
->
->void unlock_super(struct super_block * sb)
->{
->	put_fs_excl();
->	mutex_unlock(&sb->s_lock);
->}
->EXPORT_SYMBOL(unlock_super);
+eh ?? Did you read my email before ? That was the point I was trying
+to raise... and starting the refresh stuff _only_ when the device is
+mmaped seems to me a good trade off.
 
+Aynywas it seems that the discusion about the design is closed and
+won't lead to interesting things...
 
-Seems to be a draw:
-
-fs$ grep -nr EXPORT .
-./dcache.c:2113:EXPORT_SYMBOL(d_move);
-./dcache.c:2114:EXPORT_SYMBOL_GPL(d_materialise_unique);
-./dcache.c:2115:EXPORT_SYMBOL(d_path);
-./dcache.c:2116:EXPORT_SYMBOL(d_prune_aliases);
-./dcache.c:2117:EXPORT_SYMBOL(d_rehash);
-./dcache.c:2118:EXPORT_SYMBOL(d_splice_alias);
-./dcache.c:2119:EXPORT_SYMBOL(d_validate);
-
-vs
-
-./debugfs/file.c:86:EXPORT_SYMBOL_GPL(debugfs_create_u8);
-./debugfs/file.c:127:EXPORT_SYMBOL_GPL(debugfs_create_u16);
-./debugfs/file.c:168:EXPORT_SYMBOL_GPL(debugfs_create_u32);
-./debugfs/file.c:247:EXPORT_SYMBOL_GPL(debugfs_create_bool);
-./debugfs/file.c:292:EXPORT_SYMBOL_GPL(debugfs_create_blob);
-
-
-
-	-`J'
--- 
+bye
+		Franck

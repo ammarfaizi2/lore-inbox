@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422899AbWJaHek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161497AbWJaHgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422899AbWJaHek (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:34:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161497AbWJaHek
+	id S1161497AbWJaHgx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161520AbWJaHgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:34:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59522 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161353AbWJaHej (ORCPT
+	Tue, 31 Oct 2006 02:36:52 -0500
+Received: from mail.gmx.de ([213.165.64.20]:42931 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1161497AbWJaHgw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:34:39 -0500
-Date: Mon, 30 Oct 2006 23:34:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: andrew.j.wade@gmail.com, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
-Message-Id: <20061030233432.d75955c5.akpm@osdl.org>
-In-Reply-To: <20061031070351.GB14713@kroah.com>
+	Tue, 31 Oct 2006 02:36:52 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+From: Mike Galbraith <efault@gmx.de>
+To: Greg KH <gregkh@suse.de>
+Cc: "Martin J. Bligh" <mbligh@google.com>,
+       Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+In-Reply-To: <20061031065912.GA13465@suse.de>
 References: <20061029160002.29bb2ea1.akpm@osdl.org>
-	<200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-	<20061030191340.1c7f8620.akpm@osdl.org>
-	<200610302258.31613.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-	<20061030211046.1c3d62b9.akpm@osdl.org>
-	<20061031070351.GB14713@kroah.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	 <45461977.3020201@shadowen.org> <45461E74.1040408@google.com>
+	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
+	 <45463481.80601@shadowen.org>
+	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
+	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
+	 <20061031065912.GA13465@suse.de>
+Content-Type: text/plain
+Date: Tue, 31 Oct 2006 08:36:22 +0100
+Message-Id: <1162280182.6416.16.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006 23:03:51 -0800
-Greg KH <greg@kroah.com> wrote:
-
-> On Mon, Oct 30, 2006 at 09:10:46PM -0800, Andrew Morton wrote:
-> > On Mon, 30 Oct 2006 22:58:11 -0500
-> > Andrew James Wade <andrew.j.wade@gmail.com> wrote:
+On Mon, 2006-10-30 at 22:59 -0800, Greg KH wrote:
+> On Mon, Oct 30, 2006 at 10:37:47PM -0800, Martin J. Bligh wrote:
+> > Mike Galbraith wrote:
+> > >On Mon, 2006-10-30 at 21:14 +0100, Cornelia Huck wrote:
+> > >
+> > >>Maybe the initscripts have problems coping with the new layout
+> > >>(symlinks instead of real devices)?
+> > >
+> > >SuSE's /sbin/getcfg for one uses libsysfs, which apparently doesn't
+> > >follow symlinks (bounces off symlink and does nutty stuff instead).  If
+> > >any of the boxen you're having troubles with use libsysfs in their init
+> > >stuff, that's likely the problem.
 > > 
-> > > > 
-> > > > hm.  Please send the .config
-> > > > 
-> > > Sure.
-> > > 
-> > > I've just found out that unsetting CONFIG_SYSFS_DEPRECATED makes the
-> > > crash go away. I can hack around the resulting udev incompatibility.
-> > > 
-> > > #
-> > > # Automatically generated make config: don't edit
-> > > # Linux kernel version: 2.6.19-rc3-mm1
-> > > # Mon Oct 30 19:31:03 2006
-> > 
-> > Well I tried to reproduce this, but I got such a psychedelic cornucopia of
-> > oopses at various bisection points amongst those sysfs patches that I think
-> > I'll just give up.
-> > 
-> > Greg, Kay: it's quite ugly.  I'll drop all those patches for now, and I
-> > suggest you do so too.  Have a play with the .config which Andrew sent..
+> > If that is what's happening, then the problem is breaking previously
+> > working boxes by changing a userspace API. I don't know exactly which
+> > patch broke it, but reverting all Greg's patches (except USB) from
+> > -mm fixes the issue.
 > 
-> No, please don't drop them.  We have tested these out on a lot of
-> different boxes.  So far everyone's problems have either been due to
-> something else in -mm (acpi patches), or because they did not read the
-> CONFIG_SYSFS_DEPRECATED Kconfig help text.
+> Merely change CONFIG_SYSFS_DEPRECATED to be set to yes, and it should
+> all work just fine.  Doesn't anyone read the Kconfig help entries for
+> new kernel options?
 
-Does acpi cause the change_page_attr oopses?
+There's another thread concerning that kaboom, and I think the culprit
+is known?
 
-What caused the several different oopses which I got with Andrew's config? 
-They were all inside the gregkh-driver-* series.  (That test machine is
-running FC1, which doesn't run udev at all.  Its BIOS is acpi-free).
-
-Here's one: http://userweb.kernel.org/~akpm/s5000364.jpg
-
-I didn't grab the others.
-
-> I have yet to see any real problems with these patches, except for your
-> build issue with the bonding drivers, which I'm fixing up right now.
-
-Tried Andrew's .config?
-
-> So please leave them in, we did rework them a lot from the last round,
-> _and_ these patches are shipping successfully in the OpenSuSE 10.2 alpha
-> and beta release with no reported problems.  So they are not as ugly as
-> you imagine them to be :)
-
-I can tell an enormous string of oopses when I see one ;)
-
-I'm dropping acpi and gregkh-driver-* and am rushing rc4-mm1.  Other
-people's stuff needs to get tested.
+	-Mike
 

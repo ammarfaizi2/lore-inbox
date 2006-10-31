@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161497AbWJaHgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422907AbWJaHkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161497AbWJaHgx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:36:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161520AbWJaHgw
+	id S1422907AbWJaHkd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:40:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161571AbWJaHkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:36:52 -0500
-Received: from mail.gmx.de ([213.165.64.20]:42931 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1161497AbWJaHgw (ORCPT
+	Tue, 31 Oct 2006 02:40:33 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53380 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161353AbWJaHkc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:36:52 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-From: Mike Galbraith <efault@gmx.de>
-To: Greg KH <gregkh@suse.de>
-Cc: "Martin J. Bligh" <mbligh@google.com>,
-       Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-In-Reply-To: <20061031065912.GA13465@suse.de>
+	Tue, 31 Oct 2006 02:40:32 -0500
+Date: Mon, 30 Oct 2006 23:40:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Greg KH <greg@kroah.com>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org
+Subject: Re: 2.6.19-rc3-mm1 - udev doesn't work (was: ATI SATA controller
+ not detected)
+Message-Id: <20061030234008.51da7d9a.akpm@osdl.org>
+In-Reply-To: <200610310829.31554.rjw@sisk.pl>
 References: <20061029160002.29bb2ea1.akpm@osdl.org>
-	 <45461977.3020201@shadowen.org> <45461E74.1040408@google.com>
-	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
-	 <45463481.80601@shadowen.org>
-	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
-	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
-	 <20061031065912.GA13465@suse.de>
-Content-Type: text/plain
-Date: Tue, 31 Oct 2006 08:36:22 +0100
-Message-Id: <1162280182.6416.16.camel@Homer.simpson.net>
+	<200610302148.34218.rjw@sisk.pl>
+	<20061030205742.GA4084@kroah.com>
+	<200610310829.31554.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-30 at 22:59 -0800, Greg KH wrote:
-> On Mon, Oct 30, 2006 at 10:37:47PM -0800, Martin J. Bligh wrote:
-> > Mike Galbraith wrote:
-> > >On Mon, 2006-10-30 at 21:14 +0100, Cornelia Huck wrote:
-> > >
-> > >>Maybe the initscripts have problems coping with the new layout
-> > >>(symlinks instead of real devices)?
-> > >
-> > >SuSE's /sbin/getcfg for one uses libsysfs, which apparently doesn't
-> > >follow symlinks (bounces off symlink and does nutty stuff instead).  If
-> > >any of the boxen you're having troubles with use libsysfs in their init
-> > >stuff, that's likely the problem.
-> > 
-> > If that is what's happening, then the problem is breaking previously
-> > working boxes by changing a userspace API. I don't know exactly which
-> > patch broke it, but reverting all Greg's patches (except USB) from
-> > -mm fixes the issue.
+On Tue, 31 Oct 2006 08:29:28 +0100
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+
+> [Resending due to a network problem on my side.]
 > 
-> Merely change CONFIG_SYSFS_DEPRECATED to be set to yes, and it should
-> all work just fine.  Doesn't anyone read the Kconfig help entries for
-> new kernel options?
+> On Monday, 30 October 2006 21:57, Greg KH wrote:
+> > On Mon, Oct 30, 2006 at 09:48:33PM +0100, Rafael J. Wysocki wrote:
+> > > On Monday, 30 October 2006 21:22, Greg KH wrote:
+> > > > On Mon, Oct 30, 2006 at 09:15:37PM +0100, Rafael J. Wysocki wrote:
+> > > > > Sorry, I was wrong.
+> > > > > 
+> > > > > The controller _is_ detected and handled properly, but udev is apparently
+> > > > > unable to create the special device files for SATA drives/partitions even
+> > > > > though CONFIG_SYSFS_DEPRECATED is set.
+> > > > 
+> > > > This config option should not affect the block device sysfs files at all
+> > > > at this point in time.
+> > > > 
+> > > > What does 'tree /sys/block/' show?
+> > > 
+> > > I can't run 'tree', but 'ls' works somehow (can't mount the root fs).  The
+> > > block device sysfs files seem to be present
+> > 
+> > If they are there, then udev should work just fine.
+> > 
+> > > > If the files show up there properly, udev should handle them just fine.
+> > > 
+> > > It doesn't.
+> > > 
+> > > Well, I can binary search for the offending patch if that helps.
+> > 
+> > That would be very helpful, thanks.
+> 
+> It's one of these:
+> 
+> git-acpi.patch
+> git-acpi-fixup.patch
+> git-acpi-more-build-fixes.patch
+> 
 
-There's another thread concerning that kaboom, and I think the culprit
-is known?
+You might need to resend the original report so the acpi guys can see it.
 
-	-Mike
-
+Meanwhile, I'll have to drop the acpi tree.

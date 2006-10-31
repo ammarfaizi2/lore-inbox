@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161632AbWJaLkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965540AbWJaLiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161632AbWJaLkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 06:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161635AbWJaLkn
+	id S965540AbWJaLiO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 06:38:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965541AbWJaLiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 06:40:43 -0500
-Received: from mta.songnetworks.no ([62.73.241.54]:49394 "EHLO
-	pebbles.fastcom.no") by vger.kernel.org with ESMTP id S1161632AbWJaLkm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 06:40:42 -0500
-Mime-Version: 1.0 (Apple Message framework v752.2)
-In-Reply-To: <D3D931E5-0EA7-4CC4-A59D-364C65335DBA@karlsbakk.net>
-References: <C5C787DB-6791-462E-9907-F3A0438E6B9C@karlsbakk.net> <453960B3.6040006@gmail.com> <D3D931E5-0EA7-4CC4-A59D-364C65335DBA@karlsbakk.net>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A9AF211A-08C8-4FC4-8280-D3AA3136FF3B@karlsbakk.net>
+	Tue, 31 Oct 2006 06:38:14 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:7401 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S965540AbWJaLiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 06:38:13 -0500
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061024204239.GA15689@infradead.org>
+References: <1161576857.3466.9.camel@nigel.suspend2.net>
+	 <20061024204239.GA15689@infradead.org>
+Content-Type: text/plain
+Date: Tue, 31 Oct 2006 22:38:08 +1100
+Message-Id: <1162294689.19737.22.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Subject: Debugging I/O errors further?
-Date: Tue, 31 Oct 2006 12:40:44 +0100
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Roy Sigurd Karlsbakk wrote:
->>
->>> Hi all
->>> Stresstesting a SATA drive+controller, I get the error below  
->>> after a while. How can I find if this error is due to a  
->>> controller failure, a bad driver, or a drive failure?
->>
->> Is there any libata/SCSI error messages in your log?
->>
->
-> Nope. Just the ones from ext3. I first tried with a kernel from  
-> debian etch, and then switched to 2.6.18.1. Same errors on both
+Hi.
 
-Hi all
+On Tue, 2006-10-24 at 21:42 +0100, Christoph Hellwig wrote:
+> On Mon, Oct 23, 2006 at 02:14:17PM +1000, Nigel Cunningham wrote:
+> > Switch from bitmaps to using extents to record what swap is allocated;
+> > they make more efficient use of memory, particularly where the allocated
+> > storage is small and the swap space is large.
+> >     
+> > This is also part of the ground work for implementing support for
+> > supporting multiple swap devices.
+> 
+> In addition to the very useful comments from Rafael there's some observations
+> of my own:
+> 
+>  - there's an awful lot of opencoded list manipulation, any chance you
+>    could use list.h instead?
 
-Sorry for stressing this, but is there a way I can debug this  
-further? it's a seagate drive connected to a sata_sil controller. I  
-only get ext3 errors, and it fails after a while whatever I do
+Further to this, I gave using list.h a go. Unfortunately it doesn't look
+to me like it is a good idea: in adding a range, I'm comparing the new
+range to the maximum of one extent and the minimum of the next, so
+finding the minimum of the next extent becomes a lot uglier than it
+currently is. Currently it's just ->next->minimum, but with list.h, I'd
+need container_of(current->list.next)->minimum. Or am I missing
+something?
 
-thanks
+Regards,
 
-roy
---
-Roy Sigurd Karlsbakk
-roy@karlsbakk.net
--------------------------------
-MICROSOFT: Acronym for "Most Intelligent Customers Realise Our  
-Software Only Fools Teenagers"
+Nigel
 

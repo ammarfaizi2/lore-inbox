@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946028AbWJaV1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946036AbWJaV2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946028AbWJaV1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 16:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946030AbWJaV1R
+	id S1946036AbWJaV2p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 16:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946030AbWJaV2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 16:27:17 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:40161 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1946028AbWJaV1R (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 16:27:17 -0500
-Message-Id: <200610312126.k9VLQtCB003616@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Dave Jones <davej@redhat.com>
-Cc: ray-gmail@madrabbit.org, "Martin J. Bligh" <mbligh@google.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Subject: Re: Linux 2.6.19-rc4
-In-Reply-To: Your message of "Tue, 31 Oct 2006 11:51:33 EST."
-             <20061031165133.GB23354@redhat.com>
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061030213454.8266fcb6.akpm@osdl.org> <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org> <45477668.4070801@google.com> <2c0942db0610310834i6244c0abm10c81e984565ed8a@mail.gmail.com>
-            <20061031165133.GB23354@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1162330015_3157P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 31 Oct 2006 16:28:45 -0500
+Received: from mail.hirnfrei.org ([217.160.176.83]:19365 "EHLO
+	brainNG.hirnfrei.org") by vger.kernel.org with ESMTP
+	id S1946036AbWJaV2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 16:28:44 -0500
+From: =?iso-8859-1?q?J=F6rg_Hundertmarck?= <joerg@hundertmarck.de>
+To: linux-kernel@vger.kernel.org
+Subject: Simple extension to psmouse driver (tp-scroll in kernel mode)
+Date: Tue, 31 Oct 2006 23:28:17 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 31 Oct 2006 16:26:55 -0500
+Content-Disposition: inline
+Message-Id: <200610312228.21804.joerg@hundertmarck.de>
+X-MC: malicious code scan successful
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1162330015_3157P
-Content-Type: text/plain; charset=us-ascii
+Hello world,
 
-On Tue, 31 Oct 2006 11:51:33 EST, Dave Jones said:
-> On Tue, Oct 31, 2006 at 08:34:23AM -0800, Ray Lee wrote:
->  > On 10/31/06, Martin J. Bligh <mbligh@google.com> wrote:
->  > > > At some point we should get rid of all the "politeness" warnings, just
->  > > > because they can end up hiding the _real_ ones.
->  > >
->  > > Yay! Couldn't agree more. Does this mean you'll take patches for all the
->  > > uninitialized variable crap from gcc 4.x ?
->  > 
->  > What would be useful in the short term is a tool that shows only the
->  > new warnings that didn't exist in the last point release.
-> 
-> git clone git://git.kernel.org/pub/scm/linux/kernel/git/viro/remapper.git
+I've wrote a simple extension to the psmouse driver. It's an emulation for the
+scrolling wheel on TrackPoint mice. It's functionally the same like the userspace
+daemon tp-scroll but it doesn't lag if the system has full load. The emulation
+starts when you press the middle mouse button, then you can "scroll" up and
+down by moving the mouse into the desired direction. It stops when the button
+released. When you press and release the button without move, the button event
+is transfered. This feature is not enabled by default, you need to set
+CONFIG_MOUSE_TPWHEEL=y.
 
-As somebody proves me wrong on the fact it's not easy.  Of course, it's
-Al's git tree, which is probably saying something. :)
+Here's the patch:
+http://www.hirnfrei.org/~joerg/linux_patches/linux-2.6.17-gentoo-r7-tp-scroll.patch
 
---==_Exmh_1162330015_3157P
-Content-Type: application/pgp-signature
+The patch is tested against the the 2.6.17 and 2.6.18.1 kernel source.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+I hope that's the correct mailing list and my code is usefull.
 
-iD8DBQFFR7+fcC3lWbTT17ARAstFAJ9e74iAUbEDuEKYutVnViYZXLPxzgCgvFAZ
-a7nMUz31jfiGI/q9s84Gk3w=
-=/MEl
------END PGP SIGNATURE-----
-
---==_Exmh_1162330015_3157P--
+Greets
+Joerg Hundertmarck

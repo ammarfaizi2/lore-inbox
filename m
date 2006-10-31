@@ -1,86 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423017AbWJaJOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161627AbWJaJS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423017AbWJaJOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 04:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423012AbWJaJOI
+	id S1161627AbWJaJS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 04:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161628AbWJaJS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 04:14:08 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:1875 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1423017AbWJaJOH (ORCPT
+	Tue, 31 Oct 2006 04:18:27 -0500
+Received: from gw.leta.ru ([88.210.57.114]:17323 "EHLO gw.leta.ru")
+	by vger.kernel.org with ESMTP id S1161627AbWJaJS0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 04:14:07 -0500
-Date: Tue, 31 Oct 2006 10:15:48 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Neil Brown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH 002 of 6] md: Change lifetime rules for 'md' devices.
-Message-ID: <20061031091547.GD14055@kernel.dk>
-References: <20061031164814.4884.patches@notabene> <1061031060051.5046@suse.de> <20061031002245.dfd1bb66.akpm@osdl.org> <17735.4830.610969.866898@cse.unsw.edu.au>
-Mime-Version: 1.0
+	Tue, 31 Oct 2006 04:18:26 -0500
+X-Virus-Scanner: This message was checked by NOD32 Antivirus system
+	NOD32 for Linux Mail Server.
+	For more information on NOD32 Antivirus System,
+	please, visit our website: http://www.nod32.com/.
+Date: Tue, 31 Oct 2006 12:18:15 +0300
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+X-Mailer: The Bat! (v3.80.06) Professional
+Reply-To: Pavel Fedin <sonic_amiga@rambler.ru>
+X-Priority: 3 (Normal)
+Message-ID: <9335882.20061031121815@rambler.ru>
+To: linux-kernel@vger.kernel.org
+Subject: pcap misses packets - HELP!!!
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17735.4830.610969.866898@cse.unsw.edu.au>
+Content-Transfer-Encoding: 7bit
+X-SpamTest-Version: SMTP-Filter Version 2.0.0 [0138], Confidential/Release
+  SMTP-Filter Version 2.0.0 [0124], KAS/Release
+X-Spamtest-Info: Pass through
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31 2006, Neil Brown wrote:
-> On Tuesday October 31, akpm@osdl.org wrote:
-> > On Tue, 31 Oct 2006 17:00:51 +1100
-> > NeilBrown <neilb@suse.de> wrote:
-> > 
-> > > Currently md devices are created when first opened and remain in existence
-> > > until the module is unloaded.
-> > > This isn't a major problem, but it somewhat ugly.
-> > > 
-> > > This patch changes the lifetime rules so that an md device will
-> > > disappear on the last close if it has no state.
-> > 
-> > This kills the G5:
-> > 
-> > 
-> > EXT3-fs: recovery complete.
-> > EXT3-fs: mounted filesystem with ordered data mode.
-> > Oops: Kernel access of bad area, sig: 11 [#1]
-> > SMP NR_CPUS=4 
-> > Modules linked in:
-> > NIP: C0000000001A31B8 LR: C00000000018E5DC CTR: C0000000001A3404
-> > REGS: c0000000017ff4a0 TRAP: 0300   Not tainted  (2.6.19-rc4-mm1)
-> > MSR: 9000000000009032 <EE,ME,IR,DR>  CR: 84000048  XER: 00000000
-> > DAR: 6B6B6B6B6B6B6BB3, DSISR: 0000000040000000
-> > TASK = c00000000ff2b7f0[1899] 'nash' THREAD: c0000000017fc000 CPU: 1
-> > GPR00: 0000000000000008 C0000000017FF720 C0000000006B26D0 6B6B6B6B6B6B6B7B 
-> ..
-> > NIP [C0000000001A31B8] .kobject_uevent+0xac/0x55c
-> > LR [C00000000018E5DC] .__elv_unregister_queue+0x20/0x44
-> > Call Trace:
-> > [C0000000017FF720] [C000000000562508] read_pipe_fops+0xd0/0xd8 (unreliable)
-> > [C0000000017FF840] [C00000000018E5DC] .__elv_unregister_queue+0x20/0x44
-> > [C0000000017FF8D0] [C000000000195548] .blk_unregister_queue+0x58/0x9c
-> > [C0000000017FF960] [C00000000019683C] .unlink_gendisk+0x1c/0x50
-> > [C0000000017FF9F0] [C000000000122840] .del_gendisk+0x98/0x22c
-> 
-> I'm guessing we need
-> 
-> diff .prev/block/elevator.c ./block/elevator.c
-> --- .prev/block/elevator.c	2006-10-31 20:06:22.000000000 +1100
-> +++ ./block/elevator.c	2006-10-31 20:06:40.000000000 +1100
-> @@ -926,7 +926,7 @@ static void __elv_unregister_queue(eleva
->  
->  void elv_unregister_queue(struct request_queue *q)
->  {
-> -	if (q)
-> +	if (q && q->elevator)
->  		__elv_unregister_queue(q->elevator);
->  }
-> 
-> 
-> Jens?  md never registers and elevator for its queue.
+ Hello, all!
 
-Hmm, but blk_unregister_queue() doesn't call elv_unregister_queue()
-unless q->request_fn is set. And in that case, you must have an io
-scheduler attached.
+ I need to sniff a email traffic on a heavily loaded network.
+Currently i try to use dsniff package whose operation is based on
+libpcap. There are problems related to packet loss. Some packets are
+just not captured, this causes severe troubles (for example missing
+FIN packet leads to abandoned connection tracking and memory leak).
+Missing pieces of mails are also not good.
+ This problem happens when more than one stream of large data is
+transferred concurrently (for example we send more than one 2 mb
+message via SMTP at the same moment). A friend of mine told that this
+is known problem of pcap which addresses packet copying from kernel
+space to user space.
+ Are there any alternative solutions working in PROMISC mode (the
+traffic is running between two machines which we can't modify by
+project conditions and we have a third machine on this network with
+an interface in PROMISC mode)? I've tried iptables ULOG target, but
+this catches only UDP broadcasts despite i set PROMISC for the
+interface using ifconfig.
+ May be some cnahging sysctl values helps here? I've looked at the
+kernel source and learned that dropping packets being captured depends
+on socket input buffer size and something other in skbuff subsystem
+(some conditions which are unclear to me).
 
 -- 
-Jens Axboe
+Best regards,
+ Pavel                          mailto:sonic_amiga@rambler.ru
 

@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbWJaLT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161632AbWJaLkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161236AbWJaLT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 06:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965541AbWJaLT6
+	id S1161632AbWJaLkn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 06:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161635AbWJaLkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 06:19:58 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:26135 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965539AbWJaLT6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 06:19:58 -0500
-Message-ID: <4547305A.9070903@openvz.org>
-Date: Tue, 31 Oct 2006 14:15:38 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       menage@google.com, linux-mm@kvack.org
-Subject: Re: [ckrm-tech] RFC: Memory Controller
-References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org> <454638D2.7050306@in.ibm.com> <45470DF4.70405@openvz.org> <45472B68.1050506@in.ibm.com>
-In-Reply-To: <45472B68.1050506@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 31 Oct 2006 06:40:43 -0500
+Received: from mta.songnetworks.no ([62.73.241.54]:49394 "EHLO
+	pebbles.fastcom.no") by vger.kernel.org with ESMTP id S1161632AbWJaLkm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 06:40:42 -0500
+Mime-Version: 1.0 (Apple Message framework v752.2)
+In-Reply-To: <D3D931E5-0EA7-4CC4-A59D-364C65335DBA@karlsbakk.net>
+References: <C5C787DB-6791-462E-9907-F3A0438E6B9C@karlsbakk.net> <453960B3.6040006@gmail.com> <D3D931E5-0EA7-4CC4-A59D-364C65335DBA@karlsbakk.net>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A9AF211A-08C8-4FC4-8280-D3AA3136FF3B@karlsbakk.net>
 Content-Transfer-Encoding: 7bit
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Subject: Debugging I/O errors further?
+Date: Tue, 31 Oct 2006 12:40:44 +0100
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> Roy Sigurd Karlsbakk wrote:
+>>
+>>> Hi all
+>>> Stresstesting a SATA drive+controller, I get the error below  
+>>> after a while. How can I find if this error is due to a  
+>>> controller failure, a bad driver, or a drive failure?
+>>
+>> Is there any libata/SCSI error messages in your log?
+>>
+>
+> Nope. Just the ones from ext3. I first tried with a kernel from  
+> debian etch, and then switched to 2.6.18.1. Same errors on both
 
-[snip]
+Hi all
 
-> That's like disabling memory over-commit in the regular kernel.
+Sorry for stressing this, but is there a way I can debug this  
+further? it's a seagate drive connected to a sata_sil controller. I  
+only get ext3 errors, and it fails after a while whatever I do
 
-Nope. We limit only unreclaimable mappings. Allowing user
-to break limits breaks the sense of limit.
+thanks
 
-Or you do not agree that allowing unlimited unreclaimable
-mappings doesn't alow you the way to cut groups gracefully?
+roy
+--
+Roy Sigurd Karlsbakk
+roy@karlsbakk.net
+-------------------------------
+MICROSOFT: Acronym for "Most Intelligent Customers Realise Our  
+Software Only Fools Teenagers"
 
-[snip]
-
-> Please see the patching of Rohit's memory controller for user
-> level patching. It seems much simpler.
-
-Could you send me an URL where to get the patch from, please.
-Or the patch itself directly to me. Thank you.
-
-[snip]
-
-> I would prefer a different set
-> 
-> 1 & 2, for now we could use any interface and then start developing the
-> controller. As we develop the new controller, we are likely to find the
-> need to add/enhance the interface, so freezing in on 1 & 2 might not be
-> a good idea.
-
-Paul Menage won't agree. He believes that interface must come first.
-I also remind you that the latest beancounter patch provides all the
-stuff we're discussing. It may move tasks, limit all three resources
-discussed, reclaim memory and so on. And configfs interface could be
-attached easily.
-
-> I would put 4, 5 and 6 ahead of 3, based on the changes I see in Rohit's
-> memory controller.
-> 
-> Then take up the rest.
-
-I'll review Rohit's patches and comment.

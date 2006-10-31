@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422800AbWJaGjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWJaGkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422800AbWJaGjP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 01:39:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422804AbWJaGjP
+	id S1422805AbWJaGkn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 01:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422810AbWJaGkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 01:39:15 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:37867 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1422800AbWJaGjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 01:39:15 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:mime-version:to:cc:
-	subject:references:in-reply-to:content-type:content-transfer-encoding;
-	b=qqRtz5zt16/0o//ZuxEukVxcrPKj8WKMQXdaLbGQq5C/3KkqJFFNZ15q1OcaHDI9V
-	bdod30YtD9jfUNrkzYGpg==
-Message-ID: <4546EF3B.1090503@google.com>
-Date: Mon, 30 Oct 2006 22:37:47 -0800
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Tue, 31 Oct 2006 01:40:43 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:21663 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1422805AbWJaGkm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 01:40:42 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: John Richard Moser <nigelenki@comcast.net>
+Subject: Re: Suspend to disk:  do we HAVE to use swap?
+Date: Tue, 31 Oct 2006 07:39:11 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <4546C637.5080504@comcast.net> <200610310716.40181.rjw@sisk.pl> <4546EDD4.70904@comcast.net>
+In-Reply-To: <4546EDD4.70904@comcast.net>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-References: <20061029160002.29bb2ea1.akpm@osdl.org>	 <45461977.3020201@shadowen.org> <45461E74.1040408@google.com>	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>	 <45463481.80601@shadowen.org>	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com> <1162276206.5959.9.camel@Homer.simpson.net>
-In-Reply-To: <1162276206.5959.9.camel@Homer.simpson.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610310739.11500.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Mon, 2006-10-30 at 21:14 +0100, Cornelia Huck wrote:
+On Tuesday, 31 October 2006 07:31, John Richard Moser wrote:
 > 
->> Maybe the initscripts have problems coping with the new layout
->> (symlinks instead of real devices)?
+> Rafael J. Wysocki wrote:
+> > On Tuesday, 31 October 2006 04:42, John Richard Moser wrote:
+> >> Something dumb came into my head, and the question is thus brought up
+> >> here:  Do we HAVE to use swap for suspend to disk? How about the file
+> >> system?
+> >
+> > In short, we could use regular files for the suspend in the same way in which we
+> > use them for swap.  Namely, we could bmap() a file and create a map of it
+> > (eg. with extents) that would be used for accessing the corresponding disk
+> > sectors at the block device level.  Then, to be able to read the image the
+> > resume code would have to be provided with the number of the sector in which
+> > the suspend image header is located.
+> >
+> > However, we already have code that allows us to use swap files for the suspend
+> > and turning a regular file into a swap file is as easy as running 'mkswap' and
+> > 'swapon' on it.
 > 
-> SuSE's /sbin/getcfg for one uses libsysfs, which apparently doesn't
-> follow symlinks (bounces off symlink and does nutty stuff instead).  If
-> any of the boxen you're having troubles with use libsysfs in their init
-> stuff, that's likely the problem.
+> And the kernel can survive being loaded, mounting a file system
+> readonly, activating swapon on the swap file on the read-only file
+> system, and then resuming from it?
 
-If that is what's happening, then the problem is breaking previously
-working boxes by changing a userspace API. I don't know exactly which
-patch broke it, but reverting all Greg's patches (except USB) from
--mm fixes the issue.
+The swap file is not activated during the resume before the suspend image
+is read from it.  That's why we need the number of the sector in which the
+suspend image header is located.
 
-M.
+> Also, the file system is consistent after a suspend to disk?
+
+Yes, it is.
+
+> I believe I mentioned something about compressing the image as well...
+
+If you need to compress the image during the suspend, please visit
+eg. http://suspend.sf.net (it is recommended to use the latest CVS).
+
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

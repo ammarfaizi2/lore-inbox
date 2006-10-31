@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423819AbWJaTci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423823AbWJaThI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423819AbWJaTci (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 14:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423820AbWJaTci
+	id S1423823AbWJaThI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 14:37:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423826AbWJaThI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 14:32:38 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:25613 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1423819AbWJaTch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 14:32:37 -0500
-Date: Tue, 31 Oct 2006 19:32:12 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Arnd Bergmann <arnd@arndb.de>,
-       Christoph Hellwig <hch@lst.de>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>, Dominik Brodowski <linux@brodo.de>,
-       Harald Welte <laforge@netfilter.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jean Delvare <khali@linux-fr.org>
-Subject: Re: feature-removal-schedule obsoletes
-Message-ID: <20061031193212.GC26625@flint.arm.linux.org.uk>
-Mail-Followup-To: J?rn Engel <joern@wohnheim.fh-wedel.de>,
-	Pierre Ossman <drzeus-list@drzeus.cx>,
-	Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
-	Jiri Slaby <jirislaby@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Adrian Bunk <bunk@stusta.de>, Dominik Brodowski <linux@brodo.de>,
-	Harald Welte <laforge@netfilter.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Jean Delvare <khali@linux-fr.org>
-References: <45324658.1000203@gmail.com> <20061016133352.GA23391@lst.de> <200610242124.49911.arnd@arndb.de> <4543162B.7030701@drzeus.cx> <20061031155756.GA23021@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 Oct 2006 14:37:08 -0500
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:35445 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1423825AbWJaThF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 14:37:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=LiSUptQGbousxc57c5DwHvIknxTr4m3+vve3l2fvJSWRxGu2nQ9A2yZTOfCMnjHAYUYWWKwOJ64VWldLg70SvWEx03mKQ/+TdKLBv4KEgScSHyjdVW/Hpbw2reNcU1jnYnWzKe5TKu3DGOTwVxjASPHhXx8uzQs65Zj0SM42Rpo=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [linux-usb-devel] [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
+Date: Tue, 31 Oct 2006 11:36:52 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Randy Dunlap <randy.dunlap@oracle.com>, akpm@osdl.org,
+       zippel@linux-m68k.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, link@miggy.org,
+       Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
+       greg@kroah.com, toralf.foerster@gmx.de
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <200610310940.16619.david-b@pacbell.net> <20061031180712.GQ27968@stusta.de>
+In-Reply-To: <20061031180712.GQ27968@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061031155756.GA23021@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200610311136.54058.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 04:57:56PM +0100, J?rn Engel wrote:
-> On Sat, 28 October 2006 10:34:51 +0200, Pierre Ossman wrote:
+
+> > 		...
+> > 		depends on MII if MII != n
 > > 
-> > What should be used to replace it? The MMC block driver uses it to
-> > manage the block device queue. I am not that intimate with the block
-> > layer so I do not know the proper fix.
+> > except that Kconfig doesn't comprehend conditionals like that.
 > 
-> Why does the MMC block driver use a thread?  Is there a technical
-> reason for this or could it be done in original process context as
-> well, removing some code and useless cpu scheduler overhead?
+> You can express this in Kconfig:
+> 	depends MII || MII=n
 
-As I understand it, there is no guarantee that a block drivers request
-function will be called in process context - it could be called in
-interrupt context.
+Except that:
 
-The MMC subsystem needs process context to issue commands since the
-process of issuing commands entails various sleeps.  Hence why the
-MMC block has its own process context.
+Warning! Found recursive dependency: USB_USBNET USB_NET_AX8817X MII USB_USBNET
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+I think this is another case where Kconfig gets in the way and forces
+introduction of a pseudovariable.  I'll give that a try.
+
+
+> But my suggestion was:
+> #if defined(CONFIG_MII) || (defined(CONFIG_MII_MODULE) && defined(MODULE))
+>
+> Or simply select MII ...
+
+Nope; those both prevent completely legit configurations.
+MII is not required, except for those two adapter options.
+
+

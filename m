@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423714AbWJaR4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423517AbWJaRxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423714AbWJaR4z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 12:56:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423529AbWJaR4z
+	id S1423517AbWJaRxp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 12:53:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423706AbWJaRxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 12:56:55 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:35602 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1423714AbWJaR4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 12:56:54 -0500
-Message-ID: <45478E2C.7020803@shadowen.org>
-Date: Tue, 31 Oct 2006 17:55:56 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+	Tue, 31 Oct 2006 12:53:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2259 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423517AbWJaRxp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 12:53:45 -0500
+Date: Tue, 31 Oct 2006 09:53:35 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mark Lord <lkml@rtr.ca>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Takashi Iwai <tiwai@suse.de>, Frederik Deweerdt <deweerdt@free.fr>
+Subject: Re: 2.6.19-rc3-git7:  BUG: mutex warning sysfs_dir_open
+In-Reply-To: <454785B7.3040600@rtr.ca>
+Message-ID: <Pine.LNX.4.64.0610310929090.25218@g5.osdl.org>
+References: <454785B7.3040600@rtr.ca>
 MIME-Version: 1.0
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-CC: "Martin J. Bligh" <mbligh@google.com>, Greg KH <gregkh@suse.de>,
-       Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-References: <45461977.3020201@shadowen.org>	<45461E74.1040408@google.com>	<20061030084722.ea834a08.akpm@osdl.org>	<454631C1.5010003@google.com>	<45463481.80601@shadowen.org>	<20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>	<1162276206.5959.9.camel@Homer.simpson.net>	<4546EF3B.1090503@google.com>	<20061031065912.GA13465@suse.de>	<4546FB79.1060607@google.com>	<20061031075825.GA8913@suse.de>	<45477131.4070501@google.com>	<20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com>	<4547833C.5040302@google.com> <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cornelia Huck wrote:
-> On Tue, 31 Oct 2006 09:09:16 -0800,
-> "Martin J. Bligh" <mbligh@google.com> wrote:
+
+
+On Tue, 31 Oct 2006, Mark Lord wrote:
 > 
->> Cornelia Huck wrote:
->>> That's because /sys/class/net/<interface> is now a symlink instead of a
->>> directory (and that hasn't anything to do with acpi, but rather with
->>> the conversions in the driver tree). Seems the directory -> symlink
->>> change shouldn't be done since it's impacting user space...
->> You know which individual patch in -mm broke that? Can't see it easily.
->> Then we can just test across all the machines with just that one backed
->> out.
+> I found this in my syslog just now:
 > 
-> I'd try reverting gregkh-driver-network-device.patch for the network
-> device stuff.
+> kernel: BUG: warning at kernel/mutex.c:132/__mutex_lock_common()
 
-Ok, I've done a bisection which came back to:
+That's the "spin_lock_mutex()" debugging (kernel/mutex-debug.h), and it's 
+one of either
 
-    gregkh-driver-mem-devices
+	DEBUG_LOCKS_WARN_ON(in_interrupt());
+or
+	DEBUG_LOCKS_WARN_ON(l->magic != l);
 
-But as it seems somewhat nonsensical I'll submit two tests one with that
-backed out and one with the patch below backed out:
+where the much more likely one is the "l->magic" one triggering, because 
+your bug that follows is:
 
-    gregkh-driver-network-device
+> kernel: BUG: unable to handle kernel paging request at virtual address 6e726574
 
-Results should be out on TKO in a few hours.  Will report back tommorrow
-in detail.
+64726574 is "tern", for whatever that's worth, and that EIP is in 
+"__list_add()", which comes from list_add_tail(), and so it looks like the 
+mutex "lock->lock_list" is also totally buggered (which would certainly 
+fit with the lock "magic" field being crud too).
 
--apw
+> kernel: Call Trace:
+> kernel:  [<c035d76e>] __mutex_lock_slowpath+0x8e/0x260
+> kernel:  [<c035d961>] mutex_lock+0x21/0x30
+> kernel:  [<c01a0286>] sysfs_dir_open+0x26/0x60
+
+This would be
+
+	mutex_lock(&dentry->d_inode->i_mutex);
+
+in sysfs_dir_open(), so you would seem to have an inode that is 
+overwritten by crud (or it could be a dentry with a bogus d_inode 
+pointer, of course).
+
+There's a ton of stuff with "tern" in it, mostly "Internal", so sadly even 
+the nice string pattern doesn't seem to be all that helpful.
+
+Is this somewhat reproducible? 
+
+HOWEVER, google does find a clue. We've had reports of something somewhat 
+similar before: googling for "__mutex_lock_slowpath" and "sysfs_dir_open" 
+shows for example
+
+	http://lkml.org/lkml/2006/8/18/72
+
+where the thread ended up first blaming sound, but then deciding that 
+maybe it was DRM-related. However, you don't seem to have any AGP or DRM 
+support at all, so maybe it really _is_ a sound problem.
+
+Mark - can you verify that you don't have any DRM support in your kernel?
+
+Frederic, Takashi, did that bug-report ever get resolved?
+
+		Linus

@@ -1,109 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423146AbWJaMkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422809AbWJaMqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423146AbWJaMkI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 07:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423152AbWJaMkI
+	id S1422809AbWJaMqA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 07:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422925AbWJaMqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 07:40:08 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:12517 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1423146AbWJaMkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 07:40:06 -0500
-Message-ID: <454743F2.6010305@in.ibm.com>
-Date: Tue, 31 Oct 2006 18:09:14 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Tue, 31 Oct 2006 07:46:00 -0500
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:51148 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S1422809AbWJaMqA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 07:46:00 -0500
+Message-ID: <45474585.2070607@compro.net>
+Date: Tue, 31 Oct 2006 07:45:57 -0500
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-CC: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com, menage@google.com,
-       linux-mm@kvack.org
-Subject: Re: [ckrm-tech] RFC: Memory Controller
-References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org> <454638D2.7050306@in.ibm.com> <45470DF4.70405@openvz.org> <45472B68.1050506@in.ibm.com> <4547305A.9070903@openvz.org>
-In-Reply-To: <4547305A.9070903@openvz.org>
+To: Jun Sun <jsun@junsun.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reserve memory in low physical address - possible?
+References: <20061031072203.GA10744@srv.junsun.net>
+In-Reply-To: <20061031072203.GA10744@srv.junsun.net>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Emelianov wrote:
->> That's like disabling memory over-commit in the regular kernel.
+Jun Sun wrote:
+> This question is specific to i386 architecture.  While I am fairly 
+> comfortable with Linux kernel, I am not familiar with i386 arch. 
 > 
-> Nope. We limit only unreclaimable mappings. Allowing user
-> to break limits breaks the sense of limit.
+> My objective is to reserve, or hide from kernel, some memory space in low
+> physical address range starting from 0.  The memory amount is in the order
+> of 100MB to 200MB.  The total memory is assumed to be around 512MB.
 > 
-> Or you do not agree that allowing unlimited unreclaimable
-> mappings doesn't alow you the way to cut groups gracefully?
+> Is this possible?
 > 
-
-
-A quick code review showed that most of the accounting is the
-same.
-
-I see that most of the mmap accounting code, it seems to do
-the equivalent of security_vm_enough_memory() when VM_ACCOUNT
-is set. May be we could merge the accounting code to handle
-even containers.
-
-I looked at
-
-do_mmap_pgoff
-acct_stack_growth
-__do_brk (
-do_mremap
-
-
-> [snip]
+> I understand it is possible to reserve some memory at the end by
+> specifying "mem=xxxM" option in kernel command line.  I looked into
+> "memmap=xxxM" option but it appears not helpful for what I want.
 > 
->> Please see the patching of Rohit's memory controller for user
->> level patching. It seems much simpler.
+> While searching on the web I also found things like DMA zone and loaders
+> etc that all seem to assume the existence low-addressed physical
+> memory.  True?
 > 
-> Could you send me an URL where to get the patch from, please.
-> Or the patch itself directly to me. Thank you.
-
-Please see http://lkml.org/lkml/2006/9/19/283
-
+> I can certainly workaround the loader issue.  I can also re-code the real-mode
+> part of kernel code to migrate to higher addresses.  The DMA zone might be
+> a thorny one.  Any clues?  Are modern PCs still subject to
+> the 16MB DMA zone restriction?
 > 
-> [snip]
+> Am I too far off from what I want to do?
 > 
->> I would prefer a different set
->>
->> 1 & 2, for now we could use any interface and then start developing the
->> controller. As we develop the new controller, we are likely to find the
->> need to add/enhance the interface, so freezing in on 1 & 2 might not be
->> a good idea.
+> Thanks.
 > 
-> Paul Menage won't agree. He believes that interface must come first.
-> I also remind you that the latest beancounter patch provides all the
-> stuff we're discussing. It may move tasks, limit all three resources
-> discussed, reclaim memory and so on. And configfs interface could be
-> attached easily.
-> 
+> Jun
 
-I think the interface should depend on the controllers and not
-the other way around. I fear that the infrastructure discussion might
-hold us back and no fruitful work will happen on the controllers.
-Once we add and agree on the controller, we can then look at the
-interface requirements (like persistence if kernel memory is being
-tracked, etc). What do you think?
+Maybe the bigphysarea patch is what you want?
 
->> I would put 4, 5 and 6 ahead of 3, based on the changes I see in Rohit's
->> memory controller.
->>
->> Then take up the rest.
-> 
-> I'll review Rohit's patches and comment.
+Mark
 
-ok
-
-
-
--- 
-	Thanks,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs

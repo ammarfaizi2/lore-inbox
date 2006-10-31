@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423559AbWJaTCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423795AbWJaTCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423559AbWJaTCq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 14:02:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423795AbWJaTCq
+	id S1423795AbWJaTCy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 14:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423799AbWJaTCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 14:02:46 -0500
-Received: from mail.gmx.net ([213.165.64.20]:53678 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1423559AbWJaTCp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 14:02:45 -0500
-X-Authenticated: #20450766
-Date: Tue, 31 Oct 2006 20:02:39 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tmattox@gmail.com, spiky.kiwi@gmail.com, r.bhatia@ipax.at
-Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known
- regressions)
-In-Reply-To: <20061030234425.GB6038@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.60.0610312000160.5223@poirot.grange>
-References: <20061029223410.GA15413@electric-eye.fr.zoreil.com>
- <Pine.LNX.4.60.0610300032190.1435@poirot.grange>
- <20061030120158.GA28123@electric-eye.fr.zoreil.com>
- <Pine.LNX.4.60.0610302148560.9723@poirot.grange> <Pine.LNX.4.60.0610302214350.9723@poirot.grange>
- <20061030234425.GB6038@electric-eye.fr.zoreil.com>
+	Tue, 31 Oct 2006 14:02:53 -0500
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:52285 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S1423795AbWJaTCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 14:02:52 -0500
+To: linux-kernel@vger.kernel.org
+Cc: David Miller <davem@davemloft.net>, matthew@wil.cx, jeff@garzik.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       openib-general@openib.org, johnip@sgi.com
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+X-Message-Flag: Warning: May contain useful information
+References: <20061024214724.GS25210@parisc-linux.org>
+	<adar6wxbcwt.fsf@cisco.com> <20061024223631.GT25210@parisc-linux.org>
+	<20061024.154347.77057163.davem@davemloft.net>
+	<aday7r4a3d7.fsf@cisco.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 31 Oct 2006 11:02:49 -0800
+In-Reply-To: <aday7r4a3d7.fsf@cisco.com> (Roland Dreier's message of "Wed, 25 Oct 2006 07:15:16 -0700")
+Message-ID: <adad588tijq.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 31 Oct 2006 19:02:50.0533 (UTC) FILETIME=[294C7D50:01C6FD1F]
+Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2006, Francois Romieu wrote:
+The discussion fizzled out without really reaching a definitive
+answer, so I'm going to apply the original patch (below), since I
+pretty much convinced myself that only the driver doing the config
+access has enough information to fix this reliably.
 
-> Guennadi Liakhovetski <g.liakhovetski@gmx.de> :
-> [...]
-> > The "seems" above was the key word. Once again I had a case, when after 
-> > re-compiling the kernel again with the disabled call to 
-> > __rtl8169_set_mac_addr only ping worked. And a power-off was required to 
-> > recover. So, that phy_reset doesn't seem to be very safe either.
-> 
-> Can you replace phy_reset by the patch below and try it twice ?
-> 
-> It's interesting to know if it does not always behave the same.
+ - R.
 
-Well, with that one I booted 3 times, all 3 times it worked. I'll leave it 
-in to see if it ever fails. So, what does it tell us about the 
-set_mac_address thing?
+Author: John Partridge <johnip@sgi.com>
+Date:   Tue Oct 31 11:00:04 2006 -0800
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+    IB/mthca: Make sure all PCI config writes reach device before doing MMIO
+    
+    During initialization, mthca writes some PCI config space registers
+    and then does an MMIO read from one of the BARs it just enabled.  This
+    MMIO read sometimes failed and caused a crash on SGI Altix machines,
+    because the PCI-X host bridge (legitimately, according to the PCI
+    spec) allowed the MMIO read to start before the config write completed.
+    
+    To fix this, add a config read after all config writes to make sure
+    they are all done before starting the MMIO read.
+    
+    Signed-off-by: John Partridge <johnip@sgi.com>
+    Signed-off-by: Roland Dreier <rolandd@cisco.com>
+
+diff --git a/drivers/infiniband/hw/mthca/mthca_reset.c b/drivers/infiniband/hw/mthca/mthca_reset.c
+index 91934f2..578dc7c 100644
+--- a/drivers/infiniband/hw/mthca/mthca_reset.c
++++ b/drivers/infiniband/hw/mthca/mthca_reset.c
+@@ -281,6 +281,20 @@ good:
+ 		goto out;
+ 	}
+ 
++	/*
++	 * Perform a "flush" of the PCI config writes here by reading
++	 * the PCI_COMMAND register.  This is needed to make sure that
++	 * we don't try to touch other PCI BARs before the config
++	 * writes are done -- otherwise an MMIO cycle could start
++	 * before the config writes are done and reach the HCA before
++	 * the BAR is actually enabled.
++	 */
++	if (pci_read_config_dword(mdev->pdev, PCI_COMMAND, hca_header)) {
++		err = -ENODEV;
++		mthca_err(mdev, "Couldn't access HCA memory after restoring, "
++			  "aborting.\n");
++	}
++
+ out:
+ 	if (bridge)
+ 		pci_dev_put(bridge);

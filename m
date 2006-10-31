@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423774AbWJaSi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423779AbWJaSjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423774AbWJaSi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 13:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423778AbWJaSi1
+	id S1423779AbWJaSjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 13:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423782AbWJaSjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 13:38:27 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:6621 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1423774AbWJaSi0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 13:38:26 -0500
-Message-ID: <4547981F.6040006@us.ibm.com>
-Date: Tue, 31 Oct 2006 10:38:23 -0800
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Organization: IBM LTC
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Tue, 31 Oct 2006 13:39:10 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:46482 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1423779AbWJaSjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 13:39:09 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=ZlYLfpKV00uQuZqC384bMn7vXQcCXAY3SmN5myF/iVwnJwQQ6MCZCZsXjNKMh4sCP
+	tX0HI4S+GUHvVmFmpspmg==
+Message-ID: <454797CB.7030404@google.com>
+Date: Tue, 31 Oct 2006 10:36:59 -0800
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-CC: linux-scsi <linux-scsi@vger.kernel.org>,
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>
-Subject: Re: [PATCH] 0/3: Fix EH problems in libsas and implement more error
- handling
-References: <45468845.20400@us.ibm.com> <20061031105452.GD28239@rhun.haifa.ibm.com> <454791A5.9000202@us.ibm.com> <20061031183239.GE4698@rhun.ibm.com>
-In-Reply-To: <20061031183239.GE4698@rhun.ibm.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Subject: Re: Linux 2.6.19-rc4
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061030213454.8266fcb6.akpm@osdl.org> <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org> <45477668.4070801@google.com> <20061031183319.GR27968@stusta.de>
+In-Reply-To: <20061031183319.GR27968@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda wrote:
+Adrian Bunk wrote:
+> On Tue, Oct 31, 2006 at 08:14:32AM -0800, Martin J. Bligh wrote:
+> 
+>>...
+>>PS. I still think -Werror is a good plan. But I acknowledge that's
+>>fairly extreme.
+> 
+> 
+> Note that this would imply options like -Wno-unused-function and
+> -Wno-unused-variable (unless you _really_ want to add a few thousand 
+> #ifdef's to the kernel).
 
-> Ok, I'll re-run with printk timestamps.
+I don't think so. We already do this inside Google, and it works fine.
+I just had about 20 stupid warnings to fix up for 2.6.18. Might depend
+which gcc it was, but 4.1 seemed to work OK with that, at least.
 
-Thanks!
-
-> Pointers to the updated firmware and how to update it?
-
-http://www-307.ibm.com/pc/support/site.wss/document.do?sitestyle=ibm&lndocid=MIGR-62832
-
-Download ISO, burn ISO to CD, boot system off CD, run gross-looking DOS
-based EGA gooey (and I mean gooey!) update program, reboot.
-
---D
+M.

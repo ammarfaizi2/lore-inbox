@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161627AbWJaJS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161629AbWJaJTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161627AbWJaJS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 04:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161628AbWJaJS1
+	id S1161629AbWJaJTN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 04:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161630AbWJaJTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 04:18:27 -0500
-Received: from gw.leta.ru ([88.210.57.114]:17323 "EHLO gw.leta.ru")
-	by vger.kernel.org with ESMTP id S1161627AbWJaJS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 04:18:26 -0500
-X-Virus-Scanner: This message was checked by NOD32 Antivirus system
-	NOD32 for Linux Mail Server.
-	For more information on NOD32 Antivirus System,
-	please, visit our website: http://www.nod32.com/.
-Date: Tue, 31 Oct 2006 12:18:15 +0300
-From: Pavel Fedin <sonic_amiga@rambler.ru>
-X-Mailer: The Bat! (v3.80.06) Professional
-Reply-To: Pavel Fedin <sonic_amiga@rambler.ru>
-X-Priority: 3 (Normal)
-Message-ID: <9335882.20061031121815@rambler.ru>
-To: linux-kernel@vger.kernel.org
-Subject: pcap misses packets - HELP!!!
+	Tue, 31 Oct 2006 04:19:13 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:10427 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S1161629AbWJaJTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 04:19:12 -0500
+Message-ID: <4547150F.8070408@ti.uni-mannheim.de>
+Date: Tue, 31 Oct 2006 10:19:11 +0100
+From: Guillermo Marcus <marcus@ti.uni-mannheim.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: mmaping a kernel buffer to user space
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-SpamTest-Version: SMTP-Filter Version 2.0.0 [0138], Confidential/Release
-  SMTP-Filter Version 2.0.0 [0124], KAS/Release
-X-Spamtest-Info: Pass through
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, all!
+Hi all,
 
- I need to sniff a email traffic on a heavily loaded network.
-Currently i try to use dsniff package whose operation is based on
-libpcap. There are problems related to packet loss. Some packets are
-just not captured, this causes severe troubles (for example missing
-FIN packet leads to abandoned connection tracking and memory leak).
-Missing pieces of mails are also not good.
- This problem happens when more than one stream of large data is
-transferred concurrently (for example we send more than one 2 mb
-message via SMTP at the same moment). A friend of mine told that this
-is known problem of pcap which addresses packet copying from kernel
-space to user space.
- Are there any alternative solutions working in PROMISC mode (the
-traffic is running between two machines which we can't modify by
-project conditions and we have a third machine on this network with
-an interface in PROMISC mode)? I've tried iptables ULOG target, but
-this catches only UDP broadcasts despite i set PROMISC for the
-interface using ifconfig.
- May be some cnahging sysctl values helps here? I've looked at the
-kernel source and learned that dropping packets being captured depends
-on socket input buffer size and something other in skbuff subsystem
-(some conditions which are unclear to me).
+I recently run with the following situation while developing a PCI
+driver. The driver allocates memory for a PCI device using
+pci_alloc_consistent as this memory is going to be used to perform DMA
+transfers. To pass the data from/to the user application, I mmap the
+buffer into userspace. However, if I try to use remap_pfn_range
+(>=2.6.10) or the older remap_page_range(<=2.6.9) for mmaping, it ends
+up creating a new buffer, because they do not support RAM mapping, then
+pagefaulting to the VMA and by default allocating new pages. Therefore,
+I had to implement the nopage method and mmap one page at a time as they
+fault.
 
--- 
-Best regards,
- Pavel                          mailto:sonic_amiga@rambler.ru
+However, to my point of view, this is unnecessary. The memory is already
+allocated, the memory is locked because it is consistent, and it may be
+a (very small) performance and stability issue to do them one-by-one.
+Why can't I simply mmap it all at once? am I missing some function? More
+important, why can't remap_{pfn/page}_range handle it?
 
+
+Best wishes,
+Guillermo Marcus
+
+Note: I am using kernel 2.6.9 for these tests, as it is required by my
+current setup. Maybe this issue has already been addressed in newer
+kernel. If that is the case, please let me know.

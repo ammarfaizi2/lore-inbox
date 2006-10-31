@@ -1,96 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422796AbWJaJk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423025AbWJaJnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422796AbWJaJk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 04:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422914AbWJaJk0
+	id S1423025AbWJaJnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 04:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423031AbWJaJnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 04:40:26 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:47969 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1422796AbWJaJkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 04:40:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=YXh/cqFd72sdNljlpfZgose3bi+fs0zfWO+gRCoDVzZ+YuxmjUTRnx6RXA55wGlLZXF1/KZ3eI9bEy5HqAg2vClSmWCcVXYhwe0f943nNiUCBeczwYV7mz287g4wFUmFjMBjHw2Qy4tHDvOxPaDJ02vSH9nTzbMHApxOea+cF/0=  ;
-Message-ID: <45471A05.20205@yahoo.com.au>
-Date: Tue, 31 Oct 2006 20:40:21 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: [PATCH] splice : two smp_mb() can be omitted
-References: <1162199005.24143.169.camel@taijtu> <20061030224802.f73842b8.akpm@osdl.org> <4546FA81.1020804@cosmosbay.com>
-In-Reply-To: <4546FA81.1020804@cosmosbay.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 31 Oct 2006 04:43:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48043 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423025AbWJaJnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 04:43:16 -0500
+Date: Tue, 31 Oct 2006 01:42:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: balbir@in.ibm.com
+Cc: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
+       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
+       menage@google.com, linux-mm@kvack.org,
+       Vaidyanathan S <svaidy@in.ibm.com>
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+Message-Id: <20061031014243.1153655b.akpm@osdl.org>
+In-Reply-To: <45471510.4070407@in.ibm.com>
+References: <20061030103356.GA16833@in.ibm.com>
+	<4545D51A.1060808@in.ibm.com>
+	<4546212B.4010603@openvz.org>
+	<454638D2.7050306@in.ibm.com>
+	<45463F70.1010303@in.ibm.com>
+	<45470FEE.6040605@openvz.org>
+	<45471510.4070407@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> This patch deletes two calls to smp_mb() that were done after 
-> mutex_unlock() that contains an implicit memory barrier.
+On Tue, 31 Oct 2006 14:49:12 +0530
+Balbir Singh <balbir@in.ibm.com> wrote:
 
-Uh, there is nothing that says mutex_unlock or any unlock
-functions contain an implicit smp_mb(). What is given is that the
-lock and unlock obey aquire and release memory ordering,
-respectively.
-
-a = x;
-xxx_unlock
-b = y;
-
-In this situation, the load of y can be executed before that of x.
-And some architectures will even do so (i386 can, because the
-unlock is an unprefixed store; ia64 can, because it uses a release
-barrier in the unlock).
-
-Whenever you rely on orderings of things *outside* locks (even
-partially outside), you do need to be very careful about barriers
-and can't rely on locks to do the right thing for you.
-
+> The idea behind limiting the page cache is this
 > 
-> The first one in splice_to_pipe(), where 'do_wakeup' is set to true only 
-> if pipe->inode is set (and in this case the
-> if (pipe->inode)
->    mutex_unlock(&pipe->inode->i_mutex);
-> is done too)
-> 
-> The second one in link_pipe(), following inode_double_unlock() that 
-> contains calls to mutex_unlock() too.
+> 1. Lets say one container fills up the page cache.
+> 2. The other containers will not be able to allocate memory (even
+> though they are within their limits) without the overhead of having
+> to flush the page cache and freeing up occupied cache. The kernel
+> will have to pageout() the dirty pages in the page cache.
 
-It *may* be the case that these can be removed, but not by virtue
-of the fact that the smp_mb is redundant.
+There's a vast difference between clean pagecache and dirty pagecache in this
+context.  It is terribly imprecise to use the term "pagecache".  And it would be
+a poor implementation which failed to distinguish between clean pagecache and
+dirty pagecache.
 
-> 
-> Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- linux/fs/splice.c	2006-10-31 07:49:52.000000000 +0100
-> +++ linux-ed/fs/splice.c	2006-10-31 08:04:58.000000000 +0100
-> @@ -248,7 +248,6 @@
->  		mutex_unlock(&pipe->inode->i_mutex);
->  
->  	if (do_wakeup) {
-> -		smp_mb();
->  		if (waitqueue_active(&pipe->wait))
->  			wake_up_interruptible(&pipe->wait);
->  		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
-> @@ -1518,7 +1517,6 @@
->  	 * If we put data in the output pipe, wakeup any potential readers.
->  	 */
->  	if (ret > 0) {
-> -		smp_mb();
->  		if (waitqueue_active(&opipe->wait))
->  			wake_up_interruptible(&opipe->wait);
->  		kill_fasync(&opipe->fasync_readers, SIGIO, POLL_IN);
-
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

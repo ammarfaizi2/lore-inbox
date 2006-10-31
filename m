@@ -1,103 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422999AbWJaJJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423010AbWJaJLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422999AbWJaJJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 04:09:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422989AbWJaJJ7
+	id S1423010AbWJaJLc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 04:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423011AbWJaJLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 04:09:59 -0500
-Received: from ns1.suse.de ([195.135.220.2]:23444 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161619AbWJaJJ5 (ORCPT
+	Tue, 31 Oct 2006 04:11:32 -0500
+Received: from web23106.mail.ird.yahoo.com ([217.146.189.46]:2928 "HELO
+	web23106.mail.ird.yahoo.com") by vger.kernel.org with SMTP
+	id S1423010AbWJaJLb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 04:09:57 -0500
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 31 Oct 2006 20:09:50 +1100
+	Tue, 31 Oct 2006 04:11:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=k/eeQbx/CytRqrZMyNL02+To47gRxKy0YTy6seZ1Gp+j9AiGpaTYIJkpbtWLgxslZ4ZdP6RLIHJhLxn3YeWgp+kRyo76+M+q8tg2a6iFmSAdz9o98cD9ci8PSdCV+hsYpU4Infc8s+S/Rc9a3u+s+r4g6iL45SfEiznNs48Inok=  ;
+Message-ID: <20061031091126.37294.qmail@web23106.mail.ird.yahoo.com>
+Date: Tue, 31 Oct 2006 09:11:26 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: [CRYPTO] Use aes hardware crypto device from userspace [Try #2]
+To: herbert@gondor.apana.org.au
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17735.4830.610969.866898@cse.unsw.edu.au>
-Cc: jens.axboe@oracle.com, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH 002 of 6] md: Change lifetime rules for 'md' devices.
-In-Reply-To: message from Andrew Morton on Tuesday October 31
-References: <20061031164814.4884.patches@notabene>
-	<1061031060051.5046@suse.de>
-	<20061031002245.dfd1bb66.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday October 31, akpm@osdl.org wrote:
-> On Tue, 31 Oct 2006 17:00:51 +1100
-> NeilBrown <neilb@suse.de> wrote:
-> 
-> > Currently md devices are created when first opened and remain in existence
-> > until the module is unloaded.
-> > This isn't a major problem, but it somewhat ugly.
-> > 
-> > This patch changes the lifetime rules so that an md device will
-> > disappear on the last close if it has no state.
-> 
-> This kills the G5:
-> 
-> 
-> EXT3-fs: recovery complete.
-> EXT3-fs: mounted filesystem with ordered data mode.
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> SMP NR_CPUS=4 
-> Modules linked in:
-> NIP: C0000000001A31B8 LR: C00000000018E5DC CTR: C0000000001A3404
-> REGS: c0000000017ff4a0 TRAP: 0300   Not tainted  (2.6.19-rc4-mm1)
-> MSR: 9000000000009032 <EE,ME,IR,DR>  CR: 84000048  XER: 00000000
-> DAR: 6B6B6B6B6B6B6BB3, DSISR: 0000000040000000
-> TASK = c00000000ff2b7f0[1899] 'nash' THREAD: c0000000017fc000 CPU: 1
-> GPR00: 0000000000000008 C0000000017FF720 C0000000006B26D0 6B6B6B6B6B6B6B7B 
-..
-> NIP [C0000000001A31B8] .kobject_uevent+0xac/0x55c
-> LR [C00000000018E5DC] .__elv_unregister_queue+0x20/0x44
-> Call Trace:
-> [C0000000017FF720] [C000000000562508] read_pipe_fops+0xd0/0xd8 (unreliable)
-> [C0000000017FF840] [C00000000018E5DC] .__elv_unregister_queue+0x20/0x44
-> [C0000000017FF8D0] [C000000000195548] .blk_unregister_queue+0x58/0x9c
-> [C0000000017FF960] [C00000000019683C] .unlink_gendisk+0x1c/0x50
-> [C0000000017FF9F0] [C000000000122840] .del_gendisk+0x98/0x22c
+Hello,
 
-I'm guessing we need
+I need to make AES ciphering in a userspace application. My platform
+has an integrated crypto engine which is used by the kernel through
+the core cryptographic API.
 
-diff .prev/block/elevator.c ./block/elevator.c
---- .prev/block/elevator.c	2006-10-31 20:06:22.000000000 +1100
-+++ ./block/elevator.c	2006-10-31 20:06:40.000000000 +1100
-@@ -926,7 +926,7 @@ static void __elv_unregister_queue(eleva
- 
- void elv_unregister_queue(struct request_queue *q)
- {
--	if (q)
-+	if (q && q->elevator)
- 		__elv_unregister_queue(q->elevator);
- }
+Is it possible to export easily this hardware to userspace just by writing
+a dumb driver that would rely on the core crypto API ?  Are there any
+races issues ?
+
+Thanks
+
+Francis
 
 
-Jens?  md never registers and elevator for its queue.
 
-> 
-> Also, it'd be nice to enable CONFIG_MUST_CHECK and take a look at a few
-> things...
-> 
-> drivers/md/md.c: In function `bind_rdev_to_array':
-> drivers/md/md.c:1379: warning: ignoring return value of `kobject_add', declared with attribute warn_unused_result
-> drivers/md/md.c:1385: warning: ignoring return value of `sysfs_create_link', declared with attribute warn_unused_result
-> drivers/md/md.c: In function `md_probe':
-> drivers/md/md.c:2986: warning: ignoring return value of `kobject_register', declared with attribute warn_unused_result
-> drivers/md/md.c: In function `do_md_run':
-> drivers/md/md.c:3135: warning: ignoring return value of `sysfs_create_group', declared with attribute warn_unused_result
-> drivers/md/md.c:3150: warning: ignoring return value of `sysfs_create_link', declared with attribute warn_unused_result
-> drivers/md/md.c: In function `md_check_recovery':
-> drivers/md/md.c:5446: warning: ignoring return value of `sysfs_create_link', declared with attribute warn_unused_result
 
-I guess... I saw mail a while ago about why we really should be
-checking those.  I'll have to dig it up again.
 
-NeilBrown
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Découvrez une nouvelle façon d'obtenir des réponses à toutes vos questions ! 
+Profitez des connaissances, des opinions et des expériences des internautes sur Yahoo! Questions/Réponses 
+http://fr.answers.yahoo.com

@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422906AbWJaHbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422910AbWJaHcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422906AbWJaHbp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422912AbWJaHbo
+	id S1422910AbWJaHcf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422914AbWJaHcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:31:44 -0500
-Received: from mail.gmx.de ([213.165.64.20]:6346 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422910AbWJaHbn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:31:43 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-From: Mike Galbraith <efault@gmx.de>
+	Tue, 31 Oct 2006 02:32:35 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:27376 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1422910AbWJaHce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 02:32:34 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:cc:
+	subject:references:in-reply-to:content-type:content-transfer-encoding;
+	b=bJVnkjUvgF5u4EOGirGFFwgOP6pQm+gwwMD7YH1yTZwj6myWLyL6aNtFmfPswsWCm
+	ydZav/YINN/WMWEAHaOHQ==
+Message-ID: <4546FB79.1060607@google.com>
+Date: Mon, 30 Oct 2006 23:30:01 -0800
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
 To: Greg KH <gregkh@suse.de>
-Cc: "Martin J. Bligh" <mbligh@google.com>,
-       Cornelia Huck <cornelia.huck@de.ibm.com>,
+CC: Mike Galbraith <efault@gmx.de>, Cornelia Huck <cornelia.huck@de.ibm.com>,
        Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-In-Reply-To: <20061031072145.GA7306@suse.de>
-References: <45461E74.1040408@google.com>
-	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
-	 <45463481.80601@shadowen.org>
-	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
-	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
-	 <1162277642.5970.4.camel@Homer.simpson.net> <20061031071347.GA7027@suse.de>
-	 <1162278909.6416.5.camel@Homer.simpson.net> <20061031072145.GA7306@suse.de>
-Content-Type: text/plain
-Date: Tue, 31 Oct 2006 08:31:13 +0100
-Message-Id: <1162279873.6416.11.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+References: <20061029160002.29bb2ea1.akpm@osdl.org> <45461977.3020201@shadowen.org> <45461E74.1040408@google.com> <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com> <45463481.80601@shadowen.org> <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com> <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com> <20061031065912.GA13465@suse.de>
+In-Reply-To: <20061031065912.GA13465@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-30 at 23:21 -0800, Greg KH wrote:
-> On Tue, Oct 31, 2006 at 08:15:09AM +0100, Mike Galbraith wrote:
-> > On Mon, 2006-10-30 at 23:13 -0800, Greg KH wrote:
-> > > On Tue, Oct 31, 2006 at 07:54:02AM +0100, Mike Galbraith wrote:
-> > > > I just straced /sbin/getcfg again, and confirmed that that is indeed
-> > > > what is still happening here.  It's a known issue (for SuSE at least).
-> > > 
-> > > Ick, is this 10.1?  Or 10.2?  Or something else?
-> > 
-> > 10.1 fully updated.
+Greg KH wrote:
+> On Mon, Oct 30, 2006 at 10:37:47PM -0800, Martin J. Bligh wrote:
+>> Mike Galbraith wrote:
+>>> On Mon, 2006-10-30 at 21:14 +0100, Cornelia Huck wrote:
+>>>
+>>>> Maybe the initscripts have problems coping with the new layout
+>>>> (symlinks instead of real devices)?
+>>> SuSE's /sbin/getcfg for one uses libsysfs, which apparently doesn't
+>>> follow symlinks (bounces off symlink and does nutty stuff instead).  If
+>>> any of the boxen you're having troubles with use libsysfs in their init
+>>> stuff, that's likely the problem.
+>> If that is what's happening, then the problem is breaking previously
+>> working boxes by changing a userspace API. I don't know exactly which
+>> patch broke it, but reverting all Greg's patches (except USB) from
+>> -mm fixes the issue.
 > 
-> Crap, the libsysfs hooks were more intrusive than I expected.  10.2
-> should not have this issue anymore.  Until then, just enable that config
-> option and you should be fine.
+> Merely change CONFIG_SYSFS_DEPRECATED to be set to yes, and it should
+> all work just fine.  Doesn't anyone read the Kconfig help entries for
+> new kernel options?
 
-I just grabbed latest sysfsutils and configutils srpms, and will see if
-the problem has been fixed yet.
+1. This doesn't fix it.
+2. Breaking things by default with an option to unbreak them is not
+the finest of plans ;-)
 
-(oh... gregkh@suse.de.  i guess you're already sure:)
-
+M.

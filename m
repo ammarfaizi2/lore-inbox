@@ -1,50 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423441AbWJaQZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423560AbWJaQ23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423441AbWJaQZT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 11:25:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423543AbWJaQZT
+	id S1423560AbWJaQ23 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 11:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423559AbWJaQ23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 11:25:19 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:50577 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423441AbWJaQZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 11:25:18 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE Linux
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: [PATCH] NFS: nfsaclsvc_encode_getaclres() - Fix potential NULL deref and tiny optimization.
-Date: Tue, 31 Oct 2006 17:26:00 +0100
-User-Agent: KMail/1.9.5
-Cc: David Rientjes <rientjes@cs.washington.edu>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>
-References: <200610272316.47089.jesper.juhl@gmail.com> <Pine.LNX.4.64N.0610271443500.31179@attu2.cs.washington.edu> <200610280001.49272.jesper.juhl@gmail.com>
-In-Reply-To: <200610280001.49272.jesper.juhl@gmail.com>
+	Tue, 31 Oct 2006 11:28:29 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:52611 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1423549AbWJaQ22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 11:28:28 -0500
+Date: Tue, 31 Oct 2006 09:28:25 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Holden Karau <holdenk@xandros.com>
+Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, hirofumi@mail.parknet.co.jp,
+       linux-kernel@vger.kernel.org, "akpm@osdl.org" <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org, holden@pigscanfly.ca,
+       holden.karau@gmail.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>
+Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes revised
+Message-ID: <20061031162825.GD26964@parisc-linux.org>
+References: <454765AC.1050905@xandros.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610311726.00411.agruen@suse.de>
+In-Reply-To: <454765AC.1050905@xandros.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 October 2006 00:01, Jesper Juhl wrote:
-> > > 3) There are two locations in the function where we may return before
-> > > we use the value of the variable 'w', but we compute it at the very top
-> > > of the function. So in the case where we return early we have wasted a
-> > > few cycles computing a value that was never used.
+On Tue, Oct 31, 2006 at 10:03:08AM -0500, Holden Karau wrote:
+> @@ -343,52 +344,65 @@ int fat_ent_read(struct inode *inode, st
+>  	return ops->ent_get(fatent);
+>  }
+>  
+> -/* FIXME: We can write the blocks as more big chunk. */
+> -static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
+> -			  int nr_bhs)
+> +
+> +static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
+> +			       int nr_bhs , int wait)
+>  {
+>  	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+> -	struct buffer_head *c_bh;
+> +	struct buffer_head *c_bh[nr_bhs*(sbi->fats)];
+>  	int err, n, copy;
+>  
+> +	/* Always wait if mounted -o sync */
+> +	if (sb->s_flags & MS_SYNCHRONOUS ) 
+> +		wait = 1;
+>  	err = 0;
+>  	for (copy = 1; copy < sbi->fats; copy++) {
+>  		sector_t backup_fat = sbi->fat_length * copy;
+> -
+> -		for (n = 0; n < nr_bhs; n++) {
+> -			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
+> -			if (!c_bh) {
+> +		for (n = 0 ; n < nr_bhs ;  n++ ) {
+> +			c_bh[(copy-1)*nr_bhs+n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
+> +			if (!c_bh[(copy-1)*nr_bhs+n]) {
+> +				printk(KERN_CRIT "fat: out of memory while copying backup fat. possible data loss\n");
 
-Computing w later in the function is fine.
+I don't like that at all.
 
-> > w should be an unsigned int.
->
-> Makes sense.
+>  				err = -ENOMEM;
+>  				goto error;
+>  			}
+> -			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
+> -			set_buffer_uptodate(c_bh);
+> -			mark_buffer_dirty(c_bh);
+> -			if (sb->s_flags & MS_SYNCHRONOUS)
+> -				err = sync_dirty_buffer(c_bh);
+> -			brelse(c_bh);
+> -			if (err)
+> -				goto error;
+> +		memcpy(c_bh[(copy-1)*nr_bhs+n]->b_data, bhs[n]->b_data, sb->s_blocksize);
+> +		set_buffer_uptodate(c_bh[(copy-1)*nr_bhs+n]);
+> +		mark_buffer_dirty(c_bh[(copy-1)*nr_bhs+n]);
+>  		}
+>  	}
+> +
+> +	if (wait) {
+> +		for (n = 0 ; n < nr_bhs ; n++) {
+> +			printk("copying to %d to  %d\n" ,n,  nr_bhs*(sbi->fats-1)+n);
 
-No, this breaks the while loop further below: with an unsigned int, the loop 
-counter underflows and wraps.
-
-Please fix this identically in fs/nfsd/nfs2acl.c and fs/nfsd/nfs3acl.c.
-
-Thanks,
-Andreas
+Is this the right version of the patch?  The printk should never be left in.
+Plus, as far as I can tell, that whole loop is actually just memcpy().

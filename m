@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423837AbWJaToV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945905AbWJaTuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423837AbWJaToV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 14:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423839AbWJaToV
+	id S1945905AbWJaTuL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 14:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945906AbWJaTuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 14:44:21 -0500
-Received: from wx-out-0506.google.com ([66.249.82.230]:37901 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1423837AbWJaToU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 14:44:20 -0500
+	Tue, 31 Oct 2006 14:50:11 -0500
+Received: from wr-out-0506.google.com ([64.233.184.226]:20394 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1945905AbWJaTuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 14:50:09 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gjjRMVQrjRLzk1lBiwgmo2/0G4Pc3wHY25Y8rB4sBBipBKZ3Y45HSbkVvREL12P7YTS5MAJNLtDJhmhKjCpHKdJH0fBzkp7bQg4qbGPU/b9QZph5gLe01VcccVvCXYO8WVL6RcwOLEipQsZUui7yfgnu6XRlivi/J+OHGhg5KQ4=
-Message-ID: <653402b90610311144y790c62e7ve1cd00389d42b9b5@mail.gmail.com>
-Date: Tue, 31 Oct 2006 19:44:19 +0000
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Jiri Slaby" <jirislaby@gmail.com>
-Subject: Re: mmaping a kernel buffer to user space
-Cc: "Guillermo Marcus" <marcus@ti.uni-mannheim.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <45477EA8.8060809@gmail.com>
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=Fz0FEwu/x4bOhIj+qcdVOo7csKgpgwsPCjniOl1+Xu5gH7RRT0n/RrpR958kUdyuyQiThJkuHMzJ+JjLrJ/sMUDsY4SWGw0UZS49y3f620FK2ENXnpZUylElipS4HQq3ILGov65ZyAhWPexvhVsApXF6K/ij5CNyfUxUh3DtveU=
+Date: Wed, 1 Nov 2006 04:49:59 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@suse.de>,
+       Andy Adamson <andros@citi.umich.edu>,
+       "J. Bruce Fields" <bfields@citi.umich.edu>,
+       Trond Myklebust <Trond.Myklebust@netapp.com>
+Subject: [PATCH] sunrpc/auth_gss: auth_domain refcount fix
+Message-ID: <20061031194959.GA9015@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Neil Brown <neilb@suse.de>, Andy Adamson <andros@citi.umich.edu>,
+	"J. Bruce Fields" <bfields@citi.umich.edu>,
+	Trond Myklebust <Trond.Myklebust@netapp.com>
+References: <20061031015121.dfc7e02a.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4547150F.8070408@ti.uni-mannheim.de> <4547733B.9040801@gmail.com>
-	 <45477912.7070903@ti.uni-mannheim.de> <45477EA8.8060809@gmail.com>
+In-Reply-To: <20061031015121.dfc7e02a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/31/06, Jiri Slaby <jirislaby@gmail.com> wrote:
-> Guillermo Marcus wrote:
-> > Hi Jiri,
-> >
-> > The fact that it does not works with RAM is well documented in LDD3,
-> > pages 430++. It says (and I tested) that remap_xxx_range does not work
-> > in this case. They suggest a method using nopage, similar to the one I
-> > implement.
->
-> Could somebody confirm, that this still holds?
->
+Please put this patch together with
+auth_gss-unregister-gss_domain-when-unloading-module.patch.
 
-Hum, I also tried it some days ago and it didn't work for me, so I
-read LDD3 and I found such explanation about such limitation of
-remap_pfn_range(). I heard then that changed in 2.6.15 because of the
-new flag; so I have had the same situation.
+Because recent auth_domain_lookup() refcounting change affected it.
 
-If it is possible to remap a kernel buffer to userspace with
-remap_pfn_range, how should be done the right way?
+Subject: [PATCH] sunrpc/auth_gss: auth_domain refcount fix
 
-> > I do not see why remap_xxx_range has the limitation, but it is there.
-> > The question is then: can the limitation be removed, or can we implement
-> > a new function that maps RAM all at once without the need for a nopage
-> > implementation?
-> >
-> > In any case, here is the code.
->
-> Hmm, interesting. I used remap_pfn_range for this purpose today and it worked (I
-> double-checked this). I should probably do the rework :(.
->
-> regards,
->
+It is unnecessary to decrease refcount after auth_domain_lookup()
+when new entry is inserted.
+
+Cc: Neil Brown <neilb@suse.de>
+Cc: Andy Adamson <andros@citi.umich.edu>
+Cc: J. Bruce Fields <bfields@citi.umich.edu>
+Cc: Trond Myklebust <Trond.Myklebust@netapp.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+
+Index: 2.6-mm/net/sunrpc/auth_gss/svcauth_gss.c
+===================================================================
+--- 2.6-mm.orig/net/sunrpc/auth_gss/svcauth_gss.c
++++ 2.6-mm/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -770,7 +770,6 @@ svcauth_gss_register_pseudoflavor(u32 ps
+ 		kfree(new->h.name);
+ 		goto out_free_dom;
+ 	}
+-	auth_domain_put(&new->h);
+ 	return 0;
+ 
+ out_free_dom:

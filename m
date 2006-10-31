@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946040AbWJaV3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423657AbWJaVcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946040AbWJaV3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 16:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946030AbWJaV3Q
+	id S1423657AbWJaVcG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 16:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423651AbWJaVcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 16:29:16 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:5093 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1946041AbWJaV3P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 16:29:15 -0500
-Date: Tue, 31 Oct 2006 21:29:03 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: ray-gmail@madrabbit.org, "Martin J. Bligh" <mbligh@google.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Subject: Re: Linux 2.6.19-rc4
-Message-ID: <20061031212903.GQ29920@ftp.linux.org.uk>
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061030213454.8266fcb6.akpm@osdl.org> <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org> <45477668.4070801@google.com> <2c0942db0610310834i6244c0abm10c81e984565ed8a@mail.gmail.com> <200610312053.k9VKr0Fm007201@turing-police.cc.vt.edu>
-Mime-Version: 1.0
+	Tue, 31 Oct 2006 16:32:06 -0500
+Received: from ns2.suse.de ([195.135.220.15]:44223 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423650AbWJaVcD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 16:32:03 -0500
+Date: Tue, 31 Oct 2006 13:31:26 -0800
+From: Greg KH <gregkh@suse.de>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: "Martin J. Bligh" <mbligh@google.com>, Mike Galbraith <efault@gmx.de>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+Message-ID: <20061031213126.GA596@suse.de>
+References: <454631C1.5010003@google.com> <45463481.80601@shadowen.org> <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com> <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com> <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com> <20061031075825.GA8913@suse.de> <45477131.4070501@google.com> <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610312053.k9VKr0Fm007201@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 03:53:00PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 31 Oct 2006 08:34:23 PST, Ray Lee said:
-> > On 10/31/06, Martin J. Bligh <mbligh@google.com> wrote:
-> > > > At some point we should get rid of all the "politeness" warnings, just
-> > > > because they can end up hiding the _real_ ones.
-> > >
-> > > Yay! Couldn't agree more. Does this mean you'll take patches for all the
-> > > uninitialized variable crap from gcc 4.x ?
-> > 
-> > What would be useful in the short term is a tool that shows only the
-> > new warnings that didn't exist in the last point release.
+On Tue, Oct 31, 2006 at 05:46:39PM +0100, Cornelia Huck wrote:
+> On Tue, 31 Oct 2006 07:52:17 -0800,
+> "Martin J. Bligh" <mbligh@google.com> wrote:
 > 
-> Harder to do than you might think - it has to deal with the fact that
-> 2.6.N might have a warning about 'used unintialized on line 430', and
-> in 2.6.N+1 you get two warnings, one on line 420 and one on 440.  Which
-> one is new and which one just moved 10 lines up or down?  Or did a patch
-> fix the one on 430 and add 2 new ones?
+> > >>> Merely change CONFIG_SYSFS_DEPRECATED to be set to yes, and it should
+> > >>> all work just fine.  Doesn't anyone read the Kconfig help entries for
+> > >>> new kernel options?
+> > >> 1. This doesn't fix it.
+> > > 
+> > > I think acpi is now being fingered here, right?
+> > 
+> > Eh? How. Backing out all your patches from -mm fixes it.
+> > The deprecated stuff does not fix it, it's the same as before.
+> 
+> That's because /sys/class/net/<interface> is now a symlink instead of a
+> directory (and that hasn't anything to do with acpi, but rather with
+> the conversions in the driver tree). Seems the directory -> symlink
+> change shouldn't be done since it's impacting user space...
 
-So you take the old log and replace the line numbers with those of
-corresponding lines in new tree.  Marking ones that do not survive
-unchanged with recognisable prefix.  _Then_ you diff logs.
+If you enable CONFIG_SYSFS_DEPRECATED, then there is no symlink and
+there is no userspace change.  sysfs should look identical to before.
 
-In reality (and I'd been doing that for ranges like 2.6.14 -> 2.6.19-rc1)
-you get very little noise.
+Or did I miss something doing this work?
 
-Again, see remapper mentioned in this thread; it really works.
+thanks,
+
+greg k-h

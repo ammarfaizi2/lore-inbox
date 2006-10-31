@@ -1,176 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422726AbWJaHxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422912AbWJaH4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422726AbWJaHxL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422732AbWJaHxL
+	id S1422912AbWJaH4k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:56:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422913AbWJaH4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:53:11 -0500
-Received: from web31805.mail.mud.yahoo.com ([68.142.207.68]:22915 "HELO
-	web31805.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1422726AbWJaHxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:53:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=KmvlLZrFX19ag6YPNjf4RTnFgNJnmOlNaJRFS9FiKq+BAT+RwgeOKNKTvCZozRblEkT4vUQJWfFntG03JOPmMhbVv0bzjQeltCyIXk1AFwlfXBtWp18eOEFizW+iDtYH2T/RX87SFTKpum3KQUYOqEdpi37mlElF3TK97aNrlc4=  ;
-X-YMail-OSG: 2UYuzzkVM1nv_vY4XhNcwu6FKQ9rMAp1GjhAl8PtOWgi_mFbQ7U61skXTLnsYHOXAth_dHNDEHa6iw_XsP61wfKuwMuAFcqZk7UePpt6qTJham0mBpJlpMPQ5gYL9FXoTMQZ7pZHyYk-
-Date: Mon, 30 Oct 2006 23:53:08 -0800 (PST)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: [PATCH] 3/3: Handle REQ_TASK_ABORT in aic94xx
-To: "Darrick J. Wong" <djwong@us.ibm.com>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alexis Bruemmer <alexisb@us.ibm.com>
-In-Reply-To: <45468860.5060103@us.ibm.com>
+	Tue, 31 Oct 2006 02:56:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:48579 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422912AbWJaH4i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 02:56:38 -0500
+Date: Mon, 30 Oct 2006 23:49:46 -0800
+From: Greg KH <greg@kroah.com>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>, Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061031074946.GA7906@kroah.com>
+References: <1161762158.27622.72.camel@shinybook.infradead.org> <41840b750610250254x78b8da17t63ee69d5c1cf70ce@mail.gmail.com> <1161778296.27622.85.camel@shinybook.infradead.org> <41840b750610250742p7ad24af9va374d9fa4800708a@mail.gmail.com> <1161815138.27622.139.camel@shinybook.infradead.org> <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <355151.48546.qm@web31805.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "Darrick J. Wong" <djwong@us.ibm.com> wrote:
-> This patch straightens out the code that distinguishes the various escb
-> opcodes in escb_tasklet_complete so that they can be handled correctly. 
-> It also provides all the necessary code to create a workqueue item that
-> tells libsas to abort a sas_task.
+On Sat, Oct 28, 2006 at 08:12:41PM +0200, Shem Multinymous wrote:
+> Hi David,
 > 
-> Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+> On 10/28/06, David Zeuthen <davidz@redhat.com> wrote:
+> >What about just prepending the unit to the 'threshold' file? Then user
+> >space can expect the contents of said file to be of the form "%d %s". I
+> >don't think that violates the "only one value per file" sysfs mantra.
 > 
-> --
+> The tp_smapi battery driver did just this  ("16495 mW"). But I dropped
+> it in a recent version when Pavel pointed out the rest of sysfs, hwmon
+> included, uses undecorated integers.
+> Consistency aside, it seems reasonable and convenient. You have to
+> decree that writes to the attributes (where relevant) don't include
+> the units, of course, so no one will expect the kernel to parse that.
 > 
-> diff --git a/drivers/scsi/aic94xx/aic94xx_scb.c b/drivers/scsi/aic94xx/aic94xx_scb.c
-> index 7ee49b5..1911c5d 100644
-> --- a/drivers/scsi/aic94xx/aic94xx_scb.c
-> +++ b/drivers/scsi/aic94xx/aic94xx_scb.c
-> @@ -25,6 +25,7 @@
->   */
->  
->  #include <linux/pci.h>
-> +#include <scsi/scsi_host.h>
->  
->  #include "aic94xx.h"
->  #include "aic94xx_reg.h"
-> @@ -342,6 +343,18 @@ void asd_invalidate_edb(struct asd_ascb 
->  	}
->  }
->  
-> +/* start up the ABORT TASK tmf... */
-> +static void task_kill_later(struct asd_ascb *ascb)
-> +{
-> +	struct asd_ha_struct *asd_ha = ascb->ha;
-> +	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
-> +	struct Scsi_Host *shost = sas_ha->core.shost;
-> +	struct sas_task *task = ascb->uldd_task;
-> +
-> +	INIT_WORK(&task->abort_work, (void (*)(void *))sas_task_abort, task);
-> +	queue_work(shost->work_q, &task->abort_work);
-> +}
-> +
->  static void escb_tasklet_complete(struct asd_ascb *ascb,
->  				  struct done_list_struct *dl)
->  {
-> @@ -368,6 +381,58 @@ static void escb_tasklet_complete(struct
->  			    ascb->scb->header.opcode);
->  	}
->  
-> +	/* Catch these before we mask off the sb_opcode bits */
-> +	switch (sb_opcode) {
-> +	case REQ_TASK_ABORT: {
-> +		struct asd_ascb *a, *b;
-> +		u16 tc_abort;
-> +
-> +		tc_abort = *((u16*)(&dl->status_block[1]));
-> +		tc_abort = le16_to_cpu(tc_abort);
-> +
-> +		ASD_DPRINTK("%s: REQ_TASK_ABORT, reason=0x%X\n",
-> +			    __FUNCTION__, dl->status_block[3]);
-> +
-> +		/* Find the pending task and abort it. */
-> +		list_for_each_entry_safe(a, b, &asd_ha->seq.pend_q, list)
-> +			if (a->tc_index == tc_abort) {
-> +				task_kill_later(a);
-> +				break;
-> +			}
-> +		goto out;
-> +	}
-> +	case REQ_DEVICE_RESET: {
-> +		struct asd_ascb *a, *b;
-> +		u16 conn_handle;
-> +
-> +		conn_handle = *((u16*)(&dl->status_block[1]));
-> +		conn_handle = le16_to_cpu(conn_handle);
-> +
-> +		ASD_DPRINTK("%s: REQ_DEVICE_RESET, reason=0x%X\n", __FUNCTION__,
-> +			    dl->status_block[3]);
-> +
-> +		/* Kill all pending tasks and reset the device */
-> +		list_for_each_entry_safe(a, b, &asd_ha->seq.pend_q, list) {
-> +			struct sas_task *task = a->uldd_task;
-> +			struct domain_device *dev = task->dev;
-> +			u16 x;
-> +
-> +			x = *((u16*)(&dev->lldd_dev));
-> +			if (x == conn_handle)
-> +				task_kill_later(a);
-> +		}
-> +
-> +		/* FIXME: Reset device port (huh?) */
-> +		goto out;
-
-"huh?" -- LOL, that's a very funny comment.
-
-Good luck!
-   Luben
-
-> +	}
-> +	case SIGNAL_NCQ_ERROR:
-> +		ASD_DPRINTK("%s: SIGNAL_NCQ_ERROR\n", __FUNCTION__);
-> +		goto out;
-> +	case CLEAR_NCQ_ERROR:
-> +		ASD_DPRINTK("%s: CLEAR_NCQ_ERROR\n", __FUNCTION__);
-> +		goto out;
-> +	}
-> +
->  	sb_opcode &= ~DL_PHY_MASK;
->  
->  	switch (sb_opcode) {
-> @@ -397,22 +462,6 @@ static void escb_tasklet_complete(struct
->  		sas_phy_disconnected(sas_phy);
->  		sas_ha->notify_port_event(sas_phy, PORTE_TIMER_EVENT);
->  		break;
-> -	case REQ_TASK_ABORT:
-> -		ASD_DPRINTK("%s: phy%d: REQ_TASK_ABORT\n", __FUNCTION__,
-> -			    phy_id);
-> -		break;
-> -	case REQ_DEVICE_RESET:
-> -		ASD_DPRINTK("%s: phy%d: REQ_DEVICE_RESET\n", __FUNCTION__,
-> -			    phy_id);
-> -		break;
-> -	case SIGNAL_NCQ_ERROR:
-> -		ASD_DPRINTK("%s: phy%d: SIGNAL_NCQ_ERROR\n", __FUNCTION__,
-> -			    phy_id);
-> -		break;
-> -	case CLEAR_NCQ_ERROR:
-> -		ASD_DPRINTK("%s: phy%d: CLEAR_NCQ_ERROR\n", __FUNCTION__,
-> -			    phy_id);
-> -		break;
->  	default:
->  		ASD_DPRINTK("%s: phy%d: unknown event:0x%x\n", __FUNCTION__,
->  			    phy_id, sb_opcode);
-> @@ -432,7 +481,7 @@ static void escb_tasklet_complete(struct
->  
->  		break;
->  	}
-> -
-> +out:
->  	asd_invalidate_edb(ascb, edb);
->  }
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> There's an issue here if a drunk driver decides to specify (say)
+> capacity_remaining in mWh and capacity_last_full in mAa, which will
+> confuse anyone comparing those attributest. So don't do that.
 > 
+> Jean, what's your opinion on letting hwmon-ish attributes specify
+> units as "%d %s" where these are hardware-dependent?
 
+No, the sysfs files should just always keep the same units as
+documented.  It's easier all around that way.
+
+thanks,
+
+greg k-h

@@ -1,121 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161535AbWJaDKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161537AbWJaDNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161535AbWJaDKo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Oct 2006 22:10:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161536AbWJaDKo
+	id S1161537AbWJaDNt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Oct 2006 22:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161540AbWJaDNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Oct 2006 22:10:44 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:57052 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1161535AbWJaDKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Oct 2006 22:10:43 -0500
-Date: Mon, 30 Oct 2006 19:06:27 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: rtcvb32@yahoo.com
-Cc: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18] crypto/api:  optional cleanup functionalitiy
-Message-Id: <20061030190627.f513ecc3.randy.dunlap@oracle.com>
-In-Reply-To: <20061031021655.20510.qmail@web55412.mail.re4.yahoo.com>
-References: <20061031021655.20510.qmail@web55412.mail.re4.yahoo.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Mon, 30 Oct 2006 22:13:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37300 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161537AbWJaDNs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Oct 2006 22:13:48 -0500
+Date: Mon, 30 Oct 2006 19:13:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: andrew.j.wade@gmail.com
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       Greg KH <greg@kroah.com>, Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
+Message-Id: <20061030191340.1c7f8620.akpm@osdl.org>
+In-Reply-To: <200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <20061029160002.29bb2ea1.akpm@osdl.org>
+	<200610302026.24724.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+	<20061030180430.2466212f.akpm@osdl.org>
+	<200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006 18:16:55 -0800 (PST) Era Scarecrow wrote:
+On Mon, 30 Oct 2006 22:03:36 -0500
+Andrew James Wade <andrew.j.wade@gmail.com> wrote:
 
-> From: Ryan Cecil <rtcvb32@coffey.com>
+> On Monday 30 October 2006 21:04, Andrew Morton wrote:
+> > On Mon, 30 Oct 2006 20:26:24 -0500
+> > Andrew James Wade <andrew.j.wade@gmail.com> wrote:
+> > 
+> > > I got the BUG below while booting. -rc2-mm2 worked fine, but with a
+> > > different .config. I'm going to try and narrow this down further.
+> > > 
+> > > cheers,
+> > > Andrew Wade
+> > > 
+> > > agpgart: Detected VIA KT266/KY266x/KT333 chipset
+> > > agpgart: unable to get minor: 175
+> > > agpgart: agp_frontend_initialize() failed.
+> > > ------------[ cut here ]------------
+> > > kernel BUG at arch/i386/mm/pageattr.c:165!
+> > > invalid opcode: 0000 [#1]
+> > > last sysfs file: 
+> > > CPU:    0
+> > > EIP:    0060:[<c010fdd7>]    Not tainted VLI
+> > > EFLAGS: 00010082   (2.6.19-rc3-mm1 #1)
+> > > EIP is at change_page_attr+0x167/0x234
+> > > eax: 1fc001e3   ebx: c1009c80   ecx: dfc20000   edx: c04e4dfc
+> > > esi: 1fc20000   edi: e0820000   ebp: 00000005   esp: dffc5e7c
+> > > ds: 007b   es: 007b   ss: 0068
+> > > Process swapper (pid: 1, ti=dffc4000 task=dffc3530 task.ti=dffc4000)
+> > > Stack: 00000011 c13f8400 00000010 00000292 c04e4dfc dfc20000 00000163 00000163 
+> > >        c13f8200 dfe66984 e0820000 00000005 c010fab8 c03ee740 c03ee740 dfe2334c 
+> > >        00000004 e080f000 c0289195 dfe2334c dfe2334c e080f000 c02881f6 fffffffb 
+> > > Call Trace:
+> > >  [<c010fab8>] iounmap+0xaa/0xdc
+> > >  [<00000004>] 0x4
+> > >  =======================
+> > > Code: 84 b7 00 00 00 eb d2 ff 43 0c eb 23 84 c0 78 1b 0b 74 24 1c 8b 54 24 10 89 32 8b 43 0c 85 c0 75 04 0f 0b eb fe 48 89 43 0c eb 04 <0f> 0b eb fe 8b 03 f6 c4 04 75 6c f6 05 0c 7c 45 c0 08 74 63 83 
+> > > EIP: [<c010fdd7>] change_page_attr+0x167/0x234 SS:ESP 0068:dffc5e7c
+> > >  <0>Kernel panic - not syncing: Attempted to kill init!
+> > 
+> > I'd be suspecting x86_64-mm-i386-clflush-size.patch and
+> > x86_64-mm-i386-cpa-clflush.patch.  Because x86_64-mm-cpa-clflush.patch made
+> > my x86_64 box instacrash in a similar manner, so I reverted that.
+> > 
+> > below is a ptch which reverts x86_64-mm-i386-clflush-size.patch and
+> > x86_64-mm-i386-cpa-clflush.patch.  Can you test it please?
 > 
->  Adds the function call cleanup to all crypto/cipher/digest calls. Certain
-> select ciphers require a larger dynamic memory allocation, which isn't cleaned
-> when closed. The cleanup code will be called to clean those up before being
-> released.
+> Same crash I'm afraid.
+
+hm.  Please send the .config
+
+> However, I was too aggressive in trimming the kernel log: there are
+> some earlier errors:
+> Unable to create device for VGA+; errno = -17
+> ...
+> Unable to create device for frame buffer device; errno = -17
 > 
->  Signed-off-by: Ryan Cecil <rtcvb32@coffey.com>
-> ---
->  I made this patch primarily because i was developing a cipher and it would
-> crash the UML/kernel. But when it did memory allocation using tcrypt
-> it sucked all the memory out. This fixes that problem.
+> Hope this helps.
 
-Please fix the coding style as indicated below.
-Thanks.
-
-> diff -ur linux-2.6.18/crypto/api.c linux-2.6.18-modified/crypto/api.c
-> --- linux-2.6.18/crypto/api.c   2006-09-19 23:42:06.000000000 -0400
-> +++ linux-2.6.18-modified/crypto/api.c  2006-10-08 22:27:37.000000000 -0400
-> @@ -211,10 +211,26 @@
->  {
->         struct crypto_alg *alg;
->         int size;
-> +       void (*misc_cleanup)(struct crypto_tfm *)=NULL;
-
-s/=/ = /
-
-> 
->         if (unlikely(!tfm))
->                 return;
-> 
-> +       switch(crypto_tfm_alg_type(tfm))
-> +       {
-
-Align 'case' with 'switch'.  Space after 'switch'.
-
-> +               case CRYPTO_ALG_TYPE_CIPHER:
-> +               misc_cleanup = tfm->__crt_alg->cra_u.cipher.cia_cleanup;
-> +               break;
-> +               case CRYPTO_ALG_TYPE_DIGEST:
-> +               misc_cleanup = tfm->__crt_alg->cra_u.digest.dia_cleanup;
-> +               break;
-> +               case CRYPTO_ALG_TYPE_COMPRESS:
-> +               misc_cleanup = tfm->__crt_alg->cra_u.compress.coa_cleanup;
-> +               break;
-> +       }
-> +       if (misc_cleanup)       //only a select few need this.
-
-Use /* ... */ instead of // style comments.
-
-> +               (*misc_cleanup)(tfm);
-> +
->         alg = tfm->__crt_alg;
->         size = sizeof(*tfm) + alg->cra_ctxsize;
-> 
-> diff -ur linux-2.6.18/include/linux/crypto.h
-> linux-2.6.18-modified/include/linux/crypto.h
-> --- linux-2.6.18/include/linux/crypto.h 2006-09-19 23:42:06.000000000 -0400
-> +++ linux-2.6.18-modified/include/linux/crypto.h        2006-10-08
-> 22:17:26.000000000 -0400
-> @@ -83,6 +83,7 @@
->                           unsigned int keylen, u32 *flags);
->         void (*cia_encrypt)(struct crypto_tfm *tfm, u8 *dst, const u8 *src);
->         void (*cia_decrypt)(struct crypto_tfm *tfm, u8 *dst, const u8 *src);
-> +       void (*cia_cleanup)(struct crypto_tfm *tfm);
-> 
->         unsigned int (*cia_encrypt_ecb)(const struct cipher_desc *desc,
->                                         u8 *dst, const u8 *src,
-> @@ -104,6 +105,8 @@
->         void (*dia_update)(struct crypto_tfm *tfm, const u8 *data,
->                            unsigned int len);
->         void (*dia_final)(struct crypto_tfm *tfm, u8 *out);
-> +       void (*dia_cleanup)(struct crypto_tfm *tfm);
-> +
->         int (*dia_setkey)(struct crypto_tfm *tfm, const u8 *key,
->                           unsigned int keylen, u32 *flags);
->  };
-> @@ -113,6 +116,7 @@
->                             unsigned int slen, u8 *dst, unsigned int *dlen);
->         int (*coa_decompress)(struct crypto_tfm *tfm, const u8 *src,
->                               unsigned int slen, u8 *dst, unsigned int *dlen);
-> +       void (*coa_cleanup)(struct crypto_tfm *tfm);
->  };
-> 
->  #define cra_cipher     cra_u.cipher
-
----
-~Randy
+argh.  Greg, I'm not sure that work is ready for prime-time.

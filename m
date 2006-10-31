@@ -1,109 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946130AbWJaXIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946153AbWJaXPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946130AbWJaXIY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 18:08:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946132AbWJaXIY
+	id S1946153AbWJaXPI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 18:15:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946156AbWJaXPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 18:08:24 -0500
-Received: from sp604005mt.neufgp.fr ([84.96.92.11]:50168 "EHLO smtp.Neuf.fr")
-	by vger.kernel.org with ESMTP id S1946130AbWJaXIX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 18:08:23 -0500
-Date: Wed, 01 Nov 2006 00:08:16 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] splice : two smp_mb() can be omitted
-In-reply-to: <4547CB25.3080603@yahoo.com.au>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jens Axboe <jens.axboe@oracle.com>
-Message-id: <4547D760.9000200@cosmosbay.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <1162199005.24143.169.camel@taijtu>
- <4546FA81.1020804@cosmosbay.com> <45471A05.20205@yahoo.com.au>
- <200610311151.33104.dada1@cosmosbay.com> <4547CB25.3080603@yahoo.com.au>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Tue, 31 Oct 2006 18:15:07 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:45965 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1946153AbWJaXPD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 18:15:03 -0500
+Date: Wed, 1 Nov 2006 00:05:38 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tmattox@gmail.com, spiky.kiwi@gmail.com, r.bhatia@ipax.at,
+       Darren Salt <linux@youmustbejoking.demon.co.uk>,
+       Syed Azam <syed.azam@hp.com>,
+       Lennert Buytenhek <buytenh@wantstofly.org>
+Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
+Message-ID: <20061031230538.GA4329@electric-eye.fr.zoreil.com>
+References: <20061029223410.GA15413@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610300032190.1435@poirot.grange> <20061030120158.GA28123@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610302148560.9723@poirot.grange> <Pine.LNX.4.60.0610302214350.9723@poirot.grange> <20061030234425.GB6038@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610312000160.5223@poirot.grange>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0610312000160.5223@poirot.grange>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin a écrit :
-> Eric Dumazet wrote:
-> 
->> On Tuesday 31 October 2006 10:40, Nick Piggin wrote:
->>
->>
->>> Uh, there is nothing that says mutex_unlock or any unlock
->>> functions contain an implicit smp_mb(). What is given is that the
->>> lock and unlock obey aquire and release memory ordering,
->>> respectively.
->>>
->>> a = x;
->>> xxx_unlock
->>> b = y;
->>>
->>> In this situation, the load of y can be executed before that of x.
->>> And some architectures will even do so (i386 can, because the
->>> unlock is an unprefixed store; ia64 can, because it uses a release
->>> barrier in the unlock).
->>>
->>
->> Hum... it seems your mutex_unlock() i386/x86_64 copy is not same as 
->> mine :)
->>
-> 
-> OK, replace xxx with mutex, and what I've said still holds true for ia64.
-> 
->> Maybe we could document the fact that mutex_{lock|unlock}() has or has 
->> not an implicit smp_mb().
->>
-> 
-> It does not, none of the unlock functions ever have.
-> 
->> If not, delete smp_mb() calls from include/asm-generic/mutex-dec.h
-> 
-> They should be deleted (and from mutex-xchg). NOT because there is no 
-> need for
-> a memory barrier, but because the atomic_alter_value_and_return_something
-> functions always provide a barrier before and after the operation, as per
-> Documentation/atomic_ops.txt
-> 
-> Again, lock / unlock operations require acquire / release consistency. 
-> This is a
-> memory ordering operation. It is not equivalent to smp_mb, though.
+Guennadi Liakhovetski <g.liakhovetski@gmx.de> :
+[...]
+> Well, with that one I booted 3 times, all 3 times it worked. I'll leave it 
 
-This thread just show how difficult it is to have consistent use of all this 
-stuff in all kernel. Maybe it is just me ? Should I work on IA64 to have a 
-chance to learn ?
+Thanks.
 
+Let's cross fingers.
 
-For example, Documentation/atomic_ops.txt comments about atomic_inc_return() 
-and atomic_dec_return() seems in contradiction with itself.
+> in to see if it ever fails. So, what does it tell us about the 
+> set_mac_address thing?
 
---------------------------
+It tells nothing more about the set_mac_address thing. If people need 
+MAC address change support, I can surely hack something and keep a
+patch for future reference. Imho it is anything but 2.6.19 material
+though.
 
-Unlike the above routines, it is required that explicit memory
-barriers are performed before and after the operation.  It must be
-done such that all memory operations before and after the atomic
-operation calls are strongly ordered with respect to the atomic
-operation itself.
+The patch that I sent to you on 2006/10/29 was enough to fix the link
+detection issues experienced with the 0x8136 chipset (1. Darren Salt
+on netdev {25/26/31}/08/2006 and {21/22}/10/2006, 2. Syed Azam on BZ,
+see http://bugzilla.kernel.org/show_bug.cgi?id=7378).
 
--------------------------
+Your computer was good at spotting issues with the MAC address stuff,
+so it was the perfect candidate to test pending fixes for different
+problems. As you noticed, it was not exactly safe to feed the MII
+control register with some potentially uninitialized stuff, whence
+the patch from yesterday.
 
-When I read this, I understand we (the user of such functions) need to add 
-smp_mb(). (That is, those functions wont do it themselves)
+It remains to be seen if:
+- it still does the job for the 0x8136 
+- it does not induce new regressions in existing 8169
 
-Then following text is :
+o Darren and Syed, are your 0x8136 still happy with the patch
+  0001-r8169-perform-a-PHY-reset-before-any-other-operation-at-boot-time.txt
+  at http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.19-rc4/r8169
+  on top of 2.6.19-rc4 ?
 
-----------------------------
-For example, it should behave as if a smp_mb() call existed both
-before and after the atomic operation.
+o Darren, still ok to keep your S-o-b in it ?
 
---------------------------
+o Could the r8169 users out there check that the same patch does not add
+  new regressions to their favorite 2.6.19-rc4 ?
 
-Now I understand the reverse.
+o Lennert, can you apply the two patches
+  - 0001-r8169-perform-a-PHY-reset-before-any-other-operation-at-boot-time.txt
+  - 0002-r8169-more-magic.txt
+  at http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.19-rc4/r8169 against
+  2.6.19-rc4 (2.6.19-rc4 reverted the MAC address changes) and see if the
+  n2100 board still needs to remove the SYSErr handler ?
 
-
-Time to sleep for sure :) And find a IA64 platform tomorrow morning :)
-
+-- 
+Ueimor

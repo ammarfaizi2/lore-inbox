@@ -1,74 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751986AbWJaFaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751973AbWJaFaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751986AbWJaFaz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 00:30:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWJaFaz
+	id S1751973AbWJaFaj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 00:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWJaFaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 00:30:55 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:11066 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751476AbWJaFay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 00:30:54 -0500
-Date: Mon, 30 Oct 2006 21:26:29 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: io_apic compile error
-Message-Id: <20061030212629.8f9e9499.randy.dunlap@oracle.com>
-In-Reply-To: <4546D8AA.30309@perkel.com>
-References: <4546CFA2.8000504@perkel.com>
-	<20061030203408.ec2ee5ce.randy.dunlap@oracle.com>
-	<4546D8AA.30309@perkel.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 31 Oct 2006 00:30:39 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:49949 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751476AbWJaFai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 00:30:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=W9nCqHr5R/iuA6jdzfKxmqH5gAXP4pntXXnRU8SBRr70+Y4DMsD/qSNIcGrq1UHt92a/pX9Q0x03Gcfe3XUgVmg6nxeGHqCpSuaSdGW8z69HyW9jZTRnAEc8+TfLyzUqPyytXM6uMIHo5+Ty1gxXjL0VioHV0nf1hZa0tfR+i0E=
+Message-ID: <6d6a94c50610302130u55fc3f59n7be157a73c50805e@mail.gmail.com>
+Date: Tue, 31 Oct 2006 13:30:36 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to add a device file to sysfs?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2006 21:01:30 -0800 Marc Perkel wrote:
+Hi all,
 
-> 
-> 
-> Randy Dunlap wrote:
-> > On Mon, 30 Oct 2006 20:22:58 -0800 Marc Perkel wrote:
-> >
-> >   
-> >> getting a compile error when compiling 2.6.19rc3. Thought someone might want to fix this.
-> >>
-> >>   CC      arch/x86_64/kernel/io_apic.o
-> >> arch/x86_64/kernel/io_apic.c: In function 'ioapic_pirq_setup':
-> >> arch/x86_64/kernel/io_apic.c:412: error: 'MAX_PIRQS' undeclared (first use in this function)
-> >> arch/x86_64/kernel/io_apic.c:412: error: (Each undeclared identifier is reported only once
-> >> arch/x86_64/kernel/io_apic.c:412: error: for each function it appears in.)
-> >> arch/x86_64/kernel/io_apic.c:417: error: 'pirq_entries' undeclared (first use in this function)
-> >> arch/x86_64/kernel/io_apic.c:419: error: 'pirqs_enabled' undeclared (first use in this function)
-> >> arch/x86_64/kernel/io_apic.c:412: warning: unused variable 'ints'
-> >> make[1]: *** [arch/x86_64/kernel/io_apic.o] Error 1
-> >> make: *** [arch/x86_64/kernel] Error 2
-> >>     
-> >
-> > Hm, it builds for me.  Please post your .config file.
-> >
-> >
-> >   
-> ok - here it is
-> 
-> #
-> # Automatically generated make config: don't edit
-> # Linux kernel version: 2.6.19-rc3
-> # Mon Oct 30 20:20:25 2006
+When a misc device file is registered, there are two files under my
+own class directory:
 
-Odd.  That .config builds fine for me too.
+/sys --> class --> misc --> myprog --> dev
+                                                   --> uevent
+                                                   --> myprog_show (to be added)
 
-Is this a unmodified 2.6.19-rc3?  How did you get it?
+Now, my question is, is it possbile to add the third file
+"myprog_show" under "myprog" directory without modify any common code?
 
-Maybe someone else can discover the problem.
+I've read the doc under linux-2.6.x/Documentation, I can add it to
+some other directory, but not found a way to add it to my own
+directory.
 
----
-~Randy
+Thanks for any help.
+-Aubrey

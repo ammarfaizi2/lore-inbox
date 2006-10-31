@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423493AbWJaPzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423510AbWJaP5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423493AbWJaPzg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 10:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423505AbWJaPzg
+	id S1423510AbWJaP5b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 10:57:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423516AbWJaP5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 10:55:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:7346 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423493AbWJaPzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 10:55:35 -0500
-Date: Tue, 31 Oct 2006 07:55:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Subject: Re: Linux 2.6.19-rc4
-In-Reply-To: <20061030213454.8266fcb6.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org>
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
- <20061030213454.8266fcb6.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 31 Oct 2006 10:57:31 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63394 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1423510AbWJaP5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 10:57:30 -0500
+Subject: Re: reserve memory in low physical address - possible?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jun Sun <jsun@junsun.net>
+Cc: "Richard B. Johnson" <jmodem@abominablefirebug.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061031154019.GC14272@srv.junsun.net>
+References: <20061031072203.GA10744@srv.junsun.net>
+	 <02f201c6fce8$a660ece0$0732700a@djlaptop>
+	 <20061031154019.GC14272@srv.junsun.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 31 Oct 2006 16:01:10 +0000
+Message-Id: <1162310470.11965.79.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 30 Oct 2006, Andrew Morton wrote:
+Ar Maw, 2006-10-31 am 07:40 -0800, ysgrifennodd Jun Sun:
+> On Tue, Oct 31, 2006 at 07:32:37AM -0500, Richard B. Johnson wrote:
+> > 
+> > You will not be able to reserve any address space starting at 0 anyway, but 
+> > your driver or even
+> > user-space code can memory-map it.
+> > 
 > 
-> That didn't go so well.  I guess the below was intended, but I wonder if
-> we actually merged the correct patch?
+> Any reasons or concerns as to why I can't reserve any address space 
+> starting from 0?
 
-Gaah.
+None at all, Richard is wrong on this point. You can happily reserve
+memory starting at physical zero on an x86. In fact the x86 kernel
+*already* does this because many BIOSes use the first page for BIOS data
+and touch it when we use BIOS services or in SMM.
 
-And I have SYSFS enabled, so I should have seen this warning.
+For a worked example of loading Linux under a small RTOS take a look at
+RTLinux, which turns Linux into on task running on a tiny strict RT
+kernel.
 
-But I've become innoculated against warnings, just because we have too 
-many of the totally useless noise about deprecation and crud, and ppc has 
-it's own set of bogus compiler-and-linker-generated warnings..
+Alan
 
-At some point we should get rid of all the "politeness" warnings, just 
-because they can end up hiding the _real_ ones.
 
-"pm_register is deprecated" etc - I get almost a hundred lines of warnings 
-in my default build (and half of those are sadly due to powerpc binutils, 
-that I can't do anythign about: "section .init.text exceeds stub group 
-size" etc, which is harmless _other_ than the fact that it helped hide the 
-real warnings just because I've grown too used to not looking too 
-closely).
-
-		Linus

@@ -1,22 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422880AbWJaIac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422771AbWJaIfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422880AbWJaIac (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 03:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422972AbWJaIac
+	id S1422771AbWJaIfp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 03:35:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030575AbWJaIfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 03:30:32 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:13484 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1422880AbWJaIab (ORCPT
+	Tue, 31 Oct 2006 03:35:45 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:46799 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030467AbWJaIfp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 03:30:31 -0500
-Date: Tue, 31 Oct 2006 09:30:06 +0100 (MET)
+	Tue, 31 Oct 2006 03:35:45 -0500
+Date: Tue, 31 Oct 2006 09:32:03 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: jplatte@naasa.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IPSEC and bridged interfaces
-In-Reply-To: <200610301729.49089.lists@naasa.net>
-Message-ID: <Pine.LNX.4.61.0610310927270.23540@yvahk01.tjqt.qr>
-References: <200610301729.49089.lists@naasa.net>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+cc: Daniel Drake <ddrake@brontes3d.com>, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] jfs: Add splice support
+In-Reply-To: <1162227415.24229.2.camel@kleikamp.austin.ibm.com>
+Message-ID: <Pine.LNX.4.61.0610310931020.23540@yvahk01.tjqt.qr>
+References: <20061030163148.2412D7B40A0@zog.reactivated.net>
+ <1162227415.24229.2.camel@kleikamp.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Spam-Report: Content analysis: 0.0 points, 6.0 required
@@ -24,20 +26,16 @@ X-Spam-Report: Content analysis: 0.0 points, 6.0 required
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+>> This allows the splice() and tee() syscalls to be used with JFS.
 >
->Unfortunately, the kernel does not encrypt incoming packages any more. tcpdump 
->reveals, that all received replies (I tested it with ping) are forwarded 
->unencrypted, because they are visible on my firewall instead of being 
->encrypted. Is this a known problem? Is bridging and IPSEC (maybe with 
->masquerading) currently not supported? Or should I forward this issue to 
->another mailing list? 
+>Gosh, that was easy.  Why couldn't I do that?  :-)
 
-Sounds like those packets are bridged rather than routed (or so it 
-sounds). See if that's the case. Check
-http://www.imagestream.com/~josh/PacketFlow-new.png for details.
+You could add it to all the other filesystems that lack it. (Cautionary 
+question: Does that work at an instant like it did with jfs?)
 
-You could try `ebtables -t broute -j DROP` to force all packets to be 
-routed.
+Seems like only ext[234] gfs2 reiserfs and xfs have splice_read 
+currently.
 
 
 	-`J'

@@ -1,51 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423726AbWJaSJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423740AbWJaSLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423726AbWJaSJa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 13:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423728AbWJaSJ3
+	id S1423740AbWJaSLI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 13:11:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423750AbWJaSLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 13:09:29 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:30287 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1423726AbWJaSJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 13:09:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=P12cVdSoQ9cDUnZ6EnnVXISGMajOGFtRGiaGlzmvi9UhgUenWP1zRWWZ/SnPA9KHtmwOrHEQ7I6S7hmsdHFpiqtwRJ+naeyucWVPg/UkuFZVt8uUP0a/q1cqf4hw1M/6mwha4WLqsSoucBbTbyYjXZtzRAPv1PacHS1joCgniiE=
-Message-ID: <787b0d920610311009i17b4101cg85229603df64880e@mail.gmail.com>
-Date: Tue, 31 Oct 2006 13:09:26 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Linus Torvalds" <torvalds@osdl.org>, "Andi Kleen" <ak@suse.de>
-Subject: [PATCH] SA_SIGINFO was forgotten
+	Tue, 31 Oct 2006 13:11:07 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:13798 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423743AbWJaSLF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 13:11:05 -0500
+Message-ID: <454791A5.9000202@us.ibm.com>
+Date: Tue, 31 Oct 2006 10:10:45 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+CC: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>
+Subject: Re: [PATCH] 0/3: Fix EH problems in libsas and implement more error
+ handling
+References: <45468845.20400@us.ibm.com> <20061031105452.GD28239@rhun.haifa.ibm.com>
+In-Reply-To: <20061031105452.GD28239@rhun.haifa.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The recent change to make x86_64 support i386 binaries compiled
-with -mregparm=3 only covered signal handlers without SA_SIGINFO.
-(the 3-arg "real-time" ones)
+Muli Ben-Yehuda wrote:
 
-To be compatible with i386, both types should be supported.
+> I'm still seeing this on my x366 with the V17 sequencer firmware (with
+> the old Razor sequencer it happens as well, but rarely).
+> 
+> aic94xx: escb_tasklet_complete: REQ_TASK_ABORT, reason=0x6
+> aic94xx: tmf tasklet complete
+> aic94xx: tmf resp tasklet
+> aic94xx: tmf came back
+> aic94xx: task not done, clearing nexus
+> aic94xx: asd_clear_nexus_tag: PRE
+> aic94xx: asd_clear_nexus_tag: POST
+> aic94xx: asd_clear_nexus_tag: clear nexus posted, waiting...
+> aic94xx: task 0xffff81015ee59580 done with opcode 0x23 resp 0x0 stat 0x8d but aborted by upper layer!
+> aic94xx: asd_clear_nexus_tasklet_complete: here
+> aic94xx: asd_clear_nexus_tasklet_complete: opcode: 0x0
+> aic94xx: came back from clear nexus
+> aic94xx: task 0xffff81015ee59580 aborted, res: 0x0
+> sas: command 0xffff8100e2afcb00, task 0xffff81015ee59580, aborted by initiator: EH_NOT_HANDLED
+> sas: Enter sas_scsi_recover_host
+> sas: going over list...
+> sas: trying to find task 0xffff81015ee59580
+> sas: sas_scsi_find_task: task 0xffff81015ee59580 already aborted
+> sas: sas_scsi_recover_host: task 0xffff81015ee59580 is aborted
+> sas: --- Exit sas_scsi_recover_host
 
-Signed-off-by: Albert Cahalan <acahalan@gmail.com>
+Yes, the patch doesn't eliminate these errors; it merely does something
+more intelligent with the error code than "Sit around and wait for
+everything to time out"... despite the scary error messages, it looks
+like it's doing the right thing.  However, it'd be useful to have
+timestamps on the printks to know for sure.
 
-diff -Naurd old/arch/x86_64/ia32/ia32_signal.c
-new/arch/x86_64/ia32/ia32_signal.c
---- old/arch/x86_64/ia32/ia32_signal.c  2006-10-29 20:36:01.000000000 -0500
-+++ new/arch/x86_64/ia32/ia32_signal.c  2006-10-29 21:58:01.000000000 -0500
-@@ -579,6 +579,11 @@
-       regs->rsp = (unsigned long) frame;
-       regs->rip = (unsigned long) ka->sa.sa_handler;
+> aic94xx: escb_tasklet_complete: REQ_TASK_ABORT, reason=0x5
 
-+       /* Make -mregparm=3 work */
-+       regs->rax = sig;
-+       regs->rdx = (unsigned long) &frame->info;
-+       regs->rcx = (unsigned long) &frame->uc;
-+
-       asm volatile("movl %0,%%ds" :: "r" (__USER32_DS));
-       asm volatile("movl %0,%%es" :: "r" (__USER32_DS));
+Break recv'd... that's a new one.
+
+> sas: DOING DISCOVERY on port 0, pid:1105
+> scsi 0:0:0:0: Direct-Access     IBM-ESXS ST936701SS    F  B512 PQ: 0 ANSI: 4
+
+Hrm, you might want to update your disks to the latest firmware levels
+(B51C)... be wary that the firmware updates occasionally nuke everything
+on the drive. :(
+
+--D

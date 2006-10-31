@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422644AbWJaHpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161571AbWJaHsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422644AbWJaHpH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 02:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161573AbWJaHpH
+	id S1161571AbWJaHsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 02:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161573AbWJaHsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 02:45:07 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:25963 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1161571AbWJaHpE (ORCPT
+	Tue, 31 Oct 2006 02:48:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49542 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161571AbWJaHsK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 02:45:04 -0500
-Date: Tue, 31 Oct 2006 08:46:45 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] splice : two smp_mb() can be omitted
-Message-ID: <20061031074645.GY14055@kernel.dk>
-References: <1162199005.24143.169.camel@taijtu> <20061030224802.f73842b8.akpm@osdl.org> <4546FA81.1020804@cosmosbay.com> <20061031073212.GW14055@kernel.dk> <4546FE39.8000201@cosmosbay.com>
+	Tue, 31 Oct 2006 02:48:10 -0500
+Date: Mon, 30 Oct 2006 23:48:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>, andrew.j.wade@gmail.com,
+       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [2.6.19-rc3-mm1] BUG at arch/i386/mm/pageattr.c:165
+Message-Id: <20061030234800.cd2b70f9.akpm@osdl.org>
+In-Reply-To: <20061030233432.d75955c5.akpm@osdl.org>
+References: <20061029160002.29bb2ea1.akpm@osdl.org>
+	<200610302203.37570.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+	<20061030191340.1c7f8620.akpm@osdl.org>
+	<200610302258.31613.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+	<20061030211046.1c3d62b9.akpm@osdl.org>
+	<20061031070351.GB14713@kroah.com>
+	<20061030233432.d75955c5.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4546FE39.8000201@cosmosbay.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31 2006, Eric Dumazet wrote:
-> Jens Axboe a écrit :
-> >On Tue, Oct 31 2006, Eric Dumazet wrote:
-> >>This patch deletes two calls to smp_mb() that were done after 
-> >>mutex_unlock() that contains an implicit memory barrier.
-> >>
-> >>The first one in splice_to_pipe(), where 'do_wakeup' is set to true only 
-> >>if pipe->inode is set (and in this case the
-> >>if (pipe->inode)
-> >>   mutex_unlock(&pipe->inode->i_mutex);
-> >>is done too)
-> >>
-> >>The second one in link_pipe(), following inode_double_unlock() that 
-> >>contains calls to mutex_unlock() too.
-> >
-> >NAK on that patch, the smp_mb() follows the waitqueue_active(). If you
-> >later change the code and move the locks or whatnot, you have lost that
-> >connection.
-> >
-> >If you change the patch to insert a comment, then it may be more
-> >applicable.
-> >
-> 
-> Hum... I read fs/pipe.c and see no smp_mb() there, but I suspect same 
-> semantics are/were used.
-> 
-> Should we add comments on fs/pipe.c too ?
+On Mon, 30 Oct 2006 23:34:32 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-fs/pipe.c looks different:
+> (That test machine is
+> running FC1, which doesn't run udev at all.  Its BIOS is acpi-free).
 
-        if (do_wakeup) {
-                wake_up_interruptible_sync(&pipe->wait);
-                ...
-        }
+Not that this is relevant - the machine went splat well before userspace
+started up.
 
-The smp_mb() is not needed if you call wake_up() directly, only if
-checking via waitqueue_active().
+It has some krufty old audio card, but I don't think Andrew's .config even
+selected it.  Yet it oopsed in alsa code.  Am not sure where the other oops
+was.
 
--- 
-Jens Axboe
-
+vmm:/home/akpm> lspci
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:0f.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
+00:10.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05)
+01:00.0 VGA compatible controller: nVidia Corporation NV18GL [Quadro4 NVS AGP 8x] (rev a2)

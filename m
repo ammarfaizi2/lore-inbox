@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965516AbWJaLQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbWJaLT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965516AbWJaLQG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 06:16:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965531AbWJaLQG
+	id S1161236AbWJaLT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 06:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965541AbWJaLT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 06:16:06 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:47256 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965516AbWJaLQE (ORCPT
+	Tue, 31 Oct 2006 06:19:58 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:26135 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965539AbWJaLT6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 06:16:04 -0500
-Date: Tue, 31 Oct 2006 12:15:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc3] i386/io_apic: fix compiler warning in create_irq
-Message-ID: <20061031111502.GA21450@elte.hu>
-References: <tkrat.b1c929dd899e625a@s5r6.in-berlin.de> <20061030090231.GA27146@elte.hu> <20061030170445.1dedce1e.akpm@osdl.org> <1162287457.15286.186.camel@earth> <20061031014914.9af0dde9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061031014914.9af0dde9.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 31 Oct 2006 06:19:58 -0500
+Message-ID: <4547305A.9070903@openvz.org>
+Date: Tue, 31 Oct 2006 14:15:38 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: Pavel Emelianov <xemul@openvz.org>, vatsa@in.ibm.com, dev@openvz.org,
+       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
+       menage@google.com, linux-mm@kvack.org
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+References: <20061030103356.GA16833@in.ibm.com> <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org> <454638D2.7050306@in.ibm.com> <45470DF4.70405@openvz.org> <45472B68.1050506@in.ibm.com>
+In-Reply-To: <45472B68.1050506@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+[snip]
 
-> > this is an initialize-to-zero annotation for a false-positive gcc 
-> > warning. If it's not in Jeff tree yet then it should be there ...
-> 
-> hm, I wouldn't call that "annotation".
-> 
-> Now, the
-> 
-> #define SHUT_GCC_UP(x)	= x
-> 
-> 	...
-> 	int foo SHUT_GCC_UP(foo);
-> 	...
-> 
-> (or whatever it was) trick was "annotation".  A good way of doing it 
-> too, IMO.
+> That's like disabling memory over-commit in the regular kernel.
 
-hm, i thought Jeff's tree was doing that ...
+Nope. We limit only unreclaimable mappings. Allowing user
+to break limits breaks the sense of limit.
 
-we definitely do not want to hide these places. They both make the code 
-less readable (why initialize it to some value if that value is never 
-used) and they hide the problem from the GCC folks too.
+Or you do not agree that allowing unlimited unreclaimable
+mappings doesn't alow you the way to cut groups gracefully?
 
-	Ingo
+[snip]
+
+> Please see the patching of Rohit's memory controller for user
+> level patching. It seems much simpler.
+
+Could you send me an URL where to get the patch from, please.
+Or the patch itself directly to me. Thank you.
+
+[snip]
+
+> I would prefer a different set
+> 
+> 1 & 2, for now we could use any interface and then start developing the
+> controller. As we develop the new controller, we are likely to find the
+> need to add/enhance the interface, so freezing in on 1 & 2 might not be
+> a good idea.
+
+Paul Menage won't agree. He believes that interface must come first.
+I also remind you that the latest beancounter patch provides all the
+stuff we're discussing. It may move tasks, limit all three resources
+discussed, reclaim memory and so on. And configfs interface could be
+attached easily.
+
+> I would put 4, 5 and 6 ahead of 3, based on the changes I see in Rohit's
+> memory controller.
+> 
+> Then take up the rest.
+
+I'll review Rohit's patches and comment.

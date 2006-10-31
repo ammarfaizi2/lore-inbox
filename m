@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423710AbWJaRYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423499AbWJaRYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423710AbWJaRYR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 12:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423703AbWJaRYR
+	id S1423499AbWJaRYh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 12:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423711AbWJaRYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 12:24:17 -0500
-Received: from mail-dub.bigfish.com ([213.199.154.10]:48525 "EHLO
-	mail36-dub-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1423711AbWJaRYP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 12:24:15 -0500
-X-BigFish: VP
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: x86-64 with nvidia MCP51 chipset: kernel does not find HPET
-Date: Tue, 31 Oct 2006 11:24:02 -0600
-Message-ID: <1449F58C868D8D4E9C72945771150BDF153784@SAUSEXMB1.amd.com>
-In-Reply-To: <1162234845.27037.37.camel@mindpipe>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: x86-64 with nvidia MCP51 chipset: kernel does not find
- HPET
-Thread-Index: Acb8Vjl53HD0tZWxSGC/r5MMqP/NLQAuuZOw
-From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-To: "Lee Revell" <rlrevell@joe-job.com>
-cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Clemens Ladisch" <clemens@ladisch.de>
-X-OriginalArrivalTime: 31 Oct 2006 17:24:02.0092 (UTC)
- FILETIME=[5BAC2EC0:01C6FD11]
-X-WSS-ID: 695959380Z41149297-02-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Tue, 31 Oct 2006 12:24:37 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:20107 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1423499AbWJaRYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 12:24:35 -0500
+Subject: [PATCH] Allow a hyphenated range in get_options
+From: Derek Fults <dfults@sgi.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 31 Oct 2006 11:25:16 -0600
+Message-Id: <1162315517.9542.372.camel@lnx-dfults.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This allows a hyphenated range of positive numbers in the string passed
+to command line helper function, get_options.    
 
- > > If the hardware is not providing the HPET description in ACPI,
-> > there's little you can do, and most vendors do not provide
-> > the HPET description.
-> > 
-> > Do you know if there's an entry for HPET in the ACPI?
-> 
-> I'm not exactly an ACPI expert, but I do not think there is 
-> an entry for HPET in the ACPI, as the check in
-> arch/x86_64/kernel/io_apic.c fails:
->
-> But, with some help from anonymous sources, I have been able 
-> to find the HPET and make it work using a userspace driver
-> that pokes registers by mmap'ing /dev/mem.  So we just need
-> a way to tell the kernel it's there.
-> Presumably this would require a PCI quirk.
-> 
-> Is this likely to be worth the trouble?
+Signed-off-by: Derek Fults <dfults@sgi.com>  
 
-It's not a general purpose solution, but if you can write
-up the quirk, Andi might be willing to white list the 
-machine in question.
-
--Mark Langsdorf
-AMD, Inc.
-
+Index: linux/lib/cmdline.c
+===================================================================
+--- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
++++ linux/lib/cmdline.c	2006-10-30 10:39:13.351641023 -0600
+@@ -29,6 +29,10 @@
+  *	0 : no int in string
+  *	1 : int found, no subsequent comma
+  *	2 : int found including a subsequent comma
++ *  -(int): int found with a subsequent hyphen to denote a range.
++ *          The negative number is the number of integers in the range
++ *          used to increment the counter in the while loop.
++ *      
+  */
+ 
+ int get_option (char **str, int *pint)
+@@ -44,7 +48,16 @@
+ 		(*str)++;
+ 		return 2;
+ 	}
++	if (**str == '-') {
++	    int x,inc_counter= 0, upper_range = 0;
+ 
++	    (*str)++;
++	    upper_range = simple_strtol ((*str), NULL, 0);
++	    inc_counter = upper_range - *pint ;
++	    for (x=*pint; x < upper_range; x++) 
++		    *pint++ = x;
++	    return -inc_counter;
++	}
+ 	return 1;
+ }
+ 
+@@ -55,7 +68,8 @@
+  *	@ints: integer array
+  *
+  *	This function parses a string containing a comma-separated
+- *	list of integers.  The parse halts when the array is
++ *	list of integers, a hyphen-separated range of _positive_ integers,
++ *      or a combination of both.  The parse halts when the array is
+  *	full, or when no more numbers can be retrieved from the
+  *	string.
+  *
+@@ -75,6 +89,11 @@
+ 		i++;
+ 		if (res == 1)
+ 			break;
++		if (res < 0) 
++		        /* Decrement the result by one to leave out the 
++			   last number in the range.  The next iteration 
++			   will handle the upper number in the range */
++		        i += ((-res) - 1);
+ 	}
+ 	ints[0] = i - 1;
+ 	return (char *)str;
 

@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423823AbWJaThI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423822AbWJaThA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423823AbWJaThI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 14:37:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423826AbWJaThI
+	id S1423822AbWJaThA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 14:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423823AbWJaThA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 14:37:08 -0500
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:35445 "HELO
-	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1423825AbWJaThF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 14:37:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=LiSUptQGbousxc57c5DwHvIknxTr4m3+vve3l2fvJSWRxGu2nQ9A2yZTOfCMnjHAYUYWWKwOJ64VWldLg70SvWEx03mKQ/+TdKLBv4KEgScSHyjdVW/Hpbw2reNcU1jnYnWzKe5TKu3DGOTwVxjASPHhXx8uzQs65Zj0SM42Rpo=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [linux-usb-devel] [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
-Date: Tue, 31 Oct 2006 11:36:52 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Randy Dunlap <randy.dunlap@oracle.com>, akpm@osdl.org,
-       zippel@linux-m68k.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, link@miggy.org,
-       Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
-       greg@kroah.com, toralf.foerster@gmx.de
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <200610310940.16619.david-b@pacbell.net> <20061031180712.GQ27968@stusta.de>
-In-Reply-To: <20061031180712.GQ27968@stusta.de>
+	Tue, 31 Oct 2006 14:37:00 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:27584 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1423822AbWJaTg7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 14:36:59 -0500
+Message-ID: <4547A5D2.2080900@gmail.com>
+Date: Tue, 31 Oct 2006 20:36:50 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Jiri Slaby <jirislaby@gmail.com>,
+       Guillermo Marcus <marcus@ti.uni-mannheim.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: mmaping a kernel buffer to user space
+References: <4547150F.8070408@ti.uni-mannheim.de> <4547733B.9040801@gmail.com> <20061031192252.GA26625@flint.arm.linux.org.uk>
+In-Reply-To: <20061031192252.GA26625@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610311136.54058.david-b@pacbell.net>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > 		...
-> > 		depends on MII if MII != n
-> > 
-> > except that Kconfig doesn't comprehend conditionals like that.
+Russell King wrote:
+> On Tue, Oct 31, 2006 at 05:00:59PM +0100, Jiri Slaby wrote:
+>> Piece of code please. pci_alloc_consistent calls __get_free_pages, and there
+>> should be no problem with mmaping this area.
 > 
-> You can express this in Kconfig:
-> 	depends MII || MII=n
+> That is an implementation detail which is not portable to other
+> architectures.  Please don't encourage people to use non-portable
+> implementation details.
 
-Except that:
-
-Warning! Found recursive dependency: USB_USBNET USB_NET_AX8817X MII USB_USBNET
-
-I think this is another case where Kconfig gets in the way and forces
-introduction of a pseudovariable.  I'll give that a try.
-
-
-> But my suggestion was:
-> #if defined(CONFIG_MII) || (defined(CONFIG_MII_MODULE) && defined(MODULE))
->
-> Or simply select MII ...
-
-Nope; those both prevent completely legit configurations.
-MII is not required, except for those two adapter options.
-
-
+Sorry, I stand corrected, thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

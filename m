@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752530AbWKAWhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752529AbWKAWlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752530AbWKAWhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 17:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752528AbWKAWhY
+	id S1752529AbWKAWlj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 17:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752531AbWKAWlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 17:37:24 -0500
-Received: from mail.tmr.com ([64.65.253.246]:64136 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S1752526AbWKAWhX (ORCPT
+	Wed, 1 Nov 2006 17:41:39 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57002 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752529AbWKAWli (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 17:37:23 -0500
-Message-ID: <4549214B.1000103@tmr.com>
-Date: Wed, 01 Nov 2006 17:35:55 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-pm@osdl.org,
-       Ernst Herzberg <earny@net4u.de>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Adrian Bunk <bunk@stusta.de>, Martin Lorenz <martin@lorenz.eu.org>
-Subject: Re: 2.6.19-rc <-> ThinkPads
-References: <Pine.LNX.4.64.0610312123320.25218@g5.osdl.org>	<20061101055435.GB4933@mellanox.co.il> <Pine.LNX.4.64.0610312206390.25218@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610312206390.25218@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Nov 2006 17:41:38 -0500
+Date: Wed, 1 Nov 2006 17:40:19 -0500
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>,
+       linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt kernels
+Message-ID: <20061101224019.GA10577@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, Chris Wright <chrisw@sous-sol.org>,
+	akpm@osdl.org, ak@muc.de, Rusty Russell <rusty@rustcorp.com.au>,
+	Jeremy Fitzhardinge <jeremy@goop.org>,
+	Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org,
+	virtualization@lists.osdl.org
+References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org> <20061101121753.GA2205@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061101121753.GA2205@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, Nov 01, 2006 at 01:17:53PM +0100, Pavel Machek wrote:
 
-> I wonder if the order matters more, though. Andi? We _used_ to write the 
-> high word first, and I think the order matters. The low word contains the 
-> enable bit, for example, so when enabling an interrupt, you should write 
-> the low word last, when you disable it you should write the low word 
-> first.
-> 
-Although you can argue that anyone coding here should be a guru, in 
-practice things this subtle really would be helped by a comment in the 
-initial code. I don't agree that "if it was hard to write it should be 
-hard to understand." Clearly several competent people missed this 
-dependency, or the patch would not have gone in.
+ > > +++ linux-2.6-pv/arch/i386/kernel/cpu/intel.c
+ > > @@ -107,7 +107,7 @@ static void __cpuinit init_intel(struct 
+ > >  	 * Note that the workaround only should be initialized once...
+ > >  	 */
+ > >  	c->f00f_bug = 0;
+ > > -	if ( c->x86 == 5 ) {
+ > > +	if (!paravirt_enabled() && c->x86 == 5) {
+ > 
+ > I'd do x86==5 check first... pentiums are not common any more.
+
+It's not like paravirt_enabled will be common-case either,
+and is this isn't exactly a performance critical piece of code,
+it doesn't really matter which way around the checks are done.
+
+	Dave
 
 -- 
-Bill Davidsen <davidsen@tmr.com>
-   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
-normal user and is setuid root, with the "vi" line edit mode selected,
-and the character set is "big5," an off-by-one errors occurs during
-wildcard (glob) expansion.
+http://www.codemonkey.org.uk

@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWKAPWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992615AbWKAP3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751031AbWKAPWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 10:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752212AbWKAPWQ
+	id S2992615AbWKAP3n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 10:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992614AbWKAP3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 10:22:16 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:32646 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1750993AbWKAPWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 10:22:15 -0500
-Date: Wed, 1 Nov 2006 15:22:01 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       mingo@redhat.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc4-mm1: noidlehz problems
-Message-ID: <20061101152201.GA13634@srcf.ucam.org>
-References: <20061101122319.GA13056@elf.ucw.cz> <1162386177.23744.17.camel@laptopd505.fenrus.org>
+	Wed, 1 Nov 2006 10:29:42 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:5385 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S2992615AbWKAP3l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 10:29:41 -0500
+Date: Wed, 1 Nov 2006 16:31:28 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
+Cc: arjan@infradead.org, schilling@fokus.fraunhofer.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: SCSI over USB showstopper bug?
+Message-ID: <20061101153128.GM13555@kernel.dk>
+References: <4547c966.8oyAB/pzCZ7bGUza%Joerg.Schilling@fokus.fraunhofer.de> <1162333090.3044.53.camel@laptopd505.fenrus.org> <4547e164.k3W0GpiCAd3p3Tkh%Joerg.Schilling@fokus.fraunhofer.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1162386177.23744.17.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+In-Reply-To: <4547e164.k3W0GpiCAd3p3Tkh%Joerg.Schilling@fokus.fraunhofer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 02:02:57PM +0100, Arjan van de Ven wrote:
+On Wed, Nov 01 2006, Joerg Schilling wrote:
+> Arjan van de Ven <arjan@infradead.org> wrote:
+> 
+> > On Tue, 2006-10-31 at 23:08 +0100, Joerg Schilling wrote:
+> > > Hi,
+> > > 
+> > > it looks as if SG_GET_RESERVED_SIZE & SG_SET_RESERVED_SIZE
+> > > are not in interaction with the underlying SCSI transport.
+> > > 
+> > > Programs like readcd and cdda2wav that try to get very large SCSI
+> > > transfer buffers get a confirmation for nearly any SCSI transfer size 
+> > > but later when readcd/cdda2wav try to transfer data with an
+> > > actual SCSI command, they fail with ENOMEM.
+> > > 
+> > > Correct fix: let sg.c make a callback to the underlying SCSI transport
+> > > 		and let it get a confirmation tfor the buffer size.
+> > > 
+> > > Quick and dirty fix: reduce the maximum allowed DMA size to the smallest
+> > > 		max DMA size of all SCSI transports.
+> >
+> > real good fix:
+> >
+> > use SG_IO on the device directly that checks this already
+> 
+> From looking into the source, this claim seems to be wrong.
 
-> In some (hardware) C-states, the local apic timer stops (as does the
-> TSC), while in others it keeps running. If you change from AC to
-> battery, the bios can change the meaning of a software C-state from one
-> where local apic timer keeps going to one where it stops. This obviously
-> upsets the hrtimers/tickless code since that uses local apic timer for
-> event generation....
-
-Is there any hope of working around this? I'd have expected that the 
-most useful case for the tickless code was also the case where we want 
-to be using C3/C4...
+The block layer SG_IO entry point does what Arjan describes - it checks
+the queue settings, which must match the hardware limits. It needs to,
+since it won't accept a command larger than what the path to that device
+will allow in one go. The SCSI sg variant may be more restricted, since
+it should handle partial completions of such commands.
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Jens Axboe
+

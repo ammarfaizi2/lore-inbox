@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946674AbWKAHvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946684AbWKAIB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946674AbWKAHvG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 02:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946678AbWKAHvF
+	id S1946684AbWKAIB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 03:01:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946686AbWKAIB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 02:51:05 -0500
-Received: from nf-out-0910.google.com ([64.233.182.187]:10902 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1946674AbWKAHvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 02:51:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=KCU+HOCWqWkJFAKB3gSp5z/5vMR5MND9QeXa9BPN1zY3ImRW0d206gB6p760fkJY3TzgmCpqKT962uydadOUs2jRzdMa/QUtEALX6haikgHtlfv6SdqgkUEhY9Htwgy0PjgcoUYO0RcmKR8MnFM5BFV7yQ5ZbgclGzPfapXwHlI=
-Message-ID: <6d6a94c50610312351g46224cdbr20f5640689ec7109@mail.gmail.com>
-Date: Wed, 1 Nov 2006 15:51:01 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: How to add a device file to sysfs?
+	Wed, 1 Nov 2006 03:01:29 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:39781 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1946684AbWKAIB2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 03:01:28 -0500
+Message-ID: <45485357.6050403@openvz.org>
+Date: Wed, 01 Nov 2006 10:57:11 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Pavel Emelianov <xemul@openvz.org>, balbir@in.ibm.com, vatsa@in.ibm.com,
+       dev@openvz.org, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
+       dipankar@in.ibm.com, rohitseth@google.com, menage@google.com
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+References: <20061030103356.GA16833@in.ibm.com>	 <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org>	 <454638D2.7050306@in.ibm.com>  <45470DF4.70405@openvz.org> <1162314249.28876.120.camel@localhost.localdomain>
+In-Reply-To: <1162314249.28876.120.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Dave Hansen wrote:
+> On Tue, 2006-10-31 at 11:48 +0300, Pavel Emelianov wrote:
+>> If memory is considered to be unreclaimable then actions should be
+>> taken at mmap() time, not later! Rejecting mmap() is the only way to
+>> limit user in unreclaimable memory consumption.
+> 
+> I don't think this is necessarily true.  Today, if a kernel exceeds its
+> allocation limits (runs out of memory) it gets killed.  Doing the
+> limiting at mmap() time instead of fault time will keep a sparse memory
+> applications from even being able to run.
 
-When a misc device file is registered, there are two files under my
-own class directory:
+If limiting _every_ mapping it will, but when limiting only
+"private" mappings - no problems at all. BC code lives for
+more than 3 years already and no claims from users on this
+question yet.
 
-/sys --> class --> misc --> myprog --> dev
-                                                  --> uevent
-                                                  --> myprog_show (to be added)
+> Now, failing an mmap() is a wee bit more graceful than a SIGBUS, but it
+> certainly introduces its own set of problems.
+> 
+> -- Dave
+> 
+> 
 
-Now, my question is, is it possbile to add the third file
-"myprog_show" under "myprog" directory without modify any common code?
-
-I've read the doc under linux-2.6.x/Documentation, I can add it to
-some other directory under /sys, but not found a way to add it to my own
-directory.
-
-Thanks for any help.
--Aubrey

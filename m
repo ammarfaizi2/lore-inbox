@@ -1,1336 +1,684 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946630AbWKAK1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946597AbWKAK2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946630AbWKAK1R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 05:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946597AbWKAK1R
+	id S1946597AbWKAK2U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 05:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946756AbWKAK2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 05:27:17 -0500
-Received: from ozlabs.org ([203.10.76.45]:44738 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1946630AbWKAK1P (ORCPT
+	Wed, 1 Nov 2006 05:28:19 -0500
+Received: from ozlabs.org ([203.10.76.45]:49858 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1946597AbWKAK2S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 05:27:15 -0500
-Subject: [PATCH 1/7] paravirtualization: header and stubs for
-	paravirtualizing critical operations
+	Wed, 1 Nov 2006 05:28:18 -0500
+Subject: [PATCH 2/7] paravirtualization: Patch inline replacements for
+	common paravirt operations.
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: Andi Kleen <ak@muc.de>
 Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
        Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20061030231132.GA98768@muc.de>
+In-Reply-To: <1162376827.23462.5.camel@localhost.localdomain>
 References: <20061029024504.760769000@sous-sol.org>
 	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
 	 <1162178936.9802.34.camel@localhost.localdomain>
 	 <20061030231132.GA98768@muc.de>
+	 <1162376827.23462.5.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 01 Nov 2006 21:27:07 +1100
-Message-Id: <1162376827.23462.5.camel@localhost.localdomain>
+Date: Wed, 01 Nov 2006 21:28:13 +1100
+Message-Id: <1162376894.23462.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Create a paravirt.h header for all the critical operations which need
-to be replaced with hypervisor calls, and include that instead of
-defining native operations, when CONFIG_PARAVIRT.
+It turns out that the most called ops, by several orders of magnitude,
+are the interrupt manipulation ops.  These are obvious candidates for
+patching, so mark them up and create infrastructure for it.
 
-This patch does the dumbest possible replacement of paravirtualized
-instructions: calls through a "paravirt_ops" structure.  Currently
-these are function implementations of native hardware: hypervisors
-will override the ops structure with their own variants.
+The method used is that the ops structure has a patch function, which
+is called for each place which needs to be patched: this returns a
+number of instructions (the rest are NOP-padded).
 
-All the pv-ops functions are declared "fastcall" so that a specific
-register-based ABI is used, to make inlining assember easier.
+Usually we can spare a register (%eax) for the binary patched code to
+use, but in a couple of critical places in entry.S we can't: we make
+the clobbers explicit at the call site, and manually clobber the
+allowed registers in debug mode as an extra check.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Zachary Amsden <zach@vmware.com>
+Signed-off-by: Zachary Amsden <zach@vmware.com>
 
 ===================================================================
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -196,6 +196,17 @@ config X86_ES7000
- 	  should say N here.
+--- a/arch/i386/kernel/alternative.c
++++ b/arch/i386/kernel/alternative.c
+@@ -123,6 +123,20 @@ static unsigned char** find_nop_table(vo
  
- endchoice
+ #endif /* CONFIG_X86_64 */
+ 
++static void nop_out(void *insns, unsigned int len)
++{
++	unsigned char **noptable = find_nop_table();
 +
-+config PARAVIRT
-+	bool "Paravirtualization support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
-+	help
-+	  Paravirtualization is a way of running multiple instances of
-+	  Linux on the same machine, under a hypervisor.  This option
-+	  changes the kernel so it can modify itself when it is run
-+	  under a hypervisor, improving performance significantly.
-+	  However, when run without a hypervisor the kernel is
-+	  theoretically slower.  If in doubt, say N.
++	while (len > 0) {
++		unsigned int noplen = len;
++		if (noplen > ASM_NOP_MAX)
++			noplen = ASM_NOP_MAX;
++		memcpy(insns, noptable[noplen], noplen);
++		insns += noplen;
++		len -= noplen;
++	}
++}
++
+ extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
+ extern struct alt_instr __smp_alt_instructions[], __smp_alt_instructions_end[];
+ extern u8 *__smp_locks[], *__smp_locks_end[];
+@@ -137,10 +151,9 @@ extern u8 __smp_alt_begin[], __smp_alt_e
  
- config ACPI_SRAT
- 	bool
-===================================================================
---- a/arch/i386/boot/compressed/misc.c
-+++ b/arch/i386/boot/compressed/misc.c
-@@ -9,6 +9,7 @@
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-  */
+ void apply_alternatives(struct alt_instr *start, struct alt_instr *end)
+ {
+-	unsigned char **noptable = find_nop_table();
+ 	struct alt_instr *a;
+ 	u8 *instr;
+-	int diff, i, k;
++	int diff;
  
-+#undef CONFIG_PARAVIRT
- #include <linux/linkage.h>
- #include <linux/vmalloc.h>
- #include <linux/screen_info.h>
-===================================================================
---- a/arch/i386/kernel/Makefile
-+++ b/arch/i386/kernel/Makefile
-@@ -39,6 +39,7 @@ obj-$(CONFIG_EARLY_PRINTK)	+= early_prin
- obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
- obj-$(CONFIG_HPET_TIMER) 	+= hpet.o
- obj-$(CONFIG_K8_NB)		+= k8.o
-+obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+ 	DPRINTK("%s: alt table %p -> %p\n", __FUNCTION__, start, end);
+ 	for (a = start; a < end; a++) {
+@@ -158,13 +171,7 @@ void apply_alternatives(struct alt_instr
+ #endif
+ 		memcpy(instr, a->replacement, a->replacementlen);
+ 		diff = a->instrlen - a->replacementlen;
+-		/* Pad the rest with nops */
+-		for (i = a->replacementlen; diff > 0; diff -= k, i += k) {
+-			k = diff;
+-			if (k > ASM_NOP_MAX)
+-				k = ASM_NOP_MAX;
+-			memcpy(a->instr + i, noptable[k], k);
+-		}
++		nop_out(instr + a->replacementlen, diff);
+ 	}
+ }
  
- EXTRA_AFLAGS   := -traditional
+@@ -208,7 +215,6 @@ static void alternatives_smp_lock(u8 **s
  
-===================================================================
---- a/arch/i386/kernel/asm-offsets.c
-+++ b/arch/i386/kernel/asm-offsets.c
-@@ -101,4 +101,14 @@ void foo(void)
- 	BLANK();
-  	OFFSET(PDA_cpu, i386_pda, cpu_number);
- 	OFFSET(PDA_pcurrent, i386_pda, pcurrent);
+ static void alternatives_smp_unlock(u8 **start, u8 **end, u8 *text, u8 *text_end)
+ {
+-	unsigned char **noptable = find_nop_table();
+ 	u8 **ptr;
+ 
+ 	for (ptr = start; ptr < end; ptr++) {
+@@ -216,7 +222,7 @@ static void alternatives_smp_unlock(u8 *
+ 			continue;
+ 		if (*ptr > text_end)
+ 			continue;
+-		**ptr = noptable[1][0];
++		nop_out(*ptr, 1);
+ 	};
+ }
+ 
+@@ -341,6 +347,43 @@ void alternatives_smp_switch(int smp)
+ }
+ 
+ #endif
 +
 +#ifdef CONFIG_PARAVIRT
-+	BLANK();
-+	OFFSET(PARAVIRT_enabled, paravirt_ops, paravirt_enabled);
-+	OFFSET(PARAVIRT_irq_disable, paravirt_ops, irq_disable);
-+	OFFSET(PARAVIRT_irq_enable, paravirt_ops, irq_enable);
-+	OFFSET(PARAVIRT_irq_enable_sysexit, paravirt_ops, irq_enable_sysexit);
-+	OFFSET(PARAVIRT_iret, paravirt_ops, iret);
-+	OFFSET(PARAVIRT_read_cr0, paravirt_ops, read_cr0);
++void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
++{
++	struct paravirt_patch *p;
++	int i;
++
++	for (p = start; p < end; p++) {
++		unsigned int used;
++
++		used = paravirt_ops.patch(p->instrtype, p->clobbers, p->instr,
++					  p->len);
++#ifdef CONFIG_DEBUG_KERNEL
++		/* Deliberately clobber regs using "not %reg" to find bugs. */
++		for (i = 0; i < 3; i++) {
++			if (p->len - used >= 2 && (p->clobbers & (1 << i))) {
++				memcpy(p->instr + used, "\xf7\xd0", 2);
++				p->instr[used+1] |= i;
++				used += 2;
++			}
++		}
 +#endif
++		/* Pad the rest with nops */
++		nop_out(p->instr + used, p->len - used);
++	}
++
++	/* Sync to be conservative, in case we patched following instructions */
++	sync_core();
++}
++extern struct paravirt_patch __start_parainstructions[],
++	__stop_parainstructions[];
++#else
++void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
++{
++}
++extern struct paravirt_patch *__start_parainstructions, *__stop_parainstructions;
++#endif	/* CONFIG_PARAVIRT */
+ 
+ void __init alternative_instructions(void)
+ {
+@@ -389,5 +432,6 @@ void __init alternative_instructions(voi
+ 		alternatives_smp_switch(0);
+ 	}
+ #endif
++ 	apply_paravirt(__start_parainstructions, __stop_parainstructions);
+ 	local_irq_restore(flags);
  }
 ===================================================================
 --- a/arch/i386/kernel/entry.S
 +++ b/arch/i386/kernel/entry.S
-@@ -61,13 +61,6 @@ DF_MASK		= 0x00000400
- DF_MASK		= 0x00000400 
- NT_MASK		= 0x00004000
+@@ -53,6 +53,19 @@
+ #include <asm/dwarf2.h>
+ #include "irq_vectors.h"
+ 
++/*
++ * We use macros for low-level operations which need to be overridden
++ * for paravirtualization.  The following will never clobber any registers:
++ *   INTERRUPT_RETURN (aka. "iret")
++ *   GET_CR0_INTO_EAX (aka. "movl %cr0, %eax")
++ *   ENABLE_INTERRUPTS_SYSEXIT (aka "sti; sysexit").
++ *
++ * For DISABLE_INTERRUPTS/ENABLE_INTERRUPTS (aka "cli"/"sti"), you must
++ * specify what registers can be overwritten (CLBR_NONE, CLBR_EAX/EDX/ECX/ANY).
++ * Allowing a register to be clobbered can shrink the paravirt replacement
++ * enough to patch inline, increasing performance.
++ */
++
+ #define nr_syscalls ((syscall_table_size)/4)
+ 
+ CF_MASK		= 0x00000001
+@@ -63,9 +76,9 @@ VM_MASK		= 0x00020000
  VM_MASK		= 0x00020000
--
--/* These are replaces for paravirtualization */
--#define DISABLE_INTERRUPTS		cli
--#define ENABLE_INTERRUPTS		sti
--#define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
--#define INTERRUPT_RETURN		iret
--#define GET_CR0_INTO_EAX		movl %cr0, %eax
  
  #ifdef CONFIG_PREEMPT
- #define preempt_stop		DISABLE_INTERRUPTS; TRACE_IRQS_OFF
-@@ -416,6 +409,20 @@ ldt_ss:
+-#define preempt_stop		DISABLE_INTERRUPTS; TRACE_IRQS_OFF
++#define preempt_stop(clobbers)	DISABLE_INTERRUPTS(clobbers); TRACE_IRQS_OFF
+ #else
+-#define preempt_stop
++#define preempt_stop(clobbers)
+ #define resume_kernel		restore_nocheck
+ #endif
+ 
+@@ -226,7 +239,7 @@ ENTRY(ret_from_fork)
+ 	ALIGN
+ 	RING0_PTREGS_FRAME
+ ret_from_exception:
+-	preempt_stop
++	preempt_stop(CLBR_ANY)
+ ret_from_intr:
+ 	GET_THREAD_INFO(%ebp)
+ check_userspace:
+@@ -237,7 +250,7 @@ check_userspace:
+ 	jb resume_kernel		# not returning to v8086 or userspace
+ 
+ ENTRY(resume_userspace)
+- 	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
++ 	DISABLE_INTERRUPTS(CLBR_ANY)	# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+ 	movl TI_flags(%ebp), %ecx
+@@ -248,7 +261,7 @@ ENTRY(resume_userspace)
+ 
+ #ifdef CONFIG_PREEMPT
+ ENTRY(resume_kernel)
+-	DISABLE_INTERRUPTS
++	DISABLE_INTERRUPTS(CLBR_ANY)
+ 	cmpl $0,TI_preempt_count(%ebp)	# non-zero preempt_count ?
  	jnz restore_nocheck
- 	testl $0x00400000, %eax		# returning to 32bit stack?
- 	jnz restore_nocheck		# allright, normal return
-+
-+#ifdef CONFIG_PARAVIRT
-+	/* 
-+	 * The kernel can't run on a non-flat stack if paravirt mode
-+	 * is active.  Rather than try to fixup the high bits of
-+	 * ESP, bypass this code entirely.  This may break DOSemu
-+	 * and/or Wine support in a paravirt VM, although the option
-+	 * is still available to implement the setting of the high
-+	 * 16-bits in the INTERRUPT_RETURN paravirt-op.
-+	 */
-+	cmpl $0, paravirt_ops+PARAVIRT_enabled
-+	jne restore_nocheck
-+#endif
-+	
- 	/* If returning to userspace with 16bit stack,
- 	 * try to fix the higher word of ESP, as the CPU
- 	 * won't restore it.
-@@ -830,6 +837,19 @@ 1:	INTERRUPT_RETURN
- 	.long 1b,iret_exc
- .previous
- KPROBE_END(nmi)
-+
-+#ifdef CONFIG_PARAVIRT
-+ENTRY(native_iret)
-+1:	iret
-+.section __ex_table,"a"
-+	.align 4
-+	.long 1b,iret_exc
-+.previous
-+
-+ENTRY(native_irq_enable_sysexit)
-+	sti
-+	sysexit
-+#endif
- 
- KPROBE_ENTRY(int3)
- 	RING0_INT_FRAME
+ need_resched:
+@@ -277,7 +290,7 @@ sysenter_past_esp:
+ 	 * No need to follow this irqs on/off section: the syscall
+ 	 * disabled irqs and here we enable it straight after entry:
+ 	 */
+-	ENABLE_INTERRUPTS
++	ENABLE_INTERRUPTS(CLBR_NONE)
+ 	pushl $(__USER_DS)
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	/*CFI_REL_OFFSET ss, 0*/
+@@ -322,7 +335,7 @@ 1:	movl (%ebp),%ebp
+ 	jae syscall_badsys
+ 	call *sys_call_table(,%eax,4)
+ 	movl %eax,PT_EAX(%esp)
+-	DISABLE_INTERRUPTS
++	DISABLE_INTERRUPTS(CLBR_ECX|CLBR_EDX)
+ 	TRACE_IRQS_OFF
+ 	movl TI_flags(%ebp), %ecx
+ 	testw $_TIF_ALLWORK_MASK, %cx
+@@ -364,7 +377,7 @@ syscall_call:
+ 	call *sys_call_table(,%eax,4)
+ 	movl %eax,PT_EAX(%esp)		# store the return value
+ syscall_exit:
+-	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
++	DISABLE_INTERRUPTS(CLBR_ANY)	# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+ 	TRACE_IRQS_OFF
+@@ -393,7 +406,7 @@ 1:	INTERRUPT_RETURN
+ .section .fixup,"ax"
+ iret_exc:
+ 	TRACE_IRQS_ON
+-	ENABLE_INTERRUPTS
++	ENABLE_INTERRUPTS(CLBR_NONE)
+ 	pushl $0			# no error code
+ 	pushl $do_iret_error
+ 	jmp error_code
+@@ -436,7 +449,7 @@ ldt_ss:
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	pushl %eax
+ 	CFI_ADJUST_CFA_OFFSET 4
+-	DISABLE_INTERRUPTS
++	DISABLE_INTERRUPTS(CLBR_EAX)
+ 	TRACE_IRQS_OFF
+ 	lss (%esp), %esp
+ 	CFI_ADJUST_CFA_OFFSET -8
+@@ -451,7 +464,7 @@ work_pending:
+ 	jz work_notifysig
+ work_resched:
+ 	call schedule
+-	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
++	DISABLE_INTERRUPTS(CLBR_ANY)	# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+ 	TRACE_IRQS_OFF
+@@ -507,7 +520,7 @@ syscall_exit_work:
+ 	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP), %cl
+ 	jz work_pending
+ 	TRACE_IRQS_ON
+-	ENABLE_INTERRUPTS		# could let do_syscall_trace() call
++	ENABLE_INTERRUPTS(CLBR_ANY)	# could let do_syscall_trace() call
+ 					# schedule() instead
+ 	movl %esp, %eax
+ 	movl $1, %edx
+@@ -691,7 +704,7 @@ ENTRY(device_not_available)
+ 	GET_CR0_INTO_EAX
+ 	testl $0x4, %eax		# EM (math emulation bit)
+ 	jne device_not_available_emulate
+-	preempt_stop
++	preempt_stop(CLBR_ANY)
+ 	call math_state_restore
+ 	jmp ret_from_exception
+ device_not_available_emulate:
 ===================================================================
---- a/arch/i386/kernel/i8259.c
-+++ b/arch/i386/kernel/i8259.c
-@@ -392,7 +392,10 @@ void __init init_ISA_irqs (void)
- 	}
- }
- 
--void __init init_IRQ(void)
-+/* Overridden in paravirt.c */
-+void init_IRQ(void) __attribute__((weak, alias("native_init_IRQ")));
-+
-+void __init native_init_IRQ(void)
+--- a/arch/i386/kernel/module.c
++++ b/arch/i386/kernel/module.c
+@@ -109,7 +109,8 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 		    const Elf_Shdr *sechdrs,
+ 		    struct module *me)
  {
- 	int i;
+-	const Elf_Shdr *s, *text = NULL, *alt = NULL, *locks = NULL;
++	const Elf_Shdr *s, *text = NULL, *alt = NULL, *locks = NULL,
++		*para = NULL;
+ 	char *secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
  
-===================================================================
---- a/arch/i386/kernel/setup.c
-+++ b/arch/i386/kernel/setup.c
-@@ -1405,7 +1405,7 @@ void __init setup_arch(char **cmdline_p)
- 		efi_init();
- 	else {
- 		printk(KERN_INFO "BIOS-provided physical RAM map:\n");
--		print_memory_map(machine_specific_memory_setup());
-+		print_memory_map(memory_setup());
+ 	for (s = sechdrs; s < sechdrs + hdr->e_shnum; s++) { 
+@@ -119,6 +120,8 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 			alt = s;
+ 		if (!strcmp(".smp_locks", secstrings + s->sh_name))
+ 			locks= s;
++		if (!strcmp(".parainstructions", secstrings + s->sh_name))
++			para = s;
  	}
  
- 	copy_edd();
-===================================================================
---- a/arch/i386/kernel/smpboot.c
-+++ b/arch/i386/kernel/smpboot.c
-@@ -33,6 +33,11 @@
-  *		Dave Jones	:	Report invalid combinations of Athlon CPUs.
- *		Rusty Russell	:	Hacked into shape for new "hotplug" boot process. */
- 
-+
-+/* SMP boot always wants to use real time delay to allow sufficient time for
-+ * the APs to come online */
-+#define USE_REAL_TIME_DELAY
-+
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
-===================================================================
---- a/arch/i386/kernel/time.c
-+++ b/arch/i386/kernel/time.c
-@@ -56,6 +56,7 @@
- #include <asm/uaccess.h>
- #include <asm/processor.h>
- #include <asm/timer.h>
-+#include <asm/time.h>
- 
- #include "mach_time.h"
- 
-@@ -116,10 +117,7 @@ static int set_rtc_mmss(unsigned long no
- 	/* gets recalled with irq locally disabled */
- 	/* XXX - does irqsave resolve this? -johnstul */
- 	spin_lock_irqsave(&rtc_lock, flags);
--	if (efi_enabled)
--		retval = efi_set_rtc_mmss(nowtime);
--	else
--		retval = mach_set_rtc_mmss(nowtime);
-+	retval = set_wallclock(nowtime);
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- 
- 	return retval;
-@@ -211,10 +209,7 @@ unsigned long read_persistent_clock(void
- 
- 	spin_lock_irqsave(&rtc_lock, flags);
- 
--	if (efi_enabled)
--		retval = efi_get_time();
--	else
--		retval = mach_get_cmos_time();
-+	retval = get_wallclock();
- 
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- 
-@@ -280,7 +275,7 @@ static void __init hpet_time_init(void)
- 		printk("Using HPET for base-timer\n");
+ 	if (alt) {
+@@ -133,6 +136,10 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 					    lseg, lseg + locks->sh_size,
+ 					    tseg, tseg + text->sh_size);
  	}
++	if (para) {
++		void *pseg = (void *)para->sh_addr;
++		apply_paravirt(pseg, pseg + para->sh_size);
++	}
  
--	time_init_hook();
-+	do_time_init();
+ 	return module_bug_finalize(hdr, sechdrs, me);
  }
- #endif
- 
-@@ -296,5 +291,5 @@ void __init time_init(void)
- 		return;
- 	}
- #endif
--	time_init_hook();
--}
-+	do_time_init();
+===================================================================
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -38,6 +38,49 @@ static void __init default_banner(void)
+ {
+ 	printk(KERN_INFO "Booting paravirtualized kernel on %s\n",
+ 	       paravirt_ops.name);
 +}
-===================================================================
---- a/drivers/net/de600.c
-+++ b/drivers/net/de600.c
-@@ -43,7 +43,6 @@ static const char version[] = "de600.c: 
-  * modify the following "#define": (see <asm/io.h> for more info)
- #define REALLY_SLOW_IO
-  */
--#define SLOW_IO_BY_JUMPING /* Looks "better" than dummy write to port 0x80 :-) */
- 
- /* use 0 for production, 1 for verification, >2 for debug */
- #ifdef DE600_DEBUG
-===================================================================
---- a/include/asm-i386/delay.h
-+++ b/include/asm-i386/delay.h
-@@ -15,6 +15,13 @@ extern void __const_udelay(unsigned long
- extern void __const_udelay(unsigned long usecs);
- extern void __delay(unsigned long loops);
- 
-+#if defined(CONFIG_PARAVIRT) && !defined(USE_REAL_TIME_DELAY)
-+#define udelay(n) paravirt_ops.const_udelay((n) * 0x10c7ul)
-+	
-+#define ndelay(n) paravirt_ops.const_udelay((n) * 5ul)
 +
-+#else /* !PARAVIRT || USE_REAL_TIME_DELAY */
++/* Simple instruction patching code. */
++#define DEF_NATIVE(name, code)					\
++	extern const char start_##name[], end_##name[];		\
++	asm("start_" #name ": " code "; end_" #name ":")
++DEF_NATIVE(cli, "cli");
++DEF_NATIVE(sti, "sti");
++DEF_NATIVE(popf, "push %eax; popf");
++DEF_NATIVE(pushf, "pushf; pop %eax");
++DEF_NATIVE(pushf_cli, "pushf; pop %eax; cli");
++DEF_NATIVE(iret, "iret");
++DEF_NATIVE(sti_sysexit, "sti; sysexit");
 +
- #define udelay(n) (__builtin_constant_p(n) ? \
- 	((n) > 20000 ? __bad_udelay() : __const_udelay((n) * 0x10c7ul)) : \
- 	__udelay(n))
-@@ -22,6 +29,7 @@ extern void __delay(unsigned long loops)
- #define ndelay(n) (__builtin_constant_p(n) ? \
- 	((n) > 20000 ? __bad_ndelay() : __const_udelay((n) * 5ul)) : \
- 	__ndelay(n))
-+#endif
- 
- void use_tsc_delay(void);
- 
-===================================================================
---- a/include/asm-i386/desc.h
-+++ b/include/asm-i386/desc.h
-@@ -55,6 +55,9 @@ static inline void pack_gate(u32 *low, u
- #define DESCTYPE_DPL3	0x60	/* DPL-3 */
- #define DESCTYPE_S	0x10	/* !system */
- 
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
- #define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
- 
- #define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
-@@ -89,7 +92,11 @@ static inline void write_dt_entry(void *
- 	lp[1] = entry_high;
++static const struct native_insns
++{
++	const char *start, *end;
++} native_insns[] = {
++	[PARAVIRT_IRQ_DISABLE] = { start_cli, end_cli },
++	[PARAVIRT_IRQ_ENABLE] = { start_sti, end_sti },
++	[PARAVIRT_RESTORE_FLAGS] = { start_popf, end_popf },
++	[PARAVIRT_SAVE_FLAGS] = { start_pushf, end_pushf },
++	[PARAVIRT_SAVE_FLAGS_IRQ_DISABLE] = { start_pushf_cli, end_pushf_cli },
++	[PARAVIRT_INTERRUPT_RETURN] = { start_iret, end_iret },
++	[PARAVIRT_STI_SYSEXIT] = { start_sti_sysexit, end_sti_sysexit },
++};
++
++static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned len)
++{
++	unsigned int insn_len;
++
++	/* Don't touch it if we don't have a replacement */
++	if (type >= ARRAY_SIZE(native_insns) || !native_insns[type].start)
++		return len;
++
++	insn_len = native_insns[type].end - native_insns[type].start;
++
++	/* Similarly if we can't fit replacement. */
++	if (len < insn_len)
++		return len;
++
++	memcpy(insns, native_insns[type].start, insn_len);
++	return insn_len;
  }
  
--static inline void set_ldt(void *addr, unsigned int entries)
-+#define set_ldt native_set_ldt
-+#endif /* CONFIG_PARAVIRT */
-+
-+static inline fastcall void native_set_ldt(const void *addr,
-+					   unsigned int entries)
- {
- 	if (likely(entries == 0))
- 		__asm__ __volatile__("lldt %w0"::"q" (0));
+ static fastcall unsigned long native_get_debugreg(int regno)
+@@ -344,6 +387,7 @@ struct paravirt_ops paravirt_ops = {
+ 	.paravirt_enabled = 0,
+ 	.kernel_rpl = 0,
+ 
++ 	.patch = native_patch,
+ 	.banner = default_banner,
+ 	.arch_setup = native_nop,
+ 	.memory_setup = machine_specific_memory_setup,
 ===================================================================
---- a/include/asm-i386/io.h
-+++ b/include/asm-i386/io.h
-@@ -256,11 +256,11 @@ static inline void flush_write_buffers(v
- 
- #endif /* __KERNEL__ */
- 
--#ifdef SLOW_IO_BY_JUMPING
--#define __SLOW_DOWN_IO "jmp 1f; 1: jmp 1f; 1:"
--#else
-+#if defined(CONFIG_PARAVIRT)
-+#include <asm/paravirt.h>
-+#else 
-+
- #define __SLOW_DOWN_IO "outb %%al,$0x80;"
--#endif
- 
- static inline void slow_down_io(void) {
- 	__asm__ __volatile__(
-@@ -270,6 +270,8 @@ static inline void slow_down_io(void) {
- #endif
- 		: : );
- }
-+
-+#endif
- 
- #ifdef CONFIG_X86_NUMAQ
- extern void *xquad_portio;    /* Where the IO area was mapped */
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -154,6 +154,12 @@ SECTIONS
+   .altinstr_replacement : AT(ADDR(.altinstr_replacement) - LOAD_OFFSET) {
+ 	*(.altinstr_replacement)
+   }
++  . = ALIGN(4);
++  __start_parainstructions = .;
++  .parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
++	*(.parainstructions)
++  }
++  __stop_parainstructions = .;
+   /* .exit.text is discard at runtime, not link time, to deal with references
+      from .altinstructions and .eh_frame */
+   .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
 ===================================================================
---- a/include/asm-i386/irq.h
-+++ b/include/asm-i386/irq.h
-@@ -41,4 +41,7 @@ extern void fixup_irqs(cpumask_t map);
- extern void fixup_irqs(cpumask_t map);
+--- a/include/asm-i386/alternative.h
++++ b/include/asm-i386/alternative.h
+@@ -118,4 +118,7 @@ static inline void alternatives_smp_swit
+ #define LOCK_PREFIX ""
  #endif
  
-+void init_IRQ(void);
-+void __init native_init_IRQ(void);
++struct paravirt_patch;
++void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end);
 +
- #endif /* _ASM_IRQ_H */
+ #endif /* _I386_ALTERNATIVE_H */
 ===================================================================
 --- a/include/asm-i386/irqflags.h
 +++ b/include/asm-i386/irqflags.h
-@@ -10,6 +10,9 @@
- #ifndef _ASM_IRQFLAGS_H
- #define _ASM_IRQFLAGS_H
- 
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
- #ifndef __ASSEMBLY__
- 
- static inline unsigned long __raw_local_save_flags(void)
-@@ -24,9 +27,6 @@ static inline unsigned long __raw_local_
- 
- 	return flags;
- }
--
--#define raw_local_save_flags(flags) \
--		do { (flags) = __raw_local_save_flags(); } while (0)
- 
- static inline void raw_local_irq_restore(unsigned long flags)
- {
-@@ -66,18 +66,6 @@ static inline void halt(void)
- 	__asm__ __volatile__("hlt": : :"memory");
+@@ -79,8 +79,8 @@ static inline unsigned long __raw_local_
  }
  
--static inline int raw_irqs_disabled_flags(unsigned long flags)
--{
--	return !(flags & (1 << 9));
--}
--
--static inline int raw_irqs_disabled(void)
--{
--	unsigned long flags = __raw_local_save_flags();
--
--	return raw_irqs_disabled_flags(flags);
--}
--
- /*
-  * For spinlocks, etc:
-  */
-@@ -90,9 +78,33 @@ static inline unsigned long __raw_local_
- 	return flags;
- }
- 
-+#else
-+#define DISABLE_INTERRUPTS		cli
-+#define ENABLE_INTERRUPTS		sti
-+#define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
-+#define INTERRUPT_RETURN		iret
-+#define GET_CR0_INTO_EAX		movl %cr0, %eax
-+#endif /* __ASSEMBLY__ */
-+#endif /* CONFIG_PARAVIRT */
-+
-+#ifndef __ASSEMBLY__
-+#define raw_local_save_flags(flags) \
-+		do { (flags) = __raw_local_save_flags(); } while (0)
-+
- #define raw_local_irq_save(flags) \
- 		do { (flags) = __raw_local_irq_save(); } while (0)
- 
-+static inline int raw_irqs_disabled_flags(unsigned long flags)
-+{
-+	return !(flags & (1 << 9));
-+}
-+
-+static inline int raw_irqs_disabled(void)
-+{
-+	unsigned long flags = __raw_local_save_flags();
-+
-+	return raw_irqs_disabled_flags(flags);
-+}
- #endif /* __ASSEMBLY__ */
- 
- /*
+ #else
+-#define DISABLE_INTERRUPTS		cli
+-#define ENABLE_INTERRUPTS		sti
++#define DISABLE_INTERRUPTS(clobbers)	cli
++#define ENABLE_INTERRUPTS(clobbers)	sti
+ #define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
+ #define INTERRUPT_RETURN		iret
+ #define GET_CR0_INTO_EAX		movl %cr0, %eax
 ===================================================================
---- a/include/asm-i386/mach-default/setup_arch.h
-+++ b/include/asm-i386/mach-default/setup_arch.h
-@@ -2,4 +2,6 @@
- 
- /* no action for generic */
- 
-+#ifndef ARCH_SETUP
- #define ARCH_SETUP
-+#endif
-===================================================================
---- a/include/asm-i386/msr.h
-+++ b/include/asm-i386/msr.h
-@@ -1,5 +1,9 @@
- #ifndef __ASM_MSR_H
- #define __ASM_MSR_H
-+
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
- 
- /*
-  * Access to machine-specific registers (available on 586 and better only)
-@@ -77,6 +81,7 @@ static inline void wrmsrl (unsigned long
-      __asm__ __volatile__("rdpmc" \
- 			  : "=a" (low), "=d" (high) \
- 			  : "c" (counter))
-+#endif	/* !CONFIG_PARAVIRT */
- 
- /* symbolic names for some interesting MSRs */
- /* Intel defined MSRs. */
-===================================================================
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -146,8 +146,8 @@ static inline void detect_ht(struct cpui
- #define X86_EFLAGS_VIP	0x00100000 /* Virtual Interrupt Pending */
- #define X86_EFLAGS_ID	0x00200000 /* CPUID detection flag */
- 
--static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
--			   unsigned int *ecx, unsigned int *edx)
-+static inline fastcall void native_cpuid(unsigned int *eax, unsigned int *ebx,
-+					 unsigned int *ecx, unsigned int *edx)
- {
- 	/* ecx is often an input as well as an output. */
- 	__asm__("cpuid"
-@@ -548,6 +548,12 @@ static inline void rep_nop(void)
- 
- #define cpu_relax()	rep_nop()
- 
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
-+#define paravirt_enabled() 0
-+#define __cpuid native_cpuid
-+
- static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
- {
- 	tss->esp0 = thread->esp0;
-@@ -570,10 +576,13 @@ static inline void load_esp0(struct tss_
- 			: /* no output */			\
- 			:"r" (value))
- 
-+#define set_iopl_mask native_set_iopl_mask
-+#endif /* CONFIG_PARAVIRT */
-+
- /*
-  * Set IOPL bits in EFLAGS from given mask
-  */
--static inline void set_iopl_mask(unsigned mask)
-+static fastcall inline void native_set_iopl_mask(unsigned mask)
- {
- 	unsigned int reg;
- 	__asm__ __volatile__ ("pushfl;"
-===================================================================
---- a/include/asm-i386/segment.h
-+++ b/include/asm-i386/segment.h
-@@ -131,5 +131,7 @@
- #define SEGMENT_LDT		0x4
- #define SEGMENT_GDT		0x0
- 
-+#ifndef CONFIG_PARAVIRT
- #define get_kernel_rpl()  0
- #endif
-+#endif
-===================================================================
---- a/include/asm-i386/setup.h
-+++ b/include/asm-i386/setup.h
-@@ -70,6 +70,14 @@ struct e820entry;
- struct e820entry;
- 
- char * __init machine_specific_memory_setup(void);
-+#ifndef CONFIG_PARAVIRT
-+static inline char *memory_setup(void)
-+{
-+	return machine_specific_memory_setup();
-+}
-+#else
-+#include <asm/paravirt.h>
-+#endif
- 
- int __init copy_e820_map(struct e820entry * biosmap, int nr_map);
- int __init sanitize_e820_map(struct e820entry * biosmap, char * pnr_map);
-===================================================================
---- a/include/asm-i386/spinlock.h
-+++ b/include/asm-i386/spinlock.h
-@@ -7,8 +7,12 @@
- #include <asm/processor.h>
- #include <linux/compiler.h>
- 
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
- #define CLI_STRING	"cli"
- #define STI_STRING	"sti"
-+#endif /* CONFIG_PARAVIRT */
- 
- /*
-  * Your basic SMP spinlocks, allowing only a single CPU anywhere
-===================================================================
---- a/include/asm-i386/system.h
-+++ b/include/asm-i386/system.h
-@@ -88,6 +88,9 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- #define savesegment(seg, value) \
- 	asm volatile("mov %%" #seg ",%0":"=rm" (value))
- 
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
- #define read_cr0() ({ \
- 	unsigned int __dummy; \
- 	__asm__ __volatile__( \
-@@ -139,16 +142,17 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- #define write_cr4(x) \
- 	__asm__ __volatile__("movl %0,%%cr4": :"r" (x))
- 
--/*
-- * Clear and set 'TS' bit respectively
-- */
--#define clts() __asm__ __volatile__ ("clts")
--#define stts() write_cr0(8 | read_cr0())
--
--#endif	/* __KERNEL__ */
--
- #define wbinvd() \
- 	__asm__ __volatile__ ("wbinvd": : :"memory")
-+
-+/* Clear the 'TS' bit */
-+#define clts() __asm__ __volatile__ ("clts")
-+#endif/* CONFIG_PARAVIRT */
-+
-+/* Set the 'TS' bit */
-+#define stts() write_cr0(8 | read_cr0())
-+
-+#endif	/* __KERNEL__ */
- 
- static inline unsigned long get_limit(unsigned long segment)
- {
-===================================================================
---- /dev/null
-+++ b/arch/i386/kernel/paravirt.c
-@@ -0,0 +1,399 @@
-+/*  Paravirtualization interfaces
-+    Copyright (C) 2006 Rusty Russell IBM Corporation
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+*/
-+#include <linux/errno.h>
-+#include <linux/module.h>
-+#include <linux/efi.h>
-+#include <linux/bcd.h>
-+
-+#include <asm/bug.h>
-+#include <asm/paravirt.h>
-+#include <asm/desc.h>
-+#include <asm/setup.h>
-+#include <asm/arch_hooks.h>
-+#include <asm/time.h>
-+#include <asm/irq.h>
-+#include <asm/delay.h>
-+
-+/* nop stub */
-+static void native_nop(void)
-+{
-+}
-+
-+static void __init default_banner(void)
-+{
-+	printk(KERN_INFO "Booting paravirtualized kernel on %s\n",
-+	       paravirt_ops.name);
-+}
-+
-+static fastcall unsigned long native_get_debugreg(int regno)
-+{
-+	unsigned long val = 0; 	/* Damn you, gcc! */
-+
-+	switch (regno) {
-+	case 0:
-+		asm("movl %%db0, %0" :"=r" (val)); break;
-+	case 1:
-+		asm("movl %%db1, %0" :"=r" (val)); break;
-+	case 2:
-+		asm("movl %%db2, %0" :"=r" (val)); break;
-+	case 3:
-+		asm("movl %%db3, %0" :"=r" (val)); break;
-+	case 6:
-+		asm("movl %%db6, %0" :"=r" (val)); break;
-+	case 7:
-+		asm("movl %%db7, %0" :"=r" (val)); break;
-+	default:
-+		BUG();
-+	}
-+	return val;
-+}
-+
-+static fastcall void native_set_debugreg(int regno, unsigned long value)
-+{
-+	switch (regno) {
-+	case 0:
-+		asm("movl %0,%%db0"	: /* no output */ :"r" (value));
-+		break;
-+	case 1:
-+		asm("movl %0,%%db1"	: /* no output */ :"r" (value));
-+		break;
-+	case 2:
-+		asm("movl %0,%%db2"	: /* no output */ :"r" (value));
-+		break;
-+	case 3:
-+		asm("movl %0,%%db3"	: /* no output */ :"r" (value));
-+		break;
-+	case 6:
-+		asm("movl %0,%%db6"	: /* no output */ :"r" (value));
-+		break;
-+	case 7:
-+		asm("movl %0,%%db7"	: /* no output */ :"r" (value));
-+		break;
-+	default:
-+		BUG();
-+	}
-+}
-+
-+void init_IRQ(void)
-+{
-+	paravirt_ops.init_IRQ();
-+}
-+
-+static fastcall void native_clts(void)
-+{
-+	asm volatile ("clts");
-+}
-+
-+static fastcall unsigned long native_read_cr0(void)
-+{
-+	unsigned long val;
-+	asm volatile("movl %%cr0,%0\n\t" :"=r" (val));
-+	return val;
-+}
-+
-+static fastcall void native_write_cr0(unsigned long val)
-+{
-+	asm volatile("movl %0,%%cr0": :"r" (val));
-+}
-+
-+static fastcall unsigned long native_read_cr2(void)
-+{
-+	unsigned long val;
-+	asm volatile("movl %%cr2,%0\n\t" :"=r" (val));
-+	return val;
-+}
-+
-+static fastcall void native_write_cr2(unsigned long val)
-+{
-+	asm volatile("movl %0,%%cr2": :"r" (val));
-+}
-+
-+static fastcall unsigned long native_read_cr3(void)
-+{
-+	unsigned long val;
-+	asm volatile("movl %%cr3,%0\n\t" :"=r" (val));
-+	return val;
-+}
-+
-+static fastcall void native_write_cr3(unsigned long val)
-+{
-+	asm volatile("movl %0,%%cr3": :"r" (val));
-+}
-+
-+static fastcall unsigned long native_read_cr4(void)
-+{
-+	unsigned long val;
-+	asm volatile("movl %%cr4,%0\n\t" :"=r" (val));
-+	return val;
-+}
-+
-+static fastcall unsigned long native_read_cr4_safe(void)
-+{
-+	unsigned long val;
-+	/* This could fault if %cr4 does not exist */
-+	asm("1: movl %%cr4, %0		\n"
-+		"2:				\n"
-+		".section __ex_table,\"a\"	\n"
-+		".long 1b,2b			\n"
-+		".previous			\n"
-+		: "=r" (val): "0" (0));
-+	return val;
-+}
-+
-+static fastcall void native_write_cr4(unsigned long val)
-+{
-+	asm volatile("movl %0,%%cr4": :"r" (val));
-+}
-+
-+static fastcall unsigned long native_save_fl(void)
-+{
-+	unsigned long f;
-+	asm volatile("pushfl ; popl %0":"=g" (f): /* no input */);
-+	return f;
-+}
-+
-+static fastcall void native_restore_fl(unsigned long f)
-+{
-+	asm volatile("pushl %0 ; popfl": /* no output */
-+			     :"g" (f)
-+			     :"memory", "cc");
-+}
-+
-+static fastcall void native_irq_disable(void)
-+{
-+	asm volatile("cli": : :"memory");
-+}
-+
-+static fastcall void native_irq_enable(void)
-+{
-+	asm volatile("sti": : :"memory");
-+}
-+
-+static fastcall void native_safe_halt(void)
-+{
-+	asm volatile("sti; hlt": : :"memory");
-+}
-+
-+static fastcall void native_halt(void)
-+{
-+	asm volatile("hlt": : :"memory");
-+}
-+
-+static fastcall void native_wbinvd(void)
-+{
-+	asm volatile("wbinvd": : :"memory");
-+}
-+
-+static fastcall unsigned long long native_read_msr(unsigned int msr, int *err)
-+{
-+	unsigned long long val;
-+
-+	asm volatile("2: rdmsr ; xorl %0,%0\n"
-+		     "1:\n\t"
-+		     ".section .fixup,\"ax\"\n\t"
-+		     "3:  movl %3,%0 ; jmp 1b\n\t"
-+		     ".previous\n\t"
-+ 		     ".section __ex_table,\"a\"\n"
-+		     "   .align 4\n\t"
-+		     "   .long 	2b,3b\n\t"
-+		     ".previous"
-+		     : "=r" (*err), "=A" (val)
-+		     : "c" (msr), "i" (-EFAULT));
-+
-+	return val;
-+}
-+
-+static fastcall int native_write_msr(unsigned int msr, unsigned long long val)
-+{
-+	int err;
-+	asm volatile("2: wrmsr ; xorl %0,%0\n"
-+		     "1:\n\t"
-+		     ".section .fixup,\"ax\"\n\t"
-+		     "3:  movl %4,%0 ; jmp 1b\n\t"
-+		     ".previous\n\t"
-+ 		     ".section __ex_table,\"a\"\n"
-+		     "   .align 4\n\t"
-+		     "   .long 	2b,3b\n\t"
-+		     ".previous"
-+		     : "=a" (err)
-+		     : "c" (msr), "0" ((u32)val), "d" ((u32)(val>>32)),
-+		       "i" (-EFAULT));
-+	return err;
-+}
-+
-+static fastcall unsigned long long native_read_tsc(void)
-+{
-+	unsigned long long val;
-+	asm volatile("rdtsc" : "=A" (val));
-+	return val;
-+}
-+
-+static fastcall unsigned long long native_read_pmc(void)
-+{
-+	unsigned long long val;
-+	asm volatile("rdpmc" : "=A" (val));
-+	return val;
-+}
-+
-+static fastcall void native_load_tr_desc(void)
-+{
-+	asm volatile("ltr %w0"::"q" (GDT_ENTRY_TSS*8));
-+}
-+
-+static fastcall void native_load_gdt(const struct Xgt_desc_struct *dtr)
-+{
-+	asm volatile("lgdt %0"::"m" (*dtr));
-+}
-+
-+static fastcall void native_load_idt(const struct Xgt_desc_struct *dtr)
-+{
-+	asm volatile("lidt %0"::"m" (*dtr));
-+}
-+
-+static fastcall void native_store_gdt(struct Xgt_desc_struct *dtr)
-+{
-+	asm ("sgdt %0":"=m" (*dtr));
-+}
-+
-+static fastcall void native_store_idt(struct Xgt_desc_struct *dtr)
-+{
-+	asm ("sidt %0":"=m" (*dtr));
-+}
-+
-+static fastcall unsigned long native_store_tr(void)
-+{
-+	unsigned long tr;
-+	asm ("str %0":"=r" (tr));
-+	return tr;
-+}
-+
-+static fastcall void native_load_tls(struct thread_struct *t, unsigned int cpu)
-+{
-+#define C(i) get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + i] = t->tls_array[i]
-+	C(0); C(1); C(2);
-+#undef C
-+}
-+
-+static inline void native_write_dt_entry(void *dt, int entry, u32 entry_low, u32 entry_high)
-+{
-+	u32 *lp = (u32 *)((char *)dt + entry*8);
-+	lp[0] = entry_low;
-+	lp[1] = entry_high;
-+}
-+
-+static fastcall void native_write_ldt_entry(void *dt, int entrynum, u32 low, u32 high)
-+{
-+	native_write_dt_entry(dt, entrynum, low, high);
-+}
-+
-+static fastcall void native_write_gdt_entry(void *dt, int entrynum, u32 low, u32 high)
-+{
-+	native_write_dt_entry(dt, entrynum, low, high);
-+}
-+
-+static fastcall void native_write_idt_entry(void *dt, int entrynum, u32 low, u32 high)
-+{
-+	native_write_dt_entry(dt, entrynum, low, high);
-+}
-+
-+static fastcall void native_load_esp0(struct tss_struct *tss,
-+				      struct thread_struct *thread)
-+{
-+	tss->esp0 = thread->esp0;
-+
-+	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
-+	if (unlikely(tss->ss1 != thread->sysenter_cs)) {
-+		tss->ss1 = thread->sysenter_cs;
-+		wrmsr(MSR_IA32_SYSENTER_CS, thread->sysenter_cs, 0);
-+	}
-+}
-+
-+static fastcall void native_io_delay(void)
-+{
-+	asm volatile("outb %al,$0x80");
-+}
-+
-+/* These are in entry.S */
-+extern fastcall void native_iret(void);
-+extern fastcall void native_irq_enable_sysexit(void);
-+
-+static int __init print_banner(void)
-+{
-+	paravirt_ops.banner();
-+	return 0;
-+}
-+core_initcall(print_banner);
-+ 
-+struct paravirt_ops paravirt_ops = {
-+	.name = "bare hardware",
-+	.paravirt_enabled = 0,
-+	.kernel_rpl = 0,
-+
-+	.banner = default_banner,
-+	.arch_setup = native_nop,
-+	.memory_setup = machine_specific_memory_setup,
-+	.get_wallclock = native_get_wallclock,
-+	.set_wallclock = native_set_wallclock,
-+	.time_init = time_init_hook,
-+	.init_IRQ = native_init_IRQ,
-+
-+	.cpuid = native_cpuid,
-+	.get_debugreg = native_get_debugreg,
-+	.set_debugreg = native_set_debugreg,
-+	.clts = native_clts,
-+	.read_cr0 = native_read_cr0,
-+	.write_cr0 = native_write_cr0,
-+	.read_cr2 = native_read_cr2,
-+	.write_cr2 = native_write_cr2,
-+	.read_cr3 = native_read_cr3,
-+	.write_cr3 = native_write_cr3,
-+	.read_cr4 = native_read_cr4,
-+	.read_cr4_safe = native_read_cr4_safe,
-+	.write_cr4 = native_write_cr4,
-+	.save_fl = native_save_fl,
-+	.restore_fl = native_restore_fl,
-+	.irq_disable = native_irq_disable,
-+	.irq_enable = native_irq_enable,
-+	.safe_halt = native_safe_halt,
-+	.halt = native_halt,
-+	.wbinvd = native_wbinvd,
-+	.read_msr = native_read_msr,
-+	.write_msr = native_write_msr,
-+	.read_tsc = native_read_tsc,
-+	.read_pmc = native_read_pmc,
-+	.load_tr_desc = native_load_tr_desc,
-+	.set_ldt = native_set_ldt,
-+	.load_gdt = native_load_gdt,
-+	.load_idt = native_load_idt,
-+	.store_gdt = native_store_gdt,
-+	.store_idt = native_store_idt,
-+	.store_tr = native_store_tr,
-+	.load_tls = native_load_tls,
-+	.write_ldt_entry = native_write_ldt_entry,
-+	.write_gdt_entry = native_write_gdt_entry,
-+	.write_idt_entry = native_write_idt_entry,
-+	.load_esp0 = native_load_esp0,
-+
-+	.set_iopl_mask = native_set_iopl_mask,
-+	.io_delay = native_io_delay,
-+	.const_udelay = __const_udelay,
-+
-+	.irq_enable_sysexit = native_irq_enable_sysexit,
-+	.iret = native_iret,
-+};
-+EXPORT_SYMBOL(paravirt_ops);
-===================================================================
---- /dev/null
+--- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -0,0 +1,286 @@
-+#ifndef __ASM_PARAVIRT_H
-+#define __ASM_PARAVIRT_H
-+/* Various instructions on x86 need to be replaced for
-+ * para-virtualization: those hooks are defined here. */
-+#include <linux/linkage.h>
+@@ -3,8 +3,26 @@
+ /* Various instructions on x86 need to be replaced for
+  * para-virtualization: those hooks are defined here. */
+ #include <linux/linkage.h>
++#include <linux/stringify.h>
+ 
+ #ifdef CONFIG_PARAVIRT
++/* These are the most performance critical ops, so we want to be able to patch
++ * callers */
++#define PARAVIRT_IRQ_DISABLE 0
++#define PARAVIRT_IRQ_ENABLE 1
++#define PARAVIRT_RESTORE_FLAGS 2
++#define PARAVIRT_SAVE_FLAGS 3
++#define PARAVIRT_SAVE_FLAGS_IRQ_DISABLE 4
++#define PARAVIRT_INTERRUPT_RETURN 5
++#define PARAVIRT_STI_SYSEXIT 6
 +
-+#ifdef CONFIG_PARAVIRT
-+#ifndef __ASSEMBLY__
-+struct thread_struct;
-+struct Xgt_desc_struct;
-+struct tss_struct;
-+struct paravirt_ops
-+{
-+	unsigned int kernel_rpl;
-+ 	int paravirt_enabled;
-+	const char *name;
++/* Bitmask of what can be clobbered: usually at least eax. */
++#define CLBR_NONE 0x0
++#define CLBR_EAX 0x1
++#define CLBR_ECX 0x2
++#define CLBR_EDX 0x4
++#define CLBR_ANY 0x7
 +
-+	void (*arch_setup)(void);
-+	char *(*memory_setup)(void);
-+	void (*init_IRQ)(void);
+ #ifndef __ASSEMBLY__
+ struct thread_struct;
+ struct Xgt_desc_struct;
+@@ -14,6 +32,15 @@ struct paravirt_ops
+ 	unsigned int kernel_rpl;
+  	int paravirt_enabled;
+ 	const char *name;
 +
-+	void (*banner)(void);
-+
-+	unsigned long (*get_wallclock)(void);
-+	int (*set_wallclock)(unsigned long);
-+	void (*time_init)(void);
-+
-+	/* All the function pointers here are declared as "fastcall"
-+	   so that we get a specific register-based calling
-+	   convention.  This makes it easier to implement inline
-+	   assembler replacements. */
-+
-+	void (fastcall *cpuid)(unsigned int *eax, unsigned int *ebx,
-+		      unsigned int *ecx, unsigned int *edx);
-+
-+	unsigned long (fastcall *get_debugreg)(int regno);
-+	void (fastcall *set_debugreg)(int regno, unsigned long value);
-+
-+	void (fastcall *clts)(void);
-+
-+	unsigned long (fastcall *read_cr0)(void);
-+	void (fastcall *write_cr0)(unsigned long);
-+
-+	unsigned long (fastcall *read_cr2)(void);
-+	void (fastcall *write_cr2)(unsigned long);
-+
-+	unsigned long (fastcall *read_cr3)(void);
-+	void (fastcall *write_cr3)(unsigned long);
-+
-+	unsigned long (fastcall *read_cr4_safe)(void);
-+	unsigned long (fastcall *read_cr4)(void);
-+	void (fastcall *write_cr4)(unsigned long);
-+
-+	unsigned long (fastcall *save_fl)(void);
-+	void (fastcall *restore_fl)(unsigned long);
-+	void (fastcall *irq_disable)(void);
-+	void (fastcall *irq_enable)(void);
-+	void (fastcall *safe_halt)(void);
-+	void (fastcall *halt)(void);
-+	void (fastcall *wbinvd)(void);
-+
-+	/* err = 0/-EFAULT.  wrmsr returns 0/-EFAULT. */
-+	u64 (fastcall *read_msr)(unsigned int msr, int *err);
-+	int (fastcall *write_msr)(unsigned int msr, u64 val);
-+
-+	u64 (fastcall *read_tsc)(void);
-+	u64 (fastcall *read_pmc)(void);
-+
-+	void (fastcall *load_tr_desc)(void);
-+	void (fastcall *load_gdt)(const struct Xgt_desc_struct *);
-+	void (fastcall *load_idt)(const struct Xgt_desc_struct *);
-+	void (fastcall *store_gdt)(struct Xgt_desc_struct *);
-+	void (fastcall *store_idt)(struct Xgt_desc_struct *);
-+	void (fastcall *set_ldt)(const void *desc, unsigned entries);
-+	unsigned long (fastcall *store_tr)(void);
-+	void (fastcall *load_tls)(struct thread_struct *t, unsigned int cpu);
-+	void (fastcall *write_ldt_entry)(void *dt, int entrynum,
-+					 u32 low, u32 high);
-+	void (fastcall *write_gdt_entry)(void *dt, int entrynum,
-+					 u32 low, u32 high);
-+	void (fastcall *write_idt_entry)(void *dt, int entrynum,
-+					 u32 low, u32 high);
-+	void (fastcall *load_esp0)(struct tss_struct *tss,
-+				   struct thread_struct *thread);
-+
-+	void (fastcall *set_iopl_mask)(unsigned mask);
-+
-+	void (fastcall *io_delay)(void);
-+	void (*const_udelay)(unsigned long loops);
-+
-+	/* These two are jmp to, not actually called. */
-+	void (fastcall *irq_enable_sysexit)(void);
-+	void (fastcall *iret)(void);
++	/*
++	 * Patch may replace one of the defined code sequences with arbitrary
++	 * code, subject to the same register constraints.  This generally
++	 * means the code is not free to clobber any registers other than EAX.
++	 * The patch function should return the number of bytes of code
++	 * generated, as we nop pad the rest in generic code.
++	 */
++	unsigned (*patch)(u8 type, u16 clobber, void *firstinsn, unsigned len);
+ 
+ 	void (*arch_setup)(void);
+ 	char *(*memory_setup)(void);
+@@ -151,35 +178,6 @@ static inline void __cpuid(unsigned int 
+ #define read_cr4() paravirt_ops.read_cr4()
+ #define read_cr4_safe(x) paravirt_ops.read_cr4_safe()
+ #define write_cr4(x) paravirt_ops.write_cr4(x)
+-
+-static inline unsigned long __raw_local_save_flags(void)
+-{
+-	return paravirt_ops.save_fl();
+-}
+-
+-static inline void raw_local_irq_restore(unsigned long flags)
+-{
+-	return paravirt_ops.restore_fl(flags);
+-}
+-
+-static inline void raw_local_irq_disable(void)
+-{
+-	paravirt_ops.irq_disable();
+-}
+-
+-static inline void raw_local_irq_enable(void)
+-{
+-	paravirt_ops.irq_enable();
+-}
+-
+-static inline unsigned long __raw_local_irq_save(void)
+-{
+-	unsigned long flags = paravirt_ops.save_fl();
+-
+-	paravirt_ops.irq_disable();
+-
+-	return flags;
+-}
+ 
+ static inline void raw_safe_halt(void)
+ {
+@@ -272,15 +270,130 @@ static inline void slow_down_io(void) {
+ #endif
+ }
+ 
+-#define CLI_STRING	"pushl %eax; pushl %ecx; pushl %edx; call *paravirt_ops+PARAVIRT_irq_disable; popl %edx; popl %ecx; popl %eax"
+-#define STI_STRING	"pushl %eax; pushl %ecx; pushl %edx; call *paravirt_ops+PARAVIRT_irq_enable; popl %edx; popl %ecx; popl %eax"
++/* These all sit in the .parainstructions section to tell us what to patch. */
++struct paravirt_patch {
++	u8 *instr; 		/* original instructions */
++	u8 instrtype;		/* type of this instruction */
++	u8 len;			/* length of original instruction */
++	u16 clobbers;		/* what registers you may clobber */
 +};
 +
-+extern struct paravirt_ops paravirt_ops;
-+
-+#define paravirt_enabled() (paravirt_ops.paravirt_enabled)
-+
-+static inline void load_esp0(struct tss_struct *tss,
-+			     struct thread_struct *thread)
-+{
-+	paravirt_ops.load_esp0(tss, thread);
-+}
-+
-+#define ARCH_SETUP			paravirt_ops.arch_setup();
-+static inline char *memory_setup(void)
-+{
-+	return paravirt_ops.memory_setup();
-+}
-+
-+static inline unsigned long get_wallclock(void)
-+{
-+	return paravirt_ops.get_wallclock();
-+}
-+
-+static inline int set_wallclock(unsigned long nowtime)
-+{
-+	return paravirt_ops.set_wallclock(nowtime);
-+}
-+
-+static inline void do_time_init(void)
-+{
-+	return paravirt_ops.time_init();
-+}
-+
-+/* The paravirtualized CPUID instruction. */
-+static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
-+			   unsigned int *ecx, unsigned int *edx)
-+{
-+	paravirt_ops.cpuid(eax, ebx, ecx, edx);
-+}
-+
-+/*
-+ * These special macros can be used to get or set a debugging register
-+ */
-+#define get_debugreg(var, reg) var = paravirt_ops.get_debugreg(reg)
-+#define set_debugreg(val, reg) paravirt_ops.set_debugreg(reg, val)
-+
-+#define clts() paravirt_ops.clts()
-+
-+#define read_cr0() paravirt_ops.read_cr0()
-+#define write_cr0(x) paravirt_ops.write_cr0(x)
-+
-+#define read_cr2() paravirt_ops.read_cr2()
-+#define write_cr2(x) paravirt_ops.write_cr2(x)
-+
-+#define read_cr3() paravirt_ops.read_cr3()
-+#define write_cr3(x) paravirt_ops.write_cr3(x)
-+
-+#define read_cr4() paravirt_ops.read_cr4()
-+#define read_cr4_safe(x) paravirt_ops.read_cr4_safe()
-+#define write_cr4(x) paravirt_ops.write_cr4(x)
++#define paravirt_alt(insn_string, typenum, clobber)	\
++	"771:\n\t" insn_string "\n" "772:\n"		\
++	".pushsection .parainstructions,\"a\"\n"	\
++	"  .long 771b\n"				\
++	"  .byte " __stringify(typenum) "\n"		\
++	"  .byte 772b-771b\n"				\
++	"  .short " __stringify(clobber) "\n"		\
++	".popsection"
 +
 +static inline unsigned long __raw_local_save_flags(void)
 +{
-+	return paravirt_ops.save_fl();
++	unsigned long f;
++
++	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
++					   "call *%1;"
++					   "popl %%edx; popl %%ecx",
++					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
++			     : "=a"(f): "m"(paravirt_ops.save_fl)
++			     : "memory", "cc");
++	return f;
 +}
 +
-+static inline void raw_local_irq_restore(unsigned long flags)
++static inline void raw_local_irq_restore(unsigned long f)
 +{
-+	return paravirt_ops.restore_fl(flags);
++	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
++					   "call *%1;"
++					   "popl %%edx; popl %%ecx",
++					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
++			     : "=a"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
++			     : "memory", "cc");
 +}
 +
 +static inline void raw_local_irq_disable(void)
 +{
-+	paravirt_ops.irq_disable();
++	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
++					   "call *%0;"
++					   "popl %%edx; popl %%ecx",
++					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
++			     : : "m" (paravirt_ops.irq_disable)
++			     : "memory", "eax", "cc");
 +}
 +
 +static inline void raw_local_irq_enable(void)
 +{
-+	paravirt_ops.irq_enable();
++	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
++					   "call *%0;"
++					   "popl %%edx; popl %%ecx",
++					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
++			     : : "m" (paravirt_ops.irq_enable)
++			     : "memory", "eax", "cc");
 +}
 +
 +static inline unsigned long __raw_local_irq_save(void)
 +{
-+	unsigned long flags = paravirt_ops.save_fl();
++	unsigned long f;
 +
-+	paravirt_ops.irq_disable();
-+
-+	return flags;
++	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
++					   "call *%1; pushl %%eax;"
++					   "call *%2; popl %%eax;"
++					   "popl %%edx; popl %%ecx",
++					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
++					  CLBR_NONE)
++			     : "=a"(f)
++			     : "m" (paravirt_ops.save_fl),
++			       "m" (paravirt_ops.irq_disable)
++			     : "memory", "cc");
++	return f;
 +}
 +
-+static inline void raw_safe_halt(void)
-+{
-+	paravirt_ops.safe_halt();
-+}
++#define CLI_STRING paravirt_alt("pushl %ecx; pushl %edx;"		\
++		     "call *paravirt_ops+PARAVIRT_irq_disable;"		\
++		     "popl %edx; popl %ecx",				\
++		     PARAVIRT_IRQ_DISABLE, CLBR_EAX)
 +
-+static inline void halt(void)
-+{
-+	paravirt_ops.safe_halt();
-+}
-+#define wbinvd() paravirt_ops.wbinvd()
++#define STI_STRING paravirt_alt("pushl %ecx; pushl %edx;"		\
++		     "call *paravirt_ops+PARAVIRT_irq_enable;"		\
++		     "popl %edx; popl %ecx",				\
++		     PARAVIRT_IRQ_ENABLE, CLBR_EAX)
++#define CLI_STI_CLOBBERS , "%eax"
 +
-+#define get_kernel_rpl()  (paravirt_ops.kernel_rpl)
-+
-+#define rdmsr(msr,val1,val2) do {				\
-+	int _err;						\
-+	u64 _l = paravirt_ops.read_msr(msr,&_err);		\
-+	val1 = (u32)_l;						\
-+	val2 = _l >> 32;					\
-+} while(0)
-+
-+#define wrmsr(msr,val1,val2) do {				\
-+	u64 _l = ((u64)(val2) << 32) | (val1);			\
-+	paravirt_ops.write_msr((msr), _l);			\
-+} while(0)
-+
-+#define rdmsrl(msr,val) do {					\
-+	int _err;						\
-+	val = paravirt_ops.read_msr((msr),&_err);		\
-+} while(0)
-+
-+#define wrmsrl(msr,val) (paravirt_ops.write_msr((msr),(val)))
-+#define wrmsr_safe(msr,a,b) ({					\
-+	u64 _l = ((u64)(b) << 32) | (a);			\
-+	paravirt_ops.write_msr((msr),_l);			\
-+})
-+
-+/* rdmsr with exception handling */
-+#define rdmsr_safe(msr,a,b) ({					\
-+	int _err;						\
-+	u64 _l = paravirt_ops.read_msr(msr,&_err);		\
-+	(*a) = (u32)_l;						\
-+	(*b) = _l >> 32;					\
-+	_err; })
-+
-+#define rdtsc(low,high) do {					\
-+	u64 _l = paravirt_ops.read_tsc();			\
-+	low = (u32)_l;						\
-+	high = _l >> 32;					\
-+} while(0)
-+
-+#define rdtscl(low) do {					\
-+	u64 _l = paravirt_ops.read_tsc();			\
-+	low = (int)_l;						\
-+} while(0)
-+
-+#define rdtscll(val) (val = paravirt_ops.read_tsc())
-+
-+#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
-+
-+#define rdpmc(counter,low,high) do {				\
-+	u64 _l = paravirt_ops.read_pmc();			\
-+	low = (u32)_l;						\
-+	high = _l >> 32;					\
-+} while(0)
-+
-+#define load_TR_desc() (paravirt_ops.load_tr_desc())
-+#define load_gdt(dtr) (paravirt_ops.load_gdt(dtr))
-+#define load_idt(dtr) (paravirt_ops.load_idt(dtr))
-+#define set_ldt(addr, entries) (paravirt_ops.set_ldt((addr), (entries)))
-+#define store_gdt(dtr) (paravirt_ops.store_gdt(dtr))
-+#define store_idt(dtr) (paravirt_ops.store_idt(dtr))
-+#define store_tr(tr) ((tr) = paravirt_ops.store_tr())
-+#define load_TLS(t,cpu) (paravirt_ops.load_tls((t),(cpu)))
-+#define write_ldt_entry(dt, entry, low, high)				\
-+	(paravirt_ops.write_ldt_entry((dt), (entry), (low), (high)))
-+#define write_gdt_entry(dt, entry, low, high)				\
-+	(paravirt_ops.write_gdt_entry((dt), (entry), (low), (high)))
-+#define write_idt_entry(dt, entry, low, high)				\
-+	(paravirt_ops.write_idt_entry((dt), (entry), (low), (high)))
-+#define set_iopl_mask(mask) (paravirt_ops.set_iopl_mask(mask))
+ #else  /* __ASSEMBLY__ */
+-
+-#define INTERRUPT_RETURN	jmp *%cs:paravirt_ops+PARAVIRT_iret
+-#define DISABLE_INTERRUPTS	pushl %eax; pushl %ecx; pushl %edx; call *paravirt_ops+PARAVIRT_irq_disable; popl %edx; popl %ecx; popl %eax
+-#define ENABLE_INTERRUPTS	pushl %eax; pushl %ecx; pushl %edx; call *%cs:paravirt_ops+PARAVIRT_irq_enable; popl %edx; popl %ecx; popl %eax
+-#define ENABLE_INTERRUPTS_SYSEXIT	jmp *%cs:paravirt_ops+PARAVIRT_irq_enable_sysexit
+-#define GET_CR0_INTO_EAX	call *paravirt_ops+PARAVIRT_read_cr0
 +  
-+/* The paravirtualized I/O functions */
-+static inline void slow_down_io(void) {
-+	paravirt_ops.io_delay();
-+#ifdef REALLY_SLOW_IO
-+	paravirt_ops.io_delay();
-+	paravirt_ops.io_delay();
-+	paravirt_ops.io_delay();
-+#endif
-+}
++#define PARA_PATCH(ptype, clobbers, ops)	\
++771:;						\
++	ops;					\
++772:;						\
++	.pushsection .parainstructions,"a";	\
++	 .long 771b;				\
++	 .byte ptype;				\
++	 .byte 772b-771b;			\
++	 .short clobbers;			\
++	.popsection
 +
-+#define CLI_STRING	"pushl %eax; pushl %ecx; pushl %edx; call *paravirt_ops+PARAVIRT_irq_disable; popl %edx; popl %ecx; popl %eax"
-+#define STI_STRING	"pushl %eax; pushl %ecx; pushl %edx; call *paravirt_ops+PARAVIRT_irq_enable; popl %edx; popl %ecx; popl %eax"
-+#else  /* __ASSEMBLY__ */
++#define INTERRUPT_RETURN				\
++	PARA_PATCH(PARAVIRT_INTERRUPT_RETURN, CLBR_ANY,	\
++	jmp *%cs:paravirt_ops+PARAVIRT_iret)
 +
-+#define INTERRUPT_RETURN	jmp *%cs:paravirt_ops+PARAVIRT_iret
-+#define DISABLE_INTERRUPTS	pushl %eax; pushl %ecx; pushl %edx; call *paravirt_ops+PARAVIRT_irq_disable; popl %edx; popl %ecx; popl %eax
-+#define ENABLE_INTERRUPTS	pushl %eax; pushl %ecx; pushl %edx; call *%cs:paravirt_ops+PARAVIRT_irq_enable; popl %edx; popl %ecx; popl %eax
-+#define ENABLE_INTERRUPTS_SYSEXIT	jmp *%cs:paravirt_ops+PARAVIRT_irq_enable_sysexit
-+#define GET_CR0_INTO_EAX	call *paravirt_ops+PARAVIRT_read_cr0
-+#endif /* __ASSEMBLY__ */
-+#endif /* CONFIG_PARAVIRT */
-+#endif	/* __ASM_PARAVIRT_H */
++#define DISABLE_INTERRUPTS(clobbers)			\
++	PARA_PATCH(PARAVIRT_IRQ_DISABLE, clobbers,	\
++	pushl %ecx; pushl %edx;				\
++	call *paravirt_ops+PARAVIRT_irq_disable;	\
++	popl %edx; popl %ecx)				\
++
++#define ENABLE_INTERRUPTS(clobbers)			\
++	PARA_PATCH(PARAVIRT_IRQ_ENABLE, clobbers,	\
++	pushl %ecx; pushl %edx;				\
++	call *%cs:paravirt_ops+PARAVIRT_irq_enable;	\
++	popl %edx; popl %ecx)
++
++#define ENABLE_INTERRUPTS_SYSEXIT			\
++	PARA_PATCH(PARAVIRT_STI_SYSEXIT, CLBR_ANY,	\
++	jmp *%cs:paravirt_ops+PARAVIRT_irq_enable_sysexit)
++
++#define GET_CR0_INTO_EAX			\
++	call *paravirt_ops+PARAVIRT_read_cr0
++
+ #endif /* __ASSEMBLY__ */
+ #endif /* CONFIG_PARAVIRT */
+ #endif	/* __ASM_PARAVIRT_H */
 ===================================================================
---- /dev/null
-+++ b/include/asm-i386/time.h
-@@ -0,0 +1,41 @@
-+#ifndef _ASMi386_TIME_H
-+#define _ASMi386_TIME_H
-+
-+#include <linux/efi.h>
-+#include "mach_time.h"
-+
-+static inline unsigned long native_get_wallclock(void)
-+{
-+	unsigned long retval;
-+
-+	if (efi_enabled)
-+		retval = efi_get_time();
-+	else
-+		retval = mach_get_cmos_time();
-+
-+	return retval;
-+}
-+
-+static inline int native_set_wallclock(unsigned long nowtime)
-+{
-+	int retval;
-+
-+	if (efi_enabled)
-+		retval = efi_set_rtc_mmss(nowtime);
-+	else
-+		retval = mach_set_rtc_mmss(nowtime);
-+
-+	return retval;
-+}
-+
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else /* !CONFIG_PARAVIRT */
-+
-+#define get_wallclock() native_get_wallclock()
-+#define set_wallclock(x) native_set_wallclock(x)
-+#define do_time_init() time_init_hook()
-+
-+#endif /* CONFIG_PARAVIRT */
-+
-+#endif
+--- a/include/asm-i386/spinlock.h
++++ b/include/asm-i386/spinlock.h
+@@ -12,6 +12,7 @@
+ #else
+ #define CLI_STRING	"cli"
+ #define STI_STRING	"sti"
++#define CLI_STI_CLOBBERS
+ #endif /* CONFIG_PARAVIRT */
+ 
+ /*
+@@ -75,7 +76,9 @@ static inline void __raw_spin_lock_flags
+ 		"jg 1b\n\t"
+ 		"jmp 4b\n"
+ 		"5:\n\t"
+-		: "+m" (lock->slock) : "r" (flags) : "memory");
++		: "+m" (lock->slock)
++		: "r" (flags)
++		: "memory" CLI_STI_CLOBBERS);
+ }
+ #endif
+ 
 
 

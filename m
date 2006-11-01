@@ -1,43 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752242AbWKASEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992700AbWKASH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752242AbWKASEv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 13:04:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752245AbWKASEv
+	id S2992700AbWKASH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 13:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992701AbWKASH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 13:04:51 -0500
-Received: from www.nabble.com ([72.21.53.35]:5269 "EHLO talk.nabble.com")
-	by vger.kernel.org with ESMTP id S1752242AbWKASEu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 13:04:50 -0500
-Message-ID: <7119134.post@talk.nabble.com>
-Date: Wed, 1 Nov 2006 10:04:50 -0800 (PST)
-From: parshant <parshant05@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: PHY driver for linux 2.6.11.12
-MIME-Version: 1.0
+	Wed, 1 Nov 2006 13:07:28 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:44967 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S2992700AbWKASH1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 13:07:27 -0500
+Date: Wed, 1 Nov 2006 23:42:36 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: dev@openvz.org, sekharan@us.ibm.com, menage@google.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
+       dipankar@in.ibm.com, rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Message-ID: <20061101181236.GC22976@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20061030103356.GA16833@in.ibm.com> <45486925.4000201@openvz.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Nabble-From: parshant05@gmail.com
+Content-Disposition: inline
+In-Reply-To: <45486925.4000201@openvz.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 01, 2006 at 12:30:13PM +0300, Pavel Emelianov wrote:
+> > Debated:
+> > 	- syscall vs configfs interface
+> 
+> OK. Let's stop at configfs interface to move...
 
-Hi all,
+Excellent!
 
-I want to write a phy driver for linux kernel version 2.6.11.12. 
-My requirement is phy driver code will not be a part of linux ethernet
-driver. I mean all the phy management code go in phy driver and the
-data transmit/receive related code go in mac driver.Mac driver will export
-me 
-mdio-write and mdio-read(phy connected through MII to Mac).IF any body has
-ne 
-idea about this please help me out.
+> > 	- Should we have different groupings for different resources?
+> 
+> I propose to discuss this question as this is the most important
+> now from my point of view.
+> 
+> I believe this can be done, but can't imagine how to use this...
 
-I also want to know is i need to register phy driver as a seaprate network
-driver.
-or how any userspace code can coummnicate to my phy driver like ethtool or 
-mii-tool.
+As I mentioned in my earlier mail, I thought openvz folks did want this
+flexibility:
+
+	http://lkml.org/lkml/2006/8/18/98
+
+Also:
+
+	http://lwn.net/Articles/94573/
+
+But I am ok if we dont support this feature in the initial round of
+development.
+
+Having grouping for different resources could be a hairy to deal
+with and could easily mess up applications (for ex: a process in a 80%
+CPU class but in a 10% memory class could lead to underutilization of
+its cpu share, because it cannot allocated memory as fast as it wants to run), 
+it is assumed that administrator will carefully manage these settings.
+
+> > 	- Support movement of all threads of a process from one group
+> > 	  to another atomically?
+> 
+> I propose such a solution: if a user asks to move /proc/<pid>
+> then move the whole task with threads.
+> If user asks to move /proc/<pid>/task/<tid> then move just
+> a single thread.
+> 
+> What do you think?
+
+Isnt /proc/<pid> listed also in /proc/<pid>/task/<tid>?
+
+For ex:
+
+	# ls /proc/2906/task
+	2906  2907  2908  2909
+
+2906 is the main thread which created the remaining threads.
+
+This would lead to an ambiguity when user does something like below:
+
+	echo 2906 > /some_res_file_system/some_new_group
+
+Is he intending to move just the main thread, 2906, to the new group or
+all the threads? It could be either.
+
+This needs some more thought ...
+
 -- 
-View this message in context: http://www.nabble.com/PHY-driver-for-linux-2.6.11.12-tf2554855.html#a7119134
-Sent from the linux-kernel mailing list archive at Nabble.com.
-
+Regards,
+vatsa

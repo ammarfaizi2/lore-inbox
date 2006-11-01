@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946274AbWKAFiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946380AbWKAFjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946274AbWKAFiO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946270AbWKAFho
+	id S1946380AbWKAFjG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946510AbWKAFix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:37:44 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:5265 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946380AbWKAFhU
+	Wed, 1 Nov 2006 00:38:53 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:33169 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946270AbWKAFio
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:37:20 -0500
-Message-Id: <20061101053730.817228000@sous-sol.org>
+	Wed, 1 Nov 2006 00:38:44 -0500
+Message-Id: <20061101053826.775248000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:33:56 -0800
+Date: Tue, 31 Oct 2006 21:34:00 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,54 +21,86 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk,
-       "Paolo Blaisorblade Giarrusso" <blaisorblade@yahoo.it>,
-       Jeff Dike <jdike@addtoit.com>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 16/61] uml: fix processor selection to exclude unsupported processors and features
-Content-Disposition: inline; filename=uml-fix-processor-selection-to-exclude-unsupported-processors-and-features.patch
+       alan@lxorguk.ukuu.org.uk, Russell King <rmk+kernel@arm.linux.org.uk>,
+       maximilian attems <maks@sternwelten.at>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 20/61] SERIAL: Fix oops when removing suspended serial port
+Content-Disposition: inline; filename=serial-fix-oops-when-removing-suspended-serial-port.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Russell King <rmk+kernel@arm.linux.org.uk>
 
-Makes UML compile on any possible processor choice. The two problems were:
+[SERIAL] Fix oops when removing suspended serial port
 
-*) x86 code, when 386 is selected, checks at runtime boot_cpuflags, which we do
-   not have.
-*) 3Dnow support for memcpy() et al. does not compile currently and fixing this
-   is not trivial, so simply disable it; with this change, if one selects MK7
-   UML compiles (while it did not).
-Merged upstream.
+A serial card might have been removed when the system is resumed.
+This results in a suspended port being shut down, which results in
+the ports shutdown method being called twice in a row.  This causes
+BUGs.  Avoid this by tracking the suspended state separately from
+the initialised state.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Signed-off-by: maximilian attems <maks@sternwelten.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- arch/i386/Kconfig.cpu |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/serial/serial_core.c |    9 +++++++--
+ include/linux/serial_core.h  |    1 +
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
---- linux-2.6.18.1.orig/arch/i386/Kconfig.cpu
-+++ linux-2.6.18.1/arch/i386/Kconfig.cpu
-@@ -7,6 +7,7 @@ choice
+--- linux-2.6.18.1.orig/drivers/serial/serial_core.c
++++ linux-2.6.18.1/drivers/serial/serial_core.c
+@@ -1932,6 +1932,9 @@ int uart_suspend_port(struct uart_driver
+ 	if (state->info && state->info->flags & UIF_INITIALIZED) {
+ 		const struct uart_ops *ops = port->ops;
  
- config M386
- 	bool "386"
-+	depends on !UML
- 	---help---
- 	  This is the processor type of your CPU. This information is used for
- 	  optimizing purposes. In order to compile a kernel that can run on
-@@ -301,7 +302,7 @@ config X86_USE_PPRO_CHECKSUM
++		state->info->flags = (state->info->flags & ~UIF_INITIALIZED)
++				     | UIF_SUSPENDED;
++
+ 		spin_lock_irq(&port->lock);
+ 		ops->stop_tx(port);
+ 		ops->set_mctrl(port, 0);
+@@ -1991,7 +1994,7 @@ int uart_resume_port(struct uart_driver 
+ 		console_start(port->cons);
+ 	}
  
- config X86_USE_3DNOW
- 	bool
--	depends on MCYRIXIII || MK7 || MGEODE_LX
-+	depends on (MCYRIXIII || MK7 || MGEODE_LX) && !UML
- 	default y
+-	if (state->info && state->info->flags & UIF_INITIALIZED) {
++	if (state->info && state->info->flags & UIF_SUSPENDED) {
+ 		const struct uart_ops *ops = port->ops;
+ 		int ret;
  
- config X86_OOSTORE
+@@ -2003,15 +2006,17 @@ int uart_resume_port(struct uart_driver 
+ 			ops->set_mctrl(port, port->mctrl);
+ 			ops->start_tx(port);
+ 			spin_unlock_irq(&port->lock);
++			state->info->flags |= UIF_INITIALIZED;
+ 		} else {
+ 			/*
+ 			 * Failed to resume - maybe hardware went away?
+ 			 * Clear the "initialized" flag so we won't try
+ 			 * to call the low level drivers shutdown method.
+ 			 */
+-			state->info->flags &= ~UIF_INITIALIZED;
+ 			uart_shutdown(state);
+ 		}
++
++		state->info->flags &= ~UIF_SUSPENDED;
+ 	}
+ 
+ 	mutex_unlock(&state->mutex);
+--- linux-2.6.18.1.orig/include/linux/serial_core.h
++++ linux-2.6.18.1/include/linux/serial_core.h
+@@ -319,6 +319,7 @@ struct uart_info {
+ #define UIF_CTS_FLOW		((__force uif_t) (1 << 26))
+ #define UIF_NORMAL_ACTIVE	((__force uif_t) (1 << 29))
+ #define UIF_INITIALIZED		((__force uif_t) (1 << 31))
++#define UIF_SUSPENDED		((__force uif_t) (1 << 30))
+ 
+ 	int			blocked_open;
+ 
 
 --

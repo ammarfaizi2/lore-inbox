@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752360AbWKAUvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752374AbWKAUx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752360AbWKAUvy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 15:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752363AbWKAUvy
+	id S1752374AbWKAUx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 15:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752372AbWKAUx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 15:51:54 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:47425 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1752360AbWKAUvx (ORCPT
+	Wed, 1 Nov 2006 15:53:57 -0500
+Received: from mail.kroah.org ([69.55.234.183]:44928 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1752369AbWKAUxz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 15:51:53 -0500
-Message-ID: <454908F9.80905@cfl.rr.com>
-Date: Wed, 01 Nov 2006 15:52:09 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Wed, 1 Nov 2006 15:53:55 -0500
+Date: Wed, 1 Nov 2006 12:53:30 -0800
+From: Greg KH <greg@kroah.com>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>, Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061101205330.GA2593@kroah.com>
+References: <1161815138.27622.139.camel@shinybook.infradead.org> <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Holden Karau <holden@pigscanfly.ca>,
-       Josef Sipek <jsipek@fsl.cs.sunysb.edu>, hirofumi@mail.parknet.co.jp,
-       linux-kernel@vger.kernel.org, Holden Karau <holdenk@xandros.com>,
-       "akpm@osdl.org" <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Matthew.Wilcox@vax.1wt.eu
-Illegal-Object: Syntax error in CC: address found on vger.kernel.org:
-	CC:	Matthew Wilcox
-			^-extraneous tokens in address
-Illegal-Object: Syntax error in CC: address found on vger.kernel.org:
-	CC:	Matthew Wilcox
-			^-extraneous tokens in address
-Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes
- revised again
-References: <4548C8AE.2090603@pigscanfly.ca> <20061101164715.GC16154@wohnheim.fh-wedel.de> <f46018bb0611011002h1b3b6e5fjdc6cc032a7503dbd@mail.gmail.com> <20061101202400.GA6888@wohnheim.fh-wedel.de>
-In-Reply-To: <20061101202400.GA6888@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 01 Nov 2006 20:52:05.0873 (UTC) FILETIME=[96FFBE10:01C6FDF7]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14788.000
-X-TM-AS-Result: No--10.996500-5.000000-31
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this is getting into micro-optimization, which is usually bad. 
-Also moving the assignment of err outside the body of the if only 
-results in slightly faster code in the case where there is an error, 
-since you can test and _maybe_ conditionally jump directly to the error: 
-label if it is not very far away.  With the assignment in the body, the 
-conditional jump must jump to the assignment followed by an 
-unconditional jump to the label.
+On Wed, Nov 01, 2006 at 09:53:12PM +0200, Shem Multinymous wrote:
+> Hi Greg,
+> 
+> On 11/1/06, Greg KH <greg@kroah.com> wrote:
+> >> The suggestions so far were:
+> >> 1. Append units string to the content of such attribute:
+> >>   /sys/.../capacity_remaining reads "16495 mW".
+> >> 2. Add a seprate *_units attribute saying what are units for other
+> >> attribute:
+> >>   /sys/.../capacity_units gives the units for
+> >>   /sys/.../capacity_{remaining,last_full,design,min,...}.
+> >> 3. Append the units to the attribute names:
+> >>   capacity_{remaining,last_full,design_min,...}:mV.
+> >
+> >No, again, one for power and one for current.  Two different files
+> >depending on the type of battery present.  That way there is no need to
+> >worry about unit issues.
+> 
+> I'm missing something. How is that different from option 3 above?
 
-In other words, the only time this micro optimization will be of benefit 
-is if you are erroring out most of the time rather than only under 
-exceptional conditions, AND the error label isn't too far away for a 
-conditional branch to reach.  In other words, just don't do it ;)
+No silly ":mV" on the file name.
 
-Jörn Engel wrote:
-> On Wed, 1 November 2006 13:02:12 -0500, Holden Karau wrote:
->> On 11/1/06, Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
->>> Result would be something like:
->>>        c_bh = kmalloc(...
->>>        err = -ENOMEM;
->>>        if (!c_bh)
->>>                goto error;
->> That wouldn't work so well since we always return err,
-> 
-> I don't quite follow.  If the branch is taken, err is -ENOMEM.  If the
-> branch is not taken, err is set to 0 with the next instruction.
-> 
-> Both methods definitely work.  Whether one is preferrable over the
-> other is imo 90% taste and maybe 10% better code on some architecture.
-> So just pick what you prefer.
-> 
-> Jörn
-> 
+> BTW, please note that we're talking about a large set of files that
+> use these units (remaining, last full, design capacity, alarm
+> thresholds, etc.), and not just a single attribute.
 
+Sure, what's wrong with:
+	capacity_remaining_power
+	capacity_last_full_power
+	capacity_design_min_power
+if you can read that from the battery, and:
+	capacity_remaining_current
+	capacity_last_full_current
+	capacity_design_min_current
+if you can read that instead.
+
+> This particular alternative indeed seems cleanest for the kernel side.
+> The drawback is that someone in userspace who doesn't care about units
+> but just wants to show a status report or compute the amount of
+> remaining fooergy divided by the amount of a fooergy when fully
+> charged, like your typical battery applet, will need to parse
+> filenames (or try out a fixed and possibly partial list) to find out
+> which attribute files contain the numbers.
+
+If the file isn't there, they the attribute isn't present.  It doesn't
+get easier than that.
+
+And of course user apps will have to change, but only once.  And then
+they will work with all types of batterys, unlike today.
+
+thanks,
+
+greg k-h

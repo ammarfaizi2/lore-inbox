@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946619AbWKAGSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946622AbWKAGSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946619AbWKAGSY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 01:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946622AbWKAGSY
+	id S1946622AbWKAGSf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 01:18:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946630AbWKAGSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 01:18:24 -0500
-Received: from hera.kernel.org ([140.211.167.34]:51352 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1946619AbWKAGSX (ORCPT
+	Wed, 1 Nov 2006 01:18:34 -0500
+Received: from hera.kernel.org ([140.211.167.34]:52632 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1946622AbWKAGSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 01:18:23 -0500
+	Wed, 1 Nov 2006 01:18:32 -0500
 From: Len Brown <len.brown@intel.com>
 Reply-To: Len Brown <lenb@kernel.org>
 Organization: Intel Open Source Technology Center
 To: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 41/61] x86-64: Fix C3 timer test
-Date: Wed, 1 Nov 2006 01:19:56 -0500
+Subject: Re: [PATCH 51/61] PCI: Remove quirk_via_abnormal_poweroff
+Date: Wed, 1 Nov 2006 01:20:12 -0500
 User-Agent: KMail/1.8.2
 Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
        Justin Forbes <jmforbes@linuxtx.org>,
@@ -23,16 +23,17 @@ Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Andi Kleen <ak@suse.de>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-References: <20061101053340.305569000@sous-sol.org> <20061101054241.885074000@sous-sol.org>
-In-Reply-To: <20061101054241.885074000@sous-sol.org>
+       alan@lxorguk.ukuu.org.uk, Karsten Wiese <annabellesgarden@yahoo.de>,
+       Karsten Wiese <fzu@wemgehoertderstaat.de>,
+       Bob Moore <robert.moore@intel.com>, Greg Kroah-Hartman <gregkh@suse.de>
+References: <20061101053340.305569000@sous-sol.org> <20061101054443.703982000@sous-sol.org>
+In-Reply-To: <20061101054443.703982000@sous-sol.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611010119.57463.len.brown@intel.com>
+Message-Id: <200611010120.13639.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -42,33 +43,76 @@ On Wednesday 01 November 2006 00:34, Chris Wright wrote:
 > -stable review patch.  If anyone has any objections, please let us know.
 > ------------------
 > 
-> From: Andi Kleen <ak@suse.de>
+> From: Karsten Wiese <annabellesgarden@yahoo.de>
 > 
-> There was a typo in the C3 latency test to decide of the TSC
-> should be used or not. It used the C2 latency threshold, not the
-> C3 one. Fix that.
+> My K8T800 mobo resumes fine from suspend to ram with and without patch
+> applied against 2.6.18.
 > 
-> This should fix the time on various dual core laptops.
+> quirk_via_abnormal_poweroff makes some boards not boot 2.6.18, so IMO patch
+> should go to head, 2.6.18.2 and everywhere "ACPI: ACPICA 20060623" has been
+> applied.
 > 
-> Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> Remove quirk_via_abnormal_poweroff
+> 
+> Obsoleted by "ACPI: ACPICA 20060623":
+> <snip>
+>     Implemented support for "ignored" bits in the ACPI
+>     registers.  According to the ACPI specification, these
+>     bits should be preserved when writing the registers via
+>     a read/modify/write cycle. There are 3 bits preserved
+>     in this manner: PM1_CONTROL[0] (SCI_EN), PM1_CONTROL[9],
+>     and PM1_STATUS[11].
+>     http://bugzilla.kernel.org/show_bug.cgi?id=3691
+> </snip>
+> 
+> Signed-off-by: Karsten Wiese <fzu@wemgehoertderstaat.de>
+> Cc: Bob Moore <robert.moore@intel.com>
+> Cc: Len Brown <len.brown@intel.com>
+> Acked-by: Dave Jones <davej@redhat.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
 > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> 
 > ---
->  arch/x86_64/kernel/time.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/pci/quirks.c |   27 ---------------------------
+>  1 file changed, 27 deletions(-)
 > 
-> --- linux-2.6.18.1.orig/arch/x86_64/kernel/time.c
-> +++ linux-2.6.18.1/arch/x86_64/kernel/time.c
-> @@ -960,7 +960,7 @@ __cpuinit int unsynchronized_tsc(void)
->   	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
->  #ifdef CONFIG_ACPI
->  		/* But TSC doesn't tick in C3 so don't use it there */
-> -		if (acpi_fadt.length > 0 && acpi_fadt.plvl3_lat < 100)
-> +		if (acpi_fadt.length > 0 && acpi_fadt.plvl3_lat < 1000)
->  			return 1;
->  #endif
->   		return 0;
+> --- linux-2.6.18.1.orig/drivers/pci/quirks.c
+> +++ linux-2.6.18.1/drivers/pci/quirks.c
+> @@ -685,33 +685,6 @@ static void __devinit quirk_vt82c598_id(
+>  }
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C597_0,	quirk_vt82c598_id );
+>  
+> -#ifdef CONFIG_ACPI_SLEEP
+> -
+> -/*
+> - * Some VIA systems boot with the abnormal status flag set. This can cause
+> - * the BIOS to re-POST the system on resume rather than passing control
+> - * back to the OS.  Clear the flag on boot
+> - */
+> -static void __devinit quirk_via_abnormal_poweroff(struct pci_dev *dev)
+> -{
+> -	u32 reg;
+> -
+> -	acpi_hw_register_read(ACPI_MTX_DO_NOT_LOCK, ACPI_REGISTER_PM1_STATUS,
+> -				&reg);
+> -
+> -	if (reg & 0x800) {
+> -		printk("Clearing abnormal poweroff flag\n");
+> -		acpi_hw_register_write(ACPI_MTX_DO_NOT_LOCK,
+> -					ACPI_REGISTER_PM1_STATUS,
+> -					(u16)0x800);
+> -	}
+> -}
+> -
+> -DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8235, quirk_via_abnormal_poweroff);
+> -DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237, quirk_via_abnormal_poweroff);
+> -
+> -#endif
+> -
+>  /*
+>   * CardBus controllers have a legacy base address that enables them
+>   * to respond as i82365 pcmcia controllers.  We don't want them to
 > 
 > --
 > -

@@ -1,41 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946851AbWKAMTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946858AbWKAMYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946851AbWKAMTe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 07:19:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946850AbWKAMTe
+	id S1946858AbWKAMYg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 07:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946857AbWKAMYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 07:19:34 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1720 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1946843AbWKAMTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 07:19:33 -0500
-Subject: Re: AHCI should try to claim all AHCI controllers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Conke Hu <conke.hu@amd.com>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610312120200.25218@g5.osdl.org>
-References: <FFECF24D2A7F6D418B9511AF6F358602F2CE9E@shacnexch2.atitech.com>
-	 <45482BA7.6070904@pobox.com>
-	 <Pine.LNX.4.64.0610312120200.25218@g5.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 01 Nov 2006 12:23:03 +0000
-Message-Id: <1162383783.11965.116.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 1 Nov 2006 07:24:35 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29369 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1946856AbWKAMYe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 07:24:34 -0500
+Date: Wed, 1 Nov 2006 13:23:19 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.19-rc4-mm1: noidlehz problems
+Message-ID: <20061101122319.GA13056@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-10-31 am 21:22 -0800, ysgrifennodd Linus Torvalds:
-> (We had the same issue with "PCI IDE controller". Some PCI IDE controllers 
-> are clearly exactly that from a programming interface standpoint, but 
-> because they support RAID in hardware, they claim to be RAID controllers, 
-> since that is more "glamorous". Gaah ;^).
+Hi!
 
-Actually its far uglier than that. With one exception they don't support
-hardware raid mode, they use the RAID class tag to stop other OS drivers
-grabbing the interface or seeing it directly as un-raided software raid.
+First, it would be nice if we had someone listed as a maintainer of
+noidlehz stuff...
 
-Alan
+Then... I'm getting strange messages from noidlehz each time I
+unplug/replug AC power (perhaps due to interrupt latency?).
+
+Disabling NO_HZ and high resolution timers due to timer broadcasting
+(C3 stops local apic)
+Adding 987988k swap on /dev/sda1.  Priority:-1 extents:1
+across:987988k
+Disabling NO_HZ and high resolution timers due to timer broadcasting
+(C3 stops local apic)
+EXT2-fs warning (device sda2): ext2_fill_super: mounting ext3
+filesystem as ext2
+pcmcia: Detected deprecated PCMCIA ioctl usage from process: cardmgr.
+pcmcia: This interface will soon be removed from the kernel; please
+expect breakage unless you upgrade to new tools.
+pcmcia: see
+http://www.kernel.org/pub/linux/utils/kernel/pcmcia/pcmcia.html for
+details.
+cs: IO port probe 0x310-0x380: clean.
+cs: IO port probe 0xa00-0xaff: clean.
+Disabling NO_HZ and high resolution timers due to timer broadcasting
+(C3 stops local apic)
+Disabling NO_HZ and high resolution timers due to timer broadcasting
+(C3 stops local apic)
+e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex
+e1000: eth0: e1000_watchdog: 10/100 speed: disabling TSO
+coda_read_super: Bad mount data
+coda_read_super: device index: 0
+coda_read_super: rootfid is (01234567.ffffffff.080519b0.00000000)
+coda_upcall: Venus dead on (op,un) (7.2) flags 10
+Failure of coda_cnode_make for root: error -19
+acpiphp_glue: cannot get bridge info
+Disabling NO_HZ and high resolution timers due to timer broadcasting
+(C3 stops local apic)
+Disabling NO_HZ and high resolution timers due to timer broadcasting
+(C3 stops local apic)
+Disabling NO_HZ and high resolution timers due to timer broadcasting
+(C3 stops local apic)
+Disabling NO_HZ and high resolution timers due to timer broadcasting
+(C3 stops local apic)
+
+...I'd expect one such message, not many of them. Something seems
+seriously wrong there...
+
+Plus, suspend to RAM and disk is broken in -rc4-mm1. Suspend to RAM
+dies with screaming speaker, suspend to disk returns but machine is
+mostly toast (and screaming, looks like timer problem, beeps never
+end). I'll disable NO_HZ and try again.
+
+							Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,35 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423620AbWKAEng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423881AbWKAEoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423620AbWKAEng (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 23:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423623AbWKAEng
+	id S1423881AbWKAEoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 23:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423623AbWKAEoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 23:43:36 -0500
-Received: from mail.gmx.net ([213.165.64.20]:8083 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1423620AbWKAEnf (ORCPT
+	Tue, 31 Oct 2006 23:44:25 -0500
+Received: from mail.gmx.de ([213.165.64.20]:52113 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1161636AbWKAEoZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 23:43:35 -0500
+	Tue, 31 Oct 2006 23:44:25 -0500
 X-Authenticated: #14349625
 Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
 From: Mike Galbraith <efault@gmx.de>
 To: Greg KH <gregkh@suse.de>
-Cc: "Martin J. Bligh" <mbligh@google.com>,
-       Cornelia Huck <cornelia.huck@de.ibm.com>,
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>,
+       "Martin J. Bligh" <mbligh@google.com>,
        Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-In-Reply-To: <1162318477.6016.3.camel@Homer.simpson.net>
-References: <45461977.3020201@shadowen.org> <45461E74.1040408@google.com>
-	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
-	 <45463481.80601@shadowen.org>
+In-Reply-To: <20061031213126.GA596@suse.de>
+References: <454631C1.5010003@google.com> <45463481.80601@shadowen.org>
 	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
 	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
-	 <20061031065912.GA13465@suse.de>
-	 <1162278594.6416.4.camel@Homer.simpson.net> <20061031072241.GB7306@suse.de>
-	 <1162312126.5918.12.camel@Homer.simpson.net>
-	 <1162318477.6016.3.camel@Homer.simpson.net>
+	 <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com>
+	 <20061031075825.GA8913@suse.de> <45477131.4070501@google.com>
+	 <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com>
+	 <20061031213126.GA596@suse.de>
 Content-Type: text/plain
-Date: Wed, 01 Nov 2006 05:43:18 +0100
-Message-Id: <1162356198.6105.18.camel@Homer.simpson.net>
+Date: Wed, 01 Nov 2006 05:44:09 +0100
+Message-Id: <1162356249.6105.21.camel@Homer.simpson.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
@@ -37,41 +35,45 @@ X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-31 at 19:14 +0100, Mike Galbraith wrote:
-
-> Seems it's driver-core-fixes-sysfs_create_link-retval-checks-in.patch
+On Tue, 2006-10-31 at 13:31 -0800, Greg KH wrote:
+> On Tue, Oct 31, 2006 at 05:46:39PM +0100, Cornelia Huck wrote:
+> > On Tue, 31 Oct 2006 07:52:17 -0800,
+> > "Martin J. Bligh" <mbligh@google.com> wrote:
+> > 
+> > > >>> Merely change CONFIG_SYSFS_DEPRECATED to be set to yes, and it should
+> > > >>> all work just fine.  Doesn't anyone read the Kconfig help entries for
+> > > >>> new kernel options?
+> > > >> 1. This doesn't fix it.
+> > > > 
+> > > > I think acpi is now being fingered here, right?
+> > > 
+> > > Eh? How. Backing out all your patches from -mm fixes it.
+> > > The deprecated stuff does not fix it, it's the same as before.
+> > 
+> > That's because /sys/class/net/<interface> is now a symlink instead of a
+> > directory (and that hasn't anything to do with acpi, but rather with
+> > the conversions in the driver tree). Seems the directory -> symlink
+> > change shouldn't be done since it's impacting user space...
 > 
-> Tomorrow, I'll revert that alone from 2.6.19-rc3-mm1 to confirm...
+> If you enable CONFIG_SYSFS_DEPRECATED, then there is no symlink and
+> there is no userspace change.  sysfs should look identical to before.
+> 
+> Or did I miss something doing this work?
 
-Confirmed.  Boots fine with that patch reverted.
+Something is amiss, because it's still a symlink here.
 
-I'm getting a slew of....
-BUG: atomic counter underflow at:
- [<c0104282>] dump_trace+0x1b7/0x1e6
- [<c01042cb>] show_trace_log_lvl+0x1a/0x30
- [<c010495f>] show_trace+0x12/0x14
- [<c01049e6>] dump_stack+0x16/0x18
- [<c01b5262>] sysfs_d_iput+0x68/0x96
- [<c01860de>] dentry_iput+0x5d/0xb1
- [<c0186f25>] dput+0xd2/0x133
- [<c01b4f45>] sysfs_remove_dir+0xd2/0x120
- [<c02d59e4>] kobject_del+0xb/0x15
- [<c03612f1>] device_del+0x199/0x1b0
- [<c0361313>] device_unregister+0xb/0x15
- [<c03613a2>] device_destroy+0x85/0x8e
- [<c033e827>] vcs_remove_sysfs+0x1c/0x38
- [<c034414d>] con_close+0x5e/0x6b
- [<c0336bca>] release_dev+0x13d/0x65b
- [<c03370fa>] tty_release+0x12/0x1c
- [<c0176bad>] __fput+0xab/0x1d8
- [<c0176dd8>] fput+0x22/0x3b
- [<c0174314>] filp_close+0x41/0x67
- [<c01753e8>] sys_close+0x6e/0xb6
- [<c010317c>] syscall_call+0x7/0xb
- [<0805cdc7>] 0x805cdc7
- =======================
-...with 2.6.19-rc3-mm1 with the patch reverted, which I did not get with
-the patched up 2.6.19-rc3, but it does boot and run without exploding.
+With driver-core-fixes-sysfs_create_link-retval-checks-in.patch reverted
+so I can boot, I get the below both in my patched up 2.6.19-rc3 and
+2.6.19-rc3-mm1.
 
-	-Mike
+strace -vf /sbin/getcfg eth0
+lstat64("/sys/class/net/eth0", {st_dev=makedev(0, 0), st_ino=4480, st_mode=S_IFLNK|0777, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2006/11/01-05:00:15, st_mtime=2006/11/01-05:59:54, st_ctime=2006/11/01-05:59:54}) = 0
+
+file /sys/class/net/eth0
+/sys/class/net/eth0: symbolic link to `../../devices/pci0000:00/0000:00:1e.0/0000:02:09.0/eth0'
+
+grep DEPRECATED .config
+CONFIG_SYSFS_DEPRECATED=y
+# CONFIG_PM_SYSFS_DEPRECATED is not set
+
 

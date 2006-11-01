@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752558AbWKAXYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752553AbWKAX2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752558AbWKAXYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 18:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752559AbWKAXYq
+	id S1752553AbWKAX2W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 18:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752559AbWKAX2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 18:24:46 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:5047 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1752558AbWKAXYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 18:24:45 -0500
-Message-ID: <45492CBC.8020501@vmware.com>
-Date: Wed, 01 Nov 2006 15:24:44 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org
-Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt
- kernels
-References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org> <20061101121753.GA2205@elf.ucw.cz>
-In-Reply-To: <20061101121753.GA2205@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 1 Nov 2006 18:28:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42968 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752553AbWKAX2V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 18:28:21 -0500
+Date: Wed, 1 Nov 2006 15:27:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>,
+       virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/7] paravirtualization: Patch inline replacements for
+ common paravirt operations.
+Message-Id: <20061101152715.f1f94d5c.akpm@osdl.org>
+In-Reply-To: <1162376894.23462.7.camel@localhost.localdomain>
+References: <20061029024504.760769000@sous-sol.org>
+	<20061029024607.401333000@sous-sol.org>
+	<200610290831.21062.ak@suse.de>
+	<1162178936.9802.34.camel@localhost.localdomain>
+	<20061030231132.GA98768@muc.de>
+	<1162376827.23462.5.camel@localhost.localdomain>
+	<1162376894.23462.7.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> On Sat 2006-10-28 00:00:04, Chris Wright wrote:
->   
->> Allow selected bug checks to be skipped by paravirt kernels.  The two most
->> important are the F00F workaround (which is either done by the hypervisor,
->> or not required), and the 'hlt' instruction check, which can break under
->> some hypervisors.
->>     
->
-> How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
-> innocent to me.
->   
+On Wed, 01 Nov 2006 21:28:13 +1100
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Not if you use tickless timers that don't generate interrupts to unhalt 
-you, or if you delay ticks until the next scheduled timeout and you 
-haven't yet scheduled any timeout.  Both are likely in a hypervisor.
+> +void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
+> +{
+> +	struct paravirt_patch *p;
+> +	int i;
+> +
+> +	for (p = start; p < end; p++) {
+> +		unsigned int used;
+> +
+> +		used = paravirt_ops.patch(p->instrtype, p->clobbers, p->instr,
+> +					  p->len);
+> +#ifdef CONFIG_DEBUG_KERNEL
+> +		/* Deliberately clobber regs using "not %reg" to find bugs. */
 
-Zach
+That would be considered to be abusive of CONFIG_DEBUG_KERNEL.  A
+CONFIG_DEBUG_PARAVIRT which depends on CONFIG_DEBUG_KERNEL would be more
+harmonious.

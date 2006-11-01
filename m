@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946560AbWKAFr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946548AbWKAFtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946560AbWKAFr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946553AbWKAFrj
+	id S1946548AbWKAFtK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946535AbWKAFnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:47:39 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:27817 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946560AbWKAFrW
+	Wed, 1 Nov 2006 00:43:53 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:15324 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946523AbWKAFne
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:47:22 -0500
-Message-Id: <20061101054454.696256000@sous-sol.org>
+	Wed, 1 Nov 2006 00:43:34 -0500
+Message-Id: <20061101054320.861225000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:34:32 -0800
+Date: Tue, 31 Oct 2006 21:34:24 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,100 +21,89 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Andy Whitcroft <apw@shadowen.org>,
-       Paul Mackerras <paulus@samba.org>, Mike Kravetz <kravetz@us.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Mel Gorman <mel@csn.ul.ie>, Will Schmidt <will_schmidt@vnet.ibm.com>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: [PATCH 52/61] Reintroduce NODES_SPAN_OTHER_NODES for powerpc
-Content-Disposition: inline; filename=reintroduce-nodes_span_other_nodes-for-powerpc.patch
+       alan@lxorguk.ukuu.org.uk, "Clemens Ladisch" <clemens@ladisch.de>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 44/61] ALSA: snd_rtctimer: handle RTC interrupts with a tasklet
+Content-Disposition: inline; filename=alsa-snd_rtctimer-handle-rtc-interrupts-with-a-tasklet.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Andy Whitcroft <apw@shadowen.org>
+From:  <clemens@ladisch.de>
 
-Revert "[PATCH] Remove SPAN_OTHER_NODES config definition"
-    This reverts commit f62859bb6871c5e4a8e591c60befc8caaf54db8c.
-Revert "[PATCH] mm: remove arch independent NODES_SPAN_OTHER_NODES"
-    This reverts commit a94b3ab7eab4edcc9b2cb474b188f774c331adf7.
+The calls to rtc_control() from inside the interrupt handler can
+deadlock the RTC code, so move our interrupt handling code to a tasklet.
 
-Also update the comments to indicate that this is still required
-and where its used.
-
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Acked-by: Mel Gorman <mel@csn.ul.ie>
-Acked-by: Will Schmidt <will_schmidt@vnet.ibm.com>
-Cc: Christoph Lameter <clameter@sgi.com>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Clemens Ladisch <clemens@ladisch.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- arch/powerpc/Kconfig                   |    9 +++++++++
- arch/powerpc/configs/pseries_defconfig |    1 +
- include/linux/mmzone.h                 |    6 ++++++
- mm/page_alloc.c                        |    2 ++
- 4 files changed, 18 insertions(+)
 
---- linux-2.6.18.1.orig/arch/powerpc/Kconfig
-+++ linux-2.6.18.1/arch/powerpc/Kconfig
-@@ -729,6 +729,15 @@ config ARCH_MEMORY_PROBE
- 	def_bool y
- 	depends on MEMORY_HOTPLUG
+---
+ sound/core/rtctimer.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+--- linux-2.6.18.1.orig/sound/core/rtctimer.c
++++ linux-2.6.18.1/sound/core/rtctimer.c
+@@ -50,7 +50,9 @@ static int rtctimer_stop(struct snd_time
+  * The hardware dependent description for this timer.
+  */
+ static struct snd_timer_hardware rtc_hw = {
+-	.flags =	SNDRV_TIMER_HW_FIRST|SNDRV_TIMER_HW_AUTO,
++	.flags =	SNDRV_TIMER_HW_AUTO |
++			SNDRV_TIMER_HW_FIRST |
++			SNDRV_TIMER_HW_TASKLET,
+ 	.ticks =	100000000L,		/* FIXME: XXX */
+ 	.open =		rtctimer_open,
+ 	.close =	rtctimer_close,
+@@ -60,6 +62,7 @@ static struct snd_timer_hardware rtc_hw 
  
-+# Some NUMA nodes have memory ranges that span
-+# other nodes.  Even though a pfn is valid and
-+# between a node's start and end pfns, it may not
-+# reside on that node.  See memmap_init_zone()
-+# for details.
-+config NODES_SPAN_OTHER_NODES
-+	def_bool y
-+	depends on NEED_MULTIPLE_NODES
-+
- config PPC_64K_PAGES
- 	bool "64k page size"
- 	depends on PPC64
---- linux-2.6.18.1.orig/arch/powerpc/configs/pseries_defconfig
-+++ linux-2.6.18.1/arch/powerpc/configs/pseries_defconfig
-@@ -184,6 +184,7 @@ CONFIG_SPLIT_PTLOCK_CPUS=4
- CONFIG_MIGRATION=y
- CONFIG_RESOURCES_64BIT=y
- CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID=y
-+CONFIG_NODES_SPAN_OTHER_NODES=y
- # CONFIG_PPC_64K_PAGES is not set
- CONFIG_SCHED_SMT=y
- CONFIG_PROC_DEVICETREE=y
---- linux-2.6.18.1.orig/include/linux/mmzone.h
-+++ linux-2.6.18.1/include/linux/mmzone.h
-@@ -632,6 +632,12 @@ void sparse_init(void);
- #define sparse_index_init(_sec, _nid)  do {} while (0)
- #endif /* CONFIG_SPARSEMEM */
+ static int rtctimer_freq = RTC_FREQ;		/* frequency */
+ static struct snd_timer *rtctimer;
++static struct tasklet_struct rtc_tasklet;
+ static rtc_task_t rtc_task;
  
-+#ifdef CONFIG_NODES_SPAN_OTHER_NODES
-+#define early_pfn_in_nid(pfn, nid)	(early_pfn_to_nid(pfn) == (nid))
-+#else
-+#define early_pfn_in_nid(pfn, nid)	(1)
-+#endif
+ 
+@@ -81,6 +84,7 @@ rtctimer_close(struct snd_timer *t)
+ 	rtc_task_t *rtc = t->private_data;
+ 	if (rtc) {
+ 		rtc_unregister(rtc);
++		tasklet_kill(&rtc_tasklet);
+ 		t->private_data = NULL;
+ 	}
+ 	return 0;
+@@ -105,12 +109,17 @@ rtctimer_stop(struct snd_timer *timer)
+ 	return 0;
+ }
+ 
++static void rtctimer_tasklet(unsigned long data)
++{
++	snd_timer_interrupt((struct snd_timer *)data, 1);
++}
 +
- #ifndef early_pfn_valid
- #define early_pfn_valid(pfn)	(1)
- #endif
---- linux-2.6.18.1.orig/mm/page_alloc.c
-+++ linux-2.6.18.1/mm/page_alloc.c
-@@ -1673,6 +1673,8 @@ void __meminit memmap_init_zone(unsigned
- 	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
- 		if (!early_pfn_valid(pfn))
- 			continue;
-+		if (!early_pfn_in_nid(pfn, nid))
-+			continue;
- 		page = pfn_to_page(pfn);
- 		set_page_links(page, zone, nid, pfn);
- 		init_page_count(page);
+ /*
+  * interrupt
+  */
+ static void rtctimer_interrupt(void *private_data)
+ {
+-	snd_timer_interrupt(private_data, 1);
++	tasklet_hi_schedule(private_data);
+ }
+ 
+ 
+@@ -139,9 +148,11 @@ static int __init rtctimer_init(void)
+ 	timer->hw = rtc_hw;
+ 	timer->hw.resolution = NANO_SEC / rtctimer_freq;
+ 
++	tasklet_init(&rtc_tasklet, rtctimer_tasklet, (unsigned long)timer);
++
+ 	/* set up RTC callback */
+ 	rtc_task.func = rtctimer_interrupt;
+-	rtc_task.private_data = timer;
++	rtc_task.private_data = &rtc_tasklet;
+ 
+ 	err = snd_timer_global_register(timer);
+ 	if (err < 0) {
 
 --

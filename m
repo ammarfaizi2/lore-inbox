@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946518AbWKAFlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946520AbWKAFky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946518AbWKAFlk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946512AbWKAFk7
+	id S1946520AbWKAFky (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946522AbWKAFkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:40:59 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:658 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946523AbWKAFkN
+	Wed, 1 Nov 2006 00:40:08 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:56465 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946520AbWKAFjo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:40:13 -0500
-Message-Id: <20061101054018.139620000@sous-sol.org>
+	Wed, 1 Nov 2006 00:39:44 -0500
+Message-Id: <20061101053954.295627000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:34:09 -0800
+Date: Tue, 31 Oct 2006 21:34:07 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org,
-       alan@lxorguk.ukuu.org.uk, NeilBrown <neilb@suse.de>,
-       linux-raid@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 29/61] md: Fix calculation of ->degraded for multipath and raid10
-Content-Disposition: inline; filename=md-fix-calculation-of-degraded-for-multipath-and-raid10.patch
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Takashi Iwai <tiwai@suse.de>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 27/61] ALSA: Fix re-use of va_list
+Content-Disposition: inline; filename=alsa-fix-re-use-of-va_list.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: NeilBrown <neilb@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-Two less-used md personalities have bugs in the calculation of 
- ->degraded (the extent to which the array is degraded).
+[PATCH] ALSA: Fix re-use of va_list
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+The va_list is designed to be used only once.  The current code
+may pass va_list arguments multiple times and may cause Oops.
+Copy/release the arguments temporarily to avoid this problem.
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- drivers/md/multipath.c |    2 +-
- drivers/md/raid10.c    |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ sound/core/info.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- linux-2.6.18.1.orig/drivers/md/multipath.c
-+++ linux-2.6.18.1/drivers/md/multipath.c
-@@ -480,7 +480,7 @@ static int multipath_run (mddev_t *mddev
- 			mdname(mddev));
- 		goto out_free_conf;
- 	}
--	mddev->degraded = conf->raid_disks = conf->working_disks;
-+	mddev->degraded = conf->raid_disks - conf->working_disks;
- 
- 	conf->pool = mempool_create_kzalloc_pool(NR_RESERVED_BUFS,
- 						 sizeof(struct multipath_bh));
---- linux-2.6.18.1.orig/drivers/md/raid10.c
-+++ linux-2.6.18.1/drivers/md/raid10.c
-@@ -2042,7 +2042,7 @@ static int run(mddev_t *mddev)
- 		disk = conf->mirrors + i;
- 
- 		if (!disk->rdev ||
--		    !test_bit(In_sync, &rdev->flags)) {
-+		    !test_bit(In_sync, &disk->rdev->flags)) {
- 			disk->head_position = 0;
- 			mddev->degraded++;
- 		}
+--- linux-2.6.18.1.orig/sound/core/info.c
++++ linux-2.6.18.1/sound/core/info.c
+@@ -119,7 +119,10 @@ int snd_iprintf(struct snd_info_buffer *
+ 	len = buffer->len - buffer->size;
+ 	va_start(args, fmt);
+ 	for (;;) {
+-		res = vsnprintf(buffer->buffer + buffer->curr, len, fmt, args);
++		va_list ap;
++		va_copy(ap, args);
++		res = vsnprintf(buffer->buffer + buffer->curr, len, fmt, ap);
++		va_end(ap);
+ 		if (res < len)
+ 			break;
+ 		err = resize_info_buffer(buffer, buffer->len + PAGE_SIZE);
 
 --

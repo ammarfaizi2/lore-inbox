@@ -1,40 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWKAUtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752350AbWKAUuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbWKAUtD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 15:49:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752331AbWKAUtD
+	id S1752350AbWKAUuV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 15:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752360AbWKAUuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 15:49:03 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46747 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751036AbWKAUtB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 15:49:01 -0500
-Date: Wed, 1 Nov 2006 12:48:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Len Brown <lenb@kernel.org>
-Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc4-mm1
-Message-Id: <20061101124827.1559ac22.akpm@osdl.org>
-In-Reply-To: <200611011435.09740.len.brown@intel.com>
-References: <20061031015121.dfc7e02a.akpm@osdl.org>
-	<200611011435.09740.len.brown@intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Nov 2006 15:50:20 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:65187 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1752350AbWKAUuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 15:50:19 -0500
+Subject: Re: [PATCH] Updated, add get_range, allows a hyhpenated range to
+	get_options
+From: Derek Fults <dfults@sgi.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+In-Reply-To: <454902CC.4040700@oracle.com>
+References: <1162410596.9524.544.camel@lnx-dfults.americas.sgi.com>
+	 <4548FAFC.5000409@oracle.com>
+	 <1162412656.9524.556.camel@lnx-dfults.americas.sgi.com>
+	 <454902CC.4040700@oracle.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Nov 2006 14:51:02 -0600
+Message-Id: <1162414262.9524.573.camel@lnx-dfults.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2006 14:35:09 -0500
-Len Brown <len.brown@intel.com> wrote:
-
-> On Tuesday 31 October 2006 04:51, Andrew Morton wrote:
+On Wed, 2006-11-01 at 12:25 -0800, Randy Dunlap wrote:
+> Derek Fults wrote:
+> > On Wed, 2006-11-01 at 11:52 -0800, Randy Dunlap wrote:
+> >> Derek Fults wrote:
+> >>> This allows a hyphenated range of positive numbers M-N, in the string
+> >>> passed to command line helper function, get_options.  This will expand
+> >>> the range and insert the values[M, M+1, ..., N] into the ints array in
+> >>> get_options.
+> >>>
+> >>> Currently the command line option "isolcpus=" takes as its argument a
+> >>> list of cpus.  
+> >>> Format: <cpu number>,...,<cpu number>
+> >>> This can get extremely long when isolating the majority of cpus on a
+> >>> large system.  Valid values of <cpu_number>  include all cpus, 0 to
+> >>> "number of CPUs in system - 1".
+> >>>
+> >>>
+> >>> Signed-off-by: Derek Fults <dfults@sgi.com>  
+> >>>
+> >>> Index: linux/lib/cmdline.c
+> >>> ===================================================================
+> >>> --- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
+> >>> +++ linux/lib/cmdline.c	2006-11-01 12:36:20.059166727 -0600
+> >>> @@ -16,6 +16,23 @@
+> >>>  #include <linux/kernel.h>
+> >>>  #include <linux/string.h>
+> >>>  
+> >>> +/**
+> >>> + *	If a hyphen was found in get_option, this will handle the
+> >>> + *	range of numbers, M-N.  This will expand the range and insert
+> >>> + *	the values[M, M+1, ..., N] into the ints array in get_options.
+> >>> + */
+> >> Derek,
+> >> Thanks for persisting thru this.  It's all fine for me except the
+> >> comment block above.  If a comment block begins with "/**", then
+> >> it's supposed to be in kernel-doc format (see
+> >> Documentation/kernel-doc-nano-HOWTO.txt), with function name &
+> >> parameters (if applicable).  However, that mostly needs to be done
+> >> for non-static functions, so probably just change /** to /*
+> >> and leave the rest of the comment block as is.
+> >> My other comment-block comment was also about kernel long-comment
+> >> style, which is
+> >> /*
+> >>  * begin
+> >>  * more
+> >>  * end
+> >>  */
+> >> so now you have achieved that also, so thanks again.
+> > 
+> > I fixed both comments to match that format.  Thanks for all the help and
+> > your patience.
+> > I'm posting the new patch in this replay.  Is that an acceptable
+> > practice, or does one normally post all fixes to a patch in a new
+> > message?
 > 
-> > - The ACPI tree has been dropped due to Rafael's testing failures.
+> It happens both ways, but since this is mostly new code/feature,
+> I suggest that you repost it and also cc: akpm@osdl.org on it.
 > 
-> Rafael has confirmed that the latest ACPI tree works on his system,
-> please resume pulling the ACPI tree into the -mm tree.
+> And it still needs a user.  Will you be converting isolcpus=
+> to use this functionality?
+> It likely won't be merged until it has a user.
+> 
+Isolcpus will be using this code, but it does not need to be converted
+in the kernel.  Isolated_cpu_setup() gets its string from the command
+line and then makes the call to get_options with that string.  There is
+a reference to the format of isolcpus= in kernel-parameters.txt, that
+could reflect this enhancement.
+Instead of:
+Format: <cpu number>,...,<cpu number>
 
-OK.  I have the six build fixes which I think were all against the
-now-removed ACPICA code.  I'll send them over then drop them.
+change to:
+Format <cpu number>,...,<cpu number>-<cpu number>
+<cpu number>-<cpu number> must be a positive range in ascending order. 
 
+
+Derek

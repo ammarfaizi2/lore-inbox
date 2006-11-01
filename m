@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946543AbWKAFof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946537AbWKAFog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946543AbWKAFof (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946537AbWKAFo3
+	id S1946537AbWKAFog (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946524AbWKAFnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:44:29 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:38620 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946523AbWKAFoZ
+	Wed, 1 Nov 2006 00:43:55 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:64987 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946539AbWKAFnD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:44:25 -0500
-Message-Id: <20061101054407.796797000@sous-sol.org>
+	Wed, 1 Nov 2006 00:43:03 -0500
+Message-Id: <20061101054307.392790000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:34:28 -0800
+Date: Tue, 31 Oct 2006 21:34:23 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, a.zummo@towertech.it, flarramendi@gmail.com,
-       raph@raphnet.net, azummo@towertech.it
-Subject: [PATCH 48/61] rtc-max6902: month conversion fix
-Content-Disposition: inline; filename=rtc-max6902-month-conversion-fix.patch
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk,
+       "Paolo Blaisorblade Giarrusso" <blaisorblade@yahoo.it>,
+       Jeff Dike <jdike@addtoit.com>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 43/61] uml: remove warnings added by previous -stable patch
+Content-Disposition: inline; filename=uml-remove-warnings-added-by-previous-stable-patch.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Francisco Larramendi <flarramendi@gmail.com>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Fix October-only BCD-to-binary conversion bug:
+Add needed includes for syscall() function, also to remove warnings spit out by
+GCC; they were added by previous -stable patch, and at least on my system
+(Ubuntu x86-64) these warnings do show up.
 
-	0x08 -> 7
-	0x09 -> 8
-	0x10 -> 15 (!)
-	0x11 -> 19
-
-Fixes http://bugzilla.kernel.org/show_bug.cgi?id=7361
-
-Cc: Raphael Assenat <raph@raphnet.net>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+
 ---
+ arch/um/os-Linux/sys-i386/tls.c |    2 ++
+ arch/um/os-Linux/tls.c          |    2 ++
+ 2 files changed, 4 insertions(+)
 
- drivers/rtc/rtc-max6902.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.18.1.orig/drivers/rtc/rtc-max6902.c
-+++ linux-2.6.18.1/drivers/rtc/rtc-max6902.c
-@@ -137,7 +137,7 @@ static int max6902_get_datetime(struct d
- 	dt->tm_min	= BCD2BIN(chip->buf[2]);
- 	dt->tm_hour	= BCD2BIN(chip->buf[3]);
- 	dt->tm_mday	= BCD2BIN(chip->buf[4]);
--	dt->tm_mon	= BCD2BIN(chip->buf[5] - 1);
-+	dt->tm_mon	= BCD2BIN(chip->buf[5]) - 1;
- 	dt->tm_wday	= BCD2BIN(chip->buf[6]);
- 	dt->tm_year = BCD2BIN(chip->buf[7]);
+--- linux-2.6.18.1.orig/arch/um/os-Linux/sys-i386/tls.c
++++ linux-2.6.18.1/arch/um/os-Linux/sys-i386/tls.c
+@@ -1,4 +1,6 @@
+ #include <errno.h>
++#include <sys/syscall.h>
++#include <unistd.h>
+ #include <linux/unistd.h>
+ #include "sysdep/tls.h"
+ #include "user_util.h"
+--- linux-2.6.18.1.orig/arch/um/os-Linux/tls.c
++++ linux-2.6.18.1/arch/um/os-Linux/tls.c
+@@ -1,6 +1,8 @@
+ #include <errno.h>
+ #include <sys/ptrace.h>
++#include <sys/syscall.h>
+ #include <asm/ldt.h>
++#include <unistd.h>
+ #include "sysdep/tls.h"
+ #include "uml-config.h"
  
 
 --

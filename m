@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752248AbWKASOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752252AbWKASPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752248AbWKASOR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 13:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752250AbWKASOR
+	id S1752252AbWKASPn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 13:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752253AbWKASPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 13:14:17 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:18587 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752247AbWKASOQ (ORCPT
+	Wed, 1 Nov 2006 13:15:43 -0500
+Received: from main.gmane.org ([80.91.229.2]:12734 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1752251AbWKASPm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 13:14:16 -0500
-Date: Wed, 1 Nov 2006 23:49:26 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Cc: Paul Menage <menage@google.com>, Paul Jackson <pj@sgi.com>, dev@openvz.org,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-ID: <20061101181926.GD22976@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061030103356.GA16833@in.ibm.com> <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com> <20061030031531.8c671815.pj@sgi.com> <6599ad830610300404v1e036bb7o7ed9ec0bc341864e@mail.gmail.com> <20061030042714.fa064218.pj@sgi.com> <6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com> <20061030123652.d1574176.pj@sgi.com> <6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com> <Pine.LNX.4.64N.0610311951280.7538@attu4.cs.washington.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64N.0610311951280.7538@attu4.cs.washington.edu>
-User-Agent: Mutt/1.5.11
+	Wed, 1 Nov 2006 13:15:42 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
+Date: Wed, 1 Nov 2006 18:13:52 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnekhpbr.2j1.olecom@flower.upol.cz>
+References: <1154985aa0591036@2ka.mipt.ru> <1162380963981@2ka.mipt.ru> <20061101130614.GB7195@atrey.karlin.mff.cuni.cz> <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Pavel Machek <pavel@ucw.cz>, David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>, Christoph Hellwig <hch@infradead.org>, Chase Venters <chase.venters@clientec.com>, Johann Borck <johann.borck@densedata.com>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
+Cc: netdev@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 08:39:27PM -0800, David Rientjes wrote:
->  - How is forking handled with the various controllers?  Do child 
->    processes automatically inherit all the controller groups of its
->    parent?  If not (or if its dependant on a user-configured attribute
+Hallo, Evgeniy Polyakov.
 
-I think it would be simpler to go with the assumption that child process should 
-automatically inherit the same resource controller groups as its parent.
+On 2006-11-01, you wrote:
+[]
+>> Quantifying "how much more scalable" would be nice, as would be some
+>> example where it is useful. ("It makes my webserver twice as fast on
+>> monster 64-cpu box").
+>
+> Trivial kevent web-server can handle 3960+ req/sec on Xeon 2.4Ghz with
+[...]
 
-Although I think, CKRM did attempt to provide the flexibility of
-changing this behavior using rule-based classification engine (Matt/Chandra, 
-correct me if I am wrong here).
+Seriously. I'm seeing that patches also. New, shiny, always ready "for
+inclusion". But considering kernel (linux in this case) as not thing
+for itself, i want to ask following question.
 
--- 
-Regards,
-vatsa
+Where's real-life application to do configure && make && make install?
+
+There were some comments about laking much of such programs, answers were
+"was in prev. e-mail", "need to update them", something like that.
+"Trivial web server" sources url, mentioned in benchmark isn't pointed
+in patch advertisement. If it was, should i actually try that new
+*trivial* wheel?
+
+Saying that, i want to give you some short examples, i know.
+*Linux kernel <-> userspace*:
+o Alexey Kuznetsov  networking     <-> (excellent) iproute set of utilities;
+o Maxim Krasnyansky tun net driver <-> vtun daemon application;
+
+*Glibc with mister Drepper* has huge set of tests, please search for
+`tst*' files in the sources.
+
+To make a little hint to you, Evgeniy, why don't you find a little
+animal in the open source zoo to implement little interface to
+proposed kernel subsystem and then show it to The Big Jury (not me),
+we have here? And i can not see, how you've managed to implement
+something like that having almost nothing on the test basket.
+Very *suspicious* ch.
+
+One, that comes in mind is lighthttpd <http://www.lighttpd.net/>.
+It had sub-interface for event systems like select,poll,epoll, when i
+checked its sources last time. And it is mature, btw.
+
+Cheers.
+
+[ -*- OT -*-                                                           ]
+[ I wouldn't write all this, unless saw your opinion about the         ]
+[ reportbug (part of the Debian Bug Tracking System) this week.        ]
+[ While i'm nobody here, imho, the first thing about good programmer   ]
+[ must be, that he is excellent user.                                  ]
+____
+

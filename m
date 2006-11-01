@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946867AbWKAMzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752095AbWKANDA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946867AbWKAMzd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 07:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752090AbWKAMzd
+	id S1752095AbWKANDA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 08:03:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWKANDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 07:55:33 -0500
-Received: from mailrelay1.uni-mannheim.de ([134.155.96.50]:34978 "EHLO
-	mailrelay1.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S1752089AbWKAMzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 07:55:32 -0500
-Message-ID: <454899E9.1090900@ti.uni-mannheim.de>
-Date: Wed, 01 Nov 2006 13:58:17 +0100
-From: Guillermo Marcus Martinez <marcus@ti.uni-mannheim.de>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: mmaping a kernel buffer to user space
-References: <4547150F.8070408@ti.uni-mannheim.de> <loom.20061101T120846-320@post.gmane.org>
-In-Reply-To: <loom.20061101T120846-320@post.gmane.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 1 Nov 2006 08:03:00 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:13961 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752095AbWKANC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 08:02:59 -0500
+Subject: Re: 2.6.19-rc4-mm1: noidlehz problems
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061101122319.GA13056@elf.ucw.cz>
+References: <20061101122319.GA13056@elf.ucw.cz>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 01 Nov 2006 14:02:57 +0100
+Message-Id: <1162386177.23744.17.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rolf Offermanns schrieb:
-> Guillermo Marcus <marcus <at> ti.uni-mannheim.de> writes:
->> Note: I am using kernel 2.6.9 for these tests, as it is required by my
->> current setup. Maybe this issue has already been addressed in newer
->> kernel. If that is the case, please let me know.
+On Wed, 2006-11-01 at 13:23 +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Have a look at this article:
+> First, it would be nice if we had someone listed as a maintainer of
+> noidlehz stuff...
 > 
-> "The evolution of driver page remapping"
-> http://lwn.net/Articles/162860/
-> 
-> It should make things clearer. 
-> 
-> The "API changes in the 2.6 kernel series" page is also a very good read:
-> http://lwn.net/Articles/2.6-kernel-api/
-> 
-> HTH,
-> Rolf
+> Then... I'm getting strange messages from noidlehz each time I
+> unplug/replug AC power (perhaps due to interrupt latency?).
 
-Thanks for the links!
+there probably is a different story going on.
+When you unplug/replug AC power, several bioses change the meaning of
+the software C-states in your system.
+(there is a mapping between software visible C states and the hardware
+C-states)
 
-Yes, it looks like a step in the right direction. However, the article
-says about vm_insert_page(): "...What it does require is that the page
-be an order-zero allocation obtained for this purpose...", therefore
-making it also unusable for this case (mmaping a pci_alloc_consistent).
+In some (hardware) C-states, the local apic timer stops (as does the
+TSC), while in others it keeps running. If you change from AC to
+battery, the bios can change the meaning of a software C-state from one
+where local apic timer keeps going to one where it stops. This obviously
+upsets the hrtimers/tickless code since that uses local apic timer for
+event generation....
 
-I think the limitation (being order zero), is related to the page
-counting, as I understand that for bigger order allocations, only the
-first-page counter is incremented (not every page). If that is a
-problem, I guess I would also see a problem with my workaround, and I
-see none (yet). So I may try in a newer kernel and see if I can use it
-to walk the pages on the mmap without using the nopage().
 
-My suggestion would be to add two functions: pci_map_consistent() and
-dma_map_coherent() to address this issue, and their corresponding
-unmap's. That will make sure all that is needed is done, is a clean and
-consistent with the pci_ and dma_ APIs, and fills a mmap requirement not
-covered by the other functions.
-
-Best wishes,
-Guillermo
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

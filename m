@@ -1,76 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946724AbWKAPyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946915AbWKAP7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946724AbWKAPyn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 10:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946835AbWKAPyn
+	id S1946915AbWKAP7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 10:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946823AbWKAP7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 10:54:43 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:26521 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1946724AbWKAPym (ORCPT
+	Wed, 1 Nov 2006 10:59:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52916 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946912AbWKAP7N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 10:54:42 -0500
-Date: Wed, 1 Nov 2006 21:29:37 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Cc: Paul Menage <menage@google.com>, Paul Jackson <pj@sgi.com>, dev@openvz.org,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-ID: <20061101155937.GA2928@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061030103356.GA16833@in.ibm.com> <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com> <20061030031531.8c671815.pj@sgi.com> <6599ad830610300404v1e036bb7o7ed9ec0bc341864e@mail.gmail.com> <20061030042714.fa064218.pj@sgi.com> <6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com> <20061030123652.d1574176.pj@sgi.com> <6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com> <Pine.LNX.4.64N.0610311951280.7538@attu4.cs.washington.edu>
+	Wed, 1 Nov 2006 10:59:13 -0500
+Subject: Re: Security issues with local filesystem caching
+From: Karl MacMillan <kmacmill@redhat.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org,
+       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+In-Reply-To: <4417.1162395294@redhat.com>
+References: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil>
+	 <16969.1161771256@redhat.com> <31035.1162330008@redhat.com>
+	 <4417.1162395294@redhat.com>
+Content-Type: text/plain
+Date: Wed, 01 Nov 2006 10:58:25 -0500
+Message-Id: <1162396705.29617.18.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64N.0610311951280.7538@attu4.cs.washington.edu>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.9.1 (2.9.1-2.fc7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 08:39:27PM -0800, David Rientjes wrote:
-> So here's our three process containers, A, B, and C, with our tasks m-t:
+On Wed, 2006-11-01 at 15:34 +0000, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> 	-----A-----	-----B-----	-----C-----
-> 	|    |    |     |    |    |     |    |
-> 	m    n    o	p    q    r	s    t
+> > >      (c) A security label that defines the context under which the module
+> > >          operates when accessing the cache.  This allows the module, when
+> > >          accessing the cache, to only operate within the bounds of the
+> > >          cache.
+> > 
+> > Well, only if the module is well-behaved in the first place, since a
+> > kernel module can naturally bypass SELinux at will.  What drives this
+> > approach vs. exempting the module from SELinux checking via a task flag
+> > that it raises and lowers around the access (vs. setting and resetting
+> > the sid around the access to the per-cache module context)?
 > 
-> Here's our memory controller groups D and E and our containers set within 
-> them:
+> Christoph objected very strongly to my bypassing of vfs_mkdir() and co, and Al
+> wasn't to happy about it either.  This should allow me, for example, to call
+> vfs_mkdir() rather than calling the inode op directly as the reason I wasn't
+> was that I was having to avoid the security checks it made.
 > 
-> 	-----D-----	-----E-----
-> 	|         |	|
-> 	A         B	C
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > >  (*) The module will obtain label (c) by reading label (b) from the
+> > >      cachefilesd process when it opens the cachefiles control chardev and
+> > >      then passing it through security_change_sid() to ask the security
+> > >      policy to for label (c).
+> > 
+> > Do you mean security_transition_sid()?  security_change_sid() doesn't
+> > seem suited to that purpose
+> 
+> That's what Karl said to use.
+> 
 
-This would forces all tasks in container A to belong to the same mem/io ctlr 
-groups. What if that is not desired? How would we achieve something like
-this:
+I suggested change instead of transition because, like most uses of
+change, this was a manual relabel rather than automatic. Transition
+probably makes more sense, though.
 
-	tasks (m) should belong to mem ctlr group D,
-	tasks (n, o) should belong to mem ctlr group E
-  	tasks (m, n, o) should belong to i/o ctlr group G
+> > What would you use as the target SID and class?
+> 
+> I've no idea.  I tried to find out how to use this function from Karl, but he
+> said I should ask on the list.
+> 
 
-(this example breaks the required condition/assumption that a task belong to 
-exactly only one process container).
+This is all predicated on the notion that there is a need to have the
+normal SELinux checks performed. Since this serves only as a sanity
+check and doesn't add any real security the best option seems bypass,
+but I guess that isn't an option.
 
-Is this a unrealistic requirement? I suspect not and should give this
-flexibilty, if we ever have to support task-grouping that is
-unique to each resource. Fundamentally process grouping exists because
-of various resource and not otherwise.
+Additionally, whether the security context comes from a config file or
+the policy there is still a chance that we will end up with a security
+context without sufficient access. Debugging this is going to be
+mysterious for the policy author as it will require detailed knowledge
+of the kernel mechanism.
 
-At this point, what purpose does having/exposing-to-user the generic process 
-container abstraction A, B and C achieve?
+I guess the target SID could be the kernel initial sid and the class
+process - though that is basically arbitrary. This is an abuse of the
+interface to avoid a config file. Any other options?
 
-IMHO what is more practical is to let res ctlr groups (like D, E, F, G)
-be comprised of individual tasks (rather than containers). 
+> > >      (3) current->security->sid will be set to label (c) so that
+> > >          vfs_mkdir(), vfs_create() and lookup ops will check for the
+> > >          correct labels.
+> > 
+> > I think you would want this to be a new ->fssid field instead, and
+> > adjust SELinux to use it if set for permission checking (which could
+> > also be leveraged by NFS later).
+> 
+> I could do that.  Does it actually gain anything?  Or are there good reasons
+> for not altering current->security->sid?  For instance, does that affect the
+> label seen on /proc/pid/ files?
+> 
+> > Or just use a task flag to disable checking on the module internal accesses.
+> 
+> I could do that too.
+> 
+> > >      Point (3) shouldn't cause a cross-thread race as it would appear that
+> > >      the security label can only be changed on single-threaded processes.
+> > >      Attempts to do so on multi-threaded processes are rejected.
+> > 
+> > I don't quite follow this.
+> 
+> Sorry, I meant that a process can only change its own security label if it's a
+> single-threaded process.  A kernel module can, of course, change the security
+> label at any time.
+> 
+> > But mutating ->sid could yield unfortunate behavior if e.g. another process
+> > happens to be sending that task a signal at the same time, so if you go this
+> > route, you want a ->fssid.
+> 
+> Okay... that seems like a good reason to do use the ->fssid approach.  How do I
+> tell if ->fssid is set?  Is zero usable as 'unset'?  Alternatively, would it be
+> reasonable to have ->fssid track ->sid when the latter changes?
+> 
 
-Note that all this is not saying that Paul Menages's patches are
-pointless. In fact his generalization of cpusets to achieve process
-grouping is indeed a good idea. I am only saying that his mechanism
-should be used to define groups-of-tasks under each resource, rather
-than to have groups-of-containers under each resource.
+fssid seems like the wrong name, though it does match the DAC concept.
+This is really more general impersonation of another domain by the
+kernel and might have other uses.
 
+Karl
 
--- 
-Regards,
-vatsa
+> David
+

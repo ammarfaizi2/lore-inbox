@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752195AbWKAXEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752110AbWKAXEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752195AbWKAXEO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 18:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752291AbWKAXEO
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 18:04:14 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7617
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1752195AbWKAXEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1752110AbWKAXEN (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Nov 2006 18:04:13 -0500
-Date: Wed, 01 Nov 2006 15:04:18 -0800 (PST)
-Message-Id: <20061101.150418.26278280.davem@davemloft.net>
-To: johnip@sgi.com
-Cc: rdreier@cisco.com, matthew@wil.cx, jmodem@AbominableFirebug.com,
-       mst@mellanox.co.il, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, jeff@garzik.org, openib-general@openib.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: Ordering between PCI config space writes and MMIO reads?
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <4548CAE7.8010300@sgi.com>
-References: <20061031204717.GG26964@parisc-linux.org>
-	<ada4ptkt8y2.fsf@cisco.com>
-	<4548CAE7.8010300@sgi.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752201AbWKAXEN
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 1 Nov 2006 18:04:13 -0500
+Received: from [62.205.161.221] ([62.205.161.221]:55428 "EHLO sacred.ru")
+	by vger.kernel.org with ESMTP id S1752110AbWKAXEM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 18:04:12 -0500
+Message-ID: <45492764.6060700@openvz.org>
+Date: Thu, 02 Nov 2006 02:01:56 +0300
+From: Kir Kolyshkin <kir@openvz.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061001)
+MIME-Version: 1.0
+To: devel@openvz.org
+CC: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
+       dipankar@in.ibm.com, rohitseth@google.com,
+       Paul Menage <menage@google.com>, Chris Friesen <cfriesen@nortel.com>
+Subject: Re: [Devel] Re: [ckrm-tech] [RFC] Resource Management - Infrastructure
+ choices
+References: <20061030103356.GA16833@in.ibm.com>	<6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>	<20061101173356.GA18182@in.ibm.com> <45490F0D.7000804@nortel.com>
+In-Reply-To: <45490F0D.7000804@nortel.com>
+Content-Type: text/plain; charset=KOI8-R
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-3.0rc6 (sacred.ru [62.205.161.221]); Thu, 02 Nov 2006 02:02:20 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: John Partridge <johnip@sgi.com>
-Date: Wed, 01 Nov 2006 10:27:19 -0600
+Chris Friesen wrote:
+> Srivatsa Vaddagiri wrote:
+>
+>>>>        - Support limit (soft and/or hard depending on the resource
+>>>>          type) in controllers. Guarantee feature could be indirectly
+>>>>          met thr limits.
+>
+> I just thought I'd weigh in on this.  As far as our usage pattern is
+> concerned, guarantees cannot be met via limits.
+>
+> I want to give "x" cpu to container X, "y" cpu to container Y, and "z"
+> cpu to container Z.
+>
+> If these are percentages, x+y+z must be less than 100.
+>
+> However, if Y does not use its share of the cpu, I would like the
+> leftover cpu time to be made available to X and Z, in a ratio based on
+> their allocated weights.
+>
+> With limits, I don't see how I can get the ability for containers to
+> make opportunistic use of cpu that becomes available.
+This is basically how "cpuunits" in OpenVZ works. It is not limiting a
+container in any way, just assigns some relative "units" to it, with sum
+of all units across all containers equal to 100% CPU. Thus, if we have
+cpuunits 10, 20, and 30 assigned to containers X, Y, and Z, and run some
+CPU-intensive tasks in all the containers, X will be given
+10/(10+20+30), or 20% of CPU time, Y -- 20/50, i.e. 40%, while Z gets
+60%. Now, if Z is not using CPU, X will be given 33% and Y -- 66%. The
+scheduler used is based on a per-VE runqueues, is quite fair, and works
+fine and fair for, say, uneven case of 3 containers on a 4 CPU box.
 
-> Sorry, but I find this change a bit puzzling. The problem is
-> particular to the PPB on the HCA and not Altix. I can't see anywhere
-> that a PCI Config Write is required to block until completion, it is
-> the driver and the HCA ,not the Altix hardware that requires the
-> Config Write to have completed before we leave mthca_reset()
-> Changing pci_write_config_xxx() will change the behavior for ALL
-> drivers and the possibility of breaking something else. The fix was
-> very low risk in mthca_reset(), changing the PCI code to fix this is
-> much more onerous.
+OpenVZ also has a "cpulimit" resource, which is, naturally, a hard limit
+of CPU usage for a VE. Still, given the fact that cpunits works just
+fine, cpulimit is rarely needed -- makes sense only in special scenarios
+where you want to see how app is run on a slow box, or in case of some
+proprietary software licensed per CPU MHZ, or smth like that.
 
-The issue is that something as simple as:
+Looks like this is what you need, right?
+> I can see that with things like memory this could become tricky (How
+> do you free up memory that was allocated to X when Y decides that it
+> really wants it after all?) but for CPU I think it's a valid scenario.
+Yes, CPU controller is quite different of other resource controllers.
 
-	val = pci_read_config(REG);
-	val |= bit;
-	pci_write_config(REG, val);
-	newval = pci_read_config(REG);
-	BUG_ON(!(newval & bit));
-
-is not guarenteed by PCI (aparently).
-
-I see no valid reason why every PCI device driver should
-be troubled with this lunacy and the ordering should thus
-be ensured by the PCI layer.
-
-It just so happens to take care of the original driver
-issue too :-)
+Kir.

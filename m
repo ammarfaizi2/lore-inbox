@@ -1,120 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992798AbWKAUOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752316AbWKAUXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992798AbWKAUOA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 15:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992801AbWKAUOA
+	id S1752316AbWKAUXc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 15:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752329AbWKAUXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 15:14:00 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39649 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S2992798AbWKAUN7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 15:13:59 -0500
-Date: Wed, 1 Nov 2006 12:13:06 -0800
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mike Galbraith <efault@gmx.de>, "Martin J. Bligh" <mbligh@google.com>,
-       Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
-       Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-Message-ID: <20061101201306.GA1423@suse.de>
-References: <20061031065912.GA13465@suse.de> <1162278594.6416.4.camel@Homer.simpson.net> <20061031072241.GB7306@suse.de> <1162312126.5918.12.camel@Homer.simpson.net> <1162318477.6016.3.camel@Homer.simpson.net> <1162356198.6105.18.camel@Homer.simpson.net> <20061031212508.1b116655.akpm@osdl.org> <1162361529.5899.1.camel@Homer.simpson.net> <1162373184.6126.8.camel@Homer.simpson.net> <20061101104853.4e5e6c64.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101104853.4e5e6c64.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 1 Nov 2006 15:23:32 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:31649 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1752296AbWKAUXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 15:23:31 -0500
+Subject: Re: [PATCH] Updated, add get_range, allows a hyhpenated range to
+	get_options
+From: Derek Fults <dfults@sgi.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+In-Reply-To: <4548FAFC.5000409@oracle.com>
+References: <1162410596.9524.544.camel@lnx-dfults.americas.sgi.com>
+	 <4548FAFC.5000409@oracle.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Nov 2006 14:24:15 -0600
+Message-Id: <1162412656.9524.556.camel@lnx-dfults.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 10:48:53AM -0800, Andrew Morton wrote:
-> On Wed, 01 Nov 2006 10:26:24 +0100
-> Mike Galbraith <efault@gmx.de> wrote:
-> 
-> > On Wed, 2006-11-01 at 07:12 +0100, Mike Galbraith wrote:
-> > > On Tue, 2006-10-31 at 21:25 -0800, Andrew Morton wrote:
-> > > > On Wed, 01 Nov 2006 05:43:18 +0100
-> > > > Mike Galbraith <efault@gmx.de> wrote:
-> > > > 
-> > > > > On Tue, 2006-10-31 at 19:14 +0100, Mike Galbraith wrote:
-> > > > > 
-> > > > > > Seems it's driver-core-fixes-sysfs_create_link-retval-checks-in.patch
-> > > > > > 
-> > > > > > Tomorrow, I'll revert that alone from 2.6.19-rc3-mm1 to confirm...
-> > > > > 
-> > > > > Confirmed.  Boots fine with that patch reverted.
-> > > > 
-> > > > Could you test with something like this applied?
-> > > 
-> > > No output.  I had already enabled debugging, but got nada there either.
-> > > Bugger.  <scritch scritch>
+On Wed, 2006-11-01 at 11:52 -0800, Randy Dunlap wrote:
+> Derek Fults wrote:
+> > This allows a hyphenated range of positive numbers M-N, in the string
+> > passed to command line helper function, get_options.  This will expand
+> > the range and insert the values[M, M+1, ..., N] into the ints array in
+> > get_options.
 > > 
-> > Duh!  (what a maroon)  I booted the wrong kernel due to a typo.
+> > Currently the command line option "isolcpus=" takes as its argument a
+> > list of cpus.  
+> > Format: <cpu number>,...,<cpu number>
+> > This can get extremely long when isolating the majority of cpus on a
+> > large system.  Valid values of <cpu_number>  include all cpus, 0 to
+> > "number of CPUs in system - 1".
 > > 
-> > I enabled some other debug options (poke/hope), and it now boots past
-> > the BUG at arch/i386/mm/pageattr.c:165 point, through the sound NULL
-> > pointer dereference, and on to the eventual complete hang as NFS is
-> > being initialized.  The log shows 326 failures at lines 385 and 589.
+> > 
+> > Signed-off-by: Derek Fults <dfults@sgi.com>  
+> > 
+> > Index: linux/lib/cmdline.c
+> > ===================================================================
+> > --- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
+> > +++ linux/lib/cmdline.c	2006-11-01 12:36:20.059166727 -0600
+> > @@ -16,6 +16,23 @@
+> >  #include <linux/kernel.h>
+> >  #include <linux/string.h>
+> >  
+> > +/**
+> > + *	If a hyphen was found in get_option, this will handle the
+> > + *	range of numbers, M-N.  This will expand the range and insert
+> > + *	the values[M, M+1, ..., N] into the ints array in get_options.
+> > + */
 > 
-> You mean 326 separate failures?  erp.
-> 
-> So it's failing here:
-> 
-> static int device_add_class_symlinks(struct device *dev)
-> {
-> 	int error;
-> 
-> 	if (!dev->class)
-> 		return 0;
-> 	error = sysfs_create_link(&dev->kobj, &dev->class->subsys.kset.kobj,
-> 				  "subsystem");
-> 	if (error) {
-> 		DB();
-> 		goto out;
-> 	}
-> 	error = sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
-> 				  dev->bus_id);
-> 	if (error) {
-> -->>		DB();
-> 		goto out_subsys;
-> 	}
-> 
-> 
-> Now, prior to driver-core-fixes-sysfs_create_link-retval-checks-in.patch we
-> were simply ignoring the return value of sysfs_create_link().  Now we're
-> not ignoring it and stuff is failing.
-> 
-> I'm suspecting that the second call to sysfs_create_link() in device_add():
-> 
-> 
-> 	if (dev->class) {
-> 		sysfs_create_link(&dev->kobj, &dev->class->subsys.kset.kobj,
-> 				  "subsystem");
-> -->>		sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
-> 				  dev->bus_id);
-> 
-> is simply always failing, only we never knew about it.
-> 
-> It would be useful if you could tell us what `error' is in there.  Usually
-> -EEXIST.
-> 
-> Greg, what is that call actually linking from and to?
+> Derek,
+> Thanks for persisting thru this.  It's all fine for me except the
+> comment block above.  If a comment block begins with "/**", then
+> it's supposed to be in kernel-doc format (see
+> Documentation/kernel-doc-nano-HOWTO.txt), with function name &
+> parameters (if applicable).  However, that mostly needs to be done
+> for non-static functions, so probably just change /** to /*
+> and leave the rest of the comment block as is.
+> My other comment-block comment was also about kernel long-comment
+> style, which is
+> /*
+>  * begin
+>  * more
+>  * end
+>  */
+> so now you have achieved that also, so thanks again.
 
-That is creating the symlink for the class device to show up properly in
-/sys/class.
+I fixed both comments to match that format.  Thanks for all the help and
+your patience.
+I'm posting the new patch in this replay.  Is that an acceptable
+practice, or does one normally post all fixes to a patch in a new
+message?
 
-For example, the /sys/class/net/eth0 entry will be a symlink pointing to
-the proper device.
+Thanks 
+Derek
 
-Oh, DOH!  That will fail if CONFIG_SYSFS_DEPRECATED is enabled because
-that symlink can not be created because the device itself is already
-called that and has been registered with sysfs in that location.
 
-That might fix my other problem I am now seeing which happens when a
-device is removed from the system at startup with that config option
-enabled.  Let me go rework this and see if it solves the issue...
+Signed-off-by: Derek Fults <dfults@sgi.com>  
 
-thanks for the big hint, I was tracking it down through a different path
-and hadn't gotten here yet.
-
-greg k-h
+Index: linux/lib/cmdline.c
+===================================================================
+--- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
++++ linux/lib/cmdline.c	2006-11-01 14:21:38.579984694 -0600
+@@ -16,6 +16,23 @@
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ 
++/*
++ *	If a hyphen was found in get_option, this will handle the
++ *	range of numbers, M-N.  This will expand the range and insert
++ *	the values[M, M+1, ..., N] into the ints array in get_options.
++ */
++
++static int get_range(char **str, int *pint)
++{
++	int x, inc_counter, upper_range;
++
++	(*str)++;
++	upper_range = simple_strtol((*str), NULL, 0);
++	inc_counter = upper_range - *pint;
++	for (x = *pint; x < upper_range; x++)
++		*pint++ = x;
++	return inc_counter;
++}
+ 
+ /**
+  *	get_option - Parse integer from an option string
+@@ -29,6 +46,7 @@
+  *	0 : no int in string
+  *	1 : int found, no subsequent comma
+  *	2 : int found including a subsequent comma
++ *	3 : hyphen found to denote a range
+  */
+ 
+ int get_option (char **str, int *pint)
+@@ -44,6 +62,8 @@
+ 		(*str)++;
+ 		return 2;
+ 	}
++	if (**str == '-')
++		return 3;
+ 
+ 	return 1;
+ }
+@@ -55,7 +75,8 @@
+  *	@ints: integer array
+  *
+  *	This function parses a string containing a comma-separated
+- *	list of integers.  The parse halts when the array is
++ *	list of integers, a hyphen-separated range of _positive_ integers,
++ *	or a combination of both.  The parse halts when the array is
+  *	full, or when no more numbers can be retrieved from the
+  *	string.
+  *
+@@ -72,6 +93,18 @@
+ 		res = get_option ((char **)&str, ints + i);
+ 		if (res == 0)
+ 			break;
++		if (res == 3) {
++			int range_nums;
++			range_nums = get_range((char **)&str, ints + i);
++			if (range_nums < 0)
++				break;
++			/*
++			 * Decrement the result by one to leave out the
++			 * last number in the range.  The next iteration
++			 * will handle the upper number in the range
++			 */
++			i += (range_nums - 1);
++		}
+ 		i++;
+ 		if (res == 1)
+ 			break;

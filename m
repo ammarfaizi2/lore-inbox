@@ -1,99 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWKAWXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752530AbWKAWhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWKAWXj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 17:23:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752520AbWKAWXj
+	id S1752530AbWKAWhY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 17:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752528AbWKAWhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 17:23:39 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:10196 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750739AbWKAWXi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 17:23:38 -0500
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-From: Matt Helsley <matthltc@us.ibm.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Cc: Pavel Emelianov <xemul@openvz.org>, dev@openvz.org, vatsa@in.ibm.com,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
-       dipankar@in.ibm.com, rohitseth@google.com, menage@google.com
-In-Reply-To: <Pine.LNX.4.64N.0611010145370.32554@attu4.cs.washington.edu>
-References: <20061030103356.GA16833@in.ibm.com>
-	 <45486925.4000201@openvz.org>
-	 <Pine.LNX.4.64N.0611010145370.32554@attu4.cs.washington.edu>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Wed, 01 Nov 2006 14:23:33 -0800
-Message-Id: <1162419813.12419.157.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Wed, 1 Nov 2006 17:37:24 -0500
+Received: from mail.tmr.com ([64.65.253.246]:64136 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S1752526AbWKAWhX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 17:37:23 -0500
+Message-ID: <4549214B.1000103@tmr.com>
+Date: Wed, 01 Nov 2006 17:35:55 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-pm@osdl.org,
+       Ernst Herzberg <earny@net4u.de>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Adrian Bunk <bunk@stusta.de>, Martin Lorenz <martin@lorenz.eu.org>
+Subject: Re: 2.6.19-rc <-> ThinkPads
+References: <Pine.LNX.4.64.0610312123320.25218@g5.osdl.org>	<20061101055435.GB4933@mellanox.co.il> <Pine.LNX.4.64.0610312206390.25218@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610312206390.25218@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-01 at 01:53 -0800, David Rientjes wrote:
-> On Wed, 1 Nov 2006, Pavel Emelianov wrote:
+Linus Torvalds wrote:
+
+> I wonder if the order matters more, though. Andi? We _used_ to write the 
+> high word first, and I think the order matters. The low word contains the 
+> enable bit, for example, so when enabling an interrupt, you should write 
+> the low word last, when you disable it you should write the low word 
+> first.
 > 
-> > > 	- Interaction of resource controllers, containers and cpusets
-> > > 		- Should we support, for instance, creation of resource
-> > > 		  groups/containers under a cpuset?
-> > > 	- Should we have different groupings for different resources?
-> > 
-> > I propose to discuss this question as this is the most important
-> > now from my point of view.
-> > 
-> > I believe this can be done, but can't imagine how to use this...
-> > 
-> 
-> I think cpusets, as abstracted away from containers by Paul Menage, simply 
-> become a client of the container configfs.  Cpusets would become more of a 
-> NUMA-type controller by default.
-> 
-> Different groupings for different resources was already discussed.  If we 
-> use the approach of a single-level "hierarchy" for process containers and 
+Although you can argue that anyone coding here should be a guru, in 
+practice things this subtle really would be helped by a comment in the 
+initial code. I don't agree that "if it was hard to write it should be 
+hard to understand." Clearly several competent people missed this 
+dependency, or the patch would not have gone in.
 
-At least in my mental model the depth of the hierarchy has nothing to do
-with different groupings for different resources. They are just separate
-hierarchies and where they are mounted does not affect their behavior.
-
-> then attach them each to a "node" of a controller, then the groupings have 
-> been achieved.  It's possible to change the network controller of a 
-> container or move processes from container to container easily through the 
-> filesystem.
-> 
-> > > 	- Support movement of all threads of a process from one group
-> > > 	  to another atomically?
-> > 
-> > I propose such a solution: if a user asks to move /proc/<pid>
-> > then move the whole task with threads.
-> > If user asks to move /proc/<pid>/task/<tid> then move just
-> > a single thread.
-> > 
-> > What do you think?
-> 
-> This seems to use my proposal of using procfs as an abstraction of process 
-> containers.  I haven't looked at the implementation details, but it seems 
-> like the most appropriate place given what it currently supports.  
-
-I'm not so sure procfs is the right mechanism.
-
-> Naturally it should be an atomic move but I don't think it's the most 
-> important detail in terms of efficiency because moving threads should not 
-> be such a frequent occurrence anyway.  This begs the question about how 
-> forks are handled for processes with regard to the various controllers 
-> that could be implemented and whether they should all be decendants of the 
-> parent container by default or have the option of spawning a new 
-> controller all together.  This would be an attribute of controllers and 
-
-"spawning a new controller"?? Did you mean a new container?
-
-> not containers, however.
-> 
-> 		David
-
-	I don't follow. You seem to be mixing and separating the terms
-"controller" and "container" and it doesn't fit with the uses of those
-terms that I'm familiar with.
-
-Cheers,
-	-Matt Helsley
-
+-- 
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.

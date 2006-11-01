@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946045AbWKAHXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946670AbWKAHaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946045AbWKAHXm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 02:23:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423724AbWKAHXl
+	id S1946670AbWKAHaC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 02:30:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946669AbWKAHaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 02:23:41 -0500
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:60482 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S1423642AbWKAHXk convert rfc822-to-8bit (ORCPT
+	Wed, 1 Nov 2006 02:30:00 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:7838 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1946670AbWKAH37 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 02:23:40 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH 1/2] sata_nv: Add nvidia SATA controllers of MCP67 support to sata_nv.c
-Date: Wed, 1 Nov 2006 15:23:23 +0800
-Message-ID: <15F501D1A78BD343BE8F4D8DB854566B0C54F43D@hkemmail01.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/2] sata_nv: Add nvidia SATA controllers of MCP67 support to sata_nv.c
-Thread-Index: Acb9hp1R0SerVHh8QJCQi/98gAldxw==
-From: "Peer Chen" <pchen@nvidia.com>
-To: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: <jgarzik@pobox.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-X-OriginalArrivalTime: 01 Nov 2006 07:23:26.0548 (UTC) FILETIME=[9F3A4940:01C6FD86]
+	Wed, 1 Nov 2006 02:29:59 -0500
+Date: Wed, 1 Nov 2006 08:29:57 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       R.E.Wolff@BitWizard.nl
+Subject: Re: preferred way of fw loading
+Message-ID: <20061101072957.GA14955@bitwizard.nl>
+References: <4547E720.4080505@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4547E720.4080505@gmail.com>
+Organization: BitWizard.nl
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for SATA controllers of MCP67.
-The patch will be applied to kernel 2.6.19-rc4-git1.
+On Wed, Nov 01, 2006 at 01:15:28AM +0100, Jiri Slaby wrote:
+> Hello,
+> 
+> is preferred to have firmware in kernel binary (and go through array of chars)
+> or userspace (and load it through standard kernel api)?
 
-Signed-off-by: Peer Chen <pchen@nvidia.com>
+IMHO, from a theoretical point-of-view, I prefer the way it is: 
+the driver will upload any firmware you tell it to upload. 
 
-=============================================
---- linux-2.6.19-rc4-git1/drivers/ata/sata_nv.c.orig	2006-10-31
-20:44:45.000000000 +0800
-+++ linux-2.6.19-rc4-git1/drivers/ata/sata_nv.c	2006-11-01
-00:14:48.000000000 +0800
-@@ -117,10 +117,14 @@ static const struct pci_device_id nv_pci
- 	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA),
-GENERIC },
- 	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA2),
-GENERIC },
- 	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA3),
-GENERIC },
--	{ PCI_VDEVICE(NVIDIA, 0x045c), GENERIC },
--	{ PCI_VDEVICE(NVIDIA, 0x045d), GENERIC },
--	{ PCI_VDEVICE(NVIDIA, 0x045e), GENERIC },
--	{ PCI_VDEVICE(NVIDIA, 0x045f), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA),
-GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2),
-GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3),
-GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4),
-GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SATA),
-GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SATA2),
-GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SATA3),
-GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SATA4),
-GENERIC },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 		PCI_ANY_ID, PCI_ANY_ID,
- 		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+Since writing the driver, some consensus has been reached on how
+this is done. This, for example, doesn't involve the misc device
+that I use.
+
+> For char sx driver in this case (I hope there is no later fw):
+> ftp://ftp.bitwizard.nl/specialix/sx_firmware_306c.tgz
+
+> Now it's 2 .c files used by loader through ioctl. After compilation it has:
+>    text    data     bss     dec     hex filename
+>       4    8416       2    8422    20e6 si2_z280.o
+>       4   19484       2   19490    4c22 si3_t225.o
+
+I see two different processors, there are three.
+
+> So convert it to binary (and load it through userspace) or simply #include it in
+> the sources? I hope the former is preferred?
+
+>From a legal point of view, that is undesirable: You'd be linking
+the propritary firmware with the kernel, which disallows distribution
+of the resulting kernel or module binary. 
+
+	Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ

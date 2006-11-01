@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946215AbWKAFgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946262AbWKAFgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946215AbWKAFgD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946163AbWKAFgA
+	id S1946262AbWKAFgn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946146AbWKAFgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:36:00 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:28359 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946123AbWKAFf4
+	Wed, 1 Nov 2006 00:36:15 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:10695 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946111AbWKAFfP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:35:56 -0500
-Message-Id: <20061101053602.787664000@sous-sol.org>
+	Wed, 1 Nov 2006 00:35:15 -0500
+Message-Id: <20061101053531.548174000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:33:48 -0800
+Date: Tue, 31 Oct 2006 21:33:45 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,45 +21,71 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Arnaud Patard <arnaud.patard@rtp-net.org>,
-       Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 08/61] ALSA: emu10k1: Fix outl() in snd_emu10k1_resume_regs()
-Content-Disposition: inline; filename=alsa-emu10k1-fix-outl-in-snd_emu10k1_resume_regs.patch
+       alan@lxorguk.ukuu.org.uk, Stephen Hemminger <shemminger@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 05/61] sky2: MSI test race and message
+Content-Disposition: inline; filename=sky2-msi-test-race-and-message.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Arnaud Patard <arnaud.patard@rtp-net.org>
+From: Stephen Hemminger <shemminger@osdl.org>
 
-[PATCH] ALSA: emu10k1: Fix outl() in snd_emu10k1_resume_regs()
+Make sure and do PCI reads after writes in the MSI test setup code.
 
-The emu10k1 driver saves the A_IOCFG and HCFG register on suspend and restores
-it on resumes. Unfortunately, this doesn't work as the arguments to outl() are
-reversed.
+Some motherboards don't implement MSI correctly. The driver handles this
+but the warning is too verbose and overly cautious.
 
-From: Arnaud Patard <arnaud.patard@rtp-net.org>
-Signed-off-by: Arnaud Patard <arnaud.patard@rtp-net.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- sound/pci/emu10k1/emu10k1_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/sky2.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- linux-2.6.18.1.orig/sound/pci/emu10k1/emu10k1_main.c
-+++ linux-2.6.18.1/sound/pci/emu10k1/emu10k1_main.c
-@@ -1460,8 +1460,8 @@ void snd_emu10k1_resume_regs(struct snd_
+--- linux-2.6.18.1.orig/drivers/net/sky2.c
++++ linux-2.6.18.1/drivers/net/sky2.c
+@@ -3208,6 +3208,8 @@ static int __devinit sky2_test_msi(struc
+ 	struct pci_dev *pdev = hw->pdev;
+ 	int err;
  
- 	/* resore for spdif */
- 	if (emu->audigy)
--		outl(emu->port + A_IOCFG, emu->saved_a_iocfg);
--	outl(emu->port + HCFG, emu->saved_hcfg);
-+		outl(emu->saved_a_iocfg, emu->port + A_IOCFG);
-+	outl(emu->saved_hcfg, emu->port + HCFG);
++	init_waitqueue_head (&hw->msi_wait);
++
+ 	sky2_write32(hw, B0_IMSK, Y2_IS_IRQ_SW);
  
- 	val = emu->saved_ptr;
- 	for (reg = saved_regs; *reg != 0xff; reg++)
+ 	err = request_irq(pdev->irq, sky2_test_intr, IRQF_SHARED, DRV_NAME, hw);
+@@ -3217,18 +3219,15 @@ static int __devinit sky2_test_msi(struc
+ 		return err;
+ 	}
+ 
+-	init_waitqueue_head (&hw->msi_wait);
+-
+ 	sky2_write8(hw, B0_CTST, CS_ST_SW_IRQ);
+-	wmb();
++	sky2_read8(hw, B0_CTST);
+ 
+ 	wait_event_timeout(hw->msi_wait, hw->msi_detected, HZ/10);
+ 
+ 	if (!hw->msi_detected) {
+ 		/* MSI test failed, go back to INTx mode */
+-		printk(KERN_WARNING PFX "%s: No interrupt was generated using MSI, "
+-		       "switching to INTx mode. Please report this failure to "
+-		       "the PCI maintainer and include system chipset information.\n",
++		printk(KERN_INFO PFX "%s: No interrupt generated using MSI, "
++		       "switching to INTx mode.\n",
+ 		       pci_name(pdev));
+ 
+ 		err = -EOPNOTSUPP;
+@@ -3236,6 +3235,7 @@ static int __devinit sky2_test_msi(struc
+ 	}
+ 
+ 	sky2_write32(hw, B0_IMSK, 0);
++	sky2_read32(hw, B0_IMSK);
+ 
+ 	free_irq(pdev->irq, hw);
+ 
 
 --

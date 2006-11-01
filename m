@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992647AbWKAQiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992659AbWKAQnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992647AbWKAQiy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 11:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992646AbWKAQiy
+	id S2992659AbWKAQnW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 11:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992661AbWKAQnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 11:38:54 -0500
-Received: from excu-mxob-1.symantec.com ([198.6.49.12]:62354 "EHLO
-	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S2992640AbWKAQix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 11:38:53 -0500
-Date: Wed, 1 Nov 2006 16:36:51 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Adrian Bunk <bunk@stusta.de>
-cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Pavel Machek <pavel@suse.cz>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       Martin Lorenz <martin@lorenz.eu.org>
-Subject: Re: 2.6.19-rc <-> ThinkPads
-In-Reply-To: <20061101030126.GE27968@stusta.de>
-Message-ID: <Pine.LNX.4.64.0611011616460.6462@blonde.wat.veritas.com>
-References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il>
- <20061101030126.GE27968@stusta.de>
+	Wed, 1 Nov 2006 11:43:22 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:33255 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S2992659AbWKAQnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 11:43:21 -0500
+Date: Wed, 1 Nov 2006 08:43:27 -0800
+From: Greg KH <gregkh@suse.de>
+To: Martin Bligh <mbligh@google.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Mike Galbraith <efault@gmx.de>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+Message-ID: <20061101164327.GA3105@suse.de>
+References: <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com> <20061031075825.GA8913@suse.de> <45477131.4070501@google.com> <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com> <4547833C.5040302@google.com> <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com> <4547FABE.502@google.com> <20061101020850.GA13070@suse.de> <45480241.2090803@google.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 01 Nov 2006 16:36:34.0086 (UTC) FILETIME=[E48AB460:01C6FDD3]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45480241.2090803@google.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2006, Adrian Bunk wrote:
+On Tue, Oct 31, 2006 at 06:11:13PM -0800, Martin Bligh wrote:
+> Greg KH wrote:
+> >On Tue, Oct 31, 2006 at 05:39:10PM -0800, Martin Bligh wrote:
+> >
+> >>Cornelia Huck wrote:
+> >>
+> >>>On Tue, 31 Oct 2006 09:09:16 -0800,
+> >>>"Martin J. Bligh" <mbligh@google.com> wrote:
+> >>>
+> >>>
+> >>>
+> >>>>Cornelia Huck wrote:
+> >>>>
+> >>>>
+> >>>>>That's because /sys/class/net/<interface> is now a symlink instead of a
+> >>>>>directory (and that hasn't anything to do with acpi, but rather with
+> >>>>>the conversions in the driver tree). Seems the directory -> symlink
+> >>>>>change shouldn't be done since it's impacting user space...
+> >>>>
+> >>>>You know which individual patch in -mm broke that? Can't see it easily.
+> >>>>Then we can just test across all the machines with just that one backed
+> >>>>out.
+> >>>
+> >>>
+> >>>I'd try reverting gregkh-driver-network-device.patch for the network
+> >>>device stuff.
+> >>
+> >>Reverting that patch does indeed appear to fix it.
+> >
+> >
+> >Even with CONFIG_SYSFS_DEPRECATED enabled?  For some reason I'm guessing
+> >that you missed that suggestion a while back...
 > 
-> Subject    : Thinkpad R50p: boot fail with (lapic && on_battery)
-> References : http://lkml.org/lkml/2006/10/31/333
-> Submitter  : Ernst Herzberg <earny@net4u.de>
-> Status     : submitter was asked to bisect
-> 
-> It seems to be completely unrelated (except that it's also a ThinkPad), 
-> but it might be worth a try whether a (non-SMP) kernel without APIC 
-> support fixes the issues after resume.
-> 
-> Hugh, your laptop seems to be a non-SMP laptop.
+> Yes - Enabling CONFIG_SYSFS_DEPRECATED didn't help.
 
-That's right.
+Ok, I'm testing this now and getting some very wierd results.  Will
+update everyone when I figure it out (oopses in vt code...)
 
-> Do you have APIC enabled, and if yes does disabling help?
+thanks,
 
-Yes, I do.  But I've just tried booting with "noapic" and with "nolapic"
-and with "noapic nolapic", but none of those make any difference.
-
-(That is, they make no difference to the FnF4-ineffective-after-resume
-behaviour that I'm finding fairly easy to reproduce at will today on
-2.6.19-rc4; whereas yesterday it was seeming to me that -rc4 was much
-better than -rc3 in this regard.  Something I have learnt today is that
-the key is ineffective "for a while", but may become effective later.
-It's conceivable that the behaviour I'm reproducing today is not quite
-the same as what I was experiencing earlier with real-life suspends.)
-
-More to the point, with great hope in my heart, I've tried backing
-out Andi's git-cf4c6a2f27f5db810b69dcb1da7f194489e8ff88.patch
-to arch/i386/kernel/io_apic.c, the one which Michael and Linus have
-homed in on.  But sadly that makes no difference for me: I'd better
-get down to my own bisection.
-
-Hugh
+greg k-h

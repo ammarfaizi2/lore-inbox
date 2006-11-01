@@ -1,56 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992756AbWKATdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992753AbWKATeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992756AbWKATdc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 14:33:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992754AbWKATdb
+	id S2992753AbWKATeW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 14:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992755AbWKATeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 14:33:31 -0500
-Received: from mail.kroah.org ([69.55.234.183]:41168 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S2992755AbWKATda (ORCPT
+	Wed, 1 Nov 2006 14:34:22 -0500
+Received: from ns1.suse.de ([195.135.220.2]:22708 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S2992753AbWKATeV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 14:33:30 -0500
-Date: Wed, 1 Nov 2006 11:30:14 -0800
-From: Greg KH <greg@kroah.com>
-To: Richard Hughes <hughsient@gmail.com>
-Cc: Shem Multinymous <multinymous@gmail.com>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Jean Delvare <khali@linux-fr.org>, davidz@redhat.com,
-       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061101193014.GA29929@kroah.com>
-References: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <6DP6m926.1162281579.9733640.khali@localhost> <41840b750610310542u2bbcf4b6y5f9f812ebd12445@mail.gmail.com> <1162302686.31012.47.camel@frg-rhel40-em64t-03> <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <1162387577.5001.7.camel@hughsie-laptop>
+	Wed, 1 Nov 2006 14:34:21 -0500
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.19-rc <-> ThinkPads
+Date: Wed, 1 Nov 2006 20:34:05 +0100
+User-Agent: KMail/1.9.5
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Ernst Herzberg <earny@net4u.de>,
+       Len Brown <lenb@kernel.org>, Adrian Bunk <bunk@stusta.de>,
+       Hugh Dickins <hugh@veritas.com>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       Martin Lorenz <martin@lorenz.eu.org>
+References: <Pine.LNX.4.64.0610312123320.25218@g5.osdl.org> <200611011825.47710.ak@suse.de> <Pine.LNX.4.64.0611011003270.25218@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611011003270.25218@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1162387577.5001.7.camel@hughsie-laptop>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611012034.06128.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 01:26:17PM +0000, Richard Hughes wrote:
-> On Tue, 2006-10-31 at 16:06 +0200, Shem Multinymous wrote:
-> > 
-> > In the case at hand we have mWh and mAh, which measure different
-> > physical quantities. You can't convert between them unless you have
-> > intimate knowledge of the battery's chemistry and condition, which we
-> > don't.
+On Wednesday 01 November 2006 19:25, Linus Torvalds wrote:
 > 
-> I'm thinking specifically for ACPI at the moment.
+> On Wed, 1 Nov 2006, Andi Kleen wrote:
+> >
+> > Ok please revert the i386 patch for now then if it fixes the ThinkPads. 
+> > The x86-64 version should be probably fixed too, but doesn't cleanly. I will 
+> > send you later a patch to fix this there properly.
 > 
-> When ACPI can't work out a value, i.e. it's not known, it returns a
-> value of 0xFFFFFFFF. This can happen either for a split second on
-> disconnect, or if the hardware really doesn't know the value.
-> 
-> With the battery class driver, how would that be conveyed? Would the
-> sysfs file be deleted in this case, or would the value of the sysfs key
-> be something like "<invalid>".
+> Actually, I should have just fixed the ordering. I did some cleanups too, 
+> but those are unrelated (except in the sense that I wanted to look at the 
+> assembly code, and the cleanups made the code generation at least half-way 
+> sane!)
 
-No, the sysfs file should just not be present.
+Thanks.
 
-thanks,
+Some of them are still different than the old code now, but that's probably
+ok.
 
-greg k-h
+But the irq race you pointed out is still there (unless you fixed it in a differnet patch) 
+I don't know if it makes
+a difference, but here is a patch to fix it.
+
+-Andi
+
+Fix race in IO-APIC routing entry setup.
+
+Interrupt could happen between setting the IO-APIC entry
+and setting its interrupt data.
+
+Pointed out by Linus.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/arch/i386/kernel/io_apic.c
+===================================================================
+--- linux.orig/arch/i386/kernel/io_apic.c
++++ linux/arch/i386/kernel/io_apic.c
+@@ -1298,10 +1298,12 @@ static void __init setup_IO_APIC_irqs(vo
+ 			if (!apic && (irq < 16))
+ 				disable_8259A_irq(irq);
+ 		}
++		local_irq_save(flags);
+ 		ioapic_write_entry(apic, pin, entry);
+-		spin_lock_irqsave(&ioapic_lock, flags);
++		spin_lock(&ioapic_lock);
+ 		set_native_irq_info(irq, TARGET_CPUS);
+-		spin_unlock_irqrestore(&ioapic_lock, flags);
++		spin_unlock(&ioapic_lock);
++		local_irq_restore(flags);
+ 	}
+ 	}
+ 

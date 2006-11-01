@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946249AbWKAAgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423870AbWKAAxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946249AbWKAAgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 19:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946248AbWKAAgJ
+	id S1423870AbWKAAxS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 19:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423871AbWKAAxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 19:36:09 -0500
-Received: from smtp141.iad.emailsrvr.com ([207.97.245.141]:16543 "EHLO
-	smtp141.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S1946246AbWKAAgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 19:36:07 -0500
-Message-ID: <4547F9C0.4000107@gentoo.org>
-Date: Tue, 31 Oct 2006 20:34:56 -0500
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
-MIME-Version: 1.0
-To: Michael Buesch <mb@bu3sch.de>
-CC: Uli Kunitz <kune@deine-taler.de>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Holden Karau <holden@pigscanfly.ca>, zd1211-devs@lists.sourceforge.net,
-       linville@tuxdriver.com, netdev <netdev@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, holdenk@xandros.com
-Subject: Re: [PATCH] wireless-2.6 zd1211rw check against regulatory domain
- rather than hardcoded value of 11
-References: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com> <1162197749.2854.5.camel@ux156> <454683D1.4030200@deine-taler.de> <200611010048.03126.mb@bu3sch.de>
-In-Reply-To: <200611010048.03126.mb@bu3sch.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 31 Oct 2006 19:53:17 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:55429
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1423870AbWKAAxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 19:53:17 -0500
+Date: Tue, 31 Oct 2006 16:53:14 -0800 (PST)
+Message-Id: <20061031.165314.39158827.davem@davemloft.net>
+To: clameter@sgi.com
+Cc: hch@lst.de, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 2/3] add dev_to_node()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0610311610150.7609@schroedinger.engr.sgi.com>
+References: <20061030141501.GC7164@lst.de>
+	<20061030.143357.130208425.davem@davemloft.net>
+	<Pine.LNX.4.64.0610311610150.7609@schroedinger.engr.sgi.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
-> I think the real question is: What does this "band edge" bit actually do?
+From: Christoph Lameter <clameter@sgi.com>
+Date: Tue, 31 Oct 2006 16:10:48 -0800 (PST)
 
-Not entirely sure, and I don't think we've even seen a device where this 
-code path runs (it only runs if a certain bit is set in the EEPROM). 
-However, considering that this looks like it plays with some kind of 
-radio stuff, and it's simple to implement, it makes sense to at least 
-meet the behavior of the vendor driver (as opposed to violating some 
-weird regulation somewhere).
+> On Mon, 30 Oct 2006, David Miller wrote:
+> 
+> > So, please add some sanity to this situation and just put the node
+> > into the generic struct device. :-)
+> 
+> Good. Then we can remove the node from the pci structure and get rid of 
+> pcibus_to_node?
 
-> I don't know what channel 1 and 11 have in common.
+Yes, that's possible, because the idea is that the arch specific
+bus layer code would initialize the node value.  Therefore, there
+would be no need for things like pcibus_to_node() any longer.
 
-They are the edges of the channel range in most places.
-
- > Why don't we set the
-> bit for channel 14? Isn't that an "edge", too?
-
-The vendor driver is full of stuff like this, many corners have been 
-cut. Chances are that they just wanted to hit the edges in the common 
-domain while not breaking things for channel 12~14 users, and didn't go 
-the full way of implementing it accurately. I will email the developers 
-for clarification.
-
-Daniel

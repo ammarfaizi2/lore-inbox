@@ -1,43 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992538AbWKAOu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992568AbWKAPDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992538AbWKAOu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 09:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992539AbWKAOu6
+	id S2992568AbWKAPDq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 10:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992569AbWKAPDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 09:50:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14465 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992538AbWKAOu6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 09:50:58 -0500
-Date: Wed, 1 Nov 2006 06:50:46 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] powerpc: Eliminate "exceeds stub group size" linker
- warning
-In-Reply-To: <17735.61916.194247.973705@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0611010647040.25218@g5.osdl.org>
-References: <17735.61916.194247.973705@cargo.ozlabs.ibm.com>
+	Wed, 1 Nov 2006 10:03:46 -0500
+Received: from mailrelay1.uni-mannheim.de ([134.155.96.50]:16015 "EHLO
+	mailrelay1.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S2992568AbWKAPDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 10:03:46 -0500
+Message-ID: <4548B7EC.7060006@ti.uni-mannheim.de>
+Date: Wed, 01 Nov 2006 16:06:20 +0100
+From: Guillermo Marcus Martinez <marcus@ti.uni-mannheim.de>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: mmaping a kernel buffer to user space
+References: <4547150F.8070408@ti.uni-mannheim.de>	 <loom.20061101T120846-320@post.gmane.org>	 <454899E9.1090900@ti.uni-mannheim.de> <b681c62b0611010600n2de56017i71f092c345db331a@mail.gmail.com>
+In-Reply-To: <b681c62b0611010600n2de56017i71f092c345db331a@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 1 Nov 2006, Paul Mackerras wrote:
+yogeshwar sonawane schrieb:
+> On 11/1/06, Guillermo Marcus Martinez <marcus@ti.uni-mannheim.de> wrote:
+>> Rolf Offermanns schrieb:
+>> > Guillermo Marcus <marcus <at> ti.uni-mannheim.de> writes:
+>> >> Note: I am using kernel 2.6.9 for these tests, as it is required by my
+>> >> current setup. Maybe this issue has already been addressed in newer
+>> >> kernel. If that is the case, please let me know.
+>> >
+>> > Have a look at this article:
+>> >
+>> > "The evolution of driver page remapping"
+>> > http://lwn.net/Articles/162860/
+>> >
+>> > It should make things clearer.
+>> >
+>> > The "API changes in the 2.6 kernel series" page is also a very good
+>> read:
+>> > http://lwn.net/Articles/2.6-kernel-api/
+>> >
+>> > HTH,
+>> > Rolf
+>>
+>> Thanks for the links!
+>>
+>> Yes, it looks like a step in the right direction. However, the article
+>> says about vm_insert_page(): "...What it does require is that the page
+>> be an order-zero allocation obtained for this purpose...", therefore
+>> making it also unusable for this case (mmaping a pci_alloc_consistent).
+>>
+>> I think the limitation (being order zero), is related to the page
+>> counting, as I understand that for bigger order allocations, only the
+>> first-page counter is incremented (not every page). If that is a
+>> problem, I guess I would also see a problem with my workaround, and I
+>> see none (yet). So I may try in a newer kernel and see if I can use it
+>> to walk the pages on the mmap without using the nopage().
 > 
-> If you think this is 2.6.19 material, feel free to put it in your
-> tree.  Otherwise I'll put it in the powerpc.git tree to go in for
-> 2.6.20.
+> Setting 'PG_reserved' bit of all allocated pages & then calling
+> remap_page/pfn_range()
+> will do the things for 2.6.9.
+> 
 
-Hmm. I'd love to get rid of the warnings, because they obviously mean that 
-I don't look at warnings much at all ("they're all bogus"), but this patch 
-must be against some version of arch/powerpc/kernel/head_64.S that I've 
-never seen.
+I will give it a try. I guess it may not be equivalent to setting
+VM_RESERVED before calling remap_page/pfn_range(). Is this platform
+specific, or is intended behavior/usage of remap_page/pfn_range()?
 
-That "do_stab_bolted_pSeries" function is in a totally different place for 
-me, and the index that git diff mentiones of 47fcff1 doesn't exist in my 
-tree (so I've literally never had it).
 
-		Linus
+>>
+>> My suggestion would be to add two functions: pci_map_consistent() and
+>> dma_map_coherent() to address this issue, and their corresponding
+>> unmap's. That will make sure all that is needed is done, is a clean and
+>> consistent with the pci_ and dma_ APIs, and fills a mmap requirement not
+>> covered by the other functions.
+>>
+>> Best wishes,
+>> Guillermo
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+

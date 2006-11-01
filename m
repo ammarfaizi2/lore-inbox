@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423879AbWKABDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423921AbWKABUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423879AbWKABDN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 20:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423880AbWKABDN
+	id S1423921AbWKABUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 20:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423919AbWKABUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 20:03:13 -0500
-Received: from sccmmhc92.asp.att.net ([204.127.203.212]:24016 "EHLO
-	sccmmhc92.asp.att.net") by vger.kernel.org with ESMTP
-	id S1423879AbWKABDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 20:03:12 -0500
-Message-ID: <4547AB73.1030208@mchsi.com>
-Date: Tue, 31 Oct 2006 14:00:51 -0600
-From: nick thompson <nicholas.thompson1@mchsi.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060926)
+	Tue, 31 Oct 2006 20:20:21 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:28627 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1423918AbWKABUT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 20:20:19 -0500
+Message-ID: <4547F646.2080000@garzik.org>
+Date: Tue, 31 Oct 2006 20:20:06 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: vr linux? linux for ibm workpad z50? 
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+CC: netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [PATCH 2.6.19-rc3 1/2] ehea: kzalloc GFP_ATOMIC fix
+References: <200610251311.43009.ossthema@de.ibm.com>
+In-Reply-To: <200610251311.43009.ossthema@de.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- I hope this is ok for the list, please tell me if not. I have a workpad 
-z50 w/ 48 megs of ram. I have seen all the vr linux and linux mips pages 
-and info that is out there. What I want to know is, is anyone interested 
-in starting where vr linux left off and getting an up to date kernel 
-running on the z50? I am, just wondering if anyone else is.
+Jan-Bernd Themann wrote:
+> This patch fixes kzalloc parameters (GFP_ATOMIC instead of GFP_KERNEL)
+> 
+> Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
 
-Nick
+applied to #upstream-fixes
 
-"All unix, all the time."
+In the future, please include a description of -why- patches like this 
+are needed (I got the info from your replies in this case)
 
-http://npt.ath.cx
+

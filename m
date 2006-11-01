@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWKAWRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752495AbWKAWTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWKAWRU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 17:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWKAWRU
+	id S1752495AbWKAWTc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 17:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752520AbWKAWTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 17:17:20 -0500
-Received: from rs02.intra2net.com ([81.169.173.116]:21518 "EHLO
-	rs02.intra2net.com") by vger.kernel.org with ESMTP id S1750743AbWKAWRT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 17:17:19 -0500
-From: "Gerd v. Egidy" <lists@egidy.de>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: lspci output needed was Re: Frustrated with Linux, Asus, and nVidia, and AMD
-Date: Wed, 1 Nov 2006 23:17:13 +0100
-User-Agent: KMail/1.9.5
-Cc: Robert Hancock <hancockr@shaw.ca>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <fa.nWSYbiDM13Z4b2OlxoSzmqud/lI@ifi.uio.no> <454432DC.9030006@shaw.ca> <200610311528.20013.ak@suse.de>
-In-Reply-To: <200610311528.20013.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 1 Nov 2006 17:19:31 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:9137 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752495AbWKAWTb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 17:19:31 -0500
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+From: Matt Helsley <matthltc@us.ibm.com>
+To: vatsa@in.ibm.com
+Cc: Pavel Emelianov <xemul@openvz.org>, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, pj@sgi.com, dipankar@in.ibm.com,
+       rohitseth@google.com, menage@google.com
+In-Reply-To: <20061101181236.GC22976@in.ibm.com>
+References: <20061030103356.GA16833@in.ibm.com>
+	 <45486925.4000201@openvz.org>  <20061101181236.GC22976@in.ibm.com>
+Content-Type: text/plain
+Organization: IBM Linux Technology Center
+Date: Wed, 01 Nov 2006 14:19:25 -0800
+Message-Id: <1162419565.12419.154.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611012317.13963.lists@egidy.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2006-11-01 at 23:42 +0530, Srivatsa Vaddagiri wrote:
+> On Wed, Nov 01, 2006 at 12:30:13PM +0300, Pavel Emelianov wrote:
 
-> Can people who use a Nvidia based AM2/SocketF board (especially when they
-> have timer troubles but otherwise would be useful too) please report their
-> lspcis in private mail to me?
+<snip>
 
-I'll send the lspci in private as requested in a minute.
+> > > 	- Support movement of all threads of a process from one group
+> > > 	  to another atomically?
+> > 
+> > I propose such a solution: if a user asks to move /proc/<pid>
+> > then move the whole task with threads.
+> > If user asks to move /proc/<pid>/task/<tid> then move just
+> > a single thread.
+> > 
+> > What do you think?
+> 
+> Isnt /proc/<pid> listed also in /proc/<pid>/task/<tid>?
+> 
+> For ex:
+> 
+> 	# ls /proc/2906/task
+> 	2906  2907  2908  2909
+> 
+> 2906 is the main thread which created the remaining threads.
+> 
+> This would lead to an ambiguity when user does something like below:
+> 
+> 	echo 2906 > /some_res_file_system/some_new_group
+> 
+> Is he intending to move just the main thread, 2906, to the new group or
+> all the threads? It could be either.
+> 
+> This needs some more thought ...
 
-I have a ASUS M2N-SLI Deluxe (nForce 570) with a Athlon64 X2 4600+ (AM2) and 
-Bios version 0307 or 0402 beta. The problem with this board seems to be a 
-little different than the problem the others posting here are experiencing. 
-Maybe it's a different bug but it seems to be timer-related too.
+	I thought the idea was to take in a proc path instead of a single
+number. You could then distinguish between the whole thread group and
+individual threads by parsing the string. You'd move a single thread if
+you find both the tgid and the tid. If you only get a tgid you'd move
+the whole thread group. So:
 
-Booting 2.6.18.1 (or some other 2.6er I tried) stops with
+<pid>                   -> if it's a thread group leader move the whole
+			   thread group, otherwise just move the thread
+/proc/<tgid>            -> move the whole thread group
+/proc/<tgid>/task/<tid> -> move the thread
 
-[...]
-ENABLING IO-APIC IRQs
-..TIMER: vector=0x31 apic1=0 pin1=0 apci2=-1 pin2=-1
-..MP-BIOS bug: 8254 timer not connected to IO-APIC
-....trying to set up timer (IRQ0) through the 8259A ...  failed.
-....trying to set up timer as Virtual Wire IRQ... failed.
-....trying to set up timer as ExtINT IRQ... failed :(.
-Kernel panic - not syncing: IO-APIC + timer doesn't work! Boot with apic=debug
-and send a report.  Then try booting with the 'noapic' option
 
-All kernels were SMP and i386 (not x86_64).
+	Alternatives that come to mind are:
 
-I tried to use the acpi_skip_timer_override=0 patch that helped the other 
-posters but it did not help - same error. Of course I patched the 
-corresponding code for i386 in arch/i386/kernel/acpi/earlyquirk.c. Booting 
-with the no_timer_check boot parameter as some people suggested does not help 
-too.
+1. Read a flag with the pid
+2. Use a special file which expects only thread groups as input 
 
-Booting with apic=debug does not reveal any additional info. Only booting with 
-noapic makes the machine boot.
+Cheers,
+	-Matt Helsley
 
-Kind regards,
-
-Gerd

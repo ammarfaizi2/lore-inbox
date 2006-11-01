@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992506AbWKAOgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992519AbWKAOhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992506AbWKAOgp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 09:36:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992507AbWKAOgp
+	id S2992519AbWKAOhx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 09:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992514AbWKAOhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 09:36:45 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:21952 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S2992506AbWKAOgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 09:36:44 -0500
-X-Sasl-enc: JAsBd2FpPCv+1Ei6NVbsWImdtKMJtb2r3i3rlD0B0+84 1162391804
-Date: Wed, 1 Nov 2006 11:36:34 -0300
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Richard Hughes <hughsient@gmail.com>,
-       Shem Multinymous <multinymous@gmail.com>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Jean Delvare <khali@linux-fr.org>, davidz@redhat.com,
-       Dan Williams <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
-       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
-       greg@kroah.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061101143634.GB12619@khazad-dum.debian.net>
-References: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <6DP6m926.1162281579.9733640.khali@localhost> <41840b750610310542u2bbcf4b6y5f9f812ebd12445@mail.gmail.com> <1162302686.31012.47.camel@frg-rhel40-em64t-03> <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <1162387577.5001.7.camel@hughsie-laptop> <1162389260.18406.62.camel@shinybook.infradead.org>
+	Wed, 1 Nov 2006 09:37:53 -0500
+Received: from rtr.ca ([64.26.128.89]:23310 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S2992512AbWKAOhv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 09:37:51 -0500
+Message-ID: <4548B13D.6070501@rtr.ca>
+Date: Wed, 01 Nov 2006 09:37:49 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1162389260.18406.62.camel@shinybook.infradead.org>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Conke Hu <conke.hu@amd.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: AHCI should try to claim all AHCI controllers
+References: <FFECF24D2A7F6D418B9511AF6F358602F2CE9E@shacnexch2.atitech.com>	 <45482BA7.6070904@pobox.com>	 <Pine.LNX.4.64.0610312120200.25218@g5.osdl.org> <1162383783.11965.116.camel@localhost.localdomain>
+In-Reply-To: <1162383783.11965.116.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Nov 2006, David Woodhouse wrote:
-> On Wed, 2006-11-01 at 13:26 +0000, Richard Hughes wrote:
-> > With the battery class driver, how would that be conveyed? Would the
-> > sysfs file be deleted in this case, or would the value of the sysfs
-> > key be something like "<invalid>". 
+Alan Cox wrote:
+> Ar Maw, 2006-10-31 am 21:22 -0800, ysgrifennodd Linus Torvalds:
+>> (We had the same issue with "PCI IDE controller". Some PCI IDE controllers 
+>> are clearly exactly that from a programming interface standpoint, but 
+>> because they support RAID in hardware, they claim to be RAID controllers, 
+>> since that is more "glamorous". Gaah ;^).
 > 
-> I'd be inclined to make the read return -EINVAL.
+> Actually its far uglier than that. With one exception they don't support
+> hardware raid mode, they use the RAID class tag to stop other OS drivers
+> grabbing the interface or seeing it directly as un-raided software raid.
 
--EIO for transient errors (e.g. access to the embedded controller/battery
-charger/whatever fails at that instant), -EINVAL for "not supported"
-(missing ACPI method, attribute not supported in the specific hardware)?
+Note that a lot of the software raid controllers actually have full
+hardware RAID acceleration in the chipset (single block command is automatically
+remapped across several drives of a RAID 0/1/10 configuration, reducing bus
+transactions and bandwidth requirements.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+But they still require a driver do perform the RAID management,
+and are thus not true "hardware" RAID.  But they are higher on the
+food chain than total "pretend" RAID devices.
+
+Cheers

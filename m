@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946718AbWKAJTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946720AbWKAJU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946718AbWKAJTX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 04:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946720AbWKAJTX
+	id S1946720AbWKAJU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 04:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946721AbWKAJU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 04:19:23 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59877 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1946718AbWKAJTW (ORCPT
+	Wed, 1 Nov 2006 04:20:28 -0500
+Received: from mx1.suse.de ([195.135.220.2]:21941 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1946720AbWKAJU1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 04:19:22 -0500
-Date: Wed, 1 Nov 2006 01:18:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: bert hubert <bert.hubert@netherlabs.nl>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       drepper@redhat.com, mingo@elte.hu, tglx@linutronix.de
-Subject: Re: [patch 1/1] schedule removal of FUTEX_FD
-Message-Id: <20061101011846.de35bd2a.akpm@osdl.org>
-In-Reply-To: <20061101091135.GA22089@outpost.ds9a.nl>
-References: <200610312309.k9VN9mco015260@shell0.pdx.osdl.net>
-	<1162343945.14769.16.camel@localhost.localdomain>
-	<20061031172312.79748be5.akpm@osdl.org>
-	<20061101091135.GA22089@outpost.ds9a.nl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Nov 2006 04:20:27 -0500
+From: Neil Brown <neilb@suse.de>
+To: David Howells <dhowells@redhat.com>
+Date: Wed, 1 Nov 2006 17:32:54 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17736.16278.85405.497875@cse.unsw.edu.au>
+Cc: Kirill Korotaev <dev@sw.ru>, devel@openvz.org, Vasily Averin <vvs@sw.ru>,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Balbir Singh <balbir@in.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Olaf Hering <olh@suse.de>, Jan Blunck <jblunck@suse.de>
+Subject: Re: [Devel] Re: [PATCH 2.6.19-rc3] VFS: per-sb dentry lru list 
+In-Reply-To: message from David Howells on Tuesday October 31
+References: <17734.54114.192151.271984@cse.unsw.edu.au>
+	<4541BDE2.6050703@sw.ru>
+	<45409DD5.7050306@sw.ru>
+	<453F6D90.4060106@sw.ru>
+	<453F58FB.4050407@sw.ru>
+	<20792.1161784264@redhat.com>
+	<21393.1161786209@redhat.com>
+	<19898.1161869129@redhat.com>
+	<22562.1161945769@redhat.com>
+	<24249.1161951081@redhat.com>
+	<4542123E.4030309@sw.ru>
+	<20061030042419.GW8394166@melbourne.sgi.com>
+	<45459B92.400@sw.ru>
+	<25762.1162291214@redhat.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2006 10:11:35 +0100
-bert hubert <bert.hubert@netherlabs.nl> wrote:
-
-> On Tue, Oct 31, 2006 at 05:23:12PM -0800, Andrew Morton wrote:
-> > > Now, I realize with some dismay that simplicity is no longer a futex
-> > > feature, but it might be worth considering?
-> > 
-> > Sure.  Perhaps we could accelerate the removal schedule if we want to do
-> > this.  Let's see how many 2.6.19 users squeak first.
+On Tuesday October 31, dhowells@redhat.com wrote:
+> Neil Brown <neilb@suse.de> wrote:
 > 
-> I must admit to never having used FUTEX_FD, but the idea of waiting on a
-> FUTEX by way of epoll appealed to me. Should I resort to pipe tricks if I
-> want that ability henceforth?
+> > When we unmount a filesystem we need to release all dentries.
+> > We currently
+> >   - move a collection of dentries to the end of the dentry_unused list
+> >   - call prune_dcache to prune that number of dentries.
 > 
+> This is not true anymore.
 
-I guess so.  Until the grand unified kernel event framework is done.
+True.  That should read:
+
+
+ When we remount a filesystem or invalidate a block device which has a
+ mounted filesystem we call shrink dcache_sb which currently:
+     - moves a collection of dentries to the end of the dentry_unused list
+     - calls prune_dcache to prune that number of dentries.
+
+but the patch is still valid.
+
+Any objections to it going in to -mm  and maybe .20 ??
+
+Thanks,
+NeilBrown

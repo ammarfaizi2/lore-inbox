@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752266AbWKAS0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752267AbWKAS1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752266AbWKAS0z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 13:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752265AbWKAS0z
+	id S1752267AbWKAS1u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 13:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752268AbWKAS1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 13:26:55 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:21903 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1752262AbWKAS0y
+	Wed, 1 Nov 2006 13:27:50 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:12716 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1752265AbWKAS1t
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 13:26:54 -0500
-Date: Wed, 1 Nov 2006 21:26:11 +0300
+	Wed, 1 Nov 2006 13:27:49 -0500
+Date: Wed, 1 Nov 2006 21:27:03 +0300
 From: Oleg Nesterov <oleg@tv-sign.ru>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Thomas Graf <tgraf@suug.ch>, Shailabh Nagar <nagar@watson.ibm.com>,
        Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@sgi.com>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] taskstats: factor out reply assembling
-Message-ID: <20061101182611.GA447@oleg>
+Subject: [PATCH 2/2] taskstats: use nla_reserve() for reply assembling
+Message-ID: <20061101182703.GA453@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,122 +24,230 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce mk_reply() helper which does all nla_put()s on reply.
+Currently taskstats_user_cmd()/taskstats_exit() do:
 
-Saves 453 bytes and a preparation for the next patch.
+	1) allocate stats
+	2) fill stats
+	3) make a temporary copy on stack (236 bytes)
+	4) copy that copy to skb
+	5) free stats
+
+With the help of nla_reserve() we can operate on skb->data directly,
+thus avoiding all these steps except 2).
+
+So, before this patch:
+
+	// copy *stats to skb->data
+	int mk_reply(skb, ..., struct taskstats *stats);
+
+	fill_pid(stats);
+	mk_reply(skb, ..., stats);
+
+After:
+	// return a pointer to skb->data
+	struct taskstats *mk_reply(skb, ...);
+
+	stat = mk_reply(skb, ...);
+	fill_pid(stats);
+
+Shrinks taskatsks.o by 162 bytes.
+
+A stupid benchmark (send one million TASKSTATS_CMD_ATTR_PID) shows the
+difference,
+
+		real user sys
+	before:
+		4.02 0.06 3.96
+		4.02 0.04 3.98
+		4.02 0.04 3.97
+	after:
+		3.86 0.08 3.78
+		3.88 0.10 3.77
+		3.89 0.09 3.80
+
+but this looks suspiciously good.
 
 Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
- taskstats.c |   55 ++++++++++++++++++++++++++++---------------------------
- 1 files changed, 28 insertions(+), 27 deletions(-)
+ taskstats.c |   86 ++++++++++++++++++++++++++++++------------------------------
+ 1 files changed, 44 insertions(+), 42 deletions(-)
 
---- STATS/kernel/taskstats.c~5_factor	2006-10-31 16:33:56.000000000 +0300
-+++ STATS/kernel/taskstats.c	2006-11-01 14:00:03.000000000 +0300
-@@ -348,6 +348,25 @@ static int parse(struct nlattr *na, cpum
+--- STATS/kernel/taskstats.c~6_nla	2006-11-01 14:00:03.000000000 +0300
++++ STATS/kernel/taskstats.c	2006-11-01 21:14:39.000000000 +0300
+@@ -190,6 +190,7 @@ static int fill_pid(pid_t pid, struct ta
+ 	} else
+ 		get_task_struct(tsk);
+ 
++	memset(stats, 0, sizeof(*stats));
+ 	/*
+ 	 * Each accounting subsystem adds calls to its functions to
+ 	 * fill in relevant parts of struct taskstsats as follows
+@@ -232,6 +233,8 @@ static int fill_tgid(pid_t tgid, struct 
+ 
+ 	if (first->signal->stats)
+ 		memcpy(stats, first->signal->stats, sizeof(*stats));
++	else
++		memset(stats, 0, sizeof(*stats));
+ 
+ 	tsk = first;
+ 	do {
+@@ -348,9 +351,9 @@ static int parse(struct nlattr *na, cpum
  	return ret;
  }
  
-+static int mk_reply(struct sk_buff *skb, int type, u32 pid, struct taskstats *stats)
-+{
-+	struct nlattr *na;
-+	int aggr;
-+
-+	aggr = TASKSTATS_TYPE_AGGR_TGID;
-+	if (type == TASKSTATS_TYPE_PID)
-+		aggr = TASKSTATS_TYPE_AGGR_PID;
-+
-+	na = nla_nest_start(skb, aggr);
-+	NLA_PUT_U32(skb, type, pid);
-+	NLA_PUT_TYPE(skb, struct taskstats, TASKSTATS_TYPE_STATS, *stats);
-+	nla_nest_end(skb, na);
-+
-+	return 0;
-+nla_put_failure:
-+	return -1;
-+}
-+
+-static int mk_reply(struct sk_buff *skb, int type, u32 pid, struct taskstats *stats)
++static struct taskstats *mk_reply(struct sk_buff *skb, int type, u32 pid)
+ {
+-	struct nlattr *na;
++	struct nlattr *na, *ret;
+ 	int aggr;
+ 
+ 	aggr = TASKSTATS_TYPE_AGGR_TGID;
+@@ -358,20 +361,23 @@ static int mk_reply(struct sk_buff *skb,
+ 		aggr = TASKSTATS_TYPE_AGGR_PID;
+ 
+ 	na = nla_nest_start(skb, aggr);
+-	NLA_PUT_U32(skb, type, pid);
+-	NLA_PUT_TYPE(skb, struct taskstats, TASKSTATS_TYPE_STATS, *stats);
++	if (nla_put(skb, type, sizeof(pid), &pid) < 0)
++		goto err;
++	ret = nla_reserve(skb, TASKSTATS_TYPE_STATS, sizeof(struct taskstats));
++	if (!ret)
++		goto err;
+ 	nla_nest_end(skb, na);
+ 
+-	return 0;
+-nla_put_failure:
+-	return -1;
++	return nla_data(ret);
++err:
++	return NULL;
+ }
+ 
  static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
  {
  	int rc = 0;
-@@ -355,7 +374,6 @@ static int taskstats_user_cmd(struct sk_
- 	struct taskstats stats;
+ 	struct sk_buff *rep_skb;
+-	struct taskstats stats;
++	struct taskstats *stats;
  	void *reply;
  	size_t size;
--	struct nlattr *na;
  	cpumask_t mask;
+@@ -394,36 +400,36 @@ static int taskstats_user_cmd(struct sk_
+ 	size = nla_total_size(sizeof(u32)) +
+ 		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
  
- 	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK], &mask);
-@@ -387,27 +405,21 @@ static int taskstats_user_cmd(struct sk_
- 		if (rc < 0)
- 			goto err;
+-	memset(&stats, 0, sizeof(stats));
+ 	rc = prepare_reply(info, TASKSTATS_CMD_NEW, &rep_skb, &reply, size);
+ 	if (rc < 0)
+ 		return rc;
  
--		na = nla_nest_start(rep_skb, TASKSTATS_TYPE_AGGR_PID);
--		NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_PID, pid);
--		NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS,
--				stats);
-+		if (mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid, &stats))
-+			goto nla_put_failure;
++	rc = -EINVAL;
+ 	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
+ 		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+-		rc = fill_pid(pid, NULL, &stats);
+-		if (rc < 0)
+-			goto err;
++		stats = mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid);
++		if (!stats)
++			goto nla_err;
+ 
+-		if (mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid, &stats))
+-			goto nla_put_failure;
++		rc = fill_pid(pid, NULL, stats);
++		if (rc < 0)
++			goto nla_err;
  	} else if (info->attrs[TASKSTATS_CMD_ATTR_TGID]) {
  		u32 tgid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_TGID]);
- 		rc = fill_tgid(tgid, NULL, &stats);
- 		if (rc < 0)
- 			goto err;
+-		rc = fill_tgid(tgid, NULL, &stats);
+-		if (rc < 0)
+-			goto err;
++		stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid);
++		if (!stats)
++			goto nla_err;
  
--		na = nla_nest_start(rep_skb, TASKSTATS_TYPE_AGGR_TGID);
--		NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_TGID, tgid);
--		NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS,
--				stats);
-+		if (mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid, &stats))
-+			goto nla_put_failure;
- 	} else {
- 		rc = -EINVAL;
+-		if (mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid, &stats))
+-			goto nla_put_failure;
+-	} else {
+-		rc = -EINVAL;
++		rc = fill_tgid(tgid, NULL, stats);
++		if (rc < 0)
++			goto nla_err;
++	} else
  		goto err;
- 	}
+-	}
  
--	nla_nest_end(rep_skb, na);
--
  	return send_reply(rep_skb, info->snd_pid);
  
- nla_put_failure:
-@@ -451,7 +463,6 @@ void taskstats_exit(struct task_struct *
+-nla_put_failure:
+-	rc = genlmsg_cancel(rep_skb, reply);
++nla_err:
++	genlmsg_cancel(rep_skb, reply);
+ err:
+ 	nlmsg_free(rep_skb);
+ 	return rc;
+@@ -458,7 +464,7 @@ void taskstats_exit(struct task_struct *
+ {
+ 	int rc;
+ 	struct listener_list *listeners;
+-	struct taskstats *tidstats;
++	struct taskstats *stats;
+ 	struct sk_buff *rep_skb;
  	void *reply;
  	size_t size;
- 	int is_thread_group;
--	struct nlattr *na;
- 
- 	if (!family_registered)
+@@ -485,20 +491,17 @@ void taskstats_exit(struct task_struct *
+ 	if (list_empty(&listeners->list))
  		return;
-@@ -486,27 +497,17 @@ void taskstats_exit(struct task_struct *
- 	if (rc < 0)
- 		goto err_skb;
  
--	na = nla_nest_start(rep_skb, TASKSTATS_TYPE_AGGR_PID);
--	NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_PID, (u32)tsk->pid);
--	NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS,
--			*tidstats);
--	nla_nest_end(rep_skb, na);
+-	tidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
+-	if (!tidstats)
+-		return;
 -
--	if (!is_thread_group)
--		goto send;
-+	if (mk_reply(rep_skb, TASKSTATS_TYPE_PID, tsk->pid, tidstats))
-+		goto nla_put_failure;
+ 	rc = prepare_reply(NULL, TASKSTATS_CMD_NEW, &rep_skb, &reply, size);
+ 	if (rc < 0)
+-		goto free_stats;
++		return;
+ 
+-	rc = fill_pid(tsk->pid, tsk, tidstats);
+-	if (rc < 0)
+-		goto err_skb;
++	stats = mk_reply(rep_skb, TASKSTATS_TYPE_PID, tsk->pid);
++	if (!stats)
++		goto nla_err;
+ 
+-	if (mk_reply(rep_skb, TASKSTATS_TYPE_PID, tsk->pid, tidstats))
+-		goto nla_put_failure;
++	rc = fill_pid(tsk->pid, tsk, stats);
++	if (rc < 0)
++		goto nla_err;
  
  	/*
  	 * Doesn't matter if tsk is the leader or the last group member leaving
- 	 */
--	if (!group_dead)
-+	if (!is_thread_group || !group_dead)
+@@ -506,20 +509,19 @@ void taskstats_exit(struct task_struct *
+ 	if (!is_thread_group || !group_dead)
  		goto send;
  
--	na = nla_nest_start(rep_skb, TASKSTATS_TYPE_AGGR_TGID);
--	NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_TGID, (u32)tsk->tgid);
--	/* No locking needed for tsk->signal->stats since group is dead */
--	NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS,
--			*tsk->signal->stats);
--	nla_nest_end(rep_skb, na);
-+	if (mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tsk->tgid, tsk->signal->stats))
-+		goto nla_put_failure;
+-	if (mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tsk->tgid, tsk->signal->stats))
+-		goto nla_put_failure;
++	stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tsk->tgid);
++	if (!stats)
++		goto nla_err;
++
++	memcpy(stats, tsk->signal->stats, sizeof(*stats));
  
  send:
  	send_cpu_listeners(rep_skb, listeners);
+-free_stats:
+-	kmem_cache_free(taskstats_cache, tidstats);
+ 	return;
+ 
+-nla_put_failure:
++nla_err:
+ 	genlmsg_cancel(rep_skb, reply);
+-err_skb:
+ 	nlmsg_free(rep_skb);
+-	goto free_stats;
+ }
+ 
+ static struct genl_ops taskstats_ops = {
 

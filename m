@@ -1,86 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946575AbWKAFuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946558AbWKAFsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946575AbWKAFuF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946546AbWKAFnq
+	id S1946558AbWKAFsi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946538AbWKAFsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:43:46 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:16348 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946542AbWKAFnf
+	Wed, 1 Nov 2006 00:48:15 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:29097 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946558AbWKAFsG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:43:35 -0500
-Message-Id: <20061101054331.907620000@sous-sol.org>
+	Wed, 1 Nov 2006 00:48:06 -0500
+Message-Id: <20061101054603.261289000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:34:25 -0800
+Date: Tue, 31 Oct 2006 21:34:39 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Akinobu Mita <akinobu.mita@gmail.com>,
-       Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH 45/61] Watchdog: sc1200wdt - fix missing pnp_unregister_driver()
-Content-Disposition: inline; filename=watchdog-sc1200wdt-fix-missing-pnp_unregister_driver.patch
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
+       bunk@stusta.de, James Morris <jmorris@namei.org>
+Subject: [PATCH 59/61] IPV6: fix lockup via /proc/net/ip6_flowlabel [CVE-2006-5619]
+Content-Disposition: inline; filename=ipv6-fix-lockup-via-proc-net-ip6_flowlabel.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: James Morris <jmorris@namei.org>
 
-[WATCHDOG] sc1200wdt.c pnp unregister fix.
+There's a bug in the seqfile handling for /proc/net/ip6_flowlabel, where, 
+after finding a flowlabel, the code will loop forever not finding any 
+further flowlabels, first traversing the rest of the hash bucket then just 
+looping.
 
-If no devices found or invalid parameter is specified,
-scl200wdt_pnp_driver is left unregistered.
-It breaks global list of pnp drivers.
+This patch fixes the problem by breaking after the hash bucket has been 
+traversed.
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Note that this bug can cause lockups and oopses, and is trivially invoked 
+by an unpriveleged user.
+
+Signed-off-by: James Morris <jmorris@namei.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-
 ---
- drivers/char/watchdog/sc1200wdt.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/ipv6/ip6_flowlabel.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- linux-2.6.18.1.orig/drivers/char/watchdog/sc1200wdt.c
-+++ linux-2.6.18.1/drivers/char/watchdog/sc1200wdt.c
-@@ -392,7 +392,7 @@ static int __init sc1200wdt_init(void)
- 	if (io == -1) {
- 		printk(KERN_ERR PFX "io parameter must be specified\n");
- 		ret = -EINVAL;
--		goto out_clean;
-+		goto out_pnp;
+--- linux-2.6.18.1.orig/net/ipv6/ip6_flowlabel.c
++++ linux-2.6.18.1/net/ipv6/ip6_flowlabel.c
+@@ -587,6 +587,8 @@ static struct ip6_flowlabel *ip6fl_get_n
+ 	while (!fl) {
+ 		if (++state->bucket <= FL_HASH_MASK)
+ 			fl = fl_ht[state->bucket];
++		else
++			break;
  	}
- 
- #if defined CONFIG_PNP
-@@ -405,7 +405,7 @@ static int __init sc1200wdt_init(void)
- 	if (!request_region(io, io_len, SC1200_MODULE_NAME)) {
- 		printk(KERN_ERR PFX "Unable to register IO port %#x\n", io);
- 		ret = -EBUSY;
--		goto out_clean;
-+		goto out_pnp;
- 	}
- 
- 	ret = sc1200wdt_probe();
-@@ -435,6 +435,11 @@ out_rbt:
- out_io:
- 	release_region(io, io_len);
- 
-+out_pnp:
-+#if defined CONFIG_PNP
-+	if (isapnp)
-+		pnp_unregister_driver(&scl200wdt_pnp_driver);
-+#endif
- 	goto out_clean;
+ 	return fl;
  }
- 
 
 --

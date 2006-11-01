@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946838AbWKAMSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946851AbWKAMTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946838AbWKAMSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 07:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946843AbWKAMSJ
+	id S1946851AbWKAMTe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 07:19:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946850AbWKAMTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 07:18:09 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45290 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1946838AbWKAMSG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 07:18:06 -0500
-Date: Wed, 1 Nov 2006 13:17:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: akpm@osdl.org, ak@muc.de, Rusty Russell <rusty@rustcorp.com.au>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>,
-       linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
-Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt kernels
-Message-ID: <20061101121753.GA2205@elf.ucw.cz>
-References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061029024606.496399000@sous-sol.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 1 Nov 2006 07:19:34 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1720 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1946843AbWKAMTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 07:19:33 -0500
+Subject: Re: AHCI should try to claim all AHCI controllers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Conke Hu <conke.hu@amd.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610312120200.25218@g5.osdl.org>
+References: <FFECF24D2A7F6D418B9511AF6F358602F2CE9E@shacnexch2.atitech.com>
+	 <45482BA7.6070904@pobox.com>
+	 <Pine.LNX.4.64.0610312120200.25218@g5.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Nov 2006 12:23:03 +0000
+Message-Id: <1162383783.11965.116.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 2006-10-28 00:00:04, Chris Wright wrote:
-> Allow selected bug checks to be skipped by paravirt kernels.  The two most
-> important are the F00F workaround (which is either done by the hypervisor,
-> or not required), and the 'hlt' instruction check, which can break under
-> some hypervisors.
+Ar Maw, 2006-10-31 am 21:22 -0800, ysgrifennodd Linus Torvalds:
+> (We had the same issue with "PCI IDE controller". Some PCI IDE controllers 
+> are clearly exactly that from a programming interface standpoint, but 
+> because they support RAID in hardware, they claim to be RAID controllers, 
+> since that is more "glamorous". Gaah ;^).
 
-How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
-innocent to me.
+Actually its far uglier than that. With one exception they don't support
+hardware raid mode, they use the RAID class tag to stop other OS drivers
+grabbing the interface or seeing it directly as un-raided software raid.
 
-> --- linux-2.6-pv.orig/arch/i386/kernel/cpu/intel.c
-> +++ linux-2.6-pv/arch/i386/kernel/cpu/intel.c
-> @@ -107,7 +107,7 @@ static void __cpuinit init_intel(struct 
->  	 * Note that the workaround only should be initialized once...
->  	 */
->  	c->f00f_bug = 0;
-> -	if ( c->x86 == 5 ) {
-> +	if (!paravirt_enabled() && c->x86 == 5) {
-
-I'd do x86==5 check first... pentiums are not common any more.
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Alan

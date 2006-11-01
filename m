@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752569AbWKAXdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752568AbWKAXc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752569AbWKAXdA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 18:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752571AbWKAXdA
+	id S1752568AbWKAXc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 18:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752569AbWKAXc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 18:33:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:5843 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752569AbWKAXc7 (ORCPT
+	Wed, 1 Nov 2006 18:32:57 -0500
+Received: from ozlabs.org ([203.10.76.45]:41106 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1752568AbWKAXc4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 18:32:59 -0500
-Date: Wed, 1 Nov 2006 18:32:50 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Gautham Shenoy <ego@in.ibm.com>
-Subject: Re: Remove hotplug cpu crap from cpufreq.
-Message-ID: <20061101233250.GA17706@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Gautham Shenoy <ego@in.ibm.com>
-References: <20061101225925.GA17363@redhat.com> <Pine.LNX.4.64.0611011507480.25218@g5.osdl.org>
+	Wed, 1 Nov 2006 18:32:56 -0500
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
+	paravirtualizing critical operations
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>,
+       virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1162377928.23744.4.camel@laptopd505.fenrus.org>
+References: <20061029024504.760769000@sous-sol.org>
+	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
+	 <1162178936.9802.34.camel@localhost.localdomain>
+	 <20061030231132.GA98768@muc.de>
+	 <1162376827.23462.5.camel@localhost.localdomain>
+	 <1162377928.23744.4.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Thu, 02 Nov 2006 10:32:51 +1100
+Message-Id: <1162423971.6848.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611011507480.25218@g5.osdl.org>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 03:09:52PM -0800, Linus Torvalds wrote:
+On Wed, 2006-11-01 at 11:45 +0100, Arjan van de Ven wrote:
+> On Wed, 2006-11-01 at 21:27 +1100, Rusty Russell wrote:
+> > Create a paravirt.h header for all the critical operations which need
+> > to be replaced with hypervisor calls, and include that instead of
+> > defining native operations, when CONFIG_PARAVIRT.
+> this is a lot of infrastructure... do we have more than 1 user of this
+> yet that wants to get merged in mainline?
 
- > Hmm. People _have_ given a damn, and I think you were even cc'd.
+Yep.  Xen and VMI both have patches on top of this pending merge.  I
+also have a toy hypervisor "lhype" based on this, but it's not ready for
+mainline.  (It seems people expect consoles to do *input* as well as
+output).
 
-You're right. In my defense, that stuff arrived the day I went
-on vacation for two weeks, and I subsequently forgot all about it.
-Looking back over that thread though, a few people seemed to pick a
-number of holes in the patches, and there are some real gems in that
-thread like.
+Cheers,
+Rusty.
 
- > Really, the hotplug locking rules are fairly simple-
- > 
- > 1. If you are in cpu hotplug callback path, don't take any lock.
 
-Which is just great, as afair, the cpufreq locks were there _before_
-someone liberally sprinkled lock_cpu_hotplug() everywhere.
-
- > Right now, for 2.6.19, I'd prefer to not touch that mess unless there are 
- > known conditions that actually cause more problems than just stupid 
- > warnings..
-
->From what I can tell from looking at that thread back in August,
-it went on for a while with a number of people picking holes in the
-proposed patches, but there wasn't any reposted after that, and
-certainly nothing that ended up in -mm.
-
-_something_ needs to be done. If someone wants to fix it, great, but
-until we see something mergable, we're left in this half-assed state
-which is freaking people out.
-
-	Dave
-
--- 
-http://www.codemonkey.org.uk

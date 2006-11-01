@@ -1,66 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946027AbWJaX6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946213AbWKAAJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946027AbWJaX6l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 18:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946176AbWJaX6l
+	id S1946213AbWKAAJw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 19:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946215AbWKAAJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 18:58:41 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:26807 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1946027AbWJaX6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 18:58:40 -0500
-Date: Tue, 31 Oct 2006 15:58:19 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: dino@in.ibm.com, nickpiggin@yahoo.com.au, akpm@osdl.org, mbligh@google.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
-       suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset:  Explicit dynamic sched domain cpuset flag
-Message-Id: <20061031155819.29621173.pj@sgi.com>
-In-Reply-To: <20061031064300.10a97c13.pj@sgi.com>
-References: <20061030212615.GA10567@in.ibm.com>
-	<20061030212922.GA20369@in.ibm.com>
-	<20061031064300.10a97c13.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Tue, 31 Oct 2006 19:09:51 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58059 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946213AbWKAAJv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 19:09:51 -0500
+Date: Tue, 31 Oct 2006 16:09:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, mingo@elte.hu,
+       rusty@rustcorp.com.au, tglx@linutronix.de
+Subject: Re: [patch 1/1] schedule removal of FUTEX_FD
+Message-Id: <20061031160918.d997d79a.akpm@osdl.org>
+In-Reply-To: <1162338491.11965.101.camel@localhost.localdomain>
+References: <200610312309.k9VN9mco015260@shell0.pdx.osdl.net>
+	<1162338491.11965.101.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pj wrote:
-> 9) Finally, we really do need a way, on a production system, for user
->    space to ask the kernel where load balancing is limited.
->    
->    For example one possible interface would have user space pass a
->    cpumask to the kernel, and get back a Boolean value, indicating
->    whether or not there are any limitations on load balancing between
->    any two CPUs specified in that cpumask.
+On Tue, 31 Oct 2006 23:48:11 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Ah - a simpler API, more user friendly, more "cpuset API style"
-friendly:
+> Ar Maw, 2006-10-31 am 15:09 -0800, ysgrifennodd akpm@osdl.org:
+> > From: Andrew Morton <akpm@osdl.org>
+> > 
+> > Apparently FUTEX_FD is unfixably racy and nothing uses it (or if it does, it
+> > shouldn't).
+> > 
+> > Add a warning printk, give any remaining users six months to migrate off it.
+> 
+> Andrew - please use time based rate limits for this sort of thing, that
+> way you actually get to see who is actually using it. Probably doesn't
+> matter for the FUTEX_FD case as nobody does, but in general the 'ten
+> times during boot' approach is not as good as ratelimit(): Perhaps
+> net_ratelimit() ought to become more general ?
 
-    A read-only, per-cpuset Boolean flag that indicates whether the
-    scheduler is fully load balancing across all 'cpus' of that cpuset.
+I don't think either works very well, really.  How frequently do we
+rate-limit it?  If it's faster than once-per-hour then we'll irritate
+people.
 
-    Internally, the kernel would answer this by seeing whether or
-    not the cpusets cpus_allowed cpumask was a subset of one of the
-    members of the scheduler domains partition.
+Maybe that's the answer.  Once-per-hour.
 
-Call this per-cpuset flag something such as:
+umm, I think we'd need something like this:
 
-    sched_is_fully_load_balanced	# read-only Boolean
 
-This goes along with having the control flag named something such as:
 
-    sched_ok_not_to_load_balance	# read-write Boolean
+From: Andrew Morton <akpm@osdl.org>
 
-If a task was in a cpuset that had 'sched_is_fully_load_balanced'
-False, then it might not get load balanced.
+printk_ratelimit() has global state which makes it not useful for callers
+which wish to perform ratelimiting at a particular frequency.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Add a printk_timed_ratelimit() which utilises caller-provided state storage to
+permit more flexibility.
+
+This function can in fact be used for things other than printk ratelimiting
+and is perhaps poorly named.
+
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ include/linux/kernel.h |    2 ++
+ kernel/printk.c        |   21 +++++++++++++++++++++
+ 2 files changed, 23 insertions(+)
+
+diff -puN kernel/printk.c~printk-timed-ratelimit kernel/printk.c
+--- a/kernel/printk.c~printk-timed-ratelimit
++++ a/kernel/printk.c
+@@ -31,6 +31,7 @@
+ #include <linux/security.h>
+ #include <linux/bootmem.h>
+ #include <linux/syscalls.h>
++#include <linux/jiffies.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -1101,3 +1102,23 @@ int printk_ratelimit(void)
+ 				printk_ratelimit_burst);
+ }
+ EXPORT_SYMBOL(printk_ratelimit);
++
++/**
++ * printk_timed_ratelimit - caller-controlled printk ratelimiting
++ * @caller_jiffies: pointer to caller's state
++ * @interval_msecs: minimum interval between prints
++ *
++ * printk_timed_ratelimit() returns true if more than @interval_msecs
++ * milliseconds have elapsed since the last time printk_timed_ratelimit()
++ * returned true.
++ */
++bool printk_timed_ratelimit(unsigned long *caller_jiffies,
++			unsigned int interval_msecs)
++{
++	if (*caller_jiffies == 0 || time_after(jiffies, *caller_jiffies)) {
++		*caller_jiffies = jiffies + msecs_to_jiffies(interval_msecs);
++		return true;
++	}
++	return false;
++}
++EXPORT_SYMBOL(printk_timed_ratelimit);	
+diff -puN include/linux/kernel.h~printk-timed-ratelimit include/linux/kernel.h
+--- a/include/linux/kernel.h~printk-timed-ratelimit
++++ a/include/linux/kernel.h
+@@ -171,6 +171,8 @@ __attribute_const__ roundup_pow_of_two(u
+ 
+ extern int printk_ratelimit(void);
+ extern int __printk_ratelimit(int ratelimit_jiffies, int ratelimit_burst);
++extern bool printk_timed_ratelimit(unsigned long *caller_jiffies,
++				unsigned int interval_msec);
+ 
+ static inline void console_silent(void)
+ {
+_
+

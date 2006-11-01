@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946722AbWKAJYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946723AbWKAJ0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946722AbWKAJYU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 04:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946723AbWKAJYU
+	id S1946723AbWKAJ0g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 04:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946725AbWKAJ0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 04:24:20 -0500
-Received: from o-hand.com ([70.86.75.186]:21679 "EHLO o-hand.com")
-	by vger.kernel.org with ESMTP id S1946722AbWKAJYT (ORCPT
+	Wed, 1 Nov 2006 04:26:36 -0500
+Received: from mail.gmx.net ([213.165.64.20]:43142 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1946723AbWKAJ0f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 04:24:19 -0500
-Subject: Re: [PATCH, RFC/T] Fix handling of write failures to swap devices
-From: Richard Purdie <richard@openedhand.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Hugh Dickins <hugh@veritas.com>
-In-Reply-To: <45483020.9010607@yahoo.com.au>
-References: <1161935995.5019.46.camel@localhost.localdomain>
-	 <4541C1B2.7070003@yahoo.com.au>
-	 <1161938694.5019.83.camel@localhost.localdomain>
-	 <4542E2A4.2080400@yahoo.com.au>
-	 <1162032227.5555.65.camel@localhost.localdomain>
-	 <454348B4.60007@yahoo.com.au>
-	 <1162209347.6962.2.camel@localhost.localdomain>
-	 <45483020.9010607@yahoo.com.au>
+	Wed, 1 Nov 2006 04:26:35 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, "Martin J. Bligh" <mbligh@google.com>,
+       Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       Steve Fox <drfickle@us.ibm.com>
+In-Reply-To: <1162361529.5899.1.camel@Homer.simpson.net>
+References: <45461977.3020201@shadowen.org> <45461E74.1040408@google.com>
+	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
+	 <45463481.80601@shadowen.org>
+	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
+	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
+	 <20061031065912.GA13465@suse.de>
+	 <1162278594.6416.4.camel@Homer.simpson.net> <20061031072241.GB7306@suse.de>
+	 <1162312126.5918.12.camel@Homer.simpson.net>
+	 <1162318477.6016.3.camel@Homer.simpson.net>
+	 <1162356198.6105.18.camel@Homer.simpson.net>
+	 <20061031212508.1b116655.akpm@osdl.org>
+	 <1162361529.5899.1.camel@Homer.simpson.net>
 Content-Type: text/plain
-Date: Wed, 01 Nov 2006 09:24:04 +0000
-Message-Id: <1162373044.5564.7.camel@localhost.localdomain>
+Date: Wed, 01 Nov 2006 10:26:24 +0100
+Message-Id: <1162373184.6126.8.camel@Homer.simpson.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-01 at 16:26 +1100, Nick Piggin wrote:
-> > I can't work out the code path it happens in and until I do, I'm not
-> > sure how I can track it down... 
-> 
-> Is your driver scribbling on the page memory when it encounters a write
-> error, or is the SIGBUS coming from a subsequent pagefault attempt on
-> that address? Stick a WARN_ON(1) in the VM_FAULT_SIGBUS case in
-> arch/arm/mm/fault.c to check.
-
-I'm 100% certain the driver doesn't touch the memory page. It would be a
-serious problem if it did as I'd see see memory corruption in the cases
-where the page wasn't read from disk but read from the swap cache (I
-don't).
-
-The error therefore has to be coming from a pagefault attempt on the
-address...
-
-> >>Still, something must be triggering it somewhere.
+On Wed, 2006-11-01 at 07:12 +0100, Mike Galbraith wrote:
+> On Tue, 2006-10-31 at 21:25 -0800, Andrew Morton wrote:
+> > On Wed, 01 Nov 2006 05:43:18 +0100
+> > Mike Galbraith <efault@gmx.de> wrote:
 > > 
+> > > On Tue, 2006-10-31 at 19:14 +0100, Mike Galbraith wrote:
+> > > 
+> > > > Seems it's driver-core-fixes-sysfs_create_link-retval-checks-in.patch
+> > > > 
+> > > > Tomorrow, I'll revert that alone from 2.6.19-rc3-mm1 to confirm...
+> > > 
+> > > Confirmed.  Boots fine with that patch reverted.
 > > 
-> > Something must be but I wish I knew what/where...
+> > Could you test with something like this applied?
 > 
-> Let's try to find out :)
+> No output.  I had already enabled debugging, but got nada there either.
+> Bugger.  <scritch scritch>
 
-I'll see if I can work it out...
+Duh!  (what a maroon)  I booted the wrong kernel due to a typo.
 
-> Yes, I mean the other side of the writepage, ie. when page reclaim is
-> about to attempt to swap it out.
-> 
-> The attached (very untested, in need of splitting up) patch attempts to
-> solve these problems. Note that it is probably not going to prevent your
-> SIGBUS, so that will have to be found and fixed individually.
-> 
-> In the meantime, I'll run this through some testing when I get half a
-> chance.
+I enabled some other debug options (poke/hope), and it now boots past
+the BUG at arch/i386/mm/pageattr.c:165 point, through the sound NULL
+pointer dereference, and on to the eventual complete hang as NFS is
+being initialized.  The log shows 326 failures at lines 385 and 589.
 
-Right, this is a nicer way to do it. I would have preferred to do
-something like this in the first place but didn't as I didn't think I
-could use PageError as a marker...
-
-I'll try and work out why PageError is causing the problems and also
-give the patch some testing.
-
-Thanks,
-
-Richard
+	-Mike
 

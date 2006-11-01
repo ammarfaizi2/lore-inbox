@@ -1,253 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752267AbWKAS1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992701AbWKAS3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752267AbWKAS1u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 13:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752268AbWKAS1u
+	id S2992701AbWKAS3q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 13:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992711AbWKAS3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 13:27:50 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:12716 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1752265AbWKAS1t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 13:27:49 -0500
-Date: Wed, 1 Nov 2006 21:27:03 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Graf <tgraf@suug.ch>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] taskstats: use nla_reserve() for reply assembling
-Message-ID: <20061101182703.GA453@oleg>
+	Wed, 1 Nov 2006 13:29:46 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:14155 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S2992701AbWKAS3p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 13:29:45 -0500
+Date: Wed, 1 Nov 2006 19:31:32 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: SCSI over USB showstopper bug?
+Message-ID: <20061101183132.GO13555@kernel.dk>
+References: <4547c966.8oyAB/pzCZ7bGUza%Joerg.Schilling@fokus.fraunhofer.de> <1162333090.3044.53.camel@laptopd505.fenrus.org> <4547e164.k3W0GpiCAd3p3Tkh%Joerg.Schilling@fokus.fraunhofer.de> <20061101153128.GM13555@kernel.dk> <4548e680.oVsI92sKYOz7VSzN%Joerg.Schilling@fokus.fraunhofer.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <4548e680.oVsI92sKYOz7VSzN%Joerg.Schilling@fokus.fraunhofer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently taskstats_user_cmd()/taskstats_exit() do:
+On Wed, Nov 01 2006, Joerg Schilling wrote:
+> Jens Axboe <jens.axboe@oracle.com> wrote:
+> 
+> > > > > it looks as if SG_GET_RESERVED_SIZE & SG_SET_RESERVED_SIZE
+> > > > > are not in interaction with the underlying SCSI transport.
+> > > > > 
+> > > > > Programs like readcd and cdda2wav that try to get very large SCSI
+> > > > > transfer buffers get a confirmation for nearly any SCSI transfer size 
+> > > > > but later when readcd/cdda2wav try to transfer data with an
+> > > > > actual SCSI command, they fail with ENOMEM.
+> > > > > 
+> > > > > Correct fix: let sg.c make a callback to the underlying SCSI transport
+> > > > > 		and let it get a confirmation tfor the buffer size.
+> > > > > 
+> > > > > Quick and dirty fix: reduce the maximum allowed DMA size to the smallest
+> > > > > 		max DMA size of all SCSI transports.
+> > > >
+> > > > real good fix:
+> > > >
+> > > > use SG_IO on the device directly that checks this already
+> > > 
+> > > From looking into the source, this claim seems to be wrong.
+> >
+> > The block layer SG_IO entry point does what Arjan describes - it checks
+> > the queue settings, which must match the hardware limits. It needs to,
+> > since it won't accept a command larger than what the path to that device
+> > will allow in one go. The SCSI sg variant may be more restricted, since
+> > it should handle partial completions of such commands.
+> 
+> Then someone should change the source to match this statements.
+> 
+> From a report I have from the k3b Author, readcd and cdda2wav only work
+> if you add a "ts=128k" option. 
 
-	1) allocate stats
-	2) fill stats
-	3) make a temporary copy on stack (236 bytes)
-	4) copy that copy to skb
-	5) free stats
+Then please file (or have him/her file) a proper bug report. It may be a
+usb specific bug, or it may just be something else.
 
-With the help of nla_reserve() we can operate on skb->data directly,
-thus avoiding all these steps except 2).
-
-So, before this patch:
-
-	// copy *stats to skb->data
-	int mk_reply(skb, ..., struct taskstats *stats);
-
-	fill_pid(stats);
-	mk_reply(skb, ..., stats);
-
-After:
-	// return a pointer to skb->data
-	struct taskstats *mk_reply(skb, ...);
-
-	stat = mk_reply(skb, ...);
-	fill_pid(stats);
-
-Shrinks taskatsks.o by 162 bytes.
-
-A stupid benchmark (send one million TASKSTATS_CMD_ATTR_PID) shows the
-difference,
-
-		real user sys
-	before:
-		4.02 0.06 3.96
-		4.02 0.04 3.98
-		4.02 0.04 3.97
-	after:
-		3.86 0.08 3.78
-		3.88 0.10 3.77
-		3.89 0.09 3.80
-
-but this looks suspiciously good.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
- taskstats.c |   86 ++++++++++++++++++++++++++++++------------------------------
- 1 files changed, 44 insertions(+), 42 deletions(-)
-
---- STATS/kernel/taskstats.c~6_nla	2006-11-01 14:00:03.000000000 +0300
-+++ STATS/kernel/taskstats.c	2006-11-01 21:14:39.000000000 +0300
-@@ -190,6 +190,7 @@ static int fill_pid(pid_t pid, struct ta
- 	} else
- 		get_task_struct(tsk);
- 
-+	memset(stats, 0, sizeof(*stats));
- 	/*
- 	 * Each accounting subsystem adds calls to its functions to
- 	 * fill in relevant parts of struct taskstsats as follows
-@@ -232,6 +233,8 @@ static int fill_tgid(pid_t tgid, struct 
- 
- 	if (first->signal->stats)
- 		memcpy(stats, first->signal->stats, sizeof(*stats));
-+	else
-+		memset(stats, 0, sizeof(*stats));
- 
- 	tsk = first;
- 	do {
-@@ -348,9 +351,9 @@ static int parse(struct nlattr *na, cpum
- 	return ret;
- }
- 
--static int mk_reply(struct sk_buff *skb, int type, u32 pid, struct taskstats *stats)
-+static struct taskstats *mk_reply(struct sk_buff *skb, int type, u32 pid)
- {
--	struct nlattr *na;
-+	struct nlattr *na, *ret;
- 	int aggr;
- 
- 	aggr = TASKSTATS_TYPE_AGGR_TGID;
-@@ -358,20 +361,23 @@ static int mk_reply(struct sk_buff *skb,
- 		aggr = TASKSTATS_TYPE_AGGR_PID;
- 
- 	na = nla_nest_start(skb, aggr);
--	NLA_PUT_U32(skb, type, pid);
--	NLA_PUT_TYPE(skb, struct taskstats, TASKSTATS_TYPE_STATS, *stats);
-+	if (nla_put(skb, type, sizeof(pid), &pid) < 0)
-+		goto err;
-+	ret = nla_reserve(skb, TASKSTATS_TYPE_STATS, sizeof(struct taskstats));
-+	if (!ret)
-+		goto err;
- 	nla_nest_end(skb, na);
- 
--	return 0;
--nla_put_failure:
--	return -1;
-+	return nla_data(ret);
-+err:
-+	return NULL;
- }
- 
- static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
- {
- 	int rc = 0;
- 	struct sk_buff *rep_skb;
--	struct taskstats stats;
-+	struct taskstats *stats;
- 	void *reply;
- 	size_t size;
- 	cpumask_t mask;
-@@ -394,36 +400,36 @@ static int taskstats_user_cmd(struct sk_
- 	size = nla_total_size(sizeof(u32)) +
- 		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
- 
--	memset(&stats, 0, sizeof(stats));
- 	rc = prepare_reply(info, TASKSTATS_CMD_NEW, &rep_skb, &reply, size);
- 	if (rc < 0)
- 		return rc;
- 
-+	rc = -EINVAL;
- 	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
- 		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
--		rc = fill_pid(pid, NULL, &stats);
--		if (rc < 0)
--			goto err;
-+		stats = mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid);
-+		if (!stats)
-+			goto nla_err;
- 
--		if (mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid, &stats))
--			goto nla_put_failure;
-+		rc = fill_pid(pid, NULL, stats);
-+		if (rc < 0)
-+			goto nla_err;
- 	} else if (info->attrs[TASKSTATS_CMD_ATTR_TGID]) {
- 		u32 tgid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_TGID]);
--		rc = fill_tgid(tgid, NULL, &stats);
--		if (rc < 0)
--			goto err;
-+		stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid);
-+		if (!stats)
-+			goto nla_err;
- 
--		if (mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid, &stats))
--			goto nla_put_failure;
--	} else {
--		rc = -EINVAL;
-+		rc = fill_tgid(tgid, NULL, stats);
-+		if (rc < 0)
-+			goto nla_err;
-+	} else
- 		goto err;
--	}
- 
- 	return send_reply(rep_skb, info->snd_pid);
- 
--nla_put_failure:
--	rc = genlmsg_cancel(rep_skb, reply);
-+nla_err:
-+	genlmsg_cancel(rep_skb, reply);
- err:
- 	nlmsg_free(rep_skb);
- 	return rc;
-@@ -458,7 +464,7 @@ void taskstats_exit(struct task_struct *
- {
- 	int rc;
- 	struct listener_list *listeners;
--	struct taskstats *tidstats;
-+	struct taskstats *stats;
- 	struct sk_buff *rep_skb;
- 	void *reply;
- 	size_t size;
-@@ -485,20 +491,17 @@ void taskstats_exit(struct task_struct *
- 	if (list_empty(&listeners->list))
- 		return;
- 
--	tidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
--	if (!tidstats)
--		return;
--
- 	rc = prepare_reply(NULL, TASKSTATS_CMD_NEW, &rep_skb, &reply, size);
- 	if (rc < 0)
--		goto free_stats;
-+		return;
- 
--	rc = fill_pid(tsk->pid, tsk, tidstats);
--	if (rc < 0)
--		goto err_skb;
-+	stats = mk_reply(rep_skb, TASKSTATS_TYPE_PID, tsk->pid);
-+	if (!stats)
-+		goto nla_err;
- 
--	if (mk_reply(rep_skb, TASKSTATS_TYPE_PID, tsk->pid, tidstats))
--		goto nla_put_failure;
-+	rc = fill_pid(tsk->pid, tsk, stats);
-+	if (rc < 0)
-+		goto nla_err;
- 
- 	/*
- 	 * Doesn't matter if tsk is the leader or the last group member leaving
-@@ -506,20 +509,19 @@ void taskstats_exit(struct task_struct *
- 	if (!is_thread_group || !group_dead)
- 		goto send;
- 
--	if (mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tsk->tgid, tsk->signal->stats))
--		goto nla_put_failure;
-+	stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tsk->tgid);
-+	if (!stats)
-+		goto nla_err;
-+
-+	memcpy(stats, tsk->signal->stats, sizeof(*stats));
- 
- send:
- 	send_cpu_listeners(rep_skb, listeners);
--free_stats:
--	kmem_cache_free(taskstats_cache, tidstats);
- 	return;
- 
--nla_put_failure:
-+nla_err:
- 	genlmsg_cancel(rep_skb, reply);
--err_skb:
- 	nlmsg_free(rep_skb);
--	goto free_stats;
- }
- 
- static struct genl_ops taskstats_ops = {
+-- 
+Jens Axboe
 

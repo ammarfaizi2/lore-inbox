@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946647AbWKAGX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946614AbWKAGeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946647AbWKAGX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 01:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946649AbWKAGX3
+	id S1946614AbWKAGeR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 01:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946635AbWKAGeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 01:23:29 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:38092
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1946647AbWKAGX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 01:23:28 -0500
-Date: Tue, 31 Oct 2006 22:23:30 -0800 (PST)
-Message-Id: <20061031.222330.28789606.davem@davemloft.net>
-To: w@1wt.eu
-Cc: chrisw@sous-sol.org, linux-kernel@vger.kernel.org,
-       herbert@gondor.apana.org.au
-Subject: Re: [PATCH 40/61] SCTP: Always linearise packet on input
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061101071722.GC543@1wt.eu>
-References: <20061101053340.305569000@sous-sol.org>
-	<20061101054231.472027000@sous-sol.org>
-	<20061101071722.GC543@1wt.eu>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Nov 2006 01:34:17 -0500
+Received: from mail.kroah.org ([69.55.234.183]:9400 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1946614AbWKAGeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 01:34:17 -0500
+Date: Tue, 31 Oct 2006 22:17:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Sylvain Bertrand <sylvain.bertrand@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Chris Wedgwood <cw@f00f.org>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>
+Subject: Re: [Bugme-new] [Bug 7437] New: VIA VT8233 seems to suffer from the via latency quirk
+Message-ID: <20061101061741.GA25208@kroah.com>
+References: <200610310020.k9V0KGQK003237@fire-2.osdl.org> <20061030163458.4fb8cee1.akpm@osdl.org> <d512a4f30610301703r68dfa848s116475b68435f136@mail.gmail.com> <20061031034342.GC11944@kroah.com> <d512a4f30610311755g11054e88w36f35e93205722a7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d512a4f30610311755g11054e88w36f35e93205722a7@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
-Date: Wed, 1 Nov 2006 08:17:22 +0100
+On Wed, Nov 01, 2006 at 02:55:18AM +0100, Sylvain Bertrand wrote:
+> I enabled the via latency quirk code for my chipset and my workstation
+> does crash the same way.
+> Then, my crash problem seems not related to this quirk even if
+> symptoms are quite similar.
 
-> This one seems to be valid for 2.4 too. Should I merge it or is it
-> unneeded ?
-
-Indeed it appears that the problem can be triggered via IP
-fragmentation on input even in 2.4.x, so yes it would be good
-to put the fix there too.
-
-Thanks for noticing this Willy.
+Thank you for testing.  Can you try contacting VIA to find out what
+needs to be fixed here?

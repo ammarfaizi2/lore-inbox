@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946745AbWKAJvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946569AbWKAJxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946745AbWKAJvL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 04:51:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946744AbWKAJvK
+	id S1946569AbWKAJxv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 04:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946744AbWKAJxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 04:51:10 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22710 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1946742AbWKAJvJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 04:51:09 -0500
-Date: Wed, 1 Nov 2006 01:50:30 -0800
-From: Paul Jackson <pj@sgi.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Cc: menage@google.com, dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
+	Wed, 1 Nov 2006 04:53:51 -0500
+Received: from mx4.cs.washington.edu ([128.208.4.190]:12514 "EHLO
+	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S1946569AbWKAJxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 04:53:50 -0500
+Date: Wed, 1 Nov 2006 01:53:37 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Pavel Emelianov <xemul@openvz.org>
+cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com, menage@google.com,
        ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
+       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
+       dipankar@in.ibm.com, rohitseth@google.com
 Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061101015030.451b7a86.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.64N.0610311951280.7538@attu4.cs.washington.edu>
-References: <20061030103356.GA16833@in.ibm.com>
-	<6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
-	<20061030031531.8c671815.pj@sgi.com>
-	<6599ad830610300404v1e036bb7o7ed9ec0bc341864e@mail.gmail.com>
-	<20061030042714.fa064218.pj@sgi.com>
-	<6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com>
-	<20061030123652.d1574176.pj@sgi.com>
-	<6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com>
-	<Pine.LNX.4.64N.0610311951280.7538@attu4.cs.washington.edu>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <45486925.4000201@openvz.org>
+Message-ID: <Pine.LNX.4.64N.0611010145370.32554@attu4.cs.washington.edu>
+References: <20061030103356.GA16833@in.ibm.com> <45486925.4000201@openvz.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David wrote:
->  - While the process containers are only single-level, the controllers are
->    _inherently_ hierarchial just like a filesystem.  So it appears that
+On Wed, 1 Nov 2006, Pavel Emelianov wrote:
 
-Cpusets certainly enjoys what I would call hierarchical process
-containers.  I can't tell if your flat container space is just
-a "for instance", or you're recommending we only have a flat
-container space.
+> > 	- Interaction of resource controllers, containers and cpusets
+> > 		- Should we support, for instance, creation of resource
+> > 		  groups/containers under a cpuset?
+> > 	- Should we have different groupings for different resources?
+> 
+> I propose to discuss this question as this is the most important
+> now from my point of view.
+> 
+> I believe this can be done, but can't imagine how to use this...
+> 
 
-If the later, I disagree.
+I think cpusets, as abstracted away from containers by Paul Menage, simply 
+become a client of the container configfs.  Cpusets would become more of a 
+NUMA-type controller by default.
 
-> So it appears
->   that the manipulation of containers would most effectively be done from
->   userspace by a syscall approach.
+Different groupings for different resources was already discussed.  If we 
+use the approach of a single-level "hierarchy" for process containers and 
+then attach them each to a "node" of a controller, then the groupings have 
+been achieved.  It's possible to change the network controller of a 
+container or move processes from container to container easily through the 
+filesystem.
 
-Yup - sure sounds like you're advocating a flat container space
-accessed by system calls.
+> > 	- Support movement of all threads of a process from one group
+> > 	  to another atomically?
+> 
+> I propose such a solution: if a user asks to move /proc/<pid>
+> then move the whole task with threads.
+> If user asks to move /proc/<pid>/task/<tid> then move just
+> a single thread.
+> 
+> What do you think?
 
-Sure doesn't sound right to me.  I like hierarchical containers,
-accessed via like a file system.
+This seems to use my proposal of using procfs as an abstraction of process 
+containers.  I haven't looked at the implementation details, but it seems 
+like the most appropriate place given what it currently supports.  
+Naturally it should be an atomic move but I don't think it's the most 
+important detail in terms of efficiency because moving threads should not 
+be such a frequent occurrence anyway.  This begs the question about how 
+forks are handled for processes with regard to the various controllers 
+that could be implemented and whether they should all be decendants of the 
+parent container by default or have the option of spawning a new 
+controller all together.  This would be an attribute of controllers and 
+not containers, however.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+		David

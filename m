@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752065AbWKAMza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946867AbWKAMzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752065AbWKAMza (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 07:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752089AbWKAMza
+	id S1946867AbWKAMzd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 07:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752090AbWKAMzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 07:55:30 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24986 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752065AbWKAMz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 07:55:29 -0500
-Date: Wed, 1 Nov 2006 13:55:06 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc4-mm1: noidlehz problems
-Message-ID: <20061101125506.GA2133@elf.ucw.cz>
-References: <20061101122319.GA13056@elf.ucw.cz>
+	Wed, 1 Nov 2006 07:55:33 -0500
+Received: from mailrelay1.uni-mannheim.de ([134.155.96.50]:34978 "EHLO
+	mailrelay1.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S1752089AbWKAMzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 07:55:32 -0500
+Message-ID: <454899E9.1090900@ti.uni-mannheim.de>
+Date: Wed, 01 Nov 2006 13:58:17 +0100
+From: Guillermo Marcus Martinez <marcus@ti.uni-mannheim.de>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101122319.GA13056@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: linux-kernel@vger.kernel.org
+Subject: Re: mmaping a kernel buffer to user space
+References: <4547150F.8070408@ti.uni-mannheim.de> <loom.20061101T120846-320@post.gmane.org>
+In-Reply-To: <loom.20061101T120846-320@post.gmane.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Rolf Offermanns schrieb:
+> Guillermo Marcus <marcus <at> ti.uni-mannheim.de> writes:
+>> Note: I am using kernel 2.6.9 for these tests, as it is required by my
+>> current setup. Maybe this issue has already been addressed in newer
+>> kernel. If that is the case, please let me know.
+> 
+> Have a look at this article:
+> 
+> "The evolution of driver page remapping"
+> http://lwn.net/Articles/162860/
+> 
+> It should make things clearer. 
+> 
+> The "API changes in the 2.6 kernel series" page is also a very good read:
+> http://lwn.net/Articles/2.6-kernel-api/
+> 
+> HTH,
+> Rolf
 
+Thanks for the links!
 
-> First, it would be nice if we had someone listed as a maintainer of
-> noidlehz stuff...
-> 
-> Then... I'm getting strange messages from noidlehz each time I
-> unplug/replug AC power (perhaps due to interrupt latency?).
-> 
-> Disabling NO_HZ and high resolution timers due to timer broadcasting
-> (C3 stops local apic)
-> Adding 987988k swap on /dev/sda1.  Priority:-1 extents:1
-> across:987988k
-> Disabling NO_HZ and high resolution timers due to timer broadcasting
-> (C3 stops local apic)
-> EXT2-fs warning (device sda2): ext2_fill_super: mounting ext3
-> filesystem as ext2
-...
-> Disabling NO_HZ and high resolution timers due to timer broadcasting
-> (C3 stops local apic)
-> Disabling NO_HZ and high resolution timers due to timer broadcasting
-> (C3 stops local apic)
-> 
-> ...I'd expect one such message, not many of them. Something seems
-> seriously wrong there...
-> 
-> Plus, suspend to RAM and disk is broken in -rc4-mm1. Suspend to RAM
-> dies with screaming speaker, suspend to disk returns but machine is
-> mostly toast (and screaming, looks like timer problem, beeps never
-> end). I'll disable NO_HZ and try again.
+Yes, it looks like a step in the right direction. However, the article
+says about vm_insert_page(): "...What it does require is that the page
+be an order-zero allocation obtained for this purpose...", therefore
+making it also unusable for this case (mmaping a pci_alloc_consistent).
 
-Disabling NO_HZ did not help, but I disabled high resolution timers,
-and s2ram now works. s2disk also started working.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+I think the limitation (being order zero), is related to the page
+counting, as I understand that for bigger order allocations, only the
+first-page counter is incremented (not every page). If that is a
+problem, I guess I would also see a problem with my workaround, and I
+see none (yet). So I may try in a newer kernel and see if I can use it
+to walk the pages on the mmap without using the nopage().
+
+My suggestion would be to add two functions: pci_map_consistent() and
+dma_map_coherent() to address this issue, and their corresponding
+unmap's. That will make sure all that is needed is done, is a clean and
+consistent with the pci_ and dma_ APIs, and fills a mmap requirement not
+covered by the other functions.
+
+Best wishes,
+Guillermo
+

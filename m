@@ -1,77 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946688AbWKAIDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946689AbWKAIFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946688AbWKAIDv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 03:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946689AbWKAIDv
+	id S1946689AbWKAIFs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 03:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946693AbWKAIFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 03:03:51 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:9355 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1946688AbWKAIDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 03:03:50 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Wed, 1 Nov 2006 03:01:31 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Borislav Petkov <petkov@math.uni-muenster.de>,
-       David Rientjes <rientjes@cs.washington.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched.c : correct comment for this_rq_lock() routine
-In-Reply-To: <4547D23A.3090007@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0611010252460.28051@localhost.localdomain>
-References: <Pine.LNX.4.64.0610301600550.12811@localhost.localdomain>
- <Pine.LNX.4.64N.0610301308290.17544@attu2.cs.washington.edu>
- <Pine.LNX.4.64.0610301623360.13169@localhost.localdomain>
- <20061031153021.GA14505@gollum.tnic> <Pine.LNX.4.64.0610311250500.22528@localhost.localdomain>
- <4547D23A.3090007@yahoo.com.au>
+	Wed, 1 Nov 2006 03:05:48 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:32955 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1946689AbWKAIFr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 03:05:47 -0500
+Message-ID: <4548545B.4070701@openvz.org>
+Date: Wed, 01 Nov 2006 11:01:31 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+To: vatsa@in.ibm.com
+CC: Pavel Emelianov <xemul@openvz.org>, dev@openvz.org, sekharan@us.ibm.com,
+       menage@google.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
+       devel@openvz.org
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+References: <20061030103356.GA16833@in.ibm.com> <45460743.8000501@openvz.org> <20061031163418.GD9588@in.ibm.com>
+In-Reply-To: <20061031163418.GD9588@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2006, Nick Piggin wrote:
+[snip]
 
-> Robert P. J. Day wrote:
->
-> > example, i was just poking around the source for the various
-> > "atomic.h" files and noticed a couple possible cleanups:
-> >
-> >  1) make sure *everyone* uses "volatile" in the typedef struct (which
-> > 	i actually submitted recently)
-> >
->
-> I don't see why. There is nothing in atomic (eg. atomic_read) that
-> says there must be a compiler barrier around the operation.
->
-> Have you checked that the architecture implementation actually needs
-> the volatile where you've added it?
+>> 2. Having configfs as the only interface doesn't alow
+>>    people having resource controll facility w/o configfs.
+>>    Resource controller must not depend on any "feature".
+> 
+> One flexibility configfs (and any fs-based interface) offers is, as Matt
+> had pointed out sometime back, the ability to delage management of a
+> sub-tree to a particular user (without requiring root permission).
+> 
+> For ex:
+> 
+> 			/
+> 			|
+> 		 -----------------
+> 		|		  |
+> 	       vatsa (70%)	linux (20%)
+> 		|
+> 	 ----------------------------------
+> 	|	         | 	          |
+>       browser (10%)   compile (50%)    editor (10%)
+> 
+> In this, group 'vatsa' has been alloted 70% share of cpu. Also user
+> 'vatsa' has been given permissions to manage this share as he wants. If
+> the cpu controller supports hierarchy, user 'vatsa' can create further
+> sub-groups (browser, compile ..etc) -without- requiring root access.
 
-as just one example, you can read in include/asm-alpha/atomic.h:
+I can do the same using bcctl tool and sudo :)
 
-/*
- * Counter is volatile to make sure gcc doesn't try to be clever
- * and move things around on us. We need to use _exactly_ the address
- * the user gave us, not some alias that contains the same information.
- */
+> Also it is convenient to manipulate resource hierarchy/parameters thr a
+> shell-script if it is fs-based.
+> 
+>> 3. Configfs may be easily implemented later as an additional
+>>    interface. I propose the following solution:
+> 
+> Ideally we should have one interface - either syscall or configfs - and
+> not both.
 
-now it may be that *some* architectures don't specifically require a
-volatile counter but, AFAIK, it doesn't actually hurt if it isn't
-necessary.  OTOH, if it isn't necessary *at all* for *any*
-architecture, then that storage class should be *removed* in its
-entirety.
+Agree.
 
-in any event, all this is is another example of what appears to be
-niggling and unnecessary differences between arch-specific header
-files that could easily be turned into a single, standard definition
-that would work for everyone with very little effort (and perhaps some
-day be included from a single generic header file to avoid all that
-duplication in the first place).
+> Assuming your requirement of auto-deleting objects in configfs can be
+> met thr' something similar to cpuset's notify_on_release, what other
+> killer problem do you think configfs will pose?
+> 
+> 
+>>> 	- Should we have different groupings for different resources?
+>> This breaks the idea of groups isolation.
+> 
+> Sorry dont get you here. Are you saying we should support different
+> grouping for different controllers?
 
-rday
+Not me, but other people in this thread.

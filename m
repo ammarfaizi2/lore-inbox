@@ -1,60 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992783AbWKATsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992781AbWKATtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992783AbWKATsr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 14:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992782AbWKATsr
+	id S2992781AbWKATtS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 14:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992784AbWKATtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 14:48:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63362 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992720AbWKATsq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 14:48:46 -0500
-Date: Wed, 1 Nov 2006 11:44:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: Andi Kleen <ak@suse.de>, Ernst Herzberg <earny@net4u.de>,
-       Len Brown <lenb@kernel.org>, Adrian Bunk <bunk@stusta.de>,
-       Hugh Dickins <hugh@veritas.com>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       Martin Lorenz <martin@lorenz.eu.org>
-Subject: Re: 2.6.19-rc <-> ThinkPads
-In-Reply-To: <20061101193333.GC9085@mellanox.co.il>
-Message-ID: <Pine.LNX.4.64.0611011141450.25218@g5.osdl.org>
-References: <Pine.LNX.4.64.0611011003270.25218@g5.osdl.org>
- <20061101193333.GC9085@mellanox.co.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Nov 2006 14:49:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2462 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S2992781AbWKATtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 14:49:17 -0500
+Subject: [PATCH] Updated, add get_range, allows a hyhpenated range to
+	get_options
+From: Derek Fults <dfults@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@suse.de>, Randy Dunlap <randy.dunlap@oracle.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Nov 2006 13:49:56 -0600
+Message-Id: <1162410596.9524.544.camel@lnx-dfults.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This allows a hyphenated range of positive numbers M-N, in the string
+passed to command line helper function, get_options.  This will expand
+the range and insert the values[M, M+1, ..., N] into the ints array in
+get_options.
+
+Currently the command line option "isolcpus=" takes as its argument a
+list of cpus.  
+Format: <cpu number>,...,<cpu number>
+This can get extremely long when isolating the majority of cpus on a
+large system.  Valid values of <cpu_number>  include all cpus, 0 to
+"number of CPUs in system - 1".
 
 
-On Wed, 1 Nov 2006, Michael S. Tsirkin wrote:
+Signed-off-by: Derek Fults <dfults@sgi.com>  
 
-> > I've pushed out the changes, but here is the part that may or may not 
-> > matter for anybody who wants to test it if they don't use git or if it 
-> > hasn't mirrored out yet. Michael? Martin?
-> 
-> I pulled the latest git, and seems to work for me, thanks.
-> This still could be a false negative (happened already) so I'll
-> continue using this, and will post the results.
-
-Ok, thanks.
-
-> > Somebody should look into that case. Does anybody feel like they want to 
-> > learn more about the IO-APIC? Halloween is over and gone, but if you want 
-> > to scare small children _next_ year, telling them about the IO-APIC is 
-> > likely a good strategy.
-> 
-> Hmm, sounds interesting :)
-> Is this a good place to start (I'm feeling lucky hit for IO-APIC)?
-> http://www.intel.com/design/chipsets/datashts/290566.htm
-
-Yeah, that's the datasheet. Note that a lot of the IO-APIC complexity is 
-not so much in the programming interfaces themselves, but in keeping track 
-of how the heck the thing is connected (ie ExtINT vs SCI vs "normal apic 
-interrupt" etc).
-
-		Linus
+Index: linux/lib/cmdline.c
+===================================================================
+--- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
++++ linux/lib/cmdline.c	2006-11-01 12:36:20.059166727 -0600
+@@ -16,6 +16,23 @@
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ 
++/**
++ *	If a hyphen was found in get_option, this will handle the
++ *	range of numbers, M-N.  This will expand the range and insert
++ *	the values[M, M+1, ..., N] into the ints array in get_options.
++ */
++
++static int get_range(char **str, int *pint)
++{
++	int x, inc_counter, upper_range;
++
++	(*str)++;
++	upper_range = simple_strtol((*str), NULL, 0);
++	inc_counter = upper_range - *pint;
++	for (x = *pint; x < upper_range; x++)
++		*pint++ = x;
++	return inc_counter;
++}
+ 
+ /**
+  *	get_option - Parse integer from an option string
+@@ -29,6 +46,7 @@
+  *	0 : no int in string
+  *	1 : int found, no subsequent comma
+  *	2 : int found including a subsequent comma
++ *	3 : hyphen found to denote a range
+  */
+ 
+ int get_option (char **str, int *pint)
+@@ -44,6 +62,8 @@
+ 		(*str)++;
+ 		return 2;
+ 	}
++	if (**str == '-')
++		return 3;
+ 
+ 	return 1;
+ }
+@@ -55,7 +75,8 @@
+  *	@ints: integer array
+  *
+  *	This function parses a string containing a comma-separated
+- *	list of integers.  The parse halts when the array is
++ *	list of integers, a hyphen-separated range of _positive_ integers,
++ *	or a combination of both.  The parse halts when the array is
+  *	full, or when no more numbers can be retrieved from the
+  *	string.
+  *
+@@ -72,6 +93,16 @@
+ 		res = get_option ((char **)&str, ints + i);
+ 		if (res == 0)
+ 			break;
++		if (res == 3) {
++			int range_nums;
++			range_nums = get_range((char **)&str, ints + i);
++			if (range_nums < 0)
++				break;
++			/* Decrement the result by one to leave out the
++			   last number in the range.  The next iteration
++			   will handle the upper number in the range */
++			i += (range_nums - 1);
++		}
+ 		i++;
+ 		if (res == 1)
+ 			break;

@@ -1,17 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946097AbWKAFeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946108AbWKAFet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946097AbWKAFeo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946108AbWKAFeo
+	id S1946108AbWKAFet (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946111AbWKAFet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:34:44 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:63174 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946097AbWKAFen
+	Wed, 1 Nov 2006 00:34:49 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:65222 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946108AbWKAFer
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:34:43 -0500
-Message-Id: <20061101053340.305569000@sous-sol.org>
+	Wed, 1 Nov 2006 00:34:47 -0500
+Message-Id: <20061101053449.177834000@sous-sol.org>
+References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:33:40 -0800
+Date: Tue, 31 Oct 2006 21:33:42 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -20,31 +21,56 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: [PATCH 00/61] 2.6.18-stable review
+       alan@lxorguk.ukuu.org.uk, Jens Axboe <jens.axboe@oracle.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 02/61] splice: fix pipe_to_file() ->prepare_write() error path
+Content-Disposition: inline; filename=splice-fix-pipe_to_file-prepare_write-error-path.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the start of the stable review cycle for the 2.6.18.2 release.
-There are 61 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let us know.  If anyone is a maintainer of the proper subsystem, and
-wants to add a Signed-off-by: line to the patch, please respond with it.
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-These patches are sent out with a number of different people on the
-Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
-to add your name to the list.  If you want to be off the reviewer list,
-also email us.
+From: Jens Axboe <jens.axboe@oracle.com>
 
-Responses should be made by Friday, November 3, 05:30:00 UTC.
-Anything received after that time might be too late.
+Don't jump to the unlock+release path, we already did that.
 
-An all-in-one patch for this series can be found at:                            
-                                                                                
-	http://www.kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.18.2-rc1.gz  
-if anyone wants to test this out that way.
+Signed-off-by: Jens Axboe <jens.axboe@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
-thanks,
+---
+ fs/splice.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-the -stable release team
+--- linux-2.6.18.1.orig/fs/splice.c
++++ linux-2.6.18.1/fs/splice.c
+@@ -607,7 +607,7 @@ find_page:
+ 			ret = -ENOMEM;
+ 			page = page_cache_alloc_cold(mapping);
+ 			if (unlikely(!page))
+-				goto out_nomem;
++				goto out_ret;
+ 
+ 			/*
+ 			 * This will also lock the page
+@@ -666,7 +666,7 @@ find_page:
+ 		if (sd->pos + this_len > isize)
+ 			vmtruncate(mapping->host, isize);
+ 
+-		goto out;
++		goto out_ret;
+ 	}
+ 
+ 	if (buf->page != page) {
+@@ -698,7 +698,7 @@ find_page:
+ out:
+ 	page_cache_release(page);
+ 	unlock_page(page);
+-out_nomem:
++out_ret:
+ 	return ret;
+ }
+ 
+
 --

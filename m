@@ -1,119 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992805AbWKAUbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992802AbWKAUbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992805AbWKAUbk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 15:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992808AbWKAUbk
+	id S2992802AbWKAUbN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 15:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992805AbWKAUbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 15:31:40 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:36276 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S2992805AbWKAUbj (ORCPT
+	Wed, 1 Nov 2006 15:31:13 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:62387 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S2992802AbWKAUbM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 15:31:39 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH -mm] swsusp: Freeze filesystems during suspend (rev. 2)
-Date: Wed, 1 Nov 2006 21:22:41 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Christoph Hellwig <hch@infradead.org>
-References: <200611011200.18438.rjw@sisk.pl> <200611011853.09633.rjw@sisk.pl> <20061101115458.bb02f1d3.akpm@osdl.org>
-In-Reply-To: <20061101115458.bb02f1d3.akpm@osdl.org>
+	Wed, 1 Nov 2006 15:31:12 -0500
+Message-ID: <45490402.1090706@watson.ibm.com>
+Date: Wed, 01 Nov 2006 15:30:58 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Oleg Nesterov <oleg@tv-sign.ru>
+CC: Andrew Morton <akpm@osdl.org>, Thomas Graf <tgraf@suug.ch>,
+       Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] taskstats: uglify^Woptimize reply assembling
+References: <20061101182512.GA444@oleg>
+In-Reply-To: <20061101182512.GA444@oleg>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611012122.42362.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 1 November 2006 20:54, Andrew Morton wrote:
-> On Wed, 1 Nov 2006 18:53:07 +0100
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+Oleg Nesterov wrote:
+> The last series.
 > 
-> > +void freeze_filesystems(void)
-> > +{
-> > +	struct super_block *sb;
-> > +
-> > +	lockdep_off();
-> > +	/*
-> > +	 * Freeze in reverse order so filesystems dependant upon others are
-> > +	 * frozen in the right order (eg. loopback on ext3).
-> > +	 */
-> > +	list_for_each_entry_reverse(sb, &super_blocks, s_list) {
-> > +		if (!sb->s_root || !sb->s_bdev ||
-> > +		    (sb->s_frozen == SB_FREEZE_TRANS) ||
-> > +		    (sb->s_flags & MS_RDONLY) ||
-> > +		    (sb->s_flags & MS_FROZEN))
-> > +			continue;
-> > +
-> > +		freeze_bdev(sb->s_bdev);
-> > +		sb->s_flags |= MS_FROZEN;
-> > +	}
-> > +	lockdep_on();
-> > +}
-> > +
-> > +/**
-> > + * thaw_filesystems - unlock all filesystems
-> > + */
-> > +void thaw_filesystems(void)
-> > +{
-> > +	struct super_block *sb;
-> > +
-> > +	lockdep_off();
-> > +
-> > +	list_for_each_entry(sb, &super_blocks, s_list)
-> > +		if (sb->s_flags & MS_FROZEN) {
-> > +			sb->s_flags &= ~MS_FROZEN;
-> > +			thaw_bdev(sb->s_bdev, sb);
-> > +		}
-> > +
-> > +	lockdep_on();
-> > +}
+Thanks again for the refactoring/review and optimizations to the code
+base. Some of the earlier patches I'm still processing (to be sure the
+timings etc. of signal clearing vs. task exit are right) but these later
+ones are pretty straightforward and look good. Testing needed of course.
+
+> Balbir, Shailabh, could you suggest me some user-space tests?
+
+For stress testing, what we've used is to run
+
+- one listener continuously getting exit stats (prototype listener
+code in Documentation/accounting/getdelays.c)
+- a multithreaded app where each thread does some disk I/O and some
+cpu processing (incrementing a count etc.), threads get created and
+destroyed in a continuous loop
+- periodically query the multithreaded app above (print out its tgid first)
+using another instance of Documentation/accounting/getdelays.c to see
+if the delay data is getting incremented as expected by what the threads do.
+- cerebrus and/or kernel compiles running in background just to create
+a load
+
+You can drop the cerebrus etc. if the load gets too much.
+
+Running the above past a few hours has caught the kind of bugs seen so far.
+
 > 
-> argh.
+> Thomas, we are doing genlmsg_cancel() before nlmsg_free(), this is
+> not necessary. Unless you have evil plans to complicate genetlink
+> we can remove a little bit of code, what do you think?
 > 
-> The uncommented, unchangelogged lockdep_off() calls are completely
-> mysterious right now, even before the patch is merged.  They will not
-> become less mysterious over time.
-
-Of course.  Sorry.
-
-> Please, take pity upon the readers of your code.  Add a comment.
-
-OK (on top of the previous patch)
-
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- fs/buffer.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
-
-Index: linux-2.6.19-rc4-mm1/fs/buffer.c
-===================================================================
---- linux-2.6.19-rc4-mm1.orig/fs/buffer.c
-+++ linux-2.6.19-rc4-mm1/fs/buffer.c
-@@ -252,6 +252,11 @@ void freeze_filesystems(void)
- {
- 	struct super_block *sb;
- 
-+	/*
-+	 * We are going to take several locks of the same class in a row
-+	 * without releasing them until thaw_filesystems() is called and
-+	 * lockdep won't know this is all OK.
-+	 */
- 	lockdep_off();
- 	/*
- 	 * Freeze in reverse order so filesystems dependant upon others are
-@@ -277,6 +282,10 @@ void thaw_filesystems(void)
- {
- 	struct super_block *sb;
- 
-+	/*
-+	 * We are going to release several locks of the same class in a row
-+	 * and lockdep would complain about it, unnecessarily.
-+	 */
- 	lockdep_off();
- 
- 	list_for_each_entry(sb, &super_blocks, s_list)
+> Oleg.
+> 
 

@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752552AbWKAXTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752554AbWKAXVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752552AbWKAXTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 18:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752554AbWKAXTZ
+	id S1752554AbWKAXVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 18:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752555AbWKAXVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 18:19:25 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:38584 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1752553AbWKAXTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 18:19:24 -0500
-Date: Wed, 1 Nov 2006 15:14:52 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       billm@suburbia.net
-Subject: Re: [PATCH] bail out in mathemu if __copy_to_user fails
-Message-Id: <20061101151452.0a1f3a96.randy.dunlap@oracle.com>
-In-Reply-To: <200611020003.16424.jesper.juhl@gmail.com>
-References: <200611020003.16424.jesper.juhl@gmail.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Wed, 1 Nov 2006 18:21:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2006 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752554AbWKAXVY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 18:21:24 -0500
+Date: Wed, 1 Nov 2006 15:21:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Remove hotplug cpu crap from cpufreq.
+In-Reply-To: <200611020009.17711.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.64.0611011512450.25218@g5.osdl.org>
+References: <20061101225925.GA17363@redhat.com> <200611020009.17711.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2006 00:03:16 +0100 Jesper Juhl wrote:
 
-> I believe we should check the return value of 
-> __copy_to_user in math-emu/fpu_entry.c and bail out of save_i387_soft() if 
-> it fails.
-> This patch does that.
+
+On Thu, 2 Nov 2006, Rafael J. Wysocki wrote:
 > 
-> This also kills the warning :
->   arch/i386/math-emu/fpu_entry.c:745: warning: ignoring return value of `__copy_to_user', declared with attribute warn_unused_result
+> Won't there be any problems with suspend on SMP vs cpufreq if this stuff is
+> removed?
 
+Well, at least traditionally, the hotplug locking has caused more problems 
+than it has fixed, but at least right _now_ it seems to work.
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc4/2.6.19-rc4-mm1/broken-out/x86_64-mm-i386-mathemu-must-check.patch
+At least for the one machine I tend to test on (Core Duo Mac Mini) a 
+suspend currently works at least once (which is not saying a lot, 
+especially as the X server I use right now is broken and doesn't bring the 
+screen back. Oh, well).
 
-
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
-> 
-> diff --git a/arch/i386/math-emu/fpu_entry.c b/arch/i386/math-emu/fpu_entry.c
-> index d93f16e..ddf8fa3 100644
-> --- a/arch/i386/math-emu/fpu_entry.c
-> +++ b/arch/i386/math-emu/fpu_entry.c
-> @@ -742,7 +742,8 @@ #ifdef PECULIAR_486
->    S387->fcs &= ~0xf8000000;
->    S387->fos |= 0xffff0000;
->  #endif /* PECULIAR_486 */
-> -  __copy_to_user(d, &S387->cwd, 7*4);
-> +  if (__copy_to_user(d, &S387->cwd, 7*4))
-> +    return -1;
->    RE_ENTRANT_CHECK_ON;
->  
->    d += 7*4;
-
-
----
-~Randy
+			Linus

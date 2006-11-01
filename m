@@ -1,233 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423607AbWKABEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423869AbWKABOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423607AbWKABEK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 20:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423882AbWKABEK
+	id S1423869AbWKABOS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 20:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423906AbWKABOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 20:04:10 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:61202 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1423878AbWKABEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 20:04:09 -0500
-Date: Wed, 1 Nov 2006 02:04:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: earny@net4u.de
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+	Tue, 31 Oct 2006 20:14:18 -0500
+Received: from smtp4.netcabo.pt ([212.113.174.31]:25659 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1423869AbWKABOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 20:14:17 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AgAAAGqDR0VThFhofmdsb2JhbACMSQEB
+X-IronPort-AV: i="4.09,377,1157324400"; 
+   d="p7s'?scan'208"; a="127034744:sNHT42968772"
+X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.128.48):SA:0(-1.3/5.0):. Processed in 2.680166 secs Process 10836)
 Subject: Re: 2.6.19-rc[1-4]: boot fail with (lapic && on_battery)
-Message-ID: <20061101010406.GA27968@stusta.de>
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Reply-To: sergio@sergiomb.no-ip.org
+To: earny@net4u.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1162340827.2962.13.camel@localhost.portugal>
 References: <200610312227.54617.list-lkml@net4u.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610312227.54617.list-lkml@net4u.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	 <1162340827.2962.13.camel@localhost.portugal>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-ZbIurkIwC1++cMVBu5B2"
+Date: Wed, 01 Nov 2006 01:14:08 +0000
+Message-Id: <1162343648.21234.1.camel@localhost.portugal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+X-OriginalArrivalTime: 01 Nov 2006 01:14:15.0725 (UTC) FILETIME=[0C4EEDD0:01C6FD53]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 10:27:54PM +0100, Ernst Herzberg wrote:
-> 
-> Moin.
-> 
-> With 2.6.18.x everything works fine.
-> 
-> But 2.16.19-rc does not boot if the laptop runs on battery _and_ lapic is 
-> defined as boot parameter.
-> 
-> The kernel loads and starts, for a fraction of a second some messages appears,
-> then the screen goes blank and nothing more happens.
-> 
-> I'm unable to read the last message, screen blanking is to fast, but the
-> 'picture' looks like that he stops near the messages where at the normal
-> boot demsg "Local APIC disabled by BIOS -- you can enable it with "lapic""
-> appears. 
+
+--=-ZbIurkIwC1++cMVBu5B2
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2006-11-01 at 00:27 +0000, Sergio Monteiro Basto wrote:
+> On Tue, 2006-10-31 at 22:27 +0100, Ernst Herzberg wrote:
+> > With 2.6.18.x everything works fine.
+> >=20
+> > But 2.16.19-rc does not boot if the laptop runs on battery _and_ lapic
+> > is=20
+> > defined as boot parameter.
+> >=20
+> > The kernel loads and starts, for a fraction of a second some messages
+> > appears,
+> > then the screen goes blank and nothing more happens.
+> >=20
+> > I'm unable to read the last message, screen blanking is to fast, but
+> > the
+> > 'picture' looks like that he stops near the messages where at the
+> > normal
+> > boot demsg "Local APIC disabled by BIOS -- you can enable it with
+> > "lapic""
+> > appears. =20
+>=20
+> Hi,
+> If you don't enable lapic, you will see cat /proc/interrupts with
+> XT-PIC.
+> if you try enable lapic, somehow IRQ routing should change=20
+> and if /proc/interrupts still the same, with IRQs on XT-PIC.
+> I think, lapic still not enable and you just get problems.
+> Unless you know that lapic works, you should try it enable because it a
+> trap that just give you a problem.=20
+> Some years ago (2002/3) was a very common bug kernel try enable
+> automatically lapic (when BIOS don't) and computer hangs .=20
+>=20
+>=20
+
+s/you should try/you shouldn't try/
 
 
-@Ingo:
-Any ideas?
+--=20
+S=E9rgio M.B.
+
+--=-ZbIurkIwC1++cMVBu5B2
+Content-Type: application/x-pkcs7-signature; name=smime.p7s
+Content-Disposition: attachment; filename=smime.p7s
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
+ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
+d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
+YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
+ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
+bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
+m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
+kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
+EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
+eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
+VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
+MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
+hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
+dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
+8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
+BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
+VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
+MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
+dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
+ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
+7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
+1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
+kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
+LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
+pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
+Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
+C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
+0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
+c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
+dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0wNjExMDEwMTE0MDRaMCMGCSqGSIb3DQEJBDEWBBQvMlHopIjd96k29b+1XzlY
+w4toNTANBgkqhkiG9w0BAQEFAASCAQA69u1mZX2H4hkMnEi8uYfc9KzttGwEkMauGseXoSoFV4lI
+PLhh4qlhHqiSIc0Wxk3OQ4sJNwj/4ioYxoYwkXjDYqO9tDGBkYv5Sb9xEOb4dsZpTNXXEYNoR4vR
+hMzbnRFYQ+cIywHqdwIvofEQEH03xURPDrsRKTcry416JNofJkjBtFoZHksOhajo+uRuABUk1kpY
+CTsAVDvTCK6Wi8fJPWXJBlWWVfn9iJEpd2nSIZ4YJOvf9bz4GGtVeJF/TF7ko+LgJetMf9VS43q+
+M/bx7DA8EpqRlf4qs1uWAaRyMC5Jn0o46mB/dL2VGbe1ELEtd/FSUk60LvvVf85WqYU2AAAAAAAA
 
 
-@Ernst:
-Thanks for your report.
-What model is your laptop?
 
-Unless someone is able to spot the problem from your bug report, please 
-do the following process of git bisecting for finding what broke it:
-
-
-# install git and cogito on your computer
-
-# clone Linus' tree:
-cg-clone \ 
-git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-
-# start bisecting:
-cd linux-2.6
-git bisect start
-git bisect bad v2.6.19-rc1
-git bisect good v2.6.18
-
-# start round
-cp /path/to/.config .
-make oldconfig
-make
-# install kernel, boot, check whether it's good or bad, then:
-git bisect [bad|good]
-# start next round
-
-
-After at about 12 reboots, you'll have found the guilty commit
-("...  is first bad commit").
-
-
-More information on git bisecting:
-  man git-bisect
-
-
-> Netconsole is not started at this point, and the laptop doesn't have a 
-> serial port.
-> 
-> dmesg on_battery without lpapic:
-> 
-> Linux version 2.6.19-rc4 (root@halso) (gcc version 4.1.1 (Gentoo 4.1.1)) #1 PREEMPT Tue Oct 31 21:42:25 CET 2006
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
->  BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000d2000 - 00000000000d4000 (reserved)
->  BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000003ff50000 (usable)
->  BIOS-e820: 000000003ff50000 - 000000003ff67000 (ACPI data)
->  BIOS-e820: 000000003ff67000 - 000000003ff79000 (ACPI NVS)
->  BIOS-e820: 000000003ff80000 - 0000000040000000 (reserved)
->  BIOS-e820: 00000000ff800000 - 0000000100000000 (reserved)
-> 127MB HIGHMEM available.
-> 896MB LOWMEM available.
-> Entering add_active_range(0, 0, 261968) 0 entries of 256 used
-> Zone PFN ranges:
->   DMA             0 ->     4096
->   Normal       4096 ->   229376
->   HighMem    229376 ->   261968
-> early_node_map[1] active PFN ranges
->     0:        0 ->   261968
-> On node 0 totalpages: 261968
->   DMA zone: 32 pages used for memmap
->   DMA zone: 0 pages reserved
->   DMA zone: 4064 pages, LIFO batch:0
->   Normal zone: 1760 pages used for memmap
->   Normal zone: 223520 pages, LIFO batch:31
->   HighMem zone: 254 pages used for memmap
->   HighMem zone: 32338 pages, LIFO batch:7
-> DMI present.
-> ACPI: RSDP (v002 IBM                                   ) @ 0x000f6d70
-> ACPI: XSDT (v001 IBM    TP-1R    0x00003210  LTP 0x00000000) @ 0x3ff5a6bd
-> ACPI: FADT (v003 IBM    TP-1R    0x00003210 IBM  0x00000001) @ 0x3ff5a800
-> ACPI: SSDT (v001 IBM    TP-1R    0x00003210 MSFT 0x0100000e) @ 0x3ff5a9b4
-> ACPI: ECDT (v001 IBM    TP-1R    0x00003210 IBM  0x00000001) @ 0x3ff66ecc
-> ACPI: TCPA (v001 IBM    TP-1R    0x00003210 PTL  0x00000001) @ 0x3ff66f1e
-> ACPI: BOOT (v001 IBM    TP-1R    0x00003210  LTP 0x00000001) @ 0x3ff66fd8
-> ACPI: DSDT (v001 IBM    TP-1R    0x00003210 MSFT 0x0100000e) @ 0x00000000
-> ACPI: PM-Timer IO Port: 0x1008
-> Allocating PCI resources starting at 50000000 (gap: 40000000:bf800000)
-> Detected 598.086 MHz processor.
-> Built 1 zonelists.  Total pages: 259922
-> Kernel command line: root=/dev/sda4 netconsole=4444@217.7.64.201/eth0,6666@217.7.64.224/00:30:1B:B2:40:0C
-> netconsole: local port 4444
-> netconsole: local IP 217.7.64.201
-> netconsole: interface eth0
-> netconsole: remote port 6666
-> netconsole: remote IP 217.7.64.224
-> netconsole: remote ethernet address 00:30:1b:b2:40:0c
-> Local APIC disabled by BIOS -- you can enable it with "lapic"
-> mapped APIC to ffffd000 (01803000)
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Initializing CPU#0
-> CPU 0 irqstacks, hard=c0468000 soft=c0467000
-> PID hash table entries: 4096 (order: 12, 16384 bytes)
-> Console: colour VGA+ 80x25
-> Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
-> Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
-> Memory: 1034196k/1047872k available (2498k kernel code, 13064k reserved, 772k data, 188k init, 130368k highmem)
-> virtual kernel memory layout:
->     fixmap  : 0xfffaa000 - 0xfffff000   ( 340 kB)
->     pkmap   : 0xff800000 - 0xffc00000   (4096 kB)
->     vmalloc : 0xf8800000 - 0xff7fe000   ( 111 MB)
->     lowmem  : 0xc0000000 - 0xf8000000   ( 896 MB)
->       .init : 0xc0433000 - 0xc0462000   ( 188 kB)
->       .data : 0xc0370837 - 0xc0431994   ( 772 kB)
->       .text : 0xc0100000 - 0xc0370837   (2498 kB)
-> Checking if this processor honours the WP bit even in supervisor mode... Ok.
-> Calibrating delay using timer specific routine.. 1196.94 BogoMIPS (lpj=5984714)
-> Mount-cache hash table entries: 512
-> CPU: After generic identify, caps: a7e9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
-> CPU: L1 I cache: 32K, L1 D cache: 32K
-> CPU: L2 cache: 1024K
-> CPU: After all inits, caps: a7e9f9bf 00000000 00000000 00000040 00000180 00000000 00000000
-> [..... and so on ....]
-> 
-> 
-> diff to on_ac with lapic:
-> 
-> --- dm_batt     2006-10-31 21:53:36.000000000 +0100
-> +++ dm_pwr      2006-10-31 22:15:42.000000000 +0100
-> @@ -37,17 +37,18 @@
->  ACPI: DSDT (v001 IBM    TP-1R    0x00003210 MSFT 0x0100000e) @ 0x00000000
->  ACPI: PM-Timer IO Port: 0x1008
->  Allocating PCI resources starting at 50000000 (gap: 40000000:bf800000)
-> -Detected 598.086 MHz processor.
-> +Detected 1694.558 MHz processor.
->  Built 1 zonelists.  Total pages: 259922
-> -Kernel command line: root=/dev/sda4 netconsole=4444@217.7.64.201/eth0,6666@217.7.64.224/00:30:1B:B2:40:0C
-> +Kernel command line: root=/dev/sda4 lapic netconsole=4444@217.7.64.201/eth0,6666@217.7.64.224/00:30:1B:B2:40:0C
->  netconsole: local port 4444
->  netconsole: local IP 217.7.64.201
->  netconsole: interface eth0
->  netconsole: remote port 6666
->  netconsole: remote IP 217.7.64.224
->  netconsole: remote ethernet address 00:30:1b:b2:40:0c
-> -Local APIC disabled by BIOS -- you can enable it with "lapic"
-> -mapped APIC to ffffd000 (01803000)
-> +Local APIC disabled by BIOS -- reenabling.
-> +Found and enabled local APIC!
-> +mapped APIC to ffffd000 (fee00000)
->  Enabling fast FPU save and restore... done.
->  Enabling unmasked SIMD FPU exception support... done.
->  Initializing CPU#0
-> @@ -56,7 +57,7 @@
->  Console: colour VGA+ 80x25
->  Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
->  Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
-> -Memory: 1034196k/1047872k available (2498k kernel code, 13064k reserved, 772k data, 188k init, 130368k highmem)
-> +Memory: 1034196k/1047872k available (2498k kernel code, 13060k reserved, 772k data, 188k init, 130368k highmem)
->  virtual kernel memory layout:
->      fixmap  : 0xfffaa000 - 0xfffff000   ( 340 kB)
->      pkmap   : 0xff800000 - 0xffc00000   (4096 kB)
-> @@ -66,12 +67,12 @@
->        .data : 0xc0370837 - 0xc0431994   ( 772 kB)
->        .text : 0xc0100000 - 0xc0370837   (2498 kB)
->  Checking if this processor honours the WP bit even in supervisor mode... Ok.
-> -Calibrating delay using timer specific routine.. 1196.94 BogoMIPS (lpj=5984714)
-> +Calibrating delay using timer specific routine.. 3390.66 BogoMIPS (lpj=16953345)
->  Mount-cache hash table entries: 512
-> -CPU: After generic identify, caps: a7e9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
-> +CPU: After generic identify, caps: a7e9fbbf 00000000 00000000 00000000 00000180 00000000 00000000
->  CPU: L1 I cache: 32K, L1 D cache: 32K
->  CPU: L2 cache: 1024K
-> -CPU: After all inits, caps: a7e9f9bf 00000000 00000000 00000040 00000180 00000000 00000000
-> +CPU: After all inits, caps: a7e9fbbf 00000000 00000000 00000040 00000180 00000000 00000000
-> [...]
-> 
-> Patches welcome;)
-> 
-> <earny>
-> 
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--=-ZbIurkIwC1++cMVBu5B2--

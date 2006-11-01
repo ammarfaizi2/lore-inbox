@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946928AbWKAQay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992637AbWKAQeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946928AbWKAQay (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 11:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946931AbWKAQay
+	id S2992637AbWKAQeu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 11:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946938AbWKAQet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 11:30:54 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46725 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1946928AbWKAQax (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 11:30:53 -0500
-Date: Wed, 1 Nov 2006 17:30:43 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] Make x86_64 udelay() round up instead of down.
-Message-ID: <20061101163043.GA2602@elf.ucw.cz>
-References: <20061029200702.26757.12496.stgit@americanbeauty.home.lan>
-MIME-Version: 1.0
+	Wed, 1 Nov 2006 11:34:49 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:16050 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1946932AbWKAQet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 11:34:49 -0500
+Message-Id: <200611011732.kA1HWfMd005504@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 2/2] UML - Include tidying
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061029200702.26757.12496.stgit@americanbeauty.home.lan>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Date: Wed, 01 Nov 2006 12:32:41 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In order to get the __NR_* constants, we need sys/syscall.h.
+linux/unistd.h works as well since it includes syscall.h, however
+syscall.h is more parsimonious.  We were inconsistent in this, and
+this patch adds syscall.h includes where necessary and removes
+linux/unistd.h includes where they are not needed.  
 
-> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> 
-> Port two patches from i386 to x86_64 delay.c to make sure all rounding is done
-> upward instead of downward.
-> 
-> There is no sign in commit messages that the mismatch was done on purpose, and
-> "delay() guarantees sleeping at least for the specified time" is still a valid
-> rule IMHO.
+asm/unistd.h also includes the __NR_* constants, but these are not the
+glibc-sanctioned ones, so this also removes one such inclusion.
 
-> diff --git a/arch/x86_64/lib/delay.c b/arch/x86_64/lib/delay.c
-> index 50be909..7514df0 100644
-> --- a/arch/x86_64/lib/delay.c
-> +++ b/arch/x86_64/lib/delay.c
-> @@ -40,13 +40,13 @@ EXPORT_SYMBOL(__delay);
->  
->  inline void __const_udelay(unsigned long xloops)
->  {
-> -	__delay((xloops * HZ * cpu_data[raw_smp_processor_id()].loops_per_jiffy) >> 32);
-> +	__delay((xloops * HZ * cpu_data[raw_smp_processor_id()].loops_per_jiffy) >> 32 + 1);
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Well, if this should be *rounding* up, you should do 
+Index: linux-2.6.18-mm/arch/um/os-Linux/process.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/os-Linux/process.c	2006-10-30 12:57:27.000000000 -0500
++++ linux-2.6.18-mm/arch/um/os-Linux/process.c	2006-10-30 15:25:20.000000000 -0500
+@@ -7,7 +7,6 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <signal.h>
+-#include <linux/unistd.h>
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+ #include <sys/mman.h>
+Index: linux-2.6.18-mm/arch/um/os-Linux/skas/process.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/os-Linux/skas/process.c	2006-10-30 13:11:24.000000000 -0500
++++ linux-2.6.18-mm/arch/um/os-Linux/skas/process.c	2006-10-30 15:26:38.000000000 -0500
+@@ -14,7 +14,7 @@
+ #include <sys/mman.h>
+ #include <sys/user.h>
+ #include <sys/time.h>
+-#include <asm/unistd.h>
++#include <sys/syscall.h>
+ #include <asm/types.h>
+ #include "user.h"
+ #include "sysdep/ptrace.h"
+Index: linux-2.6.18-mm/arch/um/os-Linux/tls.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/os-Linux/tls.c	2006-10-30 12:57:27.000000000 -0500
++++ linux-2.6.18-mm/arch/um/os-Linux/tls.c	2006-10-30 15:25:55.000000000 -0500
+@@ -1,7 +1,7 @@
+ #include <errno.h>
++#include <unistd.h>
+ #include <sys/ptrace.h>
+ #include <sys/syscall.h>
+-#include <unistd.h>
+ #include <asm/ldt.h>
+ #include "sysdep/tls.h"
+ #include "uml-config.h"
 
-(xloops * HZ * cpu_data[raw_smp_processor_id()].loops_per_jiffy + 0xffffffff) >> 32
-
-, no? Not sure if it matters...
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

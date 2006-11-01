@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946698AbWKAIOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946699AbWKAIPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946698AbWKAIOi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 03:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946697AbWKAIOi
+	id S1946699AbWKAIPT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 03:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946700AbWKAIPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 03:14:38 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34176 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1946695AbWKAIOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 03:14:37 -0500
-Subject: Re: [PATCH 1/2] sata_nv: Add nvidia SATA controllers of MCP67
-	support to sata_nv.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: Peer Chen <pchen@nvidia.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <15F501D1A78BD343BE8F4D8DB854566B0C54F43D@hkemmail01.nvidia.com>
-References: <15F501D1A78BD343BE8F4D8DB854566B0C54F43D@hkemmail01.nvidia.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 01 Nov 2006 09:14:31 +0100
-Message-Id: <1162368871.3044.77.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+	Wed, 1 Nov 2006 03:15:19 -0500
+Received: from moci.net4u.de ([217.7.64.195]:44936 "EHLO moci.net4u.de")
+	by vger.kernel.org with ESMTP id S1946696AbWKAIPR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 03:15:17 -0500
+From: Ernst Herzberg <earny@net4u.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc[1-4]: boot fail with (lapic && on_battery)
+Date: Wed, 1 Nov 2006 09:14:56 +0100
+User-Agent: KMail/1.9.1
+Cc: Adrian Bunk <bunk@stusta.de>, mingo@redhat.com
+References: <200610312227.54617.list-lkml@net4u.de> <200611010305.33990.earny@net4u.de> <20061101023450.GD27968@stusta.de>
+In-Reply-To: <20061101023450.GD27968@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200611010914.57545.earny@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-01 at 15:23 +0800, Peer Chen wrote:
-> Add support for SATA controllers of MCP67.
-> The patch will be applied to kernel 2.6.19-rc4-git1.
-> 
-> Signed-off-by: Peer Chen <pchen@nvidia.com>
-> 
-> =============================================
-> --- linux-2.6.19-rc4-git1/drivers/ata/sata_nv.c.orig	2006-10-31
-> 20:44:45.000000000 +0800
-> +++ linux-2.6.19-rc4-git1/drivers/ata/sata_nv.c	2006-11-01
-> 00:14:48.000000000 +0800
-> @@ -117,10 +117,14 @@ static const struct pci_device_id nv_pci
->  	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA),
-> GENERIC },
+On Wednesday 01 November 2006 03:34, Adrian Bunk wrote:
+> On Wed, Nov 01, 2006 at 03:05:33AM +0100, Ernst Herzberg wrote:
+> > On Wednesday 01 November 2006 02:04, Adrian Bunk wrote:
+> > > @Ingo:
+> > > Any ideas?
+> > >
+> > >
+> > > @Ernst:
+> > > Thanks for your report.
+> > > What model is your laptop?
+> >
+> > It's a Thinkpad R50p
+>
+> Does anyone own a Thinkpad 2.6.19-rc did not break?  ;-)
+>
+> We have a (most likely unrelated) problem after resume reported by
+> owners of three different Thinkpad models.
+>
+> > > Unless someone is able to spot the problem from your bug report, please
+> > > do the following process of git bisecting for finding what broke it:
+> > > ....
+> > > After at about 12 reboots, ...
+> >
+> > Will try, if i get a little spare time ;-)
+>
+> Thanks a lot!
 
-your patch is still word-wrapped!
+halso:~/bisect/linux-2.6 # git bisect good
+1fbbac4bcb03033d325c71fc7273aa0b9c1d9a03 is first bad commit
+commit 1fbbac4bcb03033d325c71fc7273aa0b9c1d9a03
+Author: Russell King <rmk@dyn-67.arm.linux.org.uk>
+Date:   Sat Sep 16 21:09:41 2006 +0100
+
+    [SERIAL] serial_cs: convert multi-port table to quirk table
+
+    - rename multi_id table to serial_quirk / quirks[]
+    - use named initialisers
+    - store a pointer to the quirk table in the serial_info structure
+      so we can use the quirk table entry later.
+    - apply multi-port quirk after the multi-port guessing code,
+      but only if it's != -1.
+
+    Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+
+:040000 040000 0e673263987d236da67e6668100335f3223626ea 
+6a32d673832850311983f072189fbaa09855f875 M      drivers
 
 
+(if there is no time, don't sleep:)
+
+First feeling: unrelatet. But if i compile 2.6.19-rc4 without cardbus support, 
+the laptop boots on_battery and with lapic!
+
+Need first a little sleep....
+
+Thanks
+
+<earny>
+
+PS: _EXACT_ 12 kernels :-)

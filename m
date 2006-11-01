@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752090AbWKANIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752153AbWKANKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752090AbWKANIS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 08:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752121AbWKANIS
+	id S1752153AbWKANKd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 08:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752145AbWKANKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 08:08:18 -0500
-Received: from outbound-blu.frontbridge.com ([65.55.251.16]:43171 "EHLO
-	outbound2-blu-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1752090AbWKANIR convert rfc822-to-8bit (ORCPT
+	Wed, 1 Nov 2006 08:10:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56005 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752140AbWKANKc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 08:08:17 -0500
-X-BigFish: V
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: modpost warning: class mask
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Date: Wed, 1 Nov 2006 21:06:23 +0800
-Message-ID: <FFECF24D2A7F6D418B9511AF6F358602F2D2BB@shacnexch2.atitech.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: modpost warning: class mask
-Thread-Index: Acb9HmvIUpfVztQ+T+6a637SyQG37QAlcz/w
-From: "Conke Hu" <conke.hu@amd.com>
-To: "Randy Dunlap" <randy.dunlap@oracle.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "gregkh" <greg@kroah.com>
-X-OriginalArrivalTime: 01 Nov 2006 13:06:28.0450 (UTC) FILETIME=[8AFF4C20:01C6FDB6]
+	Wed, 1 Nov 2006 08:10:32 -0500
+Date: Wed, 1 Nov 2006 08:10:25 -0500
+From: Andy Gospodarek <andy@greyhouse.net>
+To: David Miller <davem@davemloft.net>
+Cc: andy@greyhouse.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] 2.6.19-rc4 - netlink messages created with bad flags in soft_irq context
+Message-ID: <20061101131024.GA11316@gospo.rdu.redhat.com>
+References: <20061031220559.GA10119@gospo.rdu.redhat.com> <20061031.220047.08324824.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061031.220047.08324824.davem@davemloft.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy,
-	It's a no harmful warning, the patch was tested on ATI IXP600 (namely SB600), it works.
+On Tue, Oct 31, 2006 at 10:00:47PM -0800, David Miller wrote:
+> From: Andy Gospodarek <andy@greyhouse.net>
+> Date: Tue, 31 Oct 2006 17:06:00 -0500
+> 
+> > I've got a kernel built where 
+> > 
+> > CONFIG_DEBUG_SPINLOCK_SLEEP=y
+> > 
+> > is in the config and I've noticed some interesting behavior when
+> > bringing up bonds in balance-alb mode.  When I start to enslave devices
+> > to a bond I get the following in the ring buffer:
+> > 
+> > BUG: sleeping function called from invalid context at mm/slab.c:3007
+> > in_atomic():1, irqs_disabled():0
+> 
+> As Herbert mentioned, the bonding layer calls into the networking
+> in atomic contexts when that is illegal.
+> -
 
-Best regards,
-Conke @ AMD, Inc.
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Randy Dunlap
-Sent: 2006Äê11ÔÂ1ÈÕ 2:47
-To: linux-kernel; gregkh
-Subject: modpost warning: class mask
-
-Should we be concerned about this warning?
-
-WARNING: Can't handle masks in drivers/ide/pci/atiixp:FFFF05
-
-from drivers/ide/pci/atiixp.c:
-
-	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, PCI_ANY_ID, PCI_ANY_ID, (PCI_CLASS_STORAGE_IDE<<8)|0x8a, 0xffff05, 1},
-
--- 
-~Randy
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Thanks for the feedback.  If it seems the bonding driver is one of the
+only culprits, I'll investigate a solution that is specific to bonding
+(maybe a workqueue for such calls...) rather that one that effects the
+entire stack.
 

@@ -1,164 +1,601 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423979AbWKAMHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423980AbWKAMH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423979AbWKAMHz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 07:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423975AbWKAMHz
+	id S1423980AbWKAMH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 07:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423981AbWKAMH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 07:07:55 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:9648 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1423979AbWKAMHl (ORCPT
+	Wed, 1 Nov 2006 07:07:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8842 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1423980AbWKAMHl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Nov 2006 07:07:41 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH -mm] swsusp: Freeze filesystems during suspend
-Date: Wed, 1 Nov 2006 13:05:57 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Christoph Hellwig <hch@infradead.org>
-References: <200611011200.18438.rjw@sisk.pl> <20061101114707.GA22079@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20061101114707.GA22079@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611011305.57657.rjw@sisk.pl>
+Message-Id: <20061101120334.461186989@chello.nl>
+References: <20061101114435.234474405@chello.nl>
+User-Agent: quilt/0.45-1
+Date: Wed, 01 Nov 2006 12:44:37 +0100
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       linux-arch@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH 2/3] mm: pagefault_{disable,enable}()
+Content-Disposition: inline; filename=pagefault_disable.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Introduce pagefault_{disable,enable}() and use these where previously
+we did manual preempt increments/decrements to make the pagefault handler
+do the atomic thing.
 
-On Wednesday, 1 November 2006 12:47, Pavel Machek wrote:
-> Hi!
-> 
-> > Freeze all filesystems during the suspend by calling freeze_bdev() for each of
-> > them and thaw them during the resume using thaw_bdev().
-> > 
-> > This is needed by swsusp, because some filesystems (eg. XFS) use work queues
-> > and worker_threads run with PF_NOFREEZE set, so they can cause some writes
-> > to be performed after the suspend image has been created which may corrupt
-> > the filesystem.  The additional benefit of it is that if the resume fails, the
-> > filesystems will be in a consistent state and there won't be any journal replays
-> > needed.
-> > 
-> > The freezing of filesystems is carried out when processes are being frozen, so
-> > on the majority of architectures it also will happen during a
-> > suspend to RAM.
-> 
-> 
-> > @@ -119,7 +120,7 @@ int freeze_processes(void)
-> >  		read_unlock(&tasklist_lock);
-> >  		todo += nr_user;
-> >  		if (!user_frozen && !nr_user) {
-> > -			sys_sync();
-> > +			freeze_filesystems();
-> >  			start_time = jiffies;
-> >  		}
-> >  		user_frozen = !nr_user;
-> 
-> 
-> Do all filesystems implement freeze?
+Currently they still rely on the increased preempt count, but do not rely
+on the disabled preemption, this might go away in the future.
 
-I think so.
+(NOTE: the extra barrier() in pagefault_disable might fix some holes on
+       machines which have too many registers for their own good)
 
-> If not, we may want to keep that sync...
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Nick Piggin <npiggin@suse.de>
+---
+ arch/frv/kernel/futex.c     |    4 ++--
+ arch/i386/mm/highmem.c      |   10 ++++------
+ arch/mips/mm/highmem.c      |   10 ++++------
+ arch/s390/lib/uaccess_std.c |    4 ++--
+ arch/sparc/mm/highmem.c     |    8 +++-----
+ include/asm-frv/highmem.h   |    5 ++---
+ include/asm-generic/futex.h |    4 ++--
+ include/asm-i386/futex.h    |    4 ++--
+ include/asm-ia64/futex.h    |    4 ++--
+ include/asm-mips/futex.h    |    4 ++--
+ include/asm-parisc/futex.h  |    4 ++--
+ include/asm-powerpc/futex.h |    4 ++--
+ include/asm-ppc/highmem.h   |    8 +++-----
+ include/asm-sparc64/futex.h |    4 ++--
+ include/asm-x86_64/futex.h  |    4 ++--
+ include/linux/uaccess.h     |   39 +++++++++++++++++++++++++++++++++++++--
+ kernel/futex.c              |   28 ++++++++++++++--------------
+ 17 files changed, 87 insertions(+), 61 deletions(-)
 
-But the sync() won't hurt anyway I think.
+Index: linux-2.6/arch/frv/kernel/futex.c
+===================================================================
+--- linux-2.6.orig/arch/frv/kernel/futex.c
++++ linux-2.6/arch/frv/kernel/futex.c
+@@ -200,7 +200,7 @@ int futex_atomic_op_inuser(int encoded_o
+ 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -223,7 +223,7 @@ int futex_atomic_op_inuser(int encoded_o
+ 		break;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/arch/i386/mm/highmem.c
+===================================================================
+--- linux-2.6.orig/arch/i386/mm/highmem.c
++++ linux-2.6/arch/i386/mm/highmem.c
+@@ -32,7 +32,7 @@ void *kmap_atomic(struct page *page, enu
+ 	unsigned long vaddr;
+ 
+ 	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	if (!PageHighMem(page))
+ 		return page_address(page);
+ 
+@@ -52,8 +52,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ 
+ #ifdef CONFIG_DEBUG_HIGHMEM
+ 	if (vaddr >= PAGE_OFFSET && vaddr < (unsigned long)high_memory) {
+-		dec_preempt_count();
+-		preempt_check_resched();
++		pagefault_enable();
+ 		return;
+ 	}
+ 
+@@ -68,8 +67,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ 	 */
+ 	kpte_clear_flush(kmap_pte-idx, vaddr);
+ 
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
+ 
+ /* This is the same as kmap_atomic() but can map memory that doesn't
+@@ -80,7 +78,7 @@ void *kmap_atomic_pfn(unsigned long pfn,
+ 	enum fixed_addresses idx;
+ 	unsigned long vaddr;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+ 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+Index: linux-2.6/arch/mips/mm/highmem.c
+===================================================================
+--- linux-2.6.orig/arch/mips/mm/highmem.c
++++ linux-2.6/arch/mips/mm/highmem.c
+@@ -39,7 +39,7 @@ void *__kmap_atomic(struct page *page, e
+ 	unsigned long vaddr;
+ 
+ 	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	if (!PageHighMem(page))
+ 		return page_address(page);
+ 
+@@ -62,8 +62,7 @@ void __kunmap_atomic(void *kvaddr, enum 
+ 	enum fixed_addresses idx = type + KM_TYPE_NR*smp_processor_id();
+ 
+ 	if (vaddr < FIXADDR_START) { // FIXME
+-		dec_preempt_count();
+-		preempt_check_resched();
++		pagefault_enable();
+ 		return;
+ 	}
+ 
+@@ -78,8 +77,7 @@ void __kunmap_atomic(void *kvaddr, enum 
+ 	local_flush_tlb_one(vaddr);
+ #endif
+ 
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
+ 
+ #ifndef CONFIG_LIMITED_DMA
+@@ -92,7 +90,7 @@ void *kmap_atomic_pfn(unsigned long pfn,
+ 	enum fixed_addresses idx;
+ 	unsigned long vaddr;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+ 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+Index: linux-2.6/arch/s390/lib/uaccess_std.c
+===================================================================
+--- linux-2.6.orig/arch/s390/lib/uaccess_std.c
++++ linux-2.6/arch/s390/lib/uaccess_std.c
+@@ -295,7 +295,7 @@ int futex_atomic_op(int op, int __user *
+ {
+ 	int oldval = 0, newval, ret;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -321,7 +321,7 @@ int futex_atomic_op(int op, int __user *
+ 	default:
+ 		ret = -ENOSYS;
+ 	}
+-	dec_preempt_count();
++	pagefault_enable();
+ 	*old = oldval;
+ 	return ret;
+ }
+Index: linux-2.6/arch/sparc/mm/highmem.c
+===================================================================
+--- linux-2.6.orig/arch/sparc/mm/highmem.c
++++ linux-2.6/arch/sparc/mm/highmem.c
+@@ -35,7 +35,7 @@ void *kmap_atomic(struct page *page, enu
+ 	unsigned long vaddr;
+ 
+ 	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	if (!PageHighMem(page))
+ 		return page_address(page);
+ 
+@@ -70,8 +70,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ 	unsigned long idx = type + KM_TYPE_NR*smp_processor_id();
+ 
+ 	if (vaddr < FIXADDR_START) { // FIXME
+-		dec_preempt_count();
+-		preempt_check_resched();
++		pagefault_enable();
+ 		return;
+ 	}
+ 
+@@ -97,8 +96,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ #endif
+ #endif
+ 
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
+ 
+ /* We may be fed a pagetable here by ptep_to_xxx and others. */
+Index: linux-2.6/include/asm-frv/highmem.h
+===================================================================
+--- linux-2.6.orig/include/asm-frv/highmem.h
++++ linux-2.6/include/asm-frv/highmem.h
+@@ -115,7 +115,7 @@ static inline void *kmap_atomic(struct p
+ {
+ 	unsigned long paddr;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 	paddr = page_to_phys(page);
+ 
+ 	switch (type) {
+@@ -170,8 +170,7 @@ static inline void kunmap_atomic(void *k
+ 	default:
+ 		BUG();
+ 	}
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
+ 
+ #endif /* !__ASSEMBLY__ */
+Index: linux-2.6/include/asm-generic/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-generic/futex.h
++++ linux-2.6/include/asm-generic/futex.h
+@@ -21,7 +21,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -33,7 +33,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-i386/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/futex.h
++++ linux-2.6/include/asm-i386/futex.h
+@@ -56,7 +56,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	if (op == FUTEX_OP_SET)
+ 		__futex_atomic_op1("xchgl %0, %2", ret, oldval, uaddr, oparg);
+@@ -88,7 +88,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		}
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-ia64/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-ia64/futex.h
++++ linux-2.6/include/asm-ia64/futex.h
+@@ -59,7 +59,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -83,7 +83,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-mips/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-mips/futex.h
++++ linux-2.6/include/asm-mips/futex.h
+@@ -86,7 +86,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -113,7 +113,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-parisc/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-parisc/futex.h
++++ linux-2.6/include/asm-parisc/futex.h
+@@ -21,7 +21,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -33,7 +33,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-powerpc/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-powerpc/futex.h
++++ linux-2.6/include/asm-powerpc/futex.h
+@@ -43,7 +43,7 @@ static inline int futex_atomic_op_inuser
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -65,7 +65,7 @@ static inline int futex_atomic_op_inuser
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-ppc/highmem.h
+===================================================================
+--- linux-2.6.orig/include/asm-ppc/highmem.h
++++ linux-2.6/include/asm-ppc/highmem.h
+@@ -79,7 +79,7 @@ static inline void *kmap_atomic(struct p
+ 	unsigned long vaddr;
+ 
+ 	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	if (!PageHighMem(page))
+ 		return page_address(page);
+ 
+@@ -101,8 +101,7 @@ static inline void kunmap_atomic(void *k
+ 	unsigned int idx = type + KM_TYPE_NR*smp_processor_id();
+ 
+ 	if (vaddr < KMAP_FIX_BEGIN) { // FIXME
+-		dec_preempt_count();
+-		preempt_check_resched();
++		pagefault_enable();
+ 		return;
+ 	}
+ 
+@@ -115,8 +114,7 @@ static inline void kunmap_atomic(void *k
+ 	pte_clear(&init_mm, vaddr, kmap_pte+idx);
+ 	flush_tlb_page(NULL, vaddr);
+ #endif
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
+ 
+ static inline struct page *kmap_atomic_to_page(void *ptr)
+Index: linux-2.6/include/asm-sparc64/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-sparc64/futex.h
++++ linux-2.6/include/asm-sparc64/futex.h
+@@ -45,7 +45,7 @@ static inline int futex_atomic_op_inuser
+ 	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
+ 		oparg = 1 << oparg;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -67,7 +67,7 @@ static inline int futex_atomic_op_inuser
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-x86_64/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-x86_64/futex.h
++++ linux-2.6/include/asm-x86_64/futex.h
+@@ -55,7 +55,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -78,7 +78,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/linux/uaccess.h
+===================================================================
+--- linux-2.6.orig/include/linux/uaccess.h
++++ linux-2.6/include/linux/uaccess.h
+@@ -1,8 +1,43 @@
+ #ifndef __LINUX_UACCESS_H__
+ #define __LINUX_UACCESS_H__
+ 
++#include <linux/preempt.h>
+ #include <asm/uaccess.h>
+ 
++/*
++ * These routines enable/disable the pagefault handler in that
++ * it will not take any locks and go straight to the fixup table.
++ *
++ * They have great resemblance to the preempt_disable/enable calls
++ * and in fact they are identical; this is because currently there is
++ * no other way to make the pagefault handlers do this. So we do
++ * disable preemption but we don't necessarily care about that.
++ */
++static inline void pagefault_disable(void)
++{
++	inc_preempt_count();
++	/*
++	 * make sure to have issued the store before a pagefault
++	 * can hit.
++	 */
++	barrier();
++}
++
++static inline void pagefault_enable(void)
++{
++	/*
++	 * make sure to issue those last loads/stores before enabling
++	 * the pagefault handler again.
++	 */
++	barrier();
++	dec_preempt_count();
++	/*
++	 * make sure we do..
++	 */
++	barrier();
++	preempt_check_resched();
++}
++
+ #ifndef ARCH_HAS_NOCACHE_UACCESS
+ 
+ static inline unsigned long __copy_from_user_inatomic_nocache(void *to,
+@@ -35,9 +70,9 @@ static inline unsigned long __copy_from_
+ 	({						\
+ 		long ret;				\
+ 							\
+-		inc_preempt_count();			\
++	 	pagefault_disable();			\
+ 		ret = __get_user(retval, addr);		\
+-		dec_preempt_count();			\
++		pagefault_enable();			\
+ 		ret;					\
+ 	})
+ 
+Index: linux-2.6/kernel/futex.c
+===================================================================
+--- linux-2.6.orig/kernel/futex.c
++++ linux-2.6/kernel/futex.c
+@@ -282,9 +282,9 @@ static inline int get_futex_value_locked
+ {
+ 	int ret;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 	ret = __copy_from_user_inatomic(dest, from, sizeof(u32));
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	return ret ? -EFAULT : 0;
+ }
+@@ -585,9 +585,9 @@ static int wake_futex_pi(u32 __user *uad
+ 	if (!(uval & FUTEX_OWNER_DIED)) {
+ 		newval = FUTEX_WAITERS | new_owner->pid;
+ 
+-		inc_preempt_count();
++		pagefault_disable();
+ 		curval = futex_atomic_cmpxchg_inatomic(uaddr, uval, newval);
+-		dec_preempt_count();
++		pagefault_enable();
+ 		if (curval == -EFAULT)
+ 			return -EFAULT;
+ 		if (curval != uval)
+@@ -618,9 +618,9 @@ static int unlock_futex_pi(u32 __user *u
+ 	 * There is no waiter, so we unlock the futex. The owner died
+ 	 * bit has not to be preserved here. We are the owner:
+ 	 */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	oldval = futex_atomic_cmpxchg_inatomic(uaddr, uval, 0);
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (oldval == -EFAULT)
+ 		return oldval;
+@@ -1158,9 +1158,9 @@ static int futex_lock_pi(u32 __user *uad
+ 	 */
+ 	newval = current->pid;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 	curval = futex_atomic_cmpxchg_inatomic(uaddr, 0, newval);
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (unlikely(curval == -EFAULT))
+ 		goto uaddr_faulted;
+@@ -1183,9 +1183,9 @@ static int futex_lock_pi(u32 __user *uad
+ 	uval = curval;
+ 	newval = uval | FUTEX_WAITERS;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 	curval = futex_atomic_cmpxchg_inatomic(uaddr, uval, newval);
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (unlikely(curval == -EFAULT))
+ 		goto uaddr_faulted;
+@@ -1215,10 +1215,10 @@ static int futex_lock_pi(u32 __user *uad
+ 			newval = current->pid |
+ 				FUTEX_OWNER_DIED | FUTEX_WAITERS;
+ 
+-			inc_preempt_count();
++			pagefault_disable();
+ 			curval = futex_atomic_cmpxchg_inatomic(uaddr,
+ 							       uval, newval);
+-			dec_preempt_count();
++			pagefault_enable();
+ 
+ 			if (unlikely(curval == -EFAULT))
+ 				goto uaddr_faulted;
+@@ -1390,9 +1390,9 @@ retry_locked:
+ 	 * anyone else up:
+ 	 */
+ 	if (!(uval & FUTEX_OWNER_DIED)) {
+-		inc_preempt_count();
++		pagefault_disable();
+ 		uval = futex_atomic_cmpxchg_inatomic(uaddr, current->pid, 0);
+-		dec_preempt_count();
++		pagefault_enable();
+ 	}
+ 
+ 	if (unlikely(uval == -EFAULT))
 
-> 
-> 
-> > @@ -156,28 +157,43 @@ int freeze_processes(void)
-> >  void thaw_some_processes(int all)
-> >  {
-> >  	struct task_struct *g, *p;
-> > -	int pass = 0; /* Pass 0 = Kernel space, 1 = Userspace */
-> >  
-> >  	printk("Restarting tasks... ");
-> >  	read_lock(&tasklist_lock);
-> > -	do {
-> > -		do_each_thread(g, p) {
-> > -			/*
-> > -			 * is_user = 0 if kernel thread or borrowed mm,
-> > -			 * 1 otherwise.
-> > -			 */
-> > -			int is_user = !!(p->mm && !(p->flags & PF_BORROWED_MM));
-> > -			if (!freezeable(p) || (is_user != pass))
-> > -				continue;
-> > -			if (!thaw_process(p))
-> > -				printk(KERN_INFO
-> > -					"Strange, %s not stopped\n", p->comm);
-> > -		} while_each_thread(g, p);
-> >  
-> > -		pass++;
-> > -	} while (pass < 2 && all);
-> > +	do_each_thread(g, p) {
-> > +		if (!freezeable(p))
-> > +			continue;
-> > +
-> > +		/* Don't thaw userland processes, for now */
-> > +		if (p->mm && !(p->flags & PF_BORROWED_MM))
-> > +			continue;
-> > +
-> > +		if (!thaw_process(p))
-> > +			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
-> > +	} while_each_thread(g, p);
-> > +
-> > +	read_unlock(&tasklist_lock);
-> > +	if (!all)
-> > +		goto Exit;
-> > +
-> > +	thaw_filesystems();
-> > +	read_lock(&tasklist_lock);
-> > +
-> > +	do_each_thread(g, p) {
-> > +		if (!freezeable(p))
-> > +			continue;
-> > +
-> > +		/* Kernel threads should have been thawed already */
-> > +		if (!p->mm || (p->flags & PF_BORROWED_MM))
-> > +			continue;
-> > +
-> > +		if (!thaw_process(p))
-> > +			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
-> > +	} while_each_thread(g, p);
-> >  
-> >  	read_unlock(&tasklist_lock);
-> > +Exit:
-> >  	schedule();
-> >  	printk("done.\n");
-> 
-> 
-> Could we do without the code duplication?
+--
 
-Okay, I'll move the loop(s) into a separate function.
-
-> > +/**
-> > + * freeze_filesystems - lock all filesystems and force them into a consistent
-> > + * state
-> > + */
-> > +void freeze_filesystems(void)
-> > +{
-> > +	struct super_block *sb;
-> > +
-> > +	lockdep_off();
-> 
-> You should not just turn off lockdep because you don't like its
-> output.
-> 
-> Perhaps tasklist_lock does not nest with whatever freeze_bdev needs?
-
-The locks taken in one call to freeze_bdev() nest with analogous locks
-taken in the other calls to freeze_bdev().  Actually we take several locks of
-the same (I think) class in a row and keep them all until thaw_filesystems()
-is called, which is quite unusual.  I don't think there's any way in which we
-can convince lockdep that it's all okay other than switching it off.
-
-Greetings,
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

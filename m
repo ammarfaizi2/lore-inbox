@@ -1,41 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992667AbWKAQsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946949AbWKAQsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992667AbWKAQsk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 11:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992668AbWKAQsk
+	id S1946949AbWKAQsE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 11:48:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992667AbWKAQsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 11:48:40 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:492 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S2992667AbWKAQsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 11:48:39 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: preferred way of fw loading
-Date: Wed, 1 Nov 2006 17:48:31 +0100
-User-Agent: KMail/1.9.5
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       R.E.Wolff@bitwizard.nl
-References: <4547E720.4080505@gmail.com>
-In-Reply-To: <4547E720.4080505@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Nov 2006 11:48:04 -0500
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:33921 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1946948AbWKAQsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 11:48:01 -0500
+Date: Wed, 1 Nov 2006 17:47:15 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Holden Karau <holden@pigscanfly.ca>
+Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, hirofumi@mail.parknet.co.jp,
+       linux-kernel@vger.kernel.org, Holden Karau <holdenk@xandros.com>,
+       "akpm@osdl.org" <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       holden.karau@gmail.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes revised again
+Message-ID: <20061101164715.GC16154@wohnheim.fh-wedel.de>
+References: <4548C8AE.2090603@pigscanfly.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200611011748.31781.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4548C8AE.2090603@pigscanfly.ca>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 November 2006 01:15, Jiri Slaby wrote:
-> is preferred to have firmware in kernel binary (and go through array of chars)
-> or userspace (and load it through standard kernel api)?
+On Wed, 1 November 2006 11:17:50 -0500, Holden Karau wrote:
+> +	c_bh = kmalloc(nr_bhs*(sbi->fats) , GFP_KERNEL);
+> +	if (NULL == c_bh) {
+> +		printk(KERN_CRIT "not enough memory to store pointers to FAT blocks, will not sync. Possible data loss\n");
+> +		err = -ENOMEM;
+> +		goto error;
+> +	}
 
-If you control the whole system, the ideal way is to have the system
-firmware or boot loader come with the firmware blob and avoid worrying
-about it in linux entirely. E.g. if you are using Open Firmware, you
-can have the binary image as a property of the device in your device
-tree, where Linux then goes looking for it.
+o I personally hate Yoda code ("Null the pointer is not, young Jedi").
+o Old code simply returned -ENOMEM without printk.  Assuming this was
+  sufficient before, the printk can be dropped.
+o Some people prefer assigning err outside the condition.  It is
+  supposed to give slightly better code on i386, iirc.
 
-	Arnd <><
+Result would be something like:
+	c_bh = kmalloc(...
+	err = -ENOMEM;
+	if (!c_bh)
+		goto error;
+
+> +		for (n = 0 ; n < nr_bhs ;  n++ ) {
+> +			c_bh[(copy-1)*nr_bhs+n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
+> +			/* If there is not enough memory, fall back to the old system */
+> +			if (!c_bh[(copy-1)*nr_bhs+n]) {
+> +				printk("fat: not enough memory for all blocks , syncing at %d\n" ,(copy-1)*nr_bhs+n);
+
+Whether this printk makes sense, I cannot tell.
+
+> +				fat_sync_bhs_optw( c_bh+i  , (copy-1)*nr_bhs+n-i-1 , wait );
+> +				/* Free the now sync'd blocks */
+> +				for (; i < (copy-1)*nr_bhs+n ; i++)
+> +					brelse(c_bh[i]);
+> +				/* We try the same block again */
+> +				c_bh[(copy-1)*nr_bhs+n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
+> +				if (!c_bh[(copy-1)*nr_bhs+n]) {
+> +					printk(KERN_CRIT "fat:not enough memory for block after existing blocks released. Possible data loss.\n");
+> +					err = -ENOMEM;
+> +					goto error;
+> +				}
+
+As above.
+
+>  error:
+> +	if (NULL != c_bh) {
+> +		kfree(c_bh);
+> +	}
+
+kfree(NULL) works just fine.  You can remove the condition.
+
+> +int fat_sync_bhs_optw(struct buffer_head **bhs, int nr_bhs ,int wait)
+>  {
+>  	int i, err = 0;
+>  
+>  	ll_rw_block(SWRITE, nr_bhs, bhs);
+> -	for (i = 0; i < nr_bhs; i++) {
+> -		wait_on_buffer(bhs[i]);
+> -		if (buffer_eopnotsupp(bhs[i])) {
+> -			clear_buffer_eopnotsupp(bhs[i]);
+> -			err = -EOPNOTSUPP;
+> -		} else if (!err && !buffer_uptodate(bhs[i]))
+> -			err = -EIO;
+> +	if (wait) {
+> +		for (i = 0; i < nr_bhs; i++) {
+> +			wait_on_buffer(bhs[i]);
+> +			if (buffer_eopnotsupp(bhs[i])) {
+> +				clear_buffer_eopnotsupp(bhs[i]);
+> +				err = -EOPNOTSUPP;
+> +			} else if (!err && !buffer_uptodate(bhs[i]))
+> +				err = -EIO;
+> +		}
+>  	}
+> +
+>  	return err;
+>  }
+
+You could keep the old indentation if your condition was changed to
+
+	if (!wait)
+		return 0;
+
+Jörn
+
+-- 
+You can take my soul, but not my lack of enthusiasm.
+-- Wally

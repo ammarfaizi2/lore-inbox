@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946602AbWKAGLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946609AbWKAGMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946602AbWKAGLK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 01:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946547AbWKAGLK
+	id S1946609AbWKAGMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 01:12:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946603AbWKAGMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 01:11:10 -0500
-Received: from 1wt.eu ([62.212.114.60]:60932 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1946602AbWKAGLI (ORCPT
+	Wed, 1 Nov 2006 01:12:24 -0500
+Received: from mail.gmx.de ([213.165.64.20]:32948 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1946609AbWKAGMX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 01:11:08 -0500
-Date: Wed, 1 Nov 2006 08:11:11 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, NeilBrown <neilb@suse.de>
-Subject: Re: [PATCH 30/61] knfsd: Fix race that can disable NFS server.
-Message-ID: <20061101071111.GB543@1wt.eu>
-References: <20061101053340.305569000@sous-sol.org> <20061101054028.568862000@sous-sol.org>
+	Wed, 1 Nov 2006 01:12:23 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, "Martin J. Bligh" <mbligh@google.com>,
+       Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       Steve Fox <drfickle@us.ibm.com>
+In-Reply-To: <20061031212508.1b116655.akpm@osdl.org>
+References: <45461977.3020201@shadowen.org> <45461E74.1040408@google.com>
+	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
+	 <45463481.80601@shadowen.org>
+	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
+	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
+	 <20061031065912.GA13465@suse.de>
+	 <1162278594.6416.4.camel@Homer.simpson.net> <20061031072241.GB7306@suse.de>
+	 <1162312126.5918.12.camel@Homer.simpson.net>
+	 <1162318477.6016.3.camel@Homer.simpson.net>
+	 <1162356198.6105.18.camel@Homer.simpson.net>
+	 <20061031212508.1b116655.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 01 Nov 2006 07:12:09 +0100
+Message-Id: <1162361529.5899.1.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101054028.568862000@sous-sol.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 09:34:10PM -0800, Chris Wright wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
-> ------------------
+On Tue, 2006-10-31 at 21:25 -0800, Andrew Morton wrote:
+> On Wed, 01 Nov 2006 05:43:18 +0100
+> Mike Galbraith <efault@gmx.de> wrote:
 > 
-> From: NeilBrown <neilb@suse.de>
+> > On Tue, 2006-10-31 at 19:14 +0100, Mike Galbraith wrote:
+> > 
+> > > Seems it's driver-core-fixes-sysfs_create_link-retval-checks-in.patch
+> > > 
+> > > Tomorrow, I'll revert that alone from 2.6.19-rc3-mm1 to confirm...
+> > 
+> > Confirmed.  Boots fine with that patch reverted.
 > 
-> This is a long standing bug that seems to have only recently become
-> apparent, presumably due to increasing use of NFS over TCP - many
-> distros seem to be making it the default.
-> 
-> The SK_CONN bit gets set when a listening socket may be ready
-> for an accept, just as SK_DATA is set when data may be available.
-> 
-> It is entirely possible for svc_tcp_accept to be called with neither
-> of these set.  It doesn't happen often but there is a small race in
-> svc_sock_enqueue as SK_CONN and SK_DATA are tested outside the
-> spin_lock.  They could be cleared immediately after the test and
-> before the lock is gained.
-> 
-> This normally shouldn't be a problem.  The sockets are non-blocking so
-> trying to read() or accept() when ther is nothing to do is not a problem.
-> 
-> However: svc_tcp_recvfrom makes the decision "Should I accept() or
-> should I read()" based on whether SK_CONN is set or not.  This usually
-> works but is not safe.  The decision should be based on whether it is
-> a TCP_LISTEN socket or a TCP_CONNECTED socket.
-> 
-> 
-> Signed-off-by: Neil Brown <neilb@suse.de>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> 
-> ---
->  net/sunrpc/svcsock.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-2.6.18.1.orig/net/sunrpc/svcsock.c
-> +++ linux-2.6.18.1/net/sunrpc/svcsock.c
-> @@ -902,7 +902,7 @@ svc_tcp_recvfrom(struct svc_rqst *rqstp)
->  		return 0;
->  	}
->  
-> -	if (test_bit(SK_CONN, &svsk->sk_flags)) {
-> +	if (svsk->sk_sk->sk_state == TCP_LISTEN) {
->  		svc_tcp_accept(svsk);
->  		svc_sock_received(svsk);
->  		return 0;
+> Could you test with something like this applied?
 
-This one seems valid for 2.4 too. Neil, do you confirm ?
+No output.  I had already enabled debugging, but got nada there either.
+Bugger.  <scritch scritch>
 
-Willy
+	-Mike
 

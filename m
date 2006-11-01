@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946031AbWKADB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946057AbWKADvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946031AbWKADB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 22:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946021AbWKADB2
+	id S1946057AbWKADvP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 22:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423936AbWKADvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 22:01:28 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3844 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1423930AbWKADB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 22:01:27 -0500
-Date: Wed, 1 Nov 2006 04:01:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Pavel Machek <pavel@suse.cz>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       Martin Lorenz <martin@lorenz.eu.org>
-Subject: 2.6.19-rc <-> ThinkPads
-Message-ID: <20061101030126.GE27968@stusta.de>
-References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061030135625.GB1601@mellanox.co.il>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 31 Oct 2006 22:51:15 -0500
+Received: from rhun.apana.org.au ([64.62.148.172]:47883 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1423933AbWKADvO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 22:51:14 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: andy@greyhouse.net (Andy Gospodarek)
+Subject: Re: [PATCH] 2.6.19-rc4 - netlink messages created with bad flags in soft_irq context
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net
+Organization: Core
+In-Reply-To: <20061031220559.GA10119@gospo.rdu.redhat.com>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1Gf77x-0002Qt-00@gondolin.me.apana.org.au>
+Date: Wed, 01 Nov 2006 14:50:57 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
+Andy Gospodarek <andy@greyhouse.net> wrote:
+> I've got a kernel built where 
+> 
+> CONFIG_DEBUG_SPINLOCK_SLEEP=y
+> 
+> is in the config and I've noticed some interesting behavior when
+> bringing up bonds in balance-alb mode.  When I start to enslave devices
+> to a bond I get the following in the ring buffer:
+> 
+> BUG: sleeping function called from invalid context at mm/slab.c:3007
+> in_atomic():1, irqs_disabled():0
+> 
+> along with a nice backtrace of the error that pointed to the cause of
+> this message.  The bonding code was calling for the device to set its
+> MAC address and the netlink message that would be send as a result of
+> this notification was being created with the flag GFP_KERNEL instead of
+> GFP_ATOMIC.  
 
-Subject    : Thinkpad R50p: boot fail with (lapic && on_battery)
-References : http://lkml.org/lkml/2006/10/31/333
-Submitter  : Ernst Herzberg <earny@net4u.de>
-Status     : submitter was asked to bisect
+The bonding driver is known to be broken in places where it tries to
+call into the network stack in atomic contexts where it shouldn't.
 
-It seems to be completely unrelated (except that it's also a ThinkPad), 
-but it might be worth a try whether a (non-SMP) kernel without APIC 
-support fixes the issues after resume.
+So please verify whether this is the case here before changing netlink.
 
-Hugh, your laptop seems to be a non-SMP laptop.
-Do you have APIC enabled, and if yes does disabling help?
-
-cu
-Adrian
-
-
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 19
-EXTRAVERSION = -rc4
-NAME=ThinkPad Killer
-
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

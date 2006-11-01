@@ -1,66 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946221AbWKAFhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946146AbWKAFgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946221AbWKAFhT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946111AbWKAFgr
+	id S1946146AbWKAFgo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946155AbWKAFgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:36:47 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37831 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946171AbWKAFgS
+	Wed, 1 Nov 2006 00:36:13 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:15815 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946146AbWKAFf0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:36:18 -0500
-Message-Id: <20061101053655.755958000@sous-sol.org>
+	Wed, 1 Nov 2006 00:35:26 -0500
+Message-Id: <20061101053505.814495000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:33:52 -0800
+Date: Tue, 31 Oct 2006 21:33:43 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, greg@kroah.com
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Karsten Wiese <annabellesgarden@yahoo.de>,
-       Takashi Iwai <tiwai@suse.de>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 12/61] ALSA: Fix bug in snd-usb-usx2ys usX2Y_pcms_lock_check()
-Content-Disposition: inline; filename=alsa-fix-bug-in-snd-usb-usx2y-s-usx2y_pcms_lock_check.patch
+       alan@lxorguk.ukuu.org.uk, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 03/61] [S390] __div64_32 for 31 bit.
+Content-Disposition: inline; filename=__div64_32-for-31-bit.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Karsten Wiese <annabellesgarden@yahoo.de>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-[PATCH] ALSA: Fix bug in snd-usb-usx2y's usX2Y_pcms_lock_check()
+The clocksource infrastructure introduced with commit
+ad596171ed635c51a9eef829187af100cbf8dcf7 broke 31 bit s390.
+The reason is that the do_div() primitive for 31 bit always
+had a restriction: it could only divide an unsigned 64 bit
+integer by an unsigned 31 bit integer. The clocksource code
+now uses do_div() with a base value that has the most
+significant bit set. The result is that clock->cycle_interval
+has a funny value which causes the linux time to jump around
+like mad. 
+The solution is "obvious": implement a proper __div64_32
+function for 31 bit s390.
 
-Fix bug in snd-usb-usx2y's usX2Y_pcms_lock_check()
-
-substream can be NULL......
-in mainline, bug was introduced by:
-2006-06-22  [ALSA] Add O_APPEND flag support to PCM
-
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-Signed-off-by: Karsten Wiese <annabellesgarden@yahoo.de>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-
 ---
- sound/usb/usx2y/usx2yhwdeppcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/Kconfig        |    4 +
+ arch/s390/lib/Makefile   |    1 
+ arch/s390/lib/div64.c    |  151 +++++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-s390/div64.h |   48 --------------
+ 4 files changed, 156 insertions(+), 48 deletions(-)
 
---- linux-2.6.18.1.orig/sound/usb/usx2y/usx2yhwdeppcm.c
-+++ linux-2.6.18.1/sound/usb/usx2y/usx2yhwdeppcm.c
-@@ -632,7 +632,7 @@ static int usX2Y_pcms_lock_check(struct 
- 		for (s = 0; s < 2; ++s) {
- 			struct snd_pcm_substream *substream;
- 			substream = pcm->streams[s].substream;
--			if (SUBSTREAM_BUSY(substream))
-+			if (substream && SUBSTREAM_BUSY(substream))
- 				err = -EBUSY;
- 		}
- 	}
+--- linux-2.6.18.1.orig/arch/s390/Kconfig
++++ linux-2.6.18.1/arch/s390/Kconfig
+@@ -51,6 +51,10 @@ config 64BIT
+ 	  Select this option if you have a 64 bit IBM zSeries machine
+ 	  and want to use the 64 bit addressing mode.
+ 
++config 32BIT
++	bool
++	default y if !64BIT
++
+ config SMP
+ 	bool "Symmetric multi-processing support"
+ 	---help---
+--- linux-2.6.18.1.orig/arch/s390/lib/Makefile
++++ linux-2.6.18.1/arch/s390/lib/Makefile
+@@ -7,3 +7,4 @@ EXTRA_AFLAGS := -traditional
+ lib-y += delay.o string.o
+ lib-y += $(if $(CONFIG_64BIT),uaccess64.o,uaccess.o)
+ lib-$(CONFIG_SMP) += spinlock.o
++lib-$(CONFIG_32BIT) += div64.o
+--- /dev/null
++++ linux-2.6.18.1/arch/s390/lib/div64.c
+@@ -0,0 +1,151 @@
++/*
++ *  arch/s390/lib/div64.c
++ *
++ *  __div64_32 implementation for 31 bit.
++ *
++ *    Copyright (C) IBM Corp. 2006
++ *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
++ */
++
++#include <linux/types.h>
++#include <linux/module.h>
++
++#ifdef CONFIG_MARCH_G5
++
++/*
++ * Function to divide an unsigned 64 bit integer by an unsigned
++ * 31 bit integer using signed 64/32 bit division.
++ */
++static uint32_t __div64_31(uint64_t *n, uint32_t base)
++{
++	register uint32_t reg2 asm("2");
++	register uint32_t reg3 asm("3");
++	uint32_t *words = (uint32_t *) n;
++	uint32_t tmp;
++
++	/* Special case base==1, remainder = 0, quotient = n */
++	if (base == 1)
++		return 0;
++	/*
++	 * Special case base==0 will cause a fixed point divide exception
++	 * on the dr instruction and may not happen anyway. For the
++	 * following calculation we can assume base > 1. The first
++	 * signed 64 / 32 bit division with an upper half of 0 will
++	 * give the correct upper half of the 64 bit quotient.
++	 */
++	reg2 = 0UL;
++	reg3 = words[0];
++	asm volatile(
++		"	dr	%0,%2\n"
++		: "+d" (reg2), "+d" (reg3) : "d" (base) : "cc" );
++	words[0] = reg3;
++	reg3 = words[1];
++	/*
++	 * To get the lower half of the 64 bit quotient and the 32 bit
++	 * remainder we have to use a little trick. Since we only have
++	 * a signed division the quotient can get too big. To avoid this
++	 * the 64 bit dividend is halved, then the signed division will
++	 * work. Afterwards the quotient and the remainder are doubled.
++	 * If the last bit of the dividend has been one the remainder
++	 * is increased by one then checked against the base. If the
++	 * remainder has overflown subtract base and increase the
++	 * quotient. Simple, no ?
++	 */
++	asm volatile(
++		"	nr	%2,%1\n"
++		"	srdl	%0,1\n"
++		"	dr	%0,%3\n"
++		"	alr	%0,%0\n"
++		"	alr	%1,%1\n"
++		"	alr	%0,%2\n"
++		"	clr	%0,%3\n"
++		"	jl	0f\n"
++		"	slr	%0,%3\n"
++		"	alr	%1,%2\n"
++		"0:\n"
++		: "+d" (reg2), "+d" (reg3), "=d" (tmp)
++		: "d" (base), "2" (1UL) : "cc" );
++	words[1] = reg3;
++	return reg2;
++}
++
++/*
++ * Function to divide an unsigned 64 bit integer by an unsigned
++ * 32 bit integer using the unsigned 64/31 bit division.
++ */
++uint32_t __div64_32(uint64_t *n, uint32_t base)
++{
++	uint32_t r;
++
++	/*
++	 * If the most significant bit of base is set, divide n by
++	 * (base/2). That allows to use 64/31 bit division and gives a
++	 * good approximation of the result: n = (base/2)*q + r. The
++	 * result needs to be corrected with two simple transformations.
++	 * If base is already < 2^31-1 __div64_31 can be used directly.
++	 */
++	r = __div64_31(n, ((signed) base < 0) ? (base/2) : base);
++	if ((signed) base < 0) {
++		uint64_t q = *n;
++		/*
++		 * First transformation:
++		 * n = (base/2)*q + r
++		 *   = ((base/2)*2)*(q/2) + ((q&1) ? (base/2) : 0) + r
++		 * Since r < (base/2), r + (base/2) < base.
++		 * With q1 = (q/2) and r1 = r + ((q&1) ? (base/2) : 0)
++		 * n = ((base/2)*2)*q1 + r1 with r1 < base.
++		 */
++		if (q & 1)
++			r += base/2;
++		q >>= 1;
++		/*
++		 * Second transformation. ((base/2)*2) could have lost the
++		 * last bit.
++		 * n = ((base/2)*2)*q1 + r1
++		 *   = base*q1 - ((base&1) ? q1 : 0) + r1
++		 */
++		if (base & 1) {
++			int64_t rx = r - q;
++			/*
++			 * base is >= 2^31. The worst case for the while
++			 * loop is n=2^64-1 base=2^31+1. That gives a
++			 * maximum for q=(2^64-1)/2^31 = 0x1ffffffff. Since
++			 * base >= 2^31 the loop is finished after a maximum
++			 * of three iterations.
++			 */
++			while (rx < 0) {
++				rx += base;
++				q--;
++			}
++			r = rx;
++		}
++		*n = q;
++	}
++	return r;
++}
++
++#else /* MARCH_G5 */
++
++uint32_t __div64_32(uint64_t *n, uint32_t base)
++{
++	register uint32_t reg2 asm("2");
++	register uint32_t reg3 asm("3");
++	uint32_t *words = (uint32_t *) n;
++
++	reg2 = 0UL;
++	reg3 = words[0];
++	asm volatile(
++		"	dlr	%0,%2\n"
++		: "+d" (reg2), "+d" (reg3) : "d" (base) : "cc" );
++	words[0] = reg3;
++	reg3 = words[1];
++	asm volatile(
++		"	dlr	%0,%2\n"
++		: "+d" (reg2), "+d" (reg3) : "d" (base) : "cc" );
++	words[1] = reg3;
++	return reg2;
++}
++
++#endif /* MARCH_G5 */
++
++EXPORT_SYMBOL(__div64_32);
+--- linux-2.6.18.1.orig/include/asm-s390/div64.h
++++ linux-2.6.18.1/include/asm-s390/div64.h
+@@ -1,49 +1 @@
+-#ifndef __S390_DIV64
+-#define __S390_DIV64
+-
+-#ifndef __s390x__
+-
+-/* for do_div "base" needs to be smaller than 2^31-1 */
+-#define do_div(n, base) ({                                      \
+-	unsigned long long __n = (n);				\
+-	unsigned long __r;					\
+-								\
+-	asm ("   slr  0,0\n"					\
+-	     "   l    1,%1\n"					\
+-	     "   srdl 0,1\n"					\
+-	     "   dr   0,%2\n"					\
+-	     "   alr  1,1\n"					\
+-	     "   alr  0,0\n"					\
+-	     "   lhi  2,1\n"					\
+-	     "   n    2,%1\n"					\
+-	     "   alr  0,2\n"					\
+-	     "   clr  0,%2\n"					\
+-	     "   jl   0f\n"					\
+-	     "   slr  0,%2\n"					\
+-             "   ahi  1,1\n"					\
+-	     "0: st   1,%1\n"					\
+-	     "   l    1,4+%1\n"					\
+-	     "   srdl 0,1\n"					\
+-             "   dr   0,%2\n"					\
+-	     "   alr  1,1\n"					\
+-	     "   alr  0,0\n"					\
+-	     "   lhi  2,1\n"					\
+-	     "   n    2,4+%1\n"					\
+-	     "   alr  0,2\n"					\
+-	     "   clr  0,%2\n"					\
+-             "   jl   1f\n"					\
+-	     "   slr  0,%2\n"					\
+-	     "   ahi  1,1\n"					\
+-	     "1: st   1,4+%1\n"					\
+-             "   lr   %0,0"					\
+-	     : "=d" (__r), "=m" (__n)				\
+-	     : "d" (base), "m" (__n) : "0", "1", "2", "cc" );	\
+-	(n) = (__n);						\
+-        __r;                                                    \
+-})
+-
+-#else /* __s390x__ */
+ #include <asm-generic/div64.h>
+-#endif /* __s390x__ */
+-
+-#endif
 
 --

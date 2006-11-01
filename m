@@ -1,28 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946747AbWKAJ75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946749AbWKAKBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946747AbWKAJ75 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 04:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946749AbWKAJ75
+	id S1946749AbWKAKBg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 05:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946750AbWKAKBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 04:59:57 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:4637 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1946747AbWKAJ75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 04:59:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=d4Xq6oV/YLqBCn2GaVF7DbWW4vSa0W7QbkNeDoGFUOpfT3itDTmZIJjNed4Oy8zjPa842qsFfOWWwW2kHWwlzLoCq5R/Hht2X9Xu9UuOk7klm8AELO1LMcojZO0cof+MFJ2D+xMU38o3RJHlDN8y/T4JBncLdrJYEV0uTOb1cPo=
-Message-ID: <3dd9a95e0611010159h7dc1d7b7o908b599d7b3200f9@mail.gmail.com>
-Date: Wed, 1 Nov 2006 17:59:55 +0800
-From: "Xiao Niu" <gniuxiao.mailinglist@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: How does the kernel interrupt a user process with code while (1) {}?
+	Wed, 1 Nov 2006 05:01:36 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:10758 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1946749AbWKAKBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 05:01:35 -0500
+Message-ID: <45487043.1070402@shadowen.org>
+Date: Wed, 01 Nov 2006 10:00:35 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Greg KH <gregkh@suse.de>
+CC: Martin Bligh <mbligh@google.com>, Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+References: <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com> <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com> <20061031075825.GA8913@suse.de> <45477131.4070501@google.com> <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com> <4547833C.5040302@google.com> <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com> <4547FABE.502@google.com> <20061101020850.GA13070@suse.de>
+In-Reply-To: <20061101020850.GA13070@suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As title, thanks ;-)
+Greg KH wrote:
+> On Tue, Oct 31, 2006 at 05:39:10PM -0800, Martin Bligh wrote:
+>> Cornelia Huck wrote:
+>>> On Tue, 31 Oct 2006 09:09:16 -0800,
+>>> "Martin J. Bligh" <mbligh@google.com> wrote:
+>>>
+>>>
+>>>> Cornelia Huck wrote:
+>>>>
+>>>>> That's because /sys/class/net/<interface> is now a symlink instead of a
+>>>>> directory (and that hasn't anything to do with acpi, but rather with
+>>>>> the conversions in the driver tree). Seems the directory -> symlink
+>>>>> change shouldn't be done since it's impacting user space...
+>>>> You know which individual patch in -mm broke that? Can't see it easily.
+>>>> Then we can just test across all the machines with just that one backed
+>>>> out.
+>>>
+>>> I'd try reverting gregkh-driver-network-device.patch for the network
+>>> device stuff.
+>> Reverting that patch does indeed appear to fix it.
+> 
+> Even with CONFIG_SYSFS_DEPRECATED enabled?  For some reason I'm guessing
+> that you missed that suggestion a while back...
+
+Nope, that was tested across the board and was a failure.  Check TKO,
+there is a run with sysfs-deprecated-turn-this-on-by-default ...
+
+I checked and this did result in configs with this option enabled.
+
+-apw

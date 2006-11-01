@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752487AbWKAVtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752465AbWKAVuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752487AbWKAVtW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 16:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752485AbWKAVtW
+	id S1752465AbWKAVuS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 16:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752485AbWKAVuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 16:49:22 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:48619 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S1750701AbWKAVtV (ORCPT
+	Wed, 1 Nov 2006 16:50:18 -0500
+Received: from www.osadl.org ([213.239.205.134]:62379 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1752465AbWKAVuQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 16:49:21 -0500
-Date: Wed, 1 Nov 2006 15:49:13 -0600
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: akpm@osdl.org, jens.axboe@oracle.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 1/8] cciss: version number change
-Message-ID: <20061101214913.GA29928@beardog.cca.cpqcorp.net>
+	Wed, 1 Nov 2006 16:50:16 -0500
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
+	[2.6.18-rc4-mm1]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
+Content-Type: text/plain
+Date: Wed, 01 Nov 2006 22:51:56 +0100
+Message-Id: <1162417916.15900.271.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-11-01 at 15:07 +0100, Andreas Mohr wrote:
+> Hello all,
+> 
+> on my system I'm having the usual (already known from Con Kolivas
+> earlier dynticks patches) problems with missed ticks: I have to generate
+> keyboard or mouse interrupts to let my system proceed with booting
+> (semi-)properly.
+> Once in X11 it's better (due to many IRQs being triggered here, I assume),
+> but still not perfect.
+> 
+> This did "work properly" (for whatever reason) with 2.6.19-rc1-mm* and got
+> broken once going to -rc2-mm*, IIRC. -rc4-mm1 is stock version without
+> any local patches (for accurate bug reporting).
+> 
+> x86 UP Athlon 1200, VIA chipset.
+> 
+> Probably some problem with VIA chipsets and APIC, PIT, ...?
+> 
+> Would be nice to get this to work properly, anything I should try to debug?
 
-PATCH 1/8
+Can you try:
 
-This patch changes the cciss version number to 3.6.14 to reflect the following
-functionality changes added by the rest of the set. They include:
+http://tglx.de/projects/hrtimers/2.6.19-rc4-mm1/patch-2.6.19-rc4-mm1-hrt-dyntick1.patch
 
-Support to fire up on any HP RAID class controller
-Increase nr_cmds to 512 for most controllers by adding it to the product table
-PCI subsystem ID fix fix was pulled
-Disable DMA prefetch for the P600 on IPF platforms
-Change from 512 to 2048 sector_size for performance
-Fix in cciss_open for consistency
-Remove the no longer used revalidate_allvol function
-
-Please consider this for inclusion.
+on top of -mm please? Can you mail me a boot log of that ?
 
 Thanks,
-mikem
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
+	tglx
 
- cciss.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
---------------------------------------------------------------------------------
-diff -urNp linux-2.6.orig/drivers/block/cciss.c linux-2.6/drivers/block/cciss.c
---- linux-2.6.orig/drivers/block/cciss.c	2006-10-27 11:16:05.000000000 -0500
-+++ linux-2.6/drivers/block/cciss.c	2006-10-31 14:01:04.000000000 -0600
-@@ -47,14 +47,15 @@
- #include <linux/completion.h>
- 
- #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
--#define DRIVER_NAME "HP CISS Driver (v 3.6.10)"
--#define DRIVER_VERSION CCISS_DRIVER_VERSION(3,6,10)
-+#define DRIVER_NAME "HP CISS Driver (v 3.6.14)"
-+#define DRIVER_VERSION CCISS_DRIVER_VERSION(3,6,14)
- 
- /* Embedded module documentation macros - see modules.h */
- MODULE_AUTHOR("Hewlett-Packard Company");
--MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 3.6.10");
-+MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 3.6.14");
- MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"
- 			" SA6i P600 P800 P400 P400i E200 E200i E500");
-+MODULE_VERSION("3.6.14");
- MODULE_LICENSE("GPL");
- 
- #include "cciss_cmd.h"
+

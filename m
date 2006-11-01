@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWKANuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946886AbWKANvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWKANuS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 08:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752185AbWKANuS
+	id S1946886AbWKANvG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 08:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946880AbWKANvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 08:50:18 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:63938 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1750906AbWKANuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 08:50:16 -0500
-Date: Wed, 1 Nov 2006 06:50:15 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Holden Karau <holden@pigscanfly.ca>
-Cc: Holden Karau <holdenk@xandros.com>, Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
-       hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       "akpm@osdl.org" <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>
-Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes revised
-Message-ID: <20061101135015.GD11399@parisc-linux.org>
-References: <454765AC.1050905@xandros.com> <20061031162825.GD26964@parisc-linux.org> <f46018bb0610310846p27f561b3uaf651b8d9b01c693@mail.gmail.com> <f46018bb0610311910m42029aecw42cffe2ac7eec1ee@mail.gmail.com>
+	Wed, 1 Nov 2006 08:51:05 -0500
+Received: from mx2.suse.de ([195.135.220.15]:49616 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1946882AbWKANvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 08:51:01 -0500
+Date: Wed, 1 Nov 2006 14:50:26 +0100
+From: Stefan Seyfried <seife@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-acpi@vger.kernel.org,
+       linux-pm@osdl.org, "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Lorenz <martin@lorenz.eu.org>, Adrian Bunk <bunk@stusta.de>,
+       Ernst Herzberg <earny@net4u.de>
+Subject: Re: 2.6.19-rc <-> ThinkPads
+Message-ID: <20061101135026.GA25751@suse.de>
+References: <20061029231358.GI27968@stusta.de> <20061101030126.GE27968@stusta.de> <200610312215.44454.len.brown@intel.com> <200611010611.30445.earny@net4u.de> <Pine.LNX.4.64.0610312123320.25218@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <f46018bb0610311910m42029aecw42cffe2ac7eec1ee@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0610312123320.25218@g5.osdl.org>
+X-Operating-System: openSUSE 10.2 (i586) Beta2, Kernel 2.6.18.1-12-default
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 10:10:39PM -0500, Holden Karau wrote:
-> I was thinking about the issue of running out of memory, while its not
-> particularly likely to happen except on devices with huge disks and
-> tiney amount of memory, it is a possibility. I can make it
-> fall-through to the previous way of doing things, does that sound like
-> a reasonable idea?
+On Tue, Oct 31, 2006 at 09:26:12PM -0800, Linus Torvalds wrote:
+> (Or it might not. Sometimes the patch that triggers changes really doesn't 
+> seem to have anything to do with anything, and it literally was just a 
+> latent bug that just happened to be exposed by something that had nothing 
+> to do with anything at all but perhaps timing.
 
-Yes, or you could make it sync the ones for which you did have enough
-memory, and then restart.
-
+Especially when "booting on AC works, but on battery it doesn't", (or the
+other way round), looking at timing problems seems sane to me.
+-- 
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 

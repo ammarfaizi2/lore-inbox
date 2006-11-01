@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946725AbWKAJcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946730AbWKAJdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946725AbWKAJcz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 04:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946727AbWKAJcz
+	id S1946730AbWKAJdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 04:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946731AbWKAJdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 04:32:55 -0500
-Received: from o-hand.com ([70.86.75.186]:59823 "EHLO o-hand.com")
-	by vger.kernel.org with ESMTP id S1946725AbWKAJcy (ORCPT
+	Wed, 1 Nov 2006 04:33:41 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65411 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1946730AbWKAJdj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 04:32:54 -0500
-Subject: Re: [PATCH, RFC/T] Fix handling of write failures to swap devices
-From: Richard Purdie <richard@openedhand.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Hugh Dickins <hugh@veritas.com>
-In-Reply-To: <45483278.1080603@yahoo.com.au>
-References: <1161935995.5019.46.camel@localhost.localdomain>
-	 <4541C1B2.7070003@yahoo.com.au>
-	 <1161938694.5019.83.camel@localhost.localdomain>
-	 <4542E2A4.2080400@yahoo.com.au>
-	 <1162032227.5555.65.camel@localhost.localdomain>
-	 <454348B4.60007@yahoo.com.au>
-	 <1162209347.6962.2.camel@localhost.localdomain>
-	 <45483278.1080603@yahoo.com.au>
-Content-Type: text/plain
-Date: Wed, 01 Nov 2006 09:32:49 +0000
-Message-Id: <1162373569.5564.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Nov 2006 04:33:39 -0500
+Date: Wed, 1 Nov 2006 10:33:20 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Linus Torvalds <torvalds@osdl.org>, Ernst Herzberg <earny@net4u.de>,
+       Len Brown <lenb@kernel.org>, Adrian Bunk <bunk@stusta.de>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       Martin Lorenz <martin@lorenz.eu.org>, Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.19-rc <-> ThinkPads
+Message-ID: <20061101093320.GA18641@elf.ucw.cz>
+References: <Pine.LNX.4.64.0610312123320.25218@g5.osdl.org> <20061101055435.GB4933@mellanox.co.il> <20061101061857.GC4933@mellanox.co.il>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061101061857.GC4933@mellanox.co.il>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-01 at 16:36 +1100, Nick Piggin wrote:
-> Also note that the current code *should* "gracefully" handle the failure.
-> In that, it will not reclaim the page on a write error, so it isn't going
-> to cause a data loss...
+On Wed 2006-11-01 08:18:57, Michael S. Tsirkin wrote:
+> Quoting r. Michael S. Tsirkin <mst@mellanox.co.il>:
+> > What I plan to do is using eea0e11c1f0d6ef89e64182b2f1223a4ca2b74a2
+> > for a couple of days and see how this works out.
 > 
-> It's just that it currently results in unswappable pages.
-> 
-> Handling it more gracefully by allowing the page to be retried with another
-> swap entry is OK I guess, but given the added complexity, I'm not even sure
-> it is worthwhile.
-> 
-> Perhaps we should just do the ClearPageError in the try_to_unuse path,
-> because the sysadmin should take down that swap device on failure. So if a
-> new device is added, we want to be able to unpin the failed pages.
+> Ugh. Unfortunately in that kernel version, the e1000 driver says
+> the eeprom checksum is bad (works fine with 2.6.19-rc3).
+> So, I tried some suspends/resumes and things seem to work, but
+> I won't be able to test it under real use conditions.
 
-As I see it, ClearPageError in the try_to_unuse path is the correct
-thing to do as once we've marked the swap page as bad, it can't retry to
-the same swap page. There is nothing special about the failed pages
-beyond that point so we don't need them marked.
+Just comment out the eeprom checksum check...
 
-Also, if we remove the error flag, the page is still probably on the
-inactive list so other existing code is likely to take care of trying a
-new write to a another swap entry? I didn't add code for this case for
-that reason.
+									Pavel
 
-Regards,
-
-Richard
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

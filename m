@@ -1,118 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992546AbWKASu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992708AbWKATBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992546AbWKASu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 13:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992549AbWKASu1
+	id S2992708AbWKATBX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 14:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752289AbWKATBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 13:50:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4823 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992546AbWKASu0 (ORCPT
+	Wed, 1 Nov 2006 14:01:23 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:30685 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750838AbWKATBW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 13:50:26 -0500
-Date: Wed, 1 Nov 2006 10:48:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Greg KH <gregkh@suse.de>, "Martin J. Bligh" <mbligh@google.com>,
-       Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
-       Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-Message-Id: <20061101104853.4e5e6c64.akpm@osdl.org>
-In-Reply-To: <1162373184.6126.8.camel@Homer.simpson.net>
-References: <45461977.3020201@shadowen.org>
-	<45461E74.1040408@google.com>
-	<20061030084722.ea834a08.akpm@osdl.org>
-	<454631C1.5010003@google.com>
-	<45463481.80601@shadowen.org>
-	<20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
-	<1162276206.5959.9.camel@Homer.simpson.net>
-	<4546EF3B.1090503@google.com>
-	<20061031065912.GA13465@suse.de>
-	<1162278594.6416.4.camel@Homer.simpson.net>
-	<20061031072241.GB7306@suse.de>
-	<1162312126.5918.12.camel@Homer.simpson.net>
-	<1162318477.6016.3.camel@Homer.simpson.net>
-	<1162356198.6105.18.camel@Homer.simpson.net>
-	<20061031212508.1b116655.akpm@osdl.org>
-	<1162361529.5899.1.camel@Homer.simpson.net>
-	<1162373184.6126.8.camel@Homer.simpson.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 1 Nov 2006 14:01:22 -0500
+Date: Wed, 1 Nov 2006 21:57:46 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Oleg Verych <olecom@flower.upol.cz>, Pavel Machek <pavel@ucw.cz>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20061101185745.GA12440@2ka.mipt.ru>
+References: <1154985aa0591036@2ka.mipt.ru> <1162380963981@2ka.mipt.ru> <20061101130614.GB7195@atrey.karlin.mff.cuni.cz> <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru> <slrnekhpbr.2j1.olecom@flower.upol.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <slrnekhpbr.2j1.olecom@flower.upol.cz>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 01 Nov 2006 22:01:28 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Nov 2006 10:26:24 +0100
-Mike Galbraith <efault@gmx.de> wrote:
-
-> On Wed, 2006-11-01 at 07:12 +0100, Mike Galbraith wrote:
-> > On Tue, 2006-10-31 at 21:25 -0800, Andrew Morton wrote:
-> > > On Wed, 01 Nov 2006 05:43:18 +0100
-> > > Mike Galbraith <efault@gmx.de> wrote:
-> > > 
-> > > > On Tue, 2006-10-31 at 19:14 +0100, Mike Galbraith wrote:
-> > > > 
-> > > > > Seems it's driver-core-fixes-sysfs_create_link-retval-checks-in.patch
-> > > > > 
-> > > > > Tomorrow, I'll revert that alone from 2.6.19-rc3-mm1 to confirm...
-> > > > 
-> > > > Confirmed.  Boots fine with that patch reverted.
-> > > 
-> > > Could you test with something like this applied?
-> > 
-> > No output.  I had already enabled debugging, but got nada there either.
-> > Bugger.  <scritch scritch>
+On Wed, Nov 01, 2006 at 06:20:43PM +0000, Oleg Verych (olecom@flower.upol.cz) wrote:
 > 
-> Duh!  (what a maroon)  I booted the wrong kernel due to a typo.
+> Hallo, Evgeniy Polyakov.
+
+Hello, Oleg.
+
+> On 2006-11-01, you wrote:
+> []
+> >> Quantifying "how much more scalable" would be nice, as would be some
+> >> example where it is useful. ("It makes my webserver twice as fast on
+> >> monster 64-cpu box").
+> >
+> > Trivial kevent web-server can handle 3960+ req/sec on Xeon 2.4Ghz with
+> [...]
 > 
-> I enabled some other debug options (poke/hope), and it now boots past
-> the BUG at arch/i386/mm/pageattr.c:165 point, through the sound NULL
-> pointer dereference, and on to the eventual complete hang as NFS is
-> being initialized.  The log shows 326 failures at lines 385 and 589.
+> Seriously. I'm seeing that patches also. New, shiny, always ready "for
+> inclusion". But considering kernel (linux in this case) as not thing
+> for itself, i want to ask following question.
+> 
+> Where's real-life application to do configure && make && make install?
 
-You mean 326 separate failures?  erp.
+Your real life or mine as developer?
+I fortunately do not know anything about your real life, but my real life
+applications can be found on project's homepage.
+There is a link to archive there, where you can find plenty of sources.
+You likely do not know, but it is a bit risky business to patch all
+existing applications to show that approach is correct, if
+implementation is not completed.
+You likely do not know, but after I first time announced kevents in
+February I changed interfaces 4 times - and it is just interfaces, not
+including numerous features added/removed by developer's requests.
 
-So it's failing here:
+> There were some comments about laking much of such programs, answers were
+> "was in prev. e-mail", "need to update them", something like that.
+> "Trivial web server" sources url, mentioned in benchmark isn't pointed
+> in patch advertisement. If it was, should i actually try that new
+> *trivial* wheel?
 
-static int device_add_class_symlinks(struct device *dev)
-{
-	int error;
+Answer is trivial - there is archive where one can find a source code
+(filenames are posted regulary). Should I create a rpm? For what glibc
+version?
 
-	if (!dev->class)
-		return 0;
-	error = sysfs_create_link(&dev->kobj, &dev->class->subsys.kset.kobj,
-				  "subsystem");
-	if (error) {
-		DB();
-		goto out;
-	}
-	error = sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
-				  dev->bus_id);
-	if (error) {
--->>		DB();
-		goto out_subsys;
-	}
+> Saying that, i want to give you some short examples, i know.
+> *Linux kernel <-> userspace*:
+> o Alexey Kuznetsov  networking     <-> (excellent) iproute set of utilities;
 
+iproute documentation was way too bad when Alexey presented it first 
+time :)
 
-Now, prior to driver-core-fixes-sysfs_create_link-retval-checks-in.patch we
-were simply ignoring the return value of sysfs_create_link().  Now we're
-not ignoring it and stuff is failing.
+> o Maxim Krasnyansky tun net driver <-> vtun daemon application;
+>
+> *Glibc with mister Drepper* has huge set of tests, please search for
+> `tst*' files in the sources.
 
-I'm suspecting that the second call to sysfs_create_link() in device_add():
+Btw, show me splice() 'shiny' application? Does lighttpd use it?
+Or move_pages().
 
+> To make a little hint to you, Evgeniy, why don't you find a little
+> animal in the open source zoo to implement little interface to
+> proposed kernel subsystem and then show it to The Big Jury (not me),
+> we have here? And i can not see, how you've managed to implement
+> something like that having almost nothing on the test basket.
+> Very *suspicious* ch.
 
-	if (dev->class) {
-		sysfs_create_link(&dev->kobj, &dev->class->subsys.kset.kobj,
-				  "subsystem");
--->>		sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
-				  dev->bus_id);
+There are always people who do not like something, what can I do with
+it? I present the code, we discuss it, I ask for inclusion (since it is
+the only way to get feedback), something requires changes, it is changed
+and so on - it is development process.
+I created 'little animal in the open source zoo' by myself to show how
+simple kevents are.
 
-is simply always failing, only we never knew about it.
+> One, that comes in mind is lighthttpd <http://www.lighttpd.net/>.
+> It had sub-interface for event systems like select,poll,epoll, when i
+> checked its sources last time. And it is mature, btw.
 
-It would be useful if you could tell us what `error' is in there.  Usually
--EEXIST.
+As I already told several times, I changed only interfaces 4 times
+already, since no one seems to know what we really want and how
+interface should look like. You suggest to patch lighttpd? Well, it is
+doable, but then I will be asked to change apache and nginx. And then
+someone will suggest to change order of parameters. Will you help me
+rewrite userspace? No, you will not. You asks for something without
+providing anything back (not getting into account code, but discussion,
+ideas, testing time, nothing), and you do it in ultimate manner.
+Btw, kevent also support AIO notifications - do you suggest to patch
+reactor/proactor for tests?
+It supports network AIO - do you suggest to write support for that into
+apache?
+What about timers? It is possible to rewrite all POSIX timers users to
+usem instead.
+There is feature request for userspace events and singal delivery - what
+to do with that?
 
-Greg, what is that call actually linking from and to?
+I created trivial web servers, which send single static page and use
+various event handling schemes, and I test new subsystem with new tools,
+when tests are completed and all requested features are implemented it
+is time to work on different more complex users.
 
+So let's at least complete what we have right now, so no developer's
+efforts could be wasted writing empty chars in various places.
 
+> Cheers.
+> 
+> [ -*- OT -*-                                                           ]
+> [ I wouldn't write all this, unless saw your opinion about the         ]
+> [ reportbug (part of the Debian Bug Tracking System) this week.        ]
+> [ While i'm nobody here, imho, the first thing about good programmer   ]
+> [ must be, that he is excellent user.                                  ]
+> ____
+
+-- 
+	Evgeniy Polyakov

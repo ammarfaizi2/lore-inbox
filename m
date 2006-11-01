@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946936AbWKAQgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992647AbWKAQiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946936AbWKAQgl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 11:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946938AbWKAQgl
+	id S2992647AbWKAQiy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 11:38:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992646AbWKAQiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 11:36:41 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:51949 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1946936AbWKAQgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 11:36:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KQ8lXQiXhZfFY3mHqiSQOsyFwIY8O6L2qDue6CsUbZjLVNuIsklDcHoTG4qacoz5kMWv0PlADahTurE1ITLP0fHA9SWy1UspwsYC2a9LmhCLTePProyn90QL8KJrMg64tNh1QSWSWbcz7/2xCh7DgJkLoYoHinv+0XnSgka89uU=
-Message-ID: <41840b750611010836qe9d49a0q6c5179babd6bc137@mail.gmail.com>
-Date: Wed, 1 Nov 2006 18:36:37 +0200
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Henrique de Moraes Holschuh" <hmh@hmh.eng.br>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Cc: "David Woodhouse" <dwmw2@infradead.org>,
-       "Richard Hughes" <hughsient@gmail.com>,
-       "Xavier Bestel" <xavier.bestel@free.fr>,
-       "Jean Delvare" <khali@linux-fr.org>, davidz@redhat.com,
-       "Dan Williams" <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
-       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
-       greg@kroah.com, benh@kernel.crashing.org,
-       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>,
-       "Pavel Machek" <pavel@suse.cz>
-In-Reply-To: <20061101143634.GB12619@khazad-dum.debian.net>
+	Wed, 1 Nov 2006 11:38:54 -0500
+Received: from excu-mxob-1.symantec.com ([198.6.49.12]:62354 "EHLO
+	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S2992640AbWKAQix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 11:38:53 -0500
+Date: Wed, 1 Nov 2006 16:36:51 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Pavel Machek <pavel@suse.cz>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       Martin Lorenz <martin@lorenz.eu.org>
+Subject: Re: 2.6.19-rc <-> ThinkPads
+In-Reply-To: <20061101030126.GE27968@stusta.de>
+Message-ID: <Pine.LNX.4.64.0611011616460.6462@blonde.wat.veritas.com>
+References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il>
+ <20061101030126.GE27968@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
-	 <6DP6m926.1162281579.9733640.khali@localhost>
-	 <41840b750610310542u2bbcf4b6y5f9f812ebd12445@mail.gmail.com>
-	 <1162302686.31012.47.camel@frg-rhel40-em64t-03>
-	 <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com>
-	 <1162387577.5001.7.camel@hughsie-laptop>
-	 <1162389260.18406.62.camel@shinybook.infradead.org>
-	 <20061101143634.GB12619@khazad-dum.debian.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 01 Nov 2006 16:36:34.0086 (UTC) FILETIME=[E48AB460:01C6FDD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/06, Henrique de Moraes Holschuh <hmh@hmh.eng.br> wrote:
-> On Wed, 01 Nov 2006, David Woodhouse wrote:
-> > On Wed, 2006-11-01 at 13:26 +0000, Richard Hughes wrote:
-> > > With the battery class driver, how would that be conveyed? Would the
-> > > sysfs file be deleted in this case, or would the value of the sysfs
-> > > key be something like "<invalid>".
-> >
-> > I'd be inclined to make the read return -EINVAL.
->
-> -EIO for transient errors (e.g. access to the embedded controller/battery
-> charger/whatever fails at that instant), -EINVAL for "not supported"
-> (missing ACPI method, attribute not supported in the specific hardware)?
+On Wed, 1 Nov 2006, Adrian Bunk wrote:
+> 
+> Subject    : Thinkpad R50p: boot fail with (lapic && on_battery)
+> References : http://lkml.org/lkml/2006/10/31/333
+> Submitter  : Ernst Herzberg <earny@net4u.de>
+> Status     : submitter was asked to bisect
+> 
+> It seems to be completely unrelated (except that it's also a ThinkPad), 
+> but it might be worth a try whether a (non-SMP) kernel without APIC 
+> support fixes the issues after resume.
+> 
+> Hugh, your laptop seems to be a non-SMP laptop.
 
-Shouldn't it be -EIO or -EBUSY for transient errors (depending on
-type), and -ENXIO when not provided by hardware?
-The -EINVAL is more appropriate for bad user-supplied values (out of
-range etc.) to writable attributes.
+That's right.
 
-  Shem
+> Do you have APIC enabled, and if yes does disabling help?
+
+Yes, I do.  But I've just tried booting with "noapic" and with "nolapic"
+and with "noapic nolapic", but none of those make any difference.
+
+(That is, they make no difference to the FnF4-ineffective-after-resume
+behaviour that I'm finding fairly easy to reproduce at will today on
+2.6.19-rc4; whereas yesterday it was seeming to me that -rc4 was much
+better than -rc3 in this regard.  Something I have learnt today is that
+the key is ineffective "for a while", but may become effective later.
+It's conceivable that the behaviour I'm reproducing today is not quite
+the same as what I was experiencing earlier with real-life suspends.)
+
+More to the point, with great hope in my heart, I've tried backing
+out Andi's git-cf4c6a2f27f5db810b69dcb1da7f194489e8ff88.patch
+to arch/i386/kernel/io_apic.c, the one which Michael and Linus have
+homed in on.  But sadly that makes no difference for me: I'd better
+get down to my own bisection.
+
+Hugh

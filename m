@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946609AbWKAGMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946610AbWKAGRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946609AbWKAGMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 01:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946603AbWKAGMY
+	id S1946610AbWKAGRn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 01:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946619AbWKAGRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 01:12:24 -0500
-Received: from mail.gmx.de ([213.165.64.20]:32948 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1946609AbWKAGMX (ORCPT
+	Wed, 1 Nov 2006 01:17:42 -0500
+Received: from 1wt.eu ([62.212.114.60]:62468 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1946610AbWKAGRk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 01:12:23 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-From: Mike Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <gregkh@suse.de>, "Martin J. Bligh" <mbligh@google.com>,
-       Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
-       Steve Fox <drfickle@us.ibm.com>
-In-Reply-To: <20061031212508.1b116655.akpm@osdl.org>
-References: <45461977.3020201@shadowen.org> <45461E74.1040408@google.com>
-	 <20061030084722.ea834a08.akpm@osdl.org> <454631C1.5010003@google.com>
-	 <45463481.80601@shadowen.org>
-	 <20061030211432.6ed62405@gondolin.boeblingen.de.ibm.com>
-	 <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com>
-	 <20061031065912.GA13465@suse.de>
-	 <1162278594.6416.4.camel@Homer.simpson.net> <20061031072241.GB7306@suse.de>
-	 <1162312126.5918.12.camel@Homer.simpson.net>
-	 <1162318477.6016.3.camel@Homer.simpson.net>
-	 <1162356198.6105.18.camel@Homer.simpson.net>
-	 <20061031212508.1b116655.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 01 Nov 2006 07:12:09 +0100
-Message-Id: <1162361529.5899.1.camel@Homer.simpson.net>
+	Wed, 1 Nov 2006 01:17:40 -0500
+Date: Wed, 1 Nov 2006 08:17:22 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+       David S Miller <davem@davemloft.net>
+Subject: Re: [PATCH 40/61] SCTP: Always linearise packet on input
+Message-ID: <20061101071722.GC543@1wt.eu>
+References: <20061101053340.305569000@sous-sol.org> <20061101054231.472027000@sous-sol.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061101054231.472027000@sous-sol.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-31 at 21:25 -0800, Andrew Morton wrote:
-> On Wed, 01 Nov 2006 05:43:18 +0100
-> Mike Galbraith <efault@gmx.de> wrote:
+On Tue, Oct 31, 2006 at 09:34:20PM -0800, Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
 > 
-> > On Tue, 2006-10-31 at 19:14 +0100, Mike Galbraith wrote:
-> > 
-> > > Seems it's driver-core-fixes-sysfs_create_link-retval-checks-in.patch
-> > > 
-> > > Tomorrow, I'll revert that alone from 2.6.19-rc3-mm1 to confirm...
-> > 
-> > Confirmed.  Boots fine with that patch reverted.
+> From: Herbert Xu <herbert@gondor.apana.org.au>
 > 
-> Could you test with something like this applied?
+> I was looking at a RHEL5 bug report involving Xen and SCTP
+> (https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=212550).
+> It turns out that SCTP wasn't written to handle skb fragments at
+> all.  The absence of any calls to skb_may_pull is testament to
+> that.
+> 
+> It just so happens that Xen creates fragmented packets more often
+> than other scenarios (header & data split when going from domU to
+> dom0).  That's what caused this bug to show up.
+> 
+> Until someone has the time sits down and audits the entire net/sctp
+> directory, here is a conservative and safe solution that simply
+> linearises all packets on input.
+> 
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> 
+> ---
+>  net/sctp/input.c |    3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> --- linux-2.6.18.1.orig/net/sctp/input.c
+> +++ linux-2.6.18.1/net/sctp/input.c
+> @@ -135,6 +135,9 @@ int sctp_rcv(struct sk_buff *skb)
+>  
+>  	SCTP_INC_STATS_BH(SCTP_MIB_INSCTPPACKS);
+>  
+> +	if (skb_linearize(skb))
+> +		goto discard_it;
+> +
+>  	sh = (struct sctphdr *) skb->h.raw;
+>  
+>  	/* Pull up the IP and SCTP headers. */
 
-No output.  I had already enabled debugging, but got nada there either.
-Bugger.  <scritch scritch>
 
-	-Mike
+Herbert, David,
+
+This one seems to be valid for 2.4 too. Should I merge it or is it
+unneeded ?
+
+Willy
 

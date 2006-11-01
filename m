@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752252AbWKASPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752249AbWKASPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752252AbWKASPn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 13:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752253AbWKASPn
+	id S1752249AbWKASPV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 13:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752251AbWKASPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 13:15:43 -0500
-Received: from main.gmane.org ([80.91.229.2]:12734 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1752251AbWKASPm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 13:15:42 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
-Date: Wed, 1 Nov 2006 18:13:52 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnekhpbr.2j1.olecom@flower.upol.cz>
-References: <1154985aa0591036@2ka.mipt.ru> <1162380963981@2ka.mipt.ru> <20061101130614.GB7195@atrey.karlin.mff.cuni.cz> <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Pavel Machek <pavel@ucw.cz>, David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>, Christoph Hellwig <hch@infradead.org>, Chase Venters <chase.venters@clientec.com>, Johann Borck <johann.borck@densedata.com>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
-Cc: netdev@vger.kernel.org
+	Wed, 1 Nov 2006 13:15:21 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:26006 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1752250AbWKASPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 13:15:19 -0500
+Subject: Re: [PATCH] Add get_range, allows a hyhpenated range to get_options
+From: Derek Fults <dfults@sgi.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+In-Reply-To: <4548DB0C.3050601@oracle.com>
+References: <1162398157.9524.490.camel@lnx-dfults.americas.sgi.com>
+	 <20061101085722.18430d23.randy.dunlap@oracle.com>
+	 <1162402145.9524.501.camel@lnx-dfults.americas.sgi.com>
+	 <4548DB0C.3050601@oracle.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Nov 2006 12:16:04 -0600
+Message-Id: <1162404964.9524.524.camel@lnx-dfults.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo, Evgeniy Polyakov.
 
-On 2006-11-01, you wrote:
-[]
->> Quantifying "how much more scalable" would be nice, as would be some
->> example where it is useful. ("It makes my webserver twice as fast on
->> monster 64-cpu box").
->
-> Trivial kevent web-server can handle 3960+ req/sec on Xeon 2.4Ghz with
-[...]
+> How does get_range() handle errors, like input of
+> 	64-60
+> or	64-N
+> or	64-
+> ?
+> 
+get_range will return a negative value which caused it to break out of
+the while loop on the next iteration.  I've added a check of the
+get_range return value to break immediately. See snippet.  
+If get_options is called with a bad range, 
+64-N,65
+returns and empty array.
+63,64-N
+returns an array with just 63.  
 
-Seriously. I'm seeing that patches also. New, shiny, always ready "for
-inclusion". But considering kernel (linux in this case) as not thing
-for itself, i want to ask following question.
+		if (res == 3) {
+			int range_nums;
+			range_nums = get_range((char **)&str, ints + i);
++			if ( range_nums < 0)
++					break;
+			/* Decrement the result by one to leave out the
+			   last number in the range.  The next iteration
+			   will handle the upper number in the range */
+			i += (range_nums - 1);
+		}
 
-Where's real-life application to do configure && make && make install?
-
-There were some comments about laking much of such programs, answers were
-"was in prev. e-mail", "need to update them", something like that.
-"Trivial web server" sources url, mentioned in benchmark isn't pointed
-in patch advertisement. If it was, should i actually try that new
-*trivial* wheel?
-
-Saying that, i want to give you some short examples, i know.
-*Linux kernel <-> userspace*:
-o Alexey Kuznetsov  networking     <-> (excellent) iproute set of utilities;
-o Maxim Krasnyansky tun net driver <-> vtun daemon application;
-
-*Glibc with mister Drepper* has huge set of tests, please search for
-`tst*' files in the sources.
-
-To make a little hint to you, Evgeniy, why don't you find a little
-animal in the open source zoo to implement little interface to
-proposed kernel subsystem and then show it to The Big Jury (not me),
-we have here? And i can not see, how you've managed to implement
-something like that having almost nothing on the test basket.
-Very *suspicious* ch.
-
-One, that comes in mind is lighthttpd <http://www.lighttpd.net/>.
-It had sub-interface for event systems like select,poll,epoll, when i
-checked its sources last time. And it is mature, btw.
-
-Cheers.
-
-[ -*- OT -*-                                                           ]
-[ I wouldn't write all this, unless saw your opinion about the         ]
-[ reportbug (part of the Debian Bug Tracking System) this week.        ]
-[ While i'm nobody here, imho, the first thing about good programmer   ]
-[ must be, that he is excellent user.                                  ]
-____
-
+Derek

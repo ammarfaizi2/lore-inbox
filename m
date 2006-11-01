@@ -1,47 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946904AbWKAO1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992507AbWKAOhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946904AbWKAO1P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 09:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946903AbWKAO1P
+	id S2992507AbWKAOhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 09:37:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992510AbWKAOhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 09:27:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24728 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1946904AbWKAO1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 09:27:15 -0500
-Subject: Re: ASUS M2NPV-VM APIC/ACPI Bug (patched)
-From: Arjan van de Ven <arjan@infradead.org>
-To: impulze <impulze@impulze.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Allen Martin <AMartin@nvidia.com>, Robert Hancock <hancockr@shaw.ca>,
-       Len Brown <lenb@kernel.org>, Andy Currid <ACurrid@nvidia.com>
-In-Reply-To: <4548AD4E.8050007@impulze.org>
-References: <DBFABB80F7FD3143A911F9E6CFD477B00E48D31D@hqemmail02.nvidia.com>
-	 <200610201504.51657.ak@suse.de>  <4548AD4E.8050007@impulze.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 01 Nov 2006 15:27:08 +0100
-Message-Id: <1162391232.23744.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 1 Nov 2006 09:37:09 -0500
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:11952 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S2992507AbWKAOhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 09:37:07 -0500
+Date: Wed, 1 Nov 2006 15:39:33 +0100
+From: Luotao Fu <l.fu@pengutronix.de>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org, Robert Schwebel <r.schwebel@pengutronix.de>
+Subject: [PATCH] trivial patch for comment correction in -rt patches since 2.6.18
+Message-ID: <20061101143932.GA25890@localhost.localdomain>
+Mail-Followup-To: mingo@elte.hu, linux-kernel@vger.kernel.org,
+	Robert Schwebel <r.schwebel@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1SQmhf2mF2YjsYvc"
+Content-Disposition: inline
+X-PGP-Key-ID: 0xE5325261
+X-URL: http://www.pengutronix.de
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Anyway i chatted around the globus and someone also mentioned that my 
-> IRQs for sound and several others are very high. I'm not sure if this is 
-> a board issue or a kernel issue. But since the sound chip on board (hda 
-> intel) is having problems too I guess it's a kernel related thing. I 
-> wonder if this will be fixed in newer versions.
+--1SQmhf2mF2YjsYvc
+Content-Type: multipart/mixed; boundary="9zSXsLTf0vkW971A"
+Content-Disposition: inline
 
-btw if you have bios problems you can always use the linux-ready
-firmware developer kit to test how well it does; see
-http://www.linuxfirmwarekit.org for details
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+--9zSXsLTf0vkW971A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi,
+the trivial patch in the following fixes a comment in latency_trace.c
+about user triggerring the tracer, which says that the latency tracer is=20
+to be triggered on- and off by gettimeofday() from userspace. However it
+is done by prctl() since 2.6.18-rt1 now.
+
+Regards
+Luotao Fu
+--=20
+     Dipl.-Ing. Luotao Fu | http://www.pengutronix.de
+  Pengutronix - Linux Solutions for Science and Industry
+    Handelsregister: Amtsgericht Hildesheim, HRA 2686
+      Hannoversche Str. 2, 31134 Hildesheim, Germany
+    Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
+
+
+--9zSXsLTf0vkW971A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="usertriggertrace_comment.diff"
+Content-Transfer-Encoding: quoted-printable
+
+Correct the comment about userspace function which triggers the latency tra=
+cer
+
+Signed-off-by: Luotao Fu <lfu@pengutronix.de>
+
+Index: linux-2.6.18-rt.sec/kernel/latency_trace.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- kernel/latency_trace.c
++++ kernel/latency_trace.c
+@@ -263,7 +263,7 @@ int trace_all_cpus =3D 0;
+ int print_functions =3D 0;
+=20
+ /*
+- * user-triggered via gettimeofday(0,1)/gettimeofday(0,0)
++ * user-triggered via prctl(0,1)/prctl(0,0)
+  */
+ int trace_user_triggered =3D 0;
+ int trace_user_trigger_irq =3D -1;
+
+--9zSXsLTf0vkW971A--
+
+--1SQmhf2mF2YjsYvc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFSLGkiruQY+UyUmERAj6fAJ9/cIY32E0wRy8PgVEOL5YI0c/SUwCfcbph
+sBOgdiKrOXvplqhHeNjStbM=
+=3ZWh
+-----END PGP SIGNATURE-----
+
+--1SQmhf2mF2YjsYvc--

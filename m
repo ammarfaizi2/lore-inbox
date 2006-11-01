@@ -1,28 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992792AbWKATzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992782AbWKAT4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992792AbWKATzt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 14:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992793AbWKATzt
+	id S2992782AbWKAT4u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 14:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992789AbWKAT4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 14:55:49 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:38774 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S2992792AbWKATzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 14:55:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=mYCJd1Qxo8A0o0TzzntNwDln5qTBf0NzThLTQcmh4wiLnBiEWAqfxCOnusWEMbSfTo2CCmq28xM02VH9/q3enaOX73qlEHKSGO9AQzhncUozhrle+G2aHkMmS2tWvwpuPX5AoxHlS4CvBKA7GNURRWcL2jWUr5StmihdTFRrPk8=
-Message-ID: <2aac3c260611011155o7c7ad52btc869405af1c00f96@mail.gmail.com>
-Date: Wed, 1 Nov 2006 20:55:41 +0100
-From: "Giangiacomo Mariotti" <giangiacomo.mariotti@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]cleaning of the definition of HANDLE_STACK
+	Wed, 1 Nov 2006 14:56:50 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:42 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S2992782AbWKAT4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 14:56:49 -0500
+Message-ID: <4548FAFC.5000409@oracle.com>
+Date: Wed, 01 Nov 2006 11:52:28 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
+To: Derek Fults <dfults@sgi.com>
+CC: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Updated, add get_range, allows a hyhpenated range to
+ get_options
+References: <1162410596.9524.544.camel@lnx-dfults.americas.sgi.com>
+In-Reply-To: <1162410596.9524.544.camel@lnx-dfults.americas.sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It was not a compilation warning,but a prolem found with sparse.
+Derek Fults wrote:
+> This allows a hyphenated range of positive numbers M-N, in the string
+> passed to command line helper function, get_options.  This will expand
+> the range and insert the values[M, M+1, ..., N] into the ints array in
+> get_options.
+> 
+> Currently the command line option "isolcpus=" takes as its argument a
+> list of cpus.  
+> Format: <cpu number>,...,<cpu number>
+> This can get extremely long when isolating the majority of cpus on a
+> large system.  Valid values of <cpu_number>  include all cpus, 0 to
+> "number of CPUs in system - 1".
+> 
+> 
+> Signed-off-by: Derek Fults <dfults@sgi.com>  
+> 
+> Index: linux/lib/cmdline.c
+> ===================================================================
+> --- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
+> +++ linux/lib/cmdline.c	2006-11-01 12:36:20.059166727 -0600
+> @@ -16,6 +16,23 @@
+>  #include <linux/kernel.h>
+>  #include <linux/string.h>
+>  
+> +/**
+> + *	If a hyphen was found in get_option, this will handle the
+> + *	range of numbers, M-N.  This will expand the range and insert
+> + *	the values[M, M+1, ..., N] into the ints array in get_options.
+> + */
+
+Derek,
+Thanks for persisting thru this.  It's all fine for me except the
+comment block above.  If a comment block begins with "/**", then
+it's supposed to be in kernel-doc format (see
+Documentation/kernel-doc-nano-HOWTO.txt), with function name &
+parameters (if applicable).  However, that mostly needs to be done
+for non-static functions, so probably just change /** to /*
+and leave the rest of the comment block as is.
+My other comment-block comment was also about kernel long-comment
+style, which is
+/*
+ * begin
+ * more
+ * end
+ */
+so now you have achieved that also, so thanks again.
+
+> +static int get_range(char **str, int *pint)
+> +{
+> +	int x, inc_counter, upper_range;
+> +
+> +	(*str)++;
+> +	upper_range = simple_strtol((*str), NULL, 0);
+> +	inc_counter = upper_range - *pint;
+> +	for (x = *pint; x < upper_range; x++)
+> +		*pint++ = x;
+> +	return inc_counter;
+> +}
+>  
+>  /**
+>   *	get_option - Parse integer from an option string
+> @@ -29,6 +46,7 @@
+>   *	0 : no int in string
+>   *	1 : int found, no subsequent comma
+>   *	2 : int found including a subsequent comma
+> + *	3 : hyphen found to denote a range
+>   */
+>  
+>  int get_option (char **str, int *pint)
+> @@ -44,6 +62,8 @@
+>  		(*str)++;
+>  		return 2;
+>  	}
+> +	if (**str == '-')
+> +		return 3;
+>  
+>  	return 1;
+>  }
+> @@ -55,7 +75,8 @@
+>   *	@ints: integer array
+>   *
+>   *	This function parses a string containing a comma-separated
+> - *	list of integers.  The parse halts when the array is
+> + *	list of integers, a hyphen-separated range of _positive_ integers,
+> + *	or a combination of both.  The parse halts when the array is
+>   *	full, or when no more numbers can be retrieved from the
+>   *	string.
+>   *
+> @@ -72,6 +93,16 @@
+>  		res = get_option ((char **)&str, ints + i);
+>  		if (res == 0)
+>  			break;
+> +		if (res == 3) {
+> +			int range_nums;
+> +			range_nums = get_range((char **)&str, ints + i);
+> +			if (range_nums < 0)
+> +				break;
+> +			/* Decrement the result by one to leave out the
+> +			   last number in the range.  The next iteration
+> +			   will handle the upper number in the range */
+> +			i += (range_nums - 1);
+> +		}
+>  		i++;
+>  		if (res == 1)
+>  			break;
+
+
+-- 
+~Randy

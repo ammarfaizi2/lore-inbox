@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946411AbWKACMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946424AbWKACNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946411AbWKACMl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 21:12:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946421AbWKACMl
+	id S1946424AbWKACNG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 21:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946421AbWKACNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 21:12:41 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:60345 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1946413AbWKACMj (ORCPT
+	Tue, 31 Oct 2006 21:13:06 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:61881 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1946420AbWKACNC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 21:12:39 -0500
-Date: Tue, 31 Oct 2006 21:12:36 -0500
+	Tue, 31 Oct 2006 21:13:02 -0500
+Date: Tue, 31 Oct 2006 21:13:01 -0500
 From: Jeff Garzik <jeff@garzik.org>
 To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [git patches] net driver fixes
-Message-ID: <20061101021236.GA21522@havoc.gtf.org>
+Cc: linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: [git patches] libata fixes
+Message-ID: <20061101021301.GA21568@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,416 +24,201 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Please pull from 'upstream-linus' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-linus
 
 to receive the following updates:
 
- drivers/net/Kconfig             |    6 +++---
- drivers/net/arm/ep93xx_eth.c    |   40 ++++++++++-----------------------------
- drivers/net/ehea/ehea_main.c    |   11 +++++------
- drivers/net/irda/stir4200.c     |    3 +--
- drivers/net/myri10ge/myri10ge.c |    1 -
- drivers/net/s2io.c              |   11 ++++++++++-
- drivers/net/skge.c              |    3 +--
- drivers/net/sky2.c              |    9 ++++++---
- drivers/net/tokenring/proteon.c |    9 +++++++--
- drivers/net/tokenring/skisa.c   |    9 +++++++--
- drivers/net/wan/n2.c            |    6 +++---
- net/sched/sch_netem.c           |    2 +-
- 12 files changed, 54 insertions(+), 56 deletions(-)
+ drivers/ata/ata_piix.c    |   38 ++++++--------------------------------
+ drivers/ata/libata-core.c |    1 -
+ drivers/ata/libata.h      |    1 +
+ drivers/ata/sata_sis.c    |   21 ++++++++++-----------
+ include/linux/libata.h    |    1 -
+ 5 files changed, 17 insertions(+), 45 deletions(-)
 
-Akinobu Mita:
-      tokenring: fix module_init error handling
-      n2: fix confusing error code
+Jens Axboe:
+      Add 0x7110 piix to ata_piix.c
 
-Brice Goglin:
-      myri10ge: ServerWorks HT2000 PCI id is already defined in pci_ids.h
+Tejun Heo:
+      sata_sis: fix flags handling for the secondary port
+      libata: unexport ata_dev_revalidate()
+      ata_piix: allow 01b MAP for both ICH6M and ICH7M
 
-David Rientjes:
-      net s2io: return on NULL dev_alloc_skb()
-
-Jan-Bernd Themann:
-      ehea: kzalloc GFP_ATOMIC fix
-
-Lennert Buytenhek:
-      ep93xx_eth: fix RX/TXstatus ring full handling
-      ep93xx_eth: fix unlikely(x) > y test
-      ep93xx_eth: don't report RX errors
-
-Stephen Hemminger:
-      sky2: not experimental
-      skge, sky2, et all. gplv2 only
-      sky2: netpoll on dual port cards
-
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index e38846e..28c17d1 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -2112,7 +2112,7 @@ config SKGE
+diff --git a/drivers/ata/ata_piix.c b/drivers/ata/ata_piix.c
+index 5250187..8385387 100644
+--- a/drivers/ata/ata_piix.c
++++ b/drivers/ata/ata_piix.c
+@@ -126,8 +126,7 @@ enum {
+ 	ich6_sata		= 7,
+ 	ich6_sata_ahci		= 8,
+ 	ich6m_sata_ahci		= 9,
+-	ich7m_sata_ahci		= 10,
+-	ich8_sata_ahci		= 11,
++	ich8_sata_ahci		= 10,
  
- config SKY2
- 	tristate "SysKonnect Yukon2 support (EXPERIMENTAL)"
--	depends on PCI && EXPERIMENTAL
-+	depends on PCI
- 	select CRC32
- 	---help---
- 	  This driver supports Gigabit Ethernet adapters based on the
-@@ -2120,8 +2120,8 @@ config SKY2
- 	  Marvell 88E8021/88E8022/88E8035/88E8036/88E8038/88E8050/88E8052/
- 	  88E8053/88E8055/88E8061/88E8062, SysKonnect SK-9E21D/SK-9S21
- 
--	  This driver does not support the original Yukon chipset: a seperate
--	  driver, skge, is provided for Yukon-based adapters.
-+	  There is companion driver for the older Marvell Yukon and
-+	  Genesis based adapters: skge.
- 
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called sky2.  This is recommended.
-diff --git a/drivers/net/arm/ep93xx_eth.c b/drivers/net/arm/ep93xx_eth.c
-index 127561c..8ebd68e 100644
---- a/drivers/net/arm/ep93xx_eth.c
-+++ b/drivers/net/arm/ep93xx_eth.c
-@@ -193,12 +193,9 @@ static struct net_device_stats *ep93xx_g
- static int ep93xx_rx(struct net_device *dev, int *budget)
- {
- 	struct ep93xx_priv *ep = netdev_priv(dev);
--	int tail_offset;
- 	int rx_done;
- 	int processed;
- 
--	tail_offset = rdl(ep, REG_RXSTSQCURADD) - ep->descs_dma_addr;
+ 	/* constants for mapping table */
+ 	P0			= 0,  /* port 0 */
+@@ -169,6 +168,7 @@ static const struct pci_device_id piix_p
+ #ifdef ATA_ENABLE_PATA
+ 	/* Intel PIIX4 for the 430TX/440BX/MX chipset: UDMA 33 */
+ 	/* Also PIIX4E (fn3 rev 2) and PIIX4M (fn3 rev 3) */
++	{ 0x8086, 0x7110, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix_pata_33 },
+ 	{ 0x8086, 0x7111, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix_pata_33 },
+ 	{ 0x8086, 0x24db, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich_pata_100 },
+ 	{ 0x8086, 0x25a2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich_pata_100 },
+@@ -227,7 +227,7 @@ #endif
+ 	/* 82801GB/GR/GH (ICH7, identical to ICH6) */
+ 	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+ 	/* 2801GBM/GHM (ICH7M, identical to ICH6M) */
+-	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich7m_sata_ahci },
++	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6m_sata_ahci },
+ 	/* Enterprise Southbridge 2 (where's the datasheet?) */
+ 	{ 0x8086, 0x2680, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+ 	/* SATA Controller 1 IDE (ICH8, no datasheet yet) */
+@@ -399,23 +399,10 @@ static const struct piix_map_db ich6m_ma
+ 	.mask = 0x3,
+ 	.port_enable = 0x5,
+ 	.present_shift = 4,
+-	.map = {
+-		/* PM   PS   SM   SS       MAP */
+-		{  P0,  P2,  RV,  RV }, /* 00b */
+-		{  RV,  RV,  RV,  RV },
+-		{  P0,  P2, IDE, IDE }, /* 10b */
+-		{  RV,  RV,  RV,  RV },
+-	},
+-};
 -
- 	rx_done = 0;
- 	processed = 0;
- 	while (*budget > 0) {
-@@ -211,36 +208,28 @@ static int ep93xx_rx(struct net_device *
+-static const struct piix_map_db ich7m_map_db = {
+-	.mask = 0x3,
+-	.port_enable = 0x5,
+-	.present_shift = 4,
  
- 		entry = ep->rx_pointer;
- 		rstat = ep->descs->rstat + entry;
--		if ((void *)rstat - (void *)ep->descs == tail_offset) {
+ 	/* Map 01b isn't specified in the doc but some notebooks use
+-	 * it anyway.  ATM, the only case spotted carries subsystem ID
+-	 * 1025:0107.  This is the only difference from ich6m.
++	 * it anyway.  MAP 01b have been spotted on both ICH6M and
++	 * ICH7M.
+ 	 */
+ 	.map = {
+ 		/* PM   PS   SM   SS       MAP */
+@@ -445,7 +432,6 @@ static const struct piix_map_db *piix_ma
+ 	[ich6_sata]		= &ich6_map_db,
+ 	[ich6_sata_ahci]	= &ich6_map_db,
+ 	[ich6m_sata_ahci]	= &ich6m_map_db,
+-	[ich7m_sata_ahci]	= &ich7m_map_db,
+ 	[ich8_sata_ahci]	= &ich8_map_db,
+ };
+ 
+@@ -556,19 +542,7 @@ static struct ata_port_info piix_port_in
+ 		.port_ops	= &piix_sata_ops,
+ 	},
+ 
+-	/* ich7m_sata_ahci: 10 */
+-	{
+-		.sht		= &piix_sht,
+-		.flags		= ATA_FLAG_SATA |
+-				  PIIX_FLAG_CHECKINTR | PIIX_FLAG_SCR |
+-				  PIIX_FLAG_AHCI,
+-		.pio_mask	= 0x1f,	/* pio0-4 */
+-		.mwdma_mask	= 0x07, /* mwdma0-2 */
+-		.udma_mask	= 0x7f,	/* udma0-6 */
+-		.port_ops	= &piix_sata_ops,
+-	},
+-
+-	/* ich8_sata_ahci: 11 */
++	/* ich8_sata_ahci: 10 */
+ 	{
+ 		.sht		= &piix_sht,
+ 		.flags		= ATA_FLAG_SATA |
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 83728a9..a8fd0c3 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -6122,7 +6122,6 @@ EXPORT_SYMBOL_GPL(ata_std_prereset);
+ EXPORT_SYMBOL_GPL(ata_std_softreset);
+ EXPORT_SYMBOL_GPL(sata_std_hardreset);
+ EXPORT_SYMBOL_GPL(ata_std_postreset);
+-EXPORT_SYMBOL_GPL(ata_dev_revalidate);
+ EXPORT_SYMBOL_GPL(ata_dev_classify);
+ EXPORT_SYMBOL_GPL(ata_dev_pair);
+ EXPORT_SYMBOL_GPL(ata_port_disable);
+diff --git a/drivers/ata/libata.h b/drivers/ata/libata.h
+index a5ecb71..0ed263b 100644
+--- a/drivers/ata/libata.h
++++ b/drivers/ata/libata.h
+@@ -53,6 +53,7 @@ extern unsigned ata_exec_internal(struct
+ extern unsigned int ata_do_simple_cmd(struct ata_device *dev, u8 cmd);
+ extern int ata_dev_read_id(struct ata_device *dev, unsigned int *p_class,
+ 			   int post_reset, u16 *id);
++extern int ata_dev_revalidate(struct ata_device *dev, int post_reset);
+ extern int ata_dev_configure(struct ata_device *dev, int print_info);
+ extern int sata_down_spd_limit(struct ata_port *ap);
+ extern int sata_set_spd_needed(struct ata_port *ap);
+diff --git a/drivers/ata/sata_sis.c b/drivers/ata/sata_sis.c
+index 0738f52..9d1235b 100644
+--- a/drivers/ata/sata_sis.c
++++ b/drivers/ata/sata_sis.c
+@@ -240,7 +240,7 @@ static int sis_init_one (struct pci_dev 
+ 	struct ata_probe_ent *probe_ent = NULL;
+ 	int rc;
+ 	u32 genctl;
+-	struct ata_port_info *ppi[2];
++	struct ata_port_info pi = sis_port_info, *ppi[2] = { &pi, &pi };
+ 	int pci_dev_busy = 0;
+ 	u8 pmr;
+ 	u8 port2_start;
+@@ -265,27 +265,20 @@ static int sis_init_one (struct pci_dev 
+ 	if (rc)
+ 		goto err_out_regions;
+ 
+-	ppi[0] = ppi[1] = &sis_port_info;
+-	probe_ent = ata_pci_init_native_mode(pdev, ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
+-	if (!probe_ent) {
+-		rc = -ENOMEM;
+-		goto err_out_regions;
+-	}
+-
+ 	/* check and see if the SCRs are in IO space or PCI cfg space */
+ 	pci_read_config_dword(pdev, SIS_GENCTL, &genctl);
+ 	if ((genctl & GENCTL_IOMAPPED_SCR) == 0)
+-		probe_ent->port_flags |= SIS_FLAG_CFGSCR;
++		pi.flags |= SIS_FLAG_CFGSCR;
+ 
+ 	/* if hardware thinks SCRs are in IO space, but there are
+ 	 * no IO resources assigned, change to PCI cfg space.
+ 	 */
+-	if ((!(probe_ent->port_flags & SIS_FLAG_CFGSCR)) &&
++	if ((!(pi.flags & SIS_FLAG_CFGSCR)) &&
+ 	    ((pci_resource_start(pdev, SIS_SCR_PCI_BAR) == 0) ||
+ 	     (pci_resource_len(pdev, SIS_SCR_PCI_BAR) < 128))) {
+ 		genctl &= ~GENCTL_IOMAPPED_SCR;
+ 		pci_write_config_dword(pdev, SIS_GENCTL, genctl);
+-		probe_ent->port_flags |= SIS_FLAG_CFGSCR;
++		pi.flags |= SIS_FLAG_CFGSCR;
+ 	}
+ 
+ 	pci_read_config_byte(pdev, SIS_PMR, &pmr);
+@@ -306,6 +299,12 @@ static int sis_init_one (struct pci_dev 
+ 		port2_start = 0x20;
+ 	}
+ 
++	probe_ent = ata_pci_init_native_mode(pdev, ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
++	if (!probe_ent) {
++		rc = -ENOMEM;
++		goto err_out_regions;
++	}
 +
-+		rstat0 = rstat->rstat0;
-+		rstat1 = rstat->rstat1;
-+		if (!(rstat0 & RSTAT0_RFP) || !(rstat1 & RSTAT1_RFP)) {
- 			rx_done = 1;
- 			break;
- 		}
- 
--		rstat0 = rstat->rstat0;
--		rstat1 = rstat->rstat1;
- 		rstat->rstat0 = 0;
- 		rstat->rstat1 = 0;
- 
--		if (!(rstat0 & RSTAT0_RFP))
--			printk(KERN_CRIT "ep93xx_rx: buffer not done "
--					 " %.8x %.8x\n", rstat0, rstat1);
- 		if (!(rstat0 & RSTAT0_EOF))
- 			printk(KERN_CRIT "ep93xx_rx: not end-of-frame "
- 					 " %.8x %.8x\n", rstat0, rstat1);
- 		if (!(rstat0 & RSTAT0_EOB))
- 			printk(KERN_CRIT "ep93xx_rx: not end-of-buffer "
- 					 " %.8x %.8x\n", rstat0, rstat1);
--		if (!(rstat1 & RSTAT1_RFP))
--			printk(KERN_CRIT "ep93xx_rx: buffer1 not done "
--					 " %.8x %.8x\n", rstat0, rstat1);
- 		if ((rstat1 & RSTAT1_BUFFER_INDEX) >> 16 != entry)
- 			printk(KERN_CRIT "ep93xx_rx: entry mismatch "
- 					 " %.8x %.8x\n", rstat0, rstat1);
- 
- 		if (!(rstat0 & RSTAT0_RWE)) {
--			printk(KERN_NOTICE "ep93xx_rx: receive error "
--					 " %.8x %.8x\n", rstat0, rstat1);
--
- 			ep->stats.rx_errors++;
- 			if (rstat0 & RSTAT0_OE)
- 				ep->stats.rx_fifo_errors++;
-@@ -301,13 +290,8 @@ err:
- 
- static int ep93xx_have_more_rx(struct ep93xx_priv *ep)
- {
--	struct ep93xx_rstat *rstat;
--	int tail_offset;
--
--	rstat = ep->descs->rstat + ep->rx_pointer;
--	tail_offset = rdl(ep, REG_RXSTSQCURADD) - ep->descs_dma_addr;
--
--	return !((void *)rstat - (void *)ep->descs == tail_offset);
-+	struct ep93xx_rstat *rstat = ep->descs->rstat + ep->rx_pointer;
-+	return !!((rstat->rstat0 & RSTAT0_RFP) && (rstat->rstat1 & RSTAT1_RFP));
- }
- 
- static int ep93xx_poll(struct net_device *dev, int *budget)
-@@ -347,7 +331,7 @@ static int ep93xx_xmit(struct sk_buff *s
- 	struct ep93xx_priv *ep = netdev_priv(dev);
- 	int entry;
- 
--	if (unlikely(skb->len) > MAX_PKT_SIZE) {
-+	if (unlikely(skb->len > MAX_PKT_SIZE)) {
- 		ep->stats.tx_dropped++;
- 		dev_kfree_skb(skb);
- 		return NETDEV_TX_OK;
-@@ -379,10 +363,8 @@ static int ep93xx_xmit(struct sk_buff *s
- static void ep93xx_tx_complete(struct net_device *dev)
- {
- 	struct ep93xx_priv *ep = netdev_priv(dev);
--	int tail_offset;
- 	int wake;
- 
--	tail_offset = rdl(ep, REG_TXSTSQCURADD) - ep->descs_dma_addr;
- 	wake = 0;
- 
- 	spin_lock(&ep->tx_pending_lock);
-@@ -393,15 +375,13 @@ static void ep93xx_tx_complete(struct ne
- 
- 		entry = ep->tx_clean_pointer;
- 		tstat = ep->descs->tstat + entry;
--		if ((void *)tstat - (void *)ep->descs == tail_offset)
--			break;
- 
- 		tstat0 = tstat->tstat0;
-+		if (!(tstat0 & TSTAT0_TXFP))
-+			break;
-+
- 		tstat->tstat0 = 0;
- 
--		if (!(tstat0 & TSTAT0_TXFP))
--			printk(KERN_CRIT "ep93xx_tx_complete: buffer not done "
--					 " %.8x\n", tstat0);
- 		if (tstat0 & TSTAT0_FA)
- 			printk(KERN_CRIT "ep93xx_tx_complete: frame aborted "
- 					 " %.8x\n", tstat0);
-diff --git a/drivers/net/ehea/ehea_main.c b/drivers/net/ehea/ehea_main.c
-index eb7d44d..4538c99 100644
---- a/drivers/net/ehea/ehea_main.c
-+++ b/drivers/net/ehea/ehea_main.c
-@@ -586,8 +586,8 @@ int ehea_sense_port_attr(struct ehea_por
- 	u64 hret;
- 	struct hcp_ehea_port_cb0 *cb0;
- 
--	cb0 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
--	if (!cb0) {
-+	cb0 = kzalloc(H_CB_ALIGNMENT, GFP_ATOMIC);   /* May be called via */
-+	if (!cb0) {                                  /* ehea_neq_tasklet() */
- 		ehea_error("no mem for cb0");
- 		ret = -ENOMEM;
- 		goto out;
-@@ -765,8 +765,7 @@ static void ehea_parse_eqe(struct ehea_a
- 
- 		if (EHEA_BMASK_GET(NEQE_PORT_UP, eqe)) {
- 			if (!netif_carrier_ok(port->netdev)) {
--				ret = ehea_sense_port_attr(
--					port);
-+				ret = ehea_sense_port_attr(port);
- 				if (ret) {
- 					ehea_error("failed resensing port "
- 						   "attributes");
-@@ -1502,7 +1501,7 @@ static void ehea_promiscuous(struct net_
- 	if ((enable && port->promisc) || (!enable && !port->promisc))
- 		return;
- 
--	cb7 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb7 = kzalloc(H_CB_ALIGNMENT, GFP_ATOMIC);
- 	if (!cb7) {
- 		ehea_error("no mem for cb7");
- 		goto out;
-@@ -1606,7 +1605,7 @@ static void ehea_add_multicast_entry(str
- 	struct ehea_mc_list *ehea_mcl_entry;
- 	u64 hret;
- 
--	ehea_mcl_entry = kzalloc(sizeof(*ehea_mcl_entry), GFP_KERNEL);
-+	ehea_mcl_entry = kzalloc(sizeof(*ehea_mcl_entry), GFP_ATOMIC);
- 	if (!ehea_mcl_entry) {
- 		ehea_error("no mem for mcl_entry");
- 		return;
-diff --git a/drivers/net/irda/stir4200.c b/drivers/net/irda/stir4200.c
-index be8a66e..3b4c478 100644
---- a/drivers/net/irda/stir4200.c
-+++ b/drivers/net/irda/stir4200.c
-@@ -15,8 +15,7 @@
- *
- *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
--*	the Free Software Foundation; either version 2 of the License, or
--*	(at your option) any later version.
-+*	the Free Software Foundation; either version 2 of the License.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/drivers/net/myri10ge/myri10ge.c b/drivers/net/myri10ge/myri10ge.c
-index fdbb0d7..806081b 100644
---- a/drivers/net/myri10ge/myri10ge.c
-+++ b/drivers/net/myri10ge/myri10ge.c
-@@ -2416,7 +2416,6 @@ static void myri10ge_enable_ecrc(struct 
-  * firmware image, and set tx.boundary to 4KB.
-  */
- 
--#define PCI_DEVICE_ID_SERVERWORKS_HT2000_PCIE	0x0132
- #define PCI_DEVICE_ID_INTEL_E5000_PCIE23 0x25f7
- #define PCI_DEVICE_ID_INTEL_E5000_PCIE47 0x25fa
- 
-diff --git a/drivers/net/s2io.c b/drivers/net/s2io.c
-index a231ab7..33569ec 100644
---- a/drivers/net/s2io.c
-+++ b/drivers/net/s2io.c
-@@ -5985,6 +5985,11 @@ static int set_rxd_buffer_pointer(nic_t 
- 			((RxD3_t*)rxdp)->Buffer1_ptr = *temp1;
- 		} else {
- 			*skb = dev_alloc_skb(size);
-+			if (!(*skb)) {
-+				DBG_PRINT(ERR_DBG, "%s: dev_alloc_skb failed\n",
-+					  dev->name);
-+				return -ENOMEM;
-+			}
- 			((RxD3_t*)rxdp)->Buffer2_ptr = *temp2 =
- 				pci_map_single(sp->pdev, (*skb)->data,
- 					       dev->mtu + 4,
-@@ -6007,7 +6012,11 @@ static int set_rxd_buffer_pointer(nic_t 
- 			((RxD3_t*)rxdp)->Buffer2_ptr = *temp2;
- 		} else {
- 			*skb = dev_alloc_skb(size);
--
-+			if (!(*skb)) {
-+				DBG_PRINT(ERR_DBG, "%s: dev_alloc_skb failed\n",
-+					  dev->name);
-+				return -ENOMEM;
-+			}
- 			((RxD3_t*)rxdp)->Buffer0_ptr = *temp0 =
- 				pci_map_single(sp->pdev, ba->ba_0, BUF0_LEN,
- 					       PCI_DMA_FROMDEVICE);
-diff --git a/drivers/net/skge.c b/drivers/net/skge.c
-index e7e4149..b294903 100644
---- a/drivers/net/skge.c
-+++ b/drivers/net/skge.c
-@@ -11,8 +11,7 @@
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-+ * the Free Software Foundation; either version 2 of the License.
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/drivers/net/sky2.c b/drivers/net/sky2.c
-index 95efdb5..16616f5 100644
---- a/drivers/net/sky2.c
-+++ b/drivers/net/sky2.c
-@@ -10,8 +10,7 @@
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-+ * the Free Software Foundation; either version 2 of the License.
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-@@ -3239,7 +3238,11 @@ static __devinit struct net_device *sky2
- 		dev->poll = sky2_poll;
- 	dev->weight = NAPI_WEIGHT;
- #ifdef CONFIG_NET_POLL_CONTROLLER
--	dev->poll_controller = sky2_netpoll;
-+	/* Network console (only works on port 0)
-+	 * because netpoll makes assumptions about NAPI
-+	 */
-+	if (port == 0)
-+		dev->poll_controller = sky2_netpoll;
- #endif
- 
- 	sky2 = netdev_priv(dev);
-diff --git a/drivers/net/tokenring/proteon.c b/drivers/net/tokenring/proteon.c
-index 4f75696..cb7dbb6 100644
---- a/drivers/net/tokenring/proteon.c
-+++ b/drivers/net/tokenring/proteon.c
-@@ -370,6 +370,10 @@ static int __init proteon_init(void)
- 		dev->dma = dma[i];
- 		pdev = platform_device_register_simple("proteon",
- 			i, NULL, 0);
-+		if (IS_ERR(pdev)) {
-+			free_netdev(dev);
-+			continue;
-+		}
- 		err = setup_card(dev, &pdev->dev);
- 		if (!err) {
- 			proteon_dev[i] = pdev;
-@@ -385,9 +389,10 @@ static int __init proteon_init(void)
- 	/* Probe for cards. */
- 	if (num == 0) {
- 		printk(KERN_NOTICE "proteon.c: No cards found.\n");
--		return (-ENODEV);
-+		platform_driver_unregister(&proteon_driver);
-+		return -ENODEV;
- 	}
--	return (0);
-+	return 0;
- }
- 
- static void __exit proteon_cleanup(void)
-diff --git a/drivers/net/tokenring/skisa.c b/drivers/net/tokenring/skisa.c
-index d6ba41c..33afea3 100644
---- a/drivers/net/tokenring/skisa.c
-+++ b/drivers/net/tokenring/skisa.c
-@@ -380,6 +380,10 @@ static int __init sk_isa_init(void)
- 		dev->dma = dma[i];
- 		pdev = platform_device_register_simple("skisa",
- 			i, NULL, 0);
-+		if (IS_ERR(pdev)) {
-+			free_netdev(dev);
-+			continue;
-+		}
- 		err = setup_card(dev, &pdev->dev);
- 		if (!err) {
- 			sk_isa_dev[i] = pdev;
-@@ -395,9 +399,10 @@ static int __init sk_isa_init(void)
- 	/* Probe for cards. */
- 	if (num == 0) {
- 		printk(KERN_NOTICE "skisa.c: No cards found.\n");
--		return (-ENODEV);
-+		platform_driver_unregister(&sk_isa_driver);
-+		return -ENODEV;
- 	}
--	return (0);
-+	return 0;
- }
- 
- static void __exit sk_isa_cleanup(void)
-diff --git a/drivers/net/wan/n2.c b/drivers/net/wan/n2.c
-index dcf46ad..5c322df 100644
---- a/drivers/net/wan/n2.c
-+++ b/drivers/net/wan/n2.c
-@@ -500,7 +500,7 @@ static int __init n2_init(void)
- #ifdef MODULE
- 		printk(KERN_INFO "n2: no card initialized\n");
- #endif
--		return -ENOSYS;	/* no parameters specified, abort */
-+		return -EINVAL;	/* no parameters specified, abort */
- 	}
- 
- 	printk(KERN_INFO "%s\n", version);
-@@ -538,11 +538,11 @@ #endif
- 			n2_run(io, irq, ram, valid[0], valid[1]);
- 
- 		if (*hw == '\x0')
--			return first_card ? 0 : -ENOSYS;
-+			return first_card ? 0 : -EINVAL;
- 	}while(*hw++ == ':');
- 
- 	printk(KERN_ERR "n2: invalid hardware parameters\n");
--	return first_card ? 0 : -ENOSYS;
-+	return first_card ? 0 : -EINVAL;
- }
- 
- 
-diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
-index ef8874b..0441876 100644
---- a/net/sched/sch_netem.c
-+++ b/net/sched/sch_netem.c
-@@ -4,7 +4,7 @@
-  * 		This program is free software; you can redistribute it and/or
-  * 		modify it under the terms of the GNU General Public License
-  * 		as published by the Free Software Foundation; either version
-- * 		2 of the License, or (at your option) any later version.
-+ * 		2 of the License.
-  *
-  *  		Many of the algorithms and ideas for this came from
-  *		NIST Net which is not copyrighted. 
+ 	if (!(probe_ent->port_flags & SIS_FLAG_CFGSCR)) {
+ 		probe_ent->port[0].scr_addr =
+ 			pci_resource_start(pdev, SIS_SCR_PCI_BAR);
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index b03d5a3..abd2deb 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -702,7 +702,6 @@ extern int ata_std_prereset(struct ata_p
+ extern int ata_std_softreset(struct ata_port *ap, unsigned int *classes);
+ extern int sata_std_hardreset(struct ata_port *ap, unsigned int *class);
+ extern void ata_std_postreset(struct ata_port *ap, unsigned int *classes);
+-extern int ata_dev_revalidate(struct ata_device *dev, int post_reset);
+ extern void ata_port_disable(struct ata_port *);
+ extern void ata_std_ports(struct ata_ioports *ioaddr);
+ #ifdef CONFIG_PCI

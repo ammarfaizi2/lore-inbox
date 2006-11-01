@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946749AbWKAKBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946750AbWKAKDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946749AbWKAKBg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 05:01:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946750AbWKAKBg
+	id S1946750AbWKAKDK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 05:03:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946751AbWKAKDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 05:01:36 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:10758 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1946749AbWKAKBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 05:01:35 -0500
-Message-ID: <45487043.1070402@shadowen.org>
-Date: Wed, 01 Nov 2006 10:00:35 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Martin Bligh <mbligh@google.com>, Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-References: <1162276206.5959.9.camel@Homer.simpson.net> <4546EF3B.1090503@google.com> <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com> <20061031075825.GA8913@suse.de> <45477131.4070501@google.com> <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com> <4547833C.5040302@google.com> <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com> <4547FABE.502@google.com> <20061101020850.GA13070@suse.de>
-In-Reply-To: <20061101020850.GA13070@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Nov 2006 05:03:10 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:13968 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1946750AbWKAKDJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 05:03:09 -0500
+Date: Wed, 1 Nov 2006 11:03:07 +0100
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       drepper@redhat.com, mingo@elte.hu, tglx@linutronix.de
+Subject: Re: [patch 1/1] schedule removal of FUTEX_FD
+Message-ID: <20061101100307.GA23629@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org, drepper@redhat.com, mingo@elte.hu,
+	tglx@linutronix.de
+References: <200610312309.k9VN9mco015260@shell0.pdx.osdl.net> <1162343945.14769.16.camel@localhost.localdomain> <20061031172312.79748be5.akpm@osdl.org> <20061101091135.GA22089@outpost.ds9a.nl> <20061101011846.de35bd2a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061101011846.de35bd2a.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Oct 31, 2006 at 05:39:10PM -0800, Martin Bligh wrote:
->> Cornelia Huck wrote:
->>> On Tue, 31 Oct 2006 09:09:16 -0800,
->>> "Martin J. Bligh" <mbligh@google.com> wrote:
->>>
->>>
->>>> Cornelia Huck wrote:
->>>>
->>>>> That's because /sys/class/net/<interface> is now a symlink instead of a
->>>>> directory (and that hasn't anything to do with acpi, but rather with
->>>>> the conversions in the driver tree). Seems the directory -> symlink
->>>>> change shouldn't be done since it's impacting user space...
->>>> You know which individual patch in -mm broke that? Can't see it easily.
->>>> Then we can just test across all the machines with just that one backed
->>>> out.
->>>
->>> I'd try reverting gregkh-driver-network-device.patch for the network
->>> device stuff.
->> Reverting that patch does indeed appear to fix it.
+On Wed, Nov 01, 2006 at 01:18:46AM -0800, Andrew Morton wrote:
+> > I must admit to never having used FUTEX_FD, but the idea of waiting on a
+> > FUTEX by way of epoll appealed to me. Should I resort to pipe tricks if I
+> > want that ability henceforth?
 > 
-> Even with CONFIG_SYSFS_DEPRECATED enabled?  For some reason I'm guessing
-> that you missed that suggestion a while back...
+> I guess so.  Until the grand unified kernel event framework is done.
 
-Nope, that was tested across the board and was a failure.  Check TKO,
-there is a run with sysfs-deprecated-turn-this-on-by-default ...
+It might be polite to not entirely remove FUTEX_FD until said 'GUKE'
+framework is done.
 
-I checked and this did result in configs with this option enabled.
+	Bert
 
--apw
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

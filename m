@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946974AbWKARpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946986AbWKARsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946974AbWKARpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 12:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946977AbWKARpZ
+	id S1946986AbWKARsn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 12:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946982AbWKARsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 12:45:25 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:443 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1946974AbWKARpY (ORCPT
+	Wed, 1 Nov 2006 12:48:43 -0500
+Received: from smtpout06-01.prod.mesa1.secureserver.net ([64.202.165.224]:40382
+	"HELO smtpout06-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1946986AbWKARsm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 12:45:24 -0500
-Date: Wed, 1 Nov 2006 23:20:15 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: dev@openvz.org, sekharan@us.ibm.com, menage@google.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com, devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-ID: <20061101175015.GA22976@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061030103356.GA16833@in.ibm.com> <45460743.8000501@openvz.org> <20061031163418.GD9588@in.ibm.com> <4548545B.4070701@openvz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4548545B.4070701@openvz.org>
-User-Agent: Mutt/1.5.11
+	Wed, 1 Nov 2006 12:48:42 -0500
+Message-ID: <4548DDF4.2030903@seclark.us>
+Date: Wed, 01 Nov 2006 12:48:36 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: fc6 kernel 2.6.18-1.2798 breaks acpi on HP laptop n5430
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 11:01:31AM +0300, Pavel Emelianov wrote:
-> > Sorry dont get you here. Are you saying we should support different
-> > grouping for different controllers?
-> 
-> Not me, but other people in this thread.
+Hello list,
 
-Hmm ..I thought OpenVz folks were interested in having different
-groupings for different resources i.e grouping for CPU should be
-independent of the grouping for memory.
+I know this is a problem with a RH kernel but I also know RH gurus 
+monitor this list
+and make contributions.
 
-	http://lkml.org/lkml/2006/8/18/98
+I just upgraded to FC6 and now my HP pavilion n5430 laptop hangs during 
+boot right after displaying
+a bunch of stuff about acpi.
 
-Isnt that true?
+kernel 2.6.18-1.2200.fc5 works OK can I run it on fc6?
 
+Thanks a bunch,
+Steve
 -- 
-Regards,
-vatsa
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
+

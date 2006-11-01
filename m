@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992701AbWKAS3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992707AbWKAS3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992701AbWKAS3q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 13:29:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992711AbWKAS3q
+	id S2992707AbWKAS3J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 13:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992708AbWKAS3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 13:29:46 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:14155 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S2992701AbWKAS3p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 13:29:45 -0500
-Date: Wed, 1 Nov 2006 19:31:32 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: SCSI over USB showstopper bug?
-Message-ID: <20061101183132.GO13555@kernel.dk>
-References: <4547c966.8oyAB/pzCZ7bGUza%Joerg.Schilling@fokus.fraunhofer.de> <1162333090.3044.53.camel@laptopd505.fenrus.org> <4547e164.k3W0GpiCAd3p3Tkh%Joerg.Schilling@fokus.fraunhofer.de> <20061101153128.GM13555@kernel.dk> <4548e680.oVsI92sKYOz7VSzN%Joerg.Schilling@fokus.fraunhofer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4548e680.oVsI92sKYOz7VSzN%Joerg.Schilling@fokus.fraunhofer.de>
+	Wed, 1 Nov 2006 13:29:09 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:37349 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S2992707AbWKAS3H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 13:29:07 -0500
+Message-ID: <4548E76B.4020500@gmail.com>
+Date: Wed, 01 Nov 2006 19:28:59 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: Jiri Slaby <jirislaby@gmail.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: preferred way of fw loading
+References: <4547E720.4080505@gmail.com> <20061101072957.GA14955@bitwizard.nl>
+In-Reply-To: <20061101072957.GA14955@bitwizard.nl>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01 2006, Joerg Schilling wrote:
-> Jens Axboe <jens.axboe@oracle.com> wrote:
+Rogier Wolff wrote:
+> On Wed, Nov 01, 2006 at 01:15:28AM +0100, Jiri Slaby wrote:
+>> For char sx driver in this case (I hope there is no later fw):
+>> ftp://ftp.bitwizard.nl/specialix/sx_firmware_306c.tgz
 > 
-> > > > > it looks as if SG_GET_RESERVED_SIZE & SG_SET_RESERVED_SIZE
-> > > > > are not in interaction with the underlying SCSI transport.
-> > > > > 
-> > > > > Programs like readcd and cdda2wav that try to get very large SCSI
-> > > > > transfer buffers get a confirmation for nearly any SCSI transfer size 
-> > > > > but later when readcd/cdda2wav try to transfer data with an
-> > > > > actual SCSI command, they fail with ENOMEM.
-> > > > > 
-> > > > > Correct fix: let sg.c make a callback to the underlying SCSI transport
-> > > > > 		and let it get a confirmation tfor the buffer size.
-> > > > > 
-> > > > > Quick and dirty fix: reduce the maximum allowed DMA size to the smallest
-> > > > > 		max DMA size of all SCSI transports.
-> > > >
-> > > > real good fix:
-> > > >
-> > > > use SG_IO on the device directly that checks this already
-> > > 
-> > > From looking into the source, this claim seems to be wrong.
-> >
-> > The block layer SG_IO entry point does what Arjan describes - it checks
-> > the queue settings, which must match the hardware limits. It needs to,
-> > since it won't accept a command larger than what the path to that device
-> > will allow in one go. The SCSI sg variant may be more restricted, since
-> > it should handle partial completions of such commands.
+>> Now it's 2 .c files used by loader through ioctl. After compilation it has:
+>>    text    data     bss     dec     hex filename
+>>       4    8416       2    8422    20e6 si2_z280.o
+>>       4   19484       2   19490    4c22 si3_t225.o
 > 
-> Then someone should change the source to match this statements.
-> 
-> From a report I have from the k3b Author, readcd and cdda2wav only work
-> if you add a "ts=128k" option. 
+> I see two different processors, there are three.
 
-Then please file (or have him/her file) a proper bug report. It may be a
-usb specific bug, or it may just be something else.
+And don't you know, where may one obtain some later release? I found only this
+package which includes only these two.
 
+thanks,
 -- 
-Jens Axboe
-
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

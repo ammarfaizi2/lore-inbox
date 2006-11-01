@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946504AbWKACda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946506AbWKACdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946504AbWKACda (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 21:33:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946508AbWKACda
+	id S1946506AbWKACdO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 21:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946508AbWKACdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 21:33:30 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:44222 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1946504AbWKACd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 21:33:28 -0500
-Message-ID: <45480777.6070908@vmware.com>
-Date: Tue, 31 Oct 2006 18:33:27 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Tue, 31 Oct 2006 21:33:14 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:60252 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1946506AbWKACdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 21:33:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=OJthkGOBQT595hhL2yNumdD4S9AKidVRxz8UqLunNUlJeQqPCgaxTiuz1hGRLzPBb+WlovGCAbjktDKyZRUIFgmdfRRpAb47WalOJrRaTrZoC3tHww1GfJa0w0eQzKoY0IqL8AtX5xaPlyNZFWCJ2Pyq9ehi3zNsapQRLyL2R9Q=
+Message-ID: <f46018bb0610311833x75001040md57341bc568a8902@mail.gmail.com>
+Date: Tue, 31 Oct 2006 21:33:11 -0500
+From: "Holden Karau" <holden@pigscanfly.ca>
+To: "OGAWA Hirofumi" <hirofumi@mail.parknet.co.jp>
+Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes revised
+Cc: "Holden Karau" <holdenk@xandros.com>,
+       "Josef Sipek" <jsipek@fsl.cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       "akpm@osdl.org" <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>
+In-Reply-To: <87odrst22f.fsf@duaron.myhome.or.jp>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Mark Lord <lkml@rtr.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 is problematic in VMware
-References: <Pine.LNX.4.61.0610290953010.4585@yvahk01.tjqt.qr> <45463B7D.8050002@vmware.com> <Pine.LNX.4.61.0610310857280.23540@yvahk01.tjqt.qr> <4547584F.6000702@rtr.ca> <Pine.LNX.4.61.0610311551370.6900@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0610311551370.6900@yvahk01.tjqt.qr>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <454765AC.1050905@xandros.com> <87mz7cqvd8.fsf@duaron.myhome.or.jp>
+	 <f46018bb0610311046t6aa969ccy60a2020f7e5a0ed9@mail.gmail.com>
+	 <87slh4tesh.fsf@duaron.myhome.or.jp>
+	 <f46018bb0610311254u30063d57gebc2e0e190398c9@mail.gmail.com>
+	 <87odrst22f.fsf@duaron.myhome.or.jp>
+X-Google-Sender-Auth: 4bfcdb600c27df43
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> My experience with VMware on several recent processors (mostly P-M family)
->> is that it crawls unless I force this first:
->> echo 1 > /sys/module/processor/parameters/max_cstate
->>     
+Whoops, sorry about that. Yes it would improve performance on fat12 &
+fat16 [although I haven't tested it with fat12]. What I meant by that
+sentance is that, fat sync performance is pretty bad with or without
+my patch, its just slightly less worse with my patch :-)
+
+On 10/31/06, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+> "Holden Karau" <holden@pigscanfly.ca> writes:
 >
-> My host processor is non-throttable
-> Uni-processor.
+> > This patch is just meant to make fat32 sync performance better, not
+> > necessarily make it usable for everyone [one step at a time and all
+> > that].
 >
-> I tried with some kernels (hey, vmware had serial ports?)
-> For whatever reason, the timecounting is not accurate.
-> As you can see, the time difference between "WP bit" and the calibration 
-> thing is less than half a second inside the guest, but on the host, 
-> the delay is several seconds.
-> The Capture Movie feature gets it right 
-> http://jengelh.hopto.org/f/2618delay.avi
->   
+> Sorry, I can't see your point. The FAT12 and FAT16 also have backup FAT.
+> And the your patch didn't make performance better, right?
+> --
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+>
 
-I see a large delay _before_:
 
-Calibrating delay using timer specific routine.. (lpj==
-
-The lpj value is 38x the host lpj host value.  Booting with lpj="some 
-random number" removes the stall for me.  And finally, breaking into 
-kernel in this stall period consistently shows EIPs in calibrate_delay 
-in backtrace.
-
-> One can see that it pauses before calibration (already mentioned that) 
-> and once again after NET: ... during IP init!? What's going on :(
->   
-
-The NET: pause has always been there, I think it just becomes much more 
-noticeable if the lpj value is 38x normal.
-
-Conclusion: you are getting bad lpj computation during beginning.  
-Doesn't appear to be a kernel bug, so let's take it off list.  You can 
-bring it up on VMTN 
-http://www.vmware.com/community/index.jspa?categoryID=1 for more 
-on-topic support.  In fact, interesting test you can try - suspend / 
-resume during the hang.  Does the discontinuity during calibration make 
-it go away?
-
-Zach
+-- 
+Cell: 613-276-1645

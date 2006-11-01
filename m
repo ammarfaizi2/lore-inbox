@@ -1,100 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992533AbWKAOsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992538AbWKAOu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992533AbWKAOsd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 09:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992534AbWKAOsd
+	id S2992538AbWKAOu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 09:50:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992539AbWKAOu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 09:48:33 -0500
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:41904 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S2992533AbWKAOsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 09:48:33 -0500
-Date: Wed, 1 Nov 2006 15:51:00 +0100
-From: Luotao Fu <l.fu@pengutronix.de>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de,
-       Robert Schwebel <r.schwebel@pengutronix.de>
-Subject: [PATCH] latency tracer support for ARM ep93xx platform
-Message-ID: <20061101145100.GB25890@localhost.localdomain>
-Mail-Followup-To: mingo@elte.hu, linux-kernel@vger.kernel.org,
-	tglx@linutronix.de, Robert Schwebel <r.schwebel@pengutronix.de>
+	Wed, 1 Nov 2006 09:50:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14465 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S2992538AbWKAOu6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 09:50:58 -0500
+Date: Wed, 1 Nov 2006 06:50:46 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] powerpc: Eliminate "exceeds stub group size" linker
+ warning
+In-Reply-To: <17735.61916.194247.973705@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.64.0611010647040.25218@g5.osdl.org>
+References: <17735.61916.194247.973705@cargo.ozlabs.ibm.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EgVrEAR5UttbsTXg"
-Content-Disposition: inline
-X-PGP-Key-ID: 0xE5325261
-X-URL: http://www.pengutronix.de
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---EgVrEAR5UttbsTXg
-Content-Type: multipart/mixed; boundary="VV4b6MQE+OnNyhkM"
-Content-Disposition: inline
 
+On Wed, 1 Nov 2006, Paul Mackerras wrote:
+> 
+> If you think this is 2.6.19 material, feel free to put it in your
+> tree.  Otherwise I'll put it in the powerpc.git tree to go in for
+> 2.6.20.
 
---VV4b6MQE+OnNyhkM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hmm. I'd love to get rid of the warnings, because they obviously mean that 
+I don't look at warnings much at all ("they're all bogus"), but this patch 
+must be against some version of arch/powerpc/kernel/head_64.S that I've 
+never seen.
 
-Hi,
-the following patch adds hardware support for the latency tracer in -rt
-patch on ARM ep93xx platform.=20
+That "do_stab_bolted_pSeries" function is in a totally different place for 
+me, and the index that git diff mentiones of 47fcff1 doesn't exist in my 
+tree (so I've literally never had it).
 
-regards
-Luotao Fu
---=20
-     Dipl.-Ing. Luotao Fu | http://www.pengutronix.de
-  Pengutronix - Linux Solutions for Science and Industry
-    Handelsregister: Amtsgericht Hildesheim, HRA 2686
-      Hannoversche Str. 2, 31134 Hildesheim, Germany
-    Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
-
-
---VV4b6MQE+OnNyhkM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ep93xx_latencytrace.diff"
-Content-Transfer-Encoding: quoted-printable
-
-Adds latency tracer support for ep93xx platform.
-
-Signed-off-by: Luotao Fu <lfu@pengutronix.de>
-
-Index: linux-2.6.18-rt.sec/include/asm-arm/arch-ep93xx/timex.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- include/asm-arm/arch-ep93xx/timex.h
-+++ include/asm-arm/arch-ep93xx/timex.h
-@@ -3,3 +3,10 @@
-  */
-=20
- #define CLOCK_TICK_RATE		983040
-+
-+#include <asm/io.h>
-+#include <asm-arm/arch-ep93xx/ep93xx-regs.h>
-+
-+#define mach_read_cycles() readl(EP93XX_TIMER4_VALUE_LOW)
-+#define mach_cycles_to_usecs(d) (((d) * ((1000000LL << 32) / CLOCK_TICK_RA=
-TE)) >> 32)
-+#define mach_usecs_to_cycles(d) (((d) * (((long long)CLOCK_TICK_RATE << 32=
-) / 1000000)) >> 32)
-
---VV4b6MQE+OnNyhkM--
-
---EgVrEAR5UttbsTXg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFSLRUiruQY+UyUmERAhwZAJ4sqU/ydh6ajMYR/JWqkSroMLXwzwCgoYUn
-VolMlRqAbnWRQDgKdAsDlYw=
-=6Jwm
------END PGP SIGNATURE-----
-
---EgVrEAR5UttbsTXg--
+		Linus

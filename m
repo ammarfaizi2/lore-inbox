@@ -1,123 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946622AbWKAGSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946633AbWKAGTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946622AbWKAGSf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 01:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946630AbWKAGSe
+	id S1946633AbWKAGTO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 01:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946632AbWKAGTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 01:18:34 -0500
-Received: from hera.kernel.org ([140.211.167.34]:52632 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1946622AbWKAGSc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 01:18:32 -0500
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 51/61] PCI: Remove quirk_via_abnormal_poweroff
-Date: Wed, 1 Nov 2006 01:20:12 -0500
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Karsten Wiese <annabellesgarden@yahoo.de>,
-       Karsten Wiese <fzu@wemgehoertderstaat.de>,
-       Bob Moore <robert.moore@intel.com>, Greg Kroah-Hartman <gregkh@suse.de>
-References: <20061101053340.305569000@sous-sol.org> <20061101054443.703982000@sous-sol.org>
-In-Reply-To: <20061101054443.703982000@sous-sol.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Nov 2006 01:19:13 -0500
+Received: from dev.mellanox.co.il ([194.90.237.44]:54930 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1946630AbWKAGTH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 01:19:07 -0500
+Date: Wed, 1 Nov 2006 08:18:57 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ernst Herzberg <earny@net4u.de>, Len Brown <lenb@kernel.org>,
+       Adrian Bunk <bunk@stusta.de>, Hugh Dickins <hugh@veritas.com>,
+       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       Martin Lorenz <martin@lorenz.eu.org>, Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.19-rc <-> ThinkPads
+Message-ID: <20061101061857.GC4933@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <Pine.LNX.4.64.0610312123320.25218@g5.osdl.org> <20061101055435.GB4933@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611010120.13639.len.brown@intel.com>
+In-Reply-To: <20061101055435.GB4933@mellanox.co.il>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Acked-by: Len Brown <len.brown@intel.com>
+Quoting r. Michael S. Tsirkin <mst@mellanox.co.il>:
+> What I plan to do is using eea0e11c1f0d6ef89e64182b2f1223a4ca2b74a2
+> for a couple of days and see how this works out.
 
-On Wednesday 01 November 2006 00:34, Chris Wright wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
-> ------------------
-> 
-> From: Karsten Wiese <annabellesgarden@yahoo.de>
-> 
-> My K8T800 mobo resumes fine from suspend to ram with and without patch
-> applied against 2.6.18.
-> 
-> quirk_via_abnormal_poweroff makes some boards not boot 2.6.18, so IMO patch
-> should go to head, 2.6.18.2 and everywhere "ACPI: ACPICA 20060623" has been
-> applied.
-> 
-> 
-> Remove quirk_via_abnormal_poweroff
-> 
-> Obsoleted by "ACPI: ACPICA 20060623":
-> <snip>
->     Implemented support for "ignored" bits in the ACPI
->     registers.  According to the ACPI specification, these
->     bits should be preserved when writing the registers via
->     a read/modify/write cycle. There are 3 bits preserved
->     in this manner: PM1_CONTROL[0] (SCI_EN), PM1_CONTROL[9],
->     and PM1_STATUS[11].
->     http://bugzilla.kernel.org/show_bug.cgi?id=3691
-> </snip>
-> 
-> Signed-off-by: Karsten Wiese <fzu@wemgehoertderstaat.de>
-> Cc: Bob Moore <robert.moore@intel.com>
-> Cc: Len Brown <len.brown@intel.com>
-> Acked-by: Dave Jones <davej@redhat.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> ---
->  drivers/pci/quirks.c |   27 ---------------------------
->  1 file changed, 27 deletions(-)
-> 
-> --- linux-2.6.18.1.orig/drivers/pci/quirks.c
-> +++ linux-2.6.18.1/drivers/pci/quirks.c
-> @@ -685,33 +685,6 @@ static void __devinit quirk_vt82c598_id(
->  }
->  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C597_0,	quirk_vt82c598_id );
->  
-> -#ifdef CONFIG_ACPI_SLEEP
-> -
-> -/*
-> - * Some VIA systems boot with the abnormal status flag set. This can cause
-> - * the BIOS to re-POST the system on resume rather than passing control
-> - * back to the OS.  Clear the flag on boot
-> - */
-> -static void __devinit quirk_via_abnormal_poweroff(struct pci_dev *dev)
-> -{
-> -	u32 reg;
-> -
-> -	acpi_hw_register_read(ACPI_MTX_DO_NOT_LOCK, ACPI_REGISTER_PM1_STATUS,
-> -				&reg);
-> -
-> -	if (reg & 0x800) {
-> -		printk("Clearing abnormal poweroff flag\n");
-> -		acpi_hw_register_write(ACPI_MTX_DO_NOT_LOCK,
-> -					ACPI_REGISTER_PM1_STATUS,
-> -					(u16)0x800);
-> -	}
-> -}
-> -
-> -DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8235, quirk_via_abnormal_poweroff);
-> -DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237, quirk_via_abnormal_poweroff);
-> -
-> -#endif
-> -
->  /*
->   * CardBus controllers have a legacy base address that enables them
->   * to respond as i82365 pcmcia controllers.  We don't want them to
-> 
-> --
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Ugh. Unfortunately in that kernel version, the e1000 driver says
+the eeprom checksum is bad (works fine with 2.6.19-rc3).
+So, I tried some suspends/resumes and things seem to work, but
+I won't be able to test it under real use conditions.
+
+But maybe its another red herring?
+Andi, could you maybe look at that commit and tell me whether
+it could cause troubles with ACPI after suspend/resume even
+theoretically?
+
+-- 
+MST

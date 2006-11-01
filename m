@@ -1,72 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423785AbWKADFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423850AbWKADKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423785AbWKADFt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 22:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423846AbWKADFs
+	id S1423850AbWKADKr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 22:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423929AbWKADKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 22:05:48 -0500
-Received: from mga09.intel.com ([134.134.136.24]:27230 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1423785AbWKADFs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 22:05:48 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,377,1157353200"; 
-   d="scan'208"; a="153951571:sNHT24418996"
-Date: Tue, 31 Oct 2006 18:44:11 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, Andi Kleen <ak@suse.de>,
-       Lee Revell <rlrevell@joe-job.com>, Chris Friesen <cfriesen@nortel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, len.brown@intel.com
-Subject: Re: AMD X2 unsynced TSC fix?
-Message-ID: <20061031184411.E3790@unix-os.sc.intel.com>
-References: <1161969308.27225.120.camel@mindpipe> <1162009373.26022.22.camel@localhost.localdomain> <1162177848.2914.13.camel@localhost.portugal> <200610301623.14535.ak@suse.de> <1162253008.2999.9.camel@localhost.portugal> <20061030184155.A3790@unix-os.sc.intel.com> <1162345608.2961.7.camel@localhost.portugal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 Oct 2006 22:10:47 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:37362 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1423846AbWKADKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 22:10:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=V6jYozsyvrtLVi0jH0fxC72joFifYT3bM8k/Bx/io0g06hiCNqlBF5pdrz3voGeaTDO5j4TZf3TK27iOM3cgD/B4EvFXPogkL69XzQnwGvvzqlhSo1uPrCOT80fFZ+4SB9Vs7jM37RZD+fiObdgw7f16ZwThpjeWHcSIzdrm2Z0=
+Message-ID: <f46018bb0610311910m42029aecw42cffe2ac7eec1ee@mail.gmail.com>
+Date: Tue, 31 Oct 2006 22:10:39 -0500
+From: "Holden Karau" <holden@pigscanfly.ca>
+To: "Matthew Wilcox" <matthew@wil.cx>
+Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes revised
+Cc: "Holden Karau" <holdenk@xandros.com>,
+       "Josef Sipek" <jsipek@fsl.cs.sunysb.edu>, hirofumi@mail.parknet.co.jp,
+       linux-kernel@vger.kernel.org, "akpm@osdl.org" <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org, "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "J?rn Engel" <joern@wohnheim.fh-wedel.de>
+In-Reply-To: <f46018bb0610310846p27f561b3uaf651b8d9b01c693@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1162345608.2961.7.camel@localhost.portugal>; from sergio@sergiomb.no-ip.org on Wed, Nov 01, 2006 at 01:46:48AM +0000
+References: <454765AC.1050905@xandros.com>
+	 <20061031162825.GD26964@parisc-linux.org>
+	 <f46018bb0610310846p27f561b3uaf651b8d9b01c693@mail.gmail.com>
+X-Google-Sender-Auth: b502d6f8a9295ee4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 01:46:48AM +0000, Sergio Monteiro Basto wrote:
-> On Mon, 2006-10-30 at 18:41 -0800, Siddha, Suresh B wrote:
-> > On Tue, Oct 31, 2006 at 12:03:28AM +0000, Sergio Monteiro Basto wrote:
-> > > time.c: Lost 300 timer tick(s)! rip mwait_idle+0x33/0x4f)
-> > > time.c: Lost 300 timer tick(s)! rip mwait_idle+0x33/0x4f)
-> > > time.c: Lost 300 timer tick(s)! rip mwait_idle+0x33/0x4f)
-> > > time.c: Lost 300 timer tick(s)! rip mwait_idle+0x33/0x4f)
-> > 
-> > Is this the reason why you are saying your system has unsynchronized TSC?
-> > Some where in this thread, you mentioned that Lost ticks happen even
-> > when you use  "notsc"
-> > 
-> > This sounds to me as a different problem. Can you send us the output
-> > of /proc/interrupts?
-> 
-> /proc/interrupts on kernel 2.6.18
-> http://bugzilla.kernel.org/attachment.cgi?id=9384&action=view
-> dmesg w/o notsc kernel 2.6.19-rc4
-> http://bugzilla.kernel.org/attachment.cgi?id=9385&action=view
-> /proc/interrupts kernel 2.6.19-rc4 
-> http://bugzilla.kernel.org/attachment.cgi?id=9386&action=view
-> dmesg w/ notsc kernel 2.6.19-rc4 
-> http://bugzilla.kernel.org/attachment.cgi?id=9387&action=view
-> /proc/interrupts kernel 2.6.19-rc4
-> http://bugzilla.kernel.org/attachment.cgi?id=9388&action=view
-> list of interrupts give by windows XP
-> http://bugzilla.kernel.org/attachment.cgi?id=9389&action=view
+I was thinking about the issue of running out of memory, while its not
+particularly likely to happen except on devices with huge disks and
+tiney amount of memory, it is a possibility. I can make it
+fall-through to the previous way of doing things, does that sound like
+a reasonable idea?
 
-First of all, from "lost timer ticks" messages and the fact that "notsc"
-decreases the number of ticks lost can't be concluded as a TSC sync issue.
+On 10/31/06, Holden Karau <holden@pigscanfly.ca> wrote:
+> On 10/31/06, Matthew Wilcox <matthew@wil.cx> wrote:
+> > On Tue, Oct 31, 2006 at 10:03:08AM -0500, Holden Karau wrote:
+> > > @@ -343,52 +344,65 @@ int fat_ent_read(struct inode *inode, st
+> > >       return ops->ent_get(fatent);
+> > >  }
+> > >
+> > > -/* FIXME: We can write the blocks as more big chunk. */
+> > > -static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
+> > > -                       int nr_bhs)
+> > > +
+> > > +static int fat_mirror_bhs_optw(struct super_block *sb, struct buffer_head **bhs,
+> > > +                            int nr_bhs , int wait)
+> > >  {
+> > >       struct msdos_sb_info *sbi = MSDOS_SB(sb);
+> > > -     struct buffer_head *c_bh;
+> > > +     struct buffer_head *c_bh[nr_bhs*(sbi->fats)];
+> > >       int err, n, copy;
+> > >
+> > > +     /* Always wait if mounted -o sync */
+> > > +     if (sb->s_flags & MS_SYNCHRONOUS )
+> > > +             wait = 1;
+> > >       err = 0;
+> > >       for (copy = 1; copy < sbi->fats; copy++) {
+> > >               sector_t backup_fat = sbi->fat_length * copy;
+> > > -
+> > > -             for (n = 0; n < nr_bhs; n++) {
+> > > -                     c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
+> > > -                     if (!c_bh) {
+> > > +             for (n = 0 ; n < nr_bhs ;  n++ ) {
+> > > +                     c_bh[(copy-1)*nr_bhs+n] = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
+> > > +                     if (!c_bh[(copy-1)*nr_bhs+n]) {
+> > > +                             printk(KERN_CRIT "fat: out of memory while copying backup fat. possible data loss\n");
+> >
+> > I don't like that at all.
+> Not much to be done about that. The amount of memory required is
+> fairly small, but if its not there its not there.
+> >
+> > >                               err = -ENOMEM;
+> > >                               goto error;
+> > >                       }
+> > > -                     memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
+> > > -                     set_buffer_uptodate(c_bh);
+> > > -                     mark_buffer_dirty(c_bh);
+> > > -                     if (sb->s_flags & MS_SYNCHRONOUS)
+> > > -                             err = sync_dirty_buffer(c_bh);
+> > > -                     brelse(c_bh);
+> > > -                     if (err)
+> > > -                             goto error;
+> > > +             memcpy(c_bh[(copy-1)*nr_bhs+n]->b_data, bhs[n]->b_data, sb->s_blocksize);
+> > > +             set_buffer_uptodate(c_bh[(copy-1)*nr_bhs+n]);
+> > > +             mark_buffer_dirty(c_bh[(copy-1)*nr_bhs+n]);
+> > >               }
+> > >       }
+> > > +
+> > > +     if (wait) {
+> > > +             for (n = 0 ; n < nr_bhs ; n++) {
+> > > +                     printk("copying to %d to  %d\n" ,n,  nr_bhs*(sbi->fats-1)+n);
+> >
+> > Is this the right version of the patch?  The printk should never be left in.
+> > Plus, as far as I can tell, that whole loop is actually just memcpy().
+> whoops. That was in for debugging, I thought I took that out. The loop
+> structure is how it was before, but I don't see a way to get rid of
+> it, do you have an idea?
+> >
+>
+>
+> --
+> Cell: 613-276-1645
+>
 
-Some device is hogging interrupts which results in lost timer ticks and from
-your 2.6.18 interrupts info, usb seems to be the culprit.. It is probably
-a side effect that "notsc" decreases the lost timer ticks..
 
-copied Len who seems to be the owner of the bug for his thoughts..
-(http://bugzilla.kernel.org/show_bug.cgi?id=6419) 
-
-thanks,
-suresh
+-- 
+Cell: 613-276-1645

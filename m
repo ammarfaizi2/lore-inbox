@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946866AbWKAMp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752065AbWKAMza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946866AbWKAMp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 07:45:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946864AbWKAMp0
+	id S1752065AbWKAMza (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 07:55:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752089AbWKAMza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 07:45:26 -0500
-Received: from ns1.suse.de ([195.135.220.2]:23772 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752078AbWKAMpZ (ORCPT
+	Wed, 1 Nov 2006 07:55:30 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24986 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752065AbWKAMz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 07:45:25 -0500
-Date: Wed, 1 Nov 2006 13:45:01 +0100
-From: Stefan Seyfried <seife@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-acpi@vger.kernel.org
-Subject: Re: [PATCH] swsusp: Use platform mode by default
-Message-ID: <20061101124501.GE10269@suse.de>
-References: <200611011323.14830.rjw@sisk.pl>
+	Wed, 1 Nov 2006 07:55:29 -0500
+Date: Wed, 1 Nov 2006 13:55:06 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc4-mm1: noidlehz problems
+Message-ID: <20061101125506.GA2133@elf.ucw.cz>
+References: <20061101122319.GA13056@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200611011323.14830.rjw@sisk.pl>
-X-Operating-System: openSUSE 10.2 (i586) Beta2, Kernel 2.6.18.1-12-default
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061101122319.GA13056@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 01:23:14PM +0100, Rafael J. Wysocki wrote:
-> It has been reported that on some systems the functionality after a resume
-> from disk is limited if the system is simply powered off during the suspend
-> instead of using the ACPI S4 suspend (aka platform mode).
+Hi!
+
+
+> First, it would be nice if we had someone listed as a maintainer of
+> noidlehz stuff...
 > 
-> Unfortunately the default is currently to power off the system during the
-> suspend so the users of these systems experience problems after the resume
-> if they don't switch to the platform mode explicitly.  This patch makes swsusp
-> use the platform mode by default to avoid such situations.
+> Then... I'm getting strange messages from noidlehz each time I
+> unplug/replug AC power (perhaps due to interrupt latency?).
 > 
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> ---
+> Disabling NO_HZ and high resolution timers due to timer broadcasting
+> (C3 stops local apic)
+> Adding 987988k swap on /dev/sda1.  Priority:-1 extents:1
+> across:987988k
+> Disabling NO_HZ and high resolution timers due to timer broadcasting
+> (C3 stops local apic)
+> EXT2-fs warning (device sda2): ext2_fill_super: mounting ext3
+> filesystem as ext2
+...
+> Disabling NO_HZ and high resolution timers due to timer broadcasting
+> (C3 stops local apic)
+> Disabling NO_HZ and high resolution timers due to timer broadcasting
+> (C3 stops local apic)
+> 
+> ...I'd expect one such message, not many of them. Something seems
+> seriously wrong there...
+> 
+> Plus, suspend to RAM and disk is broken in -rc4-mm1. Suspend to RAM
+> dies with screaming speaker, suspend to disk returns but machine is
+> mostly toast (and screaming, looks like timer problem, beeps never
+> end). I'll disable NO_HZ and try again.
 
-Acked-by: Stefan Seyfried <seife@suse.de>
-
-Some background: i have put this as a default (from userspace, via
-echo "platform" > disk) since at least two years (SuSE 9.3, probably
-earlier) and have received one single bugreport where using "shutdown"
-mode fixed a problem. I had much more reports from users that upgraded
-from 9.1 and did not get the new setting about problems with "shutdown"
-which were solved by changing to "platform", so from my experience,
-"platform" mode is actually working better than "shutdown" mode.
-
-Note that shutdown mode will not lead to spectacular failures, but small
-annoyances like incorrectly reported AC / battery state etc.
-
-> Index: linux-2.6.19-rc4-mm1/kernel/power/disk.c
-> ===================================================================
-> --- linux-2.6.19-rc4-mm1.orig/kernel/power/disk.c
-> +++ linux-2.6.19-rc4-mm1/kernel/power/disk.c
-> @@ -62,9 +62,11 @@ static void power_down(suspend_disk_meth
->  
->  	switch(mode) {
->  	case PM_DISK_PLATFORM:
-> -		kernel_shutdown_prepare(SYSTEM_SUSPEND_DISK);
-> -		error = pm_ops->enter(PM_SUSPEND_DISK);
-> -		break;
-> +		if (pm_ops && pm_ops->enter) {
-> +			kernel_shutdown_prepare(SYSTEM_SUSPEND_DISK);
-> +			error = pm_ops->enter(PM_SUSPEND_DISK);
-> +			break;
-> +		}
-
-I have never heard of a system that had problems with not-present
-pm_ops->enter, but this extra safety net cannot hurt.
+Disabling NO_HZ did not help, but I disabled high resolution timers,
+and s2ram now works. s2disk also started working.
+									Pavel
 -- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

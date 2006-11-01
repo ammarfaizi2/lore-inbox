@@ -1,115 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752507AbWKAWRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWKAWRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752507AbWKAWRw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 17:17:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752522AbWKAWRw
+	id S1750743AbWKAWRU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 17:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWKAWRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 17:17:52 -0500
-Received: from nf-out-0910.google.com ([64.233.182.187]:50606 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1752507AbWKAWRu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 17:17:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=eJI5Q3TIOMY3hVX3SoAHcd563rEwS/BX3S9mK4hFkbonu49hbjP/YlSsISk3vYiIH4BRrcOqVbdS6iX9CctMYwywmaRypIVjUAKc8TQIba+4TNUj1yp1G+D1Lp++N6DX/ueUHdayxNGzEq9TJf7KeM6yIzRqclZwlX7ZGTtbgV4=
-Message-ID: <f46018bb0611011417s3c436528w3a394531e94cec68@mail.gmail.com>
-Date: Wed, 1 Nov 2006 17:17:48 -0500
-From: "Holden Karau" <holden@pigscanfly.ca>
-To: "Phillip Susi" <psusi@cfl.rr.com>
-Subject: Re: [PATCH 1/1] fat: improve sync performance by grouping writes revised again
-Cc: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>,
-       "Josef Sipek" <jsipek@fsl.cs.sunysb.edu>, hirofumi@mail.parknet.co.jp,
-       linux-kernel@vger.kernel.org, "Holden Karau" <holdenk@xandros.com>,
-       "akpm@osdl.org" <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Matthew Wilcox" <matthew@wil.cx>
-In-Reply-To: <454908F9.80905@cfl.rr.com>
+	Wed, 1 Nov 2006 17:17:20 -0500
+Received: from rs02.intra2net.com ([81.169.173.116]:21518 "EHLO
+	rs02.intra2net.com") by vger.kernel.org with ESMTP id S1750743AbWKAWRT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 17:17:19 -0500
+From: "Gerd v. Egidy" <lists@egidy.de>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: lspci output needed was Re: Frustrated with Linux, Asus, and nVidia, and AMD
+Date: Wed, 1 Nov 2006 23:17:13 +0100
+User-Agent: KMail/1.9.5
+Cc: Robert Hancock <hancockr@shaw.ca>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <fa.nWSYbiDM13Z4b2OlxoSzmqud/lI@ifi.uio.no> <454432DC.9030006@shaw.ca> <200610311528.20013.ak@suse.de>
+In-Reply-To: <200610311528.20013.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4548C8AE.2090603@pigscanfly.ca>
-	 <20061101164715.GC16154@wohnheim.fh-wedel.de>
-	 <f46018bb0611011002h1b3b6e5fjdc6cc032a7503dbd@mail.gmail.com>
-	 <20061101202400.GA6888@wohnheim.fh-wedel.de>
-	 <454908F9.80905@cfl.rr.com>
-X-Google-Sender-Auth: e22962b965eed644
+Message-Id: <200611012317.13963.lists@egidy.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jörn,
+Hi,
 
-If I do
-c_bh = kmalloc(blah);
-err= -ENOMEM;
-if (!c_bh)
-    goto error;
-//here err = -ENOMEM
-... do some stuff...
-error:
-return err;
+> Can people who use a Nvidia based AM2/SocketF board (especially when they
+> have timer troubles but otherwise would be useful too) please report their
+> lspcis in private mail to me?
 
-It will return -ENOMEM, no? I mean I could set err back to 0 and do
-something like:
+I'll send the lspci in private as requested in a minute.
 
-c_bh = kmalloc(blah);
-err= -ENOMEM;
-if (!c_bh)
-    goto error;
-err = 0;
-... do some stuf...
-error:
-return err;
+I have a ASUS M2N-SLI Deluxe (nForce 570) with a Athlon64 X2 4600+ (AM2) and 
+Bios version 0307 or 0402 beta. The problem with this board seems to be a 
+little different than the problem the others posting here are experiencing. 
+Maybe it's a different bug but it seems to be timer-related too.
 
-At first glance, at least for me, I'd be scratching my head when I
-looked at that.
+Booting 2.6.18.1 (or some other 2.6er I tried) stops with
 
-Also given that this error state is to be an exception not the rule,
-if what Phillip suggests is correct, than it would actually be a tiney
-be slower. So, all in all I'd rather leave it the way it is :-)
+[...]
+ENABLING IO-APIC IRQs
+..TIMER: vector=0x31 apic1=0 pin1=0 apci2=-1 pin2=-1
+..MP-BIOS bug: 8254 timer not connected to IO-APIC
+....trying to set up timer (IRQ0) through the 8259A ...  failed.
+....trying to set up timer as Virtual Wire IRQ... failed.
+....trying to set up timer as ExtINT IRQ... failed :(.
+Kernel panic - not syncing: IO-APIC + timer doesn't work! Boot with apic=debug
+and send a report.  Then try booting with the 'noapic' option
 
-On 11/1/06, Phillip Susi <psusi@cfl.rr.com> wrote:
-> I think this is getting into micro-optimization, which is usually bad.
-> Also moving the assignment of err outside the body of the if only
-> results in slightly faster code in the case where there is an error,
-> since you can test and _maybe_ conditionally jump directly to the error:
-> label if it is not very far away.  With the assignment in the body, the
-> conditional jump must jump to the assignment followed by an
-> unconditional jump to the label.
->
-> In other words, the only time this micro optimization will be of benefit
-> is if you are erroring out most of the time rather than only under
-> exceptional conditions, AND the error label isn't too far away for a
-> conditional branch to reach.  In other words, just don't do it ;)
->
-> Jörn Engel wrote:
-> > On Wed, 1 November 2006 13:02:12 -0500, Holden Karau wrote:
-> >> On 11/1/06, Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
-> >>> Result would be something like:
-> >>>        c_bh = kmalloc(...
-> >>>        err = -ENOMEM;
-> >>>        if (!c_bh)
-> >>>                goto error;
-> >> That wouldn't work so well since we always return err,
-> >
-> > I don't quite follow.  If the branch is taken, err is -ENOMEM.  If the
-> > branch is not taken, err is set to 0 with the next instruction.
-> >
-> > Both methods definitely work.  Whether one is preferrable over the
-> > other is imo 90% taste and maybe 10% better code on some architecture.
-> > So just pick what you prefer.
-> >
-> > Jörn
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+All kernels were SMP and i386 (not x86_64).
 
+I tried to use the acpi_skip_timer_override=0 patch that helped the other 
+posters but it did not help - same error. Of course I patched the 
+corresponding code for i386 in arch/i386/kernel/acpi/earlyquirk.c. Booting 
+with the no_timer_check boot parameter as some people suggested does not help 
+too.
 
--- 
-Cell: 613-276-1645
+Booting with apic=debug does not reveal any additional info. Only booting with 
+noapic makes the machine boot.
+
+Kind regards,
+
+Gerd

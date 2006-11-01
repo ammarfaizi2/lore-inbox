@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946413AbWKACOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946410AbWKACQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946413AbWKACOK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Oct 2006 21:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946427AbWKACOK
+	id S1946410AbWKACQW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Oct 2006 21:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946427AbWKACQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Oct 2006 21:14:10 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:6318 "EHLO
+	Tue, 31 Oct 2006 21:16:22 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:40624 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1946413AbWKACOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Oct 2006 21:14:08 -0500
+	id S1946410AbWKACQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Oct 2006 21:16:21 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=mro+hV7wBZqU7ZfOlaZu605bVopZ0IVCuPn/kIw8Qg9pgRkdYcsjCAHhty+Fxg4ijpwEzmk8smqBwudrN+oYJ14Kl8MncdcZay5/KMqXLjc6aqYu+nNekVPy5Q+8Laqynfctu1G7q/4SRcoREHHKHdKsUOGH1Bi6yN4vvUBfz4Y=
-Date: Wed, 1 Nov 2006 05:12:31 +0300
+        b=kYsQGLk0GK9PKiuBn29GV2wZxCiNT7rA4mbzKi6CdiIPg4X52rUbXnolIBSlp+m8aosdJNK2q1gyAnOAorz6glEtHx3fNIHqGEG993ZS3SUKXFpXYwORp6WyYZBsGhwiXy1F3AH8aokvnLmA4Ow8AXC60qyEntutJKfr74bAVw4=
+Date: Wed, 1 Nov 2006 05:14:40 +0300
 From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/cdrom/*: trivial vsnprintf() conversion
-Message-ID: <20061101021231.GC5014@martell.zuzino.mipt.ru>
+Subject: [PATCH] drivers/isdn/*: trivial vsnprintf() conversion
+Message-ID: <20061101021440.GD5014@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,40 +26,54 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixing sbpcd.c baroque error printing in process.
-
 Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
- drivers/cdrom/optcd.c |    2 +-
- drivers/cdrom/sbpcd.c |    5 ++---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/isdn/hardware/eicon/divasmain.c |    2 +-
+ drivers/isdn/hisax/hisax_isac.c         |    2 +-
+ drivers/isdn/hisax/st5481_d.c           |    4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/cdrom/optcd.c
-+++ b/drivers/cdrom/optcd.c
-@@ -101,7 +101,7 @@ static void debug(int debug_this, const 
- 		return;
+--- a/drivers/isdn/hardware/eicon/divasmain.c
++++ b/drivers/isdn/hardware/eicon/divasmain.c
+@@ -185,7 +185,7 @@ void diva_log_info(unsigned char *format
+ 	unsigned char line[160];
  
+ 	va_start(args, format);
+-	vsprintf(line, format, args);
++	vsnprintf(line, sizeof(line), format, args);
+ 	va_end(args);
+ 
+ 	printk(KERN_INFO "%s: %s\n", DRIVERLNAME, line);
+--- a/drivers/isdn/hisax/hisax_isac.c
++++ b/drivers/isdn/hisax/hisax_isac.c
+@@ -433,7 +433,7 @@ static void l1m_debug(struct FsmInst *fi
+ 	char buf[256];
+ 	
  	va_start(args, fmt);
--	vsprintf(s, fmt, args);
-+	vsnprintf(s, sizeof(s), fmt, args);
- 	printk(KERN_DEBUG "optcd: %s\n", s);
+-	vsprintf(buf, fmt, args);
++	vsnprintf(buf, sizeof(buf), fmt, args);
+ 	DBG(DBG_L1M, "%s", buf);
  	va_end(args);
  }
---- a/drivers/cdrom/sbpcd.c
-+++ b/drivers/cdrom/sbpcd.c
-@@ -770,11 +770,10 @@ #endif /* DISTRIBUTION */
+--- a/drivers/isdn/hisax/st5481_d.c
++++ b/drivers/isdn/hisax/st5481_d.c
+@@ -173,7 +173,7 @@ static void l1m_debug(struct FsmInst *fi
+ 	char buf[256];
  	
- 	msgnum++;
- 	if (msgnum>99) msgnum=0;
--	sprintf(buf, MSG_LEVEL "%s-%d [%02d]:  ", major_name, current_drive - D_S, msgnum);
  	va_start(args, fmt);
--	vsprintf(&buf[18], fmt, args);
+-	vsprintf(buf, fmt, args);
 +	vsnprintf(buf, sizeof(buf), fmt, args);
+ 	DBG(8, "%s", buf);
  	va_end(args);
--	printk(buf);
-+	printk(MSG_LEVEL "%s-%d [%02d]:  %s", major_name, current_drive - D_S, msgnum, buf);
- #if KLOGD_PAUSE
- 	sbp_sleep(KLOGD_PAUSE); /* else messages get lost */
- #endif /* KLOGD_PAUSE */ 
+ }
+@@ -275,7 +275,7 @@ static void dout_debug(struct FsmInst *f
+ 	char buf[256];
+ 	
+ 	va_start(args, fmt);
+-	vsprintf(buf, fmt, args);
++	vsnprintf(buf, sizeof(buf), fmt, args);
+ 	DBG(0x2, "%s", buf);
+ 	va_end(args);
+ }
 

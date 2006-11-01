@@ -1,68 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752452AbWKAVcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752460AbWKAVhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752452AbWKAVcs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 16:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752454AbWKAVcs
+	id S1752460AbWKAVhd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 16:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752461AbWKAVhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 16:32:48 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:57828 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752452AbWKAVcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 16:32:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=Ztc262rhJV20fgXQVkBMxVmbx5onZK8mDnLKZYuus80VfYBCPcMJDvEUwY/1wkDw+6zWHVKe4pSh1hDv0z1A8+L46M8AgC3HOg6PGqkp/6utaUvD1LVeOvQXGhBX0ievvnnQi8e4laQcqnRlhNfwdXTdltkKMRhFxIwdyXMfVg4=
-Subject: Re: [PATCH v2] Re: Battery class driver.
-From: Richard Hughes <hughsient@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Shem Multinymous <multinymous@gmail.com>, Greg KH <greg@kroah.com>,
-       David Zeuthen <davidz@redhat.com>,
-       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Jean Delvare <khali@linux-fr.org>
-In-Reply-To: <20061101212720.GA2893@elf.ucw.cz>
-References: <1161815138.27622.139.camel@shinybook.infradead.org>
-	 <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
-	 <1162037754.19446.502.camel@pmac.infradead.org>
-	 <1162041726.16799.1.camel@hughsie-laptop>
-	 <1162048148.2723.61.camel@zelda.fubar.dk>
-	 <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
-	 <20061031074946.GA7906@kroah.com>
-	 <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com>
-	 <20061101193134.GB29929@kroah.com>
-	 <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com>
-	 <20061101212720.GA2893@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 01 Nov 2006 21:32:40 +0000
-Message-Id: <1162416760.5303.1.camel@hughsie-laptop>
+	Wed, 1 Nov 2006 16:37:33 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:42209 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1752460AbWKAVhd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 16:37:33 -0500
+Date: Wed, 1 Nov 2006 22:35:09 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Darren Salt <linux@youmustbejoking.demon.co.uk>
+Cc: buytenh@wantstofly.org, g.liakhovetski@gmx.de, romieu@fr.zoreil.com,
+       torvalds@osdl.org, bunk@stusta.de, akpm@osdl.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, tmattox@gmail.com, spiky.kiwi@gmail.com,
+       r.bhatia@ipax.at, syed.azam@hp.com
+Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
+Message-ID: <20061101213509.GA3212@electric-eye.fr.zoreil.com>
+References: <20061029223410.GA15413@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610300032190.1435@poirot.grange> <20061030120158.GA28123@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610302148560.9723@poirot.grange> <Pine.LNX.4.60.0610302214350.9723@poirot.grange> <20061030234425.GB6038@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610312000160.5223@poirot.grange> <20061031230538.GA4329@electric-eye.fr.zoreil.com> <4E7F16C676%linux@youmustbejoking.demon.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4E7F16C676%linux@youmustbejoking.demon.co.uk>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-01 at 22:27 +0100, Pavel Machek wrote:
-> > The drawback is that someone in userspace who doesn't care about
-> units
-> > but just wants to show a status report or compute the amount of
-> > remaining fooergy divided by the amount of a fooergy when fully
-> > charged, like your typical battery applet, will need to parse
-> > filenames (or try out a fixed and possibly partial list) to find out
-> > which attribute files contain the numbers.
-> 
-> That's okay, we want userspace to use common library, and doing
-> 
-> echo $[`cat capacity_remaining:*` / `cat capacity_total:*`]
-> 
-> is not exactly rocket science. If greg does not like units suffixes,
-> that's okay, too, I'm sure handy wildcard match will be possible.
+Darren Salt <linux@youmustbejoking.demon.co.uk> :
+[...]
+> (This is one of two possible fixes, the other being the removal of the if()
+> guarding the other tx/rx-enable call. Both work here.)
 
-I'm guessing adding the new code to HAL will allow most stuff to keep
-working without any changes. I think battstat-applet defaults to using
-HAL, and I'm sure gnome-power-manager does. :-)
+I'll update the patch with your change but the removal of the if() would
+not match Realtek's init sequence.
 
-Richard.
+Lennert, I have compared 2.6.19-rc4 + 0001-r8169-perform-a-PHY-reset-etc
+with the serie of patches against 2.6.18-rc4 which was reported to work
+on your n2100 (thread on netdev around 05/09/2006). Can you:
 
+- apply the patch below on top of 2.6.19-rc4 + 0001 and see if it works ?
+  Don't apply 0002, it is not required.
+
+- if it works (it should if I have not messed it again), can you check
+  that it still works if you do not apply the first hunk ? It should as
+  well.
+
+If everything went fine this far, it would be nice to know if both the
+move of the write to ChipCmd and the mdio_write are required to fix
+your issue (I'd expect the move alone to not be enough as 0002 got this
+part right for the 8110sb).
+
+diff --git a/drivers/net/r8169.c b/drivers/net/r8169.c
+index 50b753d..b2fdbb8 100644
+--- a/drivers/net/r8169.c
++++ b/drivers/net/r8169.c
+@@ -491,7 +491,7 @@ static int rtl8169_poll(struct net_devic
+ #endif
+ 
+ static const u16 rtl8169_intr_mask =
+-	SYSErr | LinkChg | RxOverflow | RxFIFOOver | TxErr | TxOK | RxErr | RxOK;
++	LinkChg | RxOverflow | RxFIFOOver | TxErr | TxOK | RxErr | RxOK;
+ static const u16 rtl8169_napi_event =
+ 	RxOK | RxOverflow | RxFIFOOver | TxOK | TxErr;
+ static const unsigned int rtl8169_rx_config =
+@@ -1283,11 +1283,6 @@ static void rtl8169_hw_phy_config(struct
+ 	/* Shazam ! */
+ 
+ 	if (tp->mac_version == RTL_GIGA_MAC_VER_04) {
+-		mdio_write(ioaddr, 31, 0x0001);
+-		mdio_write(ioaddr,  9, 0x273a);
+-		mdio_write(ioaddr, 14, 0x7bfb);
+-		mdio_write(ioaddr, 27, 0x841e);
+-
+ 		mdio_write(ioaddr, 31, 0x0002);
+ 		mdio_write(ioaddr,  1, 0x90d0);
+ 		mdio_write(ioaddr, 31, 0x0000);
+@@ -1855,6 +1850,8 @@ rtl8169_hw_start(struct net_device *dev)
+ 
+ 
+ 	RTL_W8(Cfg9346, Cfg9346_Unlock);
++
++	RTL_W8(ChipCmd, CmdTxEnb | CmdRxEnb);
+ 	RTL_W8(EarlyTxThres, EarlyTxThld);
+ 
+ 	/* Low hurts. Let's disable the filtering. */
+@@ -1895,7 +1892,7 @@ rtl8169_hw_start(struct net_device *dev)
+ 	RTL_W32(TxDescStartAddrLow, ((u64) tp->TxPhyAddr & DMA_32BIT_MASK));
+ 	RTL_W32(RxDescAddrHigh, ((u64) tp->RxPhyAddr >> 32));
+ 	RTL_W32(RxDescAddrLow, ((u64) tp->RxPhyAddr & DMA_32BIT_MASK));
+-	RTL_W8(ChipCmd, CmdTxEnb | CmdRxEnb);
++
+ 	RTL_W8(Cfg9346, Cfg9346_Lock);
+ 
+ 	/* Initially a 10 us delay. Turned it into a PCI commit. - FR */

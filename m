@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752578AbWKAXxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752582AbWKAXyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752578AbWKAXxf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 18:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752579AbWKAXxf
+	id S1752582AbWKAXyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 18:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752581AbWKAXyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 18:53:35 -0500
-Received: from junsun.net ([66.29.16.26]:22540 "EHLO junsun.net")
-	by vger.kernel.org with ESMTP id S1752578AbWKAXxe (ORCPT
+	Wed, 1 Nov 2006 18:54:25 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:27347 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752580AbWKAXyY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 18:53:34 -0500
-Date: Wed, 1 Nov 2006 15:53:30 -0800
-From: Jun Sun <jsun@junsun.net>
-To: linux-kernel@vger.kernel.org
-Subject: unchecked_isa_dma and BusLogic SCSI controller
-Message-ID: <20061101235330.GA30843@srv.junsun.net>
-Mime-Version: 1.0
+	Wed, 1 Nov 2006 18:54:24 -0500
+Date: Wed, 1 Nov 2006 17:54:17 -0600
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 1/2]: Renumber PCI error enums to start at zero
+Message-ID: <20061101235417.GV6360@austin.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Can someone enlighten me on what "unchecked_isa_dma" means in the
-struct scsi_host_template?  Specifically why Bus_Logic_template has
-it set to 1?
+Greg,
 
-I am trying to reserve a block of memory (>16MB) starting from 0 and hide
-it from kernel.  As a result, the DMA zone becomes 0 in size.
+This is a low-prioriity patch to fix an annoying numbering mistake. 
+Please apply this (and the next patch) at net convenience.
 
-Because Bus_Logic_template has unchecked_isa_dma set to 1, the driver
-will attempt to allocate a block of memory from DMA zone and thus
-causes OOMs during its initialization.
+--linas
 
-It is hard for me to see why BusLogic controller would only do DMA
-in low 16MB.  Is there a fix for this?
+Subject: [PATCH 1/2]: Renumber PCI error enums to start at zero
 
-BTW, I also tried to increase MAX_DMA_ADDRESS to cover the whole memory
-area.  While the OOMs are gone during BusLogic driver initialization, 
-kernel fails to find labelled root partition or fail to open
-the initial console.  It appears the disk (or the scsi) is not working
-properly after increasing MAX_DMA_ADDRESS.
+Renumber the PCI error enums to start at zero for "normal/online".
+This allows un-initialized pci channel state (which defaults to zero)
+to be interpreted as "normal".  Add very simple routine to check
+state, just in case this ever has to be fiddled with again.
 
-My platform is vmplayer.  Pretty cool for devel.
+Signed-off-by: Linas Vepstas <linas@linas.org>
 
-Cheers.
+----
+ include/linux/pci.h |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-Jun
+Index: linux-2.6.19-rc4-git3/include/linux/pci.h
+===================================================================
+--- linux-2.6.19-rc4-git3.orig/include/linux/pci.h	2006-11-01 16:15:49.000000000 -0600
++++ linux-2.6.19-rc4-git3/include/linux/pci.h	2006-11-01 16:20:49.000000000 -0600
+@@ -86,15 +86,20 @@ typedef unsigned int __bitwise pci_chann
+ 
+ enum pci_channel_state {
+ 	/* I/O channel is in normal state */
+-	pci_channel_io_normal = (__force pci_channel_state_t) 1,
++	pci_channel_io_normal = (__force pci_channel_state_t) 0,
+ 
+ 	/* I/O to channel is blocked */
+-	pci_channel_io_frozen = (__force pci_channel_state_t) 2,
++	pci_channel_io_frozen = (__force pci_channel_state_t) 1,
+ 
+ 	/* PCI card is dead */
+-	pci_channel_io_perm_failure = (__force pci_channel_state_t) 3,
++	pci_channel_io_perm_failure = (__force pci_channel_state_t) 2,
+ };
+ 
++static inline int pci_channel_offline(pci_channel_state_t state)
++{
++	return (state != pci_channel_io_normal);
++}
++
+ typedef unsigned short __bitwise pci_bus_flags_t;
+ enum pci_bus_flags {
+ 	PCI_BUS_FLAGS_NO_MSI = (__force pci_bus_flags_t) 1,

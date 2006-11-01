@@ -1,52 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946684AbWKAIB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946687AbWKAICG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946684AbWKAIB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 03:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946686AbWKAIB3
+	id S1946687AbWKAICG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 03:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946685AbWKAICG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 03:01:29 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:39781 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1946684AbWKAIB2 (ORCPT
+	Wed, 1 Nov 2006 03:02:06 -0500
+Received: from mga01.intel.com ([192.55.52.88]:53340 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1946687AbWKAICD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 03:01:28 -0500
-Message-ID: <45485357.6050403@openvz.org>
-Date: Wed, 01 Nov 2006 10:57:11 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Wed, 1 Nov 2006 03:02:03 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,377,1157353200"; 
+   d="scan'208"; a="155710222:sNHT20071380"
+Message-ID: <45485478.8060909@intel.com>
+Date: Wed, 01 Nov 2006 16:02:00 +0800
+From: "bibo,mao" <bibo.mao@intel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Pavel Emelianov <xemul@openvz.org>, balbir@in.ibm.com, vatsa@in.ibm.com,
-       dev@openvz.org, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com, menage@google.com
-Subject: Re: [ckrm-tech] RFC: Memory Controller
-References: <20061030103356.GA16833@in.ibm.com>	 <4545D51A.1060808@in.ibm.com> <4546212B.4010603@openvz.org>	 <454638D2.7050306@in.ibm.com>  <45470DF4.70405@openvz.org> <1162314249.28876.120.camel@localhost.localdomain>
-In-Reply-To: <1162314249.28876.120.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.6.19-rc3 autofs crash on my IA64 box
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Tue, 2006-10-31 at 11:48 +0300, Pavel Emelianov wrote:
->> If memory is considered to be unreclaimable then actions should be
->> taken at mmap() time, not later! Rejecting mmap() is the only way to
->> limit user in unreclaimable memory consumption.
-> 
-> I don't think this is necessarily true.  Today, if a kernel exceeds its
-> allocation limits (runs out of memory) it gets killed.  Doing the
-> limiting at mmap() time instead of fault time will keep a sparse memory
-> applications from even being able to run.
+hi,
+  2.6.19-rc3 kernel crashes on my IA64 box, it seems the problem
+of autofs fs. I debug this problem, if autofs kernel does not
+match daemon version, it will call autofs_catatonic_mode.
+But at that time sbi->pipe is NULL.
 
-If limiting _every_ mapping it will, but when limiting only
-"private" mappings - no problems at all. BC code lives for
-more than 3 years already and no claims from users on this
-question yet.
+void autofs_catatonic_mode(struct autofs_sb_info *sbi)
+{
+   .........
+   fput(sbi->pipe);        /* Close the pipe */
+	^^^^^^^^^^^^
+ 	sbi->pipe seems NULL;
+   autofs_hash_dputall(&sbi->dirhash); /* Remove all dentry pointers */
+}
 
-> Now, failing an mmap() is a wee bit more graceful than a SIGBUS, but it
-> certainly introduces its own set of problems.
-> 
-> -- Dave
-> 
-> 
 
+Starting automount: autofs: kernel does not match daemon version
+Unable to handle kernel NULL pointer dereference (address 0000000000000028)
+automount[3197]: Oops 8821862825984 [1]
+Modules linked in: sunrpc binfmt_misc dm_mirror dm_mod thermal processor fan cod
+ 
+Pid: 3188, CPU 1, comm:            automount
+psr : 00001010085a6010 ifs : 8000000000000205 ip  : [<a00000010012bde0>]    Notd
+ip is at fput+0x20/0x60
+unat: 0000000000000000 pfs : 000000000000038b rsc : 0000000000000003
+rnat: 00000000000000a0 bsps: 000000000001003e pr  : 40a80004065625a9
+ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c0270033f
+csd : 0000000000000000 ssd : 0000000000000000
+b0  : a0000001001f4d00 b6  : a0000001001f2600 b7  : a000000100155c00
+f6  : 1003e0000000000000000 f7  : 1003e00000000000000a0
+f8  : 1003e0000000000000001 f9  : 1003e0000000000000001
+f10 : 000000000000000000000 f11 : 000000000000000000000
+r1  : a0000001009e6e10 r2  : 0000000000000028 r3  : e0000001f881c008
+r8  : 0000000000000001 r9  : 0000000040000000 r10 : ffffffffc0000001
+r11 : 0000000000000018 r12 : e0000001fab4fbe0 r13 : e0000001fab48000
+r14 : 0000000000000001 r15 : 0000000000000038 r16 : e0000001f881c030
+r17 : 00000000ffffffff r18 : e0000002fffa0f88 r19 : 0000000000000001
+r20 : e0000001fab48b64 r21 : a0007fffff1971b0 r22 : e0000002fff95198
+r23 : e0000002fff95188 r24 : 0000000000000001 r25 : 0000000000000000
+r26 : 0000000000000009 r27 : 0000000000000000 r28 : a018000000000000
+r29 : 8000000000000080 r30 : 0000000000000000 r31 : a0000001007fb2cc
+ 
+Call Trace:
+ [<a000000100013b80>] show_stack+0x40/0xa0
+                                sp=e0000001fab4f770 bsp=e0000001fab48fa0
+ [<a0000001000147e0>] show_regs+0x840/0x880
+                                sp=e0000001fab4f940 bsp=e0000001fab48f48
+ [<a0000001000369e0>] die+0x1c0/0x2c0
+                                sp=e0000001fab4f940 bsp=e0000001fab48f00
+ [<a0000001005734f0>] ia64_do_page_fault+0x930/0xa60
+                                sp=e0000001fab4f960 bsp=e0000001fab48eb0
+ [<a00000010000c3a0>] ia64_leave_kernel+0x0/0x280
+                                sp=e0000001fab4fa10 bsp=e0000001fab48eb0
+ [<a00000010012bde0>] fput+0x20/0x60
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48e88
+ [<a0000001001f4d00>] autofs_catatonic_mode+0xe0/0x120
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48e50
+ [<a0000001001f2640>] autofs_kill_sb+0x40/0x140
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48e20
+ [<a00000010012dc50>] deactivate_super+0xd0/0x120
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48de8
+ [<a00000010012f500>] get_sb_nodev+0xe0/0x160
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48da0
+ [<a0000001001f1b60>] autofs_get_sb+0x40/0x60
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48d60
+ [<a00000010012dd40>] vfs_kern_mount+0xa0/0x160
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48d18
+ [<a00000010012dec0>] do_kern_mount+0x60/0xa0
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48cd8
+ [<a00000010015ebc0>] do_mount+0xce0/0xde0
+                                sp=e0000001fab4fbe0 bsp=e0000001fab48c80
+ [<a00000010015edb0>] sys_mount+0xf0/0x1c0
+                                sp=e0000001fab4fe10 bsp=e0000001fab48be8
+ [<a00000010000c200>] ia64_ret_from_syscall+0x0/0x20
+                                sp=e0000001fab4fe30 bsp=e0000001fab48be8
+ [<a000000000010620>] __kernel_syscall_via_break+0x0/0x20
+                                sp=e0000001fab50000 bsp=e0000001fab48be8

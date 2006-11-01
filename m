@@ -1,94 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992640AbWKAUaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992805AbWKAUbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992640AbWKAUaG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 15:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992802AbWKAUaG
+	id S2992805AbWKAUbk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 15:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992808AbWKAUbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 15:30:06 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:64840 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S2992640AbWKAUaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 15:30:04 -0500
-Message-ID: <454902CC.4040700@oracle.com>
-Date: Wed, 01 Nov 2006 12:25:48 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Wed, 1 Nov 2006 15:31:40 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:36276 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S2992805AbWKAUbj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 15:31:39 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH -mm] swsusp: Freeze filesystems during suspend (rev. 2)
+Date: Wed, 1 Nov 2006 21:22:41 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Christoph Hellwig <hch@infradead.org>
+References: <200611011200.18438.rjw@sisk.pl> <200611011853.09633.rjw@sisk.pl> <20061101115458.bb02f1d3.akpm@osdl.org>
+In-Reply-To: <20061101115458.bb02f1d3.akpm@osdl.org>
 MIME-Version: 1.0
-To: Derek Fults <dfults@sgi.com>
-CC: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Updated, add get_range, allows a hyhpenated range to
- get_options
-References: <1162410596.9524.544.camel@lnx-dfults.americas.sgi.com>	 <4548FAFC.5000409@oracle.com> <1162412656.9524.556.camel@lnx-dfults.americas.sgi.com>
-In-Reply-To: <1162412656.9524.556.camel@lnx-dfults.americas.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Disposition: inline
+Message-Id: <200611012122.42362.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Derek Fults wrote:
-> On Wed, 2006-11-01 at 11:52 -0800, Randy Dunlap wrote:
->> Derek Fults wrote:
->>> This allows a hyphenated range of positive numbers M-N, in the string
->>> passed to command line helper function, get_options.  This will expand
->>> the range and insert the values[M, M+1, ..., N] into the ints array in
->>> get_options.
->>>
->>> Currently the command line option "isolcpus=" takes as its argument a
->>> list of cpus.  
->>> Format: <cpu number>,...,<cpu number>
->>> This can get extremely long when isolating the majority of cpus on a
->>> large system.  Valid values of <cpu_number>  include all cpus, 0 to
->>> "number of CPUs in system - 1".
->>>
->>>
->>> Signed-off-by: Derek Fults <dfults@sgi.com>  
->>>
->>> Index: linux/lib/cmdline.c
->>> ===================================================================
->>> --- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
->>> +++ linux/lib/cmdline.c	2006-11-01 12:36:20.059166727 -0600
->>> @@ -16,6 +16,23 @@
->>>  #include <linux/kernel.h>
->>>  #include <linux/string.h>
->>>  
->>> +/**
->>> + *	If a hyphen was found in get_option, this will handle the
->>> + *	range of numbers, M-N.  This will expand the range and insert
->>> + *	the values[M, M+1, ..., N] into the ints array in get_options.
->>> + */
->> Derek,
->> Thanks for persisting thru this.  It's all fine for me except the
->> comment block above.  If a comment block begins with "/**", then
->> it's supposed to be in kernel-doc format (see
->> Documentation/kernel-doc-nano-HOWTO.txt), with function name &
->> parameters (if applicable).  However, that mostly needs to be done
->> for non-static functions, so probably just change /** to /*
->> and leave the rest of the comment block as is.
->> My other comment-block comment was also about kernel long-comment
->> style, which is
->> /*
->>  * begin
->>  * more
->>  * end
->>  */
->> so now you have achieved that also, so thanks again.
+On Wednesday, 1 November 2006 20:54, Andrew Morton wrote:
+> On Wed, 1 Nov 2006 18:53:07 +0100
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 > 
-> I fixed both comments to match that format.  Thanks for all the help and
-> your patience.
-> I'm posting the new patch in this replay.  Is that an acceptable
-> practice, or does one normally post all fixes to a patch in a new
-> message?
+> > +void freeze_filesystems(void)
+> > +{
+> > +	struct super_block *sb;
+> > +
+> > +	lockdep_off();
+> > +	/*
+> > +	 * Freeze in reverse order so filesystems dependant upon others are
+> > +	 * frozen in the right order (eg. loopback on ext3).
+> > +	 */
+> > +	list_for_each_entry_reverse(sb, &super_blocks, s_list) {
+> > +		if (!sb->s_root || !sb->s_bdev ||
+> > +		    (sb->s_frozen == SB_FREEZE_TRANS) ||
+> > +		    (sb->s_flags & MS_RDONLY) ||
+> > +		    (sb->s_flags & MS_FROZEN))
+> > +			continue;
+> > +
+> > +		freeze_bdev(sb->s_bdev);
+> > +		sb->s_flags |= MS_FROZEN;
+> > +	}
+> > +	lockdep_on();
+> > +}
+> > +
+> > +/**
+> > + * thaw_filesystems - unlock all filesystems
+> > + */
+> > +void thaw_filesystems(void)
+> > +{
+> > +	struct super_block *sb;
+> > +
+> > +	lockdep_off();
+> > +
+> > +	list_for_each_entry(sb, &super_blocks, s_list)
+> > +		if (sb->s_flags & MS_FROZEN) {
+> > +			sb->s_flags &= ~MS_FROZEN;
+> > +			thaw_bdev(sb->s_bdev, sb);
+> > +		}
+> > +
+> > +	lockdep_on();
+> > +}
+> 
+> argh.
+> 
+> The uncommented, unchangelogged lockdep_off() calls are completely
+> mysterious right now, even before the patch is merged.  They will not
+> become less mysterious over time.
 
-It happens both ways, but since this is mostly new code/feature,
-I suggest that you repost it and also cc: akpm@osdl.org on it.
+Of course.  Sorry.
 
-And it still needs a user.  Will you be converting isolcpus=
-to use this functionality?
-It likely won't be merged until it has a user.
+> Please, take pity upon the readers of your code.  Add a comment.
 
--- 
-~Randy
+OK (on top of the previous patch)
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ fs/buffer.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+Index: linux-2.6.19-rc4-mm1/fs/buffer.c
+===================================================================
+--- linux-2.6.19-rc4-mm1.orig/fs/buffer.c
++++ linux-2.6.19-rc4-mm1/fs/buffer.c
+@@ -252,6 +252,11 @@ void freeze_filesystems(void)
+ {
+ 	struct super_block *sb;
+ 
++	/*
++	 * We are going to take several locks of the same class in a row
++	 * without releasing them until thaw_filesystems() is called and
++	 * lockdep won't know this is all OK.
++	 */
+ 	lockdep_off();
+ 	/*
+ 	 * Freeze in reverse order so filesystems dependant upon others are
+@@ -277,6 +282,10 @@ void thaw_filesystems(void)
+ {
+ 	struct super_block *sb;
+ 
++	/*
++	 * We are going to release several locks of the same class in a row
++	 * and lockdep would complain about it, unnecessarily.
++	 */
+ 	lockdep_off();
+ 
+ 	list_for_each_entry(sb, &super_blocks, s_list)
+

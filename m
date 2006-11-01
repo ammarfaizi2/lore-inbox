@@ -1,334 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946383AbWKALRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946058AbWKALQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946383AbWKALRF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 06:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946788AbWKALRE
+	id S1946058AbWKALQW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 06:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946781AbWKALQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 06:17:04 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:7819 "EHLO calculon.skynet.ie")
-	by vger.kernel.org with ESMTP id S1946783AbWKALRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 06:17:01 -0500
+	Wed, 1 Nov 2006 06:16:22 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:64138 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1946058AbWKALQV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 06:16:21 -0500
 From: Mel Gorman <mel@csn.ul.ie>
 To: linux-mm@kvack.org
 Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
-Message-Id: <20061101111700.18798.49577.sendpatchset@skynet.skynet.ie>
-In-Reply-To: <20061101111620.18798.34778.sendpatchset@skynet.skynet.ie>
-References: <20061101111620.18798.34778.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 2/11] Split the free lists into kernel and user parts
-Date: Wed,  1 Nov 2006 11:17:00 +0000 (GMT)
+Message-Id: <20061101111620.18798.34778.sendpatchset@skynet.skynet.ie>
+Subject: [PATCH 0/11] Avoiding fragmentation with subzone groupings v26
+Date: Wed,  1 Nov 2006 11:16:20 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds the core of the anti-fragmentation strategy. It works by
-grouping related allocation types together. The idea is that large groups of
-pages that may be reclaimed are placed near each other. The zone->free_area
-list is broken into RCLM_TYPES number of lists.
+This is the latest version of anti-fragmentation based on sub-zones (previously
+called list-based anti-fragmentation) based on top of 2.6.19-rc4-mm1. In
+it's last release, it was decided that the scheme should be implemented with
+zones to avoid affecting the page allocator hot paths. However, at VM Summit,
+it was made clear that zones may not be the right answer either because zones
+have their own issues. Hence, this is a reintroduction of the first approach.
 
+Changelog Since V25
+o Fix loop order of for_each_rclmtype_order so that order of loop matches args
+o gfpflags_to_rclmtype uses gfp_t instead of unsigned long
+o Rename get_pageblock_type() to get_page_rclmtype()
+o Fix alignment problem in move_freepages()
+o Add mechanism for assigning flags to blocks of pages instead of page->flags
+o On fallback, do not examine the preferred list of free pages a second time
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
----
+The purpose of these patches is to reduce external fragmentation by grouping
+pages of related types together. The objective is that when page reclaim
+occurs, there is a greater chance that large contiguous pages will be
+free. Note that this is not a defragmentation which would get contiguous
+pages by moving pages around.
 
- include/linux/mmzone.h     |   10 +++
- include/linux/page-flags.h |    7 ++
- mm/page_alloc.c            |  109 +++++++++++++++++++++++++++++++---------
- 3 files changed, 102 insertions(+), 24 deletions(-)
+This patch works by categorising allocations by their reclaimability;
 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc4-mm1-001_antifrag_flags/include/linux/mmzone.h linux-2.6.19-rc4-mm1-002_fragcore/include/linux/mmzone.h
---- linux-2.6.19-rc4-mm1-001_antifrag_flags/include/linux/mmzone.h	2006-10-31 13:27:13.000000000 +0000
-+++ linux-2.6.19-rc4-mm1-002_fragcore/include/linux/mmzone.h	2006-10-31 13:31:10.000000000 +0000
-@@ -24,8 +24,16 @@
- #endif
- #define MAX_ORDER_NR_PAGES (1 << (MAX_ORDER - 1))
- 
-+#define RCLM_NORCLM 0
-+#define RCLM_EASY   1
-+#define RCLM_TYPES  2
-+
-+#define for_each_rclmtype_order(order, type) \
-+	for (order = 0; order < MAX_ORDER; order++) \
-+		for (type = 0; type < RCLM_TYPES; type++)
-+
- struct free_area {
--	struct list_head	free_list;
-+	struct list_head	free_list[RCLM_TYPES];
- 	unsigned long		nr_free;
- };
- 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc4-mm1-001_antifrag_flags/include/linux/page-flags.h linux-2.6.19-rc4-mm1-002_fragcore/include/linux/page-flags.h
---- linux-2.6.19-rc4-mm1-001_antifrag_flags/include/linux/page-flags.h	2006-10-31 13:27:13.000000000 +0000
-+++ linux-2.6.19-rc4-mm1-002_fragcore/include/linux/page-flags.h	2006-10-31 13:31:10.000000000 +0000
-@@ -93,6 +93,7 @@
- 
- #define PG_readahead		20	/* Reminder to do readahead */
- 
-+#define PG_easyrclm		21	/* Page is an easy reclaim page */
- 
- #if (BITS_PER_LONG > 32)
- /*
-@@ -253,6 +254,12 @@ static inline void SetPageUptodate(struc
- #define SetPageReadahead(page)	set_bit(PG_readahead, &(page)->flags)
- #define TestClearPageReadahead(page) test_and_clear_bit(PG_readahead, &(page)->flags)
- 
-+#define PageEasyRclm(page)	test_bit(PG_easyrclm, &(page)->flags)
-+#define SetPageEasyRclm(page)	set_bit(PG_easyrclm, &(page)->flags)
-+#define ClearPageEasyRclm(page)	clear_bit(PG_easyrclm, &(page)->flags)
-+#define __SetPageEasyRclm(page)	__set_bit(PG_easyrclm, &(page)->flags)
-+#define __ClearPageEasyRclm(page) __clear_bit(PG_easyrclm, &(page)->flags)
-+
- struct page;	/* forward declaration */
- 
- int test_clear_page_dirty(struct page *page);
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc4-mm1-001_antifrag_flags/mm/page_alloc.c linux-2.6.19-rc4-mm1-002_fragcore/mm/page_alloc.c
---- linux-2.6.19-rc4-mm1-001_antifrag_flags/mm/page_alloc.c	2006-10-31 13:27:13.000000000 +0000
-+++ linux-2.6.19-rc4-mm1-002_fragcore/mm/page_alloc.c	2006-10-31 13:33:27.000000000 +0000
-@@ -135,6 +135,16 @@ static unsigned long __initdata dma_rese
- #endif /* CONFIG_MEMORY_HOTPLUG_RESERVE */
- #endif /* CONFIG_ARCH_POPULATES_NODE_MAP */
- 
-+static inline int get_page_rclmtype(struct page *page)
-+{
-+	return (PageEasyRclm(page) != 0);
-+}
-+
-+static inline int gfpflags_to_rclmtype(gfp_t gfp_flags)
-+{
-+	return ((gfp_flags & __GFP_EASYRCLM) != 0);
-+}
-+
- #ifdef CONFIG_DEBUG_VM
- static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
- {
-@@ -404,11 +414,13 @@ static inline void __free_one_page(struc
- {
- 	unsigned long page_idx;
- 	int order_size = 1 << order;
-+	int rclmtype = get_page_rclmtype(page);
- 
- 	if (unlikely(PageCompound(page)))
- 		destroy_compound_page(page, order);
- 
- 	page_idx = page_to_pfn(page) & ((1 << MAX_ORDER) - 1);
-+	__SetPageEasyRclm(page);
- 
- 	VM_BUG_ON(page_idx & (order_size - 1));
- 	VM_BUG_ON(bad_range(zone, page));
-@@ -416,7 +428,6 @@ static inline void __free_one_page(struc
- 	zone->free_pages += order_size;
- 	while (order < MAX_ORDER-1) {
- 		unsigned long combined_idx;
--		struct free_area *area;
- 		struct page *buddy;
- 
- 		buddy = __page_find_buddy(page, page_idx, order);
-@@ -424,8 +435,7 @@ static inline void __free_one_page(struc
- 			break;		/* Move the buddy up one level. */
- 
- 		list_del(&buddy->lru);
--		area = zone->free_area + order;
--		area->nr_free--;
-+		zone->free_area[order].nr_free--;
- 		rmv_page_order(buddy);
- 		combined_idx = __find_combined_index(page_idx, order);
- 		page = page + (combined_idx - page_idx);
-@@ -433,7 +443,7 @@ static inline void __free_one_page(struc
- 		order++;
- 	}
- 	set_page_order(page, order);
--	list_add(&page->lru, &zone->free_area[order].free_list);
-+	list_add(&page->lru, &zone->free_area[order].free_list[rclmtype]);
- 	zone->free_area[order].nr_free++;
- }
- 
-@@ -568,7 +578,8 @@ void fastcall __init __free_pages_bootme
-  * -- wli
-  */
- static inline void expand(struct zone *zone, struct page *page,
-- 	int low, int high, struct free_area *area)
-+ 	int low, int high, struct free_area *area,
-+	int rclmtype)
- {
- 	unsigned long size = 1 << high;
- 
-@@ -577,7 +588,7 @@ static inline void expand(struct zone *z
- 		high--;
- 		size >>= 1;
- 		VM_BUG_ON(bad_range(zone, &page[size]));
--		list_add(&page[size].lru, &area->free_list);
-+		list_add(&page[size].lru, &area->free_list[rclmtype]);
- 		area->nr_free++;
- 		set_page_order(&page[size], high);
- 	}
-@@ -630,31 +641,80 @@ static int prep_new_page(struct page *pa
- 	return 0;
- }
- 
-+/* Remove an element from the buddy allocator from the fallback list */
-+static struct page *__rmqueue_fallback(struct zone *zone, int order,
-+							gfp_t gfp_flags)
-+{
-+	struct free_area * area;
-+	int current_order;
-+	struct page *page;
-+	int rclmtype = gfpflags_to_rclmtype(gfp_flags);
-+
-+	/* Find the largest possible block of pages in the other list */
-+	rclmtype = !rclmtype;
-+	for (current_order = MAX_ORDER-1; current_order >= order;
-+						--current_order) {
-+		area = &(zone->free_area[current_order]);
-+ 		if (list_empty(&area->free_list[rclmtype]))
-+ 			continue;
-+
-+		page = list_entry(area->free_list[rclmtype].next,
-+					struct page, lru);
-+		area->nr_free--;
-+
-+		/*
-+		 * If breaking a large block of pages, place the buddies
-+		 * on the preferred allocation list
-+		 */
-+		if (unlikely(current_order >= MAX_ORDER / 2))
-+			rclmtype = !rclmtype;
-+
-+		/* Remove the page from the freelists */
-+		list_del(&page->lru);
-+		rmv_page_order(page);
-+		zone->free_pages -= 1UL << order;
-+		expand(zone, page, order, current_order, area, rclmtype);
-+		return page;
-+	}
-+
-+	return NULL;
-+}
-+
- /* 
-  * Do the hard work of removing an element from the buddy allocator.
-  * Call me with the zone->lock already held.
-  */
--static struct page *__rmqueue(struct zone *zone, unsigned int order)
-+static struct page *__rmqueue(struct zone *zone, unsigned int order,
-+						gfp_t gfp_flags)
- {
- 	struct free_area * area;
- 	unsigned int current_order;
- 	struct page *page;
-+	int rclmtype = gfpflags_to_rclmtype(gfp_flags);
- 
-+	/* Find a page of the appropriate size in the preferred list */
- 	for (current_order = order; current_order < MAX_ORDER; ++current_order) {
--		area = zone->free_area + current_order;
--		if (list_empty(&area->free_list))
-+		area = &(zone->free_area[current_order]);
-+		if (list_empty(&area->free_list[rclmtype]))
- 			continue;
- 
--		page = list_entry(area->free_list.next, struct page, lru);
-+		page = list_entry(area->free_list[rclmtype].next,
-+					struct page, lru);
- 		list_del(&page->lru);
- 		rmv_page_order(page);
- 		area->nr_free--;
- 		zone->free_pages -= 1UL << order;
--		expand(zone, page, order, current_order, area);
--		return page;
-+		expand(zone, page, order, current_order, area, rclmtype);
-+		goto got_page;
- 	}
- 
--	return NULL;
-+	page = __rmqueue_fallback(zone, order, gfp_flags);
-+
-+got_page:
-+	if (unlikely(rclmtype == RCLM_NORCLM) && page)
-+		__ClearPageEasyRclm(page);
-+
-+	return page;
- }
- 
- /* 
-@@ -663,13 +723,14 @@ static struct page *__rmqueue(struct zon
-  * Returns the number of new pages which were placed at *list.
-  */
- static int rmqueue_bulk(struct zone *zone, unsigned int order, 
--			unsigned long count, struct list_head *list)
-+			unsigned long count, struct list_head *list,
-+			gfp_t gfp_flags)
- {
- 	int i;
- 	
- 	spin_lock(&zone->lock);
- 	for (i = 0; i < count; ++i) {
--		struct page *page = __rmqueue(zone, order);
-+		struct page *page = __rmqueue(zone, order, gfp_flags);
- 		if (unlikely(page == NULL))
- 			break;
- 		list_add_tail(&page->lru, list);
-@@ -744,7 +805,7 @@ void mark_free_pages(struct zone *zone)
- {
- 	unsigned long pfn, max_zone_pfn;
- 	unsigned long flags;
--	int order;
-+	int order, t;
- 	struct list_head *curr;
- 
- 	if (!zone->spanned_pages)
-@@ -761,14 +822,15 @@ void mark_free_pages(struct zone *zone)
- 				ClearPageNosaveFree(page);
- 		}
- 
--	for (order = MAX_ORDER - 1; order >= 0; --order)
--		list_for_each(curr, &zone->free_area[order].free_list) {
-+	for_each_rclmtype_order(order, t) {
-+		list_for_each(curr, &zone->free_area[order].free_list[t]) {
- 			unsigned long i;
- 
- 			pfn = page_to_pfn(list_entry(curr, struct page, lru));
- 			for (i = 0; i < (1UL << order); i++)
- 				SetPageNosaveFree(pfn_to_page(pfn + i));
- 		}
-+	}
- 
- 	spin_unlock_irqrestore(&zone->lock, flags);
- }
-@@ -868,7 +930,7 @@ again:
- 		local_irq_save(flags);
- 		if (!pcp->count) {
- 			pcp->count = rmqueue_bulk(zone, 0,
--						pcp->batch, &pcp->list);
-+					pcp->batch, &pcp->list, gfp_flags);
- 			if (unlikely(!pcp->count))
- 				goto failed;
- 		}
-@@ -877,7 +939,7 @@ again:
- 		pcp->count--;
- 	} else {
- 		spin_lock_irqsave(&zone->lock, flags);
--		page = __rmqueue(zone, order);
-+		page = __rmqueue(zone, order, gfp_flags);
- 		spin_unlock(&zone->lock);
- 		if (!page)
- 			goto failed;
-@@ -1959,6 +2021,7 @@ void __meminit memmap_init_zone(unsigned
- 		init_page_count(page);
- 		reset_page_mapcount(page);
- 		SetPageReserved(page);
-+		SetPageEasyRclm(page);
- 		INIT_LIST_HEAD(&page->lru);
- #ifdef WANT_PAGE_VIRTUAL
- 		/* The shift won't overflow because ZONE_NORMAL is below 4G. */
-@@ -1974,9 +2037,9 @@ void __meminit memmap_init_zone(unsigned
- void zone_init_free_lists(struct pglist_data *pgdat, struct zone *zone,
- 				unsigned long size)
- {
--	int order;
--	for (order = 0; order < MAX_ORDER ; order++) {
--		INIT_LIST_HEAD(&zone->free_area[order].free_list);
-+	int order, rclmtype;
-+	for_each_rclmtype_order(order, rclmtype) {
-+		INIT_LIST_HEAD(&zone->free_area[order].free_list[rclmtype]);
- 		zone->free_area[order].nr_free = 0;
- 	}
- }
+EasyReclaimable - These are userspace pages that are easily reclaimable. This
+	flag is set when it is known that the pages will be trivially reclaimed
+	by writing the page out to swap or syncing with backing storage
+
+KernelReclaimable - These are allocations for some kernel caches that are
+	reclaimable or allocations that are known to be very short-lived.
+
+KernelNonReclaimable - These are pages that are allocated by the kernel that
+	are not trivially reclaimed. For example, the memory allocated for a
+	loaded module would be in this category. By default, allocations are
+	considered to be of this type
+
+Instead of having one MAX_ORDER-sized array of free lists in struct free_area,
+there is one for each type of reclaimability. Once a 2^MAX_ORDER block of
+pages is split for a type of allocation, it is added to the free-lists for
+that type, in effect reserving it. Hence, over time, pages of the different
+types can be clustered together. When a page is allocated, the page-flags
+are updated with a value indicating it's type of reclaimability so that it
+is placed on the correct list on free.
+
+When the preferred freelists are expired, the largest possible block is taken
+from an alternative list. Buddies that are split from that large block are
+placed on the preferred allocation-type freelists to mitigate fragmentation.
+
+This implementation gives best-effort for low fragmentation in all zones. To
+be effective, min_free_kbytes needs to be set to a value about 10% of physical
+memory (10% was found by experimentation, it may be workload dependant). To
+get that value lower, anti-fragmentation needs to be more invasive so it's
+best to find out what sorts of workloads still cause fragmentation before
+taking further steps.
+
+Our tests show that about 60-70% of physical memory can be allocated on
+a desktop after a few days uptime. In benchmarks and stress tests, we are
+finding that 80% of memory is available as contiguous blocks at the end of
+the test. To compare, a standard kernel was getting < 1% of memory as large
+pages on a desktop and about 8-12% of memory as large pages at the end of
+stress tests.
+
+Performance tests are within 0.1% for kbuild on a number of test machines. aim9
+is usually within 1% except on x86_64 where aim9 results are unreliable.
+I have never been able to show it but it is possible the main allocator
+path is adversely affected by anti-fragmentation (cache footprint might be a
+problem) and it may be exposed by using differnet compilers or benchmarks. If
+any regressions are detected due to anti-fragmentation, it may be simply
+disabled via the kernel configuration and I'd appreciate a report detailing
+the regression and how to trigger it.
+
+Following this email are 8 patches that implement antifragmentation with an
+additional 3 patches that provide an alternative to using page->flags. The
+early patches introduce the split between user and kernel allocations.
+Later we introduce a further split for kernel allocations, into KernRclm
+and KernNoRclm.  Note that although in early patches an additional page
+flag is consumed, later patches reuse the suspend bits, releasing this bit
+again. The last three patches remove the restriction on suspend by introducing
+an alternative solution for tracking page blocks which remove the need for
+any page bits.
+
+Comments?
+-- 
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

@@ -1,73 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752582AbWKAXyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752579AbWKAXzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752582AbWKAXyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 18:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752581AbWKAXyZ
+	id S1752579AbWKAXzx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 18:55:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752581AbWKAXzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 18:54:25 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:27347 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752580AbWKAXyY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 18:54:24 -0500
-Date: Wed, 1 Nov 2006 17:54:17 -0600
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 1/2]: Renumber PCI error enums to start at zero
-Message-ID: <20061101235417.GV6360@austin.ibm.com>
+	Wed, 1 Nov 2006 18:55:52 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:45287 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1752579AbWKAXzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 18:55:51 -0500
+X-Sasl-enc: j6iOTqbqioGn1ecENb8E0fhSqix9gt8zsWQgTtArAxpL 1162425351
+Date: Wed, 1 Nov 2006 20:55:40 -0300
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Greg KH <greg@kroah.com>
+Cc: Shem Multinymous <multinymous@gmail.com>,
+       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>, Jean Delvare <khali@linux-fr.org>
+Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061101235540.GA11581@khazad-dum.debian.net>
+References: <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+In-Reply-To: <20061101205330.GA2593@kroah.com>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 01 Nov 2006, Greg KH wrote:
+> On Wed, Nov 01, 2006 at 09:53:12PM +0200, Shem Multinymous wrote:
+> > Hi Greg,
+> > 
+> > On 11/1/06, Greg KH <greg@kroah.com> wrote:
+> > >> The suggestions so far were:
+> > >> 1. Append units string to the content of such attribute:
+> > >>   /sys/.../capacity_remaining reads "16495 mW".
+> > >> 2. Add a seprate *_units attribute saying what are units for other
+> > >> attribute:
+> > >>   /sys/.../capacity_units gives the units for
+> > >>   /sys/.../capacity_{remaining,last_full,design,min,...}.
+> > >> 3. Append the units to the attribute names:
+> > >>   capacity_{remaining,last_full,design_min,...}:mV.
+> > >
+> > >No, again, one for power and one for current.  Two different files
+> > >depending on the type of battery present.  That way there is no need to
+> > >worry about unit issues.
+> > 
+> > I'm missing something. How is that different from option 3 above?
+> 
+> No silly ":mV" on the file name.
 
-Greg,
+As long as that also means no "silly _mV" in the name.  However, if the
+choice is between :mV and _mV, please go with :mV.
 
-This is a low-prioriity patch to fix an annoying numbering mistake. 
-Please apply this (and the next patch) at net convenience.
+> > BTW, please note that we're talking about a large set of files that
+> > use these units (remaining, last full, design capacity, alarm
+> > thresholds, etc.), and not just a single attribute.
+> 
+> Sure, what's wrong with:
+> 	capacity_remaining_power
+> 	capacity_last_full_power
+> 	capacity_design_min_power
+> if you can read that from the battery, and:
+> 	capacity_remaining_current
+> 	capacity_last_full_current
+> 	capacity_design_min_current
+> if you can read that instead.
 
---linas
+Well, "Wh" measures energy and not power, and "Ah" measures electric charge
+and not current, so it would be better to make that:
 
-Subject: [PATCH 1/2]: Renumber PCI error enums to start at zero
+capacity_*_energy  (Wh-based)
 
-Renumber the PCI error enums to start at zero for "normal/online".
-This allows un-initialized pci channel state (which defaults to zero)
-to be interpreted as "normal".  Add very simple routine to check
-state, just in case this ever has to be fiddled with again.
+and
 
-Signed-off-by: Linas Vepstas <linas@linas.org>
+capacity_*_charge  (Ah-based)
 
-----
- include/linux/pci.h |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+Also, should we go with mWh/mAh, or with even smaller units because of the
+tiny battery-driven devices of tomorrow?
 
-Index: linux-2.6.19-rc4-git3/include/linux/pci.h
-===================================================================
---- linux-2.6.19-rc4-git3.orig/include/linux/pci.h	2006-11-01 16:15:49.000000000 -0600
-+++ linux-2.6.19-rc4-git3/include/linux/pci.h	2006-11-01 16:20:49.000000000 -0600
-@@ -86,15 +86,20 @@ typedef unsigned int __bitwise pci_chann
- 
- enum pci_channel_state {
- 	/* I/O channel is in normal state */
--	pci_channel_io_normal = (__force pci_channel_state_t) 1,
-+	pci_channel_io_normal = (__force pci_channel_state_t) 0,
- 
- 	/* I/O to channel is blocked */
--	pci_channel_io_frozen = (__force pci_channel_state_t) 2,
-+	pci_channel_io_frozen = (__force pci_channel_state_t) 1,
- 
- 	/* PCI card is dead */
--	pci_channel_io_perm_failure = (__force pci_channel_state_t) 3,
-+	pci_channel_io_perm_failure = (__force pci_channel_state_t) 2,
- };
- 
-+static inline int pci_channel_offline(pci_channel_state_t state)
-+{
-+	return (state != pci_channel_io_normal);
-+}
-+
- typedef unsigned short __bitwise pci_bus_flags_t;
- enum pci_bus_flags {
- 	PCI_BUS_FLAGS_NO_MSI = (__force pci_bus_flags_t) 1,
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

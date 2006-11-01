@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946510AbWKAFnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946544AbWKAFnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946510AbWKAFnF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:43:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946538AbWKAFnB
+	id S1946544AbWKAFnq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:43:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946532AbWKAFnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:43:01 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:58331 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946532AbWKAFmq
+	Wed, 1 Nov 2006 00:43:04 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52955 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946524AbWKAFmf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:42:46 -0500
-Message-Id: <20061101054252.255932000@sous-sol.org>
+	Wed, 1 Nov 2006 00:42:35 -0500
+Message-Id: <20061101054241.885074000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:34:22 -0800
+Date: Tue, 31 Oct 2006 21:34:21 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,58 +21,42 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Ulrich Drepper <drepper@redhat.com>,
-       Jeff Dike <jdike@addtoit.com>,
-       Paolo Blaisorblade Giarrusso <blaisorblade@yahoo.it>,
+       alan@lxorguk.ukuu.org.uk, Andi Kleen <ak@suse.de>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 42/61] uml: make Uml compile on FC6 kernel headers
-Content-Disposition: inline; filename=uml-make-uml-compile-on-fc6-kernel-headers.patch
+Subject: [PATCH 41/61] x86-64: Fix C3 timer test
+Content-Disposition: inline; filename=x86-64-fix-c3-timer-test.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Ulrich Drepper <drepper@redhat.com>
+From: Andi Kleen <ak@suse.de>
 
-I need this patch to get a UML kernel to compile.  This is with the kernel
-headers in FC6 which are automatically generated from the kernel tree. 
-Some headers are missing but those files don't need them.  At least it
-appears so since the resulting kernel works fine.
+There was a typo in the C3 latency test to decide of the TSC
+should be used or not. It used the C2 latency threshold, not the
+C3 one. Fix that.
 
-Tested on x86-64.
+This should fix the time on various dual core laptops.
 
-Signed-off-by: Ulrich Drepper <drepper@redhat.com>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Andi Kleen <ak@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- arch/um/include/kern_util.h    |    1 -
- arch/um/sys-x86_64/stub_segv.c |    1 -
- 2 files changed, 2 deletions(-)
+ arch/x86_64/kernel/time.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.18.1.orig/arch/um/include/kern_util.h
-+++ linux-2.6.18.1/arch/um/include/kern_util.h
-@@ -6,7 +6,6 @@
- #ifndef __KERN_UTIL_H__
- #define __KERN_UTIL_H__
- 
--#include "linux/threads.h"
- #include "sysdep/ptrace.h"
- #include "sysdep/faultinfo.h"
- 
---- linux-2.6.18.1.orig/arch/um/sys-x86_64/stub_segv.c
-+++ linux-2.6.18.1/arch/um/sys-x86_64/stub_segv.c
-@@ -5,7 +5,6 @@
- 
- #include <stddef.h>
- #include <signal.h>
--#include <linux/compiler.h>
- #include <asm/unistd.h>
- #include "uml-config.h"
- #include "sysdep/sigcontext.h"
+--- linux-2.6.18.1.orig/arch/x86_64/kernel/time.c
++++ linux-2.6.18.1/arch/x86_64/kernel/time.c
+@@ -960,7 +960,7 @@ __cpuinit int unsynchronized_tsc(void)
+  	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
+ #ifdef CONFIG_ACPI
+ 		/* But TSC doesn't tick in C3 so don't use it there */
+-		if (acpi_fadt.length > 0 && acpi_fadt.plvl3_lat < 100)
++		if (acpi_fadt.length > 0 && acpi_fadt.plvl3_lat < 1000)
+ 			return 1;
+ #endif
+  		return 0;
 
 --

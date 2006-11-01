@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946685AbWKAIDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946688AbWKAIDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946685AbWKAIDA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 03:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946688AbWKAIDA
+	id S1946688AbWKAIDv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 03:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946689AbWKAIDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 03:03:00 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:25362 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1946685AbWKAIC6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 03:02:58 -0500
-Message-ID: <454853B2.8020604@openvz.org>
-Date: Wed, 01 Nov 2006 10:58:42 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Wed, 1 Nov 2006 03:03:51 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:9355 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1946688AbWKAIDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 03:03:50 -0500
+X-Originating-Ip: 72.57.81.197
+Date: Wed, 1 Nov 2006 03:01:31 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Borislav Petkov <petkov@math.uni-muenster.de>,
+       David Rientjes <rientjes@cs.washington.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched.c : correct comment for this_rq_lock() routine
+In-Reply-To: <4547D23A.3090007@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0611010252460.28051@localhost.localdomain>
+References: <Pine.LNX.4.64.0610301600550.12811@localhost.localdomain>
+ <Pine.LNX.4.64N.0610301308290.17544@attu2.cs.washington.edu>
+ <Pine.LNX.4.64.0610301623360.13169@localhost.localdomain>
+ <20061031153021.GA14505@gollum.tnic> <Pine.LNX.4.64.0610311250500.22528@localhost.localdomain>
+ <4547D23A.3090007@yahoo.com.au>
 MIME-Version: 1.0
-To: Paul Menage <menage@google.com>
-CC: Pavel Emelianov <xemul@openvz.org>, dev@openvz.org, vatsa@in.ibm.com,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-References: <20061030103356.GA16833@in.ibm.com> <45460743.8000501@openvz.org>	 <6599ad830610301001i2ad35290u63839e920d82a5f4@mail.gmail.com>	 <454709E0.1000409@openvz.org> <6599ad830610310834g12a66aan29b568d7f9a5525@mail.gmail.com>
-In-Reply-To: <6599ad830610310834g12a66aan29b568d7f9a5525@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Menage wrote:
-> On 10/31/06, Pavel Emelianov <xemul@openvz.org> wrote:
->>
->> That's functionality user may want. I agree that some users
->> may want to create some kind of "persistent" beancounters, but
->> this must not be the only way to control them. I like the way
->> TUN devices are done. Each has TUN_PERSIST flag controlling
->> whether or not to destroy device right on closing. I think that
->> we may have something similar - a flag BC_PERSISTENT to keep
->> beancounters with zero refcounter in memory to reuse them.
-> 
-> How about the cpusets approach, where once a cpuset has no children
-> and no processes, a usermode helper can be executed - this could
+On Wed, 1 Nov 2006, Nick Piggin wrote:
 
-Hmm... Sounds good. I'll think over this.
+> Robert P. J. Day wrote:
+>
+> > example, i was just poking around the source for the various
+> > "atomic.h" files and noticed a couple possible cleanups:
+> >
+> >  1) make sure *everyone* uses "volatile" in the typedef struct (which
+> > 	i actually submitted recently)
+> >
+>
+> I don't see why. There is nothing in atomic (eg. atomic_read) that
+> says there must be a compiler barrier around the operation.
+>
+> Have you checked that the architecture implementation actually needs
+> the volatile where you've added it?
 
-> immediately remove the container/bean-counter if that's what the user
-> wants. My generic containers patch copies this from cpusets.
-> 
->>
->> Moreover, I hope you agree that beancounters can't be made as
->> module. If so user will have to built-in configfs, and thus
->> CONFIG_CONFIGFS_FS essentially becomes "bool", not a "tristate".
-> 
-> How about a small custom filesystem as part of the containers support,
-> then? I'm not wedded to using configfs itself, but I do think that a
-> filesystem interface is much more debuggable and extensible than a
-> system call interface, and the simple filesystem is only a couple of
-> hundred lines.
+as just one example, you can read in include/asm-alpha/atomic.h:
 
-This sounds more reasonable than using configfs for me.
+/*
+ * Counter is volatile to make sure gcc doesn't try to be clever
+ * and move things around on us. We need to use _exactly_ the address
+ * the user gave us, not some alias that contains the same information.
+ */
 
-> Paul
-> 
+now it may be that *some* architectures don't specifically require a
+volatile counter but, AFAIK, it doesn't actually hurt if it isn't
+necessary.  OTOH, if it isn't necessary *at all* for *any*
+architecture, then that storage class should be *removed* in its
+entirety.
 
+in any event, all this is is another example of what appears to be
+niggling and unnecessary differences between arch-specific header
+files that could easily be turned into a single, standard definition
+that would work for everyone with very little effort (and perhaps some
+day be included from a single generic header file to avoid all that
+duplication in the first place).
+
+rday

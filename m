@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161658AbWKAFAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161666AbWKAFH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161658AbWKAFAh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:00:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161646AbWKAFAh
+	id S1161666AbWKAFH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161665AbWKAFH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:00:37 -0500
-Received: from alephnull.demon.nl ([83.160.184.112]:55228 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S1161639AbWKAFAh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:00:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=1148133259;
-	d=wantstofly.org;
-	h=date:from:to:cc:subject:message-id:mime-version:content-type:
-	content-disposition:in-reply-to:user-agent;
-	b=dhtxkaTBPmApODDQ1FDZuYZRsvTASHNnlBYkRunJX8bBFbkb3zAtFAUR1FKpN
-	XrrBkJVlukx7qsIY1JWHeiEvQ==
-Date: Wed, 1 Nov 2006 06:00:34 +0100
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tmattox@gmail.com, spiky.kiwi@gmail.com, r.bhatia@ipax.at,
-       Darren Salt <linux@youmustbejoking.demon.co.uk>,
-       Syed Azam <syed.azam@hp.com>, tbm@cyrius.com
-Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
-Message-ID: <20061101050034.GB24496@xi.wantstofly.org>
-References: <20061029223410.GA15413@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610300032190.1435@poirot.grange> <20061030120158.GA28123@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610302148560.9723@poirot.grange> <Pine.LNX.4.60.0610302214350.9723@poirot.grange> <20061030234425.GB6038@electric-eye.fr.zoreil.com> <Pine.LNX.4.60.0610312000160.5223@poirot.grange> <20061031230538.GA4329@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061031230538.GA4329@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 1 Nov 2006 00:07:56 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:16603 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161663AbWKAFHz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 00:07:55 -0500
+Message-ID: <45482BA7.6070904@pobox.com>
+Date: Wed, 01 Nov 2006 00:07:51 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Conke Hu <conke.hu@amd.com>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: AHCI should try to claim all AHCI controllers
+References: <FFECF24D2A7F6D418B9511AF6F358602F2CE9E@shacnexch2.atitech.com>
+In-Reply-To: <FFECF24D2A7F6D418B9511AF6F358602F2CE9E@shacnexch2.atitech.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 12:05:38AM +0100, Francois Romieu wrote:
+Conke Hu wrote:
+> Hi all,
+> 	According to PCI 3.0 spec, ACHI's PCI class code is 0x010601,
+> and I suggest the ahci driver had better try to claim all ahci
+> controllers, pls see the following patch:
+> 
+> diff -Nur linux-2.6.17/drivers/scsi/ahci.c
+> linux-2.6.17-ahci/drivers/scsi/ahci.c
+> --- linux-2.6.17/drivers/scsi/ahci.c	2006-06-18 09:49:35.000000000
+> +0800
+> +++ linux-2.6.17-ahci/drivers/scsi/ahci.c	2006-10-31
+> 22:50:54.000000000 +0800
+> @@ -296,6 +296,11 @@
+>  	  board_ahci }, /* ATI SB600 non-raid */
+>  	{ PCI_VENDOR_ID_ATI, 0x4381, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+>  	  board_ahci }, /* ATI SB600 raid */
+> +	/* Claim all AHCI controllers not listed above. 
+> +	 * According to PCI 3.0, AHCI's class code is 0x010601 
+> +        */
+> +	{ PCI_AND_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, 0x010601,
+> 0xffffff, 
+> +	board_ahci },
+>  	{ }	/* terminate list */
+>  };
 
-> o Lennert, can you apply the two patches
->   - 0001-r8169-perform-a-PHY-reset-before-any-other-operation-at-boot-time.txt
->   - 0002-r8169-more-magic.txt
->   at http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.19-rc4/r8169 against
->   2.6.19-rc4 (2.6.19-rc4 reverted the MAC address changes) and see if the
->   n2100 board still needs to remove the SYSErr handler ?
+Since things have settled in this area, yes, this would probably be a 
+good thing to add.
 
-2.6.19-rc4 + these two patches => doesn't work
+For the benefit of others, some background:  we should not be -removing- 
+any PCI IDs due to this, because quite often the PCI class code will be 
+RAID or something else, yet still be drive-able with this ahci driver.
 
-2.6.19-rc4 + these two patches + SYSErr removal => works
-
-For reference:
-* 2.6.19-rc4 + SYSErr removal => works
-
-So, while these two patches don't fix the problem, they don't seem
-to be making things worse, something the MAC address change did do.
+	Jeff
 
 
-cheers,
-Lennert
+

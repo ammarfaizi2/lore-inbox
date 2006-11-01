@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946596AbWKAKYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946599AbWKAKZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946596AbWKAKYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 05:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946591AbWKAKYP
+	id S1946599AbWKAKZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 05:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946753AbWKAKZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 05:24:15 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:26344 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1946585AbWKAKYO (ORCPT
+	Wed, 1 Nov 2006 05:25:45 -0500
+Received: from ozlabs.org ([203.10.76.45]:41922 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1946599AbWKAKZp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 05:24:14 -0500
-Message-ID: <454875C2.1030901@pobox.com>
-Date: Wed, 01 Nov 2006 05:24:02 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Peer Chen <pchen@nvidia.com>
-CC: Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 1/2] sata_nv: Add nvidia SATA controllers of MCP67support
- to sata_nv.c
-References: <15F501D1A78BD343BE8F4D8DB854566B0C54F6A5@hkemmail01.nvidia.com>
-In-Reply-To: <15F501D1A78BD343BE8F4D8DB854566B0C54F6A5@hkemmail01.nvidia.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 1 Nov 2006 05:25:45 -0500
+Subject: Re: [PATCH 6/7] Add APIC accessors to paravirt-ops.
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@muc.de>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061030231132.GA98768@muc.de>
+References: <20061029024504.760769000@sous-sol.org>
+	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
+	 <1162178936.9802.34.camel@localhost.localdomain>
+	 <20061030231132.GA98768@muc.de>
+Content-Type: text/plain
+Date: Wed, 01 Nov 2006 21:25:41 +1100
+Message-Id: <1162376741.23462.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peer Chen wrote:
-> Check attachment for the new patch,thanks. 
+On Tue, 2006-10-31 at 00:11 +0100, Andi Kleen wrote:
+> > Subject: Paravirtualization Kleenups
+> 
+> Thanks. 
+> 
+> Chris, can you please merge those into the original patchkit? 
+> 
+> I could do it myself, but then retransmits from Chris would be difficult
+> if anything else would need to be changed.
+> 
+> Also fixing that !-Os compile error in the original patches would be good.
 
-Patch applied, thanks.  For the future, make sure to include 
-Signed-off-by: line in every email.
+That is "prep-for-paravirt-desch-clearer-parameter-names-fix.patch" in
+rc4-mm1.
 
-	Jeff
+I'll follow with the updated series, although the cleanup patch was
+pretty clear by itself...
 
-
+Rusty.
 

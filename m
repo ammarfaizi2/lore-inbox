@@ -1,81 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992614AbWKAPbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946833AbWKAPg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992614AbWKAPbE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 10:31:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992621AbWKAPbE
+	id S1946833AbWKAPg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 10:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946835AbWKAPg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 10:31:04 -0500
-Received: from holoclan.de ([62.75.158.126]:17614 "EHLO mail.holoclan.de")
-	by vger.kernel.org with ESMTP id S2992614AbWKAPbB (ORCPT
+	Wed, 1 Nov 2006 10:36:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30102 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946833AbWKAPg1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 10:31:01 -0500
-Date: Wed, 1 Nov 2006 16:27:46 +0100
-From: Martin Lorenz <martin@lorenz.eu.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc3: more DWARFs and strange messages
-Message-ID: <20061101152746.GD6438@gimli>
-Mail-Followup-To: Andi Kleen <ak@suse.de>,
-	Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
-References: <20061028200151.GC5619@gimli> <20061031160815.GM27390@gimli> <454787AB.76E4.0078.0@novell.com> <200610311828.52980.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610311828.52980.ak@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Tue, Oct 31, 2006 at 06:28:52PM +0100, Andi Kleen
-	wrote: > On Tuesday 31 October 2006 17:28, Jan Beulich wrote: > > Can
-	you perhaps get us arch/i386/kernel/{entry,process}.o, > > .config, and
-	(assuming you can reproduce the original problem) > > the raw stack dump
-	obtained with a sufficiently high kstack= > > option? > > WARN_ON
-	unfortunately doesn't dump the raw stack at all (maybe that > should be
-	fixed) [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+	Wed, 1 Nov 2006 10:36:27 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil>  <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+       jmorris@namei.org, chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 01 Nov 2006 15:34:54 +0000
+Message-ID: <4417.1162395294@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 06:28:52PM +0100, Andi Kleen wrote:
-> On Tuesday 31 October 2006 17:28, Jan Beulich wrote:
-> > Can you perhaps get us arch/i386/kernel/{entry,process}.o,
-> > .config, and (assuming you can reproduce the original problem)
-> > the raw stack dump obtained with a sufficiently high kstack=
-> > option?
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> >      (c) A security label that defines the context under which the module
+> >          operates when accessing the cache.  This allows the module, when
+> >          accessing the cache, to only operate within the bounds of the
+> >          cache.
 > 
-> WARN_ON unfortunately doesn't dump the raw stack at all (maybe that
-> should be fixed) 
+> Well, only if the module is well-behaved in the first place, since a
+> kernel module can naturally bypass SELinux at will.  What drives this
+> approach vs. exempting the module from SELinux checking via a task flag
+> that it raises and lowers around the access (vs. setting and resetting
+> the sid around the access to the per-cache module context)?
 
-what is a reasonable kstack parameter to be informative for you?
+Christoph objected very strongly to my bypassing of vfs_mkdir() and co, and Al
+wasn't to happy about it either.  This should allow me, for example, to call
+vfs_mkdir() rather than calling the inode op directly as the reason I wasn't
+was that I was having to avoid the security checks it made.
 
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> >  (*) The module will obtain label (c) by reading label (b) from the
+> >      cachefilesd process when it opens the cachefiles control chardev and
+> >      then passing it through security_change_sid() to ask the security
+> >      policy to for label (c).
 > 
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Do you mean security_transition_sid()?  security_change_sid() doesn't
+> seem suited to that purpose
 
-gruss
-  mlo
---
-Dipl.-Ing. Martin Lorenz
+That's what Karl said to use.
 
-            They that can give up essential liberty 
-	    to obtain a little temporary safety 
-	    deserve neither liberty nor safety.
-                                   Benjamin Franklin
+> What would you use as the target SID and class?
 
-please encrypt your mail to me
-GnuPG key-ID: F1AAD37D
-get it here:
-http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
+I've no idea.  I tried to find out how to use this function from Karl, but he
+said I should ask on the list.
 
-ICQ UIN: 33588107
+> >      (3) current->security->sid will be set to label (c) so that
+> >          vfs_mkdir(), vfs_create() and lookup ops will check for the
+> >          correct labels.
+> 
+> I think you would want this to be a new ->fssid field instead, and
+> adjust SELinux to use it if set for permission checking (which could
+> also be leveraged by NFS later).
+
+I could do that.  Does it actually gain anything?  Or are there good reasons
+for not altering current->security->sid?  For instance, does that affect the
+label seen on /proc/pid/ files?
+
+> Or just use a task flag to disable checking on the module internal accesses.
+
+I could do that too.
+
+> >      Point (3) shouldn't cause a cross-thread race as it would appear that
+> >      the security label can only be changed on single-threaded processes.
+> >      Attempts to do so on multi-threaded processes are rejected.
+> 
+> I don't quite follow this.
+
+Sorry, I meant that a process can only change its own security label if it's a
+single-threaded process.  A kernel module can, of course, change the security
+label at any time.
+
+> But mutating ->sid could yield unfortunate behavior if e.g. another process
+> happens to be sending that task a signal at the same time, so if you go this
+> route, you want a ->fssid.
+
+Okay... that seems like a good reason to do use the ->fssid approach.  How do I
+tell if ->fssid is set?  Is zero usable as 'unset'?  Alternatively, would it be
+reasonable to have ->fssid track ->sid when the latter changes?
+
+David

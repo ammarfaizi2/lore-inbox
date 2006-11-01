@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992799AbWKAT5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWKAUGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992799AbWKAT5R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 14:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992796AbWKAT5Q
+	id S1750936AbWKAUGz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 15:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752295AbWKAUGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 14:57:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:45959 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992789AbWKAT5O (ORCPT
+	Wed, 1 Nov 2006 15:06:55 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21387 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750936AbWKAUGy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 14:57:14 -0500
-Date: Wed, 1 Nov 2006 11:52:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Ernst Herzberg <earny@net4u.de>,
-       Len Brown <lenb@kernel.org>, Adrian Bunk <bunk@stusta.de>,
-       Hugh Dickins <hugh@veritas.com>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       Martin Lorenz <martin@lorenz.eu.org>
-Subject: Re: 2.6.19-rc <-> ThinkPads
-In-Reply-To: <200611012034.06128.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0611011148130.25218@g5.osdl.org>
-References: <Pine.LNX.4.64.0610312123320.25218@g5.osdl.org>
- <200611011825.47710.ak@suse.de> <Pine.LNX.4.64.0611011003270.25218@g5.osdl.org>
- <200611012034.06128.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Nov 2006 15:06:54 -0500
+Date: Wed, 1 Nov 2006 12:06:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Glauber de Oliveira Costa <gcosta@redhat.com>
+Cc: dri-devel@lists.sourceforge.net, airlied@linux.ie,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use printk_ratelimit() inside DRM_DEBUG
+Message-Id: <20061101120616.3274bb37.akpm@osdl.org>
+In-Reply-To: <20061101135051.GH17565@redhat.com>
+References: <20061101135051.GH17565@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 1 Nov 2006 10:50:51 -0300
+Glauber de Oliveira Costa <gcosta@redhat.com> wrote:
 
-
-On Wed, 1 Nov 2006, Andi Kleen wrote:
+> the DRM_DEBUG macro can be called within functions very oftenly
+> triggered, thus generating lots of message load and potentially
+> compromising system
 > 
-> Fix race in IO-APIC routing entry setup.
+> Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 > 
-> Interrupt could happen between setting the IO-APIC entry
-> and setting its interrupt data.
+> -- 
+> Glauber de Oliveira Costa
+> Red Hat Inc.
+> "Free as in Freedom"
+> 
+> 
+> [drm_debug.patch  text/plain (444B)]
+> --- linux-2.6.18.x86_64/drivers/char/drm/drmP.h.orig	2006-11-01 08:00:18.000000000 -0500
+> +++ linux-2.6.18.x86_64/drivers/char/drm/drmP.h	2006-11-01 08:06:27.000000000 -0500
+> @@ -185,7 +185,7 @@
+>  #if DRM_DEBUG_CODE
+>  #define DRM_DEBUG(fmt, arg...)						\
+>  	do {								\
+> -		if ( drm_debug )			\
+> +		if ( drm_debug && printk_ratelimit() )			\
+>  			printk(KERN_DEBUG				\
+>  			       "[" DRM_NAME ":%s] " fmt ,	\
+>  			       __FUNCTION__ , ##arg);			\
 
-This doesn't fix anything at all.
 
-The interrupt can come in on another CPU, and if we end up having an 
-affinity change due to that, we then have "set_ioapic_affinity_irq()" 
-called on that other irq, and it might get to mess with the cpumask 
-because we dropped the ioapic_lock.
+DRM_DEBUG() should be disabled in production code, and enabled only when
+developers are developing stuff.  In the latter case, the developer wants
+to see all the messages.
 
-In other words, the problem is not that interrupts were re-enabled, the 
-problem is literally that the locking is _wrong_. 
-
-It's a small window, but we simply should not release the ioapic_lock in 
-between setting the routing and doing the "set_native_irq_info()" call.
-
-So I think doing the locking inside "ioapic_write_entry()" is simply 
-fundamentally wrong. When you did the cleanup, your commit message talked 
-about how it might add a few more lock/unlock things:
-
-    In a few cases the IO APIC lock is taken more often now, but this
-    isn't a problem because it's all initialization/shutdown only
-    slow path code.
-
-but the point is, this is not about "performance". It's about 
-_correctness_.
-
-			Linus
+IOW, don't load the drm module with the `debug' parameter.

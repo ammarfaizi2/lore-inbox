@@ -1,62 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWKAXsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWKAXuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWKAXsb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 18:48:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWKAXsb
+	id S1750897AbWKAXuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 18:50:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWKAXuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 18:48:31 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:61762 "EHLO
+	Wed, 1 Nov 2006 18:50:16 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:32835 "EHLO
 	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750847AbWKAXsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 18:48:30 -0500
+	id S1750897AbWKAXuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 18:50:14 -0500
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
 	h=received:message-id:date:from:to:subject:cc:in-reply-to:
 	mime-version:content-type:content-transfer-encoding:
 	content-disposition:references;
-	b=k34zmVV//gTmW9oVBgEbOJwBIo/al5BXzqMw+af/v8mEbdacIm767zOKE5E+3wr7Y
-	yx/NEjScMzHyp1KxrlpyQ==
-Message-ID: <6599ad830611011548h4c0273c0xc5a653ea8726a692@mail.gmail.com>
-Date: Wed, 1 Nov 2006 15:48:21 -0800
+	b=pQ9v/hFVgANwMSj44beYRK3c/q6LMSdsZTGjWxjdbECxY/3ApRD93o7dYan4UbjX0
+	cCqEvIgfV4C0X/k3R4MwA==
+Message-ID: <6599ad830611011550m69876b1ase3579167903a7cd7@mail.gmail.com>
+Date: Wed, 1 Nov 2006 15:50:01 -0800
 From: "Paul Menage" <menage@google.com>
-To: "Chris Friesen" <cfriesen@nortel.com>
+To: "Matt Helsley" <matthltc@us.ibm.com>
 Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com, devel@openvz.org
-In-Reply-To: <45490F0D.7000804@nortel.com>
+Cc: vatsa@in.ibm.com, "Pavel Emelianov" <xemul@openvz.org>, dev@openvz.org,
+       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       dipankar@in.ibm.com, rohitseth@google.com
+In-Reply-To: <1162419565.12419.154.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061030103356.GA16833@in.ibm.com>
-	 <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
-	 <20061101173356.GA18182@in.ibm.com> <45490F0D.7000804@nortel.com>
+References: <20061030103356.GA16833@in.ibm.com> <45486925.4000201@openvz.org>
+	 <20061101181236.GC22976@in.ibm.com>
+	 <1162419565.12419.154.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/06, Chris Friesen <cfriesen@nortel.com> wrote:
+On 11/1/06, Matt Helsley <matthltc@us.ibm.com> wrote:
+> On Wed, 2006-11-01 at 23:42 +0530, Srivatsa Vaddagiri wrote:
+> > On Wed, Nov 01, 2006 at 12:30:13PM +0300, Pavel Emelianov wrote:
 >
-> I just thought I'd weigh in on this.  As far as our usage pattern is
-> concerned, guarantees cannot be met via limits.
+> <snip>
 >
-> I want to give "x" cpu to container X, "y" cpu to container Y, and "z"
-> cpu to container Z.
+> > > >   - Support movement of all threads of a process from one group
+> > > >     to another atomically?
+> > >
+> > > I propose such a solution: if a user asks to move /proc/<pid>
+> > > then move the whole task with threads.
+> > > If user asks to move /proc/<pid>/task/<tid> then move just
+> > > a single thread.
+> > >
+> > > What do you think?
+> >
+> > Isnt /proc/<pid> listed also in /proc/<pid>/task/<tid>?
+> >
+> > For ex:
+> >
+> >       # ls /proc/2906/task
+> >       2906  2907  2908  2909
+> >
+> > 2906 is the main thread which created the remaining threads.
+> >
+> > This would lead to an ambiguity when user does something like below:
+> >
+> >       echo 2906 > /some_res_file_system/some_new_group
+> >
+> > Is he intending to move just the main thread, 2906, to the new group or
+> > all the threads? It could be either.
+> >
+> > This needs some more thought ...
+>
+>         I thought the idea was to take in a proc path instead of a single
+> number. You could then distinguish between the whole thread group and
+> individual threads by parsing the string. You'd move a single thread if
+> you find both the tgid and the tid. If you only get a tgid you'd move
+> the whole thread group. So:
+>
+> <pid>                   -> if it's a thread group leader move the whole
+>                            thread group, otherwise just move the thread
+> /proc/<tgid>            -> move the whole thread group
+> /proc/<tgid>/task/<tid> -> move the thread
+>
+>
+>         Alternatives that come to mind are:
+>
+> 1. Read a flag with the pid
+> 2. Use a special file which expects only thread groups as input
 
-I agree that these are issues - but they don't really affect the
-container framework directly.
+I think that having a "tasks" file and a "threads" file in each
+container directory would be a clean way to handle it:
 
-The framework should be flexible enough to let controllers register
-any control parameters (via the filesystem?) that they need, but it
-shouldn't contain explicit concepts like guarantees and limits. Some
-controllers won't even have this concept (cpusets doesn't really, for
-instance, and  containers don't have to be just to do with
-quantitative resource control).
-
-I sent out a patch a while ago that showed how ResGroups could be
-turned into effectively a library on top of a generic container system
-- so ResGroups controllers could write to the ResGroups interface, and
-let the library handle setting up control parameters and parsing
-limits and guarantees. I expect the same thing could be done for UBC.
+"tasks" : read/write complete process members
+"threads" : read/write individual thread members
 
 Paul

@@ -1,98 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992507AbWKAOhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992506AbWKAOgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992507AbWKAOhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 09:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992510AbWKAOhJ
+	id S2992506AbWKAOgp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 09:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992507AbWKAOgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 09:37:09 -0500
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:11952 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S2992507AbWKAOhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 09:37:07 -0500
-Date: Wed, 1 Nov 2006 15:39:33 +0100
-From: Luotao Fu <l.fu@pengutronix.de>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, Robert Schwebel <r.schwebel@pengutronix.de>
-Subject: [PATCH] trivial patch for comment correction in -rt patches since 2.6.18
-Message-ID: <20061101143932.GA25890@localhost.localdomain>
-Mail-Followup-To: mingo@elte.hu, linux-kernel@vger.kernel.org,
-	Robert Schwebel <r.schwebel@pengutronix.de>
+	Wed, 1 Nov 2006 09:36:45 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:21952 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S2992506AbWKAOgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 09:36:44 -0500
+X-Sasl-enc: JAsBd2FpPCv+1Ei6NVbsWImdtKMJtb2r3i3rlD0B0+84 1162391804
+Date: Wed, 1 Nov 2006 11:36:34 -0300
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Richard Hughes <hughsient@gmail.com>,
+       Shem Multinymous <multinymous@gmail.com>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       Jean Delvare <khali@linux-fr.org>, davidz@redhat.com,
+       Dan Williams <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
+       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
+       greg@kroah.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061101143634.GB12619@khazad-dum.debian.net>
+References: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <6DP6m926.1162281579.9733640.khali@localhost> <41840b750610310542u2bbcf4b6y5f9f812ebd12445@mail.gmail.com> <1162302686.31012.47.camel@frg-rhel40-em64t-03> <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <1162387577.5001.7.camel@hughsie-laptop> <1162389260.18406.62.camel@shinybook.infradead.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1SQmhf2mF2YjsYvc"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-PGP-Key-ID: 0xE5325261
-X-URL: http://www.pengutronix.de
+In-Reply-To: <1162389260.18406.62.camel@shinybook.infradead.org>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 01 Nov 2006, David Woodhouse wrote:
+> On Wed, 2006-11-01 at 13:26 +0000, Richard Hughes wrote:
+> > With the battery class driver, how would that be conveyed? Would the
+> > sysfs file be deleted in this case, or would the value of the sysfs
+> > key be something like "<invalid>". 
+> 
+> I'd be inclined to make the read return -EINVAL.
 
---1SQmhf2mF2YjsYvc
-Content-Type: multipart/mixed; boundary="9zSXsLTf0vkW971A"
-Content-Disposition: inline
+-EIO for transient errors (e.g. access to the embedded controller/battery
+charger/whatever fails at that instant), -EINVAL for "not supported"
+(missing ACPI method, attribute not supported in the specific hardware)?
 
-
---9zSXsLTf0vkW971A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-the trivial patch in the following fixes a comment in latency_trace.c
-about user triggerring the tracer, which says that the latency tracer is=20
-to be triggered on- and off by gettimeofday() from userspace. However it
-is done by prctl() since 2.6.18-rt1 now.
-
-Regards
-Luotao Fu
---=20
-     Dipl.-Ing. Luotao Fu | http://www.pengutronix.de
-  Pengutronix - Linux Solutions for Science and Industry
-    Handelsregister: Amtsgericht Hildesheim, HRA 2686
-      Hannoversche Str. 2, 31134 Hildesheim, Germany
-    Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
-
-
---9zSXsLTf0vkW971A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usertriggertrace_comment.diff"
-Content-Transfer-Encoding: quoted-printable
-
-Correct the comment about userspace function which triggers the latency tra=
-cer
-
-Signed-off-by: Luotao Fu <lfu@pengutronix.de>
-
-Index: linux-2.6.18-rt.sec/kernel/latency_trace.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- kernel/latency_trace.c
-+++ kernel/latency_trace.c
-@@ -263,7 +263,7 @@ int trace_all_cpus =3D 0;
- int print_functions =3D 0;
-=20
- /*
-- * user-triggered via gettimeofday(0,1)/gettimeofday(0,0)
-+ * user-triggered via prctl(0,1)/prctl(0,0)
-  */
- int trace_user_triggered =3D 0;
- int trace_user_trigger_irq =3D -1;
-
---9zSXsLTf0vkW971A--
-
---1SQmhf2mF2YjsYvc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFSLGkiruQY+UyUmERAj6fAJ9/cIY32E0wRy8PgVEOL5YI0c/SUwCfcbph
-sBOgdiKrOXvplqhHeNjStbM=
-=3ZWh
------END PGP SIGNATURE-----
-
---1SQmhf2mF2YjsYvc--
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

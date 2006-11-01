@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946536AbWKAFnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946535AbWKAFuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946536AbWKAFnq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946543AbWKAFnp
+	id S1946535AbWKAFuD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946542AbWKAFnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:43:45 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:16092 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946541AbWKAFnf
+	Wed, 1 Nov 2006 00:43:49 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:15836 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946538AbWKAFne
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:43:35 -0500
-Message-Id: <20061101054219.519653000@sous-sol.org>
+	Wed, 1 Nov 2006 00:43:34 -0500
+Message-Id: <20061101054231.472027000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:34:19 -0800
+Date: Tue, 31 Oct 2006 21:34:20 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -24,8 +24,8 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        alan@lxorguk.ukuu.org.uk, Herbert Xu <herbert@gondor.apana.org.au>,
        David S Miller <davem@davemloft.net>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 39/61] NET: Fix skb_segment() handling of fully linear SKBs
-Content-Disposition: inline; filename=net-fix-skb_segment-handling-of-fully-linear-skbs.patch
+Subject: [PATCH 40/61] SCTP: Always linearise packet on input
+Content-Disposition: inline; filename=sctp-always-linearise-packet-on-input.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -34,18 +34,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[NET]: Fix segmentation of linear packets
+I was looking at a RHEL5 bug report involving Xen and SCTP
+(https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=212550).
+It turns out that SCTP wasn't written to handle skb fragments at
+all.  The absence of any calls to skb_may_pull is testament to
+that.
 
-skb_segment fails to segment linear packets correctly because it
-tries to write all linear parts of the original skb into each
-segment.  This will always panic as each segment only contains
-enough space for one MSS.
+It just so happens that Xen creates fragmented packets more often
+than other scenarios (header & data split when going from domU to
+dom0).  That's what caused this bug to show up.
 
-This was not detected earlier because linear packets should be
-rare for GSO.  In fact it still remains to be seen what exactly
-created the linear packets that triggered this bug.  Basically
-the only time this should happen is if someone enables GSO
-emulation on an interface that does not support SG.
+Until someone has the time sits down and audits the entire net/sctp
+directory, here is a conservative and safe solution that simply
+linearises all packets on input.
 
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
@@ -53,34 +54,20 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- net/core/skbuff.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ net/sctp/input.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- linux-2.6.18.1.orig/net/core/skbuff.c
-+++ linux-2.6.18.1/net/core/skbuff.c
-@@ -1945,7 +1945,7 @@ struct sk_buff *skb_segment(struct sk_bu
- 	do {
- 		struct sk_buff *nskb;
- 		skb_frag_t *frag;
--		int hsize, nsize;
-+		int hsize;
- 		int k;
- 		int size;
+--- linux-2.6.18.1.orig/net/sctp/input.c
++++ linux-2.6.18.1/net/sctp/input.c
+@@ -135,6 +135,9 @@ int sctp_rcv(struct sk_buff *skb)
  
-@@ -1956,11 +1956,10 @@ struct sk_buff *skb_segment(struct sk_bu
- 		hsize = skb_headlen(skb) - offset;
- 		if (hsize < 0)
- 			hsize = 0;
--		nsize = hsize + doffset;
--		if (nsize > len + doffset || !sg)
--			nsize = len + doffset;
-+		if (hsize > len || !sg)
-+			hsize = len;
+ 	SCTP_INC_STATS_BH(SCTP_MIB_INSCTPPACKS);
  
--		nskb = alloc_skb(nsize + headroom, GFP_ATOMIC);
-+		nskb = alloc_skb(hsize + doffset + headroom, GFP_ATOMIC);
- 		if (unlikely(!nskb))
- 			goto err;
++	if (skb_linearize(skb))
++		goto discard_it;
++
+ 	sh = (struct sctphdr *) skb->h.raw;
  
+ 	/* Pull up the IP and SCTP headers. */
 
 --

@@ -1,91 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752579AbWKAXzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752583AbWKAX4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752579AbWKAXzx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 18:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752581AbWKAXzw
+	id S1752583AbWKAX4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 18:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752581AbWKAX4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 18:55:52 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:45287 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1752579AbWKAXzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 18:55:51 -0500
-X-Sasl-enc: j6iOTqbqioGn1ecENb8E0fhSqix9gt8zsWQgTtArAxpL 1162425351
-Date: Wed, 1 Nov 2006 20:55:40 -0300
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: Greg KH <greg@kroah.com>
-Cc: Shem Multinymous <multinymous@gmail.com>,
-       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Pavel Machek <pavel@suse.cz>, Jean Delvare <khali@linux-fr.org>
-Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061101235540.GA11581@khazad-dum.debian.net>
-References: <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com> <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com>
-MIME-Version: 1.0
+	Wed, 1 Nov 2006 18:56:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:3299 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752583AbWKAX4N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 18:56:13 -0500
+Date: Wed, 1 Nov 2006 18:55:46 -0500
+From: Dave Jones <davej@redhat.com>
+To: Stephen Clark <Stephen.Clark@seclark.us>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: fc6 kernel 2.6.18-1.2798 breaks acpi on HP laptop n5430
+Message-ID: <20061101235546.GB10577@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Stephen Clark <Stephen.Clark@seclark.us>,
+	Alexey Dobriyan <adobriyan@gmail.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <4548DDF4.2030903@seclark.us> <20061101201218.GA4899@martell.zuzino.mipt.ru> <45490EFE.1060608@seclark.us>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061101205330.GA2593@kroah.com>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <45490EFE.1060608@seclark.us>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Nov 2006, Greg KH wrote:
-> On Wed, Nov 01, 2006 at 09:53:12PM +0200, Shem Multinymous wrote:
-> > Hi Greg,
-> > 
-> > On 11/1/06, Greg KH <greg@kroah.com> wrote:
-> > >> The suggestions so far were:
-> > >> 1. Append units string to the content of such attribute:
-> > >>   /sys/.../capacity_remaining reads "16495 mW".
-> > >> 2. Add a seprate *_units attribute saying what are units for other
-> > >> attribute:
-> > >>   /sys/.../capacity_units gives the units for
-> > >>   /sys/.../capacity_{remaining,last_full,design,min,...}.
-> > >> 3. Append the units to the attribute names:
-> > >>   capacity_{remaining,last_full,design_min,...}:mV.
-> > >
-> > >No, again, one for power and one for current.  Two different files
-> > >depending on the type of battery present.  That way there is no need to
-> > >worry about unit issues.
-> > 
-> > I'm missing something. How is that different from option 3 above?
-> 
-> No silly ":mV" on the file name.
+On Wed, Nov 01, 2006 at 04:17:50PM -0500, Stephen Clark wrote:
 
-As long as that also means no "silly _mV" in the name.  However, if the
-choice is between :mV and _mV, please go with :mV.
+ > BIOS-provided physical RAM map:
+ >  BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
+ >  BIOS-e820: 000000000009f000 - 0000000000100000 (reserved)
+ >  BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
+ >  BIOS-e820: 000000001fff0000 - 000000001ffff000 (ACPI data)
+ >  BIOS-e820: 000000001ffff000 - 0000000020000000 (ACPI NVS)
+ >  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+ > 0MB HIGHMEM available.
+ > 511MB LOWMEM available.
+ > Using x86 segment limits to approximate NX protection
+ > DMI 2.2 present.
+ > Using APIC driver default
+ > ACPI: PM-Timer IO Port: 0x8008
+ > Allocating PCI resources starting at 30000000 (gap: 20000000:dff80000)
+ > Detected 850.075 MHz processor.
+ > Built 1 zonelists.  Total pages: 131056
+ > Kernel command line: ro root=/dev/VolGroup00/LogVol00 lapic nousb 
+ > console=ttyS0,38400
+ > Local APIC disabled by BIOS -- reenabling.
+ > Found and enabled local APIC!
 
-> > BTW, please note that we're talking about a large set of files that
-> > use these units (remaining, last full, design capacity, alarm
-> > thresholds, etc.), and not just a single attribute.
-> 
-> Sure, what's wrong with:
-> 	capacity_remaining_power
-> 	capacity_last_full_power
-> 	capacity_design_min_power
-> if you can read that from the battery, and:
-> 	capacity_remaining_current
-> 	capacity_last_full_current
-> 	capacity_design_min_current
-> if you can read that instead.
+Does it make a difference if you boot with nolapic ?
 
-Well, "Wh" measures energy and not power, and "Ah" measures electric charge
-and not current, so it would be better to make that:
-
-capacity_*_energy  (Wh-based)
-
-and
-
-capacity_*_charge  (Ah-based)
-
-Also, should we go with mWh/mAh, or with even smaller units because of the
-tiny battery-driven devices of tomorrow?
+	Dave
 
 -- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+http://www.codemonkey.org.uk

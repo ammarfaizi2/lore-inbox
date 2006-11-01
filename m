@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946880AbWKANvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946877AbWKANyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946880AbWKANvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 08:51:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946879AbWKANvJ
+	id S1946877AbWKANyy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 08:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946881AbWKANyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 08:51:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:1154 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1946883AbWKANvG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 08:51:06 -0500
-Date: Wed, 1 Nov 2006 10:50:51 -0300
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-To: dri-devel@lists.sourceforge.net, airlied@linux.ie,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] use printk_ratelimit() inside DRM_DEBUG
-Message-ID: <20061101135051.GH17565@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="wLAMOaPNJ0fu1fTG"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 1 Nov 2006 08:54:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8356 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1946877AbWKANyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 08:54:53 -0500
+Subject: Re: [PATCH v2] Re: Battery class driver.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Richard Hughes <hughsient@gmail.com>
+Cc: Shem Multinymous <multinymous@gmail.com>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       Jean Delvare <khali@linux-fr.org>, davidz@redhat.com,
+       Dan Williams <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
+       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
+       greg@kroah.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>
+In-Reply-To: <1162387577.5001.7.camel@hughsie-laptop>
+References: <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
+	 <6DP6m926.1162281579.9733640.khali@localhost>
+	 <41840b750610310542u2bbcf4b6y5f9f812ebd12445@mail.gmail.com>
+	 <1162302686.31012.47.camel@frg-rhel40-em64t-03>
+	 <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com>
+	 <1162387577.5001.7.camel@hughsie-laptop>
+Content-Type: text/plain
+Date: Wed, 01 Nov 2006 21:54:20 +0800
+Message-Id: <1162389260.18406.62.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-11-01 at 13:26 +0000, Richard Hughes wrote:
+> With the battery class driver, how would that be conveyed? Would the
+> sysfs file be deleted in this case, or would the value of the sysfs
+> key be something like "<invalid>". 
 
---wLAMOaPNJ0fu1fTG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-the DRM_DEBUG macro can be called within functions very oftenly
-triggered, thus generating lots of message load and potentially
-compromising system
-
-Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+I'd be inclined to make the read return -EINVAL.
 
 -- 
-Glauber de Oliveira Costa
-Red Hat Inc.
-"Free as in Freedom"
+dwmw2
 
---wLAMOaPNJ0fu1fTG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="drm_debug.patch"
-
---- linux-2.6.18.x86_64/drivers/char/drm/drmP.h.orig	2006-11-01 08:00:18.000000000 -0500
-+++ linux-2.6.18.x86_64/drivers/char/drm/drmP.h	2006-11-01 08:06:27.000000000 -0500
-@@ -185,7 +185,7 @@
- #if DRM_DEBUG_CODE
- #define DRM_DEBUG(fmt, arg...)						\
- 	do {								\
--		if ( drm_debug )			\
-+		if ( drm_debug && printk_ratelimit() )			\
- 			printk(KERN_DEBUG				\
- 			       "[" DRM_NAME ":%s] " fmt ,	\
- 			       __FUNCTION__ , ##arg);			\
-
---wLAMOaPNJ0fu1fTG--

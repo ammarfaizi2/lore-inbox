@@ -1,116 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752200AbWKAN3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946701AbWKANcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752200AbWKAN3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 08:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752195AbWKAN3Q
+	id S1946701AbWKANcN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 08:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752195AbWKANcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 08:29:16 -0500
-Received: from mummy.ncsc.mil ([144.51.88.129]:35971 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1752180AbWKAN3P (ORCPT
+	Wed, 1 Nov 2006 08:32:13 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:15691 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1752180AbWKANcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 08:29:15 -0500
-Subject: Re: Security issues with local filesystem caching
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Karl MacMillan <kmacmill@redhat.com>, jmorris@namei.org,
-       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com
-In-Reply-To: <31035.1162330008@redhat.com>
-References: <16969.1161771256@redhat.com>   <31035.1162330008@redhat.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Wed, 01 Nov 2006 08:28:55 -0500
-Message-Id: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Wed, 1 Nov 2006 08:32:11 -0500
+Message-ID: <4548A1D3.9070409@sw.ru>
+Date: Wed, 01 Nov 2006 16:32:03 +0300
+From: Vasily Averin <vvs@sw.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: David Howells <dhowells@redhat.com>, Kirill Korotaev <dev@sw.ru>,
+       devel@openvz.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Olaf Hering <olh@suse.de>, Jan Blunck <jblunck@suse.de>
+Subject: Re: [Devel] Re: [PATCH 2.6.19-rc3] VFS: per-sb dentry lru list
+References: <17734.54114.192151.271984@cse.unsw.edu.au>	<4541BDE2.6050703@sw.ru>	<45409DD5.7050306@sw.ru>	<453F6D90.4060106@sw.ru>	<453F58FB.4050407@sw.ru>	<20792.1161784264@redhat.com>	<21393.1161786209@redhat.com>	<19898.1161869129@redhat.com>	<22562.1161945769@redhat.com>	<24249.1161951081@redhat.com>	<4542123E.4030309@sw.ru>	<20061030042419.GW8394166@melbourne.sgi.com>	<45459B92.400@sw.ru>	<25762.1162291214@redhat.com> <17736.16278.85405.497875@cse.unsw.edu.au>
+In-Reply-To: <17736.16278.85405.497875@cse.unsw.edu.au>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-31 at 21:26 +0000, David Howells wrote:
-> David Howells <dhowells@redhat.com> wrote:
-> 
-> > Some issues have been raised by Christoph Hellwig over how I'm handling
-> > filesystem security in my CacheFiles module, and I'd like advice on how to
-> > deal with them.
-> 
-> Having discussed this with Stephen Smally and Karl MacMillan, this is, I think,
-> the security model for CacheFiles:
-> 
->  (*) There will be four security labels per cache:
-> 
->      (a) A security label attached to the caching directory and all the files
->      	 and directories contained therein.  This identifies those files as
->      	 being part of a particular cache's working set.
-> 
->      (b) A security label that defines the context under which the daemon
->      	 (cachefilesd) operates.  This permits cachefilesd to be restricted to
->      	 only accessing files labelled in (a), and only to do things like stat,
->      	 list and delete them - not read or write them.
-> 
->      (c) A security label that defines the context under which the module
->      	 operates when accessing the cache.  This allows the module, when
->      	 accessing the cache, to only operate within the bounds of the cache.
+Hello Neil,
 
-Well, only if the module is well-behaved in the first place, since a
-kernel module can naturally bypass SELinux at will.  What drives this
-approach vs. exempting the module from SELinux checking via a task flag
-that it raises and lowers around the access (vs. setting and resetting
-the sid around the access to the per-cache module context)?
-
->      	 It also permits the module to set a common security label on all the
->      	 files it creates in the cache.
+Neil Brown wrote:
+> On Tuesday October 31, dhowells@redhat.com wrote:
+>> Neil Brown <neilb@suse.de> wrote:
+>>
+>>> When we unmount a filesystem we need to release all dentries.
+>>> We currently
+>>>   - move a collection of dentries to the end of the dentry_unused list
+>>>   - call prune_dcache to prune that number of dentries.
+>> This is not true anymore.
 > 
->      (d) A security label to attached to the cachefiles control character
->      	 device.  This limits access to processes with label (b).
+> True.  That should read:
 > 
->  (*) The module will obtain label (a) - the security label with which to label
->      the files it creates (create_sid) - by reading the security label on the
->      cache base directory (inode->i_security->sid).
+>  When we remount a filesystem or invalidate a block device which has a
+>  mounted filesystem we call shrink dcache_sb which currently:
+>      - moves a collection of dentries to the end of the dentry_unused list
+>      - calls prune_dcache to prune that number of dentries.
 > 
->  (*) The module will obtain label (c) by reading label (b) from the cachefilesd
->      process when it opens the cachefiles control chardev and then passing it
->      through security_change_sid() to ask the security policy to for label (c).
-
-Do you mean security_transition_sid()?  security_change_sid() doesn't
-seem suited to that purpose (relabeling vs. transition computations).
-What would you use as the target SID and class?  What happens if there
-is no transition/change rule in the policy?  It seems like the default
-behavior would leave it operating in the context of the daemon itself,
-in which case you might end up denying access to the module upon
-creation?
-
->  (*) When accessing the cache to look up a cache object (equivalent to NFS read
->      inode), the CacheFiles module will make temporary substitutions for the
->      following process security attributes:
+> but the patch is still valid.
 > 
->      (1) current->fsuid and current->fsgid will both become 0.
-> 
->      (2) current->security->create_sid will be set to label (a) so that
->          vfs_mkdir() and vfs_create() will set the correct labels.
-> 
->      (3) current->security->sid will be set to label (c) so that vfs_mkdir(),
->          vfs_create() and lookup ops will check for the correct labels.
+> Any objections to it going in to -mm  and maybe .20 ??
 
-I think you would want this to be a new ->fssid field instead, and
-adjust SELinux to use it if set for permission checking (which could
-also be leveraged by NFS later).  Or just use a task flag to disable
-checking on the module internal accesses. 
+Currently we have 3 type of functions that works with dentry_unused list:
 
->      After the access, the old label will be restored.
-> 
->      Point (3) shouldn't cause a cross-thread race as it would appear that the
->      security label can only be changed on single-threaded processes.  Attempts
->      to do so on multi-threaded processes are rejected.
+1) prune_dcache(NULL) -- called from shrink_dcache_memory, frees the memory and
+requires global LRU. works well in current implementation.
+2) prune_dcache(sb)  -- called from shrink_dcache_parent(), frees subtree, LRU
+is not need here.  Current implementation uses global LRU for these purposes, it
+is ineffective, and patch from Neil Brown fixes this issue.
+3) shrink_dcache_sb() -- called when we need to free the unused dentries for
+given super block. Current implementation is not effective too, and per-sb LRU
+would be the best solution here. On the other hand patch from Neil Brown is much
+better than current implementation.
 
-I don't quite follow this.  The cache module needs to be able to perform
-cache access on behalf of any process, including multi-threaded ones,
-and the security struct is per-task just like fsuid/fsgid.  But mutating
-->sid could yield unfortunate behavior if e.g. another process happens
-to be sending that task a signal at the same time, so if you go this
-route, you want a ->fssid.
+In general I think that we should approve Neil Brown's patch. We (I and Kirill
+Korotaev) are ready to acknowledge it when the following remarks fill be fixed:
 
--- 
-Stephen Smalley
-National Security Agency
+- it seems for me list_splice() is not required inside prune_dcache(),
+- DCACHE_REFERENCED dentries should not be removed from private list to
+dentry_unused list, this flag should be ignored if the private list is used,
+- count argument should be ignored in this case too, we want to free all the
+dentries in private list,
+- when we shrink the whole super block we should free per-sb anonymous dentries
+too (please see Kirill Korotaev's letter)
 
+Then I'm going to prepare new patch that will enhance the shrink_dcache_sb()
+performance:
+- we can add new list head into struct superblock and use it in
+shrink_dcache_sb() instead of temporal private list. We will check is it empty
+in dput() and add the new unused dentries to per-sb list instead of
+dentry_unused list.
+
+thank you,
+	Vasily Averin
+
+SWsoft Virtuozzo/OpenVZ Linux kernel team

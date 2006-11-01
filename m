@@ -1,112 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992781AbWKATtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992784AbWKATwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992781AbWKATtS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 14:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992784AbWKATtS
+	id S2992784AbWKATwO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 14:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992786AbWKATwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 14:49:18 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:2462 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S2992781AbWKATtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 14:49:17 -0500
-Subject: [PATCH] Updated, add get_range, allows a hyhpenated range to
-	get_options
-From: Derek Fults <dfults@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@suse.de>, Randy Dunlap <randy.dunlap@oracle.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 01 Nov 2006 13:49:56 -0600
-Message-Id: <1162410596.9524.544.camel@lnx-dfults.americas.sgi.com>
+	Wed, 1 Nov 2006 14:52:14 -0500
+Received: from outmx002.isp.belgacom.be ([195.238.5.52]:42940 "EHLO
+	outmx002.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S2992784AbWKATwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 14:52:13 -0500
+Date: Wed, 1 Nov 2006 20:52:08 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: ggaleotti@interfree.it
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/1] watchdog driver for Digital-Logic MSM-P5XEN PC104 unit
+Message-ID: <20061101195208.GC7056@infomag.infomag.iguana.be>
+References: <20061017123440.4321.qmail@community1.interfree.it>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061017123440.4321.qmail@community1.interfree.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This allows a hyphenated range of positive numbers M-N, in the string
-passed to command line helper function, get_options.  This will expand
-the range and insert the values[M, M+1, ..., N] into the ints array in
-get_options.
+Hi Gabriele,
 
-Currently the command line option "isolcpus=" takes as its argument a
-list of cpus.  
-Format: <cpu number>,...,<cpu number>
-This can get extremely long when isolating the majority of cpus on a
-large system.  Valid values of <cpu_number>  include all cpus, 0 to
-"number of CPUs in system - 1".
+> A simple watchdog driver for Digital-Logic's MSM-P5XEN PC104 unit.
+> The watchdog is a LTC1232 controlled by a single I/O port @ 0x1037.
+> The watchdog must be refreshed (writing a single byte) to the device
+> at least every 600 msecs (which is a little of overhead, but PC104
+> industrial applications requires a high degree of safety/reliability.)
 
+I was looking at your code and have a question:
+> +static void
+> +wdt_ping(void)
+> +{
+> +	/*
+> +	 * Clear-pulse trailing edge scheduling.
+> +	 *
+> +	 * We use mod_timer() rather than add_timer() because a timer could
+> +	 * be already activated.
+> +	 * kernel/timer.c:
+> +	 * "... since add_timer() cannot modify an already running timer."
+> +	 */
+> +	mod_timer(&wdt_timer, jiffies + (HZ / 10));
+> +
+> +	wdt_disable();
+> +}
 
-Signed-off-by: Derek Fults <dfults@sgi.com>  
+Shouldn't this be wdt_enable();?
+Please clarify.
 
-Index: linux/lib/cmdline.c
-===================================================================
---- linux.orig/lib/cmdline.c	2006-09-19 22:42:06.000000000 -0500
-+++ linux/lib/cmdline.c	2006-11-01 12:36:20.059166727 -0600
-@@ -16,6 +16,23 @@
- #include <linux/kernel.h>
- #include <linux/string.h>
- 
-+/**
-+ *	If a hyphen was found in get_option, this will handle the
-+ *	range of numbers, M-N.  This will expand the range and insert
-+ *	the values[M, M+1, ..., N] into the ints array in get_options.
-+ */
-+
-+static int get_range(char **str, int *pint)
-+{
-+	int x, inc_counter, upper_range;
-+
-+	(*str)++;
-+	upper_range = simple_strtol((*str), NULL, 0);
-+	inc_counter = upper_range - *pint;
-+	for (x = *pint; x < upper_range; x++)
-+		*pint++ = x;
-+	return inc_counter;
-+}
- 
- /**
-  *	get_option - Parse integer from an option string
-@@ -29,6 +46,7 @@
-  *	0 : no int in string
-  *	1 : int found, no subsequent comma
-  *	2 : int found including a subsequent comma
-+ *	3 : hyphen found to denote a range
-  */
- 
- int get_option (char **str, int *pint)
-@@ -44,6 +62,8 @@
- 		(*str)++;
- 		return 2;
- 	}
-+	if (**str == '-')
-+		return 3;
- 
- 	return 1;
- }
-@@ -55,7 +75,8 @@
-  *	@ints: integer array
-  *
-  *	This function parses a string containing a comma-separated
-- *	list of integers.  The parse halts when the array is
-+ *	list of integers, a hyphen-separated range of _positive_ integers,
-+ *	or a combination of both.  The parse halts when the array is
-  *	full, or when no more numbers can be retrieved from the
-  *	string.
-  *
-@@ -72,6 +93,16 @@
- 		res = get_option ((char **)&str, ints + i);
- 		if (res == 0)
- 			break;
-+		if (res == 3) {
-+			int range_nums;
-+			range_nums = get_range((char **)&str, ints + i);
-+			if (range_nums < 0)
-+				break;
-+			/* Decrement the result by one to leave out the
-+			   last number in the range.  The next iteration
-+			   will handle the upper number in the range */
-+			i += (range_nums - 1);
-+		}
- 		i++;
- 		if (res == 1)
- 			break;
+Thanks,
+Wim.
+

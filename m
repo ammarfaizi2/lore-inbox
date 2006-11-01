@@ -1,50 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946832AbWKAMEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946834AbWKAMH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946832AbWKAMEF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 07:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423975AbWKAMEF
+	id S1946834AbWKAMH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 07:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946724AbWKAMH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 07:04:05 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:60562 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1423960AbWKAMEC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 07:04:02 -0500
-Date: Wed, 1 Nov 2006 14:02:39 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, Ernst Herzberg <earny@net4u.de>,
-       Len Brown <lenb@kernel.org>, Adrian Bunk <bunk@stusta.de>,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       Martin Lorenz <martin@lorenz.eu.org>, Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.19-rc <-> ThinkPads
-Message-ID: <20061101120239.GA7679@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061101093320.GA18641@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101093320.GA18641@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 1 Nov 2006 07:07:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63113 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1423975AbWKAMH1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 07:07:27 -0500
+Message-Id: <20061101120334.714327327@chello.nl>
+References: <20061101114435.234474405@chello.nl>
+User-Agent: quilt/0.45-1
+Date: Wed, 01 Nov 2006 12:44:38 +0100
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       linux-arch@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH 3/3] mm: k{,um}map_atomic() vs in_atomic()
+Content-Disposition: inline; filename=kmap_atomic_generic.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Pavel Machek <pavel@ucw.cz>:
-> > > What I plan to do is using eea0e11c1f0d6ef89e64182b2f1223a4ca2b74a2
-> > > for a couple of days and see how this works out.
-> > 
-> > Ugh. Unfortunately in that kernel version, the e1000 driver says
-> > the eeprom checksum is bad (works fine with 2.6.19-rc3).
-> > So, I tried some suspends/resumes and things seem to work, but
-> > I won't be able to test it under real use conditions.
-> 
-> Just comment out the eeprom checksum check...
-> 
+Make kmap_atomic/kunmap_atomic denote a pagefault disabled scope. All
+non trivial implementations already do this anyway.
 
-Right, that worked, thanks.
-I'm running on eea0e11c1f0d6ef89e64182b2f1223a4ca2b74a2 now, seems to be fine
-so far.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Nick Piggin <npiggin@suse.de>
+---
+ include/asm-mips/highmem.h |   10 ++++++++--
+ include/linux/highmem.h    |    8 +++++---
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
--- 
-MST
+Index: linux-2.6/include/asm-mips/highmem.h
+===================================================================
+--- linux-2.6.orig/include/asm-mips/highmem.h
++++ linux-2.6/include/asm-mips/highmem.h
+@@ -21,6 +21,7 @@
+ 
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
++#include <linux/uaccess.h>
+ #include <asm/kmap_types.h>
+ 
+ /* undef for production */
+@@ -70,11 +71,16 @@ static inline void *kmap(struct page *pa
+ 
+ static inline void *kmap_atomic(struct page *page, enum km_type type)
+ {
++	pagefault_disable();
+ 	return page_address(page);
+ }
+ 
+-static inline void kunmap_atomic(void *kvaddr, enum km_type type) { }
+-#define kmap_atomic_pfn(pfn, idx)	page_address(pfn_to_page(pfn))
++static inline void kunmap_atomic(void *kvaddr, enum km_type type)
++{
++	pagefault_enable();
++}
++
++#define kmap_atomic_pfn(pfn, idx) kmap_atomic(pfn_to_page(pfn), (idx))
+ 
+ #define kmap_atomic_to_page(ptr) virt_to_page(ptr)
+ 
+Index: linux-2.6/include/linux/highmem.h
+===================================================================
+--- linux-2.6.orig/include/linux/highmem.h
++++ linux-2.6/include/linux/highmem.h
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/fs.h>
+ #include <linux/mm.h>
++#include <linux/uaccess.h>
+ 
+ #include <asm/cacheflush.h>
+ 
+@@ -41,9 +42,10 @@ static inline void *kmap(struct page *pa
+ 
+ #define kunmap(page) do { (void) (page); } while (0)
+ 
+-#define kmap_atomic(page, idx)		page_address(page)
+-#define kunmap_atomic(addr, idx)	do { } while (0)
+-#define kmap_atomic_pfn(pfn, idx)	page_address(pfn_to_page(pfn))
++#define kmap_atomic(page, idx) \
++	({ pagefault_disable(); page_address(page); })
++#define kunmap_atomic(addr, idx)	do { pagefault_enable(); } while (0)
++#define kmap_atomic_pfn(pfn, idx)	kmap_atomic(pfn_to_page(pfn), (idx))
+ #define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
+ #endif
+ 
+
+--
+

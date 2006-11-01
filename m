@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946534AbWKAF4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946530AbWKAF5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946534AbWKAF4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 00:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946223AbWKAFgK
+	id S1946530AbWKAF5J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 00:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946239AbWKAF5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 00:36:10 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:16327 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1946149AbWKAFf1
+	Wed, 1 Nov 2006 00:57:08 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:32455 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1946123AbWKAFgF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 00:35:27 -0500
-Message-Id: <20061101053541.928017000@sous-sol.org>
+	Wed, 1 Nov 2006 00:36:05 -0500
+Message-Id: <20061101053617.820410000@sous-sol.org>
 References: <20061101053340.305569000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 31 Oct 2006 21:33:46 -0800
+Date: Tue, 31 Oct 2006 21:33:49 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,40 +21,42 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Stephen Hemminger <shemminger@osdl.org>,
+       alan@lxorguk.ukuu.org.uk, Takashi Iwai <tiwai@suse.de>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 06/61] sky2: pause parameter adjustment
-Content-Disposition: inline; filename=sky2-pause-parameter-adjustment.patch
+Subject: [PATCH 09/61] ALSA: powermac - Fix Oops when conflicting with aoa driver
+Content-Disposition: inline; filename=alsa-powermac-fix-oops-when-conflicting-with-aoa-driver.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Stephen Hemminger <shemminger@osdl.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-The lower pause threshold set by the driver is too large and causes FIFO overruns.
-Especially on laptops running at slower clock rates.
+[PATCH] ALSA: powermac - Fix Oops when conflicting with aoa driver
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+Fixed Oops when conflictin with aoa driver due to lack of
+i2c initialization.
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
-
 ---
- drivers/net/sky2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/ppc/keywest.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- linux-2.6.18.1.orig/drivers/net/sky2.c
-+++ linux-2.6.18.1/drivers/net/sky2.c
-@@ -678,7 +678,7 @@ static void sky2_mac_init(struct sky2_hw
- 	sky2_write16(hw, SK_REG(port, TX_GMF_CTRL_T), GMF_OPER_ON);
- 
- 	if (hw->chip_id == CHIP_ID_YUKON_EC_U) {
--		sky2_write8(hw, SK_REG(port, RX_GMF_LP_THR), 768/8);
-+		sky2_write8(hw, SK_REG(port, RX_GMF_LP_THR), 512/8);
- 		sky2_write8(hw, SK_REG(port, RX_GMF_UP_THR), 1024/8);
- 		if (hw->dev[port]->mtu > ETH_DATA_LEN) {
- 			/* set Tx GMAC FIFO Almost Empty Threshold */
+--- linux-2.6.18.1.orig/sound/ppc/keywest.c
++++ linux-2.6.18.1/sound/ppc/keywest.c
+@@ -117,6 +117,9 @@ int __init snd_pmac_tumbler_post_init(vo
+ {
+ 	int err;
+ 	
++	if (!keywest_ctx || !keywest_ctx->client)
++		return -ENXIO;
++
+ 	if ((err = keywest_ctx->init_client(keywest_ctx)) < 0) {
+ 		snd_printk(KERN_ERR "tumbler: %i :cannot initialize the MCS\n", err);
+ 		return err;
 
 --

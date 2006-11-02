@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWKBVk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752656AbWKBVmm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWKBVk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 16:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752650AbWKBVk4
+	id S1752656AbWKBVmm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 16:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752653AbWKBVmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 16:40:56 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:41635 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751257AbWKBVk4 (ORCPT
+	Thu, 2 Nov 2006 16:42:42 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:27843 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1752656AbWKBVmm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 16:40:56 -0500
-Date: Fri, 3 Nov 2006 03:10:34 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Gautham Shenoy <ego@in.ibm.com>
-Subject: Re: Remove hotplug cpu crap from cpufreq.
-Message-ID: <20061102214034.GB3407@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20061101225925.GA17363@redhat.com> <Pine.LNX.4.64.0611011507480.25218@g5.osdl.org> <20061101161723.f132d208.akpm@osdl.org> <20061102190450.GB23489@in.ibm.com> <Pine.LNX.4.64.0611021129470.25218@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Nov 2006 16:42:42 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.19-rc4: known unfixed regressions
+Date: Thu, 2 Nov 2006 22:40:40 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Rajesh Shah <rajesh.shah@intel.com>, toralf.foerster@gmx.de,
+       Jeff Garzik <jeff@garzik.org>, Pavel Machek <pavel@ucw.cz>,
+       Greg KH <greg@kroah.com>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <200611022102.02302.rjw@sisk.pl> <20061102212602.GI27968@stusta.de>
+In-Reply-To: <20061102212602.GI27968@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611021129470.25218@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611022240.41770.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2006 at 11:30:20AM -0800, Linus Torvalds wrote:
+On Thursday, 2 November 2006 22:26, Adrian Bunk wrote:
+> On Thu, Nov 02, 2006 at 09:02:01PM +0100, Rafael J. Wysocki wrote:
+> > Hi,
 > 
+> Ji Rafael,
 > 
-> On Fri, 3 Nov 2006, Dipankar Sarma wrote:
+> > On Tuesday, 31 October 2006 20:56, you wrote:
+> > > This email lists some known regressions in 2.6.19-rc4 compared to 2.6.18
+> > > that are not yet fixed in Linus' tree.
 > > 
-> > IMO, the right thing to do would be to convert lock_cpu_hotplug() to
-> > a get_cpu_hotplug()/put_cpu_hotplug() type semantics and use a more
-> > scalable implementation underneath (as opposed to a global
-> > semaphore/mutex).
+> > Can we please add the following two to the list of known regressions:
+> > 
+> > http://bugzilla.kernel.org/show_bug.cgi?id=7082
+> > http://bugzilla.kernel.org/show_bug.cgi?id=7207
+> > 
+> > They are regressions with respect to 2.6.17.x kernels, but still.
+> >...
 > 
-> Yes, I think Gautham's patch-series basically did exactly that, no? Except 
-> it kept the old name.
+> I'm sorry, but I'm only tracking regressions since 2.6.18 - "regressions 
+> since the latest stable kernel" is a clear border, and the number of 
+> post-2.6.18 regressions is high enough that adding even more 
+> regressions to my list wouldn't make sense.
 
-Yes, atleast that is the idea - turn it into a scalable refcount model
-as opposed to a global lock.
+Fair enough.
 
-Thanks
-Dipankar
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752637AbWKBV0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752153AbWKBV0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752637AbWKBV0R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 16:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752628AbWKBV0R
+	id S1752153AbWKBV0F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 16:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752626AbWKBV0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 16:26:17 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:575 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1752637AbWKBV0P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 16:26:15 -0500
-Message-ID: <454A627C.1090104@cfl.rr.com>
-Date: Thu, 02 Nov 2006 16:26:20 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Thu, 2 Nov 2006 16:26:05 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:39688 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1752628AbWKBV0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 16:26:03 -0500
+Date: Thu, 2 Nov 2006 22:26:02 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Rajesh Shah <rajesh.shah@intel.com>, toralf.foerster@gmx.de,
+       Jeff Garzik <jeff@garzik.org>, Pavel Machek <pavel@ucw.cz>,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.19-rc4: known unfixed regressions
+Message-ID: <20061102212602.GI27968@stusta.de>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061031195654.GV27968@stusta.de> <200611022102.02302.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Jun Sun <jsun@junsun.net>, linux-kernel@vger.kernel.org
-Subject: Re: Can Linux live without DMA zone?
-References: <20061102021547.GA1240@srv.junsun.net>  <454A1D82.7040709@cfl.rr.com>  <1162486642.14530.64.camel@laptopd505.fenrus.org>  <454A4237.90106@cfl.rr.com> <1162498205.14530.83.camel@laptopd505.fenrus.org>
-In-Reply-To: <1162498205.14530.83.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2006 21:26:20.0886 (UTC) FILETIME=[8A4B9760:01C6FEC5]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14790.000
-X-TM-AS-Result: No--8.512100-5.000000-31
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611022102.02302.rjw@sisk.pl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> that's for the 32 bit boundary. THe problem is that there are 31, 30, 28
-> and 26 bit devices as well, and those are in more trouble, and will
-> eventually fall back to GFP_DMA (inside the x86 PCI code; the driver
-> just uses the pci dma allocation routines) if they can't get suitable
-> memory otherwise....
-> 
-> It's all nice in theory. But then there is the reality that not all
-> devices are nice pci device that implement the entire spec;)
-> 
+On Thu, Nov 02, 2006 at 09:02:01PM +0100, Rafael J. Wysocki wrote:
+> Hi,
 
-Right, but doesn't the bounce/allocation routine take as a parameter the 
-limit that the device can handle?  If the device can handle 28 bit 
-addresses, then the kernel should not limit it to only 24 bits.
+Ji Rafael,
+
+> On Tuesday, 31 October 2006 20:56, you wrote:
+> > This email lists some known regressions in 2.6.19-rc4 compared to 2.6.18
+> > that are not yet fixed in Linus' tree.
+> 
+> Can we please add the following two to the list of known regressions:
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=7082
+> http://bugzilla.kernel.org/show_bug.cgi?id=7207
+> 
+> They are regressions with respect to 2.6.17.x kernels, but still.
+>...
+
+I'm sorry, but I'm only tracking regressions since 2.6.18 - "regressions 
+since the latest stable kernel" is a clear border, and the number of 
+post-2.6.18 regressions is high enough that adding even more 
+regressions to my list wouldn't make sense.
+
+> Greetings,
+> Rafael
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

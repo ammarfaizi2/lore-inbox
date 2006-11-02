@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWKBPEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWKBPFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWKBPEb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 10:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWKBPEb
+	id S1751234AbWKBPFy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 10:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWKBPFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 10:04:31 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:32153 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751204AbWKBPEa (ORCPT
+	Thu, 2 Nov 2006 10:05:54 -0500
+Received: from mx2.suse.de ([195.135.220.15]:56760 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751234AbWKBPFx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 10:04:30 -0500
-Date: Thu, 2 Nov 2006 09:04:14 -0600
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: akpm@osdl.org, jens.axboe@oracle.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 7/8] cciss: change cciss_open for consistency
-Message-ID: <20061102150414.GF16430@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Nov 2006 10:05:53 -0500
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Linux
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: Small optimization for nfs3acl.   (was: Re: [PATCH] NFS: nfsaclsvc_encode_getaclres() - Fix potential NULL deref and tiny optimization.)
+Date: Thu, 2 Nov 2006 16:06:36 +0100
+User-Agent: KMail/1.9.5
+Cc: David Rientjes <rientjes@cs.washington.edu>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>
+References: <200610272316.47089.jesper.juhl@gmail.com> <200610311726.00411.agruen@suse.de> <200610312139.23836.jesper.juhl@gmail.com>
+In-Reply-To: <200610312139.23836.jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Message-Id: <200611021606.36447.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 31 October 2006 21:39, Jesper Juhl wrote:
+> Here's a patch for nfs3. Hope it's OK.
 
-PATCH 7/11
-
-This patch changes our open to test for drv->heads like we do in other
-places in the driver. Mostly for consistency.
-Please consider this for inclusion.
+It's obviously correct.
 
 Thanks,
-mikem
-
-Signed-off-by: Mike Miller <mike.miller@hp.com>
-
- cciss.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------------------------------------------------------------------------------------------
-diff -urNp linux-2.6-p00006/drivers/block/cciss.c linux-2.6/drivers/block/cciss.c
---- linux-2.6-p00006/drivers/block/cciss.c	2006-10-31 15:48:46.000000000 -0600
-+++ linux-2.6/drivers/block/cciss.c	2006-10-31 15:57:39.000000000 -0600
-@@ -494,7 +494,7 @@ static int cciss_open(struct inode *inod
- 	 * but I'm already using way to many device nodes to claim another one
- 	 * for "raw controller".
- 	 */
--	if (drv->nr_blocks == 0) {
-+	if (drv->heads == 0) {
- 		if (iminor(inode) != 0) {	/* not node 0? */
- 			/* if not node 0 make sure it is a partition = 0 */
- 			if (iminor(inode) & 0x0f) {
+Andreas

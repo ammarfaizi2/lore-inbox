@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWKBWMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbWKBWTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWKBWMu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 17:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751900AbWKBWMu
+	id S1751426AbWKBWTK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 17:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751646AbWKBWTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 17:12:50 -0500
-Received: from mx4.cs.washington.edu ([128.208.4.190]:6088 "EHLO
-	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1750768AbWKBWMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 17:12:49 -0500
-Date: Thu, 2 Nov 2006 14:12:22 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: muli@il.ibm.com
-cc: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       jdmason@kudzu.us
-Subject: Re: [PATCH 1/4] Calgary: phb_shift can be int
-In-Reply-To: <11625041802816-git-send-email-muli@il.ibm.com>
-Message-ID: <Pine.LNX.4.64N.0611021401180.1797@attu4.cs.washington.edu>
-References: <11625041803066-git-send-email-muli@il.ibm.com>
- <11625041802816-git-send-email-muli@il.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Nov 2006 17:19:10 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8101 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751426AbWKBWTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 17:19:09 -0500
+Subject: Re: Can Linux live without DMA zone?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Jun Sun <jsun@junsun.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <454A627C.1090104@cfl.rr.com>
+References: <20061102021547.GA1240@srv.junsun.net>
+	 <454A1D82.7040709@cfl.rr.com>
+	 <1162486642.14530.64.camel@laptopd505.fenrus.org>
+	 <454A4237.90106@cfl.rr.com>
+	 <1162498205.14530.83.camel@laptopd505.fenrus.org>
+	 <454A627C.1090104@cfl.rr.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 02 Nov 2006 23:19:05 +0100
+Message-Id: <1162505945.14530.98.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2006, muli@il.ibm.com wrote:
-
-> diff --git a/arch/x86_64/kernel/pci-calgary.c b/arch/x86_64/kernel/pci-calgary.c
-> index 37a7708..31d5758 100644
-> --- a/arch/x86_64/kernel/pci-calgary.c
-> +++ b/arch/x86_64/kernel/pci-calgary.c
-> @@ -740,7 +740,7 @@ static void __init calgary_increase_spli
->  {
->  	u64 val64;
->  	void __iomem *target;
-> -	unsigned long phb_shift = -1;
-> +	unsigned int phb_shift = ~0; /* silence gcc */
->  	u64 mask;
->  
->  	switch (busno_to_phbid(busnum)) {
+On Thu, 2006-11-02 at 16:26 -0500, Phillip Susi wrote:
+> Arjan van de Ven wrote:
+> > that's for the 32 bit boundary. THe problem is that there are 31, 30, 28
+> > and 26 bit devices as well, and those are in more trouble, and will
+> > eventually fall back to GFP_DMA (inside the x86 PCI code; the driver
+> > just uses the pci dma allocation routines) if they can't get suitable
+> > memory otherwise....
+> > 
+> > It's all nice in theory. But then there is the reality that not all
+> > devices are nice pci device that implement the entire spec;)
+> > 
 > 
+> Right, but doesn't the bounce/allocation routine take as a parameter the 
+> limit that the device can handle?  If the device can handle 28 bit 
+> addresses, then the kernel should not limit it to only 24 bits.
 
-There's been a suggestion to add
+you're right in theory, but the kernel only has a few pools of memory
+available, but not at every bit boundary. there is a 32 bit pool
+(GFP_DMA32) on some, a 30-ish bit pool (GFP_KERNEL) on others, and a 24
+bit pool (GFP_DMA) with basically nothing inbetween.
 
-	#define SILENCE_GCC(x)	= x
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+ 
 
-for these silencing cases with the advantage that all the cases are marked 
-for an easy grep and the purpose of such an initialization is known by 
-the code reader.
-
-		http://lkml.org/lkml/2006/10/31/106

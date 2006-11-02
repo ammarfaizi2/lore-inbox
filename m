@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752744AbWKBIvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752748AbWKBIwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752744AbWKBIvM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 03:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752746AbWKBIvM
+	id S1752748AbWKBIwu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 03:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752750AbWKBIwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 03:51:12 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:32517 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1752744AbWKBIvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 03:51:10 -0500
+	Thu, 2 Nov 2006 03:52:50 -0500
+Received: from nz-out-0102.google.com ([64.233.162.199]:17358 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1752748AbWKBIwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 03:52:49 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=A4RTL8b3dScfoS42YMNEUqZ47hPxGkjYy7TxRwo0slrJ+w4Scm+Himiqhuya9CBvdGD/6w2TQXh46HuGcocBTngvnDVXvkCDeE8zcKqGkn1S69nBoba52vxy2wkci0MMTeWgZl/d+JwcpiQ8zapnv2iSDOo3/d0oo5CWBbs45qs=
-Message-ID: <4549B19C.70304@innova-card.com>
-Date: Thu, 02 Nov 2006 09:51:40 +0100
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Oa89nfP5WbAZ/5c2rRxGXBncmxrTd3tqX+n8+8c50QfnK1Vb1Pky7WYypgWtHNep1ILEy5Xw8GU8u3SdL6TeS7vXqWYTarq5xG4/8yvgXb1Enrz4ZENOkNNWUgToUS45C7Ifko9LTdPfDlbH0eh18Wy6saHkqBDF5AanmyimPXk=
+Message-ID: <b3c691930611020052k4cee7582lf58942c1b1151916@mail.gmail.com>
+Date: Thu, 2 Nov 2006 16:52:48 +0800
+From: "FENG ZHOU" <zhfeng.osprey@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to optimize system time for such case?
+In-Reply-To: <b3c691930611020047p4a59206aj3fc3060e2f74e426@mail.gmail.com>
 MIME-Version: 1.0
-To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH update6] drivers: add LCD support
-References: <20061101014057.454c4f43.maxextreme@gmail.com>
-In-Reply-To: <20061101014057.454c4f43.maxextreme@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
+Content-Disposition: inline
+References: <b3c691930611020047p4a59206aj3fc3060e2f74e426@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hello, all
+I am optimizing a compiler and I believe there is a bug in such
+compile. Currently, I have a test case, which is a scientific
+application, has a lot of system time. This is weird, because this
+case does not have many system calls. Meanwhile, compiled at another
+option, I found all the "system time" are gone! So, I assume there is
+some problem in the first one (though both binary produce correct
+result). I used some performance tuning tool and found the hottest
+address for CPU privilege level change event is: 0xa000000100001a70.
+This address is not in code or data segment. Now, I am kinda stuck
+here. My question is: how to find what this address is? Or find out
+what is the cause of the "system time"? Thanks in advance.
 
-Miguel Ojeda Sandonis wrote:
-> Andrew, here it is the coding style fixes. Thanks you.
-> 
-> I think the driver is getting ready for freeze until
-> 2.6.20-rc1 (if anyone sees something wrong), so I will
-> try to send just minor fixes like this.
-
-:)
-
-Again, any thoughts on cache aliasing ?
-
-Thanks
-		Franck
-
+PS: the platform is Itanium 2.
+-Feng

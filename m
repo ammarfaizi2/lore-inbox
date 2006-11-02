@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWKBRUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWKBRU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWKBRUT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 12:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWKBRUT
+	id S1750768AbWKBRU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 12:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWKBRU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 12:20:19 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:17833 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750747AbWKBRUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 12:20:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=AknhTxPYPadFUmNNLD49DM/HAui/ovb9qChQvCZod2VJKgGcN/jY0/H0m3yWBhUUH/nuyKE+VTKeF9LEM3GTIdXoP5P0LeRrXKJdKUiH0wgJl5JhkqaokarJQSwK7Du0FXEZeBr2Jzkpo5Wb0jP1egYAMclRqo60HFOAr2DFqVQ=
-Message-ID: <454A28CB.1030002@gmail.com>
-Date: Thu, 02 Nov 2006 21:20:11 +0400
-From: Manu Abraham <abraham.manu@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hdb lost interrupt
-References: <4549B305.7040106@gmail.com>	 <1162473087.11965.182.camel@localhost.localdomain>	 <454A0F2B.5060603@gmail.com> <1162482682.11965.202.camel@localhost.localdomain>
-In-Reply-To: <1162482682.11965.202.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 2 Nov 2006 12:20:26 -0500
+Received: from www.osadl.org ([213.239.205.134]:54716 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1750768AbWKBRUZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 12:20:25 -0500
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
+	[2.6.18-rc4-mm1]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1162455263.15900.320.camel@localhost.localdomain>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
+	 <1162417916.15900.271.camel@localhost.localdomain>
+	 <20061102001838.GA911@rhlx01.hs-esslingen.de>
+	 <1162452676.15900.287.camel@localhost.localdomain>
+	 <1162455263.15900.320.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 02 Nov 2006 18:22:08 +0100
+Message-Id: <1162488129.15900.396.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Iau, 2006-11-02 am 19:30 +0400, ysgrifennodd Manu Abraham:
->> running smartctl -a gave me this ..
+On Thu, 2006-11-02 at 09:14 +0100, Thomas Gleixner wrote:
+> On Thu, 2006-11-02 at 08:31 +0100, Thomas Gleixner wrote:
+> > Does it resume normal operation after the "ACPI: lapic on CPU 0 stops in
+> > C2[C2]" message ?
+> > 
+> > It is easy to fix by marking all AMDs broken again, but I really want to
+> > avoid this.
 > 
-> Thanks
-> 
->> [17207074.632000] hdd: command error: status=0x51 { DriveReady
->> SeekComplete Error }
->> [17207074.632000] hdd: command error: error=0x54 { AbortedCommand
->> LastFailedSense=0x05 }
-> 
-> CD stuff so not related.
-> 
->> [17207531.412000] hdb: dma_intr: status=0x30 { DeviceFault SeekComplete }
->> [17207531.412000] ide: failed opcode was: unknown
->> [17207531.412000] hda: DMA disabled
->> [17207531.412000] hdb: DMA disabled
->> [17207534.628000] ide0: reset: success
->> [17208781.840000] hdb: drive_cmd: status=0x30 { DeviceFault SeekComplete }
->> [17208781.840000] ide: failed opcode was: 0xb0
-> 
-> No idea, it appears the drive got cross and went for a sulk but I've no
-> idea why and the diagnostics aren't sufficient to tell
-> 
+> Doo, found a brown paperbag bug.
 
-Is there something that i can look out for, such that debugging this
-would be easier ?
+I uploaded a new queue with more fixups.
 
+http://tglx.de/projects/hrtimers/2.6.19-rc4-mm1/patch-2.6.19-rc4-mm1-hrt-dyntick4.patch
 
-Thanks,
-Manu
+	tglx
 
 

@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752653AbWKBVoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752699AbWKBVtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752653AbWKBVoc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 16:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752633AbWKBVoc
+	id S1752699AbWKBVtp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 16:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752685AbWKBVtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 16:44:32 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:32707 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1752653AbWKBVob (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 16:44:31 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Maciej Rutecki <maciej.rutecki@gmail.com>
-Subject: Re: [2.6.18] Suspend to ram and SATA
-Date: Thu, 2 Nov 2006 22:43:02 +0100
-User-Agent: KMail/1.9.1
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <454A61B0.9010306@gmail.com>
-In-Reply-To: <454A61B0.9010306@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611022243.02992.rjw@sisk.pl>
+	Thu, 2 Nov 2006 16:49:45 -0500
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:60858 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1752650AbWKBVto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 16:49:44 -0500
+From: muli@il.ibm.com
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, muli@il.ibm.com,
+       jdmason@kudzu.us
+Subject: [PATCH 1/4] Calgary: phb_shift can be int
+Reply-To: muli@il.ibm.com
+Date: Thu, 02 Nov 2006 23:49:37 +0200
+Message-Id: <11625041802816-git-send-email-muli@il.ibm.com>
+X-Mailer: git-send-email 1.4.1
+In-Reply-To: <11625041803066-git-send-email-muli@il.ibm.com>
+References: <11625041803066-git-send-email-muli@il.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 2 November 2006 22:22, Maciej Rutecki wrote:
-> I have problem with suspend to ram, and my SATA drive. When I try:
-> 
-> echo mem > /sys/power/state
-> 
-> system goes standby, but when doing the resume it
-> would come back and have I/O errors similar like this ((copied from
-> paper notes, the disk is no longer writable when the error happens)
-> 
-> kernel: journal commit I/O error
-> end_request: I/O error, dev sda, sector xxxxxxxx
-> sd 0:0:0:0: SCSI error return code: 0xxxxxx
-> 
-> Problem is similar like this:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111409309804068&w=2
-> http://www.thinkwiki.org/wiki/Problems_with_SATA_and_Linux
-> http://lkml.org/lkml/2005/9/23/97
-> 
-> I test it in 2.6.18.1 (with initrd) and 2.6.18 (with and without initrd).
-> 
-> Hardware: HP/Compaq nx6310
+From: Muli Ben-Yehuda <muli@il.ibm.com>
 
-Can you please test 2.6.19-rc4 with CONFIG_DISABLE_CONSOLE_SUSPEND
-unset?
+Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+---
+ arch/x86_64/kernel/pci-calgary.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Rafael
-
-
+diff --git a/arch/x86_64/kernel/pci-calgary.c b/arch/x86_64/kernel/pci-calgary.c
+index 37a7708..31d5758 100644
+--- a/arch/x86_64/kernel/pci-calgary.c
++++ b/arch/x86_64/kernel/pci-calgary.c
+@@ -740,7 +740,7 @@ static void __init calgary_increase_spli
+ {
+ 	u64 val64;
+ 	void __iomem *target;
+-	unsigned long phb_shift = -1;
++	unsigned int phb_shift = ~0; /* silence gcc */
+ 	u64 mask;
+ 
+ 	switch (busno_to_phbid(busnum)) {
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+1.4.1
+

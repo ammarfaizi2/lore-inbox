@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752650AbWKBFVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752652AbWKBFYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752650AbWKBFVK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 00:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752652AbWKBFVK
+	id S1752652AbWKBFYH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 00:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752655AbWKBFYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 00:21:10 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:50853 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1752650AbWKBFVH (ORCPT
+	Thu, 2 Nov 2006 00:24:07 -0500
+Received: from ns2.suse.de ([195.135.220.15]:45784 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752652AbWKBFYE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 00:21:07 -0500
-Message-ID: <4549803D.5020302@pobox.com>
-Date: Thu, 02 Nov 2006 00:21:01 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Thu, 2 Nov 2006 00:24:04 -0500
+Date: Wed, 1 Nov 2006 21:24:09 -0800
+From: Greg KH <gregkh@suse.de>
+To: Martin Bligh <mbligh@google.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Mike Galbraith <efault@gmx.de>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+Message-ID: <20061102052409.GA9642@suse.de>
+References: <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com> <20061031075825.GA8913@suse.de> <45477131.4070501@google.com> <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com> <4547833C.5040302@google.com> <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com> <4547FABE.502@google.com> <20061101020850.GA13070@suse.de> <45480241.2090803@google.com>
 MIME-Version: 1.0
-To: Jesse Huang <jesse@icplus.com.tw>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org
-Subject: Re: How about current IP100A status? 10/31/2006
-References: <002101c6fe3e$369ca1e0$4964a8c0@icplus.com.tw>
-In-Reply-To: <002101c6fe3e$369ca1e0$4964a8c0@icplus.com.tw>
-Content-Type: text/plain; charset=Big5
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45480241.2090803@google.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Huang wrote:
-> Dear All:
+On Tue, Oct 31, 2006 at 06:11:13PM -0800, Martin Bligh wrote:
+> Greg KH wrote:
+> >On Tue, Oct 31, 2006 at 05:39:10PM -0800, Martin Bligh wrote:
+> >
+> >>Cornelia Huck wrote:
+> >>
+> >>>On Tue, 31 Oct 2006 09:09:16 -0800,
+> >>>"Martin J. Bligh" <mbligh@google.com> wrote:
+> >>>
+> >>>
+> >>>
+> >>>>Cornelia Huck wrote:
+> >>>>
+> >>>>
+> >>>>>That's because /sys/class/net/<interface> is now a symlink instead of a
+> >>>>>directory (and that hasn't anything to do with acpi, but rather with
+> >>>>>the conversions in the driver tree). Seems the directory -> symlink
+> >>>>>change shouldn't be done since it's impacting user space...
+> >>>>
+> >>>>You know which individual patch in -mm broke that? Can't see it easily.
+> >>>>Then we can just test across all the machines with just that one backed
+> >>>>out.
+> >>>
+> >>>
+> >>>I'd try reverting gregkh-driver-network-device.patch for the network
+> >>>device stuff.
+> >>
+> >>Reverting that patch does indeed appear to fix it.
+> >
+> >
+> >Even with CONFIG_SYSFS_DEPRECATED enabled?  For some reason I'm guessing
+> >that you missed that suggestion a while back...
 > 
-> How about current IP100A, sundance.c status? Should it be put into kernel or
-> not?
-> Is there any sentence should I need to modify?
+> Yes - Enabling CONFIG_SYSFS_DEPRECATED didn't help.
 
-It's in my queue.  We are in a bug fix-only cycle right now, so it has
-been a bit lower priority, but I will queue it for 2.6.20.
+Ok, you are correct, for a stupid reason, this option didn't correctly
+work for a range of device types (I can get into the gory details if
+anyone really cares...)
 
-	Jeff
+I've now fixed this up, and a few other bugs that I kept tripping on
+(which others also hit), and have refreshed my tree so that the next -mm
+will be much better in this area.
 
+If the problem persists (and I've built a zillion different kernels in
+different configurations today testing to make sure it doesn't), please
+let me know.
 
+I can post updated patches here if people want them.
 
+thanks for everyone's patience, I appreciated it.
+
+greg k-h

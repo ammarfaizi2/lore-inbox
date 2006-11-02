@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752616AbWKBA2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752619AbWKBAaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752616AbWKBA2i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 19:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752614AbWKBA2i
+	id S1752619AbWKBAaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 19:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752618AbWKBAaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 19:28:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56195 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752616AbWKBA2h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 19:28:37 -0500
-Date: Wed, 1 Nov 2006 16:27:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
-       "Neil Horman" <nhorman@tuxdriver.com>,
-       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, maxk@qualcomm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [KJ][PATCH] Correct misc_register return code handling in
- several drivers
-Message-Id: <20061101162727.72f1183b.akpm@osdl.org>
-In-Reply-To: <20061101161155.d7b30258.randy.dunlap@oracle.com>
-References: <20061023171910.GA23714@hmsreliant.homelinux.net>
-	<1161660875.10524.535.camel@localhost.localdomain>
-	<20061024125306.GA1608@hmsreliant.homelinux.net>
-	<1161729762.10524.660.camel@localhost.localdomain>
-	<20061101135619.GA3459@hmsreliant.homelinux.net>
-	<9a8748490611011605u55ccdcaeob99700d6e1a813a4@mail.gmail.com>
-	<20061101161155.d7b30258.randy.dunlap@oracle.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Nov 2006 19:30:24 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:48576 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1752617AbWKBAaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 19:30:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=csy+UbHMnq77OCCM6Uxf4cDVh3RawwNE0oTZIPy3vMnfRGj9JBJdHXbLC7iX9WV86xKlFyG5RLuYhl62dzIfoDFNdOaRzrbdwbDBf/b30F10DYIoMNoFpDNMNB++6oGTx0mArNre/uU7NlfBdjWFcO5j8k3dSPox0Qf3f4xS03M=
+Message-ID: <9a8748490611011630t43bebed8i808cba2f4c08f026@mail.gmail.com>
+Date: Thu, 2 Nov 2006 01:30:22 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "David Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] LLC: Avoid potential NULL dereference in net/llc/af_llc.c::llc_ui_accept() .
+Cc: linux-kernel@vger.kernel.org, jschlst@samba.org, acme@conectiva.com.br
+In-Reply-To: <20061101.162758.10298784.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200611020121.53368.jesper.juhl@gmail.com>
+	 <20061101.162758.10298784.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2006 16:11:55 -0800
-Randy Dunlap <randy.dunlap@oracle.com> wrote:
+On 02/11/06, David Miller <davem@davemloft.net> wrote:
+> From: Jesper Juhl <jesper.juhl@gmail.com>
+> Date: Thu, 2 Nov 2006 01:21:53 +0100
+>
+> > Since skb_dequeue() may return NULL we risk dereferencing a NULL pointer at
+> >   if (!skb->sk)
+> > This patch avoids that by also testing for a NULL skb.
+> >
+> >
+> > Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+>
+> It can't return NULL in this context because we just checked
+> skb_queue_empty() with the socket lock held and llc_wait_data()
+> will return zero only if skb_queue_empty() is false.
+>
+> I know it's hard for automated tools to see this, but it's not
+> reasonable to put this extra check in there since it is
+> superfluous due to the above mentioned invariants.
+>
+Fair enough. Ignore the patch.
+Thank you for the explanation.
 
-> > Hmm, I guess that should be defined once and for all in
-> > Documentation/CodingStyle
-> 
-> I have some other CodingStyle changes to submit, but feel free
-> to write this one up.
-
-Starting labels in column 2 gives me the creeps, personally.  But there's a
-decent justification for it.
-
-> However, I didn't know that we had a known style for this, other
-> than "not indented so far that it's hidden".
-> 
-> If a label in column 0 [0-based :] confuses patch, then that's
-> a reason, I suppose.  I wasn't aware of that one...
-> In a case like that, we usually say "fix the tool then."
-
-The problem is that `diff -p' screws up and displays the label: in the
-place where it should be displaying the function name.
-
-Of course, lots of people forget the -p anyway...  Maybe we can fix those
-tools ;)
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWKBPRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWKBPTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWKBPRp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 10:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWKBPRp
+	id S1751344AbWKBPTa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 10:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWKBPT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 10:17:45 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:39876 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S1751333AbWKBPRo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 10:17:44 -0500
-Date: Thu, 2 Nov 2006 09:17:43 -0600
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jens Axboe <jens.axboe@oracle.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 1/8] cciss: version number change
-Message-ID: <20061102151743.GB19352@beardog.cca.cpqcorp.net>
-References: <20061101214913.GA29928@beardog.cca.cpqcorp.net> <20061102141045.GH13555@kernel.dk> <20061102144623.GC16430@beardog.cca.cpqcorp.net> <1162479914.14530.46.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1162479914.14530.46.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
+	Thu, 2 Nov 2006 10:19:29 -0500
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:1306 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1751344AbWKBPT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 10:19:28 -0500
+Message-ID: <454A0C7B.4080701@qumranet.com>
+Date: Thu, 02 Nov 2006 17:19:23 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Magnus Damm <magnus.damm@gmail.com>
+CC: "Hesse, Christian" <mail@earthworm.de>, kvm-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [ANNOUNCE] kvm howto
+References: <4549F1D5.8070509@qumranet.com>	 <200611021527.09664.mail@earthworm.de> <454A0165.7090009@qumranet.com> <aec7e5c30611020714qe6bcc41ucc789e3a2ca85c1f@mail.gmail.com>
+In-Reply-To: <aec7e5c30611020714qe6bcc41ucc789e3a2ca85c1f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Nov 2006 15:19:28.0146 (UTC) FILETIME=[49AE0720:01C6FE92]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2006 at 04:05:14PM +0100, Arjan van de Ven wrote:
-> > This snippet seems to tbe the culprit.
-> > +               if (blk_queue_stopped(h->gendisk[curr_queue]->queue) ||
-> > +                   blk_queue_plugged(h->gendisk[curr_queue]->queue))
-> > +                       blk_start_queue(h->gendisk[curr_queue]->queue);
-> > 
-> > We're testing to see if the queue is stopped or plugged so we don't
-> > try to start am already running queue. Without the blk_queue_plugged
-> > test it hangs every time. We added blk_queue_plugged and the first tests
-> > seem to run ok. Then at the last minute something broke. Does this look
-> > ok to you?
-> 
-> 
-> it looks like a design mistake to me if a device driver needs to care
-> about a queue being plugged at all....
+Magnus Damm wrote:
+>>
+>> You need a newer binutils.  I'm using binutils-2.16.91.0.6 (gotta love
+>> that version number), shipped with Fedora Core 5.
+>
+> The VT-extensions added by Intel and AMD only adds a limited number of
+> instructions each. If you want to be user friendly it might be a good
+> idea to implement these instructions as macros. I'm pretty sure
+> VT-extension support in Xen works with my old binutils version.
+>
 
-We getting hw soon that will support up to 1024 logical volumes. We thought
-the test would actually save time with many volumes. Maybe not.
+Yes, Xen uses macros.
 
-mikem
+I figured a newish machine will have a newish binutils.  Looks like I 
+was wrong.  I don't like uglifying the code, but if many users hit this, 
+there won't be much of a choice.
+
+[A minor problem with macros is that you can't let gcc choose the 
+registers for you with instructions that have operands]
+
+-- 
+error compiling committee.c: too many arguments to function
+

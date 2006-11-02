@@ -1,114 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752843AbWKBNwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752850AbWKBNy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752843AbWKBNwB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 08:52:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752334AbWKBNwB
+	id S1752850AbWKBNy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 08:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752880AbWKBNy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 08:52:01 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:21743 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1752330AbWKBNwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 08:52:00 -0500
-Subject: Re: [PATCH 001 of 6] md: Send online/offline uevents when an md
-	array starts/stops.
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Neil Brown <neilb@suse.de>
-Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <17737.58737.398441.111674@cse.unsw.edu.au>
-References: <20061031164814.4884.patches@notabene>
-	 <1061031060046.5034@suse.de> <20061031211615.GC21597@suse.de>
-	 <3ae72650611020413q797cf62co66f76b058a57104b@mail.gmail.com>
-	 <17737.58737.398441.111674@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Thu, 02 Nov 2006 14:51:56 +0100
-Message-Id: <1162475516.7210.32.camel@pim.off.vrfy.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4ddcc9dd12ba6cf3155e4d81b383efda
+	Thu, 2 Nov 2006 08:54:29 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:60893 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1752850AbWKBNy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 08:54:27 -0500
+X-Sasl-enc: Bu26rycjdlbZjz5m5k+7vzDw29cFGWlNuQj/TcmPXg2Z 1162475667
+Date: Thu, 2 Nov 2006 10:54:17 -0300
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: multinymous@gmail.com, xavier.bestel@free.fr, davidz@redhat.com,
+       Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061102135417.GC15184@khazad-dum.debian.net>
+References: <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <znLIYxER.1162453921.3011900.khali@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <znLIYxER.1162453921.3011900.khali@localhost>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-02 at 23:32 +1100, Neil Brown wrote:
-> On Thursday November 2, kay.sievers@vrfy.org wrote:
-> > On 10/31/06, Greg KH <gregkh@suse.de> wrote:
-> > > On Tue, Oct 31, 2006 at 05:00:46PM +1100, NeilBrown wrote:
-> > > > This allows udev to do something intelligent when an
-> > > > array becomes available.
-> > > >
-> > > Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > I don't agree with this, and asked several times to change this to
-> > "change" events, like device-mapper is doing it to address the same
-> > problem. Online/offline is not supported by udev/HAL and will not work
-> > as expected. Please fix this.
+On Thu, 02 Nov 2006, Jean Delvare wrote:
+> On 10/31/2006, man with no name wrote:
+> > In the case at hand we have mWh and mAh, which measure different
+> > physical quantities. You can't convert between them unless you have
+> > intimate knowledge of the battery's chemistry and condition, which we
+> > don't.
 > 
-> I don't remember who suggested "online/offline",
+> You just need to know the voltage of the battery, what else?
 
-It was probably the first version of the patch for device-mapper which
-we got into SLE10, but it changed to "change" in the upstream kernel,
-after we all met at OLS and talked about it.
+The error goes way up when you do such calculations.  Not that most battery
+hardware reports SBS Error margins right, but still...
 
-> and I don't remember
-> you suggesting "change", but my memory isn't what it used to be(*), so you
-> probably did.
+So doing conversions is not a good idea unless it is from Ah to Coulombs or
+something else like that which is an exact conversion.
 
-It was in the Czech Republic, but we got a few beers... :) And in the
-"virtual md devices" conversation.
+In ThinkPads, you just need to compare what the various "let's calculate it"
+applets say, and the output of tp_smapi (gets remanining time data directly
+from the hardware) to see which one is more accurate :-)  And the difference
+is often quite expressive.
 
-> Is there some document somewhere that explains exactly what each of
-> the kobject_actions are meant to mean and how they can be
-> interpreted?
-
-No, there isn't. The thing is, that "online/offline" need to be always
-symmetric in it's order. There can't be two "online" events without an
-"offline" event. We decided at OLS for the device-mapper events, that we
-can't be sure, that there will always be "online/offline" sequences and
-can't be sure to make them always match the right sequence. Therefore we
-decided to go for a simple "change", and let userspace find out the
-current state of the device if needed.
-
-> Anyway, I am happy to change it.  What exactly do you want?
-> KOBJ_CHANGE both when the array is activated and when it is
-> deactivated?  Or only when it is activated?
-
-We couldn't think of any use of an "offline" event. So we removed the
-event when the device-mapper device is suspended.
-
-> Should ONLINE and OFFLINE remain and CHANGE be added, or should they
-> go away?
-
-The current idea is to send only a "change" event if something happens
-that makes it necessary for udev to reinvestigate the device, like
-possible filesystem content that creates /dev/disk/by-* links.
-
-Finer grained device-monitoring is likely better placed by using the
-poll() infrastructure for a sysfs file, instead of sending pretty
-expensive uevents. 
-
-Udev only hooks into "change" and revalidates all current symlinks for
-the device. Udev can run programs on "online", but currently, it will
-not update any /dev/disk/by-* link, if the device changes its content.
-
-> If they remain, should CHANGE come before or after ONLINE (and
-> OFFLINE)?
-
-> I must admit that it feels more like an ONLINE/OFFLINE event than a
-> CHANGE event to me, but they are just words after all.
-
-Yeah, "online/offline" sounds nice, but it will get messy, if you have a
-case where you don't need to go offline, but still want to notify a
-change ... :)
-
-> What does udev/HAL do with ONLINE/OFFLINE?  Could it be changed to do
-> "the right thing" for ONLINE? (Not implying that it should be, just
-> wanting to understand as much of the picture as possible).
-
-Sure, it's just software, it definitely could be made to match on
-anything. It's just that "change" already works fine today. :)
-
-Thanks,
-Kay
-
-
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

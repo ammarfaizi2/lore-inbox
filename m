@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWKBKrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752451AbWKBKv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWKBKrG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 05:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752551AbWKBKrF
+	id S1752451AbWKBKv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 05:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752822AbWKBKv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 05:47:05 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:40343 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1751004AbWKBKrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 05:47:03 -0500
-Subject: [PATCH] bdev: fix ->bd_part_count leak
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Cc: Neil Brown <neilb@suse.de>
+	Thu, 2 Nov 2006 05:51:27 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:61341 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752451AbWKBKv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 05:51:26 -0500
+Subject: RE: Can Linux live without DMA zone?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Conke Hu <conke.hu@amd.com>
+Cc: Jun Sun <jsun@junsun.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <FFECF24D2A7F6D418B9511AF6F358602F2D5DF@shacnexch2.atitech.com>
+References: <FFECF24D2A7F6D418B9511AF6F358602F2D5DF@shacnexch2.atitech.com>
 Content-Type: text/plain
-Date: Thu, 02 Nov 2006 11:48:05 +0100
-Message-Id: <1162464485.27131.13.camel@taijtu>
+Organization: Intel International BV
+Date: Thu, 02 Nov 2006 11:51:22 +0100
+Message-Id: <1162464682.14530.21.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-11-02 at 18:33 +0800, Conke Hu wrote:
+> Most PCs do not have ISA or floppy, so maybe we could add an option to enable DMA zone or not.
+> 
 
-Don't leak a ->bd_part_count when the partition open fails with -ENXIO.
+please don't top-post. 
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- fs/block_dev.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Index: linux-2.6-mm/fs/block_dev.c
-===================================================================
---- linux-2.6-mm.orig/fs/block_dev.c
-+++ linux-2.6-mm/fs/block_dev.c
-@@ -907,6 +907,7 @@ EXPORT_SYMBOL(bd_set_size);
- 
- static int __blkdev_get(struct block_device *bdev, mode_t mode, unsigned flags,
- 			int for_part);
-+static int __blkdev_put(struct block_device *bdev, int for_part);
- 
- static int do_open(struct block_device *bdev, struct file *file, int for_part)
- {
-@@ -992,7 +993,7 @@ out_first:
- 	bdev->bd_disk = NULL;
- 	bdev->bd_inode->i_data.backing_dev_info = &default_backing_dev_info;
- 	if (bdev != bdev->bd_contains)
--		blkdev_put(bdev->bd_contains);
-+		__blkdev_put(bdev->bd_contains, 1);
- 	bdev->bd_contains = NULL;
- 	put_disk(disk);
- 	module_put(owner);
+also floppy is still there a lot unfortunately ... as are some of the
+more crappy soundcards. ZONE_DMA is a 32 bit linux thing; most modern
+systems are 64 bit capable now....
 
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

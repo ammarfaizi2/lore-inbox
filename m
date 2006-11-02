@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752646AbWKBEhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752649AbWKBEqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752646AbWKBEhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 23:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752647AbWKBEhY
+	id S1752649AbWKBEqg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 23:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752648AbWKBEqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 23:37:24 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:15083 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1752646AbWKBEhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 23:37:23 -0500
-Date: Wed, 1 Nov 2006 20:37:22 -0800 (PST)
-From: dean gaudet <dean@arctic.org>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org
-Subject: Re: [CRYPTO] Use aes hardware crypto device from userspace [Try #2]
-In-Reply-To: <20061031091126.37294.qmail@web23106.mail.ird.yahoo.com>
-Message-ID: <Pine.LNX.4.64.0611012035540.20059@twinlark.arctic.org>
-References: <20061031091126.37294.qmail@web23106.mail.ird.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Nov 2006 23:46:36 -0500
+Received: from colo.lackof.org ([198.49.126.79]:17324 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S1752441AbWKBEqf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 23:46:35 -0500
+Date: Wed, 1 Nov 2006 21:46:33 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-scsi@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: PCI Error Recovery: Symbios SCSI device driver
+Message-ID: <20061102044633.GB23840@colo.lackof.org>
+References: <20061020180510.GN6537@austin.ibm.com> <20061031185506.GE26964@parisc-linux.org> <20061031231334.GR6360@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061031231334.GR6360@austin.ibm.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2006, moreau francis wrote:
-
-> Hello,
+On Tue, Oct 31, 2006 at 05:13:34PM -0600, Linas Vepstas wrote:
+...
+> > Though, since INB and INW will return 0xff and 0xffff, why not use that
+> > as our test rather than using a counter?
 > 
-> I need to make AES ciphering in a userspace application. My platform
-> has an integrated crypto engine which is used by the kernel through
-> the core cryptographic API.
-> 
-> Is it possible to export easily this hardware to userspace just by writing
-> a dumb driver that would rely on the core crypto API ?  Are there any
-> races issues ?
+> Right. I wanted to avoid checking for specific values, 
+> as that vaguely seemed more robust; the direct check is easier.
 
-perhaps this is of interest:
+ISTR some chipsets return 0 or the most recent data on the bus
+when INB/INW master-abort.  Maybe this an ISA bus behavior?
 
-http://ocf-linux.sourceforge.net/
+Or is config space access the only space which behaves this way
+for master abort on PCI?
+I'm looking at drivers/pci/probe.c:pci_scan_device().
 
--dean
+thanks,
+grant

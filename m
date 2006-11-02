@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752603AbWKBA1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752616AbWKBA2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752603AbWKBA1y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 19:27:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752614AbWKBA1y
+	id S1752616AbWKBA2i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 19:28:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752614AbWKBA2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 19:27:54 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48806
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1752603AbWKBA1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 19:27:53 -0500
-Date: Wed, 01 Nov 2006 16:27:58 -0800 (PST)
-Message-Id: <20061101.162758.10298784.davem@davemloft.net>
-To: jesper.juhl@gmail.com
-Cc: linux-kernel@vger.kernel.org, jschlst@samba.org, acme@conectiva.com.br
-Subject: Re: [PATCH] LLC: Avoid potential NULL dereference in
- net/llc/af_llc.c::llc_ui_accept() .
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200611020121.53368.jesper.juhl@gmail.com>
-References: <200611020121.53368.jesper.juhl@gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 1 Nov 2006 19:28:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56195 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752616AbWKBA2h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 19:28:37 -0500
+Date: Wed, 1 Nov 2006 16:27:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Neil Horman" <nhorman@tuxdriver.com>,
+       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, maxk@qualcomm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [KJ][PATCH] Correct misc_register return code handling in
+ several drivers
+Message-Id: <20061101162727.72f1183b.akpm@osdl.org>
+In-Reply-To: <20061101161155.d7b30258.randy.dunlap@oracle.com>
+References: <20061023171910.GA23714@hmsreliant.homelinux.net>
+	<1161660875.10524.535.camel@localhost.localdomain>
+	<20061024125306.GA1608@hmsreliant.homelinux.net>
+	<1161729762.10524.660.camel@localhost.localdomain>
+	<20061101135619.GA3459@hmsreliant.homelinux.net>
+	<9a8748490611011605u55ccdcaeob99700d6e1a813a4@mail.gmail.com>
+	<20061101161155.d7b30258.randy.dunlap@oracle.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Date: Thu, 2 Nov 2006 01:21:53 +0100
+On Wed, 1 Nov 2006 16:11:55 -0800
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
 
-> Since skb_dequeue() may return NULL we risk dereferencing a NULL pointer at
->   if (!skb->sk)
-> This patch avoids that by also testing for a NULL skb.
+> > Hmm, I guess that should be defined once and for all in
+> > Documentation/CodingStyle
 > 
+> I have some other CodingStyle changes to submit, but feel free
+> to write this one up.
+
+Starting labels in column 2 gives me the creeps, personally.  But there's a
+decent justification for it.
+
+> However, I didn't know that we had a known style for this, other
+> than "not indented so far that it's hidden".
 > 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> If a label in column 0 [0-based :] confuses patch, then that's
+> a reason, I suppose.  I wasn't aware of that one...
+> In a case like that, we usually say "fix the tool then."
 
-It can't return NULL in this context because we just checked
-skb_queue_empty() with the socket lock held and llc_wait_data()
-will return zero only if skb_queue_empty() is false.
+The problem is that `diff -p' screws up and displays the label: in the
+place where it should be displaying the function name.
 
-I know it's hard for automated tools to see this, but it's not
-reasonable to put this extra check in there since it is
-superfluous due to the above mentioned invariants.
+Of course, lots of people forget the -p anyway...  Maybe we can fix those
+tools ;)

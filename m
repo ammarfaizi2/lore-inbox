@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752810AbWKBKdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752809AbWKBKdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752810AbWKBKdn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 05:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752811AbWKBKdm
+	id S1752809AbWKBKdd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 05:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752810AbWKBKdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 05:33:42 -0500
-Received: from postel.suug.ch ([194.88.212.233]:14778 "EHLO postel.suug.ch")
-	by vger.kernel.org with ESMTP id S1752810AbWKBKdl (ORCPT
+	Thu, 2 Nov 2006 05:33:33 -0500
+Received: from outbound-sin.frontbridge.com ([207.46.51.80]:35203 "EHLO
+	outbound2-sin-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1752809AbWKBKdc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 05:33:41 -0500
-Date: Thu, 2 Nov 2006 11:34:02 +0100
-From: Thomas Graf <tgraf@suug.ch>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] taskstats: factor out reply assembling
-Message-ID: <20061102103402.GH12964@postel.suug.ch>
-References: <20061101182611.GA447@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101182611.GA447@oleg>
+	Thu, 2 Nov 2006 05:33:32 -0500
+X-BigFish: V
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Can Linux live without DMA zone?
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Date: Thu, 2 Nov 2006 18:33:07 +0800
+Message-ID: <FFECF24D2A7F6D418B9511AF6F358602F2D5DF@shacnexch2.atitech.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Can Linux live without DMA zone?
+Thread-Index: Acb+X8QzRhWkOtZqSru5oAg7bjU8aQACkDeA
+From: "Conke Hu" <conke.hu@amd.com>
+To: "Arjan van de Ven" <arjan@infradead.org>, "Jun Sun" <jsun@junsun.net>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 Nov 2006 10:33:11.0812 (UTC) FILETIME=[4BC97440:01C6FE6A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Oleg Nesterov <oleg@tv-sign.ru> 2006-11-01 21:26
-> Introduce mk_reply() helper which does all nla_put()s on reply.
-> 
-> Saves 453 bytes and a preparation for the next patch.
-> 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
->  taskstats.c |   55 ++++++++++++++++++++++++++++---------------------------
->  1 files changed, 28 insertions(+), 27 deletions(-)
-> 
-> --- STATS/kernel/taskstats.c~5_factor	2006-10-31 16:33:56.000000000 +0300
-> +++ STATS/kernel/taskstats.c	2006-11-01 14:00:03.000000000 +0300
-> @@ -348,6 +348,25 @@ static int parse(struct nlattr *na, cpum
->  	return ret;
->  }
->  
-> +static int mk_reply(struct sk_buff *skb, int type, u32 pid, struct taskstats *stats)
-> +{
-> +	struct nlattr *na;
-> +	int aggr;
-> +
-> +	aggr = TASKSTATS_TYPE_AGGR_TGID;
-> +	if (type == TASKSTATS_TYPE_PID)
-> +		aggr = TASKSTATS_TYPE_AGGR_PID;
-> +
-> +	na = nla_nest_start(skb, aggr);
-> +	NLA_PUT_U32(skb, type, pid);
-> +	NLA_PUT_TYPE(skb, struct taskstats, TASKSTATS_TYPE_STATS, *stats);
-> +	nla_nest_end(skb, na);
-> +
-> +	return 0;
-> +nla_put_failure:
-> +	return -1;
-> +}
+Most PCs do not have ISA or floppy, so maybe we could add an option to enable DMA zone or not.
 
-nla_nest_start() may return NULL, either rely on prepare_reply() to be
-correct and BUG() on failure or do proper error handling for all
-functions.
+Best regards,
+Conke @ AMD, Inc.
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Arjan van de Ven
+Sent: 2006Äê11ÔÂ2ÈÕ 17:16
+To: Jun Sun
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can Linux live without DMA zone?
+
+On Wed, 2006-11-01 at 18:15 -0800, Jun Sun wrote:
+> I am trying to reserve a block of memory (>16MB) starting from 0 and hide it 
+> from kernel.  A consequence is that DMA zone now has size 0.  That causes
+> many drivers to grief (OOMs).
+> 
+> I see two ways out:
+> 
+> 1. Modify individual drivers and convince them not to alloc with GFP_DMA.
+>    I have been trying to do this but do not seem to see an end of it.  :)
+> 
+> 2. Simply lie and increase MAX_DMA_ADDRESS to really big (like 1GB) so that
+>    the whole memory region belongs to DMA zone.
+> 
+> #2 sounds pretty hackish.  I am sure something bad will happen
+> sooner or later (like what?). But so far it appears to be working fine.
+> 
+> The fundamental question is: Has anybody tried to run Linux without 0 sized
+> DMA zone before?  Am I doing something that nobody has done before (which is
+> something really hard to believe these days with Linux :P)?
+
+on a PC there are still devices that need memory in the lower 16Mb.....
+(like floppy)
+
+Maybe you should reserve another area of memory instead!
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
 

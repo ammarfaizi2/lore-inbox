@@ -1,81 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWKBO3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWKBOcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWKBO3a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 09:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWKBO3a
+	id S1750864AbWKBOcP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 09:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWKBOcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 09:29:30 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:31163 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750821AbWKBO33 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 09:29:29 -0500
-Date: Thu, 2 Nov 2006 09:28:12 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
-       Andi Kleen <ak@muc.de>, magnus.damm@gmail.com, fastboot@lists.osdl.org
-Subject: Re: [PATCH] x86_64: setup saved_max_pfn correctly (kdump)
-Message-ID: <20061102142812.GB8074@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061102131934.24684.93195.sendpatchset@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061102131934.24684.93195.sendpatchset@localhost>
-User-Agent: Mutt/1.5.11
+	Thu, 2 Nov 2006 09:32:15 -0500
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:63812 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1750838AbWKBOcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 09:32:14 -0500
+Message-ID: <454A0165.7090009@qumranet.com>
+Date: Thu, 02 Nov 2006 16:32:05 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: "Hesse, Christian" <mail@earthworm.de>
+CC: kvm-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [ANNOUNCE] kvm howto
+References: <4549F1D5.8070509@qumranet.com> <200611021527.09664.mail@earthworm.de>
+In-Reply-To: <200611021527.09664.mail@earthworm.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Nov 2006 14:32:10.0154 (UTC) FILETIME=[AE1AD0A0:01C6FE8B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2006 at 10:19:34PM +0900, Magnus Damm wrote:
-> x86_64: setup saved_max_pfn correctly
-> 
-> 2.6.19-rc4 has broken CONFIG_CRASH_DUMP support on x86_64. It is impossible 
-> to read out the kernel contents from /proc/vmcore because saved_max_pfn is set
-> to zero instead of the max_pfn value before the user map is setup.
-> 
-> This happens because saved_max_pfn is initialized at parse_early_param() time,
-> and at this time no active regions have been registered. save_max_pfn is setup
-> from e820_end_of_ram(), more exact find_max_pfn_with_active_regions() which
-> returns 0 because no regions exist.
-> 
-> This patch fixes this by registering before and removing after the call
-> to e820_end_of_ram().
-> 
-> Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
-> ---
-> 
->  Applies to 2.6.19-rc4.
-> 
->  arch/x86_64/kernel/e820.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> --- 0002/arch/x86_64/kernel/e820.c
-> +++ work/arch/x86_64/kernel/e820.c	2006-11-02 21:37:19.000000000 +0900
-> @@ -594,7 +594,9 @@ static int __init parse_memmap_opt(char 
->  		 * size before original memory map is
->  		 * reset.
->  		 */
-> +		e820_register_active_regions(0, 0, -1UL);
->  		saved_max_pfn = e820_end_of_ram();
-> +		remove_all_active_ranges();
->  #endif
->  		end_pfn_map = 0;
->  		e820.nr_map = 0;
+Hesse, Christian wrote:
+> On Thursday 02 November 2006 14:25, Avi Kivity wrote:
+>   
+>> I've just uploaded a HOWTO to http://kvm.sourceforge.net, including
+>> (hopefuly) everything needed to get kvm running.  Please take a look and
+>> comment.
+>>     
+>
+>   CC [M]  /tmp/kvm-module/kvm_main.o
+> {standard input}: Assembler messages:
+> {standard input}:168: Error: no such instruction: `vmxon 16(%esp)'
+> {standard input}:182: Error: no such instruction: `vmxoff'
+> {standard input}:192: Error: no such instruction: `vmread %eax,%eax'
+> {standard input}:415: Error: no such instruction: `vmwrite %ebx,%esi'
+> {standard input}:1103: Error: no such instruction: `vmclear 16(%esp)'
+> {standard input}:1676: Error: no such instruction: `vmptrld 16(%esp)'
+> {standard input}:4107: Error: no such instruction: `vmwrite %esp,%eax'
+> {standard input}:4119: Error: no such instruction: `vmlaunch '
+> {standard input}:4121: Error: no such instruction: `vmresume '
+>
+> I get a number of errors compiling the module. No difference between the 
+> downloaded tarball and my patched kernel tree. Any hints?
+>   
 
-This looks fine to me for the time being.
+You need a newer binutils.  I'm using binutils-2.16.91.0.6 (gotta love 
+that version number), shipped with Fedora Core 5.
 
-Down the line I am thinking that how about passing saved_max_pfn as
-command line parameter. I think that way we don't have to pass all the
-memmap= options to second kernel and kexec-tools can pass the memory map
-through parameter segment. This memory map can be modified to represent
-only the memory which can be used by second kernel and not the whole of
-the memory.
+I'll update the howto to reflect this.
 
-I think this will simplify the logic and also save us precious comand
-line in second kernel for kdump purposes.
+-- 
+error compiling committee.c: too many arguments to function
 
-Thanks
-Vivek
- 
-
-  

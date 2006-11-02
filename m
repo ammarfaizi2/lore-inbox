@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752762AbWKBJNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752764AbWKBJQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752762AbWKBJNP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 04:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752763AbWKBJNP
+	id S1752764AbWKBJQR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 04:16:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752766AbWKBJQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 04:13:15 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:32871 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1752762AbWKBJNO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 04:13:14 -0500
-Message-ID: <4549B5A3.2010908@openvz.org>
-Date: Thu, 02 Nov 2006 12:08:51 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Paul Menage <menage@google.com>
-CC: Matt Helsley <matthltc@us.ibm.com>, vatsa@in.ibm.com,
-       Pavel Emelianov <xemul@openvz.org>, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, pj@sgi.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-References: <20061030103356.GA16833@in.ibm.com> <45486925.4000201@openvz.org>	 <20061101181236.GC22976@in.ibm.com>	 <1162419565.12419.154.camel@localhost.localdomain> <6599ad830611011550m69876b1ase3579167903a7cd7@mail.gmail.com>
-In-Reply-To: <6599ad830611011550m69876b1ase3579167903a7cd7@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 2 Nov 2006 04:16:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15520 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752764AbWKBJQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 04:16:15 -0500
+Subject: Re: Can Linux live without DMA zone?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jun Sun <jsun@junsun.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061102021547.GA1240@srv.junsun.net>
+References: <20061102021547.GA1240@srv.junsun.net>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 02 Nov 2006 10:16:11 +0100
+Message-Id: <1162458971.14530.14.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snip]
-
-> I think that having a "tasks" file and a "threads" file in each
-> container directory would be a clean way to handle it:
+On Wed, 2006-11-01 at 18:15 -0800, Jun Sun wrote:
+> I am trying to reserve a block of memory (>16MB) starting from 0 and hide it 
+> from kernel.  A consequence is that DMA zone now has size 0.  That causes
+> many drivers to grief (OOMs).
 > 
-> "tasks" : read/write complete process members
-> "threads" : read/write individual thread members
-
-I've just thought of it.
-
-Beancounter may have more than 409 tasks, while configfs
-doesn't allow attributes to store more than PAGE_SIZE bytes
-on read. So how would you fill so many tasks in one page?
-
-I like the idea of writing pids/tids to these files, but
-printing them back is not that easy.
-
+> I see two ways out:
 > 
-> Paul
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 1. Modify individual drivers and convince them not to alloc with GFP_DMA.
+>    I have been trying to do this but do not seem to see an end of it.  :)
 > 
+> 2. Simply lie and increase MAX_DMA_ADDRESS to really big (like 1GB) so that
+>    the whole memory region belongs to DMA zone.
+> 
+> #2 sounds pretty hackish.  I am sure something bad will happen
+> sooner or later (like what?). But so far it appears to be working fine.
+> 
+> The fundamental question is: Has anybody tried to run Linux without 0 sized
+> DMA zone before?  Am I doing something that nobody has done before (which is
+> something really hard to believe these days with Linux :P)?
+
+on a PC there are still devices that need memory in the lower 16Mb.....
+(like floppy)
+
+Maybe you should reserve another area of memory instead!
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

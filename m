@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751894AbWKBHlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752712AbWKBHoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751894AbWKBHlA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 02:41:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752707AbWKBHlA
+	id S1752712AbWKBHoY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 02:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752713AbWKBHoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 02:41:00 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:5017 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751894AbWKBHk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 02:40:59 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=L0OrE2w7YJGavJ9cHAVJRx1RgrE+3n6NMarCbkSKY5OSGf5rFyUTbSWjFWzgjfwz4
-	SKCCDmbRoo4seVZh1osmA==
-Message-ID: <6599ad830611012340s45323480w63c1d131eb75ae19@mail.gmail.com>
-Date: Wed, 1 Nov 2006 23:40:43 -0800
-From: "Paul Menage" <menage@google.com>
-To: "Chris Friesen" <cfriesen@nortel.com>
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com, devel@openvz.org
-In-Reply-To: <454965E5.7090005@nortel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061030103356.GA16833@in.ibm.com>
-	 <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
-	 <20061101173356.GA18182@in.ibm.com> <45490F0D.7000804@nortel.com>
-	 <6599ad830611011548h4c0273c0xc5a653ea8726a692@mail.gmail.com>
-	 <454965E5.7090005@nortel.com>
+	Thu, 2 Nov 2006 02:44:24 -0500
+Received: from main.gmane.org ([80.91.229.2]:38635 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1752712AbWKBHoX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 02:44:23 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for paravirtualizing critical operations
+Date: Thu, 2 Nov 2006 07:44:03 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnekj8qv.2in.olecom@flower.upol.cz>
+References: <20061029024504.760769000@sous-sol.org> <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de> <1162178936.9802.34.camel@localhost.localdomain> <20061030231132.GA98768@muc.de> <1162376827.23462.5.camel@localhost.localdomain> <20061101231313.4c91a9a9.akpm@osdl.org>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org
+User-Agent: slrn/0.9.8.1pl1 (Debian)
+Cc: virtualization@lists.osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/06, Chris Friesen <cfriesen@nortel.com> wrote:
-> Paul Menage wrote:
+On 2006-11-02, Andrew Morton wrote:
+> This patch breaks `make headers_check' in mysterious ways:
 >
-> > The framework should be flexible enough to let controllers register
-> > any control parameters (via the filesystem?) that they need, but it
-> > shouldn't contain explicit concepts like guarantees and limits.
->
-> If the framework was able to handle arbitrary control parameters, that
-> would certainly be interesting.
->
-> Presumably there would be some way for the controllers to be called from
-> the framework to validate those parameters?
+>   CHECK   include/linux/netfilter_ipv4/ip_conntrack_tcp.h
+>   CHECK   include/linux/netfilter_ipv4/ip_conntrack_sctp.h
+>   CHECK   include/linux/netfilter_ipv4/ip_conntrack_protocol.h
+>   CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper_h323_types.h
+>   CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper_h323_asn1.h
+>   CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper.h
+> make[2]: *** [/usr/src/devel/usr/include/asm/.check.setup.h] Error 1
+> make[2]: *** Waiting for unfinished jobs....
+> make[1]: *** [asm-i386] Error 2
+> make[1]: *** Waiting for unfinished jobs....
+> make: *** [headers_check] Error 2
 
-The approach that I had in mind was that each controller could
-register what ever control files it wanted, which would appear in the
-filesystem directories for each container; reads and writes on those
-files would invoke handlers in the controller. The framework wouldn't
-care about the semantics of those control files. See the containers
-patch that I posted last month for some examples of this.
+It seems like missing
+"header-y += paravirt.h" in the "include/asm-i386/Kbuild".
+____
 
-Paul

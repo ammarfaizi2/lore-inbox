@@ -1,95 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752622AbWKBBIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWKBBJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752622AbWKBBIe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 20:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752624AbWKBBIe
+	id S1751317AbWKBBJB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 20:09:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422879AbWKBBJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 20:08:34 -0500
-Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:45270
-	"HELO smtpout04-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1752622AbWKBBId (ORCPT
+	Wed, 1 Nov 2006 20:09:01 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:62410 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752623AbWKBBJA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 20:08:33 -0500
-Message-ID: <4549450F.3080207@seclark.us>
-Date: Wed, 01 Nov 2006 20:08:31 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Wed, 1 Nov 2006 20:09:00 -0500
+Date: Wed, 1 Nov 2006 19:08:54 -0600
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 1/2 v2]: Renumber PCI error enums to start at zero
+Message-ID: <20061102010854.GA3623@austin.ibm.com>
+References: <20061101235417.GV6360@austin.ibm.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Alexey Dobriyan <adobriyan@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: fc6 kernel 2.6.18-1.2798 breaks acpi on HP laptop n5430
-References: <4548DDF4.2030903@seclark.us> <20061101201218.GA4899@martell.zuzino.mipt.ru> <45490EFE.1060608@seclark.us> <20061101235546.GB10577@redhat.com>
-In-Reply-To: <20061101235546.GB10577@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061101235417.GV6360@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Wed, Nov 01, 2006 at 05:54:17PM -0600, Linas Vepstas wrote:
+[...] 
+Fix brain-disengaged error.
 
->On Wed, Nov 01, 2006 at 04:17:50PM -0500, Stephen Clark wrote:
->
-> > BIOS-provided physical RAM map:
-> >  BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
-> >  BIOS-e820: 000000000009f000 - 0000000000100000 (reserved)
-> >  BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
-> >  BIOS-e820: 000000001fff0000 - 000000001ffff000 (ACPI data)
-> >  BIOS-e820: 000000001ffff000 - 0000000020000000 (ACPI NVS)
-> >  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-> > 0MB HIGHMEM available.
-> > 511MB LOWMEM available.
-> > Using x86 segment limits to approximate NX protection
-> > DMI 2.2 present.
-> > Using APIC driver default
-> > ACPI: PM-Timer IO Port: 0x8008
-> > Allocating PCI resources starting at 30000000 (gap: 20000000:dff80000)
-> > Detected 850.075 MHz processor.
-> > Built 1 zonelists.  Total pages: 131056
-> > Kernel command line: ro root=/dev/VolGroup00/LogVol00 lapic nousb 
-> > console=ttyS0,38400
-> > Local APIC disabled by BIOS -- reenabling.
-> > Found and enabled local APIC!
->
->Does it make a difference if you boot with nolapic ?
->
->	Dave
->
->  
->
-Hi Dave,
+Greg,
 
-booting without lapic allowed it to boot but now I get
-...
-Local APIC disabled by BIOS -- you can enable it with "lapic"
-...
-Local APIC not detected. Using dummy APIC emulation.
-  which means more processor overhead - right?
+This is a low-prioriity patch to fix an annoying numbering mistake. 
+Please apply this (and the next patch) at net convenience.
 
-also cpuspeed doesn't work anymore - I don't have a cpufreq dir
+--linas
 
-I don't get the following messages with kernel 2798
- powernow: PowerNOW! Technology present. Can scale: frequency and voltage.
-Nov  1 19:33:34 joker4 kernel: powernow: SGTC: 10000
-Nov  1 19:33:34 joker4 kernel: powernow: Minimum speed 300 MHz. Maximum 
-speed 850 M
-Hz.
-Nov  1 19:33:34 joker4 kernel: powernow-k8: Processor cpuid 670 not 
-supported
+Subject: [PATCH 1/2]: Renumber PCI error enums to start at zero
 
-Steve
+Renumber the PCI error enums to start at zero for "normal/online".
+This allows un-initialized pci channel state (which defaults to zero)
+to be interpreted as "normal".  Add very simple routine to check
+state, just in case this ever has to be fiddled with again.
 
+Signed-off-by: Linas Vepstas <linas@linas.org>
 
+----
+ include/linux/pci.h |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
--- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+Index: linux-2.6.19-rc4-git3/include/linux/pci.h
+===================================================================
+--- linux-2.6.19-rc4-git3.orig/include/linux/pci.h	2006-11-01 16:15:49.000000000 -0600
++++ linux-2.6.19-rc4-git3/include/linux/pci.h	2006-11-01 18:43:14.000000000 -0600
+@@ -86,13 +86,13 @@ typedef unsigned int __bitwise pci_chann
+ 
+ enum pci_channel_state {
+ 	/* I/O channel is in normal state */
+-	pci_channel_io_normal = (__force pci_channel_state_t) 1,
++	pci_channel_io_normal = (__force pci_channel_state_t) 0,
+ 
+ 	/* I/O to channel is blocked */
+-	pci_channel_io_frozen = (__force pci_channel_state_t) 2,
++	pci_channel_io_frozen = (__force pci_channel_state_t) 1,
+ 
+ 	/* PCI card is dead */
+-	pci_channel_io_perm_failure = (__force pci_channel_state_t) 3,
++	pci_channel_io_perm_failure = (__force pci_channel_state_t) 2,
+ };
+ 
+ typedef unsigned short __bitwise pci_bus_flags_t;
+@@ -180,6 +180,11 @@ struct pci_dev {
+ #define	to_pci_dev(n) container_of(n, struct pci_dev, dev)
+ #define for_each_pci_dev(d) while ((d = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
+ 
++static inline int pci_channel_offline(struct pci_dev *pdev)
++{
++	return (pdev->error_state != pci_channel_io_normal);
++}
++
+ static inline struct pci_cap_saved_state *pci_find_saved_cap(
+ 	struct pci_dev *pci_dev,char cap)
+ {

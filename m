@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWKBSrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752254AbWKBTFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbWKBSrD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 13:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752033AbWKBSrD
+	id S1752254AbWKBTFL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 14:05:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752256AbWKBTFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 13:47:03 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:32394 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751370AbWKBSrB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 13:47:01 -0500
-Date: Fri, 3 Nov 2006 00:16:37 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Gautham Shenoy <ego@in.ibm.com>
-Subject: Re: Remove hotplug cpu crap from cpufreq.
-Message-ID: <20061102184637.GA23489@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20061101225925.GA17363@redhat.com> <Pine.LNX.4.64.0611011507480.25218@g5.osdl.org> <20061101233250.GA17706@redhat.com>
+	Thu, 2 Nov 2006 14:05:11 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:28182 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1752254AbWKBTFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 14:05:09 -0500
+Date: Thu, 2 Nov 2006 20:07:01 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>, tytso@mit.edu
+Subject: Re: [PATCH] splice : Must fully check for fifos
+Message-ID: <20061102190700.GQ13555@kernel.dk>
+References: <1162199005.24143.169.camel@taijtu> <200610311151.33104.dada1@cosmosbay.com> <200611021802.28519.dada1@cosmosbay.com> <200611021805.07962.dada1@cosmosbay.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061101233250.GA17706@redhat.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200611021805.07962.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
-
-On Wed, Nov 01, 2006 at 06:32:50PM -0500, Dave Jones wrote:
-> On Wed, Nov 01, 2006 at 03:09:52PM -0800, Linus Torvalds wrote:
+On Thu, Nov 02 2006, Eric Dumazet wrote:
+> With the patch this time :( Sorry guys
 > 
->  > Hmm. People _have_ given a damn, and I think you were even cc'd.
+> Hi Andrew
 > 
-> You're right. In my defense, that stuff arrived the day I went
-> on vacation for two weeks, and I subsequently forgot all about it.
-> Looking back over that thread though, a few people seemed to pick a
-> number of holes in the patches, and there are some real gems in that
-> thread like.
-
-Have you looked at this patchset - http://lkml.org/lkml/2006/10/26/65 ?
-This is the latest patchset posted last week and I haven't seen any 
-comments on it.
-
->  > Really, the hotplug locking rules are fairly simple-
->  > 
->  > 1. If you are in cpu hotplug callback path, don't take any lock.
+> I think this patch is necessary. It's quite easy to crash a 2.6.19-rc4 box :(
 > 
-> Which is just great, as afair, the cpufreq locks were there _before_
-> someone liberally sprinkled lock_cpu_hotplug() everywhere.
-
-This one has a major *cleanup* of cpufreq code including removel
-of unncessary lock_cpu_hotplug() from cpufreq.
-
+> AFAIK the problem come from inode-diet (by Theodore Ts'o, (2006/Sep/27))
 > 
-> From what I can tell from looking at that thread back in August,
-> it went on for a while with a number of people picking holes in the
-> proposed patches, but there wasn't any reposted after that, and
-> certainly nothing that ended up in -mm.
+> Thank you
 > 
-> _something_ needs to be done. If someone wants to fix it, great, but
-> until we see something mergable, we're left in this half-assed state
-> which is freaking people out.
+> [PATCH] splice : Must fully check for FIFO
+> 
+> It appears that i_pipe, i_cdev and i_bdev share the same memory location 
+> (anonymous union in struct inode) since commits 
+> 577c4eb09d1034d0739e3135fd2cff50588024be
+> eaf796e7ef6014f208c409b2b14fddcfaafe7e3a
+> 
+> Because of that, testing i_pipe being NULL is not anymore sufficient
+> to tell if an inode is a FIFO or not.
+> 
+> Therefore, we must use the S_ISFIFO(inode->i_mode) test before
+> assuming i_pipe pointer is pointing to a struct pipe_inode_info.
 
-There are two approaches - Implicit hotplug callback order-based locking
-as Andrew has done or keep the current cpu hotplug "lock" semantics
-and just use a better lock (RCU-based) with cpu-local access in
-the fast path. Gautham's patchset does the latter. lock_cpu_hotplug() is 
-a misnomer, we should probably use get_cpu_hotplug() and 
-put_cpu_hotplug() there.
+Indeed, the inode slimming introduced this bug. I'll queue up a test run
+of things and send it upstream, thanks for catching this.
 
-Thanks
-Dipankar
+-- 
+Jens Axboe
+

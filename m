@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752588AbWKBUQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752617AbWKBUSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752588AbWKBUQw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 15:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752608AbWKBUQw
+	id S1752617AbWKBUSo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 15:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752618AbWKBUSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 15:16:52 -0500
-Received: from pasmtpa.tele.dk ([80.160.77.114]:52401 "EHLO pasmtpA.tele.dk")
-	by vger.kernel.org with ESMTP id S1752588AbWKBUQv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 15:16:51 -0500
-Date: Thu, 2 Nov 2006 21:16:50 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>,
-       Jesper Juhl <jesper.juhl@gmail.com>, trivial@kernel.org
-Subject: Re: [patch] make the Makefile mostly stay within col 80
-Message-ID: <20061102201650.GA9237@uranus.ravnborg.org>
-References: <200611020047.53658.jesper.juhl@gmail.com> <slrnekj6ps.2in.olecom@flower.upol.cz>
+	Thu, 2 Nov 2006 15:18:43 -0500
+Received: from smtp-out02.alice.it ([85.33.2.6]:56330 "EHLO
+	smtp-out02.alice.it") by vger.kernel.org with ESMTP
+	id S1752617AbWKBUSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 15:18:43 -0500
+Date: Thu, 2 Nov 2006 21:16:09 +0100
+From: Giuliano Pochini <pochini@shiny.it>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: rientjes@cs.washington.edu, linux-kernel@vger.kernel.org, tiwai@suse.de,
+       jesper.juhl@gmail.com
+Subject: Re: [PATCH] Fix potential NULL pointer dereference in echoaudio
+ midi.
+Message-Id: <20061102211609.7263ef9c.pochini@shiny.it>
+In-Reply-To: <200610312326.31526.jesper.juhl@gmail.com>
+References: <200610312221.41089.jesper.juhl@gmail.com>
+	<Pine.LNX.4.64N.0610311411000.2572@attu4.cs.washington.edu>
+	<200610312326.31526.jesper.juhl@gmail.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrnekj6ps.2in.olecom@flower.upol.cz>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Nov 2006 20:18:38.0394 (UTC) FILETIME=[14DC81A0:01C6FEBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2006 at 07:16:12AM +0000, Oleg Verych wrote:
-> 
-> On 2006-11-01, Jesper Juhl wrote:
-> > Trivial little thing really. 
-> > Try to make most of the Makefile obey the 80 column width rule.
-> 
-> I'm already working on it. I did a lot more stuff, but currently i'm
-> stuck with very first patch, i've tried to push to mister Andrew:
-> <http://marc.theaimsgroup.com/?l=linux-mm-commits&m=116198944205036&w=2>
-> 
-> As i'm using emacs, i cann't revert this open/save/close patch every
-> time. If someone with RH-based distro is willing to help, i'll be glad.
-> Version of make is Red Hat make-3.80-10.2.
-> 
-> Also, i want Sam Ravnborg to comment on that effort (e-mail added). Thanks.
+On Tue, 31 Oct 2006 23:26:31 +0100
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
 
-Most of the time I spent on Linux development is in a 80xsomething so
-I support the effort to make it fit into 80 coloumn.
-But only if done sensible and not as a hard rule. Some stuff really
-is less readable if it is adjusted to fit into a 80 coloumn.
+> On Tuesday 31 October 2006 23:13, David Rientjes wrote:
+> > On Tue, 31 Oct 2006, Jesper Juhl wrote:
+> > 
+> > > In sound/pci/echoaudio/midi.c::snd_echo_midi_output_write(), there's a risk
+> > > of dereferencing a NULL 'chip->midi_out'.
+> > > This patch contains the obvious fix as also used a bit higher up in the 
+> > > same function.
+> > > 
+> > 
+> > How about just adding an early test:
+> > 	if (!chip->midi_out)
+> > 		goto out;
 
-I do not support tabifying the Makefiles. In a makefile <tab> has
-a special interpretation and the rule of thumb is:
 
-1) Use tab to indent commands as make requires it
-2) Commands spanning more than one line may be indented with tabs.
+The point of that check is to make sure is doesn't access chip->midi_out
+when (surprise!) it is NULL. This can only happen in the rare (possible?)
+case snd_echo_midi_output_close() is called while the timer handler is
+running. I have another proposal which IMHO is smp-safer that just moving
+the check. In that case we should also put a spinlock around the
+chip->midi_out=0 in the snd_echo_midi_output_close() callback.
 
-Avoid tabs in all other places.
 
-This is not the same ruleset as used in the .c source but the difference
-here is that an assignment is not turned into a command in .c code
-just because it is prefixed by a tab.
+Signed-off-by: Giuliano Pochini <pochini@shiny.it>
 
-At present I'm fed up with day time job that is almost around the clock
-time job. It will take a month before I will be active in kbuild area
-again so please be patient. If something really urgent shows up I
-can act - but just not much time to do so in.
+--- alsa-kernel/pci/echoaudio/midi.c__orig	2006-11-02 20:39:45.000000000 +0100
++++ alsa-kernel/pci/echoaudio/midi.c	2006-11-02 20:44:22.000000000 +0100
+@@ -213,7 +213,7 @@ static void snd_echo_midi_output_write(u
+ 	sent = bytes = 0;
+ 	spin_lock_irqsave(&chip->lock, flags);
+ 	chip->midi_full = 0;
+-	if (chip->midi_out && !snd_rawmidi_transmit_empty(chip->midi_out)) {
++	if (!snd_rawmidi_transmit_empty(chip->midi_out)) {
+ 		bytes = snd_rawmidi_transmit_peek(chip->midi_out, buf,
+ 						  MIDI_OUT_BUFFER_SIZE - 1);
+ 		DE_MID(("Try to send %d bytes...\n", bytes));
+@@ -264,9 +264,11 @@ static void snd_echo_midi_output_trigger
+ 		}
+ 	} else {
+ 		if (chip->tinuse) {
+-			del_timer(&chip->timer);
+ 			chip->tinuse = 0;
++			spin_unlock_irq(&chip->lock);
++			del_timer_sync(&chip->timer);
+ 			DE_MID(("Timer removed\n"));
++			return;
+ 		}
+ 	}
+ 	spin_unlock_irq(&chip->lock);
 
-	Sam
 
+--
+Giuliano.

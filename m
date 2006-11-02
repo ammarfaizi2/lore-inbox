@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752283AbWKBTNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752317AbWKBTTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752283AbWKBTNR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 14:13:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752292AbWKBTNR
+	id S1752317AbWKBTTz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 14:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752320AbWKBTTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 14:13:17 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41609 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752283AbWKBTNQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 14:13:16 -0500
-Date: Thu, 2 Nov 2006 11:13:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Miguel Ojeda" <maxextreme@gmail.com>
-Cc: Franck <vagabon.xyz@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH update6] drivers: add LCD support
-Message-Id: <20061102111311.1b2648c3.akpm@osdl.org>
-In-Reply-To: <653402b90611020644m57dac018r443fc91bccf6db0c@mail.gmail.com>
-References: <20061101014057.454c4f43.maxextreme@gmail.com>
-	<4549B19C.70304@innova-card.com>
-	<653402b90611020544l6e5ded94hc4c932fc1442fcb0@mail.gmail.com>
-	<454A0006.4090505@innova-card.com>
-	<653402b90611020644m57dac018r443fc91bccf6db0c@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 2 Nov 2006 14:19:55 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:19380 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1752310AbWKBTTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 14:19:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=cVTx/qANuEsYAn7mrgOygyPU7zfzahu95PZhCC7vodPxhRf4louV/aI80wsdqoWlvuUkNWD1I6KqnT9oF/hEImRLn+DvzqtLXTCrCuZXfeTtwbg6ejXY1aK+YLY9tm6yJQCMavY20P4IQz0LJ4tU4vJT6ierWNtmS5iWvy3Uxd4=
+Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
+From: Richard Hughes <hughsient@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
+       Shem Multinymous <multinymous@gmail.com>,
+       David Zeuthen <davidz@redhat.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>, Jean Delvare <khali@linux-fr.org>
+In-Reply-To: <454A2FC2.4060107@tmr.com>
+References: <41840b750610251639t637cd590w1605d5fc8e10cd4d@mail.gmail.com>
+	 <1162037754.19446.502.camel@pmac.infradead.org>
+	 <1162041726.16799.1.camel@hughsie-laptop>
+	 <1162048148.2723.61.camel@zelda.fubar.dk>
+	 <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com>
+	 <20061031074946.GA7906@kroah.com>
+	 <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com>
+	 <20061101193134.GB29929@kroah.com>
+	 <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com>
+	 <20061101205330.GA2593@kroah.com>
+	 <20061101235540.GA11581@khazad-dum.debian.net>  <454A2FC2.4060107@tmr.com>
+Content-Type: text/plain
+Date: Thu, 02 Nov 2006 19:19:50 +0000
+Message-Id: <1162495190.15948.29.camel@hughsie-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2006 14:44:56 +0000
-"Miguel Ojeda" <maxextreme@gmail.com> wrote:
+On Thu, 2006-11-02 at 12:49 -0500, Bill Davidsen wrote:
+> And given that laptop 
+> batteries run at (almost) constant voltage 
 
-> > Sorry for the short/fast question. I'm wondering how does the cache
-> > behave here. You have 2 virtual addresses that point to the same
-> > location in physical RAM: kernel frame buffer which has a kernel
-> > virtual address and the vma you're returning when an application mmap
-> > the device. This last address is a user virtual address and is
-> > different from the first one.
-> >
-> > Now let's say that some of the kernel frame buffer data are in the
-> > data cache and never be invalidate during this example. The
-> 
-> Sorry, I don't understand what do you mean with this sentence.
+No, they really don't.
 
-Some CPU architectures experience what Documentation/cachetlb.txt calls
-"virtual aliasing in the data cache".
+Richard.
 
-If you map the same physical page at virtual address A1 and also at another
-virtual address A2 then writes to address A1 do not necessarily appear
-correctly at address A2.  This because the write to A1 is stuck in the CPU
-cache and the CPU hardware doesn't know that read from A2 is accessing the
-same page.
-
-The solutions to this are:
-
-a) add lots of flushing everywhere (see Documentation/cachetlb.txt, I
-   guess) (this documentation is maddening: it uses the term "flush" for
-   both writeback and for invalidation.  In this context,
-   flush==writeback).
-
-b) If you select the correct virtual addresses for A1 and A2 (ie: ensure
-   that the mmap() handler returns an address which correlates with the
-   page's kernel address) then apparently the aliasing goes away.
-
-   So, for example, if the kernel's view of the page is at 0xd0102000
-   then you make sure that userspace's address for the page is at
-   0xnnn02000 (for some length of nnn).
-
-   I don't know what the mmap handler has to do to arrange for this to
-   happen.
-
-c) add `depends on x86' to your Kconfig ;)
-
-
-davem and rmk are (amongst others) the guys for this stuff.  afaik it isn't
-documented anywhere.
 

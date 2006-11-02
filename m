@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751848AbWKBQXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWKBQX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751848AbWKBQXT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 11:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751907AbWKBQXT
+	id S1751931AbWKBQX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 11:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751957AbWKBQX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 11:23:19 -0500
-Received: from mx1.suse.de ([195.135.220.2]:52389 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751848AbWKBQXS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 11:23:18 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE Linux
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Fix user.* xattr permission check for sticky dirs
-Date: Thu, 2 Nov 2006 17:24:02 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Gerard Neil <xyzzy@devferret.org>,
-       Dave Kleikamp <shaggy@austin.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 2 Nov 2006 11:23:57 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:38579 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751931AbWKBQX4 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 11:23:56 -0500
+Message-Id: <200611021603.kA2G3ZoH004765@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Dave Jones <davej@redhat.com>, ray-gmail@madrabbit.org,
+       "Martin J. Bligh" <mbligh@google.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Subject: Re: Linux 2.6.19-rc4
+In-Reply-To: Your message of "Tue, 31 Oct 2006 22:39:06 GMT."
+             <20061031223906.GR29920@ftp.linux.org.uk>
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061030213454.8266fcb6.akpm@osdl.org> <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org> <45477668.4070801@google.com> <2c0942db0610310834i6244c0abm10c81e984565ed8a@mail.gmail.com> <20061031165133.GB23354@redhat.com> <200610312126.k9VLQtCB003616@turing-police.cc.vt.edu>
+            <20061031223906.GR29920@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1162483415_3054P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611021724.02886.agruen@suse.de>
+Date: Thu, 02 Nov 2006 11:03:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user.* extended attributes are only allowed on regular files and
-directories. Sticky directories further restrict write access to the
-owner and privileged users. (See the attr(5) man page for an
-explanation.)
+--==_Exmh_1162483415_3054P
+Content-Type: text/plain; charset=us-ascii
 
-The original check in ext2/ext3 when user.* xattrs were merged was more
-restrictive than intended, and when the xattr permission checks were moved 
-into the VFS, read access to user.* attributes on sticky directores ended up
-being denied in addition.
+On Tue, 31 Oct 2006 22:39:06 GMT, Al Viro said:
+> It is easy, actually.
 
-Originally-from: Gerard Neil <xyzzy@devferret.org>
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+<technical explanation that boils down to "you can't just diff the messages,
+you need to peek at the source" and leverages unidiff to do some of the heavy
+lifting>
 
-Index: linux-2.6.19-rc4/fs/xattr.c
-===================================================================
---- linux-2.6.19-rc4.orig/fs/xattr.c
-+++ linux-2.6.19-rc4/fs/xattr.c
-@@ -48,14 +48,21 @@ xattr_permission(struct inode *inode, co
- 		return 0;
- 
- 	/*
--	 * The trusted.* namespace can only accessed by a privilegued user.
-+	 * The trusted.* namespace can only be accessed by a privileged user.
- 	 */
- 	if (!strncmp(name, XATTR_TRUSTED_PREFIX, XATTR_TRUSTED_PREFIX_LEN))
- 		return (capable(CAP_SYS_ADMIN) ? 0 : -EPERM);
- 
-+	/* In user.* namespace, only regular files and directories can have
-+	 * extended attributes. For sticky directories, only the owner and
-+	 * privileged user can write attributes.
-+	 */
- 	if (!strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN)) {
--		if (!S_ISREG(inode->i_mode) &&
--		    (!S_ISDIR(inode->i_mode) || inode->i_mode & S_ISVTX))
-+		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode))
-+			return -EPERM;
-+		if (S_ISDIR(inode->i_mode) && (inode->i_mode & S_ISVTX) &&
-+		    (mask & MAY_WRITE) && (current->fsuid != inode->i_uid) &&
-+		    !capable(CAP_FOWNER))
- 			return -EPERM;
- 	}
- 
+> default).  That's it.  About 10K of sparse C - both filter and map generator.
+
+"10K of C code" easy is a tad different than a 4-line "diff the 2 compile logs"
+easy, which is what I was sort of saying... 
+
+--==_Exmh_1162483415_3054P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFShbXcC3lWbTT17ARAnkJAKDI/mxXSRDcvRIan860ZdV+ONdwCQCgtsPP
+E5GXF0n+uLcC1r6UNlR7aBk=
+=xnSo
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1162483415_3054P--

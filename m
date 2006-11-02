@@ -1,21 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWKBPVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWKBPUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWKBPVb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 10:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWKBPU7
+	id S1750936AbWKBPUx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 10:20:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWKBPUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 10:20:59 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:13479 "EHLO
+	Thu, 2 Nov 2006 10:20:53 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:12455 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751357AbWKBPUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 10:20:55 -0500
+	id S1750935AbWKBPUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 10:20:52 -0500
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 2/3] fsstack: Generic get/set lower object functions
-Date: Wed, 01 Nov 2006 22:59:29 -0500
+Subject: [PATCH 0/3] fsstack updates
+Date: Wed, 01 Nov 2006 22:59:28 -0500
 To: linux-kernel@vger.kernel.org
-Message-Id: <20061102035928.679.5819.stgit@thor.fsl.cs.sunysb.edu>
-In-Reply-To: <20061102035928.679.60601.stgit@thor.fsl.cs.sunysb.edu>
-References: <20061102035928.679.60601.stgit@thor.fsl.cs.sunysb.edu>
+Message-Id: <20061102035928.679.60601.stgit@thor.fsl.cs.sunysb.edu>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.10
@@ -26,314 +24,23 @@ Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+These are some more updates to fsstack.
 
-Every stackable filesystem needs to track what the corresponding lower
-objects are. The stackable fs superblock needs to maintain pointers to the
-lower superblock(s); the inodes need to maintain pointers to the lower
-inodes; dentries need to maintain pointers to the lower dentries and
-vfsmounts.
+The first patch makes fsstack_copy_attr_all copy the inode size in addition
+to all the other attributes.
 
-Currently, every stackable filesystem maintains this information in the
-private data of the object in question (the inode pointers may be also
-stored in the inode's container - which is what the following patch
-requires.)
+The second patch introduces generic structures and functions to get/set
+lower objects.
 
-This patch introduces generic structures to maintain the lower object
-references, and functions to get/set the lower object structure members.
-These functions are the generalized forms, which work with both linear and
-fanout stackable filesystem (eCryptfs and Unionfs to name some).
+The third patch converts eCryptfs to use the generic structures and
+functions introduced by the second patch.
 
-The patch is loosely based on Pekka Enberg's patches from October 13th
-(http://lkml.org/lkml/2006/10/13/82).
+For those interested, I set up a git repo with all the fsstack related
+patches currently in mm and these three (they're still being mirrored):
 
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Erez Zadok <ezk@cs.sunysb.edu>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>
+git://git.kernel.org/pub/scm/linux/kernel/git/jsipek/fsstack-2.6.git for-2.6.20
+
+Josef "Jeff" Sipek.
+
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
----
-
- include/linux/fs_stack.h |  264 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 264 insertions(+), 0 deletions(-)
-
-diff --git a/include/linux/fs_stack.h b/include/linux/fs_stack.h
-index bb516ce..fd4872e 100644
---- a/include/linux/fs_stack.h
-+++ b/include/linux/fs_stack.h
-@@ -5,8 +5,272 @@ #define _LINUX_FS_STACK_H
-  * filesystems; none of these functions require i_mutex to be held.
-  */
- 
-+#include <linux/namei.h>
- #include <linux/fs.h>
- 
-+/* structs to maintain pointers to the lower VFS objects */
-+struct fsstack_sb_info {
-+	union {
-+		struct super_block *sb;
-+		struct super_block **sbs;
-+	};
-+};
-+
-+struct fsstack_inode_info {
-+	union {
-+		struct inode *inode;
-+		struct inode **inodes;
-+	};
-+};
-+
-+struct fsstack_dentry_info {
-+	union {
-+		struct path path;
-+		struct path *paths;
-+	};
-+};
-+
-+struct fsstack_file_info {
-+	union {
-+		struct file *file;
-+		struct file **files;
-+	};
-+};
-+
-+/* DO NOT USE!
-+ *
-+ * The following structure is used during the container_of calls to allow
-+ * for as generic as possible way of accessing fsstack_inode_info given a
-+ * pointer to the inode.
-+ */
-+struct __fsstack_inode_generic_info {
-+	struct inode vfs_inode;		/* vfs inode */
-+	struct fsstack_inode_info info;	/* fsstack inode info */
-+};
-+
-+/*
-+ * Functions to get lower objects from an upper one.
-+ *
-+ * NOTE: The filesystem specific info structures (for dentries, superblocks
-+ * and files) _must_ have the following layout:
-+ *
-+ *	struct foo {
-+ *		struct fsstack_{dentry,sb,file}_info info;
-+ *		...
-+ *	};
-+ *
-+ * Because of the usage of containers, the inode container structure _must_
-+ * have the following layout:
-+ *
-+ * 	struct bar {
-+ * 		struct inode vfs_inode;
-+ * 		struct fsstack_inode_info info;
-+ * 		...
-+ * 	};
-+ */
-+static inline struct super_block *
-+__fsstack_lower_sb(struct super_block *sb, unsigned long branch_idx)
-+{
-+	struct fsstack_sb_info *info = sb->s_fs_info;
-+	return info->sbs[branch_idx];
-+}
-+
-+static inline struct super_block **
-+__fsstack_lower_sbs(struct super_block *sb)
-+{
-+	struct fsstack_sb_info *info = sb->s_fs_info;
-+	return info->sbs;
-+}
-+
-+static inline void
-+__fsstack_set_lower_sb(struct super_block *sb, unsigned long branch_idx,
-+		       struct super_block *lower_sb)
-+{
-+	struct fsstack_sb_info *info = sb->s_fs_info;
-+	info->sbs[branch_idx] = lower_sb;
-+}
-+
-+static inline void
-+__fsstack_set_lower_sbs(struct super_block *sb, struct super_block **lower_sbs)
-+{
-+	struct fsstack_sb_info *info = sb->s_fs_info;
-+	info->sbs = lower_sbs;
-+}
-+
-+static inline struct super_block *fsstack_lower_sb(struct super_block *sb)
-+{
-+	struct fsstack_sb_info *info = sb->s_fs_info;
-+	return info->sb;
-+}
-+
-+static inline void
-+fsstack_set_lower_sb(struct super_block *sb, struct super_block *lower_sb)
-+{
-+	struct fsstack_sb_info *info = sb->s_fs_info;
-+	info->sb = lower_sb;
-+}
-+
-+/* get the fs dependent data */
-+static inline void * fsstack_inode_data(struct inode *inode)
-+{
-+	return &((struct __fsstack_inode_generic_info*) inode)->info;
-+}
-+
-+static inline struct inode *
-+__fsstack_lower_inode(struct inode *inode, unsigned long branch_idx)
-+{
-+	struct fsstack_inode_info *info = fsstack_inode_data(inode);
-+		
-+	return info->inodes[branch_idx];
-+}
-+
-+static inline struct inode **
-+__fsstack_lower_inodes(struct inode *inode)
-+{
-+	struct fsstack_inode_info *info = fsstack_inode_data(inode);
-+	return info->inodes;
-+}
-+
-+static inline void
-+__fsstack_set_lower_inode(struct inode *inode, unsigned long branch_idx,
-+			  struct inode *lower_inode)
-+{
-+	struct fsstack_inode_info *info = fsstack_inode_data(inode);
-+	info->inodes[branch_idx] = lower_inode;
-+}
-+
-+static inline void
-+__fsstack_set_lower_inodes(struct inode *inode, struct inode **lower_inodes)
-+{
-+	struct fsstack_inode_info *info = fsstack_inode_data(inode);
-+	info->inodes = lower_inodes;
-+}
-+
-+static inline struct inode *fsstack_lower_inode(struct inode *inode)
-+{
-+	struct fsstack_inode_info *info = fsstack_inode_data(inode);
-+	return info->inode;
-+}
-+
-+static inline void
-+fsstack_set_lower_inode(struct inode *inode, struct inode *lower_inode)
-+{
-+	struct fsstack_inode_info *info = fsstack_inode_data(inode);
-+	info->inode = lower_inode;
-+}
-+
-+static inline struct dentry *
-+__fsstack_lower_dentry(struct dentry *dentry, unsigned long branch_idx)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	return info->paths[branch_idx].dentry;
-+}
-+
-+static inline struct path *
-+__fsstack_lower_paths(struct dentry *dentry)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	return info->paths;
-+}
-+
-+static inline void
-+__fsstack_set_lower_dentry(struct dentry *dentry, unsigned long branch_idx,
-+			   struct dentry *lower_dentry)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	info->paths[branch_idx].dentry = lower_dentry;
-+}
-+
-+static inline void
-+__fsstack_set_lower_paths(struct dentry *dentry, struct path *lower_paths)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	info->paths = lower_paths;
-+}
-+
-+static inline struct dentry *fsstack_lower_dentry(struct dentry *dentry)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	return info->path.dentry;
-+}
-+
-+static inline void
-+fsstack_set_lower_dentry(struct dentry *dentry, struct dentry *lower_dentry)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	info->path.dentry = lower_dentry;
-+}
-+
-+static inline struct vfsmount *
-+__fsstack_lower_mnt(struct dentry *dentry, unsigned long branch_idx)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	return info->paths[branch_idx].mnt;
-+}
-+
-+static inline void
-+__fsstack_set_lower_mnt(struct dentry *dentry, unsigned long branch_idx,
-+			struct vfsmount *lower_mnt)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	info->paths[branch_idx].mnt = lower_mnt;
-+}
-+
-+static inline struct vfsmount *fsstack_lower_mnt(struct dentry *dentry)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	return info->path.mnt;
-+}
-+
-+static inline void
-+fsstack_set_lower_mnt(struct dentry *dentry, struct vfsmount *lower_mnt)
-+{
-+	struct fsstack_dentry_info *info = dentry->d_fsdata;
-+	info->path.mnt = lower_mnt;
-+}
-+
-+static inline struct file *
-+__fsstack_lower_file(struct file *file, unsigned long branch_idx)
-+{
-+	struct fsstack_file_info *info = file->private_data;
-+	return info->files[branch_idx];
-+}
-+
-+static inline struct file **
-+__fsstack_lower_files(struct file *file)
-+{
-+	struct fsstack_file_info *info = file->private_data;
-+	return info->files;
-+}
-+
-+static inline void
-+__fsstack_set_lower_file(struct file *file, unsigned long branch_idx,
-+			 struct file *lower_file)
-+{
-+	struct fsstack_file_info *info = file->private_data;
-+	info->files[branch_idx] = lower_file;
-+}
-+
-+static inline void
-+__fsstack_set_lower_files(struct file *file, struct file **lower_files)
-+{
-+	struct fsstack_file_info *info = file->private_data;
-+	info->files = lower_files;
-+}
-+
-+static inline struct file *fsstack_lower_file(struct file *file)
-+{
-+	struct fsstack_file_info *info = file->private_data;
-+	return info->file;
-+}
-+
-+static inline void
-+fsstack_set_lower_file(struct file *file, struct file *lower_file)
-+{
-+	struct fsstack_file_info *info = file->private_data;
-+	info->file = lower_file;
-+}
-+
- /* externs for fs/stack.c */
- extern void fsstack_copy_attr_all(struct inode *dest, const struct inode *src,
- 				int (*get_nlinks)(struct inode *));
 

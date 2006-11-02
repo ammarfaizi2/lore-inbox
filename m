@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWKBADS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWKBAFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWKBADS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 19:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752309AbWKBADS
+	id S1750835AbWKBAFy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 19:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWKBAFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 19:03:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48101 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750885AbWKBADR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 19:03:17 -0500
-Date: Wed, 1 Nov 2006 16:02:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: John Stoffel <john@stoffel.org>, Jeff Garzik <jeff@garzik.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] libata fixes
-Message-Id: <20061101160207.6b5e4c29.akpm@osdl.org>
-In-Reply-To: <1162391435.11965.128.camel@localhost.localdomain>
-References: <20061101021301.GA21568@havoc.gtf.org>
-	<17736.43507.649685.484648@smtp.charter.net>
-	<1162391435.11965.128.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Nov 2006 19:05:54 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:51297 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750835AbWKBAFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 19:05:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y3UGD9P/6nWRCNx8zvWRBtZqTqEKXiRiZdtUb7AP5k6Kd4osO2qbC6m+0KwG7eNhtF8JbFNPSDsSv7aUswoxrt9qRJKRxeo9XROcF9+Uhibm70eYFcPnUflmNIg3Lb1WSRHZFu6xsHHsC6mdmtF5TvFg6s7ZODAUpAmDmZLi5Yo=
+Message-ID: <9a8748490611011605u55ccdcaeob99700d6e1a813a4@mail.gmail.com>
+Date: Thu, 2 Nov 2006 01:05:49 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Neil Horman" <nhorman@tuxdriver.com>
+Subject: Re: [KJ][PATCH] Correct misc_register return code handling in several drivers
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>, akpm@osdl.org,
+       kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, maxk@qualcomm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061101135619.GA3459@hmsreliant.homelinux.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061023171910.GA23714@hmsreliant.homelinux.net>
+	 <1161660875.10524.535.camel@localhost.localdomain>
+	 <20061024125306.GA1608@hmsreliant.homelinux.net>
+	 <1161729762.10524.660.camel@localhost.localdomain>
+	 <20061101135619.GA3459@hmsreliant.homelinux.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Nov 2006 14:30:35 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On 01/11/06, Neil Horman <nhorman@tuxdriver.com> wrote:
+> Hey all-
+>         Since Andrew hasn't incorporated this patch yet, and I had the time, I
+> redid the patch taking Benjamin's INIT_LIST_HEAD and Joes mmtimer cleanup into
+> account.  New patch attached, replacing the old one, everything except the
+> aforementioned cleanups is identical.
+>
+> Thanks & Regards
+> Neil
+>
+> Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+>
+> +out4:
+> +       for_each_online_node(node) {
+> +               kfree(timers[node]);
+> +       }
+> +out3:
+> +       misc_deregister(&mmtimer_miscdev);
+> +out2:
+> +       free_irq(SGI_MMTIMER_VECTOR, NULL);
+> +out1:
+> +       return -1;
 
-> Ar Mer, 2006-11-01 am 09:06 -0500, ysgrifennodd John Stoffel:
-> > Jeff> +	{ 0x8086, 0x7110, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix_pata_33 },
-> > Jeff>  	{ 0x8086, 0x7111, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix_pata_33 },
-> > 
-> > Umm, according to lspci -nn on my 440GX box, isn't the 0x8086/0x7110
-> > an ISA bridge, not a PIIX? controller?  
-> 
-> Correct - the 7110 doesn't belong on that list.
+Very nitpicky little thing, but shouldn't the labels start at column
+1, not column 0 ?
+I thought that was standard practice (apparently labels at column 0
+can confuse 'patch').
 
-So should it be moved elsewhere, or simply removed?
+Hmm, I guess that should be defined once and for all in
+Documentation/CodingStyle
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

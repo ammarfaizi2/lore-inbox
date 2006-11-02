@@ -1,67 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWKBPOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWKBPPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWKBPOE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 10:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWKBPOE
+	id S1751345AbWKBPPy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 10:15:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWKBPPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 10:14:04 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:13007 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751325AbWKBPOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 10:14:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Sb6ttwbMcGYEn3m+W6EA9zsFEzJXfLjh/6lJFpMJl+ozwhWZICmo9dMxPdD2TKeU1ppPAxihnMMZ2wYqRp8KwgtJL90VrBP9rsqnaMwSJe+TvIgo9reILwQvRSPEJG4gJU/cCucagH54rhY9rswbWN2FTA18m99zf07Rbk2m1EE=
-Message-ID: <aec7e5c30611020714qe6bcc41ucc789e3a2ca85c1f@mail.gmail.com>
-Date: Fri, 3 Nov 2006 00:14:00 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Avi Kivity" <avi@qumranet.com>
-Subject: Re: [ANNOUNCE] kvm howto
-Cc: "Hesse, Christian" <mail@earthworm.de>, kvm-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <454A0165.7090009@qumranet.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Nov 2006 10:15:54 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:5840 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S1751321AbWKBPPx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 10:15:53 -0500
+Date: Thu, 2 Nov 2006 09:15:51 -0600
+From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+To: akpm@osdl.org, jens.axboe@oracle.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH 8/8] cciss: remove unused revalidate_allvol function
+Message-ID: <20061102151551.GA19352@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4549F1D5.8070509@qumranet.com>
-	 <200611021527.09664.mail@earthworm.de> <454A0165.7090009@qumranet.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/2/06, Avi Kivity <avi@qumranet.com> wrote:
-> Hesse, Christian wrote:
-> > On Thursday 02 November 2006 14:25, Avi Kivity wrote:
-> >
-> >> I've just uploaded a HOWTO to http://kvm.sourceforge.net, including
-> >> (hopefuly) everything needed to get kvm running.  Please take a look and
-> >> comment.
-> >>
-> >
-> >   CC [M]  /tmp/kvm-module/kvm_main.o
-> > {standard input}: Assembler messages:
-> > {standard input}:168: Error: no such instruction: `vmxon 16(%esp)'
-> > {standard input}:182: Error: no such instruction: `vmxoff'
-> > {standard input}:192: Error: no such instruction: `vmread %eax,%eax'
-> > {standard input}:415: Error: no such instruction: `vmwrite %ebx,%esi'
-> > {standard input}:1103: Error: no such instruction: `vmclear 16(%esp)'
-> > {standard input}:1676: Error: no such instruction: `vmptrld 16(%esp)'
-> > {standard input}:4107: Error: no such instruction: `vmwrite %esp,%eax'
-> > {standard input}:4119: Error: no such instruction: `vmlaunch '
-> > {standard input}:4121: Error: no such instruction: `vmresume '
-> >
-> > I get a number of errors compiling the module. No difference between the
-> > downloaded tarball and my patched kernel tree. Any hints?
-> >
->
-> You need a newer binutils.  I'm using binutils-2.16.91.0.6 (gotta love
-> that version number), shipped with Fedora Core 5.
 
-The VT-extensions added by Intel and AMD only adds a limited number of
-instructions each. If you want to be user friendly it might be a good
-idea to implement these instructions as macros. I'm pretty sure
-VT-extension support in Xen works with my old binutils version.
+PATCH 8/11
 
-/ magnus
+This patch removes the no longer used revalidate_allvol function. It was
+replaced by rebuild_lun_table.
+Please consider this for inclusion.
+
+Thanks,
+mikem
+
+Signed-off-by: Mike Miller <mike.miller@hp.com>
+
+ cciss.c |   74 ----------------------------------------------------------------
+ 1 files changed, 1 insertion(+), 73 deletions(-)
+------------------------------------------------------------------------------------------
+diff -urNp linux-2.6-p00007/drivers/block/cciss.c linux-2.6/drivers/block/cciss.c
+--- linux-2.6-p00007/drivers/block/cciss.c	2006-10-31 15:57:39.000000000 -0600
++++ linux-2.6/drivers/block/cciss.c	2006-10-31 16:03:20.000000000 -0600
+@@ -141,7 +141,6 @@ static int cciss_ioctl(struct inode *ino
+ 		       unsigned int cmd, unsigned long arg);
+ static int cciss_getgeo(struct block_device *bdev, struct hd_geometry *geo);
+ 
+-static int revalidate_allvol(ctlr_info_t *host);
+ static int cciss_revalidate(struct gendisk *disk);
+ static int rebuild_lun_table(ctlr_info_t *h, struct gendisk *del_disk);
+ static int deregister_disk(struct gendisk *disk, drive_info_struct *drv,
+@@ -857,9 +856,7 @@ static int cciss_ioctl(struct inode *ino
+ 		}
+ 
+ 	case CCISS_REVALIDVOLS:
+-		if (bdev != bdev->bd_contains || drv != host->drv)
+-			return -ENXIO;
+-		return revalidate_allvol(host);
++		return rebuild_lun_table(host, NULL);
+ 
+ 	case CCISS_GETLUNINFO:{
+ 			LogvolInfo_struct luninfo;
+@@ -1159,75 +1156,6 @@ static int cciss_ioctl(struct inode *ino
+ 	}
+ }
+ 
+-/*
+- * revalidate_allvol is for online array config utilities.  After a
+- * utility reconfigures the drives in the array, it can use this function
+- * (through an ioctl) to make the driver zap any previous disk structs for
+- * that controller and get new ones.
+- *
+- * Right now I'm using the getgeometry() function to do this, but this
+- * function should probably be finer grained and allow you to revalidate one
+- * particular logical volume (instead of all of them on a particular
+- * controller).
+- */
+-static int revalidate_allvol(ctlr_info_t *host)
+-{
+-	int ctlr = host->ctlr, i;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(CCISS_LOCK(ctlr), flags);
+-	if (host->usage_count > 1) {
+-		spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
+-		printk(KERN_WARNING "cciss: Device busy for volume"
+-		       " revalidation (usage=%d)\n", host->usage_count);
+-		return -EBUSY;
+-	}
+-	host->usage_count++;
+-	spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
+-
+-	for (i = 0; i < NWD; i++) {
+-		struct gendisk *disk = host->gendisk[i];
+-		if (disk) {
+-			request_queue_t *q = disk->queue;
+-
+-			if (disk->flags & GENHD_FL_UP)
+-				del_gendisk(disk);
+-			if (q)
+-				blk_cleanup_queue(q);
+-		}
+-	}
+-
+-	/*
+-	 * Set the partition and block size structures for all volumes
+-	 * on this controller to zero.  We will reread all of this data
+-	 */
+-	memset(host->drv, 0, sizeof(drive_info_struct)
+-	       * CISS_MAX_LUN);
+-	/*
+-	 * Tell the array controller not to give us any interrupts while
+-	 * we check the new geometry.  Then turn interrupts back on when
+-	 * we're done.
+-	 */
+-	host->access.set_intr_mask(host, CCISS_INTR_OFF);
+-	cciss_getgeometry(ctlr);
+-	host->access.set_intr_mask(host, CCISS_INTR_ON);
+-
+-	/* Loop through each real device */
+-	for (i = 0; i < NWD; i++) {
+-		struct gendisk *disk = host->gendisk[i];
+-		drive_info_struct *drv = &(host->drv[i]);
+-		/* we must register the controller even if no disks exist */
+-		/* this is for the online array utilities */
+-		if (!drv->heads && i)
+-			continue;
+-		blk_queue_hardsect_size(drv->queue, drv->block_size);
+-		set_capacity(disk, drv->nr_blocks);
+-		add_disk(disk);
+-	}
+-	host->usage_count--;
+-	return 0;
+-}
+-
+ static inline void complete_buffers(struct bio *bio, int status)
+ {
+ 	while (bio) {

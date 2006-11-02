@@ -1,74 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWKBSFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751646AbWKBSIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWKBSFN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 13:05:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWKBSFN
+	id S1751646AbWKBSIR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 13:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWKBSIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 13:05:13 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:10489 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750836AbWKBSFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 13:05:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=quPZfraMZCzYjDc5OnwV/DmfGJATmVGNp/doVNWawLvVuEbNy784X1/DiMY0jKMU2tJTD2UShcF/KhE0WPo48HMuJWu6e5bPYlV3amgG6jGDtrrIDA7skUC268l6boryqpPdETIhfFtLQ4SM/rZyS/2wNI8tt6L1L+RmyKXJk0k=
-Message-ID: <aec7e5c30611021005y2f26319ei1c61963d354a933f@mail.gmail.com>
-Date: Fri, 3 Nov 2006 03:05:08 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Mel Gorman" <mel@csn.ul.ie>
-Subject: Re: [PATCH] x86_64: setup saved_max_pfn correctly (kdump)
-Cc: "Magnus Damm" <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       "Vivek Goyal" <vgoyal@in.ibm.com>, "Andi Kleen" <ak@muc.de>,
+	Thu, 2 Nov 2006 13:08:17 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:13460 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751537AbWKBSIQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 13:08:16 -0500
+Date: Thu, 2 Nov 2006 13:07:33 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: Magnus Damm <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       Mel Gorman <mel@csn.ul.ie>, Andi Kleen <ak@muc.de>,
        fastboot@lists.osdl.org
-In-Reply-To: <Pine.LNX.4.64.0611021604080.14806@skynet.skynet.ie>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] x86_64: setup saved_max_pfn correctly (kdump)
+Message-ID: <20061102180733.GD8074@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061102131934.24684.93195.sendpatchset@localhost> <20061102142812.GB8074@in.ibm.com> <aec7e5c30611020940g73ff373cjbca4c684c5ed8cc6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061102131934.24684.93195.sendpatchset@localhost>
-	 <Pine.LNX.4.64.0611021604080.14806@skynet.skynet.ie>
+In-Reply-To: <aec7e5c30611020940g73ff373cjbca4c684c5ed8cc6@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mel,
+On Fri, Nov 03, 2006 at 02:40:26AM +0900, Magnus Damm wrote:
+> On 11/2/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> >On Thu, Nov 02, 2006 at 10:19:34PM +0900, Magnus Damm wrote:
+> >> x86_64: setup saved_max_pfn correctly
+> >>
+> >> 2.6.19-rc4 has broken CONFIG_CRASH_DUMP support on x86_64. It is 
+> >impossible
+> >> to read out the kernel contents from /proc/vmcore because saved_max_pfn 
+> >is set
+> >> to zero instead of the max_pfn value before the user map is setup.
+> >>
+> >> This happens because saved_max_pfn is initialized at parse_early_param() 
+> >time,
+> >> and at this time no active regions have been registered. save_max_pfn is 
+> >setup
+> >> from e820_end_of_ram(), more exact find_max_pfn_with_active_regions() 
+> >which
+> >> returns 0 because no regions exist.
+> >>
+> >> This patch fixes this by registering before and removing after the call
+> >> to e820_end_of_ram().
+> >>
+> >> Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+> >> ---
+> >>
+> >>  Applies to 2.6.19-rc4.
+> >>
+> >>  arch/x86_64/kernel/e820.c |    2 ++
+> >>  1 file changed, 2 insertions(+)
+> >>
+> >> --- 0002/arch/x86_64/kernel/e820.c
+> >> +++ work/arch/x86_64/kernel/e820.c    2006-11-02 21:37:19.000000000 +0900
+> >> @@ -594,7 +594,9 @@ static int __init parse_memmap_opt(char
+> >>                * size before original memory map is
+> >>                * reset.
+> >>                */
+> >> +             e820_register_active_regions(0, 0, -1UL);
+> >>               saved_max_pfn = e820_end_of_ram();
+> >> +             remove_all_active_ranges();
+> >>  #endif
+> >>               end_pfn_map = 0;
+> >>               e820.nr_map = 0;
+> >
+> >This looks fine to me for the time being.
+> 
+> Great, thanks.
+> 
 
-Thanks for your input! Great work with the add_active_range() code.
+I looked at Mel's suggestion of shifting the call to
+e820_register_active_regions() above parse_early_param() and that should
+be a better solution.
 
-On 11/3/06, Mel Gorman <mel@csn.ul.ie> wrote:
-> Hey Magnus,
->
-> I see what you are doing and why. However if you look in
-> arch/x86_64/kernel/setup.c, you'll see
->
->          parse_early_param();
->
->          finish_e820_parsing();
->
->          e820_register_active_regions(0, 0, -1UL);
->
-> If you just called e820_register_active_regions(0, 0, -1UL) before
-> parse_early_param(), would it still fix the problem without having to call
-> e820_register_active_regions(0, 0, -1UL) twice?
+> >Down the line I am thinking that how about passing saved_max_pfn as
+> >command line parameter. I think that way we don't have to pass all the
+> >memmap= options to second kernel and kexec-tools can pass the memory map
+> >through parameter segment. This memory map can be modified to represent
+> >only the memory which can be used by second kernel and not the whole of
+> >the memory.
+> 
+> Hm, I'm not sure how that will improve things. Isn't memmap= just used
+> to inform the secondary kernel which space it can use? You need to
+> tell it somehow regardless - I think the current implementation seems
+> to work pretty well. But I guess you mean that we should pass an
+> modified e820 map that only includes valid areas for the second
+> kernel. That may simplify things. But changing the interface is
+> painful.
+> 
 
-Well, I guess it is possible to move the
-e820_register_active_regions() up, but I'm not sure if that would give
-us anything.
+Actually kexec already passes a memory map to second kernel through
+parameter segment. We can just modify that memory map instead of 
+passing it through memmap= command line options. Currently memory map
+passed by kexec is used to calculate the saved_max_pfn and it can be
+calculated using a command line parameter. So effectively I am replacing
+multiple memmap= command line parameter with one.
 
-We need to call e820_register_active_regions() before e820_end_of_ram,
-that's for sure, but the "exactmap" code in parse_memmap_opt() sets
-e820.nr_map to 0 after the call to e820_end_of_ram(). Then it adds a
-new set of user-supplied ranges to the e820 map which then need to be
-registered using e820_register_active_regions().
+> Right now I feel that so many things are happening in the kdump world
+> that it's difficult just to keep the current code working as is.
+> 
 
-So yeah, we can move the function up above parse_early_param() but
-then we need to insert another call to e820_register_active_regions()
-somewhere after all user-supplied ranges have been added.
+I agree. Probably we should do it later.
 
-Another solution could be to rewrite e820_end_of_ram() to instead scan
-e820.map[] backwards from e820.nr_map - 1 to locate the last ram page.
-But can you do that in two lines of code? =)
+> >I think this will simplify the logic and also save us precious comand
+> >line in second kernel for kdump purposes.
+> 
+> I remember seeing some email regarding extending the amount of command
+> line space, that's an alternative approach if we are running out of
+> space.
 
-Thanks!
+I had also seen those patches. Does not seem to be upstream. Don't know
+what happened to those.
 
-/ magnus
+Thanks
+Vivek

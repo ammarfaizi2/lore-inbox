@@ -1,94 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752618AbWKBAbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWKBAjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752618AbWKBAbm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 19:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752622AbWKBAbm
+	id S1751254AbWKBAjy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 19:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWKBAjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 19:31:42 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:13477 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752618AbWKBAbl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 19:31:41 -0500
-Subject: Re: [Devel] Re: [ckrm-tech] [RFC] Resource Management -
-	Infrastructure choices
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Kir Kolyshkin <kir@openvz.org>
-Cc: devel@openvz.org, vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       linux-kernel@vger.kernel.org, pj@sgi.com, dipankar@in.ibm.com,
-       rohitseth@google.com, Paul Menage <menage@google.com>,
-       Chris Friesen <cfriesen@nortel.com>
-In-Reply-To: <45492764.6060700@openvz.org>
+	Wed, 1 Nov 2006 19:39:54 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:45241 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751254AbWKBAjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 19:39:53 -0500
+Date: Wed, 1 Nov 2006 16:39:16 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] RFC: Memory Controller
+Message-Id: <20061101163916.eca92a2a.pj@sgi.com>
+In-Reply-To: <6599ad830611011609t123bba47hf2f3b9a4191d6c12@mail.gmail.com>
 References: <20061030103356.GA16833@in.ibm.com>
-	 <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
-	 <20061101173356.GA18182@in.ibm.com> <45490F0D.7000804@nortel.com>
-	 <45492764.6060700@openvz.org>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Wed, 01 Nov 2006 16:31:37 -0800
-Message-Id: <1162427497.12419.186.camel@localhost.localdomain>
+	<6599ad830610300304l58e235f7td54ef8744e462a55@mail.gmail.com>
+	<4545FDCD.3080107@in.ibm.com>
+	<6599ad830610301014l1bf78ce8q998229483d055a90@mail.gmail.com>
+	<454782D2.3040208@in.ibm.com>
+	<6599ad830610310922p61913cdaqb441a2cb718420a9@mail.gmail.com>
+	<4548472A.50608@in.ibm.com>
+	<6599ad830610312307i549f5a51h3b7a1744a14919f5@mail.gmail.com>
+	<45485046.6080508@in.ibm.com>
+	<20061101042341.83cbd77e.pj@sgi.com>
+	<6599ad830611011609t123bba47hf2f3b9a4191d6c12@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-02 at 02:01 +0300, Kir Kolyshkin wrote:
-> Chris Friesen wrote:
-> > Srivatsa Vaddagiri wrote:
-> >
-> >>>>        - Support limit (soft and/or hard depending on the resource
-> >>>>          type) in controllers. Guarantee feature could be indirectly
-> >>>>          met thr limits.
-> >
-> > I just thought I'd weigh in on this.  As far as our usage pattern is
-> > concerned, guarantees cannot be met via limits.
-> >
-> > I want to give "x" cpu to container X, "y" cpu to container Y, and "z"
-> > cpu to container Z.
-> >
-> > If these are percentages, x+y+z must be less than 100.
-> >
-> > However, if Y does not use its share of the cpu, I would like the
-> > leftover cpu time to be made available to X and Z, in a ratio based on
-> > their allocated weights.
-> >
-> > With limits, I don't see how I can get the ability for containers to
-> > make opportunistic use of cpu that becomes available.
-> This is basically how "cpuunits" in OpenVZ works. It is not limiting a
-> container in any way, just assigns some relative "units" to it, with sum
-> of all units across all containers equal to 100% CPU. Thus, if we have
+Paul M wrote:
+> That can negatively affect the
+> performance of other tasks, which is what we're trying to prevent.
 
-	So the user doesn't really specify percentage but values that feed into
-ratios used by the underlying controller? If so then it's not terribly
-different from the "shares" of single level of Resource Groups. 
+That sounds like a worthwhile goal.  I agree that zone_reclaim
+doesn't do that.
 
-	Resource groups goes one step further and defines a denominator for
-child groups to use. This allows the shares to be connected vertically
-so that changes don't need to propagate beyond the parent and child
-groups.
-
-> cpuunits 10, 20, and 30 assigned to containers X, Y, and Z, and run some
-> CPU-intensive tasks in all the containers, X will be given
-> 10/(10+20+30), or 20% of CPU time, Y -- 20/50, i.e. 40%, while Z gets
-
-nit: I don't think this math is correct.
-
-Shouldn't they all have the same denominator (60), or am I
-misunderstanding something?
-
-If so then it should be:
-X = 10/60      16.666...%
-Y = 20/60      33.333...%
-Z = 30/60      50.0%
-Total:        100.0%
-
-> 60%. Now, if Z is not using CPU, X will be given 33% and Y -- 66%. The
-> scheduler used is based on a per-VE runqueues, is quite fair, and works
-> fine and fair for, say, uneven case of 3 containers on a 4 CPU box.
-
-<snip>
-
-Cheers,
-	-Matt Helsley
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

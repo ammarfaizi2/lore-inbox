@@ -1,85 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752572AbWKBNI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752608AbWKBNJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752572AbWKBNI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 08:08:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752769AbWKBNI2
+	id S1752608AbWKBNJO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 08:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752771AbWKBNJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 08:08:28 -0500
-Received: from wx-out-0506.google.com ([66.249.82.235]:63891 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1752558AbWKBNI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 08:08:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=BEah+9vH1ZParE/HbpwArPkgUUAOaSa1F9L2WvrlusCopIfa0hWX9sMJe6eYZsucZ674ImQ1FHZRITlIRh1d8n9T1diyE+0qRHo89R4KGSUgKPj7Z2gvsI9sIN99UyomHXaFiZYswfsxzWlww6JZHxUQ0t8IWPvJzE1LKnaI8Lk=
-From: Yu Luming <luming.yu@gmail.com>
-Organization: gmail
-To: Andrew Morton <akpm@osdl.org>
-Subject: [patch 1/6] video sysfs support: Add dev argument for backlight_device_register.
-Date: Sat, 4 Nov 2006 21:07:52 +0800
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, len.brown@intel.com,
-       Matt Domsch <Matt_Domsch@dell.com>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr,
-       Richard Hughes <hughsient@gmail.com>
+	Thu, 2 Nov 2006 08:09:14 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:40458 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1752608AbWKBNJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 08:09:13 -0500
+Message-ID: <4549ECF8.2070508@openvz.org>
+Date: Thu, 02 Nov 2006 16:04:56 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Matt Helsley <matthltc@us.ibm.com>, vatsa@in.ibm.com, balbir@in.ibm.com
+CC: Pavel Emelianov <xemul@openvz.org>, Paul Menage <menage@google.com>,
+       dev@openvz.org, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       dipankar@in.ibm.com, rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+References: <20061030103356.GA16833@in.ibm.com>	 <45486925.4000201@openvz.org>	 <20061101181236.GC22976@in.ibm.com>	 <1162419565.12419.154.camel@localhost.localdomain>	 <6599ad830611011550m69876b1ase3579167903a7cd7@mail.gmail.com>	 <4549B5A3.2010908@openvz.org> <1162466807.12419.194.camel@localhost.localdomain>
+In-Reply-To: <1162466807.12419.194.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611042107.53145.luming.yu@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matt Helsley wrote:
+> On Thu, 2006-11-02 at 12:08 +0300, Pavel Emelianov wrote:
+>> [snip]
+>>
+>>> I think that having a "tasks" file and a "threads" file in each
+>>> container directory would be a clean way to handle it:
+>>>
+>>> "tasks" : read/write complete process members
+>>> "threads" : read/write individual thread members
+>> I've just thought of it.
+>>
+>> Beancounter may have more than 409 tasks, while configfs
+>> doesn't allow attributes to store more than PAGE_SIZE bytes
+>> on read. So how would you fill so many tasks in one page?
+> 
+> 	To be clear that's a limitation of configfs as an interface. In the
+> Resource Groups code, for example, there is no hard limitation on length
+> of the underlying list. This is why we're talking about a filesystem
+> interface and not necessarily a configfs interface.
 
-Video sysfs support: add dev argument for backlight_device_register.
+David Rientjes persuaded me that writing our own file system is
+reimplementing the existing thing. If we've agreed with file system
+interface then configfs may be used. But the limitations I've
+pointed out must be discussed.
 
-signed-off-by   Luming.yu@gmail.com
----
+Let me remind:
+1. limitation of size of data written out of configfs;
+2. when configfs is a module user won't be able to
+   use beancounters.
 
-[patch 1/6] video sysfs support: add dev argument for backlight_device_register.
- drivers/video/backlight/backlight.c |    7 +++++--
- include/linux/backlight.h           |    2 +-
- 2 files changed, 6 insertions(+), 3 deletions(-)
+and one new
+3. now in beancounters we have /proc/user_beancounters
+   file that shows the complete statistics on BC. This
+   includes all then beancounters in the system with all
+   resources' held/maxheld/failcounters/etc. This is very
+   handy and "vividly": a simple 'cat' shows you all you
+   need. With configfs we lack this very handy feature.
 
-diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
-index 27597c5..1d97cdf 100644
---- a/drivers/video/backlight/backlight.c
-+++ b/drivers/video/backlight/backlight.c
-@@ -190,8 +190,10 @@ static int fb_notifier_callback(struct n
-  * Creates and registers new backlight class_device. Returns either an
-  * ERR_PTR() or a pointer to the newly allocated device.
-  */
--struct backlight_device *backlight_device_register(const char *name, void *devdata,
--						   struct backlight_properties *bp)
-+struct backlight_device *backlight_device_register(const char *name,
-+	struct device *dev,
-+	void *devdata,
-+	struct backlight_properties *bp)
- {
- 	int i, rc;
- 	struct backlight_device *new_bd;
-@@ -206,6 +208,7 @@ struct backlight_device *backlight_devic
- 	new_bd->props = bp;
- 	memset(&new_bd->class_dev, 0, sizeof(new_bd->class_dev));
- 	new_bd->class_dev.class = &backlight_class;
-+	new_bd->class_dev.dev = dev;
- 	strlcpy(new_bd->class_dev.class_id, name, KOBJ_NAME_LEN);
- 	class_set_devdata(&new_bd->class_dev, devdata);
- 
-diff --git a/include/linux/backlight.h b/include/linux/backlight.h
-index 75e91f5..a5cf1be 100644
---- a/include/linux/backlight.h
-+++ b/include/linux/backlight.h
-@@ -54,7 +54,7 @@ struct backlight_device {
- };
- 
- extern struct backlight_device *backlight_device_register(const char *name,
--	void *devdata, struct backlight_properties *bp);
-+	struct device *dev,void *devdata,struct backlight_properties *bp);
- extern void backlight_device_unregister(struct backlight_device *bd);
- 
- #define to_backlight_device(obj) container_of(obj, struct backlight_device, class_dev)
+>> I like the idea of writing pids/tids to these files, but
+>> printing them back is not that easy.
+> 
+> 	That depends on how you do it. For instance, if you don't have an
+> explicit list of tasks in the group (rough cost: 1 list head per task)
+> then yes, it could be difficult.
+
+I propose not to have the list of tasks associated with beancounter
+(what for?) but to extend /proc/<pid>/status with 'bcid: <id>' field.
+/configfs/beancounters/<id>/(tasks|threads) file should be write-only
+then.
+
+What do you think?

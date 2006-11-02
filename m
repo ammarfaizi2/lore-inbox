@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752708AbWKBHWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752710AbWKBH3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752708AbWKBHWj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 02:22:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752707AbWKBHWj
+	id S1752710AbWKBH3h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 02:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752712AbWKBH3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 02:22:39 -0500
-Received: from mail.kroah.org ([69.55.234.183]:32733 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1752705AbWKBHWi (ORCPT
+	Thu, 2 Nov 2006 02:29:37 -0500
+Received: from www.osadl.org ([213.239.205.134]:15027 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1752710AbWKBH3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 02:22:38 -0500
-Date: Wed, 1 Nov 2006 23:15:07 -0800
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, toralf.foerster@gmx.de,
-       netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       link@miggy.org, akpm@osdl.org, zippel@linux-m68k.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
-Message-ID: <20061102071507.GB28382@kroah.com>
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061025165858.b76b4fd8.randy.dunlap@oracle.com> <200610251922.09692.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610251922.09692.david-b@pacbell.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 2 Nov 2006 02:29:36 -0500
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
+	[2.6.18-rc4-mm1]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061102001838.GA911@rhlx01.hs-esslingen.de>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
+	 <1162417916.15900.271.camel@localhost.localdomain>
+	 <20061102001838.GA911@rhlx01.hs-esslingen.de>
+Content-Type: text/plain
+Date: Thu, 02 Nov 2006 08:31:16 +0100
+Message-Id: <1162452676.15900.287.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 25, 2006 at 07:22:08PM -0700, David Brownell wrote:
-> On Wednesday 25 October 2006 4:58 pm, Randy Dunlap wrote:
-> > On Wed, 25 Oct 2006 15:27:09 -0700 David Brownell wrote:
-> > 
-> > > Instead, "usbnet.c" should #ifdef the relevant ethtool hooks
-> > > according to CONFIG_MII ... since it's completely legit to
-> > > use usbnet with peripherals that don't need MII.
-> 
-> I had in mind something simpler -- #ifdeffing the entire functions,
-> as in this patch.  It looks more complicated than it is, because
-> "diff" gets confused by moving two functions earlier in the file.
-> 
-> (Thanks for starting this, Randy ... these two patches should be merged
-> before RC4 ships.)
+On Thu, 2006-11-02 at 01:18 +0100, Andreas Mohr wrote:
+> You applied a nice lameness filter, by secretly making sure that -dyntick1
+> is unavailable and a new -dyntick2 took its place, right? ;)
 
-Argh, there were just too many different versions of these patches
-floating around.  Can you resend the final versions please?
+:)
 
-thanks,
+> It seems we have C2 APIC issues here, from a cursory glance at the log...
 
-greg k-h
+Yes, it stops in C2. Probably I was a bit over optimistic with the
+detection. Well it detects it, but not without help from the keyboard
+operator :(
+
+> Note that it stalls directly after the
+> input: AT Translated Set 2 keyboard as /class/input/input0
+> line (from that point on it needs additional "support" via keyboard press).
+
+Does it resume normal operation after the "ACPI: lapic on CPU 0 stops in
+C2[C2]" message ?
+
+It is easy to fix by marking all AMDs broken again, but I really want to
+avoid this.
+
+	tglx
+
+

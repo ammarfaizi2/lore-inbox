@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752588AbWKBAAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752301AbWKBABy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752588AbWKBAAm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 19:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752587AbWKBAAm
+	id S1752301AbWKBABy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 19:01:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752308AbWKBABy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 19:00:42 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:27075 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752588AbWKBAAl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 19:00:41 -0500
-Date: Wed, 1 Nov 2006 18:00:35 -0600
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       Auke Kok <sofar@foo-projects.org>,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>
-Subject: [PATCH 2/2]: Use newly defined PCI channel offline routine
-Message-ID: <20061102000035.GW6360@austin.ibm.com>
-References: <20061101235417.GV6360@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101235417.GV6360@austin.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+	Wed, 1 Nov 2006 19:01:54 -0500
+Received: from ozlabs.org ([203.10.76.45]:57504 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1752297AbWKBABx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 19:01:53 -0500
+Subject: Re: [PATCH 4/7] paravirtualization: Allow selected bug checks to
+	be skipped by paravirt kernels
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>,
+       virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061101152946.14f95f79.akpm@osdl.org>
+References: <20061029024504.760769000@sous-sol.org>
+	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
+	 <1162178936.9802.34.camel@localhost.localdomain>
+	 <20061030231132.GA98768@muc.de>
+	 <1162376827.23462.5.camel@localhost.localdomain>
+	 <1162376894.23462.7.camel@localhost.localdomain>
+	 <1162376981.23462.10.camel@localhost.localdomain>
+	 <1162377043.23462.12.camel@localhost.localdomain>
+	 <20061101152946.14f95f79.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 02 Nov 2006 11:01:50 +1100
+Message-Id: <1162425710.6848.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-11-01 at 15:29 -0800, Andrew Morton wrote:
+> On Wed, 01 Nov 2006 21:30:43 +1100
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> 
+> > --- a/include/asm-i386/bugs.h
+> > +++ b/include/asm-i386/bugs.h
+> > @@ -21,6 +21,7 @@
+> >  #include <asm/processor.h>
+> >  #include <asm/i387.h>
+> >  #include <asm/msr.h>
+> > +#include <asm/paravirt.h>
+> 
+> In many other places you have
+> 
+> #ifdef CONFIG_PARAVIRT
+> #include <asm/paravirt.h>
+> ...
+> 
+> But not here.
+> 
+> Making <asm/paravirt.h> invulnerable would be the more typical approach.
 
-Subject: [PATCH 2/2]: Use newly defined PCI channel offline routine
+It *is* actually safe.  The "#ifdef CONFIG_PARAVIRT / #include
+<asm/paravirt.h> / #else / <... native versions...>" is to give a big
+hint to the reader to look in paravirt.h for the real definitions.
 
-Use newly minted routine to access the PCI channel state.
+Originally I had a noparavirt.h where all these lived, and people hated
+it.  So we did it this way, which minimizes churn.
 
-Signed-off-by: Linas Vepstas <linas@linas.org>
+Rusty.
 
-----
- drivers/net/e1000/e1000_main.c |    2 +-
- drivers/net/ixgb/ixgb_main.c   |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Index: linux-2.6.19-rc4-git3/drivers/net/e1000/e1000_main.c
-===================================================================
---- linux-2.6.19-rc4-git3.orig/drivers/net/e1000/e1000_main.c	2006-11-01 16:15:24.000000000 -0600
-+++ linux-2.6.19-rc4-git3/drivers/net/e1000/e1000_main.c	2006-11-01 16:20:55.000000000 -0600
-@@ -3297,7 +3297,7 @@ e1000_update_stats(struct e1000_adapter 
- 	 */
- 	if (adapter->link_speed == 0)
- 		return;
--	if (pdev->error_state && pdev->error_state != pci_channel_io_normal)
-+	if (pci_channel_offline(pdev->error_state))
- 		return;
- 
- 	spin_lock_irqsave(&adapter->stats_lock, flags);
-Index: linux-2.6.19-rc4-git3/drivers/net/ixgb/ixgb_main.c
-===================================================================
---- linux-2.6.19-rc4-git3.orig/drivers/net/ixgb/ixgb_main.c	2006-11-01 16:15:25.000000000 -0600
-+++ linux-2.6.19-rc4-git3/drivers/net/ixgb/ixgb_main.c	2006-11-01 16:20:55.000000000 -0600
-@@ -1564,7 +1564,7 @@ ixgb_update_stats(struct ixgb_adapter *a
- 	struct pci_dev *pdev = adapter->pdev;
- 
- 	/* Prevent stats update while adapter is being reset */
--	if (pdev->error_state && pdev->error_state != pci_channel_io_normal)
-+	if (pci_channel_offline(pdev->error_state))
- 		return;
- 
- 	if((netdev->flags & IFF_PROMISC) || (netdev->flags & IFF_ALLMULTI) ||
+

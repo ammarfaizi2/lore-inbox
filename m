@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWKBQX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751957AbWKBQaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751931AbWKBQX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 11:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751957AbWKBQX5
+	id S1751957AbWKBQaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 11:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751973AbWKBQaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 11:23:57 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:38579 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751931AbWKBQX4 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 11:23:56 -0500
-Message-Id: <200611021603.kA2G3ZoH004765@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Dave Jones <davej@redhat.com>, ray-gmail@madrabbit.org,
-       "Martin J. Bligh" <mbligh@google.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Subject: Re: Linux 2.6.19-rc4
-In-Reply-To: Your message of "Tue, 31 Oct 2006 22:39:06 GMT."
-             <20061031223906.GR29920@ftp.linux.org.uk>
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061030213454.8266fcb6.akpm@osdl.org> <Pine.LNX.4.64.0610310737000.25218@g5.osdl.org> <45477668.4070801@google.com> <2c0942db0610310834i6244c0abm10c81e984565ed8a@mail.gmail.com> <20061031165133.GB23354@redhat.com> <200610312126.k9VLQtCB003616@turing-police.cc.vt.edu>
-            <20061031223906.GR29920@ftp.linux.org.uk>
+	Thu, 2 Nov 2006 11:30:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1483 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751957AbWKBQaY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 11:30:24 -0500
+Subject: Re: Security issues with local filesystem caching
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, jmorris@namei.org,
+       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+In-Reply-To: <1162403134.32614.242.camel@moss-spartans.epoch.ncsc.mil>
+References: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil>
+	 <16969.1161771256@redhat.com> <31035.1162330008@redhat.com>
+	 <4417.1162395294@redhat.com>
+	 <1162396705.29617.18.camel@localhost.localdomain>
+	 <1162403134.32614.242.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 02 Nov 2006 11:29:24 -0500
+Message-Id: <1162484964.6503.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1162483415_3054P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.9.1 (2.9.1-2.fc7) 
 Content-Transfer-Encoding: 7bit
-Date: Thu, 02 Nov 2006 11:03:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1162483415_3054P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 2006-11-01 at 12:45 -0500, Stephen Smalley wrote:
+> On Wed, 2006-11-01 at 10:58 -0500, Karl MacMillan wrote:
 
-On Tue, 31 Oct 2006 22:39:06 GMT, Al Viro said:
-> It is easy, actually.
+<snip>
 
-<technical explanation that boils down to "you can't just diff the messages,
-you need to peek at the source" and leverages unidiff to do some of the heavy
-lifting>
 
-> default).  That's it.  About 10K of sparse C - both filter and map generator.
+> > fssid seems like the wrong name, though it does match the DAC concept.
+> > This is really more general impersonation of another domain by the
+> > kernel and might have other uses.
+> 
+> NFS will want a fssid in order to have file access checks applied
+> against the client process' SID if/when the client process' context
+> becomes available.
 
-"10K of C code" easy is a tad different than a 4-line "diff the 2 compile logs"
-easy, which is what I was sort of saying... 
+I was suggesting that it might be helpful if this applied to all checks
+- not just file access - and would therefore need a different name.
 
---==_Exmh_1162483415_3054P
-Content-Type: application/pgp-signature
+Karl
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFShbXcC3lWbTT17ARAnkJAKDI/mxXSRDcvRIan860ZdV+ONdwCQCgtsPP
-E5GXF0n+uLcC1r6UNlR7aBk=
-=xnSo
------END PGP SIGNATURE-----
-
---==_Exmh_1162483415_3054P--

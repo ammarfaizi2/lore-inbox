@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWKBG4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752699AbWKBHML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWKBG4H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 01:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWKBG4G
+	id S1752699AbWKBHML (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 02:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752700AbWKBHML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 01:56:06 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:49891 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750762AbWKBG4C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 01:56:02 -0500
-Date: Wed, 1 Nov 2006 22:56:09 -0800
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@google.com>,
-       Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Mike Galbraith <efault@gmx.de>, Andy Whitcroft <apw@shadowen.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-Message-ID: <20061102065609.GA14353@suse.de>
-References: <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com> <4547FABE.502@google.com> <20061101020850.GA13070@suse.de> <45480241.2090803@google.com> <20061102052409.GA9642@suse.de> <45498174.5070309@google.com> <20061102060225.GA11188@suse.de> <20061101220701.78a1fa88.akpm@osdl.org> <20061102064227.GA11693@suse.de> <20061101224915.19d1b1ac.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101224915.19d1b1ac.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 2 Nov 2006 02:12:11 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:58013 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1752699AbWKBHMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 02:12:10 -0500
+Subject: RE: Can Linux live without DMA zone?
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Conke Hu <conke.hu@amd.com>
+Cc: Jun Sun <jsun@junsun.net>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@sgi.com>
+In-Reply-To: <FFECF24D2A7F6D418B9511AF6F358602F2D4E1@shacnexch2.atitech.com>
+References: <FFECF24D2A7F6D418B9511AF6F358602F2D4E1@shacnexch2.atitech.com>
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 02 Nov 2006 08:13:11 +0100
+Message-Id: <1162451591.27131.2.camel@taijtu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 10:49:15PM -0800, Andrew Morton wrote:
-> On Wed, 1 Nov 2006 22:42:27 -0800
-> Greg KH <gregkh@suse.de> wrote:
+On Thu, 2006-11-02 at 11:43 +0800, Conke Hu wrote:
+> It seems a good idea.
+> Is dma zone is still necessay on most modern computers?
+
+(don't top post!)
+
+if you would have used google, you'd have found this:
+  http://www.mail-archive.com/linux-arch@vger.kernel.org/msg01623.html
+
+
+cheers
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jun Sun
+> Sent: 2006年11月2日 10:16
+> To: linux-kernel@vger.kernel.org
+> Subject: Can Linux live without DMA zone?
 > 
-> > On Wed, Nov 01, 2006 at 10:07:01PM -0800, Andrew Morton wrote:
-> > > On Wed, 1 Nov 2006 22:02:25 -0800
-> > > Greg KH <gregkh@suse.de> wrote:
-> > > 
-> > > > > Thanks for fixing this up. If you could post a diff somewhere against
-> > > > > either mainline or -mm, would make it easy to run through
-> > > > > test.kernel.org before you wake up tommorow ;-)
-> > > > 
-> > > > Oops, the newest -mm just came out without any of the driver core
-> > > > patches in it due to the problems.  I'll wait until the next -mm release
-> > > > then, and try to go catch up on my pending-patch-queue right now
-> > > > instead...
-> > > 
-> > > Let me know when
-> > > http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/
-> > > is ready to go and I'll prepare a new rollup.
-> > 
-> > It should be ready to go right now.  Fire away :)
-> > 
 > 
-> Poor Cornelia.  All her patches broke again.
+> I am trying to reserve a block of memory (>16MB) starting from 0 and hide it 
+> from kernel.  A consequence is that DMA zone now has size 0.  That causes
+> many drivers to grief (OOMs).
+> 
+> I see two ways out:
+> 
+> 1. Modify individual drivers and convince them not to alloc with GFP_DMA.
+>    I have been trying to do this but do not seem to see an end of it.  :)
+> 
+> 2. Simply lie and increase MAX_DMA_ADDRESS to really big (like 1GB) so that
+>    the whole memory region belongs to DMA zone.
+> 
+> #2 sounds pretty hackish.  I am sure something bad will happen
+> sooner or later (like what?). But so far it appears to be working fine.
+> 
+> The fundamental question is: Has anybody tried to run Linux without 0 sized
+> DMA zone before?  Am I doing something that nobody has done before (which is
+> something really hard to believe these days with Linux :P)?
+> 
+> Cheers.
+> 
+> Jun
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Yeah, I knew that would happen.  I have them still in my queue, I'll
-handle porting them to my tree now, I've forced her to handle my
-mistakes too much already :)
-
-So you can drop them now, I'll get to them tomorrow.
-
-Let's verify that this all is fixed first :)
-
-thanks,
-
-greg k-h

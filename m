@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752451AbWKBKv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWKBKvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752451AbWKBKv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 05:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752822AbWKBKv1
+	id S1750747AbWKBKvH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 05:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752451AbWKBKvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 05:51:27 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61341 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752451AbWKBKv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 05:51:26 -0500
-Subject: RE: Can Linux live without DMA zone?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Conke Hu <conke.hu@amd.com>
-Cc: Jun Sun <jsun@junsun.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <FFECF24D2A7F6D418B9511AF6F358602F2D5DF@shacnexch2.atitech.com>
-References: <FFECF24D2A7F6D418B9511AF6F358602F2D5DF@shacnexch2.atitech.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 02 Nov 2006 11:51:22 +0100
-Message-Id: <1162464682.14530.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+	Thu, 2 Nov 2006 05:51:07 -0500
+Received: from nf-out-0910.google.com ([64.233.182.188]:45593 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750747AbWKBKvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 05:51:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jCZyvrU0oHj0f8V+ChhdlynVcDB1ript/y4NeyaqRWp1hQyqRymEZr6BygOMf3XlaognBo09rG5PnMByetbUGMoyiNtKM2ZwUviFJqPP5gQSRFWoOdcGg0StvVBhkbIJ/RLWGvvDbrrep9a1mtJDE4cYoVvyeaYW/h0B2mEEvZk=
+Message-ID: <aec7e5c30611020251p7375fb39ne1f5aba8ea14a3a2@mail.gmail.com>
+Date: Thu, 2 Nov 2006 19:51:02 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Jakub Jelinek" <jakub@redhat.com>
+Subject: Re: [PATCH 01/02] Elf: Always define elf_addr_t in linux/elf.h
+Cc: "Magnus Damm" <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       "Vivek Goyal" <vgoyal@in.ibm.com>, "Andi Kleen" <ak@muc.de>,
+       fastboot@lists.osdl.org, Horms <horms@verge.net.au>,
+       "Dave Anderson" <anderson@redhat.com>, ebiederm@xmission.com
+In-Reply-To: <20061102104305.GD24872@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <20061102101942.452.73192.sendpatchset@localhost>
+	 <20061102104305.GD24872@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-02 at 18:33 +0800, Conke Hu wrote:
-> Most PCs do not have ISA or floppy, so maybe we could add an option to enable DMA zone or not.
-> 
+On 11/2/06, Jakub Jelinek <jakub@redhat.com> wrote:
+> On Thu, Nov 02, 2006 at 07:19:42PM +0900, Magnus Damm wrote:
+> > --- 0001/include/linux/elf.h
+> > +++ work/include/linux/elf.h  2006-11-02 15:44:10.000000000 +0900
+> > @@ -352,12 +352,16 @@ typedef struct elf64_note {
+> >    Elf64_Word n_type; /* Content type */
+> >  } Elf64_Nhdr;
+> >
+> > +typedef Elf64_Off elf64_addr;
+> > +typedef Elf32_Off elf32_addr;
+> > +
+>
+> What are these typedefs useful for?  Isn't it better just to
+> use Elf32_Addr and Elf64_Addr in the #defines below?
 
-please don't top-post. 
+Sure, good idea. I just added them to follow the "style" of the rest
+of the file.
 
+Thanks,
 
-also floppy is still there a lot unfortunately ... as are some of the
-more crappy soundcards. ZONE_DMA is a 32 bit linux thing; most modern
-systems are 64 bit capable now....
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+/ magnus

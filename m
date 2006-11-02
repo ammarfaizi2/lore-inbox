@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752648AbWKBIjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752656AbWKBIq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752648AbWKBIjp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 03:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752651AbWKBIjp
+	id S1752656AbWKBIq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 03:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752723AbWKBIq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 03:39:45 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:17141 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752648AbWKBIjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 03:39:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=QDikx8pRHlsB9MzbLYD8VZrekI+XnMe1XLGnSA5cj/qcvsS3D9wvgNmEZIllPjJGKzfXP5dOCUrptH1MQW4U1m/+5P0PJLl8XcV6oq9cfC8dxufEjYgi1+4nUGKAqhlc3i2HArWTLaybOb8vR0ht2h2zPHt/b7NTnpZAuGO9vfM=
-Subject: Re: [PATCH v2] Re: Battery class driver.
-From: Richard Hughes <hughsient@gmail.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: multinymous@gmail.com, xavier.bestel@free.fr, davidz@redhat.com,
-       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Pavel Machek <pavel@suse.cz>
-In-Reply-To: <znLIYxER.1162453921.3011900.khali@localhost>
-References: <znLIYxER.1162453921.3011900.khali@localhost>
-Content-Type: text/plain
-Date: Thu, 02 Nov 2006 08:39:40 +0000
-Message-Id: <1162456780.4983.3.camel@hughsie-laptop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 2 Nov 2006 03:46:59 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:64106 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1752656AbWKBIq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 03:46:58 -0500
+Message-ID: <4549AF81.2060706@openvz.org>
+Date: Thu, 02 Nov 2006 11:42:41 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: vatsa@in.ibm.com
+CC: Pavel Emelianov <xemul@openvz.org>, dev@openvz.org, sekharan@us.ibm.com,
+       menage@google.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
+       devel@openvz.org
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+References: <20061030103356.GA16833@in.ibm.com> <45460743.8000501@openvz.org> <20061031163418.GD9588@in.ibm.com> <4548545B.4070701@openvz.org> <20061101175015.GA22976@in.ibm.com>
+In-Reply-To: <20061101175015.GA22976@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-02 at 08:52 +0100, Jean Delvare wrote:
-> You just need to know the voltage of the battery, what else?
+Srivatsa Vaddagiri wrote:
+> On Wed, Nov 01, 2006 at 11:01:31AM +0300, Pavel Emelianov wrote:
+>>> Sorry dont get you here. Are you saying we should support different
+>>> grouping for different controllers?
+>> Not me, but other people in this thread.
+> 
+> Hmm ..I thought OpenVz folks were interested in having different
+> groupings for different resources i.e grouping for CPU should be
+> independent of the grouping for memory.
+> 
+> 	http://lkml.org/lkml/2006/8/18/98
+> 
+> Isnt that true?
 
-This isn't as easy as you think. The number of broken BIOS's that have
-the current, last full or design either as 0xFFFF, 0xFFFFFF, 0, 1mV, or
-10000mV rather than the present (correct) value is a big problem.
+That's true. We don't mind having different groupings for
+different resources. But what I was sying in this thread is
+"I didn't *propose* this thing, I just *agreed* that this
+might be usefull for someone."
 
-We've got quite a bit of code in HAL to try and sort out all the quirks,
-although it only works most of the time due to extreme hardware
-brokenness.
-
-Richard.
-
-
+So if we're going to have different groupings for different
+resources what's the use of "container" grouping all "controllers"
+together? I see this situation like each task_struct carries
+pointers to kmemsize controller, pivate pages controller,
+physical pages controller, CPU time controller, disk bandwidth
+controller, etc. Right? Or did I miss something?

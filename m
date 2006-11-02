@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWKBUkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWKBUzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWKBUkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 15:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWKBUkO
+	id S1750956AbWKBUzI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 15:55:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWKBUzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 15:40:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42913 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750733AbWKBUkM (ORCPT
+	Thu, 2 Nov 2006 15:55:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59817 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750956AbWKBUzG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 15:40:12 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1162496968.6071.38.camel@lade.trondhjem.org> 
-References: <1162496968.6071.38.camel@lade.trondhjem.org>  <1162402218.32614.230.camel@moss-spartans.epoch.ncsc.mil> <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> <4417.1162395294@redhat.com> <25037.1162487801@redhat.com> 
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-       Karl MacMillan <kmacmill@redhat.com>, jmorris@namei.org,
-       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com
-Subject: Re: Security issues with local filesystem caching 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 02 Nov 2006 20:38:37 +0000
-Message-ID: <32754.1162499917@redhat.com>
+	Thu, 2 Nov 2006 15:55:06 -0500
+Date: Thu, 2 Nov 2006 12:54:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Rajesh Shah <rajesh.shah@intel.com>, toralf.foerster@gmx.de,
+       Jeff Garzik <jeff@garzik.org>, Pavel Machek <pavel@ucw.cz>,
+       Greg KH <greg@kroah.com>, Auke Kok <auke-jan.h.kok@intel.com>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>
+Subject: Re: 2.6.19-rc4: known unfixed regressions
+In-Reply-To: <200611022102.02302.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.64.0611021240300.25218@g5.osdl.org>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+ <20061031195654.GV27968@stusta.de> <200611022102.02302.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> Just why are you doing all this? Why do we need a back-end that requires
-> all this extra client-side security infrastructure in order to work? 
 
-Well, both Christoph and Al are of the opinion that I should be using
-vfs_mkdir() and co rather than bypassing the security and calling inode ops
-directly.
+On Thu, 2 Nov 2006, Rafael J. Wysocki wrote:
 
-Also I should be setting security labels on the files I create.
+> Can we please add the following two to the list of known regressions:
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=7082
 
-> IOW: What is wrong with the existing CacheFS?
+Ok, I think I'll just revert it.
 
-Well, you did require it to be reviewed by Christoph...
+Decoding the PCI IO range is fine - even if a driver has detached, the 
+kernel knows where the PCI devices are, and won't re-use the range. So 
+while the patch that triggers the problem seems valid in itself, it's 
+probably not worth the pain to apply it at this point. So I think I'll 
+revert it - the rationale for the patch was fairly weak.
 
-David
+Greg, or would you prefer to do the honors?
+
+> http://bugzilla.kernel.org/show_bug.cgi?id=7207
+
+This one is apparently purely an e1000 driver problem. Can't help you with 
+that one. Although I find it suspicious that the "e1000_resume()" path 
+doesn't seem to be calling "e1000_power_up_phy()" before e1000_up().
+
+		Linus

@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWKBXTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWKBXUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWKBXTP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 18:19:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752779AbWKBXTO
+	id S1750807AbWKBXUl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 18:20:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752779AbWKBXUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 18:19:14 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:63883 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751086AbWKBXTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 18:19:14 -0500
-Date: Fri, 3 Nov 2006 00:19:13 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net>
-Message-ID: <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
- <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net>
-X-Personality-Disorder: Schizoid
+	Thu, 2 Nov 2006 18:20:40 -0500
+Received: from mx3.cs.washington.edu ([128.208.3.132]:5338 "EHLO
+	mx3.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S1750807AbWKBXUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 18:20:40 -0500
+Date: Thu, 2 Nov 2006 15:19:46 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
+cc: muli@il.ibm.com, ak@suse.de, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, jdmason@kudzu.us
+Subject: Re: [PATCH 1/4] Calgary: phb_shift can be int
+In-Reply-To: <014101c6fed4$d0e4b850$0732700a@djlaptop>
+Message-ID: <Pine.LNX.4.64N.0611021519320.7138@attu4.cs.washington.edu>
+References: <11625041803066-git-send-email-muli@il.ibm.com>
+ <11625041802816-git-send-email-muli@il.ibm.com>
+ <Pine.LNX.4.64N.0611021401180.1797@attu4.cs.washington.edu>
+ <014101c6fed4$d0e4b850$0732700a@djlaptop>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
->
-> On Thu, 2 Nov 2006, Mikulas Patocka wrote:
->> As my PhD thesis, I am designing and writing a filesystem, and it's now in 
->> a state that it can be released. You can download it from 
->> http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
->
-> "Disk that can atomically write one sector (512 bytes) so that the sector
-> contains either old or new content in case of crash."
->
-> Well, maybe I am completly wrong but as far as I understand no disk currently 
-> will provide such requirement. Disks can have (after halted write):
-> - old data,
-> - new data,
-> - nothing (unreadable sector - result of not full write and disk internal 
-> checksum failute for that sector, happens especially often if you have 
-> frequent power outages).
->
-> And possibly some broken drives may also return you something that they think 
-> is good data but really is not (shouldn't happen since both disks and cables 
-> should be protected by checksums, but hey... you can never be absolutely sure 
-> especially on very big storages).
->
-> So... isn't this making your filesystem a little flawed in design?
+On Thu, 2 Nov 2006, Richard B. Johnson wrote:
 
-There was discussion about it here some times ago, and I think the result 
-was that the IDE bus is reset prior to capacitors discharge and total loss 
-of power and disk has enough time to finish a sector --- but if you have 
-crap power supply (doesn't signal power loss), crap motherboard (doesn't 
-reset bus) or crap disk (doesn't respond to reset), it can fail.
+> > > diff --git a/arch/x86_64/kernel/pci-calgary.c
+> > > b/arch/x86_64/kernel/pci-calgary.c
+> > > index 37a7708..31d5758 100644
+> > > --- a/arch/x86_64/kernel/pci-calgary.c
+> > > +++ b/arch/x86_64/kernel/pci-calgary.c
+> >> @@ -740,7 +740,7 @@ static void __init calgary_increase_spli
+> > >  {
+> > >  u64 val64;
+> > >  void __iomem *target;
+> > > - unsigned long phb_shift = -1;
+> > > + unsigned int phb_shift = ~0; /* silence gcc */
+> > >  u64 mask;
+> > >
+> > >  switch (busno_to_phbid(busnum)) {
+> > >
+> >
+> > There's been a suggestion to add
+> >
+> > #define SILENCE_GCC(x) = x
+> 
+> This was previously discussed. To quiet gcc warnings, one can use "var=var",
+> but you do not want  to hide it in a macro! That hides bonafide bugs. If you
+> carefully review code and see that there is absolutely no possibility of using
+> an uninitialized variable in any execution path, then you can assign it to
+> itself to quiet the compiler.
+> 
 
-BTW. reiserfs and xfs depend on this feature too. ext3 is the only one 
-that doesn't.
+Such as the case above.
 
-Mikulas
+		David

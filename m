@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752600AbWKBAJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWKBARe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752600AbWKBAJv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 19:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752302AbWKBAJv
+	id S1751027AbWKBARe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 19:17:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWKBARe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 19:09:51 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:54600 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1752589AbWKBAJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 19:09:49 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=KNHJGk1/41ImrwGnN9PBqZDknbSxOpn/xAq2EPpA8r52GOAToV39zfIhJKthbr87r
-	LGoRAuTqnyi343BNISWcg==
-Message-ID: <6599ad830611011609t123bba47hf2f3b9a4191d6c12@mail.gmail.com>
-Date: Wed, 1 Nov 2006 16:09:42 -0800
-From: "Paul Menage" <menage@google.com>
-To: "Paul Jackson" <pj@sgi.com>
-Subject: Re: [ckrm-tech] RFC: Memory Controller
-Cc: balbir@in.ibm.com, dev@openvz.org, vatsa@in.ibm.com, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-In-Reply-To: <20061101042341.83cbd77e.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 1 Nov 2006 19:17:34 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:34035 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1750760AbWKBARd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 19:17:33 -0500
+Date: Wed, 1 Nov 2006 16:11:55 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: "Neil Horman" <nhorman@tuxdriver.com>,
+       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>, akpm@osdl.org,
+       kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, maxk@qualcomm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [KJ][PATCH] Correct misc_register return code handling in
+ several drivers
+Message-Id: <20061101161155.d7b30258.randy.dunlap@oracle.com>
+In-Reply-To: <9a8748490611011605u55ccdcaeob99700d6e1a813a4@mail.gmail.com>
+References: <20061023171910.GA23714@hmsreliant.homelinux.net>
+	<1161660875.10524.535.camel@localhost.localdomain>
+	<20061024125306.GA1608@hmsreliant.homelinux.net>
+	<1161729762.10524.660.camel@localhost.localdomain>
+	<20061101135619.GA3459@hmsreliant.homelinux.net>
+	<9a8748490611011605u55ccdcaeob99700d6e1a813a4@mail.gmail.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061030103356.GA16833@in.ibm.com>
-	 <6599ad830610300304l58e235f7td54ef8744e462a55@mail.gmail.com>
-	 <4545FDCD.3080107@in.ibm.com>
-	 <6599ad830610301014l1bf78ce8q998229483d055a90@mail.gmail.com>
-	 <454782D2.3040208@in.ibm.com>
-	 <6599ad830610310922p61913cdaqb441a2cb718420a9@mail.gmail.com>
-	 <4548472A.50608@in.ibm.com>
-	 <6599ad830610312307i549f5a51h3b7a1744a14919f5@mail.gmail.com>
-	 <45485046.6080508@in.ibm.com> <20061101042341.83cbd77e.pj@sgi.com>
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/06, Paul Jackson <pj@sgi.com> wrote:
->
-> Essentially, if my understanding is correct, zone reclaim has tasks
-> that are asking for memory first do some work towards keeping enough
-> memory free, such as doing some work reclaiming slab memory and pushing
-> swap and pushing dirty buffers to disk.
+On Thu, 2 Nov 2006 01:05:49 +0100 Jesper Juhl wrote:
 
-True, it would help with keeping the machine in an alive state.
+> On 01/11/06, Neil Horman <nhorman@tuxdriver.com> wrote:
+> > Hey all-
+> >         Since Andrew hasn't incorporated this patch yet, and I had the time, I
+> > redid the patch taking Benjamin's INIT_LIST_HEAD and Joes mmtimer cleanup into
+> > account.  New patch attached, replacing the old one, everything except the
+> > aforementioned cleanups is identical.
+> >
+> > Thanks & Regards
+> > Neil
+> >
+> > Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+> >
+> > +out4:
+> > +       for_each_online_node(node) {
+> > +               kfree(timers[node]);
+> > +       }
+> > +out3:
+> > +       misc_deregister(&mmtimer_miscdev);
+> > +out2:
+> > +       free_irq(SGI_MMTIMER_VECTOR, NULL);
+> > +out1:
+> > +       return -1;
+> 
+> Very nitpicky little thing, but shouldn't the labels start at column
+> 1, not column 0 ?
+> I thought that was standard practice (apparently labels at column 0
+> can confuse 'patch').
+> 
+> Hmm, I guess that should be defined once and for all in
+> Documentation/CodingStyle
 
-But when one task is allocating memory, it's still going to be pushing
-out pages with random owners, rather than pushing out its own pages
-when it hits it memory limit. That can negatively affect the
-performance of other tasks, which is what we're trying to prevent.
+I have some other CodingStyle changes to submit, but feel free
+to write this one up.
 
-You can't just say that the biggest user should get penalised. You
-might want to use 75% of a machine for an important production server,
-and have the remaining 25% available for random batch jobs - they
-shouldn't be able to impact the production server.
+However, I didn't know that we had a known style for this, other
+than "not indented so far that it's hidden".
 
-Paul
+If a label in column 0 [0-based :] confuses patch, then that's
+a reason, I suppose.  I wasn't aware of that one...
+In a case like that, we usually say "fix the tool then."
+
+---
+~Randy

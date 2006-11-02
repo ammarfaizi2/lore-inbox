@@ -1,29 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWKBB2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWKBBiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWKBB2D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 20:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752447AbWKBB2D
+	id S1751477AbWKBBiU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 20:38:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWKBBiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 20:28:03 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:3469 "EHLO
+	Wed, 1 Nov 2006 20:38:20 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:43674 "EHLO
 	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1752441AbWKBB2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 20:28:00 -0500
-Date: Wed, 1 Nov 2006 17:22:41 -0800
+	id S1751477AbWKBBiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 20:38:19 -0500
+Date: Wed, 1 Nov 2006 17:33:58 -0800
 From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Neil Horman <nhorman@tuxdriver.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, maxk@qualcomm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [KJ][PATCH] Correct misc_register return code handling in
- several drivers
-Message-Id: <20061101172241.84439229.randy.dunlap@oracle.com>
-In-Reply-To: <200611020223.43011.jesper.juhl@gmail.com>
-References: <20061023171910.GA23714@hmsreliant.homelinux.net>
-	<200611020144.51196.jesper.juhl@gmail.com>
-	<454945FA.8030901@oracle.com>
-	<200611020223.43011.jesper.juhl@gmail.com>
+To: Jun Sun <jsun@junsun.net>
+Cc: linux-scsi@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: unchecked_isa_dma and BusLogic SCSI controller
+Message-Id: <20061101173358.7b027d13.randy.dunlap@oracle.com>
+In-Reply-To: <20061101235330.GA30843@srv.junsun.net>
+References: <20061101235330.GA30843@srv.junsun.net>
 Organization: Oracle Linux Eng.
 X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -36,81 +29,55 @@ X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2006 02:23:42 +0100 Jesper Juhl wrote:
+On Wed, 1 Nov 2006 15:53:30 -0800 Jun Sun wrote:
 
-> On Thursday 02 November 2006 02:12, Randy Dunlap wrote:
-> > Jesper Juhl wrote:
-> > > On Thursday 02 November 2006 01:27, Andrew Morton wrote:
-> > >> On Wed, 1 Nov 2006 16:11:55 -0800
-> > >> Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> > >>
-> > >>>> Hmm, I guess that should be defined once and for all in
-> > >>>> Documentation/CodingStyle
-> > >>> I have some other CodingStyle changes to submit, but feel free
-> > >>> to write this one up.
-> > >> Starting labels in column 2 gives me the creeps, personally.  But there's a
-> > >> decent justification for it.
-> > >>
-> > >>> However, I didn't know that we had a known style for this, other
-> > >>> than "not indented so far that it's hidden".
-> > >>>
-> > >>> If a label in column 0 [0-based :] confuses patch, then that's
-> > >>> a reason, I suppose.  I wasn't aware of that one...
-> > >>> In a case like that, we usually say "fix the tool then."
-> > >> The problem is that `diff -p' screws up and displays the label: in the
-> > >> place where it should be displaying the function name.
-> > >>
-> > >> Of course, lots of people forget the -p anyway...  Maybe we can fix those
-> > >> tools ;)
-> > >>
-> > > Until the tools get fixed, how about applying this patch ?
-> > > 
-> > > 
-> > > Add CodngStyle info on labels.
-> > > 
-> [snip]
-> > > +generally it is prefered that labels be placed at column 1.
-> > 		~~~~~~~~~~~~
-> > 		preferred
-> > 
-> > I would also say something like this:
-> > 
-> > Labels should stand out -- be easily visible.  They should not be
-> > indented so much that they are hidden or obscured by the surrounding
-> > source code.
-> > 
-> Ok, how's this :
 > 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
-> 
-> diff --git a/Documentation/CodingStyle b/Documentation/CodingStyle
-> index 29c1896..4f6b2d5 100644
-> --- a/Documentation/CodingStyle
-> +++ b/Documentation/CodingStyle
-> @@ -566,6 +566,21 @@ result.  Typical examples would be funct
->  NULL or the ERR_PTR mechanism to report failure.
->  
->  
-> +		Chapter 17: Labels
-> +
-> +Label names should be lowercase.
-> +
-> +Label names should start with a letter [a-z].
-> +
-> +Labels should not be placed at column 0. Doing so confuses some tools, most
-> +notably 'diff' and 'patch'. Instead place labels at column 1 (indented 1
-> +space). In some cases it's OK to indent labels one or more tabs, but
-> +generally it is preferred that labels be placed at column 1.
-> +
-> +Labels should stand out - be easily visible. They should not be indented so
-> +much that they are hidden or obscured by the surrounding source code.
-> +
-> +
->  
->  		Appendix I: References
+> Can someone enlighten me on what "unchecked_isa_dma" means in the
+> struct scsi_host_template?
 
-Yep, OK with me.  (Ack)
+It's documented in Documentation/scsi/scsi_mid_low_api.txt:
+
+    unchecked_isa_dma - 1=>only use bottom 16 MB of ram (ISA DMA addressing
+                   restriction), 0=>can use full 32 bit (or better) DMA
+                   address space
+
+> Specifically why Bus_Logic_template has
+> it set to 1?
+
+maybe ask on linux-scsi@vger.kernel.org (cc-ed)
+
+> I am trying to reserve a block of memory (>16MB) starting from 0 and hide
+> it from kernel.  As a result, the DMA zone becomes 0 in size.
+> 
+> Because Bus_Logic_template has unchecked_isa_dma set to 1, the driver
+> will attempt to allocate a block of memory from DMA zone and thus
+> causes OOMs during its initialization.
+> 
+> It is hard for me to see why BusLogic controller would only do DMA
+> in low 16MB.  Is there a fix for this?
+
+Does anyone know that controller hardware and its limitations?
+
+If the driver can't handle highmem addresses, you could just change
+it so that
+(a) it does not set unchecked_isa_dma
+(b) it sets .slave_alloc in the host template and then does
+like the <slave_alloc> function in ppa.c or imm.c:
+call blk_queue_bounce_limit() to set an address for which bounce
+buffers (from highmem to lowmem) will be used.
+[I don't guarantee that to work for BusLogic.]
+
+> BTW, I also tried to increase MAX_DMA_ADDRESS to cover the whole memory
+> area.  While the OOMs are gone during BusLogic driver initialization, 
+> kernel fails to find labelled root partition or fail to open
+> the initial console.  It appears the disk (or the scsi) is not working
+> properly after increasing MAX_DMA_ADDRESS.
+> 
+> My platform is vmplayer.  Pretty cool for devel.
+> 
+> Cheers.
+> 
+> Jun
 
 ---
 ~Randy

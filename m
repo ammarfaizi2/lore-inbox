@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752701AbWKBHNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752708AbWKBHWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752701AbWKBHNw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 02:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752704AbWKBHNw
+	id S1752708AbWKBHWj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 02:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752707AbWKBHWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 02:13:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:18828 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752701AbWKBHNv (ORCPT
+	Thu, 2 Nov 2006 02:22:39 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32733 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1752705AbWKBHWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 02:13:51 -0500
-Date: Wed, 1 Nov 2006 23:13:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>,
-       virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+	Thu, 2 Nov 2006 02:22:38 -0500
+Date: Wed, 1 Nov 2006 23:15:07 -0800
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, toralf.foerster@gmx.de,
+       netdev@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       link@miggy.org, akpm@osdl.org, zippel@linux-m68k.org, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
- paravirtualizing critical operations
-Message-Id: <20061101231313.4c91a9a9.akpm@osdl.org>
-In-Reply-To: <1162376827.23462.5.camel@localhost.localdomain>
-References: <20061029024504.760769000@sous-sol.org>
-	<20061029024607.401333000@sous-sol.org>
-	<200610290831.21062.ak@suse.de>
-	<1162178936.9802.34.camel@localhost.localdomain>
-	<20061030231132.GA98768@muc.de>
-	<1162376827.23462.5.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
+Message-ID: <20061102071507.GB28382@kroah.com>
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061025222709.A13681C5E0B@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061025165858.b76b4fd8.randy.dunlap@oracle.com> <200610251922.09692.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610251922.09692.david-b@pacbell.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch breaks `make headers_check' in mysterious ways:
+On Wed, Oct 25, 2006 at 07:22:08PM -0700, David Brownell wrote:
+> On Wednesday 25 October 2006 4:58 pm, Randy Dunlap wrote:
+> > On Wed, 25 Oct 2006 15:27:09 -0700 David Brownell wrote:
+> > 
+> > > Instead, "usbnet.c" should #ifdef the relevant ethtool hooks
+> > > according to CONFIG_MII ... since it's completely legit to
+> > > use usbnet with peripherals that don't need MII.
+> 
+> I had in mind something simpler -- #ifdeffing the entire functions,
+> as in this patch.  It looks more complicated than it is, because
+> "diff" gets confused by moving two functions earlier in the file.
+> 
+> (Thanks for starting this, Randy ... these two patches should be merged
+> before RC4 ships.)
 
-  CHECK   include/linux/netfilter_ipv4/ip_conntrack_tcp.h
-  CHECK   include/linux/netfilter_ipv4/ip_conntrack_sctp.h
-  CHECK   include/linux/netfilter_ipv4/ip_conntrack_protocol.h
-  CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper_h323_types.h
-  CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper_h323_asn1.h
-  CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper.h
-make[2]: *** [/usr/src/devel/usr/include/asm/.check.setup.h] Error 1
-make[2]: *** Waiting for unfinished jobs....
-make[1]: *** [asm-i386] Error 2
-make[1]: *** Waiting for unfinished jobs....
-make: *** [headers_check] Error 2
+Argh, there were just too many different versions of these patches
+floating around.  Can you resend the final versions please?
 
+thanks,
+
+greg k-h

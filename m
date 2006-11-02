@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752627AbWKBUkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWKBUkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752627AbWKBUkd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 15:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752634AbWKBUkd
+	id S1750733AbWKBUkO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 15:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWKBUkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 15:40:33 -0500
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:13134 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1752627AbWKBUkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 15:40:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=FzNqRD3BQCpA27f7biZSh00GoaQSojhVtDjK4wYdeZAeLVlCw/5xfc7nzoOFDvazf1X4RFRX7ciAucr+DrPJRCAONOtoLvsp/oDsNpcbIcLlMtvl/NZF96F0oamTyU1hyhOqq66YwgNjLGeMCrWcTZpNkqOdUoJxuYA6MSGmSk8=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [linux-usb-devel] [PATCH 2/2] usbnet: use MII hooks only if CONFIG_MII is enabled
-Date: Thu, 2 Nov 2006 12:19:22 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Randy Dunlap <randy.dunlap@oracle.com>, akpm@osdl.org,
-       zippel@linux-m68k.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, link@miggy.org,
-       Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
-       greg@kroah.com, toralf.foerster@gmx.de
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <200610311136.54058.david-b@pacbell.net> <20061101012346.GB27968@stusta.de>
-In-Reply-To: <20061101012346.GB27968@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611021219.27950.david-b@pacbell.net>
+	Thu, 2 Nov 2006 15:40:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42913 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750733AbWKBUkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 15:40:12 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1162496968.6071.38.camel@lade.trondhjem.org> 
+References: <1162496968.6071.38.camel@lade.trondhjem.org>  <1162402218.32614.230.camel@moss-spartans.epoch.ncsc.mil> <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> <4417.1162395294@redhat.com> <25037.1162487801@redhat.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+       Karl MacMillan <kmacmill@redhat.com>, jmorris@namei.org,
+       chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 02 Nov 2006 20:38:37 +0000
+Message-ID: <32754.1162499917@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 October 2006 5:23 pm, Adrian Bunk wrote:
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
->         select MII if USB_NET_AX8817X!=n || USB_NET_MCS7830!=n
+> Just why are you doing all this? Why do we need a back-end that requires
+> all this extra client-side security infrastructure in order to work? 
 
-Thing is, I'm seeing that get morphed inside Kconfig to "select MII" in
-some cases ... the "if x != n" gets ignored, MII can't be deselected.
+Well, both Christoph and Al are of the opinion that I should be using
+vfs_mkdir() and co rather than bypassing the security and calling inode ops
+directly.
 
-That looks to me like a Kconfig dependency engine bug, so I'm just
-noting it here rather than fixing it.  I guess it's not quite enough
-of a Prolog engine ... ;)
+Also I should be setting security labels on the files I create.
 
-- Dave
+> IOW: What is wrong with the existing CacheFS?
 
+Well, you did require it to be reviewed by Christoph...
+
+David

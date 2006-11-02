@@ -1,86 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWKBOk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWKBOoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbWKBOk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 09:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWKBOk2
+	id S1750978AbWKBOoO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 09:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWKBOoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 09:40:28 -0500
-Received: from smtpout05-04.prod.mesa1.secureserver.net ([64.202.165.221]:38560
-	"HELO smtpout05-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1750938AbWKBOk1 (ORCPT
+	Thu, 2 Nov 2006 09:44:14 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:43076 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1750954AbWKBOoN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 09:40:27 -0500
-Message-ID: <454A0352.8010207@seclark.us>
-Date: Thu, 02 Nov 2006 09:40:18 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: sergio@sergiomb.no-ip.org
-CC: Dave Jones <davej@redhat.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: fc6 kernel 2.6.18-1.2798 breaks acpi on HP laptop n5430
-References: <4548DDF4.2030903@seclark.us>	 <20061101201218.GA4899@martell.zuzino.mipt.ru>	 <45490EFE.1060608@seclark.us> <20061101235546.GB10577@redhat.com>	 <4549450F.3080207@seclark.us>  <20061102030353.GA2797@redhat.com> <1162441409.7677.23.camel@monteirov>
-In-Reply-To: <1162441409.7677.23.camel@monteirov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Nov 2006 09:44:13 -0500
+Date: Thu, 2 Nov 2006 15:46:04 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: martin <mp3@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 0/5] I/O statistics through request queues
+Message-ID: <20061102144603.GN13555@kernel.dk>
+References: <20061023113728.GM8251@kernel.dk> <453D05C3.7040104@de.ibm.com> <20061023200220.GB4281@kernel.dk> <453E38FE.1020306@de.ibm.com> <20061024162050.GK4281@kernel.dk> <453E9C18.70803@de.ibm.com> <20061025051238.GO4281@kernel.dk> <453F3D4E.4020608@de.ibm.com> <20061025104217.GB4281@kernel.dk> <1162478356.6902.144.camel@dix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1162478356.6902.144.camel@dix>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergio Monteiro Basto wrote:
+On Thu, Nov 02 2006, martin wrote:
+> Jens, Andrew,
+> I am not pursueing this patch set. I have convinced myself that blktrace
+> is capable of being used as a an analysis tool for low level I/O
+> performance, if invoced with appropriate settings. In our tests, we
+> limited traces to Issue/Complete events, cut down on relay buffers, and
+> redirected traces to a network connection instead of filling locally
+> attached storage up. Cost is about 2 percent, as advertised.
 
->On Wed, 2006-11-01 at 22:03 -0500, Dave Jones wrote:
->  
->
->>On Wed, Nov 01, 2006 at 08:08:31PM -0500, Stephen Clark wrote:
->>
->> > booting without lapic allowed it to boot but now I get
->> > ...
->> > Local APIC disabled by BIOS -- you can enable it with "lapic"
->> > ...
->> > Local APIC not detected. Using dummy APIC emulation.
->> >   which means more processor overhead - right?
->> > 
->> > also cpuspeed doesn't work anymore - I don't have a cpufreq dir
->>
->>The Duron had powernow ?
->>    
->>
->
->This story of trying enable lapic when BIOS don't, has been triggered on
->kernel2.6.18, but in my opinion is not a bug if lapic on those computers
->don't work.
->
->If you boot without enable lapic, you will see cat /proc/interrupts with
->interrupts in XT-PIC.
->if you try enable lapic, somehow IRQ routing should change 
->and if /proc/interrupts still the same, with IRQs in XT-PIC.
->I think, lapic still not enabled and the most you can get it's problems.
->Unless you know that lapic works (it is programmed and BIOS wrongly
->disable it), you shouldn't try enable lapic because it is probable that
->just give problems, to you. 
->Historically: In 2002/3 was a very common bug, when kernel was compiled
->to support lapic and try enable lapic (even when BIOS don't) and
->computer hangs on boot. 
->  
->
-Loading the correct kernel arch 686 - fixes my powernow problems - this 
-is a mobile duron.
-
-Booting with lapic worked fine on  fc5 kernel-2.6.18-2200 but it causes 
-fc6 kernel-2.6.18-2798
-to hang.
-
-
+Martin, thanks for following up on this and verifying the cost numbers.
 
 -- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
+Jens Axboe
 

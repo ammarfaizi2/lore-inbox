@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWKBMqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWKBMrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbWKBMqd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 07:46:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWKBMqd
+	id S1751256AbWKBMrO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 07:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWKBMrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 07:46:33 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:21079 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750716AbWKBMqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 07:46:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lcMYyk0moILDqJCFPKF8PZqHKE4/Tisu5ydB8kcHkDumuWJtcPFCT27fKTzySSfB5vcWymyrCBvUbjUuDgHzBM5RjcqmZXyA8j7QpKEfMAABBVJg8Je4VsJigqULF2St9CTfDKv7k6JE6WdyI89eGdgLK9U19+b2yZx66ywYRkY=
-Message-ID: <a86d33430611020446s135b07ffjcdb9a6278e83d9e5@mail.gmail.com>
-Date: Thu, 2 Nov 2006 13:46:30 +0100
-From: "Jan Peter den Heijer" <jpdenheijer@gmail.com>
-To: "Oleg Verych" <olecom@flower.upol.cz>
-Subject: Re: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
-Cc: "Horst Schirmeier" <horst@schirmeier.com>, "Andi Kleen" <ak@suse.de>,
-       Valdis.Kletnieks@vt.edu, "Jan Beulich" <jbeulich@novell.com>,
-       dsd@gentoo.org, kernel@gentoo.org, draconx@gmail.com,
-       "Andrew Morton" <akpm@osdl.org>, "Sam Ravnborg" <sam@ravnborg.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061031135136.GB16063@flower.upol.cz>
+	Thu, 2 Nov 2006 07:47:14 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:41706 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751256AbWKBMrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 07:47:12 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Paul Mackerras <paulus@samba.org>
+Subject: [PATCH] spufs: always map local store non-guarded
+Date: Thu, 2 Nov 2006 13:46:48 +0100
+User-Agent: KMail/1.9.5
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       cbe-oss-dev@ozlabs.org, michaele@au1.ibm.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061029120858.GB3491@quickstop.soohrt.org>
-	 <slrnekcu6m.2vm.olecom@flower.upol.cz>
-	 <20061031001235.GE2933@quickstop.soohrt.org>
-	 <200610310119.10567.ak@suse.de>
-	 <20061031011416.GG2933@quickstop.soohrt.org>
-	 <20061031135136.GB16063@flower.upol.cz>
+Message-Id: <200611021346.49473.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How about using this:
+When fixing spufs to map the 'mem' file backing store cacheable,
+I incorrectly set the physical mapping to use both cache-inhibited
+and guarded mapping, which resulted in a serious performance
+degradation.
 
-ASTMP := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)astest$$$$.out
+Accessing the real local store memory needs to be cache-inhibited,
+in order to maintain data consistency, but since it is actual
+RAM, there is no point in a guarded mapping.
 
-This is also used in the Makefile in the source tree top-level
-directory (see line 332)
-If KBUILD_EXTMOD is used, temp files are created in the module's
-source directory, otherwise in the kernel source top-level directory
+Debugged-by: Michael Ellerman <michael@ellerman.id.au>
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+---
 
-Jan Peter
+This fixes a regression in 2.6.19, please merge.
+
+Index: linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+===================================================================
+--- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/file.c
++++ linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+@@ -104,11 +104,11 @@ spufs_mem_mmap_nopage(struct vm_area_str
+ 
+ 	if (ctx->state == SPU_STATE_SAVED) {
+ 		vma->vm_page_prot = __pgprot(pgprot_val(vma->vm_page_prot)
+-					& ~(_PAGE_NO_CACHE | _PAGE_GUARDED));
++							& ~_PAGE_NO_CACHE);
+ 		page = vmalloc_to_page(ctx->csa.lscsa->ls + offset);
+ 	} else {
+ 		vma->vm_page_prot = __pgprot(pgprot_val(vma->vm_page_prot)
+-					| _PAGE_NO_CACHE | _PAGE_GUARDED);
++							| _PAGE_NO_CACHE);
+ 		page = pfn_to_page((ctx->spu->local_store_phys + offset)
+ 				   >> PAGE_SHIFT);
+ 	}

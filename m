@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752805AbWKBKVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752039AbWKBKZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752805AbWKBKVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 05:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752806AbWKBKVO
+	id S1752039AbWKBKZh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 05:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752060AbWKBKZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 05:21:14 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47250 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752805AbWKBKVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 05:21:14 -0500
-Date: Thu, 2 Nov 2006 11:20:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org
-Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt kernels
-Message-ID: <20061102102059.GB1990@elf.ucw.cz>
-References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org> <20061101121753.GA2205@elf.ucw.cz> <45492CBC.8020501@vmware.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45492CBC.8020501@vmware.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 2 Nov 2006 05:25:37 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:11069 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1752039AbWKBKZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 05:25:36 -0500
+Date: Thu, 2 Nov 2006 11:26:03 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@google.com>,
+       Mike Galbraith <efault@gmx.de>, Andy Whitcroft <apw@shadowen.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+Message-ID: <20061102112603.38393245@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20061102065609.GA14353@suse.de>
+References: <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com>
+	<4547FABE.502@google.com>
+	<20061101020850.GA13070@suse.de>
+	<45480241.2090803@google.com>
+	<20061102052409.GA9642@suse.de>
+	<45498174.5070309@google.com>
+	<20061102060225.GA11188@suse.de>
+	<20061101220701.78a1fa88.akpm@osdl.org>
+	<20061102064227.GA11693@suse.de>
+	<20061101224915.19d1b1ac.akpm@osdl.org>
+	<20061102065609.GA14353@suse.de>
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 1 Nov 2006 22:56:09 -0800,
+Greg KH <gregkh@suse.de> wrote:
 
-> >>Allow selected bug checks to be skipped by paravirt kernels.  The two most
-> >>important are the F00F workaround (which is either done by the hypervisor,
-> >>or not required), and the 'hlt' instruction check, which can break under
-> >>some hypervisors.
-> >>    
-> >
-> >How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
-> >innocent to me.
-> >  
-> 
-> Not if you use tickless timers that don't generate interrupts to unhalt 
-> you, or if you delay ticks until the next scheduled timeout and you 
-> haven't yet scheduled any timeout.  Both are likely in a hypervisor.
+> Yeah, I knew that would happen.  I have them still in my queue, I'll
+> handle porting them to my tree now, I've forced her to handle my
+> mistakes too much already :)
 
-Well.. but you are working around problem, instead of fixing it.
+Thanks for sorting that out :)
 
-Tickless kernels are possible on normal machines, too.
+> Let's verify that this all is fixed first :)
 
-Please fix it properly... probably by requesting timer 10msec in
-advance or something.
-									Pavel
+Seems to work fine for me now.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

@@ -1,77 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752626AbWKBDhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752634AbWKBDiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752626AbWKBDhR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 22:37:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752623AbWKBDhR
+	id S1752634AbWKBDiO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 22:38:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752623AbWKBDiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 22:37:17 -0500
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:65291 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S1752587AbWKBDhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 22:37:15 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 1 Nov 2006 22:38:13 -0500
+Received: from hera.kernel.org ([140.211.167.34]:64676 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1752625AbWKBDiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 22:38:10 -0500
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH] swsusp: Use platform mode by default
+Date: Wed, 1 Nov 2006 22:40:12 -0500
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>,
+       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-acpi@vger.kernel.org, Stefan Seyfried <seife@suse.de>
+References: <200611011323.14830.rjw@sisk.pl>
+In-Reply-To: <200611011323.14830.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C6FE2F.5199DE4A"
-Subject: [PATCH 2/2] IDE: Add the support of nvidia PATA controllers of MCP67 to amd74xx.c & pata_amd.c
-Date: Thu, 2 Nov 2006 11:31:00 +0800
-Message-ID: <15F501D1A78BD343BE8F4D8DB854566B0C54FBA8@hkemmail01.nvidia.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2/2] IDE: Add the support of nvidia PATA controllers of MCP67 to amd74xx.c & pata_amd.c
-Thread-Index: Acb+LjzGSy4/Z+lTQ1W07jkIoQEqtQAAFXpw
-From: "Peer Chen" <pchen@nvidia.com>
-To: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: <jgarzik@pobox.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-X-OriginalArrivalTime: 02 Nov 2006 03:31:04.0568 (UTC) FILETIME=[5392B780:01C6FE2F]
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611012240.13412.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Applied.
 
-------_=_NextPart_001_01C6FE2F.5199DE4A
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+thanks,
+-Len
 
-Add support for PATA controllers of MCP67 to pata_amd.c.
-The patch will be applied to kernel 2.6.19-rc4-git1.
-Please check attachment for the patch.
-
-Signed-off-by: Peer Chen <pchen@nvidia.com>
-
--------------------------------------------------------------------------=
-----------
-This email message is for the sole use of the intended recipient(s) and m=
-ay contain
-confidential information.  Any unauthorized review, use, disclosure or di=
-stribution
-is prohibited.  If you are not the intended recipient, please contact the=
-=20sender by
-reply email and destroy all copies of the original message.
--------------------------------------------------------------------------=
-----------
-
-------_=_NextPart_001_01C6FE2F.5199DE4A
-Content-Type: application/octet-stream;
-	name="patch.pata_amd"
-Content-Transfer-Encoding: base64
-Content-Description: patch.pata_amd
-Content-Disposition: attachment;
-	filename="patch.pata_amd"
-
-LS0tIGxpbnV4LTIuNi4xOS1yYzQtZ2l0MS9kcml2ZXJzL2F0YS9wYXRhX2FtZC5jLm9yaWcJMjAw
-Ni0xMC0zMSAyMDo0NToxNC4wMDAwMDAwMDAgKzA4MDAKKysrIGxpbnV4LTIuNi4xOS1yYzQtZ2l0
-MS9kcml2ZXJzL2F0YS9wYXRhX2FtZC5jCTIwMDYtMTAtMzEgMjA6MjU6MjQuMDAwMDAwMDAwICsw
-ODAwCkBAIC02NzcsNiArNjc3LDggQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBwY2lfZGV2aWNlX2lk
-IGFtZFtdIAogCXsgUENJX1ZERVZJQ0UoTlZJRElBLAlQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9S
-Q0VfTUNQNTFfSURFKSwJOCB9LAogCXsgUENJX1ZERVZJQ0UoTlZJRElBLAlQQ0lfREVWSUNFX0lE
-X05WSURJQV9ORk9SQ0VfTUNQNTVfSURFKSwJOCB9LAogCXsgUENJX1ZERVZJQ0UoTlZJRElBLAlQ
-Q0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0VfTUNQNjFfSURFKSwJOCB9LAorCXsgUENJX1ZERVZJ
-Q0UoTlZJRElBLAlQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0VfTUNQNjVfSURFKSwJOCB9LAor
-CXsgUENJX1ZERVZJQ0UoTlZJRElBLAlQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0VfTUNQNjdf
-SURFKSwJOCB9LAogCXsgUENJX1ZERVZJQ0UoQU1ELAlQQ0lfREVWSUNFX0lEX0FNRF9DUzU1MzZf
-SURFKSwJCTkgfSwKIAogCXsgfSwK
-
-------_=_NextPart_001_01C6FE2F.5199DE4A--
+On Wednesday 01 November 2006 07:23, Rafael J. Wysocki wrote:
+> It has been reported that on some systems the functionality after a resume
+> from disk is limited if the system is simply powered off during the suspend
+> instead of using the ACPI S4 suspend (aka platform mode).
+> 
+> Unfortunately the default is currently to power off the system during the
+> suspend so the users of these systems experience problems after the resume
+> if they don't switch to the platform mode explicitly.  This patch makes swsusp
+> use the platform mode by default to avoid such situations.
+> 
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> ---
+>  kernel/power/disk.c |    8 +++++---
+>  kernel/power/main.c |    2 +-
+>  2 files changed, 6 insertions(+), 4 deletions(-)
+> 
+> Index: linux-2.6.19-rc4-mm1/kernel/power/main.c
+> ===================================================================
+> --- linux-2.6.19-rc4-mm1.orig/kernel/power/main.c
+> +++ linux-2.6.19-rc4-mm1/kernel/power/main.c
+> @@ -29,7 +29,7 @@
+>  DECLARE_MUTEX(pm_sem);
+>  
+>  struct pm_ops *pm_ops;
+> -suspend_disk_method_t pm_disk_mode = PM_DISK_SHUTDOWN;
+> +suspend_disk_method_t pm_disk_mode = PM_DISK_PLATFORM;
+>  
+>  /**
+>   *	pm_set_ops - Set the global power method table. 
+> Index: linux-2.6.19-rc4-mm1/kernel/power/disk.c
+> ===================================================================
+> --- linux-2.6.19-rc4-mm1.orig/kernel/power/disk.c
+> +++ linux-2.6.19-rc4-mm1/kernel/power/disk.c
+> @@ -62,9 +62,11 @@ static void power_down(suspend_disk_meth
+>  
+>  	switch(mode) {
+>  	case PM_DISK_PLATFORM:
+> -		kernel_shutdown_prepare(SYSTEM_SUSPEND_DISK);
+> -		error = pm_ops->enter(PM_SUSPEND_DISK);
+> -		break;
+> +		if (pm_ops && pm_ops->enter) {
+> +			kernel_shutdown_prepare(SYSTEM_SUSPEND_DISK);
+> +			error = pm_ops->enter(PM_SUSPEND_DISK);
+> +			break;
+> +		}
+>  	case PM_DISK_SHUTDOWN:
+>  		kernel_power_off();
+>  		break;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752331AbWKBVVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752332AbWKBVWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752331AbWKBVVT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 16:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752286AbWKBVVT
+	id S1752332AbWKBVWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 16:22:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752360AbWKBVWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 16:21:19 -0500
-Received: from py-out-1112.google.com ([64.233.166.181]:34188 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1752027AbWKBVVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 16:21:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JAjaR2NdCsn/8GF0dxJNzW309dpV7q/ce9m26YyIJgWiwxIwhDZx2hpVDrBjaFQwScaWzMW3SLN1Rw7E1fYQpyRW+jeLxKVGOP0pGTlyRERQnAsUUb04i4bjQXiPx63TouEtTF+yvjwYh84gplTgrtFs+XymI0QzY54vlMJoX70=
-Message-ID: <b5def3a40611021321h22ec79c3x51a54ec7d5b07b3@mail.gmail.com>
-Date: Thu, 2 Nov 2006 16:21:16 -0500
-From: "Ivan Matveich" <ivan.matveich@gmail.com>
-To: "Dan Williams" <dcbw@redhat.com>
-Subject: Re: [airo.c bug] Couldn't allocate RX FID / Max tries exceeded when issueing command
-Cc: linux-kernel@vger.kernel.org, linville@tuxdriver.com,
-       netdev@vger.kernel.org, breed@users.sourceforge.net,
-       achirica@users.sourceforge.net, jt@hpl.hp.com, fabrice@bellet.info
-In-Reply-To: <1162494679.3347.8.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Nov 2006 16:22:09 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:266 "EHLO spitz.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752332AbWKBVWG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 16:22:06 -0500
+Date: Thu, 2 Nov 2006 21:20:32 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
+       Shem Multinymous <multinymous@gmail.com>,
+       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Jean Delvare <khali@linux-fr.org>
+Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061102212032.GC4887@ucw.cz>
+References: <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com> <20061101235540.GA11581@khazad-dum.debian.net> <454A2FC2.4060107@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <b5def3a40611011914v59ecd4c3xb6965591524aa11@mail.gmail.com>
-	 <1162483971.2646.9.camel@localhost.localdomain>
-	 <b5def3a40611021030s1b73daa1k2055e5f4373fa746@mail.gmail.com>
-	 <1162494679.3347.8.camel@localhost.localdomain>
+In-Reply-To: <454A2FC2.4060107@tmr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/2/06, Dan Williams <dcbw@redhat.com> wrote:
-> Do you know which kernel version that patch first appeared in?
+Hi!
 
-It was committed on 1 Dec 2005, and 2.6.15 was released on 3 Jan 2006.
+> >Well, "Wh" measures energy and not power, and "Ah" 
+> >measures electric charge
+> >and not current, so it would be better to make that:
+> >
+> >capacity_*_energy  (Wh-based)
+> >
+> >and
+> >
+> >capacity_*_charge  (Ah-based)
+> >
+> >Also, should we go with mWh/mAh, or with even smaller 
+> >units because of the
+> >tiny battery-driven devices of tomorrow?
+> >
+> Having seen a French consultant with a Windows laptop 
+> reporting mJ (Joules) I bet that came from the hardware. 
+> And given that laptop batteries run at (almost) constant 
+> voltage, could all of these just be converted to mWh for 
+> consistency?
 
-> That would be a great idea, let us know what the results are, especially
-> if you cna figure out which firmware version you have, or if the card
-> itself is really just dead.
+li-ions run from 4.2V down to 3.6V without problems, and you can use
+them down to 3.0V. I've ran zaurus down to 3.3V, IIRC. That's quite a
+big range.
 
-No luck with freebsd: error resetting card.
-
-I'll try my luck with Cisco's Windows utility---probably
-tomorrow---but I'd now wager that my card has simply croaked. (I've
-even taken it out and re-seated it in its slot, just in case that
-helped.) In any case, thanks for the help.
+-- 
+Thanks for all the (sleeping) penguins.

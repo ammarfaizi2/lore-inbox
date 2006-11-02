@@ -1,81 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751900AbWKBSap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752021AbWKBSdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751900AbWKBSap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 13:30:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751970AbWKBSap
+	id S1752021AbWKBSdb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 13:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752007AbWKBSdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 13:30:45 -0500
-Received: from py-out-1112.google.com ([64.233.166.181]:18454 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751935AbWKBSao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 13:30:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=d5AiMffU6p7Gp7DrD4ryIZD6ZlozzS4ISne9vb+mhFo20UoZ+g7OW5mMeH8YdRvZ7CENBfiwJh880kYhl71hqWGBC+BIMSp/v5BHtGRd76UK3wgp4uVIsgeVae8unYOd8sAHBXMOiW+Ci4l40nuMcFdfg+OHis8tN0f8wZi3iaU=
-Message-ID: <b5def3a40611021030s1b73daa1k2055e5f4373fa746@mail.gmail.com>
-Date: Thu, 2 Nov 2006 13:30:34 -0500
-From: "Ivan Matveich" <ivan.matveich@gmail.com>
-To: "Dan Williams" <dcbw@redhat.com>
-Subject: Re: [airo.c bug] Couldn't allocate RX FID / Max tries exceeded when issueing command
-Cc: linux-kernel@vger.kernel.org, linville@tuxdriver.com,
-       netdev@vger.kernel.org, breed@users.sourceforge.net,
-       achirica@users.sourceforge.net, jt@hpl.hp.com, fabrice@bellet.info
-In-Reply-To: <1162483971.2646.9.camel@localhost.localdomain>
+	Thu, 2 Nov 2006 13:33:31 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51941 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1752025AbWKBSda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 13:33:30 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: tim.c.chen@linux.intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1: Slowdown in lmbench's fork
+References: <1162485897.10806.72.camel@localhost.localdomain>
+Date: Thu, 02 Nov 2006 11:33:18 -0700
+In-Reply-To: <1162485897.10806.72.camel@localhost.localdomain> (Tim Chen's
+	message of "Thu, 02 Nov 2006 08:44:57 -0800")
+Message-ID: <m1d5851yxd.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <b5def3a40611011914v59ecd4c3xb6965591524aa11@mail.gmail.com>
-	 <1162483971.2646.9.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/2/06, Dan Williams <dcbw@redhat.com> wrote:
-> It appears that the driver cannot talk to your card; see the "max tries
-> exceeded when issueing command".  Did this card work previously with a
-> kernel?  Can narrow down which kernels have problems and which don't?
+Tim Chen <tim.c.chen@linux.intel.com> writes:
 
-It spontaneously stopped working about a week after I bought the
-laptop and installed Linux. I tried kernel 2.6.12 and it had the same
-problem. (Let me know if you'd like me to try a specific version.)
+> After introduction of the following patch:
+>
+> [PATCH] genirq: x86_64 irq: make vector_irq per cpu
+> http://kernel.org/git/?
+> p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=550f2299ac8ffaba943cf211380d3a8d3fa75301
+>
+> we see fork benchmark in lmbench-3.0-a7 slowed by 
+> 11.5% on a 2 socket woodcrest machine.  Similar change
+> is seen also on other SMP Xeon machines.
+>
+> When running lmbench, we have chosen the lmbench option
+> to pin parent and child on different processor cores 
+>   
+> Overhead of calling sched_setaffinity to place the process 
+> on processor is included in lmbench's fork time measurement. 
+> The patch may play a role in increasing this.
 
-I'm hoping that the card has simply got itself into some kind of
-invalid state, and not failed altogether.
+The only think I can think of is that because data structures
+moved around we may be seeing some more cache misses.  If we
+were talking normal interrupts taking a little longer I can
+see my change having a direct correlation.  But I don't believe
+I touched anything in that patch that touched the IPI path.
 
-> It's a bit hard to figure out what firmware you have because the driver
-> can't talk to the card; can you boot under Windows and determine that
-> using the Cisco wireless utility?  You also need to flash the card under
-> Windows, not Linux, ideally to a version of firmware greater than
-> 5.60.08.
+I did add some things to the per cpu area and expanded it a little
+which may be what you are seeing.
 
-I haven't run Windows in many years, so that's problematic. What's the
-most straightforward way to boot into a Windows environment sufficient
-to run the Cisco wireless utility?
+That feels like a significant increase in fork times.  I will think
+about it and holler if I can think of a productive direction to try.
 
-> reloading the driver (rmmod airo; modprobe airo) should reset the card.
+My only partial guess is that it might be worth adding the per cpu
+variables my patch adds without any of the corresponding code changes.
+And see if adding variables to the per cpu area is what is causing the
+change.
 
-Yeah, it unfortunately doesn't help. (Nor does rebooting or resetting
-the bios.) I noticed a suspiciously relevant commit in the airo.c git
-log:
+The two tests I can see in this line are:
+- to add the percpu vector_irq variable.
+- to increase NR_IRQs.
 
-    [wireless airo] reset card in init
+My suspicion is that one of those two changes alone will change
+things enough that you see your lmbench slowdown.  If that is the
+case then it is probably worth shuffling around the variables in the
+per cpu area to get better cache line affinity.
 
-    without this patch after an rmmod, modprobe the card won't work anymore
-    until the next reboot.
-
-    This patch seem safe to apply for all cards as the bsd driver already do
-    that.
-
-    I had to add a timeout because strange things happen (issuecommand will
-    fail) if the card is already reseted (after a reboot).
-
-    PS : it seems there are missing reset when leaving monitor mode...
-
-    Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
-
-and that makes me wonder if there might be some kind of subtle bug in
-the card initialization sequence that manifests itself with my
-particular card/firmware.
-
-I think I'll burn a freebsd livecd today and see if their kernel works.
+Eric

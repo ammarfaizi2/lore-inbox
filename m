@@ -1,51 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWKBPrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWKBQIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbWKBPrR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 10:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWKBPrR
+	id S1751467AbWKBQIv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 11:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWKBQIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 10:47:17 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:13216 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751445AbWKBPrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 10:47:16 -0500
-Subject: Re: hdb lost interrupt
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Manu Abraham <abraham.manu@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <454A0F2B.5060603@gmail.com>
-References: <4549B305.7040106@gmail.com>
-	 <1162473087.11965.182.camel@localhost.localdomain>
-	 <454A0F2B.5060603@gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 02 Nov 2006 15:51:21 +0000
-Message-Id: <1162482682.11965.202.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Thu, 2 Nov 2006 11:08:51 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:4248 "EHLO calculon.skynet.ie")
+	by vger.kernel.org with ESMTP id S1751467AbWKBQIu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 11:08:50 -0500
+Date: Thu, 2 Nov 2006 16:08:47 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org, Vivek Goyal <vgoyal@in.ibm.com>,
+       Andi Kleen <ak@muc.de>, magnus.damm@gmail.com, fastboot@lists.osdl.org
+Subject: Re: [PATCH] x86_64: setup saved_max_pfn correctly (kdump)
+In-Reply-To: <20061102131934.24684.93195.sendpatchset@localhost>
+Message-ID: <Pine.LNX.4.64.0611021604080.14806@skynet.skynet.ie>
+References: <20061102131934.24684.93195.sendpatchset@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-11-02 am 19:30 +0400, ysgrifennodd Manu Abraham:
-> running smartctl -a gave me this ..
+On Thu, 2 Nov 2006, Magnus Damm wrote:
 
-Thanks
+> x86_64: setup saved_max_pfn correctly
+>
+> 2.6.19-rc4 has broken CONFIG_CRASH_DUMP support on x86_64. It is impossible
+> to read out the kernel contents from /proc/vmcore because saved_max_pfn is set
+> to zero instead of the max_pfn value before the user map is setup.
+>
+> This happens because saved_max_pfn is initialized at parse_early_param() time,
+> and at this time no active regions have been registered. save_max_pfn is setup
+> from e820_end_of_ram(), more exact find_max_pfn_with_active_regions() which
+> returns 0 because no regions exist.
+>
+> This patch fixes this by registering before and removing after the call
+> to e820_end_of_ram().
+>
 
-> [17207074.632000] hdd: command error: status=0x51 { DriveReady
-> SeekComplete Error }
-> [17207074.632000] hdd: command error: error=0x54 { AbortedCommand
-> LastFailedSense=0x05 }
+Hey Magnus,
 
-CD stuff so not related.
+I see what you are doing and why. However if you look in 
+arch/x86_64/kernel/setup.c, you'll see
 
-> [17207531.412000] hdb: dma_intr: status=0x30 { DeviceFault SeekComplete }
-> [17207531.412000] ide: failed opcode was: unknown
-> [17207531.412000] hda: DMA disabled
-> [17207531.412000] hdb: DMA disabled
-> [17207534.628000] ide0: reset: success
-> [17208781.840000] hdb: drive_cmd: status=0x30 { DeviceFault SeekComplete }
-> [17208781.840000] ide: failed opcode was: 0xb0
+         parse_early_param();
 
-No idea, it appears the drive got cross and went for a sulk but I've no
-idea why and the diagnostics aren't sufficient to tell
+         finish_e820_parsing();
 
+         e820_register_active_regions(0, 0, -1UL);
+
+If you just called e820_register_active_regions(0, 0, -1UL) before 
+parse_early_param(), would it still fix the problem without having to call 
+e820_register_active_regions(0, 0, -1UL) twice?
+
+
+> Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+> ---
+>
+> Applies to 2.6.19-rc4.
+>
+> arch/x86_64/kernel/e820.c |    2 ++
+> 1 file changed, 2 insertions(+)
+>
+> --- 0002/arch/x86_64/kernel/e820.c
+> +++ work/arch/x86_64/kernel/e820.c	2006-11-02 21:37:19.000000000 +0900
+> @@ -594,7 +594,9 @@ static int __init parse_memmap_opt(char
+> 		 * size before original memory map is
+> 		 * reset.
+> 		 */
+> +		e820_register_active_regions(0, 0, -1UL);
+> 		saved_max_pfn = e820_end_of_ram();
+> +		remove_all_active_ranges();
+> #endif
+> 		end_pfn_map = 0;
+> 		e820.nr_map = 0;
+>
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

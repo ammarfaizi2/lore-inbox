@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752821AbWKBKy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752042AbWKBLEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752821AbWKBKy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 05:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752824AbWKBKy7
+	id S1752042AbWKBLEv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 06:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752836AbWKBLEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 05:54:59 -0500
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:31105 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1752821AbWKBKy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 05:54:57 -0500
-Message-ID: <4549CE80.5080307@s5r6.in-berlin.de>
-Date: Thu, 02 Nov 2006 11:54:56 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+	Thu, 2 Nov 2006 06:04:51 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:3304 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1752042AbWKBLEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 06:04:51 -0500
+Message-ID: <4549D0D2.6050309@vmware.com>
+Date: Thu, 02 Nov 2006 03:04:50 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: randy.dunlap@oracle.com
-CC: akpm@osdl.org, mm-commits@vger.kernel.org, James.Bottomley@steeleye.com,
-       zippel@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: + revert-iscsi-build-failure-use-depends-instead-of.patch added
- to -mm tree
-References: <200611020640.kA26edl0003496@shell0.pdx.osdl.net>
-In-Reply-To: <200611020640.kA26edl0003496@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org
+Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt
+ kernels
+References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org> <20061101121753.GA2205@elf.ucw.cz> <45492CBC.8020501@vmware.com> <20061102102059.GB1990@elf.ucw.cz>
+In-Reply-To: <20061102102059.GB1990@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> Remove all (2) "select NET" instances from all kernel Kconfig files.  Use
-> "depends on" for them instead.  As Roman Zippel commented, "please don't
-> select NET, it's way too broad."
-> 
-> This affects all IEEE1394 drivers and some SCSI drivers.  Networking (NET)
-> will have to be enabled before any IEEE1394 or a few SCSI drivers can be
-> enabled.  In particular for SCSI, the QLogic ISP4xxx driver
-> (SCSI_QLA_ISCSI) and any FiberChannel drivers are affected.
-> 
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> Cc: James Bottomley <James.Bottomley@steeleye.com>
-> Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>
-> Cc: Roman Zippel <zippel@linux-m68k.org>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  drivers/ieee1394/Kconfig     |    5 ++++-
->  drivers/scsi/Kconfig         |   13 +++++++++----
->  drivers/scsi/qla4xxx/Kconfig |    8 ++++----
->  3 files changed, 17 insertions(+), 9 deletions(-)
-[...]
+Pavel Machek wrote:
+>>> How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
+>>> innocent to me.
+>>>  
+>>>       
+>> Not if you use tickless timers that don't generate interrupts to unhalt 
+>> you, or if you delay ticks until the next scheduled timeout and you 
+>> haven't yet scheduled any timeout.  Both are likely in a hypervisor.
+>>     
+>
+> Well.. but you are working around problem, instead of fixing it.
+>
+> Tickless kernels are possible on normal machines, too.
+>
+> Please fix it properly... probably by requesting timer 10msec in
+> advance or something.
+> 									Pavel
+>   
 
-I'm OK with that change. You could have submitted the IEEE 1394 part
-separately though.
+Well, I agree in spirit, but there is something to be said for keeping 
+the code less complicated by removing these workarounds for broken 
+processors.  Preferably, we could remove the hlt check entirely, but 
+then those people with these broken processors would not get the 
+expected behavior of stalling during boot - that is the expected 
+behavior of failure, correct?  In any case, I added this workaround for 
+the case when running under Xen.  I would rather not add a dependence on 
+timer scheduling to legacy bug checking code when the number of timer 
+sources and tickless variations available is proliferating and the 
+number of legacy processors that would even need this check is rapidly 
+approaching zero.
 
-A comment on the patch description: Only the eth1394 driver and the
-ieee1394 core driver depend directly on NET. (All other FireWire drivers
-depend on ieee1394 of course.) ieee1394's dependency on NET is planned
-to be removed by a minor change to its implementation but we don't have
-a deadline for this, as usual...
--- 
-Stefan Richter
--=====-=-==- =-== ---=-
-http://arcgraph.de/sr/
+Zach

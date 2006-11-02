@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752807AbWKBKVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752805AbWKBKVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752807AbWKBKVr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 05:21:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752809AbWKBKVh
+	id S1752805AbWKBKVO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 05:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752806AbWKBKVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 05:21:37 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:63377 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1752807AbWKBKVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 05:21:21 -0500
-X-Sasl-enc: jGpsFrJC8c6OtJO7hqtrvGkdU7I7/jN1PrqEX70PzsA/ 1162462880
-Subject: Re: [BUG] 2.6.19-rc3 autofs crash on my IA64 box
-From: Ian Kent <raven@themaw.net>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: "bibo,mao" <bibo.mao@intel.com>, David Howells <dhowells@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061102183020.446D.Y-GOTO@jp.fujitsu.com>
-References: <45485478.8060909@intel.com>
-	 <20061102183020.446D.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Thu, 02 Nov 2006 18:21:16 +0800
-Message-Id: <1162462876.6980.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Nov 2006 05:21:14 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47250 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752805AbWKBKVO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 05:21:14 -0500
+Date: Thu, 2 Nov 2006 11:20:59 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org
+Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt kernels
+Message-ID: <20061102102059.GB1990@elf.ucw.cz>
+References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org> <20061101121753.GA2205@elf.ucw.cz> <45492CBC.8020501@vmware.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45492CBC.8020501@vmware.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-02 at 18:51 +0900, Yasunori Goto wrote:
-> Hello.
+Hi!
+
+> >>Allow selected bug checks to be skipped by paravirt kernels.  The two most
+> >>important are the F00F workaround (which is either done by the hypervisor,
+> >>or not required), and the 'hlt' instruction check, which can break under
+> >>some hypervisors.
+> >>    
+> >
+> >How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
+> >innocent to me.
+> >  
 > 
-> > hi,
-> >   2.6.19-rc3 kernel crashes on my IA64 box, it seems the problem
-> > of autofs fs. I debug this problem, if autofs kernel does not
-> > match daemon version, it will call autofs_catatonic_mode.
-> > But at that time sbi->pipe is NULL.
-> > 
-> > void autofs_catatonic_mode(struct autofs_sb_info *sbi)
-> > {
-> >    .........
-> >    fput(sbi->pipe);        /* Close the pipe */
-> > 	^^^^^^^^^^^^
-> >  	sbi->pipe seems NULL;
-> >    autofs_hash_dputall(&sbi->dirhash); /* Remove all dentry pointers */
-> > }
-> > 
-> 
-> My box crashed too.
-> 
-> Following fix does not seem enough.
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=116110204104327&w=2
+> Not if you use tickless timers that don't generate interrupts to unhalt 
+> you, or if you delay ticks until the next scheduled timeout and you 
+> haven't yet scheduled any timeout.  Both are likely in a hypervisor.
 
-I'm not surprised it addresses a completely different problem.
+Well.. but you are working around problem, instead of fixing it.
 
-> If version does not match at autofs_fill_super(), then sbi->pipe
-> is not set yet.
-> I suppose something like following patch is necessary.
+Tickless kernels are possible on normal machines, too.
 
-At least but I'll need to check a bit further into this and the autofs4
-module should be updated in a similar manner. Even though it will
-support the latest requested version it should still handle this error
-case.
-
-Ian
-
-
+Please fix it properly... probably by requesting timer 10msec in
+advance or something.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

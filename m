@@ -1,89 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752709AbWKBWlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752718AbWKBWw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752709AbWKBWlf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 17:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752712AbWKBWlf
+	id S1752718AbWKBWw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 17:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752720AbWKBWw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 17:41:35 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:47286 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1752709AbWKBWle
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 17:41:34 -0500
-Date: Thu, 2 Nov 2006 22:41:32 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Magnus Damm <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       Vivek Goyal <vgoyal@in.ibm.com>, Andi Kleen <ak@muc.de>,
-       fastboot@lists.osdl.org
-Subject: Re: [PATCH] x86_64: setup saved_max_pfn correctly (kdump)
-In-Reply-To: <aec7e5c30611021005y2f26319ei1c61963d354a933f@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0611022240350.27544@skynet.skynet.ie>
-References: <20061102131934.24684.93195.sendpatchset@localhost> 
- <Pine.LNX.4.64.0611021604080.14806@skynet.skynet.ie>
- <aec7e5c30611021005y2f26319ei1c61963d354a933f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 2 Nov 2006 17:52:57 -0500
+Received: from sp604002mt.neufgp.fr ([84.96.92.61]:23439 "EHLO sMtp.neuf.fr")
+	by vger.kernel.org with ESMTP id S1752718AbWKBWw4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 17:52:56 -0500
+Date: Thu, 02 Nov 2006 23:53:00 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: New filesystem for Linux
+In-reply-to: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <454A76CC.6030003@cosmosbay.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Nov 2006, Magnus Damm wrote:
+Mikulas Patocka a écrit :
+> Hi
+> 
+> As my PhD thesis, I am designing and writing a filesystem, and it's now 
+> in a state that it can be released. You can download it from 
+> http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
+> 
+> It has some new features, such as keeping inode information directly in 
+> directory (until you create hardlink) so that ls -la doesn't seek much, 
+> new method to keep data consistent in case of crashes (instead of 
+> journaling), free space is organized in lists of free runs and converted 
+> to bitmap only in case of extreme fragmentation.
+> 
+> It is not very widely tested, so if you want, test it.
+> 
+> I have these questions:
+> 
+> * There is a rw semaphore that is locked for read for nearly all 
+> operations and locked for write only rarely. However locking for read 
+> causes cache line pingpong on SMP systems. Do you have an idea how to 
+> make it better?
+> 
+> It could be improved by making a semaphore for each CPU and locking for 
+> read only the CPU's semaphore and for write all semaphores. Or is there 
+> a better method?
+> 
 
-> Hi Mel,
->
-> Thanks for your input! Great work with the add_active_range() code.
->
+If you believe you need a semaphore for protecting a mostly read structure, 
+then RCU is certainly a good candidate. (ie no locked operation at all)
 
-Thanks
+The problem with a per_cpu biglock is that you may consume a lot of RAM for 
+big NR_CPUS. Count 32 KB per 'biglock' if NR_CPUS=1024
 
-> On 11/3/06, Mel Gorman <mel@csn.ul.ie> wrote:
->> Hey Magnus,
->> 
->> I see what you are doing and why. However if you look in
->> arch/x86_64/kernel/setup.c, you'll see
->>
->>          parse_early_param();
->>
->>          finish_e820_parsing();
->>
->>          e820_register_active_regions(0, 0, -1UL);
->> 
->> If you just called e820_register_active_regions(0, 0, -1UL) before
->> parse_early_param(), would it still fix the problem without having to call
->> e820_register_active_regions(0, 0, -1UL) twice?
->
-> Well, I guess it is possible to move the
-> e820_register_active_regions() up, but I'm not sure if that would give
-> us anything.
->
-> We need to call e820_register_active_regions() before e820_end_of_ram,
-> that's for sure, but the "exactmap" code in parse_memmap_opt() sets
-> e820.nr_map to 0 after the call to e820_end_of_ram(). Then it adds a
-> new set of user-supplied ranges to the e820 map which then need to be
-> registered using e820_register_active_regions().
->
-> So yeah, we can move the function up above parse_early_param() but
-> then we need to insert another call to e820_register_active_regions()
-> somewhere after all user-supplied ranges have been added.
->
+> * This leads to another observation --- on i386 locking a semaphore is 2 
+> instructions, on x86_64 it is a call to two nested functions. Has it 
+> some reason or was it just implementator's laziness? Given the fact that 
+> locked instruction takes 16 ticks on Opteron (and can overlap about 2 
+> ticks with other instructions), it would make sense to have optimized 
+> semaphores too.
 
-Ah right, I see the problem now and why you need to do things that way in 
-your patch. Sorry about that.
+Hum, please dont use *lazy*, this could make Andi unhappy :)
 
-> Another solution could be to rewrite e820_end_of_ram() to instead scan
-> e820.map[] backwards from e820.nr_map - 1 to locate the last ram page.
-> But can you do that in two lines of code? =)
->
+What are you calling semaphore exactly ?
+Did you read Documentation/mutex-design.txt ?
 
-Nope. As the path you are doing this in is not time-critical, the patch is 
-fine to me.
 
-> Thanks!
->
-> / magnus
->
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab

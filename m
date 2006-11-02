@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWKBUxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWKBUzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbWKBUxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 15:53:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWKBUxJ
+	id S1750957AbWKBUzv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 15:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWKBUzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 15:53:09 -0500
-Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:18305
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750838AbWKBUxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 15:53:06 -0500
-From: Rob Landley <rob@landley.net>
-To: Ian Kent <raven@themaw.net>
-Subject: Re: Problems with /proc/mounts and statvfs (implementing df).
-Date: Thu, 2 Nov 2006 15:53:01 -0500
+	Thu, 2 Nov 2006 15:55:50 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:53442 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750991AbWKBUzu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 15:55:50 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH -mm] swsusp: Freeze filesystems during suspend (rev. 2)
+Date: Thu, 2 Nov 2006 21:53:56 +0100
 User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200610281537.07145.rob@landley.net> <Pine.LNX.4.64.0611021804290.15477@raven.themaw.net>
-In-Reply-To: <Pine.LNX.4.64.0611021804290.15477@raven.themaw.net>
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Christoph Hellwig <hch@infradead.org>
+References: <200611011200.18438.rjw@sisk.pl> <200611012127.17943.rjw@sisk.pl> <20061101132121.3ef5716c.akpm@osdl.org>
+In-Reply-To: <20061101132121.3ef5716c.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611021553.01463.rob@landley.net>
+Message-Id: <200611022153.57406.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 November 2006 5:07 am, Ian Kent wrote:
-> On Sat, 28 Oct 2006, Rob Landley wrote:
+On Wednesday, 1 November 2006 22:21, Andrew Morton wrote:
+> On Wed, 1 Nov 2006 21:27:17 +0100
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 > 
-> > I'm trying to implement a df command that works based on /proc/mounts and 
-> > statvfs.  To make this work, I need to be able to detect duplicate mounts 
-> > (including --bind mounts), and I need to be able to detect overmounted 
-> > filesystems.
+> > On Wednesday, 1 November 2006 20:45, Andrew Morton wrote:
+> > > On Wed, 1 Nov 2006 18:53:07 +0100
+> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > 
+> > > > +void thaw_processes(void)
+> > > > +{
+> > > > +	printk("Restarting tasks ... ");
+> > > > +	__thaw_tasks(FREEZER_KERNEL_THREADS);
+> > > > +	thaw_filesystems();
+> > > > +	__thaw_tasks(FREEZER_USER_SPACE);
+> > > > +	schedule();
+> > > > +	printk("done.\n");
+> > > > +}
+> > > >  
+> > > > -	read_unlock(&tasklist_lock);
+> > > > +void thaw_kernel_threads(void)
+> > > > +{
+> > > > +	printk("Restarting kernel threads ... ");
+> > > > +	__thaw_tasks(FREEZER_KERNEL_THREADS);
+> > > >  	schedule();
+> > > >  	printk("done.\n");
+> > > >  }
+> > > 
+> > > what do these random-looking schedule()s do??
+> > 
+> > My understanding is that they allow the thawed tasks to actually exit
+> > the refrigerator, because __thaw_tasks() only changes their states.
 > 
-> I need to do quite a bit with mount tables in autofs.
-> You may wish to look at lib/mounts.c in autofs version 5.
+> I'd be surprised if this is doing what we thing it's doing.  Calling
+> schedule() in state TASK_RUNNING is usually a no-op.  It'll only actually
+> switch to another task if the scheduler decides that this task has expired
+> its timeslice, or another higher-priority task has become runnable, etc.
 
-I've fiddled with this area before (I wrote the current BusyBox mount 
-command), and after a day or so of banging on it I did eventually get it to 
-work.
-
-It turns out that statvfs.f_fsid is completely useless.  What you need to do 
-is a normal stat() on each path from /proc/mounts and look at the st_dev 
-member, which turns out to be unique for each mounted filesystem (including 
-tmpfs and /proc and /sys).  So this lets you identify unique filesystems, and 
-then detecting --bind mounts and overmounts is just a question or matching up 
-the st_dev values.
-
-The remaining question was, when there are multiple mount points statting to 
-the same st_dev, which one's path should df display for that filesystem when 
-you do a normal "df"?  What I did is for each unique st_dev, look at the last 
-entry in /proc/mounts, find its block device string (returned by getmntent() 
-as mnt_fsname), and then back up to find the first entry with both the same 
-st_dev and the same block device string.  Display that one, dump the rest.  
-(If it had a different block device it was an overmounted filesystem.  If it 
-had the same block device but wasn't the first occurence, it was either a 
-duplicate mount or a --bind mounts.)
-
-> Current state of play can be found in files located at
-> http://www.kernel.org/pub/linux/daemons/autofs/v5.
-
-In my case "http://landley.net/code/toybox/download/toybox-0.0.1.tar.bz2", 
-which is at best "embryonic" but if you do "make && mv toybox df && ./df" 
-that one command should work.  (It's got a loooooooong way to go, I know...)
-
-Rob
--- 
-"Perfection is reached, not when there is no longer anything to add, but
-when there is no longer anything to take away." - Antoine de Saint-Exupery
+This actually can happen, it seems, because __thaw_tasks() calls
+wake_up_process() for each frozen task which may call resched_task() for
+current.

@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752648AbWKBV3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752644AbWKBVan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752648AbWKBV3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 16:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752649AbWKBV3Y
+	id S1752644AbWKBVan (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 16:30:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752649AbWKBVan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 16:29:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50868 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752648AbWKBV3X (ORCPT
+	Thu, 2 Nov 2006 16:30:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:23765 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1752644AbWKBVam (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 16:29:23 -0500
-Date: Thu, 2 Nov 2006 13:29:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Yu Luming <luming.yu@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, len.brown@intel.com,
-       Matt Domsch <Matt_Domsch@dell.com>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr,
-       Richard Hughes <hughsient@gmail.com>
-Subject: Re: [patch 1/6] video sysfs support: Add dev argument for
- backlight_device_register.
-Message-Id: <20061102132905.79a19a51.akpm@osdl.org>
-In-Reply-To: <200611042107.53145.luming.yu@gmail.com>
-References: <200611042107.53145.luming.yu@gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Nov 2006 16:30:42 -0500
+Date: Thu, 2 Nov 2006 13:29:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Rajesh Shah <rajesh.shah@intel.com>, toralf.foerster@gmx.de,
+       Jeff Garzik <jeff@garzik.org>, Pavel Machek <pavel@ucw.cz>,
+       Auke Kok <auke-jan.h.kok@intel.com>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>
+Subject: Re: 2.6.19-rc4: known unfixed regressions
+Message-ID: <20061102212957.GA16201@kroah.com>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061031195654.GV27968@stusta.de> <200611022102.02302.rjw@sisk.pl> <Pine.LNX.4.64.0611021240300.25218@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611021240300.25218@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 02, 2006 at 12:54:02PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 2 Nov 2006, Rafael J. Wysocki wrote:
+> 
+> > Can we please add the following two to the list of known regressions:
+> > 
+> > http://bugzilla.kernel.org/show_bug.cgi?id=7082
+> 
+> Ok, I think I'll just revert it.
+> 
+> Decoding the PCI IO range is fine - even if a driver has detached, the 
+> kernel knows where the PCI devices are, and won't re-use the range. So 
+> while the patch that triggers the problem seems valid in itself, it's 
+> probably not worth the pain to apply it at this point. So I think I'll 
+> revert it - the rationale for the patch was fairly weak.
+> 
+> Greg, or would you prefer to do the honors?
 
-The second patch throws a decent-sized reject against Len's current tree. 
-I was going to fix that but I note that the patches have serious whitespace
-issues: multiple-spaces are used in many places where hard tabs should be
-used.  Please fix all of that up.
+I'll queue it up.
 
-Also, there's no overall description of what these patches *do*.  Just a
-bunch of one-liners.  But what is the overall end-result?
+thanks,
 
+greg k-h

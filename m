@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752828AbWKBMla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWKBMqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752828AbWKBMla (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 07:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752820AbWKBMla
+	id S1750971AbWKBMqd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 07:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWKBMqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 07:41:30 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:9682 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1752813AbWKBMl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 07:41:29 -0500
-Date: Thu, 2 Nov 2006 05:41:28 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Jun Sun <jsun@junsun.net>, linux-scsi@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: unchecked_isa_dma and BusLogic SCSI controller
-Message-ID: <20061102124128.GC31830@parisc-linux.org>
-References: <20061101235330.GA30843@srv.junsun.net> <20061101173358.7b027d13.randy.dunlap@oracle.com>
+	Thu, 2 Nov 2006 07:46:33 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:21079 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750716AbWKBMqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 07:46:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lcMYyk0moILDqJCFPKF8PZqHKE4/Tisu5ydB8kcHkDumuWJtcPFCT27fKTzySSfB5vcWymyrCBvUbjUuDgHzBM5RjcqmZXyA8j7QpKEfMAABBVJg8Je4VsJigqULF2St9CTfDKv7k6JE6WdyI89eGdgLK9U19+b2yZx66ywYRkY=
+Message-ID: <a86d33430611020446s135b07ffjcdb9a6278e83d9e5@mail.gmail.com>
+Date: Thu, 2 Nov 2006 13:46:30 +0100
+From: "Jan Peter den Heijer" <jpdenheijer@gmail.com>
+To: "Oleg Verych" <olecom@flower.upol.cz>
+Subject: Re: [PATCH -mm] replacement for broken kbuild-dont-put-temp-files-in-the-source-tree.patch
+Cc: "Horst Schirmeier" <horst@schirmeier.com>, "Andi Kleen" <ak@suse.de>,
+       Valdis.Kletnieks@vt.edu, "Jan Beulich" <jbeulich@novell.com>,
+       dsd@gentoo.org, kernel@gentoo.org, draconx@gmail.com,
+       "Andrew Morton" <akpm@osdl.org>, "Sam Ravnborg" <sam@ravnborg.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061031135136.GB16063@flower.upol.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061101173358.7b027d13.randy.dunlap@oracle.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <20061029120858.GB3491@quickstop.soohrt.org>
+	 <slrnekcu6m.2vm.olecom@flower.upol.cz>
+	 <20061031001235.GE2933@quickstop.soohrt.org>
+	 <200610310119.10567.ak@suse.de>
+	 <20061031011416.GG2933@quickstop.soohrt.org>
+	 <20061031135136.GB16063@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 05:33:58PM -0800, Randy Dunlap wrote:
->     unchecked_isa_dma - 1=>only use bottom 16 MB of ram (ISA DMA addressing
->                    restriction), 0=>can use full 32 bit (or better) DMA
->                    address space
-> 
-> > It is hard for me to see why BusLogic controller would only do DMA
-> > in low 16MB.  Is there a fix for this?
-> 
-> Does anyone know that controller hardware and its limitations?
+How about using this:
 
-I don't, but:
+ASTMP := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)astest$$$$.out
 
-		if (pci_set_dma_mask(PCI_Device, DMA_32BIT_MASK ))
-			continue;
+This is also used in the Makefile in the source tree top-level
+directory (see line 332)
+If KBUILD_EXTMOD is used, temp files are created in the module's
+source directory, otherwise in the kernel source top-level directory
 
-So somebody thinks the device can do 32-bit addressing.  I would expect
-that setting unchecked_isa_dma is a historical mistake.  However, I
-don't have any cards of this type to test.
-
+Jan Peter

@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752860AbWKBL33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752054AbWKBLcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752860AbWKBL33 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 06:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752858AbWKBL33
+	id S1752054AbWKBLcW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 06:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752833AbWKBLcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 06:29:29 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:48301 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1752855AbWKBL32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 06:29:28 -0500
-Subject: Re: [PATCH 1/2] IDE: Add the support of nvidia PATA controllers of
-	MCP67 to amd74xx.c & pata_amd.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Peer Chen <pchen@nvidia.com>, akpm@osdl.org
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-In-Reply-To: <15F501D1A78BD343BE8F4D8DB854566B0C54FBA7@hkemmail01.nvidia.com>
-References: <15F501D1A78BD343BE8F4D8DB854566B0C54FBA7@hkemmail01.nvidia.com>
-Content-Type: text/plain
+	Thu, 2 Nov 2006 06:32:22 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:28802 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S1752054AbWKBLcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 06:32:21 -0500
+Message-ID: <4549D722.5090007@ti.uni-mannheim.de>
+Date: Thu, 02 Nov 2006 12:31:46 +0100
+From: Guillermo Marcus <marcus@ti.uni-mannheim.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+MIME-Version: 1.0
+To: rmk+lkml@arm.linux.org.uk
+CC: linux-kernel@vger.kernel.org
+Subject: Re: mmaping a kernel buffer to user space
+References: <4547150F.8070408@ti.uni-mannheim.de> <loom.20061101T120846-320@post.gmane.org> <454899E9.1090900@ti.uni-mannheim.de> <20061102083109.GB1377@flint.arm.linux.org.uk>
+In-Reply-To: <20061102083109.GB1377@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 02 Nov 2006 11:32:20 +0000
-Message-Id: <1162467141.11965.160.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-11-02 am 11:30 +0800, ysgrifennodd Peer Chen:
-> Add support for PATA controllers of MCP67 to amd74xx.c.
-> The patch will be applied to kernel 2.6.19-rc4-git1.
-> Please check attachment for the patch.
+
+
+Russell King wrote:
+> On Wed, Nov 01, 2006 at 01:58:17PM +0100, Guillermo Marcus Martinez wrote:
+>> My suggestion would be to add two functions: pci_map_consistent() and
+>> dma_map_coherent() to address this issue, and their corresponding
+>> unmap's. That will make sure all that is needed is done, is a clean and
+>> consistent with the pci_ and dma_ APIs, and fills a mmap requirement not
+>> covered by the other functions.
 > 
-> Signed-off-by: Peer Chen <pchen@nvidia.com>
+> You might want to look through include/asm-arm/dma-mapping.h to see if
+> an architecture already has considered that and the interface they
+> implemented.
+> 
 
-Acked-by: Alan Cox <alan@redhat.com>
-
-Andrew - it would be good if these two patches + ahci one could make
-2.6.19 final as they are just ident updates for chipsets.
-
-Alan
-
+Nice! Thanks. I think the issue of mapping a coherent area to user space
+is fairly general. Should not this be promoted to be part of the general
+dma-api? (that is, not a platform specific function)

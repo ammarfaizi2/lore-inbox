@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751880AbWKBHJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752701AbWKBHNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751880AbWKBHJa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 02:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752695AbWKBHJa
+	id S1752701AbWKBHNw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 02:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752704AbWKBHNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 02:09:30 -0500
-Received: from main.gmane.org ([80.91.229.2]:33693 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751880AbWKBHJ3 (ORCPT
+	Thu, 2 Nov 2006 02:13:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18828 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752701AbWKBHNv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 02:09:29 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [patch] make the Makefile mostly stay within col 80
-Date: Thu, 2 Nov 2006 07:09:19 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnekj6ps.2in.olecom@flower.upol.cz>
-References: <200611020047.53658.jesper.juhl@gmail.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Jesper Juhl <jesper.juhl@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, trivial@kernel.org
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Thu, 2 Nov 2006 02:13:51 -0500
+Date: Wed, 1 Nov 2006 23:13:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>,
+       virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
+ paravirtualizing critical operations
+Message-Id: <20061101231313.4c91a9a9.akpm@osdl.org>
+In-Reply-To: <1162376827.23462.5.camel@localhost.localdomain>
+References: <20061029024504.760769000@sous-sol.org>
+	<20061029024607.401333000@sous-sol.org>
+	<200610290831.21062.ak@suse.de>
+	<1162178936.9802.34.camel@localhost.localdomain>
+	<20061030231132.GA98768@muc.de>
+	<1162376827.23462.5.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-11-01, Jesper Juhl wrote:
-> Trivial little thing really. 
-> Try to make most of the Makefile obey the 80 column width rule.
+This patch breaks `make headers_check' in mysterious ways:
 
-I'm already working on it. I did a lot more stuff, but currently i'm
-stuck with very first patch, i've tried to push to mister Andrew:
-<http://marc.theaimsgroup.com/?l=linux-mm-commits&m=116198944205036&w=2>
-
-As i'm using emacs, i cann't revert this open/save/close patch every
-time. If someone with RH-based distro is willing to help, i'll be glad.
-Version of make is Red Hat make-3.80-10.2.
-
-Also, i want Sam Ravnborg to comment on that effort (e-mail added). Thanks.
-____
+  CHECK   include/linux/netfilter_ipv4/ip_conntrack_tcp.h
+  CHECK   include/linux/netfilter_ipv4/ip_conntrack_sctp.h
+  CHECK   include/linux/netfilter_ipv4/ip_conntrack_protocol.h
+  CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper_h323_types.h
+  CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper_h323_asn1.h
+  CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper.h
+make[2]: *** [/usr/src/devel/usr/include/asm/.check.setup.h] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [asm-i386] Error 2
+make[1]: *** Waiting for unfinished jobs....
+make: *** [headers_check] Error 2
 

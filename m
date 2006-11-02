@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752719AbWKBWyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752724AbWKBW54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752719AbWKBWyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 17:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752721AbWKBWyZ
+	id S1752724AbWKBW54 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 17:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752720AbWKBW54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 17:54:25 -0500
-Received: from alpha.polcom.net ([83.143.162.52]:5040 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S1752719AbWKBWyY (ORCPT
+	Thu, 2 Nov 2006 17:57:56 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:18372 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1752717AbWKBW5z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 17:54:24 -0500
-Date: Thu, 2 Nov 2006 23:54:17 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+	Thu, 2 Nov 2006 17:57:55 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [RFC][PATCH -mm][Experimental] suspend: Do not freeze md_threads
+Date: Thu, 2 Nov 2006 23:55:52 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, linux-raid@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611022355.52856.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Thu, 2 Nov 2006, Mikulas Patocka wrote:
-> As my PhD thesis, I am designing and writing a filesystem, and it's now in a 
-> state that it can be released. You can download it from 
-> http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
+If there's a swap file on a software RAID, it should be possible to use this
+file for saving the swsusp's suspend image.  Also, this file should be
+available to the memory management subsystem when memory is being freed before
+the suspend image is created.
 
-"Disk that can atomically write one sector (512 bytes) so that the sector
-contains either old or new content in case of crash."
+For the above reasons it seems that md_threads should not be frozen during
+the suspend and the appended patch makes this happen, but then there is the
+question if they don't cause any data to be written to disks after the
+suspend image has been created, provided that all filesystems are frozen
+at that time.
 
-Well, maybe I am completly wrong but as far as I understand no disk 
-currently will provide such requirement. Disks can have (after halted 
-write):
-- old data,
-- new data,
-- nothing (unreadable sector - result of not full write and disk internal 
-checksum failute for that sector, happens especially often if you have 
-frequent power outages).
+Please advise.
 
-And possibly some broken drives may also return you something that they 
-think is good data but really is not (shouldn't happen since both disks 
-and cables should be protected by checksums, but hey... you can never be 
-absolutely sure especially on very big storages).
-
-So... isn't this making your filesystem a little flawed in design?
+Greetings,
+Rafael
 
 
-Thanks,
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ drivers/md/md.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Grzegorz Kulewski
-
+Index: linux-2.6.19-rc4-mm2/drivers/md/md.c
+===================================================================
+--- linux-2.6.19-rc4-mm2.orig/drivers/md/md.c	2006-11-02 20:51:51.000000000 +0100
++++ linux-2.6.19-rc4-mm2/drivers/md/md.c	2006-11-02 23:25:59.000000000 +0100
+@@ -4489,6 +4489,7 @@ static int md_thread(void * arg)
+ 	 * many dirty RAID5 blocks.
+ 	 */
+ 
++	current->flags |= PF_NOFREEZE;
+ 	allow_signal(SIGKILL);
+ 	while (!kthread_should_stop()) {
+ 
+@@ -4505,7 +4506,6 @@ static int md_thread(void * arg)
+ 			 test_bit(THREAD_WAKEUP, &thread->flags)
+ 			 || kthread_should_stop(),
+ 			 thread->timeout);
+-		try_to_freeze();
+ 
+ 		clear_bit(THREAD_WAKEUP, &thread->flags);
+ 

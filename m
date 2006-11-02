@@ -1,94 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752329AbWKBUWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752318AbWKBUed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752329AbWKBUWq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 15:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752360AbWKBUWq
+	id S1752318AbWKBUed (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 15:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752620AbWKBUed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 15:22:46 -0500
-Received: from hu-out-0506.google.com ([72.14.214.225]:58050 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1752327AbWKBUWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 15:22:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=crYq0TfyujP397LB9BbDxJ5zjwPkXZ+ktfh7CqhURUe1ft3GSy2u0+O5BI1jhn7qPj7fk6kwR+Cpt4EYV8PGwEt8Mx9J6VV5XtKkM9c5lx2oIuQgnBZC8EV46Sx5xILVjypZiYePLz6Y/CCgjZiLKoxgpAMc7S2pXVE+3H+wFBI=
-Message-ID: <9a8748490611021222q7ca5aec1v2940185ffb7abbb2@mail.gmail.com>
-Date: Thu, 2 Nov 2006 21:22:43 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Giuliano Pochini" <pochini@shiny.it>
-Subject: Re: [PATCH] Fix potential NULL pointer dereference in echoaudio midi.
-Cc: rientjes@cs.washington.edu, linux-kernel@vger.kernel.org, tiwai@suse.de
-In-Reply-To: <20061102211609.7263ef9c.pochini@shiny.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Nov 2006 15:34:33 -0500
+Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:1711 "EHLO
+	rhlx01.hs-esslingen.de") by vger.kernel.org with ESMTP
+	id S1752318AbWKBUec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 15:34:32 -0500
+Date: Thu, 2 Nov 2006 21:34:30 +0100
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
+Message-ID: <20061102203430.GA27729@rhlx01.hs-esslingen.de>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de> <1162417916.15900.271.camel@localhost.localdomain> <20061102001838.GA911@rhlx01.hs-esslingen.de> <1162452676.15900.287.camel@localhost.localdomain> <1162455263.15900.320.camel@localhost.localdomain> <1162488129.15900.396.camel@localhost.localdomain> <20061102192812.GA11815@rhlx01.hs-esslingen.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
 Content-Disposition: inline
-References: <200610312221.41089.jesper.juhl@gmail.com>
-	 <Pine.LNX.4.64N.0610311411000.2572@attu4.cs.washington.edu>
-	 <200610312326.31526.jesper.juhl@gmail.com>
-	 <20061102211609.7263ef9c.pochini@shiny.it>
+In-Reply-To: <20061102192812.GA11815@rhlx01.hs-esslingen.de>
+User-Agent: Mutt/1.4.2.2i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/11/06, Giuliano Pochini <pochini@shiny.it> wrote:
-> On Tue, 31 Oct 2006 23:26:31 +0100
-> Jesper Juhl <jesper.juhl@gmail.com> wrote:
->
-> > On Tuesday 31 October 2006 23:13, David Rientjes wrote:
-> > > On Tue, 31 Oct 2006, Jesper Juhl wrote:
-> > >
-> > > > In sound/pci/echoaudio/midi.c::snd_echo_midi_output_write(), there's a risk
-> > > > of dereferencing a NULL 'chip->midi_out'.
-> > > > This patch contains the obvious fix as also used a bit higher up in the
-> > > > same function.
-> > > >
-> > >
-> > > How about just adding an early test:
-> > >     if (!chip->midi_out)
-> > >             goto out;
->
->
-> The point of that check is to make sure is doesn't access chip->midi_out
-> when (surprise!) it is NULL. This can only happen in the rare (possible?)
-> case snd_echo_midi_output_close() is called while the timer handler is
-> running. I have another proposal which IMHO is smp-safer that just moving
-> the check. In that case we should also put a spinlock around the
-> chip->midi_out=0 in the snd_echo_midi_output_close() callback.
->
->
-> Signed-off-by: Giuliano Pochini <pochini@shiny.it>
->
-> --- alsa-kernel/pci/echoaudio/midi.c__orig      2006-11-02 20:39:45.000000000 +0100
-> +++ alsa-kernel/pci/echoaudio/midi.c    2006-11-02 20:44:22.000000000 +0100
-> @@ -213,7 +213,7 @@ static void snd_echo_midi_output_write(u
->         sent = bytes = 0;
->         spin_lock_irqsave(&chip->lock, flags);
->         chip->midi_full = 0;
-> -       if (chip->midi_out && !snd_rawmidi_transmit_empty(chip->midi_out)) {
-> +       if (!snd_rawmidi_transmit_empty(chip->midi_out)) {
->                 bytes = snd_rawmidi_transmit_peek(chip->midi_out, buf,
->                                                   MIDI_OUT_BUFFER_SIZE - 1);
->                 DE_MID(("Try to send %d bytes...\n", bytes));
-> @@ -264,9 +264,11 @@ static void snd_echo_midi_output_trigger
->                 }
->         } else {
->                 if (chip->tinuse) {
-> -                       del_timer(&chip->timer);
->                         chip->tinuse = 0;
-> +                       spin_unlock_irq(&chip->lock);
-> +                       del_timer_sync(&chip->timer);
->                         DE_MID(("Timer removed\n"));
-> +                       return;
->                 }
->         }
->         spin_unlock_irq(&chip->lock);
->
 
-Fine by me.
-Let's just get one of the versions pushed into -mm or mainline :)
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Hi,
+
+On Thu, Nov 02, 2006 at 08:28:12PM +0100, Andreas Mohr wrote:
+> Hi,
+> 
+> On Thu, Nov 02, 2006 at 06:22:08PM +0100, Thomas Gleixner wrote:
+> > I uploaded a new queue with more fixups.
+> 
+> Still no go, stalled after the
+> ACPI: (supports S0 S1 S3 S4 S5)
+> line this time (probably statistical fluke though).
+> dmesg.log.gz attached.
+
+This time with apic=debug (attached), and now we have messages such as:
+
+lapic timer verify: delta 10754906 pmtimer 11935676 (2557644) lapic 1180770(0 1180770 1180807) on cpu 0
+
+which means that the timer *is* unstable.
+
+I'm starting to wonder what I could debug here...
+
+Andreas Mohr
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/x-gzip
+Content-Disposition: attachment; filename="dmesg.log.gz"
+Content-Transfer-Encoding: base64
+
+H4sICJL2U0UAA2RtZXNnLmxvZwDNW/tz2kqy/p2/orfu3gpU8dCMhBDa9anFOD5hEydeYydn
+j8uVEtJgtAaJSMKP/PX365F4ObzsZKuuK5FA09Pqme7+untmaFH5JAnvVUL4n4ZxRKIubM+v
+lLzpxKUYT5MwCFREgyfqdM979dL7t5/ffrykdDZIn9JMTWjkpTRQIElnvq/SdDgbj58oUbch
+mhMVzLu41AGngHxvPB54/l1Kwzih7GmqSB5AY4JG3asoo2k8HpcrjVSNlZ+VK5tECaMwC71x
++P2g1xv1Ui9KMzSE0S3dRcM0oLIfT5+S8HaUUblbIdFu2xTfhck/JnHkBfX0YVAPVKVeCmNK
+/ZEKZmNMYhTH05WRrzd6URb64dTL4uRpK1GgvABSqK0E/vDbShuVAzX0ZuOsUpr6IRn4c/FP
+GHXDpdnID7+io3/31YuCr4lKVfZ15Ls0VrfpbEpHZDw6hult6HquEszOhKeD1Um673M6cdgr
+DEMYG7oe9Ar5+lfIba9gM0Zb/IDZPJ5lGYy+fHpaoevzLxenNxubu2d58/G8uT9Warre3P9w
+vmg+9SK6Pu18vKFyHFVKVymLkE6VHw5Dn0ZxdqeeKNCOV/Tonl8ZVJ7qt8ISM5Ximbjuihvq
+yuuuvKkUhJcjlUy8Mf0Zw0iuL99dnOEllkndSulC4fllOFHUHcf+Hc09Gy4tPb/0IYxmj+Td
+Tm+9JIOHwICGnq/oHuowBAy+QifevaJ/gnNaKuhcOlEZ3Aym9rnXofeX0rYb7/+N62Pj/aVp
+muSPwilP66JD5/dz8qYqyWaJojAl2bTP6B/Qkm/kf6XrIJncUG/po5iLCSNP3SBpGLbhQJ29
+T53zXvfauMFsq4zOuz1K4lnGMwkQgAuVZU3YVPsNnL0233sX/yI8OYsD5Qrq+BmG74r5xDGD
+Hg86mU2zwlAEbKVuXHduuPvv/R53L4+BMuMqjeOHypLrBpkTL1AaMGVzLndTWoRHsDhAi1Hq
+qwTELjmyaTSE3WwahdLprxfqPmS8ddG/bdBfyQKsJVla1e9LR17CAw3C1BuMAQGp5sR8XMqy
+p75BXka9xieM3Rw6VA6Tb3AEq8Lz7ZF+VeeHTmLZSS47meudTk+6ZORPpnGa1QB8AgMwWq1S
+pDI/jtJ4rFwgXUb4MgxvoeWgSt4A0kPk0lUUss/RGUAprJ2PvUx/fVvrnbydj345+FbdMLzx
+dOTJUgitUSdNZ9pfTfPs3XcqYH0wS9l7MOcM2ee9TzSBjtO/zeOToocwGxE+gPLo8bH0+fwr
+XucSvxNSZgkiBiNwbkbpOM6WSAGz22ghcJc7uu58eA/rOO596gM9WEMQgjVkVGmmvZq/SGMv
+BxVpRWoN5D0OsW9p5PY9EAtLbL3EvvPhFfa9Kk5h7uC/0dxbixksvBuDz1VG9qKJTUAYxv9S
+5LEkWicuNAGgnSbxAL6ffEsJBgCQm/dhDLnPHGk2qQyWELOilXR1ctYRDCZLZeFdQPQ1NRH+
+oGSY8/FZDT14No1HZRlGTd9a1VxTEJjnERA6CjwXhFV8GPCHOQvxAwsnZzHcwMJ3p2HMLAL+
+UDrH4LTmIfcSRVmuer1e4jfSFzjRlxMBTPjncc0wuhcdUaXOZYdOev33uReUWCK6/NR/1zvG
+888ntYtPZ9Q/qZ0JW0hNfd6j7klj3pT34tfkMoshj1oMW1XGAJvnix1aWNsFFCzgK1vlzlZz
+Z6u1s7W5mLaJ9whD+zZTaUYpMBbgKJ334XHeKk3LsoRtOVCOjyQqpTLPsGnR2XGFHhqOaEsQ
+U9dDtlCl7rv+ESDNbAJ5G7ZZ1TZWhsFWcnY+k9FwPEtHKtXGjGwi9/CSthu+CL5Ivph8sejv
+fGvyxeZLiy8OX9qa3NBXQb/l6s2VaDl/0JoWq9QU8m4hqRbMNCsL7Oyu0K6ipVkHbozDgZd5
+i3xdAkHhvIhFyHQZ8WOXQsewJL0/PtExJTcX24Cd2FZuI+uEnas/thHK0iT0oYfzfkPCwWep
+QoZ6j0fw1AkyYQ3IyJuJyUqX3XPyZwOkOCvZ68e3SL0vlhkrsCGL/XhMQ28SolAQ+ylaRQbV
+w2T2R5DUn2Uabkqc7bjk+dPw63RCPqc9aTxLIN9KKaAze56ePC3Ki4hiGNMwW0bZDe1jb4rh
+LCNdHml8b5oyRLhkOKU+HnF6TllMIxQMnGbGYyA5ZwIQkj0T6R3Ng0S5sLOUEMYRlPsm9S3q
+NyulMJrOOIG6pMvEi1KGzkAHB0lIGAexlyCApNTwx16aNjR1foVVaDkzTIcu5cLhk4shjGEo
+wmg1rbZh03SSNwvRNpt2C5mObDZbtoWsIe8thIMwb5SN+Sd9x6cKD8GfzjCEu/9geiNvHHCW
+qiN+nagLWwiLlPIeOWiTPTSOgrT09o9LszbMgdhEPZkg1IPVWHkRUndwTVDvxBGUPExL6jEz
+v+YkXwsSPQilg+IsStQQ9hH5mBQkWJjYlmi1rVd1c+znosm5cJomzRnAJhZkCYaEmX1iy59y
+W33ZBs+IWFfDcKyKnEXbSZwE2qID9li2hXrp82nfRQjP6ZMYsFPmAax0rSwmpV46TZTKRwHX
+C2AFSaTgbGqCGhLoaDt3NARJsEP/pmU2pdNcqN+07HZTmlRuWfxxrnzTkqYD1es7dzKdFbVv
+Z28bUi54W7bTBGeArGXMGSO0mgKM9R3XtrAOY2w7wloarWkjE4DJors5Z223hWODtb7jKp3D
+WIu23XQWrKU02hI1VMtceILE1IAv33DhSTqAa7ttt1aY2qgFypZjOQv3knazxc7Fd762zcP4
+YiKWfIUl2+DbbMul27YsRzst7uzdVvMgvs2202ovGLctB4osS8MUKzbRtkxtE7iT2TTkYTNh
+Wk5rOb9NFIuoNgRiub2QudVqa6DhO65Oyz6MM1SyRLKW02bNCWi+tTA3xHy2CX3H1bbEYTZh
+WCjPFpybhqE5G63FPNtWsynZ2vjO17axwjnH9pxyDvjAyBiBIoyKGr40CDNkvYwXvJhDY0SY
+CCH1zSwqFgdU8IYyD0CaFr5eL83SgR8nyl1d9YnUw0oOVeQJIASIHkw+mg22EhfBb8m4pODT
+rq4vxuWLCp1ffGrgCX1U2UOczJcaqshQmnXRqt3J2kdkPkWv7nwljZcYUE+2a1ws58zQmCAY
+ehwtDyv5naIkWpb8zstKIsNfL/mdzTWQU0ivshFf8fmrLmuQbgQBqvvHYCAsPEUlqFMlp0pn
+nW7RaLhtw5Utt33qnr512+ZhQ2vlQ/OX1V77hUNrrw+ttXlo7dJ96NWSURipuu/y+pBR+/Be
+1K26hHRTFP0iV9GXJMyyfPH3JNZR/1j5MMxSPPJDYbYtl4YPtVGcZpiiT++6vRo/JF7HKUPC
+isvvO7oW7Ruis7Pep6NrnjSWtqY/tIZDbkHaf+6Bb3Z0LQ3LwaPeRaN3qatBBMf06NpqODcl
+xSuBIz9waaATNS4REHy/jbhMoG9ZAKikEDcUAmjU33cX5if7S3tzL4fnpf1hykYEzpW9sGMU
+4y8r7eVC2avizEt7c6PuUUDkBs2V+AVbAPV6eeLPGjG1PTN/y7WFa5luy3M9p1r0rRedz9Dn
+/N2/kf3PIj1wtnqVpoQyl1cvZyn4tRyrjQbgQhbq+TSaSuSi8hDquyf2eL9q9qzbHP+oGnGY
+akSummDhh3jyMtUYdfP6ZF01x0vViM2qEQsLX2Pk0lt4Fr2DlwEt5+sjpRyc0wbQucEg3tCJ
+K/yZfOSPekScU9KbHMzTN4f3MAzxZpssHB6u+sd6TW4ZNaqoS9LwNsJcc0M0mww4advGRC/E
+08hPv069xJuwtZgSeBMMbo8M8v0jk6a4ykUC/Zfp1M8XSI/sfUz9OVPbaUnKRng+ohbNhnio
+9HJ0A+U3wpe0trE6+wKf0JreRrGo4XguEuTjmaIH707Nptt6cJCQ8I8w5vy98DfJy+E7x8N1
+tgcnQx2mUxKM7a6CSQrzgR0hz+JaPjji8aCK5j7vOh8ut4oRhStMOX61f2Qq5kwxWXRx9XEb
+Mx48UCivBdkKtKUC/uGoRfIgDDpRPi+PW5xucDIhOOfSu1bIl6LbmXereA8HpcEKxUoaolEG
+Exd8VlEQJ0dGHnSD8wRplJ/p75t7plmSL+KdDZMjs0rzHrJK+dr8R22oR2Kle0GzxeuWdGco
+NJFP8S5H4lK+uSLrdl20a4lv1SYTURslWS144m2/O4vmU7jCYlUGd21qV4hmej1i9UE6yDOR
+r/koV5rm6xQ6naL/EeQjNiN+D5N4QvrbOj1gm71e1PBWjtl5f3SsruSLRkX3KIgWAiF/XHm2
+kGnRby8B1egW5W8YrFOyTfEDrfX1JjuHAGg335Jab4URRoE35n0xzm3X2qKYir01vVjDgy7r
+QdV5OXCVMoyC8D4MZt44XxPjmr/mz5JE7zwnMb+Zc9W1Tn0wBHBeXq4/vrzUy5khfIpD0IRt
+yaHTPqEO0EVISmXbtilKnwmRywoVZnO5b+M40F1cuNIkXSdHNqTF1QPMl7/CVHdZp0N845GD
+aR4Y8xEuXhbFUS2fH93Ik8jKuIp02MAbnjlDHvhWa4p7s268MMw8VyFwtFWo2YbB3mq3IHWf
+B9d9UfeHhOiQqDvbAG5siD8VdQHWb7ZxfkkMlduYzJ2AZD5d2+i27p/7k6DYPGf43Nx58w76
+FuKVCDfwUlWwDpwlOsu9yC9fjfzy55BfriD/Rs0v6V6K/LNnyC93IP/qcNaRX25HfvlC5JcL
+5JeHIL/cgPxyH/LvIlhHfrkd+RdNchPyyx3ILw9Gfvka5JeHIXUB1PJAoJavB+qXge4eFBXX
+x78GRcXPo6i5GUXFy1DU3MbkIBTdddBpL4puPeq0hXgLivpLpDP3oqj5ahQ1fw5FzQNR1Px5
+FDV3oOiqPOsoam5HUfOFKGouUNQ8BEXNDShq7kPRXQTrKGpuR1FzJ4qaO1DUPBhFzdegqPki
+FDUPRFHz9Sj6PKqsJKPyh2TU3pYH6deIvJ+PNserwsGehQ0mWS6WCfZICBKxKwP0qiQknQ0a
+6a8Fdnnd/TXALn8e2K3NwC5fBuzWNiYHAfuu46V7gX3rAdMtxJuBXa2Ar7UX2K1XA7v1c8Bu
+HQjs1s8Du7UD2OUK0TqwW9uB3XohsFsLYLcOAXZrA7Bb+4B9F8E6sFvbgd3aCezWDmC3DgZ2
+6zXAbr0I2K0Dgd36RcAeqAGmkI815TAMhnGGFwOEJynPFvdafMk3M8T2GlkzkfvhXv56uN81
+LHnosJ4nAa8IemJX0DNfHvTWuv1KdYld6jJfrq5dgr5IAdbPKUDuUoD1OgVY/w0FyF0KsF6n
+gG2C/ncUYMyP6fUm+lTk7ypCtPLpy0ipMZ/sQmjfeEhPlEKlVL5rrqOnx79H4kPq7vFV/9qo
+6RmS5g3R71e9k2t4uDBsm4+bNJu2EjeHHSJoF5uXy31l+cJDBMH6IYL25sRQlrzvmWlKB8Lo
+beBiDZhPhHa+IxqMqPPnKRPUON0JGNGjwPeSIOVfio14kiCAsJ0lo/IIzQ9ewntp6eKg3fiJ
+0DP2ZxOlT83V6M+3F5/mW3B5DM/fWKkveZ2yOvhwHMcJPkmAlIQQCEM+XzkOUy+tB0pLO5jd
+FtvMKanMr/9lyeQqRZBLEZW06aR8Nhn2lRQniHivDcx5Z+7ddz72Jq38Y4NPJFQ273Avptk7
+8BjKZ97/fsx37ur4o7+3flsu5KWzdKo4cR1R2ZtlcY3PHFVWatQtBJ0P/U6ukjzOFCfvEWlM
+M6+E+SuZLiR1z8feE/9mDkM54y19T5+mRNDn3/vB/Nz8FyNjPrj4hOdIg5EIBcg46qVbb6Ln
+1qXOleM8GvR78YC7rJzw5/lozInh7vkPPgSs/+7d9907/d39ZwXkXg7PzwrIw84KyNzd1PKs
+gPniX2g0n5dl3WVZJjd7n1kCNy2XloePCkf+U2GX8XCe56++hE3VtlaS3C2Wsfd0fCdPjtut
+lrScO2SOnj7K28A7G3xcvk6oFcI4CbMntyZIPUK2LMWEeH4Sp6lbdNTHZ3k3DH35DG6RWkcA
+7OKQ8WtOGy8ZNjcwfM2J3Z8Swv7/IETrFwmxOBAnigNxDx6S7CC+RerOpjubVjm8ng2maVUX
+xLVgBgR/LP0f4/cyWWc8AAA=
+
+--NzB8fVQJ5HfG6fxh--

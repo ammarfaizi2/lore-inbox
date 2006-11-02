@@ -1,97 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752617AbWKBAbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752618AbWKBAbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752617AbWKBAbB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 19:31:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752620AbWKBAbB
+	id S1752618AbWKBAbm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 19:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752622AbWKBAbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 19:31:01 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:59344 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752617AbWKBAbA
+	Wed, 1 Nov 2006 19:31:42 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:13477 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752618AbWKBAbl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 19:31:00 -0500
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+	Wed, 1 Nov 2006 19:31:41 -0500
+Subject: Re: [Devel] Re: [ckrm-tech] [RFC] Resource Management -
+	Infrastructure choices
 From: Matt Helsley <matthltc@us.ibm.com>
-To: Paul Menage <menage@google.com>
-Cc: vatsa@in.ibm.com, Pavel Emelianov <xemul@openvz.org>, dev@openvz.org,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, pj@sgi.com,
-       dipankar@in.ibm.com, rohitseth@google.com
-In-Reply-To: <6599ad830611011550m69876b1ase3579167903a7cd7@mail.gmail.com>
+To: Kir Kolyshkin <kir@openvz.org>
+Cc: devel@openvz.org, vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       linux-kernel@vger.kernel.org, pj@sgi.com, dipankar@in.ibm.com,
+       rohitseth@google.com, Paul Menage <menage@google.com>,
+       Chris Friesen <cfriesen@nortel.com>
+In-Reply-To: <45492764.6060700@openvz.org>
 References: <20061030103356.GA16833@in.ibm.com>
-	 <45486925.4000201@openvz.org> <20061101181236.GC22976@in.ibm.com>
-	 <1162419565.12419.154.camel@localhost.localdomain>
-	 <6599ad830611011550m69876b1ase3579167903a7cd7@mail.gmail.com>
+	 <6599ad830610300251w1f4e0a70ka1d64b15d8da2b77@mail.gmail.com>
+	 <20061101173356.GA18182@in.ibm.com> <45490F0D.7000804@nortel.com>
+	 <45492764.6060700@openvz.org>
 Content-Type: text/plain
 Organization: IBM Linux Technology Center
-Date: Wed, 01 Nov 2006 16:30:50 -0800
-Message-Id: <1162427450.12419.184.camel@localhost.localdomain>
+Date: Wed, 01 Nov 2006 16:31:37 -0800
+Message-Id: <1162427497.12419.186.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-01 at 15:50 -0800, Paul Menage wrote:
-> On 11/1/06, Matt Helsley <matthltc@us.ibm.com> wrote:
-> > On Wed, 2006-11-01 at 23:42 +0530, Srivatsa Vaddagiri wrote:
-> > > On Wed, Nov 01, 2006 at 12:30:13PM +0300, Pavel Emelianov wrote:
+On Thu, 2006-11-02 at 02:01 +0300, Kir Kolyshkin wrote:
+> Chris Friesen wrote:
+> > Srivatsa Vaddagiri wrote:
 > >
-> > <snip>
+> >>>>        - Support limit (soft and/or hard depending on the resource
+> >>>>          type) in controllers. Guarantee feature could be indirectly
+> >>>>          met thr limits.
 > >
-> > > > >   - Support movement of all threads of a process from one group
-> > > > >     to another atomically?
-> > > >
-> > > > I propose such a solution: if a user asks to move /proc/<pid>
-> > > > then move the whole task with threads.
-> > > > If user asks to move /proc/<pid>/task/<tid> then move just
-> > > > a single thread.
-> > > >
-> > > > What do you think?
-> > >
-> > > Isnt /proc/<pid> listed also in /proc/<pid>/task/<tid>?
-> > >
-> > > For ex:
-> > >
-> > >       # ls /proc/2906/task
-> > >       2906  2907  2908  2909
-> > >
-> > > 2906 is the main thread which created the remaining threads.
-> > >
-> > > This would lead to an ambiguity when user does something like below:
-> > >
-> > >       echo 2906 > /some_res_file_system/some_new_group
-> > >
-> > > Is he intending to move just the main thread, 2906, to the new group or
-> > > all the threads? It could be either.
-> > >
-> > > This needs some more thought ...
+> > I just thought I'd weigh in on this.  As far as our usage pattern is
+> > concerned, guarantees cannot be met via limits.
 > >
-> >         I thought the idea was to take in a proc path instead of a single
-> > number. You could then distinguish between the whole thread group and
-> > individual threads by parsing the string. You'd move a single thread if
-> > you find both the tgid and the tid. If you only get a tgid you'd move
-> > the whole thread group. So:
+> > I want to give "x" cpu to container X, "y" cpu to container Y, and "z"
+> > cpu to container Z.
 > >
-> > <pid>                   -> if it's a thread group leader move the whole
-> >                            thread group, otherwise just move the thread
-> > /proc/<tgid>            -> move the whole thread group
-> > /proc/<tgid>/task/<tid> -> move the thread
+> > If these are percentages, x+y+z must be less than 100.
 > >
+> > However, if Y does not use its share of the cpu, I would like the
+> > leftover cpu time to be made available to X and Z, in a ratio based on
+> > their allocated weights.
 > >
-> >         Alternatives that come to mind are:
-> >
-> > 1. Read a flag with the pid
-> > 2. Use a special file which expects only thread groups as input
-> 
-> I think that having a "tasks" file and a "threads" file in each
-> container directory would be a clean way to handle it:
-> 
-> "tasks" : read/write complete process members
-> "threads" : read/write individual thread members
-> 
-> Paul
+> > With limits, I don't see how I can get the ability for containers to
+> > make opportunistic use of cpu that becomes available.
+> This is basically how "cpuunits" in OpenVZ works. It is not limiting a
+> container in any way, just assigns some relative "units" to it, with sum
+> of all units across all containers equal to 100% CPU. Thus, if we have
 
-Seems like a good idea to me -- that certainly avoids complex parsing.
+	So the user doesn't really specify percentage but values that feed into
+ratios used by the underlying controller? If so then it's not terribly
+different from the "shares" of single level of Resource Groups. 
+
+	Resource groups goes one step further and defines a denominator for
+child groups to use. This allows the shares to be connected vertically
+so that changes don't need to propagate beyond the parent and child
+groups.
+
+> cpuunits 10, 20, and 30 assigned to containers X, Y, and Z, and run some
+> CPU-intensive tasks in all the containers, X will be given
+> 10/(10+20+30), or 20% of CPU time, Y -- 20/50, i.e. 40%, while Z gets
+
+nit: I don't think this math is correct.
+
+Shouldn't they all have the same denominator (60), or am I
+misunderstanding something?
+
+If so then it should be:
+X = 10/60      16.666...%
+Y = 20/60      33.333...%
+Z = 30/60      50.0%
+Total:        100.0%
+
+> 60%. Now, if Z is not using CPU, X will be given 33% and Y -- 66%. The
+> scheduler used is based on a per-VE runqueues, is quite fair, and works
+> fine and fair for, say, uneven case of 3 containers on a 4 CPU box.
+
+<snip>
 
 Cheers,
 	-Matt Helsley

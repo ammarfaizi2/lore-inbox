@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752724AbWKBW54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWKBW6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752724AbWKBW54 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 17:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752720AbWKBW54
+	id S1750716AbWKBW6e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 17:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752729AbWKBW6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 17:57:56 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:18372 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1752717AbWKBW5z (ORCPT
+	Thu, 2 Nov 2006 17:58:33 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:31438 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1752721AbWKBW6c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 17:57:55 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH -mm][Experimental] suspend: Do not freeze md_threads
-Date: Thu, 2 Nov 2006 23:55:52 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, linux-raid@vger.kernel.org
+	Thu, 2 Nov 2006 17:58:32 -0500
+Message-ID: <454A7815.2010906@pobox.com>
+Date: Thu, 02 Nov 2006 17:58:29 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Peer Chen <pchen@nvidia.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2/2] IDE: Add the support of nvidia PATA controllers of
+ MCP67 to amd74xx.c & pata_amd.c
+References: <15F501D1A78BD343BE8F4D8DB854566B0C54FBA8@hkemmail01.nvidia.com>
+In-Reply-To: <15F501D1A78BD343BE8F4D8DB854566B0C54FBA8@hkemmail01.nvidia.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611022355.52856.rjw@sisk.pl>
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Peer Chen wrote:
+> Add support for PATA controllers of MCP67 to pata_amd.c.
+> The patch will be applied to kernel 2.6.19-rc4-git1.
+> Please check attachment for the patch.
+> 
+> Signed-off-by: Peer Chen <pchen@nvidia.com>
 
-If there's a swap file on a software RAID, it should be possible to use this
-file for saving the swsusp's suspend image.  Also, this file should be
-available to the memory management subsystem when memory is being freed before
-the suspend image is created.
-
-For the above reasons it seems that md_threads should not be frozen during
-the suspend and the appended patch makes this happen, but then there is the
-question if they don't cause any data to be written to disks after the
-suspend image has been created, provided that all filesystems are frozen
-at that time.
-
-Please advise.
-
-Greetings,
-Rafael
+applied
 
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- drivers/md/md.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.19-rc4-mm2/drivers/md/md.c
-===================================================================
---- linux-2.6.19-rc4-mm2.orig/drivers/md/md.c	2006-11-02 20:51:51.000000000 +0100
-+++ linux-2.6.19-rc4-mm2/drivers/md/md.c	2006-11-02 23:25:59.000000000 +0100
-@@ -4489,6 +4489,7 @@ static int md_thread(void * arg)
- 	 * many dirty RAID5 blocks.
- 	 */
- 
-+	current->flags |= PF_NOFREEZE;
- 	allow_signal(SIGKILL);
- 	while (!kthread_should_stop()) {
- 
-@@ -4505,7 +4506,6 @@ static int md_thread(void * arg)
- 			 test_bit(THREAD_WAKEUP, &thread->flags)
- 			 || kthread_should_stop(),
- 			 thread->timeout);
--		try_to_freeze();
- 
- 		clear_bit(THREAD_WAKEUP, &thread->flags);
- 

@@ -1,91 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWKBS2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751900AbWKBSap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWKBS2z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 13:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWKBS2z
+	id S1751900AbWKBSap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 13:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751970AbWKBSap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 13:28:55 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:43467 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751325AbWKBS2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 13:28:54 -0500
+	Thu, 2 Nov 2006 13:30:45 -0500
+Received: from py-out-1112.google.com ([64.233.166.181]:18454 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751935AbWKBSao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 13:30:44 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JxGi/I8tfjbCNa9R1BHG3P8SWffRos3Q2+xW7SU4X1MNsYt3COBu/xmZmBuU5ZypoLEG3eJeEvM5SpsIfjjuysWWz4yRAOb/NYwueOZZeOOrR6N/1UEvKtvT1xMkOxzfuEQJ+vMkJ+q62Zs86txGdo3f1FKObGFa+Ir7He0ghbs=
-Message-ID: <aec7e5c30611021028y30545781tee646d2718877694@mail.gmail.com>
-Date: Fri, 3 Nov 2006 03:28:51 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: vgoyal@in.ibm.com
-Subject: Re: [PATCH] x86_64: setup saved_max_pfn correctly (kdump)
-Cc: "Mel Gorman" <mel@csn.ul.ie>, "Magnus Damm" <magnus@valinux.co.jp>,
-       linux-kernel@vger.kernel.org, "Andi Kleen" <ak@muc.de>,
-       fastboot@lists.osdl.org
-In-Reply-To: <20061102182011.GE8074@in.ibm.com>
+        b=d5AiMffU6p7Gp7DrD4ryIZD6ZlozzS4ISne9vb+mhFo20UoZ+g7OW5mMeH8YdRvZ7CENBfiwJh880kYhl71hqWGBC+BIMSp/v5BHtGRd76UK3wgp4uVIsgeVae8unYOd8sAHBXMOiW+Ci4l40nuMcFdfg+OHis8tN0f8wZi3iaU=
+Message-ID: <b5def3a40611021030s1b73daa1k2055e5f4373fa746@mail.gmail.com>
+Date: Thu, 2 Nov 2006 13:30:34 -0500
+From: "Ivan Matveich" <ivan.matveich@gmail.com>
+To: "Dan Williams" <dcbw@redhat.com>
+Subject: Re: [airo.c bug] Couldn't allocate RX FID / Max tries exceeded when issueing command
+Cc: linux-kernel@vger.kernel.org, linville@tuxdriver.com,
+       netdev@vger.kernel.org, breed@users.sourceforge.net,
+       achirica@users.sourceforge.net, jt@hpl.hp.com, fabrice@bellet.info
+In-Reply-To: <1162483971.2646.9.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061102131934.24684.93195.sendpatchset@localhost>
-	 <Pine.LNX.4.64.0611021604080.14806@skynet.skynet.ie>
-	 <aec7e5c30611021005y2f26319ei1c61963d354a933f@mail.gmail.com>
-	 <20061102182011.GE8074@in.ibm.com>
+References: <b5def3a40611011914v59ecd4c3xb6965591524aa11@mail.gmail.com>
+	 <1162483971.2646.9.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/3/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> On Fri, Nov 03, 2006 at 03:05:08AM +0900, Magnus Damm wrote:
-> > Hi Mel,
-> >
-> > Thanks for your input! Great work with the add_active_range() code.
-> >
-> > On 11/3/06, Mel Gorman <mel@csn.ul.ie> wrote:
-> > >Hey Magnus,
-> > >
-> > >I see what you are doing and why. However if you look in
-> > >arch/x86_64/kernel/setup.c, you'll see
-> > >
-> > >         parse_early_param();
-> > >
-> > >         finish_e820_parsing();
-> > >
-> > >         e820_register_active_regions(0, 0, -1UL);
-> > >
-> > >If you just called e820_register_active_regions(0, 0, -1UL) before
-> > >parse_early_param(), would it still fix the problem without having to call
-> > >e820_register_active_regions(0, 0, -1UL) twice?
-> >
-> > Well, I guess it is possible to move the
-> > e820_register_active_regions() up, but I'm not sure if that would give
-> > us anything.
-> >
-> > We need to call e820_register_active_regions() before e820_end_of_ram,
-> > that's for sure, but the "exactmap" code in parse_memmap_opt() sets
-> > e820.nr_map to 0 after the call to e820_end_of_ram(). Then it adds a
-> > new set of user-supplied ranges to the e820 map which then need to be
-> > registered using e820_register_active_regions().
-> >
-> > So yeah, we can move the function up above parse_early_param() but
-> > then we need to insert another call to e820_register_active_regions()
-> > somewhere after all user-supplied ranges have been added.
-> >
-> > Another solution could be to rewrite e820_end_of_ram() to instead scan
-> > e820.map[] backwards from e820.nr_map - 1 to locate the last ram page.
-> > But can you do that in two lines of code? =)
-> >
->
-> Is there are reason that why e820_end_of_ram() should be looking at active
-> regions instead of dicrectly probing e820 memory map? If no, then modifying
-> e820_end_of_ram() wil save us extra calls.
+On 11/2/06, Dan Williams <dcbw@redhat.com> wrote:
+> It appears that the driver cannot talk to your card; see the "max tries
+> exceeded when issueing command".  Did this card work previously with a
+> kernel?  Can narrow down which kernels have problems and which don't?
 
-No special reason. I was just happy that I was able to solve the
-problem by using two lines of new kernel functions. =) Also, the code
-is not timing critical at all so I see no reason to write up something
-else when we already have a working solution.
+It spontaneously stopped working about a week after I bought the
+laptop and installed Linux. I tried kernel 2.6.12 and it had the same
+problem. (Let me know if you'd like me to try a specific version.)
 
-Feel free to hack up with a better patch and I'll test and report
-before end of next week.
+I'm hoping that the card has simply got itself into some kind of
+invalid state, and not failed altogether.
 
-Thanks!
+> It's a bit hard to figure out what firmware you have because the driver
+> can't talk to the card; can you boot under Windows and determine that
+> using the Cisco wireless utility?  You also need to flash the card under
+> Windows, not Linux, ideally to a version of firmware greater than
+> 5.60.08.
 
-/ magnus
+I haven't run Windows in many years, so that's problematic. What's the
+most straightforward way to boot into a Windows environment sufficient
+to run the Cisco wireless utility?
+
+> reloading the driver (rmmod airo; modprobe airo) should reset the card.
+
+Yeah, it unfortunately doesn't help. (Nor does rebooting or resetting
+the bios.) I noticed a suspiciously relevant commit in the airo.c git
+log:
+
+    [wireless airo] reset card in init
+
+    without this patch after an rmmod, modprobe the card won't work anymore
+    until the next reboot.
+
+    This patch seem safe to apply for all cards as the bsd driver already do
+    that.
+
+    I had to add a timeout because strange things happen (issuecommand will
+    fail) if the card is already reseted (after a reboot).
+
+    PS : it seems there are missing reset when leaving monitor mode...
+
+    Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
+
+and that makes me wonder if there might be some kind of subtle bug in
+the card initialization sequence that manifests itself with my
+particular card/firmware.
+
+I think I'll burn a freebsd livecd today and see if their kernel works.

@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752021AbWKBSdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWKBShK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752021AbWKBSdb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 13:33:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752007AbWKBSdb
+	id S1751191AbWKBShK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 13:37:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752007AbWKBShK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 13:33:31 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51941 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1752025AbWKBSda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 13:33:30 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: tim.c.chen@linux.intel.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1: Slowdown in lmbench's fork
-References: <1162485897.10806.72.camel@localhost.localdomain>
-Date: Thu, 02 Nov 2006 11:33:18 -0700
-In-Reply-To: <1162485897.10806.72.camel@localhost.localdomain> (Tim Chen's
-	message of "Thu, 02 Nov 2006 08:44:57 -0800")
-Message-ID: <m1d5851yxd.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 2 Nov 2006 13:37:10 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:10132 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751191AbWKBShJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 13:37:09 -0500
+Message-ID: <454A3AD8.3020901@drzeus.cx>
+Date: Thu, 02 Nov 2006 19:37:12 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Juha Yrjola <juha.yrjola@solidboot.com>
+CC: Timo Teras <timo.teras@solidboot.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MMC: Select only one voltage bit in OCR response
+References: <20061009150044.GB1637@mail.solidboot.com> <20061009165317.GA6431@flint.arm.linux.org.uk> <20061009172350.GC1637@mail.solidboot.com> <453327EC.1000402@drzeus.cx> <20061031100503.GB19812@flint.arm.linux.org.uk> <45476AA3.6070505@solidboot.com>
+In-Reply-To: <45476AA3.6070505@solidboot.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Chen <tim.c.chen@linux.intel.com> writes:
-
-> After introduction of the following patch:
+Juha Yrjola wrote:
 >
-> [PATCH] genirq: x86_64 irq: make vector_irq per cpu
-> http://kernel.org/git/?
-> p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=550f2299ac8ffaba943cf211380d3a8d3fa75301
+> Isn't this exactly what Timo is proposing above?
 >
-> we see fork benchmark in lmbench-3.0-a7 slowed by 
-> 11.5% on a 2 socket woodcrest machine.  Similar change
-> is seen also on other SMP Xeon machines.
->
-> When running lmbench, we have chosen the lmbench option
-> to pin parent and child on different processor cores 
->   
-> Overhead of calling sched_setaffinity to place the process 
-> on processor is included in lmbench's fork time measurement. 
-> The patch may play a role in increasing this.
 
-The only think I can think of is that because data structures
-moved around we may be seeing some more cache misses.  If we
-were talking normal interrupts taking a little longer I can
-see my change having a direct correlation.  But I don't believe
-I touched anything in that patch that touched the IPI path.
+I sure can't see the difference. Timo's patch queued up for -mm.
 
-I did add some things to the per cpu area and expanded it a little
-which may be what you are seeing.
+Rgds
 
-That feels like a significant increase in fork times.  I will think
-about it and holler if I can think of a productive direction to try.
+-- 
+     -- Pierre Ossman
 
-My only partial guess is that it might be worth adding the per cpu
-variables my patch adds without any of the corresponding code changes.
-And see if adding variables to the per cpu area is what is causing the
-change.
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
 
-The two tests I can see in this line are:
-- to add the percpu vector_irq variable.
-- to increase NR_IRQs.
-
-My suspicion is that one of those two changes alone will change
-things enough that you see your lmbench slowdown.  If that is the
-case then it is probably worth shuffling around the variables in the
-per cpu area to get better cache line affinity.
-
-Eric

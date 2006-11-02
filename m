@@ -1,100 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752635AbWKBDp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752636AbWKBD5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752635AbWKBDp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 22:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752636AbWKBDp0
+	id S1752636AbWKBD5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 22:57:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752639AbWKBD5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 22:45:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:1691 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1752635AbWKBDp0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 22:45:26 -0500
-Date: Wed, 1 Nov 2006 19:45:08 -0800
-From: Greg KH <greg@kroah.com>
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: Shem Multinymous <multinymous@gmail.com>,
-       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Pavel Machek <pavel@suse.cz>, Jean Delvare <khali@linux-fr.org>
-Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061102034508.GA30730@kroah.com>
-References: <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com> <20061101235540.GA11581@khazad-dum.debian.net>
+	Wed, 1 Nov 2006 22:57:24 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:1932 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1751679AbWKBD5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 22:57:24 -0500
+Date: Wed, 1 Nov 2006 20:57:22 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: linux-scsi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4]: PCI Error Recovery: Symbios SCSI device driver
+Message-ID: <20061102035722.GA31830@parisc-linux.org>
+References: <20061020180510.GN6537@austin.ibm.com> <20061031185506.GE26964@parisc-linux.org> <20061031231334.GR6360@austin.ibm.com> <20061102000745.GX6360@austin.ibm.com> <20061102011935.GZ6360@austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061101235540.GA11581@khazad-dum.debian.net>
+In-Reply-To: <20061102011935.GZ6360@austin.ibm.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 08:55:40PM -0300, Henrique de Moraes Holschuh wrote:
-> On Wed, 01 Nov 2006, Greg KH wrote:
-> > On Wed, Nov 01, 2006 at 09:53:12PM +0200, Shem Multinymous wrote:
-> > > Hi Greg,
-> > > 
-> > > On 11/1/06, Greg KH <greg@kroah.com> wrote:
-> > > >> The suggestions so far were:
-> > > >> 1. Append units string to the content of such attribute:
-> > > >>   /sys/.../capacity_remaining reads "16495 mW".
-> > > >> 2. Add a seprate *_units attribute saying what are units for other
-> > > >> attribute:
-> > > >>   /sys/.../capacity_units gives the units for
-> > > >>   /sys/.../capacity_{remaining,last_full,design,min,...}.
-> > > >> 3. Append the units to the attribute names:
-> > > >>   capacity_{remaining,last_full,design_min,...}:mV.
-> > > >
-> > > >No, again, one for power and one for current.  Two different files
-> > > >depending on the type of battery present.  That way there is no need to
-> > > >worry about unit issues.
-> > > 
-> > > I'm missing something. How is that different from option 3 above?
-> > 
-> > No silly ":mV" on the file name.
-> 
-> As long as that also means no "silly _mV" in the name.  However, if the
-> choice is between :mV and _mV, please go with :mV.
+On Wed, Nov 01, 2006 at 07:19:37PM -0600, Linas Vepstas wrote:
+> @@ -657,6 +657,10 @@ static irqreturn_t sym53c8xx_intr(int ir
+>  	unsigned long flags;
+>  	struct sym_hcb *np = (struct sym_hcb *)dev_id;
+>  
+> +	/* Avoid spinloop trying to handle interrupts on frozen device */
+> +	if (pci_channel_offline(np->s.device))
+> +		return IRQ_HANDLED;
+> +
+>  	if (DEBUG_FLAGS & DEBUG_TINY) printf_debug ("[");
+>  
+>  	spin_lock_irqsave(np->s.host->host_lock, flags);
 
-Neither should be in the name.
+Just wondering ... should we really be returning HANDLED?  What if the
+IRQ is shared?  Will the hardware de-assert the level interrupt when it
+puts the device in reset (ie is this a transitory glitch?), or do we
+have to cope with a screaming interrupt?
 
-Again, people, look how we already do this in the kernel today with the
-hwmon drivers.  They all just document the units and that's it.  No
-problems.
+> +#define WAIT_FOR_PCI_RECOVERY	35
+> +	if (pci_channel_offline(np->s.device))
+> +	{
 
-> > > BTW, please note that we're talking about a large set of files that
-> > > use these units (remaining, last full, design capacity, alarm
-> > > thresholds, etc.), and not just a single attribute.
-> > 
-> > Sure, what's wrong with:
-> > 	capacity_remaining_power
-> > 	capacity_last_full_power
-> > 	capacity_design_min_power
-> > if you can read that from the battery, and:
-> > 	capacity_remaining_current
-> > 	capacity_last_full_current
-> > 	capacity_design_min_current
-> > if you can read that instead.
-> 
-> Well, "Wh" measures energy and not power, and "Ah" measures electric charge
-> and not current, so it would be better to make that:
-> 
-> capacity_*_energy  (Wh-based)
-> 
-> and
-> 
-> capacity_*_charge  (Ah-based)
+I prefer if () {
 
-Ok, that's fine with me.
+> +static pci_ers_result_t sym2_io_slot_reset (struct pci_dev *pdev)
+> +{
+> +	struct sym_hcb *np = pci_get_drvdata(pdev);
+> +
+> +	printk(KERN_INFO "%s: recovering from a PCI slot reset\n",
+> +	          sym_name(np));
+> +
+> +	if (pci_enable_device(pdev)) {
+> +		printk(KERN_ERR "%s: Unable to enable afer PCI reset\n",
+> +		        sym_name(np));
+> +		return PCI_ERS_RESULT_DISCONNECT;
+> +	}
+> +
+> +	pci_set_master(pdev);
+> +	enable_irq(pdev->irq);
 
-> Also, should we go with mWh/mAh, or with even smaller units because of the
-> tiny battery-driven devices of tomorrow?
+Hm.  If we need to call pci_set_master, then we're also going to need to
+call pci_set_mwi (if appropriate) which is currently done in
+sym_set_workarounds().  Except you don't have a sym_device, or a
+sym_chip around at this point.  Bother.  Need to do some refactoring to
+take care of that.
 
-Well, what do the tiny battery-driven devices of today provide (like the
-Nokia 770, other cell phones, smart hand-helds, etc.)  Those should give
-you a good idea if that would be needed or not.
+> +		/* Prevent deadlock waiting on a condition that may never clear. */
+> +		if (unlikely(sist == 0xffff && dstat == 0xff)) {
+> +			if (unlikely(pci_channel_offline(np->s.device)))
+> +				return;
+> +		}
 
-thanks,
+I like the first unlikely ... but I'd drop the second one.  If they are
+both ffff ff, I'd say it's quite likely ;-)  Anyway, the first unlikely
+is good enough a hint to GCC, IMO.
 
-greg k-h
+Thanks!

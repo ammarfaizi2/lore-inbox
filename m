@@ -1,48 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752849AbWKBNXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752865AbWKBNZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752849AbWKBNXR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 08:23:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752867AbWKBNXR
+	id S1752865AbWKBNZr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 08:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752866AbWKBNZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 08:23:17 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:20915 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1752868AbWKBNXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 08:23:15 -0500
-Date: Thu, 2 Nov 2006 16:22:52 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Balbir Singh <balbir@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Thomas Graf <tgraf@suug.ch>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Jay Lan <jlan@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] taskstats: factor out reply assembling
-Message-ID: <20061102132252.GB3387@oleg>
-References: <20061101182611.GA447@oleg> <45497E75.6050401@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45497E75.6050401@in.ibm.com>
-User-Agent: Mutt/1.5.11
+	Thu, 2 Nov 2006 08:25:47 -0500
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:31836 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1752865AbWKBNZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 08:25:46 -0500
+Message-ID: <4549F1D5.8070509@qumranet.com>
+Date: Thu, 02 Nov 2006 15:25:41 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: kvm-devel@lists.sourceforge.net
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [ANNOUNCE] kvm howto
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Nov 2006 13:25:45.0680 (UTC) FILETIME=[672C5500:01C6FE82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/02, Balbir Singh wrote:
->
-> Oleg Nesterov wrote:
-> > +
-> > +	aggr = TASKSTATS_TYPE_AGGR_TGID;
-> > +	if (type == TASKSTATS_TYPE_PID)
-> > +		aggr = TASKSTATS_TYPE_AGGR_PID;
-> 
-> How about using
-> 
-> aggr = (type == TASKSTATS_TYPE_PID) ? TASKSTATS_TYPE_AGGR_PID  :
-> 				TASKSTATS_TYPE_AGGR_TGID;
+I've just uploaded a HOWTO to http://kvm.sourceforge.net, including 
+(hopefuly) everything needed to get kvm running.  Please take a look and 
+comment.
 
-I personally think this is much better. In fact, i did exactly same, but
-then changed it because (I think) CodingStyle police doesn't like '?:'.
+BTW, we have the AMD port running with fairly impressive performance.
 
-Or it does?
-
-Oleg.
+-- 
+error compiling committee.c: too many arguments to function
 

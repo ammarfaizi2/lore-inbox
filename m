@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWKBWCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWKBWMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWKBWCH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 17:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752685AbWKBWCG
+	id S1750768AbWKBWMu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 17:12:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751900AbWKBWMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 17:02:06 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:64081 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750961AbWKBWCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 17:02:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=PV8/5uu/GPWDfm9nVVODQMFAMy1o8ZtHUJv2G/RnPxnpXgBtQ0w0m6vt6qnw2SeZLEUJXRTSvmqS94ehMChiRCWl7pRPCML0hHIcb4sFaJVJA63QxWq1RAIyqYRy1xke2hCw5kQkQ6P2aRnd96OYBCpDGZ9vKLnD0aHrypHO7UE=
-Message-ID: <b637ec0b0611021401x2548b194s249b5d33aad782e4@mail.gmail.com>
-Date: Thu, 2 Nov 2006 23:01:47 +0100
-From: "Fabio Comolli" <fabio.comolli@gmail.com>
-To: "kernel list" <linux-kernel@vger.kernel.org>
-Subject: 2.6.19-rc4 - tifm_7xx1 does not work after suspend-to-disk
-Cc: "Alex Dubov" <oakad@yahoo.com>, "Pierre Ossman" <drzeus-mmc@drzeus.cx>
+	Thu, 2 Nov 2006 17:12:50 -0500
+Received: from mx4.cs.washington.edu ([128.208.4.190]:6088 "EHLO
+	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S1750768AbWKBWMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 17:12:49 -0500
+Date: Thu, 2 Nov 2006 14:12:22 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: muli@il.ibm.com
+cc: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       jdmason@kudzu.us
+Subject: Re: [PATCH 1/4] Calgary: phb_shift can be int
+In-Reply-To: <11625041802816-git-send-email-muli@il.ibm.com>
+Message-ID: <Pine.LNX.4.64N.0611021401180.1797@attu4.cs.washington.edu>
+References: <11625041803066-git-send-email-muli@il.ibm.com>
+ <11625041802816-git-send-email-muli@il.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-The subject says it all: after a suspend-to-disk / resume cycle the
-FlashMedia driver does not work at all: no message is logged in the
-syslog and the SD card is not detected.
+On Thu, 2 Nov 2006, muli@il.ibm.com wrote:
 
-Normally this is what is logged in the syslog:
+> diff --git a/arch/x86_64/kernel/pci-calgary.c b/arch/x86_64/kernel/pci-calgary.c
+> index 37a7708..31d5758 100644
+> --- a/arch/x86_64/kernel/pci-calgary.c
+> +++ b/arch/x86_64/kernel/pci-calgary.c
+> @@ -740,7 +740,7 @@ static void __init calgary_increase_spli
+>  {
+>  	u64 val64;
+>  	void __iomem *target;
+> -	unsigned long phb_shift = -1;
+> +	unsigned int phb_shift = ~0; /* silence gcc */
+>  	u64 mask;
+>  
+>  	switch (busno_to_phbid(busnum)) {
+> 
 
-Nov  2 22:53:15 tycho kernel: tifm_7xx1: sd card detected in socket 3
-Nov  2 22:53:15 tycho kernel: mmcblk0: mmc0:a95c SD256 247040KiB
-Nov  2 22:53:15 tycho kernel:  mmcblk0: p1
-Nov  2 23:00:33 tycho kernel: tifm_7xx1: demand removing card from socket 3
+There's been a suggestion to add
 
-Any ideas?
+	#define SILENCE_GCC(x)	= x
 
-Regards,
-Fabio
+for these silencing cases with the advantage that all the cases are marked 
+for an easy grep and the purpose of such an initialization is known by 
+the code reader.
+
+		http://lkml.org/lkml/2006/10/31/106

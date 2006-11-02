@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752365AbWKBT0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752374AbWKBT1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752365AbWKBT0O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 14:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752368AbWKBT0O
+	id S1752374AbWKBT1x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 14:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752376AbWKBT1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 14:26:14 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39082 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1752362AbWKBT0O (ORCPT
+	Thu, 2 Nov 2006 14:27:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62349 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752374AbWKBT1w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 14:26:14 -0500
-Date: Thu, 2 Nov 2006 11:26:07 -0800
-From: Greg KH <greg@kroah.com>
-To: Damien Wyart <damien.wyart@free.fr>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       James@superbug.demon.co.uk, Takashi Iwai <tiwai@suse.de>
-Subject: Re: ALSA message with 2.6.19-rc4-mm2 (not -mm1)
-Message-ID: <20061102192607.GA13635@kroah.com>
-References: <20061102102607.GA2176@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061102102607.GA2176@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 2 Nov 2006 14:27:52 -0500
+Date: Thu, 2 Nov 2006 11:27:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: linux-kernel@vger.kernel.org, Gerard Neil <xyzzy@devferret.org>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Fix user.* xattr permission check for sticky dirs
+Message-Id: <20061102112741.e1bb88c9.akpm@osdl.org>
+In-Reply-To: <200611021724.02886.agruen@suse.de>
+References: <200611021724.02886.agruen@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2006 at 11:26:07AM +0100, Damien Wyart wrote:
-> Hello,
+On Thu, 2 Nov 2006 17:24:02 +0100
+Andreas Gruenbacher <agruen@suse.de> wrote:
+
+> The user.* extended attributes are only allowed on regular files and
+> directories. Sticky directories further restrict write access to the
+> owner and privileged users. (See the attr(5) man page for an
+> explanation.)
 > 
-> I notice these messages when 2.6.19-rc4-mm2 boots (also with rc3-mm1)
-> but 2.6.19-rc4-mm1 did NOT display them. Related to the driver tree ?
-> Full dmesg and lspci attached. Can provide more details if needed.
+> The original check in ext2/ext3 when user.* xattrs were merged was more
+> restrictive than intended, and when the xattr permission checks were moved 
+> into the VFS, read access to user.* attributes on sticky directores ended up
+> being denied in addition.
 
-How many different sound cards do you have in your machine?
+Am struggling to understand the impact of this.  I assume this problem was
+introduced on Jan 9 by e0ad7b073eb7317e5afe0385b02dcb1d52a1eedf "move xattr
+permission checks into the VFS"?
 
-Can you send me the output of 'ls /sys/class/sound/' with the 2.6.19-rc4
-(or any other non-mm) kernel?
+If so, the fix is applicable to 2.6.18, 2.6.19 and of course 2.6.20.
 
-And yes, I'd blame this one on ALSA, but I want to make sure I didn't do
-anything foolish here too :)
-
-thanks,
-
-greg k-h
+But to which of those should it be applied?

@@ -1,59 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752850AbWKBNy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752886AbWKBOEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752850AbWKBNy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 08:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752880AbWKBNy3
+	id S1752886AbWKBOEq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 09:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752889AbWKBOEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 08:54:29 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:60893 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1752850AbWKBNy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 08:54:27 -0500
-X-Sasl-enc: Bu26rycjdlbZjz5m5k+7vzDw29cFGWlNuQj/TcmPXg2Z 1162475667
-Date: Thu, 2 Nov 2006 10:54:17 -0300
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: multinymous@gmail.com, xavier.bestel@free.fr, davidz@redhat.com,
-       Richard Hughes <hughsient@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061102135417.GC15184@khazad-dum.debian.net>
-References: <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <znLIYxER.1162453921.3011900.khali@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <znLIYxER.1162453921.3011900.khali@localhost>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 2 Nov 2006 09:04:46 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:2991 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752883AbWKBOEp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 09:04:45 -0500
+Subject: Re: [patch 4/6] Add output class document
+From: Timo Hoenig <thoenig@nouse.net>
+To: Yu Luming <luming.yu@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       len.brown@intel.com, Matt Domsch <Matt_Domsch@dell.com>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr,
+       Richard Hughes <hughsient@gmail.com>
+In-Reply-To: <200611042122.00950.luming.yu@gmail.com>
+References: <200611042122.00950.luming.yu@gmail.com>
+Content-Type: text/plain
+Date: Thu, 02 Nov 2006 15:04:29 +0100
+Message-Id: <1162476269.5888.17.camel@nouse.suse.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Nov 2006, Jean Delvare wrote:
-> On 10/31/2006, man with no name wrote:
-> > In the case at hand we have mWh and mAh, which measure different
-> > physical quantities. You can't convert between them unless you have
-> > intimate knowledge of the battery's chemistry and condition, which we
-> > don't.
-> 
-> You just need to know the voltage of the battery, what else?
+Hi,
 
-The error goes way up when you do such calculations.  Not that most battery
-hardware reports SBS Error margins right, but still...
+On Sat, 2006-11-04 at 21:22 +0800, Yu Luming wrote:
 
-So doing conversions is not a good idea unless it is from Ah to Coulombs or
-something else like that which is an exact conversion.
+> diff --git a/Documentation/video-output.txt b/Documentation/video-output.txt
+> new file mode 100644
+> index 0000000..71b1dba
+> --- /dev/null
+> +++ b/Documentation/video-output.txt
+> @@ -0,0 +1,34 @@
+> +
+> +		Video Output Switcher Control
+> +		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> +		2006 luming.yu@gmail.com
+> +
+> +The output sysfs class driver is to provide video output abstract layer that 
+> +can be used to hook platform specific methods to enable/disable video output
+> +device through common sysfs interface. For example, on my IBM Thinkpad T42 
+> +aptop, acpi video driver registered its output devices and read/write method
+> +for state with output sysfs class. The user interface under sysfs is :
 
-In ThinkPads, you just need to compare what the various "let's calculate it"
-applets say, and the output of tp_smapi (gets remanining time data directly
-from the hardware) to see which one is more accurate :-)  And the difference
-is often quite expressive.
+Rephrased, s/Thinkpad/ThinkPad, s/aptop/laptop, s/acpi/ACPI, kill
+whitespace in front of colon: 
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+The output sysfs class driver provides an abstract video output layer that 
+can be used to hook platform specific methods to enable/disable video output
+devices through a common sysfs interface. For example, on my IBM ThinkPad T42 
+laptop, the ACPI video driver registers its output devices and read/write methods
+for 'state' with output sysfs class. The user interface under sysfs is:
+
+The last but one sentence still sounds bogus to me, maybe someone else
+has an idea.
+
+> +linux:/sys/class/video_output # tree .
+> +.
+> +|-- CRT0
+> +|   |-- device -> ../../../devices/pci0000:00/0000:00:01.0
+> +|   |-- state
+> +|   |-- subsystem -> ../../../class/video_output
+> +|   `-- uevent
+> +|-- DVI0
+> +|   |-- device -> ../../../devices/pci0000:00/0000:00:01.0
+> +|   |-- state
+> +|   |-- subsystem -> ../../../class/video_output
+> +|   `-- uevent
+> +|-- LCD0
+> +|   |-- device -> ../../../devices/pci0000:00/0000:00:01.0
+> +|   |-- state
+> +|   |-- subsystem -> ../../../class/video_output
+> +|   `-- uevent
+> +`-- TV0
+> +   |-- device -> ../../../devices/pci0000:00/0000:00:01.0
+> +   |-- state
+> +   |-- subsystem -> ../../../class/video_output
+> +   `-- uevent
+> +
+
+Thanks,
+
+   Timo
+

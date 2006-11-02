@@ -1,145 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752375AbWKBT1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752385AbWKBT2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752375AbWKBT1T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 14:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752374AbWKBT1T
+	id S1752385AbWKBT2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 14:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752383AbWKBT2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 14:27:19 -0500
-Received: from smtp13.dc2.safesecureweb.com ([65.36.255.237]:19435 "EHLO
-	smtp13.dc2.safesecureweb.com") by vger.kernel.org with ESMTP
-	id S1751352AbWKBT1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 14:27:18 -0500
-Message-ID: <000b01c6feb4$c340a580$0732700a@djlaptop>
-From: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
-To: "Bill Davidsen" <davidsen@tmr.com>, "Jean Delvare" <khali@linux-fr.org>
-Cc: <davidz@redhat.com>, "Richard Hughes" <hughsient@gmail.com>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Dan Williams" <dcbw@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <devel@laptop.org>, <sfr@canb.auug.org.au>, <len.brown@intel.com>,
-       <greg@kroah.com>, <benh@kernel.crashing.org>,
-       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>,
-       "Pavel Machek" <pavel@suse.cz>
-References: <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <znLIYxER.1162453921.3011900.khali@localhost> <454A306C.3050200@tmr.com>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Date: Thu, 2 Nov 2006 14:26:14 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+	Thu, 2 Nov 2006 14:28:16 -0500
+Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:3508 "EHLO
+	rhlx01.hs-esslingen.de") by vger.kernel.org with ESMTP
+	id S1752376AbWKBT2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 14:28:14 -0500
+Date: Thu, 2 Nov 2006 20:28:12 +0100
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
+Message-ID: <20061102192812.GA11815@rhlx01.hs-esslingen.de>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de> <1162417916.15900.271.camel@localhost.localdomain> <20061102001838.GA911@rhlx01.hs-esslingen.de> <1162452676.15900.287.camel@localhost.localdomain> <1162455263.15900.320.camel@localhost.localdomain> <1162488129.15900.396.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+In-Reply-To: <1162488129.15900.396.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Bill Davidsen" <davidsen@tmr.com>
-To: "Jean Delvare" <khali@linux-fr.org>
-Cc: <davidz@redhat.com>; "Richard Hughes" <hughsient@gmail.com>; "David 
-Woodhouse" <dwmw2@infradead.org>; "Dan Williams" <dcbw@redhat.com>; 
-<linux-kernel@vger.kernel.org>; <devel@laptop.org>; <sfr@canb.auug.org.au>; 
-<len.brown@intel.com>; <greg@kroah.com>; <benh@kernel.crashing.org>; 
-"linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>; "Pavel 
-Machek" <pavel@suse.cz>
-Sent: Thursday, November 02, 2006 12:52 PM
-Subject: Re: [PATCH v2] Re: Battery class driver.
 
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Jean Delvare wrote:
->> On 10/31/2006, man with no name wrote:
->>> In the case at hand we have mWh and mAh, which measure different
->>> physical quantities. You can't convert between them unless you have
->>> intimate knowledge of the battery's chemistry and condition, which we
->>> don't.
->>
->> You just need to know the voltage of the battery, what else?
->>
->>> And it would be nice to also allow for power supply devices that use
->>> other, incompatible units like "percent" or "minutes" or "hand crank
->>> revolutions".
->>
->> Do such batteries exist at the moment, or are you just speculating?
->
-> I have seen joules (or mJ) on a laptop. Yes, it was Windows, but I bet the 
-> report came from hardware. Some vendor getting anal about metric?
+Hi,
 
-The only thing that makes sense with batteries is the total amount of energy 
-available. Such
-energy has the dimension of watt-seconds, i.e., joules, even though a 
-battery might be rated in ampere-hours.
-This is because you can't even guess at the amount of energy remaining by 
-looking at a battery's voltage. To
-get joules, you need to multiply the voltage times the current times the 
-time for all time, both the charge
-time and the discharge time. When charging, the charging efficiency  needs 
-to be taken into account as well.
-The charging efficiency varies with the battery chemistry, its type, and its 
-stored energy. For instance, a fully
-charged battery has zero charging efficiency (any current supplied is 
-converted to heat). A typical battery at
-about one-half its capacity converts over 90% of the applied charge to 
-stored energy.
+On Thu, Nov 02, 2006 at 06:22:08PM +0100, Thomas Gleixner wrote:
+> I uploaded a new queue with more fixups.
 
-No known laptop bothers to do this. That's why the batteries fail at the 
-most inoportune times
-and why it will decide to shut down when it feels like it, based totally 
-upon some detected
-voltage drop when a disk-drive started.
+Still no go, stalled after the
+ACPI: (supports S0 S1 S3 S4 S5)
+line this time (probably statistical fluke though).
+dmesg.log.gz attached.
 
-Analogic makes a portable CAT Scanner. It can be plugged into an ordinary 
-wall outlet even though
-the X-Ray subsystem takes 10 kilowatts! It does this by storing the needed 
-energy in batteries. Since
-the X-Ray is on only for a short period of time, the system has plenty of 
-time to charge the batteries
-while the image is being processed or reviewed. Since it is against FDA 
-regulations to expose a
-patient to X-Rays unless diagnistically-useful images result, it is 
-mandatory that the charge state
-of the batteries be known at all times so that an image sequence once 
-started, is guaranteed to
-complete. For this, we have a software sampler that calculates the charge 
-about 1,000 per second.
-It does nor assume that the samples are at millisecond intervals, it reads a 
-hardware timer to get
-the elapsed time between each sample. It measures the voltage, the current, 
-and the time each
-sample interval. It accumulates these samples into a charge variable with 
-the dimension of joules.
+# uname -a
+Linux andi 2.6.19-rc4-mm1-hrt-dyntick4 #1 Fri Nov 10 03:19:06 CET 2006 i686 GNU/Linux
 
-> > I
->> don't quite see how a battery could report remaining energy in time
->> units, as power consumption varies over time. Hand crank revolutions
->> wouldn't be a very useful unit either, unless you know how much energy
->> a revolution provides, and then you can just convert it. Percent would
->> make some sense, but you can only express the remaining energy this way,
->> not the total. And if you know the total in mAh or mWh, you can multiply
->> by the percentage and you get the remaining energy in the same unit.
->>
->> --
->> Jean Delvare
->
->
-> -- 
-> Bill Davidsen <davidsen@tmr.com>
->   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
-> normal user and is setuid root, with the "vi" line edit mode selected,
-> and the character set is "big5," an off-by-one errors occurs during
-> wildcard (glob) expansion.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Note that the first boot became unstable somehow (net connections stalled,
+eventually it hung completely while trying to switch to another tty;
+Magic SysRq reboot worked). I'm working within second boot right now.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 (somewhere) -- They shut off my email at 
-work!
-Book: http://www.AbominableFireug.com
+Anything I should investigate? I'll see what I can do for now...
 
+Thanks!
 
+Andreas Mohr
 
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/x-gzip
+Content-Disposition: attachment; filename="dmesg.log.gz"
+Content-Transfer-Encoding: base64
+
+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
+AA==
+
+--PEIAKu/WMn1b1Hv9--

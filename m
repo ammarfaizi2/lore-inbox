@@ -1,47 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWKBOzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWKBPA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWKBOzL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 09:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWKBOzL
+	id S1751188AbWKBPA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 10:00:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWKBPAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 09:55:11 -0500
-Received: from mxsf35.cluster1.charter.net ([209.225.28.160]:42646 "EHLO
-	mxsf35.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1750955AbWKBOzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 09:55:09 -0500
-X-IronPort-AV: i="4.09,380,1157342400"; 
-   d="scan'208"; a="889258182:sNHT1033554708"
-MIME-Version: 1.0
+	Thu, 2 Nov 2006 10:00:25 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:10931 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S1751098AbWKBPAY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 10:00:24 -0500
+Date: Thu, 2 Nov 2006 09:00:24 -0600
+From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+To: akpm@osdl.org, jens.axboe@oracle.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH 6/8] cciss: change sector_size to 2048
+Message-ID: <20061102150024.GE16430@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17738.1736.951217.865638@smtp.charter.net>
-Date: Thu, 2 Nov 2006 09:55:04 -0500
-From: "John Stoffel" <john@stoffel.org>
-To: "Ronny Bremer" <rbremer@future-gate.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PCI card not detected on Intel 845G chipset
-In-Reply-To: <4549B4B5.CF66.00F1.1@future-gate.com>
-References: <4549B4B5.CF66.00F1.1@future-gate.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ronny> I recently installed 2.6.16 on a compaq evo PC running Intel
-Ronny> 845G chipset. Kernel finds all major system devices (USB, VGA,
-Ronny> etc) but fails to find the installed Netgear WG311T card in the
-Ronny> PCI slot.  lspci doesn't even show this card.
+PATCH 6/11
 
-Does Windows find this card?  And have you made sure you've got the
-card propery seated in the slot?  Maybe you've got a bad connection,
-or a 3.3v card in 5v slot.  In other words, check the hardware.  
+This patch changes the blk_queue_max_sectors from 512 to 2048. This helps
+increase performance.
+Please consider this for inclusion.
 
-Ronny> No error messages concerning the PCI bus appear in dmesg.
-Ronny> The only weird thing is, that lspci shows this device:
-Ronny> Unknown non-vga adapter
-Ronny> with the ID 0200:7008
+Thanks,
+mikem
 
-Wierd, but try using 'lspci -vvvvv' for even more details on this
-unknown device.  
+Signed-off-by: Mike Miller <mike.miller@hp.com>
 
-John
+ cciss.c |   12 +++++++++---
+ cciss.h |    1 +
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+--------------------------------------------------------------------------------
+diff -urNp linux-2.6-p00005/drivers/block/cciss.c linux-2.6/drivers/block/cciss.c
+--- linux-2.6-p00005/drivers/block/cciss.c	2006-10-31 15:42:59.000000000 -0600
++++ linux-2.6/drivers/block/cciss.c	2006-10-31 15:48:46.000000000 -0600
+@@ -269,6 +269,7 @@ static int cciss_proc_get_info(char *buf
+ 		       "Firmware Version: %c%c%c%c\n"
+ 		       "IRQ: %d\n"
+ 		       "Logical drives: %d\n"
++		       "Sector size: %d\n"
+ 		       "Current Q depth: %d\n"
+ 		       "Current # commands on controller: %d\n"
+ 		       "Max Q depth since init: %d\n"
+@@ -279,7 +280,9 @@ static int cciss_proc_get_info(char *buf
+ 		       (unsigned long)h->board_id,
+ 		       h->firm_ver[0], h->firm_ver[1], h->firm_ver[2],
+ 		       h->firm_ver[3], (unsigned int)h->intr[SIMPLE_MODE_INT],
+-		       h->num_luns, h->Qdepth, h->commands_outstanding,
++		       h->num_luns,
++		       h->cciss_sector_size,
++		       h->Qdepth, h->commands_outstanding,
+ 		       h->maxQsinceinit, h->max_outstanding, h->maxSG);
+ 
+ 	pos += size;
+@@ -1389,7 +1392,7 @@ static void cciss_update_drive_info(int 
+ 		/* This is a limit in the driver and could be eliminated. */
+ 		blk_queue_max_phys_segments(disk->queue, MAXSGENTRIES);
+ 
+-		blk_queue_max_sectors(disk->queue, 512);
++		blk_queue_max_sectors(disk->queue, h->cciss_sector_size);
+ 
+ 		blk_queue_softirq_done(disk->queue, cciss_softirq_done);
+ 
+@@ -3344,6 +3347,9 @@ static int __devinit cciss_init_one(stru
+ 	hba[i]->access.set_intr_mask(hba[i], CCISS_INTR_ON);
+ 
+ 	cciss_procinit(i);
++
++	hba[i]->cciss_sector_size = 2048;
++
+ 	hba[i]->busy_initializing = 0;
+ 
+ 	for (j = 0; j < NWD; j++) {	/* mfm */
+@@ -3368,7 +3374,7 @@ static int __devinit cciss_init_one(stru
+ 		/* This is a limit in the driver and could be eliminated. */
+ 		blk_queue_max_phys_segments(q, MAXSGENTRIES);
+ 
+-		blk_queue_max_sectors(q, 512);
++		blk_queue_max_sectors(q, hba[i]->cciss_sector_size);
+ 
+ 		blk_queue_softirq_done(q, cciss_softirq_done);
+ 
+diff -urNp linux-2.6-p00005/drivers/block/cciss.h linux-2.6/drivers/block/cciss.h
+--- linux-2.6-p00005/drivers/block/cciss.h	2006-10-31 14:57:27.000000000 -0600
++++ linux-2.6/drivers/block/cciss.h	2006-10-31 15:54:20.000000000 -0600
+@@ -77,6 +77,7 @@ struct ctlr_info 
+ 	unsigned int intr[4];
+ 	unsigned int msix_vector;
+ 	unsigned int msi_vector;
++	int 	cciss_sector_size;
+ 	BYTE	cciss_read;
+ 	BYTE	cciss_write;
+ 	BYTE	cciss_read_capacity;

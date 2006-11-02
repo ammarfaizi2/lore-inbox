@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752650AbWKBVwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWKBVzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752650AbWKBVwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 16:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752685AbWKBVwt
+	id S1751151AbWKBVzt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 16:55:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751676AbWKBVzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 16:52:49 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:3970 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1752650AbWKBVws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 16:52:48 -0500
-Date: Thu, 2 Nov 2006 22:52:47 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: New filesystem for Linux
-Message-ID: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
-X-Personality-Disorder: Schizoid
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 2 Nov 2006 16:55:49 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47799 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750991AbWKBVzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 16:55:48 -0500
+Subject: Re: 2.6.19-rc4: known unfixed regressions
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Auke Kok <auke-jan.h.kok@intel.com>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>,
+       Adrian Bunk <bunk@stusta.de>, LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Rajesh Shah <rajesh.shah@intel.com>, toralf.foerster@gmx.de,
+       Jeff Garzik <jeff@garzik.org>, Pavel Machek <pavel@ucw.cz>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <20061102121027.676db964.akpm@osdl.org>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+	 <20061031195654.GV27968@stusta.de> <200611022102.02302.rjw@sisk.pl>
+	 <20061102121027.676db964.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 02 Nov 2006 21:55:36 +0000
+Message-Id: <1162504537.11965.238.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Ar Iau, 2006-11-02 am 12:10 -0800, ysgrifennodd Andrew Morton:
+> Balls are being dropped.
+> 
+> > http://bugzilla.kernel.org/show_bug.cgi?id=7082
+> 
+> So this was a good patch but because of a bug in ne2k-pci which nobody is
+> fixing we need to drop it?
 
-As my PhD thesis, I am designing and writing a filesystem, and it's now in 
-a state that it can be released. You can download it from 
-http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
+I believe the patch is fundamentally wrong. We don't *need* to drop the
+IO decode in this case. We don't want to drop it when the BIOS lacks the
+brains to put it back. We will also kill some machines doing it as they
+have devices we attach drivers to which are not just managing the
+function Linux knows about but also many other things. Take the CS5520
+for example, generically disable the I/O on that because we have an IDE
+driver attached to it and you kill the box stone dead, as its also the
+video and a few other things behind the scenes. That is not atypical.
 
-It has some new features, such as keeping inode information directly in 
-directory (until you create hardlink) so that ls -la doesn't seek much, 
-new method to keep data consistent in case of crashes (instead of 
-journaling), free space is organized in lists of free runs and converted 
-to bitmap only in case of extreme fragmentation.
+IFF someone has a device that actually needs to disable I/O cycles, well
+they can do it themselves.
 
-It is not very widely tested, so if you want, test it.
+Alan
 
-I have these questions:
-
-* There is a rw semaphore that is locked for read for nearly all 
-operations and locked for write only rarely. However locking for read 
-causes cache line pingpong on SMP systems. Do you have an idea how to make 
-it better?
-
-It could be improved by making a semaphore for each CPU and locking for 
-read only the CPU's semaphore and for write all semaphores. Or is there a 
-better method?
-
-* This leads to another observation --- on i386 locking a semaphore is 2 
-instructions, on x86_64 it is a call to two nested functions. Has it some 
-reason or was it just implementator's laziness? Given the fact that locked 
-instruction takes 16 ticks on Opteron (and can overlap about 2 ticks with 
-other instructions), it would make sense to have optimized semaphores too.
-
-* How to implement ordered-data consistency? That would mean that on 
-internal sync event, I'd have to flush all pages of a files that were 
-extended. I could scan all dirty inodes and find pages to flush --- what 
-kernel function would you recommend for doing it? Currently I call only 
-sync_blockdev which doesn't touch buffers attached to pages.
-
-Mikulas

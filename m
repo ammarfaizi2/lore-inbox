@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWKBO14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWKBO3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWKBO14 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 09:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWKBO14
+	id S1750821AbWKBO3a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 09:29:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWKBO3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 09:27:56 -0500
-Received: from lugor.de ([212.112.242.222]:56007 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S1750831AbWKBO1z (ORCPT
+	Thu, 2 Nov 2006 09:29:30 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:31163 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750821AbWKBO33 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 09:27:55 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
-To: Avi Kivity <avi@qumranet.com>
-Subject: Re: [ANNOUNCE] kvm howto
-Date: Thu, 2 Nov 2006 15:27:04 +0100
-User-Agent: KMail/1.9.4
-Cc: kvm-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <4549F1D5.8070509@qumranet.com>
-In-Reply-To: <4549F1D5.8070509@qumranet.com>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3563081.INBlf7cJUB";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200611021527.09664.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Thu, 02 Nov 2006 15:27:10 +0100 (CET)
-X-Spam-Flag: NO
+	Thu, 2 Nov 2006 09:29:29 -0500
+Date: Thu, 2 Nov 2006 09:28:12 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
+       Andi Kleen <ak@muc.de>, magnus.damm@gmail.com, fastboot@lists.osdl.org
+Subject: Re: [PATCH] x86_64: setup saved_max_pfn correctly (kdump)
+Message-ID: <20061102142812.GB8074@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061102131934.24684.93195.sendpatchset@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061102131934.24684.93195.sendpatchset@localhost>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3563081.INBlf7cJUB
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Nov 02, 2006 at 10:19:34PM +0900, Magnus Damm wrote:
+> x86_64: setup saved_max_pfn correctly
+> 
+> 2.6.19-rc4 has broken CONFIG_CRASH_DUMP support on x86_64. It is impossible 
+> to read out the kernel contents from /proc/vmcore because saved_max_pfn is set
+> to zero instead of the max_pfn value before the user map is setup.
+> 
+> This happens because saved_max_pfn is initialized at parse_early_param() time,
+> and at this time no active regions have been registered. save_max_pfn is setup
+> from e820_end_of_ram(), more exact find_max_pfn_with_active_regions() which
+> returns 0 because no regions exist.
+> 
+> This patch fixes this by registering before and removing after the call
+> to e820_end_of_ram().
+> 
+> Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+> ---
+> 
+>  Applies to 2.6.19-rc4.
+> 
+>  arch/x86_64/kernel/e820.c |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> --- 0002/arch/x86_64/kernel/e820.c
+> +++ work/arch/x86_64/kernel/e820.c	2006-11-02 21:37:19.000000000 +0900
+> @@ -594,7 +594,9 @@ static int __init parse_memmap_opt(char 
+>  		 * size before original memory map is
+>  		 * reset.
+>  		 */
+> +		e820_register_active_regions(0, 0, -1UL);
+>  		saved_max_pfn = e820_end_of_ram();
+> +		remove_all_active_ranges();
+>  #endif
+>  		end_pfn_map = 0;
+>  		e820.nr_map = 0;
 
-On Thursday 02 November 2006 14:25, Avi Kivity wrote:
-> I've just uploaded a HOWTO to http://kvm.sourceforge.net, including
-> (hopefuly) everything needed to get kvm running.  Please take a look and
-> comment.
+This looks fine to me for the time being.
 
-  CC [M]  /tmp/kvm-module/kvm_main.o
-{standard input}: Assembler messages:
-{standard input}:168: Error: no such instruction: `vmxon 16(%esp)'
-{standard input}:182: Error: no such instruction: `vmxoff'
-{standard input}:192: Error: no such instruction: `vmread %eax,%eax'
-{standard input}:415: Error: no such instruction: `vmwrite %ebx,%esi'
-{standard input}:1103: Error: no such instruction: `vmclear 16(%esp)'
-{standard input}:1676: Error: no such instruction: `vmptrld 16(%esp)'
-{standard input}:4107: Error: no such instruction: `vmwrite %esp,%eax'
-{standard input}:4119: Error: no such instruction: `vmlaunch '
-{standard input}:4121: Error: no such instruction: `vmresume '
+Down the line I am thinking that how about passing saved_max_pfn as
+command line parameter. I think that way we don't have to pass all the
+memmap= options to second kernel and kexec-tools can pass the memory map
+through parameter segment. This memory map can be modified to represent
+only the memory which can be used by second kernel and not the whole of
+the memory.
 
-I get a number of errors compiling the module. No difference between the=20
-downloaded tarball and my patched kernel tree. Any hints?
-=2D-=20
-Regards,
-Christian
+I think this will simplify the logic and also save us precious comand
+line in second kernel for kdump purposes.
 
---nextPart3563081.INBlf7cJUB
-Content-Type: application/pgp-signature
+Thanks
+Vivek
+ 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFSgA9lZfG2c8gdSURAgSWAJ9uSRK8qV0i75bHxe0ZwOvsZQTapgCfTnaX
-If0NuYTq4qv8XteXAx68naA=
-=RFgt
------END PGP SIGNATURE-----
-
---nextPart3563081.INBlf7cJUB--
+  

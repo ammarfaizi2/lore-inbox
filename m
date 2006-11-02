@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWKBBJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423013AbWKBBKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWKBBJB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 20:09:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422879AbWKBBJB
+	id S1423013AbWKBBKT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 20:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423039AbWKBBKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 20:09:01 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:62410 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752623AbWKBBJA (ORCPT
+	Wed, 1 Nov 2006 20:10:19 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:18059 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1423013AbWKBBKR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 20:09:00 -0500
-Date: Wed, 1 Nov 2006 19:08:54 -0600
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 1/2 v2]: Renumber PCI error enums to start at zero
-Message-ID: <20061102010854.GA3623@austin.ibm.com>
-References: <20061101235417.GV6360@austin.ibm.com>
+	Wed, 1 Nov 2006 20:10:17 -0500
+Message-ID: <45494515.8050304@sgi.com>
+Date: Wed, 01 Nov 2006 19:08:37 -0600
+From: John Partridge <johnip@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101235417.GV6360@austin.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+To: David Miller <davem@davemloft.net>
+CC: rdreier@cisco.com, matthew@wil.cx, jmodem@AbominableFirebug.com,
+       mst@mellanox.co.il, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, jeff@garzik.org, openib-general@openib.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+References: <20061031204717.GG26964@parisc-linux.org>	<ada4ptkt8y2.fsf@cisco.com>	<4548CAE7.8010300@sgi.com> <20061101.150418.26278280.davem@davemloft.net>
+In-Reply-To: <20061101.150418.26278280.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2006 at 05:54:17PM -0600, Linas Vepstas wrote:
-[...] 
-Fix brain-disengaged error.
+David Miller wrote:
+> From: John Partridge <johnip@sgi.com>
+> Date: Wed, 01 Nov 2006 10:27:19 -0600
+> 
+> 
+>>Sorry, but I find this change a bit puzzling. The problem is
+>>particular to the PPB on the HCA and not Altix. I can't see anywhere
+>>that a PCI Config Write is required to block until completion, it is
+>>the driver and the HCA ,not the Altix hardware that requires the
+>>Config Write to have completed before we leave mthca_reset()
+>>Changing pci_write_config_xxx() will change the behavior for ALL
+>>drivers and the possibility of breaking something else. The fix was
+>>very low risk in mthca_reset(), changing the PCI code to fix this is
+>>much more onerous.
+> 
+> 
+> The issue is that something as simple as:
+> 
+> 	val = pci_read_config(REG);
+> 	val |= bit;
+> 	pci_write_config(REG, val);
+> 	newval = pci_read_config(REG);
+> 	BUG_ON(!(newval & bit));
+> 
+> is not guarenteed by PCI (aparently).
+> 
+> I see no valid reason why every PCI device driver should
+> be troubled with this lunacy and the ordering should thus
+> be ensured by the PCI layer.
+> 
+> It just so happens to take care of the original driver
+> issue too :-)
 
-Greg,
+Yeah, Matthew has convinced me of that now.
 
-This is a low-prioriity patch to fix an annoying numbering mistake. 
-Please apply this (and the next patch) at net convenience.
+Thanks
 
---linas
 
-Subject: [PATCH 1/2]: Renumber PCI error enums to start at zero
+-- 
+John Partridge
 
-Renumber the PCI error enums to start at zero for "normal/online".
-This allows un-initialized pci channel state (which defaults to zero)
-to be interpreted as "normal".  Add very simple routine to check
-state, just in case this ever has to be fiddled with again.
-
-Signed-off-by: Linas Vepstas <linas@linas.org>
-
-----
- include/linux/pci.h |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.19-rc4-git3/include/linux/pci.h
-===================================================================
---- linux-2.6.19-rc4-git3.orig/include/linux/pci.h	2006-11-01 16:15:49.000000000 -0600
-+++ linux-2.6.19-rc4-git3/include/linux/pci.h	2006-11-01 18:43:14.000000000 -0600
-@@ -86,13 +86,13 @@ typedef unsigned int __bitwise pci_chann
- 
- enum pci_channel_state {
- 	/* I/O channel is in normal state */
--	pci_channel_io_normal = (__force pci_channel_state_t) 1,
-+	pci_channel_io_normal = (__force pci_channel_state_t) 0,
- 
- 	/* I/O to channel is blocked */
--	pci_channel_io_frozen = (__force pci_channel_state_t) 2,
-+	pci_channel_io_frozen = (__force pci_channel_state_t) 1,
- 
- 	/* PCI card is dead */
--	pci_channel_io_perm_failure = (__force pci_channel_state_t) 3,
-+	pci_channel_io_perm_failure = (__force pci_channel_state_t) 2,
- };
- 
- typedef unsigned short __bitwise pci_bus_flags_t;
-@@ -180,6 +180,11 @@ struct pci_dev {
- #define	to_pci_dev(n) container_of(n, struct pci_dev, dev)
- #define for_each_pci_dev(d) while ((d = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
- 
-+static inline int pci_channel_offline(struct pci_dev *pdev)
-+{
-+	return (pdev->error_state != pci_channel_io_normal);
-+}
-+
- static inline struct pci_cap_saved_state *pci_find_saved_cap(
- 	struct pci_dev *pci_dev,char cap)
- {
+Silicon Graphics Inc
+Tel:	651-683-3428
+Vnet:	233-3428
+E-Mail:	johnip@sgi.com

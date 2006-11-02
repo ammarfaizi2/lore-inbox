@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWKBPHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWKBPOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWKBPHF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 10:07:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWKBPHE
+	id S1751325AbWKBPOE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 10:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWKBPOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 10:07:04 -0500
-Received: from mx1.suse.de ([195.135.220.2]:13464 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751302AbWKBPHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 10:07:01 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE Linux
-To: David Rientjes <rientjes@cs.washington.edu>
-Subject: Re: [PATCH] NFS: nfsaclsvc_encode_getaclres() - Fix potential NULL deref and tiny optimization.
-Date: Thu, 2 Nov 2006 16:07:46 +0100
-User-Agent: KMail/1.9.5
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>
-References: <200610272316.47089.jesper.juhl@gmail.com> <200610311726.00411.agruen@suse.de> <Pine.LNX.4.64N.0610311232190.30578@attu4.cs.washington.edu>
-In-Reply-To: <Pine.LNX.4.64N.0610311232190.30578@attu4.cs.washington.edu>
+	Thu, 2 Nov 2006 10:14:04 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:13007 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751325AbWKBPOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 10:14:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Sb6ttwbMcGYEn3m+W6EA9zsFEzJXfLjh/6lJFpMJl+ozwhWZICmo9dMxPdD2TKeU1ppPAxihnMMZ2wYqRp8KwgtJL90VrBP9rsqnaMwSJe+TvIgo9reILwQvRSPEJG4gJU/cCucagH54rhY9rswbWN2FTA18m99zf07Rbk2m1EE=
+Message-ID: <aec7e5c30611020714qe6bcc41ucc789e3a2ca85c1f@mail.gmail.com>
+Date: Fri, 3 Nov 2006 00:14:00 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Avi Kivity" <avi@qumranet.com>
+Subject: Re: [ANNOUNCE] kvm howto
+Cc: "Hesse, Christian" <mail@earthworm.de>, kvm-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <454A0165.7090009@qumranet.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611021607.46373.agruen@suse.de>
+References: <4549F1D5.8070509@qumranet.com>
+	 <200611021527.09664.mail@earthworm.de> <454A0165.7090009@qumranet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 October 2006 21:39, David Rientjes wrote:
-> On Tue, 31 Oct 2006, Andreas Gruenbacher wrote:
-> > > > w should be an unsigned int.
-> > >
-> > > Makes sense.
+On 11/2/06, Avi Kivity <avi@qumranet.com> wrote:
+> Hesse, Christian wrote:
+> > On Thursday 02 November 2006 14:25, Avi Kivity wrote:
 > >
-> > No, this breaks the while loop further below: with an unsigned int, the
-> > loop counter underflows and wraps.
+> >> I've just uploaded a HOWTO to http://kvm.sourceforge.net, including
+> >> (hopefuly) everything needed to get kvm running.  Please take a look and
+> >> comment.
+> >>
+> >
+> >   CC [M]  /tmp/kvm-module/kvm_main.o
+> > {standard input}: Assembler messages:
+> > {standard input}:168: Error: no such instruction: `vmxon 16(%esp)'
+> > {standard input}:182: Error: no such instruction: `vmxoff'
+> > {standard input}:192: Error: no such instruction: `vmread %eax,%eax'
+> > {standard input}:415: Error: no such instruction: `vmwrite %ebx,%esi'
+> > {standard input}:1103: Error: no such instruction: `vmclear 16(%esp)'
+> > {standard input}:1676: Error: no such instruction: `vmptrld 16(%esp)'
+> > {standard input}:4107: Error: no such instruction: `vmwrite %esp,%eax'
+> > {standard input}:4119: Error: no such instruction: `vmlaunch '
+> > {standard input}:4121: Error: no such instruction: `vmresume '
+> >
+> > I get a number of errors compiling the module. No difference between the
+> > downloaded tarball and my patched kernel tree. Any hints?
+> >
 >
-> This is not a problem with w being an unsigned int, it's a problem with
-> the while loop.  nfsacl_size() returns unsigned int as it should and the
-> while loop can be written to respect that since integer division in C
-> truncates:
->
-> 	for (n = w / PAGE_SIZE; n > 0; n--)
-> 		if (!rqstp->rq_respages[rqstp->rq_resused++];
+> You need a newer binutils.  I'm using binutils-2.16.91.0.6 (gotta love
+> that version number), shipped with Fedora Core 5.
 
-Assuming that PAGE_SIZE = 4096 and w = 100, the original loop iterates once, 
-while your proposed version iterates zero times -- the current code does the 
-right thing. So the proposed change is still bad, sorry.
+The VT-extensions added by Intel and AMD only adds a limited number of
+instructions each. If you want to be user friendly it might be a good
+idea to implement these instructions as macros. I'm pretty sure
+VT-extension support in Xen works with my old binutils version.
 
-Andreas
+/ magnus

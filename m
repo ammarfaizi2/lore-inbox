@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752585AbWKBGeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWKBGeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752585AbWKBGeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 01:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752587AbWKBGeJ
+	id S1750943AbWKBGeT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 01:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752629AbWKBGeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 01:34:09 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:55183 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1752585AbWKBGeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 01:34:07 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:mime-version:to:cc:
-	subject:references:in-reply-to:content-type:content-transfer-encoding;
-	b=uxbT5L1YJPLtJJJJp96nf+Du6KoCU4k1gkKNi1QO/n7QHLOlIrhF4M0NFVIBik4Hq
-	GTffHYGr62ReuFucQmMpw==
-Message-ID: <454990F7.8040408@google.com>
-Date: Wed, 01 Nov 2006 22:32:23 -0800
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Cornelia Huck <cornelia.huck@de.ibm.com>, Mike Galbraith <efault@gmx.de>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-References: <20061031075825.GA8913@suse.de> <45477131.4070501@google.com> <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com> <4547833C.5040302@google.com> <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com> <4547FABE.502@google.com> <20061101020850.GA13070@suse.de> <45480241.2090803@google.com> <20061102052409.GA9642@suse.de> <45498174.5070309@google.com> <20061102060225.GA11188@suse.de>
-In-Reply-To: <20061102060225.GA11188@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Nov 2006 01:34:19 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:36803 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750943AbWKBGeS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 01:34:18 -0500
+Date: Thu, 2 Nov 2006 09:21:58 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Nate Diller <nate.diller@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>,
+       Pavel Machek <pavel@ucw.cz>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20061102062158.GC5552@2ka.mipt.ru>
+References: <1154985aa0591036@2ka.mipt.ru> <1162380963981@2ka.mipt.ru> <20061101130614.GB7195@atrey.karlin.mff.cuni.cz> <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru> <slrnekhpbr.2j1.olecom@flower.upol.cz> <20061101185745.GA12440@2ka.mipt.ru> <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 02 Nov 2006 09:29:36 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Nov 01, 2006 at 09:26:12PM -0800, Martin J. Bligh wrote:
->>>>> Even with CONFIG_SYSFS_DEPRECATED enabled?  For some reason I'm guessing
->>>>> that you missed that suggestion a while back...
->>>> Yes - Enabling CONFIG_SYSFS_DEPRECATED didn't help.
->>> Ok, you are correct, for a stupid reason, this option didn't correctly
->>> work for a range of device types (I can get into the gory details if
->>> anyone really cares...)
->>>
->>> I've now fixed this up, and a few other bugs that I kept tripping on
->>> (which others also hit), and have refreshed my tree so that the next -mm
->>> will be much better in this area.
->>>
->>> If the problem persists (and I've built a zillion different kernels in
->>> different configurations today testing to make sure it doesn't), please
->>> let me know.
->>>
->>> I can post updated patches here if people want them.
->>>
->>> thanks for everyone's patience, I appreciated it.
->> Thanks for fixing this up. If you could post a diff somewhere against
->> either mainline or -mm, would make it easy to run through
->> test.kernel.org before you wake up tommorow ;-)
-> 
-> Oops, the newest -mm just came out without any of the driver core
-> patches in it due to the problems.  I'll wait until the next -mm release
-> then, and try to go catch up on my pending-patch-queue right now
-> instead...
+On Wed, Nov 01, 2006 at 06:12:41PM -0800, Nate Diller (nate.diller@gmail.com) wrote:
+> Indesiciveness has certainly been an issue here, but I remember akpm
+> and Ulrich both giving concrete suggestions.  I was particularly
+> interested in Andrew's request to explain and justify the differences
+> between kevent and BSD's kqueue interface.  Was there a discussion
+> that I missed?  I am very interested to see your work on this
+> mechanism merged, because you've clearly emphasized performance and
+> shown impressive results.  But it seems like we lose out on a lot by
+> throwing out all the applications that already use kqueue.
 
-If we can test it out of sync, it'd save potentially messing up another
--mm cycle. The problem is that it blocks lots of other patches from
-getting tested ...
+It looks you missed that discussion - freebsd kqueue has fields in the 
+kevent structure which have diffent sizes in 32 and 64 bit environments.
 
-M.
+> NATE
+
+-- 
+	Evgeniy Polyakov

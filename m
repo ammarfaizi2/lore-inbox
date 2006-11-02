@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752684AbWKBWCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWKBWCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752684AbWKBWCp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 17:02:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752709AbWKBWCo
+	id S1750890AbWKBWCI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 17:02:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWKBWCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 17:02:44 -0500
-Received: from pm-mx5.mgn.net ([195.46.220.209]:43722 "EHLO pm-mx5.mgn.net")
-	by vger.kernel.org with ESMTP id S1752684AbWKBWCn (ORCPT
+	Thu, 2 Nov 2006 17:02:08 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1991 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750890AbWKBWCE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 17:02:43 -0500
-From: Damien Wyart <damien.wyart@free.fr>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       James@superbug.demon.co.uk, Takashi Iwai <tiwai@suse.de>
-Subject: Re: ALSA message with 2.6.19-rc4-mm2 (not -mm1)
-References: <20061102102607.GA2176@localhost.localdomain>
-	<20061102192607.GA13635@kroah.com>
-Date: Thu, 02 Nov 2006 23:02:41 +0100
-In-Reply-To: <20061102192607.GA13635@kroah.com> (Greg KH's message of "Thu\,
-	2 Nov 2006 11\:26\:07 -0800")
-Message-ID: <878xitpkvy.fsf@brouette.noos.fr>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.90
+	Thu, 2 Nov 2006 17:02:04 -0500
+Date: Thu, 2 Nov 2006 23:01:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Greg KH <greg@kroah.com>, Shem Multinymous <multinymous@gmail.com>,
+       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Jean Delvare <khali@linux-fr.org>
+Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061102220145.GB2192@elf.ucw.cz>
+References: <1162037754.19446.502.camel@pmac.infradead.org> <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com> <20061101235540.GA11581@khazad-dum.debian.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061101235540.GA11581@khazad-dum.debian.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-> > I notice these messages when 2.6.19-rc4-mm2 boots (also with
-> > rc3-mm1) but 2.6.19-rc4-mm1 did NOT display them. Related to the
-> > driver tree ?
+> Well, "Wh" measures energy and not power, and "Ah" measures electric charge
+> and not current, so it would be better to make that:
+> 
+> capacity_*_energy  (Wh-based)
+> 
+> and
+> 
+> capacity_*_charge  (Ah-based)
+> 
+> Also, should we go with mWh/mAh, or with even smaller units because of the
+> tiny battery-driven devices of tomorrow?
 
-* Greg KH <greg@kroah.com> [061102 20:26]:
-> How many different sound cards do you have in your machine?
+Okay... So I have cellphone here, 700mAh battery, ~2.8Wh battery. It
+could last 14 days if we were *very* careful. 
 
-Only one, a Sound Blaster Live.
+echo '(700 mA * hour) / (14*day) \ A' | ucalc
 
-> Can you send me the output of 'ls /sys/class/sound/' with the
-> 2.6.19-rc4 (or any other non-mm) kernel?
+ucalc> OK:  0.002083
+ucalc>
 
-With 2.6.19-rc4-mm2, this gives:
-admmidi  amidi  card0      dmmidi  hwC0D0  midi      midiC0D1  mixer    pcmC0D0p  pcmC0D2c  pcmC0D3p  sequencer   timer
-adsp     audio  controlC0  dsp     hwC0D2  midiC0D0  midiC0D2  pcmC0D0c pcmC0D1c  pcmC0D2p  seq       sequencer2
+...that is about 2mA in low power standby mode (but still listening on
+GSM, getting calls, etc).
 
-While Vanilla 2.6.19-rc4 leads to:
-admmidi  amidi  controlC0  dsp     hwC0D2  midiC0D0  midiC0D2  pcmC0D0c pcmC0D1c  pcmC0D2p  seq        sequencer2
-adsp     audio  dmmidi     hwC0D0  midi    midiC0D1  mixer     pcmC0D0p pcmC0D2c  pcmC0D3p  sequencer  timer
+...so, mAh are probably good enough for capacity_*_charge, but would
+suck for current power consumption, as difference between 2mA and 3mA
+would be way too big. We need some finer unit in that case.
 
-Seems there is an additional 'card0' entry in the first case.
-
-
-With Vanilla, the relevant part of the bootlog is:
-
-Nov  2 22:49:03 brouette kernel: Advanced Linux Sound Architecture Driver Version 1.0.13 (Sun Oct 22 08:56:16 2006 UTC).
-Nov  2 22:49:03 brouette kernel: ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 21 (level, low) -> IRQ 21
-Nov  2 22:49:03 brouette kernel: ALSA device list:
-Nov  2 22:49:03 brouette kernel:   #0: SB Live [Unknown] (rev.10, serial:0x80671102) at 0xdf20, irq 21
-
-so exactly the same as in mm2, without the error messages.
-
-As rc4-mm1 doesn't show the problem (and so gives the very same output
-as plain rc4), I still wonder if this is an interaction with the driver
-tree ?
-
+									Pavel
 -- 
-Damien Wyart
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

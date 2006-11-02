@@ -1,61 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752640AbWKBF1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751803AbWKBFfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752640AbWKBF1y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 00:27:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752644AbWKBF1y
+	id S1751803AbWKBFfF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 00:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751837AbWKBFfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 00:27:54 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:25990 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1752640AbWKBF1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 00:27:53 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:mime-version:to:cc:
-	subject:references:in-reply-to:content-type:content-transfer-encoding;
-	b=yrvAYX//OeaInVfvOpRIsxiHz80FUrBGNlX8TnV5nOh8G9fLFqvn79k5+L6YXFkXo
-	g57j/vG60WlnVcce0mD7g==
-Message-ID: <45498174.5070309@google.com>
-Date: Wed, 01 Nov 2006 21:26:12 -0800
-From: "Martin J. Bligh" <mbligh@google.com>
+	Thu, 2 Nov 2006 00:35:05 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:48006 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1751803AbWKBFfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 00:35:01 -0500
+Message-ID: <4549832A.2040400@in.ibm.com>
+Date: Thu, 02 Nov 2006 11:03:30 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
 User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Cornelia Huck <cornelia.huck@de.ibm.com>, Mike Galbraith <efault@gmx.de>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-References: <20061031065912.GA13465@suse.de> <4546FB79.1060607@google.com> <20061031075825.GA8913@suse.de> <45477131.4070501@google.com> <20061031174639.4d4d20e3@gondolin.boeblingen.de.ibm.com> <4547833C.5040302@google.com> <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com> <4547FABE.502@google.com> <20061101020850.GA13070@suse.de> <45480241.2090803@google.com> <20061102052409.GA9642@suse.de>
-In-Reply-To: <20061102052409.GA9642@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Matt Helsley <matthltc@us.ibm.com>
+CC: Paul Menage <menage@google.com>, vatsa@in.ibm.com,
+       Pavel Emelianov <xemul@openvz.org>, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, pj@sgi.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+References: <20061030103356.GA16833@in.ibm.com>	 <45486925.4000201@openvz.org> <20061101181236.GC22976@in.ibm.com>	 <1162419565.12419.154.camel@localhost.localdomain>	 <6599ad830611011550m69876b1ase3579167903a7cd7@mail.gmail.com> <1162427450.12419.184.camel@localhost.localdomain>
+In-Reply-To: <1162427450.12419.184.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matt Helsley wrote:
+> On Wed, 2006-11-01 at 15:50 -0800, Paul Menage wrote:
+>> On 11/1/06, Matt Helsley <matthltc@us.ibm.com> wrote:
+>>> On Wed, 2006-11-01 at 23:42 +0530, Srivatsa Vaddagiri wrote:
+>>>> On Wed, Nov 01, 2006 at 12:30:13PM +0300, Pavel Emelianov wrote:
+>>> <snip>
+>>>
+>>>>>>   - Support movement of all threads of a process from one group
+>>>>>>     to another atomically?
+>>>>> I propose such a solution: if a user asks to move /proc/<pid>
+>>>>> then move the whole task with threads.
+>>>>> If user asks to move /proc/<pid>/task/<tid> then move just
+>>>>> a single thread.
+>>>>>
+>>>>> What do you think?
+>>>> Isnt /proc/<pid> listed also in /proc/<pid>/task/<tid>?
+>>>>
+>>>> For ex:
+>>>>
+>>>>       # ls /proc/2906/task
+>>>>       2906  2907  2908  2909
+>>>>
+>>>> 2906 is the main thread which created the remaining threads.
+>>>>
+>>>> This would lead to an ambiguity when user does something like below:
+>>>>
+>>>>       echo 2906 > /some_res_file_system/some_new_group
+>>>>
+>>>> Is he intending to move just the main thread, 2906, to the new group or
+>>>> all the threads? It could be either.
+>>>>
+>>>> This needs some more thought ...
+>>>         I thought the idea was to take in a proc path instead of a single
+>>> number. You could then distinguish between the whole thread group and
+>>> individual threads by parsing the string. You'd move a single thread if
+>>> you find both the tgid and the tid. If you only get a tgid you'd move
+>>> the whole thread group. So:
+>>>
+>>> <pid>                   -> if it's a thread group leader move the whole
+>>>                            thread group, otherwise just move the thread
+>>> /proc/<tgid>            -> move the whole thread group
+>>> /proc/<tgid>/task/<tid> -> move the thread
+>>>
+>>>
+>>>         Alternatives that come to mind are:
+>>>
+>>> 1. Read a flag with the pid
+>>> 2. Use a special file which expects only thread groups as input
+>> I think that having a "tasks" file and a "threads" file in each
+>> container directory would be a clean way to handle it:
+>>
+>> "tasks" : read/write complete process members
+>> "threads" : read/write individual thread members
+>>
+>> Paul
+> 
+> Seems like a good idea to me -- that certainly avoids complex parsing.
+> 
+> Cheers,
+> 	-Matt Helsley
+> 
 
->>> Even with CONFIG_SYSFS_DEPRECATED enabled?  For some reason I'm guessing
->>> that you missed that suggestion a while back...
->> Yes - Enabling CONFIG_SYSFS_DEPRECATED didn't help.
-> 
-> Ok, you are correct, for a stupid reason, this option didn't correctly
-> work for a range of device types (I can get into the gory details if
-> anyone really cares...)
-> 
-> I've now fixed this up, and a few other bugs that I kept tripping on
-> (which others also hit), and have refreshed my tree so that the next -mm
-> will be much better in this area.
-> 
-> If the problem persists (and I've built a zillion different kernels in
-> different configurations today testing to make sure it doesn't), please
-> let me know.
-> 
-> I can post updated patches here if people want them.
-> 
-> thanks for everyone's patience, I appreciated it.
+Yeah, sounds like a good idea. We need to give the controllers some control
+over whether they support task movement, thread movement or both.
 
-Thanks for fixing this up. If you could post a diff somewhere against
-either mainline or -mm, would make it easy to run through
-test.kernel.org before you wake up tommorow ;-)
+-- 
 
-Thanks,
-
-M.
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

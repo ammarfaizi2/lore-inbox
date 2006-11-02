@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWKBOcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWKBOdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbWKBOcP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 09:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWKBOcP
+	id S1750871AbWKBOdW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 09:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWKBOdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 09:32:15 -0500
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:63812 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1750838AbWKBOcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 09:32:14 -0500
-Message-ID: <454A0165.7090009@qumranet.com>
-Date: Thu, 02 Nov 2006 16:32:05 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: "Hesse, Christian" <mail@earthworm.de>
-CC: kvm-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [ANNOUNCE] kvm howto
-References: <4549F1D5.8070509@qumranet.com> <200611021527.09664.mail@earthworm.de>
-In-Reply-To: <200611021527.09664.mail@earthworm.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2006 14:32:10.0154 (UTC) FILETIME=[AE1AD0A0:01C6FE8B]
+	Thu, 2 Nov 2006 09:33:22 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:34785 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1750862AbWKBOdV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 09:33:21 -0500
+Date: Thu, 2 Nov 2006 08:33:18 -0600
+From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 3/8] cciss: change number of commands per controller
+Message-ID: <20061102143318.GB16430@beardog.cca.cpqcorp.net>
+References: <20061101215640.GC29928@beardog.cca.cpqcorp.net> <20061102141149.GI13555@kernel.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061102141149.GI13555@kernel.dk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hesse, Christian wrote:
-> On Thursday 02 November 2006 14:25, Avi Kivity wrote:
->   
->> I've just uploaded a HOWTO to http://kvm.sourceforge.net, including
->> (hopefuly) everything needed to get kvm running.  Please take a look and
->> comment.
->>     
->
->   CC [M]  /tmp/kvm-module/kvm_main.o
-> {standard input}: Assembler messages:
-> {standard input}:168: Error: no such instruction: `vmxon 16(%esp)'
-> {standard input}:182: Error: no such instruction: `vmxoff'
-> {standard input}:192: Error: no such instruction: `vmread %eax,%eax'
-> {standard input}:415: Error: no such instruction: `vmwrite %ebx,%esi'
-> {standard input}:1103: Error: no such instruction: `vmclear 16(%esp)'
-> {standard input}:1676: Error: no such instruction: `vmptrld 16(%esp)'
-> {standard input}:4107: Error: no such instruction: `vmwrite %esp,%eax'
-> {standard input}:4119: Error: no such instruction: `vmlaunch '
-> {standard input}:4121: Error: no such instruction: `vmresume '
->
-> I get a number of errors compiling the module. No difference between the 
-> downloaded tarball and my patched kernel tree. Any hints?
->   
+On Thu, Nov 02, 2006 at 03:11:50PM +0100, Jens Axboe wrote:
+> On Wed, Nov 01 2006, Mike Miller (OS Dev) wrote:
+> > +	{0x3211103C, "Smart Array E200i", &SA5_access, 120},
+> 
+> Is it 120, or 128? And how big is the allocated command array now, with
+> 512 commands?
 
-You need a newer binutils.  I'm using binutils-2.16.91.0.6 (gotta love 
-that version number), shipped with Fedora Core 5.
+The controller can handle up to 128, but I artificially limited it to 120
+for reasons I shouldn't discuss in public. :)
 
-I'll update the howto to reflect this.
+Each command is 548 bytes w/o scatter gather chaining. So 548 * 512 = 280576
+bytes for the command list. We've tested using 1024 commands with several
+Smart Array controllers and have not encountered issues. The reason for the
+increase is performance. The busier you can keep the controller the better
+it works.
 
--- 
-error compiling committee.c: too many arguments to function
-
+mikem

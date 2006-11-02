@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752764AbWKBJQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752756AbWKBJX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752764AbWKBJQR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 04:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752766AbWKBJQQ
+	id S1752756AbWKBJX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 04:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752761AbWKBJX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 04:16:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15520 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752764AbWKBJQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 04:16:15 -0500
-Subject: Re: Can Linux live without DMA zone?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jun Sun <jsun@junsun.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061102021547.GA1240@srv.junsun.net>
-References: <20061102021547.GA1240@srv.junsun.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 02 Nov 2006 10:16:11 +0100
-Message-Id: <1162458971.14530.14.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+	Thu, 2 Nov 2006 04:23:29 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:43530 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1752756AbWKBJX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 04:23:28 -0500
+Message-ID: <4549B8CA.7010502@shadowen.org>
+Date: Thu, 02 Nov 2006 09:22:18 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@google.com>,
+       Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org,
+       Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
+References: <20061031182919.3a15b25a@gondolin.boeblingen.de.ibm.com> <4547FABE.502@google.com> <20061101020850.GA13070@suse.de> <45480241.2090803@google.com> <20061102052409.GA9642@suse.de> <45498174.5070309@google.com> <20061102060225.GA11188@suse.de> <20061101220701.78a1fa88.akpm@osdl.org> <20061102064227.GA11693@suse.de> <20061101224915.19d1b1ac.akpm@osdl.org> <20061102065609.GA14353@suse.de>
+In-Reply-To: <20061102065609.GA14353@suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-01 at 18:15 -0800, Jun Sun wrote:
-> I am trying to reserve a block of memory (>16MB) starting from 0 and hide it 
-> from kernel.  A consequence is that DMA zone now has size 0.  That causes
-> many drivers to grief (OOMs).
+Greg KH wrote:
+> On Wed, Nov 01, 2006 at 10:49:15PM -0800, Andrew Morton wrote:
+>> On Wed, 1 Nov 2006 22:42:27 -0800
+>> Greg KH <gregkh@suse.de> wrote:
+>>
+>>> On Wed, Nov 01, 2006 at 10:07:01PM -0800, Andrew Morton wrote:
+>>>> On Wed, 1 Nov 2006 22:02:25 -0800
+>>>> Greg KH <gregkh@suse.de> wrote:
+>>>>
+>>>>>> Thanks for fixing this up. If you could post a diff somewhere against
+>>>>>> either mainline or -mm, would make it easy to run through
+>>>>>> test.kernel.org before you wake up tommorow ;-)
+>>>>> Oops, the newest -mm just came out without any of the driver core
+>>>>> patches in it due to the problems.  I'll wait until the next -mm release
+>>>>> then, and try to go catch up on my pending-patch-queue right now
+>>>>> instead...
+>>>> Let me know when
+>>>> http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/
+>>>> is ready to go and I'll prepare a new rollup.
+>>> It should be ready to go right now.  Fire away :)
+>>>
+>> Poor Cornelia.  All her patches broke again.
 > 
-> I see two ways out:
+> Yeah, I knew that would happen.  I have them still in my queue, I'll
+> handle porting them to my tree now, I've forced her to handle my
+> mistakes too much already :)
 > 
-> 1. Modify individual drivers and convince them not to alloc with GFP_DMA.
->    I have been trying to do this but do not seem to see an end of it.  :)
+> So you can drop them now, I'll get to them tomorrow.
 > 
-> 2. Simply lie and increase MAX_DMA_ADDRESS to really big (like 1GB) so that
->    the whole memory region belongs to DMA zone.
-> 
-> #2 sounds pretty hackish.  I am sure something bad will happen
-> sooner or later (like what?). But so far it appears to be working fine.
-> 
-> The fundamental question is: Has anybody tried to run Linux without 0 sized
-> DMA zone before?  Am I doing something that nobody has done before (which is
-> something really hard to believe these days with Linux :P)?
+> Let's verify that this all is fixed first :)
 
-on a PC there are still devices that need memory in the lower 16Mb.....
-(like floppy)
+If you can trivially produce a single patch against 2.6.19-rc3-mm1 or
+2.6.19-rc4-mm1 (or any other tree :)) I can shove it through TKO and see
+what comes out; and I'd say its worth it.
 
-Maybe you should reserve another area of memory instead!
-
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+-apw

@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752324AbWKBAyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752627AbWKBBGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752324AbWKBAyE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Nov 2006 19:54:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752375AbWKBAyE
+	id S1752627AbWKBBGN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Nov 2006 20:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752626AbWKBBGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Nov 2006 19:54:04 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:58828 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1752324AbWKBAyC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Nov 2006 19:54:02 -0500
-Message-ID: <454941A8.6000601@vmware.com>
-Date: Wed, 01 Nov 2006 16:54:00 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Wed, 1 Nov 2006 20:06:12 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:50844 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1752622AbWKBBGL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Nov 2006 20:06:11 -0500
+Message-ID: <4549447D.5010500@garzik.org>
+Date: Wed, 01 Nov 2006 20:06:05 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/7] paravirtualization: Patch inline replacements for
- common paravirt operations.
-References: <20061029024504.760769000@sous-sol.org>	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>	 <1162178936.9802.34.camel@localhost.localdomain>	 <20061030231132.GA98768@muc.de>	 <1162376827.23462.5.camel@localhost.localdomain>	 <1162376894.23462.7.camel@localhost.localdomain>	 <20061101152715.f1f94d5c.akpm@osdl.org> <1162428424.6848.14.camel@localhost.localdomain>
-In-Reply-To: <1162428424.6848.14.camel@localhost.localdomain>
+To: Andrew Morton <akpm@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Stoffel <john@stoffel.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] libata fixes
+References: <20061101021301.GA21568@havoc.gtf.org>	<17736.43507.649685.484648@smtp.charter.net>	<1162391435.11965.128.camel@localhost.localdomain> <20061101160207.6b5e4c29.akpm@osdl.org>
+In-Reply-To: <20061101160207.6b5e4c29.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> On Wed, 2006-11-01 at 15:27 -0800, Andrew Morton wrote:
->   
->> On Wed, 01 Nov 2006 21:28:13 +1100
->> Rusty Russell <rusty@rustcorp.com.au> wrote:
->>     
->>> +#ifdef CONFIG_DEBUG_KERNEL
->>> +		/* Deliberately clobber regs using "not %reg" to find bugs. */
->>>       
->> That would be considered to be abusive of CONFIG_DEBUG_KERNEL.  A
->> CONFIG_DEBUG_PARAVIRT which depends on CONFIG_DEBUG_KERNEL would be more
->> harmonious.
->>     
->
-> I wasn't sure.  Making a config option for what is a one-liner seemed
-> overkill.
->   
+Andrew Morton wrote:
+> On Wed, 01 Nov 2006 14:30:35 +0000
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> 
+>> Ar Mer, 2006-11-01 am 09:06 -0500, ysgrifennodd John Stoffel:
+>>> Jeff> +	{ 0x8086, 0x7110, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix_pata_33 },
+>>> Jeff>  	{ 0x8086, 0x7111, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix_pata_33 },
+>>>
+>>> Umm, according to lspci -nn on my 440GX box, isn't the 0x8086/0x7110
+>>> an ISA bridge, not a PIIX? controller?  
+>> Correct - the 7110 doesn't belong on that list.
+> 
+> So should it be moved elsewhere, or simply removed?
 
-I have further stuff in my vmi-debug patch that can use 
-CONFIG_DEBUG_PARAVIRT as well :)
+Well, according to Jens' own comment message, the PCI ID he needed was 
+already in the driver (my eyes didn't catch this).
 
-Zach
+It looks like it should be reverted, based on this thread and also the 
+patch's commit message itself.
+
+	Jeff
+
+
+

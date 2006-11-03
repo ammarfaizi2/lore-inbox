@@ -1,98 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753471AbWKCTHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753470AbWKCTIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753471AbWKCTHn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 14:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753470AbWKCTHn
+	id S1753470AbWKCTIY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 14:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753473AbWKCTIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 14:07:43 -0500
-Received: from mx1.mandriva.com ([212.85.150.183]:15795 "EHLO mx1.mandriva.com")
-	by vger.kernel.org with ESMTP id S1753471AbWKCTHm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 14:07:42 -0500
-Date: Fri, 3 Nov 2006 16:07:30 -0300
-From: Arnaldo Carvalho de Melo <acme@mandriva.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lwn@lwn.net
-Subject: Re: [ANNOUNCE] pahole and other DWARF2 utilities
-Message-ID: <20061103190729.GB25363@mandriva.com>
-References: <20061030213318.GA5319@mandriva.com> <20061030203334.09caa368.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 3 Nov 2006 14:08:24 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:5138 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1753470AbWKCTIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 14:08:23 -0500
+Date: Fri, 3 Nov 2006 20:08:24 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Andrew Morton <akpm@osdl.org>, Gabriel C <nix.or.die@googlemail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New filesystem for Linux
+Message-ID: <20061103190824.GJ13381@stusta.de>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz> <20061102174149.3578062d.akpm@osdl.org> <20061103171443.GA16912@flower.upol.cz> <Pine.LNX.4.64.0611031808280.15472@artax.karlin.mff.cuni.cz> <20061103173609.GA17080@flower.upol.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061030203334.09caa368.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061103173609.GA17080@flower.upol.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 08:33:34PM -0800, Andrew Morton wrote:
-> On Mon, 30 Oct 2006 18:33:19 -0300
-> Arnaldo Carvalho de Melo <acme@mandriva.com> wrote:
+On Fri, Nov 03, 2006 at 06:36:09PM +0100, Oleg Verych wrote:
+> On Fri, Nov 03, 2006 at 06:09:39PM +0100, Mikulas Patocka wrote:
+> > >In gmane.linux.kernel, you wrote:
+> > >[]
+> > >>From: Andrew Morton <akpm@osdl.org>
+> > >>
+> > >>As Mikulas points out, (1 << anything) won't be evaluating to zero.
+> > >
+> > >How about integer overflow ?
+> > 
+> > C standard defines that shifts by more bits than size of a type are 
+> > undefined (in fact 1<<32 produces 1 on i386, because processor uses only 5 
+> > bits of a count).
+> ,--
+> |#include <stdio.h>
+> |int main(void) {
+> |	unsigned int b = 1;
+> |
+> |	printf("%u\n", (1 << 33));
+> |	printf("%u\n", (b << 33));
+> |	return 0;
+> |}
+> |$ gcc bit.c && ./a.out
+> `--
 > 
-> > 	Further ideas on how to use the DWARF2 information include tools
-> > that will show where inlines are being used, how much code is added by
-> > inline functions,
-> 
-> It would be quite useful to be able to identify inlined functions which are
-> good candidates for uninlining.
+> There *is* difference, isn't it?
 
-Top 50 inline functions expanded more than once by sum of its expansions
-in a vmlinux file built for qemu, most things are modules, columns are
-(inline function name, number of times it was expanded, sum in bytes of
-its expansions, number of source files where expansions ocurred):
+It's undefined, and the results with your example depend on the gcc 
+version and optimization level.
 
-[acme@newtoy guinea_pig-2.6]$ pfunct --total_inline_stats
-../../acme/OUTPUT/qemu/net-2.6/vmlinux | grep -v ': 1 ' | sort -k3 -nr |
-head -50
+E.g. with gcc 4.1, there is *no* difference any more if you turn on 
+optimization.
 
-get_current                        676   5732 155
-xfrm_selector_match                  6   4778   2
-__memcpy                           177   4326  89
-kmalloc                            185   3991 119
-__constant_c_memset                113   3556  69
-__constant_c_and_count_memset      225   3161 156
-prefetch                           333   2915 101
-__ext3_journal_dirty_metadata       44   2810   6
-skb_put                             34   2650  27
-module_put                          80   2613  42
-strcmp                             108   2506  49
-__ext3_journal_get_write_access     41   2482   6
-down                                57   2253  19
-__fswab16                           96   2172  33
-dst_release                         34   2130  23
-list_add_tail                       88   2030  67
-kzalloc                             89   2007  76
-__constant_memcpy                  146   1930 118
-tcp_done                             8   1918   4
-brelse                             128   1897  16
-__nlmsg_put                         21   1856  13
-INIT_LIST_HEAD                     226   1848  88
-pci_read_config_byte                54   1802   9
-list_del_init                      103   1782  39
-ip_rt_put                           27   1692  12
-pci_read_config_word                50   1675  11
-strlen                             108   1671  64
-__xfrm6_selector_match               3   1615   2
-__skb_trim                          25   1604  21
-do_follow_link                       2   1543   1
-strncmp                             48   1533  22
-__xfrm4_selector_match               6   1525   2
-outb_p                             136   1518   9
-tcp_set_state                       14   1501   5
-find_group_orlov                     2   1456   2
-inet_twsk_put                       16   1448   5
-pci_write_config_byte               38   1433  10
-up                                  68   1372  19
-pci_read_config_dword               42   1357  12
-raw_local_irq_restore              366   1292  88
-skb_tailroom                        62   1239  23
-set_bit                            155   1232  68
-put_task_struct                     53   1227  11
-print_irq_desc                       2   1206   1
-skb_trim                            14   1192  13
-__do_follow_link                     2   1190   1
-nf_hook_thresh                      16   1164   8
-dget                                47   1147  19
-__raw_local_irq_save               314   1145  85
-__fswab32                          130   1117  28
+cu
+Adrian
 
-- Arnaldo
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

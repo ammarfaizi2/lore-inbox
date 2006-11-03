@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753449AbWKCSwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753450AbWKCSyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753449AbWKCSwI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 13:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753450AbWKCSwI
+	id S1753450AbWKCSyj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 13:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753460AbWKCSyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 13:52:08 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:4550 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1753449AbWKCSwF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 13:52:05 -0500
-Date: Fri, 3 Nov 2006 13:51:15 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Amul Shah <amul.shah@unisys.com>, LKML <linux-kernel@vger.kernel.org>,
-       cherry@osdl.org
-Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when  reserving MP Tables located in high memory
-Message-ID: <20061103185115.GD13422@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com> <200611031751.04056.ak@suse.de> <20061103174002.GD9371@in.ibm.com> <200611031943.48127.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611031943.48127.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Fri, 3 Nov 2006 13:54:39 -0500
+Received: from outbound-blu.frontbridge.com ([65.55.251.16]:9158 "EHLO
+	outbound1-blu-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1753450AbWKCSyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 13:54:38 -0500
+X-BigFish: V
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] Add Legacy IDE mode support for SB600 SATA
+Message-Id: <20061103185420.B3FA6CBD48@localhost.localdomain>
+Date: Fri,  3 Nov 2006 13:54:20 -0500 (EST)
+From: luugi.marsan@amd.com (Luugi Marsan)
+X-OriginalArrivalTime: 03 Nov 2006 18:54:15.0193 (UTC) FILETIME=[755F1890:01C6FF79]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2006 at 07:43:48PM +0100, Andi Kleen wrote:
-> On Friday 03 November 2006 18:40, Vivek Goyal wrote:
-> 
-> > When did fastboot become a closed mailing list? AFAIK, its an open list
-> > and anybody can do the posting.
-> 
-> It's been for a long time. At least I remember often getting these bounces.
-> 
+From: conke.hu@amd.com
 
-You are right. Just now I sent a mail to the administrator of the list and
-he told that recently he made fastboot a closed list to avoid spams. But he
-is now re-opening the list for everybody as we want to archive the
-kexec/kdump related discussions in fastboot list. Finding a past discussion
-on LKML is tough.
+ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, AHCI and RAID.IDE modes are used for compatibility with some old OS without AHCI driver,but now they are not necessary for Linux since the kernel has supported AHCI.Some BIOS set Legacy IDE as SB600 SATA's default mode, but the AHCI driver cannot run in Legacy IDE.So, we should set the controller back to AHCI mode if it has been set as IDE by BIOS.
 
-So now onwards you should not be receiving those annoying messages.
+Signed-off-by:  Luugi Marsan <luugi.marsan@amd.com>
 
-Thanks
-Vivek
+--- linux-2.6.19-rc4-git5/drivers/pci/quirks.c.orig     2006-11-04 03:50:25.000000000 +0800
++++ linux-2.6.19-rc4-git5/drivers/pci/quirks.c  2006-11-04 03:53:56.000000000 +0800
+@@ -796,6 +796,35 @@ static void __init quirk_mediagx_master(
+ }
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_CYRIX,   PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master );
+ 
++
++/*
++ * ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, AHCI
++ * and RAID.
++ * IDE modes are used for compatibility with some old OS without AHCI driver,
++ * but now they are not necessary for Linux since the kernel has supported
++ * AHCI.
++ * Some BIOS set Legacy IDE as SB600 SATA's default mode, but the AHCI driver
++ * cannot run in Legacy IDE.
++ * So, we should set the controller back to AHCI mode if it has been set as IDE
++ * by BIOS.
++ */
++static void __devinit quirk_sb600_sata(struct pci_dev *pdev)
++{
++       if ((pdev->class >> 8) == PCI_CLASS_STORAGE_IDE)
++       {
++               u8 tmp;
++
++               pci_read_config_byte(pdev, 0x40, &tmp);
++               pci_write_config_byte(pdev, 0x40, tmp|1);
++               pci_write_config_byte(pdev, 0x9, 1);
++               pci_write_config_byte(pdev, 0xa, 6);
++               pci_write_config_byte(pdev, 0x40, tmp);
++              
++               pdev->class = 0x010601;
++       }
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, quirk_sb600_sata);
++
+ /*
+  * As per PCI spec, ignore base address registers 0-3 of the IDE controllers
+  * running in Compatible mode (bits 0 and 2 in the ProgIf for primary and 
+

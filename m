@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753244AbWKCPOd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753259AbWKCPTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753244AbWKCPOd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 10:14:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753259AbWKCPOd
+	id S1753259AbWKCPTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 10:19:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753248AbWKCPTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 10:14:33 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:14606 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1753244AbWKCPOc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 10:14:32 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Organization: tuxland
-To: linux-kernel@vger.kernel.org
-Subject: orinoco driver question
-Date: Fri, 3 Nov 2006 16:13:25 +0100
-User-Agent: KMail/1.9.5
+	Fri, 3 Nov 2006 10:19:24 -0500
+Received: from mail.suse.de ([195.135.220.2]:49609 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1753233AbWKCPTY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 10:19:24 -0500
+Date: Fri, 3 Nov 2006 16:13:45 +0100
+From: Stefan Seyfried <seife@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Shem Multinymous <multinymous@gmail.com>,
+       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>, Jean Delvare <khali@linux-fr.org>,
+       Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061103151345.GA31829@suse.de>
+References: <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com> <20061101235540.GA11581@khazad-dum.debian.net> <454A2FC2.4060107@tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200611031613.25483.m.kozlowski@tuxland.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <454A2FC2.4060107@tmr.com>
+X-Operating-System: openSUSE 10.2 (i586) Beta2, Kernel 2.6.18.1-12-default
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Thu, Nov 02, 2006 at 12:49:54PM -0500, Bill Davidsen wrote:
 
-	Hope that's not a problem to ask some 'newbie' kernel coding stuff here. Here 
-it goes:
+> Having seen a French consultant with a Windows laptop reporting mJ 
 
-There are those two orinoco ioctl's
+Hehe.... That's the nice thing about SI units.
 
-- orinoco_ioctl_setport3
-- orinoco_ioctl_getport3
+     1W = 1J / 1s
 
-Both take 'char *extra' as an argument to set/get 'priv->prefer_port3'. The 
-argument value to orinoco_ioctl_setport3 can be either 0 (IEEE ad-hoc mode) 
-or 1 (Lucent proprietary ad-hoc mode) the rest is -EINVAL. I don't get why 
-there is a need for an extra 'int' variable and casts in the code. 
-Using 'char *extra' seems to be fine there. To visualize what I mean here is 
-the patch:
-
---- linux-2.6.19-rc4-orig/drivers/net/wireless/orinoco.c        2006-11-02 
-23:52:39.000000000 +0100
-+++ linux-2.6.19-rc4/drivers/net/wireless/orinoco.c     2006-11-03 
-16:02:45.000000000 +0100
-@@ -3658,14 +3658,13 @@ static int orinoco_ioctl_setport3(struct
-                                  char *extra)
- {
-        struct orinoco_private *priv = netdev_priv(dev);
--       int val = *( (int *) extra );
-        int err = 0;
-        unsigned long flags;
+so
  
-        if (orinoco_lock(priv, &flags) != 0)
-                return -EBUSY;
- 
--       switch (val) {
-+       switch (*extra) {
-        case 0: /* Try to do IEEE ad-hoc mode */
-                if (! priv->has_ibss) {
-                        err = -EINVAL;
-@@ -3704,9 +3703,8 @@ static int orinoco_ioctl_getport3(struct
-                                  char *extra)
- {
-        struct orinoco_private *priv = netdev_priv(dev);
--       int *val = (int *) extra;
- 
--       *val = priv->prefer_port3;
-+       *extra = (char)priv->prefer_port3;
-        return 0;
- }
+ 1W * 1h = 3600s * 1J / 1s
+    1mWh = 3.6J
 
-I don't think this patch decreases code readability. This is just an example 
-but if there are more functions like this doesn't removing 'redundant' (?) 
-variables make the code better?
-
-Regards,
-
-	Mariusz Kozlowski
+If i did not screw up something :-). I still wonder why they would
+report mJ, but probably they like big numbers ;-)
+-- 
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 

@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753402AbWKCRkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753408AbWKCRsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753402AbWKCRkl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 12:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753403AbWKCRkl
+	id S1753408AbWKCRsL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 12:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753409AbWKCRsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 12:40:41 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:30419 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1753402AbWKCRkk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 12:40:40 -0500
-Date: Fri, 3 Nov 2006 12:40:02 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Amul Shah <amul.shah@unisys.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when  reserving MP Tables located in high memory
-Message-ID: <20061103174002.GD9371@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com> <200611030340.55952.ak@suse.de> <1162565722.19677.68.camel@ustr-linux-shaha1.unisys.com> <200611031751.04056.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Nov 2006 12:48:11 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:50370 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1753408AbWKCRsK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 12:48:10 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: 2.6.19-rc1: x86_64 slowdown in lmbench's fork
+Date: Fri, 3 Nov 2006 18:47:49 +0100
+User-Agent: KMail/1.9.5
+Cc: tim.c.chen@linux.intel.com, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <1162485897.10806.72.camel@localhost.localdomain> <1162570216.10806.79.camel@localhost.localdomain> <m1lkmsxwk7.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1lkmsxwk7.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200611031751.04056.ak@suse.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611031847.49222.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2006 at 05:51:03PM +0100, Andi Kleen wrote:
-> 
-> [Finally dropping that annoying fastboot list from cc. Please never include any closed 
-> mailing lists in l-k posts. Thanks]
-> 
 
-Sorry, did not notice your message in the last mail and copied my last
-response to fastboot mailing list.
+> So unless there is some other array that is sized by NR_IRQs
+> in the context switch path which could account for this in
+> other ways.  It looks like you just got unlucky.
 
-When did fastboot become a closed mailing list? AFAIK, its an open list
-and anybody can do the posting.
 
-Are you getting notifications that your mail has been waiting for 
-moderator's approval to be posted?
+TLB/cache profiling data might be useful?
+My bet would be more on cache effects.
+ 
+> The only hypothesis that I can seem to come up with is that maybe
+> you are getting an extra tlb now that you didn't use to.  
+> I think the per cpu area is covered by huge pages but maybe not.
 
-Thanks
-Vivek
+It should be.
+
+-Andi

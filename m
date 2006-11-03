@@ -1,126 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWKCUr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWKCUrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWKCUr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 15:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWKCUro
+	id S932120AbWKCUrR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWKCUrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 15:47:44 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:37944 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1753528AbWKCUrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 15:47:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type;
-        b=V9veH+KGO6XVCLtzCtDgNFP6QUdx0bw4Z3lGLnvRZrO6xV+WCWieTX7v4MmXZOgSLy7herasjpgk62QQAv8Tdzn7KWm88l5C8vZTcI1avNPl/znf9EQIjv80HKS7fnFtNsR8ZfvjQs65ZijKe0eCXn6za/F0Vhz1ZzTw2WD+joE=
-Message-ID: <454BAAD7.3060400@gmail.com>
-Date: Fri, 03 Nov 2006 21:47:19 +0100
-From: Maciej Rutecki <maciej.rutecki@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
-MIME-Version: 1.0
-To: martin@lorenz.eu.org, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.18] Suspend to ram and SATA
-References: <454A61B0.9010306@gmail.com> <20061103074447.GB23150@gimli>
-In-Reply-To: <20061103074447.GB23150@gimli>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms010909090308090508080507"
+	Fri, 3 Nov 2006 15:47:05 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:59061 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1753531AbWKCUqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:46:54 -0500
+Date: Fri, 3 Nov 2006 12:46:51 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+Message-Id: <20061103204651.15739.54644.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
+References: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 3/7] Extract load calculation from rebalance_tick
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+Extract load calculation from rebalance_tick
 
---------------ms010909090308090508080507
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: quoted-printable
+A load calculation is always done in rebalance_tick() in addition
+to the real load balancing activities that only take place when certain
+jiffie counts have been reached. Move that processing into a separate
+function and call it directly from scheduler_tick().
 
-Martin Lorenz napisa=B3(a):
->=20
-> for 2.6.18 there is a patch which makes AHCI sata behave correctly on
-> suspend/resume. it was originally written by Forrest Zhao and is now
-> included in the 2.6.19-rcX tree
->=20
-> you can apply the libata patch that went into 2.6.18-mm1. it is to be f=
-ound
-> in the broken-out dir of 2.6.18-mm1 and named
-> git-libata-all-2.6.18-mm1.patch
->=20
-> when applying it to 2.6.18.1 you will get three rejects because the pat=
-ches
-> are already in 2.6.18.1. simply say 'n' -> 'n' on those three.=20
->=20
-A test this patch witch 2.6.18 and works great, thanks :-)
+Also extract the time slice handling from scheduler_tick and
+put it into a separate function. Then we can clean up scheduler_tick
+significantly. It will no longer have any gotos.
 
---=20
-Maciej Rutecki <maciej.rutecki@gmail.com>
-http://www.unixy.pl
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-
---------------ms010909090308090508080507
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJHzCC
-AuowggJToAMCAQICEE6xoJMcyW54m7Gt6FEjF3swDQYJKoZIhvcNAQEFBQAwYjELMAkGA1UE
-BhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMT
-I1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA2MDgyODEyMzAwNloX
-DTA3MDgyODEyMzAwNlowSjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEnMCUG
-CSqGSIb3DQEJARYYbWFjaWVqLnJ1dGVja2lAZ21haWwuY29tMIIBIjANBgkqhkiG9w0BAQEF
-AAOCAQ8AMIIBCgKCAQEAxmrZ/vMNBQsTG+9oNg9WeFTNtluscxhg5oBwudmsZhsoDdtQYPlK
-ZsRSZnkKTdEWR9w8dwi0JBxmq1XHumBA6/rFfAfhbOV1SBH3ktZ9foamMjpJTjO3+3gF9ocT
-wj1GzfReeGZuPgr4qVVvOT5FfD/PkAJzvur7fyLnviiZokQz8R3c+VhJlW3HurhlOlK0ItUu
-UuVtCdJosQRepYdPQ6H3Mvn74UxVttDeVxWNlQ2DaS7cy8wTmtc5CTNMVctbJkzFz0a/7wCJ
-JHdmqKTgjMBm+ry/IC50jvwkLKAumSJBLWhoIB+LxkJlMwgn69jc0KJkrdkpsUjPdo+zDgff
-iQIDAQABozUwMzAjBgNVHREEHDAagRhtYWNpZWoucnV0ZWNraUBnbWFpbC5jb20wDAYDVR0T
-AQH/BAIwADANBgkqhkiG9w0BAQUFAAOBgQC2O4xAuM7DplCDsgJuaMKz3uR25rq9ucMqVtCW
-CAfCyORrFaxN8LFF9KcYx6M4AK1fQ36JVPtMER2VzGMF74gXgrFQ4A9tno6rKzi/QpzwWoPE
-4I1hcOKz/YxOK0sRjSDR3p5s2XrKVxgUe+TEeJ6/y1iv52o41oYVmilsUovvHzCCAuowggJT
-oAMCAQICEE6xoJMcyW54m7Gt6FEjF3swDQYJKoZIhvcNAQEFBQAwYjELMAkGA1UEBhMCWkEx
-JTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0
-ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA2MDgyODEyMzAwNloXDTA3MDgy
-ODEyMzAwNlowSjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEnMCUGCSqGSIb3
-DQEJARYYbWFjaWVqLnJ1dGVja2lAZ21haWwuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
-MIIBCgKCAQEAxmrZ/vMNBQsTG+9oNg9WeFTNtluscxhg5oBwudmsZhsoDdtQYPlKZsRSZnkK
-TdEWR9w8dwi0JBxmq1XHumBA6/rFfAfhbOV1SBH3ktZ9foamMjpJTjO3+3gF9ocTwj1GzfRe
-eGZuPgr4qVVvOT5FfD/PkAJzvur7fyLnviiZokQz8R3c+VhJlW3HurhlOlK0ItUuUuVtCdJo
-sQRepYdPQ6H3Mvn74UxVttDeVxWNlQ2DaS7cy8wTmtc5CTNMVctbJkzFz0a/7wCJJHdmqKTg
-jMBm+ry/IC50jvwkLKAumSJBLWhoIB+LxkJlMwgn69jc0KJkrdkpsUjPdo+zDgffiQIDAQAB
-ozUwMzAjBgNVHREEHDAagRhtYWNpZWoucnV0ZWNraUBnbWFpbC5jb20wDAYDVR0TAQH/BAIw
-ADANBgkqhkiG9w0BAQUFAAOBgQC2O4xAuM7DplCDsgJuaMKz3uR25rq9ucMqVtCWCAfCyORr
-FaxN8LFF9KcYx6M4AK1fQ36JVPtMER2VzGMF74gXgrFQ4A9tno6rKzi/QpzwWoPE4I1hcOKz
-/YxOK0sRjSDR3p5s2XrKVxgUe+TEeJ6/y1iv52o41oYVmilsUovvHzCCAz8wggKooAMCAQIC
-AQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENh
-cGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAm
-BgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0
-ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1h
-aWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNV
-BAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQD
-EyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzANBgkqhkiG9w0BAQEF
-AAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9VvyGna9fww6YfK/Uc4B
-1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOCdz0Dviv+uxg+B79A
-gAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCBkTASBgNVHRMBAf8E
-CDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3RlLmNvbS9UaGF3
-dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAgpB4wHDEa
-MBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPqCy7M
-DaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk1
-3iSx0x1G/11fZU8xggNkMIIDYAIBATB2MGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3
-dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJl
-ZW1haWwgSXNzdWluZyBDQQIQTrGgkxzJbnibsa3oUSMXezAJBgUrDgMCGgUAoIIBwzAYBgkq
-hkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNjExMDMyMDQ3MTlaMCMG
-CSqGSIb3DQEJBDEWBBTICuZk0Ss9M1ifYo/sQZXnlhwmDzBSBgkqhkiG9w0BCQ8xRTBDMAoG
-CCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggq
-hkiG9w0DAgIBKDCBhQYJKwYBBAGCNxAEMXgwdjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMc
-VGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFs
-IEZyZWVtYWlsIElzc3VpbmcgQ0ECEE6xoJMcyW54m7Gt6FEjF3swgYcGCyqGSIb3DQEJEAIL
-MXigdjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg
-THRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECEE6x
-oJMcyW54m7Gt6FEjF3swDQYJKoZIhvcNAQEBBQAEggEAw4D7bfLFolaBh/10TmfurkPGILvq
-MehZo7DqObwm983mvzbguzGCit+HiWPZJgTARnXabFfIAjoinqSCzs+I1b4pXUYxXKGncQKP
-4f6tSTxnKnpeJbyVlBId7P+GcpSLUUDVzxwjVWUQX4UWI2F3Lhx6T6bdZYRd9PVPI1Ok5xDK
-1LtpKG6pbHfnaZfhjeYXUJ68SkPil3iwv96ZbW6bbtf6Y3A9M/k6PpBSOVIj2mQ4JxCvywk6
-0MesqCGtrk8sm8guQwd3eVD0Ofg1UGHnAlow0RfYVfZfXy0kSftmifDk6qfQ5Kx2n8vjEbKu
-kUj/h0vMYGX5bfJcy9RpHJRdugAAAAAAAA==
---------------ms010909090308090508080507--
+Index: linux-2.6.19-rc4-mm2/kernel/sched.c
+===================================================================
+--- linux-2.6.19-rc4-mm2.orig/kernel/sched.c	2006-11-03 12:51:28.772236385 -0600
++++ linux-2.6.19-rc4-mm2/kernel/sched.c	2006-11-03 12:51:52.997976327 -0600
+@@ -2817,27 +2817,10 @@ static void active_load_balance(struct r
+ 	spin_unlock(&target_rq->lock);
+ }
+ 
+-/*
+- * rebalance_tick will get called every timer tick, on every CPU.
+- *
+- * It checks each scheduling domain to see if it is due to be balanced,
+- * and initiates a balancing operation if so.
+- *
+- * Balancing parameters are set up in arch_init_sched_domains.
+- */
+-
+-/* Don't have all balancing operations going off at once: */
+-static inline unsigned long cpu_offset(int cpu)
++static void update_load(struct rq *this_rq)
+ {
+-	return jiffies + cpu * HZ / NR_CPUS;
+-}
+-
+-static void
+-rebalance_tick(int this_cpu, struct rq *this_rq, enum idle_type idle)
+-{
+-	unsigned long this_load, interval, j = cpu_offset(this_cpu);
+-	struct sched_domain *sd;
+ 	int i, scale;
++	unsigned long this_load;
+ 
+ 	this_load = this_rq->raw_weighted_load;
+ 
+@@ -2856,6 +2839,28 @@ rebalance_tick(int this_cpu, struct rq *
+ 			new_load += scale-1;
+ 		this_rq->cpu_load[i] = (old_load*(scale-1) + new_load) / scale;
+ 	}
++}
++
++/*
++ * rebalance_tick will get called every timer tick, on every CPU.
++ *
++ * It checks each scheduling domain to see if it is due to be balanced,
++ * and initiates a balancing operation if so.
++ *
++ * Balancing parameters are set up in arch_init_sched_domains.
++ */
++
++/* Don't have all balancing operations going off at once: */
++static inline unsigned long cpu_offset(int cpu)
++{
++	return jiffies + cpu * HZ / NR_CPUS;
++}
++
++static void
++rebalance_tick(int this_cpu, struct rq *this_rq, enum idle_type idle)
++{
++	unsigned long interval, j = cpu_offset(this_cpu);
++	struct sched_domain *sd;
+ 
+ 	for_each_domain(this_cpu, sd) {
+ 		if (!(sd->flags & SD_LOAD_BALANCE))
+@@ -2887,12 +2892,15 @@ rebalance_tick(int this_cpu, struct rq *
+ /*
+  * on UP we do not need to balance between CPUs:
+  */
+-static inline void rebalance_tick(int cpu, struct rq *rq, enum idle_type idle)
++static inline void rebalance_tick(int cpu, struct rq *rq)
+ {
+ }
+ static inline void idle_balance(int cpu, struct rq *rq)
+ {
+ }
++static inline void update_load(struct rq *this_rq)
++{
++}
+ #endif
+ 
+ static inline int wake_priority_sleeper(struct rq *rq)
+@@ -3042,35 +3050,12 @@ void account_steal_time(struct task_stru
+ 		cpustat->steal = cputime64_add(cpustat->steal, tmp);
+ }
+ 
+-/*
+- * This function gets called by the timer code, with HZ frequency.
+- * We call it with interrupts disabled.
+- *
+- * It also gets called by the fork code, when changing the parent's
+- * timeslices.
+- */
+-void scheduler_tick(void)
++static void task_running_tick(struct rq *rq, struct task_struct *p)
+ {
+-	unsigned long long now = sched_clock();
+-	struct task_struct *p = current;
+-	int cpu = smp_processor_id();
+-	struct rq *rq = cpu_rq(cpu);
+-
+-	update_cpu_clock(p, rq, now);
+-
+-	rq->timestamp_last_tick = now;
+-
+-	if (p == rq->idle) {
+-		if (wake_priority_sleeper(rq))
+-			goto out;
+-		rebalance_tick(cpu, rq, SCHED_IDLE);
+-		return;
+-	}
+-
+-	/* Task might have expired already, but not scheduled off yet */
+ 	if (p->array != rq->active) {
++		/* Task has expired but was not scheduled yet */
+ 		set_tsk_need_resched(p);
+-		goto out;
++		return;
+ 	}
+ 	spin_lock(&rq->lock);
+ 	/*
+@@ -3138,8 +3123,35 @@ void scheduler_tick(void)
+ 	}
+ out_unlock:
+ 	spin_unlock(&rq->lock);
+-out:
+-	rebalance_tick(cpu, rq, NOT_IDLE);
++}
++
++/*
++ * This function gets called by the timer code, with HZ frequency.
++ * We call it with interrupts disabled.
++ *
++ * It also gets called by the fork code, when changing the parent's
++ * timeslices.
++ */
++void scheduler_tick(void)
++{
++	unsigned long long now = sched_clock();
++	struct task_struct *p = current;
++	int cpu = smp_processor_id();
++	struct rq *rq = cpu_rq(cpu);
++	enum idle_type idle = NOT_IDLE;
++
++	update_cpu_clock(p, rq, now);
++
++	rq->timestamp_last_tick = now;
++
++	if (p == rq->idle) {
++		/* Task on the idle queue */
++		if (!wake_priority_sleeper(rq))
++			idle = SCHED_IDLE;
++	} else
++		task_running_tick(rq, p);
++	update_load(rq);
++	rebalance_tick(cpu, rq, idle);
+ }
+ 
+ #ifdef CONFIG_SCHED_SMT

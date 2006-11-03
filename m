@@ -1,72 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753338AbWKCQLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752526AbWKCQ3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753338AbWKCQLD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 11:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753336AbWKCQLB
+	id S1752526AbWKCQ3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 11:29:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753353AbWKCQ3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 11:11:01 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:47829 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1753338AbWKCQLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 11:11:00 -0500
-X-Sasl-enc: 8EMhBNMFVZahY17Lfg2pnfuHpbYNgud+0xKU8rNbUkBu 1162570260
-Date: Fri, 3 Nov 2006 13:10:48 -0300
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Jean Delvare <khali@linux-fr.org>,
-       davidz@redhat.com, Richard Hughes <hughsient@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061103161047.GC4257@khazad-dum.debian.net>
-References: <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <znLIYxER.1162453921.3011900.khali@localhost> <454A306C.3050200@tmr.com> <000b01c6feb4$c340a580$0732700a@djlaptop> <20061103132340.GB4257@khazad-dum.debian.net> <001b01c6ff53$41a21eb0$0732700a@djlaptop>
+	Fri, 3 Nov 2006 11:29:20 -0500
+Received: from raven.upol.cz ([158.194.120.4]:8584 "EHLO raven.upol.cz")
+	by vger.kernel.org with ESMTP id S1752526AbWKCQ3T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 11:29:19 -0500
+Date: Fri, 3 Nov 2006 16:35:29 +0000
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       trivial@kernel.org
+Subject: Re: [patch] make the Makefile mostly stay within col 80
+Message-ID: <20061103163529.GB16807@flower.upol.cz>
+References: <200611020047.53658.jesper.juhl@gmail.com> <slrnekj6ps.2in.olecom@flower.upol.cz> <20061102201650.GA9237@uranus.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <001b01c6ff53$41a21eb0$0732700a@djlaptop>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+In-Reply-To: <20061102201650.GA9237@uranus.ravnborg.org>
 User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Oleg Verych <olecom@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Nov 2006, Richard B. Johnson wrote:
-> I'm not sure anybody actually embeds a micro. There is some chip,
+On Thu, Nov 02, 2006 at 09:16:50PM +0100, Sam Ravnborg wrote:
+> On Thu, Nov 02, 2006 at 07:16:12AM +0000, Oleg Verych wrote:
+> > 
+> > On 2006-11-01, Jesper Juhl wrote:
+> > > Trivial little thing really. 
+> > > Try to make most of the Makefile obey the 80 column width rule.
+> > 
+> > I'm already working on it. I did a lot more stuff, but currently i'm
+> > stuck with very first patch, i've tried to push to mister Andrew:
+> > <http://marc.theaimsgroup.com/?l=linux-mm-commits&m=116198944205036&w=2>
+> > 
+> > As i'm using emacs, i cann't revert this open/save/close patch every
+> > time. If someone with RH-based distro is willing to help, i'll be glad.
+> > Version of make is Red Hat make-3.80-10.2.
+> > 
+> > Also, i want Sam Ravnborg to comment on that effort (e-mail added). Thanks.
+> 
+> Most of the time I spent on Linux development is in a 80xsomething so
+> I support the effort to make it fit into 80 coloumn.
+> But only if done sensible and not as a hard rule. Some stuff really
+> is less readable if it is adjusted to fit into a 80 coloumn.
+> 
+> I do not support tabifying the Makefiles. In a makefile <tab> has
+> a special interpretation and the rule of thumb is:
+> 
+> 1) Use tab to indent commands as make requires it
+> 2) Commands spanning more than one line may be indented with tabs.
+> 
+> Avoid tabs in all other places.
+> 
+> This is not the same ruleset as used in the .c source but the difference
+> here is that an assignment is not turned into a command in .c code
+> just because it is prefixed by a tab.
+> 
+> At present I'm fed up with day time job that is almost around the clock
+> time job. It will take a month before I will be active in kbuild area
+> again so please be patient. If something really urgent shows up I
+> can act - but just not much time to do so in.
 
-I'd have to crack open a ThinkPad battery to know for sure, as well.  That's
-why I used "some sort of embedded controller"...  I am operating on
-second-hand data.
+Well, i mean my efforts on fixing top makefile (something in mm tree
+already), optimizing (Kbuild.include option checking without tmp
+files), implementing (checking sources without building it) and along
+with this 80, whitespace, tabifying as inevitable thing.
 
-Still, stuff like http://focus.ti.com/docs/prod/folders/print/bq20z90.html
-gives me some hope the battery packs have some good stuff in it.
+You've been cc'd on everything. After i started my linux development
+from top makefile, i've tried to act on most kbuild related lkml
+messages.
 
-> originally make by National, that was supposed to monitor the battery
-> state. I know that I have used five laptops so far and have never been
-> able to obtain any intellegent operation. They just shut down when they
-> feel like it.  They do go to "suspend" mode to save power as well, always
-> at the most inopertune moment.
+Thus i wanted to hear something from kbuild maintainer(s).
 
-Try a ThinkPad, they are a bit better than that :-)   Of course, you have to
-disable (or properly configure) stuff that tries to outguess you and are not
-really enabled to talk to ThinkPad specifics like what comes with KDE and
-GNOME, if you don't want to get surprise suspends.
-
-I am not sure how better a recent ThinkPad (T42 or newer) behaviour would be
-by your standards, but still...
-
-> Maybe the "ThinkPad" actually has some intellegence within. The cost of
-> the batteries only reflects the cost of defending lawsuits <grin> and not
-> the cost of its components.  Batteries made in China seem to become
-> "excited" at inopertune times.
-
-Well, all of mine come with "made in Japan" seals from Sanyo.  I sure hope
-this means the cells themselves are not from some third-party with shoddy
-quality control and manufacturing processes.
-
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+> 	Sam
+> 
+____

@@ -1,170 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWKCIYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752261AbWKCIZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbWKCIYd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 03:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWKCIYd
+	id S1752261AbWKCIZn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 03:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752255AbWKCIZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 03:24:33 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:20886 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751445AbWKCIYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 03:24:32 -0500
-X-Sasl-enc: +P7hcS3dqFuZqOCNEVHRgM4/1tpKw4yLkkzRSqvdYcrI 1162542271
-Date: Fri, 3 Nov 2006 16:24:23 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-cc: "bibo,mao" <bibo.mao@intel.com>, David Howells <dhowells@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.19-rc3 autofs crash on my IA64 box
-In-Reply-To: <Pine.LNX.4.64.0611031610070.7573@raven.themaw.net>
-Message-ID: <Pine.LNX.4.64.0611031623100.7573@raven.themaw.net>
-References: <45485478.8060909@intel.com> <20061102183020.446D.Y-GOTO@jp.fujitsu.com>
- <Pine.LNX.4.64.0611031610070.7573@raven.themaw.net>
+	Fri, 3 Nov 2006 03:25:43 -0500
+Received: from mga07.intel.com ([143.182.124.22]:34202 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1752021AbWKCIZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 03:25:42 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,383,1157353200"; 
+   d="scan'208"; a="140450079:sNHT30721488"
+Message-ID: <454AFD01.4080306@linux.intel.com>
+Date: Fri, 03 Nov 2006 11:25:37 +0300
+From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, Christian <christiand59@web.de>
+Subject: Re: [discuss] Linux 2.6.19-rc4: known unfixed regressions (v2)
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061103024132.GG13381@stusta.de> <20061103025623.GB8816@redhat.com>
+In-Reply-To: <20061103025623.GB8816@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Nov 2006, Ian Kent wrote:
+Could this be a problem?
+--------------------
+...
+CONFIG_ACPI_PROCESSOR=m
+...
+CONFIG_X86_POWERNOW_K8=y
+...
 
-> On Thu, 2 Nov 2006, Yasunori Goto wrote:
-> 
-> > Hello.
-> > 
-> > > hi,
-> > >   2.6.19-rc3 kernel crashes on my IA64 box, it seems the problem
-> > > of autofs fs. I debug this problem, if autofs kernel does not
-> > > match daemon version, it will call autofs_catatonic_mode.
-> > > But at that time sbi->pipe is NULL.
-> > > 
-> > > void autofs_catatonic_mode(struct autofs_sb_info *sbi)
-> > > {
-> > >    .........
-> > >    fput(sbi->pipe);        /* Close the pipe */
-> > > 	^^^^^^^^^^^^
-> > >  	sbi->pipe seems NULL;
-> > >    autofs_hash_dputall(&sbi->dirhash); /* Remove all dentry pointers */
-> > > }
-> > > 
-> > 
-> > My box crashed too.
-> > 
-> > Following fix does not seem enough.
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=116110204104327&w=2
-> > If version does not match at autofs_fill_super(), then sbi->pipe
-> > is not set yet.
-> > I suppose something like following patch is necessary.
-> > 
-> > Thanks.
-> > 
-> > -------------
-> > Index: stocktest/fs/autofs/waitq.c
-> > ===================================================================
-> > --- stocktest.orig/fs/autofs/waitq.c	2006-03-10 11:36:40.000000000 +0900
-> > +++ stocktest/fs/autofs/waitq.c	2006-11-02 18:44:58.000000000 +0900
-> > @@ -40,7 +40,8 @@ void autofs_catatonic_mode(struct autofs
-> >  		wake_up(&wq->queue);
-> >  		wq = nwq;
-> >  	}
-> > -	fput(sbi->pipe);	/* Close the pipe */
-> > +	if (sbi->pipe)
-> > +		fput(sbi->pipe);	/* Close the pipe */
-> >  	autofs_hash_dputall(&sbi->dirhash); /* Remove all dentry pointers */
-> >  }
-> 
-> I've checked this and this is not the only problem.
-> Also autofs4_ is called with s->s_root NULL in this case.
+Regards,
+	Alex.
 
-Oops, that autofs4_ should be autofs4_force_release
-
+Dave Jones wrote:
+> On Fri, Nov 03, 2006 at 03:41:32AM +0100, Adrian Bunk wrote:
+>  > This email lists some known regressions in 2.6.19-rc4 compared to 2.6.18
+>  > that are not yet fixed in Linus' tree.
+>  > 
+>  > If you find your name in the Cc header, you are either submitter of one
+>  > of the bugs, maintainer of an affectected subsystem or driver, a patch
+>  > of you caused a breakage or I'm considering you in any other way possibly
+>  > involved with one or more of these issues.
+>  > 
+>  > Due to the huge amount of recipients, please trim the Cc when answering.
+>  > 
+>  > Subject    : cpufreq not working on AMD K8
+>  > References : http://lkml.org/lkml/2006/10/10/114
+>  > Submitter  : Christian <christiand59@web.de>
+>  > Status     : unknown
 > 
-> The attached patch ensures that the autofs filesystem is initialized to be 
-> catatonic until super block setup is complete which avoids the problem 
-> above. It also checks s->s_root before use.
+> As Mark mentioned in his followup, powernow-k8 didn't change in .19 at all.
+> I'm suspecting an ACPI change meant that we no longer find the PST tables
+> correctly.
 > 
-> Could someone seeing this problem try this patch out please.
+> Christian, can you post the full dmesg's from the working/broken kernels.
+> It may be useful to enable CONFIG_ACPI_DEBUG too.
 > 
-> Ian
-> 
-> ---
-> --- linux-2.6.19-rc4-mm2/fs/autofs4/waitq.c.mount-fail-panic	2006-11-03 15:35:01.000000000 +0800
-> +++ linux-2.6.19-rc4-mm2/fs/autofs4/waitq.c	2006-11-03 15:35:22.000000000 +0800
-> @@ -41,10 +41,8 @@ void autofs4_catatonic_mode(struct autof
->  		wake_up_interruptible(&wq->queue);
->  		wq = nwq;
->  	}
-> -	if (sbi->pipe) {
-> -		fput(sbi->pipe);	/* Close the pipe */
-> -		sbi->pipe = NULL;
-> -	}
-> +	fput(sbi->pipe);	/* Close the pipe */
-> +	sbi->pipe = NULL;
->  }
->  
->  static int autofs4_write(struct file *file, const void *addr, int bytes)
-> --- linux-2.6.19-rc4-mm2/fs/autofs4/inode.c.mount-fail-panic	2006-11-03 14:42:46.000000000 +0800
-> +++ linux-2.6.19-rc4-mm2/fs/autofs4/inode.c	2006-11-03 15:20:55.000000000 +0800
-> @@ -99,6 +99,9 @@ static void autofs4_force_release(struct
->  	struct dentry *this_parent = sbi->sb->s_root;
->  	struct list_head *next;
->  
-> +	if (!sbi->sb->s_root)
-> +		return;
-> +
->  	spin_lock(&dcache_lock);
->  repeat:
->  	next = this_parent->d_subdirs.next;
-> @@ -310,7 +313,8 @@ int autofs4_fill_super(struct super_bloc
->  	s->s_fs_info = sbi;
->  	sbi->magic = AUTOFS_SBI_MAGIC;
->  	sbi->pipefd = -1;
-> -	sbi->catatonic = 0;
-> +	sbi->pipe = NULL;
-> +	sbi->catatonic = 1;
->  	sbi->exp_timeout = 0;
->  	sbi->oz_pgrp = process_group(current);
->  	sbi->sb = s;
-> @@ -388,6 +392,7 @@ int autofs4_fill_super(struct super_bloc
->  		goto fail_fput;
->  	sbi->pipe = pipe;
->  	sbi->pipefd = pipefd;
-> +	sbi->catatonic = 0;
->  
->  	/*
->  	 * Success! Install the root dentry now to indicate completion.
-> --- linux-2.6.19-rc4-mm2/fs/autofs/waitq.c.mount-fail-panic	2006-11-03 15:36:11.000000000 +0800
-> +++ linux-2.6.19-rc4-mm2/fs/autofs/waitq.c	2006-11-03 15:37:04.000000000 +0800
-> @@ -41,6 +41,7 @@ void autofs_catatonic_mode(struct autofs
->  		wq = nwq;
->  	}
->  	fput(sbi->pipe);	/* Close the pipe */
-> +	sbi->pipe = NULL;
->  	autofs_hash_dputall(&sbi->dirhash); /* Remove all dentry pointers */
->  }
->  
-> --- linux-2.6.19-rc4-mm2/fs/autofs/inode.c.mount-fail-panic	2006-11-03 14:40:56.000000000 +0800
-> +++ linux-2.6.19-rc4-mm2/fs/autofs/inode.c	2006-11-03 15:24:01.000000000 +0800
-> @@ -136,7 +136,8 @@ int autofs_fill_super(struct super_block
->  
->  	s->s_fs_info = sbi;
->  	sbi->magic = AUTOFS_SBI_MAGIC;
-> -	sbi->catatonic = 0;
-> +	sbi->pipe = NULL;
-> +	sbi->catatonic = 1;
->  	sbi->exp_timeout = 0;
->  	sbi->oz_pgrp = process_group(current);
->  	autofs_initialize_hash(&sbi->dirhash);
-> @@ -180,6 +181,7 @@ int autofs_fill_super(struct super_block
->  	if ( !pipe->f_op || !pipe->f_op->write )
->  		goto fail_fput;
->  	sbi->pipe = pipe;
-> +	sbi->catatonic = 0;
->  
->  	/*
->  	 * Success! Install the root dentry now to indicate completion.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 	Dave
 > 

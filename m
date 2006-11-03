@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753393AbWKCRaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753373AbWKCR31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753393AbWKCRaK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 12:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753397AbWKCRaJ
+	id S1753373AbWKCR31 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 12:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753393AbWKCR31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 12:30:09 -0500
-Received: from pop-gadwall.atl.sa.earthlink.net ([207.69.195.61]:56279 "EHLO
-	pop-gadwall.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S1753393AbWKCRaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 12:30:08 -0500
-Date: Fri, 3 Nov 2006 12:30:01 -0500 (EST)
-From: Brent Baccala <cosine@freesoft.org>
-X-X-Sender: baccala@debian.freesoft.org
-To: Jens Axboe <jens.axboe@oracle.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: async I/O seems to be blocking on 2.6.15
-In-Reply-To: <20061103160212.GK13555@kernel.dk>
-Message-ID: <Pine.LNX.4.64.0611031214560.28100@debian.freesoft.org>
-References: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org>
- <20061103122055.GE13555@kernel.dk> <Pine.LNX.4.64.0611031049120.7173@debian.freesoft.org>
- <20061103160212.GK13555@kernel.dk>
+	Fri, 3 Nov 2006 12:29:27 -0500
+Received: from raven.upol.cz ([158.194.120.4]:1170 "EHLO raven.upol.cz")
+	by vger.kernel.org with ESMTP id S1753373AbWKCR30 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 12:29:26 -0500
+Date: Fri, 3 Nov 2006 18:36:09 +0100
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Gabriel C <nix.or.die@googlemail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New filesystem for Linux
+Message-ID: <20061103173609.GA17080@flower.upol.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz> <20061102174149.3578062d.akpm@osdl.org> <20061103171443.GA16912@flower.upol.cz> <Pine.LNX.4.64.0611031808280.15472@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611031808280.15472@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Oleg Verych <olecom@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Nov 2006, Jens Axboe wrote:
+On Fri, Nov 03, 2006 at 06:09:39PM +0100, Mikulas Patocka wrote:
+> >In gmane.linux.kernel, you wrote:
+> >[]
+> >>From: Andrew Morton <akpm@osdl.org>
+> >>
+> >>As Mikulas points out, (1 << anything) won't be evaluating to zero.
+> >
+> >How about integer overflow ?
+> 
+> C standard defines that shifts by more bits than size of a type are 
+> undefined (in fact 1<<32 produces 1 on i386, because processor uses only 5 
+> bits of a count).
+,--
+|#include <stdio.h>
+|int main(void) {
+|	unsigned int b = 1;
+|
+|	printf("%u\n", (1 << 33));
+|	printf("%u\n", (b << 33));
+|	return 0;
+|}
+|$ gcc bit.c && ./a.out
+`--
 
-> Try to time it (visual output of the app is not very telling, and it's
-> buffered) and then apply some profiling.
+There *is* difference, isn't it?
 
-OK, a little more info.  I added gettimeofday() calls after each call
-to io_submit(), put the timevals in an array, and after everything was
-done computed the difference between each timeval and the program start
-time, as well as the deltas.  I got this:
-
-0: 0.080s
-1: 0.086s  0.006s
-2: 0.102s  0.016s
-3: 0.111s  0.008s
-4: 0.118s  0.007s
-5: 0.134s  0.015s
-6: 0.141s  0.006s
-7: 0.148s  0.006s
-8: 0.158s  0.009s
-9: 0.164s  0.006s
-...
-96: 1.036s  0.007s
-97: 1.044s  0.007s
-98: 1.147s  0.102s
-99: 1.155s  0.008s
-
-98 appears to be an aberration.  Perhaps three of the times on an
-average run are around a tenth of a second; all of the others are
-pretty steady at 7 or 8 microseconds.  So, it's basically linear in
-its time consumption.
-
-Does 7 microseconds seem a bit excessive for an io_submit (and a
-gettimeofday)?
-
-
-
- 					-bwb
-
- 					Brent Baccala
- 					cosine@freesoft.org
+> Mikulas
+____

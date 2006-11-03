@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752584AbWKCI56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752365AbWKCI6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752584AbWKCI56 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 03:57:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752386AbWKCI56
+	id S1752365AbWKCI6l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 03:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752466AbWKCI6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 03:57:58 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52200 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752365AbWKCI55 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 03:57:57 -0500
-Date: Fri, 3 Nov 2006 09:57:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Nate Diller <nate.diller@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
-       Oleg Verych <olecom@flower.upol.cz>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20061103085712.GA3725@elf.ucw.cz>
-References: <20061101130614.GB7195@atrey.karlin.mff.cuni.cz> <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru> <slrnekhpbr.2j1.olecom@flower.upol.cz> <20061101185745.GA12440@2ka.mipt.ru> <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com> <20061102062158.GC5552@2ka.mipt.ru> <5c49b0ed0611021140u360342f2v1e83c73d03eea329@mail.gmail.com> <20061103084240.GB1184@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061103084240.GB1184@2ka.mipt.ru>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 3 Nov 2006 03:58:41 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:63973 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1752365AbWKCI6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 03:58:40 -0500
+Date: Fri, 3 Nov 2006 00:57:47 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, jes@sgi.com, lse-tech@lists.sourceforge.net,
+       sekharan@us.ibm.com, hch@lst.de, viro@zeniv.linux.org.uk,
+       sgrubb@redhat.com, linux-audit@redhat.com, akpm@osdl.org
+Subject: Re: [PATCH 0/9] Task Watchers v2: Introduction
+Message-Id: <20061103005747.60bfbd87.pj@sgi.com>
+In-Reply-To: <20061103042257.274316000@us.ibm.com>
+References: <20061103042257.274316000@us.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Matt wrote:
+> Task watchers is primarily useful to existing kernel code as a means of making
+> the code in fork and exit more readable.
 
-> > returns, which thread are you referring to?  Nicholas Miell, in "The
-> > Proposed Linux kevent API" thread, seems to think that there are no
-> > advantages over kqueue to justify the incompatibility, an argument you
-> > made no effort to refute.  I've also read the Kevent wiki at
-> > linux-net.osdl.org, but it too is lacking in any direct comparisons
-> > (even theoretical, let alone benchmarks) of the flexibility,
-> > performance, etc. between the two.
-> > 
-> > I'm not arguing that you've done a bad design, I'm asking you to brag
-> > about the things you improved on vs. kqueue.  Your emphasis on
-> > unifying all the different event types into one interface is really
-> > cool, fill me in on why that can't be effectively done with the kqueue
-> > compatability and I also will advocate for kevent inclusion.
-> 
-> kqueue just can not be used as is in Linux (_maybe_ *bsd has different
-> types, not those which I found in /usr/include in my FC5 and Debian
-> distro). It will not work on x86_64 for example. Some kind of a pointer
-> or unsigned long in structures which are transferred between kernelspace
-> and userspace is so much questionable, than it is much better even do
-> not see there... (if I would not have so political correctness, I would
-> describe it in a much different words actually).
-> So, kqueue API and structures can not be usd in Linux.
+I don't get it.  The benchmark data isn't explained in plain English
+what it means, that I could find, so I am just guessing.  But looking
+at the last (17500) column of the fork results, after applying patch
+1/9, I see a number of 18565, and looking at that same column in patch
+9/9, I see a number of 18142.
 
-Not sure what you are smoking, but "there's unsigned long in *bsd
-version, lets rewrite it from scratch" sounds like very bad idea. What
-about fixing that one bit you don't like?
-								Pavel
+I guess that means a drop of (18565 - 18142 / 18565) == 2% in the fork
+rate, to make the code "more readable".
+
+And I'm not even sure it makes it more readable.  Looks to me like another
+layer of apparatus, which is one more thing to figure out before a reader
+understands what is going on.
+
+I'd gladly put in a few long days to improve the fork rate 2%, and I am
+grateful to those who have already done so - whoever they are.
+
+Somewhere I must have missed the memo explaining why this patch is a
+good idea - sorry.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

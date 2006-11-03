@@ -1,130 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWKCIXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWKCIXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWKCIXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 03:23:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWKCIXJ
+	id S1751798AbWKCIXk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 03:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbWKCIXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 03:23:09 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:45773 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751049AbWKCIXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 03:23:05 -0500
-Subject: Re: [PATCH 001 of 6] md: Send online/offline uevents when an md
-	array starts/stops.
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Neil Brown <neilb@suse.de>
-Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <17738.59486.140951.821033@cse.unsw.edu.au>
-References: <20061031164814.4884.patches@notabene>
-	 <1061031060046.5034@suse.de> <20061031211615.GC21597@suse.de>
-	 <3ae72650611020413q797cf62co66f76b058a57104b@mail.gmail.com>
-	 <17737.58737.398441.111674@cse.unsw.edu.au>
-	 <1162475516.7210.32.camel@pim.off.vrfy.org>
-	 <17738.59486.140951.821033@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Fri, 03 Nov 2006 09:22:58 +0100
-Message-Id: <1162542178.14310.26.camel@pim.off.vrfy.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4ddcc9dd12ba6cf3155e4d81b383efda
+	Fri, 3 Nov 2006 03:23:40 -0500
+Received: from pop-siberian.atl.sa.earthlink.net ([207.69.195.71]:17537 "EHLO
+	pop-siberian.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1751445AbWKCIXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 03:23:39 -0500
+Date: Fri, 3 Nov 2006 03:23:35 -0500 (EST)
+From: Brent Baccala <cosine@freesoft.org>
+X-X-Sender: baccala@debian.freesoft.org
+To: linux-kernel@vger.kernel.org
+Subject: async I/O seems to be blocking on 2.6.15
+Message-ID: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323329-619161319-1162542215=:25096"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-03 at 17:57 +1100, Neil Brown wrote:
-> On Thursday November 2, kay.sievers@vrfy.org wrote:
-> > On Thu, 2006-11-02 at 23:32 +1100, Neil Brown wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> > We couldn't think of any use of an "offline" event. So we removed the
-> > event when the device-mapper device is suspended.
-> > 
-> > > Should ONLINE and OFFLINE remain and CHANGE be added, or should they
-> > > go away?
-> > 
-> > The current idea is to send only a "change" event if something happens
-> > that makes it necessary for udev to reinvestigate the device, like
-> > possible filesystem content that creates /dev/disk/by-* links.
-> > 
-> > Finer grained device-monitoring is likely better placed by using the
-> > poll() infrastructure for a sysfs file, instead of sending pretty
-> > expensive uevents. 
-> > 
-> > Udev only hooks into "change" and revalidates all current symlinks for
-> > the device. Udev can run programs on "online", but currently, it will
-> > not update any /dev/disk/by-* link, if the device changes its content.
-> > 
-> 
-> OK.  Makes sense.
-> I tried it an got an interesting result....
-> 
-> This is with md generating 'CHANGE' events when an array goes on-line
-> and when it goes off line, and also with another patch which causes md
-> devices to disappear when not active so that we get ADD and REMOVE
-> events at reasonably appropriate times.
-> 
-> It all works fine until I stop an array.
-> We get a CHANGE event and then a REMOVE event.
-> And then a seemingly infinite series of ADD/REMOVE pairs.
-> 
-> I guess that udev sees the CHANGE and so opens the device to see what
-> is there.  By that time the device has disappeared so the open causes
-> an ADD.  udev doesn't find anything and closes the device which causes
-> it to disappear and we get a REMOVE.
-> Now udev sees that ADD and so opens the device again to see what it
-> there, triggering an ADD.  Nothing is there so we close it and get a
-> REMOVE.
-> Now udev sees the second ADD and ....
+--8323329-619161319-1162542215=:25096
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-Hmm, why does the open() of device node of a stopped device cause an "add"?
-Shouldn't it just return a failure, instead of creating a device?
+Hello -
 
-> A bit unfortunate really.  This didn't happen when I had
-> ONLINE/OFFLINE as udev ignored the OFFLINE.
-> I guess I can removed the CHANGE at shutdown, but as there really is a
-> change there, that doesn't seem right.
+I'm running 2.6.15 (Debian) on a Pentium M laptop, PCI attached ext3
+filesystem.
 
-Yeah, it's the same problem we had with device-mapper, nobody could
-think of any useful action at a dm-device suspend "change"-event, so we
-didn't add it. :)   
+I'm writing my first asynchronous I/O program, and for a while I
+thought I was really doing something wrong, but more and more I'm
+starting to conclude that the problem might be in the kernel.
 
-> The real problem is that udev opens the device, and md interprets and
-> 'open' as a request to create the device. And udev see the open and an
-> ADD and so opens the device....
+Basically, I've narrowed things down to a test program which opens a
+large (700 MB) file in O_DIRECT mode and fires off 100 one MB async
+reads for the first 100 MB of data.  The enqueues take about 5 seconds
+to complete, which is also about the amount of time this disk needs to
+read 100 MB, so I suspect that it's blocking.
 
-Yes, current udev rules are written to to so, md needs to be excluded
-from the list of block devices which are handled by the default
-persistent naming rules, and moved to its own rules file. We did the
-same for device-mapper to ignore some "private" dm-* volumes like
-snapshot devices. 
+I've gotten the POSIX AIO interface at least tolerably running using
+the GLIBC thread-based implementation, but I really want the native
+interface working.
 
-> It's not clear to me what the 'right' thing to do here is:
->  - I could stop removing the device on last-close, but I still
->    think that (the current situation) is ugly.
->  - I could delay the remove until udev will have stopped poking,
->    but that is even more ugly
->  - udev could avoid opening md devices until it has poked in 
->    /sys/block/mdX to see what the status is, but that is very specific
->    to md
-> 
-> It would be nice if I could delay the add until later, but that would
-> require major surgery and probably break the model badly.
-> 
-> On the whole, it seems that udev was designed without thought to the
-> special needs of md, and md was designed (long ago) without thought
-> the ugliness that "open creates a device" causes.
+I whittled the test program down to use system calls instead of the
+POSIX AIO library, and I'm attaching a copy.  You put a big file at
+'testfile' (it just reads it) and run the program:
 
-The persistent naming rules for /dev/disk/by-* are causing this. Md
-devices will probably just get their own rules file, which will handle
-this and which can be packaged and installed along with the md tools.
 
-If it's acceptable for you, so leave the shutdown "change" event out for
-now, until someone has the need for it.
-We will update the rules in the meantime, and read a sysfs file or call
-a md-tool to query the current state of the device on "add" and "change"
-events, this will prevent the opening of the device when it's not
-supposed to do so.
+baccala@debian ~/src/endgame$ time ./testaio
+Enqueues starting
+Enqueues complete
 
-Thanks,
-Kay
+real    0m5.327s
+user    0m0.004s
+sys     0m0.740s
+baccala@debian ~/src/endgame$
 
+
+Of that five seconds, it's almost all spent between the two "enqueues"
+messages.
+
+If anybody can shed any light on this, I'd appreciate your feedback
+direct to cosine@freesoft.org (I don't read the list).
+
+Thank you.
+
+
+
+ 					-bwb
+
+ 					Brent Baccala
+ 					cosine@freesoft.org
+--8323329-619161319-1162542215=:25096
+Content-Type: TEXT/x-csrc; charset=US-ASCII; name=testaio.c
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64.0611030323350.25096@debian.freesoft.org>
+Content-Description: 
+Content-Disposition: attachment; filename=testaio.c
+
+DQojZGVmaW5lIF9HTlVfU09VUkNFCQkvKiB0byBnZXQgT19ESVJFQ1QgKi8N
+Cg0KI2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RkbGliLmg+DQoj
+aW5jbHVkZSA8c3RyaW5nLmg+CS8qIGZvciBtZW1zZXQoKSAqLw0KI2luY2x1
+ZGUgPHVuaXN0ZC5oPgkvKiBmb3IgX1BDX1JFQ19YRkVSX0FMSUdOICovDQoj
+aW5jbHVkZSA8YXNtL3VuaXN0ZC5oPg0KI2luY2x1ZGUgPGZjbnRsLmg+DQoj
+aW5jbHVkZSA8bGludXgvYWlvX2FiaS5oPg0KI2luY2x1ZGUgPGVycm5vLmg+
+DQoNCl9zeXNjYWxsMihpbnQsIGlvX3NldHVwLCBpbnQsIG1heGV2ZW50cywg
+YWlvX2NvbnRleHRfdCAqLCBjdHhwKQ0KX3N5c2NhbGwzKGludCwgaW9fc3Vi
+bWl0LCBhaW9fY29udGV4dF90LCBjdHgsIGxvbmcsIG5yLCBzdHJ1Y3QgaW9j
+YiAqKiwgaW9jYnMpDQoNCiNkZWZpbmUgTlVNQUlPUyAxMDANCg0KI2RlZmlu
+ZSBCVUZGRVJfQllURVMgKDE8PDIwKQ0KDQpzdHJ1Y3QgaW9jYiBpb2NiW05V
+TUFJT1NdOw0Kdm9pZCAqYnVmZmVyW05VTUFJT1NdOw0KDQphaW9fY29udGV4
+dF90IGFpb19kZWZhdWx0X2NvbnRleHQ7DQoNCm1haW4oKQ0Kew0KICAgIGlu
+dCBmZDsNCiAgICBpbnQgaTsNCiAgICBpbnQgYWxpZ25tZW50Ow0KICAgIHN0
+cnVjdCBpb2NiICogaW9jYnBbMV07DQoNCiAgICBmZCA9IG9wZW4oInRlc3Rm
+aWxlIiwgT19SRE9OTFkgfCBPX0RJUkVDVCk7DQogICAgYWxpZ25tZW50ID0g
+ZnBhdGhjb25mKGZkLCBfUENfUkVDX1hGRVJfQUxJR04pOw0KDQogICAgZm9y
+IChpPTA7IGk8TlVNQUlPUzsgaSsrKSB7DQoJaWYgKHBvc2l4X21lbWFsaWdu
+KCZidWZmZXJbaV0sIGFsaWdubWVudCwgQlVGRkVSX0JZVEVTKSAhPSAwKSB7
+DQoJICAgIGZwcmludGYoc3RkZXJyLCAiQ2FuJ3QgcG9zaXhfbWVtYWxpZ25c
+biIpOw0KCX0NCiAgICB9DQoNCiAgICBpb19zZXR1cCgxMDI0LCAmYWlvX2Rl
+ZmF1bHRfY29udGV4dCk7DQoNCiAgICBmcHJpbnRmKHN0ZGVyciwgIkVucXVl
+dWVzIHN0YXJ0aW5nXG4iKTsNCg0KICAgIGZvciAoaT0wOyBpPE5VTUFJT1M7
+IGkrKykgew0KDQoJbWVtc2V0KCZpb2NiW2ldLCAwLCBzaXplb2Yoc3RydWN0
+IGlvY2IpKTsNCg0KCWlvY2JbaV0uYWlvX2xpb19vcGNvZGUgPSBJT0NCX0NN
+RF9QUkVBRDsNCglpb2NiW2ldLmFpb19maWxkZXMgPSBmZDsNCglpb2NiW2ld
+LmFpb19idWYgPSAodW5zaWduZWQgbG9uZykgYnVmZmVyW2ldOw0KCWlvY2Jb
+aV0uYWlvX25ieXRlcyA9IEJVRkZFUl9CWVRFUzsNCglpb2NiW2ldLmFpb19v
+ZmZzZXQgPSBCVUZGRVJfQllURVMgKiBpOw0KCS8qIGFpb2NiW2ldLmFpb19v
+ZmZzZXQgPSAwOyAqLw0KDQoJaW9jYnBbMF0gPSAmaW9jYltpXTsNCglpZiAo
+aW9fc3VibWl0KGFpb19kZWZhdWx0X2NvbnRleHQsIDEsIGlvY2JwKSAhPSAx
+KSB7DQoJICAgIHBlcnJvcigiIik7DQoJICAgIGZwcmludGYoc3RkZXJyLCAi
+Q2FuJ3QgZW5xdWV1ZSBhaW9fcmVhZCAlZFxuIiwgaSk7DQoJfQ0KICAgIH0N
+Cg0KICAgIGZwcmludGYoc3RkZXJyLCAiRW5xdWV1ZXMgY29tcGxldGVcbiIp
+Ow0KfQ0K
+
+--8323329-619161319-1162542215=:25096--

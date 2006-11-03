@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWKCIH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWKCIUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbWKCIH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 03:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWKCIH7
+	id S1750836AbWKCIUX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 03:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWKCIUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 03:07:59 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:12224 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750855AbWKCIH6 (ORCPT
+	Fri, 3 Nov 2006 03:20:23 -0500
+Received: from styx.suse.cz ([82.119.242.94]:32465 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1750836AbWKCIUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 03:07:58 -0500
-Date: Fri, 3 Nov 2006 09:07:05 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Zachary Amsden <zach@vmware.com>
-cc: Mark Lord <lkml@rtr.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 is problematic in VMware
-In-Reply-To: <45480777.6070908@vmware.com>
-Message-ID: <Pine.LNX.4.61.0611030906490.13091@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0610290953010.4585@yvahk01.tjqt.qr>
- <45463B7D.8050002@vmware.com> <Pine.LNX.4.61.0610310857280.23540@yvahk01.tjqt.qr>
- <4547584F.6000702@rtr.ca> <Pine.LNX.4.61.0610311551370.6900@yvahk01.tjqt.qr>
- <45480777.6070908@vmware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 3 Nov 2006 03:20:22 -0500
+Date: Fri, 3 Nov 2006 09:18:47 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Dave Neuer <mr.fred.smoothie@pobox.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
+Message-ID: <20061103081847.GC10906@suse.cz>
+References: <200608232311.07599.dtor@insightbb.com> <161717d50610300501w240a8ce1h4d58b1f3f2f759bf@mail.gmail.com> <161717d50610300622h15d5e40w4a30e1a95b3c2564@mail.gmail.com> <200611030056.03357.dtor@insightbb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611030056.03357.dtor@insightbb.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> I see a large delay _before_:
+On Fri, Nov 03, 2006 at 12:56:02AM -0500, Dmitry Torokhov wrote:
+> On Monday 30 October 2006 09:22, Dave Neuer wrote:
+> > On 10/30/06, Dave Neuer <mr.fred.smoothie@pobox.com> wrote:
+> > >
+> > > Maybe I'm missing something, (well actually I'm sure I'm missing
+> > > somethng). Looking at the code again, it's unclear to me why there is
+> > > even a call to the ISR in i8042_aux_write, since the latter function
+> > > already calls i8042_read_data.
+> > >
+> > 
+> > Whoops, sorry. I meant i8042_command, which is called by
+> > i8042_aux_write before the call to i8042_interrupt, already calls
+> > i8042_read_data.
+> >
+> 
+> It only calls i8042_read_data() if command is supposed to return data.
+> Neither I8042_CMD_AUX_SEND nor I8042_CMD_MUX_SEND wait fotr data to come
+> back.
+> 
+> Anyway, I removed call to i8042_interrupt() from i8042_aux_write() because
+> it is indeed unnecessary.
+ 
+It was there because some older i8042's will report an error byte (=>
+data) even though no device is connected, not just set error flags.
 
-(Yes, so do I)
+The unflushed byte in the FIFO then caused problems later on.
 
-> Calibrating delay using timer specific routine.. (lpj==
->
-> The lpj value is 38x the host lpj host value.  Booting with lpj="some random
-> number" removes the stall for me.  And finally, breaking into kernel in this
-> stall period consistently shows EIPs in calibrate_delay in backtrace.
->
->> One can see that it pauses before calibration (already mentioned that) and
->> once again after NET: ... during IP init!? What's going on :(
->> 
->
-> The NET: pause has always been there, I think it just becomes much more
-> noticeable if the lpj value is 38x normal.
->
-> Conclusion: you are getting bad lpj computation during beginning.  Doesn't
-> appear to be a kernel bug, so let's take it off list.  You can bring it up on
-> VMTN http://www.vmware.com/community/index.jspa?categoryID=1 for more on-topic
-> support.  In fact, interesting test you can try - suspend / resume during the
-> hang.  Does the discontinuity during calibration make it go away?
+It may be that now it'll get disposed of correctly, I haven't looked at
+the code for a while.
 
-http://www.vmware.com/community/thread.jspa?threadID=60663
-
-
-
-	-`J'
 -- 
+Vojtech Pavlik
+Director SuSE Labs

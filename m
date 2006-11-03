@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753483AbWKCTv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753506AbWKCTvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753483AbWKCTv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 14:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753504AbWKCTv1
+	id S1753506AbWKCTvr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 14:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753504AbWKCTvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 14:51:27 -0500
-Received: from wx-out-0506.google.com ([66.249.82.235]:17400 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1753483AbWKCTv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 14:51:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=mXR8tyKBNes68NRQPp8QegxCxhtlFAPoMtJLcAnQXY86jpyNywPD7XNx79Z7jvmqnTvfKC63mPgW738uIMG0pihCOkjx5wC+dwJQiRXo+tQdVlSeKKsDCYl2kXPW/qQJQIgNWZGvrQu2IX08QVF1mLGHX9Ete0MCwzjEmhgKoeo=
-Message-ID: <454B9DBA.8030705@gmail.com>
-Date: Fri, 03 Nov 2006 14:51:22 -0500
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Fri, 3 Nov 2006 14:51:46 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28690 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1753492AbWKCTvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 14:51:45 -0500
+Date: Fri, 3 Nov 2006 20:51:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+Message-ID: <20061103195146.GK13381@stusta.de>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz> <20061103101901.GA11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz> <20061103122126.GC11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-To: mhalcrow@us.ibm.com, phillip@hellewell.homeip.net
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] ecryptfs: bad allocation result check
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kmalloc() result in* *ecryptfs_crypto_api_algify_cipher_name() is
-assigned to an indirectly referenced pointer and not to the pointer
-itself, so the current result check is incorrect.
+On Fri, Nov 03, 2006 at 02:31:46PM +0100, Mikulas Patocka wrote:
+> >>>I am fully aware the counters are effectively 48-bit.  If they were
+> >>>just 32-bit, you would likely have hit the problem yourself already.
+> >>
+> >>Given the seek time 0.01s, 31-bit value would last for minimum time of 248
+> >>days when doing only syncs and nothing else. 47-bit value will last for
+> >>reasonably long.
+> >
+> >So you can at most do one transaction per drive seek?  That would
+> >definitely solve the overflow case, but hardly sounds like a
+> >high-performance filesystem. :)
+> 
+> Really it can batch any number of modifications into one transaction 
+> (unless fsync or sync is called). Transaction is closed only on 
+> fsync/sync, if 2 minutes pass (can be adjusted) or when the disk runs out 
+> of space.
 
-Signed-off-by: Florin Malita <fmalita@gmail.com>
----
+O_DIRECT ?
+O_SYNC ?
 
- crypto.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Mikulas
 
-diff --git a/fs/ecryptfs/crypto.c b/fs/ecryptfs/crypto.c
-index f49f105..136175a 100644
---- a/fs/ecryptfs/crypto.c
-+++ b/fs/ecryptfs/crypto.c
-@@ -134,7 +134,7 @@ int ecryptfs_crypto_api_algify_cipher_na
- 
- 	algified_name_len = (chaining_modifier_len + cipher_name_len + 3);
- 	(*algified_name) = kmalloc(algified_name_len, GFP_KERNEL);
--	if (!(algified_name)) {
-+	if (!(*algified_name)) {
- 		rc = -ENOMEM;
- 		goto out;
- 	}
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

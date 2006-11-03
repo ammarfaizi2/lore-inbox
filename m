@@ -1,273 +1,215 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWKCUXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753521AbWKCUWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWKCUXt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 15:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWKCUXt
+	id S1753521AbWKCUWM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753524AbWKCUWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 15:23:49 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:15825 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932068AbWKCUXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 15:23:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=URbI7u77LDoK+33sNLaMHKOW4YvOkGyvfS9w3YdN6XTD+bDu8Dc16jmBr3mjVvh9ty6ZGHJ4SM9Cd3PbjOwYsWiDIwVLjjwmAyW+lNq4Q42rCEUPGR1NoZrBWnN1ZIvJw6A0isXUzGbx/WnoiRQoX9TQqBwSXNsATJ/bHERKaxE=
-Date: Fri, 3 Nov 2006 21:23:37 +0000
-From: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-To: akpm@osdl.org
+	Fri, 3 Nov 2006 15:22:12 -0500
+Received: from mail.ggsys.net ([69.26.161.131]:19899 "EHLO mail.ggsys.net")
+	by vger.kernel.org with ESMTP id S1753521AbWKCUWL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:22:11 -0500
+Subject: Re: qstor driver -> irq 193: nobody cared
+From: Alberto Alonso <alberto@ggsys.net>
+To: Sergey Vlasov <vsu@altlinux.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] kernel/sched.c: small cleanup
-Message-Id: <20061103212337.fc518059.maxextreme@gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
+In-Reply-To: <20061103220018.577ded43.vsu@altlinux.ru>
+References: <1162576973.3967.10.camel@w100>
+	 <20061103220018.577ded43.vsu@altlinux.ru>
+Content-Type: text/plain
+Organization: Global Gate Systems LLC.
+Date: Fri, 03 Nov 2006 14:22:07 -0600
+Message-Id: <1162585327.3967.18.camel@w100>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-small cleanup for kernel/sched.c
+On Fri, 2006-11-03 at 22:00 +0300, Sergey Vlasov wrote: 
+> On Fri, 03 Nov 2006 12:02:53 -0600 Alberto Alonso wrote:
+> 
+> > I have a Pacific Digital qstor card on irq 193. I am using kernel
+> > 2.6.17.13 SMP
+> > 
+> > 
+> > irq 193: nobody cared (try booting with the "irqpoll" option)
+> 
+> Did you try this option?  It may decrease performance, but in some cases
+> IRQ routing is so screwed that only irqpoll helps.
 
-Signed-off-by: Miguel Ojeda Sandonis <maxextreme@gmail.com>
----
-diff --git a/kernel/sched.c b/kernel/sched.c
-index 3399701..9527758 100644
---- a/kernel/sched.c
-+++ b/kernel/sched.c
-@@ -464,7 +464,8 @@ static int show_schedstat(struct seq_fil
- 			seq_printf(seq, "domain%d %s", dcnt++, mask_str);
- 			for (itype = SCHED_IDLE; itype < MAX_IDLE_TYPES;
- 					itype++) {
--				seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu",
-+				seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu"
-+				    " %lu",
- 				    sd->lb_cnt[itype],
- 				    sd->lb_balanced[itype],
- 				    sd->lb_failed[itype],
-@@ -474,11 +475,13 @@ static int show_schedstat(struct seq_fil
- 				    sd->lb_nobusyq[itype],
- 				    sd->lb_nobusyg[itype]);
- 			}
--			seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n",
-+			seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu %lu"
-+			    " %lu %lu %lu\n",
- 			    sd->alb_cnt, sd->alb_failed, sd->alb_pushed,
- 			    sd->sbe_cnt, sd->sbe_balanced, sd->sbe_pushed,
- 			    sd->sbf_cnt, sd->sbf_balanced, sd->sbf_pushed,
--			    sd->ttwu_wake_remote, sd->ttwu_move_affine, sd->ttwu_move_balance);
-+			    sd->ttwu_wake_remote, sd->ttwu_move_affine,
-+			    sd->ttwu_move_balance);
- 		}
- 		preempt_enable();
- #endif
-@@ -1439,7 +1442,8 @@ static int try_to_wake_up(struct task_st
- 
- 		if (this_sd->flags & SD_WAKE_AFFINE) {
- 			unsigned long tl = this_load;
--			unsigned long tl_per_task = cpu_avg_load_per_task(this_cpu);
-+			unsigned long tl_per_task =
-+				cpu_avg_load_per_task(this_cpu);
- 
- 			/*
- 			 * If sync wakeup then subtract the (maximum possible)
-@@ -2447,18 +2451,21 @@ small_imbalance:
- 		pwr_now /= SCHED_LOAD_SCALE;
- 
- 		/* Amount of load we'd subtract */
--		tmp = busiest_load_per_task*SCHED_LOAD_SCALE/busiest->cpu_power;
-+		tmp = busiest_load_per_task * SCHED_LOAD_SCALE /
-+			busiest->cpu_power;
- 		if (max_load > tmp)
- 			pwr_move += busiest->cpu_power *
- 				min(busiest_load_per_task, max_load - tmp);
- 
- 		/* Amount of load we'd add */
--		if (max_load*busiest->cpu_power <
--				busiest_load_per_task*SCHED_LOAD_SCALE)
--			tmp = max_load*busiest->cpu_power/this->cpu_power;
-+		if (max_load * busiest->cpu_power <
-+				busiest_load_per_task * SCHED_LOAD_SCALE)
-+			tmp = max_load * busiest->cpu_power / this->cpu_power;
- 		else
--			tmp = busiest_load_per_task*SCHED_LOAD_SCALE/this->cpu_power;
--		pwr_move += this->cpu_power*min(this_load_per_task, this_load + tmp);
-+			tmp = busiest_load_per_task * SCHED_LOAD_SCALE / 
-+				this->cpu_power;
-+		pwr_move += this->cpu_power *
-+			min(this_load_per_task, this_load + tmp);
- 		pwr_move /= SCHED_LOAD_SCALE;
- 
- 		/* Move if we gain throughput */
-@@ -3280,7 +3287,8 @@ void fastcall add_preempt_count(int val)
- 	/*
- 	 * Spinlock count overflowing soon?
- 	 */
--	DEBUG_LOCKS_WARN_ON((preempt_count() & PREEMPT_MASK) >= PREEMPT_MASK-10);
-+	DEBUG_LOCKS_WARN_ON((preempt_count() & PREEMPT_MASK) >=
-+		PREEMPT_MASK - 10);
- }
- EXPORT_SYMBOL(add_preempt_count);
- 
-@@ -5342,16 +5350,19 @@ static void sched_domain_debug(struct sc
- 		if (!(sd->flags & SD_LOAD_BALANCE)) {
- 			printk("does not load-balance\n");
- 			if (sd->parent)
--				printk(KERN_ERR "ERROR: !SD_LOAD_BALANCE domain has parent");
-+				printk(KERN_ERR "ERROR: "
-+					"!SD_LOAD_BALANCE domain has parent");
- 			break;
- 		}
- 
- 		printk("span %s\n", str);
- 
- 		if (!cpu_isset(cpu, sd->span))
--			printk(KERN_ERR "ERROR: domain->span does not contain CPU%d\n", cpu);
-+			printk(KERN_ERR "ERROR: "
-+				"domain->span does not contain CPU%d\n", cpu);
- 		if (!cpu_isset(cpu, group->cpumask))
--			printk(KERN_ERR "ERROR: domain->groups does not contain CPU%d\n", cpu);
-+			printk(KERN_ERR "ERROR: "
-+				"domain->groups does not contain CPU%d\n", cpu);
- 
- 		printk(KERN_DEBUG);
- 		for (i = 0; i < level + 2; i++)
-@@ -5366,7 +5377,8 @@ static void sched_domain_debug(struct sc
- 
- 			if (!group->cpu_power) {
- 				printk("\n");
--				printk(KERN_ERR "ERROR: domain->cpu_power not set\n");
-+				printk(KERN_ERR "ERROR: "
-+					"domain->cpu_power not set\n");
- 			}
- 
- 			if (!cpus_weight(group->cpumask)) {
-@@ -5389,14 +5401,17 @@ static void sched_domain_debug(struct sc
- 		printk("\n");
- 
- 		if (!cpus_equal(sd->span, groupmask))
--			printk(KERN_ERR "ERROR: groups don't span domain->span\n");
-+			printk(KERN_ERR "ERROR: "
-+				"groups don't span domain->span\n");
- 
- 		level++;
- 		sd = sd->parent;
- 
- 		if (sd) {
- 			if (!cpus_subset(groupmask, sd->span))
--				printk(KERN_ERR "ERROR: parent span is not a superset of domain->span\n");
-+				printk(KERN_ERR "ERROR: "
-+					"parent span is not a superset of "
-+					"domain->span\n");
- 		}
- 
- 	} while (sd);
-@@ -5716,12 +5731,12 @@ __setup("max_cache_size=", setup_max_cac
-  */
- static void touch_cache(void *__cache, unsigned long __size)
- {
--	unsigned long size = __size/sizeof(long), chunk1 = size/3,
--			chunk2 = 2*size/3;
-+	unsigned long size = __size / sizeof(long), chunk1 = size / 3,
-+			chunk2 = 2 * size / 3;
- 	unsigned long *cache = __cache;
- 	int i;
- 
--	for (i = 0; i < size/6; i += 8) {
-+	for (i = 0; i < size / 6; i += 8) {
- 		switch (i % 6) {
- 			case 0: cache[i]++;
- 			case 1: cache[size-1-i]++;
-@@ -5826,11 +5841,11 @@ measure_cost(int cpu1, int cpu2, void *c
- 	 */
- 	measure_one(cache, size, cpu1, cpu2);
- 	for (i = 0; i < ITERATIONS; i++)
--		cost1 += measure_one(cache, size - i*1024, cpu1, cpu2);
-+		cost1 += measure_one(cache, size - i * 1024, cpu1, cpu2);
- 
- 	measure_one(cache, size, cpu2, cpu1);
- 	for (i = 0; i < ITERATIONS; i++)
--		cost1 += measure_one(cache, size - i*1024, cpu2, cpu1);
-+		cost1 += measure_one(cache, size - i * 1024, cpu2, cpu1);
- 
- 	/*
- 	 * (We measure the non-migrating [cached] cost on both
-@@ -5840,17 +5855,17 @@ measure_cost(int cpu1, int cpu2, void *c
- 
- 	measure_one(cache, size, cpu1, cpu1);
- 	for (i = 0; i < ITERATIONS; i++)
--		cost2 += measure_one(cache, size - i*1024, cpu1, cpu1);
-+		cost2 += measure_one(cache, size - i * 1024, cpu1, cpu1);
- 
- 	measure_one(cache, size, cpu2, cpu2);
- 	for (i = 0; i < ITERATIONS; i++)
--		cost2 += measure_one(cache, size - i*1024, cpu2, cpu2);
-+		cost2 += measure_one(cache, size - i * 1024, cpu2, cpu2);
- 
- 	/*
- 	 * Get the per-iteration migration cost:
- 	 */
--	do_div(cost1, 2*ITERATIONS);
--	do_div(cost2, 2*ITERATIONS);
-+	do_div(cost1, 2 * ITERATIONS);
-+	do_div(cost2, 2 * ITERATIONS);
- 
- 	return cost1 - cost2;
- }
-@@ -5888,7 +5903,7 @@ static unsigned long long measure_migrat
- 	 */
- 	cache = vmalloc(max_size);
- 	if (!cache) {
--		printk("could not vmalloc %d bytes for cache!\n", 2*max_size);
-+		printk("could not vmalloc %d bytes for cache!\n", 2 * max_size);
- 		return 1000000; /* return 1 msec on very small boxen */
- 	}
- 
-@@ -5913,7 +5928,8 @@ static unsigned long long measure_migrat
- 		avg_fluct = (avg_fluct + fluct)/2;
- 
- 		if (migration_debug)
--			printk("-> [%d][%d][%7d] %3ld.%ld [%3ld.%ld] (%ld): (%8Ld %8Ld)\n",
-+			printk("-> [%d][%d][%7d] %3ld.%ld [%3ld.%ld] (%ld): "
-+				"(%8Ld %8Ld)\n",
- 				cpu1, cpu2, size,
- 				(long)cost / 1000000,
- 				((long)cost / 100000) % 10,
-@@ -6011,17 +6027,19 @@ static void calibrate_migration_costs(co
- 	if (system_state == SYSTEM_BOOTING) {
- 		if (num_online_cpus() > 1) {
- 			printk("migration_cost=");
--			for (distance = 0; distance <= max_distance; distance++) {
-+			for (distance = 0; distance <= max_distance;
-+				distance++) {
- 				if (distance)
- 					printk(",");
--				printk("%ld", (long)migration_cost[distance] / 1000);
-+				printk("%ld",
-+					(long)migration_cost[distance] / 1000);
- 			}
- 			printk("\n");
- 		}
- 	}
- 	j1 = jiffies;
- 	if (migration_debug)
--		printk("migration: %ld seconds\n", (j1-j0)/HZ);
-+		printk("migration: %ld seconds\n", (j1-j0) / HZ);
- 
- 	/*
- 	 * Move back to the original CPU. NUMA-Q gets confused
-@@ -6348,11 +6366,10 @@ static int build_sched_domains(const cpu
- 		if (cpus_weight(*cpu_map)
- 				> SD_NODES_PER_DOMAIN*cpus_weight(nodemask)) {
- 			if (!sched_group_allnodes) {
--				sched_group_allnodes
--					= kmalloc_node(sizeof(struct sched_group)
--						  	* MAX_NUMNODES,
--						  GFP_KERNEL,
--						  cpu_to_node(i));
-+				sched_group_allnodes = kmalloc_node(
-+					sizeof(struct sched_group)*MAX_NUMNODES,
-+					GFP_KERNEL,
-+					cpu_to_node(i));
- 				if (!sched_group_allnodes) {
- 					printk(KERN_WARNING
- 					"Can not alloc allnodes sched group\n");
+I have now switched to using that option. Will kick in after I reboot.
+
+> [...]
+> > handlers:
+> > [<c0301300>] (qs_intr+0x0/0x220)
+> > Disabling IRQ #193
+> [..]
+> > If there is any other info that I should provide to help 
+> > troubleshoot please let me know.
+> 
+> The "nobody cared" error is often caused by some other device which
+> shares the same interrupt, but Linux does not know about it (either due
+> to broken IRQ routing tables in BIOS, or because the driver for that
+> device is not loaded, but the device really is active and asserts its
+> IRQ line - sometimes this also happens due to a broken BIOS).
+> 
+> Please post complete /proc/interrupts and lspci -v output, and also
+> information about the motherboard model and BIOS version.
+> 
+
+The system is an old Gateway 6400 server w/ dual P3 1 GHz PCUs. It is
+my NFS/samba file server.
+
+Here is the rest of the requested info:
+
+w100:/usr/src/linux-2.6.17.13# cat /proc/interrupts
+           CPU0       CPU1
+  0:    1398199    1412518    IO-APIC-edge  timer
+  1:          1          8    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  8:          3          1    IO-APIC-edge  rtc
+ 14:       8163       8710    IO-APIC-edge  ide0
+ 15:          5          7    IO-APIC-edge  ide1
+145:          0          0   IO-APIC-level  ivtv0
+153:      94715     121999   IO-APIC-level  ide2, ide3, ide4, ide5
+161:       6909      18301   IO-APIC-level  ide8, ide9
+169:       8323      17288   IO-APIC-level  ide6, ide7
+185:    1216892         92   IO-APIC-level  eth0
+193:       2281       1954   IO-APIC-level  libata
+NMI:          0          0
+LOC:    2810842    2810841
+ERR:          0
+MIS:          0
+w100:/usr/src/linux-2.6.17.13# lspci -v
+0000:00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
+        Flags: bus master, medium devsel, latency 32
+
+0000:00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
+        Flags: bus master, medium devsel, latency 16
+
+0000:00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+        Subsystem: Intel Corp. 82559 Fast Ethernet LAN on Motherboard
+        Flags: bus master, medium devsel, latency 64, IRQ 177
+        Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
+        I/O ports at b000 [size=64]
+        Memory at fe800000 (32-bit, non-prefetchable) [size=1M]
+        Expansion ROM at fe700000 [disabled] [size=1M]
+        Capabilities: [dc] Power Management version 2
+
+0000:00:03.0 Multimedia video controller: Internext Compression Inc iTVC16 (CX23416) MPEG-2 Encoder (rev 01)
+        Subsystem: Hauppauge computer works Inc.: Unknown device 0001
+        Flags: bus master, medium devsel, latency 64, IRQ 145
+        Memory at f8000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [44] Power Management version 2
+
+0000:00:04.0 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
+        Subsystem: Triones Technologies, Inc.: Unknown device 0001
+        Flags: bus master, 66MHz, medium devsel, latency 120, IRQ 153
+        I/O ports at bf60 [size=8]
+        I/O ports at bf7c [size=4]
+        I/O ports at bf58 [size=8]
+        I/O ports at bf54 [size=4]
+        I/O ports at b400 [size=256]
+        Expansion ROM at fe960000 [disabled] [size=128K]
+        Capabilities: [60] Power Management version 2
+
+0000:00:04.1 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
+        Subsystem: Triones Technologies, Inc.: Unknown device 0001
+        Flags: bus master, 66MHz, medium devsel, latency 120, IRQ 153
+        I/O ports at bf88 [size=8]
+        I/O ports at bf84 [size=4]
+        I/O ports at bf68 [size=8]
+        I/O ports at bf80 [size=4]
+        I/O ports at b800 [size=256]
+        Capabilities: [60] Power Management version 2
+
+0000:00:05.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366/368/370/370A/372 (rev 03)
+        Subsystem: Triones Technologies, Inc. HPT370 UDMA100
+        Flags: bus master, medium devsel, latency 120, IRQ 161
+        I/O ports at bfa0 [size=8]
+        I/O ports at bf9c [size=4]
+        I/O ports at bf90 [size=8]
+        I/O ports at bf98 [size=4]
+        I/O ports at c000 [size=256]
+        Expansion ROM at fe980000 [disabled] [size=128K]
+
+0000:00:06.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366/368/370/370A/372 (rev 03)
+        Subsystem: Triones Technologies, Inc. HPT370 UDMA100
+        Flags: bus master, medium devsel, latency 120, IRQ 169
+        I/O ports at bff0 [size=8]
+        I/O ports at bfe4 [size=4]
+        I/O ports at bfa8 [size=8]
+        I/O ports at bfe0 [size=4]
+        I/O ports at c400 [size=256]
+        Expansion ROM at fe9a0000 [disabled] [size=128K]
+
+0000:00:07.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27) (prog-if 00 [VGA])
+        Subsystem: Gateway 2000: Unknown device 6400
+        Flags: bus master, stepping, medium devsel, latency 64
+        Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+        I/O ports at c800 [size=256]
+        Memory at fe9ff000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at fe9c0000 [disabled] [size=128K]
+        Capabilities: [5c] Power Management version 2
+
+0000:00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 50)
+        Subsystem: ServerWorks OSB4 South Bridge
+        Flags: bus master, medium devsel, latency 0
+
+0000:00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller (prog-if 8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 64
+        I/O ports at ffa0 [size=16]
+
+0000:00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 04) (prog-if 10 [OHCI])
+        Subsystem: ServerWorks OSB4/CSB5 OHCI USB Controller
+        Flags: bus master, medium devsel, latency 64, IRQ 10
+        Memory at fe9fe000 (32-bit, non-prefetchable) [size=4K]
+
+0000:01:02.0 Ethernet controller: Intel Corp. 82543GC Gigabit Ethernet Controller (Copper) (rev 02)
+        Subsystem: Intel Corp. PRO/1000 T Server Adapter
+        Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 185
+        Memory at febc0000 (32-bit, non-prefetchable) [size=128K]
+        Memory at febb0000 (32-bit, non-prefetchable) [size=64K]
+        Expansion ROM at feba0000 [disabled] [size=64K]
+        Capabilities: [dc] Power Management version 2
+
+0000:01:03.0 0106: Pacific Digital Corp: Unknown device 2068 (rev 01)
+        Subsystem: Pacific Digital Corp: Unknown device 2068
+        Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 193
+        I/O ports at eff0 [size=8]
+        I/O ports at efe0 [size=8]
+        I/O ports at efa8 [size=8]
+        I/O ports at efa0 [size=8]
+        Memory at febf0000 (64-bit, non-prefetchable) [size=64K]
+        Expansion ROM at febe0000 [disabled] [size=64K]
+        Capabilities: [40] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+        Capabilities: [50] Power Management version 2
+        Capabilities: [58] PCI-X non-bridge device.
+
+0000:01:05.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 Ultra3 SCSI Adapter (rev 01)
+        Subsystem: Gateway 2000: Unknown device 1040
+        Flags: medium devsel
+        I/O ports at 1000 [disabled] [size=256]
+        Memory at <ignored> (64-bit, non-prefetchable) [disabled]
+        Memory at <ignored> (64-bit, non-prefetchable) [disabled]
+        Capabilities: [40] Power Management version 2
+
+0000:01:05.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 Ultra3 SCSI Adapter (rev 01)
+        Subsystem: Gateway 2000: Unknown device 1040
+        Flags: medium devsel
+        I/O ports at 1400 [disabled] [size=256]
+        Memory at <ignored> (64-bit, non-prefetchable) [disabled]
+        Memory at <ignored> (64-bit, non-prefetchable) [disabled]
+        Capabilities: [40] Power Management version 2
+
+
+Thanks,
+
+Alberto
+
+-- 
+Alberto Alonso                        Global Gate Systems LLC.
+(512) 351-7233                        http://www.ggsys.net
+Hardware, consulting, sysadmin, monitoring and remote backups
+

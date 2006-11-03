@@ -1,166 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWKCVqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753554AbWKCVqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWKCVqw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 16:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWKCVqw
+	id S1753554AbWKCVqh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 16:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWKCVqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 16:46:52 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55250 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932160AbWKCVqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 16:46:51 -0500
-Date: Fri, 3 Nov 2006 14:46:30 -0700
-Message-Id: <200611032146.kA3LkUe9031799@ebiederm.dsl.xmission.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Subject: [RFC][PATCH 2/2] htirq:  Allow buggy drivers of buggy hardware to write the registers.
-In-Reply-To: <m1ejskw9as.fsf_-_@ebiederm.dsl.xmission.com> (Eric
-	W. Biederman's message of "Fri, 03 Nov 2006 13:43:23 -0700")
-References: <454A7B0F.7060701@pathscale.com>
-	<m1odrpymqc.fsf@ebiederm.dsl.xmission.com>
-	<454B7B70.9060104@pathscale.com>
-	<m1d584xutk.fsf@ebiederm.dsl.xmission.com>
-	<454B880A.1010802@pathscale.com>
-	<m1zmb8wexd.fsf@ebiederm.dsl.xmission.com>
-	<454B8E19.90300@pathscale.com>
-	<m1irhww9f9.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1ejskw9as.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-cc: olson@pathscale.com, <linux-kernel@vger.kernel.org>
+	Fri, 3 Nov 2006 16:46:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16317 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1753554AbWKCVqh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 16:46:37 -0500
+Date: Fri, 3 Nov 2006 13:46:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Avoid allocating during interleave from almost full nodes
+Message-Id: <20061103134633.a815c7b3.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cc olson@pathscale.com,  <linux-kernel@vger.kernel.org>
-Date: Fri, 03 Nov 2006 14:46:30 -0700
-Message-ID: <m1ejskurt5.fsf_-_@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+On Fri, 3 Nov 2006 12:58:24 -0800 (PST)
+Christoph Lameter <clameter@sgi.com> wrote:
+
+> Interleave allocation often go over large sets of nodes. Some nodes
+> may have tasks on them that heavily use memory
+
+"heavily used" means "referenced" and maybe "active" and maybe "dirty".
+See below.
+
+> and rely on node local
+> allocations to get optimium performance. Overallocating those nodes may
+> reduce performance of those tasks by forcing off node allocations and
+> additional reclaim passes. It is better if we try to avoid nodes
+> that have most of its memory used and focus on nodes that still have lots
+> of memory available.
+> 
+> The intend of interleave is to have allocations spread out over a set of
+> nodes because the data is likely to be used from any of those nodes. It is
+> not important that we keep the exact sequence of allocations at all times.
+> 
+> The exact node we choose during interleave does not matter much if we are
+> under memory pressure since the allocations will be redirected anyways
+> after we have overallocated a single node.
+
+Am not clear on what that means.
+
+> This patch checks for the amount of free pages on a node. If it is lower
+> than a predefined limit (in /proc/sys/kernel/min_interleave_ratio) then
+
+You mean /proc/sys/vm
+
+> we avoid allocating from that node. We keep a bitmap of full nodes
+> that is cleared every 2 seconds when draining the pagesets for
+> node 0.
+
+Wall time is a bogus concept in the VM.  Can we please stop relying upon it?
+
+> Should we find that all nodes are marked as full then we disregard
+> the limit and continue allocate from the next node round robin
+> without any checks.
+> 
+> This is only effective for interleave pages that are placed without
+> regard to the address in a process (anonymous pages are typically
+> placed depending on an interleave node generated from the address).
+> It applies mainly to slab interleave and page cache interleave.
+> 
+> We operate on full_interleave_nodes without any locking which means
+> that the nodemask may take on an undefined value at times. That does
+> not matter though since we always can fall back to operating without
+> full_interleave_nodes. As a result of the racyness we may uselessly
+> skip a node or retest a node.
+
+This design relies upon nodes having certain amounts of free memory.  This
+concept is bogus.  Because it treats clean pagecache which hasn't been used
+since last Saturday as "in use".  It is not in use.
+
+This false distinction between free pages and trivially-reclaimable pages
+is specific to particular workloads on particular machines hence this
+design is not generally useful.
 
 
-This patch adds a variant of ht_create_irq __ht_create_irq that
-takes an aditional parameter update that is a function that is
-called whenever we want to write to a drivers htirq configuration
-registers.
+Perhaps a better design would be to key the decision off the page reclaim
+scanning priority.
 
-This is needed to support the ipath_iba6110 because it's registers
-in the proper location are not actually conected to the hardware
-that controlls interrupt delivery.
+> 
+> Index: linux-2.6.19-rc4-mm2/Documentation/sysctl/vm.txt
+> ===================================================================
+> --- linux-2.6.19-rc4-mm2.orig/Documentation/sysctl/vm.txt	2006-11-02 14:18:59.000000000 -0600
+> +++ linux-2.6.19-rc4-mm2/Documentation/sysctl/vm.txt	2006-11-03 13:12:04.006734590 -0600
+> @@ -198,6 +198,28 @@ and may not be fast.
+>  
+>  =============================================================
+>  
+> +min_interleave_ratio:
+> +
+> +This is available only on NUMA kernels.
+> +
+> +A percentage of the free pages in each zone.  If less than this
+> +percentage of pages are in use then interleave will attempt to
+> +leave this zone alone and allocate from other zones. This results
+> +in a balancing effect on the system if interleave and node local allocations
+> +are mixed throughout the system. Interleave pages will not cause zone
+> +reclaim and leave some memory on node to allow node local allocation to
+> +occur. Interleave allocations will allocate all over the system until global
+> +reclaim kicks in.
+> +
+> +The mininum does not apply to pages that are placed using interleave
+> +based on an address such as implemented for anonymous pages. It is
+> +effective for slab allocations, huge page allocations and page cache
+> +allocations.
+> +
+> +The default ratio is 10 percent.
+> +
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- drivers/pci/htirq.c   |   46 +++++++++++++++++++++++++++++++++-------------
- include/linux/htirq.h |    4 ++++
- 2 files changed, 37 insertions(+), 13 deletions(-)
+That has several typos and grammatical mistakes.
 
-diff --git a/drivers/pci/htirq.c b/drivers/pci/htirq.c
-index e346fe3..6ed53c5 100644
---- a/drivers/pci/htirq.c
-+++ b/drivers/pci/htirq.c
-@@ -25,6 +25,8 @@ static DEFINE_SPINLOCK(ht_irq_lock);
- 
- struct ht_irq_cfg {
- 	struct pci_dev *dev;
-+	 /* Update callback used to cope with buggy hardware */
-+	ht_irq_update_t *update;
- 	unsigned pos;
- 	unsigned idx;
- 	struct ht_irq_msg msg;
-@@ -36,14 +38,17 @@ void write_ht_irq_msg(unsigned int irq, 
- 	struct ht_irq_cfg *cfg = get_irq_data(irq);
- 	unsigned long flags;
- 	spin_lock_irqsave(&ht_irq_lock, flags);
--	if (cfg->msg.address_lo != msg->address_lo) {
--		pci_write_config_byte(cfg->dev, cfg->pos + 2, cfg->idx);
--		pci_write_config_dword(cfg->dev, cfg->pos + 4, msg->address_lo);
--	}
--	if (cfg->msg.address_hi != msg->address_hi) {
--		pci_write_config_byte(cfg->dev, cfg->pos + 2, cfg->idx + 1);
--		pci_write_config_dword(cfg->dev, cfg->pos + 4, msg->address_hi);
--	}
-+	if (!likely(cfg->update)) {
-+		if (cfg->msg.address_lo != msg->address_lo) {
-+			pci_write_config_byte(cfg->dev, cfg->pos + 2, cfg->idx);
-+			pci_write_config_dword(cfg->dev, cfg->pos + 4, msg->address_lo);
-+		}
-+		if (cfg->msg.address_hi != msg->address_hi) {
-+			pci_write_config_byte(cfg->dev, cfg->pos + 2, cfg->idx + 1);
-+			pci_write_config_dword(cfg->dev, cfg->pos + 4, msg->address_hi);
-+		}
-+	} else
-+		cfg->update(irq, msg);
- 	spin_unlock_irqrestore(&ht_irq_lock, flags);
- 	cfg->msg = *msg;
- }
-@@ -79,16 +84,14 @@ void unmask_ht_irq(unsigned int irq)
- }
- 
- /**
-- * ht_create_irq - create an irq and attach it to a device.
-+ * __ht_create_irq - create an irq and attach it to a device.
-  * @dev: The hypertransport device to find the irq capability on.
-  * @idx: Which of the possible irqs to attach to.
-- *
-- * ht_create_irq is needs to be called for all hypertransport devices
-- * that generate irqs.
-+ * @update: Function to be called when changing the htirq message
-  *
-  * The irq number of the new irq or a negative error value is returned.
-  */
--int ht_create_irq(struct pci_dev *dev, int idx)
-+int __ht_create_irq(struct pci_dev *dev, int idx, ht_irq_update_t *update)
- {
- 	struct ht_irq_cfg *cfg;
- 	unsigned long flags;
-@@ -123,6 +126,7 @@ int ht_create_irq(struct pci_dev *dev, i
- 		return -ENOMEM;
- 
- 	cfg->dev = dev;
-+	cfg->update = update;
- 	cfg->pos = pos;
- 	cfg->idx = 0x10 + (idx * 2);
- 	/* Initialize msg to a value that will never match the first write. */
-@@ -145,6 +149,21 @@ int ht_create_irq(struct pci_dev *dev, i
- }
- 
- /**
-+ * ht_create_irq - create an irq and attach it to a device.
-+ * @dev: The hypertransport device to find the irq capability on.
-+ * @idx: Which of the possible irqs to attach to.
-+ *
-+ * ht_create_irq needs to be called for all hypertransport devices
-+ * that generate irqs.
-+ *
-+ * The irq number of the new irq or a negative error value is returned.
-+ */
-+int ht_create_irq(struct pci_dev *dev, int idx)
-+{
-+	return __ht_create_irq(dev, idx, NULL);
-+}
-+
-+/**
-  * ht_destroy_irq - destroy an irq created with ht_create_irq
-  *
-  * This reverses ht_create_irq removing the specified irq from
-@@ -162,5 +181,6 @@ void ht_destroy_irq(unsigned int irq)
- 	kfree(cfg);
- }
- 
-+EXPORT_SYMBOL(__ht_create_irq);
- EXPORT_SYMBOL(ht_create_irq);
- EXPORT_SYMBOL(ht_destroy_irq);
-diff --git a/include/linux/htirq.h b/include/linux/htirq.h
-index 108f0d9..8adacc2 100644
---- a/include/linux/htirq.h
-+++ b/include/linux/htirq.h
-@@ -15,4 +15,8 @@ void unmask_ht_irq(unsigned int irq);
- /* The arch hook for getting things started */
- int arch_setup_ht_irq(unsigned int irq, struct pci_dev *dev);
- 
-+/* For drivers of buggy hardware */
-+typedef void (ht_irq_update_t)(int irq, struct ht_irq_msg *);
-+int __ht_create_irq(struct pci_dev *dev, int idx, ht_irq_update_t *update);
-+
- #endif /* LINUX_HTIRQ_H */
--- 
-1.4.2.rc3.g7e18e-dirty
+> +	VM_MIN_INTERLEAVE=39,	/* Limit for interleave */
+
+I think we recently decided to set all new sysctl number to CTL_UNNUMBERED.
+ Eric, can you remind us of the thinkin there please?
+
+> --- linux-2.6.19-rc4-mm2.orig/mm/mempolicy.c	2006-11-02 14:19:37.000000000 -0600
+> +++ linux-2.6.19-rc4-mm2/mm/mempolicy.c	2006-11-03 13:12:04.181552934 -0600
+> @@ -1118,16 +1118,60 @@ static struct zonelist *zonelist_policy(
+>  	return NODE_DATA(nd)->node_zonelists + gfp_zone(gfp);
+>  }
+>  
+> +/*
+> + * Generic interleave function to be used by cpusets and memory policies.
+> + */
+> +nodemask_t full_interleave_nodes = NODE_MASK_NONE;
+> +
+> +/*
+> + * Called when draining the pagesets of node 0
+> + */
+> +void clear_full_interleave_nodes(void) {
+> +	nodes_clear(full_interleave_nodes);
+> +}
+
+coding style.
+
+> +int __interleave(int current_node, nodemask_t *nodes)
+> +{
+> +	unsigned next;
+> +	struct zone *z;
+> +	nodemask_t nmask;
+> +
+> +redo:
+> +	nodes_andnot(nmask, *nodes, full_interleave_nodes);
+> +	if (unlikely(nodes_empty(nmask))) {
+> +		/*
+> +		 * All allowed nodes are overallocated.
+> +		 * Ignore interleave limit.
+> +		 */
+> +		next = next_node(current_node, *nodes);
+> +		if (next >= MAX_NUMNODES)
+> +			next = first_node(*nodes);
+> +		return next;
+> +	}
+> +
+> +	next = next_node(current_node, nmask);
+> +	if (next >= MAX_NUMNODES)
+> +		next = first_node(nmask);
+> +
+> +	/*
+> +	 * Check if node is overallocated. If so the set it to full.
+> +	 */
+> +	z = &NODE_DATA(next)->node_zones[policy_zone];
+> +	if (unlikely(z->free_pages <= z->min_interleave_pages)) {
+> +		node_set(next, full_interleave_nodes);
+> +		goto redo;
+> +	}
+> +	return next;
+> +}
+
+This function would benefit from an introductory comment.
+
 

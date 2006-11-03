@@ -1,64 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752910AbWKCB2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752921AbWKCB36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752910AbWKCB2S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 20:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752918AbWKCB2S
+	id S1752921AbWKCB36 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 20:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752917AbWKCB36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 20:28:18 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:5526 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1752907AbWKCB2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 20:28:18 -0500
-Date: Fri, 3 Nov 2006 02:28:17 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <454A76CC.6030003@cosmosbay.com>
-Message-ID: <Pine.LNX.4.64.0611030223190.7781@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
- <454A76CC.6030003@cosmosbay.com>
-X-Personality-Disorder: Schizoid
+	Thu, 2 Nov 2006 20:29:58 -0500
+Received: from mx2.cs.washington.edu ([128.208.2.105]:65240 "EHLO
+	mx2.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S1752926AbWKCB35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 20:29:57 -0500
+Date: Thu, 2 Nov 2006 17:29:40 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Pavel Emelianov <xemul@openvz.org>
+cc: Matt Helsley <matthltc@us.ibm.com>, vatsa@in.ibm.com, balbir@in.ibm.com,
+       Paul Menage <menage@google.com>, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, pj@sgi.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+In-Reply-To: <4549ECF8.2070508@openvz.org>
+Message-ID: <Pine.LNX.4.64N.0611021717570.12501@attu4.cs.washington.edu>
+References: <20061030103356.GA16833@in.ibm.com>  <45486925.4000201@openvz.org>
+  <20061101181236.GC22976@in.ibm.com>  <1162419565.12419.154.camel@localhost.localdomain>
+  <6599ad830611011550m69876b1ase3579167903a7cd7@mail.gmail.com> 
+ <4549B5A3.2010908@openvz.org> <1162466807.12419.194.camel@localhost.localdomain>
+ <4549ECF8.2070508@openvz.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I have these questions:
->> 
->> * There is a rw semaphore that is locked for read for nearly all operations 
->> and locked for write only rarely. However locking for read causes cache 
->> line pingpong on SMP systems. Do you have an idea how to make it better?
->> 
->> It could be improved by making a semaphore for each CPU and locking for 
->> read only the CPU's semaphore and for write all semaphores. Or is there a 
->> better method?
->> 
->
-> If you believe you need a semaphore for protecting a mostly read structure, 
-> then RCU is certainly a good candidate. (ie no locked operation at all)
+On Thu, 2 Nov 2006, Pavel Emelianov wrote:
 
-RCU is for non-blocking operation only.
+> >> Beancounter may have more than 409 tasks, while configfs
+> >> doesn't allow attributes to store more than PAGE_SIZE bytes
+> >> on read. So how would you fill so many tasks in one page?
+> > 
+> > 	To be clear that's a limitation of configfs as an interface. In the
+> > Resource Groups code, for example, there is no hard limitation on length
+> > of the underlying list. This is why we're talking about a filesystem
+> > interface and not necessarily a configfs interface.
+> 
+> David Rientjes persuaded me that writing our own file system is
+> reimplementing the existing thing. If we've agreed with file system
+> interface then configfs may be used. But the limitations I've
+> pointed out must be discussed.
+> 
 
-Maybe it could be use for maintaining an unlocked variable that prevents 
-readers from entering a critical section --- but waiting in a write for a 
-quiscent state would hurt.
+What are we really discussing here?  The original issue that you raised 
+with the infrastructure was an fs vs. syscall interface and I simply 
+argued in favor of an fs-based approach because containers are inherently 
+hierarchial.  As Paul Jackson mentioned, this is one of the advantages 
+that cpusets has had since its inclusion in the kernel and the abstraction 
+of cpusets from containers makes a convincing case for how beneficial it 
+has been and will continue to be.
 
-> The problem with a per_cpu biglock is that you may consume a lot of RAM for 
-> big NR_CPUS. Count 32 KB per 'biglock' if NR_CPUS=1024
->
->> * This leads to another observation --- on i386 locking a semaphore is 2 
->> instructions, on x86_64 it is a call to two nested functions. Has it some 
->> reason or was it just implementator's laziness? Given the fact that locked 
->> instruction takes 16 ticks on Opteron (and can overlap about 2 ticks with 
->> other instructions), it would make sense to have optimized semaphores too.
->
-> Hum, please dont use *lazy*, this could make Andi unhappy :)
->
-> What are you calling semaphore exactly ?
-> Did you read Documentation/mutex-design.txt ?
+Regardless of whether configfs is specifically used for this particular 
+purpose is irrelevant in deciding fs vs syscall.  Certainly it could be 
+used for lightweight purposes but it by no means is the only possibility 
+for containers.  I have observed no further advocation for a syscall 
+interface; it seems like a no-brainer that if there are certain 
+limitations on configfs that you have pointed out that would be 
+disadvantageous to containers that another fs implementation would 
+suffice.
 
-I see --- I could replace that semaphore with mutex. But rw-semaphores 
-can't be replaces with them.
+> Let me remind:
+> 1. limitation of size of data written out of configfs;
+> 2. when configfs is a module user won't be able to
+>    use beancounters.
+> 
+> and one new
+> 3. now in beancounters we have /proc/user_beancounters
+>    file that shows the complete statistics on BC. This
+>    includes all then beancounters in the system with all
+>    resources' held/maxheld/failcounters/etc. This is very
+>    handy and "vividly": a simple 'cat' shows you all you
+>    need. With configfs we lack this very handy feature.
+> 
 
-Mikulas
+Ok, so each of these issues includes a specific criticism against configfs 
+for containers.  So a different fs-based interface similiar to the cpuset 
+abstraction from containers is certainly appropriate.
+
+		David

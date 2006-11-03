@@ -1,45 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752917AbWKCBaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752923AbWKCBea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752917AbWKCBaB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 20:30:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752922AbWKCBaB
+	id S1752923AbWKCBea (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 20:34:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752925AbWKCBea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 20:30:01 -0500
-Received: from mx3.cs.washington.edu ([128.208.3.132]:729 "EHLO
-	mx3.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1752917AbWKCB37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 20:29:59 -0500
-Date: Thu, 2 Nov 2006 17:29:32 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: Pavel Emelianov <xemul@openvz.org>
-cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com, menage@google.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, pj@sgi.com, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com, devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-In-Reply-To: <4549AF81.2060706@openvz.org>
-Message-ID: <Pine.LNX.4.64N.0611021714080.12501@attu4.cs.washington.edu>
-References: <20061030103356.GA16833@in.ibm.com> <45460743.8000501@openvz.org>
- <20061031163418.GD9588@in.ibm.com> <4548545B.4070701@openvz.org>
- <20061101175015.GA22976@in.ibm.com> <4549AF81.2060706@openvz.org>
+	Thu, 2 Nov 2006 20:34:30 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:37526 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1752923AbWKCBe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 20:34:29 -0500
+Date: Fri, 3 Nov 2006 02:34:28 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <Pine.LNX.4.63.0611030022110.14187@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.64.0611030228470.7781@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net>
+ <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.63.0611030022110.14187@alpha.polcom.net>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2006, Pavel Emelianov wrote:
+>> There was discussion about it here some times ago, and I think the result 
+>> was that the IDE bus is reset prior to capacitors discharge and total loss 
+>> of power and disk has enough time to finish a sector --- but if you have 
+>> crap power supply (doesn't signal power loss), crap motherboard (doesn't 
+>> reset bus) or crap disk (doesn't respond to reset), it can fail.
+>
+> Hmm, maybe. But I think I saw couple of such bad sectors that were only bad 
+> because of power loss in the wild.
+>
+>
+>> BTW. reiserfs and xfs depend on this feature too. ext3 is the only one that 
+>> doesn't.
+>
+> Well, at least for XFS everybody tell that it should be used with UPS only if 
+> you really care about your data. I think it has something to do with heavy 
+> in-RAM caching this filesystem does.
 
-> So if we're going to have different groupings for different
-> resources what's the use of "container" grouping all "controllers"
-> together? I see this situation like each task_struct carries
-> pointers to kmemsize controller, pivate pages controller,
-> physical pages controller, CPU time controller, disk bandwidth
-> controller, etc. Right? Or did I miss something?
+System is allowed to cache anything unless sync/fsync is called. Someone 
+told that XFS has some bugs that if crashed incorrectly, it can lose 
+already synced data ... don't know. Plus it has that infamous feature (not 
+a bug) that it commits size-increase but not data and you see zero-filed 
+files.
 
-My understanding is that the only addition to the task_struct is a pointer 
-to the struct container it belongs to.  Then, the various controllers can 
-register the control files through the fs-based container interface and 
-all the manipulation can be done at that level.  Having each task_struct 
-containing pointers to individual resource nodes was never proposed.
+> Anyway, it looks strange to list something very fragile and potentially not 
+> existing in the requirements... :-)
 
-		David
+Better to list it than quitly depend on it like ext2/fat/reiser/xfs/ 
+(maybe jfs?) do.
+
+> Could you explain where exactly do you depend on this requirement? And what 
+> could happen if it is not true?
+
+If you write a file in a directory and the sector is unwritable upon write 
+& crash, you lose those few files near it. Just the similar way you would 
+lose 4 files in inode table on ext2 in this case.
+
+> Thanks,
+>
+> Grzegorz Kulewski
+>
+>
+> PS. Do you have any benchmarks of your filesystem? Did you do any longer 
+> automated tests to prove it is not going to loose data to easily?
+
+I have, I may find them and post them. (but the university wants me to 
+post them to some conference, so I should keep them secret :-/)
+
+Mikulas
+

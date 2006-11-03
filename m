@@ -1,107 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753181AbWKCH0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752760AbWKCHpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753181AbWKCH0G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 02:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753184AbWKCH0G
+	id S1752760AbWKCHpK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 02:45:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753179AbWKCHpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 02:26:06 -0500
-Received: from sp604005mt.neufgp.fr ([84.96.92.11]:63883 "EHLO smtp.Neuf.fr")
-	by vger.kernel.org with ESMTP id S1753181AbWKCH0D (ORCPT
+	Fri, 3 Nov 2006 02:45:10 -0500
+Received: from holoclan.de ([62.75.158.126]:13743 "EHLO mail.holoclan.de")
+	by vger.kernel.org with ESMTP id S1752760AbWKCHpI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 02:26:03 -0500
-Date: Fri, 03 Nov 2006 08:26:05 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: [x86_64] Strange oprofile results on access to per_cpu data
-In-reply-to: <200611030356.54074.ak@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <454AEF0D.1090402@cosmosbay.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8; format=flowed
-Content-transfer-encoding: 7BIT
-References: <20061029024504.760769000@sous-sol.org>
- <20061030231132.GA98768@muc.de>
- <1162376827.23462.5.camel@localhost.localdomain>
- <200611030356.54074.ak@suse.de>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Fri, 3 Nov 2006 02:45:08 -0500
+Date: Fri, 3 Nov 2006 08:44:47 +0100
+From: Martin Lorenz <martin@lorenz.eu.org>
+To: Maciej Rutecki <maciej.rutecki@gmail.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.18] Suspend to ram and SATA
+Message-ID: <20061103074447.GB23150@gimli>
+Mail-Followup-To: Maciej Rutecki <maciej.rutecki@gmail.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <454A61B0.9010306@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
+In-Reply-To: <454A61B0.9010306@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  On Thu, Nov 02, 2006 at 10:22:56PM +0100, Maciej Rutecki
+	wrote: > I have problem with suspend to ram, and my SATA drive. When I
+	try: > > echo mem > /sys/power/state > > system goes standby, but when
+	doing the resume it > would come back and have I/O errors similar like
+	this ((copied from > paper notes, the disk is no longer writable when
+	the error happens) > > kernel: journal commit I/O error > end_request:
+	I/O error, dev sda, sector xxxxxxxx > sd 0:0:0:0: SCSI error return
+	code: 0xxxxxx > > Problem is similar like this: >
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=111409309804068&w=2 >
+	http://www.thinkwiki.org/wiki/Problems_with_SATA_and_Linux >
+	http://lkml.org/lkml/2005/9/23/97 > > I test it in 2.6.18.1 (with
+	initrd) and 2.6.18 (with and without initrd). [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi
 
-While doing some oprofile analysis, I got this result on ip_route_input() : 
-one particular instruction seems to spend a lot of cycles.
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-machine is a dual core 285, 2.6 GHz
+On Thu, Nov 02, 2006 at 10:22:56PM +0100, Maciej Rutecki wrote:
+> I have problem with suspend to ram, and my SATA drive. When I try:
+>=20
+> echo mem > /sys/power/state
+>=20
+> system goes standby, but when doing the resume it
+> would come back and have I/O errors similar like this ((copied from
+> paper notes, the disk is no longer writable when the error happens)
+>=20
+> kernel: journal commit I/O error
+> end_request: I/O error, dev sda, sector xxxxxxxx
+> sd 0:0:0:0: SCSI error return code: 0xxxxxx
+>=20
+> Problem is similar like this:
+> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D111409309804068&w=3D2
+> http://www.thinkwiki.org/wiki/Problems_with_SATA_and_Linux
+> http://lkml.org/lkml/2005/9/23/97
+>=20
+> I test it in 2.6.18.1 (with initrd) and 2.6.18 (with and without initrd).
 
-/*
-  * Command line: opannotate -a event:CPU_CLK_UNHALTED 
-/usr/src/linux-2.6.18/vmlinux
-  *
-  * Interpretation of command line:
-  * Output annotated assembly listing with samples
-  *
-  * CPU: AMD64 processors, speed 2600.01 MHz (estimated)
-  * Counted CPU_CLK_UNHALTED events (Cycles outside of halt state) with a unit 
-mask of 0x00 (No unit mask) count 10000
-  */
+for 2.6.18 there is a patch which makes AHCI sata behave correctly on
+suspend/resume. it was originally written by Forrest Zhao and is now
+included in the 2.6.19-rcX tree
 
-ffffffff803e9860 <ip_route_input>: /* ip_route_input total: 543098  2.5487 */
+you can apply the libata patch that went into 2.6.18-mm1. it is to be found
+in the broken-out dir of 2.6.18-mm1 and named
+git-libata-all-2.6.18-mm1.patch
 
-/* relevant extract from ip_route_input() */
-    600  0.0028 :ffffffff803e98b3:       mov    $0xffffffff806375e0,%rsi
-    883  0.0041 :ffffffff803e98ba:       mov    %rax,%rdx
-      6 2.8e-05 :ffffffff803e98bd:       mov    %rsi,%rcx
-   2281  0.0107 :ffffffff803e98c0:       cmp    0xf0(%rdx),%r12d
-   9767  0.0458 :ffffffff803e98c7:       jne    ffffffff803e98f1 
-<ip_route_input+0x91>
-    108 5.1e-04 :ffffffff803e98c9:       cmp    0xf4(%rdx),%r14d
-  41459  0.1946 :ffffffff803e98d0:       jne    ffffffff803e98f1 
-<ip_route_input+0x91>
-    549  0.0026 :ffffffff803e98d2:       cmp    0xec(%rdx),%ebx
-  88604  0.4158 :ffffffff803e98d8:       jne    ffffffff803e98f1 
-<ip_route_input+0x91>
-    478  0.0022 :ffffffff803e98da:       mov    0xe8(%rdx),%eax
-    315  0.0015 :ffffffff803e98e0:       test   %eax,%eax
-    241  0.0011 :ffffffff803e98e2:       jne    ffffffff803e98f1 
-<ip_route_input+0x91>
-    248  0.0012 :ffffffff803e98e4:       cmp    0xfc(%rdx),%r13b
+when applying it to 2.6.18.1 you will get three rejects because the patches
+are already in 2.6.18.1. simply say 'n' -> 'n' on those three.=20
 
-   2314  0.0109 :ffffffff803e98eb:       je     ffffffff803ea3b3
-################ BEGIN
-    370  0.0017 :ffffffff803e98f1:       mov    %gs:0x8,%rax
-222769  1.0454 :ffffffff803e98fa:       incl   0x38(%rcx,%rax,1)
-################ END
-      6 2.8e-05 :ffffffff803e98fe:       mov    (%rdx),%rdx
-    833  0.0039 :ffffffff803e9901:       test   %rdx,%rdx
 
-__raw_get_cpu_var(rt_cache_stat).field++ appears to be very expensive
+>=20
+> Hardware: HP/Compaq nx6310
+>=20
+> --=20
+> Maciej Rutecki <maciej.rutecki@gmail.com>
+> http://www.unixy.pl
+> LTG - Linux Testers Group
+> (http://www.stardust.webpages.pl/ltg/wiki/)
 
-(about 18000 RT_CACHE_STAT_INC(in_hlist_search); are done per second, not an 
-impressive count in fact)
 
-Are segment prefixes that expensive ?
-Or is it only the first access to %gs:8 that is doing extra checks ?
-(because other RT_CACHE_STAT_INC() done in the same function dont have this cost)
-Or is it the loading of %rcx (done in ffffffff803e98bd) that is stalling ?
 
-I was wondering if avoiding a dependancy would help :
 
-As we dont have TLS support in kernel yet, I was considering trying (just for 
-experimentation) to stick a struct rt_cache_stat in pda, since it avoids one step.
 
-#if defined(RT_CACHE_STAT_IN_PDA)
-# define RT_CACHE_STAT_INC(field) add_pda(rt_cache_stat.field, 1)
-# define addr_of_rt_cache_stat(cpu) &cpu_pda(cpu)->rt_cache_stat
-#else
-   static DEFINE_PER_CPU(struct rt_cache_stat, rt_cache_stat);
-# define RT_CACHE_STAT_INC(field) (__raw_get_cpu_var(rt_cache_stat).field++)
-# define addr_of_rt_cache_stat(cpu) &per_cpu(rt_cache_stat, cpu)
-#endif
 
-so that RT_CACHE_STAT_INC(field) would map to
 
-    addl $1,%gs:OFFSET  /* no register needed */
 
-Thank you
-Eric
+
+
+
+gruss
+  mlo
+--
+Dipl.-Ing. Martin Lorenz
+
+            They that can give up essential liberty=20
+	    to obtain a little temporary safety=20
+	    deserve neither liberty nor safety.
+                                   Benjamin Franklin
+
+please encrypt your mail to me
+GnuPG key-ID: F1AAD37D
+get it here:
+http://blackhole.pca.dfn.de:11371/pks/lookup?op=3Dget&search=3D0xF1AAD37D
+
+ICQ UIN: 33588107
+
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFSvNvR1ITOvGq030RAs/xAJ9hK4fvvLD7eFB5vbvD7nGIK9kSFwCgpwlC
+XQ5oZYHNWvEYF2o12HnbxlE=
+=YVak
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--

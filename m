@@ -1,239 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753329AbWKCQs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753371AbWKCQtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753329AbWKCQs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 11:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753374AbWKCQs1
+	id S1753371AbWKCQtS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 11:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753376AbWKCQtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 11:48:27 -0500
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:48991 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1753373AbWKCQs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 11:48:26 -0500
-From: Thomas Klein <osstklei@de.ibm.com>
-Subject: [PATCH 2.6.19-rc4 3/3] ehea: 64K page support fix
-Date: Fri, 3 Nov 2006 17:48:23 +0100
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 8445
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Christoph Raisch <raisch@de.ibm.com>,
-       "Jan-Bernd Themann" <ossthema@de.ibm.com>,
-       "Jan-Bernd Themann" <themann@de.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 3 Nov 2006 11:49:18 -0500
+Received: from amsfep20-int.chello.nl ([62.179.120.15]:48024 "EHLO
+	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1753371AbWKCQtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 11:49:17 -0500
+Subject: [PATCH] lockdep: fix delayacct locking bug
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>,
+       arjan <arjan@infradead.org>
+Content-Type: text/plain
+Date: Fri, 03 Nov 2006 17:48:47 +0100
+Message-Id: <1162572527.26989.22.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611031748.23785.osstklei@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes 64k page support by using PAGE_MASK and appropriate pagesize defines in several places.
 
-Signed-off-by: Thomas Klein <tklein@de.ibm.com>
-----
- drivers/net/ehea/ehea_ethtool.c |    2 +-
- drivers/net/ehea/ehea_main.c    |   26 +++++++++++++-------------
- drivers/net/ehea/ehea_phyp.c    |    2 +-
- drivers/net/ehea/ehea_phyp.h    |    6 ++++--
- drivers/net/ehea/ehea_qmr.c     |   13 +++++++------
- 5 files changed, 26 insertions(+), 23 deletions(-)
+======================================================
+[ INFO: soft-safe -> soft-unsafe lock order detected ]
+2.6.19-rc4 #1
+------------------------------------------------------
+mm_tester/1875 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
+ (&tsk->delays->lock){--..}, at: [<c0156652>] __delayacct_add_tsk+0x131/0x1d3
 
-diff -Nurp git.linux-2.6.base/drivers/net/ehea/ehea_ethtool.c git.linux-2.6/drivers/net/ehea/ehea_ethtool.c
---- git.linux-2.6.base/drivers/net/ehea/ehea_ethtool.c	2006-11-03 16:41:36.000000000 +0100
-+++ git.linux-2.6/drivers/net/ehea/ehea_ethtool.c	2006-11-03 12:43:16.000000000 +0100
-@@ -238,7 +238,7 @@ static void ehea_get_ethtool_stats(struc
- 	data[i++] = port->port_res[0].swqe_refill_th;
- 	data[i++] = port->resets;
- 
--	cb6 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb6 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb6) {
- 		ehea_error("no mem for cb6");
- 		return;
-diff -Nurp git.linux-2.6.base/drivers/net/ehea/ehea_main.c git.linux-2.6/drivers/net/ehea/ehea_main.c
---- git.linux-2.6.base/drivers/net/ehea/ehea_main.c	2006-11-03 16:41:36.000000000 +0100
-+++ git.linux-2.6/drivers/net/ehea/ehea_main.c	2006-11-03 12:43:16.000000000 +0100
-@@ -92,7 +92,7 @@ static struct net_device_stats *ehea_get
- 
- 	memset(stats, 0, sizeof(*stats));
- 
--	cb2 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb2 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb2) {
- 		ehea_error("no mem for cb2");
- 		goto out;
-@@ -586,8 +586,8 @@ int ehea_sense_port_attr(struct ehea_por
- 	u64 hret;
- 	struct hcp_ehea_port_cb0 *cb0;
- 
--	cb0 = kzalloc(H_CB_ALIGNMENT, GFP_ATOMIC);   /* May be called via */
--	if (!cb0) {                                  /* ehea_neq_tasklet() */
-+	cb0 = kzalloc(PAGE_SIZE, GFP_ATOMIC);   /* May be called via */
-+	if (!cb0) {                             /* ehea_neq_tasklet() */
- 		ehea_error("no mem for cb0");
- 		ret = -ENOMEM;
- 		goto out;
-@@ -670,7 +670,7 @@ int ehea_set_portspeed(struct ehea_port 
- 	u64 hret;
- 	int ret = 0;
- 
--	cb4 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb4 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb4) {
- 		ehea_error("no mem for cb4");
- 		ret = -ENOMEM;
-@@ -985,7 +985,7 @@ static int ehea_configure_port(struct eh
- 	struct hcp_ehea_port_cb0 *cb0;
- 
- 	ret = -ENOMEM;
--	cb0 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb0 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb0)
- 		goto out;
- 
-@@ -1443,7 +1443,7 @@ static int ehea_set_mac_addr(struct net_
- 		goto out;
- 	}
- 
--	cb0 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb0 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb0) {
- 		ehea_error("no mem for cb0");
- 		ret = -ENOMEM;
-@@ -1501,7 +1501,7 @@ static void ehea_promiscuous(struct net_
- 	if ((enable && port->promisc) || (!enable && !port->promisc))
- 		return;
- 
--	cb7 = kzalloc(H_CB_ALIGNMENT, GFP_ATOMIC);
-+	cb7 = kzalloc(PAGE_SIZE, GFP_ATOMIC);
- 	if (!cb7) {
- 		ehea_error("no mem for cb7");
- 		goto out;
-@@ -1870,7 +1870,7 @@ static void ehea_vlan_rx_register(struct
- 
- 	port->vgrp = grp;
- 
--	cb1 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb1 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb1) {
- 		ehea_error("no mem for cb1");
- 		goto out;
-@@ -1899,7 +1899,7 @@ static void ehea_vlan_rx_add_vid(struct 
- 	int index;
- 	u64 hret;
- 
--	cb1 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb1 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb1) {
- 		ehea_error("no mem for cb1");
- 		goto out;
-@@ -1935,7 +1935,7 @@ static void ehea_vlan_rx_kill_vid(struct
- 	if (port->vgrp)
- 		port->vgrp->vlan_devices[vid] = NULL;
- 
--	cb1 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb1 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb1) {
- 		ehea_error("no mem for cb1");
- 		goto out;
-@@ -1968,7 +1968,7 @@ int ehea_activate_qp(struct ehea_adapter
- 	u64 dummy64 = 0;
- 	struct hcp_modify_qp_cb0* cb0;
- 
--	cb0 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb0 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb0) {
- 		ret = -ENOMEM;
- 		goto out;
-@@ -2269,7 +2269,7 @@ int ehea_sense_adapter_attr(struct ehea_
- 	u64 hret;
- 	int ret;
- 
--	cb = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb) {
- 		ret = -ENOMEM;
- 		goto out;
-@@ -2340,7 +2340,7 @@ static int ehea_setup_single_port(struct
- 		goto out;
- 
- 	/* Enable Jumbo frames */
--	cb4 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-+	cb4 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!cb4) {
- 		ehea_error("no mem for cb4");
- 	} else {
-diff -Nurp git.linux-2.6.base/drivers/net/ehea/ehea_phyp.c git.linux-2.6/drivers/net/ehea/ehea_phyp.c
---- git.linux-2.6.base/drivers/net/ehea/ehea_phyp.c	2006-11-03 16:41:36.000000000 +0100
-+++ git.linux-2.6/drivers/net/ehea/ehea_phyp.c	2006-11-03 12:43:16.000000000 +0100
-@@ -506,7 +506,7 @@ u64 ehea_h_register_rpage_mr(const u64 a
- 			     const u8 pagesize, const u8 queue_type,
- 			     const u64 log_pageaddr, const u64 count)
+and this task is already holding:
+ (&sighand->siglock){.+..}, at: [<c0156b69>] taskstats_exit_send+0x52/0x3b2
+which would create a new lock dependency:
+ (&sighand->siglock){.+..} -> (&tsk->delays->lock){--..}
+
+but this new dependency connects a soft-irq-safe lock:
+ (&sighand->siglock){.+..}
+... which became soft-irq-safe at:
+  [<c013d0da>] mark_lock+0x5c/0x38c
+  [<c013de51>] __lock_acquire+0x348/0x971
+  [<c013ea35>] lock_acquire+0x5c/0x77
+  [<c032132d>] _spin_lock_irqsave+0x3c/0x4b
+  [<c012fda9>] lock_task_sighand+0x1f/0x3c
+  [<c01309fd>] group_send_sig_info+0x25/0x56
+  [<c0130a4c>] send_group_sig_info+0x1e/0x30
+  [<c012a7c6>] it_real_fn+0x1d/0x5f
+  [<c013a453>] hrtimer_run_queues+0xf2/0x14a
+  [<c012e4fa>] run_timer_softirq+0x20/0x166
+  [<c012b307>] __do_softirq+0x6b/0xe6
+  [<c0106279>] do_softirq+0x61/0xd1
+  [<ffffffff>] 0xffffffff
+
+to a soft-irq-unsafe lock:
+ (&tsk->delays->lock){--..}
+... which became soft-irq-unsafe at:
+...  [<c013d0da>] mark_lock+0x5c/0x38c
+  [<c013deec>] __lock_acquire+0x3e3/0x971
+  [<c013ea35>] lock_acquire+0x5c/0x77
+  [<c032108a>] _spin_lock+0x33/0x3e
+  [<c015642b>] delayacct_end+0x58/0x7b
+  [<c015651e>] __delayacct_blkio_end+0x37/0x3a
+  [<c0157c0f>] sync_page+0x38/0x3b
+  [<c031f920>] __wait_on_bit_lock+0x2a/0x52
+  [<c0157bc9>] __lock_page+0x5b/0x61
+  [<c0159bc9>] read_cache_page+0xea/0x13a
+  [<c01abc05>] read_dev_sector+0x2e/0x84
+  [<c01ad364>] read_lba+0x5c/0xc0
+  [<c01ad602>] efi_partition+0x8f/0x6ed
+  [<c01abf3f>] rescan_partitions+0x106/0x20b
+  [<c019655b>] do_open+0x2aa/0x3ae
+  [<c01966b4>] blkdev_get+0x55/0x60
+  [<c01abdd7>] register_disk+0x17c/0x1de
+  [<c01e1810>] add_disk+0x36/0x41
+  [<c02775a7>] ide_disk_probe+0x8ef/0x918
+  [<c026b40f>] generic_ide_probe+0x1f/0x20
+  [<c02586a3>] really_probe+0x39/0xda
+  [<c02588cb>] __driver_attach+0x69/0xa1
+  [<c0257dbe>] bus_for_each_dev+0x3a/0x5c
+  [<c02585c3>] driver_attach+0x16/0x18
+  [<c0258092>] bus_add_driver+0x61/0x165
+  [<c010049b>] init+0x123/0x2d1
+  [<c0104be7>] kernel_thread_helper+0x7/0x10
+  [<ffffffff>] 0xffffffff
+
+other info that might help us debug this:
+
+<snip 607 lines of other output>
+
+stack backtrace:
+ [<c0104eb6>] dump_trace+0x69/0x1b6
+ [<c010501b>] show_trace_log_lvl+0x18/0x2c
+ [<c010562e>] show_trace+0xf/0x11
+ [<c01056de>] dump_stack+0x15/0x17
+ [<c013d7f1>] check_usage+0x262/0x26c
+ [<c013e331>] __lock_acquire+0x828/0x971
+ [<c013ea35>] lock_acquire+0x5c/0x77
+ [<c032108a>] _spin_lock+0x33/0x3e
+ [<c0156652>] __delayacct_add_tsk+0x131/0x1d3
+ [<c0156b94>] taskstats_exit_send+0x7d/0x3b2
+ [<c01294ad>] do_exit+0x1f6/0x7f0
+ [<c0129b37>] complete_and_exit+0x0/0x13
+ [<c0103f5b>] syscall_call+0x7/0xb
+DWARF2 unwinder stuck at syscall_call+0x7/0xb
+
+Leftover inexact backtrace:
+
+ =======================
+
+Make the delayacct lock irqsave; this avoids the possible deadlock where
+an interrupt is taken while holding the delayacct lock which needs to take
+the delayacct lock.
+
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ kernel/delayacct.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+Index: linux-2.6-twins/kernel/delayacct.c
+===================================================================
+--- linux-2.6-twins.orig/kernel/delayacct.c	2006-11-03 17:28:35.000000000 +0100
++++ linux-2.6-twins/kernel/delayacct.c	2006-11-03 17:28:59.000000000 +0100
+@@ -66,6 +66,7 @@ static void delayacct_end(struct timespe
  {
--	if ((count > 1) && (log_pageaddr & 0xfff)) {
-+	if ((count > 1) && (log_pageaddr & ~PAGE_MASK)) {
- 		ehea_error("not on pageboundary");
- 		return H_PARAMETER;
- 	}
-diff -Nurp git.linux-2.6.base/drivers/net/ehea/ehea_phyp.h git.linux-2.6/drivers/net/ehea/ehea_phyp.h
---- git.linux-2.6.base/drivers/net/ehea/ehea_phyp.h	2006-11-03 16:41:36.000000000 +0100
-+++ git.linux-2.6/drivers/net/ehea/ehea_phyp.h	2006-11-03 12:43:16.000000000 +0100
-@@ -81,14 +81,16 @@ static inline u32 get_longbusy_msecs(int
- static inline void hcp_epas_ctor(struct h_epas *epas, u64 paddr_kernel,
- 				 u64 paddr_user)
- {
--	epas->kernel.addr = ioremap(paddr_kernel, PAGE_SIZE);
-+	/* To support 64k pages we must round to 64k page boundary */
-+	epas->kernel.addr = ioremap((paddr_kernel & PAGE_MASK), PAGE_SIZE) +
-+			    (paddr_kernel & ~PAGE_MASK);
- 	epas->user.addr = paddr_user;
+ 	struct timespec ts;
+ 	s64 ns;
++	unsigned long flags;
+ 
+ 	do_posix_clock_monotonic_gettime(end);
+ 	ts = timespec_sub(*end, *start);
+@@ -73,10 +74,10 @@ static void delayacct_end(struct timespe
+ 	if (ns < 0)
+ 		return;
+ 
+-	spin_lock(&current->delays->lock);
++	spin_lock_irqsave(&current->delays->lock, flags);
+ 	*total += ns;
+ 	(*count)++;
+-	spin_unlock(&current->delays->lock);
++	spin_unlock_irqrestore(&current->delays->lock, flags);
  }
  
- static inline void hcp_epas_dtor(struct h_epas *epas)
+ void __delayacct_blkio_start(void)
+@@ -104,6 +105,7 @@ int __delayacct_add_tsk(struct taskstats
+ 	s64 tmp;
+ 	struct timespec ts;
+ 	unsigned long t1,t2,t3;
++	unsigned long flags;
+ 
+ 	/* Though tsk->delays accessed later, early exit avoids
+ 	 * unnecessary returning of other data
+@@ -136,14 +138,14 @@ int __delayacct_add_tsk(struct taskstats
+ 
+ 	/* zero XXX_total, non-zero XXX_count implies XXX stat overflowed */
+ 
+-	spin_lock(&tsk->delays->lock);
++	spin_lock_irqsave(&tsk->delays->lock, flags);
+ 	tmp = d->blkio_delay_total + tsk->delays->blkio_delay;
+ 	d->blkio_delay_total = (tmp < d->blkio_delay_total) ? 0 : tmp;
+ 	tmp = d->swapin_delay_total + tsk->delays->swapin_delay;
+ 	d->swapin_delay_total = (tmp < d->swapin_delay_total) ? 0 : tmp;
+ 	d->blkio_count += tsk->delays->blkio_count;
+ 	d->swapin_count += tsk->delays->swapin_count;
+-	spin_unlock(&tsk->delays->lock);
++	spin_unlock_irqrestore(&tsk->delays->lock, flags);
+ 
+ done:
+ 	return 0;
+@@ -152,11 +154,12 @@ done:
+ __u64 __delayacct_blkio_ticks(struct task_struct *tsk)
  {
- 	if (epas->kernel.addr)
--		iounmap(epas->kernel.addr);
-+		iounmap((void __iomem*)((u64)epas->kernel.addr & PAGE_MASK));
+ 	__u64 ret;
++	unsigned long flags;
  
- 	epas->user.addr = 0;
- 	epas->kernel.addr = 0;
-diff -Nurp git.linux-2.6.base/drivers/net/ehea/ehea_qmr.c git.linux-2.6/drivers/net/ehea/ehea_qmr.c
---- git.linux-2.6.base/drivers/net/ehea/ehea_qmr.c	2006-11-03 17:04:11.000000000 +0100
-+++ git.linux-2.6/drivers/net/ehea/ehea_qmr.c	2006-11-03 12:43:16.000000000 +0100
-@@ -512,7 +512,7 @@ int ehea_reg_mr_adapter(struct ehea_adap
+-	spin_lock(&tsk->delays->lock);
++	spin_lock_irqsave(&tsk->delays->lock, flags);
+ 	ret = nsec_to_clock_t(tsk->delays->blkio_delay +
+ 				tsk->delays->swapin_delay);
+-	spin_unlock(&tsk->delays->lock);
++	spin_unlock_irqrestore(&tsk->delays->lock, flags);
+ 	return ret;
+ }
  
- 	start = KERNELBASE;
- 	end = (u64)high_memory;
--	nr_pages = (end - start) / PAGE_SIZE;
-+	nr_pages = (end - start) / EHEA_PAGESIZE;
- 
- 	pt =  kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!pt) {
-@@ -538,9 +538,9 @@ int ehea_reg_mr_adapter(struct ehea_adap
- 		if (nr_pages > 1) {
- 			u64 num_pages = min(nr_pages, (u64)512);
- 			for (i = 0; i < num_pages; i++)
--				pt[i] = virt_to_abs((void*)(((u64)start)
--							     + ((k++) *
--								PAGE_SIZE)));
-+				pt[i] = virt_to_abs((void*)(((u64)start) +
-+							    ((k++) *
-+							     EHEA_PAGESIZE)));
- 
- 			hret = ehea_h_register_rpage_mr(adapter->handle,
- 							adapter->mr.handle, 0,
-@@ -548,8 +548,9 @@ int ehea_reg_mr_adapter(struct ehea_adap
- 							num_pages);
- 			nr_pages -= num_pages;
- 		} else {
--			u64 abs_adr = virt_to_abs((void*)(((u64)start)
--							   + (k * PAGE_SIZE)));
-+			u64 abs_adr = virt_to_abs((void*)(((u64)start) +
-+							  (k * EHEA_PAGESIZE)));
-+
- 			hret = ehea_h_register_rpage_mr(adapter->handle,
- 							adapter->mr.handle, 0,
- 							0, abs_adr,1);
+
+

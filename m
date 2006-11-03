@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753506AbWKCTvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753504AbWKCTwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753506AbWKCTvr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 14:51:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753504AbWKCTvq
+	id S1753504AbWKCTwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 14:52:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753492AbWKCTwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 14:51:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28690 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1753492AbWKCTvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 14:51:45 -0500
-Date: Fri, 3 Nov 2006 20:51:46 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-Message-ID: <20061103195146.GK13381@stusta.de>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz> <20061103101901.GA11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz> <20061103122126.GC11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz>
+	Fri, 3 Nov 2006 14:52:09 -0500
+Received: from mx2.suse.de ([195.135.220.15]:62421 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1753505AbWKCTwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 14:52:06 -0500
+From: Andi Kleen <ak@suse.de>
+To: Amul Shah <amul.shah@unisys.com>
+Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when   reserving MP Tables located in high memory
+Date: Fri, 3 Nov 2006 20:52:05 +0100
+User-Agent: KMail/1.9.5
+Cc: vgoyal@in.ibm.com, LKML <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>
+References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com> <20061103171757.GC9371@in.ibm.com> <1162583277.19677.108.camel@ustr-linux-shaha1.unisys.com>
+In-Reply-To: <1162583277.19677.108.camel@ustr-linux-shaha1.unisys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611032052.05738.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2006 at 02:31:46PM +0100, Mikulas Patocka wrote:
-> >>>I am fully aware the counters are effectively 48-bit.  If they were
-> >>>just 32-bit, you would likely have hit the problem yourself already.
-> >>
-> >>Given the seek time 0.01s, 31-bit value would last for minimum time of 248
-> >>days when doing only syncs and nothing else. 47-bit value will last for
-> >>reasonably long.
-> >
-> >So you can at most do one transaction per drive seek?  That would
-> >definitely solve the overflow case, but hardly sounds like a
-> >high-performance filesystem. :)
-> 
-> Really it can batch any number of modifications into one transaction 
-> (unless fsync or sync is called). Transaction is closed only on 
-> fsync/sync, if 2 minutes pass (can be adjusted) or when the disk runs out 
-> of space.
+On Friday 03 November 2006 20:47, Amul Shah wrote:
 
-O_DIRECT ?
-O_SYNC ?
+> Andi, Vivek is right.  We can use end_pfn_map.  My observation is wrong.
 
-> Mikulas
+Ok. Then my patch should work?
 
-cu
-Adrian
+> Vivek, the problem condition is in generic reserve_bootmem_core
+> (mm/bootmem.c), where this
+> 	BUG_ON(PFN_DOWN(addr) >= bdata->node_low_pfn);
+> checks the target address against the top of that node's memory.
 
--- 
+In general these early BUGs should be eliminated - they are always
+messy because the kernel exception handlers are not fully functional
+yet. printks or worst case panics are better.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Andi

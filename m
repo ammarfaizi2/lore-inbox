@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753190AbWKCJNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWKCJSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753190AbWKCJNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 04:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753192AbWKCJNJ
+	id S1751388AbWKCJSh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 04:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752339AbWKCJSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 04:13:09 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:51288 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1753190AbWKCJNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 04:13:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=fOrpoLRiBz4sVNaYpZwDRoznlMJ+XyIXDu1iVE+XbVZ5H6oljZkHst3BvFblmdyptFwObhx5s4/JHWzPHQfHD5xLwgMDFW7vYBPnmtb+yI+nCtuhGVb0eDiQeCIeQQgKum87NJgK7ecDdhAAfWWGZ7N9q/g5yvbIScrGsR0rKM4=
-Message-ID: <84144f020611030113u119a3759q11a3ac4cfacccb74@mail.gmail.com>
-Date: Fri, 3 Nov 2006 11:13:04 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH 2/3] fsstack: Generic get/set lower object functions
-Cc: "Josef Sipek" <jsipek@fsl.cs.sunysb.edu>,
-       "Mark Williamson" <mark.williamson@cl.cam.ac.uk>,
-       linux-kernel@vger.kernel.org, "Michael Halcrow" <mhalcrow@us.ibm.com>,
-       "Erez Zadok" <ezk@cs.sunysb.edu>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Al Viro" <viro@ftp.linux.org.uk>, "Andrew Morton" <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <1162535103.5635.20.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Nov 2006 04:18:37 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:51919 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751067AbWKCJSg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 04:18:36 -0500
+Date: Fri, 3 Nov 2006 12:16:45 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: zhou drangon <drangon.mail@gmail.com>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+       Oleg Verych <olecom@flower.upol.cz>, Pavel Machek <pavel@ucw.cz>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, drangon.zhou@gmail.com
+Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20061103091645.GA935@2ka.mipt.ru>
+References: <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru> <slrnekhpbr.2j1.olecom@flower.upol.cz> <20061101185745.GA12440@2ka.mipt.ru> <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com> <aaf959cb0611011829k36deda6ahe61bcb9bf8e612e1@mail.gmail.com> <aaf959cb0611011830j1ca3e469tc4a6af3a2a010fa@mail.gmail.com> <4549A261.9010007@cosmosbay.com> <aaf959cb0611021842m2a4e73d9w874f6334d4d9a25a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-References: <20061102035928.679.60601.stgit@thor.fsl.cs.sunysb.edu>
-	 <1162483565.6299.98.camel@lade.trondhjem.org>
-	 <20061103032702.GB13499@filer.fsl.cs.sunysb.edu>
-	 <200611030345.51167.mark.williamson@cl.cam.ac.uk>
-	 <20061103035130.GC13499@filer.fsl.cs.sunysb.edu>
-	 <1162535103.5635.20.camel@lade.trondhjem.org>
-X-Google-Sender-Auth: 71feea93d0d86025
+In-Reply-To: <aaf959cb0611021842m2a4e73d9w874f6334d4d9a25a@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 03 Nov 2006 12:16:48 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/3/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> Why? What is so special about the details that you need to hide them?
-> This is a union that will always be part of a structure anyway.
+On Fri, Nov 03, 2006 at 10:42:04AM +0800, zhou drangon (drangon.mail@gmail.com) wrote:
+> As for the VFS system, when we introduce the AIO machinism, we add aio_read,
+> aio_write, etc... to file ops, and then we make the read, write op to
+> call aio_read,
+> aio_write, so that we only remain one implement in kernel.
+> Can we do event machinism the same way?
+> when kevent is robust enough, can we implement epoll/select/io_submit etc...
+> base on kevent ??
+> In this way, we can simplified the kernel, and epoll can gain
+> improvement from kevent.
 
-Nothing. Josef, I think we should make them unions.
+There is AIO implementaion on top of kevent, although it was confirmed
+that it has a good design, except minor API layering changes, it was
+postponed for a while.
+
+-- 
+	Evgeniy Polyakov

@@ -1,32 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWKCUtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWKCUsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWKCUtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 15:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWKCUtN
+	id S932106AbWKCUsg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWKCUrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 15:49:13 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:8410 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932126AbWKCUtC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 15:49:02 -0500
-Message-ID: <454BAB43.7010305@pathscale.com>
-Date: Fri, 03 Nov 2006 12:49:07 -0800
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: olson@pathscale.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] htirq: Refactor so we only have one function that
- writes to the chip.
-References: <454A7B0F.7060701@pathscale.com>	<m1odrpymqc.fsf@ebiederm.dsl.xmission.com>	<454B7B70.9060104@pathscale.com>	<m1d584xutk.fsf@ebiederm.dsl.xmission.com>	<454B880A.1010802@pathscale.com>	<m1zmb8wexd.fsf@ebiederm.dsl.xmission.com>	<454B8E19.90300@pathscale.com>	<m1irhww9f9.fsf_-_@ebiederm.dsl.xmission.com> <m1ejskw9as.fsf_-_@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1ejskw9as.fsf_-_@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Nov 2006 15:47:19 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:61621 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932122AbWKCUrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:47:10 -0500
+Date: Fri, 3 Nov 2006 12:47:07 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+Message-Id: <20061103204707.15739.70669.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
+References: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 6/7] Use tasklet to call balancing
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+Use tasklet to balance sched domains.
 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Call rebalance_tick (renamed to rebalance_domains) from a tasklet.
 
-Acked-by: Bryan O'Sullivan <bos@pathscale.com>
+We calculate the earliest time for each layer of sched domains to be
+rescanned (this is the rescan time for idle) and use the earliest
+of those to schedule the tasklet again via a new field "next_balance"
+added to struct rq.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.19-rc4-mm2/kernel/sched.c
+===================================================================
+--- linux-2.6.19-rc4-mm2.orig/kernel/sched.c	2006-11-03 12:54:30.683565162 -0600
++++ linux-2.6.19-rc4-mm2/kernel/sched.c	2006-11-03 12:58:39.263918629 -0600
+@@ -228,6 +228,7 @@ struct rq {
+ 	unsigned long expired_timestamp;
+ 	unsigned long long timestamp_last_tick;
+ 	struct task_struct *curr, *idle;
++	unsigned long next_balance;
+ 	struct mm_struct *prev_mm;
+ 	struct prio_array *active, *expired, arrays[2];
+ 	int best_expired_prio;
+@@ -2842,16 +2843,18 @@ static void update_load(struct rq *this_
+ }
+ 
+ /*
+- * rebalance_tick will get called every timer tick, on every CPU.
++ * rebalance_domains is triggered when needed via a tasklet from the
++ * scheduler tick.
+  *
+  * It checks each scheduling domain to see if it is due to be balanced,
+  * and initiates a balancing operation if so.
+  *
+  * Balancing parameters are set up in arch_init_sched_domains.
+  */
+-static void
+-rebalance_tick(int this_cpu, struct rq *this_rq)
++static void rebalance_domains(unsigned long dummy)
+ {
++	int this_cpu = smp_processor_id();
++	struct rq *this_rq = cpu_rq(this_cpu);
+ 	unsigned long interval;
+ 	struct sched_domain *sd;
+ 	/*
+@@ -2860,6 +2863,8 @@ rebalance_tick(int this_cpu, struct rq *
+ 	 */
+ 	enum idle_type idle = !this_rq->nr_running ?
+ 				SCHED_IDLE : NOT_IDLE;
++	/* Earliest time when we have to call rebalance_domains again */
++	unsigned long next_balance = jiffies + 60*HZ;
+ 
+ 	for_each_domain(this_cpu, sd) {
+ 		if (!(sd->flags & SD_LOAD_BALANCE))
+@@ -2885,8 +2890,13 @@ rebalance_tick(int this_cpu, struct rq *
+ 			}
+ 			sd->last_balance += interval;
+ 		}
++		next_balance = min(next_balance,
++				sd->last_balance + sd->balance_interval);
+ 	}
++	this_rq->next_balance = next_balance;
+ }
++
++DECLARE_TASKLET(rebalance, &rebalance_domains, 0L);
+ #else
+ /*
+  * on UP we do not need to balance between CPUs:
+@@ -3138,7 +3148,8 @@ void scheduler_tick(void)
+ 		task_running_tick(rq, p);
+ #ifdef CONFIG_SMP
+ 	update_load(rq);
+-	rebalance_tick(cpu, rq);
++	if (jiffies >= rq->next_balance)
++		tasklet_schedule(&rebalance);
+ #endif
+ }
+ 

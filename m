@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753542AbWKCVS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753550AbWKCVWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753542AbWKCVS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 16:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753543AbWKCVS5
+	id S1753550AbWKCVWc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 16:22:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753547AbWKCVWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 16:18:57 -0500
-Received: from usea-naimss2.unisys.com ([192.61.61.104]:36612 "EHLO
-	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S1753542AbWKCVS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 16:18:56 -0500
-Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when   
-	reserving MP Tables located in high memory
-From: Amul Shah <amul.shah@unisys.com>
-To: Andi Kleen <ak@suse.de>
-Cc: vgoyal@in.ibm.com, LKML <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>
-In-Reply-To: <200611032052.05738.ak@suse.de>
-References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com>
-	 <20061103171757.GC9371@in.ibm.com>
-	 <1162583277.19677.108.camel@ustr-linux-shaha1.unisys.com>
-	 <200611032052.05738.ak@suse.de>
+	Fri, 3 Nov 2006 16:22:32 -0500
+Received: from pat.uio.no ([129.240.10.4]:18051 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1753543AbWKCVWb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 16:22:31 -0500
+Subject: Re: [PATCH 2/3] fsstack: Generic get/set lower object functions
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>,
+       Michael Halcrow <mhalcrow@us.ibm.com>, Erez Zadok <ezk@cs.sunysb.edu>,
+       Christoph Hellwig <hch@infradead.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20061103204743.GC16506@filer.fsl.cs.sunysb.edu>
+References: <20061102035928.679.60601.stgit@thor.fsl.cs.sunysb.edu>
+	 <20061102035928.679.5819.stgit@thor.fsl.cs.sunysb.edu>
+	 <1162483565.6299.98.camel@lade.trondhjem.org>
+	 <20061103204743.GC16506@filer.fsl.cs.sunysb.edu>
 Content-Type: text/plain
-Date: Fri, 03 Nov 2006 16:17:39 -0500
-Message-Id: <1162588660.19677.118.camel@ustr-linux-shaha1.unisys.com>
+Date: Fri, 03 Nov 2006 16:22:22 -0500
+Message-Id: <1162588942.5629.101.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Nov 2006 21:18:38.0129 (UTC) FILETIME=[A0E23A10:01C6FF8D]
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.67, required 12,
+	autolearn=disabled, AWL 1.33, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-03 at 20:52 +0100, Andi Kleen wrote:
-> On Friday 03 November 2006 20:47, Amul Shah wrote:
+On Fri, 2006-11-03 at 15:47 -0500, Josef Sipek wrote: 
+> I was thinking about this a bit, and it would seem that not having get/set
+> function pretty much kills the reson to have generic pointer structures at
+> all.
 > 
-> > Andi, Vivek is right.  We can use end_pfn_map.  My observation is wrong.
-> 
-> Ok. Then my patch should work?
+> Would it make sense to change filesystems like ecryptfs to open-code all
+> these things instead of using _their own_ get/set functions (e.g.,
+> ecryptfs_inode_to_lower)?
+>
+> Other posibility is to move the lower pointers into generic VFS objects in
+> some clever way (not to waste memory on regular filesystems) - this way, the
+> stackable filesystems can still share some parts.
 
-The patch does work on a 2.6.16 derived kernel (SLES 10 kernel).  The
-2.6.19-rc4 kernel is doing some funny things when I use it as a kdump
-kernel (regardless of the patch).
+In order for this to be useful, you and the ecryptfs folks need to sit
+down and figure out what functionality all these stackable filesystems
+want to share.
 
-> > Vivek, the problem condition is in generic reserve_bootmem_core
-> > (mm/bootmem.c), where this
-> > 	BUG_ON(PFN_DOWN(addr) >= bdata->node_low_pfn);
-> > checks the target address against the top of that node's memory.
-> 
-> In general these early BUGs should be eliminated - they are always
-> messy because the kernel exception handlers are not fully functional
-> yet. printks or worst case panics are better.
-> 
-> -Andi
+For instance, there is nothing wrong with moving ecryptfs_d_revalidate()
+into a common libstackfs.c if it turns out that several filesystems want
+to do the same thing. This is particularly true if you find common
+locking needs (as is the case with ecryptfs_do_create(), for instance)
+since locks are a good example of something you never want to debug more
+than once.
 
-I assume that we are not going to change mm/bootmem.c since your patch
-works.  Am I right?
+Given all the fun things that can happen with intents in the lower_level
+filesystem lookup() code, then that is probably a prime candidate for
+some nice helper functions to make everyone's lives easy too...
 
-Amul
+Cheers,
+  Trond
 

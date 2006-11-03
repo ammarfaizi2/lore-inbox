@@ -1,103 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751803AbWKCNGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752860AbWKCNOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751803AbWKCNGL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 08:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752849AbWKCNGL
+	id S1752860AbWKCNOR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 08:14:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752864AbWKCNOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 08:06:11 -0500
-Received: from mexforward.lss.emc.com ([128.222.32.20]:39261 "EHLO
-	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1751803AbWKCNGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 08:06:09 -0500
-Message-ID: <454B3EB2.3010600@emc.com>
-Date: Fri, 03 Nov 2006 08:05:54 -0500
-From: Ric Wheeler <ric@emc.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-CC: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 3 Nov 2006 08:14:17 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50361 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1752860AbWKCNOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 08:14:16 -0500
+Subject: [PATCH] pdc202xx_old: Fix name clashes with PA-RISC
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matthew Wilcox <matthew@wil.cx>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.11.3.43433
-X-PerlMx-Spam: Gauge=, SPAM=0%, Reasons='EMC_BODY_1+ -3, EMC_BODY_PROD_1+ -3, EMC_BODY_PROD_2+ -3, EMC_FROM_0+ -2, __C230066_P1_5 0, __CP_URI_IN_BODY 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+Date: Fri, 03 Nov 2006 13:18:06 +0000
+Message-Id: <1162559886.12810.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+pdc_* functions are part of the global namespace for the PDC on PA-RISC
+systems and this means our choice of pdc_ causes collisions between the
+PDC globals and our static functions. Rename them to pdc202xx where they
+are for both 2024x and 2026x.
 
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Mikulas Patocka wrote:
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc4-mm1/drivers/ata/pata_pdc202xx_old.c linux-2.6.19-rc4-mm1/drivers/ata/pata_pdc202xx_old.c
+--- linux.vanilla-2.6.19-rc4-mm1/drivers/ata/pata_pdc202xx_old.c	2006-10-31 21:11:29.000000000 +0000
++++ linux-2.6.19-rc4-mm1/drivers/ata/pata_pdc202xx_old.c	2006-11-03 12:46:20.587840712 +0000
+@@ -21,7 +21,7 @@
+ #include <linux/libata.h>
+ 
+ #define DRV_NAME "pata_pdc202xx_old"
+-#define DRV_VERSION "0.2.1"
++#define DRV_VERSION "0.2.2"
+ 
+ /**
+  *	pdc2024x_pre_reset		-	probe begin
+@@ -63,7 +63,7 @@
+ }
+ 
+ /**
+- *	pdc_configure_piomode	-	set chip PIO timing
++ *	pdc202xx_configure_piomode	-	set chip PIO timing
+  *	@ap: ATA interface
+  *	@adev: ATA device
+  *	@pio: PIO mode
+@@ -73,7 +73,7 @@
+  *	versa
+  */
+ 
+-static void pdc_configure_piomode(struct ata_port *ap, struct ata_device *adev, int pio)
++static void pdc202xx_configure_piomode(struct ata_port *ap, struct ata_device *adev, int pio)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
+ 	int port = 0x60 + 4 * ap->port_no + 2 * adev->devno;
+@@ -98,7 +98,7 @@
+ }
+ 
+ /**
+- *	pdc_set_piomode	-	set initial PIO mode data
++ *	pdc202xx_set_piomode	-	set initial PIO mode data
+  *	@ap: ATA interface
+  *	@adev: ATA device
+  *
+@@ -106,13 +106,13 @@
+  *	but we want to set the PIO timing by default.
+  */
+ 
+-static void pdc_set_piomode(struct ata_port *ap, struct ata_device *adev)
++static void pdc202xx_set_piomode(struct ata_port *ap, struct ata_device *adev)
+ {
+-	pdc_configure_piomode(ap, adev, adev->pio_mode - XFER_PIO_0);
++	pdc202xx_configure_piomode(ap, adev, adev->pio_mode - XFER_PIO_0);
+ }
+ 
+ /**
+- *	pdc_configure_dmamode	-	set DMA mode in chip
++ *	pdc202xx_configure_dmamode	-	set DMA mode in chip
+  *	@ap: ATA interface
+  *	@adev: ATA device
+  *
+@@ -120,7 +120,7 @@
+  *	to occur.
+  */
+ 
+-static void pdc_set_dmamode(struct ata_port *ap, struct ata_device *adev)
++static void pdc202xx_set_dmamode(struct ata_port *ap, struct ata_device *adev)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
+ 	int port = 0x60 + 4 * ap->port_no + 2 * adev->devno;
+@@ -184,7 +184,7 @@
+ 
+ 	/* The DMA clocks may have been trashed by a reset. FIXME: make conditional
+ 	   and move to qc_issue ? */
+-	pdc_set_dmamode(ap, qc->dev);
++	pdc202xx_set_dmamode(ap, qc->dev);
+ 
+ 	/* Cases the state machine will not complete correctly without help */
+ 	if ((tf->flags & ATA_TFLAG_LBA48) ||  tf->protocol == ATA_PROT_ATAPI_DMA)
+@@ -254,7 +254,7 @@
+ 	adev->max_sectors = 256;
+ }
+ 
+-static struct scsi_host_template pdc_sht = {
++static struct scsi_host_template pdc202xx_sht = {
+ 	.module			= THIS_MODULE,
+ 	.name			= DRV_NAME,
+ 	.ioctl			= ata_scsi_ioctl,
+@@ -274,8 +274,8 @@
+ 
+ static struct ata_port_operations pdc2024x_port_ops = {
+ 	.port_disable	= ata_port_disable,
+-	.set_piomode	= pdc_set_piomode,
+-	.set_dmamode	= pdc_set_dmamode,
++	.set_piomode	= pdc202xx_set_piomode,
++	.set_dmamode	= pdc202xx_set_dmamode,
+ 	.mode_filter	= ata_pci_default_filter,
+ 	.tf_load	= ata_tf_load,
+ 	.tf_read	= ata_tf_read,
+@@ -307,8 +307,8 @@
+ 
+ static struct ata_port_operations pdc2026x_port_ops = {
+ 	.port_disable	= ata_port_disable,
+-	.set_piomode	= pdc_set_piomode,
+-	.set_dmamode	= pdc_set_dmamode,
++	.set_piomode	= pdc202xx_set_piomode,
++	.set_dmamode	= pdc202xx_set_dmamode,
+ 	.mode_filter	= ata_pci_default_filter,
+ 	.tf_load	= ata_tf_load,
+ 	.tf_read	= ata_tf_read,
+@@ -339,11 +339,11 @@
+ 	.host_stop	= ata_host_stop
+ };
+ 
+-static int pdc_init_one(struct pci_dev *dev, const struct pci_device_id *id)
++static int pdc202xx_init_one(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	static struct ata_port_info info[3] = {
+ 		{
+-			.sht = &pdc_sht,
++			.sht = &pdc202xx_sht,
+ 			.flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+ 			.pio_mask = 0x1f,
+ 			.mwdma_mask = 0x07,
+@@ -351,7 +351,7 @@
+ 			.port_ops = &pdc2024x_port_ops
+ 		},
+ 		{
+-			.sht = &pdc_sht,
++			.sht = &pdc202xx_sht,
+ 			.flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+ 			.pio_mask = 0x1f,
+ 			.mwdma_mask = 0x07,
+@@ -359,7 +359,7 @@
+ 			.port_ops = &pdc2026x_port_ops
+ 		},
+ 		{
+-			.sht = &pdc_sht,
++			.sht = &pdc202xx_sht,
+ 			.flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+ 			.pio_mask = 0x1f,
+ 			.mwdma_mask = 0x07,
+@@ -385,7 +385,7 @@
+ 	return ata_pci_init_one(dev, port_info, 2);
+ }
+ 
+-static const struct pci_device_id pdc[] = {
++static const struct pci_device_id pdc202xx[] = {
+ 	{ PCI_VDEVICE(PROMISE, PCI_DEVICE_ID_PROMISE_20246), 0 },
+ 	{ PCI_VDEVICE(PROMISE, PCI_DEVICE_ID_PROMISE_20262), 1 },
+ 	{ PCI_VDEVICE(PROMISE, PCI_DEVICE_ID_PROMISE_20263), 1 },
+@@ -395,28 +395,28 @@
+ 	{ },
+ };
+ 
+-static struct pci_driver pdc_pci_driver = {
++static struct pci_driver pdc202xx_pci_driver = {
+ 	.name 		= DRV_NAME,
+-	.id_table	= pdc,
+-	.probe 		= pdc_init_one,
++	.id_table	= pdc202xx,
++	.probe 		= pdc202xx_init_one,
+ 	.remove		= ata_pci_remove_one
+ };
+ 
+-static int __init pdc_init(void)
++static int __init pdc202xx_init(void)
+ {
+-	return pci_register_driver(&pdc_pci_driver);
++	return pci_register_driver(&pdc202xx_pci_driver);
+ }
+ 
+-static void __exit pdc_exit(void)
++static void __exit pdc202xx_exit(void)
+ {
+-	pci_unregister_driver(&pdc_pci_driver);
++	pci_unregister_driver(&pdc202xx_pci_driver);
+ }
+ 
+ MODULE_AUTHOR("Alan Cox");
+ MODULE_DESCRIPTION("low-level driver for Promise 2024x and 20262-20267");
+ MODULE_LICENSE("GPL");
+-MODULE_DEVICE_TABLE(pci, pdc);
++MODULE_DEVICE_TABLE(pci, pdc202xx);
+ MODULE_VERSION(DRV_VERSION);
+ 
+-module_init(pdc_init);
+-module_exit(pdc_exit);
++module_init(pdc202xx_init);
++module_exit(pdc202xx_exit);
 
->> Hi,
->>
->> On Thu, 2 Nov 2006, Mikulas Patocka wrote:
->>
->>> As my PhD thesis, I am designing and writing a filesystem, and it's 
->>> now in a state that it can be released. You can download it from 
->>> http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
->>
->>
->> "Disk that can atomically write one sector (512 bytes) so that the 
->> sector
->> contains either old or new content in case of crash."
->>
->> Well, maybe I am completly wrong but as far as I understand no disk 
->> currently will provide such requirement. Disks can have (after halted 
->> write):
->> - old data,
->> - new data,
->> - nothing (unreadable sector - result of not full write and disk 
->> internal checksum failute for that sector, happens especially often 
->> if you have frequent power outages).
->>
->> And possibly some broken drives may also return you something that 
->> they think is good data but really is not (shouldn't happen since 
->> both disks and cables should be protected by checksums, but hey... 
->> you can never be absolutely sure especially on very big storages).
->>
->> So... isn't this making your filesystem a little flawed in design?
->
->
-> There was discussion about it here some times ago, and I think the 
-> result was that the IDE bus is reset prior to capacitors discharge and 
-> total loss of power and disk has enough time to finish a sector --- 
-> but if you have crap power supply (doesn't signal power loss), crap 
-> motherboard (doesn't reset bus) or crap disk (doesn't respond to 
-> reset), it can fail.
-
-These are two examples of very different classes of storage devices - if 
-you use a high end array (like EMC Clariion/Symm, IBM Shark, Hitachi, 
-NetApp Block, etc) once the target device acknowledges the write 
-transaction, you have a hard promise that the data is going to persist 
-after a power outage, etc.
-
-If you are using a a commodity disk, then you really have to worry about 
-how the drive's write cache will handle your IO.  These disks will ack 
-the write once they have stored the write request in their volatile 
-memory which can be lost on power outages.
-
-That is a reasonable setting for most end users (high performance, few 
-power outages and some risk of data loss), but when data integrity is a 
-hard requirement, people typically run with the write cache disabled.
-
-The "write barrier" support that is in reiserfs, ext3 and xfs all 
-provide something that is somewhere in the middle - good performance and 
-cache flushes injected on transaction commits or application level 
-fsync() commands.
-
-I would not depend on the IDE bus reset or draining capacitors to safely 
-destage data - in fact, I know that it will routinely fail when we test 
-the write barrier on/off over power outages.
-
-Modern S-ATA/ATA drives have 16MB or more of data in write cache and 
-there is a lot of data to destage in those last few ms ;-)
-
->
-> BTW. reiserfs and xfs depend on this feature too. ext3 is the only one 
-> that doesn't.
->
-> Mikulas
->

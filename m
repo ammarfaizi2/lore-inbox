@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753174AbWKCHI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751963AbWKCHZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753174AbWKCHI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 02:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753175AbWKCHI0
+	id S1751963AbWKCHZF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 02:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752843AbWKCHZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 02:08:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53674 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1753174AbWKCHIZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 02:08:25 -0500
-Date: Thu, 2 Nov 2006 23:08:19 -0800
-From: Greg KH <greg@kroah.com>
-To: Damien Wyart <damien.wyart@free.fr>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       James@superbug.demon.co.uk, Takashi Iwai <tiwai@suse.de>
-Subject: Re: ALSA message with 2.6.19-rc4-mm2 (not -mm1)
-Message-ID: <20061103070819.GB2448@kroah.com>
-References: <20061102102607.GA2176@localhost.localdomain> <20061102192607.GA13635@kroah.com> <878xitpkvy.fsf@brouette.noos.fr> <20061102222242.GA17744@kroah.com> <87lkmtf2bu.fsf@brouette.noos.fr>
+	Fri, 3 Nov 2006 02:25:05 -0500
+Received: from web36711.mail.mud.yahoo.com ([209.191.85.45]:46720 "HELO
+	web36711.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751963AbWKCHZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 02:25:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=a2XCPGpJwP8h9We3370ctDv0sL3i+cX2oc2VJYVXN1kvifyu86arzIo04BPn5qtLBWY1DacMaA48BS1Y2Oa/RfJ2/Fpw9yw4BwDQGZu9kLIZ/UGgnYEI66auqvTREQVGt00Z8I782M/k5de8KFSjuj1Pgocu0t9jNLGjq0dro8Q=  ;
+Message-ID: <20061103072501.60620.qmail@web36711.mail.mud.yahoo.com>
+Date: Thu, 2 Nov 2006 23:25:01 -0800 (PST)
+From: Alex Dubov <oakad@yahoo.com>
+Subject: Re: 2.6.19-rc4 - tifm_7xx1 does not work after suspend-to-disk
+To: Pierre Ossman <drzeus-mmc@drzeus.cx>,
+       Fabio Comolli <fabio.comolli@gmail.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <454AE285.4070504@drzeus.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87lkmtf2bu.fsf@brouette.noos.fr>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2006 at 07:53:41AM +0100, Damien Wyart wrote:
-> > > > Can you send me the output of 'ls /sys/class/sound/' with the
-> > > > 2.6.19-rc4 (or any other non-mm) kernel?
-> 
-> > > With 2.6.19-rc4-mm2, this gives:
-> > > admmidi  amidi  card0      dmmidi  hwC0D0  midi      midiC0D1  mixer    pcmC0D0p  pcmC0D2c  pcmC0D3p  sequencer   timer
-> > > adsp     audio  controlC0  dsp     hwC0D2  midiC0D0  midiC0D2  pcmC0D0c pcmC0D1c  pcmC0D2p  seq       sequencer2
-> 
-> > > While Vanilla 2.6.19-rc4 leads to:
-> > > admmidi  amidi  controlC0  dsp     hwC0D2  midiC0D0  midiC0D2  pcmC0D0c pcmC0D1c  pcmC0D2p  seq        sequencer2
-> > > adsp     audio  dmmidi     hwC0D0  midi    midiC0D1  mixer     pcmC0D0p pcmC0D2c  pcmC0D3p  sequencer  timer
-> 
-> > > Seems there is an additional 'card0' entry in the first case.
-> 
-> * Greg KH <greg@kroah.com> [061102 23:22]:
-> > That should be a symlink right?
-> 
-> The corresponding ls -l entry reads:
-> lrwxrwxrwx 1 root root 0 Nov  3  2006 card0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0
+I was looking into this stuff lately, and it's appears to be something complex. I couldn't get it
+to crush on git-head, but I've got write corruptions every now and then. And suspend is totally
+untested at the moment.
 
-That looks good.
+I'm currently trying to fix this.
 
-And the other files in that directory are also symlinks pointing to one
-directory below the card0 device (with the exception of the timer file),
-right?
 
-> > Well it will be if you have CONFIG_SYSFS_DEPRECATED disabled. What is
-> > the setting of that config option?
-> 
-> I have:
-> # CONFIG_SYSFS_DEPRECATED is not set
 
-Ok.  That too looks good.
+ 
+____________________________________________________________________________________
+We have the perfect Group for you. Check out the handy changes to Yahoo! Groups 
+(http://groups.yahoo.com)
 
-> I attach the full .config in case it is useful (had not sent it at
-> first with the report).
-
-Ok, I'm stumped.  Takashi, any ideas?
-
-thanks,
-
-greg k-h

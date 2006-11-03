@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753140AbWKCGc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753139AbWKCGcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753140AbWKCGc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 01:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753142AbWKCGc5
+	id S1753139AbWKCGcg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 01:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753140AbWKCGcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 01:32:57 -0500
-Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:22741 "EHLO
-	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1753140AbWKCGc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 01:32:56 -0500
-Date: Fri, 3 Nov 2006 01:27:37 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: remove IOPL check on task switch
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Zachary Amsden <zach@vmware.com>, Andi Kleen <ak@suse.de>
-Message-ID: <200611030130_MC3-1-D02A-DEB@compuserve.com>
+	Fri, 3 Nov 2006 01:32:36 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:16532 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1753139AbWKCGcf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 01:32:35 -0500
+Message-ID: <454AE285.4070504@drzeus.cx>
+Date: Fri, 03 Nov 2006 07:32:37 +0100
+From: Pierre Ossman <drzeus-mmc@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
+To: Fabio Comolli <fabio.comolli@gmail.com>
+CC: kernel list <linux-kernel@vger.kernel.org>, Alex Dubov <oakad@yahoo.com>
+Subject: Re: 2.6.19-rc4 - tifm_7xx1 does not work after suspend-to-disk
+References: <b637ec0b0611021401x2548b194s249b5d33aad782e4@mail.gmail.com>
+In-Reply-To: <b637ec0b0611021401x2548b194s249b5d33aad782e4@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IOPL is implicitly saved and restored on task switch,
-so explicit check is no longer needed.
+Fabio Comolli wrote:
+> Hi.
+> The subject says it all: after a suspend-to-disk / resume cycle the
+> FlashMedia driver does not work at all: no message is logged in the
+> syslog and the SD card is not detected.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Could you enable MMC_DEBUG and see if that gives you any output? Also,
+you should use "dmesg" to check as syslog misses things.
 
---- 2.6.19-rc4-32smp.orig/arch/i386/kernel/process.c
-+++ 2.6.19-rc4-32smp/arch/i386/kernel/process.c
-@@ -681,12 +681,6 @@ struct task_struct fastcall * __switch_t
- 		loadsegment(gs, next->gs);
- 
- 	/*
--	 * Restore IOPL if needed.
--	 */
--	if (unlikely(prev->iopl != next->iopl))
--		set_iopl_mask(next->iopl);
--
--	/*
- 	 * Now maybe handle debug registers and/or IO bitmaps
- 	 */
- 	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
+Rgds
 -- 
-Chuck
-"Even supernovas have their duller moments."
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

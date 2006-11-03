@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753333AbWKCQKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753338AbWKCQLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753333AbWKCQKd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 11:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753336AbWKCQKd
+	id S1753338AbWKCQLD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 11:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753336AbWKCQLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 11:10:33 -0500
-Received: from h216-170-215-245.216-170.unk.tds.net ([216.170.215.245]:2792
-	"EHLO cave.trolltruffles.com") by vger.kernel.org with ESMTP
-	id S1753335AbWKCQKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 11:10:32 -0500
-Date: Fri, 3 Nov 2006 10:30:12 -0600
-From: Jonathan Lemon <jlemon@flugsvamp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20061103163012.GA84707@cave.trolltruffles.com>
-Mime-Version: 1.0
+	Fri, 3 Nov 2006 11:11:01 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:47829 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1753338AbWKCQLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 11:11:00 -0500
+X-Sasl-enc: 8EMhBNMFVZahY17Lfg2pnfuHpbYNgud+0xKU8rNbUkBu 1162570260
+Date: Fri, 3 Nov 2006 13:10:48 -0300
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Jean Delvare <khali@linux-fr.org>,
+       davidz@redhat.com, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061103161047.GC4257@khazad-dum.debian.net>
+References: <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <znLIYxER.1162453921.3011900.khali@localhost> <454A306C.3050200@tmr.com> <000b01c6feb4$c340a580$0732700a@djlaptop> <20061103132340.GB4257@khazad-dum.debian.net> <001b01c6ff53$41a21eb0$0732700a@djlaptop>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <001b01c6ff53$41a21eb0$0732700a@djlaptop>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <local.mail.linux-kernel/20061103084240.GB1184@2ka.mipt.ru>,
-Evgeniy Polyakov  <johnpol@2ka.mipt.ru> wrote:
->On Thu, Nov 02, 2006 at 11:40:43AM -0800, Nate Diller
->(nate.diller@gmail.com) wrote:
->> Are you saying that the *only* reason we choose not to be
->> source-compatible with BSD is the 32 bit userland on 64 bit arch
->> problem?  I've followed every thread that gmail 'kqueue' search
->
->I.e. do you want that generic event handling mechanism would not work on
->x86_64? I doubt you do.
->
->> returns, which thread are you referring to?  Nicholas Miell, in "The
->> Proposed Linux kevent API" thread, seems to think that there are no
->> advantages over kqueue to justify the incompatibility, an argument you
->> made no effort to refute.  I've also read the Kevent wiki at
->> linux-net.osdl.org, but it too is lacking in any direct comparisons
->> (even theoretical, let alone benchmarks) of the flexibility,
->> performance, etc. between the two.
->> 
->> I'm not arguing that you've done a bad design, I'm asking you to brag
->> about the things you improved on vs. kqueue.  Your emphasis on
->> unifying all the different event types into one interface is really
->> cool, fill me in on why that can't be effectively done with the kqueue
->> compatability and I also will advocate for kevent inclusion.
->
->kqueue just can not be used as is in Linux (_maybe_ *bsd has different
->types, not those which I found in /usr/include in my FC5 and Debian
->distro). It will not work on x86_64 for example. Some kind of a pointer
->or unsigned long in structures which are transferred between kernelspace
->and userspace is so much questionable, than it is much better even do
->not see there... (if I would not have so political correctness, I would
->describe it in a much different words actually).
->So, kqueue API and structures can not be usd in Linux.
+On Fri, 03 Nov 2006, Richard B. Johnson wrote:
+> I'm not sure anybody actually embeds a micro. There is some chip,
 
-Let me be a little blunt here: that is just so much bullshit.
+I'd have to crack open a ThinkPad battery to know for sure, as well.  That's
+why I used "some sort of embedded controller"...  I am operating on
+second-hand data.
 
-Yes, I understand the problem that 32-bit userspace on a 64-bit kernel has.
-Mea culpa - I didn't forsee this years ago, and none of my many reviewers
-caught it either.  It was designed for 32/32 and 64/64, not 32/64.
+Still, stuff like http://focus.ti.com/docs/prod/folders/print/bq20z90.html
+gives me some hope the battery packs have some good stuff in it.
 
-However, this is trivially fixed by adding a union to the structure, as
-pointed out earlier on this list.  Code would still be source compatible
-with any kqueue apps, which is what counts.  Even NetBSD and FreeBSD have
-differing definitions of the kq constants, and nobody notices.
+> originally make by National, that was supposed to monitor the battery
+> state. I know that I have used five laptops so far and have never been
+> able to obtain any intellegent operation. They just shut down when they
+> feel like it.  They do go to "suspend" mode to save power as well, always
+> at the most inopertune moment.
 
-I really have no stake in this matter, so if you want to go invent a 
-better mousetrap, more power to you.  But don't claim that "kqueue can
-not be used on Linux"; this just makes you look foolish - I have code
-running on x86_64 that trivially disproves your statement.
+Try a ThinkPad, they are a bit better than that :-)   Of course, you have to
+disable (or properly configure) stuff that tries to outguess you and are not
+really enabled to talk to ThinkPad specifics like what comes with KDE and
+GNOME, if you don't want to get surprise suspends.
+
+I am not sure how better a recent ThinkPad (T42 or newer) behaviour would be
+by your standards, but still...
+
+> Maybe the "ThinkPad" actually has some intellegence within. The cost of
+> the batteries only reflects the cost of defending lawsuits <grin> and not
+> the cost of its components.  Batteries made in China seem to become
+> "excited" at inopertune times.
+
+Well, all of mine come with "made in Japan" seals from Sanyo.  I sure hope
+this means the cells themselves are not from some third-party with shoddy
+quality control and manufacturing processes.
+
 -- 
-Jonathan
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

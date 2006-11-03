@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753534AbWKCVJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753540AbWKCVOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753534AbWKCVJr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 16:09:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753535AbWKCVJr
+	id S1753540AbWKCVOl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 16:14:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753541AbWKCVOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 16:09:47 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:30947 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1753534AbWKCVJq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 16:09:46 -0500
-From: Andi Kleen <ak@suse.de>
-To: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs =?utf-8?q?for=09paravirtualizing_critical?= operations
-Date: Fri, 3 Nov 2006 22:09:40 +0100
-User-Agent: KMail/1.9.5
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>,
-       virtualization@lists.osdl.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-References: <20061029024504.760769000@sous-sol.org> <200611030356.54074.ak@suse.de> <454BA7F7.8030205@vmware.com>
-In-Reply-To: <454BA7F7.8030205@vmware.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Fri, 3 Nov 2006 16:14:40 -0500
+Received: from mga05.intel.com ([192.55.52.89]:28785 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1753540AbWKCVOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 16:14:40 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,386,1157353200"; 
+   d="scan'208"; a="11387715:sNHT19128123"
+Subject: Re: 2.6.19-rc1: x86_64 slowdown in lmbench's fork
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Andi Kleen <ak@suse.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+In-Reply-To: <200611031847.49222.ak@suse.de>
+References: <1162485897.10806.72.camel@localhost.localdomain>
+	 <1162570216.10806.79.camel@localhost.localdomain>
+	 <m1lkmsxwk7.fsf@ebiederm.dsl.xmission.com>  <200611031847.49222.ak@suse.de>
+Content-Type: text/plain
+Organization: Intel
+Date: Fri, 03 Nov 2006 12:25:17 -0800
+Message-Id: <1162585517.10806.112.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611032209.40235.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Fri, 2006-11-03 at 18:47 +0100, Andi Kleen wrote:
+> > So unless there is some other array that is sized by NR_IRQs
+> > in the context switch path which could account for this in
+> > other ways.  It looks like you just got unlucky.
 > 
-> Sounds like desc.h got reordered.  Somewhere, there was a broken patch 
-> once that did this, I thought we fixed that.
+> 
+> TLB/cache profiling data might be useful?
+> My bet would be more on cache effects.
+>  
 
-I think I got Rusty's latest patches that I found in my mailbox.
+The TLB miss, cache miss and page walk profiles did not change when I
+measured it.
 
-I haven't looked at desc.h, but at least processor.h ordering was totally
-b0rken (e.g. #define __cpuid native_cpuid was after several uses). I fixed
-that to make at least the CONFIG_PARAVIRT not set case compile.
+I have a suspicion that the overhead to pin parent and child
+processes to specific cpu had something to do with the 
+change in time observed.  Lmbench includes this overhead in
+the fork time it reported.  I had chosen the lmbench option to
+set parent and child process on specific cpu.
 
-I can't see how this ever worked either.
+When I skip this by picking another lmbench option to let scheduler 
+pick the placement of parent and child process. I see that 
+the fork time now stays unchanged with this setting.  Wonder if
+the increase in time is in sched_setaffinity.
 
-Haven't attempted the CONFIG_PARAVIRT case which apparently needs more work
-(it is currently marked CONFIG_BROKEN) 
-
-Can someone double check this is the correct patchkit?
-
-ftp://ftp.frstfloor.org/pub/ak/x86_64/quilt/patches/paravirt*
-
--Andi
-
-
+Tim

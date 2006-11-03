@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752343AbWKCMV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752635AbWKCMqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752343AbWKCMV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 07:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752789AbWKCMV5
+	id S1752635AbWKCMqN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 07:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752805AbWKCMqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 07:21:57 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:11217 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752343AbWKCMV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 07:21:56 -0500
-Subject: Re: __alloc_pages() failures reported due to fragmentation
-From: Arjan van de Ven <arjan@infradead.org>
-To: Larry Woodman <lwoodman@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <454B3282.3010308@redhat.com>
-References: <454B3282.3010308@redhat.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 03 Nov 2006 13:21:54 +0100
-Message-Id: <1162556514.14530.163.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 3 Nov 2006 07:46:13 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:40410 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1752635AbWKCMqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 07:46:12 -0500
+X-Sasl-enc: z7rFsHTxIK+QYvQ7XZ3nMY8OyycKe+U6BKWDHk200Pr/ 1162557972
+Date: Fri, 3 Nov 2006 09:46:06 -0300
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061103124606.GA4257@khazad-dum.debian.net>
+References: <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com> <20061101235540.GA11581@khazad-dum.debian.net> <454A2FC2.4060107@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <454A2FC2.4060107@tmr.com>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 02 Nov 2006, Bill Davidsen wrote:
+> Having seen a French consultant with a Windows laptop reporting mJ 
+> (Joules) I bet that came from the hardware. And given that laptop 
+> batteries run at (almost) constant voltage, could all of these just be 
+> converted to mWh for consistency?
 
-> --- linux-2.6.18.noarch/net/core/sock.c.orig
-> +++ linux-2.6.18.noarch/net/core/sock.c
-> @@ -1154,7 +1154,7 @@ static struct sk_buff *sock_alloc_send_p
->  			goto failure;
->  
->  		if (atomic_read(&sk->sk_wmem_alloc) < sk->sk_sndbuf) {
-> -			skb = alloc_skb(header_len, sk->sk_allocation);
-> +			skb = alloc_skb(header_len, gfp_mask);
->  			if (skb) {
->  				int npages;
->  				int i;
+*No*.  That adds quite a lot of error, which can be easily avoided by
+providing the _charge and _energy attribute sets.
 
-Hi,
+You can convert between J and Wh and between C to Ah without significant
+precision loss.  Just don't go cheap on the fixed point calculations, and
+make sure the destination unit is small enough not to forsake precision.
 
-this is not actually right though... sk_allocation is very possible to
-have a restricting mask compared to the one passed in (say "no highmem"
-or even GFP_DMA) and you now discard this... probably better would be to
-calculate a set of "transient" flags that you then or into the
-sk_allocation mask at this time...
+We can definately be safe from any precision loss using (10^-6) * (A, Ah, W,
+Wh, V) as the base unit, but that will make for long numbers in sysfs with
+lots of zeros in many situations (which is MUCH better than precision loss).
 
-Greetings,
-   Arjan van de Ven
+We could also use a proper submultiple of J and C instead of Wh and Ah if
+we'd rather stick to the SI, that wouldn't be a big problem at all.
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

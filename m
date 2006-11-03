@@ -1,75 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753206AbWKCOIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752978AbWKCOTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753206AbWKCOIu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 09:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753210AbWKCOIu
+	id S1752978AbWKCOTL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 09:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753171AbWKCOTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 09:08:50 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:53274 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1753206AbWKCOIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 09:08:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hwUM3XJoXX4hQKHTOiixaITg1pjKmADE2ggCbUteHhiavnzrlNbllLM8ohxJ7MIgQ87ivmhsKUvR/1H+U0P97KZUY4UARU3T2/Gvdg0odi6Elr5SATCK9s+MEJdgLSH2kcctIaMgY/bRl1DMDi+N5XBN/o6MaGJ8C457RoRGhk4=
-Message-ID: <d120d5000611030608v726b5459y743703179d079ae5@mail.gmail.com>
-Date: Fri, 3 Nov 2006 09:08:47 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
-Cc: "Dave Neuer" <mr.fred.smoothie@pobox.com>,
-       LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <20061103081847.GC10906@suse.cz>
+	Fri, 3 Nov 2006 09:19:11 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:5856 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1752978AbWKCOTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 09:19:10 -0500
+Date: Fri, 3 Nov 2006 15:19:09 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <20061103134802.GD11947@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.64.0611031509500.27698@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz>
+ <20061103101901.GA11947@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz>
+ <20061103122126.GC11947@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz>
+ <20061103134802.GD11947@wohnheim.fh-wedel.de>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608232311.07599.dtor@insightbb.com>
-	 <161717d50610300501w240a8ce1h4d58b1f3f2f759bf@mail.gmail.com>
-	 <161717d50610300622h15d5e40w4a30e1a95b3c2564@mail.gmail.com>
-	 <200611030056.03357.dtor@insightbb.com>
-	 <20061103081847.GC10906@suse.cz>
+Content-Type: MULTIPART/MIXED; BOUNDARY="1908636959-679944023-1162563549=:27698"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/3/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Fri, Nov 03, 2006 at 12:56:02AM -0500, Dmitry Torokhov wrote:
-> > On Monday 30 October 2006 09:22, Dave Neuer wrote:
-> > > On 10/30/06, Dave Neuer <mr.fred.smoothie@pobox.com> wrote:
-> > > >
-> > > > Maybe I'm missing something, (well actually I'm sure I'm missing
-> > > > somethng). Looking at the code again, it's unclear to me why there is
-> > > > even a call to the ISR in i8042_aux_write, since the latter function
-> > > > already calls i8042_read_data.
-> > > >
-> > >
-> > > Whoops, sorry. I meant i8042_command, which is called by
-> > > i8042_aux_write before the call to i8042_interrupt, already calls
-> > > i8042_read_data.
-> > >
-> >
-> > It only calls i8042_read_data() if command is supposed to return data.
-> > Neither I8042_CMD_AUX_SEND nor I8042_CMD_MUX_SEND wait fotr data to come
-> > back.
-> >
-> > Anyway, I removed call to i8042_interrupt() from i8042_aux_write() because
-> > it is indeed unnecessary.
->
-> It was there because some older i8042's will report an error byte (=>
-> data) even though no device is connected, not just set error flags.
->
-> The unflushed byte in the FIFO then caused problems later on.
->
-> It may be that now it'll get disposed of correctly, I haven't looked at
-> the code for a while.
->
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-By the time serio ports are registered and there are potential users
-of i8042_aux_write() we already requested AUX IRQ and I believe any
-arriving data should be automatically disposed through irq handler. It
-wasn't the case before, when we postponed requesting IRQ until the
-port was opened...
+--1908636959-679944023-1162563549=:27698
+Content-Type: TEXT/PLAIN; charset=iso-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
--- 
-Dmitry
+>> Really it can batch any number of modifications into one transaction
+>> (unless fsync or sync is called). Transaction is closed only on
+>> fsync/sync, if 2 minutes pass (can be adjusted) or when the disk runs out
+>> of space.
+>
+> Interesting.  Let me pick an example and see where we're going from
+> there.  You have four directories, A, B, C and D, none of which is the
+> parent of another.  Two cross-directory renames happen:
+> $ mv A/foo B/
+> $ mv C/bar D/
+>
+> This will cause four modifications, one to each of the directories.  I
+> would have assumed that the modifications to A and B receive one
+> transaction number n, C and D get a different one, n+1 if nothing else
+> is going on in between.
+
+They most likely receive the same transaction (this is not like journaling 
+transaction --- new transactions are issued only on conditions above).
+
+A/foo entry is set with txc=memory_cct[memory_cc],cc=memory_cc
+B/foo entry is set with txc=memory_cct[memoty_cc]|0x80000000,cc=memory_cc
+C/foo entry is set with txc=memory_cct[memory_cc],cc=memory_cc
+D/foo entry is set with txc=memory_cct[memoty_cc]|0x80000000,cc=memory_cc
+
+They may be written in any order (that's some improvement over 
+journaling) by buffer thread.
+
+And when you sync, with one write of memory_cct to disk, you make old 
+entries permanently invalid and new entries permanently valid.
+
+If the machine crashes before sync (and some of directory sectors were 
+written and some not), new entries will always be considered invalid, and 
+old entries always valid, because new crash count will be used and crash 
+count table at old crash count index will never be modified.
+
+> To commit the first rename, n is written into cct[entry->cc].  To
+> commit both, n+1 is written instead.  Committing the second
+> transaction without committing the first is not possible.
+>
+> Now clearly we are disagreeing, so I must have misunderstood your
+> design somehow.  Can you see how?
+>
+> Jörn
+
+Mikulas
+--1908636959-679944023-1162563549=:27698--

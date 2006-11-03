@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752710AbWKCJJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753193AbWKCJNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752710AbWKCJJO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 04:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752941AbWKCJJO
+	id S1753193AbWKCJNr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 04:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753195AbWKCJNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 04:09:14 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35038 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1752710AbWKCJJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 04:09:13 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>, linux-kernel@vger.kernel.org,
-       ak@suse.de, discuss@x86-64.org
-Subject: Re: 2.6.19-rc1: x86_64 slowdown in lmbench's fork
-References: <1162485897.10806.72.camel@localhost.localdomain>
-	<m1d5851yxd.fsf@ebiederm.dsl.xmission.com>
-	<1162492453.10806.75.camel@localhost.localdomain>
-	<20061103021145.GD13381@stusta.de>
-Date: Fri, 03 Nov 2006 02:08:42 -0700
-In-Reply-To: <20061103021145.GD13381@stusta.de> (Adrian Bunk's message of
-	"Fri, 3 Nov 2006 03:11:45 +0100")
-Message-ID: <m1bqnozylh.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Nov 2006 04:13:47 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:6584 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1753193AbWKCJNp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 04:13:45 -0500
+Date: Fri, 3 Nov 2006 12:13:02 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nate Diller <nate.diller@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       Oleg Verych <olecom@flower.upol.cz>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20061103091301.GC1184@2ka.mipt.ru>
+References: <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru> <slrnekhpbr.2j1.olecom@flower.upol.cz> <20061101185745.GA12440@2ka.mipt.ru> <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com> <20061102062158.GC5552@2ka.mipt.ru> <5c49b0ed0611021140u360342f2v1e83c73d03eea329@mail.gmail.com> <20061103084240.GB1184@2ka.mipt.ru> <20061103085712.GA3725@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20061103085712.GA3725@elf.ucw.cz>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 03 Nov 2006 12:13:04 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+On Fri, Nov 03, 2006 at 09:57:12AM +0100, Pavel Machek (pavel@ucw.cz) wrote:
+> > So, kqueue API and structures can not be usd in Linux.
+> 
+> Not sure what you are smoking, but "there's unsigned long in *bsd
+> version, lets rewrite it from scratch" sounds like very bad idea. What
+> about fixing that one bit you don't like?
 
-> On Thu, Nov 02, 2006 at 10:34:13AM -0800, Tim Chen wrote:
->> On Thu, 2006-11-02 at 11:33 -0700, Eric W. Biederman wrote:
->> 
->> > My only partial guess is that it might be worth adding the per cpu
->> > variables my patch adds without any of the corresponding code changes.
->> > And see if adding variables to the per cpu area is what is causing the
->> > change.
->> > 
->> > The two tests I can see in this line are:
->> > - to add the percpu vector_irq variable.
->> > - to increase NR_IRQs.
->> 
->> Increasing the NR_IRQs resulted in the regression.
->>...
->
-> What's your CONFIG_NR_CPUS setting that you are seeing such a big
-> regression?
+It is not about what I dislike, but about what is broken or not.
+Putting u64 instead of a long or some kind of that _is_ incompatible
+already, so why should we even use it?
+And, btw, what we are talking about? Is it about the whole kevent
+compared to kqueue in kernelspace, or just about what structure is being
+transferred between kernelspace and userspace?
+I'm sure, it was some kind of a joke to 'not rewrite *bsd from scratch
+and use kqueue in Linux kernel as is'.
 
-Also could we see the section of System.map that deals with
-per cpu variables.
+> 								Pavel
+> -- 
+> (english) http://www.livejournal.com/~pavelmachek
+> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
 
-I believe there are some counters for processes and the like
-just below kstat whose size increase is causing you real
-problems.
-
-Ugh.  I just looked at include/linux/kernel_stat.h
-kstat has the per cpu irq counters and all of the cpu process
-time accounting so it is quite likely that we are going to be
-touching this structure plus the run queues and the process counts
-during a fork.  All of which are now potentially much more spread out.
-
-Also has anyone else reproduce this problem yet?
-
-I don't doubt that it exists but having a few more data points or
-eyeballs on the problem couldn't hurt.
-
-Eric
+-- 
+	Evgeniy Polyakov

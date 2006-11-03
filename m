@@ -1,91 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753260AbWKCOxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753250AbWKCOwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753260AbWKCOxY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 09:53:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753261AbWKCOxY
+	id S1753250AbWKCOwv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 09:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753260AbWKCOwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 09:53:24 -0500
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:41663 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1753260AbWKCOxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 09:53:23 -0500
-Date: Fri, 3 Nov 2006 15:53:29 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-Message-ID: <20061103145329.GE11947@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz> <20061103101901.GA11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz> <20061103122126.GC11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz> <20061103134802.GD11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031509500.27698@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0611031509500.27698@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.9i
+	Fri, 3 Nov 2006 09:52:51 -0500
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:34226 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1753250AbWKCOwu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 09:52:50 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
+Date: Fri, 3 Nov 2006 08:52:44 -0600
+Message-ID: <4C62E596C0F58148BAAFE8CEA438D09E0854BE19@cceexc15.americas.cpqcorp.net>
+In-Reply-To: <4E7F16C676%linux@youmustbejoking.demon.co.uk>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)
+Thread-Index: Acb/Ry2z8knKTwnyQ0ycqOPHu/uM+AAEHOQQ
+From: "Azam, Syed S" <Syed.Azam@hp.com>
+To: "Darren Salt" <linux@youmustbejoking.demon.co.uk>, <g.liakhovetski@gmx.de>,
+       <romieu@fr.zoreil.com>
+Cc: <torvalds@osdl.org>, <bunk@stusta.de>, <akpm@osdl.org>,
+       <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>,
+       <tmattox@gmail.com>, <spiky.kiwi@gmail.com>, <r.bhatia@ipax.at>,
+       <buytenh@wantstofly.org>
+X-OriginalArrivalTime: 03 Nov 2006 14:52:45.0654 (UTC) FILETIME=[B8EEE760:01C6FF57]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 November 2006 15:19:09 +0100, Mikulas Patocka wrote:
-> 
-> >>Really it can batch any number of modifications into one transaction
-> >>(unless fsync or sync is called). Transaction is closed only on
-> >>fsync/sync, if 2 minutes pass (can be adjusted) or when the disk runs out
-> >>of space.
-> >
-> >Interesting.  Let me pick an example and see where we're going from
-> >there.  You have four directories, A, B, C and D, none of which is the
-> >parent of another.  Two cross-directory renames happen:
-> >$ mv A/foo B/
-> >$ mv C/bar D/
-> >
-> >This will cause four modifications, one to each of the directories.  I
-> >would have assumed that the modifications to A and B receive one
-> >transaction number n, C and D get a different one, n+1 if nothing else
-> >is going on in between.
-> 
-> They most likely receive the same transaction (this is not like journaling 
-> transaction --- new transactions are issued only on conditions above).
+Yes, It is still working.
 
-That means one transaction in your terminology contains many
-transactions in my terminology, which explains a bit of confusion.
 
-> They may be written in any order (that's some improvement over 
-> journaling) by buffer thread.
+Syed Azam
+System Software Engineer
+Hewlett-Packard Company
+ 
+-----Original Message-----
+From: Darren Salt [mailto:linux@youmustbejoking.demon.co.uk] 
+Sent: Wednesday, November 01, 2006 1:01 PM
+To: g.liakhovetski@gmx.de; romieu@fr.zoreil.com
+Cc: torvalds@osdl.org; bunk@stusta.de; akpm@osdl.org; jgarzik@pobox.com;
+linux-kernel@vger.kernel.org; tmattox@gmail.com; spiky.kiwi@gmail.com;
+r.bhatia@ipax.at; Azam, Syed S; buytenh@wantstofly.org
+Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known
+regressions)
+
+This message is in MIME format which your mailer apparently does not
+support.
+You either require a newer version of your software which supports MIME,
+or
+a separate MIME decoding utility.  Alternatively, ask the sender of this
+message to resend it in a different format.
+
+--163681386--1739281754--1718250983
+Content-Type: text/plain; charset=us-ascii
+
+I demand that Francois Romieu may or may not have written...
+
+[snip]
+> o Darren and Syed, are your 0x8136 still happy with the patch
 >
-> And when you sync, with one write of memory_cct to disk, you make old 
-> entries permanently invalid and new entries permanently valid.
+0001-r8169-perform-a-PHY-reset-before-any-other-operation-at-boot-time.t
+xt
+>   at http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.19-rc4/r8169
+>   on top of 2.6.19-rc4 ?
 
-Ok, I seem to understand it now.  Quite interesting.
+It is.
 
-> If the machine crashes before sync (and some of directory sectors were 
-> written and some not), new entries will always be considered invalid, and 
-> old entries always valid, because new crash count will be used and crash 
-> count table at old crash count index will never be modified.
+I then tried 0002-r8169-more-magic.txt, mainly to see that it doesn't
+cause
+any problems. Unfortunately, it did... however, a little reading showed
+that
+you've stopped enabling transmit and receive for all but four of the
+chip
+types supported by the driver.
 
-So the only overflow you have to fear is the 16-bit cc overflow.  Once
-that hits your filesystem is end-of-life and cannot be written to
-anymore.
+An incremental fix is attached.
 
-Has it ever occurred to you how similar your approach is to the
-venerable sprite lfs?  Lfs syncs by writing a "checkpoint", which
-contains quite a bit of information.  You sync by just writing a
-single number.  But in the end, both designs have a lot of
-non-committed data already written to disk which only becomes valid
-once the final (checkpoint|transaction count) is written.
+> o Darren, still ok to keep your S-o-b in it ?
 
-And considering that writing several kB of contiguous data to disk is
-nearly free, compared to the initial seek, both commit operations
-should take about the same time.
+Yes.
 
-So which, if I may ask, are the advantages of your design over sprite
-lfs?
-
-http://citeseer.ist.psu.edu/rosenblum91design.html
-
-Jörn
-
+[snip]
 -- 
-ticks = jiffies;
-while (ticks == jiffies);
-ticks = jiffies;
--- /usr/src/linux/init/main.c
+| Darren Salt    | linux or ds at              | nr. Ashington, | Toon
+| RISC OS, Linux | youmustbejoking,demon,co,uk | Northumberland | Army
+| + Buy less and make it last longer.         INDUSTRY CAUSES GLOBAL
+WARMING.
+
+Never have a drink when you are feeling sorry for yourself.
+
+--163681386--1739281754--1718250983
+Content-Type: text/plain; charset=iso-8859-1;
+name="0003-r8169-fix-more-magic.patch"
+Content-Disposition: attachment;
+filename="0003-r8169-fix-more-magic.patch"
+
+r8169: fix more magic so that 8101e etc. work again
+
+r8169-more-magic killed transmit & receive on my laptop's RTL8101e.
+Turns out
+to be that the enabling of these functions had been unitnentionally
+removed.
+
+(This is one of two possible fixes, the other being the removal of the
+if()
+guarding the other tx/rx-enable call. Both work here.)
+
+Signed-off-by: Darren Salt <linux@youmustbejoking.demon.co.uk>
+
+--- drivers/net/r8169.c~	2006-11-01 19:53:02.000000000 +0000
++++ drivers/net/r8169.c	2006-11-01 19:54:16.000000000 +0000
+@@ -1921,7 +1921,10 @@
+ 	    (tp->mac_version != RTL_GIGA_MAC_VER_02) &&
+ 	    (tp->mac_version != RTL_GIGA_MAC_VER_03) &&
+ 	    (tp->mac_version != RTL_GIGA_MAC_VER_04))
++	{
+ 		rtl8169_set_rx_tx_config_registers(tp);
++		RTL_W8(ChipCmd, CmdTxEnb | CmdRxEnb);
++	}
+ 
+ 	RTL_W8(Cfg9346, Cfg9346_Lock);
+ 
+
+--163681386--1739281754--1718250983--

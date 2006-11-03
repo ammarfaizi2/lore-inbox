@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752834AbWKCA50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752902AbWKCBTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752834AbWKCA50 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 19:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752851AbWKCA50
+	id S1752902AbWKCBTH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 20:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752908AbWKCBTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 19:57:26 -0500
-Received: from mail.suse.de ([195.135.220.2]:38558 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752834AbWKCA50 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 19:57:26 -0500
-Date: Thu, 2 Nov 2006 16:57:28 -0800
-From: Greg KH <gregkh@suse.de>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@google.com>,
-       Mike Galbraith <efault@gmx.de>, Andy Whitcroft <apw@shadowen.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-rc3-mm1 -- missing network adaptors
-Message-ID: <20061103005728.GB21821@suse.de>
-References: <20061101020850.GA13070@suse.de> <45480241.2090803@google.com> <20061102052409.GA9642@suse.de> <45498174.5070309@google.com> <20061102060225.GA11188@suse.de> <20061101220701.78a1fa88.akpm@osdl.org> <20061102064227.GA11693@suse.de> <20061101224915.19d1b1ac.akpm@osdl.org> <20061102065609.GA14353@suse.de> <20061102112603.38393245@gondolin.boeblingen.de.ibm.com>
+	Thu, 2 Nov 2006 20:19:07 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:34965 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1752902AbWKCBTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 20:19:06 -0500
+Date: Fri, 3 Nov 2006 02:19:05 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <20061102235920.GA886@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <20061102235920.GA886@wohnheim.fh-wedel.de>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061102112603.38393245@gondolin.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: MULTIPART/MIXED; BOUNDARY="1908636959-203762872-1162516719=:7781"
+Content-ID: <Pine.LNX.4.64.0611030218490.7781@artax.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2006 at 11:26:03AM +0100, Cornelia Huck wrote:
-> On Wed, 1 Nov 2006 22:56:09 -0800,
-> Greg KH <gregkh@suse.de> wrote:
-> 
-> > Yeah, I knew that would happen.  I have them still in my queue, I'll
-> > handle porting them to my tree now, I've forced her to handle my
-> > mistakes too much already :)
-> 
-> Thanks for sorting that out :)
-> 
-> > Let's verify that this all is fixed first :)
-> 
-> Seems to work fine for me now.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Thanks for testing this and letting me know.
+--1908636959-203762872-1162516719=:7781
+Content-Type: TEXT/PLAIN; CHARSET=iso-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-ID: <Pine.LNX.4.64.0611030218491.7781@artax.karlin.mff.cuni.cz>
 
-greg k-h
+> On Thu, 2 November 2006 22:52:47 +0100, Mikulas Patocka wrote:
+>>
+>> new method to keep data consistent in case of crashes (instead of
+>> journaling),
+>
+> Your 32-bit transaction counter will overflow in the real world.  It
+> will take a setup with millions of transactions per second and even
+> then not trigger for a few years, but when it hits your filesystem,
+> the administrator of such a beast won't be happy at all. :)
+>
+> Jörn
+
+If it overflows, it increases crash count instead. So really you have 2^47 
+transactions or 65536 crashes and 2^31 transactions between each crash.
+
+Mikulas
+--1908636959-203762872-1162516719=:7781--

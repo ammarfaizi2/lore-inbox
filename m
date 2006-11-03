@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753263AbWKCWBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753485AbWKCWBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753263AbWKCWBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 17:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753485AbWKCWBZ
+	id S1753485AbWKCWBe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 17:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753497AbWKCWBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 17:01:25 -0500
-Received: from main.gmane.org ([80.91.229.2]:9628 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1753263AbWKCWBY (ORCPT
+	Fri, 3 Nov 2006 17:01:34 -0500
+Received: from mx2.suse.de ([195.135.220.15]:28394 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1753485AbWKCWBd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 17:01:24 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: New filesystem for Linux
-Date: Fri, 3 Nov 2006 22:00:57 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrneknfdo.2in.olecom@flower.upol.cz>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611030022110.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030228470.7781@artax.karlin.mff.cuni.cz>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, Grzegorz Kulewski <kangur@polcom.net>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Fri, 3 Nov 2006 17:01:33 -0500
+From: Andi Kleen <ak@suse.de>
+To: Amul Shah <amul.shah@unisys.com>
+Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when    reserving MP Tables located in high memory
+Date: Fri, 3 Nov 2006 23:01:31 +0100
+User-Agent: KMail/1.9.5
+Cc: vgoyal@in.ibm.com, LKML <linux-kernel@vger.kernel.org>
+References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com> <200611032052.05738.ak@suse.de> <1162588660.19677.118.camel@ustr-linux-shaha1.unisys.com>
+In-Reply-To: <1162588660.19677.118.camel@ustr-linux-shaha1.unisys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611032301.32094.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-11-03, Mikulas Patocka wrote:
-[]
->> Well, at least for XFS everybody tell that it should be used with UPS only if 
->> you really care about your data. I think it has something to do with heavy 
->> in-RAM caching this filesystem does.
->
-> System is allowed to cache anything unless sync/fsync is called. Someone 
-> told that XFS has some bugs that if crashed incorrectly, it can lose 
-> already synced data ... don't know. Plus it has that infamous feature (not 
-> a bug) that it commits size-increase but not data and you see zero-filed 
-> files.
+On Friday 03 November 2006 22:17, Amul Shah wrote:
+> On Fri, 2006-11-03 at 20:52 +0100, Andi Kleen wrote:
+> > On Friday 03 November 2006 20:47, Amul Shah wrote:
+> > 
+> > > Andi, Vivek is right.  We can use end_pfn_map.  My observation is wrong.
+> > 
+> > Ok. Then my patch should work?
+> 
+> The patch does work on a 2.6.16 derived kernel (SLES 10 kernel).  The
+> 2.6.19-rc4 kernel is doing some funny things when I use it as a kdump
+> kernel (regardless of the patch).
 
-AFAIK, XFS by design must provide _file system_ consistency, not data.
+Magnus had another patch for that which I applied
 
-[]
->> PS. Do you have any benchmarks of your filesystem? Did you do any longer 
->> automated tests to prove it is not going to loose data to easily?
->
-> I have, I may find them and post them. (but the university wants me to 
-> post them to some conference, so I should keep them secret :-/)
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/setup-saved_max_pfn-correctly-kdump
 
-Interesting to know, how "another one" FS is quick and stable.
+Does it work with that?
 
-On my new hardware, with dual core CPU 3.4G, 1G of RAM, 1/2TB disk space
-(office pro, yes *office* (pro)), `dd' can suck 50M/s, (running and)
-extracting 2.6.19-rc2 on fresh 20Gb partition (xfs,jfs) yields nearly 4M/s.
+ 
+> > > Vivek, the problem condition is in generic reserve_bootmem_core
+> > > (mm/bootmem.c), where this
+> > > 	BUG_ON(PFN_DOWN(addr) >= bdata->node_low_pfn);
+> > > checks the target address against the top of that node's memory.
+> > 
+> > In general these early BUGs should be eliminated - they are always
+> > messy because the kernel exception handlers are not fully functional
+> > yet. printks or worst case panics are better.
+> > 
+> > -Andi
+> 
+> I assume that we are not going to change mm/bootmem.c since your patch
+> works.  Am I right?
 
-As for ordinary user it seems very slowly.
+Yep.
 
-Ext2 (not ext3) is as fast as shmfs, until RAM will be full.
-And after 13 cycles XFS has 11-12 directories with good linux source,
-ext2 6-7 (IIRC). On start of 14th cycle i pushed reset button, btw.
-
-Mounting & repairing XFS took less than minute; e2fsck spent more time
-on printing, rather than reparing, i think (:.
-
-Want to create another one? OK, but why not to improve existing? >/dev/null
-____
-
+-Andi

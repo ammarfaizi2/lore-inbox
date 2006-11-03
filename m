@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752935AbWKCBzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752942AbWKCCGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752935AbWKCBzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 20:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752943AbWKCBzF
+	id S1752942AbWKCCGP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 21:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752939AbWKCCGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 20:55:05 -0500
-Received: from mga03.intel.com ([143.182.124.21]:42808 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S1752932AbWKCBzC (ORCPT
+	Thu, 2 Nov 2006 21:06:15 -0500
+Received: from hqemgate01.nvidia.com ([216.228.112.170]:20742 "EHLO
+	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
+	id S1752465AbWKCCGO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 20:55:02 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,382,1157353200"; 
-   d="scan'208"; a="140332289:sNHT41038165"
-Date: Thu, 2 Nov 2006 17:54:03 -0800
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-Id: <20061102175403.279df320.kristen.c.accardi@intel.com>
-In-Reply-To: <20061101115618.GA1683@elf.ucw.cz>
-References: <20061101115618.GA1683@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Nov 2006 21:06:14 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH ] ahci: Add the support of nvidia AHCI controllers of MCP67 to ahci.c
+Date: Fri, 3 Nov 2006 10:02:07 +0800
+Message-ID: <15F501D1A78BD343BE8F4D8DB854566B0C6447E7@hkemmail01.nvidia.com>
+In-Reply-To: <454A7870.2020900@pobox.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH ] ahci: Add the support of nvidia AHCI controllers of MCP67 to ahci.c
+Thread-Index: Acb+0p/M31oJmJ5CTMiyNyrOU9zT/AAGWYYg
+From: "Peer Chen" <pchen@nvidia.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+X-OriginalArrivalTime: 03 Nov 2006 02:02:12.0501 (UTC) FILETIME=[13D39C50:01C6FEEC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2006 12:56:18 +0100
-Pavel Machek <pavel@ucw.cz> wrote:
+Great job,thanks. 
 
-> Hi!
+
+BRs
+Peer Chen
+
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@pobox.com] 
+Sent: Friday, November 03, 2006 7:00 AM
+To: Peer Chen
+Cc: linux-ide@vger.kernel.org; linux-kernel@vger.kernel.org; Alan Cox
+Subject: Re: [PATCH ] ahci: Add the support of nvidia AHCI controllers
+of MCP67 to ahci.c
+
+Peer Chen wrote:
+> Add support for AHCI controllers of MCP67.
+> The patch will be applied to kernel 2.6.19-rc4-git1.
+> Please check attachment for the patch.
 > 
-> With 2.6.19-rc4, acpi complains about "acpiphp_glue: cannot get bridge
-> info" each time I close/reopen the lid... On thinkpad x60. Any ideas?
-> (-mm1 behaves the same).
-> 									Pavel
-> -- 
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> Signed-off-by: Peer Chen <pchen@nvidia.com>
 
-Looks like acpi is sending a BUS_CHECK notification to acpiphp on the 
-PCI Root Bridge whenever the lid opens up.
+applied
 
-There is a bug here in that acpiphp shouldn't even be used on the X60 -
-it has no hotpluggable slots.  This problem only occurs when acpiphp is
-built in, as when a module it just doesn't load.  It appears to not clean
-up after itself properly when it finds no ejectable slots and leaves the
-acpi notifier installed for the PCI Root Bridge.  The message is printing
-"cannot get bridge info" because it partially cleaned some stuff up (without
-actually removing the notifier).  I'll put this bug into bugzilla since
-I won't have time to fix right away:
 
-http://bugzilla.kernel.org/show_bug.cgi?id=7452
-
-Feel free to add yourself to the CC list if you are interested in being
-notified when it is fixed.
-
-Kristen
- 
+-----------------------------------------------------------------------------------
+This email message is for the sole use of the intended recipient(s) and may contain
+confidential information.  Any unauthorized review, use, disclosure or distribution
+is prohibited.  If you are not the intended recipient, please contact the sender by
+reply email and destroy all copies of the original message.
+-----------------------------------------------------------------------------------

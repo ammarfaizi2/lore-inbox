@@ -1,61 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752790AbWKCJ7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752808AbWKCKKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752790AbWKCJ7J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 04:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752800AbWKCJ7I
+	id S1752808AbWKCKKN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 05:10:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752809AbWKCKKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 04:59:08 -0500
-Received: from pm-mx9.mgn.net ([195.46.220.205]:36502 "EHLO pm-mx9.mgn.net")
-	by vger.kernel.org with ESMTP id S1752790AbWKCJ7H (ORCPT
+	Fri, 3 Nov 2006 05:10:13 -0500
+Received: from mail.cvg.de ([62.153.82.30]:6035 "EHLO mail.cvg.de")
+	by vger.kernel.org with ESMTP id S1752808AbWKCKKL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 04:59:07 -0500
-Date: Fri, 3 Nov 2006 10:38:50 +0100
-From: Damien Wyart <damien.wyart@free.fr>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       James@superbug.demon.co.uk, Takashi Iwai <tiwai@suse.de>
-Subject: Re: ALSA message with 2.6.19-rc4-mm2 (not -mm1)
-Message-ID: <20061103093850.GA19478@localhost.localdomain>
-References: <20061102102607.GA2176@localhost.localdomain> <20061102192607.GA13635@kroah.com> <878xitpkvy.fsf@brouette.noos.fr> <20061102222242.GA17744@kroah.com> <87lkmtf2bu.fsf@brouette.noos.fr> <20061103070819.GB2448@kroah.com>
+	Fri, 3 Nov 2006 05:10:11 -0500
+To: linux-arm-kernel@lists.arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org, rpurdie@rpsys.net
+Subject: [ARM] Corrupted .got section with 2.6.18 and JFFS2 (solved)
+References: <ly1wozcr1d.fsf@ensc-pc.intern.sigma-chemnitz.de>
+	<ly64dyt7de.fsf@ensc-pc.intern.sigma-chemnitz.de>
+	<1162497112.12781.51.camel@localhost.localdomain>
+From: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
+Date: Fri, 03 Nov 2006 11:09:35 +0100
+In-Reply-To: <1162497112.12781.51.camel@localhost.localdomain> (Richard Purdie's message of "Thu, 02 Nov 2006 19:51:51 +0000")
+Message-ID: <lywt6cc04g.fsf_-_@ensc-pc.intern.sigma-chemnitz.de>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061103070819.GB2448@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
+X-Spam-Score: -2.6
+X-Spam-Tests: AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH <greg@kroah.com> [2006-11-02 23:08]: And the other files in
-> that directory are also symlinks pointing to one directory below the
-> card0 device (with the exception of the timer file), right?
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Here is the full listing:
+[CC lkml; original issue at
+ http://article.gmane.org/gmane.linux.ports.arm.kernel/28068]
 
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 admmidi -> ../../devices/virtual/sound/admmidi
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 adsp -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/adsp
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 amidi -> ../../devices/virtual/sound/amidi
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 audio -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/audio
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 card0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 controlC0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/controlC0
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 dmmidi -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/dmmidi
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 dsp -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/dsp
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 hwC0D0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/hwC0D0
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 hwC0D2 -> ../../devices/virtual/sound/hwC0D2
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 midi -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/midi
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 midiC0D0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/midiC0D0
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 midiC0D1 -> ../../devices/virtual/sound/midiC0D1
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 midiC0D2 -> ../../devices/virtual/sound/midiC0D2
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 mixer -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/mixer
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 pcmC0D0c -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/pcmC0D0c
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 pcmC0D0p -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/pcmC0D0p
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 pcmC0D1c -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/pcmC0D1c
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 pcmC0D2c -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/pcmC0D2c
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 pcmC0D2p -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/pcmC0D2p
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 pcmC0D3p -> ../../devices/pci0000:00/0000:00:1e.0/0000:02:00.0/card0/pcmC0D3p
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 seq -> ../../devices/virtual/sound/seq
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 sequencer -> ../../devices/virtual/sound/sequencer
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 sequencer2 -> ../../devices/virtual/sound/sequencer2
-lrwxrwxrwx 1 root root 0 Nov  3 08:39 timer -> ../../devices/virtual/sound/timer
+rpurdie@rpsys.net (Richard Purdie) writes:
 
--- 
-Damien Wyart
+>> > I have a problem with JFFS2 filesystem and kernel 2.6.18. When
+>> > starting a program which uses a certain library (libutil.so.1 in
+>> > my case), the .got section of the library can be initialized
+>> > wrongly when the used memory is uninitialized.
+>>=20
+>> Problem seems to be caused by
+>>=20
+>> | [PATCH] zlib_inflate: Upgrade library code to a recent version
+>>=20
+>> (4f3865fb57a04db7cca068fed1c15badc064a302)
+>>=20
+>> After reverting this (and related patches), things seem to work.
+>>=20
+>> I don't have an idea yet, which changes in this complex patch are
+>> really responsible....
+>
+> I'm the author of the above change. I just ran your test program
+> on a device (ARM PXA255 with 2.6.19-rc4 kernel, 2.3.5ish glibc,
+> gcc 3.4.4, libraries on jffs2) and I can't reproduce the
+> problem.
+
+I can reproduce it 100% with:
+
+$ git checkout -b test v2.6.17.14
+$ git-am -3 tmp/000[1-8]*
+  (see https://www.cvg.de/people/ensc/libutil/ for patches and
+   used .config (config.txt); the physmap patches are from 2.6.18)
+$ make tftp
+
+=2D-> 'fillmem ; test' sequences work without errors
+
+
+$ git-cherry-pick 4f3865fb57a04db7cca068fed1c15badc064a302
+$ make tftp
+
+=2D-> 'fillmem ; test' sequences stop with a segfault
+
+I compiled kernel both with gcc-3.4.6 and gcc-4.1.1 and got same
+results.
+
+
+Same results when using recent 2.6.18.1 kernel and reverting all
+patches which modified lib/zlib_*.
+
+I see segfaults too with 2.6.19-rc4 but did not checked yet
+whether removal of zlib patch solved them.
+
+
+Things are getting yet more strange when using the glibc-2.5
+dynamic loader:
+
+| # ... copying ld-2.5.so and libc-2.5.so ...
+| # LD_LIBRARY_PATH=3D`pwd` ./ld-2.5.so /bin/test2
+| Inconsistency detected by ld.so: dynamic-link.h: 169: elf_get_dynamic_inf=
+o: Assertion `info[19]->d_un.d_val =3D=3D sizeof (Elf32_Rel)' failed!
+| # LD_LIBRARY_PATH=3D`pwd` ./ld-2.5.so /bin/test2
+| Segmentation fault
+| # LD_LIBRARY_PATH=3D`pwd` ./ld-2.5.so /bin/test2
+| #
+
+
+> You mentioned elsewhere that reading the lib from flash gives
+> consistent md5sums. There is only one inflation code path and
+> if the md5sum is always consistent, I can't see how the the
+> inflation code is at fault. I therefore strongly suspect this
+> is some userspace issue when handling the got.
+
+Issue:
+
+* seems to be triggered by the zlib kernel patch
+* seems to be triggered by my 'libutil.so' (I can not see it with
+  other libraries)
+* can be reproduced on two different PXA270 platforms (same
+  userspace, but different module vendors and different memory
+  timing setups)
+
+
+I see the following reasons:
+
+* new zlib code has sideeffects (overflows?)
+* new zlib code is so fast that it triggers a race somewhere else
+* libutil.so's .init section is buggy (likely, but why does the
+  error not occur when libutil.so is on tmpfs or NFS?)
+* new zlib code requires more/less memory bandwidth, changes
+  power consumption of CPU/memory which is causing random errors
+  (unlikely because only same part of .got table is affected and
+  it happens on two different platforms)
+* some DCACHE issue
+
+
+> Which other related patches did you remove?
+
+For 2.6.18 tests, I reverted only the patches which changed
+lib/zlib_* after 2.6.17:
+
+| 31925c8857ba17c11129b766a980ff7c87780301 [PATCH] Fix ppc32 zImage inflate
+| b762450e84e20a179ee5993b065caaad99a65fbf [PATCH] zlib inflate: fix functi=
+on definitions
+| 0ecbf4b5fc38479ba29149455d56c11a23b131c0 move acknowledgment for Mark Adl=
+er to CREDITS
+| 4f3865fb57a04db7cca068fed1c15badc064a302 [PATCH] zlib_inflate: Upgrade li=
+brary code to a recent version
+
+
+
+
+Enrico
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iQEVAwUARUsVaAc3PX/XHFA7AQr7Dwf/bhIaevehd36LDXrsL7mOZ+alfyRWfHDL
+867csUOFGU1yScuE5I+EKpDFoOQQGZrNTn5l1yDvoQVYDRFM7MynR+PCf2P9Dh8G
+tkOyjZhgRpzdILT0oQcoKBrJLYBLHT7Kn6kCoq0oYdLQSL9MsH2DXGo8riUGpqI9
+0PXRdqUMgfuFaTr2a/UlfjcwFpDgHjopXnGGPANrX0Z090yyk9W9ySWRol2sAsrZ
+EYPM2LaFYtntUXBvdkZH4Loj4at3dzw5ehkoQ4qDyIM9/A2rRxK7PyL153kns56e
+2zYXns6v22MeTUNGs3mJhZOujae6h/irutCestn5x18ApQ6XRE/Vqw==
+=Tp7g
+-----END PGP SIGNATURE-----
+--=-=-=--

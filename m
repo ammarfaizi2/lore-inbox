@@ -1,94 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753132AbWKCS7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753455AbWKCTAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753132AbWKCS7O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 13:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753422AbWKCS7N
+	id S1753455AbWKCTAn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 14:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753462AbWKCTAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 13:59:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:58510 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753132AbWKCS7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 13:59:13 -0500
-Date: Fri, 3 Nov 2006 10:58:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Franck <vagabon.xyz@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       adaplas@pol.net, gregkh@suse.de
-Subject: Re: [PATCH] fbcon: Re-fix little-endian bogosity in
- slow_imageblit()
-Message-Id: <20061103105857.874f566c.akpm@osdl.org>
-In-Reply-To: <454B5866.6000207@innova-card.com>
-References: <454B5866.6000207@innova-card.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 3 Nov 2006 14:00:43 -0500
+Received: from master.altlinux.org ([62.118.250.235]:50192 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP
+	id S1753455AbWKCTAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 14:00:42 -0500
+Date: Fri, 3 Nov 2006 22:00:18 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Alberto Alonso <alberto@ggsys.net>
+Cc: mlord@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: qstor driver -> irq 193: nobody cared
+Message-Id: <20061103220018.577ded43.vsu@altlinux.ru>
+In-Reply-To: <1162576973.3967.10.camel@w100>
+References: <1162576973.3967.10.camel@w100>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.10.2; x86_64-alt-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__3_Nov_2006_22_00_18_+0300_vuR+bjWGw_9MOph+"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Nov 2006 15:55:34 +0100
-Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
+--Signature=_Fri__3_Nov_2006_22_00_18_+0300_vuR+bjWGw_9MOph+
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> From: Franck Bui-Huu <fbuihuu@gmail.com>
-> 
-> This bug has been introduced by commit:
-> 
-> 	a536093a2f07007aa572e922752b7491b9ea8ff2
-> 
-> This commit fixed the big-endian case but broke the little-endian one.
-> This patch revert the previous change and swap the definition of
-> FB_BIT_NR() macro between big and little endian. It should work for
-> both endianess now.
-> 
+On Fri, 03 Nov 2006 12:02:53 -0600 Alberto Alonso wrote:
 
-I get worried when I see the word "should" in a changelog.
+> I have a Pacific Digital qstor card on irq 193. I am using kernel
+> 2.6.17.13 SMP
+>=20
+> The error happens every now and then. I have not been able to
+> figure out any triggers and I can not reproduce it on demand. Today
+> it happened 3 times within a 40 minutes period.=20
+>=20
+> All disks connected to the card are disabled and I can't do anything
+> other than a reboot to get them back.
+>=20
+> It is reported as follows:
+>=20
+> irq 193: nobody cared (try booting with the "irqpoll" option)
 
-> ---
-> 
->  This is the most obvious fix for me although it's a bit weird
->  that bit ordering depend on platform endianess. I don't know
->  fb code so I prefer submitting this trivial fix rather than
->  breaking every thing else ;)
-> 
->  drivers/video/cfbimgblt.c |    4 ++--
->  include/linux/fb.h        |    2 ++
->  2 files changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/video/cfbimgblt.c b/drivers/video/cfbimgblt.c
-> index 51d3538..8f47bf4 100644
-> --- a/drivers/video/cfbimgblt.c
-> +++ b/drivers/video/cfbimgblt.c
-> @@ -168,7 +168,7 @@ static inline void slow_imageblit(const
->  
->  		while (j--) {
->  			l--;
-> -			color = (*s & (1 << l)) ? fgcolor : bgcolor;
-> +			color = (*s & (1 << FB_BIT_NR(l))) ? fgcolor : bgcolor;
->  			val |= FB_SHIFT_HIGH(color, shift);
+Did you try this option?  It may decrease performance, but in some cases
+IRQ routing is so screwed that only irqpoll helps.
 
-So that takes us back to the pre-March 31 code, which was allegedly broken
-on big-endian.
+[...]
+> handlers:
+> [<c0301300>] (qs_intr+0x0/0x220)
+> Disabling IRQ #193
+[..]
+> If there is any other info that I should provide to help=20
+> troubleshoot please let me know.
 
+The "nobody cared" error is often caused by some other device which
+shares the same interrupt, but Linux does not know about it (either due
+to broken IRQ routing tables in BIOS, or because the driver for that
+device is not loaded, but the device really is active and asserts its
+IRQ line - sometimes this also happens due to a broken BIOS).
 
-> --- a/include/linux/fb.h
-> +++ b/include/linux/fb.h
-> @@ -854,10 +854,12 @@ #define fb_memset memset
->  #endif
->  
->  #if defined (__BIG_ENDIAN)
-> +#define FB_BIT_NR(b)              (b)
->  #define FB_LEFT_POS(bpp)          (32 - bpp)
->  #define FB_SHIFT_HIGH(val, bits)  ((val) >> (bits))
->  #define FB_SHIFT_LOW(val, bits)   ((val) << (bits))
->  #else
-> +#define FB_BIT_NR(b)              (7 - (b))
->  #define FB_LEFT_POS(bpp)          (0)
->  #define FB_SHIFT_HIGH(val, bits)  ((val) << (bits))
->  #define FB_SHIFT_LOW(val, bits)   ((val) >> (bits))
+Please post complete /proc/interrupts and lspci -v output, and also
+information about the motherboard model and BIOS version.
 
-And that swaps the little-endian and bit-endian implementations of
-FB_BIT_NR().  So if it was previously broken on big-endian and was working
-on little-endian then it's presumably now broken on little-endian and
-working on big-endian.  Or something.
+If your motherboard has a VIA chipset, you may also try the patch from
+http://lkml.org/lkml/2006/9/7/235 which attempts to fix IRQ routing on
+these chipsets.
 
+--Signature=_Fri__3_Nov_2006_22_00_18_+0300_vuR+bjWGw_9MOph+
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFS5HFW82GfkQfsqIRAkRjAJ43M4LTzwHfRKiERdnu+YGuwxj7LQCgjt3x
+24h59ZuXvrF1X4Rq8kfRJwU=
+=4ORO
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__3_Nov_2006_22_00_18_+0300_vuR+bjWGw_9MOph+--

@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752654AbWKCJEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752710AbWKCJJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752654AbWKCJEO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 04:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752627AbWKCJEN
+	id S1752710AbWKCJJO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 04:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752941AbWKCJJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 04:04:13 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53678
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1752629AbWKCJEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 04:04:11 -0500
-Date: Fri, 03 Nov 2006 01:04:13 -0800 (PST)
-Message-Id: <20061103.010413.85690195.davem@davemloft.net>
-To: pavel@ucw.cz
-Cc: johnpol@2ka.mipt.ru, nate.diller@gmail.com, linux-kernel@vger.kernel.org,
-       olecom@flower.upol.cz, drepper@redhat.com, akpm@osdl.org,
-       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org,
-       chase.venters@clientec.com, johann.borck@densedata.com
-Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061103085712.GA3725@elf.ucw.cz>
-References: <5c49b0ed0611021140u360342f2v1e83c73d03eea329@mail.gmail.com>
-	<20061103084240.GB1184@2ka.mipt.ru>
-	<20061103085712.GA3725@elf.ucw.cz>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Nov 2006 04:09:14 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35038 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1752710AbWKCJJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 04:09:13 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>, linux-kernel@vger.kernel.org,
+       ak@suse.de, discuss@x86-64.org
+Subject: Re: 2.6.19-rc1: x86_64 slowdown in lmbench's fork
+References: <1162485897.10806.72.camel@localhost.localdomain>
+	<m1d5851yxd.fsf@ebiederm.dsl.xmission.com>
+	<1162492453.10806.75.camel@localhost.localdomain>
+	<20061103021145.GD13381@stusta.de>
+Date: Fri, 03 Nov 2006 02:08:42 -0700
+In-Reply-To: <20061103021145.GD13381@stusta.de> (Adrian Bunk's message of
+	"Fri, 3 Nov 2006 03:11:45 +0100")
+Message-ID: <m1bqnozylh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavel Machek <pavel@ucw.cz>
-Date: Fri, 3 Nov 2006 09:57:12 +0100
+Adrian Bunk <bunk@stusta.de> writes:
 
-> Not sure what you are smoking, but "there's unsigned long in *bsd
-> version, lets rewrite it from scratch" sounds like very bad idea. What
-> about fixing that one bit you don't like?
+> On Thu, Nov 02, 2006 at 10:34:13AM -0800, Tim Chen wrote:
+>> On Thu, 2006-11-02 at 11:33 -0700, Eric W. Biederman wrote:
+>> 
+>> > My only partial guess is that it might be worth adding the per cpu
+>> > variables my patch adds without any of the corresponding code changes.
+>> > And see if adding variables to the per cpu area is what is causing the
+>> > change.
+>> > 
+>> > The two tests I can see in this line are:
+>> > - to add the percpu vector_irq variable.
+>> > - to increase NR_IRQs.
+>> 
+>> Increasing the NR_IRQs resulted in the regression.
+>>...
+>
+> What's your CONFIG_NR_CPUS setting that you are seeing such a big
+> regression?
 
-I disagree, it's more like since we have to be structure incompatible
-anyways, let's design something superior if we can.
+Also could we see the section of System.map that deals with
+per cpu variables.
 
+I believe there are some counters for processes and the like
+just below kstat whose size increase is causing you real
+problems.
+
+Ugh.  I just looked at include/linux/kernel_stat.h
+kstat has the per cpu irq counters and all of the cpu process
+time accounting so it is quite likely that we are going to be
+touching this structure plus the run queues and the process counts
+during a fork.  All of which are now potentially much more spread out.
+
+Also has anyone else reproduce this problem yet?
+
+I don't doubt that it exists but having a few more data points or
+eyeballs on the problem couldn't hurt.
+
+Eric

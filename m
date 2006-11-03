@@ -1,61 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWKCUql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753532AbWKCUrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWKCUql (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 15:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753529AbWKCUql
+	id S1753532AbWKCUrE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWKCUrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 15:46:41 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:57013 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1753528AbWKCUql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 15:46:41 -0500
-Date: Fri, 3 Nov 2006 12:46:36 -0800 (PST)
+	Fri, 3 Nov 2006 15:47:03 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50898 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1753532AbWKCUq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:46:58 -0500
+Date: Fri, 3 Nov 2006 12:46:56 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-Message-Id: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 0/7] sched_domain balancing via tasklet V3
+Message-Id: <20061103204656.15739.37599.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
+References: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 4/7] Stagger load balancing in build_sched_domains
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patchset moves potentially expensive load balancing out of the scheduler
-tick (where we run with interrupts disabled) into a tasklet that is triggered
-if necessary from scheduler_tick(). Load balancing will then run with interrupts
-enabled. This eliminates interrupt holdoff times and avoids potential machine
-livelock if f.e. load balancing is performed over a large number of processors
-and many of the nodes experience heavy load which may lead to delays in
-fetching cachelines. We have currently up to 1024 processors and may go up
-to 4096 soon. Similar issues were seen on a Fujitsu system in the past.
-
-However, this issue also highlights the general problem of interrupt
-holdoff during scheduler load balancing.
-
-The moving of the load balancing into a tasklet also allows some
-cleanup in scheduler_tick(). It gets easier to read and the determination
-of the state for load balancing can be moved out of scheduler_tick().
-
-Further optimization of scheduler_tick() processing occurs because we
-no longer check all the sched domains on each tick.
-We determine the time of the next load balancing on every load balancing
-and check against this single value in scheduler_tick().
-
-Another optimization is that we perform the staggering of the individual
-load balance operations not during load balancing but shift that
-to the setup of the sched domains.
-
-For the earlier discussion see:
-http://marc.theaimsgroup.com/?t=116119187800002&r=1&w=2
-V1: http://marc.theaimsgroup.com/?l=linux-kernel&m=116171494001548&w=2
-V2: http://marc.theaimsgroup.com/?l=linux-kernel&m=116200355408187&w=2
-
-V1-V2:
-- Keep last_balance and calculate the next balancing from that start
-  point.
-- Move more code into time_slice calculation and rename time_slice()
-  to task_running_tick().
-- Separate out the wake_priority_sleeper optimization as a first patch.
-
-V2->V3
-- Rediff against 2.6.19-rc4-mm2
-- Remove useless check for rq->idle in rebalance_domains()
-
+Index: linux-2.6.19-rc4-mm2/kernel/sched.c
+===================================================================
+--- linux-2.6.19-rc4-mm2.orig/kernel/sched.c	2006-11-03 12:51:52.997976327 -0600
++++ linux-2.6.19-rc4-mm2/kernel/sched.c	2006-11-03 12:53:23.254849673 -0600
+@@ -2849,17 +2849,10 @@ static void update_load(struct rq *this_
+  *
+  * Balancing parameters are set up in arch_init_sched_domains.
+  */
+-
+-/* Don't have all balancing operations going off at once: */
+-static inline unsigned long cpu_offset(int cpu)
+-{
+-	return jiffies + cpu * HZ / NR_CPUS;
+-}
+-
+ static void
+ rebalance_tick(int this_cpu, struct rq *this_rq, enum idle_type idle)
+ {
+-	unsigned long interval, j = cpu_offset(this_cpu);
++	unsigned long interval;
+ 	struct sched_domain *sd;
+ 
+ 	for_each_domain(this_cpu, sd) {
+@@ -2875,7 +2868,7 @@ rebalance_tick(int this_cpu, struct rq *
+ 		if (unlikely(!interval))
+ 			interval = 1;
+ 
+-		if (j - sd->last_balance >= interval) {
++		if (jiffies - sd->last_balance >= interval) {
+ 			if (load_balance(this_cpu, this_rq, sd, idle)) {
+ 				/*
+ 				 * We've pulled tasks over so either we're no
+@@ -6447,6 +6440,16 @@ static void init_sched_groups_power(int 
+ }
+ 
+ /*
++ * Calculate jiffies start to use for each cpu. On sched domain
++ * initialization this jiffy value is used to stagger the load balancing
++ * of the cpus so that they do not load balance all at at the same time.
++ */
++static inline unsigned long cpu_offset(int cpu)
++{
++	return jiffies + cpu * HZ / NR_CPUS;
++}
++
++/*
+  * Build sched domains for a given set of cpus and attach the sched domains
+  * to the individual cpus
+  */
+@@ -6502,6 +6505,7 @@ static int build_sched_domains(const cpu
+ 			sd->span = *cpu_map;
+ 			group = cpu_to_allnodes_group(i, cpu_map);
+ 			sd->groups = &sched_group_allnodes[group];
++			sd->last_balance = cpu_offset(i);
+ 			p = sd;
+ 		} else
+ 			p = NULL;
+@@ -6510,6 +6514,7 @@ static int build_sched_domains(const cpu
+ 		*sd = SD_NODE_INIT;
+ 		sd->span = sched_domain_node_span(cpu_to_node(i));
+ 		sd->parent = p;
++		sd->last_balance = cpu_offset(i);
+ 		if (p)
+ 			p->child = sd;
+ 		cpus_and(sd->span, sd->span, *cpu_map);
+@@ -6521,6 +6526,7 @@ static int build_sched_domains(const cpu
+ 		*sd = SD_CPU_INIT;
+ 		sd->span = nodemask;
+ 		sd->parent = p;
++		sd->last_balance = cpu_offset(i);
+ 		if (p)
+ 			p->child = sd;
+ 		sd->groups = &sched_group_phys[group];
+@@ -6533,6 +6539,7 @@ static int build_sched_domains(const cpu
+ 		sd->span = cpu_coregroup_map(i);
+ 		cpus_and(sd->span, sd->span, *cpu_map);
+ 		sd->parent = p;
++		sd->last_balance = cpu_offset(i);
+ 		p->child = sd;
+ 		sd->groups = &sched_group_core[group];
+ #endif
+@@ -6545,6 +6552,7 @@ static int build_sched_domains(const cpu
+ 		sd->span = cpu_sibling_map[i];
+ 		cpus_and(sd->span, sd->span, *cpu_map);
+ 		sd->parent = p;
++		sd->last_balance = cpu_offset(i);
+ 		p->child = sd;
+ 		sd->groups = &sched_group_cpus[group];
+ #endif

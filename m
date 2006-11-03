@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753378AbWKCQvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753376AbWKCQyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753378AbWKCQvN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 11:51:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753381AbWKCQvM
+	id S1753376AbWKCQyG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 11:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753381AbWKCQyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 11:51:12 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:27578 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1753380AbWKCQvL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 11:51:11 -0500
-From: Andi Kleen <ak@suse.de>
-To: Amul Shah <amul.shah@unisys.com>
-Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when  reserving MP Tables located in high memory
-Date: Fri, 3 Nov 2006 17:51:03 +0100
-User-Agent: KMail/1.9.5
-Cc: LKML <linux-kernel@vger.kernel.org>, Vivek Goyal <vgoyal@in.ibm.com>
-References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com> <200611030340.55952.ak@suse.de> <1162565722.19677.68.camel@ustr-linux-shaha1.unisys.com>
-In-Reply-To: <1162565722.19677.68.camel@ustr-linux-shaha1.unisys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Fri, 3 Nov 2006 11:54:05 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:61437 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1753376AbWKCQyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 11:54:04 -0500
+Date: Fri, 3 Nov 2006 17:57:30 +0100
+From: chris friedhoff <chris@friedhoff.org>
+To: serue@us.ibm.com
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] security: introduce fs caps
+Message-Id: <20061103175730.87f55ff8.chris@friedhoff.org>
+Reply-To: 20060906182719.GB24670@sergelap.austin.ibm.com
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i486-slackware-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611031751.04056.ak@suse.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9d7f00276fac4b25ba506f26988c1e36
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch applies cleanly , compiles and runs smoothly against 2.6.18.1.
 
-[Finally dropping that annoying fastboot list from cc. Please never include any closed 
-mailing lists in l-k posts. Thanks]
+I'm running slackware-current with a 2.6.18.1 kernel on an ext3
+filesystem.
 
->   That won't worked because in arch/86_64/kernel/e820.c, the exactmap
-> parsing clobbers end_pfn_map.
+Background why I use the patch:
+With 2.6.18 to create a tuntap interface CAP_NET_ADMIN is required.
+Qemu uses tuntap to create a tap interface as a virtual net interface.
+Instead now running qemu with root privileges to give it the right
+to create a tap interface, i granted qemu with the help of the patch and
+Kaigai Kohei's userspace tools the cap-net_admin capability. So qemu
+runs again without root privilege but has now the right to create the
+tap interface.
 
-That's a bug imho. It shouldn't do that.
+Thanks for the patch. It reduces my the need of suid-bit progs.
+It should be given a spin in -mm.
 
-end_pfn_map should be always the highest address in e820 so that we 
-can access all firmware tables safely.
+I will document my experiences on http://www.friedhoff.org/fscaps.html
 
--Andi
 
-> 
-> static int __init parse_memmap_opt(char *p)
-> {
-> 	char *oldp;
-> 	unsigned long long start_at, mem_size;
-> 
-> 	if (!strcmp(p, "exactmap")) {
-> #ifdef CONFIG_CRASH_DUMP
-> 		/* If we are doing a crash dump, we
-> 		 * still need to know the real mem
-> 		 * size before original memory map is
-> 		 * reset.
-> 		 */
-> 		saved_max_pfn = e820_end_of_ram();
-> #endif
-> 		end_pfn_map = 0;
-> 		e820.nr_map = 0;
-> 		userdef = 1;
-> 		return 0;
-> 	}
+Chris
+
+please cc me on my email-address
+
+--------------------
+Chris Friedhoff
+chris@friedhoff.org

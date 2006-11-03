@@ -1,105 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753365AbWKCSRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753358AbWKCSSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753365AbWKCSRR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 13:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753366AbWKCSRR
+	id S1753358AbWKCSSu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 13:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753423AbWKCSSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 13:17:17 -0500
-Received: from fmmailgate03.web.de ([217.72.192.234]:12526 "EHLO
-	fmmailgate03.web.de") by vger.kernel.org with ESMTP
-	id S1753365AbWKCSRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 13:17:16 -0500
-Message-ID: <01a501c6ff74$6fc52c80$962e8d52@aldipc>
-From: "roland" <devzero@web.de>
-To: <linux-net@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: unregister_netdevice: waiting for eth0 to become free
-Date: Fri, 3 Nov 2006 19:18:17 +0100
+	Fri, 3 Nov 2006 13:18:50 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51873 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1753358AbWKCSSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 13:18:49 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: tim.c.chen@linux.intel.com, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: 2.6.19-rc1: x86_64 slowdown in lmbench's fork
+References: <1162485897.10806.72.camel@localhost.localdomain>
+	<1162570216.10806.79.camel@localhost.localdomain>
+	<m1lkmsxwk7.fsf@ebiederm.dsl.xmission.com>
+	<200611031847.49222.ak@suse.de>
+Date: Fri, 03 Nov 2006 11:18:18 -0700
+In-Reply-To: <200611031847.49222.ak@suse.de> (Andi Kleen's message of "Fri, 3
+	Nov 2006 18:47:49 +0100")
+Message-ID: <m18xisxul1.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi list,
+Andi Kleen <ak@suse.de> writes:
 
-I have come across a problem on a SLES8 (2.4 kernel based) system today.
+>> So unless there is some other array that is sized by NR_IRQs
+>> in the context switch path which could account for this in
+>> other ways.  It looks like you just got unlucky.
+>
+>
+> TLB/cache profiling data might be useful?
+> My bet would be more on cache effects.
 
-getting "unregister_netdevice: waiting for eth0 to become free" on shutdown 
-and the shutdown got stuck at this point. needed to do a hard reset to 
-continue.
+The only way I can see that being true is if some irq was keeping
+the cache line warm for something in the process startup.
 
-by some search via google/vmware-forum i found a hint very soon (this was 
-for RedHat, but also worked with SLES)
+I have trouble seeing how adding 1K to an already 1K data structure
+can cause a cache fault that wasn't happening already.
+  
+>> The only hypothesis that I can seem to come up with is that maybe
+>> you are getting an extra tlb now that you didn't use to.  
+>> I think the per cpu area is covered by huge pages but maybe not.
+>
+> It should be.
 
-------------------------------------------------
-In many Linux distributions, if IPv6 is enabled, VMware Tools cannot be 
-configured with vmware-config-tools.pl after installation. In this case,
-VMware Tools is unable to set the network device correctly for the virtual 
-machine, and displays a message similar to
-Unloading pcnet32 module
-unregister_netdevice: waiting for eth0 to become free
-This message repeats continuously until you reboot the virtual machine. To 
-prevent this problem in virtual machines running Linux, disable IPv6 before 
-installing VMware Tools.
-To disable IPv6 in a virtual machine running Linux:
-1 If the file /etc/sysconfig/network contains the line NETWORKING_IPV6=yes, 
-change the line to NETWORKING_IPV6=no.
+Which invalidates the tlb fault hypothesis unless it happens to lie
+on the 2MB boundary.
 
-2 In the file /etc/modules.conf, add the following lines:
-alias ipv6 off
-alias net-pf-10 off
-
-After you disable IPv6, you should be able to install and configure VMware 
-Tools successfully.
-------------------------------------------------
-
-this solved my shutdown problem.  (network driver wasn`t pcnet32 but vmxnet 
-, which is a vmware specific network device)
-
-anyway - i wondered about this "waiting to become free".
-this is just a workaround, not a solution.
-what if i needed to use ipv6 ?
-
-before i disabled ipv6 (as it is being recommended) , i tried some manual 
-steps to disable ipv6, but failed.
-
-don`t have the sles8 here at home, but trying to disable ipv6 "manually" on 
-a newer system gives a similar error:
-
-vserver1:~ # rmmod ipv6
-ERROR: Module ipv6 is in use by ip6t_REJECT
-vserver1:~ # rmmod ip6t_REJECT
-ERROR: Module ip6t_REJECT is in use
-
-ok - rmmod telling me, that ip6t_REJECT is in use.
-
-but - what/who is using it ?
-
-i disabled all network services for which lsof had shown that they had an 
-ipv6 socket open, i also did "ifconfig sit0 down", which seems to be a ipv6 
-related network device, but still having ip6t_REJECT in use.
-
-now my questions:
-
-- how  can i determine what "component" (i.e. one of userspace app, device, 
-kernel-thread....whatever) is using a module, so i`m able to unload that 
-module ?
-- is there sort of "lsof" for kernel modules ?
-- what is causing the unregister_netdevice to fail ? is it an older bug 
-which has been resolved in later kernels ?
-
-i`m quite sure, that i have seen this issue in the past, more then once and 
-not related to vmware.
-so, this is why i`m reporting it here and asking for help
-
-regards
-roland 
-
+Eric

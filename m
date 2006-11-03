@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753130AbWKCGE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753137AbWKCGZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753130AbWKCGE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 01:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753133AbWKCGE5
+	id S1753137AbWKCGZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 01:25:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753136AbWKCGZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 01:04:57 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:48015 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1753130AbWKCGE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 01:04:57 -0500
-Date: Fri, 3 Nov 2006 11:34:27 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, martin@lorenz.eu.org, srinivasa@in.ibm.com,
-       vatsa@in.ibm.com
-Subject: [PATCH] Fix the spurious unlock_cpu_hotplug false warnings.
-Message-ID: <20061103060427.GA12399@in.ibm.com>
-Reply-To: ego@in.ibm.com
+	Fri, 3 Nov 2006 01:25:27 -0500
+Received: from pat.uio.no ([129.240.10.4]:56221 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1753134AbWKCGZ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 01:25:26 -0500
+Subject: Re: [PATCH 2/3] fsstack: Generic get/set lower object functions
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: Mark Williamson <mark.williamson@cl.cam.ac.uk>,
+       linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>,
+       Michael Halcrow <mhalcrow@us.ibm.com>, Erez Zadok <ezk@cs.sunysb.edu>,
+       Christoph Hellwig <hch@infradead.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20061103035130.GC13499@filer.fsl.cs.sunysb.edu>
+References: <20061102035928.679.60601.stgit@thor.fsl.cs.sunysb.edu>
+	 <1162483565.6299.98.camel@lade.trondhjem.org>
+	 <20061103032702.GB13499@filer.fsl.cs.sunysb.edu>
+	 <200611030345.51167.mark.williamson@cl.cam.ac.uk>
+	 <20061103035130.GC13499@filer.fsl.cs.sunysb.edu>
+Content-Type: text/plain
+Date: Fri, 03 Nov 2006 01:25:03 -0500
+Message-Id: <1162535103.5635.20.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.205, required 12,
+	autolearn=disabled, AWL 1.66, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cpu-hotplug locking has a minor race case caused because of setting the
-variable "recursive" to NULL *after* releasing the cpu_bitmask_lock in the
-function unlock_cpu_hotplug,instead of doing so before releasing the
-cpu_bitmask_lock. 
+On Thu, 2006-11-02 at 22:51 -0500, Josef Sipek wrote:
+> On Fri, Nov 03, 2006 at 03:45:50AM +0000, Mark Williamson wrote:
+> > > > Why are you defining all these structs that are just wrapping unions?
+> > >
+> > > The reason for the union is simple...
+> ...
+> > I guess that having a union foo * rather than a struct foo * would be a bit 
+> > unconventional in the kernel.  The named struct / anonymous union combo does 
+> > hide the union as merely an implementation detail, which is nice.  Was this 
+> > your motivation?
+> 
+> That's exactly it. Save space & hide the details.
 
-This was the cause of most of the recent false spurious lock_cpu_unlock
-warnings.
+Why? What is so special about the details that you need to hide them?
+This is a union that will always be part of a structure anyway.
 
-This should fix the problem reported by Martin Lorenz reported in
-http://lkml.org/lkml/2006/10/29/127.
+Trond
 
-Thanks to Srinivasa DS for pointing it out.
-
-Signed-off-by: Gautham R Shenoy <ego@in.ibm.com>
-
---
- kernel/cpu.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: hotplug/kernel/cpu.c
-===================================================================
---- hotplug.orig/kernel/cpu.c
-+++ hotplug/kernel/cpu.c
-@@ -58,8 +58,8 @@ void unlock_cpu_hotplug(void)
- 		recursive_depth--;
- 		return;
- 	}
--	mutex_unlock(&cpu_bitmask_lock);
- 	recursive = NULL;
-+	mutex_unlock(&cpu_bitmask_lock);
- }
- EXPORT_SYMBOL_GPL(unlock_cpu_hotplug);
- 
--- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"

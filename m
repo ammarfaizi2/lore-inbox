@@ -1,67 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752261AbWKCIZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWKCI1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752261AbWKCIZn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 03:25:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752255AbWKCIZn
+	id S1751191AbWKCI1X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 03:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752141AbWKCI1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 03:25:43 -0500
-Received: from mga07.intel.com ([143.182.124.22]:34202 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1752021AbWKCIZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 03:25:42 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,383,1157353200"; 
-   d="scan'208"; a="140450079:sNHT30721488"
-Message-ID: <454AFD01.4080306@linux.intel.com>
-Date: Fri, 03 Nov 2006 11:25:37 +0300
-From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Fri, 3 Nov 2006 03:27:23 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:24993 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751191AbWKCI1W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 03:27:22 -0500
+Date: Fri, 3 Nov 2006 09:26:31 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Gabriel C <nix.or.die@googlemail.com>
+cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <454AA4C5.3070106@googlemail.com>
+Message-ID: <Pine.LNX.4.61.0611030911540.13091@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
+ <454AA4C5.3070106@googlemail.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, Christian <christiand59@web.de>
-Subject: Re: [discuss] Linux 2.6.19-rc4: known unfixed regressions (v2)
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061103024132.GG13381@stusta.de> <20061103025623.GB8816@redhat.com>
-In-Reply-To: <20061103025623.GB8816@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	0.0 UPPERCASE_25_50        message body is 25-50% uppercase
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could this be a problem?
---------------------
-...
-CONFIG_ACPI_PROCESSOR=m
-...
-CONFIG_X86_POWERNOW_K8=y
-...
+>>>> As my PhD thesis, I am designing and writing a filesystem, and it's now in
+>>>> a state that it can be released. You can download it from
+>>>> http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
+>>>>
+>> Hmm, I see, they changed some stuff ... and in 2.6.19 too. I made a new 
+>> version that compiles with 2.6.18 and 2.6.19rc4, so try it.
+>
+>This error looks fixed, now I have a new one here :)
+>
+>cc -D__NOT_FROM_SPAD -D__NOT_FROM_SPAD_TREE -Wall
+>-fdollars-in-identifiers -O2 -fomit-frame-pointer -c -o MKSPADFS.o -x c
+>MKSPADFS.C
+>MKSPADFS.C:146: error: expected declaration specifiers or '...' before
+>'_llseek'
+>MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'fd'
+>MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'hi'
+>MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'lo'
+>MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'res'
+>MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'wh'
+>MKSPADFS.C:146: warning: type defaults to 'int' in declaration of
+>'_syscall5'
 
-Regards,
-	Alex.
+Ugh this syscall 'crap' is butt-ugly.
 
-Dave Jones wrote:
-> On Fri, Nov 03, 2006 at 03:41:32AM +0100, Adrian Bunk wrote:
->  > This email lists some known regressions in 2.6.19-rc4 compared to 2.6.18
->  > that are not yet fixed in Linus' tree.
->  > 
->  > If you find your name in the Cc header, you are either submitter of one
->  > of the bugs, maintainer of an affectected subsystem or driver, a patch
->  > of you caused a breakage or I'm considering you in any other way possibly
->  > involved with one or more of these issues.
->  > 
->  > Due to the huge amount of recipients, please trim the Cc when answering.
->  > 
->  > Subject    : cpufreq not working on AMD K8
->  > References : http://lkml.org/lkml/2006/10/10/114
->  > Submitter  : Christian <christiand59@web.de>
->  > Status     : unknown
-> 
-> As Mark mentioned in his followup, powernow-k8 didn't change in .19 at all.
-> I'm suspecting an ACPI change meant that we no longer find the PST tables
-> correctly.
-> 
-> Christian, can you post the full dmesg's from the working/broken kernels.
-> It may be useful to enable CONFIG_ACPI_DEBUG too.
-> 
-> 	Dave
-> 
+So anyway, why do you need _llseek? Can't you just use lseek() like 
+everyone else?
+
+>In file included from MKSPADFS.C:153:
+>GETHSIZE.I: In function 'test_access':
+>GETHSIZE.I:13: warning: implicit declaration of function '_llseek'
+>make: *** [MKSPADFS.o] Error 1
+
+And why are the filenames all uppercase? I think I left the DOS times 
+some years ago. Your makefile also has some pits. Look at unionfs how to 
+organize kernel and userspace files in a better way in one tree.
+
+
+spadfs-01.diff
+Index: spadfs-0.9.1/Kbuild
+===================================================================
+--- /dev/null
++++ spadfs-0.9.1/Kbuild
+@@ -0,0 +1,2 @@
++obj-m  := spadfs.o
++spadfs-y := alloc.o buffer.o dir.o file.o inode.o link.o name.o namei.o super.o
+Index: spadfs-0.9.1/Makefile
+===================================================================
+--- spadfs-0.9.1.orig/Makefile
++++ spadfs-0.9.1/Makefile
+@@ -1,6 +1,4 @@
+ ifneq ($(KERNELRELEASE),)
+-obj-m  := spadfs.o
+-spadfs-y := alloc.o buffer.o dir.o file.o inode.o link.o name.o namei.o super.o
+ else
+ KERNELDIR := /usr/src/linux-`uname -r`/
+ all : spadfs mkspadfs spadfsck
+#<EOF>
+
+
+spadfs-02.diff
+Index: spadfs-0.9.1/Kbuild
+===================================================================
+--- spadfs-0.9.1.orig/Kbuild
++++ spadfs-0.9.1/Kbuild
+@@ -1,2 +1,2 @@
+-obj-m  := spadfs.o
++obj-m += spadfs.o
+ spadfs-y := alloc.o buffer.o dir.o file.o inode.o link.o name.o namei.o super.o
+Index: spadfs-0.9.1/Makefile
+===================================================================
+--- spadfs-0.9.1.orig/Makefile
++++ spadfs-0.9.1/Makefile
+@@ -1,19 +1,24 @@
+-ifneq ($(KERNELRELEASE),)
+-else
+-KERNELDIR := /usr/src/linux-`uname -r`/
++
++KERNELDIR := /lib/modules/$(shell uname -r)/build
++
+ all : spadfs mkspadfs spadfsck
++
+ spadfs :
+ 	$(MAKE) -C $(KERNELDIR) M=`pwd`
+-CFLAGS=-D__NOT_FROM_SPAD -D__NOT_FROM_SPAD_TREE -Wall -fdollars-in-identifiers -O2 -fomit-frame-pointer
++
++CFLAGS := -D__NOT_FROM_SPAD -D__NOT_FROM_SPAD_TREE -Wall -fdollars-in-identifiers -O2 -fomit-frame-pointer
+ #CC=icc
+ #CFLAGS=-D__NOT_FROM_SPAD -D__NOT_FROM_SPAD_TREE
++
+ %.o : %.C
+ 	$(CC) $(CFLAGS) -c -o $@ -x c $<
++
+ mkspadfs : MKSPADFS.o SFSAPAGE.o
+ 	$(CC) $(CFLAGS) -o $@ $^ && strip $@
++
+ spadfsck : SPAD-API.o FSCK/SCK.o FSCK/SCKALLOC.o FSCK/SCKAPAGE.o FSCK/SCKBUF.o FSCK/SCKCCT.o FSCK/SCKCRT.o FSCK/SCKDIR.o FSCK/SCKEA.o FSCK/SCKFBLK.o FSCK/SCKFILE.o FSCK/SCKFN.o FSCK/SCKFXFN.o FSCK/SCKHDLNK.o FSCK/SCKLOG.o FSCK/SCKRCV.o FSCK/SCKSUPER.o FSCK/SCKXL.o
+ 	$(CC) $(CFLAGS) -o $@ $^ && strip $@
++
+ clean :
+-	rm -f *.o *.ko mkspadfs FSCK/*.o spadfsck .*.cmd spadfs.mod.c Modules.symvers
+-	rm -rf .tmp_versions
+-endif
++	${MAKE} -C ${KERNELDIR} M=$$PWD clean
++	rm -f *.o mkspadfs FSCK/*.o spadfsck Modules.symvers
+#<EOF>
+
+
+	-`J'
+-- 

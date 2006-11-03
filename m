@@ -1,100 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWKCUsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753529AbWKCUrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWKCUsg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 15:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWKCUrT
+	id S1753529AbWKCUrn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWKCUrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 15:47:19 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:61621 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932122AbWKCUrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 15:47:10 -0500
-Date: Fri, 3 Nov 2006 12:47:07 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-Message-Id: <20061103204707.15739.70669.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
-References: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 6/7] Use tasklet to call balancing
+	Fri, 3 Nov 2006 15:47:21 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:18819 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932099AbWKCUrJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:47:09 -0500
+Date: Fri, 3 Nov 2006 14:47:06 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       20060906182719.GB24670@sergelap.austin.ibm.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] security: introduce fs caps
+Message-ID: <20061103204706.GA31398@sergelap.austin.ibm.com>
+References: <20061103175730.87f55ff8.chris@friedhoff.org> <20061103200011.GA2206@sergelap.austin.ibm.com> <1162585797.5519.175.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1162585797.5519.175.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use tasklet to balance sched domains.
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Fri, 2006-11-03 at 14:00 -0600, Serge E. Hallyn wrote:
+> > Quoting chris friedhoff (chris@friedhoff.org):
+> > > The patch applies cleanly , compiles and runs smoothly against 2.6.18.1.
+> > > 
+> > > I'm running slackware-current with a 2.6.18.1 kernel on an ext3
+> > > filesystem.
+> > > 
+> > > Background why I use the patch:
+> > > With 2.6.18 to create a tuntap interface CAP_NET_ADMIN is required.
+> > > Qemu uses tuntap to create a tap interface as a virtual net interface.
+> > > Instead now running qemu with root privileges to give it the right
+> > > to create a tap interface, i granted qemu with the help of the patch and
+> > > Kaigai Kohei's userspace tools the cap-net_admin capability. So qemu
+> > > runs again without root privilege but has now the right to create the
+> > > tap interface.
+> > > 
+> > > Thanks for the patch. It reduces my the need of suid-bit progs.
+> > > It should be given a spin in -mm.
+> > 
+> > One question is, if this were to be tested in -mm, do we want to keep
+> > this mutually exclusive from selinux through config, or should selinux
+> > stack on top of this?
+> 
+> Given that SELinux already stacks with capability and you aren't using
+> the security fields (last I looked), it would seem trivial to enable
+> stacking with fscaps (just add a few secondary_ops calls to the SELinux
+> hooks, right?).
 
-Call rebalance_tick (renamed to rebalance_domains) from a tasklet.
+Yup, I just wasn't sure if there would be actual objections to the idea
+of enabling both at once.
 
-We calculate the earliest time for each layer of sched domains to be
-rescanned (this is the rescan time for idle) and use the earliest
-of those to schedule the tasklet again via a new field "next_balance"
-added to struct rq.
+I'll send out a patch - just as soon as I figure out where I left the
+src to begin with :)
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.19-rc4-mm2/kernel/sched.c
-===================================================================
---- linux-2.6.19-rc4-mm2.orig/kernel/sched.c	2006-11-03 12:54:30.683565162 -0600
-+++ linux-2.6.19-rc4-mm2/kernel/sched.c	2006-11-03 12:58:39.263918629 -0600
-@@ -228,6 +228,7 @@ struct rq {
- 	unsigned long expired_timestamp;
- 	unsigned long long timestamp_last_tick;
- 	struct task_struct *curr, *idle;
-+	unsigned long next_balance;
- 	struct mm_struct *prev_mm;
- 	struct prio_array *active, *expired, arrays[2];
- 	int best_expired_prio;
-@@ -2842,16 +2843,18 @@ static void update_load(struct rq *this_
- }
- 
- /*
-- * rebalance_tick will get called every timer tick, on every CPU.
-+ * rebalance_domains is triggered when needed via a tasklet from the
-+ * scheduler tick.
-  *
-  * It checks each scheduling domain to see if it is due to be balanced,
-  * and initiates a balancing operation if so.
-  *
-  * Balancing parameters are set up in arch_init_sched_domains.
-  */
--static void
--rebalance_tick(int this_cpu, struct rq *this_rq)
-+static void rebalance_domains(unsigned long dummy)
- {
-+	int this_cpu = smp_processor_id();
-+	struct rq *this_rq = cpu_rq(this_cpu);
- 	unsigned long interval;
- 	struct sched_domain *sd;
- 	/*
-@@ -2860,6 +2863,8 @@ rebalance_tick(int this_cpu, struct rq *
- 	 */
- 	enum idle_type idle = !this_rq->nr_running ?
- 				SCHED_IDLE : NOT_IDLE;
-+	/* Earliest time when we have to call rebalance_domains again */
-+	unsigned long next_balance = jiffies + 60*HZ;
- 
- 	for_each_domain(this_cpu, sd) {
- 		if (!(sd->flags & SD_LOAD_BALANCE))
-@@ -2885,8 +2890,13 @@ rebalance_tick(int this_cpu, struct rq *
- 			}
- 			sd->last_balance += interval;
- 		}
-+		next_balance = min(next_balance,
-+				sd->last_balance + sd->balance_interval);
- 	}
-+	this_rq->next_balance = next_balance;
- }
-+
-+DECLARE_TASKLET(rebalance, &rebalance_domains, 0L);
- #else
- /*
-  * on UP we do not need to balance between CPUs:
-@@ -3138,7 +3148,8 @@ void scheduler_tick(void)
- 		task_running_tick(rq, p);
- #ifdef CONFIG_SMP
- 	update_load(rq);
--	rebalance_tick(cpu, rq);
-+	if (jiffies >= rq->next_balance)
-+		tasklet_schedule(&rebalance);
- #endif
- }
- 
+thanks,
+-serge

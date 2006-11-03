@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWKCVwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWKCVwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWKCVwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 16:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWKCVwJ
+	id S932182AbWKCVwf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 16:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWKCVwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 16:52:09 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13758 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932168AbWKCVwH (ORCPT
+	Fri, 3 Nov 2006 16:52:35 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:44435 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932182AbWKCVwe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 16:52:07 -0500
-Date: Fri, 3 Nov 2006 13:51:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: andrew.j.wade@gmail.com
-Cc: linux-kernel@vger.kernel.org,
-       Charlotte Richardson <charlotte.richardson@stratus.com>,
-       Kimball Murray <kimball.murray@gmail.com>,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: 2.6.19-rc4-mm2
-Message-Id: <20061103135151.60762144.akpm@osdl.org>
-In-Reply-To: <200611031642.36558.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-References: <20061101235407.a92f94a5.akpm@osdl.org>
-	<200611031642.36558.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Nov 2006 16:52:34 -0500
+Date: Fri, 3 Nov 2006 22:51:47 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <Pine.LNX.4.64.0611031945220.30722@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.61.0611032250550.23669@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
+ <454AA4C5.3070106@googlemail.com> <Pine.LNX.4.61.0611030911540.13091@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64.0611031248030.17174@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.64.0611031257400.17174@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.61.0611031349490.9606@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64.0611031945220.30722@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Nov 2006 16:42:33 -0500
-Andrew James Wade <andrew.j.wade@gmail.com> wrote:
+>> > > > So anyway, why do you need _llseek? Can't you just use lseek()
+>> > > > like
+>> > > > everyone else?
+>> > > 
+>> > > Because I want it to work with glibc 2.0 that I still use on one
+>> > > machine.
+>> > 
+>> > BTW. is it some interaction with symbols defined elsewhere or were
+>> > _syscall
+>> > macros dropped altogether? Which glibc symbol should I use in #ifdef
+>> > to tell if
+>> > glibc has 64-bit support?
+>> 
+>> -D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64
+>> 
+>> I think the second is not needed.
+>
+> I see, but the question is how do I test in C preprocessor that glibc is
+> sufficiently new to react on them?
 
-> On Thursday 02 November 2006 02:54, Andrew Morton wrote:
-> > - Lots of fbdev updates.  We haven't heard from Tony in several months, so I
-> >   went on a linux-fbdev-devel fishing expedition.
-> 
-> radeonfb-support-24bpp-32bpp-minus-alpha.patch broke my video: my
-> screen ended up garbled. (vc1 was ok, strangely enough). Reverting
-> fixed things. 
-> 
-> lspci -v:
-> 
-> 0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV200 QW [Radeon 7500] (prog-if 00 [VGA])
->         Subsystem: ATI Technologies Inc Radeon 7500
->         Flags: bus master, stepping, 66MHz, medium devsel, latency 64, IRQ 16
->         Memory at d8000000 (32-bit, prefetchable) [size=128M]
->         I/O ports at d800 [size=256]
->         Memory at d7000000 (32-bit, non-prefetchable) [size=64K]
->         Expansion ROM at d7fe0000 [disabled] [size=128K]
->         Capabilities: <available only to root>
-> 
+__GLIBC_MAJOR__ and __GLIBC_MINOR__
 
-Great, thanks for working that out.  I'll drop the patch.
+
+	-`J'
+-- 

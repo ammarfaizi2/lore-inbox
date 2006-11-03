@@ -1,134 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753401AbWKCRcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753399AbWKCRgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753401AbWKCRcF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 12:32:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753398AbWKCRcF
+	id S1753399AbWKCRgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 12:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753402AbWKCRgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 12:32:05 -0500
-Received: from SMT02001.global-sp.net ([193.168.50.54]:40075 "EHLO
-	SMT02001.global-sp.net") by vger.kernel.org with ESMTP
-	id S1753401AbWKCRcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 12:32:02 -0500
-Message-ID: <454B7C3A.3000308@privacy.net>
-Date: Fri, 03 Nov 2006 18:28:26 +0100
-From: John <me@privacy.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050905
-X-Accept-Language: en, fr
+	Fri, 3 Nov 2006 12:36:09 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23453 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1753399AbWKCRgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 12:36:07 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: tim.c.chen@linux.intel.com
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org, ak@suse.de,
+       discuss@x86-64.org
+Subject: Re: 2.6.19-rc1: x86_64 slowdown in lmbench's fork
+References: <1162485897.10806.72.camel@localhost.localdomain>
+	<m1d5851yxd.fsf@ebiederm.dsl.xmission.com>
+	<1162492453.10806.75.camel@localhost.localdomain>
+	<20061103021145.GD13381@stusta.de>
+	<1162570216.10806.79.camel@localhost.localdomain>
+Date: Fri, 03 Nov 2006 10:35:36 -0700
+In-Reply-To: <1162570216.10806.79.camel@localhost.localdomain> (Tim Chen's
+	message of "Fri, 03 Nov 2006 08:10:16 -0800")
+Message-ID: <m1lkmsxwk7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linux.nics@intel.com
-Subject: Intel 82559 NIC corrupted EEPROM
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Nov 2006 17:34:02.0210 (UTC) FILETIME=[409C2C20:01C6FF6E]
-X-global-asp-net-MailScanner: Found to be clean
-X-global-asp-net-MailScanner-SpamCheck: 
-X-MailScanner-From: me@privacy.net
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Tim Chen <tim.c.chen@linux.intel.com> writes:
 
-I have an EBC-2000T motherboard with 3 on-board Intel 82559 NICs.
+> On Fri, 2006-11-03 at 03:11 +0100, Adrian Bunk wrote:
+>
+>> 
+>> What's your CONFIG_NR_CPUS setting that you are seeing such a big
+>> regression?
+>> 
+>
+> CONFIG_NR_CPUS is set to 8.  
 
-http://www.intel.com/design/network/products/lan/controllers/82559.htm
-http://www.adlinktech.com/PD/web/PD_detail.php?pid=213
-http://www.intel.com/support/network/adapter/1000/linux/e100.htm
+Ugh.  This simply changes NR_IRQS from 256 to 512.  Changing
+the size of data from 1K to 2K.
 
-Running a 2.6.14 kernel, the e100 driver refuses to load because
-it detects a corrupted EEPROM.
+So unless there is some other array that is sized by NR_IRQs
+in the context switch path which could account for this in
+other ways.  It looks like you just got unlucky.
 
-cf. e100_eeprom_load()
+The only hypothesis that I can seem to come up with is that maybe
+you are getting an extra tlb now that you didn't use to.  
+I think the per cpu area is covered by huge pages but maybe not.
 
-   /* The checksum, stored in the last word, is calculated such that
-    * the sum of words should be 0xBABA */
-   checksum = le16_to_cpu(0xBABA - checksum);
-   if(checksum != nic->eeprom[nic->eeprom_wc - 1]) {
-         DPRINTK(PROBE, ERR, "EEPROM corrupted\n");
-         if (!eeprom_bad_csum_allow)
-                 return -EAGAIN;
-   }
-
-Several people have reported the same error. Intel's Auke Kok has
-stated that ignoring the error is a BAD idea.
-
-http://lkml.org/lkml/2006/7/10/215
-
-What tool is used to reprogram the EEPROM? ethtool?
-I suppose I'll have to ask the manufacturer for an updated EEPROM?
-
-
-# ethtool -e eth0
-Cannot get EEPROM data: Operation not supported
-
-I'm not sure why I can't dump the contents of the EEPROM.
-Does the driver need to be loaded?
-
-On a totally unrelated note, does the 82559 support VLAN tagging?
-(I believe the driver supports it.)
-
-Thanks for reading this far.
-
-Please note, email address is a bit-bucket.
-I do monitor the mailing list.
-
-Regards.
-
-John
-
-# lspci -vv
-[...]
-00:08.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 
-100] (rev 08)
-         Subsystem: Intel Corporation EtherExpress PRO/100B (TX)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32 (2000ns min, 14000ns max), cache line size 08
-         Interrupt: pin A routed to IRQ 11
-         Region 0: Memory at e5402000 (32-bit, non-prefetchable) [size=4K]
-         Region 1: I/O ports at d800 [size=64]
-         Region 2: Memory at e5000000 (32-bit, non-prefetchable) [size=1M]
-         Expansion ROM at 20000000 [disabled] [size=1M]
-         Capabilities: [dc] Power Management version 2
-                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-00:09.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 
-100] (rev 08)
-         Subsystem: Intel Corporation EtherExpress PRO/100B (TX)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32 (2000ns min, 14000ns max), cache line size 08
-         Interrupt: pin A routed to IRQ 12
-         Region 0: Memory at e5401000 (32-bit, non-prefetchable) [size=4K]
-         Region 1: I/O ports at dc00 [size=64]
-         Region 2: Memory at e5100000 (32-bit, non-prefetchable) [size=1M]
-         Expansion ROM at 20100000 [disabled] [size=1M]
-         Capabilities: [dc] Power Management version 2
-                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-00:0a.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 
-100] (rev 08)
-         Subsystem: Intel Corporation EtherExpress PRO/100B (TX)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32 (2000ns min, 14000ns max), cache line size 08
-         Interrupt: pin A routed to IRQ 10
-         Region 0: Memory at e5400000 (32-bit, non-prefetchable) [size=4K]
-         Region 1: I/O ports at e000 [size=64]
-         Region 2: Memory at e5200000 (32-bit, non-prefetchable) [size=1M]
-         Expansion ROM at 20200000 [disabled] [size=1M]
-         Capabilities: [dc] Power Management version 2
-                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
+Eric

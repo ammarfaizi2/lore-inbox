@@ -1,97 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752994AbWKCC4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752993AbWKCC52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752994AbWKCC4y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 21:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752995AbWKCC4y
+	id S1752993AbWKCC52 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 21:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752996AbWKCC52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 21:56:54 -0500
-Received: from mx2.suse.de ([195.135.220.15]:56251 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752994AbWKCC4y (ORCPT
+	Thu, 2 Nov 2006 21:57:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32653 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752985AbWKCC51 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 21:56:54 -0500
-From: Andi Kleen <ak@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for paravirtualizing critical operations
-Date: Fri, 3 Nov 2006 03:56:53 +0100
-User-Agent: KMail/1.9.5
-Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20061029024504.760769000@sous-sol.org> <20061030231132.GA98768@muc.de> <1162376827.23462.5.camel@localhost.localdomain>
-In-Reply-To: <1162376827.23462.5.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	Thu, 2 Nov 2006 21:57:27 -0500
+Date: Thu, 2 Nov 2006 21:56:23 -0500
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, Christian <christiand59@web.de>
+Subject: Re: [discuss] Linux 2.6.19-rc4: known unfixed regressions (v2)
+Message-ID: <20061103025623.GB8816@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-acpi@vger.kernel.org, Christian <christiand59@web.de>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061103024132.GG13381@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611030356.54074.ak@suse.de>
+In-Reply-To: <20061103024132.GG13381@stusta.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 November 2006 11:27, Rusty Russell wrote:
-> Create a paravirt.h header for all the critical operations which need
-> to be replaced with hypervisor calls, and include that instead of
-> defining native operations, when CONFIG_PARAVIRT.
+On Fri, Nov 03, 2006 at 03:41:32AM +0100, Adrian Bunk wrote:
+ > This email lists some known regressions in 2.6.19-rc4 compared to 2.6.18
+ > that are not yet fixed in Linus' tree.
+ > 
+ > If you find your name in the Cc header, you are either submitter of one
+ > of the bugs, maintainer of an affectected subsystem or driver, a patch
+ > of you caused a breakage or I'm considering you in any other way possibly
+ > involved with one or more of these issues.
+ > 
+ > Due to the huge amount of recipients, please trim the Cc when answering.
+ > 
+ > Subject    : cpufreq not working on AMD K8
+ > References : http://lkml.org/lkml/2006/10/10/114
+ > Submitter  : Christian <christiand59@web.de>
+ > Status     : unknown
 
-Hmm, did this all ever compile in mainline? I had to do a few merges
-and in the end i get
+As Mark mentioned in his followup, powernow-k8 didn't change in .19 at all.
+I'm suspecting an ACPI change meant that we no longer find the PST tables
+correctly.
 
-/home/lsrc/quilt/linux/kernel/spinlock.c: In function ‘_spin_lock_irqsave’:
-include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
--letter
-include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
--letter
-include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
--letter
-include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
--letter
-include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
--letter
-include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
--letter
-include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
--letter
-include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
--letter
-{standard input}: Assembler messages:
-{standard input}:593: Error: undefined symbol `paravirt_ops' in operation
-{standard input}:593: Error: undefined symbol `PARAVIRT_irq_enable' in operation
-{standard input}:605: Error: undefined symbol `paravirt_ops' in operation
-{standard input}:605: Error: undefined symbol `PARAVIRT_irq_disable' in operatio
-n
+Christian, can you post the full dmesg's from the working/broken kernels.
+It may be useful to enable CONFIG_ACPI_DEBUG too.
 
-and lots of new warnings like
+	Dave
 
-/home/lsrc/quilt/linux/arch/i386/kernel/traps.c: In function ‘set_intr_gate’:
-/home/lsrc/quilt/linux/arch/i386/kernel/traps.c:1165: warning: implicit declarat
-ion of function ‘_set_gate’
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/common.c: In function ‘_cpu_init’:
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/common.c:754: warning: implicit decl
-aration of function ‘__set_tss_desc’
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c: In function ‘intel_mach
-ine_check’:
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.eax’ 
-may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.ebx’ 
-may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.ecx’ 
-may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.edx’ 
-may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.esi’ 
-may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.edi’ 
-may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.ebp’ 
-may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.esp’ 
-may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.eflag
-s’ may be used uninitialized in this function
-/home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.eip’ 
-may be used uninitialized in this function
-
-
-This is with i386 defconfig + CONFIG_PARAVIRT
-
--Andi
-
+-- 
+http://www.codemonkey.org.uk

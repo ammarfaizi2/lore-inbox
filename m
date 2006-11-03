@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753512AbWKCT6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753488AbWKCUAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753512AbWKCT6i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 14:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753514AbWKCT6i
+	id S1753488AbWKCUAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753518AbWKCUAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 14:58:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17313 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753512AbWKCT6h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 14:58:37 -0500
-Date: Fri, 3 Nov 2006 11:58:33 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "roland" <devzero@web.de>
-Cc: <yoshfuji@linux-ipv6.org>, <linux-net@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: unregister_netdevice: waiting for eth0 to become free
-Message-ID: <20061103115833.7ecf1af2@freekitty>
-In-Reply-To: <01d001c6ff81$b4bb5dc0$962e8d52@aldipc>
-References: <01a501c6ff74$6fc52c80$962e8d52@aldipc>
-	<20061104.034726.27678443.yoshfuji@linux-ipv6.org>
-	<01d001c6ff81$b4bb5dc0$962e8d52@aldipc>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+	Fri, 3 Nov 2006 15:00:16 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:62948 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1753488AbWKCUAO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:00:14 -0500
+Date: Fri, 3 Nov 2006 14:00:11 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: 20060906182719.GB24670@sergelap.austin.ibm.com
+Cc: serue@us.ibm.com, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] security: introduce fs caps
+Message-ID: <20061103200011.GA2206@sergelap.austin.ibm.com>
+References: <20061103175730.87f55ff8.chris@friedhoff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061103175730.87f55ff8.chris@friedhoff.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Nov 2006 20:53:09 +0100
-"roland" <devzero@web.de> wrote:
+Quoting chris friedhoff (chris@friedhoff.org):
+> The patch applies cleanly , compiles and runs smoothly against 2.6.18.1.
+> 
+> I'm running slackware-current with a 2.6.18.1 kernel on an ext3
+> filesystem.
+> 
+> Background why I use the patch:
+> With 2.6.18 to create a tuntap interface CAP_NET_ADMIN is required.
+> Qemu uses tuntap to create a tap interface as a virtual net interface.
+> Instead now running qemu with root privileges to give it the right
+> to create a tap interface, i granted qemu with the help of the patch and
+> Kaigai Kohei's userspace tools the cap-net_admin capability. So qemu
+> runs again without root privilege but has now the right to create the
+> tap interface.
+> 
+> Thanks for the patch. It reduces my the need of suid-bit progs.
+> It should be given a spin in -mm.
 
-> > The ipv6 module cannot be unloaded once it has been
-> > loaded.
-> 
-> sorry,  i thought i could rmmod evey module which was insmod/modprobe'd 
-> before and i didn`t know that there are exceptions
-> 
-> > I'm not sure what is happened with vmware.
-> 
-> i think this is not completely related to vmware - but maybe this is being 
-> triggered more often by vmware ?
-> http://www.google.de/search?hl=de&q=%22unregister_netdevice%3A+waiting+for+eth0+to+become+free
-> 
-> it`s really strange, but after taking a look,  vmware seems to recommend 
-> disabling ipv6 for _every_ linux based guest OS in general:
-> http://pubs.vmware.com/guestnotes/wwhelp/wwhimpl/common/html/wwhelp.htm?context=gos_ww5_output&file=choose_install_guest_os.html
-> 
-> since there are already running millions of  linux based VMs in this world, 
-> i think this isn`t very good "promotion" for ipv6, if vmware recommending 
-> disabling it.
-> ok, there are not that much people already needing ipv6 NOW, but the later 
-> they are running it and the later outstanding bugs being fixed, the harder 
-> it will be to convert from ipv4 to ipv6....
-> 
-> roland
-> 
-> 
+One question is, if this were to be tested in -mm, do we want to keep
+this mutually exclusive from selinux through config, or should selinux
+stack on top of this?
 
-Vmware has there own pseudo ethernet device and unless you have the source for it.
-It would be hard to tell if it correctly manages itself.
+> I will document my experiences on http://www.friedhoff.org/fscaps.html
 
+Cool.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+thanks,
+-serge

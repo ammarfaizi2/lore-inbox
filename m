@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752701AbWKCMTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752751AbWKCMVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752701AbWKCMTF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 07:19:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752713AbWKCMTE
+	id S1752751AbWKCMVW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 07:21:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752784AbWKCMVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 07:19:04 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:29199 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1752701AbWKCMTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 07:19:02 -0500
-Date: Fri, 3 Nov 2006 13:20:56 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Brent Baccala <cosine@freesoft.org>
+	Fri, 3 Nov 2006 07:21:22 -0500
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:48536 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1752751AbWKCMVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 07:21:21 -0500
+Date: Fri, 3 Nov 2006 13:21:26 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: async I/O seems to be blocking on 2.6.15
-Message-ID: <20061103122055.GE13555@kernel.dk>
-References: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org>
+Subject: Re: New filesystem for Linux
+Message-ID: <20061103122126.GC11947@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz> <20061103101901.GA11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03 2006, Brent Baccala wrote:
-> Hello -
+On Fri, 3 November 2006 12:56:36 +0100, Mikulas Patocka wrote:
+> >
+> >I am fully aware the counters are effectively 48-bit.  If they were
+> >just 32-bit, you would likely have hit the problem yourself already.
 > 
-> I'm running 2.6.15 (Debian) on a Pentium M laptop, PCI attached ext3
-> filesystem.
-> 
-> I'm writing my first asynchronous I/O program, and for a while I
-> thought I was really doing something wrong, but more and more I'm
-> starting to conclude that the problem might be in the kernel.
-> 
-> Basically, I've narrowed things down to a test program which opens a
-> large (700 MB) file in O_DIRECT mode and fires off 100 one MB async
-> reads for the first 100 MB of data.  The enqueues take about 5 seconds
-> to complete, which is also about the amount of time this disk needs to
-> read 100 MB, so I suspect that it's blocking.
-> 
-> I've gotten the POSIX AIO interface at least tolerably running using
-> the GLIBC thread-based implementation, but I really want the native
-> interface working.
-> 
-> I whittled the test program down to use system calls instead of the
-> POSIX AIO library, and I'm attaching a copy.  You put a big file at
-> 'testfile' (it just reads it) and run the program:
-> 
-> 
-> baccala@debian ~/src/endgame$ time ./testaio
-> Enqueues starting
-> Enqueues complete
-> 
-> real    0m5.327s
-> user    0m0.004s
-> sys     0m0.740s
-> baccala@debian ~/src/endgame$
-> 
-> 
-> Of that five seconds, it's almost all spent between the two "enqueues"
-> messages.
+> Given the seek time 0.01s, 31-bit value would last for minimum time of 248 
+> days when doing only syncs and nothing else. 47-bit value will last for 
+> reasonably long.
 
-You don't mention what hardware you are running this on (the disk sub
-system). io_submit() will block, if you run out of block layer requests.
-We have 128 of those by default, but if your io ends up getting chopped
-into somewhat smaller bits than 1MiB each, then you end up having to
-block on allocation of those. So lets say your /src is mounted on
-/dev/sdaX, try:
+So you can at most do one transaction per drive seek?  That would
+definitely solve the overflow case, but hardly sounds like a
+high-performance filesystem. :)
 
-# echo 512 > /sys/block/sda/queue/nr_requests
-
-(substitute sda for whatever device your /src is on)
-
-and re-test. The time between starting and complete should be a lot
-smaller, now that you are not blocking on blkdev request allocation. You
-may also want to look at the max_sectors_kb in the queue/ directory,
-that'll tell you how large a single io will be at most once it reaches
-the driver.
+Jörn
 
 -- 
-Jens Axboe
-
+Data expands to fill the space available for storage.
+-- Parkinson's Law

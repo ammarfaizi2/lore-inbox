@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753361AbWKCSO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753400AbWKCSPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753361AbWKCSO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 13:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753365AbWKCSO3
+	id S1753400AbWKCSPE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 13:15:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753365AbWKCSPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 13:14:29 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:58566 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1753361AbWKCSO2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 13:14:28 -0500
-Date: Fri, 3 Nov 2006 21:14:21 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       arjan <arjan@infradead.org>
-Subject: Re: [PATCH] lockdep: fix delayacct locking bug
-Message-ID: <20061103181421.GA602@oleg>
-References: <1162572527.26989.22.camel@twins>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1162572527.26989.22.camel@twins>
-User-Agent: Mutt/1.5.11
+	Fri, 3 Nov 2006 13:15:04 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:52618 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1753394AbWKCSPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 13:15:00 -0500
+Date: Fri, 3 Nov 2006 19:14:59 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Gabriel C <nix.or.die@googlemail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New filesystem for Linux
+In-Reply-To: <20061103173609.GA17080@flower.upol.cz>
+Message-ID: <Pine.LNX.4.64.0611031912460.27914@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
+ <20061102174149.3578062d.akpm@osdl.org> <20061103171443.GA16912@flower.upol.cz>
+ <Pine.LNX.4.64.0611031808280.15472@artax.karlin.mff.cuni.cz>
+ <20061103173609.GA17080@flower.upol.cz>
+X-Personality-Disorder: Schizoid
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/03, Peter Zijlstra wrote:
-> 
-> ======================================================
-> [ INFO: soft-safe -> soft-unsafe lock order detected ]
-> 2.6.19-rc4 #1
-> ------------------------------------------------------
-> mm_tester/1875 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
->  (&tsk->delays->lock){--..}, at: [<c0156652>] __delayacct_add_tsk+0x131/0x1d3
-> 
-> and this task is already holding:
->  (&sighand->siglock){.+..}, at: [<c0156b69>] taskstats_exit_send+0x52/0x3b2
-> which would create a new lock dependency:
->  (&sighand->siglock){.+..} -> (&tsk->delays->lock){--..}
 
-Thanks.
 
-I introduced this bug in
-	"[PATCH 5/6] taskstats: kill ->taskstats_lock in favor of ->siglock"
+On Fri, 3 Nov 2006, Oleg Verych wrote:
 
-Oleg.
+> On Fri, Nov 03, 2006 at 06:09:39PM +0100, Mikulas Patocka wrote:
+>>> In gmane.linux.kernel, you wrote:
+>>> []
+>>>> From: Andrew Morton <akpm@osdl.org>
+>>>>
+>>>> As Mikulas points out, (1 << anything) won't be evaluating to zero.
+>>>
+>>> How about integer overflow ?
+>>
+>> C standard defines that shifts by more bits than size of a type are
+>> undefined (in fact 1<<32 produces 1 on i386, because processor uses only 5
+>> bits of a count).
+> ,--
+> |#include <stdio.h>
+> |int main(void) {
+> |	unsigned int b = 1;
+> |
+> |	printf("%u\n", (1 << 33));
+> |	printf("%u\n", (b << 33));
+> |	return 0;
+> |}
+> |$ gcc bit.c && ./a.out
+> `--
+>
+> There *is* difference, isn't it?
 
+The standard says that the result is undefined, so the compiler is 
+standard-compliant. It could have returned any numbers and still be 
+correct.
+
+Mikulas

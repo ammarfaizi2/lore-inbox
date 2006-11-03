@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753129AbWKCGDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753130AbWKCGE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753129AbWKCGDU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 01:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753132AbWKCGDU
+	id S1753130AbWKCGE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 01:04:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753133AbWKCGE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 01:03:20 -0500
-Received: from gateway.insightbb.com ([74.128.0.19]:56742 "EHLO
-	asav02.insightbb.com") by vger.kernel.org with ESMTP
-	id S1753129AbWKCGDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 01:03:19 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AusRAFhoSkVKhRUUXWdsb2JhbACGCoY1LA
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Dave Neuer <mr.fred.smoothie@pobox.com>
-Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
-Date: Fri, 3 Nov 2006 01:03:17 -0500
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <200608232311.07599.dtor@insightbb.com> <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com>
-In-Reply-To: <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Nov 2006 01:04:57 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:48015 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1753130AbWKCGE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 01:04:57 -0500
+Date: Fri, 3 Nov 2006 11:34:27 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, martin@lorenz.eu.org, srinivasa@in.ibm.com,
+       vatsa@in.ibm.com
+Subject: [PATCH] Fix the spurious unlock_cpu_hotplug false warnings.
+Message-ID: <20061103060427.GA12399@in.ibm.com>
+Reply-To: ego@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611030103.17913.dtor@insightbb.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 October 2006 18:20, Dave Neuer wrote:
-> On 8/23/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
-> > Hi everyone,
-> >
-> > Here is another version of the patch removing polling timer from i8042
-> > which is needed if we want tickless kernel. Keyboards should now work
-> > on boxes that do not have mouse plugged in. PLease give it a test.
-> 
->  What's the intent of this; just to allow tickless?
+Cpu-hotplug locking has a minor race case caused because of setting the
+variable "recursive" to NULL *after* releasing the cpu_bitmask_lock in the
+function unlock_cpu_hotplug,instead of doing so before releasing the
+cpu_bitmask_lock. 
 
-Yes, that was the intent.
+This was the cause of most of the recent false spurious lock_cpu_unlock
+warnings.
 
->  Or is it also to 
-> make the i8042 driver less racy? 
+This should fix the problem reported by Martin Lorenz reported in
+http://lkml.org/lkml/2006/10/29/127.
 
-I think we agree that i8042_aux_write() is not racy, do you see any other
-races in i8042?
+Thanks to Srinivasa DS for pointing it out.
 
-> I ask because I've applied this over 
-> (a modified) 2.6.18 on my Compaq Presario X1010us laptop which has
-> been driving me crazy w/ Synaptics problems and keyboard problems
-> (intermittent, but   frequent enough lately that I finally figured I
-> needed to do something about it).
-> 
+Signed-off-by: Gautham R Shenoy <ego@in.ibm.com>
 
-Have you tried limiting Synaptics rate to 40 packets per second (using
-psmouse.rate=40 option)? Some KBD can't handle full Synaptics rate of
-80 pps; it usually manifests in keyboard troubles.
+--
+ kernel/cpu.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-> 
-> I don't really know if or how much the races in this driver are
-> contributing to my problems (keyboard getting stuck repeating last
-> key, or ignoring interrupts, or synaptics touchpad freezing, last of
-> which requires cold boot to fix).
-
-You mean even reloading psmouse module can't revive the touchpad?
-
-> Maybe more likely an ACPI thing? 
-
-Coudl be.
-
+Index: hotplug/kernel/cpu.c
+===================================================================
+--- hotplug.orig/kernel/cpu.c
++++ hotplug/kernel/cpu.c
+@@ -58,8 +58,8 @@ void unlock_cpu_hotplug(void)
+ 		recursive_depth--;
+ 		return;
+ 	}
+-	mutex_unlock(&cpu_bitmask_lock);
+ 	recursive = NULL;
++	mutex_unlock(&cpu_bitmask_lock);
+ }
+ EXPORT_SYMBOL_GPL(unlock_cpu_hotplug);
+ 
 -- 
-Dmitry
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

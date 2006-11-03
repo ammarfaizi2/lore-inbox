@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753259AbWKCPTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753245AbWKCPWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753259AbWKCPTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 10:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753248AbWKCPTY
+	id S1753245AbWKCPWj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 10:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753233AbWKCPWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 10:19:24 -0500
-Received: from mail.suse.de ([195.135.220.2]:49609 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1753233AbWKCPTY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 10:19:24 -0500
-Date: Fri, 3 Nov 2006 16:13:45 +0100
-From: Stefan Seyfried <seife@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Shem Multinymous <multinymous@gmail.com>,
-       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, benh@kernel.crashing.org,
-       linux-thinkpad mailing list <linux-thinkpad@linux-thinkpad.org>,
-       Pavel Machek <pavel@suse.cz>, Jean Delvare <khali@linux-fr.org>,
-       Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
-Message-ID: <20061103151345.GA31829@suse.de>
-References: <1162041726.16799.1.camel@hughsie-laptop> <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com> <20061101235540.GA11581@khazad-dum.debian.net> <454A2FC2.4060107@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <454A2FC2.4060107@tmr.com>
-X-Operating-System: openSUSE 10.2 (i586) Beta2, Kernel 2.6.18.1-12-default
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 3 Nov 2006 10:22:39 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:3612 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1753245AbWKCPWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 10:22:38 -0500
+Subject: Re: [PATCH 1/9] Task Watchers v2: Task watchers v2
+From: Daniel Walker <dwalker@mvista.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>,
+       Steve Grubb <sgrubb@redhat.com>, linux-audit@redhat.com,
+       Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061103042748.438619000@us.ibm.com>
+References: <20061103042257.274316000@us.ibm.com>
+	 <20061103042748.438619000@us.ibm.com>
+Content-Type: text/plain
+Date: Fri, 03 Nov 2006 08:22:34 -0500
+Message-Id: <1162560154.2801.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2006 at 12:49:54PM -0500, Bill Davidsen wrote:
+On Thu, 2006-11-02 at 20:22 -0800, Matt Helsley wrote:
+> +/*
+> + * Watch for events occuring within a task and call the supplied
+> function
+> + * when (and only when) the given event happens.
+> + * Only non-modular kernel code may register functions as
+> task_watchers.
+> + */
+> +#define task_watcher_func(ev, fn) \
+> +static task_watcher_fn __task_watcher_##ev##_##fn __attribute_used__
+> \
+> +       __attribute__ ((__section__ (".task_watchers." #ev))) = fn
+> +#else
+> +#error "task_watcher() macro may not be used in modules."
+> +#endif 
 
-> Having seen a French consultant with a Windows laptop reporting mJ 
+You should make this TASK_WATCHER_FUNC() or even just TASK_WATCHER(). It
+looks a little goofy in the code that uses it.
 
-Hehe.... That's the nice thing about SI units.
+Looking at it now could you do something like,
 
-     1W = 1J / 1s
+static int __task_watcher_init 
+audit_alloc(unsigned long val, struct task_struct *tsk)
 
-so
- 
- 1W * 1h = 3600s * 1J / 1s
-    1mWh = 3.6J
+Instead of a macro? Might be a little less invasive.
 
-If i did not screw up something :-). I still wonder why they would
-report mJ, but probably they like big numbers ;-)
--- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 
+Daniel 
+
+

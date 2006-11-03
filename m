@@ -1,95 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753514AbWKCUBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWKCUBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753514AbWKCUBG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 15:01:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753518AbWKCUBG
+	id S932081AbWKCUBg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753518AbWKCUBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 15:01:06 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53446 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1753514AbWKCUBF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 15:01:05 -0500
-Date: Fri, 3 Nov 2006 12:00:55 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB fixes for 2.6.18-rc4
-Message-ID: <20061103200055.GA26092@kroah.com>
-MIME-Version: 1.0
+	Fri, 3 Nov 2006 15:01:35 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:46561 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1753520AbWKCUBZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:01:25 -0500
+Date: Fri, 3 Nov 2006 12:02:34 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       linux-kernel@vger.kernel.org, ego@in.ibm.com
+Subject: Re: New filesystem for Linux
+Message-ID: <20061103200234.GA2610@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0611021458240.25218@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <Pine.LNX.4.64.0611021458240.25218@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some USB bugfixes for 2.6.18-rc4.
+On Thu, Nov 02, 2006 at 03:15:33PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 2 Nov 2006, Mikulas Patocka wrote:
+> > 
+> > * There is a rw semaphore that is locked for read for nearly all operations
+> > and locked for write only rarely. However locking for read causes cache line
+> > pingpong on SMP systems. Do you have an idea how to make it better?
 
-They include a number of fixes for different regressions reported (the HID
-bitmask issue and the Kconfig issue for USB network drivers) as well as some
-suspend issues and of course a few new device ids and unusual_devs entries were
-added.
+[ . . . ]
 
-All of these changes have been in the last few -mm releases.
+> (Seqlocks could be changed to drop the first requirement, although it 
+> could cause some serious starvation issues, so I'm not sure it's a good 
+> idea. For RCU the atomic nature is pretty much designed-in.)
 
-Please pull from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+I can't help putting in a plug for SRCU, which is in the 2.6.19-rc series,
+and which allows readers to sleep.  (http://lwn.net/Articles/202847/)
 
-The full patches will be sent to the linux-usb-devel mailing list, if
-anyone wants to see them.
+SRCU allows readers and writers to run concurrently (as do all forms of
+RCU).  If this is a problem, it might be worth looking into Gautham
+Shenoy's reader-writer lock built on top of RCU.  (A version for hotplug
+may be found at http://lkml.org/lkml/2006/10/26/73.)  This approach
+keeps the reader-writer-lock semantics, but gets rid of cache thrashing.
+That said, writers have to wait for a grace period.
 
-thanks,
+And as Linus pointed out, if you have disk I/O involved, you probably
+won't notice normal reader-writer-lock overhead.
 
-greg k-h
-
-
- Documentation/usb/usb-serial.txt   |    6 ---
- drivers/usb/class/usblp.c          |    3 +-
- drivers/usb/core/hub.c             |    3 +-
- drivers/usb/input/hid-core.c       |   63 ++++++++++++++++++++++++++----------
- drivers/usb/input/usbtouchscreen.c |    2 +-
- drivers/usb/input/xpad.c           |   41 +++++++++++++++++++++++-
- drivers/usb/net/Kconfig            |    8 ++++-
- drivers/usb/net/usbnet.c           |   58 ++++++++++++++++++---------------
- drivers/usb/serial/Kconfig         |    4 +-
- drivers/usb/serial/cp2101.c        |    3 ++
- drivers/usb/serial/sierra.c        |    3 ++
- drivers/usb/storage/unusual_devs.h |    9 ++++-
- 12 files changed, 144 insertions(+), 59 deletions(-)
-
----------------
-
-Bjorn Schneider (1):
-      USB: new VID/PID-combos for cp2101
-
-Daniel Ritz (1):
-      usbtouchscreen: use endpoint address from endpoint descriptor
-
-David Brownell (2):
-      USB: fix compiler issues with newer gcc versions
-      USB: use MII hooks only if CONFIG_MII is enabled
-
-Dominic Cerquetti (1):
-      USB: xpad: additional USB id's added
-
-Grant Grundler (1):
-      hid-core: big-endian fix fix
-
-Greg Kroah-Hartman (1):
-      USB: add another sierra wireless device id
-
-Jan Luebbe (1):
-      USB: sierra: Fix id for Sierra Wireless MC8755 in new table
-
-Jan Mate (1):
-      USB Storage: unusual_devs.h entry for Sony Ericsson P990i
-
-Naranjo Manuel Francisco (1):
-      USB: HID: add blacklist AIRcable USB, little beautification
-
-Oliver Neukum (2):
-      USB: failure in usblp's error path
-      USB: usblp: fix system suspend for some systems
-
-Phil Dibowitz (1):
-      USB: usb-storage: Unusual_dev update
-
+							Thanx, Paul

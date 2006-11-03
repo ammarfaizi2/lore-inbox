@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753239AbWKCLlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753241AbWKCLrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753239AbWKCLlG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 06:41:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753240AbWKCLlG
+	id S1753241AbWKCLrx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 06:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753242AbWKCLrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 06:41:06 -0500
-Received: from main.gmane.org ([80.91.229.2]:33438 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1753239AbWKCLlF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 06:41:05 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Jellinghaus <aj@ciphirelabs.com>
-Subject: Re: Faustian Pact between Novell and Microsoft
-Date: Fri, 03 Nov 2006 12:40:04 +0100
-Message-ID: <454B2A94.6010304@ciphirelabs.com>
-References: <454A7BBB.10403@wolfmountaingroup.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ciphirelabs.net
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
-In-Reply-To: <454A7BBB.10403@wolfmountaingroup.com>
+	Fri, 3 Nov 2006 06:47:53 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:50639 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1753241AbWKCLrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 06:47:52 -0500
+Date: Fri, 3 Nov 2006 12:47:51 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Gabriel C <nix.or.die@googlemail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <454AA4C5.3070106@googlemail.com>
+Message-ID: <Pine.LNX.4.64.0611031247130.17174@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
+ <454AA4C5.3070106@googlemail.com>
+X-Personality-Disorder: Schizoid
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-> It's official.  Microsoft and Novell will now fork Linux.
+> This error looks fixed, now I have a new one here :)
+>
+> cc -D__NOT_FROM_SPAD -D__NOT_FROM_SPAD_TREE -Wall
+> -fdollars-in-identifiers -O2 -fomit-frame-pointer -c -o MKSPADFS.o -x c
+> MKSPADFS.C
+> MKSPADFS.C:146: error: expected declaration specifiers or '...' before
+> '_llseek'
+> MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'fd'
+> MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'hi'
+> MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'lo'
+> MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'res'
+> MKSPADFS.C:146: error: expected declaration specifiers or '...' before 'wh'
+> MKSPADFS.C:146: warning: type defaults to 'int' in declaration of
+> '_syscall5'
+> In file included from MKSPADFS.C:153:
+> GETHSIZE.I: In function 'test_access':
+> GETHSIZE.I:13: warning: implicit declaration of function '_llseek'
+> make: *** [MKSPADFS.o] Error 1
 
-so instead of about 600 git trees (all forks of the linus official
-git tree), we will have 601 git trees? how exiting.
+Pls send me output of C preprocessor. (i.e. gcc -E)
 
-Andreas
-
+Mikulas

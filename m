@@ -1,84 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752978AbWKCOTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753210AbWKCOVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752978AbWKCOTL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 09:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753171AbWKCOTL
+	id S1753210AbWKCOVY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 09:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753215AbWKCOVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 09:19:11 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:5856 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1752978AbWKCOTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 09:19:10 -0500
-Date: Fri, 3 Nov 2006 15:19:09 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <20061103134802.GD11947@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.64.0611031509500.27698@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
- <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz>
- <20061103101901.GA11947@wohnheim.fh-wedel.de>
- <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz>
- <20061103122126.GC11947@wohnheim.fh-wedel.de>
- <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz>
- <20061103134802.GD11947@wohnheim.fh-wedel.de>
-X-Personality-Disorder: Schizoid
+	Fri, 3 Nov 2006 09:21:24 -0500
+Received: from smtp18.dc2.safesecureweb.com ([65.36.255.252]:5843 "EHLO
+	smtp18.dc2.safesecureweb.com") by vger.kernel.org with ESMTP
+	id S1753210AbWKCOVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 09:21:23 -0500
+Message-ID: <001b01c6ff53$41a21eb0$0732700a@djlaptop>
+From: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
+To: "Henrique de Moraes Holschuh" <hmh@hmh.eng.br>
+Cc: "Bill Davidsen" <davidsen@tmr.com>, "Jean Delvare" <khali@linux-fr.org>,
+       <davidz@redhat.com>, "Richard Hughes" <hughsient@gmail.com>,
+       "David Woodhouse" <dwmw2@infradead.org>,
+       "Dan Williams" <dcbw@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <devel@laptop.org>, <sfr@canb.auug.org.au>, <len.brown@intel.com>,
+       <greg@kroah.com>, <benh@kernel.crashing.org>,
+       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>,
+       "Pavel Machek" <pavel@suse.cz>
+References: <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <znLIYxER.1162453921.3011900.khali@localhost> <454A306C.3050200@tmr.com> <000b01c6feb4$c340a580$0732700a@djlaptop> <20061103132340.GB4257@khazad-dum.debian.net>
+Subject: Re: [PATCH v2] Re: Battery class driver.
+Date: Fri, 3 Nov 2006 09:20:46 -0500
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1908636959-679944023-1162563549=:27698"
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+----- Original Message ----- 
+From: "Henrique de Moraes Holschuh" <hmh@hmh.eng.br>
+To: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
+Cc: "Bill Davidsen" <davidsen@tmr.com>; "Jean Delvare" <khali@linux-fr.org>; 
+<davidz@redhat.com>; "Richard Hughes" <hughsient@gmail.com>; "David 
+Woodhouse" <dwmw2@infradead.org>; "Dan Williams" <dcbw@redhat.com>; 
+<linux-kernel@vger.kernel.org>; <devel@laptop.org>; <sfr@canb.auug.org.au>; 
+<len.brown@intel.com>; <greg@kroah.com>; <benh@kernel.crashing.org>; 
+"linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>; "Pavel 
+Machek" <pavel@suse.cz>
+Sent: Friday, November 03, 2006 8:23 AM
+Subject: Re: [PATCH v2] Re: Battery class driver.
 
---1908636959-679944023-1162563549=:27698
-Content-Type: TEXT/PLAIN; charset=iso-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
 
->> Really it can batch any number of modifications into one transaction
->> (unless fsync or sync is called). Transaction is closed only on
->> fsync/sync, if 2 minutes pass (can be adjusted) or when the disk runs out
->> of space.
+> On Thu, 02 Nov 2006, Richard B. Johnson wrote:
+>> No known laptop bothers to do this. That's why the batteries fail at the
+>> most inoportune times and why it will decide to shut down when it feels
+>> like it, based totally upon some detected voltage drop when a disk-drive
+>> started.
 >
-> Interesting.  Let me pick an example and see where we're going from
-> there.  You have four directories, A, B, C and D, none of which is the
-> parent of another.  Two cross-directory renames happen:
-> $ mv A/foo B/
-> $ mv C/bar D/
+> Weird, I though the whole point behind a SBS hardware stack requiring
+> something fairly intelligent in the battery pack and allowing for (runtime
+> switchable!) Ah or Wh modes of operation was to allow vendors to do 
+> exactly
+> that: measure (V,A) permanently while the cells are above the safety 
+> cut-off
+> fuse level, and accumulate it...
 >
-> This will cause four modifications, one to each of the directories.  I
-> would have assumed that the modifications to A and B receive one
-> transaction number n, C and D get a different one, n+1 if nothing else
-> is going on in between.
+> Well, IBM embedded a microcontroller of some sort on every SBS ThinkPad
+> battery pack, and the ThinkPad reports battery data in Wh, so I expected 
+> it
+> to actually do the hard work to know how much energy is still left in the
+> pack...  especially given how much $$$ they want for the packs :-) I have 
+> no
+> idea of what software is really running inside the battery pack, of 
+> course,
+> so maybe the SBS battery EC just sits there doing something else instead 
+> of
+> taking real-time measurements of the battery charge (that wouldn't 
+> surprise
+> me too much...).
 
-They most likely receive the same transaction (this is not like journaling 
-transaction --- new transactions are issued only on conditions above).
+I'm not sure anybody actually embeds a micro. There is some chip, originally 
+make by National, that
+was supposed to monitor the battery state. I know that I have used five 
+laptops so far and have
+never been able to obtain any intellegent operation. They just shut down 
+when they feel like it.
+They do go to "suspend" mode to save power as well, always at the most 
+inopertune moment.
 
-A/foo entry is set with txc=memory_cct[memory_cc],cc=memory_cc
-B/foo entry is set with txc=memory_cct[memoty_cc]|0x80000000,cc=memory_cc
-C/foo entry is set with txc=memory_cct[memory_cc],cc=memory_cc
-D/foo entry is set with txc=memory_cct[memoty_cc]|0x80000000,cc=memory_cc
+Maybe the "ThinkPad" actually has some intellegence within. The cost of the 
+batteries only reflects
+the cost of defending lawsuits <grin> and not the cost of its components. 
+Batteries made in
+China seem to become "excited" at inopertune times.
 
-They may be written in any order (that's some improvement over 
-journaling) by buffer thread.
-
-And when you sync, with one write of memory_cct to disk, you make old 
-entries permanently invalid and new entries permanently valid.
-
-If the machine crashes before sync (and some of directory sectors were 
-written and some not), new entries will always be considered invalid, and 
-old entries always valid, because new crash count will be used and crash 
-count table at old crash count index will never be modified.
-
-> To commit the first rename, n is written into cct[entry->cc].  To
-> commit both, n+1 is written instead.  Committing the second
-> transaction without committing the first is not possible.
 >
-> Now clearly we are disagreeing, so I must have misunderstood your
-> design somehow.  Can you see how?
->
-> Jörn
+> -- 
+>  "One disk to rule them all, One disk to find them. One disk to bring
+>  them all and in the darkness grind them. In the Land of Redmond
+>  where the shadows lie." -- The Silicon Valley Tarot
+>  Henrique Holschuh
 
-Mikulas
---1908636959-679944023-1162563549=:27698--
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 (somewhere). IT removed email "privileges" 
+for engineers!
+New Book: http://www.AbominableFirebug.com
+
+

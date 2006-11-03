@@ -1,87 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753381AbWKCQ7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753386AbWKCQ7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753381AbWKCQ7E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 11:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753383AbWKCQ7E
+	id S1753386AbWKCQ7l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 11:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753389AbWKCQ7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 11:59:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33955 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1753381AbWKCQ7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 11:59:01 -0500
-Date: Fri, 3 Nov 2006 16:58:56 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>, akpm@osdl.org,
-       jens.axboe@oracle.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 5/8] resend cciss: disable DMA prefetch on P600
-Message-ID: <20061103165856.GA9716@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	"Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>,
-	akpm@osdl.org, jens.axboe@oracle.com, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-References: <20061103155412.GA1657@beardog.cca.cpqcorp.net> <1162572135.3160.2.camel@laptopd505.fenrus.org>
+	Fri, 3 Nov 2006 11:59:41 -0500
+Received: from mga05.intel.com ([192.55.52.89]:23473 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1753386AbWKCQ7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 11:59:40 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,386,1157353200"; 
+   d="scan'208"; a="11284654:sNHT23923233"
+Subject: Re: 2.6.19-rc1: x86_64 slowdown in lmbench's fork
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+       ak@suse.de, discuss@x86-64.org
+In-Reply-To: <20061103021145.GD13381@stusta.de>
+References: <1162485897.10806.72.camel@localhost.localdomain>
+	 <m1d5851yxd.fsf@ebiederm.dsl.xmission.com>
+	 <1162492453.10806.75.camel@localhost.localdomain>
+	 <20061103021145.GD13381@stusta.de>
+Content-Type: text/plain
+Organization: Intel
+Date: Fri, 03 Nov 2006 08:10:16 -0800
+Message-Id: <1162570216.10806.79.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1162572135.3160.2.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2006 at 05:42:15PM +0100, Arjan van de Ven wrote:
-> On Fri, 2006-11-03 at 09:54 -0600, Mike Miller (OS Dev) wrote:
-> > PATCH 5 of 8 resend
-> > 
-> > This patch unconditionally disables DMA prefetch on the P600 controller. A
-> > bug in the ASIC may result in prefetching either beyond the end of memory
-> > or to fall off into a memory hole.
-> > Please consider this for inclusion.
-> > 
-> > Thanks,
-> > mikem
-> > 
-> > Signed-off-by: Mike Miller <mike.miller@hp.com>
-> > 
-> >  cciss.c     |   13 +++++++++++++
-> >  cciss_cmd.h |    1 +
-> >  2 files changed, 14 insertions(+)
-> > --------------------------------------------------------------------------------
-> > diff -urNp linux-2.6-p00004/drivers/block/cciss.c linux-2.6-p00005/drivers/block/cciss.c
-> > --- linux-2.6-p00004/drivers/block/cciss.c	2006-10-31 15:20:25.000000000 -0600
-> > +++ linux-2.6-p00005/drivers/block/cciss.c	2006-11-03 09:43:55.000000000 -0600
-> > @@ -2997,6 +2997,19 @@ static int cciss_pci_init(ctlr_info_t *c
-> >  	}
-> >  #endif
-> >  
-> > +	{
-> > +		/* Disabling DMA prefetch for the P600
-> > +		 * An ASIC bug may result in a prefetch beyond
-> > +		 * physical memory.
-> > +		 */
-> > +		__u32 dma_prefetch
-> > +		if(board_id == 0x3225103C) {
-> > +			dma_prefetch = readl(c->vaddr + I2O_DMA1_CFG);
-> > +			dma_prefetch |= 0x8000;
-> > +			writel(dma_prefetch, c->vaddr + I2O_DMA1_CFG);
-> > +		}
-> > +	}
-> > +
+On Fri, 2006-11-03 at 03:11 +0100, Adrian Bunk wrote:
+
 > 
-> if you remove the if() you might as well also remove the {}'s ;)
+> What's your CONFIG_NR_CPUS setting that you are seeing such a big
+> regression?
+> 
 
-And fix the spaces around the if() while we're at it, aka:
+CONFIG_NR_CPUS is set to 8.  
 
-	/*
-	 * Disable DMA prefetch for the P600.
-	 * An ASIC bug may result in a prefetch beyond
-	 * physical memory.
-	 */
-	if (board_id == 0x3225103C) {
-		u32 dma_prefetch = readl(c->vaddr + I2O_DMA1_CFG);
-		writel(dma_prefetch | 0x8000, c->vaddr + I2O_DMA1_CFG);
-	}
+Tim

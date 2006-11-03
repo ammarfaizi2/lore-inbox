@@ -1,110 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753210AbWKCOVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753215AbWKCOby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753210AbWKCOVY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 09:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753215AbWKCOVY
+	id S1753215AbWKCOby (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 09:31:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753183AbWKCOby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 09:21:24 -0500
-Received: from smtp18.dc2.safesecureweb.com ([65.36.255.252]:5843 "EHLO
-	smtp18.dc2.safesecureweb.com") by vger.kernel.org with ESMTP
-	id S1753210AbWKCOVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 09:21:23 -0500
-Message-ID: <001b01c6ff53$41a21eb0$0732700a@djlaptop>
-From: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
-To: "Henrique de Moraes Holschuh" <hmh@hmh.eng.br>
-Cc: "Bill Davidsen" <davidsen@tmr.com>, "Jean Delvare" <khali@linux-fr.org>,
-       <davidz@redhat.com>, "Richard Hughes" <hughsient@gmail.com>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Dan Williams" <dcbw@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <devel@laptop.org>, <sfr@canb.auug.org.au>, <len.brown@intel.com>,
-       <greg@kroah.com>, <benh@kernel.crashing.org>,
-       "linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>,
-       "Pavel Machek" <pavel@suse.cz>
-References: <41840b750610310606t2b21d277k724f868cb296d17f@mail.gmail.com> <znLIYxER.1162453921.3011900.khali@localhost> <454A306C.3050200@tmr.com> <000b01c6feb4$c340a580$0732700a@djlaptop> <20061103132340.GB4257@khazad-dum.debian.net>
-Subject: Re: [PATCH v2] Re: Battery class driver.
-Date: Fri, 3 Nov 2006 09:20:46 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Fri, 3 Nov 2006 09:31:54 -0500
+Received: from usea-naimss2.unisys.com ([192.61.61.104]:44562 "EHLO
+	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S1753215AbWKCObx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 09:31:53 -0500
+Subject: Re: [Fastboot] [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot
+	when reserving	MP Tables located in high memory
+From: Amul Shah <amul.shah@unisys.com>
+To: vgoyal@in.ibm.com
+Cc: LKML <linux-kernel@vger.kernel.org>, fastboot <fastboot@lists.osdl.org>,
+       Andi Kleen <ak@suse.de>
+In-Reply-To: <20061102233629.GB18286@in.ibm.com>
+References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com>
+	 <20061102233629.GB18286@in.ibm.com>
+Content-Type: text/plain
+Date: Fri, 03 Nov 2006 09:30:37 -0500
+Message-Id: <1162564238.19677.51.camel@ustr-linux-shaha1.unisys.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+X-OriginalArrivalTime: 03 Nov 2006 14:31:36.0093 (UTC) FILETIME=[C43744D0:01C6FF54]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Henrique de Moraes Holschuh" <hmh@hmh.eng.br>
-To: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
-Cc: "Bill Davidsen" <davidsen@tmr.com>; "Jean Delvare" <khali@linux-fr.org>; 
-<davidz@redhat.com>; "Richard Hughes" <hughsient@gmail.com>; "David 
-Woodhouse" <dwmw2@infradead.org>; "Dan Williams" <dcbw@redhat.com>; 
-<linux-kernel@vger.kernel.org>; <devel@laptop.org>; <sfr@canb.auug.org.au>; 
-<len.brown@intel.com>; <greg@kroah.com>; <benh@kernel.crashing.org>; 
-"linux-thinkpad mailing list" <linux-thinkpad@linux-thinkpad.org>; "Pavel 
-Machek" <pavel@suse.cz>
-Sent: Friday, November 03, 2006 8:23 AM
-Subject: Re: [PATCH v2] Re: Battery class driver.
+On Thu, 2006-11-02 at 18:36 -0500, Vivek Goyal wrote:
+> On Thu, Nov 02, 2006 at 05:24:32PM -0500, Amul Shah wrote:
+> > The kdump crash kernel panics when it tries to reserve the MP Config
+> > tables on an ES7000.
+> > 
+> > The MP Config table is located above 1MB of physical memory in a
+> > reserved memory area.  It is located outside the first 1MB area because
+> > the tables are too large, 240k.
+> > 
+> 
+> Hi Amul,
+> 
+> Can you tell where it is placed in your system? At the end of physical
+> RAM?
 
+The MP tables are located at 896MB of RAM.  I believe that we ended up
+there because i386 Linux would choke if the tables were located higher
+than 896MB (the low memory boundary).
 
-> On Thu, 02 Nov 2006, Richard B. Johnson wrote:
->> No known laptop bothers to do this. That's why the batteries fail at the
->> most inoportune times and why it will decide to shut down when it feels
->> like it, based totally upon some detected voltage drop when a disk-drive
->> started.
->
-> Weird, I though the whole point behind a SBS hardware stack requiring
-> something fairly intelligent in the battery pack and allowing for (runtime
-> switchable!) Ah or Wh modes of operation was to allow vendors to do 
-> exactly
-> that: measure (V,A) permanently while the cells are above the safety 
-> cut-off
-> fuse level, and accumulate it...
->
-> Well, IBM embedded a microcontroller of some sort on every SBS ThinkPad
-> battery pack, and the ThinkPad reports battery data in Wh, so I expected 
-> it
-> to actually do the hard work to know how much energy is still left in the
-> pack...  especially given how much $$$ they want for the packs :-) I have 
-> no
-> idea of what software is really running inside the battery pack, of 
-> course,
-> so maybe the SBS battery EC just sits there doing something else instead 
-> of
-> taking real-time measurements of the battery charge (that wouldn't 
-> surprise
-> me too much...).
+> > The crash kernel is given a user defined memory map with E820 reserved
+> > and ACPI areas passed in by kexec tools and a usable area from 16MB
+> > physical to 80MB physical.  This user defined map causes the top of
+> > memory to be set as 80MB.
+> > 
+> > The ACPI tables and MP Tables reside higher in memory.  When reserving
+> > memory with reserve_bootmem_generic, the function has a BUG panic if the
+> > memory location to reserve is above the top of memory.  The MP table is
+> > above the top of memory in a user defined memory map.
+> > 
+> > This patch will ignore reserving the MP tables if the MP table resides
+> > in an area already reserved in the E820.
+> > 
+> > I have two alternate patches that accomplish the same effect if this
+> > patch is not acceptable.
+> > 1. avoid reserving the MP tables if a user defined memory map or if a
+> > user defined memory limit ("mem=") is used.
+> > 2. avoid reserving the MP tables if a kernel parameter is passed in to
+> > ignore MP table reservation.
+> > 
+> > 
+> 
+> I think both the methods are not the right way to solve the problem. It
+> will just fix the symtom you are facing. Currently this solution works
+> for you as you are using MADT tables from ACPI. But it will fail if you try
+> to boot second kernel on your system with acpi=off as MP tables are not
+> accessible.
 
-I'm not sure anybody actually embeds a micro. There is some chip, originally 
-make by National, that
-was supposed to monitor the battery state. I know that I have used five 
-laptops so far and have
-never been able to obtain any intellegent operation. They just shut down 
-when they feel like it.
-They do go to "suspend" mode to save power as well, always at the most 
-inopertune moment.
+You are correct, this patch most certainly only fixes the Unisys problem
+(does that make me a corporate shill? ;).  Since we can't boot the
+ES7000 without ACPI, the crash kernel must have access to the ACPI Data
+area.
 
-Maybe the "ThinkPad" actually has some intellegence within. The cost of the 
-batteries only reflects
-the cost of defending lawsuits <grin> and not the cost of its components. 
-Batteries made in
-China seem to become "excited" at inopertune times.
+> I think the right way to fix this problem would be to let kexec-tools know
+> where the MP table is in RAM and kexec-tools can create another memmap=
+> entry for that area so that MP tables are accessible in second kernel.
 
->
-> -- 
->  "One disk to rule them all, One disk to find them. One disk to bring
->  them all and in the darkness grind them. In the Land of Redmond
->  where the shadows lie." -- The Silicon Valley Tarot
->  Henrique Holschuh
+The MP Tables already reside in a reserved area which the kexec-tools
+handles.  Unfortunately because end of ram in the user defined map is
+physical 80MB, trying to reserve memory above that point breaks the
+ES7000.
 
+> I think you need to export the MP table location and size to user space,
+> say through /sys/kernel/. And also modify kexec-tools to parse it.
+> 
+> Thanks
+> Vivek
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 (somewhere). IT removed email "privileges" 
-for engineers!
-New Book: http://www.AbominableFirebug.com
+Andi's suggestion will work with a modification.  I'll post it once I've
+tested it.
 
+thanks,
+Amul
 

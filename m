@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753377AbWKCQuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753378AbWKCQvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753377AbWKCQuH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 11:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753376AbWKCQuG
+	id S1753378AbWKCQvN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 11:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753381AbWKCQvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 11:50:06 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:8917 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1753377AbWKCQuE (ORCPT
+	Fri, 3 Nov 2006 11:51:12 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:27578 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1753380AbWKCQvL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 11:50:04 -0500
-Date: Fri, 3 Nov 2006 17:36:03 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
-       Mark Williamson <mark.williamson@cl.cam.ac.uk>,
-       linux-kernel@vger.kernel.org, Michael Halcrow <mhalcrow@us.ibm.com>,
-       Erez Zadok <ezk@cs.sunysb.edu>, Christoph Hellwig <hch@infradead.org>,
-       Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/3] fsstack: Generic get/set lower object functions
-In-Reply-To: <84144f020611030113u119a3759q11a3ac4cfacccb74@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0611031735070.21864@yvahk01.tjqt.qr>
-References: <20061102035928.679.60601.stgit@thor.fsl.cs.sunysb.edu> 
- <1162483565.6299.98.camel@lade.trondhjem.org>  <20061103032702.GB13499@filer.fsl.cs.sunysb.edu>
-  <200611030345.51167.mark.williamson@cl.cam.ac.uk> 
- <20061103035130.GC13499@filer.fsl.cs.sunysb.edu>  <1162535103.5635.20.camel@lade.trondhjem.org>
- <84144f020611030113u119a3759q11a3ac4cfacccb74@mail.gmail.com>
+	Fri, 3 Nov 2006 11:51:11 -0500
+From: Andi Kleen <ak@suse.de>
+To: Amul Shah <amul.shah@unisys.com>
+Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when  reserving MP Tables located in high memory
+Date: Fri, 3 Nov 2006 17:51:03 +0100
+User-Agent: KMail/1.9.5
+Cc: LKML <linux-kernel@vger.kernel.org>, Vivek Goyal <vgoyal@in.ibm.com>
+References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com> <200611030340.55952.ak@suse.de> <1162565722.19677.68.camel@ustr-linux-shaha1.unisys.com>
+In-Reply-To: <1162565722.19677.68.camel@ustr-linux-shaha1.unisys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611031751.04056.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> Why? What is so special about the details that you need to hide them?
->> This is a union that will always be part of a structure anyway.
->
-> Nothing. Josef, I think we should make them unions.
+[Finally dropping that annoying fastboot list from cc. Please never include any closed 
+mailing lists in l-k posts. Thanks]
 
-In other words,
+>   That won't worked because in arch/86_64/kernel/e820.c, the exactmap
+> parsing clobbers end_pfn_map.
 
-/* structs to maintain pointers to the lower VFS objects */
-struct fsstack_sb_info {
-	union {
-		struct super_block *sb;
-		struct super_block **sbs;
-	};                                                                      
-};                                                                         
+That's a bug imho. It shouldn't do that.
 
-should become:
+end_pfn_map should be always the highest address in e820 so that we 
+can access all firmware tables safely.
 
-union fsstack_sb_info {
-	struct super_block *sb;
-	struct super_block **sbs;
-};
+-Andi
 
-
-	-`J'
--- 
+> 
+> static int __init parse_memmap_opt(char *p)
+> {
+> 	char *oldp;
+> 	unsigned long long start_at, mem_size;
+> 
+> 	if (!strcmp(p, "exactmap")) {
+> #ifdef CONFIG_CRASH_DUMP
+> 		/* If we are doing a crash dump, we
+> 		 * still need to know the real mem
+> 		 * size before original memory map is
+> 		 * reset.
+> 		 */
+> 		saved_max_pfn = e820_end_of_ram();
+> #endif
+> 		end_pfn_map = 0;
+> 		e820.nr_map = 0;
+> 		userdef = 1;
+> 		return 0;
+> 	}

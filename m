@@ -1,134 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWKCXCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWKCXHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWKCXCK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 18:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWKCXCK
+	id S932487AbWKCXHA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 18:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWKCXHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 18:02:10 -0500
-Received: from smtp-out.rrz.uni-koeln.de ([134.95.19.53]:53703 "EHLO
-	smtp-out.rrz.uni-koeln.de") by vger.kernel.org with ESMTP
-	id S932479AbWKCXCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 18:02:09 -0500
-Message-ID: <454BCA68.4020904@rrz.uni-koeln.de>
-Date: Sat, 04 Nov 2006 00:02:00 +0100
-From: Berthold Cogel <cogel@rrz.uni-koeln.de>
-User-Agent: IceDove 1.5.0.7 (X11/20061013)
-MIME-Version: 1.0
+	Fri, 3 Nov 2006 18:07:00 -0500
+Received: from nz-out-0102.google.com ([64.233.162.196]:6206 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932487AbWKCXHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 18:07:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=LKomz0rXZF6v/6IuDsY+H6A/KZfb9KFL5qWrqrRQLXEUwXVUtrM3Y5zFYLlWUlgzd2CB3Iu+oyoglMKf+K40nTnTvgXUejSAq3VI2UXPWViyAxThG8uzBUkYYdd8F9IhmWrQEZUFOeCbbKc1skO+s6LG6mLlIS3bI7RvmFHvsUA=
+Message-ID: <b9481e140611031506u42e326dbs5c0e97d14c5fb5b3@mail.gmail.com>
+Date: Sat, 4 Nov 2006 00:06:58 +0100
+From: "Nicolas FR" <nicolasfr@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: linux-2.6.18 Oops: unable to handle kernel paging request at virtual
- address 766565af
-Content-Type: text/plain; charset=ISO-8859-15
+Subject: sc3200 cpu + apm module kernel crash
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-I got an Oops with linux-2.6.18 ('homemade' kernel.org, unpatched) while
-testing a new USB headset (Logitech Premium Notebook Headset).
+I am currently trying to setup a fully functionnal linux on a Tatung
+webpad (shipped with winCE), which has a AMD/NSC SC3200 CPU (more
+details on my blog here: http://www.geek-fr.com ). So far everything
+goes fine except one thing:
 
-My System: Debian unstable/testing. Notebook Acer Extensa 3002 WLMi.
+when I try to load the APM module, the kernel crashes. I have tried
+different options, but always got the same crash. I have enabled some
+verbosing and finally found that the crash is happening in
+arch/i386/kernel/apm.c in function static void apm_mainloop(void) when
+calling apm_event_handler();
 
-The headset is recognised by the system and the modules are loaded.
-After restarting the gnome mixer applet, I can hear the sound from the
-microfon in the headset speaker. I'm able to mute and unmute the speaker
-and the microfon of headset in the mixer.
+I have thrown a bunch of  "printk(KERN_INFO "apm: I am here\n");" and
+noticed the crash is happening just when calling apm_event_handler();
+and does not even execute any instruction in this function... This is
+the point I don't understand, how can it crash just on calling a
+function and not executing the first statement in this function?
 
-I tried to get the output from XMMS to the headset. Therefor I
-configured the alsa plugin for XMMS to use the headset, which didn't
-work. I was also unable to get the sound from the microfon to the system
-speaker. Then I removed the headset and closed XMMS. This was when the
-Oops happened.
+Moreover by enabling soft lockup detection I have managed to get those
+informations:
 
-I haven't been able to reproduce the Oops yet.
+==========================
+apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16ac)
+apm: entry f000:51c8 cseg16 f000 dseg 40 cseg len ffff, dseg ken ffff
+cseg16 len ffff
+apm: Connection version 1.2
+apm: AC on line, battery statys high, battery life 100%
+apm: battery flag 0x01, battery life unknown
 
+BUG: soft lockup detected on CPU#0!
+[<c011d102>] update_process_times+0x22/0x60
+[<c0106441>] timer_interrupt+0x41/0x80
+[<c0134773>] handle_IRQ_event+0x33/0x60
+[<c0134813>] __do_IRQ+0x73/0xd0
+[<c0105171>] do_IRQ+0x31/0x70
+[<c0103b1a>] common_interrupt+0x1a/0x20
+[<c0409200>] do_cyrix_devid+0x60/0x90
+==========================
 
-/var/log/kern.log
-
-Nov  3 18:47:38 localhost kernel: usb 4-2: new full speed USB device
-using uhci_hcd and address 2
-Nov  3 18:47:38 localhost kernel: usb 4-2: configuration #1 chosen from
-1 choice
-Nov  3 18:47:40 localhost kernel: usbcore: registered new driver
-snd-usb-audio
-Nov  3 18:55:38 localhost kernel: cannot submit datapipe for urb 5,
-error -28: not enough bandwidth
-Nov  3 18:56:19 localhost kernel: cannot submit datapipe for urb 5,
-error -28: not enough bandwidth
-Nov  3 18:56:58 localhost kernel: usb 4-2: USB disconnect, address 2
-Nov  3 18:57:42 localhost kernel: BUG: unable to handle kernel paging
-request at virtual address 766565af
-Nov  3 18:57:42 localhost kernel:  printing eip:
-Nov  3 18:57:42 localhost kernel: c014af57
-Nov  3 18:57:42 localhost kernel: *pde = 00000000
-Nov  3 18:57:42 localhost kernel: Oops: 0002 [#1]
-Nov  3 18:57:42 localhost kernel: PREEMPT
-Nov  3 18:57:42 localhost kernel: Modules linked in: snd_usb_audio
-snd_usb_lib snd_hwdep binfmt_misc rfcomm l2cap bluetooth nfs lockd
-nfs_acl sunrpc af_packet thermal fan button sbs i2c_ec autofs4
-snd_intel8x0m dm_mirror ipw2200 b44 mii ieee80211_crypt_tkip
-ieee80211_crypt_ccmp ieee80211_crypt_wep ieee80211 ieee80211_crypt
-cpufreq_conservative cpufreq_ondemand cpufreq_performance
-cpufreq_powersave acpi_cpufreq freq_table processor sg scsi_mod
-snd_intel8x0 usbhid snd_ac97_codec snd_ac97_bus pcmcia firmware_class
-snd_pcm_oss snd_mixer_oss snd_pcm snd_seq_dummy snd_seq_oss snd_seq_midi
-snd_rawmidi snd_seq_midi_event snd_seq snd_timer snd_seq_device
-intel_agp joydev nsc_ircc snd i2c_i801 yenta_socket rsrc_nonstatic
-agpgart uhci_hcd ehci_hcd soundcore irda ohci1394 evdev pcspkr usbcore
-snd_page_alloc crc_ccitt ieee1394 pcmcia_core ide_cd cdrom psmouse rtc unix
-Nov  3 18:57:42 localhost kernel: CPU:    0
-Nov  3 18:57:42 localhost kernel: EIP:    0060:[<c014af57>]    Not
-tainted VLI
-Nov  3 18:57:42 localhost kernel: EFLAGS: 00010202   (2.6.18.1-vanilla #1)
-Nov  3 18:57:42 localhost kernel: EIP is at __fput+0xae/0x152
-Nov  3 18:57:42 localhost kernel: eax: f2506000   ebx: f2458d20   ecx:
-f7dbfc40   edx: 7665642f
-Nov  3 18:57:42 localhost kernel: esi: f1842980   edi: f2458d20   ebp:
-f24e5570   esp: f2507f34
-Nov  3 18:57:42 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Nov  3 18:57:42 localhost kernel: Process xmms (pid: 4805, ti=f2506000
-task=f24ada90 task.ti=f2506000)
-Nov  3 18:57:42 localhost kernel: Stack: c18e6dc0 f1842980 00000000
-f7868200 ef6d8280 c0148a99 f1842980 f7868200
-Nov  3 18:57:42 localhost kernel:        f1842980 f7868200 f7868200
-00000001 00000030 c011733f f1842980 f7868200
-Nov  3 18:57:42 localhost kernel:        00000000 00000000 f7868200
-f24ada90 00000001 f2507fac c0118354 00000000
-Nov  3 18:57:42 localhost kernel: Call Trace:
-Nov  3 18:57:42 localhost kernel:  [<c0148a99>] filp_close+0x50/0x59
-Nov  3 18:57:42 localhost kernel:  [<c011733f>] put_files_struct+0x62/0xa2
-Nov  3 18:57:42 localhost kernel:  [<c0118354>] do_exit+0x1d0/0x760
-Nov  3 18:57:42 localhost kernel:  [<c0118963>] sys_exit_group+0x0/0x11
-Nov  3 18:57:42 localhost kernel:  [<c0102be9>] sysenter_past_esp+0x56/0x79
-Nov  3 18:57:42 localhost kernel: Code: d0 5b 58 8b 87 f4 00 00 00 85 c0
-74 07 50 e8 36 67 00 00 59 8b 46 10 85 c0 74 3c 8b 10 85 d2 74 36 89 e0
-25 00 e0 ff ff ff 40 14 <ff> 8a 80 01 00 00 83 3a 02 75 0b 8b 82 08 02
-00 00 e8 f2 7f fc
-Nov  3 18:57:42 localhost kernel: EIP: [<c014af57>] __fput+0xae/0x152
-SS:ESP 0068:f2507f34
-Nov  3 18:57:42 localhost kernel:  <1>Fixing recursive fault but reboot
-is needed!
-Nov  3 18:57:42 localhost kernel: BUG: scheduling while atomic:
-xmms/0x00000001/4805
-Nov  3 18:57:42 localhost kernel:  [<c027a9c1>] schedule+0x43/0x52b
-Nov  3 18:57:42 localhost kernel:  [<c0119fe4>] __do_softirq+0x34/0x75
-Nov  3 18:57:42 localhost kernel:  [<c01164d4>] printk+0x14/0x18
-Nov  3 18:57:42 localhost kernel:  [<c0118257>] do_exit+0xd3/0x760
-Nov  3 18:57:42 localhost kernel:  [<c0103ee2>] die+0x21b/0x223
-Nov  3 18:57:42 localhost kernel:  [<c0111559>] do_page_fault+0x3a3/0x469
-Nov  3 18:57:42 localhost kernel:  [<c01111b6>] do_page_fault+0x0/0x469
-Nov  3 18:57:42 localhost kernel:  [<c01036b1>] error_code+0x39/0x40
-Nov  3 18:57:42 localhost kernel:  [<c01a007b>]
-blk_unregister_queue+0x38/0x41
-Nov  3 18:57:42 localhost kernel:  [<c014af57>] __fput+0xae/0x152
-Nov  3 18:57:42 localhost kernel:  [<c0148a99>] filp_close+0x50/0x59
-Nov  3 18:57:42 localhost kernel:  [<c011733f>] put_files_struct+0x62/0xa2
-Nov  3 18:57:42 localhost kernel:  [<c0118354>] do_exit+0x1d0/0x760
-Nov  3 18:57:42 localhost kernel:  [<c0118963>] sys_exit_group+0x0/0x11
-Nov  3 18:57:42 localhost kernel:  [<c0102be9>] sysenter_past_esp+0x56/0x79
-
+Any idea on what can be happening here?
 
 Regards,
+Nicolas.
 
-Berthold Cogel
-
+PS: please CC me if answering this message, as I am not subscribed to the list
+PPS: I have read the list FAQ before posting, but still if this
+message is not appropriate to the list, then sorry.

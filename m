@@ -1,120 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWKCIXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWKCIYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751798AbWKCIXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 03:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbWKCIXk
+	id S1751445AbWKCIYd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 03:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWKCIYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 03:23:40 -0500
-Received: from pop-siberian.atl.sa.earthlink.net ([207.69.195.71]:17537 "EHLO
-	pop-siberian.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S1751445AbWKCIXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 03:23:39 -0500
-Date: Fri, 3 Nov 2006 03:23:35 -0500 (EST)
-From: Brent Baccala <cosine@freesoft.org>
-X-X-Sender: baccala@debian.freesoft.org
-To: linux-kernel@vger.kernel.org
-Subject: async I/O seems to be blocking on 2.6.15
-Message-ID: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org>
+	Fri, 3 Nov 2006 03:24:33 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:20886 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751445AbWKCIYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 03:24:32 -0500
+X-Sasl-enc: +P7hcS3dqFuZqOCNEVHRgM4/1tpKw4yLkkzRSqvdYcrI 1162542271
+Date: Fri, 3 Nov 2006 16:24:23 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+cc: "bibo,mao" <bibo.mao@intel.com>, David Howells <dhowells@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.19-rc3 autofs crash on my IA64 box
+In-Reply-To: <Pine.LNX.4.64.0611031610070.7573@raven.themaw.net>
+Message-ID: <Pine.LNX.4.64.0611031623100.7573@raven.themaw.net>
+References: <45485478.8060909@intel.com> <20061102183020.446D.Y-GOTO@jp.fujitsu.com>
+ <Pine.LNX.4.64.0611031610070.7573@raven.themaw.net>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323329-619161319-1162542215=:25096"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Fri, 3 Nov 2006, Ian Kent wrote:
 
---8323329-619161319-1162542215=:25096
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+> On Thu, 2 Nov 2006, Yasunori Goto wrote:
+> 
+> > Hello.
+> > 
+> > > hi,
+> > >   2.6.19-rc3 kernel crashes on my IA64 box, it seems the problem
+> > > of autofs fs. I debug this problem, if autofs kernel does not
+> > > match daemon version, it will call autofs_catatonic_mode.
+> > > But at that time sbi->pipe is NULL.
+> > > 
+> > > void autofs_catatonic_mode(struct autofs_sb_info *sbi)
+> > > {
+> > >    .........
+> > >    fput(sbi->pipe);        /* Close the pipe */
+> > > 	^^^^^^^^^^^^
+> > >  	sbi->pipe seems NULL;
+> > >    autofs_hash_dputall(&sbi->dirhash); /* Remove all dentry pointers */
+> > > }
+> > > 
+> > 
+> > My box crashed too.
+> > 
+> > Following fix does not seem enough.
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=116110204104327&w=2
+> > If version does not match at autofs_fill_super(), then sbi->pipe
+> > is not set yet.
+> > I suppose something like following patch is necessary.
+> > 
+> > Thanks.
+> > 
+> > -------------
+> > Index: stocktest/fs/autofs/waitq.c
+> > ===================================================================
+> > --- stocktest.orig/fs/autofs/waitq.c	2006-03-10 11:36:40.000000000 +0900
+> > +++ stocktest/fs/autofs/waitq.c	2006-11-02 18:44:58.000000000 +0900
+> > @@ -40,7 +40,8 @@ void autofs_catatonic_mode(struct autofs
+> >  		wake_up(&wq->queue);
+> >  		wq = nwq;
+> >  	}
+> > -	fput(sbi->pipe);	/* Close the pipe */
+> > +	if (sbi->pipe)
+> > +		fput(sbi->pipe);	/* Close the pipe */
+> >  	autofs_hash_dputall(&sbi->dirhash); /* Remove all dentry pointers */
+> >  }
+> 
+> I've checked this and this is not the only problem.
+> Also autofs4_ is called with s->s_root NULL in this case.
 
-Hello -
+Oops, that autofs4_ should be autofs4_force_release
 
-I'm running 2.6.15 (Debian) on a Pentium M laptop, PCI attached ext3
-filesystem.
-
-I'm writing my first asynchronous I/O program, and for a while I
-thought I was really doing something wrong, but more and more I'm
-starting to conclude that the problem might be in the kernel.
-
-Basically, I've narrowed things down to a test program which opens a
-large (700 MB) file in O_DIRECT mode and fires off 100 one MB async
-reads for the first 100 MB of data.  The enqueues take about 5 seconds
-to complete, which is also about the amount of time this disk needs to
-read 100 MB, so I suspect that it's blocking.
-
-I've gotten the POSIX AIO interface at least tolerably running using
-the GLIBC thread-based implementation, but I really want the native
-interface working.
-
-I whittled the test program down to use system calls instead of the
-POSIX AIO library, and I'm attaching a copy.  You put a big file at
-'testfile' (it just reads it) and run the program:
-
-
-baccala@debian ~/src/endgame$ time ./testaio
-Enqueues starting
-Enqueues complete
-
-real    0m5.327s
-user    0m0.004s
-sys     0m0.740s
-baccala@debian ~/src/endgame$
-
-
-Of that five seconds, it's almost all spent between the two "enqueues"
-messages.
-
-If anybody can shed any light on this, I'd appreciate your feedback
-direct to cosine@freesoft.org (I don't read the list).
-
-Thank you.
-
-
-
- 					-bwb
-
- 					Brent Baccala
- 					cosine@freesoft.org
---8323329-619161319-1162542215=:25096
-Content-Type: TEXT/x-csrc; charset=US-ASCII; name=testaio.c
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.64.0611030323350.25096@debian.freesoft.org>
-Content-Description: 
-Content-Disposition: attachment; filename=testaio.c
-
-DQojZGVmaW5lIF9HTlVfU09VUkNFCQkvKiB0byBnZXQgT19ESVJFQ1QgKi8N
-Cg0KI2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RkbGliLmg+DQoj
-aW5jbHVkZSA8c3RyaW5nLmg+CS8qIGZvciBtZW1zZXQoKSAqLw0KI2luY2x1
-ZGUgPHVuaXN0ZC5oPgkvKiBmb3IgX1BDX1JFQ19YRkVSX0FMSUdOICovDQoj
-aW5jbHVkZSA8YXNtL3VuaXN0ZC5oPg0KI2luY2x1ZGUgPGZjbnRsLmg+DQoj
-aW5jbHVkZSA8bGludXgvYWlvX2FiaS5oPg0KI2luY2x1ZGUgPGVycm5vLmg+
-DQoNCl9zeXNjYWxsMihpbnQsIGlvX3NldHVwLCBpbnQsIG1heGV2ZW50cywg
-YWlvX2NvbnRleHRfdCAqLCBjdHhwKQ0KX3N5c2NhbGwzKGludCwgaW9fc3Vi
-bWl0LCBhaW9fY29udGV4dF90LCBjdHgsIGxvbmcsIG5yLCBzdHJ1Y3QgaW9j
-YiAqKiwgaW9jYnMpDQoNCiNkZWZpbmUgTlVNQUlPUyAxMDANCg0KI2RlZmlu
-ZSBCVUZGRVJfQllURVMgKDE8PDIwKQ0KDQpzdHJ1Y3QgaW9jYiBpb2NiW05V
-TUFJT1NdOw0Kdm9pZCAqYnVmZmVyW05VTUFJT1NdOw0KDQphaW9fY29udGV4
-dF90IGFpb19kZWZhdWx0X2NvbnRleHQ7DQoNCm1haW4oKQ0Kew0KICAgIGlu
-dCBmZDsNCiAgICBpbnQgaTsNCiAgICBpbnQgYWxpZ25tZW50Ow0KICAgIHN0
-cnVjdCBpb2NiICogaW9jYnBbMV07DQoNCiAgICBmZCA9IG9wZW4oInRlc3Rm
-aWxlIiwgT19SRE9OTFkgfCBPX0RJUkVDVCk7DQogICAgYWxpZ25tZW50ID0g
-ZnBhdGhjb25mKGZkLCBfUENfUkVDX1hGRVJfQUxJR04pOw0KDQogICAgZm9y
-IChpPTA7IGk8TlVNQUlPUzsgaSsrKSB7DQoJaWYgKHBvc2l4X21lbWFsaWdu
-KCZidWZmZXJbaV0sIGFsaWdubWVudCwgQlVGRkVSX0JZVEVTKSAhPSAwKSB7
-DQoJICAgIGZwcmludGYoc3RkZXJyLCAiQ2FuJ3QgcG9zaXhfbWVtYWxpZ25c
-biIpOw0KCX0NCiAgICB9DQoNCiAgICBpb19zZXR1cCgxMDI0LCAmYWlvX2Rl
-ZmF1bHRfY29udGV4dCk7DQoNCiAgICBmcHJpbnRmKHN0ZGVyciwgIkVucXVl
-dWVzIHN0YXJ0aW5nXG4iKTsNCg0KICAgIGZvciAoaT0wOyBpPE5VTUFJT1M7
-IGkrKykgew0KDQoJbWVtc2V0KCZpb2NiW2ldLCAwLCBzaXplb2Yoc3RydWN0
-IGlvY2IpKTsNCg0KCWlvY2JbaV0uYWlvX2xpb19vcGNvZGUgPSBJT0NCX0NN
-RF9QUkVBRDsNCglpb2NiW2ldLmFpb19maWxkZXMgPSBmZDsNCglpb2NiW2ld
-LmFpb19idWYgPSAodW5zaWduZWQgbG9uZykgYnVmZmVyW2ldOw0KCWlvY2Jb
-aV0uYWlvX25ieXRlcyA9IEJVRkZFUl9CWVRFUzsNCglpb2NiW2ldLmFpb19v
-ZmZzZXQgPSBCVUZGRVJfQllURVMgKiBpOw0KCS8qIGFpb2NiW2ldLmFpb19v
-ZmZzZXQgPSAwOyAqLw0KDQoJaW9jYnBbMF0gPSAmaW9jYltpXTsNCglpZiAo
-aW9fc3VibWl0KGFpb19kZWZhdWx0X2NvbnRleHQsIDEsIGlvY2JwKSAhPSAx
-KSB7DQoJICAgIHBlcnJvcigiIik7DQoJICAgIGZwcmludGYoc3RkZXJyLCAi
-Q2FuJ3QgZW5xdWV1ZSBhaW9fcmVhZCAlZFxuIiwgaSk7DQoJfQ0KICAgIH0N
-Cg0KICAgIGZwcmludGYoc3RkZXJyLCAiRW5xdWV1ZXMgY29tcGxldGVcbiIp
-Ow0KfQ0K
-
---8323329-619161319-1162542215=:25096--
+> 
+> The attached patch ensures that the autofs filesystem is initialized to be 
+> catatonic until super block setup is complete which avoids the problem 
+> above. It also checks s->s_root before use.
+> 
+> Could someone seeing this problem try this patch out please.
+> 
+> Ian
+> 
+> ---
+> --- linux-2.6.19-rc4-mm2/fs/autofs4/waitq.c.mount-fail-panic	2006-11-03 15:35:01.000000000 +0800
+> +++ linux-2.6.19-rc4-mm2/fs/autofs4/waitq.c	2006-11-03 15:35:22.000000000 +0800
+> @@ -41,10 +41,8 @@ void autofs4_catatonic_mode(struct autof
+>  		wake_up_interruptible(&wq->queue);
+>  		wq = nwq;
+>  	}
+> -	if (sbi->pipe) {
+> -		fput(sbi->pipe);	/* Close the pipe */
+> -		sbi->pipe = NULL;
+> -	}
+> +	fput(sbi->pipe);	/* Close the pipe */
+> +	sbi->pipe = NULL;
+>  }
+>  
+>  static int autofs4_write(struct file *file, const void *addr, int bytes)
+> --- linux-2.6.19-rc4-mm2/fs/autofs4/inode.c.mount-fail-panic	2006-11-03 14:42:46.000000000 +0800
+> +++ linux-2.6.19-rc4-mm2/fs/autofs4/inode.c	2006-11-03 15:20:55.000000000 +0800
+> @@ -99,6 +99,9 @@ static void autofs4_force_release(struct
+>  	struct dentry *this_parent = sbi->sb->s_root;
+>  	struct list_head *next;
+>  
+> +	if (!sbi->sb->s_root)
+> +		return;
+> +
+>  	spin_lock(&dcache_lock);
+>  repeat:
+>  	next = this_parent->d_subdirs.next;
+> @@ -310,7 +313,8 @@ int autofs4_fill_super(struct super_bloc
+>  	s->s_fs_info = sbi;
+>  	sbi->magic = AUTOFS_SBI_MAGIC;
+>  	sbi->pipefd = -1;
+> -	sbi->catatonic = 0;
+> +	sbi->pipe = NULL;
+> +	sbi->catatonic = 1;
+>  	sbi->exp_timeout = 0;
+>  	sbi->oz_pgrp = process_group(current);
+>  	sbi->sb = s;
+> @@ -388,6 +392,7 @@ int autofs4_fill_super(struct super_bloc
+>  		goto fail_fput;
+>  	sbi->pipe = pipe;
+>  	sbi->pipefd = pipefd;
+> +	sbi->catatonic = 0;
+>  
+>  	/*
+>  	 * Success! Install the root dentry now to indicate completion.
+> --- linux-2.6.19-rc4-mm2/fs/autofs/waitq.c.mount-fail-panic	2006-11-03 15:36:11.000000000 +0800
+> +++ linux-2.6.19-rc4-mm2/fs/autofs/waitq.c	2006-11-03 15:37:04.000000000 +0800
+> @@ -41,6 +41,7 @@ void autofs_catatonic_mode(struct autofs
+>  		wq = nwq;
+>  	}
+>  	fput(sbi->pipe);	/* Close the pipe */
+> +	sbi->pipe = NULL;
+>  	autofs_hash_dputall(&sbi->dirhash); /* Remove all dentry pointers */
+>  }
+>  
+> --- linux-2.6.19-rc4-mm2/fs/autofs/inode.c.mount-fail-panic	2006-11-03 14:40:56.000000000 +0800
+> +++ linux-2.6.19-rc4-mm2/fs/autofs/inode.c	2006-11-03 15:24:01.000000000 +0800
+> @@ -136,7 +136,8 @@ int autofs_fill_super(struct super_block
+>  
+>  	s->s_fs_info = sbi;
+>  	sbi->magic = AUTOFS_SBI_MAGIC;
+> -	sbi->catatonic = 0;
+> +	sbi->pipe = NULL;
+> +	sbi->catatonic = 1;
+>  	sbi->exp_timeout = 0;
+>  	sbi->oz_pgrp = process_group(current);
+>  	autofs_initialize_hash(&sbi->dirhash);
+> @@ -180,6 +181,7 @@ int autofs_fill_super(struct super_block
+>  	if ( !pipe->f_op || !pipe->f_op->write )
+>  		goto fail_fput;
+>  	sbi->pipe = pipe;
+> +	sbi->catatonic = 0;
+>  
+>  	/*
+>  	 * Success! Install the root dentry now to indicate completion.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

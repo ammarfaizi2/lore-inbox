@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWKCVwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753263AbWKCWBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWKCVwf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 16:52:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWKCVwf
+	id S1753263AbWKCWBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 17:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753485AbWKCWBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 16:52:35 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:44435 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932182AbWKCVwe (ORCPT
+	Fri, 3 Nov 2006 17:01:25 -0500
+Received: from main.gmane.org ([80.91.229.2]:9628 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1753263AbWKCWBY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 16:52:34 -0500
-Date: Fri, 3 Nov 2006 22:51:47 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
+	Fri, 3 Nov 2006 17:01:24 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
 Subject: Re: New filesystem for Linux
-In-Reply-To: <Pine.LNX.4.64.0611031945220.30722@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.61.0611032250550.23669@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
- <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
- <454AA4C5.3070106@googlemail.com> <Pine.LNX.4.61.0611030911540.13091@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0611031248030.17174@artax.karlin.mff.cuni.cz>
- <Pine.LNX.4.64.0611031257400.17174@artax.karlin.mff.cuni.cz>
- <Pine.LNX.4.61.0611031349490.9606@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0611031945220.30722@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Date: Fri, 3 Nov 2006 22:00:57 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrneknfdo.2in.olecom@flower.upol.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611030022110.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030228470.7781@artax.karlin.mff.cuni.cz>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, Grzegorz Kulewski <kangur@polcom.net>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > > > So anyway, why do you need _llseek? Can't you just use lseek()
->> > > > like
->> > > > everyone else?
->> > > 
->> > > Because I want it to work with glibc 2.0 that I still use on one
->> > > machine.
->> > 
->> > BTW. is it some interaction with symbols defined elsewhere or were
->> > _syscall
->> > macros dropped altogether? Which glibc symbol should I use in #ifdef
->> > to tell if
->> > glibc has 64-bit support?
->> 
->> -D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64
->> 
->> I think the second is not needed.
+On 2006-11-03, Mikulas Patocka wrote:
+[]
+>> Well, at least for XFS everybody tell that it should be used with UPS only if 
+>> you really care about your data. I think it has something to do with heavy 
+>> in-RAM caching this filesystem does.
 >
-> I see, but the question is how do I test in C preprocessor that glibc is
-> sufficiently new to react on them?
+> System is allowed to cache anything unless sync/fsync is called. Someone 
+> told that XFS has some bugs that if crashed incorrectly, it can lose 
+> already synced data ... don't know. Plus it has that infamous feature (not 
+> a bug) that it commits size-increase but not data and you see zero-filed 
+> files.
 
-__GLIBC_MAJOR__ and __GLIBC_MINOR__
+AFAIK, XFS by design must provide _file system_ consistency, not data.
 
+[]
+>> PS. Do you have any benchmarks of your filesystem? Did you do any longer 
+>> automated tests to prove it is not going to loose data to easily?
+>
+> I have, I may find them and post them. (but the university wants me to 
+> post them to some conference, so I should keep them secret :-/)
 
-	-`J'
--- 
+Interesting to know, how "another one" FS is quick and stable.
+
+On my new hardware, with dual core CPU 3.4G, 1G of RAM, 1/2TB disk space
+(office pro, yes *office* (pro)), `dd' can suck 50M/s, (running and)
+extracting 2.6.19-rc2 on fresh 20Gb partition (xfs,jfs) yields nearly 4M/s.
+
+As for ordinary user it seems very slowly.
+
+Ext2 (not ext3) is as fast as shmfs, until RAM will be full.
+And after 13 cycles XFS has 11-12 directories with good linux source,
+ext2 6-7 (IIRC). On start of 14th cycle i pushed reset button, btw.
+
+Mounting & repairing XFS took less than minute; e2fsck spent more time
+on printing, rather than reparing, i think (:.
+
+Want to create another one? OK, but why not to improve existing? >/dev/null
+____
+

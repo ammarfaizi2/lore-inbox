@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753396AbWKCRSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753393AbWKCRaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753396AbWKCRSw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 12:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753397AbWKCRSw
+	id S1753393AbWKCRaK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 12:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753397AbWKCRaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 12:18:52 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:45529 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1753396AbWKCRSv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 12:18:51 -0500
-Date: Fri, 3 Nov 2006 12:17:57 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Amul Shah <amul.shah@unisys.com>, LKML <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>
-Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when  reserving MP Tables located in high memory
-Message-ID: <20061103171757.GC9371@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com> <200611030340.55952.ak@suse.de> <1162565722.19677.68.camel@ustr-linux-shaha1.unisys.com> <200611031751.04056.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611031751.04056.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Fri, 3 Nov 2006 12:30:09 -0500
+Received: from pop-gadwall.atl.sa.earthlink.net ([207.69.195.61]:56279 "EHLO
+	pop-gadwall.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1753393AbWKCRaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 12:30:08 -0500
+Date: Fri, 3 Nov 2006 12:30:01 -0500 (EST)
+From: Brent Baccala <cosine@freesoft.org>
+X-X-Sender: baccala@debian.freesoft.org
+To: Jens Axboe <jens.axboe@oracle.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: async I/O seems to be blocking on 2.6.15
+In-Reply-To: <20061103160212.GK13555@kernel.dk>
+Message-ID: <Pine.LNX.4.64.0611031214560.28100@debian.freesoft.org>
+References: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org>
+ <20061103122055.GE13555@kernel.dk> <Pine.LNX.4.64.0611031049120.7173@debian.freesoft.org>
+ <20061103160212.GK13555@kernel.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2006 at 05:51:03PM +0100, Andi Kleen wrote:
-> 
-> [Finally dropping that annoying fastboot list from cc. Please never include any closed 
-> mailing lists in l-k posts. Thanks]
-> 
-> >   That won't worked because in arch/86_64/kernel/e820.c, the exactmap
-> > parsing clobbers end_pfn_map.
-> 
-> That's a bug imho. It shouldn't do that.
-> 
-> end_pfn_map should be always the highest address in e820 so that we 
-> can access all firmware tables safely.
-> 
+On Fri, 3 Nov 2006, Jens Axboe wrote:
 
-Hi Andi,
+> Try to time it (visual output of the app is not very telling, and it's
+> buffered) and then apply some profiling.
 
-end_pfn_map still contins the highest address in e820. The only difference
-is that it is reset and recalculated based on new memory map passed
-with the help of memmap= options. 
+OK, a little more info.  I added gettimeofday() calls after each call
+to io_submit(), put the timevals in an array, and after everything was
+done computed the difference between each timeval and the program start
+time, as well as the deltas.  I got this:
 
-Actually with mempmap=exactmap, we are overriding the BIOS provided 
-memory map with a User defined memory map so we reset the end_pfn_map
-to zero and it will be calculated again based on new memory map passed
-with the help of memmap= options.
+0: 0.080s
+1: 0.086s  0.006s
+2: 0.102s  0.016s
+3: 0.111s  0.008s
+4: 0.118s  0.007s
+5: 0.134s  0.015s
+6: 0.141s  0.006s
+7: 0.148s  0.006s
+8: 0.158s  0.009s
+9: 0.164s  0.006s
+...
+96: 1.036s  0.007s
+97: 1.044s  0.007s
+98: 1.147s  0.102s
+99: 1.155s  0.008s
 
-So to access all the firmware tables safely, one has to make sure that
-right memmap= options have been passed to the kernel.
+98 appears to be an aberration.  Perhaps three of the times on an
+average run are around a tenth of a second; all of the others are
+pretty steady at 7 or 8 microseconds.  So, it's basically linear in
+its time consumption.
 
-That's why IMHO, the right way to fix this problem is not doing
-some special condition checks in kernel, instead, passing the right
-memmap= options. To do that kexec-tools has to know where the firmware
-tables are and that's why location of MP tables should be exported to 
-user space.
+Does 7 microseconds seem a bit excessive for an io_submit (and a
+gettimeofday)?
 
-Thanks
-Vivek
+
+
+ 					-bwb
+
+ 					Brent Baccala
+ 					cosine@freesoft.org

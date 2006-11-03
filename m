@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753231AbWKCLaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753239AbWKCLlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753231AbWKCLaU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 06:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753232AbWKCLaT
+	id S1753239AbWKCLlG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 06:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753240AbWKCLlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 06:30:19 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:23248 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S1753231AbWKCLaS (ORCPT
+	Fri, 3 Nov 2006 06:41:06 -0500
+Received: from main.gmane.org ([80.91.229.2]:33438 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1753239AbWKCLlF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 06:30:18 -0500
-From: Karsten Wiese <fzu@wemgehoertderstaat.de>
-To: "Rui Nuno Capela" <rncbc@rncbc.org>
-Subject: Re: realtime-preempt patch-2.6.18-rt7 oops
-Date: Fri, 3 Nov 2006 12:30:24 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>
-References: <42997.194.65.103.1.1162464204.squirrel@www.rncbc.org>
-In-Reply-To: <42997.194.65.103.1.1162464204.squirrel@www.rncbc.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 3 Nov 2006 06:41:05 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Jellinghaus <aj@ciphirelabs.com>
+Subject: Re: Faustian Pact between Novell and Microsoft
+Date: Fri, 03 Nov 2006 12:40:04 +0100
+Message-ID: <454B2A94.6010304@ciphirelabs.com>
+References: <454A7BBB.10403@wolfmountaingroup.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611031230.24983.fzu@wemgehoertderstaat.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ciphirelabs.net
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+In-Reply-To: <454A7BBB.10403@wolfmountaingroup.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 2. November 2006 11:43 schrieb Rui Nuno Capela:
-> 
-> While on UP kernels everything works great and without major issues to
-> report, problem goes here on the SMP/HT one. Simple fact: it hangs,
-> freezes in some non-deterministic ways. However, sometimes, it is just a
-> matter of a couple of dozen clicks while browsing over those
-> funky-ajax-enabled-web2 sites :)
-> 
-> ........
-> 
-> Call Trace:
->  [<c011e631>] __activate_task+0x21/0x40
->  [<c01209b1>] try_to_wake_up+0x321/0x450
->  [<c0144822>] wakeup_next_waiter+0xd2/0x1d0
->  [<c0120b59>] wake_up_process_mutex+0x19/0x20
->  [<c0300531>] rt_spin_lock_slowunlock+0x41/0x70
->  [<c02ff34c>] __schedule+0xc0c/0xee0
->  [<c014091a>] hrtimer_interrupt+0x18a/0x250
+Jeff V. Merkey wrote:
+> It's official.  Microsoft and Novell will now fork Linux.
 
-Does it make a difference, if you build & run with
-CONFIG_HIGH_RES_TIMERS disabled?
+so instead of about 600 git trees (all forks of the linus official
+git tree), we will have 601 git trees? how exiting.
 
-      Karsten
+Andreas
+

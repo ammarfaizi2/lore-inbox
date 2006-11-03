@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753458AbWKCSs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753449AbWKCSwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753458AbWKCSs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 13:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753459AbWKCSs2
+	id S1753449AbWKCSwI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 13:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753450AbWKCSwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 13:48:28 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:22926 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1753458AbWKCSs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 13:48:27 -0500
-Date: Fri, 3 Nov 2006 19:48:26 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <Pine.LNX.4.61.0611031349490.9606@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0611031945220.30722@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
- <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
- <454AA4C5.3070106@googlemail.com> <Pine.LNX.4.61.0611030911540.13091@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0611031248030.17174@artax.karlin.mff.cuni.cz>
- <Pine.LNX.4.64.0611031257400.17174@artax.karlin.mff.cuni.cz>
- <Pine.LNX.4.61.0611031349490.9606@yvahk01.tjqt.qr>
-X-Personality-Disorder: Schizoid
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 3 Nov 2006 13:52:08 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:4550 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1753449AbWKCSwF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 13:52:05 -0500
+Date: Fri, 3 Nov 2006 13:51:15 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Amul Shah <amul.shah@unisys.com>, LKML <linux-kernel@vger.kernel.org>,
+       cherry@osdl.org
+Subject: Re: [RFC] [PATCH 2.6.19-rc4] kdump panics early in boot when  reserving MP Tables located in high memory
+Message-ID: <20061103185115.GD13422@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <1162506272.19677.33.camel@ustr-linux-shaha1.unisys.com> <200611031751.04056.ak@suse.de> <20061103174002.GD9371@in.ibm.com> <200611031943.48127.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611031943.48127.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> So anyway, why do you need _llseek? Can't you just use lseek() like
->>>> everyone else?
->>>
->>> Because I want it to work with glibc 2.0 that I still use on one machine.
->>
->> BTW. is it some interaction with symbols defined elsewhere or were _syscall
->> macros dropped altogether? Which glibc symbol should I use in #ifdef to tell if
->> glibc has 64-bit support?
->
-> -D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64
->
-> I think the second is not needed.
+On Fri, Nov 03, 2006 at 07:43:48PM +0100, Andi Kleen wrote:
+> On Friday 03 November 2006 18:40, Vivek Goyal wrote:
+> 
+> > When did fastboot become a closed mailing list? AFAIK, its an open list
+> > and anybody can do the posting.
+> 
+> It's been for a long time. At least I remember often getting these bounces.
+> 
 
-I see, but the question is how do I test in C preprocessor that glibc is 
-sufficiently new to react on them?
+You are right. Just now I sent a mail to the administrator of the list and
+he told that recently he made fastboot a closed list to avoid spams. But he
+is now re-opening the list for everybody as we want to archive the
+kexec/kdump related discussions in fastboot list. Finding a past discussion
+on LKML is tough.
 
-Now I changed it to:
-#ifdef __linux__
-#if !defined(__GLIBC__) || __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 1)
-#include <asm/unistd.h>
-#ifdef __NR__llseek
-#define use_llseek
-static _syscall5(int, _llseek, uint, fd, ulong, hi, ulong, lo, loff_t *, 
-res, uint, wh);
-#endif
-#endif
+So now onwards you should not be receiving those annoying messages.
 
-So we see if someone else runs into problem.
-
-Mikulas
+Thanks
+Vivek

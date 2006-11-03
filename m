@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752805AbWKCMsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWKCMwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752805AbWKCMsR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 07:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752807AbWKCMsR
+	id S1750956AbWKCMwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 07:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWKCMwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 07:48:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36510 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752805AbWKCMsQ (ORCPT
+	Fri, 3 Nov 2006 07:52:16 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:53731 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750991AbWKCMwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 07:48:16 -0500
-Message-ID: <454B3890.8070607@redhat.com>
-Date: Fri, 03 Nov 2006 07:39:44 -0500
-From: Larry Woodman <lwoodman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
+	Fri, 3 Nov 2006 07:52:15 -0500
+Date: Fri, 3 Nov 2006 13:50:36 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <Pine.LNX.4.64.0611031257400.17174@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.61.0611031349490.9606@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
+ <454AA4C5.3070106@googlemail.com> <Pine.LNX.4.61.0611030911540.13091@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64.0611031248030.17174@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.64.0611031257400.17174@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: __alloc_pages() failures reported due to fragmentation
-References: <454B3282.3010308@redhat.com> <1162556514.14530.163.camel@laptopd505.fenrus.org>
-In-Reply-To: <1162556514.14530.163.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-
->>--- linux-2.6.18.noarch/net/core/sock.c.orig
->>+++ linux-2.6.18.noarch/net/core/sock.c
->>@@ -1154,7 +1154,7 @@ static struct sk_buff *sock_alloc_send_p
->> 			goto failure;
+>> > So anyway, why do you need _llseek? Can't you just use lseek() like
+>> > everyone else?
 >> 
->> 		if (atomic_read(&sk->sk_wmem_alloc) < sk->sk_sndbuf) {
->>-			skb = alloc_skb(header_len, sk->sk_allocation);
->>+			skb = alloc_skb(header_len, gfp_mask);
->> 			if (skb) {
->> 				int npages;
->> 				int i;
->>    
->>
+>> Because I want it to work with glibc 2.0 that I still use on one machine.
 >
->Hi,
->
->this is not actually right though... sk_allocation is very possible to
->have a restricting mask compared to the one passed in (say "no highmem"
->or even GFP_DMA) and you now discard this... probably better would be to
->calculate a set of "transient" flags that you then or into the
->sk_allocation mask at this time...
->
->Greetings,
->   Arjan van de Ven
->
->  
->
-Hi Arjan.  Right but this just includes __GFP_REPEAT in the mask so we can
-defrag in __alloc_pages and only if GFP_WAIT was passed in origionally.
+> BTW. is it some interaction with symbols defined elsewhere or were _syscall
+> macros dropped altogether? Which glibc symbol should I use in #ifdef to tell if
+> glibc has 64-bit support?
 
-Larry
+-D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64
+
+I think the second is not needed.
 
 
+	-`J'
+-- 

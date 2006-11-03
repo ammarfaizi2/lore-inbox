@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752874AbWKCBW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752913AbWKCBY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752874AbWKCBW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 20:22:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752911AbWKCBW7
+	id S1752913AbWKCBY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 20:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752915AbWKCBY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 20:22:59 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:42133 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1752874AbWKCBW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 20:22:58 -0500
-Date: Fri, 3 Nov 2006 02:22:57 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Gabriel C <nix.or.die@googlemail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <454A71EB.4000201@googlemail.com>
-Message-ID: <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
- <454A71EB.4000201@googlemail.com>
-X-Personality-Disorder: Schizoid
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 2 Nov 2006 20:24:57 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:57704 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1752911AbWKCBY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 20:24:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=NcGxJObYC8GImVMK/lo45+SU5x0gBEFKcguLbFVOpoDJXFsLzGCDgQ2CXPOPRgLU7MTkKb7HeDOsI3+I7RbTKJ4UQmzIMX4Zv2UPOG/N9JSgPhflUj3esFYGRuYdRpQIr/YZOxuiMI52IBMYlW0Tkh1KFQM81yfJnS/4TSWtv7w=
+Date: Fri, 3 Nov 2006 04:24:50 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
+Subject: [PATCH] tda826x: use correct max frequency
+Message-ID: <20061103012450.GC4957@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+sparse "defined twice" warning
 
-On Thu, 2 Nov 2006, Gabriel C wrote:
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-> Mikulas Patocka wrote:
->> Hi
->>
->
-> Hi
->
->> As my PhD thesis, I am designing and writing a filesystem, and it's now in
->> a state that it can be released. You can download it from
->> http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
->>
->
-> Does not compile for me , using 2.6.18.1 , gcc 4.1.1. Here the error :
->
-> /work/crazy/packages/fs/spadfs-0.9.0/super.c: In function 'SPADFS_GET_SB':
-> /work/crazy/packages/fs/spadfs-0.9.0/super.c:636: error: too few
-> arguments to function 'get_sb_bdev'
-> /work/crazy/packages/fs/spadfs-0.9.0/super.c: At top level:
-> /work/crazy/packages/fs/spadfs-0.9.0/super.c:645: warning:
-> initialization from incompatible pointer type
-> /work/crazy/packages/fs/spadfs-0.9.0/super.c:651: warning:
-> initialization from incompatible pointer type
-> /work/crazy/packages/fs/spadfs-0.9.0/super.c: In function 'SPADFS_GET_SB':
-> /work/crazy/packages/fs/spadfs-0.9.0/super.c:637: warning: control
-> reaches end of non-void function
-> make[2]: *** [/work/crazy/packages/fs/spadfs-0.9.0/super.o] Error 1
-> make[1]: *** [_module_/work/crazy/packages/fs/spadfs-0.9.0] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.6.18-fw2'
-> make: *** [spadfs] Error 2
+ drivers/media/dvb/frontends/tda826x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hmm, I see, they changed some stuff ... and in 2.6.19 too. I made a new 
-version that compiles with 2.6.18 and 2.6.19rc4, so try it.
+--- a/drivers/media/dvb/frontends/tda826x.c
++++ b/drivers/media/dvb/frontends/tda826x.c
+@@ -121,7 +121,7 @@ static struct dvb_tuner_ops tda826x_tune
+ 	.info = {
+ 		.name = "Philips TDA826X",
+ 		.frequency_min = 950000,
+-		.frequency_min = 2175000
++		.frequency_max = 2175000
+ 	},
+ 	.release = tda826x_release,
+ 	.sleep = tda826x_sleep,
 
-BTW. I've found a weird code in 2.6.19rc4 in vfs_getattr:
-generic_fillattr(inode, stat); (ends with stat->blksize = (1 << 
-inode->i_blkbits);)
-and then
-if (!stat->blksize) {...
-
-Someone made this bug when changing it.
-
-Mikulas

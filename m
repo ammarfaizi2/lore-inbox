@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753380AbWKCRIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753395AbWKCRJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753380AbWKCRIL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 12:08:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753389AbWKCRIK
+	id S1753395AbWKCRJl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 12:09:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753389AbWKCRJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 12:08:10 -0500
-Received: from web51511.mail.yahoo.com ([206.190.39.157]:1963 "HELO
-	web51511.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1753373AbWKCRII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 12:08:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=oMmrba/N+Qc8kS828vvKJA61qf6HvFLly82quLSUizxvT3GMCsfcWEJ+Zbv8jAkRGtbAYr+YQuRBj9enGSxu9YHLvSNZuq4uX2AuiPVS177/KwdImmNsCHDLKnBZ+3PQ4VjowHAaJvtwfXUYtnWvB8PK3oypT00VYlp9uEFbvtk=  ;
-Message-ID: <20061103170806.60233.qmail@web51511.mail.yahoo.com>
-Date: Fri, 3 Nov 2006 09:08:06 -0800 (PST)
-From: Benjamin Reed <br33d@yahoo.com>
-Subject: Re: [airo.c bug] Couldn't allocate RX FID / Max tries exceeded when issueing command
-To: Ivan Matveich <ivan.matveich@gmail.com>, Dan Williams <dcbw@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linville@tuxdriver.com,
-       netdev@vger.kernel.org, breed@users.sourceforge.net,
-       achirica@users.sourceforge.net, jt@hpl.hp.com, fabrice@bellet.info
-In-Reply-To: <b5def3a40611021321h22ec79c3x51a54ec7d5b07b3@mail.gmail.com>
+	Fri, 3 Nov 2006 12:09:41 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:26501 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1753397AbWKCRJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 12:09:40 -0500
+Date: Fri, 3 Nov 2006 18:09:39 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Gabriel C <nix.or.die@googlemail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New filesystem for Linux
+In-Reply-To: <20061103171443.GA16912@flower.upol.cz>
+Message-ID: <Pine.LNX.4.64.0611031808280.15472@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <454A71EB.4000201@googlemail.com> <Pine.LNX.4.64.0611030219270.7781@artax.karlin.mff.cuni.cz>
+ <20061102174149.3578062d.akpm@osdl.org> <20061103171443.GA16912@flower.upol.cz>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might find this thread useful if it is just a case
-of messed up firmware:
-http://sourceforge.net/mailarchive/message.php?msg_id=2970511
+> In gmane.linux.kernel, you wrote:
+> []
+>> From: Andrew Morton <akpm@osdl.org>
+>>
+>> As Mikulas points out, (1 << anything) won't be evaluating to zero.
+>
+> How about integer overflow ?
 
-The gist of it is that sometimes DOS utilities work
-when all else fails.
+C standard defines that shifts by more bits than size of a type are 
+undefined (in fact 1<<32 produces 1 on i386, because processor uses only 5 
+bits of a count).
 
-ben
-
---- Ivan Matveich <ivan.matveich@gmail.com> wrote:
-
-> On 11/2/06, Dan Williams <dcbw@redhat.com> wrote:
-> > Do you know which kernel version that patch first
-> appeared in?
-> 
-> It was committed on 1 Dec 2005, and 2.6.15 was
-> released on 3 Jan 2006.
-> 
-> > That would be a great idea, let us know what the
-> results are, especially
-> > if you cna figure out which firmware version you
-> have, or if the card
-> > itself is really just dead.
-> 
-> No luck with freebsd: error resetting card.
-> 
-> I'll try my luck with Cisco's Windows
-> utility---probably
-> tomorrow---but I'd now wager that my card has simply
-> croaked. (I've
-> even taken it out and re-seated it in its slot, just
-> in case that
-> helped.) In any case, thanks for the help.
-> 
-
+Mikulas

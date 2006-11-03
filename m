@@ -1,111 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753532AbWKCUrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWKCUrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753532AbWKCUrE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 15:47:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWKCUrD
+	id S932109AbWKCUrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWKCUrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 15:47:03 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50898 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1753532AbWKCUq6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 15:46:58 -0500
-Date: Fri, 3 Nov 2006 12:46:56 -0800 (PST)
+	Fri, 3 Nov 2006 15:47:07 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58293 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1753528AbWKCUqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:46:49 -0500
+Date: Fri, 3 Nov 2006 12:46:46 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-Message-Id: <20061103204656.15739.37599.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20061103204646.15739.24023.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
 References: <20061103204636.15739.74831.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 4/7] Stagger load balancing in build_sched_domains
+Subject: [PATCH 2/7] Disable interrupts for locking in load_balance()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+scheduler: Disable interrupts for locking in load_balance()
+
+Interrupts must be disabled for request queue locks if we want
+to run load_balance() with interrupts enabled.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
 Index: linux-2.6.19-rc4-mm2/kernel/sched.c
 ===================================================================
---- linux-2.6.19-rc4-mm2.orig/kernel/sched.c	2006-11-03 12:51:52.997976327 -0600
-+++ linux-2.6.19-rc4-mm2/kernel/sched.c	2006-11-03 12:53:23.254849673 -0600
-@@ -2849,17 +2849,10 @@ static void update_load(struct rq *this_
-  *
-  * Balancing parameters are set up in arch_init_sched_domains.
-  */
--
--/* Don't have all balancing operations going off at once: */
--static inline unsigned long cpu_offset(int cpu)
--{
--	return jiffies + cpu * HZ / NR_CPUS;
--}
--
- static void
- rebalance_tick(int this_cpu, struct rq *this_rq, enum idle_type idle)
- {
--	unsigned long interval, j = cpu_offset(this_cpu);
-+	unsigned long interval;
- 	struct sched_domain *sd;
- 
- 	for_each_domain(this_cpu, sd) {
-@@ -2875,7 +2868,7 @@ rebalance_tick(int this_cpu, struct rq *
- 		if (unlikely(!interval))
- 			interval = 1;
- 
--		if (j - sd->last_balance >= interval) {
-+		if (jiffies - sd->last_balance >= interval) {
- 			if (load_balance(this_cpu, this_rq, sd, idle)) {
- 				/*
- 				 * We've pulled tasks over so either we're no
-@@ -6447,6 +6440,16 @@ static void init_sched_groups_power(int 
- }
- 
+--- linux-2.6.19-rc4-mm2.orig/kernel/sched.c	2006-11-03 12:51:15.281805162 -0600
++++ linux-2.6.19-rc4-mm2/kernel/sched.c	2006-11-03 12:51:28.772236385 -0600
+@@ -2530,8 +2530,6 @@ static inline unsigned long minus_1_or_z
  /*
-+ * Calculate jiffies start to use for each cpu. On sched domain
-+ * initialization this jiffy value is used to stagger the load balancing
-+ * of the cpus so that they do not load balance all at at the same time.
-+ */
-+static inline unsigned long cpu_offset(int cpu)
-+{
-+	return jiffies + cpu * HZ / NR_CPUS;
-+}
-+
-+/*
-  * Build sched domains for a given set of cpus and attach the sched domains
-  * to the individual cpus
+  * Check this_cpu to ensure it is balanced within domain. Attempt to move
+  * tasks if there is an imbalance.
+- *
+- * Called with this_rq unlocked.
   */
-@@ -6502,6 +6505,7 @@ static int build_sched_domains(const cpu
- 			sd->span = *cpu_map;
- 			group = cpu_to_allnodes_group(i, cpu_map);
- 			sd->groups = &sched_group_allnodes[group];
-+			sd->last_balance = cpu_offset(i);
- 			p = sd;
- 		} else
- 			p = NULL;
-@@ -6510,6 +6514,7 @@ static int build_sched_domains(const cpu
- 		*sd = SD_NODE_INIT;
- 		sd->span = sched_domain_node_span(cpu_to_node(i));
- 		sd->parent = p;
-+		sd->last_balance = cpu_offset(i);
- 		if (p)
- 			p->child = sd;
- 		cpus_and(sd->span, sd->span, *cpu_map);
-@@ -6521,6 +6526,7 @@ static int build_sched_domains(const cpu
- 		*sd = SD_CPU_INIT;
- 		sd->span = nodemask;
- 		sd->parent = p;
-+		sd->last_balance = cpu_offset(i);
- 		if (p)
- 			p->child = sd;
- 		sd->groups = &sched_group_phys[group];
-@@ -6533,6 +6539,7 @@ static int build_sched_domains(const cpu
- 		sd->span = cpu_coregroup_map(i);
- 		cpus_and(sd->span, sd->span, *cpu_map);
- 		sd->parent = p;
-+		sd->last_balance = cpu_offset(i);
- 		p->child = sd;
- 		sd->groups = &sched_group_core[group];
- #endif
-@@ -6545,6 +6552,7 @@ static int build_sched_domains(const cpu
- 		sd->span = cpu_sibling_map[i];
- 		cpus_and(sd->span, sd->span, *cpu_map);
- 		sd->parent = p;
-+		sd->last_balance = cpu_offset(i);
- 		p->child = sd;
- 		sd->groups = &sched_group_cpus[group];
- #endif
+ static int load_balance(int this_cpu, struct rq *this_rq,
+ 			struct sched_domain *sd, enum idle_type idle)
+@@ -2541,6 +2539,7 @@ static int load_balance(int this_cpu, st
+ 	unsigned long imbalance;
+ 	struct rq *busiest;
+ 	cpumask_t cpus = CPU_MASK_ALL;
++	unsigned long flags;
+ 
+ 	/*
+ 	 * When power savings policy is enabled for the parent domain, idle
+@@ -2580,11 +2579,13 @@ redo:
+ 		 * still unbalanced. nr_moved simply stays zero, so it is
+ 		 * correctly treated as an imbalance.
+ 		 */
++		local_irq_save(flags);
+ 		double_rq_lock(this_rq, busiest);
+ 		nr_moved = move_tasks(this_rq, this_cpu, busiest,
+ 				      minus_1_or_zero(busiest->nr_running),
+ 				      imbalance, sd, idle, &all_pinned);
+ 		double_rq_unlock(this_rq, busiest);
++		local_irq_restore(flags);
+ 
+ 		/* All tasks on this runqueue were pinned by CPU affinity */
+ 		if (unlikely(all_pinned)) {
+@@ -2601,13 +2602,13 @@ redo:
+ 
+ 		if (unlikely(sd->nr_balance_failed > sd->cache_nice_tries+2)) {
+ 
+-			spin_lock(&busiest->lock);
++			spin_lock_irqsave(&busiest->lock, flags);
+ 
+ 			/* don't kick the migration_thread, if the curr
+ 			 * task on busiest cpu can't be moved to this_cpu
+ 			 */
+ 			if (!cpu_isset(this_cpu, busiest->curr->cpus_allowed)) {
+-				spin_unlock(&busiest->lock);
++				spin_unlock_irqrestore(&busiest->lock, flags);
+ 				all_pinned = 1;
+ 				goto out_one_pinned;
+ 			}
+@@ -2617,7 +2618,7 @@ redo:
+ 				busiest->push_cpu = this_cpu;
+ 				active_balance = 1;
+ 			}
+-			spin_unlock(&busiest->lock);
++			spin_unlock_irqrestore(&busiest->lock, flags);
+ 			if (active_balance)
+ 				wake_up_process(busiest->migration_thread);
+ 

@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753363AbWKCQma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753372AbWKCQr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753363AbWKCQma (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 11:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753365AbWKCQma
+	id S1753372AbWKCQr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 11:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753371AbWKCQr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 11:42:30 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:64155 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1753363AbWKCQm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 11:42:29 -0500
-Subject: Re: [PATCH 5/8] resend cciss: disable DMA prefetch on P600
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-Cc: akpm@osdl.org, jens.axboe@oracle.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20061103155412.GA1657@beardog.cca.cpqcorp.net>
-References: <20061103155412.GA1657@beardog.cca.cpqcorp.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 03 Nov 2006 17:42:15 +0100
-Message-Id: <1162572135.3160.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Fri, 3 Nov 2006 11:47:57 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:2015 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1753369AbWKCQr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 11:47:56 -0500
+From: Thomas Klein <osstklei@de.ibm.com>
+Subject: [PATCH 2.6.19-rc4 2/3] ehea: Removed redundant define
+Date: Fri, 3 Nov 2006 17:47:52 +0100
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Disposition: inline
+X-Length: 1288
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Christoph Raisch <raisch@de.ibm.com>,
+       "Jan-Bernd Themann" <ossthema@de.ibm.com>,
+       "Jan-Bernd Themann" <themann@de.ibm.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200611031747.52210.osstklei@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-03 at 09:54 -0600, Mike Miller (OS Dev) wrote:
-> PATCH 5 of 8 resend
-> 
-> This patch unconditionally disables DMA prefetch on the P600 controller. A
-> bug in the ASIC may result in prefetching either beyond the end of memory
-> or to fall off into a memory hole.
-> Please consider this for inclusion.
-> 
-> Thanks,
-> mikem
-> 
-> Signed-off-by: Mike Miller <mike.miller@hp.com>
-> 
->  cciss.c     |   13 +++++++++++++
->  cciss_cmd.h |    1 +
->  2 files changed, 14 insertions(+)
-> --------------------------------------------------------------------------------
-> diff -urNp linux-2.6-p00004/drivers/block/cciss.c linux-2.6-p00005/drivers/block/cciss.c
-> --- linux-2.6-p00004/drivers/block/cciss.c	2006-10-31 15:20:25.000000000 -0600
-> +++ linux-2.6-p00005/drivers/block/cciss.c	2006-11-03 09:43:55.000000000 -0600
-> @@ -2997,6 +2997,19 @@ static int cciss_pci_init(ctlr_info_t *c
->  	}
->  #endif
->  
-> +	{
-> +		/* Disabling DMA prefetch for the P600
-> +		 * An ASIC bug may result in a prefetch beyond
-> +		 * physical memory.
-> +		 */
-> +		__u32 dma_prefetch
-> +		if(board_id == 0x3225103C) {
-> +			dma_prefetch = readl(c->vaddr + I2O_DMA1_CFG);
-> +			dma_prefetch |= 0x8000;
-> +			writel(dma_prefetch, c->vaddr + I2O_DMA1_CFG);
-> +		}
-> +	}
-> +
+Removed define H_CB_ALIGNMENT which is already defined in include/asm-powerpc/hvcall.h
 
-if you remove the if() you might as well also remove the {}'s ;)
+Signed-off-by: Thomas Klein <tklein@de.ibm.com>
+---
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+diff -Nurp git.netdev-2.6.base/drivers/net/ehea/ehea.h git.netdev-2.6/drivers/net/ehea/ehea.h
+--- git.netdev-2.6.base/drivers/net/ehea/ehea.h	2006-11-03 14:19:51.000000000 +0100
++++ git.netdev-2.6/drivers/net/ehea/ehea.h	2006-11-03 14:37:30.000000000 +0100
+@@ -39,7 +39,7 @@
+ #include <asm/io.h>
+ 
+ #define DRV_NAME	"ehea"
+-#define DRV_VERSION	"EHEA_0034"
++#define DRV_VERSION	"EHEA_0043"
+ 
+ #define EHEA_MSG_DEFAULT (NETIF_MSG_LINK | NETIF_MSG_TIMER \
+ 	| NETIF_MSG_RX_ERR | NETIF_MSG_TX_ERR)
+@@ -105,9 +105,6 @@
+ #define EHEA_BCMC_VLANID_ALL	0x01
+ #define EHEA_BCMC_VLANID_SINGLE	0x00
+ 
+-/* Use this define to kmallocate pHYP control blocks */
+-#define H_CB_ALIGNMENT		4096
+-
+ #define EHEA_CACHE_LINE          128
+ 
+ /* Memory Regions */

@@ -1,111 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753553AbWKCVmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWKCVmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753553AbWKCVmH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 16:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753557AbWKCVmH
+	id S932144AbWKCVmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 16:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWKCVmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 16:42:07 -0500
-Received: from fmmailgate02.web.de ([217.72.192.227]:32707 "EHLO
-	fmmailgate02.web.de") by vger.kernel.org with ESMTP
-	id S1753553AbWKCVmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 16:42:04 -0500
-Message-ID: <022601c6ff91$0bac2650$962e8d52@aldipc>
-From: "roland" <devzero@web.de>
-To: "Stephen Hemminger" <shemminger@osdl.org>
-Cc: <greearb@candelatech.com>, <jesper.juhl@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
-       <yoshfuji@linux-ipv6.org>
-References: <1405740846@web.de> <20061103130451.47e70922@freekitty>
-Subject: Re: unregister_netdevice: waiting for eth0 to become free
-Date: Fri, 3 Nov 2006 22:43:05 +0100
+	Fri, 3 Nov 2006 16:42:54 -0500
+Received: from nz-out-0102.google.com ([64.233.162.199]:17715 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932135AbWKCVmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 16:42:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=S0r38TlEnpMyTF79topfBHjkdrZZ9pfsBlWynVChis6qqYoVQLhOLEQw/wGllUrgyyaxJY2paRXjdayVNJsLKzakFKzbU4T3/sIY5RowWMIhnCPxf5qbSbk1yrQDvWGMu4DN7Gk8GuvpX6aq7AjCZ7iSgRea2Pw+bky/C3v6Gn0=
+Reply-To: andrew.j.wade@gmail.com
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc4-mm2
+Date: Fri, 3 Nov 2006 16:42:33 -0500
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20061101235407.a92f94a5.akpm@osdl.org>
+In-Reply-To: <20061101235407.a92f94a5.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Disposition: inline
+Message-Id: <200611031642.36558.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->You are also looking at 2.4 code which is OLD and probably broken in the
->device ref counting. Lots of work went into cleaning up the shutdown and 
->device
->ref counting for 2.6, and I'm not surprised if 2.4 has problems.
+On Thursday 02 November 2006 02:54, Andrew Morton wrote:
+> - Lots of fbdev updates.  We haven't heard from Tony in several months, so I
+>   went on a linux-fbdev-devel fishing expedition.
 
-thanks. from what i found on different postings, it seems that this issue 
-really has been adressed several times.
-have seen it for 2.6 kernels though, vmware still recommending disabling 
-ipv6 for suse 10.1 , but maybe this is just for "historical reason". 
-furthermore jesper reported it for 2.6.18, but maybe that the problem now 
-happens under very rare circumstances.
-probably worth mentioning here, that two probably related bugs are in "not 
-resolved" state at:
-http://bugzilla.kernel.org/show_bug.cgi?id=6698 and 
-http://bugzilla.kernel.org/show_bug.cgi?id=6197
+radeonfb-support-24bpp-32bpp-minus-alpha.patch broke my video: my
+screen ended up garbled. (vc1 was ok, strangely enough). Reverting
+fixed things. 
 
-i will keep an eye on our systems and report if i can see this on any more 
-recent kernels.
+lspci -v:
 
-thanks for your help!
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV200 QW [Radeon 7500] (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc Radeon 7500
+        Flags: bus master, stepping, 66MHz, medium devsel, latency 64, IRQ 16
+        Memory at d8000000 (32-bit, prefetchable) [size=128M]
+        I/O ports at d800 [size=256]
+        Memory at d7000000 (32-bit, non-prefetchable) [size=64K]
+        Expansion ROM at d7fe0000 [disabled] [size=128K]
+        Capabilities: <available only to root>
 
-roland
-
------ Original Message ----- 
-From: "Stephen Hemminger" <shemminger@osdl.org>
-To: <devzero@web.de>
-Cc: <greearb@candelatech.com>; <jesper.juhl@gmail.com>; 
-<linux-kernel@vger.kernel.org>; <linux-net@vger.kernel.org>; 
-<yoshfuji@linux-ipv6.org>
-Sent: Friday, November 03, 2006 10:04 PM
-Subject: Re: unregister_netdevice: waiting for eth0 to become free
-
-
-> On Fri, 03 Nov 2006 21:31:01 +0100
-> devzero@web.de wrote:
->
->> >Vmware has there own pseudo ethernet device and unless you have the 
->> >source for it.
->> >It would be hard to tell if it correctly manages itself.
->>
->> VMware is able to emulate three different network card types:
->>
->> - AMD Am79C970A - PCnet LANCE PCI Ethernet Controller (linux pcnet32 
->> driver)
->> - Intel E1000 (e1000 driver)
->> - VMXNET - VMware PCI Ethernet Adapter (vmxnet, vmware`s own driver)
->>
->> so there are 3 different drivers being used inside the guest OS for 
->> networking virtual machines.
->>
->> rumours tell, that the vmxnet driver is sort of a mess, but i have seen 
->> the unregister_netdevice problem with pcnet32 AND with vmxnet - and all 
->> of the vmware readme`s are telling:
->>
->> "In many Linux distributions, if IPv6 is enabled, VMware Tools cannot be 
->> configured with vmware-config-tools.pl after installation. In this case, 
->> VMware Tools is unable to set the network device correctly for the 
->> virtual machine, and displays a message similar to
->> Unloading pcnet32 module
->> unregister_netdevice: waiting for eth0 to become free"
->>
->> so - this is the native linux driver for pcnet32 which fails get unloaded 
->> _before_ the driver being replaced by the vmware specific one and the 
->> virtual nic being switched to the VMXNET adapter.....
->>
->> anyway - i got that problem while shutting down a VM, not while 
->> installing vmware tools.
->>
->> btw - just came across this posting from jesper juhl:
->> http://marc.theaimsgroup.com/?l=linux-kernel&m=115703768804826&w=2
->>
->> roland
->
-> You are also looking at 2.4 code which is OLD and probably broken in the
-> device ref counting. Lots of work went into cleaning up the shutdown and 
-> device
-> ref counting for 2.6, and I'm not surprised if 2.4 has problems. 
-
+-ajw

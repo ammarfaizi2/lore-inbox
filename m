@@ -1,71 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752755AbWKCAAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752844AbWKCADE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752755AbWKCAAh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 19:00:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752756AbWKCAAh
+	id S1752844AbWKCADE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 19:03:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752834AbWKCADE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 19:00:37 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2018
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1752755AbWKCAAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 19:00:36 -0500
-Date: Thu, 02 Nov 2006 16:00:35 -0800 (PST)
-Message-Id: <20061102.160035.85409500.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: maxextreme@gmail.com, vagabon.xyz@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH update6] drivers: add LCD support
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061102120412.bc25e2d0.akpm@osdl.org>
-References: <20061102111311.1b2648c3.akpm@osdl.org>
-	<653402b90611021133i35683ac4i5f4da4098373603c@mail.gmail.com>
-	<20061102120412.bc25e2d0.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 2 Nov 2006 19:03:04 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:26542 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1752760AbWKCADB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 19:03:01 -0500
+Date: Thu, 2 Nov 2006 19:03:00 -0500
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: [git patches] libata PCI ids (updated)
+Message-ID: <20061103000300.GA3759@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Thu, 2 Nov 2006 12:04:12 -0800
 
-> On Thu, 2 Nov 2006 19:33:48 +0000
-> "Miguel Ojeda" <maxextreme@gmail.com> wrote:
-> 
-> > May 2.6.18-new vmalloc
-> > related functions help correlating userspace & kernel addresses? I
-> > will try them and come with an answer tomorrow.
-> > 
-> > Quoting http://lwn.net/Articles/2.6-kernel-api/
-> > 
-> > "Some functions have been added to make it easy for kernel code to
-> > allocate a buffer with vmalloc() and map it into user space. They are:
-> > 
-> >      void *vmalloc_user(unsigned long size);
-> >      void *vmalloc_32_user(unsigned long size);
-> >      int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
-> >                              unsigned long pgoff);
-> > 
-> > The first two functions are a form of vmalloc() which obtain memory
-> > intended to be mapped into user space; among other things, they zero
-> > the entire range to avoid leaking data. vmalloc_32_user() allocates
-> > low memory only. A call to remap_vmalloc_range() will complete the
-> > job; it will refuse, however, to remap memory which has not been
-> > allocated with one of the two functions above."
-> 
-> No, it doesn't look like those helper functions are designed to handle this.
-> 
-> I'm really not the person to be asking about this.  I can poke around in
-> arch/sparc64/kernel/sys_sparc.c:arch_get_unmapped_area() as well as the
-> next guy, and it seems to be doing the right thing for MAP_FIXED, but
-> how/whether it handles !MAP_FIXED I do not know.  Ask davem ;)
+Updated with the necessary constant.
 
-Unfortunately that code never gets called for MAP_FIXED :-)
 
-I'll comment on these issues and explain what needs to occur,
-we have several things that want to do this kind of user/kernel
-sharing of ring buffers and similar, so best to get the
-infrastructure going to get it right.
 
-As a first approximation, getting remap_vmalloc_range() to do the
-right thing is the best way to start this stuff off.
+Please pull from 'upstream-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-linus
+
+to receive the following updates:
+
+ drivers/ata/ahci.c      |    8 ++++++++
+ drivers/ata/pata_amd.c  |    2 ++
+ include/linux/pci_ids.h |    1 +
+ 3 files changed, 11 insertions(+), 0 deletions(-)
+
+Peer Chen:
+      [libata] Add support for PATA controllers of MCP67 to pata_amd.c.
+      [libata] Add support for AHCI controllers of MCP67.
+      pci_ids.h: Add NVIDIA PCI ID
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 988f8bb..234197e 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -334,6 +334,14 @@ static const struct pci_device_id ahci_p
+ 	{ PCI_VDEVICE(NVIDIA, 0x044d), board_ahci },		/* MCP65 */
+ 	{ PCI_VDEVICE(NVIDIA, 0x044e), board_ahci },		/* MCP65 */
+ 	{ PCI_VDEVICE(NVIDIA, 0x044f), board_ahci },		/* MCP65 */
++	{ PCI_VDEVICE(NVIDIA, 0x0554), board_ahci },		/* MCP67 */
++	{ PCI_VDEVICE(NVIDIA, 0x0555), board_ahci },		/* MCP67 */
++	{ PCI_VDEVICE(NVIDIA, 0x0556), board_ahci },		/* MCP67 */
++	{ PCI_VDEVICE(NVIDIA, 0x0557), board_ahci },		/* MCP67 */
++	{ PCI_VDEVICE(NVIDIA, 0x0558), board_ahci },		/* MCP67 */
++	{ PCI_VDEVICE(NVIDIA, 0x0559), board_ahci },		/* MCP67 */
++	{ PCI_VDEVICE(NVIDIA, 0x055a), board_ahci },		/* MCP67 */
++	{ PCI_VDEVICE(NVIDIA, 0x055b), board_ahci },		/* MCP67 */
+ 
+ 	/* SiS */
+ 	{ PCI_VDEVICE(SI, 0x1184), board_ahci }, /* SiS 966 */
+diff --git a/drivers/ata/pata_amd.c b/drivers/ata/pata_amd.c
+index 29234c8..5c47a9e 100644
+--- a/drivers/ata/pata_amd.c
++++ b/drivers/ata/pata_amd.c
+@@ -677,6 +677,8 @@ static const struct pci_device_id amd[] 
+ 	{ PCI_VDEVICE(NVIDIA,	PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE),	8 },
+ 	{ PCI_VDEVICE(NVIDIA,	PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE),	8 },
+ 	{ PCI_VDEVICE(NVIDIA,	PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_IDE),	8 },
++	{ PCI_VDEVICE(NVIDIA,	PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE),	8 },
++	{ PCI_VDEVICE(NVIDIA,	PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_IDE),	8 },
+ 	{ PCI_VDEVICE(AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE),		9 },
+ 
+ 	{ },
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index f3a168f..fa4e1d7 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -1213,6 +1213,7 @@ #define PCI_DEVICE_ID_NVIDIA_NVENET_20  
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_21              0x0451
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_22              0x0452
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_23              0x0453
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_IDE       0x0560
+ 
+ #define PCI_VENDOR_ID_IMS		0x10e0
+ #define PCI_DEVICE_ID_IMS_TT128		0x9128

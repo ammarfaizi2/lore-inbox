@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753055AbWKCEDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753066AbWKCEEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753055AbWKCEDl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 23:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753056AbWKCEDl
+	id S1753066AbWKCEEt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 23:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753070AbWKCEEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 23:03:41 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:50398 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1753053AbWKCEDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 23:03:40 -0500
-Date: Fri, 3 Nov 2006 15:03:33 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Dumb question for today
-Message-Id: <20061103150333.92eef355.sfr@canb.auug.org.au>
-In-Reply-To: <454A88C3.1060608@garzik.org>
-References: <20061103104818.f280a003.sfr@canb.auug.org.au>
-	<454A88C3.1060608@garzik.org>
-X-Mailer: Sylpheed version 2.3.0beta3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Thu, 2 Nov 2006 23:04:48 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47819 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1753066AbWKCEEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 23:04:46 -0500
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org, Randy Dunlap <randy.dunlap@oracle.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 3/7] V4L/DVB (4786): Pvrusb2: use NULL instead of 0
+Date: Fri, 03 Nov 2006 01:02:13 -0300
+Message-id: <20061103040213.PS8770730003@infradead.org>
+In-Reply-To: <20061103035925.PS9047100000@infradead.org>
+References: <20061103035925.PS9047100000@infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__3_Nov_2006_15_03_33_+1100_A6twsmj2qwWX_FO+"
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__3_Nov_2006_15_03_33_+1100_A6twsmj2qwWX_FO+
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
 
-On Thu, 02 Nov 2006 19:09:39 -0500 Jeff Garzik <jeff@garzik.org> wrote:
->
-> Stephen Rothwell wrote:
-> > Does vmalloc() zero the memory it allocates?
->
-> Nope.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Thanks.  See "Fix sys_move_pages when a NULL node list is passed."
+Fix sparse NULL usage warnings:
+drivers/media/video/pvrusb2/pvrusb2-v4l2.c:714:14: warning: Using plain integer as NULL pointer
+drivers/media/video/pvrusb2/pvrusb2-v4l2.c:715:16: warning: Using plain integer as NULL pointer
+drivers/media/video/pvrusb2/pvrusb2-v4l2.c:1079:10: warning: Using plain integer as NULL pointer
+drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c:224:58: warning: Using plain integer as NULL pointer
 
---
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
 
---Signature=_Fri__3_Nov_2006_15_03_33_+1100_A6twsmj2qwWX_FO+
-Content-Type: application/pgp-signature
+ drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c |    2 +-
+ drivers/media/video/pvrusb2/pvrusb2-v4l2.c        |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+diff --git a/drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c b/drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c
+index df8feac..c80c26b 100644
+--- a/drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c
++++ b/drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c
+@@ -221,7 +221,7 @@ static unsigned int decoder_describe(str
+ static void decoder_reset(struct pvr2_v4l_cx2584x *ctxt)
+ {
+ 	int ret;
+-	ret = pvr2_i2c_client_cmd(ctxt->client,VIDIOC_INT_RESET,0);
++	ret = pvr2_i2c_client_cmd(ctxt->client,VIDIOC_INT_RESET,NULL);
+ 	pvr2_trace(PVR2_TRACE_CHIPS,"i2c cx25840 decoder_reset (ret=%d)",ret);
+ }
+ 
+diff --git a/drivers/media/video/pvrusb2/pvrusb2-v4l2.c b/drivers/media/video/pvrusb2/pvrusb2-v4l2.c
+index 97e974d..bb40e90 100644
+--- a/drivers/media/video/pvrusb2/pvrusb2-v4l2.c
++++ b/drivers/media/video/pvrusb2/pvrusb2-v4l2.c
+@@ -711,8 +711,8 @@ static void pvr2_v4l2_dev_destroy(struct
+ 	       dip->devbase.minor,pvr2_config_get_name(dip->config));
+ 
+ 	/* Paranoia */
+-	dip->v4lp = 0;
+-	dip->stream = 0;
++	dip->v4lp = NULL;
++	dip->stream = NULL;
+ 
+ 	/* Actual deallocation happens later when all internal references
+ 	   are gone. */
+@@ -1076,7 +1076,7 @@ struct pvr2_v4l2 *pvr2_v4l2_create(struc
+ 	vp->vdev = kmalloc(sizeof(*vp->vdev),GFP_KERNEL);
+ 	if (!vp->vdev) {
+ 		kfree(vp);
+-		return 0;
++		return NULL;
+ 	}
+ 	memset(vp->vdev,0,sizeof(*vp->vdev));
+ 	pvr2_channel_init(&vp->channel,mnp);
 
-iD8DBQFFSr+VFdBgD/zoJvwRAh9+AJ9L27S0CJ66dstQyZLl6buY9qlAVgCfUjBC
-BU7Y362XyDSThiN8PnUzADU=
-=N5u4
------END PGP SIGNATURE-----
-
---Signature=_Fri__3_Nov_2006_15_03_33_+1100_A6twsmj2qwWX_FO+--

@@ -1,109 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753527AbWKCUbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWKCUfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753527AbWKCUbH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 15:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753530AbWKCUbH
+	id S932090AbWKCUfG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 15:35:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWKCUfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 15:31:07 -0500
-Received: from fmmailgate05.web.de ([217.72.192.243]:6322 "EHLO
-	fmmailgate05.web.de") by vger.kernel.org with ESMTP
-	id S1753524AbWKCUbD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 15:31:03 -0500
-Reveived: from web.de 
-	by fmmailgate05.web.de (Postfix) with SMTP id A61C4282FFD;
-	Fri,  3 Nov 2006 21:31:02 +0100 (CET)
-Date: Fri, 03 Nov 2006 21:31:01 +0100
-Message-Id: <1405740846@web.de>
+	Fri, 3 Nov 2006 15:35:06 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:38027 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932090AbWKCUfE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 15:35:04 -0500
+Message-ID: <454BA7F7.8030205@vmware.com>
+Date: Fri, 03 Nov 2006 12:35:03 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-From: devzero@web.de
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: greearb@candelatech.com, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: unregister_netdevice: waiting for eth0 to become free
-Organization: http://freemail.web.de/
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Andi Kleen <ak@suse.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>,
+       virtualization@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for	paravirtualizing
+ critical operations
+References: <20061029024504.760769000@sous-sol.org>	<20061030231132.GA98768@muc.de>	<1162376827.23462.5.camel@localhost.localdomain> <200611030356.54074.ak@suse.de>
+In-Reply-To: <200611030356.54074.ak@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Vmware has there own pseudo ethernet device and unless you have the source for it.
->It would be hard to tell if it correctly manages itself.
+Andi Kleen wrote:
+> On Wednesday 01 November 2006 11:27, Rusty Russell wrote:
+>   
+>> Create a paravirt.h header for all the critical operations which need
+>> to be replaced with hypervisor calls, and include that instead of
+>> defining native operations, when CONFIG_PARAVIRT.
+>>     
+>
+> Hmm, did this all ever compile in mainline? I had to do a few merges
+> and in the end i get
+>
+> /home/lsrc/quilt/linux/kernel/spinlock.c: In function ‘_spin_lock_irqsave’:
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number missing after %
+> -letter
+> {standard input}: Assembler messages:
+> {standard input}:593: Error: undefined symbol `paravirt_ops' in operation
+> {standard input}:593: Error: undefined symbol `PARAVIRT_irq_enable' in operation
+> {standard input}:605: Error: undefined symbol `paravirt_ops' in operation
+> {standard input}:605: Error: undefined symbol `PARAVIRT_irq_disable' in operatio
+> n
+>   
 
-VMware is able to emulate three different network card types:
+Not seeing that here (on 2.6.19-rc2-mm2 with gcc 4.0.2).
 
-- AMD Am79C970A - PCnet LANCE PCI Ethernet Controller (linux pcnet32 driver)
-- Intel E1000 (e1000 driver)
-- VMXNET - VMware PCI Ethernet Adapter (vmxnet, vmware`s own driver)
+> and lots of new warnings like
+>
+> /home/lsrc/quilt/linux/arch/i386/kernel/traps.c: In function ‘set_intr_gate’:
+> /home/lsrc/quilt/linux/arch/i386/kernel/traps.c:1165: warning: implicit declarat
+> ion of function ‘_set_gate’
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/common.c: In function ‘_cpu_init’:
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/common.c:754: warning: implicit decl
+> aration of function ‘__set_tss_desc'
+>   
 
-so there are 3 different drivers being used inside the guest OS for networking virtual machines.
+Sounds like desc.h got reordered.  Somewhere, there was a broken patch 
+once that did this, I thought we fixed that.
 
-rumours tell, that the vmxnet driver is sort of a mess, but i have seen the unregister_netdevice problem with pcnet32 AND with vmxnet - and all of the vmware readme`s are telling:
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c: In function ‘intel_mach
+> ine_check’:
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.eax’ 
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.ebx’ 
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.ecx’ 
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.edx’ 
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.esi’ 
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.edi’ 
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.ebp’ 
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.esp’ 
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.eflag
+> s’ may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning: ‘dbg.eip’ 
+> may be used uninitialized in this function
+>   
 
-"In many Linux distributions, if IPv6 is enabled, VMware Tools cannot be configured with vmware-config-tools.pl after installation. In this case, VMware Tools is unable to set the network device correctly for the virtual machine, and displays a message similar to
-Unloading pcnet32 module
-unregister_netdevice: waiting for eth0 to become free"
+Those appear to be valid warnings, with or without paravirt, due to the 
+tacky glued inline oddity of intel_get_extended_msrs.
 
-so - this is the native linux driver for pcnet32 which fails get unloaded _before_ the driver being replaced by the vmware specific one and the virtual nic being switched to the VMXNET adapter.....
-
-anyway - i got that problem while shutting down a VM, not while installing vmware tools.
-
-btw - just came across this posting from jesper juhl:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115703768804826&w=2
-
-roland
-
-
-
-
-> -----Urspr�ngliche Nachricht-----
-> Von: Stephen Hemminger <shemminger@osdl.org>
-> Gesendet: 03.11.06 20:57:54
-> An: "roland" <devzero@web.de>
-> CC: <yoshfuji@linux-ipv6.org>, <linux-net@vger.kernel.org>,   <linux-kernel@vger.kernel.org>
-> Betreff: Re: unregister_netdevice: waiting for eth0 to become free
-
-
-> On Fri, 3 Nov 2006 20:53:09 +0100
-> "roland" <devzero@web.de> wrote:
-> 
-> > > The ipv6 module cannot be unloaded once it has been
-> > > loaded.
-> > 
-> > sorry,  i thought i could rmmod evey module which was insmod/modprobe'd 
-> > before and i didn`t know that there are exceptions
-> > 
-> > > I'm not sure what is happened with vmware.
-> > 
-> > i think this is not completely related to vmware - but maybe this is being 
-> > triggered more often by vmware ?
-> > http://www.google.de/search?hl=de&q=%22unregister_netdevice%3A+waiting+for+eth0+to+become+free
-> > 
-> > it`s really strange, but after taking a look,  vmware seems to recommend 
-> > disabling ipv6 for _every_ linux based guest OS in general:
-> > http://pubs.vmware.com/guestnotes/wwhelp/wwhimpl/common/html/wwhelp.htm?context=gos_ww5_output&file=choose_install_guest_os.html
-> > 
-> > since there are already running millions of  linux based VMs in this world, 
-> > i think this isn`t very good "promotion" for ipv6, if vmware recommending 
-> > disabling it.
-> > ok, there are not that much people already needing ipv6 NOW, but the later 
-> > they are running it and the later outstanding bugs being fixed, the harder 
-> > it will be to convert from ipv4 to ipv6....
-> > 
-> > roland
-> > 
-> > 
-> 
-> Vmware has there own pseudo ethernet device and unless you have the source for it.
-> It would be hard to tell if it correctly manages itself.
-> 
-> 
-> -- 
-> Stephen Hemminger <shemminger@osdl.org>
-
-
-______________________________________________________________________
-XXL-Speicher, PC-Virenschutz, Spartarife & mehr: Nur im WEB.DE Club!		
-Jetzt gratis testen! http://freemail.web.de/home/landingpad/?mc=021130
-
+Zach

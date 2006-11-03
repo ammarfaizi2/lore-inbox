@@ -1,106 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWKCWzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWKCXCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWKCWzI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 17:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753557AbWKCWzI
+	id S932479AbWKCXCK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 18:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWKCXCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 17:55:08 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:9189 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752549AbWKCWzG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 17:55:06 -0500
-Subject: Re: [PATCH 0/9] Task Watchers v2: Introduction
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, jes@sgi.com, lse-tech@lists.sourceforge.net,
-       sekharan@us.ibm.com, hch@lst.de, viro@zeniv.linux.org.uk,
-       sgrubb@redhat.com, linux-audit@redhat.com, akpm@osdl.org
-In-Reply-To: <20061103005747.60bfbd87.pj@sgi.com>
-References: <20061103042257.274316000@us.ibm.com>
-	 <20061103005747.60bfbd87.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Fri, 03 Nov 2006 14:55:02 -0800
-Message-Id: <1162594502.12419.316.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Fri, 3 Nov 2006 18:02:10 -0500
+Received: from smtp-out.rrz.uni-koeln.de ([134.95.19.53]:53703 "EHLO
+	smtp-out.rrz.uni-koeln.de") by vger.kernel.org with ESMTP
+	id S932479AbWKCXCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 18:02:09 -0500
+Message-ID: <454BCA68.4020904@rrz.uni-koeln.de>
+Date: Sat, 04 Nov 2006 00:02:00 +0100
+From: Berthold Cogel <cogel@rrz.uni-koeln.de>
+User-Agent: IceDove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.6.18 Oops: unable to handle kernel paging request at virtual
+ address 766565af
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-03 at 00:57 -0800, Paul Jackson wrote:
-> Matt wrote:
-> > Task watchers is primarily useful to existing kernel code as a means of making
-> > the code in fork and exit more readable.
-> 
-> I don't get it.  The benchmark data isn't explained in plain English
+Hello!
 
-Sorry, there were no units in the per-patch fork and clone data. Units
-there are in tasks created per second. The kernbench units are in place
-and should be fairly self-explanatory I think.
+I got an Oops with linux-2.6.18 ('homemade' kernel.org, unpatched) while
+testing a new USB headset (Logitech Premium Notebook Headset).
 
-Here's what I did:
+My System: Debian unstable/testing. Notebook Acer Extensa 3002 WLMi.
 
-Measure the time it takes to fork N times. Retry 100 times. Try
-different N. Try clone instead of fork to see how different the results
-can be.
+The headset is recognised by the system and the modules are loaded.
+After restarting the gnome mixer applet, I can hear the sound from the
+microfon in the headset speaker. I'm able to mute and unmute the speaker
+and the microfon of headset in the mixer.
 
-Then run kernbench.
+I tried to get the output from XMMS to the headset. Therefor I
+configured the alsa plugin for XMMS to use the headset, which didn't
+work. I was also unable to get the sound from the microfon to the system
+speaker. Then I removed the headset and closed XMMS. This was when the
+Oops happened.
 
-Do the above after applying each patch. Then compare to the previous
-patch (or unpatched source).
+I haven't been able to reproduce the Oops yet.
 
-Run statistics on the numbers.
 
-> what it means, that I could find, so I am just guessing.  But looking
-> at the last (17500) column of the fork results, after applying patch
-> 1/9, I see a number of 18565, and looking at that same column in patch
-> 9/9, I see a number of 18142.
-> 
-> I guess that means a drop of (18565 - 18142 / 18565) == 2% in the fork
-> rate, to make the code "more readable".
+/var/log/kern.log
 
-	Well, it's a worst-case scenario. Without the patches I've seen the
-fork rate intermittently (once every 300 samples) drop to 16k forks/sec
--- a much bigger drop than 2%. I also ran the tests on Andrew's hotfix
-patches for rc2-mm2 and got similar differences even though the patches
-don't change the fork path. And finally, don't forget to compare that to
-the error -- about +/-1.6%. So on an absolute worst-case workload we
-could have a drop anywhere from 0.4 to 3.6%.
+Nov  3 18:47:38 localhost kernel: usb 4-2: new full speed USB device
+using uhci_hcd and address 2
+Nov  3 18:47:38 localhost kernel: usb 4-2: configuration #1 chosen from
+1 choice
+Nov  3 18:47:40 localhost kernel: usbcore: registered new driver
+snd-usb-audio
+Nov  3 18:55:38 localhost kernel: cannot submit datapipe for urb 5,
+error -28: not enough bandwidth
+Nov  3 18:56:19 localhost kernel: cannot submit datapipe for urb 5,
+error -28: not enough bandwidth
+Nov  3 18:56:58 localhost kernel: usb 4-2: USB disconnect, address 2
+Nov  3 18:57:42 localhost kernel: BUG: unable to handle kernel paging
+request at virtual address 766565af
+Nov  3 18:57:42 localhost kernel:  printing eip:
+Nov  3 18:57:42 localhost kernel: c014af57
+Nov  3 18:57:42 localhost kernel: *pde = 00000000
+Nov  3 18:57:42 localhost kernel: Oops: 0002 [#1]
+Nov  3 18:57:42 localhost kernel: PREEMPT
+Nov  3 18:57:42 localhost kernel: Modules linked in: snd_usb_audio
+snd_usb_lib snd_hwdep binfmt_misc rfcomm l2cap bluetooth nfs lockd
+nfs_acl sunrpc af_packet thermal fan button sbs i2c_ec autofs4
+snd_intel8x0m dm_mirror ipw2200 b44 mii ieee80211_crypt_tkip
+ieee80211_crypt_ccmp ieee80211_crypt_wep ieee80211 ieee80211_crypt
+cpufreq_conservative cpufreq_ondemand cpufreq_performance
+cpufreq_powersave acpi_cpufreq freq_table processor sg scsi_mod
+snd_intel8x0 usbhid snd_ac97_codec snd_ac97_bus pcmcia firmware_class
+snd_pcm_oss snd_mixer_oss snd_pcm snd_seq_dummy snd_seq_oss snd_seq_midi
+snd_rawmidi snd_seq_midi_event snd_seq snd_timer snd_seq_device
+intel_agp joydev nsc_ircc snd i2c_i801 yenta_socket rsrc_nonstatic
+agpgart uhci_hcd ehci_hcd soundcore irda ohci1394 evdev pcspkr usbcore
+snd_page_alloc crc_ccitt ieee1394 pcmcia_core ide_cd cdrom psmouse rtc unix
+Nov  3 18:57:42 localhost kernel: CPU:    0
+Nov  3 18:57:42 localhost kernel: EIP:    0060:[<c014af57>]    Not
+tainted VLI
+Nov  3 18:57:42 localhost kernel: EFLAGS: 00010202   (2.6.18.1-vanilla #1)
+Nov  3 18:57:42 localhost kernel: EIP is at __fput+0xae/0x152
+Nov  3 18:57:42 localhost kernel: eax: f2506000   ebx: f2458d20   ecx:
+f7dbfc40   edx: 7665642f
+Nov  3 18:57:42 localhost kernel: esi: f1842980   edi: f2458d20   ebp:
+f24e5570   esp: f2507f34
+Nov  3 18:57:42 localhost kernel: ds: 007b   es: 007b   ss: 0068
+Nov  3 18:57:42 localhost kernel: Process xmms (pid: 4805, ti=f2506000
+task=f24ada90 task.ti=f2506000)
+Nov  3 18:57:42 localhost kernel: Stack: c18e6dc0 f1842980 00000000
+f7868200 ef6d8280 c0148a99 f1842980 f7868200
+Nov  3 18:57:42 localhost kernel:        f1842980 f7868200 f7868200
+00000001 00000030 c011733f f1842980 f7868200
+Nov  3 18:57:42 localhost kernel:        00000000 00000000 f7868200
+f24ada90 00000001 f2507fac c0118354 00000000
+Nov  3 18:57:42 localhost kernel: Call Trace:
+Nov  3 18:57:42 localhost kernel:  [<c0148a99>] filp_close+0x50/0x59
+Nov  3 18:57:42 localhost kernel:  [<c011733f>] put_files_struct+0x62/0xa2
+Nov  3 18:57:42 localhost kernel:  [<c0118354>] do_exit+0x1d0/0x760
+Nov  3 18:57:42 localhost kernel:  [<c0118963>] sys_exit_group+0x0/0x11
+Nov  3 18:57:42 localhost kernel:  [<c0102be9>] sysenter_past_esp+0x56/0x79
+Nov  3 18:57:42 localhost kernel: Code: d0 5b 58 8b 87 f4 00 00 00 85 c0
+74 07 50 e8 36 67 00 00 59 8b 46 10 85 c0 74 3c 8b 10 85 d2 74 36 89 e0
+25 00 e0 ff ff ff 40 14 <ff> 8a 80 01 00 00 83 3a 02 75 0b 8b 82 08 02
+00 00 e8 f2 7f fc
+Nov  3 18:57:42 localhost kernel: EIP: [<c014af57>] __fput+0xae/0x152
+SS:ESP 0068:f2507f34
+Nov  3 18:57:42 localhost kernel:  <1>Fixing recursive fault but reboot
+is needed!
+Nov  3 18:57:42 localhost kernel: BUG: scheduling while atomic:
+xmms/0x00000001/4805
+Nov  3 18:57:42 localhost kernel:  [<c027a9c1>] schedule+0x43/0x52b
+Nov  3 18:57:42 localhost kernel:  [<c0119fe4>] __do_softirq+0x34/0x75
+Nov  3 18:57:42 localhost kernel:  [<c01164d4>] printk+0x14/0x18
+Nov  3 18:57:42 localhost kernel:  [<c0118257>] do_exit+0xd3/0x760
+Nov  3 18:57:42 localhost kernel:  [<c0103ee2>] die+0x21b/0x223
+Nov  3 18:57:42 localhost kernel:  [<c0111559>] do_page_fault+0x3a3/0x469
+Nov  3 18:57:42 localhost kernel:  [<c01111b6>] do_page_fault+0x0/0x469
+Nov  3 18:57:42 localhost kernel:  [<c01036b1>] error_code+0x39/0x40
+Nov  3 18:57:42 localhost kernel:  [<c01a007b>]
+blk_unregister_queue+0x38/0x41
+Nov  3 18:57:42 localhost kernel:  [<c014af57>] __fput+0xae/0x152
+Nov  3 18:57:42 localhost kernel:  [<c0148a99>] filp_close+0x50/0x59
+Nov  3 18:57:42 localhost kernel:  [<c011733f>] put_files_struct+0x62/0xa2
+Nov  3 18:57:42 localhost kernel:  [<c0118354>] do_exit+0x1d0/0x760
+Nov  3 18:57:42 localhost kernel:  [<c0118963>] sys_exit_group+0x0/0x11
+Nov  3 18:57:42 localhost kernel:  [<c0102be9>] sysenter_past_esp+0x56/0x79
 
-	To get a better idea of the normal impact of these patches I think you
-have to look at benchmarks more like kernbench since it's not comprised
-entirely of fork calls. There the measurements are easily within the
-error margins with or without the patches.
 
-	Unfortunately the differences I get always seem to be right around the
-size of the error. I can't seem to get a benchmark to have an error of
-1% or less. I'm open to suggestions of different benchmarks or how to
-obtain tighter bounds on the measurements (e.g. /proc knobs to fiddle
-with).
+Regards,
 
-> And I'm not even sure it makes it more readable.  Looks to me like another
-> layer of apparatus, which is one more thing to figure out before a reader
-> understands what is going on.
-
-	It's nice to see a module's init function with the rest of the module
-and not cluttering up the kernel's module loading code. The use,
-benefits, disadvantages, and even the implementation of task watchers
-are similar. I could rename it (task_init(), task_exit(), etc.) to make
-the similarity more apparent.
-
-> I'd gladly put in a few long days to improve the fork rate 2%, and I am
-> grateful to those who have already done so - whoever they are.
-
-I'm open to suggestions on how to improve the performance. :)
-
-> Somewhere I must have missed the memo explaining why this patch is a
-> good idea - sorry.
-
-	Well, it should make things look cleaner. It's also intended to be
-useful in new code like containers and resource management -- pieces
-many people don't want to pay attention to in those paths.
-
-Cheers,
-	-Matt Helsley
+Berthold Cogel
 

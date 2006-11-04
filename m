@@ -1,99 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWKDHxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbWKDJTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWKDHxU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 02:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWKDHxU
+	id S964977AbWKDJTv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 04:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWKDJTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 02:53:20 -0500
-Received: from gate.crashing.org ([63.228.1.57]:58553 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964857AbWKDHxU (ORCPT
+	Sat, 4 Nov 2006 04:19:51 -0500
+Received: from mail.kroah.org ([69.55.234.183]:63619 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964913AbWKDJTu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 02:53:20 -0500
-Subject: lib/iomap.c mmio_{in,out}s* vs. __raw_* accessors
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>
-Content-Type: text/plain
-Date: Sat, 04 Nov 2006 18:52:41 +1100
-Message-Id: <1162626761.28571.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Nov 2006 04:19:50 -0500
+Date: Sat, 4 Nov 2006 00:22:28 -0800
+From: Greg KH <greg@kroah.com>
+To: Yu Luming <luming.yu@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       len.brown@intel.com, Matt Domsch <Matt_Domsch@dell.com>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr,
+       Richard Hughes <hughsient@gmail.com>
+Subject: Re: [patch 4/6] Add output class document
+Message-ID: <20061104082228.GA30489@kroah.com>
+References: <200611042122.00950.luming.yu@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611042122.00950.luming.yu@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm implementing an optional mecanism that some platforms can use on
-powerpc to hook the various MMIO and PIO operations (to handle things
-ranging from iSeries-like MMIO via HyperVisor stuff to platform specific
-errata on the PCI bus).
+On Sat, Nov 04, 2006 at 09:22:00PM +0800, Yu Luming wrote:
+> Add output class document
+> 
+> signed-off-by ? Luming.yu@gmail.com
+> ---
+> [patch 4/6] Add output class document
+>  video-output.txt |   34 ++++++++++++++++++++++++++++++++++
+>  1 file changed, 34 insertions(+)
+> 
+> diff --git a/Documentation/video-output.txt b/Documentation/video-output.txt
+> new file mode 100644
+> index 0000000..71b1dba
+> --- /dev/null
+> +++ b/Documentation/video-output.txt
+> @@ -0,0 +1,34 @@
+> +
+> +		Video Output Switcher Control
+> +		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> +		2006 luming.yu@gmail.com
+> +
+> +The output sysfs class driver is to provide video output abstract layer that 
+> +can be used to hook platform specific methods to enable/disable video output
+> +device through common sysfs interface. For example, on my IBM Thinkpad T42 
+> +aptop, acpi video driver registered its output devices and read/write method
+> +for state with output sysfs class. The user interface under sysfs is :
+> +
+> +linux:/sys/class/video_output # tree .
+> +.
+> +|-- CRT0
+> +|   |-- device -> ../../../devices/pci0000:00/0000:00:01.0
+> +|   |-- state
+> +|   |-- subsystem -> ../../../class/video_output
+> +|   `-- uevent
+> +|-- DVI0
+> +|   |-- device -> ../../../devices/pci0000:00/0000:00:01.0
+> +|   |-- state
+> +|   |-- subsystem -> ../../../class/video_output
+> +|   `-- uevent
+> +|-- LCD0
+> +|   |-- device -> ../../../devices/pci0000:00/0000:00:01.0
+> +|   |-- state
+> +|   |-- subsystem -> ../../../class/video_output
+> +|   `-- uevent
+> +`-- TV0
+> +   |-- device -> ../../../devices/pci0000:00/0000:00:01.0
+> +   |-- state
+> +   |-- subsystem -> ../../../class/video_output
+> +   `-- uevent
 
-When that mecanism is enabled, I stop using arch/powerpc's iomap
-implementation and fallback instead on the generic one in lib/iomap.c
-since by using the standard accessors, it will directly benefit from the
-hooks.
+Use a struct device instead of a struct class_device please.  That will
+change your tree a bit here (you will have symlinks at the top level.
 
-However, I noticed the following:
+Have you been working with the X developers that have been doing a lot
+of work in describing and interacting with these different video
+devices?  I think you might want to work with them so that you don't
+create an interface that will not be used by them.
 
-static inline void mmio_insb(void __iomem *addr, u8 *dst, int count)
-{
-        while (--count >= 0) {
-                u8 data = __raw_readb(addr);
-                *dst = data;
-                dst++;
-        }
-}
+thanks,
 
-etc...
-
-The problem is that the current implementation, at least on powerpc, of
-the "raw" accessors is to both not swap _and_ have no barriers.
-
-I don't want to dig back out the big discussion we had about in-order
-vs. "relaxed" IO operations and my proposed document about it that's
-currently sitting in limbo mostly due to apparent lack of interest to
-fix the issue on other parts than mine (that's ok though, I'm not
-complaining, I'll come back and push when I get some more time and moti
-vation for it :)
-
-However, there is some issue here which I think is that the "raw"
-accessors are badly defined.
-
-In fact, I would be very very very much in favor of, instead of the
-above, defining a set of:
-
-readsb, readsw, readsl, readsq
-writesb, writesw, writesl, writesq
-
-And have lib/iomap.c use those. That has several benefits, though two
-pop off the top of my mind at the moment:
-
- - Consistent naming, which is very useful, especially with my new
-hookable mecanism where I generate things with macros :) But still,
-appart from that, consistent naming is I think a big bonus to the users
-of those APIs.
-
- - The arch is responsible from implementing them, exactly like the
-others readb...q, writeb....q, inb...l, outb...l, and thus is in precise
-control of which barriers are necessary, while still being able to use
-the generic iomap because it's handy and avoids having to re-implement
-everything duplicate.
-
-Now, of course, currently no arch implement them :-)
-
-So I'd like to propose that we do that. I can put together a "default"
-implementation that everybody uses based on __raw (assuming that works
-fine for a lot of archs) and have powerpc do it's "correct" one.
-
-Oh, also, the insb...insl etc.. versions of those are generally not
-strongly types (buffer is a void *) while the iomap are (buffer is a
-pointer to the native type of the operation: u8...u32). What do you guys
-prefer ? I tend to personally prefer void * for IO related bits but I
-wouldn't fight for that one.
-
-Cheers,
-Ben.
-
-
+greg k-h

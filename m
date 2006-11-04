@@ -1,108 +1,359 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965671AbWKDU3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965665AbWKDU3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965671AbWKDU3O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 15:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965672AbWKDU3N
+	id S965665AbWKDU3v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 15:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965670AbWKDU3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 15:29:13 -0500
-Received: from cacti2.profiwh.com ([85.93.165.64]:53440 "EHLO
-	cacti.profiwh.com") by vger.kernel.org with ESMTP id S965671AbWKDU3J
+	Sat, 4 Nov 2006 15:29:37 -0500
+Received: from cacti2.profiwh.com ([85.93.165.64]:54976 "EHLO
+	cacti.profiwh.com") by vger.kernel.org with ESMTP id S965665AbWKDU32
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 15:29:09 -0500
-Message-id: <5384323662150832498@wsc.cz>
-Subject: [PATCH 6/8] Char: istallion, brdnr locking
+	Sat, 4 Nov 2006 15:29:28 -0500
+Message-id: <24630301851426730718@wsc.cz>
+Subject: [PATCH 8/8] Char: istallion, correct fail paths
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Sat,  4 Nov 2006 21:29:18 +0100 (CET)
+Date: Sat,  4 Nov 2006 21:29:39 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-istallion, brdnr locking
+istallion, correct fail paths
 
-Kill possible race when getting brdnr by locking.
+Check more retvals and react somehow.
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit 177cc17270356497ba04bb03b5688e429c3cfbdb
-tree 99b7588bebeed73a6218748e62a4526694d8a011
-parent b2606947cdfd650f706f4d0f97574a2a00c325ce
-author Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 20:48:07 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 20:48:07 +0059
+commit e0b3045495be40ba0bdfb170732b8bcd5f4dc816
+tree 574fc371fd14b172ec00289b6e423537b80193e1
+parent 0e8470b600af83b7421c85d85c1b7c9b63ad21aa
+author Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 21:25:03 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 21:25:03 +0059
 
- drivers/char/istallion.c |   15 +++++++++++----
- 1 files changed, 11 insertions(+), 4 deletions(-)
+ Makefile                 |    2 -
+ drivers/char/istallion.c |  142 ++++++++++++++++++++++++++--------------------
+ 2 files changed, 82 insertions(+), 62 deletions(-)
 
+diff --git a/Makefile b/Makefile
+index 9d418e2..08906f4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -313,7 +313,7 @@ LINUXINCLUDE    := -Iinclude \
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+ 
+ CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+-                   -fno-strict-aliasing -fno-common
++                   -fno-strict-aliasing -fno-common -W -Wno-unused
+ AFLAGS          := -D__ASSEMBLY__
+ 
+ # Read KERNELRELEASE from include/config/kernel.release (if it exists)
 diff --git a/drivers/char/istallion.c b/drivers/char/istallion.c
-index aff6a4c..6569398 100644
+index 0502e5d..b567519 100644
 --- a/drivers/char/istallion.c
 +++ b/drivers/char/istallion.c
-@@ -189,6 +189,7 @@ static struct asystats	stli_cdkstats;
+@@ -776,11 +776,6 @@ static void __exit istallion_module_exit
+ 	}
+ 
+ 	i = tty_unregister_driver(stli_serial);
+-	if (i) {
+-		printk("STALLION: failed to un-register tty driver, "
+-			"errno=%d\n", -i);
+-		return;
+-	}
+ 	put_tty_driver(stli_serial);
+ 	for (j = 0; j < 4; j++)
+ 		class_device_destroy(istallion_class, MKDEV(STL_SIOMEMMAJOR, j));
+@@ -3278,17 +3273,18 @@ static int stli_initecp(struct stlibrd *
+ 	cdkecpsig_t __iomem *sigsp;
+ 	unsigned int status, nxtid;
+ 	char *name;
+-	int panelnr, nrports;
++	int retval, panelnr, nrports;
+ 
+-	if (!request_region(brdp->iobase, brdp->iosize, "istallion"))
+-		return -EIO;
+-	
+-	if ((brdp->iobase == 0) || (brdp->memaddr == 0))
+-	{
+-		release_region(brdp->iobase, brdp->iosize);
+-		return -ENODEV;
++	if ((brdp->iobase == 0) || (brdp->memaddr == 0)) {
++		retval = -ENODEV;
++		goto err;
+ 	}
+ 
++	if (!request_region(brdp->iobase, brdp->iosize, "istallion")) {
++		retval = -EIO;
++		goto err;
++	}
++	
+ 	brdp->iosize = ECP_IOSIZE;
+ 
+ /*
+@@ -3350,8 +3346,8 @@ static int stli_initecp(struct stlibrd *
+ 		break;
+ 
+ 	default:
+-		release_region(brdp->iobase, brdp->iosize);
+-		return -EINVAL;
++		retval = -EINVAL;
++		goto err_reg;
+ 	}
+ 
+ /*
+@@ -3363,10 +3359,9 @@ static int stli_initecp(struct stlibrd *
+ 	EBRDINIT(brdp);
+ 
+ 	brdp->membase = ioremap(brdp->memaddr, brdp->memsize);
+-	if (brdp->membase == NULL)
+-	{
+-		release_region(brdp->iobase, brdp->iosize);
+-		return -ENOMEM;
++	if (brdp->membase == NULL) {
++		retval = -ENOMEM;
++		goto err_reg;
+ 	}
+ 
+ /*
+@@ -3379,12 +3374,9 @@ static int stli_initecp(struct stlibrd *
+ 	memcpy_fromio(&sig, sigsp, sizeof(cdkecpsig_t));
+ 	EBRDDISABLE(brdp);
+ 
+-	if (sig.magic != cpu_to_le32(ECP_MAGIC))
+-	{
+-		release_region(brdp->iobase, brdp->iosize);
+-		iounmap(brdp->membase);
+-		brdp->membase = NULL;
+-		return -ENODEV;
++	if (sig.magic != cpu_to_le32(ECP_MAGIC)) {
++		retval = -ENODEV;
++		goto err_unmap;
+ 	}
+ 
+ /*
+@@ -3409,6 +3401,13 @@ static int stli_initecp(struct stlibrd *
+ 
+ 	brdp->state |= BST_FOUND;
+ 	return 0;
++err_unmap:
++	iounmap(brdp->membase);
++	brdp->membase = NULL;
++err_reg:
++	release_region(brdp->iobase, brdp->iosize);
++err:
++	return retval;
+ }
  
  /*****************************************************************************/
+@@ -3423,18 +3422,22 @@ static int stli_initonb(struct stlibrd *
+ 	cdkonbsig_t sig;
+ 	cdkonbsig_t __iomem *sigsp;
+ 	char *name;
+-	int i;
++	int i, retval;
  
-+static DEFINE_MUTEX(stli_brdslock);
- static struct stlibrd	*stli_brds[STL_MAXBRDS];
+ /*
+  *	Do a basic sanity check on the IO and memory addresses.
+  */
+-	if (brdp->iobase == 0 || brdp->memaddr == 0)
+-		return -ENODEV;
++	if (brdp->iobase == 0 || brdp->memaddr == 0) {
++		retval = -ENODEV;
++		goto err;
++	}
  
- static int		stli_shared;
-@@ -3677,8 +3678,6 @@ stli_donestartup:
+ 	brdp->iosize = ONB_IOSIZE;
+ 	
+-	if (!request_region(brdp->iobase, brdp->iosize, "istallion"))
+-		return -EIO;
++	if (!request_region(brdp->iobase, brdp->iosize, "istallion")) {
++		retval = -EIO;
++		goto err;
++	}
+ 
+ /*
+  *	Based on the specific board type setup the common vars to access
+@@ -3500,8 +3503,8 @@ static int stli_initonb(struct stlibrd *
+ 		break;
+ 
+ 	default:
+-		release_region(brdp->iobase, brdp->iosize);
+-		return -EINVAL;
++		retval = -EINVAL;
++		goto err_reg;
+ 	}
+ 
+ /*
+@@ -3513,10 +3516,9 @@ static int stli_initonb(struct stlibrd *
+ 	EBRDINIT(brdp);
+ 
+ 	brdp->membase = ioremap(brdp->memaddr, brdp->memsize);
+-	if (brdp->membase == NULL)
+-	{
+-		release_region(brdp->iobase, brdp->iosize);
+-		return -ENOMEM;
++	if (brdp->membase == NULL) {
++		retval = -ENOMEM;
++		goto err_reg;
+ 	}
+ 
+ /*
+@@ -3532,12 +3534,9 @@ static int stli_initonb(struct stlibrd *
+ 	if (sig.magic0 != cpu_to_le16(ONB_MAGIC0) ||
+ 	    sig.magic1 != cpu_to_le16(ONB_MAGIC1) ||
+ 	    sig.magic2 != cpu_to_le16(ONB_MAGIC2) ||
+-	    sig.magic3 != cpu_to_le16(ONB_MAGIC3))
+-	{
+-		release_region(brdp->iobase, brdp->iosize);
+-		iounmap(brdp->membase);
+-		brdp->membase = NULL;
+-		return -ENODEV;
++	    sig.magic3 != cpu_to_le16(ONB_MAGIC3)) {
++		retval = -ENODEV;
++		goto err_unmap;
+ 	}
+ 
+ /*
+@@ -3559,6 +3558,13 @@ static int stli_initonb(struct stlibrd *
+ 
+ 	brdp->state |= BST_FOUND;
+ 	return 0;
++err_unmap:
++	iounmap(brdp->membase);
++	brdp->membase = NULL;
++err_reg:
++	release_region(brdp->iobase, brdp->iosize);
++err:
++	return retval;
+ }
+ 
+ /*****************************************************************************/
+@@ -3679,33 +3685,30 @@ stli_donestartup:
  
  static int __devinit stli_brdinit(struct stlibrd *brdp)
  {
--	stli_brds[brdp->brdnr] = brdp;
--
++	int retval;
++
  	switch (brdp->brdtype) {
  	case BRD_ECP:
  	case BRD_ECPE:
-@@ -3896,6 +3895,7 @@ static int stli_findeisabrds(void)
+ 	case BRD_ECPMC:
+ 	case BRD_ECPPCI:
+-		stli_initecp(brdp);
++		retval = stli_initecp(brdp);
+ 		break;
+ 	case BRD_ONBOARD:
+ 	case BRD_ONBOARDE:
+ 	case BRD_ONBOARD2:
+ 	case BRD_BRUMBY4:
+ 	case BRD_STALLION:
+-		stli_initonb(brdp);
++		retval = stli_initonb(brdp);
+ 		break;
+ 	default:
+ 		printk(KERN_ERR "STALLION: board=%d is unknown board "
+ 				"type=%d\n", brdp->brdnr, brdp->brdtype);
+-		return -ENODEV;
++		retval = -ENODEV;
+ 	}
+ 
+-	if ((brdp->state & BST_FOUND) == 0) {
+-		printk(KERN_ERR "STALLION: %s board not found, board=%d "
+-				"io=%x mem=%x\n",
+-			stli_brdnames[brdp->brdtype], brdp->brdnr,
+-			brdp->iobase, (int) brdp->memaddr);
+-		return -ENODEV;
+-	}
++	if (retval)
++		return retval;
+ 
+ 	stli_initports(brdp);
+ 	printk(KERN_INFO "STALLION: %s found, board=%d io=%x mem=%x "
+@@ -3842,7 +3845,7 @@ static int stli_findeisabrds(void)
+ {
+ 	struct stlibrd *brdp;
+ 	unsigned int iobase, eid, i;
+-	int brdnr;
++	int brdnr, found = 0;
+ 
+ /*
+  *	Firstly check if this is an EISA system.  If this is not an EISA system then
+@@ -3880,10 +3883,10 @@ static int stli_findeisabrds(void)
+  *		Allocate a board structure and initialize it.
+  */
+ 		if ((brdp = stli_allocbrd()) == NULL)
+-			return -ENOMEM;
++			return found ? : -ENOMEM;
+ 		brdnr = stli_getbrdnr();
+ 		if (brdnr < 0)
+-			return -ENOMEM;
++			return found ? : -ENOMEM;
+ 		brdp->brdnr = (unsigned int)brdnr;
+ 		eid = inb(iobase + 0xc82);
+ 		if (eid == ECP_EISAID)
+@@ -3896,11 +3899,16 @@ static int stli_findeisabrds(void)
  		outb(0x1, (iobase + 0xc84));
  		if (stli_eisamemprobe(brdp))
  			outb(0, (iobase + 0xc84));
-+		stli_brds[brdp->brdnr] = brdp;
- 		stli_brdinit(brdp);
++		if (stli_brdinit(brdp) < 0) {
++			kfree(brdp);
++			continue;
++		}
++
+ 		stli_brds[brdp->brdnr] = brdp;
+-		stli_brdinit(brdp);
++		found++;
  	}
  
-@@ -3933,14 +3933,18 @@ static int __devinit stli_pciprobe(struc
- 		retval = -ENOMEM;
- 		goto err;
- 	}
-+	mutex_lock(&stli_brdslock);
- 	brdnr = stli_getbrdnr();
--	if (brdnr < 0) { /* TODO: locking */
-+	if (brdnr < 0) {
- 		printk(KERN_INFO "STALLION: too many boards found, "
- 			"maximum supported %d\n", STL_MAXBRDS);
-+		mutex_unlock(&stli_brdslock);
- 		retval = -EIO;
- 		goto err_fr;
- 	}
- 	brdp->brdnr = (unsigned int)brdnr;
-+	stli_brds[brdp->brdnr] = brdp;
-+	mutex_unlock(&stli_brdslock);
- 	brdp->brdtype = BRD_ECPPCI;
- /*
-  *	We have all resources from the board, so lets setup the actual
-@@ -3950,11 +3954,13 @@ static int __devinit stli_pciprobe(struc
- 	brdp->memaddr = pci_resource_start(pdev, 2);
- 	retval = stli_brdinit(brdp);
- 	if (retval)
--		goto err_fr;
-+		goto err_null;
+-	return 0;
++	return found;
+ }
+ #else
+ static inline int stli_findeisabrds(void) { return 0; }
+@@ -4020,7 +4028,7 @@ static int stli_initbrds(void)
+ {
+ 	struct stlibrd *brdp, *nxtbrdp;
+ 	struct stlconf conf;
+-	unsigned int i, j;
++	unsigned int i, j, found = 0;
+ 	int retval;
  
- 	pci_set_drvdata(pdev, brdp);
- 
- 	return 0;
-+err_null:
-+	stli_brds[brdp->brdnr] = NULL;
- err_fr:
- 	kfree(brdp);
- err:
-@@ -4026,6 +4032,7 @@ static int stli_initbrds(void)
+ 	for (stli_nrbrds = 0; stli_nrbrds < ARRAY_SIZE(stli_brdsp);
+@@ -4034,14 +4042,24 @@ static int stli_initbrds(void)
  		brdp->brdtype = conf.brdtype;
  		brdp->iobase = conf.ioaddr1;
  		brdp->memaddr = conf.memaddr;
-+		stli_brds[brdp->brdnr] = brdp;
- 		stli_brdinit(brdp);
++		if (stli_brdinit(brdp) < 0) {
++			kfree(brdp);
++			continue;
++		}
+ 		stli_brds[brdp->brdnr] = brdp;
+-		stli_brdinit(brdp);
++		found++;
  	}
  
+-	stli_findeisabrds();
++	retval = stli_findeisabrds();
++	if (retval > 0)
++		found += retval;
+ 
+ 	retval = pci_register_driver(&stli_pcidriver);
+-	/* TODO: check retval and do something */
++	if (retval && found == 0) {
++		printk(KERN_ERR "Neither isa nor eisa cards found nor pci "
++				"driver can be registered!\n");
++		goto err;
++	}
+ 
+ /*
+  *	All found boards are initialized. Now for a little optimization, if
+@@ -4082,6 +4100,8 @@ static int stli_initbrds(void)
+ 	}
+ 
+ 	return 0;
++err:
++	return retval;
+ }
+ 
+ /*****************************************************************************/

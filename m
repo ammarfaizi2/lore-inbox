@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965276AbWKDKvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965291AbWKDKxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965276AbWKDKvq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 05:51:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965284AbWKDKvq
+	id S965291AbWKDKxG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 05:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965290AbWKDKxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 05:51:46 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17315 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965276AbWKDKvp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 05:51:45 -0500
-Date: Sat, 4 Nov 2006 02:51:28 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Avoid allocating during interleave from almost full nodes
-Message-Id: <20061104025128.ca3c9859.pj@sgi.com>
-In-Reply-To: <20061103174206.53f2c49e.akpm@osdl.org>
-References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
-	<20061103134633.a815c7b3.akpm@osdl.org>
-	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
-	<20061103143145.85a9c63f.akpm@osdl.org>
-	<20061103172605.e646352a.pj@sgi.com>
-	<20061103174206.53f2c49e.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Sat, 4 Nov 2006 05:53:06 -0500
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:48601 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965291AbWKDKxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 05:53:03 -0500
+Date: Sat, 4 Nov 2006 11:53:02 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: dean gaudet <dean@arctic.org>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+Message-ID: <20061104105302.GB16991@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0611031057410.26057@twinlark.arctic.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0611031057410.26057@twinlark.arctic.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> Depends what it's doing.  "number of pages allocated" would be a good
-> "clock" to use in the VM.  Or pages scanned.  Or per-cpu-pages reloads. 
-> Something which adjusts to what's going on.
+On Fri, 3 November 2006 11:00:58 -0800, dean gaudet wrote:
+> 
+> it seems to me that you only need to be able to represent a range of the 
+> most recent 65536 crashes... and could have an online process which goes 
+> about "refreshing" old objects to move them forward to the most recent 
+> crash state.  as long as you know the minimm on-disk crash count you can 
+> use it as an offset.
 
-Christoph,
+You really don't want to go down that path.  Doubling the storage size
+will double the work necessary to move old objects - hard to imagine a
+design that scales worse.
 
-  Do you know of any existing counters that we could use like this?
+CPU schedulers, btw, take this approach.  But they cheat, as they know
+the maximum lifetime of their objects (in-flight instructions, rename
+registers,...) is bounded to n.  Old objects are refreshed for free.
+http://www.chip-architect.com/news/2003_09_21_Detailed_Architecture_of_AMDs_64bit_Core.html
 
-Adding a system wide count of pages allocated or scanned, just for
-these fullnode hint caches, bothers me.
-
-Sure, Andrew is right in the purist sense.  The connection to any
-wall clock time base for these events is tenuous at best.
-
-But if the tradeoff is:
- 1) a new global counter on the pager allocator or scanning path,
- 2) versus an impure heuristic for zapping these full node hints,
-
-then I can't justify the new counter.  I work hard on this stuff to
-keep any frequently written global data off hot code paths.
-
-I just don't see any real world case where having a bogus time base for
-these fullnode zaps actually hurts anyone.  A global counter in the
-main allocator or scanning code paths hurts everyone (well, everyone on
-big NUMA boxes, anyhow ... ;).
-
-It might not matter for this here interleave refinement patch (which has
-other open questions), but it could at least (in theory) benefit my
-zonelist caching patch to get a more reasonable trigger for zapping the
-fullnode hint cache.
-
-Even using an existing counter isn't "free."  The more readers a
-frequently updated warm cache line has, the hotter it gets.
-
-Perhaps best if we used a node or cpu local counter.
+Jörn
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+A defeated army first battles and then seeks victory.
+-- Sun Tzu

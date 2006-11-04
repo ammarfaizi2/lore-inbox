@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWKDB0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWKDBg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWKDB0j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 20:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWKDB0i
+	id S932307AbWKDBg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 20:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753557AbWKDBg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 20:26:38 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:4328 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932306AbWKDB0i (ORCPT
+	Fri, 3 Nov 2006 20:36:28 -0500
+Received: from ns.suse.de ([195.135.220.2]:37577 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1753519AbWKDBg1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 20:26:38 -0500
-Date: Fri, 3 Nov 2006 17:26:05 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Avoid allocating during interleave from almost full nodes
-Message-Id: <20061103172605.e646352a.pj@sgi.com>
-In-Reply-To: <20061103143145.85a9c63f.akpm@osdl.org>
-References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
-	<20061103134633.a815c7b3.akpm@osdl.org>
-	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
-	<20061103143145.85a9c63f.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Nov 2006 20:36:27 -0500
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [rfc patch] i386: don't save eflags on task switch
+Date: Sat, 4 Nov 2006 02:36:20 +0100
+User-Agent: KMail/1.9.5
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Zachary Amsden <zach@vmware.com>
+References: <200611031902_MC3-1-D042-CA1F@compuserve.com> <Pine.LNX.4.64.0611031645141.25218@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611031645141.25218@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611040236.20478.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> But in this application which you are proposing, any correlation with
-> elapsed walltime is very slight.  It's just the wrong baseline to use. 
-> What is the *sense* in it?
+On Saturday 04 November 2006 01:46, Linus Torvalds wrote:
+> 
+> On Fri, 3 Nov 2006, Chuck Ebbert wrote:
+> >
+> > There is no real need to save eflags in switch_to().  Instead,
+> > we can keep a constant value in the and always
+> > restore that.
+> 
+> I don't really see the point. The "pushfl" isn't the expensive part, and 
+> it gives sane and expected semantics.
+> 
+> The "popfl" is the expensive part, and that's the thing that can't really 
+> even be removed.
 
-Ah - but time is cheap as dirt, and scales like the common cold virus.
-That makes it sinfully attractive for secondary affect placement cache
-hints like this.
+Well it could -- i made an attempt at it recently. But it would add 
+a little code to the SYSENTER entry code (basically a test / conditional
+jump after the pushfl there) to clear any rogue flags on entry.
+Not sure it is worth it. That is why i didn't put this patch in.
 
-What else would you suggest?
-
-Same question applies, I suppose, to my zonelist caching patch that is
-sitting in your *-mm patch stack, where you also had doubts about using
-wall clock time to decay the fullnode hints.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Andi

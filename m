@@ -1,98 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965732AbWKDW4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965731AbWKDW4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965732AbWKDW4q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 17:56:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965734AbWKDW4q
+	id S965731AbWKDW4d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 17:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965732AbWKDW4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 17:56:46 -0500
-Received: from verein.lst.de ([213.95.11.210]:39381 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S965732AbWKDW4p (ORCPT
+	Sat, 4 Nov 2006 17:56:33 -0500
+Received: from arcas.site5.com ([209.59.150.2]:28087 "EHLO arcas.site5.com")
+	by vger.kernel.org with ESMTP id S965731AbWKDW4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 17:56:45 -0500
-Date: Sat, 4 Nov 2006 23:56:29 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: David Miller <davem@davemloft.net>
-Cc: hch@lst.de, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       linux-mm@kvack.org
-Subject: Re: [PATCH 2/3] add dev_to_node()
-Message-ID: <20061104225629.GA31437@lst.de>
-References: <20061030141501.GC7164@lst.de> <20061030.143357.130208425.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Nov 2006 17:56:33 -0500
+From: Eduard =?iso-8859-15?q?Gim=E9nez?= <edu@badopi.org>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Subject: Re: Faustian Pact between Novell and Microsoft
+Date: Sat, 4 Nov 2006 23:56:24 +0100
+User-Agent: KMail/1.9.1
+Cc: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Petr Baudis <pasky@suse.cz>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+References: <454A7BBB.10403@wolfmountaingroup.com> <454AB477.9040107@wolfmountaingroup.com> <1162594003.4827.10.camel@gimli.at.home>
+In-Reply-To: <1162594003.4827.10.camel@gimli.at.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061030.143357.130208425.davem@davemloft.net>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -0.6 () BAYES_01
+Message-Id: <200611042356.24889.edu@badopi.org>
+X-Antivirus-Scanner: This message has been scanned by ClamAV.
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - arcas.site5.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - badopi.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 02:33:57PM -0800, David Miller wrote:
-> It may be a bit much to be calling all the way through up to the PCI
-> layer just to pluck out a simple integer, don't you think?  The PCI
-> bus pointer comparison is just a symptom of how silly this is.
-> 
-> Especially since this will be used for every packet allocation a
-> device makes.
-> 
-> So, please add some sanity to this situation and just put the node
-> into the generic struct device. :-)
+On Friday, 3 de November de 2006 23:46, Bernd Petrovitsch wrote:
+> Url?
+> Since it is official, there must be ome ...
 
-I was concerned about growing struct device, on smaller system it
-already eats up a lot of memory.  But we can make the node member
-conditional on CONFIG_NUMA, as I did in the patch below.
+Yes, there're many ;) The main one:
+http://www.novell.com/linux/microsoft/
 
-This directly replaces PATCH 2/2 (the one we're replying to), all
-others remain unmodified.
+But probably the most interesting are: 
+http://www.novell.com/linux/microsoft/faq.html
+and
+http://www.novell.com/linux/microsoft/openletter.html
 
+-- 
+edu
 
-Index: linux-2.6/include/linux/device.h
-===================================================================
---- linux-2.6.orig/include/linux/device.h	2006-10-29 16:02:38.000000000 +0100
-+++ linux-2.6/include/linux/device.h	2006-11-02 12:47:17.000000000 +0100
-@@ -347,6 +347,9 @@
- 					   BIOS data),reserved for device core*/
- 	struct dev_pm_info	power;
- 
-+#ifdef CONFIG_NUMA
-+	int		numa_node;	/* NUMA node this device is close to */
-+#endif
- 	u64		*dma_mask;	/* dma mask (if dma'able device) */
- 	u64		coherent_dma_mask;/* Like dma_mask, but for
- 					     alloc_coherent mappings as
-@@ -368,6 +371,12 @@
- 	void	(*release)(struct device * dev);
- };
- 
-+#ifdef CONFIG_NUMA
-+#define dev_to_node(dev)	((dev)->numa_node)
-+#else
-+#define dev_to_node(dev)	(-1)
-+#endif
-+
- static inline void *
- dev_get_drvdata (struct device *dev)
- {
-Index: linux-2.6/drivers/base/core.c
-===================================================================
---- linux-2.6.orig/drivers/base/core.c	2006-10-23 17:21:44.000000000 +0200
-+++ linux-2.6/drivers/base/core.c	2006-11-02 12:48:12.000000000 +0100
-@@ -381,6 +381,7 @@
- 	INIT_LIST_HEAD(&dev->node);
- 	init_MUTEX(&dev->sem);
- 	device_init_wakeup(dev, 0);
-+	dev->numa_node = -1;
- }
- 
- /**
-Index: linux-2.6/drivers/pci/probe.c
-===================================================================
---- linux-2.6.orig/drivers/pci/probe.c	2006-10-23 17:21:46.000000000 +0200
-+++ linux-2.6/drivers/pci/probe.c	2006-11-02 12:47:35.000000000 +0100
-@@ -846,6 +846,7 @@
- 	dev->dev.release = pci_release_dev;
- 	pci_dev_get(dev);
- 
-+	dev->dev.numa_node = pcibus_to_node(bus);
- 	dev->dev.dma_mask = &dev->dma_mask;
- 	dev->dev.coherent_dma_mask = 0xffffffffull;
- 
+firmitas, utilitas, venustas
+- Vitruvius, De Architectura

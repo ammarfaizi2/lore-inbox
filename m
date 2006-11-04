@@ -1,40 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWKDAud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbWKDA66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932534AbWKDAud (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 19:50:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWKDAud
+	id S932543AbWKDA66 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 19:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbWKDA65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 19:50:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:22144 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932534AbWKDAuc (ORCPT
+	Fri, 3 Nov 2006 19:58:57 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46466 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932543AbWKDA65 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 19:50:32 -0500
-Date: Fri, 3 Nov 2006 16:46:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Zachary Amsden <zach@vmware.com>
-Subject: Re: [rfc patch] i386: don't save eflags on task switch
-In-Reply-To: <200611031902_MC3-1-D042-CA1F@compuserve.com>
-Message-ID: <Pine.LNX.4.64.0611031645141.25218@g5.osdl.org>
-References: <200611031902_MC3-1-D042-CA1F@compuserve.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Nov 2006 19:58:57 -0500
+Date: Fri, 3 Nov 2006 16:58:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Avoid allocating during interleave from almost full nodes
+Message-Id: <20061103165854.0f3e77ad.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611031622540.16997@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+	<20061103134633.a815c7b3.akpm@osdl.org>
+	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
+	<20061103143145.85a9c63f.akpm@osdl.org>
+	<Pine.LNX.4.64.0611031622540.16997@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 3 Nov 2006 16:28:31 -0800 (PST)
+Christoph Lameter <clameter@sgi.com> wrote:
 
+> On Fri, 3 Nov 2006, Andrew Morton wrote:
+> 
+> > But in this application which you are proposing, any correlation with
+> > elapsed walltime is very slight.  It's just the wrong baseline to use. 
+> > What is the *sense* in it?
+> 
+> You just accepted Paul's use of a similar mechanism to void cached 
+> zonelists. He has a one second timeout for the cache there it seems.
 
-On Fri, 3 Nov 2006, Chuck Ebbert wrote:
->
-> There is no real need to save eflags in switch_to().  Instead,
-> we can keep a constant value in the thread_struct and always
-> restore that.
+With complaints.
 
-I don't really see the point. The "pushfl" isn't the expensive part, and 
-it gives sane and expected semantics.
+> The sense is that memory on nodes may be freed and then we need to 
+> allocate from those nodes again.
 
-The "popfl" is the expensive part, and that's the thing that can't really 
-even be removed.
+This has almost nothing to do with elapsed time.
 
-			Linus
+How about doing, in free_pages_bulk():
+
+	if (zone->over_interleave_pages) {
+		zone->over_interleave_pages = 0;
+		node_clear(zone_to_nid(zone), full_interleave_nodes);
+	}
+
+?
+
+> > Yes.  And it is wrong to do so.  Because a node may well have no "free"
+> > pages but plenty of completely stale ones which should be reclaimed.
+> 
+> But there may be other nodes that have more free pages. If we allocate 
+> from those then we can avoid reclaim.
+> 
+> > Reclaim isn't expensive.
+> 
+> It is needlessly expensive if its done for an allocation that is not bound 
+> to a specific node and there are other nodes with free pages. We may throw 
+> out pages that we need later.
+
+Well it grossly changes the meaning of "interleaving".  We might as well
+call it something else.  It's not necessarily worse, but it's not
+interleaved any more.
+
+Actually by staying on the same node for a string of successive allocations
+it could well be quicker.  How come MPOL_INTERLEAVE doesn't already do some
+batching?   Or does it, and I missed it?
+

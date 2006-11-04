@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752655AbWKDDtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752638AbWKDEMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752655AbWKDDtK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 22:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752813AbWKDDtK
+	id S1752638AbWKDEMR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 23:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752742AbWKDEMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 22:49:10 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60421 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1752655AbWKDDtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 22:49:07 -0500
-Date: Sat, 4 Nov 2006 04:49:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Hugh Dickins <hugh@veritas.com>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       Martin Lorenz <martin@lorenz.eu.org>, Andi Kleen <ak@suse.de>,
-       discuss@x86-64.org, Russell King <rmk@dyn-67.arm.linux.org.uk>,
-       linux-serial@vger.kernel.org, linux-thinkpad@linux-thinkpad.org,
-       Ernst Herzberg <earny@net4u.de>
-Subject: 2.6.19-rc <-> ThinkPads, summary
-Message-ID: <20061104034906.GO13381@stusta.de>
-References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il> <20061101030126.GE27968@stusta.de>
+	Fri, 3 Nov 2006 23:12:17 -0500
+Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:30339 "EHLO
+	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1752638AbWKDEMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 23:12:16 -0500
+Date: Fri, 3 Nov 2006 23:12:14 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+       20060906182719.GB24670@sergelap.austin.ibm.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] security: introduce fs caps
+In-Reply-To: <04A6CE5F-C68B-4F1A-B3CB-F3BB77D9EA9A@mac.com>
+Message-ID: <Pine.LNX.4.64.0611032309070.15745@d.namei>
+References: <20061103175730.87f55ff8.chris@friedhoff.org>
+ <20061103200011.GA2206@sergelap.austin.ibm.com>
+ <1162585797.5519.175.camel@moss-spartans.epoch.ncsc.mil>
+ <20061103204706.GA31398@sergelap.austin.ibm.com> <04A6CE5F-C68B-4F1A-B3CB-F3BB77D9EA9A@mac.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061101030126.GE27968@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As far as I can see, the 2.6.19-rc ThinkPad situation is still 
-confusing and we don't even know how many different bugs we are 
-chasing...
+On Fri, 3 Nov 2006, Kyle Moffett wrote:
 
-Below is all the information I have found, plus some questions for the 
-four people who reported problems that might hopefully bring us nearer 
-to solutions.
+> capabilities anyways.  I guess it _can_ be done, but why?  It's possible to
+> set up an SELinux system so that there aren't even any SUID binaries, right?
+> /etc/passwd can run as whatever random user and it will automatically
+> transition to the appropriate domain such that it can read and modify
+> /etc/shadow.
 
-
-Michael S. Tsirkin:
-- ThinkPad T60 not coming out of suspend to RAM
-- broken by commit cf4c6a2f27f5db810b69dcb1da7f194489e8ff88
-  ("i386: Factor out common io apic routing entry access")
-- question: Did the post -rc4 arch/i386/kernel/io_apic.c changes fix it?
+SELinux will not override DAC permissions.  You can theoretically 
+configure a system with no effective DAC security and just use MAC, but it 
+is definitely not advised.
 
 
-Ernst Herzberg:
-- ThinkPad R50p: boot fail with (lapic && on_battery)
-- kernel compiled without cardbus support works
-- question: Does reverting  the bisected
-            commit 1fbbac4bcb03033d325c71fc7273aa0b9c1d9a03 
-            ("serial_cs: convert multi-port table to quirk table")
-            fix the problem?
-- question: Does reverting commit cf4c6a2f27f5db810b69dcb1da7f194489e8ff88
-            ("i386: Factor out common io apic routing entry access") help?
-- question: If yes, did the post -rc4 arch/i386/kernel/io_apic.c changes
-            fix it?
-
-
-Hugh Dickins:
-- ThinkPad T43p
-- booting with "noapic nolapic" didn't make any difference
-- reverting commit cf4c6a2f27f5db810b69dcb1da7f194489e8ff88
-  ("i386: Factor out common io apic routing entry access") didn't help
-- question: Was your bisecting successful?
-
-
-Martin Lorenz:
-- ThinkPad X60: lose ACPI events after suspend/resume
-                not every time, but roughly 3 out of 4 times
-- question: Does reverting commit cf4c6a2f27f5db810b69dcb1da7f194489e8ff88
-            ("i386: Factor out common io apic routing entry access")
-            in -rc4 help?
-- question: If yes, did the post -rc4 arch/i386/kernel/io_apic.c changes
-            fix it?
-
-
-cu
-Adrian
-
+- James
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+James Morris
+<jmorris@namei.org>

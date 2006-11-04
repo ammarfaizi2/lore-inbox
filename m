@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWKDG5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWKDHDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWKDG5J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 01:57:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWKDG5J
+	id S932429AbWKDHDd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 02:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWKDHDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 01:57:09 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36870 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964797AbWKDG5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 01:57:08 -0500
-Date: Sat, 4 Nov 2006 07:57:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
-Subject: Re: 2.6.19-rc3-git7: Oops on shutdown: do_remount_sb (reiserfs)
-Message-ID: <20061104065708.GQ13381@stusta.de>
-References: <45469414.4090108@rtr.ca>
+	Sat, 4 Nov 2006 02:03:33 -0500
+Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:31974 "EHLO
+	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932429AbWKDHDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 02:03:32 -0500
+Date: Sat, 4 Nov 2006 01:56:51 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [rfc patch] i386: don't save eflags on task switch
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Zachary Amsden <zach@vmware.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Benjamin LaHaise <bcrl@kvack.org>
+Message-ID: <200611040200_MC3-1-D04D-6EA3@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45469414.4090108@rtr.ca>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2006 at 07:08:52PM -0500, Mark Lord wrote:
-> The system is a Core2duo with SATA drives, with a SLES10 install,
-> and a linux-2.6.19-rc3-git7 kernel.  All I did was a fresh boot to
-> the gdm prompt, and then selected "reboot" from the menu.
+In-Reply-To: <Pine.LNX.4.64.0611031645141.25218@g5.osdl.org>
+
+On Fri, 3 Nov 2006 16:46:25 -0800, Linus Torvalds wrote:
+
+> On Fri, 3 Nov 2006, Chuck Ebbert wrote:
+> >
+> > There is no real need to save eflags in switch_to().  Instead,
+> > we can keep a constant value in the thread_struct and always
+> > restore that.
 > 
-> Just as it was closing up shop, an Oops appeared on the screen.
-> I took a photo of it, and transcribed this portion (below).
-> The photograph is available on request.
+> I don't really see the point. The "pushfl" isn't the expensive part, and 
+> it gives sane and expected semantics.
+> 
+> The "popfl" is the expensive part, and that's the thing that can't really 
+> even be removed.
 
-Is this reproducible and still present in the latest -git?
+Well that wasn't the impression I got:
 
-If yes, please send a photograph made from the latest -git.
+  Date: Mon, 18 Sep 2006 12:12:51 -0400
+  From: Benjamin LaHaise <bcrl@kvack.org>
+  Subject: Re: Sysenter crash with Nested Task Bit set
 
-> devpts unmounted
-> sysfs unmounted
-> BUG: unable to handle kernel paging request at virtual address 3a4e5355
-> printing eip:
-> c0177ebc
-> *pde = 00000000
-> Oops: 0000 [#1]
-> SMP
-> Modules linked in: cpufreq_ondemand cpufreq_userspace cpufreq_powersave 
-> speedstep_centrino freq_table button battery ac dm_mod ahci edd fan thermal 
-> processor
-> CPU:    0
-> EIP:    0060:[<c0177ebc>]       Not tainted VLI
-> EFLAGS: 00010213   (2.6.19-rc3-git7-ml #7)
-> EIP is at shrink_dcache_sb+0x3c/0x100
-> ...
-> Process umount (pid ... )
-> ...
-> Call Trace:
-> [<c0167d69>] do_remount_sb+0x29/0x160
-> [<c017d22e>] sys_umount+0x20e/0x220
-> [<c017d259>] sys_oldumount+0x19/0x20
-> [<c0102f4d>] sysenter_past_esp+0x56/0x8d
-> [<b7f4e410>] 0xb7f4e410
-> Code: e8 ca 6b 1e 00 a1 ...
-> EIP: [<c0177ebc>] shrink_dcache_sb+0x3c/0x100 SS:ESP 0068:f68e3efc
-> -
+  ...
 
-cu
-Adrian
+  It's the pushfl that will be slow on any OoO CPU, as it has dependancies on 
+  any previous instructions that modified the flags, which ends up bringing 
+  all of the memory ordering dependancies into play.  Doing a popfl to set the 
+  flags to some known value is much less expensive.
+
+
+And benchmarks seem to support that, even on K8:
+
+ lmbench context switch, 50 runs
+
+        before  after
+    avg  1.09   1.05
+ stddev   .25    .18
+
+But P4 is the real problem case and I can't test that.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Chuck
+"Even supernovas have their duller moments."
 

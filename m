@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWKDADq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752329AbWKDA2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWKDADq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 19:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWKDADp
+	id S1752329AbWKDA2f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 19:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752549AbWKDA2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 19:03:45 -0500
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:48515 "EHLO
-	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932508AbWKDADo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 19:03:44 -0500
-Date: Fri, 3 Nov 2006 19:00:11 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: remove IOPL check on task switch
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200611031902_MC3-1-D042-CA1E@compuserve.com>
+	Fri, 3 Nov 2006 19:28:35 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43236 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1752329AbWKDA2e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 19:28:34 -0500
+Date: Fri, 3 Nov 2006 16:28:31 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Avoid allocating during interleave from almost full nodes
+In-Reply-To: <20061103143145.85a9c63f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0611031622540.16997@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+ <20061103134633.a815c7b3.akpm@osdl.org> <Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
+ <20061103143145.85a9c63f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <454B850C.3050402@vmware.com>
+On Fri, 3 Nov 2006, Andrew Morton wrote:
 
-On Fri, 03 Nov 2006 10:06:04 -0800, Zachary Amsden wrote:
+> But in this application which you are proposing, any correlation with
+> elapsed walltime is very slight.  It's just the wrong baseline to use. 
+> What is the *sense* in it?
 
-> Chuck Ebbert wrote:
-> > IOPL is implicitly saved and restored on task switch,
-> > so explicit check is no longer needed.
-> 
-> Nack.  This is used for paravirt-ops kernels that use IOPL'd userspace.  
+You just accepted Paul's use of a similar mechanism to void cached 
+zonelists. He has a one second timeout for the cache there it seems.
 
-How does that work?  In the stock kernel, anything done by
-the call to set_iopl_mask() (that was removed by the patch)
-will be nullified by the 'popfl' at the end of the switch_to()
-macro.
+The sense is that memory on nodes may be freed and then we need to 
+allocate from those nodes again.
 
--- 
-Chuck
-"Even supernovas have their duller moments."
+> Yes.  And it is wrong to do so.  Because a node may well have no "free"
+> pages but plenty of completely stale ones which should be reclaimed.
+
+But there may be other nodes that have more free pages. If we allocate 
+from those then we can avoid reclaim.
+
+> Reclaim isn't expensive.
+
+It is needlessly expensive if its done for an allocation that is not bound 
+to a specific node and there are other nodes with free pages. We may throw 
+out pages that we need later.
+

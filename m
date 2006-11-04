@@ -1,42 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752367AbWKDDQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752655AbWKDDtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752367AbWKDDQi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 22:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752317AbWKDDQi
+	id S1752655AbWKDDtK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 22:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752813AbWKDDtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 22:16:38 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:39559 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752311AbWKDDQh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 22:16:37 -0500
-To: torvalds@osdl.org
-Subject: [git pull] jfs update
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-Id: <20061104030712.DAB8282DB0@kleikamp.austin.ibm.com>
-Date: Fri,  3 Nov 2006 21:07:12 -0600 (CST)
-From: shaggy@austin.ibm.com (Dave Kleikamp)
+	Fri, 3 Nov 2006 22:49:10 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60421 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1752655AbWKDDtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 22:49:07 -0500
+Date: Sat, 4 Nov 2006 04:49:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Hugh Dickins <hugh@veritas.com>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       Martin Lorenz <martin@lorenz.eu.org>, Andi Kleen <ak@suse.de>,
+       discuss@x86-64.org, Russell King <rmk@dyn-67.arm.linux.org.uk>,
+       linux-serial@vger.kernel.org, linux-thinkpad@linux-thinkpad.org,
+       Ernst Herzberg <earny@net4u.de>
+Subject: 2.6.19-rc <-> ThinkPads, summary
+Message-ID: <20061104034906.GO13381@stusta.de>
+References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il> <20061101030126.GE27968@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061101030126.GE27968@stusta.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+As far as I can see, the 2.6.19-rc ThinkPad situation is still 
+confusing and we don't even know how many different bugs we are 
+chasing...
 
-git://git.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git for-linus
+Below is all the information I have found, plus some questions for the 
+four people who reported problems that might hopefully bring us nearer 
+to solutions.
 
-This will update the following files:
 
- fs/jfs/xattr.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Michael S. Tsirkin:
+- ThinkPad T60 not coming out of suspend to RAM
+- broken by commit cf4c6a2f27f5db810b69dcb1da7f194489e8ff88
+  ("i386: Factor out common io apic routing entry access")
+- question: Did the post -rc4 arch/i386/kernel/io_apic.c changes fix it?
 
-through these ChangeSets:
 
-Commit: d572b87946f8c598b3cad86a7913862dd48daadb 
-Author: Dave Kleikamp <shaggy@austin.ibm.com> Thu, 02 Nov 2006 10:50:40 -0600 
+Ernst Herzberg:
+- ThinkPad R50p: boot fail with (lapic && on_battery)
+- kernel compiled without cardbus support works
+- question: Does reverting  the bisected
+            commit 1fbbac4bcb03033d325c71fc7273aa0b9c1d9a03 
+            ("serial_cs: convert multi-port table to quirk table")
+            fix the problem?
+- question: Does reverting commit cf4c6a2f27f5db810b69dcb1da7f194489e8ff88
+            ("i386: Factor out common io apic routing entry access") help?
+- question: If yes, did the post -rc4 arch/i386/kernel/io_apic.c changes
+            fix it?
 
-    JFS: Remove redundant xattr permission checking
-    
-    The vfs handles most permissions for setting and retrieving xattrs.
-    This patch removes a redundant and wrong check so that it won't override
-    the correct behavior which is being fixed in the vfs.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+
+Hugh Dickins:
+- ThinkPad T43p
+- booting with "noapic nolapic" didn't make any difference
+- reverting commit cf4c6a2f27f5db810b69dcb1da7f194489e8ff88
+  ("i386: Factor out common io apic routing entry access") didn't help
+- question: Was your bisecting successful?
+
+
+Martin Lorenz:
+- ThinkPad X60: lose ACPI events after suspend/resume
+                not every time, but roughly 3 out of 4 times
+- question: Does reverting commit cf4c6a2f27f5db810b69dcb1da7f194489e8ff88
+            ("i386: Factor out common io apic routing entry access")
+            in -rc4 help?
+- question: If yes, did the post -rc4 arch/i386/kernel/io_apic.c changes
+            fix it?
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

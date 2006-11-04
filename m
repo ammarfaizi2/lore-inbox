@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965605AbWKDS4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753587AbWKDTEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965605AbWKDS4s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 13:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965606AbWKDS4s
+	id S1753587AbWKDTEF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 14:04:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753594AbWKDTEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 13:56:48 -0500
-Received: from alpha.polcom.net ([83.143.162.52]:60036 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S965605AbWKDS4s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 13:56:48 -0500
-Date: Sat, 4 Nov 2006 19:56:39 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: dean gaudet <dean@arctic.org>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <Pine.LNX.4.64.0611041950470.24713@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.63.0611041954570.14187@alpha.polcom.net>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
- <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz>
- <Pine.LNX.4.64.0611031057410.26057@twinlark.arctic.org>
- <Pine.LNX.4.64.0611041950470.24713@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 4 Nov 2006 14:04:05 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:43208 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1753587AbWKDTEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 14:04:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=oaC4wO2fzOQpL10FqThAzFPnJjHAqZ1a+ANnlmpQmjnQfj9krLoF/sbm4OR3k02yeq3EOqHoOeuOjjWbdlzVgRlOobSUsT6kX7TygaOv+4R9WqJq8HYpoaIqOwAgV6QHuSAXCqxDEOKTGuxRkIy6F2tjU31UHxiDiSOCcpRn9Ac=
+Date: Sat, 4 Nov 2006 22:03:57 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: William D Waddington <william.waddington@beezmo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IRQ: ease out-of-tree migration to new irq_handler prototype
+Message-ID: <20061104190357.GA4971@martell.zuzino.mipt.ru>
+References: <454CDC11.5030708@beezmo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <454CDC11.5030708@beezmo.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Nov 2006, Mikulas Patocka wrote:
->> >  If it overflows, it increases crash count instead. So really you have 
->> >  2^47
->> >  transactions or 65536 crashes and 2^31 transactions between each crash.
->>
->>  it seems to me that you only need to be able to represent a range of the
->>  most recent 65536 crashes... and could have an online process which goes
->>  about "refreshing" old objects to move them forward to the most recent
->>  crash state.  as long as you know the minimm on-disk crash count you can
->>  use it as an offset.
+On Sat, Nov 04, 2006 at 10:29:37AM -0800, William D Waddington wrote:
+> Ease out-of-tree driver migration to new irq_handler prototype.
+> Define empty 3rd argument macro for use in multi kernel version
+> out-of-tree drivers going forward.  Backportable drives can do:
 >
-> After 65536 crashes you have to run spadfsck --reset-crash-counts. Maybe I 
-> add that functionality to kernel driver too, so that it will be formally 
-> corect.
+> (in a header)
+> #ifndef __PT_REGS
+> # define __PT_REGS , struct pt_regs *regs
+> #endif
 
-Is there any reason you can not make these fields 64 or even 128 bits in 
-size to increase these "limits" dramatically?
+Backportable drivers should check kernel version themselves and define
+__PT_REGS themselves.
 
+> (in code body)
+> static irqreturn_t irq_handler(int irq, void *dev_id __PT_REGS)
 
-Thanks,
-
-Grzegorz Kulewski
+> +/*
+> + * Irq handler migration helper - empty 3rd argument
+> + * #define __PT_REGS , struct pt_regs *regs
+> + * for older kernel versions
+> + */
+> +
+> +#define __PT_REGS
 

@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753561AbWKDBmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWKDBsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753561AbWKDBmL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 20:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753564AbWKDBmL
+	id S932320AbWKDBsi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 20:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753570AbWKDBsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 20:42:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17041 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753561AbWKDBmK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 20:42:10 -0500
-Date: Fri, 3 Nov 2006 17:42:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: clameter@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Avoid allocating during interleave from almost full nodes
-Message-Id: <20061103174206.53f2c49e.akpm@osdl.org>
-In-Reply-To: <20061103172605.e646352a.pj@sgi.com>
-References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
-	<20061103134633.a815c7b3.akpm@osdl.org>
-	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
-	<20061103143145.85a9c63f.akpm@osdl.org>
-	<20061103172605.e646352a.pj@sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Nov 2006 20:48:38 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:56973 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1753568AbWKDBsh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 20:48:37 -0500
+Message-ID: <454BF0F1.5050700@zytor.com>
+Date: Fri, 03 Nov 2006 17:46:25 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: John <me@privacy.net>
+CC: linux-kernel@vger.kernel.org, linux.nics@intel.com
+Subject: Re: Intel 82559 NIC corrupted EEPROM
+References: <454B7C3A.3000308@privacy.net>
+In-Reply-To: <454B7C3A.3000308@privacy.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Nov 2006 17:26:05 -0800
-Paul Jackson <pj@sgi.com> wrote:
+John wrote:
+> 
+> Several people have reported the same error. Intel's Auke Kok has
+> stated that ignoring the error is a BAD idea.
+> 
+> http://lkml.org/lkml/2006/7/10/215
+> 
+> What tool is used to reprogram the EEPROM? ethtool?
+> I suppose I'll have to ask the manufacturer for an updated EEPROM?
+> 
+> # ethtool -e eth0
+> Cannot get EEPROM data: Operation not supported
+> 
+> I'm not sure why I can't dump the contents of the EEPROM.
+> Does the driver need to be loaded?
+> 
 
-> Andrew wrote:
-> > But in this application which you are proposing, any correlation with
-> > elapsed walltime is very slight.  It's just the wrong baseline to use. 
-> > What is the *sense* in it?
-> 
-> Ah - but time is cheap as dirt, and scales like the common cold virus.
-> That makes it sinfully attractive for secondary affect placement cache
-> hints like this.
-> 
-> What else would you suggest?
-> 
-> Same question applies, I suppose, to my zonelist caching patch that is
-> sitting in your *-mm patch stack, where you also had doubts about using
-> wall clock time to decay the fullnode hints.
+Yes, the driver needs to be loaded.
 
-Depends what it's doing.  "number of pages allocated" would be a good
-"clock" to use in the VM.  Or pages scanned.  Or per-cpu-pages reloads. 
-Something which adjusts to what's going on.
+Basically, Auke wants you to throw away your NIC and/or motherboard. 
+Since you're effectively dead, the only damage you can do by disabling 
+the check has already been done.  This unfortunately seems to be fairly 
+common with e100, especially for the on-motherboard version, and you 
+basically have two options: either disable the check or write an offline 
+tool to reprogram the EEPROM.
+
+The latest netdev tree (if it's not in Linus' tree already, which it 
+might be) does add back the option to ignore the check so you can update 
+the EEPROM, which will automatically fix the checksum.
+
+	-hpa

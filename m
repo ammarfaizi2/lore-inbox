@@ -1,114 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965555AbWKDR0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965563AbWKDRar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965555AbWKDR0h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 12:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965556AbWKDR0h
+	id S965563AbWKDRar (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 12:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965564AbWKDRar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 12:26:37 -0500
-Received: from cacti2.profiwh.com ([85.93.165.64]:64740 "EHLO
-	cacti.profiwh.com") by vger.kernel.org with ESMTP id S965555AbWKDR0g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 12:26:36 -0500
-Message-id: <419597213138451@wsc.cz>
-Subject: [PATCH 3/6] Char: stallion, brd struct locking
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Sat,  4 Nov 2006 18:26:39 +0100 (CET)
+	Sat, 4 Nov 2006 12:30:47 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53435 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965563AbWKDRaq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 12:30:46 -0500
+Date: Sat, 4 Nov 2006 18:29:54 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Falk Hueffner <falk@debian.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ipc/msg.c "cleanup" breaks fakeroot on Alpha
+Message-ID: <20061104172954.GA3668@elte.hu>
+References: <87d583f97t.fsf@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87d583f97t.fsf@debian.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-stallion, brd struct locking
 
-Since assigning of stl_brds[brdnr] is racy, add locking to this critical
-section.
+* Falk Hueffner <falk@debian.org> wrote:
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> -	struct msg_msg* volatile r_msg;
+> +	volatile struct msg_msg	*r_msg;
+>  };
+>  
+> breaks fakeroot on Alpha (variously hangs or oopses). Backing it out 
+> of 2.6.19-rc4 fixes the issue. Is it possible that this change (which 
+> clearly does change semantics) was made in error?
 
----
-commit 35d35cadc88b0f52cc4824fafc6a16f3c9301ef0
-tree 4338edc3bf9671b1fafc18413cc08d3e631c7073
-parent 47b4f5a42e198be7c2cf3606cf2681c04a42b197
-author Jiri Slaby <jirislaby@gmail.com> Thu, 02 Nov 2006 19:31:31 +0100
-committer Jiri Slaby <jirislaby@gmail.com> Thu, 02 Nov 2006 19:31:31 +0100
+correct, it was an error, lets back it out.
 
- drivers/char/stallion.c |   18 +++++++++++++-----
- 1 files changed, 13 insertions(+), 5 deletions(-)
+Another interesting question is: what in the IPC code relies on the 
+volatility of this field, and shouldnt it be converted to explicit 
+barriers instead?
 
-diff --git a/drivers/char/stallion.c b/drivers/char/stallion.c
-index 048d2b0..072a226 100644
---- a/drivers/char/stallion.c
-+++ b/drivers/char/stallion.c
-@@ -136,6 +136,7 @@ static char		stl_unwanted[SC26198_RXFIFO
- 
- /*****************************************************************************/
- 
-+static DEFINE_MUTEX(stl_brdslock);
- static struct stlbrd		*stl_brds[STL_MAXBRDS];
- 
- /*
-@@ -2305,7 +2306,6 @@ static int __devinit stl_brdinit(struct 
- 		goto err;
- 	}
- 
--	stl_brds[brdp->brdnr] = brdp;
- 	if ((brdp->state & BRD_FOUND) == 0) {
- 		printk("STALLION: %s board not found, board=%d io=%x irq=%d\n",
- 			stl_brdnames[brdp->brdtype], brdp->brdnr,
-@@ -2331,8 +2331,6 @@ err_free:
- 	release_region(brdp->ioaddr1, brdp->iosize1);
- 	if (brdp->iosize2 > 0)
- 		release_region(brdp->ioaddr2, brdp->iosize2);
--
--	stl_brds[brdp->brdnr] = NULL;
- err:
- 	return retval;
- }
-@@ -2385,12 +2383,17 @@ static int __devinit stl_pciprobe(struct
- 		retval = -ENOMEM;
- 		goto err;
- 	}
-+	mutex_lock(&stl_brdslock);
- 	brdp->brdnr = stl_getbrdnr();
- 	if (brdp->brdnr < 0) {
- 		dev_err(&pdev->dev, "too many boards found, "
- 			"maximum supported %d\n", STL_MAXBRDS);
-+		mutex_unlock(&stl_brdslock);
- 		goto err_fr;
- 	}
-+	stl_brds[brdp->brdnr] = brdp;
-+	mutex_unlock(&stl_brdslock);
-+
- 	brdp->brdtype = brdtype;
- 	brdp->state |= STL_PROBED;
- 
-@@ -2419,11 +2422,13 @@ static int __devinit stl_pciprobe(struct
- 	brdp->irq = pdev->irq;
- 	retval = stl_brdinit(brdp);
- 	if (retval)
--		goto err_fr;
-+		goto err_null;
- 
- 	pci_set_drvdata(pdev, brdp);
- 
- 	return 0;
-+err_null:
-+	stl_brds[brdp->brdnr] = NULL;
- err_fr:
- 	kfree(brdp);
- err:
-@@ -4737,10 +4742,13 @@ static int __init stallion_module_init(v
- 		brdp->irqtype = conf.irqtype;
- 		if (stl_brdinit(brdp))
- 			kfree(brdp);
--		else
-+		else {
-+			stl_brds[brdp->brdnr] = brdp;
- 			stl_nrbrds = i + 1;
-+		}
- 	}
- 
-+	/* this has to be _after_ isa finding because of locking */
- 	retval = pci_register_driver(&stl_pcidriver);
- 	if (retval && stl_nrbrds == 0)
- 		goto err;
+	Ingo

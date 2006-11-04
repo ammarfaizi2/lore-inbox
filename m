@@ -1,50 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965747AbWKDXsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965753AbWKDXxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965747AbWKDXsX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 18:48:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965749AbWKDXsX
+	id S965753AbWKDXxq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 18:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965751AbWKDXxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 18:48:23 -0500
-Received: from smtpout.mac.com ([17.250.248.171]:9423 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965748AbWKDXsX (ORCPT
+	Sat, 4 Nov 2006 18:53:46 -0500
+Received: from verein.lst.de ([213.95.11.210]:5337 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S965750AbWKDXxp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 18:48:23 -0500
-In-Reply-To: <Pine.LNX.4.64.0611050034480.26021@artax.karlin.mff.cuni.cz>
-References: <787b0d920611041159y6171ec25u92716777ce9bea4a@mail.gmail.com> <Pine.LNX.4.64.0611050034480.26021@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <AA4E0826-81F3-47AF-8C5E-D691BB02AB32@mac.com>
-Cc: Albert Cahalan <acahalan@gmail.com>, kangur@polcom.net,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: New filesystem for Linux
-Date: Sat, 4 Nov 2006 18:46:41 -0500
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
+	Sat, 4 Nov 2006 18:53:45 -0500
+Date: Sun, 5 Nov 2006 00:53:23 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@lst.de>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 2/3] add dev_to_node()
+Message-ID: <20061104235323.GA1353@lst.de>
+References: <20061030141501.GC7164@lst.de> <20061030.143357.130208425.davem@davemloft.net> <20061104225629.GA31437@lst.de> <20061104230648.GB640@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061104230648.GB640@redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -0.734 () BAYES_10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 04, 2006, at 18:38:11, Mikulas Patocka wrote:
-> But how will fdisk deal with it? Fdisk by default aligns partitions  
-> on 63-sector  boundary, so it will make all sectors misaligned and  
-> seriously kill performance even if filesystem uses proper 8-sector  
-> aligned accesses.
+On Sat, Nov 04, 2006 at 06:06:48PM -0500, Dave Jones wrote:
+> On Sat, Nov 04, 2006 at 11:56:29PM +0100, Christoph Hellwig wrote:
+> 
+> This will break the compile for !NUMA if someone ends up doing a bisect
+> and lands here as a bisect point.
+> 
+> You introduce this nice wrapper..
 
-Don't use a partition-table format that dates back to drives with  
-actual reported physical geometry and which also maxed out at 2MB or  
-so?  Even the mac-format partition tables (which aren't that much  
-newer) don't care about physical drive geometry.
+The dev_to_node wrapper is not enough as we can't assign to (-1) for
+the non-NUMA case.  So I added a second macro, set_dev_node for that.
 
-Besides, unless you're running DOS, Windows 95, or some random  
-ancient firmware that looks at your partition tables or whatever you  
-can just tell fdisk to ignore the 63-sector-alignment constraint and  
-align your partitions more efficiently anyways.  But if you're  
-dealing with hardware so new it supports 4k or 8k sectors, you really  
-should be using EFI or something.
+The patch below compiles and works on numa and non-NUMA platforms.
 
-Cheers,
-Kyle Moffett
 
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Index: linux-2.6/include/linux/device.h
+===================================================================
+--- linux-2.6.orig/include/linux/device.h	2006-11-05 00:16:09.000000000 +0100
++++ linux-2.6/include/linux/device.h	2006-11-05 00:39:22.000000000 +0100
+@@ -347,6 +347,9 @@
+ 					   BIOS data),reserved for device core*/
+ 	struct dev_pm_info	power;
+ 
++#ifdef CONFIG_NUMA
++	int		numa_node;	/* NUMA node this device is close to */
++#endif
+ 	u64		*dma_mask;	/* dma mask (if dma'able device) */
+ 	u64		coherent_dma_mask;/* Like dma_mask, but for
+ 					     alloc_coherent mappings as
+@@ -368,6 +371,14 @@
+ 	void	(*release)(struct device * dev);
+ };
+ 
++#ifdef CONFIG_NUMA
++#define dev_to_node(dev)	((dev)->numa_node)
++#define set_dev_node(dev, node)	((dev)->numa_node = node)
++#else
++#define dev_to_node(dev)	(-1)
++#define set_dev_node(dev, node)	do { } while (0)
++#endif
++
+ static inline void *
+ dev_get_drvdata (struct device *dev)
+ {
+Index: linux-2.6/drivers/base/core.c
+===================================================================
+--- linux-2.6.orig/drivers/base/core.c	2006-11-05 00:16:09.000000000 +0100
++++ linux-2.6/drivers/base/core.c	2006-11-05 00:40:01.000000000 +0100
+@@ -381,6 +381,7 @@
+ 	INIT_LIST_HEAD(&dev->node);
+ 	init_MUTEX(&dev->sem);
+ 	device_init_wakeup(dev, 0);
++	set_dev_node(dev, -1);
+ }
+ 
+ /**
+Index: linux-2.6/drivers/pci/probe.c
+===================================================================
+--- linux-2.6.orig/drivers/pci/probe.c	2006-11-05 00:16:09.000000000 +0100
++++ linux-2.6/drivers/pci/probe.c	2006-11-05 00:39:55.000000000 +0100
+@@ -846,6 +846,7 @@
+ 	dev->dev.release = pci_release_dev;
+ 	pci_dev_get(dev);
+ 
++	set_dev_node(&dev->dev, pcibus_to_node(bus));
+ 	dev->dev.dma_mask = &dev->dma_mask;
+ 	dev->dev.coherent_dma_mask = 0xffffffffull;
+ 

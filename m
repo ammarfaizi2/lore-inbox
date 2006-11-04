@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965664AbWKDVSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965711AbWKDVWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965664AbWKDVSW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 16:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965696AbWKDVSW
+	id S965711AbWKDVWi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 16:22:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965710AbWKDVWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 16:18:22 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:48863 "EHLO
+	Sat, 4 Nov 2006 16:22:38 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:39655 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965664AbWKDVSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 16:18:21 -0500
+	id S965711AbWKDVWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 16:22:37 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=A65DJI/Purbd8G7Ua0n1TzchTuBoPFnoOdWd8fKDT7eob7YhE7FIBgyZ8B1nFnqVzjGnfdLPE2uH0lYZcKz4YSM5bzdFUsRyKNQ2+JS7+el1apChezKog/XhrDG508yBCCa+EjUqfyS03KY6bZFoooKyUPUVbiQfHV0oD2ldFR4=
-Message-ID: <454D03B8.1080507@gmail.com>
-Date: Sat, 04 Nov 2006 22:18:25 +0059
+        b=ke1InHGmlCMS3eLCY5ASFOrTUs50fB79yenMOaG/RH3+69LvouEPLqgJG5imHUubvl+shX2eeR1R3BTM3ZP6hSX2tGBuVbHwYg9Us5aGeqgHjrku2FqkR2mkDgT9JXgH3eR51ls3zdAnkpq2VzNVvq621ft7427wylkkn1lSyjo=
+Message-ID: <454D04B6.9010209@gmail.com>
+Date: Sat, 04 Nov 2006 22:22:39 +0059
 From: Jiri Slaby <jirislaby@gmail.com>
 User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc4-mm2] epca get_termio cleanup
-References: <200611042148.16096.m.kozlowski@tuxland.pl>
-In-Reply-To: <200611042148.16096.m.kozlowski@tuxland.pl>
+To: Adrian Bunk <bunk@stusta.de>
+CC: Jesper Juhl <jesper.juhl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: removing drivers and ISA support? [Was: Char: correct pci_get_device
+ changes]
+References: <4540F79C.7070705@gmail.com> <20061026222525.GP27968@stusta.de> <9a8748490610261531s539b0861t621e95c785b53d7@mail.gmail.com> <45414641.6060709@gmail.com> <20061026235628.GT27968@stusta.de>
+In-Reply-To: <20061026235628.GT27968@stusta.de>
 X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=ISO-8859-2
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mariusz Kozlowski wrote:
-> Hello,
+Adrian Bunk wrote:
+> On Fri, Oct 27, 2006 at 01:35:06AM +0159, Jiri Slaby wrote:
+>> Jesper Juhl wrote:
+>>> On 27/10/06, Adrian Bunk <bunk@stusta.de> wrote:
+>>>> On Thu, Oct 26, 2006 at 07:59:56PM +0200, Jiri Slaby wrote:
+>>>>> ...
+>>>>> And what about (E)ISA support. When converting to pci probing,
+>>>> should be ISA bus
+>>>>> support preserved (how much is ISA used in present)? -- it makes
+>>>> code ugly and long.
+>>>>
+>>>> There seem to be still many running 486 machines - and only the last 486
+>>>> boards also had PCI slots.
+>>>>
+>>>> While deprecating OSS drivers, I got emails from people still using some
+>>>> of the ISA cards.
+>> That might be a problem if the whole subsystem disappears, but if only ISA
+>> support from some driver is pruned away, they are still able to use the old
+>> driver by replacing the new one from some older kernel.
+>> Then, we'll get nicer drivers in return.
 > 
-> The code using get_termio was already '#if 0' but get_termio itself was not. 
+> - this doesn't work for people using distribution kernels
+> - "by replacing the new one from some older kernel" doesn't sound
+>   reasonable - 3 or 4 point releases later it will have become pretty
+>   unlikely that the driver will still work unmodified
+>   (if you disagree, please name one ISA driver where the 2.6.15 version
+>    compiles without any modifications in 2.6.19-rc3)
 
-You would rather wipe it out or better, wipe the whole driver out, we have an
-ack from Digi ;).
-
-> Hence the warning:
-> drivers/char/epca.c:2744: warning: 'get_termio' defined but not used
-> 
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-> 
-> diff -up linux-2.6.19-rc4-orig/drivers/char/epca.c 
-> linux-2.6.19-rc4/drivers/char/epca.c
-> --- linux-2.6.19-rc4-orig/drivers/char/epca.c   2006-11-04 20:31:54.000000000 
-> +0100
-> +++ linux-2.6.19-rc4/drivers/char/epca.c        2006-11-04 21:27:50.000000000 
-> +0100
-> @@ -209,7 +209,9 @@ static void digi_send_break(struct chann
->  static void setup_empty_event(struct tty_struct *tty, struct channel *ch);
->  void epca_setup(char *, int *);
->  
-> +#if 0
->  static int get_termio(struct tty_struct *, struct termio __user *);
-> +#endif
->  static int pc_write(struct tty_struct *, const unsigned char *, int);
->  static int pc_init(void);
->  static int init_PCI(void);
-> @@ -2740,10 +2742,12 @@ static void setup_empty_event(struct tty
->  
->  /* --------------------- Begin get_termio ----------------------- */
->  
-> +#if 0
->  static int get_termio(struct tty_struct * tty, struct termio __user * termio)
->  { /* Begin get_termio */
->         return kernel_termios_to_user_termio(termio, tty->termios);
->  } /* End get_termio */
-> +#endif
->  
->  /* ---------------------- Begin epca_setup  -------------------------- */
->  void epca_setup(char *str, int *ints)
-
-regards,
+Ok, thank all for the notes,
 -- 
 http://www.fi.muni.cz/~xslaby/            Jiri Slaby
 faculty of informatics, masaryk university, brno, cz

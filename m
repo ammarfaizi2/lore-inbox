@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWKDG2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWKDG2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWKDG2N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 01:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWKDG2N
+	id S964786AbWKDG2K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 01:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWKDG2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 01:28:13 -0500
-Received: from main.gmane.org ([80.91.229.2]:54938 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932426AbWKDG2L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 01:28:11 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: Simple module for 2.6 request?
-Date: Sat, 4 Nov 2006 06:27:54 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnekod4d.2j9.olecom@flower.upol.cz>
-References: <454C1F84.9010601@limcore.pl>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Sat, 4 Nov 2006 01:28:10 -0500
+Received: from teetot.devrandom.net ([66.35.250.243]:22948 "EHLO
+	teetot.devrandom.net") by vger.kernel.org with ESMTP
+	id S932426AbWKDG2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 01:28:09 -0500
+Date: Fri, 3 Nov 2006 22:28:08 -0800
+From: thockin@hockin.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: John <me@privacy.net>, linux-kernel@vger.kernel.org, linux.nics@intel.com
+Subject: Re: Intel 82559 NIC corrupted EEPROM
+Message-ID: <20061104062808.GA15871@hockin.org>
+References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com> <20061104062251.GA15100@hockin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061104062251.GA15100@hockin.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello,
-> it is not so easy to find online an *working* example of how to by hand
-> build a module.
+On Fri, Nov 03, 2006 at 10:22:51PM -0800, thockin@hockin.org wrote:
+> On Fri, Nov 03, 2006 at 05:46:25PM -0800, H. Peter Anvin wrote:
+> > Basically, Auke wants you to throw away your NIC and/or motherboard. 
+> > Since you're effectively dead, the only damage you can do by disabling 
+> > the check has already been done.  This unfortunately seems to be fairly 
+> > common with e100, especially for the on-motherboard version, and you 
+> > basically have two options: either disable the check or write an offline 
+> > tool to reprogram the EEPROM.
+> 
+> I have a tool to write the eepro100 EEPROM.  Let me see if I can find it.
+> It even had all the default data coded, ready to restore a NIC to default.
+> 
+> However - back in the eepro100.c days, it was considered a warning only if
+> the EEPROM had a bad checksum.  There were two "supported" formats for the
+> EEPROM, one of which was just the MAC address.  And it worked!
 
-Please find information on how to build (external) modules in
-"Documentation/kbuild/modules.txt" directory of your linux source tree.
-More (implementation) info can be found in the top Makefile.
+One from the vaults:  http://www.hockin.org/~thockin/enet_eeprom/
 
-> gcc -o foo.c -ko foo.ko -DMODULE -D__KERNEL__
-> -I/usr/src/kernel-headers-directory/include/
->
-> with module license define macro
->
-> almost worked, but it misses thoes extra symbols created in
-> post-compilation.
->
-> How to add them by hand (not using all the big Makefiles normally
-> included in kernel tree)?
->
-> Like
-> some-command foo.ko foo.c
-> insmod foo.ko
-> done
-____
+It's pretty simple, but easily hacked.  ifdown your interface first! :)
 
+Tim

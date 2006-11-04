@@ -1,45 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965574AbWKDRsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965582AbWKDSKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965574AbWKDRsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 12:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965573AbWKDRsP
+	id S965582AbWKDSKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 13:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965584AbWKDSKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 12:48:15 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:33709 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S965571AbWKDRsO (ORCPT
+	Sat, 4 Nov 2006 13:10:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35481 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965582AbWKDSKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 12:48:14 -0500
-Date: Sat, 4 Nov 2006 20:47:36 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Oleg Verych <olecom@flower.upol.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20061104174736.GB25263@2ka.mipt.ru>
-References: <1154985aa0591036@2ka.mipt.ru> <1162380963981@2ka.mipt.ru> <20061101130614.GB7195@atrey.karlin.mff.cuni.cz> <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru> <slrnekhpbr.2j1.olecom@flower.upol.cz> <20061101185745.GA12440@2ka.mipt.ru> <20061103184916.GA17142@flower.upol.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20061103184916.GA17142@flower.upol.cz>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 04 Nov 2006 20:47:37 +0300 (MSK)
+	Sat, 4 Nov 2006 13:10:07 -0500
+Date: Sat, 4 Nov 2006 10:09:49 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: Oops on 2.6.18
+In-Reply-To: <Pine.LNX.4.64.0610311923100.28672@oceanic.wsisiz.edu.pl>
+Message-ID: <Pine.LNX.4.64.0611041006250.25218@g5.osdl.org>
+References: <Pine.LNX.4.64.0610311923100.28672@oceanic.wsisiz.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2006 at 07:49:16PM +0100, Oleg Verych (olecom@flower.upol.cz) wrote:
-> [ Please do not answer just to answer, cc list is big, no one from       ]
-> [ The Big Jury seems to care. (well, Jonathan does, but he wasn't in cc) ]
+
+
+On Tue, 31 Oct 2006, Lukasz Trabinski wrote:
 > 
-> Friendly, Oleg.
+> oceanic:~$ uname -a
+> Linux oceanic.wsisiz.edu.pl 2.6.18-oceanic #1 SMP Thu Sep 28 22:26:52 CEST
+> 2006 x86_64 x86_64 x86_64 GNU/Linux
+> 
+> filesystem with ext3/quota/acl
+> 
+> Oct 31 13:30:09 oceanic kernel: Unable to handle kernel paging request at 0000000000100108
 
-Just in case some misunderstanding happend: I do not want to insult
-anyone who is against kevent, I just do not understand cases, when
-people require me to do something to convince them in rude manner.
+Ok, this should be fixed with the commit I just checked in and pushed 
+out.. That said, I don't think you'd be likely to ever be able to 
+reproduce it - it looks like a very unlikely race. I think the race 
+condition has been there for a long time, and googling doesn't actually 
+show anybody else seemingly having ever triggered it.
 
--- 
-	Evgeniy Polyakov
+But in case you care, this is what I committed.
+
+		Linus
+
+---
+commit 45c18b0bb579b5c1b89f8c99f1b6ffa4c586ba08
+Author: Linus Torvalds <torvalds@g5.osdl.org>
+Date:   Sat Nov 4 10:06:02 2006 -0800
+
+    Fix unlikely (but possible) race condition on task->user access
+    
+    There's a possible race condition when doing a "switch_uid()" from one
+    user to another, which could race with another thread doing a signal
+    allocation and looking at the old thread ->user pointer as it is freed.
+    
+    This explains an oops reported by Lukasz Trabinski:
+    	http://permalink.gmane.org/gmane.linux.kernel/462241
+    
+    We fix this by delaying the (reference-counted) freeing of the user
+    structure until the thread signal handler lock has been released, so
+    that we know that the signal allocation has either seen the new value or
+    has properly incremented the reference count of the old one.
+    
+    Race identified by Oleg Nesterov.
+    
+    Cc: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+    Cc: Oleg Nesterov <oleg@tv-sign.ru>
+    Cc: Andrew Morton <akpm@osdl.org>
+    Cc: Ingo Molnar <mingo@elte.hu>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+
+diff --git a/kernel/user.c b/kernel/user.c
+index 6408c04..220e586 100644
+--- a/kernel/user.c
++++ b/kernel/user.c
+@@ -187,6 +187,17 @@ void switch_uid(struct user_struct *new_
+ 	atomic_dec(&old_user->processes);
+ 	switch_uid_keyring(new_user);
+ 	current->user = new_user;
++
++	/*
++	 * We need to synchronize with __sigqueue_alloc()
++	 * doing a get_uid(p->user).. If that saw the old
++	 * user value, we need to wait until it has exited
++	 * its critical region before we can free the old
++	 * structure.
++	 */
++	smp_mb();
++	spin_unlock_wait(&current->sighand->siglock);
++
+ 	free_uid(old_user);
+ 	suid_keys(current);
+ }

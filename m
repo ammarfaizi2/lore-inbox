@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965287AbWKDKfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWKDKqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965287AbWKDKfe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 05:35:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965276AbWKDKfe
+	id S965225AbWKDKqE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 05:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbWKDKqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 05:35:34 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13023 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965287AbWKDKfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 05:35:33 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-Subject: CTL_UNNUMBERED and killing sys_sysctl
-References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
-	<20061103134633.a815c7b3.akpm@osdl.org>
-Date: Sat, 04 Nov 2006 03:35:00 -0700
-In-Reply-To: <20061103134633.a815c7b3.akpm@osdl.org> (Andrew Morton's message
-	of "Fri, 3 Nov 2006 13:46:33 -0800")
-Message-ID: <m1wt6bts8b.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Nov 2006 05:46:04 -0500
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:59864 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965225AbWKDKqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 05:46:01 -0500
+Date: Sat, 4 Nov 2006 11:46:01 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+Message-ID: <20061104104601.GA16991@wohnheim.fh-wedel.de>
+References: <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz> <20061103101901.GA11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz> <20061103122126.GC11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz> <20061103134802.GD11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031509500.27698@artax.karlin.mff.cuni.cz> <20061103145329.GE11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031953411.30722@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0611031953411.30722@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Fri, 3 November 2006 20:01:56 +0100, Mikulas Patocka wrote:
+> >
+> >So which, if I may ask, are the advantages of your design over sprite
+> >lfs?
+> 
+> It is very different from LFS. LFS is log-filesystem, i.e. journal spans 
+> the whole device. The problem with this design is that it's fast for write 
+> (cool benchmark numbers) and slow in real-world workloads.
+> 
+> LFS places files according to time they were created, not according to 
+> their directory.
+> 
+> If you have directory with some project where you have files that you 
+> edited today, day ago, week ago, month ago etc., then any current 
+> filesystem (even ext2) will try to place files near each other --- while 
+> LFS will scatter the files over the whole partition according to time they 
+> were written. --- I believe that this is the reason why log-structured 
+> filesystems are not in wild use --- this is a case where optimizing for 
+> benchmark kills real-world performance.
 
-> That has several typos and grammatical mistakes.
->
->> +	VM_MIN_INTERLEAVE=39,	/* Limit for interleave */
->
-> I think we recently decided to set all new sysctl number to CTL_UNNUMBERED.
->  Eric, can you remind us of the thinkin there please?
+Darn, I was asking the wrong question again.  Let me rephrase:
 
-Sure.  Sorry for the delay you buried the question well.
+So which, if I may ask, are the advantages of your crash
+count/transaction count design over the sprite lfs checkpoint design?
 
-The basic thinking goes as follows.  To properly allocate the
-numbers for the binary sysctl interface requires a lot of discipline that
-we have proven that we don't always have.  Essentially no one uses
-the binary sysctl interface anyway.  Therefore CTL_UNNUMBERED was
-introduced so we don't need to allocate a binary sysctl number
-to add a sysctl to the /proc/sys, interface.
+Allocation strategy is an interesting topic as well.  Rosenblum and
+Ousterhout were wrong in their base assumption that read performance
+won't matter long-term, as caches are exponentially growing.  It
+turned out that storage size was growing just as fast and the ratio
+remained roughly the same.  But let us postpone that for a while.
 
-This avoids approach patch decay before the patch is merged upstream.
+Jörn
 
-So in general if you really need a new binary sysctl number the approach
-should be first get your patch merged into Linus's tree and then get
-an additional 3 line patch merged into Linus's tree to get your number.
-
-I probably need to wake the conversation up again to see if we can make
-the final determinate if we want to drop the binary sysctl interface
-after having a long grace period, or simply commit to maintain it.  Linus's
-tree still has the binary interface slated for removal in January 2007,
-that was only appropriate when we believed there were no users in user space
-that cared.
-
-The big maintenance problem has been the bit rot of patches where
-people allocate the next number and their patches take a long time to
-get into Linus's tree.  So by the time they are merged the patches
-conflict over which number they get, and by that time the code has
-shipped with a binary interface in a distro kernel.
-
-CTL_UNNUMBERED by freeing us from allocating the binary interface
-and just using the file based one gives us a mechanism to solve that
-maintenance problem.  I have not heard of a conflict of file names
-under /proc/sys.
-
-Andrew can we get the CTL_UNNUMBERED patches pushed up to Linus?
-
-Eric
+-- 
+tglx1 thinks that joern should get a (TM) for "Thinking Is Hard"
+-- Thomas Gleixner

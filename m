@@ -1,97 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965753AbWKDXxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965757AbWKDXyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965753AbWKDXxq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 18:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965751AbWKDXxq
+	id S965757AbWKDXyt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 18:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965755AbWKDXys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 18:53:46 -0500
-Received: from verein.lst.de ([213.95.11.210]:5337 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S965750AbWKDXxp (ORCPT
+	Sat, 4 Nov 2006 18:54:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:44256 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965756AbWKDXyr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 18:53:45 -0500
-Date: Sun, 5 Nov 2006 00:53:23 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@lst.de>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 2/3] add dev_to_node()
-Message-ID: <20061104235323.GA1353@lst.de>
-References: <20061030141501.GC7164@lst.de> <20061030.143357.130208425.davem@davemloft.net> <20061104225629.GA31437@lst.de> <20061104230648.GB640@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061104230648.GB640@redhat.com>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -0.734 () BAYES_10
+	Sat, 4 Nov 2006 18:54:47 -0500
+Date: Sat, 4 Nov 2006 15:52:57 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: lib/iomap.c mmio_{in,out}s* vs. __raw_* accessors
+In-Reply-To: <1162678639.28571.63.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0611041544030.25218@g5.osdl.org>
+References: <1162626761.28571.14.camel@localhost.localdomain> 
+ <20061104140559.GC19760@flint.arm.linux.org.uk> <1162678639.28571.63.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2006 at 06:06:48PM -0500, Dave Jones wrote:
-> On Sat, Nov 04, 2006 at 11:56:29PM +0100, Christoph Hellwig wrote:
+
+
+On Sun, 5 Nov 2006, Benjamin Herrenschmidt wrote:
 > 
-> This will break the compile for !NUMA if someone ends up doing a bisect
-> and lands here as a bisect point.
-> 
-> You introduce this nice wrapper..
+> I'm tempted to remove those mmio_* things from iomap.c completely. I
+> need to check who uses them, but in all cases, I don't see what they do
+> in iomap.c, it's not their place.
 
-The dev_to_node wrapper is not enough as we can't assign to (-1) for
-the non-NUMA case.  So I added a second macro, set_dev_node for that.
+I don't think you understand the point. The point is that a lot of the 
+tests for whether something is MMIO or PIO can be done _once_, instead of 
+doing it for every access.
 
-The patch below compiles and works on numa and non-NUMA platforms.
+> Versions that would transparently use MMIO or PIO would make sense.
 
+No, they would be idiotic, because we already have those. If you want to 
+use MMIO or PIO transparently one access at a time, YOU SHOULD NOT USE THE 
+"STRING" VERSION. You should just use "ioread8()" or something like that. 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+That _is_ the single-access-does-MMIO-or-PIO-transparently function!
 
-Index: linux-2.6/include/linux/device.h
-===================================================================
---- linux-2.6.orig/include/linux/device.h	2006-11-05 00:16:09.000000000 +0100
-+++ linux-2.6/include/linux/device.h	2006-11-05 00:39:22.000000000 +0100
-@@ -347,6 +347,9 @@
- 					   BIOS data),reserved for device core*/
- 	struct dev_pm_info	power;
- 
-+#ifdef CONFIG_NUMA
-+	int		numa_node;	/* NUMA node this device is close to */
-+#endif
- 	u64		*dma_mask;	/* dma mask (if dma'able device) */
- 	u64		coherent_dma_mask;/* Like dma_mask, but for
- 					     alloc_coherent mappings as
-@@ -368,6 +371,14 @@
- 	void	(*release)(struct device * dev);
- };
- 
-+#ifdef CONFIG_NUMA
-+#define dev_to_node(dev)	((dev)->numa_node)
-+#define set_dev_node(dev, node)	((dev)->numa_node = node)
-+#else
-+#define dev_to_node(dev)	(-1)
-+#define set_dev_node(dev, node)	do { } while (0)
-+#endif
-+
- static inline void *
- dev_get_drvdata (struct device *dev)
- {
-Index: linux-2.6/drivers/base/core.c
-===================================================================
---- linux-2.6.orig/drivers/base/core.c	2006-11-05 00:16:09.000000000 +0100
-+++ linux-2.6/drivers/base/core.c	2006-11-05 00:40:01.000000000 +0100
-@@ -381,6 +381,7 @@
- 	INIT_LIST_HEAD(&dev->node);
- 	init_MUTEX(&dev->sem);
- 	device_init_wakeup(dev, 0);
-+	set_dev_node(dev, -1);
- }
- 
- /**
-Index: linux-2.6/drivers/pci/probe.c
-===================================================================
---- linux-2.6.orig/drivers/pci/probe.c	2006-11-05 00:16:09.000000000 +0100
-+++ linux-2.6/drivers/pci/probe.c	2006-11-05 00:39:55.000000000 +0100
-@@ -846,6 +846,7 @@
- 	dev->dev.release = pci_release_dev;
- 	pci_dev_get(dev);
- 
-+	set_dev_node(&dev->dev, pcibus_to_node(bus));
- 	dev->dev.dma_mask = &dev->dma_mask;
- 	dev->dev.coherent_dma_mask = 0xffffffffull;
- 
+> A pure MMIO implementation doesn't, that has to be arch specific. It makes
+> the generic iomap suddently non-portable in some ways.
+
+Whaa? I really don't see what's wrong with the one that is in lib/iomap.c. 
+But if you want to do your own, go ahead and do so - the whole point of 
+lib/iomap.c is to be a library that can be used by architectures that can 
+use the generic functionality. It's all hidden behind 
+CONFIG_GENERIC_IOMAP.
+
+In other words, this whole thread makes absolutely _zero_ sense. Either 
+you use those functions or you don't. Trying to change them would be 
+insane.
+
+> So I think we need to make sure all archs grow readsb,sw,sl etc... and
+> just have iomap use those for the "transparent" versions.
+
+Again, totally insane. If you don't want to use GENERIC_IOMAP, don't. But 
+don't force other architectures to follow that path to insanity.
+
+So, in short:
+ (a) if the generic library doesn't work for you, stop using it
+
+ (b) the whole _point_ of the "repeat" instructions is to avoid doing the 
+     same tests over and over again for an iomem address that won't 
+     change, so doing them in the individual accessor functions would be 
+     _crazy_.
+
+ (c) if you want to add #IO barriers to that thing, again, do it _around_ 
+     the repeat string, not in the individual accesses. If you need them 
+     on an individual access basis, you're probably better off doing your 
+     own version altogether.
+
+Please explain what is so wrong with the current setup, and please explain 
+why you'd want to break the obvious "check the address only once!" rule 
+that makes sense for _any_ architecture that has separate #PIO and #MMIO 
+address spaces.
+
+			Linus

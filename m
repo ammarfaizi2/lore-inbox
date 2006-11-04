@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753616AbWKDTJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753620AbWKDTSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753616AbWKDTJn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 14:09:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753624AbWKDTJn
+	id S1753620AbWKDTSV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 14:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753664AbWKDTSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 14:09:43 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:37342 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1753616AbWKDTJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 14:09:43 -0500
-Message-ID: <454CE576.3000709@vmware.com>
-Date: Sat, 04 Nov 2006 11:09:42 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Sat, 4 Nov 2006 14:18:21 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:29099 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1753619AbWKDTSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 14:18:21 -0500
+Date: Sat, 4 Nov 2006 20:18:20 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: dean gaudet <dean@arctic.org>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <Pine.LNX.4.63.0611041954570.14187@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.64.0611042017190.24713@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <20061102235920.GA886@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611030217570.7781@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.64.0611031057410.26057@twinlark.arctic.org>
+ <Pine.LNX.4.64.0611041950470.24713@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.63.0611041954570.14187@alpha.polcom.net>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: [rfc patch] i386: don't save eflags on task switch
-References: <200611040200_MC3-1-D04D-6EA3@compuserve.com>
-In-Reply-To: <200611040200_MC3-1-D04D-6EA3@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
-> In-Reply-To: <Pine.LNX.4.64.0611031645141.25218@g5.osdl.org>
->
-> On Fri, 3 Nov 2006 16:46:25 -0800, Linus Torvalds wrote:
->
->   
->> On Fri, 3 Nov 2006, Chuck Ebbert wrote:
->>     
->>> There is no real need to save eflags in switch_to().  Instead,
->>> we can keep a constant value in the thread_struct and always
->>> restore that.
->>>       
->> I don't really see the point. The "pushfl" isn't the expensive part, and 
->> it gives sane and expected semantics.
->>
->> The "popfl" is the expensive part, and that's the thing that can't really 
->> even be removed.
->>     
->
-> Well that wasn't the impression I got:
->
->   Date: Mon, 18 Sep 2006 12:12:51 -0400
->   From: Benjamin LaHaise <bcrl@kvack.org>
->   Subject: Re: Sysenter crash with Nested Task Bit set
->
->   ...
->
->   It's the pushfl that will be slow on any OoO CPU, as it has dependancies on 
->   any previous instructions that modified the flags, which ends up bringing 
->   all of the memory ordering dependancies into play.  Doing a popfl to set the 
->   flags to some known value is much less expensive.
->   
 
-That doesn't sound correct to me.  The popf is far more expensive.  
-There is no popfl $IMM instruction, so setting flags never can avoid the 
-memory read and must make some more expensive assumptions about effects 
-on further instruction stream (TF, DF, all sign flags for conditional 
-jumps...).
 
-Every processor I've ever measured it on, popf is slower.  On P4, for 
-example, pushf is 6 cycles, and popf is 54.  On Opteron, it is 2 / 12.  
-On Xeon, it is 7 / 91.
+On Sat, 4 Nov 2006, Grzegorz Kulewski wrote:
 
-Zach
+> On Sat, 4 Nov 2006, Mikulas Patocka wrote:
+>>> >  If it overflows, it increases crash count instead. So really you have > 
+>>> 2^47
+>>> >  transactions or 65536 crashes and 2^31 transactions between each crash.
+>>>
+>>>  it seems to me that you only need to be able to represent a range of the
+>>>  most recent 65536 crashes... and could have an online process which goes
+>>>  about "refreshing" old objects to move them forward to the most recent
+>>>  crash state.  as long as you know the minimm on-disk crash count you can
+>>>  use it as an offset.
+>> 
+>> After 65536 crashes you have to run spadfsck --reset-crash-counts. Maybe I 
+>> add that functionality to kernel driver too, so that it will be formally 
+>> corect.
+>
+> Is there any reason you can not make these fields 64 or even 128 bits in size 
+> to increase these "limits" dramatically?
+
+Yes
+
+First --- you need a table of 65536 entries. Table of 4G entries would be 
+too large.
+Second --- it will make structures larger and thus some operations (like 
+scanning directory with find) slower.
+
+Mikulas

@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753587AbWKDTEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753612AbWKDTHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753587AbWKDTEF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 14:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753594AbWKDTEF
+	id S1753612AbWKDTHU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 14:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753616AbWKDTHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 14:04:05 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:43208 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1753587AbWKDTEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 14:04:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=oaC4wO2fzOQpL10FqThAzFPnJjHAqZ1a+ANnlmpQmjnQfj9krLoF/sbm4OR3k02yeq3EOqHoOeuOjjWbdlzVgRlOobSUsT6kX7TygaOv+4R9WqJq8HYpoaIqOwAgV6QHuSAXCqxDEOKTGuxRkIy6F2tjU31UHxiDiSOCcpRn9Ac=
-Date: Sat, 4 Nov 2006 22:03:57 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: William D Waddington <william.waddington@beezmo.com>
+	Sat, 4 Nov 2006 14:07:20 -0500
+Received: from sp604001mt.neufgp.fr ([84.96.92.60]:31966 "EHLO Smtp.neuf.fr")
+	by vger.kernel.org with ESMTP id S1753612AbWKDTHT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 14:07:19 -0500
+Date: Sat, 04 Nov 2006 20:07:22 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: New filesystem for Linux
+In-reply-to: <Pine.LNX.4.64.0611041938490.24713@artax.karlin.mff.cuni.cz>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IRQ: ease out-of-tree migration to new irq_handler prototype
-Message-ID: <20061104190357.GA4971@martell.zuzino.mipt.ru>
-References: <454CDC11.5030708@beezmo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <454CDC11.5030708@beezmo.com>
-User-Agent: Mutt/1.5.11
+Message-id: <454CE4EA.7030500@cosmosbay.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <454A76CC.6030003@cosmosbay.com>
+ <Pine.LNX.4.64.0611041938490.24713@artax.karlin.mff.cuni.cz>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2006 at 10:29:37AM -0800, William D Waddington wrote:
-> Ease out-of-tree driver migration to new irq_handler prototype.
-> Define empty 3rd argument macro for use in multi kernel version
-> out-of-tree drivers going forward.  Backportable drives can do:
->
-> (in a header)
-> #ifndef __PT_REGS
-> # define __PT_REGS , struct pt_regs *regs
-> #endif
+Mikulas Patocka a écrit :
+>> The problem with a per_cpu biglock is that you may consume a lot of 
+>> RAM for big NR_CPUS. Count 32 KB per 'biglock' if NR_CPUS=1024
+> 
+> Does one Linux kernel run on system with 1024 cpus? I guess it must fry 
+> spinlocks... (or even lockup due to spinlock livelocks)
 
-Backportable drivers should check kernel version themselves and define
-__PT_REGS themselves.
+Not here in my house, but I was told such beasts exist somewhere on this planet :)
 
-> (in code body)
-> static irqreturn_t irq_handler(int irq, void *dev_id __PT_REGS)
-
-> +/*
-> + * Irq handler migration helper - empty 3rd argument
-> + * #define __PT_REGS , struct pt_regs *regs
-> + * for older kernel versions
-> + */
-> +
-> +#define __PT_REGS
+You can have a kernel compiled with NR_CPUS=1024, but still run it on your 
+laptop, with a single CPU available...
 

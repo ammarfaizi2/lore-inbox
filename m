@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965565AbWKDRgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965568AbWKDRgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965565AbWKDRgt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 12:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965568AbWKDRgt
+	id S965568AbWKDRgw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 12:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965569AbWKDRgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 12:36:49 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:34441 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S965565AbWKDRgs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 12:36:48 -0500
-Date: Sat, 4 Nov 2006 23:07:16 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
-Subject: Re: New filesystem for Linux
-Message-ID: <20061104173716.GA618@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+	Sat, 4 Nov 2006 12:36:52 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:21225 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965568AbWKDRgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 12:36:51 -0500
+Subject: Re: [PATCH 2/2] Workaround for SB600 SATA ODD issue
+From: Arjan van de Ven <arjan@infradead.org>
+To: Luugi Marsan <luugi.marsan@amd.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061103190004.9ED8DCBD48@localhost.localdomain>
+References: <20061103190004.9ED8DCBD48@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sat, 04 Nov 2006 18:36:49 +0100
+Message-Id: <1162661809.3160.53.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2006 at 10:52:47PM +0100, Mikulas Patocka wrote:
-> Hi
+On Fri, 2006-11-03 at 14:00 -0500, Luugi Marsan wrote:
+> From: conke.hu@amd.com
+> 
+> There was an ASIC bug in the SB600 SATA controller of low revision (<=13) and CD burning may hang (only SATA ODD has this issue, and SATA HDD works well). The patch provides a workaround for this issue.
+> 
+> Signed-off-by:  Luugi Marsan <luugi.marsan@amd.com>
+> 
+> --- linux-2.6.19-rc4-git5/drivers/ata/ahci.c.orig       2006-11-04 03:56:22.000000000 +0800
+> +++ linux-2.6.19-rc4-git5/drivers/ata/ahci.c    2006-11-04 04:20:36.000000000 +0800
+> @@ -189,6 +189,7 @@ struct ahci_host_priv {
+>         unsigned long           flags;
+>         u32                     cap;    /* cache of HOST_CAP register */
+>         u32                     port_map; /* cache of HOST_PORTS_IMPL reg */
+> +       u8                      rev;    /* PCI Revision ID */
+>  };
+>  
 
-Hi Mikulas
-> 
-> As my PhD thesis, I am designing and writing a filesystem, and it's now in 
-> a state that it can be released. You can download it from 
-> http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
-> 
-> It has some new features, such as keeping inode information directly in 
-> directory (until you create hardlink) so that ls -la doesn't seek much, 
-> new method to keep data consistent in case of crashes (instead of 
-> journaling), free space is organized in lists of free runs and converted 
-> to bitmap only in case of extreme fragmentation.
-> 
-> It is not very widely tested, so if you want, test it.
-> 
-> I have these questions:
-> 
-> * There is a rw semaphore that is locked for read for nearly all 
-> operations and locked for write only rarely. However locking for read 
-> causes cache line pingpong on SMP systems. Do you have an idea how to make 
-> it better?
-> 
-> It could be improved by making a semaphore for each CPU and locking for 
-> read only the CPU's semaphore and for write all semaphores. Or is there a 
-> better method?
+why put this into the ahci struct rather than in the pci device struct?
+In the place you use it you already have the pci device struct already..
+and it's really a pci device property so putting it in that struct makes
+a whole lot of sense conceptually anyway...
 
-I am currently experimenting with a light-weight reader writer semaphore 
-with an objective to do away what you call a reader side cache line
-"ping pong". It achieves this by using a per-cpu refcount.
 
-A drawback of this approach, as Eric Dumazet mentioned elsewhere in this
-thread, would be that each instance of the rw_semaphore would require
-(NR_CPUS * size_of(int)) bytes worth of memory in order to keep track of
-the per-cpu refcount, which can prove to be pretty costly if this
-rw_semaphore is for something like inode->i_alloc_sem.
-
-So the question I am interested in is, how many *live* instances of this
-rw_semaphore are you expecting to have at any given time?
-If this number is a constant (and/or not very big!), the light-weight
-reader writer semaphore might be useful.
-
-Regards
-Gautham.
 -- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

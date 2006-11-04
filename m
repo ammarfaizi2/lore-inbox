@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965600AbWKDSns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965603AbWKDSqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965600AbWKDSns (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 13:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965603AbWKDSns
+	id S965603AbWKDSqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 13:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965605AbWKDSqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 13:43:48 -0500
-Received: from rtr.ca ([64.26.128.89]:5905 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S965600AbWKDSnr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 13:43:47 -0500
-Message-ID: <454CDF62.2070602@rtr.ca>
-Date: Sat, 04 Nov 2006 13:43:46 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Sat, 4 Nov 2006 13:46:09 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:2983 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S965604AbWKDSqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 13:46:06 -0500
+Date: Sat, 4 Nov 2006 19:46:05 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+In-Reply-To: <Pine.LNX.4.64.0611031228400.15668@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0611041944460.24713@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net>
+ <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.63.0611030022110.14187@alpha.polcom.net>
+ <Pine.LNX.4.64.0611030228470.7781@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.64.0611031228400.15668@schroedinger.engr.sgi.com>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
-Subject: Re: 2.6.19-rc3-git7: Oops on shutdown: do_remount_sb (reiserfs)
-References: <45469414.4090108@rtr.ca> <20061104065708.GQ13381@stusta.de>
-In-Reply-To: <20061104065708.GQ13381@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Mon, Oct 30, 2006 at 07:08:52PM -0500, Mark Lord wrote:
->> The system is a Core2duo with SATA drives, with a SLES10 install,
->> and a linux-2.6.19-rc3-git7 kernel.  All I did was a fresh boot to
->> the gdm prompt, and then selected "reboot" from the menu.
->>
->> Just as it was closing up shop, an Oops appeared on the screen.
->> I took a photo of it, and transcribed this portion (below).
->> The photograph is available on request.
-> 
-> Is this reproducible and still present in the latest -git?
+On Fri, 3 Nov 2006, Christoph Lameter wrote:
 
-Just a one-time event, thus far.  That doesn't mean the bug has gone away
-(though it may have), it just means it doesn't happen too often.
+> On Fri, 3 Nov 2006, Mikulas Patocka wrote:
+>
+>> I have, I may find them and post them. (but the university wants me to post
+>> them to some conference, so I should keep them secret :-/)
+>
+> Ph.D. dissertations are public. The problem is that if you have not
+> finished yet then you may run into trouble with the condition that the
+> dissertation must not have been published prior to examination by your
+> advisors.
 
-I'll email you (Adrian) the photo privately, rather than spam the list with it.
+Yes, but many "paperwork" conferences have the requirement, that the work 
+submitted must not be published before. Does posting it to mailing list 
+qualify as "publishing" as well?
 
-Cheers
-
-
+Mikulas

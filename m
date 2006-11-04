@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752873AbWKBN2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752869AbWKBNay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752873AbWKBN2P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Nov 2006 08:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752871AbWKBN2P
+	id S1752869AbWKBNay (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Nov 2006 08:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752875AbWKBNay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Nov 2006 08:28:15 -0500
-Received: from py-out-1112.google.com ([64.233.166.181]:14183 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1752864AbWKBN2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Nov 2006 08:28:14 -0500
+	Thu, 2 Nov 2006 08:30:54 -0500
+Received: from nz-out-0102.google.com ([64.233.162.194]:16885 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1752868AbWKBNax convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Nov 2006 08:30:53 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:organization:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=CksKW9aHI6BS6o9roqn15Jmnp8j1nF1qlqjuhQxpPx5dqA+hXeZA8IraVvJlIFyAU4MLWdOG7umGACQGeCu5f9Qe3k84ycPQunDSqJ5P7I8PpHmDgePLfqqgvh0hfyrC9fucRGABnBJe4grHK55XJGiyLvo79bwmHHjg/7vYICc=
+        b=AKE7OPN6UVqKtU+rYZb0FL0rhZL1t31OKb5bhdSOt71Y51gZNmCtoA4s0rPm1TYZw1+M3KEQ5/m9dNPWrfy8m+4ybVuKVUTcqnJ3yswC+v58rDCRtBdBApNG3c8xFkNjuaCwP9wLx4vEGW6U0l0fm/ZEGn0Hv2+Bd/pY35y7PEM=
 From: Yu Luming <luming.yu@gmail.com>
 Organization: gmail
 To: Andrew Morton <akpm@osdl.org>
-Subject: [patch 5/6] fix comments style in acpi video.c
-Date: Sat, 4 Nov 2006 21:27:54 +0800
+Subject: [patch 6/6] fix compile time warning in acpi video.c
+Date: Sat, 4 Nov 2006 21:30:34 +0800
 User-Agent: KMail/1.9.1
 Cc: Pavel Machek <pavel@ucw.cz>, len.brown@intel.com,
        Matt Domsch <Matt_Domsch@dell.com>,
@@ -27,87 +28,45 @@ Cc: Pavel Machek <pavel@ucw.cz>, len.brown@intel.com,
        Richard Hughes <hughsient@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200611042127.54947.luming.yu@gmail.com>
+Message-Id: <200611042130.34677.luming.yu@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fix comments style in acpi video.c
+fix compile time warning in acpi video.c
 
-signed-off-by   Luming.yu@gmail.com
---
-[patch 5/6] fix comments style in acpi video.c
- video.c |   44 ++++++++++++++++++++++----------------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
+signed-off-by   Luming.yu@gmail.com
+---
+[patch 6/6] fix compile time warning
+ video.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/drivers/acpi/video.c b/drivers/acpi/video.c
-index ace21e2..4ad109f 100644
+index 4ad109f..4a2520b 100644
 --- a/drivers/acpi/video.c
 +++ b/drivers/acpi/video.c
-@@ -89,26 +89,26 @@ struct acpi_video_bus_flags {
- };
+@@ -560,13 +560,11 @@ static void acpi_pci_data_handler(acpi_h
  
- struct acpi_video_bus_cap {
--	u8 _DOS:1;		/*Enable/Disable output switching */
--	u8 _DOD:1;		/*Enumerate all devices attached to display adapter */
--	u8 _ROM:1;		/*Get ROM Data */
--	u8 _GPD:1;		/*Get POST Device */
--	u8 _SPD:1;		/*Set POST Device */
--	u8 _VPO:1;		/*Video POST Options */
-+	u8 _DOS:1;		/* Enable/Disable output switching */
-+	u8 _DOD:1;		/* Enumerate all devices attached to display adapter */
-+	u8 _ROM:1;		/* Get ROM Data */
-+	u8 _GPD:1;		/* Get POST Device */
-+	u8 _SPD:1;		/* Set POST Device */
-+	u8 _VPO:1;		/* Video POST Options */
- 	u8 reserved:2;
- };
+ static struct acpi_pci_data * acpi_pci_get (struct acpi_device *device)
+ {
+-	int result = 0;
+ 	acpi_status status = AE_OK;
+ 	struct acpi_pci_data *data = NULL;
+ 	struct acpi_pci_data *pdata = NULL;
+ 	char *pathname = NULL;
+ 	struct acpi_buffer buffer = { 0, NULL };
+-	acpi_handle handle = NULL;
+ 	struct pci_dev *dev;
+ 	struct pci_bus *bus;
  
- struct acpi_video_device_attrib {
- 	u32 display_index:4;	/* A zero-based instance of the Display */
--	u32 display_port_attachment:4;	/*This field differenates displays type */
--	u32 display_type:4;	/*Describe the specific type in use */
--	u32 vendor_specific:4;	/*Chipset Vendor Specifi */
--	u32 bios_can_detect:1;	/*BIOS can detect the device */
--	u32 depend_on_vga:1;	/*Non-VGA output device whose power is related to 
--				   the VGA device. */
--	u32 pipe_id:3;		/*For VGA multiple-head devices. */
--	u32 reserved:10;	/*Must be 0 */
--	u32 device_id_scheme:1;	/*Device ID Scheme */
-+	u32 display_port_attachment:4;	/* differenates displays type */
-+	u32 display_type:4;	/* Describe the specific type in use */
-+	u32 vendor_specific:4;	/* Chipset Vendor Specifi */
-+	u32 bios_can_detect:1;	/* BIOS can detect the device */
-+	u32 depend_on_vga:1;	/* Non-VGA output device whose power */
-+				/* is related to the VGA device. */
-+	u32 pipe_id:3;		/* For VGA multiple-head devices. */
-+	u32 reserved:10;	/* Must be 0 */
-+	u32 device_id_scheme:1;	/* Device ID Scheme */
- };
+@@ -576,7 +574,7 @@ static struct acpi_pci_data * acpi_pci_g
  
- struct acpi_video_enumerated_device {
-@@ -141,14 +141,14 @@ struct acpi_video_device_flags {
- };
- 
- struct acpi_video_device_cap {
--	u8 _ADR:1;		/*Return the unique ID */
--	u8 _BCL:1;		/*Query list of brightness control levels supported */
--	u8 _BCM:1;		/*Set the brightness level */
-+	u8 _ADR:1;		/* Return the unique ID */
-+	u8 _BCL:1;		/* Query brightness control levels supported */
-+	u8 _BCM:1;		/* Set the brightness level */
- 	u8 _BQC:1;		/* Get current brightness level */
--	u8 _DDC:1;		/*Return the EDID for this device */
--	u8 _DCS:1;		/*Return status of output device */
--	u8 _DGS:1;		/*Query graphics state */
--	u8 _DSS:1;		/*Device state set */
-+	u8 _DDC:1;		/* Return the EDID for this device */
-+	u8 _DCS:1;		/* Return status of output device */
-+	u8 _DGS:1;		/* Query graphics state */
-+	u8 _DSS:1;		/* Device state set */
- };
- 
- struct acpi_video_device_brightness {
-
+ 	pathname = kmalloc(ACPI_PATHNAME_MAX, GFP_KERNEL);
+ 	if (!pathname)
+-		return -ENOMEM;
++		return NULL;
+ 	memset(pathname, 0, ACPI_PATHNAME_MAX);
+ 	buffer.length = ACPI_PATHNAME_MAX;
+ 	buffer.pointer = pathname;

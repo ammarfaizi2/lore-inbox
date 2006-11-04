@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965398AbWKDUAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965606AbWKDUA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965398AbWKDUAE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 15:00:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965606AbWKDUAB
+	id S965606AbWKDUA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 15:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965572AbWKDUAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 15:00:01 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:7021 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965398AbWKDUAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 15:00:00 -0500
+	Sat, 4 Nov 2006 15:00:55 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:55368 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965613AbWKDUAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 15:00:54 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=PkTAuDoOEcDE1MdDtqcDdcx/THAOkLn2ukh27B6axKe0u4ndKLtShyyIPnkQG73HJcKhjnhOoCQxx/AVMU321CpnxytfM5TID7lte6OKYLJjetk55kqWL/DBO+nGOJ3OD03k+hPsLAC+6vmbxyiQmHTxNRsaVp6giY3u+s+dl+Q=
-Message-ID: <787b0d920611041159y6171ec25u92716777ce9bea4a@mail.gmail.com>
-Date: Sat, 4 Nov 2006 14:59:53 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: kangur@polcom.net, mikulas@artax.karlin.mff.cuni.cz,
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=XZwbZ7RKC6OErFy2aXZ5xOONGXHDq5utkISwMxdepsSUWLqYLZ6jawn4KJzaJlMNxunXxsixenPyVNcyRw/nbb+FGZma4prGM2xLCH9tUIGXytyTw8BI0uiRqC3kG0YiMyjdT40a1oEu3UAWd5gQ7REhysApvroOWQZTVvyMHxM=
+Message-ID: <86802c440611041200t5b1c5de6gb72c281de9efed21@mail.gmail.com>
+Date: Sat, 4 Nov 2006 12:00:52 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [RFC][PATCH 2/2] htirq: Allow buggy drivers of buggy hardware to write the registers.
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, olson@pathscale.com,
        linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
+In-Reply-To: <m1odrnro6l.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <454A7B0F.7060701@pathscale.com>
+	 <m1d584xutk.fsf@ebiederm.dsl.xmission.com>
+	 <454B880A.1010802@pathscale.com>
+	 <m1zmb8wexd.fsf@ebiederm.dsl.xmission.com>
+	 <454B8E19.90300@pathscale.com>
+	 <m1irhww9f9.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m1ejskw9as.fsf_-_@ebiederm.dsl.xmission.com>
+	 <200611032146.kA3LkUe9031799@ebiederm.dsl.xmission.com>
+	 <86802c440611041137t74d84e7at3850fc8a10a314cb@mail.gmail.com>
+	 <m1odrnro6l.fsf@ebiederm.dsl.xmission.com>
+X-Google-Sender-Auth: 1cc31e2cedbc70dc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re: New filesystem for Linux
+if (!likely(cfg->update)) {
 
-kangur@polcom.net, mikulas@artax.karlin.mff.cuni.cz,
-linux-kernel@vger.kernel.org
+or
 
+if (likely(!cfg->update)) {
 
-Grzegorz Kulewski writes:
-> On Thu, 2 Nov 2006, Mikulas Patocka wrote:
->> As my PhD thesis, I am designing and writing a filesystem,
->> and it's now in a state that it can be released. You can
->> download it from http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
->
-> "Disk that can atomically write one sector (512 bytes) so that
-> the sector contains either old or new content in case of crash."
-
-New drives will soon use 4096-byte sectors. This is a better
-match for the normal (non-VAX!) page size and reduces overhead.
-
-> Well, maybe I am completly wrong but as far as I understand no
-> disk currently will provide such requirement. Disks can have
-> (after halted write):
-> - old data,
-> - new data,
-> - nothing (unreadable sector - result of not full write and disk
-> internal checksum failute for that sector, happens especially
-> often if you have frequent power outages).
->
-> And possibly some broken drives may also return you something that
-> they think is good data but really is not (shouldn't happen since
-> both disks and cables should be protected by checksums, but hey...
-> you can never be absolutely sure especially on very big storages).
->
-> So... isn't this making your filesystem a little flawed in design?
-
-It's equal to typical modern designs like JFS, NTFS, XFS, and Reiserfs.
-
-It's much worse than ZFS, which doesn't even trust the filesystem
-to not silently scramble the data.
-
-It's a tad worse than various forms of ext2/ext3/ufs/ufs2, where a
-fixed layout helps recovery. (ext2 lacks the atomic updates, but
-it doesn't trust a bad shutdown either -- fsck will always run)
-
-BTW, a person with disk recovery experience told me that drives
-will sometimes reorder the sectors. Sector 42 becomes sector 7732,
-sector 880880 becomes sector 12345, etc. The very best filesystems
-can handle with without data loss. (for example, ZFS) Merely great
-filesystems will at least recognize that the data has been trashed.
+YH

@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753688AbWKDTjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753681AbWKDThY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753688AbWKDTjK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 14:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753691AbWKDTjK
+	id S1753681AbWKDThY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 14:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753683AbWKDThY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 14:39:10 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:15786 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1753687AbWKDTjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 14:39:09 -0500
-Message-ID: <454CEC5C.2050507@vmware.com>
-Date: Sat, 04 Nov 2006 11:39:08 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Sat, 4 Nov 2006 14:37:24 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:19990 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1753652AbWKDThX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 14:37:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=OBUrP0CrwERqbAqdTFPCKWGpItcUKquuyYfxqlg6E1CAXt0zUq6Lpln4N5fmFccU583qv6/d0RKhFz7ixETO2RVJFMIy+JAd63gT12m6n/4l328OkELavnScn9q1J5gAi8HI9WPwI8L/fHUv8ebtCsw95CAIpQ84XTEH+hmavKo=
+Message-ID: <86802c440611041137t74d84e7at3850fc8a10a314cb@mail.gmail.com>
+Date: Sat, 4 Nov 2006 11:37:22 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [RFC][PATCH 2/2] htirq: Allow buggy drivers of buggy hardware to write the registers.
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, olson@pathscale.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200611032146.kA3LkUe9031799@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i386: remove IOPL check on task switch
-References: <200611031900_MC3-1-D041-6F32@compuserve.com> <454CE7D9.3070308@vmware.com>
-In-Reply-To: <454CE7D9.3070308@vmware.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <454A7B0F.7060701@pathscale.com>
+	 <m1odrpymqc.fsf@ebiederm.dsl.xmission.com>
+	 <454B7B70.9060104@pathscale.com>
+	 <m1d584xutk.fsf@ebiederm.dsl.xmission.com>
+	 <454B880A.1010802@pathscale.com>
+	 <m1zmb8wexd.fsf@ebiederm.dsl.xmission.com>
+	 <454B8E19.90300@pathscale.com>
+	 <m1irhww9f9.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m1ejskw9as.fsf_-_@ebiederm.dsl.xmission.com>
+	 <200611032146.kA3LkUe9031799@ebiederm.dsl.xmission.com>
+X-Google-Sender-Auth: a5a9377907b6a3cd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden wrote:
-> Chuck Ebbert wrote:
->> In-Reply-To: <454B850C.3050402@vmware.com>
->>
->> On Fri, 03 Nov 2006 10:06:04 -0800, Zachary Amsden wrote:
->>
->>  
->>> Chuck Ebbert wrote:
->>>    
->>>> IOPL is implicitly saved and restored on task switch,
->>>> so explicit check is no longer needed.
->>>>       
->>> Nack.  This is used for paravirt-ops kernels that use IOPL'd 
->>> userspace.      
->>
->> How does that work?  In the stock kernel, anything done by
->> the call to set_iopl_mask() (that was removed by the patch)
->> will be nullified by the 'popfl' at the end of the switch_to()
->> macro.
->>   
->
-> Who put a popfl back in switch_to?  I took it out some time ago.  It 
-> should not be there.  The only reason for it was to stop IOPL leaking 
-> from one process to another from a sleep during a sysenter based 
-> system call.
+why not create one standard update function. and use that us default
+for cfg->update
 
-Ok, checking shows Linus put it back to stop NT leakage.  This is 
-correct, but unlikely.  Would be nice to avoid it unless absolutely 
-necessary.  Perhaps xor eflags old and new and only set_system_eflags() 
-if non-ALU bits have changed.
-
-Zach
+YH

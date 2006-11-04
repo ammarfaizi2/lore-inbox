@@ -1,67 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965673AbWKDU3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965675AbWKDU3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965673AbWKDU3t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 15:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965672AbWKDU3j
+	id S965675AbWKDU3g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 15:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965670AbWKDU3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 15:29:39 -0500
-Received: from cacti2.profiwh.com ([85.93.165.64]:54208 "EHLO
-	cacti.profiwh.com") by vger.kernel.org with ESMTP id S965674AbWKDU3R
+	Sat, 4 Nov 2006 15:29:15 -0500
+Received: from cacti2.profiwh.com ([85.93.165.64]:52672 "EHLO
+	cacti.profiwh.com") by vger.kernel.org with ESMTP id S965665AbWKDU25
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 15:29:17 -0500
-Message-id: <124776749725612723@wsc.cz>
-Subject: [PATCH 7/8] Char: istallion, free only isa
+	Sat, 4 Nov 2006 15:28:57 -0500
+Message-id: <109505566143013108@wsc.cz>
+Subject: [PATCH 5/8] Char: istallion, ifdef eisa code
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Sat,  4 Nov 2006 21:29:28 +0100 (CET)
+Date: Sat,  4 Nov 2006 21:29:08 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-istallion, free only isa
+istallion, ifdef eisa code
 
-Only ISA cards should be freed in module exit. Pci probed are freed in
-pci_remove. Define a flag, where we store this info a what to check
-against.
+Disable compiling eisa stuff if STLI_EISAPROBE == 0.
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit 0e8470b600af83b7421c85d85c1b7c9b63ad21aa
-tree 8bc93e102991bfc544bcbd268a48721b974053b8
-parent 177cc17270356497ba04bb03b5688e429c3cfbdb
-author Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 20:48:29 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 20:48:29 +0059
+commit b2606947cdfd650f706f4d0f97574a2a00c325ce
+tree f2bd24bf4ceafb6bd820e411da59f4a6c65b4d23
+parent 5d593cca61510bc31b01025fa5f9070e143be2aa
+author Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 20:42:02 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 20:42:02 +0059
 
- drivers/char/istallion.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+ drivers/char/istallion.c |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/istallion.c b/drivers/char/istallion.c
-index 6569398..0502e5d 100644
+index 730db7f..aff6a4c 100644
 --- a/drivers/char/istallion.c
 +++ b/drivers/char/istallion.c
-@@ -202,6 +202,7 @@ static int		stli_shared;
-  */
- #define	BST_FOUND	0x1
- #define	BST_STARTED	0x2
-+#define	BST_PROBED	0x4
+@@ -355,6 +355,7 @@ MODULE_PARM_DESC(board2, "Board 2 config
+ module_param_array(board3, charp, NULL, 0);
+ MODULE_PARM_DESC(board3, "Board 3 config -> name[,ioaddr[,memaddr]");
+ 
++#if STLI_EISAPROBE != 0
+ /*
+  *	Set up a default memory address table for EISA board probing.
+  *	The default addresses are all bellow 1Mbyte, which has to be the
+@@ -372,6 +373,7 @@ static unsigned long	stli_eisamemprobead
+ };
+ 
+ static int	stli_eisamempsize = ARRAY_SIZE(stli_eisamemprobeaddrs);
++#endif
  
  /*
-  *	Define the set of port state flags. These are marked for internal
-@@ -791,7 +792,7 @@ static void __exit istallion_module_exit
- 	kfree(stli_txcookbuf);
+  *	Define the Stallion PCI vendor and device IDs.
+@@ -684,7 +686,9 @@ static struct stliport *stli_getport(uns
  
- 	for (j = 0; (j < stli_nrbrds); j++) {
--		if ((brdp = stli_brds[j]) == NULL)
-+		if ((brdp = stli_brds[j]) == NULL || (brdp->state & BST_PROBED))
- 			continue;
+ static int	stli_initecp(struct stlibrd *brdp);
+ static int	stli_initonb(struct stlibrd *brdp);
++#if STLI_EISAPROBE != 0
+ static int	stli_eisamemprobe(struct stlibrd *brdp);
++#endif
+ static int	stli_initports(struct stlibrd *brdp);
  
- 		stli_cleanup_ports(brdp);
-@@ -3956,6 +3957,7 @@ static int __devinit stli_pciprobe(struc
- 	if (retval)
- 		goto err_null;
+ /*****************************************************************************/
+@@ -3711,6 +3715,7 @@ static int __devinit stli_brdinit(struct
+ 	return 0;
+ }
  
-+	brdp->state |= BST_PROBED;
- 	pci_set_drvdata(pdev, brdp);
++#if STLI_EISAPROBE != 0
+ /*****************************************************************************/
+ 
+ /*
+@@ -3804,6 +3809,7 @@ static int stli_eisamemprobe(struct stli
+ 	}
+ 	return 0;
+ }
++#endif
+ 
+ static int stli_getbrdnr(void)
+ {
+@@ -3819,6 +3825,7 @@ static int stli_getbrdnr(void)
+ 	return -1;
+ }
+ 
++#if STLI_EISAPROBE != 0
+ /*****************************************************************************/
+ 
+ /*
+@@ -3894,6 +3901,9 @@ static int stli_findeisabrds(void)
  
  	return 0;
+ }
++#else
++static inline int stli_findeisabrds(void) { return 0; }
++#endif
+ 
+ /*****************************************************************************/
+ 
+@@ -4019,8 +4029,7 @@ static int stli_initbrds(void)
+ 		stli_brdinit(brdp);
+ 	}
+ 
+-	if (STLI_EISAPROBE)
+-		stli_findeisabrds();
++	stli_findeisabrds();
+ 
+ 	retval = pci_register_driver(&stli_pcidriver);
+ 	/* TODO: check retval and do something */

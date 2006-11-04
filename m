@@ -1,223 +1,286 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753585AbWKDCEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWKDCJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753585AbWKDCEp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Nov 2006 21:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753586AbWKDCEp
+	id S1751085AbWKDCJs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Nov 2006 21:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWKDCJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Nov 2006 21:04:45 -0500
-Received: from smtpa2.netcabo.pt ([212.113.174.17]:386 "EHLO
-	exch01smtp01.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1753585AbWKDCEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Nov 2006 21:04:44 -0500
-Message-ID: <454BF608.20803@rncbc.org>
-Date: Sat, 04 Nov 2006 02:08:08 +0000
-From: Rui Nuno Capela <rncbc@rncbc.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
+	Fri, 3 Nov 2006 21:09:48 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50078 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1750714AbWKDCJr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Nov 2006 21:09:47 -0500
+Date: Fri, 3 Nov 2006 18:11:18 -0800
+From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
-CC: Karsten Wiese <fzu@wemgehoertderstaat.de>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: realtime-preempt patch-2.6.18-rt7 oops
-References: <42997.194.65.103.1.1162464204.squirrel@www.rncbc.org> <200611031230.24983.fzu@wemgehoertderstaat.de> <454BC8D1.1020001@rncbc.org>
-In-Reply-To: <454BC8D1.1020001@rncbc.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Nov 2006 02:04:42.0187 (UTC) FILETIME=[9775A1B0:01C6FFB5]
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
+Subject: Linux 2.6.18.2
+Message-ID: <20061104021118.GX5881@sequoia.sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Karsten Wiese wrote:
->> Does it make a difference, if you build & run with
->> CONFIG_HIGH_RES_TIMERS disabled?
->>
-> 
+We (the -stable team) are announcing the release of the 2.6.18.2 kernel.
 
-More food for thought; still with CONFIG_HIGH_RES_TIMERS not set:
+The diffstat and short summary of the fixes are below.
 
-...
-Oops: 0002 [#1]
-PREEMPT SMP
-Modules linked in: appletalk ax25 ipx p8023 ipv6 edd snd_seq_dummy
-snd_pcm_oss snd_mixer_oss snd_seq_midi snd_seq_midi_event w83627hf
-hwmon_vid snd_seq button hwmon i2c_isa battery ac loop dm_mod usbhid
-wacom intel_rng ehci_hcd shpchp pci_hotplug snd_ice1712
-snd_ice17xx_ak4xxx intel_agp snd_ak4xxx_adda snd_cs8427 snd_i2c
-snd_intel8x0 i2c_i801 snd_mpu401_uart agpgart i2c_core uhci_hcd ide_cd
-cdrom usbcore ohci1394 ieee1394 snd_cs46xx gameport snd_rawmidi
-snd_seq_device snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd
-soundcore snd_page_alloc i8xx_tco sk98lin ext3 jbd reiserfs fan thermal
-processor piix ide_disk ide_core
-CPU:    1
-EIP:    0060:[<c011e56b>]    Not tainted VLI
-EFLAGS: 00210046   (2.6.18.1-rt7.1-smp #1)
-EIP is at enqueue_task+0x2b/0x90
-eax: c180f708   ebx: c180f28c   ecx: 00000000   edx: c0357868
-esi: c0357840   edi: c180edc0   ebp: f7291cd0   esp: f7291cc8
-ds: 007b   es: 007b   ss: 0068   preempt: 00000004
-Process ssh-agent (pid: 3751, ti=f7290000 task=dfcb2630 task.ti=f7290000)
-Stack: c180edc0 c0357840 f7291ce0 c011e5f1 00000001 c0357840 f7291d44
-c0120971
-       38c0f067 ff898284 c17181e0 00000000 0000001f f7290000 00000000
-00000001
-       00000004 dfd010b0 c0357840 7e7ad015 00000009 b7ca1000 f7bc7ef0
-c03d4280
-Call Trace:
- [<c011e5f1>] __activate_task+0x21/0x40
- [<c0120971>] try_to_wake_up+0x321/0x450
- [<c0143b62>] wakeup_next_waiter+0xd2/0x1d0
- [<c0120b19>] wake_up_process_mutex+0x19/0x20
- [<c02ff861>] rt_spin_lock_slowunlock+0x41/0x70
- [<c02fe67c>] __schedule+0xc0c/0xee0
- [<c01439cb>] _atomic_dec_and_spin_lock+0x2b/0x40
- [<c01968ae>] dput+0x1e/0x140
- [<c02fefc5>] preempt_schedule_irq+0x55/0x80
- [<c010526c>] need_resched+0x20/0x24
- [<c010a41a>] convert_fxsr_to_user+0x10a/0x1a0
- [<c010a92d>] save_i387+0x12d/0x1e0
- [<c0104546>] setup_sigcontext+0x106/0x190
- [<c0104e49>] do_notify_resume+0x5e9/0x710
- [<c02fefc5>] preempt_schedule_irq+0x55/0x80
- [<c010526c>] need_resched+0x20/0x24
- [<c01923dd>] sys_select+0x4d/0x1b0
- [<c0104759>] restore_sigcontext+0x169/0x190
- [<c01053cc>] work_notifysig+0x13/0x1b
-Code: 55 89 e5 56 89 c6 53 89 d3 f6 40 0c 08 74 09 a1 60 b0 35 c0 85 c0
-75 4b 8b 46 1c 8d 56 28 8d 44 c3 1c 8b 48 04 89 46 28 89 50 04 <89> 11
-89 4a 04 8b 46 1c 83 43 04 01 0f ab 43 08 83 7e 1c 63 89
-EIP: [<c011e56b>] enqueue_task+0x2b/0x90 SS:ESP 0068:f7291cc8
- <6>note: ssh-agent[3751] exited with preempt_count 3
+I'll also be replying to this message with a copy of the patch between
+2.6.18.1 and 2.6.18.2, as it is (barely) small enough to do so.
+                                                                                
+The updated 2.6.18.y git tree can be found at:                                  
+        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.18.y.git 
+and can be browsed at the normal kernel.org git web browser:                    
+        www.kernel.org/git/                                                     
+(note: the main -stable git tree update will lag a half-day or so for this one, 
+use git://git.kernel.org/pub/scm/linux/kernel/git/chrisw/linux-2.6.18.y.git for 
+now)                                                                            
 
-...
-Oops: 0002 [#1]
-__schedule+0x644/0xee0
- [<c011e5f1>] __activate_task+0x21/0x40
- [<c011e5f1>] __activate_task+0x21/0x40
- [<c01206ab>] try_to_wake_up+0x5b/0x450
- [<c01206ab>] try_to_wake_up+0x5b/0x450
- [<c0143c68>] __rt_mutex_adjust_prio+0x8/0x20
- [<c01444f1>] task_blocks_on_rt_mutex+0x111/0x210
- [<c01f42d2>] __next_cpu+0x12/0x30
- [<c02feac0>] schedule+0x30/0x100
- [<c02ff9cb>] rt_spin_lock_slowlock+0x9b/0x1b0
- [<c0302b6e>] kprobe_flush_task+0xe/0x50
- [<c02fe67c>] __schedule+0xc0c/0xee0
- [<c0105ceb>] reschedule_interrupt+0x1f/0x24
- [<c0103a70>] default_idle+0x0/0x80
- [<c0103ba1>] cpu_idle+0xb1/0x120
-BUG: scheduling from the idle thread!
- [<c02fe149>] __schedule+0x6d9/0xee0
- [<c011e5f1>] __activate_task+0x21/0x40
- [<c011e5f1>] __activate_task+0x21/0x40
- [<c01206ab>] try_to_wake_up+0x5b/0x450
- [<c0143c68>] __rt_mutex_adjust_prio+0x8/0x20
- [<c01444f1>] task_blocks_on_rt_mutex+0x111/0x210
- [<c01f42d2>] __next_cpu+0x12/0x30
- [<c02feac0>] schedule+0x30/0x100
- [<c02ff9cb>] rt_spin_lock_slowlock+0x9b/0x1b0
- [<c0302b6e>] kprobe_flush_task+0xe/0x50
- [<c02fe67c>] __schedule+0xc0c/0xee0
- [<c0105ceb>] reschedule_interrupt+0x1f/0x24
- [<c0103a70>] default_idle+0x0/0x80
- [<c0103ba1>] cpu_idle+0xb1/0x120
-PREEMPT SMP
-Modules linked in: appletalk ax25 ipx p8023 ipv6 edd snd_seq_dummy
-snd_pcm_oss snd_mixer_oss snd_seq_midi snd_seq_midi_event w83627hf
-snd_seq hwmon_vid hwmon i2c_isa button battery ac loop dm_mod intel_rng
-usbhid wacom shpchp snd_cs46xx i2c_i801 pci_hotplug gameport i2c_core
-intel_agp ide_cd cdrom ehci_hcd uhci_hcd agpgart snd_ice1712
-snd_ice17xx_ak4xxx snd_ak4xxx_adda ohci1394 i8xx_tco usbcore sk98lin
-snd_cs8427 ieee1394 snd_i2c snd_mpu401_uart snd_rawmidi snd_seq_device
-snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore
-snd_page_alloc ext3 jbd reiserfs fan thermal processor piix ide_disk
-ide_core
-CPU:    0
-EIP:    0060:[<c011e56b>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.18.1-rt7.1-smp #1)
-EIP is at enqueue_task+0x2b/0x90
-eax: c188f28c   ebx: c188ee10   ecx: 00000000   edx: dfd010d8
-esi: dfd010b0   edi: c188edc0   ebp: c03e1e8c   esp: c03e1e84
-ds: 007b   es: 007b   ss: 0068   preempt: 00000004
-Process swapper (pid: 0, ti=c03e0000 task=c0357840 task.ti=c03e0000)
-Stack: c188edc0 dfd010b0 c03e1e9c c011e5f1 00000001 dfd010b0 c03e1f00
-c0120971
-       f7bc3930 c03e1eb8 00000001 00000000 0000001f c03e0000 00000001
-00000000
-       00000004 dfd13670 c03e1f30 00000001 dfd005b0 c180edc0 dfd005b0
-c03d4280
-Call Trace:
- [<c011e5f1>] __activate_task+0x21/0x40
- [<c0120971>] try_to_wake_up+0x321/0x450
- [<c0143b62>] wakeup_next_waiter+0xd2/0x1d0
- [<c0120b19>] wake_up_process_mutex+0x19/0x20
- [<c02ff861>] rt_spin_lock_slowunlock+0x41/0x70
- [<c02fe67c>] __schedule+0xc0c/0xee0
- [<c0105ceb>] reschedule_interrupt+0x1f/0x24
- [<c0103a70>] default_idle+0x0/0x80
- [<c0103ba1>] cpu_idle+0xb1/0x120
- [<c03e5808>] start_kernel+0x368/0x440
- [<c03e5220>] unknown_bootoption+0x0/0x280
-Code: 55 89 e5 56 89 c6 53 89 d3 f6 40 0c 08 74 09 a1 60 b0 35 c0 85 c0
-75 4b 8b 46 1c 8d 56 28 8d 44 c3 1c 8b 48 04 89 46 28 89 50 04 <89> 11
-89 4a 04 8b 46 1c 83 43 04 01 0f ab 43 08 83 7e 1c 63 89
-EIP: [<c011e56b>] enqueue_task+0x2b/0x90 SS:ESP 0068:c03e1e84
- <0>Kernel panic - not syncing: Attempted to kill the idle task!
- [<c01271a1>] panic+0x51/0x120
- [<c012ae50>] do_exit+0x6e0/0xa90
- [<c0106462>] show_registers+0x172/0x240
- [<c012780b>] printk+0x1b/0x20
- [<c0110068>] positive_have_wrcomb+0x8/0x10
- [<c0106831>] die+0x301/0x310
- [<c0301cc5>] do_page_fault+0x205/0x610
- [<c0301ac0>] do_page_fault+0x0/0x610
- [<c0105e09>] error_code+0x39/0x40
- [<c011007b>] generic_validate_add_page+0xb/0x100
- [<c011e56b>] enqueue_task+0x2b/0x90
- [<c011e5f1>] __activate_task+0x21/0x40
- [<c0120971>] try_to_wake_up+0x321/0x450
- [<c0143b62>] wakeup_next_waiter+0xd2/0x1d0
- [<c0120b19>] wake_up_process_mutex+0x19/0x20
- [<c02ff861>] rt_spin_lock_slowunlock+0x41/0x70
- [<c02fe67c>] __schedule+0xc0c/0xee0
- [<c0105ceb>] reschedule_interrupt+0x1f/0x24
- [<c0103a70>] default_idle+0x0/0x80
- [<c0103ba1>] cpu_idle+0xb1/0x120
- [<c03e5808>] start_kernel+0x368/0x440
- [<c03e5220>] unknown_bootoption+0x0/0x280
- swapper/0[CPU#0]: BUG in smp_call_function at arch/i386/kernel/smp.c:557
- [<c01283f6>] __WARN_ON+0x66/0x90
- [<c0115220>] stop_this_cpu+0x0/0x40
- [<c011501a>] smp_call_function+0xda/0xe0
- [<c012780b>] printk+0x1b/0x20
- [<c011503b>] smp_send_stop+0x1b/0x30
- [<c01271b4>] panic+0x64/0x120
- [<c012ae50>] do_exit+0x6e0/0xa90
- [<c0106462>] show_registers+0x172/0x240
- [<c012780b>] printk+0x1b/0x20
- [<c0110068>] positive_have_wrcomb+0x8/0x10
- [<c0106831>] die+0x301/0x310
- [<c0301cc5>] do_page_fault+0x205/0x610
- [<c0301ac0>] do_page_fault+0x0/0x610
- [<c0105e09>] error_code+0x39/0x40
- [<c011007b>] generic_validate_add_page+0xb/0x100
- [<c011e56b>] enqueue_task+0x2b/0x90
- [<c011e5f1>] __activate_task+0x21/0x40
- [<c0120971>] try_to_wake_up+0x321/0x450
- [<c0143b62>] wakeup_next_waiter+0xd2/0x1d0
- [<c0120b19>] wake_up_process_mutex+0x19/0x20
- [<c02ff861>] rt_spin_lock_slowunlock+0x41/0x70
- [<c02fe67c>] __schedule+0xc0c/0xee0
- [<c0105ceb>] reschedule_interrupt+0x1f/0x24
- [<c0103a70>] default_idle+0x0/0x80
- [<c0103ba1>] cpu_idle+0xb1/0x120
- [<c03e5808>] start_kernel+0x368/0x440
- [<c03e5220>] unknown_bootoption+0x0/0x280
-...
+thanks,
+-chris
 
+--------
 
-I will now try turning on some .config debug options, e.g.
-CONFIG_PREEMPT, and if I can catch something I'll be back here with some
-more dumps ;)
+ Makefile                                    |    2 
+ arch/i386/Kconfig.cpu                       |    3 
+ arch/i386/kernel/alternative.c              |    4 
+ arch/powerpc/Kconfig                        |    9 +
+ arch/powerpc/configs/pseries_defconfig      |    1 
+ arch/s390/Kconfig                           |    4 
+ arch/s390/lib/Makefile                      |    1 
+ arch/s390/lib/div64.c                       |  151 ++++++++++++++++++++++
+ arch/sparc64/kernel/central.c               |    4 
+ arch/sparc64/kernel/of_device.c             |   33 +++-
+ arch/sparc64/kernel/pci_common.c            |   29 +---
+ arch/sparc64/kernel/pci_iommu.c             |    2 
+ arch/sparc64/kernel/pci_sabre.c             |   23 ++-
+ arch/sparc64/kernel/prom.c                  |   30 ++--
+ arch/um/include/kern_util.h                 |    1 
+ arch/um/os-Linux/sys-i386/tls.c             |    2 
+ arch/um/os-Linux/tls.c                      |    2 
+ arch/um/sys-x86_64/stub_segv.c              |    1 
+ arch/x86_64/kernel/time.c                   |    2 
+ block/ll_rw_blk.c                           |   24 +++
+ drivers/block/DAC960.c                      |    2 
+ drivers/char/hw_random/intel-rng.c          |  186 ++++++++++++++++++++++++++--
+ drivers/char/watchdog/sc1200wdt.c           |    9 +
+ drivers/ide/pci/generic.c                   |    6 
+ drivers/infiniband/hw/mthca/mthca_cq.c      |    7 +
+ drivers/infiniband/hw/mthca/mthca_qp.c      |   19 ++
+ drivers/infiniband/hw/mthca/mthca_srq.c     |    8 +
+ drivers/infiniband/ulp/ipoib/ipoib_ib.c     |    4 
+ drivers/isdn/capi/capidrv.c                 |    3 
+ drivers/isdn/hisax/config.c                 |    6 
+ drivers/isdn/i4l/isdn_common.c              |    9 -
+ drivers/isdn/icn/icn.c                      |    3 
+ drivers/isdn/isdnloop/isdnloop.c            |    3 
+ drivers/isdn/pcbit/drv.c                    |   16 +-
+ drivers/macintosh/via-pmu-backlight.c       |    2 
+ drivers/md/md.c                             |    1 
+ drivers/md/multipath.c                      |    2 
+ drivers/md/raid10.c                         |    2 
+ drivers/media/dvb/b2c2/flexcop-fe-tuner.c   |    2 
+ drivers/media/dvb/frontends/dvb-pll.c       |    3 
+ drivers/media/video/cx88/cx88-dvb.c         |   14 +-
+ drivers/media/video/saa7134/saa7134-dvb.c   |    4 
+ drivers/net/sky2.c                          |   83 ++++++------
+ drivers/net/sky2.h                          |    2 
+ drivers/net/wireless/bcm43xx/bcm43xx_main.c |    8 +
+ drivers/pci/quirks.c                        |   27 ----
+ drivers/rtc/rtc-max6902.c                   |    2 
+ drivers/scsi/aic7xxx/aic7xxx_osm.c          |   21 ++-
+ drivers/serial/serial_core.c                |    9 +
+ drivers/serial/serial_cs.c                  |   12 -
+ drivers/usb/core/devio.c                    |   26 ++-
+ drivers/usb/core/notify.c                   |    3 
+ drivers/usb/core/usb.h                      |    1 
+ fs/fuse/dir.c                               |   30 +++-
+ fs/fuse/file.c                              |   12 +
+ fs/fuse/inode.c                             |    5 
+ fs/jfs/jfs_imap.c                           |    4 
+ fs/nfs/dir.c                                |   14 +-
+ fs/splice.c                                 |    6 
+ include/asm-generic/audit_change_attr.h     |    4 
+ include/asm-generic/audit_dir_write.h       |    4 
+ include/asm-s390/div64.h                    |   48 -------
+ include/linux/mmzone.h                      |   12 +
+ include/linux/serial_core.h                 |    1 
+ kernel/posix-cpu-timers.c                   |   27 +++-
+ kernel/taskstats.c                          |   15 +-
+ lib/audit.c                                 |    2 
+ mm/memory.c                                 |    9 +
+ mm/page_alloc.c                             |    4 
+ mm/vmscan.c                                 |   63 ++++++---
+ mm/vmstat.c                                 |    2 
+ net/bluetooth/rfcomm/tty.c                  |    3 
+ net/core/skbuff.c                           |    9 -
+ net/decnet/af_decnet.c                      |    4 
+ net/ipv4/tcp_cubic.c                        |    6 
+ net/ipv6/ip6_flowlabel.c                    |    2 
+ net/sctp/input.c                            |    3 
+ net/sunrpc/svcsock.c                        |    2 
+ sound/core/hwdep.c                          |    3 
+ sound/core/info.c                           |    5 
+ sound/core/rtctimer.c                       |   17 ++
+ sound/pci/au88x0/au88x0.c                   |    1 
+ sound/pci/emu10k1/emu10k1_main.c            |    4 
+ sound/ppc/keywest.c                         |    3 
+ sound/usb/usx2y/usbusx2yaudio.c             |   18 --
+ sound/usb/usx2y/usx2yhwdeppcm.c             |   17 --
+ 86 files changed, 851 insertions(+), 341 deletions(-)
 
-Cheers.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Summary of changes from v2.6.18.1 to v2.6.18.2
+============================================
+
+Akinobu Mita:
+      Watchdog: sc1200wdt - fix missing pnp_unregister_driver()
+
+Al Viro:
+      fix missing ifdefs in syscall classes hookup for generic targets
+
+Alan Cox:
+      JMB 368 PATA detection
+
+Alan Stern:
+      usbfs: private mutex for open, release, and remove
+
+Amol Lad:
+      sound/pci/au88x0/au88x0.c: ioremap balanced with iounmap
+
+Andi Kleen:
+      x86-64: Fix C3 timer test
+
+Andy Whitcroft:
+      Reintroduce NODES_SPAN_OTHER_NODES for powerpc
+
+Arnaud Patard:
+      ALSA: emu10k1: Fix outl() in snd_emu10k1_resume_regs()
+
+Arthur Kepner:
+      IB/mthca: Use mmiowb after doorbell ring
+
+Brian King:
+      SCSI: DAC960: PCI id table fixup
+
+Chris Wright:
+      Linux 2.6.18.2
+
+Clemens Ladisch:
+      ALSA: snd_rtctimer: handle RTC interrupts with a tasklet
+
+Dave Kleikamp:
+      JFS: pageno needs to be long
+
+David Miller:
+      SPARC64: Fix central/FHC bus handling on Ex000 systems.
+      SPARC64: Fix memory corruption in pci_4u_free_consistent().
+      SPARC64: Fix PCI memory space root resource on Hummingbird.
+
+David Woodhouse:
+      Fix uninitialised spinlock in via-pmu-backlight code.
+
+Doug Ledford:
+      SCSI: aic7xxx: pause sequencer before touching SBLKCTL
+
+Eli Cohen:
+      IPoIB: Rejoin all multicast groups after a port event
+
+Florin Malita:
+      ALSA: Dereference after free in snd_hwdep_release()
+
+Francisco Larramendi:
+      rtc-max6902: month conversion fix
+
+Herbert Xu:
+      NET: Fix skb_segment() handling of fully linear SKBs
+      SCTP: Always linearise packet on input
+
+James Bottomley:
+      SCSI: aic7xxx: avoid checking SBLKCTL register for certain cards
+
+James Morris:
+      IPV6: fix lockup via /proc/net/ip6_flowlabel [CVE-2006-5619]
+
+Jan Beulich:
+      fix Intel RNG detection
+
+Jeff Garzik:
+      ISDN: check for userspace copy faults
+      ISDN: fix drivers, by handling errors thrown by ->readstat()
+
+Jens Axboe:
+      splice: fix pipe_to_file() ->prepare_write() error path
+
+Karsten Wiese:
+      ALSA: Fix bug in snd-usb-usx2y's usX2Y_pcms_lock_check()
+      ALSA: Repair snd-usb-usx2y for usb 2.6.18
+      PCI: Remove quirk_via_abnormal_poweroff
+
+Marcel Holtmann:
+      Bluetooth: Check if DLC is still attached to the TTY
+
+Martin Bligh:
+      vmscan: Fix temp_priority race
+      Use min of two prio settings in calculating distress for reclaim
+
+Martin Schwidefsky:
+      __div64_32 for 31 bit.
+
+Michael Buesch:
+      bcm43xx: fix watchdog timeouts.
+
+Michael Krufky:
+      DVB: fix dvb_pll_attach for mt352/zl10353 in cx88-dvb, and nxt200x
+
+Miklos Szeredi:
+      fuse: fix hang on SMP
+
+NeilBrown:
+      md: Fix bug where spares don't always get rebuilt properly when they become live.
+      md: Fix calculation of ->degraded for multipath and raid10
+      knfsd: Fix race that can disable NFS server.
+      md: check bio address after mapping through partitions.
+
+Oleg Nesterov:
+      fill_tgid: fix task_struct leak and possible oops
+
+Paolo 'Blaisorblade' Giarrusso:
+      uml: fix processor selection to exclude unsupported processors and features
+      uml: remove warnings added by previous -stable patch
+
+Patrick McHardy:
+      Fix sfuzz hanging on 2.6.18
+
+Russell King:
+      SERIAL: Fix resume handling bug
+      SERIAL: Fix oops when removing suspended serial port
+
+Stephen Hemminger:
+      sky2: MSI test race and message
+      sky2: pause parameter adjustment
+      sky2: turn off PHY IRQ on shutdown
+      sky2: accept multicast pause frames
+      sky2: GMAC pause frame
+      sky2: 88E803X transmit lockup (2.6.18)
+      tcp: cubic scaling error
+
+Suresh Siddha:
+      mm: fix a race condition under SMC + COW
+
+Takashi Iwai:
+      ALSA: powermac - Fix Oops when conflicting with aoa driver
+      ALSA: Fix re-use of va_list
+
+Thomas Gleixner:
+      posix-cpu-timers: prevent signal delivery starvation
+
+Trond Myklebust:
+      NFS: nfs_lookup - don't hash dentry when optimising away the lookup
+
+Ulrich Drepper:
+      uml: make Uml compile on FC6 kernel headers
+
+Zachary Amsden:
+      Fix potential interrupts during alternative patching
+

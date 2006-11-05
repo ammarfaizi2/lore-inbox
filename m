@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422690AbWKEV20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422683AbWKEVeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422690AbWKEV20 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 16:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422683AbWKEV20
+	id S1422683AbWKEVeA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 16:34:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422699AbWKEVeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 16:28:26 -0500
-Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:36788 "EHLO
-	smtpq1.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S1422679AbWKEV2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 16:28:25 -0500
-Message-ID: <454E575B.40403@keyaccess.nl>
-Date: Sun, 05 Nov 2006 22:27:55 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Sun, 5 Nov 2006 16:34:00 -0500
+Received: from nz-out-0102.google.com ([64.233.162.196]:41865 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1422683AbWKEVd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 16:33:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mdtTsp1n1z7H2hN9UyZLjTiYK02WAQr+JX7gwEAySxwiXBeTY0TNeiLIoXWEvTasU9uER77nTwwSSY6P50iLXqspYMtHfWeNtN97tPKhf4SOoQaU8WkLUM46Kc4mFgtEnHEZfFERIi3PzBP7VdywXIFlAeakKl7iy7I/sMrtdPM=
+Message-ID: <b9481e140611051333p7250179ax6ba3629fcf0ad9e3@mail.gmail.com>
+Date: Sun, 5 Nov 2006 22:33:58 +0100
+From: "Nicolas FR" <nicolasfr@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: sc3200 cpu + apm module kernel crash
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1162750917.31873.38.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Kyle Moffett <mrmacman_g4@mac.com>,
-       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Albert Cahalan <acahalan@gmail.com>, kangur@polcom.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-References: <787b0d920611041159y6171ec25u92716777ce9bea4a@mail.gmail.com> <Pine.LNX.4.64.0611050034480.26021@artax.karlin.mff.cuni.cz> <AA4E0826-81F3-47AF-8C5E-D691BB02AB32@mac.com> <454E48D9.3060303@zytor.com>
-In-Reply-To: <454E48D9.3060303@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Disposition: inline
+References: <b9481e140611031506u42e326dbs5c0e97d14c5fb5b3@mail.gmail.com>
+	 <1162750917.31873.38.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
+I have finally traced down the bug (Tatung webpad TWN-5213CU with SC3200 CPU):
 
-[ partitions ]
+- in apm_mainloop there is an for(;;) loop, which set a
+scheduler_timeout (1second) and then calls apm_event_handler().
 
-> Actually, DOS/Win9x should handle arbitrary alignment just fine
+- apm_event_handler does some checks and calls check_events();
 
-For primary (and extended) partitions, yes. I haven't used any version 
-of DOS that has ever objected to arbitrarily aligned partitions in the 
-MBR (and I do align them arbitrarily since I always make my partitions 
-some exact size and start the next partition in the next sector).
+- check_events has a loop:
+	while ((event = get_event()) != 0) { switch (event) {...} }
 
-Different though for logical partitions inside an extended. As late as 
-Windows 98, DOS would object to non-aligned logicals, at the very least 
-with some settings for the BIOS use/don't use LBA or "Large" settings.
+The module was "crashing" on my box because it keeps on receiving
+events=APM_UPDATE_TIME meaning that it would never get out of the
+while() loop in check_events. I need to do some tests but I might
+simply fix this by ignoring APM_UPDATE_TIME events. I first thought
+replacing the "while ((event = get_event()) != 0)" by an "if ((event =
+get_event()) != 0)" but maybe I would miss other events doing this?
 
-Linux doesn't care; I've used type 0x85 instead of 0x05 for my extended 
-partitions dus to that for years. DOS just ignores that one...
 
-Rene
+Best regards,
+Nicolas.
 
+PS: btw, thanks for your email that's really nice to answer every
+message on this mailing list.
+
+On 11/5/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Sad, 2006-11-04 am 00:06 +0100, ysgrifennodd Nicolas FR:
+> > I have thrown a bunch of  "printk(KERN_INFO "apm: I am here\n");" and
+> > noticed the crash is happening just when calling apm_event_handler();
+> > and does not even execute any instruction in this function... This is
+> > the point I don't understand, how can it crash just on calling a
+> > function and not executing the first statement in this function?
+>
+> APM is BIOS code so the assembler inlines trap into the firmware and the
+> firmware sometimes isn't very good, particularly the 32bit entry points
+> which are not used by a certain other vendors products.
+>
+> In those cases you need to trace the asm code in the firmware and see if
+> the firmware is buggy.
+>
+>

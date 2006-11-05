@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbWKEOGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965882AbWKEOfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932690AbWKEOGo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 09:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbWKEOGo
+	id S965882AbWKEOfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 09:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965881AbWKEOfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 09:06:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:13780 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932690AbWKEOGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 09:06:43 -0500
-Subject: Re: Scsi cdrom naming confusion; sr or scd?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: andrew@walrond.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0611051232580.12727@yvahk01.tjqt.qr>
-References: <20061105100926.GA2883@pelagius.h-e-r-e-s-y.com>
-	 <Pine.LNX.4.61.0611051232580.12727@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 05 Nov 2006 15:06:39 +0100
-Message-Id: <1162735599.3160.91.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Sun, 5 Nov 2006 09:35:01 -0500
+Received: from stinky.trash.net ([213.144.137.162]:19086 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S965882AbWKEOfA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 09:35:00 -0500
+Message-ID: <454DF690.2010405@trash.net>
+Date: Sun, 05 Nov 2006 15:34:56 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@redhat.com>, netdev@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH 1/1] Net: kconfig, correct traffic shaper
+References: <453BA26D.9010504@trash.net>, <43123154321532@wsc.cz> <1202725131414221392@wsc.cz>
+In-Reply-To: <1202725131414221392@wsc.cz>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 12:33 +0100, Jan Engelhardt wrote:
-> > "The prefix /dev/sr (instead of /dev/scd) has been deprecated"
-> >
-> >but booting 2.6.18.2 from a scsi CD only works if I pass the kernel
-> >parameter root=/dev/sr0 and fails with root=/dev/scd0
-> >
-> >I guess the kernel ought to be taught about the scd* names aswell?
+Jiri Slaby wrote:
+> Ok, thanks for comments. Here it comes, please (n)ack it:
 > 
-> brw-r-----  1 root disk 11, 0 Mar 19  2005 /dev/scd0
-> brw-r-----  1 root disk 11, 0 Mar 19  2005 /dev/sr0
+> --
 > 
-> Plus I see sr0 being far more commonly used than scd0.
-> So I guess the doc is wrong.
+> kconfig, correct traffic shaper
+> 
+> As Patrick McHardy <kaber@trash.net> suggested, Traffic Shaper is
+> now obsolete and alternative to it is no longer CBQ, since its problems with
+> virtual devices, alter Kconfig text to reflect this -- put a link to the
+> traffic schedulers as a whole.
+> 
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> Cc: Alan Cox <alan@redhat.com>
+> Cc: Patrick McHardy <kaber@trash.net>
 
-
-and this is why it's wrong to make naming policy a kernel thing!
-Userspace is the right place to do this (and there I suspect the name
-will end up being /dev/cdrom)...... the kernel really shouldn't care at
-all what the name is.
-(I know for root= it currently has to if you don't have an initrd but..
-well... that's sort of a nasty interface anyway; what if you have a usb
-cdrom drive connected for example.. suddenly all your names changed)
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Looks good, thanks.

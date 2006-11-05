@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161506AbWKESxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161522AbWKES5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161506AbWKESxM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 13:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161507AbWKESxM
+	id S1161522AbWKES5u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 13:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161523AbWKES5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 13:53:12 -0500
-Received: from ns2.suse.de ([195.135.220.15]:43489 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161506AbWKESxL (ORCPT
+	Sun, 5 Nov 2006 13:57:50 -0500
+Received: from mx1.suse.de ([195.135.220.2]:7317 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161522AbWKES5t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 13:53:11 -0500
+	Sun, 5 Nov 2006 13:57:49 -0500
 From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [rfc patch] i386: don't save eflags on task switch
-Date: Sun, 5 Nov 2006 19:52:55 +0100
+To: caglar@pardus.org.tr
+Subject: Re: [Opps] Invalid opcode
+Date: Sun, 5 Nov 2006 19:57:45 +0100
 User-Agent: KMail/1.9.5
-Cc: Zachary Amsden <zach@vmware.com>, Benjamin LaHaise <bcrl@kvack.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200611040200_MC3-1-D04D-6EA3@compuserve.com> <200611051801.18277.ak@suse.de> <Pine.LNX.4.64.0611050920220.25218@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611050920220.25218@g5.osdl.org>
+Cc: linux-kernel@vger.kernel.org, Zachary Amsden <zach@vmware.com>,
+       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
+References: <200611051507.37196.caglar@pardus.org.tr> <200611051740.47191.ak@suse.de> <200611051917.56971.caglar@pardus.org.tr>
+In-Reply-To: <200611051917.56971.caglar@pardus.org.tr>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-Message-Id: <200611051952.55655.ak@suse.de>
+Message-Id: <200611051957.45260.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Sunday 05 November 2006 18:17, S.Çağlar Onur wrote:
+> 05 Kas 2006 Paz 18:40 tarihinde, Andi Kleen şunları yazmıştı: 
+> > How do you know this?
 > 
-> So you get a test, a unpredictable conditional jump, and the sti - and 
-> you'll end up with the cost being pretty much the same as the popf: only 
-> bigger and more complex.
-> 
-> That's a win, right?
+> Just guessing, if im not wrong panics occur after SMP alternative switching 
+> code done its job.
 
-Previously we had a popf which for the CPU unpredictable
-restoring of most of its state. I would assume the unpredicted jump
-is cheaper than that.
+Can you test with "noreplacement" to make sure?
 
-I might be wrong. Benchmarks will tell when I try it.
+Anyways I suspect we're just getting back some variant of the old CPU setup race. 
 
-But I think it might be worth a try at least.
+Normally CPU booting in Linux follows a special "cpu hotplug" state machine,
+but for historical reasons i386 only implements one state of  this. At one
+point we had a similar bug (but not in the callback on CPU #0, but in
+the timer on newly booted CPU). I don't see currently how it can happen
+(but i haven't thought very deeply about it yet)
 
-> 
-> > 99.9999% of all restore_flags just need STI.
-> 
-> Hell no. If you know it statically, you can already just do the 
-> "spin_lock_irq()"->"spin_unlock_irq()", and then you have the 
-> _unconditional_ sti.
+Probably your timing is just unlucky on those simulators.
 
-I meant they don't care about any other flags. Of course you need
-a test + conditional jump first to handle the nested lock case.
-
-> Andi, one single bug is usually worth _months_ of peoples time and effort. 
-> How many CPU cycles is that? 
-
-I bet near all cases where restore_flags() are used to restore something
-else than IF are actually bugs or performance issues of some sort
-
-This doesn't include the context switch of course, but that one 
-doesn't use restore_flags().
-
-(I think I have a few legitimate cases of save_flags though. They probably
-should be using a different macro for clarity.) 
+Previously we avoided converting i386 cpu bootup fully to the new state 
+machine because it is very fragile, but it's possible that there
+is no other choice than to do it properly. Or maybe another kludge
+is possible.
 
 -Andi
- 

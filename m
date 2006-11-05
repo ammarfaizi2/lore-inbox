@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752918AbWKFMf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752924AbWKFMgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752918AbWKFMf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 07:35:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752926AbWKFMf2
+	id S1752924AbWKFMgm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 07:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752929AbWKFMgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 07:35:28 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:1238 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1752918AbWKFMf2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 07:35:28 -0500
-Date: Mon, 6 Nov 2006 07:35:03 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linus Torvalds <torvalds@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH? hrtimer_wakeup: fix a theoretical race wrt rt_mutex_slowlock()
-In-Reply-To: <1162803471.28571.303.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0611060732020.14553@gandalf.stny.rr.com>
-References: <20061105193457.GA3082@oleg>  <Pine.LNX.4.64.0611051423150.25218@g5.osdl.org>
- <1162803471.28571.303.camel@localhost.localdomain>
+	Mon, 6 Nov 2006 07:36:42 -0500
+Received: from h01.hostsharing.net ([212.42.230.152]:31210 "EHLO
+	h01.hostsharing.net") by vger.kernel.org with ESMTP
+	id S1752923AbWKFMgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 07:36:41 -0500
+Date: Sun, 5 Nov 2006 23:04:06 +0100
+From: Elimar Riesebieter <riesebie@lxtec.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, riesebie@lxtec.de,
+       Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
+       Andy Adamson <andros@citi.umich.edu>,
+       "J. Bruce Fields" <bfields@citi.umich.edu>,
+       Trond Myklebust <Trond.Myklebust@netapp.com>,
+       Olaf Kirch <okir@monad.swb.de>, bunk@stusta.de
+Subject: Re: [PATCH 1/2] sunrpc: add missing spin_unlock
+Message-ID: <20061105220406.GA3263@aragorn.home.lxtec.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>,
+	Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
+	Andy Adamson <andros@citi.umich.edu>,
+	"J. Bruce Fields" <bfields@citi.umich.edu>,
+	Trond Myklebust <Trond.Myklebust@netapp.com>,
+	Olaf Kirch <okir@monad.swb.de>, bunk@stusta.de
+References: <20061028185554.GM9973@localhost> <20061029133551.GA10072@localhost> <20061029133700.GA10295@localhost> <1162744516.26989.43.camel@twins> <20061105114533.4f57f333.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+In-Reply-To: <20061105114533.4f57f333.akpm@osdl.org>
+Organization: LXTEC
+X-gnupg-key-fingerprint: BE65 85E4 4867 7E9B 1F2A  B2CE DC88 3C6E C54F 7FB0
+X-Editor: VIM - Vi IMproved 7.0 (2006 May 7, compiled Oct 25 2006 19:41:01)
+User-Agent: Mutt/1.5.13-muttng (2006-11-01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2006, Benjamin Herrenschmidt wrote:
 
->
-> > Yes. On x86 (and x86-64) you'll never see this, because writes are always
-> > seen in order regardless, and in addition, the spin_lock is actually
-> > totally serializing anyway. On most other architectures, the spin_lock
-> > will serialize all the writes too, but it's not guaranteed, so in theory
-> > you're right. I suspect no actual architecture will do this, but hey,
-> > when talking memory ordering, safe is a lot better than sorry.
->
-> PowerPC doesn't serialize the writes on spin_lock, only on spin_unlock.
->
-> (That is, previous writes can "leak" into the lock, but writes done
-> before the unlock can't leak out of the spinlock).
->
-> Now, I've just glanced at the thread, so I don't know if that's relevant
-> to the problems you guys are talking about :-)
->
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It is relevant.  In powerpc, can one write happen before another write?
+On Sun, 05 Nov 2006 the mental interface of
+Andrew Morton told:
 
+[...]
+> > > Index: work-fault-inject/net/sunrpc/svcauth.c
+> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > > --- work-fault-inject.orig/net/sunrpc/svcauth.c
+> > > +++ work-fault-inject/net/sunrpc/svcauth.c
+> > > @@ -126,6 +126,7 @@ void auth_domain_put(struct auth_domain=20
+> > >  	if (atomic_dec_and_lock(&dom->ref.refcount, &auth_domain_lock)) {
+> > >  		hlist_del(&dom->hash);
+> > >  		dom->flavour->domain_release(dom);
+> > > +		spin_unlock(&auth_domain_lock);
+> > >  	}
+> > >  }
+>=20
+> I wonder if this will fix http://bugzilla.kernel.org/show_bug.cgi?id=3D74=
+57
 
-  x = 1;
-  barrier();  (only compiler barrier)
-  b = 2;
+It fixes it. Patched a native 2.6.19-rc4 and it works. Thanks.
 
+Elimar
 
-And have CPU 2 see b=2 before seeing x=1?
+--=20
+  Planung:
+  Ersatz des Zufalls durch den Irrtum.
+                                -unknown-
 
-If so, then I guess this is indeed a bug on powerpc.
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- Steve
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
+iD8DBQFFTl/V3Ig8bsVPf7ARAipwAKChORiiWm9UOsB+ONqB2fsE09ZzTwCgiJiI
+awuru173W083NV9v02iQBlg=
+=fVfr
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--

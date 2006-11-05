@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161361AbWKERUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161395AbWKER04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161361AbWKERUg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 12:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161415AbWKERUg
+	id S1161395AbWKER04 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 12:26:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161401AbWKER04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 12:20:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48067 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161361AbWKERUf (ORCPT
+	Sun, 5 Nov 2006 12:26:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:28869 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161395AbWKER0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 12:20:35 -0500
-Date: Sun, 5 Nov 2006 09:20:12 -0800 (PST)
+	Sun, 5 Nov 2006 12:26:55 -0500
+Date: Sun, 5 Nov 2006 09:26:40 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
 To: Andi Kleen <ak@suse.de>
-cc: Benjamin LaHaise <bcrl@kvack.org>, Zachary Amsden <zach@vmware.com>,
+cc: Zachary Amsden <zach@vmware.com>, Benjamin LaHaise <bcrl@kvack.org>,
        Chuck Ebbert <76306.1226@compuserve.com>,
        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [rfc patch] i386: don't save eflags on task switch
-In-Reply-To: <200611051754.11982.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0611050914030.25218@g5.osdl.org>
+In-Reply-To: <200611051801.18277.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0611050920220.25218@g5.osdl.org>
 References: <200611040200_MC3-1-D04D-6EA3@compuserve.com> <200611050641.14724.ak@suse.de>
- <Pine.LNX.4.64.0611050808090.25218@g5.osdl.org> <200611051754.11982.ak@suse.de>
+ <454D9A75.7010204@vmware.com> <200611051801.18277.ak@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,31 +29,39 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, 5 Nov 2006, Andi Kleen wrote:
 > 
-> > - mispredicted branches on a P4 are potentially worse than  
-> > the popf cost.
+> > sti is expensive as well; iirc just as expensive on most processors as 
+> > popf, 
 > 
-> They are far less than 48 cycles. The P4 is not _that_ bad in this
-> area.
+> On K8 STI is 4 cycles.
 
-You wanna bet? Use the newer P4 cores. A branch mispredict is over 20 
-cycles, and I bet the "sti" isn't cheap either.
+Your point being? On K8, popf was 12 cycles according to Zach. The 
+conditional branch is going to be almost totally unpredictable, unless you 
+inline it everywhere (it will be statically predictable in each individual 
+location), but if you inline it, you'll be expanding a two-byte 
+instruction sequence to something like 10 bytes with all the tests.
 
-In other words, I suspect the difference between "popfl" and "conditional 
-jump over sti" is basically zero - exactly because the sti isn't exactly a 
-no-op.
+So you get a test, a unpredictable conditional jump, and the sti - and 
+you'll end up with the cost being pretty much the same as the popf: only 
+bigger and more complex.
 
-(Enabling interrupts is actually much more complex than you'd expect. 
-Interrupt delivery in a HT core is not simple in itself, and "sti" in many 
-ways is actually more complex than "popf", because it has the additional 
-"single-cycle interrupt shadow", ie the interrupt isn't actually enabled 
-after the sti, it's enabled after the _next_ instruction after the sti. So 
-from a uarch standpoint, "popf" is actually somewhat simpler.)
+That's a win, right?
 
-Anyway, what both you and Chuck seem to be missing is that trying to save 
-a couple of CPU cycles is NOT WORTH IT, if it makes the code harder and 
-more fragile. The "save eflags over context switch" that we do now is 
-_obvious_ code. That's worth a lot in itself. And the costs of context 
-switching isn't actually a couple of cycles - the real costs are all 
-elsewhere.
+> 99.9999% of all restore_flags just need STI.
+
+Hell no. If you know it statically, you can already just do the 
+"spin_lock_irq()"->"spin_unlock_irq()", and then you have the 
+_unconditional_ sti.
+
+The problem with that is that it's now a lot more fragile, ie you must 
+know what the calling context was. We do do this, because it _is_ faster 
+when it's unconditional, but you're optimizing all the wrong things.
+
+Andi, one single bug is usually worth _months_ of peoples time and effort. 
+How many CPU cycles is that? 
+
+You need to learn that "stability and maintainability" is more important 
+than trying to get a single cycle or two. Really. I'll do cycle tweaking 
+too, but it needs to be something that is really obvious, or really 
+important. 
 
 			Linus

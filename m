@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161695AbWKEUF4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161694AbWKEUQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161695AbWKEUF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 15:05:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161693AbWKEUF4
+	id S1161694AbWKEUQt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 15:16:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161697AbWKEUQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 15:05:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45773 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161690AbWKEUFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 15:05:55 -0500
-Date: Sun, 5 Nov 2006 15:04:48 -0500
-From: Dave Jones <davej@redhat.com>
-To: Christian <christiand59@web.de>
-Cc: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: [discuss] Linux 2.6.19-rc4: known unfixed regressions (v2)
-Message-ID: <20061105200448.GE859@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Christian <christiand59@web.de>,
-	Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
-	Adrian Bunk <bunk@stusta.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-acpi@vger.kernel.org
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <454AFD01.4080306@linux.intel.com> <20061103155656.GA1000@redhat.com> <200611051832.13285.christiand59@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611051832.13285.christiand59@web.de>
-User-Agent: Mutt/1.4.2.2i
+	Sun, 5 Nov 2006 15:16:49 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:51420 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161694AbWKEUQs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 15:16:48 -0500
+Message-ID: <454E46A8.20106@zytor.com>
+Date: Sun, 05 Nov 2006 12:16:40 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Maurizio Lombardi <m.lombardi85@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>	 <454A76CC.6030003@cosmosbay.com>	 <Pine.LNX.4.64.0611041938490.24713@artax.karlin.mff.cuni.cz> <c87e555d0611050503q5d344ac9r8726d61115b024b3@mail.gmail.com>
+In-Reply-To: <c87e555d0611050503q5d344ac9r8726d61115b024b3@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 05, 2006 at 06:32:12PM +0100, Christian wrote:
- > Am Freitag, 3. November 2006 16:56 schrieb Dave Jones:
- > > On Fri, Nov 03, 2006 at 11:25:37AM +0300, Alexey Starikovskiy wrote:
- > >  > Could this be a problem?
- > >  > --------------------
- > >  > ...
- > >  > CONFIG_ACPI_PROCESSOR=m
- > >  > ...
- > >  > CONFIG_X86_POWERNOW_K8=y
- > >
- > > Hmm, possibly.  Christian, does it work again if you set them both to =y ?
- > 
- > Yes, it works now! Only the change to CONFIG_ACPI_PROCESSOR=y made it work 
- > again!
+Maurizio Lombardi wrote:
+> On 11/4/06, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> wrote:
+> 
+>> free space is organized in lists of free runs
+>> and converted to bitmap only in case of
+>> extreme fragmentation.
+> 
+> There is a performance reason to prefer lists of free blocks rather than 
+> bitmap?
+> 
+> I read from [Tanenbaum: Operating System, Design and Implementation II
+> ed. ] that lists are better than bitmap only when disk is almost full.
+> 
 
-So, the reasoning behind this, is that we have this construct..
+Yes, if you have a truly random access medium.
 
-config X86_POWERNOW_K8_ACPI
-    bool
-    depends on X86_POWERNOW_K8 && ACPI_PROCESSOR
-    depends on !(X86_POWERNOW_K8 = y && ACPI_PROCESSOR = m)
-    default y
+If you have media like physical disks, where fragmentation costs you, 
+the lists will kill you dead in no time at all.
 
-
-Which makes us use the ACPI stuff if it's there, otherwise not,
-and in your case, it seems your system _needs_ this enabled
-to make powernow work.
-
-Thing is, this was there in 2.6.18 too, so strictly speaking,
-we haven't regressed here, and you're getting exactly what you asked for.
-The problem is that it's completely silent as to why it then fails.
-
-I'm open to improvements, but I'm not sure what the right thing to do
-here is.. opinions ?
-
-	Dave
-
--- 
-http://www.codemonkey.org.uk
+	-hpa

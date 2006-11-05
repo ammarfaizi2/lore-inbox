@@ -1,89 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbWKEXIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbWKEXNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932677AbWKEXIr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 18:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932745AbWKEXIr
+	id S932747AbWKEXNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 18:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932748AbWKEXNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 18:08:47 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:25786 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S932677AbWKEXIq
+	Sun, 5 Nov 2006 18:13:13 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:56514 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932747AbWKEXNM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 18:08:46 -0500
-Date: Mon, 6 Nov 2006 02:08:37 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH? hrtimer_wakeup: fix a theoretical race wrt rt_mutex_slowlock()
-Message-ID: <20061105230837.GA3134@oleg>
-References: <20061105193457.GA3082@oleg> <Pine.LNX.4.64.0611051423150.25218@g5.osdl.org> <Pine.LNX.4.58.0611051741070.2439@gandalf.stny.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0611051741070.2439@gandalf.stny.rr.com>
-User-Agent: Mutt/1.5.11
+	Sun, 5 Nov 2006 18:13:12 -0500
+Message-ID: <454E7008.4020200@vmware.com>
+Date: Sun, 05 Nov 2006 15:13:12 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: caglar@pardus.org.tr
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
+Subject: Re: [Opps] Invalid opcode
+References: <200611051507.37196.caglar@pardus.org.tr> <200611051917.56971.caglar@pardus.org.tr> <200611051957.45260.ak@suse.de> <200611052151.14861.caglar@pardus.org.tr>
+In-Reply-To: <200611052151.14861.caglar@pardus.org.tr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/05, Steven Rostedt wrote:
-> 
-> On Sun, 5 Nov 2006, Linus Torvalds wrote:
-> 
-> >
-> > That said, since "task->state" in only tested _inside_ the runqueue lock,
-> > there is no race that I can see. Since we've gotten the runqueue lock in
-> > order to even check task-state, the processor that _sets_ task state must
-> > not only have done the "spin_lock()", it must also have done the
-> > "spin_unlock()", and _that_ will not allow either the timeout or the task
-> > state to haev leaked out from under it (because that would imply that the
-> > critical region leaked out too).
-> >
-> > So I don't think the race exists anyway - the schedule() will return
-> > immediately (because it will see TASK_RUNNING), and we'll just retry.
-> >
-> 
-> This whole situation is very theoretical, but I think this actually can
-> happen *theoretically*.
-> 
-> 
-> OK, the spin_lock doesn't do any serialization, but the unlock does. But
-> the problem can happen before the unlock. Because of the loop.
+S.Çağlar Onur wrote:
+> Hmm, Novell bugzilla seems has similiar issues, 
+> https://bugzilla.novell.com/show_bug.cgi?id=204647 and its duplicated ones 
+> gaves same or similiar panic outputs.
+>
+>   
+>> Previously we avoided converting i386 cpu bootup fully to the new state
+>> machine because it is very fragile, but it's possible that there
+>> is no other choice than to do it properly. Or maybe another kludge
+>> is possible.
+>>     
 
-Yes, yes, thanks.
-
-( Actually, this was more "is my understanding correct?" than a patch )
-
-Thanks!
-
-> CPU 1                                    CPU 2
-> 
->     task_rq_lock()
-> 
->     p->state = TASK_RUNNING;
-> 
-> 
->                                       (from bottom of for loop)
->                                       set_current_state(TASK_INTERRUPTIBLE);
-> 
->                                     for (;;) {  (looping)
-> 
->                                       if (timeout && !timeout->task)
-> 
-> 
->    (now CPU implements)
->    t->task = NULL
-> 
->    task_rq_unlock();
-> 
->                                    schedule() (with state == TASK_INTERRUPTIBLE)
-> 
-> 
-> Again, this is very theoretical, and I don't even think that this can
-> happen if you tried to make it.  But I guess if hardware were to change in
-> the future with the same rules that we have today with barriers, that this
-> can be a race.
-> 
-> -- Steve
-> 
-> 
-
+Yes, this is some kind of softirq race during init.

@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422759AbWKEWfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422771AbWKEWsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422759AbWKEWfW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 17:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422768AbWKEWfW
+	id S1422771AbWKEWsN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 17:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422773AbWKEWsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 17:35:22 -0500
-Received: from stinky.trash.net ([213.144.137.162]:48042 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1422759AbWKEWfV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 17:35:21 -0500
-Message-ID: <454E671B.2090302@trash.net>
-Date: Sun, 05 Nov 2006 23:35:07 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Sun, 5 Nov 2006 17:48:12 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:54669 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1422771AbWKEWsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 17:48:12 -0500
+Message-ID: <454E6A2A.5070002@vmware.com>
+Date: Sun, 05 Nov 2006 14:48:10 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: Joerg Roedel <joro-lkml@zlug.org>
-CC: Jan Dittmer <jdi@l4x.org>, David Miller <davem@davemloft.net>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/02 V3] net/ipv6: seperate sit driver to extra module
-References: <20061010153745.GA27455@zlug.org> <452FD6F6.3090907@l4x.org> <20061013191744.GA30089@zlug.org> <20061013.150608.63128976.davem@davemloft.net> <45301CB3.4060803@l4x.org> <20061014093255.GA4646@zlug.org>
-In-Reply-To: <20061014093255.GA4646@zlug.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------070107090809010407060109"
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       Benjamin LaHaise <bcrl@kvack.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc patch] i386: don't save eflags on task switch
+References: <200611040200_MC3-1-D04D-6EA3@compuserve.com>  <200611050641.14724.ak@suse.de> <454D9A75.7010204@vmware.com>  <200611051801.18277.ak@suse.de>  <Pine.LNX.4.64.0611050920220.25218@g5.osdl.org> <1162748079.3160.102.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0611050944380.25218@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611050944380.25218@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070107090809010407060109
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Linus Torvalds wrote:
+> On Sun, 5 Nov 2006, Arjan van de Ven wrote:
+>   
+>> actually lockdep is pretty good at finding this type of bug IMMEDIATELY
+>> even without the actual race triggering ;)
+>>     
+>
+> Ehh. Last time this happened, lockdep didn't find _squat_. 
+>
+> This was when NT and AC leaked across context switches, because the 
+> context switching had removed the "expensive" save/restore.
+>   
 
-Joerg Roedel wrote:
-> On Sat, Oct 14, 2006 at 01:09:39AM +0200, Jan Dittmer wrote:
-> 
->>Btw. is there any way to autoload the sit module or is this the
->>task of the distribution tools? Debian etch at least does not
->>automatically probe the module when trying to bring up a 6to4 tunnel.
-> 
-> 
-> AFAIK there is no way to automatically load the driver from the kernel
-> space. The configuration of the tunnel devices requires the sit0 device.
-> But this device is installed by the sit driver. I mailed a bug report to
-> the Debian people and informed them about the change.
+Owning up to being the one who introduced the thing.  Actually, it was a 
+pretty nice win for native, and a huge win for paravirtualization; 
+calling out to two helper functions for save / restore flags while 
+shuffling the stack is just awfully bad during such a critical region.  
+If you look back all the way to 2.4 kernel series, there was no save / 
+restore flags, and it didn't look like there ever was.  Somewhere during 
+2.5 development, it migrated in as an unchangelogged fix, and I was able 
+to dig up an email thread and reason that IOPL was leaking.  Course, 
+instead of thinking it all the way through, I thought the precedent of 
+having no eflags switching would be good enough with an explicit IOPL 
+switch.  Then nasty AC / NT raised their heads. 
 
+ID can be a problem as well; system calls during a code region which is 
+testing for a Pentium by toggling the ID bit (perhaps from a printf() 
+libc call) can cause the ID bit to leak onto another process or get 
+lost. causing CPUID detection to fail.
 
-It would be nice to keep things working even with this built as a
-module, it took me some time to realize my IPv6 tunnel was broken
-because of the missing sit module. This module alias fixes things
-until distributions have added an appropriate alias to modprobe.conf.
+I like Chuck's new set_eflags() since it fixes all this in a way we 
+don't have to reason about heavily.  Also, moving it to C code instead 
+of the assembler path is more maintainable.  IMHO, the assembler task 
+switch should switch the stack, which you can't do in C, and that is 
+it.  Everything else can be nicely packaged above it, including the 
+get_eflags().
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-
-
---------------070107090809010407060109
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
-
-diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-index b481a4d..be699f8 100644
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -854,3 +854,4 @@ int __init sit_init(void)
- module_init(sit_init);
- module_exit(sit_cleanup);
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS("sit0");
-
---------------070107090809010407060109--
+Zach

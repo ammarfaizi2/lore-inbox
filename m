@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422744AbWKEW3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422759AbWKEWfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422744AbWKEW3y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 17:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422757AbWKEW3y
+	id S1422759AbWKEWfW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 17:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422768AbWKEWfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 17:29:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:55448 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422744AbWKEW3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 17:29:53 -0500
-Date: Sun, 5 Nov 2006 14:29:31 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH? hrtimer_wakeup: fix a theoretical race wrt rt_mutex_slowlock()
-In-Reply-To: <20061105193457.GA3082@oleg>
-Message-ID: <Pine.LNX.4.64.0611051423150.25218@g5.osdl.org>
-References: <20061105193457.GA3082@oleg>
+	Sun, 5 Nov 2006 17:35:22 -0500
+Received: from stinky.trash.net ([213.144.137.162]:48042 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1422759AbWKEWfV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 17:35:21 -0500
+Message-ID: <454E671B.2090302@trash.net>
+Date: Sun, 05 Nov 2006 23:35:07 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Joerg Roedel <joro-lkml@zlug.org>
+CC: Jan Dittmer <jdi@l4x.org>, David Miller <davem@davemloft.net>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/02 V3] net/ipv6: seperate sit driver to extra module
+References: <20061010153745.GA27455@zlug.org> <452FD6F6.3090907@l4x.org> <20061013191744.GA30089@zlug.org> <20061013.150608.63128976.davem@davemloft.net> <45301CB3.4060803@l4x.org> <20061014093255.GA4646@zlug.org>
+In-Reply-To: <20061014093255.GA4646@zlug.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------070107090809010407060109"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070107090809010407060109
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+Joerg Roedel wrote:
+> On Sat, Oct 14, 2006 at 01:09:39AM +0200, Jan Dittmer wrote:
+> 
+>>Btw. is there any way to autoload the sit module or is this the
+>>task of the distribution tools? Debian etch at least does not
+>>automatically probe the module when trying to bring up a 6to4 tunnel.
+> 
+> 
+> AFAIK there is no way to automatically load the driver from the kernel
+> space. The configuration of the tunnel devices requires the sit0 device.
+> But this device is installed by the sit driver. I mailed a bug report to
+> the Debian people and informed them about the change.
 
 
-On Sun, 5 Nov 2006, Oleg Nesterov wrote:
->
-> When task->array != NULL, try_to_wake_up() just goes to "out_running" and sets
-> task->state = TASK_RUNNING.
-> 
-> In that case hrtimer_wakeup() does:
-> 
-> 	timeout->task = NULL;		<----- [1]
-> 
-> 	spin_lock(runqueues->lock);
-> 
-> 	task->state = TASK_RUNNING;	<----- [2]
-> 
-> from Documentation/memory-barriers.txt
-> 
-> 	Memory operations that occur before a LOCK operation may appear to
-> 	happen after it completes.
-> 
-> This means that [2] may be completed before [1], and
+It would be nice to keep things working even with this built as a
+module, it took me some time to realize my IPv6 tunnel was broken
+because of the missing sit module. This module alias fixes things
+until distributions have added an appropriate alias to modprobe.conf.
 
-Yes. On x86 (and x86-64) you'll never see this, because writes are always 
-seen in order regardless, and in addition, the spin_lock is actually 
-totally serializing anyway. On most other architectures, the spin_lock 
-will serialize all the writes too, but it's not guaranteed, so in theory 
-you're right. I suspect no actual architecture will do this, but hey, 
-when talking memory ordering, safe is a lot better than sorry.
+Signed-off-by: Patrick McHardy <kaber@trash.net>
 
-That said, since "task->state" in only tested _inside_ the runqueue lock, 
-there is no race that I can see. Since we've gotten the runqueue lock in 
-order to even check task-state, the processor that _sets_ task state must 
-not only have done the "spin_lock()", it must also have done the 
-"spin_unlock()", and _that_ will not allow either the timeout or the task 
-state to haev leaked out from under it (because that would imply that the 
-critical region leaked out too).
 
-So I don't think the race exists anyway - the schedule() will return 
-immediately (because it will see TASK_RUNNING), and we'll just retry.
+--------------070107090809010407060109
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
-		Linus
+diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
+index b481a4d..be699f8 100644
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -854,3 +854,4 @@ int __init sit_init(void)
+ module_init(sit_init);
+ module_exit(sit_cleanup);
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("sit0");
+
+--------------070107090809010407060109--

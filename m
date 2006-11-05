@@ -1,38 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965780AbWKEBys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965766AbWKECEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965780AbWKEBys (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 20:54:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965781AbWKEBys
+	id S965766AbWKECEh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 21:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965788AbWKECEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 20:54:48 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:58577 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965780AbWKEByr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 20:54:47 -0500
-Subject: Re: New filesystem for Linux
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0611041938490.24713@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
-	 <454A76CC.6030003@cosmosbay.com>
-	 <Pine.LNX.4.64.0611041938490.24713@artax.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 05 Nov 2006 01:58:56 +0000
-Message-Id: <1162691936.21654.63.camel@localhost.localdomain>
+	Sat, 4 Nov 2006 21:04:37 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:12478 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965786AbWKECEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 21:04:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=oz7Mz6xtK9kOm8mZiKZPs7ABWrF3uWDuRpJuUYTdxbyk+KmpfShcyXDSSWxIktBsJ1lh79P5/rnLjFjB5ggoCDmkvSIb01Axich4sRyQ7+zmoPr/1oXbmsM+5bPOYrMU5d3UzX/46dM4N+ZaUyyHmrSFJG/I08mjoE/ito/E00c=
+Date: Sun, 5 Nov 2006 05:04:31 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: William D Waddington <william.waddington@beezmo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IRQ: ease out-of-tree migration to new irq_handler prototype
+Message-ID: <20061105020431.GA20243@martell.zuzino.mipt.ru>
+References: <454CDC11.5030708@beezmo.com> <20061104190357.GA4971@martell.zuzino.mipt.ru> <454CF2DD.40803@beezmo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <454CF2DD.40803@beezmo.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-11-04 am 19:40 +0100, ysgrifennodd Mikulas Patocka:
-> > The problem with a per_cpu biglock is that you may consume a lot of RAM for 
-> > big NR_CPUS. Count 32 KB per 'biglock' if NR_CPUS=1024
-> 
-> Does one Linux kernel run on system with 1024 cpus? I guess it must fry 
-> spinlocks... (or even lockup due to spinlock livelocks)
+On Sat, Nov 04, 2006 at 12:06:53PM -0800, William D Waddington wrote:
+> Alexey Dobriyan wrote:
+> >On Sat, Nov 04, 2006 at 10:29:37AM -0800, William D Waddington wrote:
+> >
+> >>Ease out-of-tree driver migration to new irq_handler prototype.
+> >>Define empty 3rd argument macro for use in multi kernel version
+> >>out-of-tree drivers going forward.  Backportable drives can do:
+> >>
+> >>(in a header)
+> >>#ifndef __PT_REGS
+> >># define __PT_REGS , struct pt_regs *regs
+> >>#endif
+> >
+> >
+> >Backportable drivers should check kernel version themselves and define
+> >__PT_REGS themselves.
+>
+> I think I provided too much information :(  It would be sufficiently
+> helpful to just #define __PT_REGS <nothing> in  interrupt.h to make
+> things easier for low-life out-of-tree maintainers.  There isn't any
+> need to actualy detect version.  Just detect __PT_REGS already defined.
 
-Altix goes that big and bigger. 
+Out-of-tree maintainer will have to change his code ANYWAY. And while he
+is doing that, he can spend 10 seconds to add 5-line version check.
 
-Alan
+More, if you've followed pt_regs removal patches, you'd noticed that
+some of them were not trivial. In this case version check is least of
+his worries.
+
+> The "in a header" above referred to the driver's header - #ifdefs in
+> executable code really looks nasty IMHO.
+>
+> The "#define __PT_REGS , ..." comment below was intended to be a
+> "helpful" note to driver writers.  Like I said, TMI.
+>
+> >>(in code body)
+> >>static irqreturn_t irq_handler(int irq, void *dev_id __PT_REGS)
+> >
+> >
+> >>+/*
+> >>+ * Irq handler migration helper - empty 3rd argument
+> >>+ * #define __PT_REGS , struct pt_regs *regs
+> >>+ * for older kernel versions
+> >>+ */
+> >>+
+> >>+#define __PT_REGS
+>
+> How should I tidy this up - if it is acceptable at all?
+
+No, this is not acceptable.
+

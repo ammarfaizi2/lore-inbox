@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965839AbWKEEje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWKEEnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965839AbWKEEje (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 23:39:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965841AbWKEEje
+	id S1030190AbWKEEnk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 23:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbWKEEnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 23:39:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:37602 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965839AbWKEEjd (ORCPT
+	Sat, 4 Nov 2006 23:43:40 -0500
+Received: from ozlabs.org ([203.10.76.45]:15582 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030190AbWKEEnj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 23:39:33 -0500
-Subject: Re: lib/iomap.c mmio_{in,out}s* vs. __raw_* accessors
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <Pine.LNX.4.64.0611042013400.25218@g5.osdl.org>
-References: <1162626761.28571.14.camel@localhost.localdomain>
-	 <20061104140559.GC19760@flint.arm.linux.org.uk>
-	 <1162678639.28571.63.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611041544030.25218@g5.osdl.org>
-	 <1162689005.28571.118.camel@localhost.localdomain>
-	 <1162697533.28571.131.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611041946020.25218@g5.osdl.org>
-	 <1162699255.28571.150.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611042013400.25218@g5.osdl.org>
+	Sat, 4 Nov 2006 23:43:39 -0500
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs
+	for	paravirtualizing critical operations
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>,
+       virtualization@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <200611032209.40235.ak@suse.de>
+References: <20061029024504.760769000@sous-sol.org>
+	 <200611030356.54074.ak@suse.de> <454BA7F7.8030205@vmware.com>
+	 <200611032209.40235.ak@suse.de>
 Content-Type: text/plain
-Date: Sun, 05 Nov 2006 15:38:57 +1100
-Message-Id: <1162701537.28571.156.camel@localhost.localdomain>
+Date: Sun, 05 Nov 2006 15:43:35 +1100
+Message-Id: <1162701815.29777.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> The _only_ reason to use "ioread32be()" would be because the machine is 
-> actually natively BE, and you want to avoid swab. That's kind of the point 
-> of using "be32_to_cpu(__raw_readl(addr)))" like we do now - it will do the 
-> byte swap only if it's necessary.
+On Fri, 2006-11-03 at 22:09 +0100, Andi Kleen wrote:
+> > 
+> > Sounds like desc.h got reordered.  Somewhere, there was a broken patch 
+> > once that did this, I thought we fixed that.
 > 
-> In contrast, your "swab(readl())" does _two_ byteswaps - once to turn it 
-> into LE, then to turn it back into BE.
-
-I'm not doing a swab(readl()), I'm doing a swab(insl()) and have the
-arch provide a native BE accessor for readl_be(). The idea is that I
-don't want to add _be accessors for PIO and PIO is slow anyway. But I'm
-providing one for MMIO, along with the repeat versions. Have a second
-look. 
-
-> So if we can't just rip it out, then we sure as hell shouldn't replace it 
-> with something that is obviously worse either.
+> I think I got Rusty's latest patches that I found in my mailbox.
 > 
-> In other words - I don't see the reasoning here again. You seem to want to 
-> make the code just worse. 
+> I haven't looked at desc.h, but at least processor.h ordering was totally
+> b0rken (e.g. #define __cpuid native_cpuid was after several uses). I fixed
+> that to make at least the CONFIG_PARAVIRT not set case compile.
+> 
+> I can't see how this ever worked either.
+> 
+> Haven't attempted the CONFIG_PARAVIRT case which apparently needs more work
+> (it is currently marked CONFIG_BROKEN) 
+> 
+> Can someone double check this is the correct patchkit?
+> 
+> ftp://ftp.frstfloor.org/pub/ak/x86_64/quilt/patches/paravirt*
 
-Wait, let's make thing clear, there are 2 things here:
+Andi, the patches work against Andrew's tree, and he's merged them in
+rc4-mm2.  There are a few warnings to clean up, but it seems basically
+sound.
 
- - MMIO : For that, I'm providing readw_be etc... which my patch defines
-based on __raw_* just as your suggest, I'm just adding a way for the
-arch to provide its own.
+At this point I our think time is better spent on beating those patches
+up, rather than going back and figuring out why they don't work in your
+tree.
 
- - PIO : This is broken -now-. The current code doesn't swap at all in
-the PIO case, thus you get LE result when using ioread32be() on PIO. I
-propose to fix that with swab() because PIO sucks already, there is no
-"__raw" for PIO and it doesn't deserve new accessors nor speed.
-
-Cheers,
-Ben.
+Sorry,
+Rusty.
 
 

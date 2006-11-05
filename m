@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161130AbWKEGV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWKEGXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161130AbWKEGV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 01:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbWKEGV2
+	id S1161145AbWKEGXc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 01:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161138AbWKEGXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 01:21:28 -0500
-Received: from ozlabs.org ([203.10.76.45]:60128 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1161130AbWKEGV1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 01:21:27 -0500
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs
-	for	paravirtualizing critical operations
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@suse.de>
-Cc: Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>,
-       virtualization@lists.osdl.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <200611050646.15334.ak@suse.de>
-References: <20061029024504.760769000@sous-sol.org>
-	 <200611032209.40235.ak@suse.de>
-	 <1162701815.29777.6.camel@localhost.localdomain>
-	 <200611050646.15334.ak@suse.de>
-Content-Type: text/plain
-Date: Sun, 05 Nov 2006 17:21:25 +1100
-Message-Id: <1162707685.29777.53.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Nov 2006 01:23:31 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:39694 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161145AbWKEGXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 01:23:30 -0500
+Date: Sun, 5 Nov 2006 07:23:30 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Hugh Dickins <hugh@veritas.com>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       Martin Lorenz <martin@lorenz.eu.org>, Andi Kleen <ak@suse.de>,
+       discuss@x86-64.org, linux-serial@vger.kernel.org,
+       linux-thinkpad@linux-thinkpad.org, Ernst Herzberg <earny@net4u.de>
+Subject: Re: 2.6.19-rc <-> ThinkPads, summary
+Message-ID: <20061105062330.GT13381@stusta.de>
+References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il> <20061101030126.GE27968@stusta.de> <20061104034906.GO13381@stusta.de> <20061104140440.GB19760@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061104140440.GB19760@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 06:46 +0100, Andi Kleen wrote:
-> > Andi, the patches work against Andrew's tree, and he's merged them in
-> > rc4-mm2.  There are a few warnings to clean up, but it seems basically
-> > sound.
-> > 
-> > At this point I our think time is better spent on beating those patches
-> > up, rather than going back and figuring out why they don't work in your
-> > tree.
+On Sat, Nov 04, 2006 at 02:04:40PM +0000, Russell King wrote:
+> On Sat, Nov 04, 2006 at 04:49:07AM +0100, Adrian Bunk wrote:
+> > As far as I can see, the 2.6.19-rc ThinkPad situation is still 
+> > confusing and we don't even know how many different bugs we are 
+> > chasing...
 > 
-> My tree is basically mainline as base. Sure if you don't care about mainline
-> merges we can ignore it there and keep it forever in -mm* until Andrew
-> gets tired of it?
-> 
-> That's a possible strategy, but only if you want to keep it as a mm-only
-> toy forever.
+> Why am I copied on this?  Nothing jumps out as being in any area of my
+> interest (which today is limited to ARM architecture only.)
 
-Andi, it's been simpler for us to get the code into Andrew's tree, in
-nice bit-size pieces.  We've had trouble every time we've tried to get
-stuff into your tree.  In addition, Andrew's tree gives the code
-exposure and testing.
+Ernst bisected his problem to your
+commit 1fbbac4bcb03033d325c71fc7273aa0b9c1d9a03 
+("serial_cs: convert multi-port table to quirk table").
 
-If Andrew says we have to get those patches into mainline through you,
-then I'll spend all that time re-spinning the patches for you from the
--mm tree until they go in.  It doesn't seem like a good use of anyone's
-time though.
+It might be a false positive of the bisecting, but if it turns out to 
+actually cause problems it was your commit.
 
-Rusty.
+> Russell King
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

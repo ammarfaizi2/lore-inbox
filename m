@@ -1,88 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161191AbWKEHQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbWKEHYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161191AbWKEHQA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 02:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161196AbWKEHQA
+	id S1161196AbWKEHYv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 02:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161202AbWKEHYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 02:16:00 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:10825 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161191AbWKEHP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 02:15:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=DCfaG4jnA52ivzdbXX9AAksWAuV/ArBOaK6pFWGJgkXbYpk3cMtiv7nWWOQCkdcLaLiWAaRXt9U7txo7MQqpYC+QthrYkpdkRV6EonKUmL0kd82GeGq9Xxu0Uw6A8ybiztWgyYLZzAqf1UQoB8V4jL8mkwJFE0R2Z3Ijgumkf1g=
-Message-ID: <86802c440611042315m2c923fccmeec6b3fa1448780a@mail.gmail.com>
-Date: Sat, 4 Nov 2006 23:15:57 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 32/33] x86_64: Relocatable kernel support
-Cc: "Andi Kleen" <ak@suse.de>, Horms <horms@verge.net.au>,
-       "Jan Kratochvil" <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, "Magnus Damm" <magnus.damm@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m1zmb6per0.fsf@ebiederm.dsl.xmission.com>
+	Sun, 5 Nov 2006 02:24:51 -0500
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:63912 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1161196AbWKEHYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 02:24:50 -0500
+Date: Sun, 5 Nov 2006 02:18:47 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [rfc patch] i386: only restore eflags if necessary on task
+  switch
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Zachary Amsden <zach@vmware.com>
+Message-ID: <200611050221_MC3-1-D06D-E00D@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	 <11544302483667-git-send-email-ebiederm@xmission.com>
-	 <p73d5bk1dat.fsf@verdi.suse.de>
-	 <m1vepbx4aj.fsf@ebiederm.dsl.xmission.com>
-	 <86802c440611042202l703de80i26931090f2809e74@mail.gmail.com>
-	 <m1zmb6per0.fsf@ebiederm.dsl.xmission.com>
-X-Google-Sender-Auth: d752e676889b1228
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/4/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> If you are booting a vmlinux you read the ELF header.  The ELF header
-> only describes the native mode.  Therefore no 32bit entry makes much sense.
->
-Yes, but if you keep the startup_32 and it will be at 0x200000, and
-startup_64 will be 0x200100. and entry point in ELF header is
-0x200100.
-by removing startup_32, startup_64 will be 0x200000. and entry point
-in ehdr is 0x200000.
-So I assume entry_point in elf_header could be used by 64bit
-bootloader and phdr[1].p_addr could be used by 32bit boot loader.
+Save eflags during task switch but only restore them if the next
+task has different values that affect system operation.
 
-YH
+Original idea by Zach Amsden.
 
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-ELF Header:
-  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
-  Class:                             ELF64
-  Data:                              2's complement, little endian
-  Version:                           1 (current)
-  OS/ABI:                            UNIX - System V
-  ABI Version:                       0
-  Type:                              EXEC (Executable file)
-  Machine:                           Advanced Micro Devices X86-64
-  Version:                           0x1
-  Entry point address:               0x200100
-  Start of program headers:          64 (bytes into file)
-  Start of section headers:          7192496 (bytes into file)
-  Flags:                             0x0
-  Size of this header:               64 (bytes)
-  Size of program headers:           56 (bytes)
-  Number of program headers:         5
-  Size of section headers:           64 (bytes)
-  Number of section headers:         42
-  Section header string table index: 39
+---
 
-Program Headers:
-  Type           Offset             VirtAddr           PhysAddr
-                 FileSiz            MemSiz              Flags  Align
-  LOAD           0x0000000000100000 0xffffffff80200000 0x0000000000200000
-                 0x000000000032f508 0x000000000032f508  R E    100000
-  LOAD           0x0000000000430000 0xffffffff80530000 0x0000000000530000
-                 0x0000000000148ec8 0x0000000000148ec8  RWE    100000
-  LOAD           0x0000000000600000 0xffffffffff600000 0x0000000000679000
-                 0x0000000000000c08 0x0000000000000c08  RWE    100000
-  LOAD           0x000000000067a000 0xffffffff8067a000 0x000000000067a000
-                 0x000000000005dd68 0x00000000000e91c8  RWE    100000
-  NOTE           0x0000000000000000 0x0000000000000000 0x0000000000000000
-                 0x0000000000000000 0x0000000000000000  R      8
+ arch/i386/kernel/ioport.c    |    8 ++++----
+ arch/i386/kernel/process.c   |    6 +++---
+ include/asm-i386/processor.h |   30 ++++++++++++++++++++----------
+ include/asm-i386/system.h    |   12 +++++++-----
+ 4 files changed, 34 insertions(+), 22 deletions(-)
+
+--- 2.6.19-rc4-32smp.orig/include/asm-i386/processor.h
++++ 2.6.19-rc4-32smp/include/asm-i386/processor.h
+@@ -143,6 +143,12 @@ static inline void detect_ht(struct cpui
+ #define X86_EFLAGS_VIP	0x00100000 /* Virtual Interrupt Pending */
+ #define X86_EFLAGS_ID	0x00200000 /* CPUID detection flag */
+ 
++/*
++ * EFLAGS bits that affect system operation
++ */
++#define X86_EFLAGS_SYSTEM ~(X86_EFLAGS_OF | X86_EFLAGS_SF | X86_EFLAGS_ZF | \
++			    X86_EFLAGS_AF | X86_EFLAGS_PF | X86_EFLAGS_ZF)
++
+ static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
+ 			   unsigned int *ecx, unsigned int *edx)
+ {
+@@ -449,6 +455,7 @@ struct thread_struct {
+ 	unsigned long	sysenter_cs;
+ 	unsigned long	eip;
+ 	unsigned long	esp;
++ 	unsigned long	eflags;
+ 	unsigned long	fs;
+ 	unsigned long	gs;
+ /* Hardware debugging registers */
+@@ -464,7 +471,6 @@ struct thread_struct {
+ 	unsigned int		saved_fs, saved_gs;
+ /* IO permissions */
+ 	unsigned long	*io_bitmap_ptr;
+- 	unsigned long	iopl;
+ /* max allowed port in the bitmap, in bytes: */
+ 	unsigned long	io_bitmap_max;
+ };
+@@ -521,20 +527,24 @@ static inline void load_esp0(struct tss_
+ 			: /* no output */			\
+ 			:"r" (value))
+ 
++static inline unsigned get_eflags(void) {
++	unsigned eflags;
++
++	asm volatile ("pushfl ; popl %0" : "=g" (eflags));
++
++	return eflags;
++}
++
++static inline void set_eflags(unsigned eflags) {
++	asm volatile ("pushl %0 ; popfl" : : "g" (eflags));
++}
++
+ /*
+  * Set IOPL bits in EFLAGS from given mask
+  */
+ static inline void set_iopl_mask(unsigned mask)
+ {
+-	unsigned int reg;
+-	__asm__ __volatile__ ("pushfl;"
+-			      "popl %0;"
+-			      "andl %1, %0;"
+-			      "orl %2, %0;"
+-			      "pushl %0;"
+-			      "popfl"
+-				: "=&r" (reg)
+-				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
++	set_eflags((get_eflags() & ~X86_EFLAGS_IOPL) | (mask & X86_EFLAGS_IOPL));
+ }
+ 
+ /* Forward declaration, a strange C thing */
+--- 2.6.19-rc4-32smp.orig/arch/i386/kernel/process.c
++++ 2.6.19-rc4-32smp/arch/i386/kernel/process.c
+@@ -681,10 +681,10 @@ struct task_struct fastcall * __switch_t
+ 		loadsegment(gs, next->gs);
+ 
+ 	/*
+-	 * Restore IOPL if needed.
++	 * Restore eflags if system flags are different in next task.
+ 	 */
+-	if (unlikely(prev->iopl != next->iopl))
+-		set_iopl_mask(next->iopl);
++	if (unlikely((get_eflags() ^ next->eflags) & X86_EFLAGS_SYSTEM))
++		set_eflags(next->eflags);
+ 
+ 	/*
+ 	 * Now maybe handle debug registers and/or IO bitmaps
+--- 2.6.19-rc4-32smp.orig/include/asm-i386/system.h
++++ 2.6.19-rc4-32smp/include/asm-i386/system.h
+@@ -14,23 +14,25 @@ extern struct task_struct * FASTCALL(__s
+ /*
+  * Saving eflags is important. It switches not only IOPL between tasks,
+  * it also protects other tasks from NT leaking through sysenter etc.
++ * (eflags will be restored in __switch_to() only if necessary.)
+  */
+ #define switch_to(prev,next,last) do {					\
+ 	unsigned long esi,edi;						\
+ 	asm volatile("pushfl\n\t"		/* Save flags */	\
++		     "popl %2\n\t"					\
+ 		     "pushl %%ebp\n\t"					\
+ 		     "movl %%esp,%0\n\t"	/* save ESP */		\
+-		     "movl %5,%%esp\n\t"	/* restore ESP */	\
++		     "movl %6,%%esp\n\t"	/* restore ESP */	\
+ 		     "movl $1f,%1\n\t"		/* save EIP */		\
+-		     "pushl %6\n\t"		/* restore EIP */	\
++		     "pushl %7\n\t"		/* restore EIP */	\
+ 		     "jmp __switch_to\n"				\
+ 		     "1:\t"						\
+-		     "popl %%ebp\n\t"					\
+-		     "popfl"						\
++		     "popl %%ebp"					\
+ 		     :"=m" (prev->thread.esp),"=m" (prev->thread.eip),	\
++		      "=m" (prev->thread.eflags),			\
+ 		      "=a" (last),"=S" (esi),"=D" (edi)			\
+ 		     :"m" (next->thread.esp),"m" (next->thread.eip),	\
+-		      "2" (prev), "d" (next));				\
++		      "3" (prev), "d" (next));				\
+ } while (0)
+ 
+ #define _set_base(addr,base) do { unsigned long __pr; \
+--- 2.6.19-rc4-32smp.orig/arch/i386/kernel/ioport.c
++++ 2.6.19-rc4-32smp/arch/i386/kernel/ioport.c
+@@ -137,7 +137,7 @@ asmlinkage long sys_iopl(unsigned long u
+ 	volatile struct pt_regs * regs = (struct pt_regs *) &unused;
+ 	unsigned int level = regs->ebx;
+ 	unsigned int old = (regs->eflags >> 12) & 3;
+-	struct thread_struct *t = &current->thread;
++	unsigned int iopl;
+ 
+ 	if (level > 3)
+ 		return -EINVAL;
+@@ -146,8 +146,8 @@ asmlinkage long sys_iopl(unsigned long u
+ 		if (!capable(CAP_SYS_RAWIO))
+ 			return -EPERM;
+ 	}
+-	t->iopl = level << 12;
+-	regs->eflags = (regs->eflags & ~X86_EFLAGS_IOPL) | t->iopl;
+-	set_iopl_mask(t->iopl);
++	iopl = level << 12;
++	regs->eflags = (regs->eflags & ~X86_EFLAGS_IOPL) | iopl;
++	set_iopl_mask(iopl);
+ 	return 0;
+ }
+-- 
+Chuck

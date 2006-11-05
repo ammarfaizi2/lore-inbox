@@ -1,94 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161163AbWKEGu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161166AbWKEGwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161163AbWKEGu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 01:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWKEGu4
+	id S1161166AbWKEGwq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 01:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161173AbWKEGwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 01:50:56 -0500
-Received: from pat.uio.no ([129.240.10.4]:731 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1161163AbWKEGuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 01:50:55 -0500
-Subject: Re: [PATCH] Fix SUNRPC wakeup/execute race condition
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org, NFS V4 Mailing List <nfsv4@linux-nfs.org>,
-       "J. Bruce Fields" <bfields@citi.umich.edu>
-In-Reply-To: <1162688688.5153.26.camel@leto.intern.saout.de>
-References: <1157576316.3292.13.camel@dyn9047022153>
-	 <20060907150146.GA22586@fieldses.org>
-	 <1157731084.3292.25.camel@dyn9047022153>
-	 <20060908160432.GB19234@fieldses.org>
-	 <1162158228.11247.4.camel@leto.intern.saout.de>
-	 <1162159282.11247.17.camel@leto.intern.saout.de>
-	 <1162321027.23543.6.camel@leto.intern.saout.de>
-	 <1162324141.23543.23.camel@leto.intern.saout.de>
-	 <1162325490.5614.82.camel@lade.trondhjem.org>
-	 <1162602386.26794.5.camel@leto.intern.saout.de>
-	 <1162688688.5153.26.camel@leto.intern.saout.de>
-Content-Type: text/plain
-Date: Sun, 05 Nov 2006 01:50:41 -0500
-Message-Id: <1162709441.6271.62.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.731, required 12,
-	autolearn=disabled, AWL 1.13, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Sun, 5 Nov 2006 01:52:46 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44473 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161166AbWKEGwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 01:52:45 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Yinghai Lu" <yinghai.lu@amd.com>
+Cc: "Andi Kleen" <ak@suse.de>, Horms <horms@verge.net.au>,
+       "Jan Kratochvil" <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, "Magnus Damm" <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 32/33] x86_64: Relocatable kernel support
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<11544302483667-git-send-email-ebiederm@xmission.com>
+	<p73d5bk1dat.fsf@verdi.suse.de>
+	<m1vepbx4aj.fsf@ebiederm.dsl.xmission.com>
+	<86802c440611042202l703de80i26931090f2809e74@mail.gmail.com>
+Date: Sat, 04 Nov 2006 23:52:03 -0700
+In-Reply-To: <86802c440611042202l703de80i26931090f2809e74@mail.gmail.com>
+	(Yinghai Lu's message of "Sat, 4 Nov 2006 22:02:14 -0800")
+Message-ID: <m1zmb6per0.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 02:04 +0100, Christophe Saout wrote:
-> The sunrpc scheduler contains a race condition that can let an RPC
-> task end up being neither running nor on any wait queue. The race takes
-> place between rpc_make_runnable (called from rpc_wake_up_task) and
-> __rpc_execute under the following condition:
-> 
-> First __rpc_execute calls tk_action which puts the task on some wait
-> queue. The task is dequeued by another process before __rpc_execute
-> continues its execution. While executing rpc_make_runnable exactly after
-> setting the task `running' bit and before clearing the `queued' bit
-> __rpc_execute picks up execution, clears `running' and subsequently
-> both functions fall through, both under the false assumption somebody
-> else took the job.
-> 
-> Swapping rpc_test_and_set_running with rpc_clear_queued in
-> rpc_make_runnable fixes that hole. The reordering hopefully doesn't
-> introduce some new race condition, in fact the only possible one is
-> already correctly detected and handled in __rpc_execute.
-> 
-> Bug noticed on a 4-way x86_64 system under XEN with an NFSv4 server
-> on the same physical machine, apparently one of the few ways to hit
-> this race condition at all.
-> 
-> Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
-> Cc: J. Bruce Fields <bfields@citi.umich.edu>
-> Cc: Olaf Kirch <okir@monad.swb.de>
-> Signed-off-by: Christophe Saout <christophe@saout.de>
-> 
-> --- linux-2.6.18/net/sunrpc/sched.c	2006-09-20 05:42:06.000000000 +0200
-> +++ linux/net/sunrpc/sched.c	2006-11-04 20:38:56.000000000 +0100
-> @@ -302,12 +302,9 @@ EXPORT_SYMBOL(__rpc_wait_for_completion_
->   */
->  static void rpc_make_runnable(struct rpc_task *task)
->  {
-> -	int do_ret;
-> -
->  	BUG_ON(task->tk_timeout_fn);
-> -	do_ret = rpc_test_and_set_running(task);
->  	rpc_clear_queued(task);
-> -	if (do_ret)
-> +	if (rpc_test_and_set_running(task))
->  		return;
->  	if (RPC_IS_ASYNC(task)) {
->  		int status;
+"Yinghai Lu" <yinghai.lu@amd.com> writes:
 
-This fix looks wrong to me. If we've made it to 'rpc_make_runnable',
-then the rpc_task will have already been removed from the
-rpc_wait_queue.
-The only question left is "who is responsible for waking up the
-synchronous task / setting up the asynchronous workqueue item?".
+> On 8/1/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+>> I guess I could take this in some slightly smaller steps.
+>> But this does wind up with decompressor being 64bit code.
+>
+> Sorry to bring out the old mail.
+>
+> except reusing the uncompressor in 32bit, is there any reason that you
+> removed startup_32 for vmlinux but keep startup_32 for bzImage?
+>
+> that will make vmlinux use 64bit boot loader only.
 
-Cheers,
-  Trond
+If you are booting a vmlinux you read the ELF header.  The ELF header
+only describes the native mode.  Therefore no 32bit entry makes much sense.
+
+bzImage is something else entirely.
+
+Eric
 

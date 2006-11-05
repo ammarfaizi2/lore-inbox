@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161382AbWKERSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161381AbWKERRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161382AbWKERSN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 12:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161383AbWKERSN
+	id S1161381AbWKERRz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 12:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161361AbWKERRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 12:18:13 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:41431 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1161382AbWKERSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 12:18:08 -0500
-Date: Sun, 5 Nov 2006 18:18:07 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Albert Cahalan <acahalan@gmail.com>, kangur@polcom.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <1162691856.21654.61.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0611051813440.1513@artax.karlin.mff.cuni.cz>
-References: <787b0d920611041159y6171ec25u92716777ce9bea4a@mail.gmail.com>
- <1162691856.21654.61.camel@localhost.localdomain>
-X-Personality-Disorder: Schizoid
+	Sun, 5 Nov 2006 12:17:55 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:38108 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1161382AbWKERRy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 12:17:54 -0500
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [Opps] Invalid opcode
+Date: Sun, 5 Nov 2006 19:17:53 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, Zachary Amsden <zach@vmware.com>,
+       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
+References: <200611051507.37196.caglar@pardus.org.tr> <200611051740.47191.ak@suse.de>
+In-Reply-To: <200611051740.47191.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2003170.6GiiUraA7Y";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200611051917.56971.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> And possibly some broken drives may also return you something that
->>> they think is good data but really is not (shouldn't happen since
->>> both disks and cables should be protected by checksums, but hey...
->>> you can never be absolutely sure especially on very big storages).
+--nextPart2003170.6GiiUraA7Y
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+05 Kas 2006 Paz 18:40 tarihinde, Andi Kleen =C5=9Funlar=C4=B1 yazm=C4=B1=C5=
+=9Ft=C4=B1:=20
+> How do you know this?
+
+Just guessing, if im not wrong panics occur after SMP alternative switching=
+=20
+code done its job.
+
+> And does it still happen in 2.6.19-rc4?
+
+Will try
+
+> > in VmWare and Microsoft Virtual
+> > PC and in order to confirm this bug is not our distro specific i
+> > downloaded and tried latest OpenSuse also [1]  and [2] are screens
+> > captured by vmware but exact same panic occurs in Virtual PC as reported
+> > to us in [3].
 >
-> It happens because
-> -	There is limited if any protection on the PCI bus generally
-> -	Many PC systems don't have ECC memory, ECC cache
-> -	PATA does not CRC protect the command block so if you do enough PATA
-> I/O (eg you are a US national lab ..) you *will* eventually get a bit
-> flip that gives you the wrong sector with no error data. SATA fixes that
-> one.
-> -	Murphy is out to get you..
+> Always the same BUG()?
 
-Should IDE driver read back parameters after writing them before issuing 
-the command? That should fix this problem. (except when command is written 
-badly)
+Yes, same bug
 
-> Not seen that, although they do move stuff aorund in their internal
-> block management of bad blocks. I've also seen hardware errors that lead
-> to data being messed up silently.
+> There is just some rolling Turkish text there.
 
-I have seen one WD drive bought in 2003 having error in its firmware in 
-cache-coherency code --- if you read and write 256 sectors to the same 
-places with some pattern repeatedly (with direct IO), it will discard a 
-write. It happens only with 256-sector writes, maybe some part of firmware 
-treats 256 as 0. Maybe I create testcase sometimes.
+Ah im sorry here is the correct links :(
 
-Mikulas
+[1] http://cekirdek.pardus.org.tr/~caglar/2.6.18/panic_on_opensuse.png
+[2] http://cekirdek.pardus.org.tr/~caglar/2.6.18/panic_on_pardus.png
 
-> Alan
->
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
+
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart2003170.6GiiUraA7Y
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFThzEy7E6i0LKo6YRAkZlAKCMpKUCsHHavGRkp3NxduuZ+aroVACgiBGj
+mcfIRaStoITXyQ2X2U+9SHI=
+=12dg
+-----END PGP SIGNATURE-----
+
+--nextPart2003170.6GiiUraA7Y--

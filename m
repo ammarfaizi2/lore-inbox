@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWKEGXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161134AbWKEGah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161145AbWKEGXc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 01:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161138AbWKEGXb
+	id S1161134AbWKEGah (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 01:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbWKEGag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 01:23:31 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:39694 "HELO
+	Sun, 5 Nov 2006 01:30:36 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44046 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161145AbWKEGXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 01:23:30 -0500
-Date: Sun, 5 Nov 2006 07:23:30 +0100
+	id S1161134AbWKEGag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 01:30:36 -0500
+Date: Sun, 5 Nov 2006 07:30:37 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Hugh Dickins <hugh@veritas.com>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
-       Martin Lorenz <martin@lorenz.eu.org>, Andi Kleen <ak@suse.de>,
-       discuss@x86-64.org, linux-serial@vger.kernel.org,
-       linux-thinkpad@linux-thinkpad.org, Ernst Herzberg <earny@net4u.de>
-Subject: Re: 2.6.19-rc <-> ThinkPads, summary
-Message-ID: <20061105062330.GT13381@stusta.de>
-References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il> <20061101030126.GE27968@stusta.de> <20061104034906.GO13381@stusta.de> <20061104140440.GB19760@flint.arm.linux.org.uk>
+To: Arnaldo Carvalho de Melo <acme@mandriva.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, lwn@lwn.net
+Subject: Re: Top 100 inline functions (make allyesconfig) was Re: [ANNOUNCE] pahole and other DWARF2 utilities
+Message-ID: <20061105063037.GU13381@stusta.de>
+References: <20061030213318.GA5319@mandriva.com> <20061030203334.09caa368.akpm@osdl.org> <20061103190729.GB25363@mandriva.com> <20061104210330.GA6028@mandriva.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061104140440.GB19760@flint.arm.linux.org.uk>
+In-Reply-To: <20061104210330.GA6028@mandriva.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2006 at 02:04:40PM +0000, Russell King wrote:
-> On Sat, Nov 04, 2006 at 04:49:07AM +0100, Adrian Bunk wrote:
-> > As far as I can see, the 2.6.19-rc ThinkPad situation is still 
-> > confusing and we don't even know how many different bugs we are 
-> > chasing...
+On Sat, Nov 04, 2006 at 06:03:32PM -0300, Arnaldo Carvalho de Melo wrote:
+> On Fri, Nov 03, 2006 at 04:07:29PM -0300, Arnaldo Carvalho de Melo wrote:
+> > On Mon, Oct 30, 2006 at 08:33:34PM -0800, Andrew Morton wrote:
+> > > On Mon, 30 Oct 2006 18:33:19 -0300
+> > > Arnaldo Carvalho de Melo <acme@mandriva.com> wrote:
+> > > 
+> > > > 	Further ideas on how to use the DWARF2 information include tools
+> > > > that will show where inlines are being used, how much code is added by
+> > > > inline functions,
+> > > 
+> > > It would be quite useful to be able to identify inlined functions which are
+> > > good candidates for uninlining.
+> > 
+> > Top 50 inline functions expanded more than once by sum of its expansions
+> > in a vmlinux file built for qemu, most things are modules, columns are
+> > (inline function name, number of times it was expanded, sum in bytes of
+> > its expansions, number of source files where expansions ocurred):
+> > 
+> > [acme@newtoy guinea_pig-2.6]$ pfunct --total_inline_stats
+> > ../../acme/OUTPUT/qemu/net-2.6/vmlinux | grep -v ': 1 ' | sort -k3 -nr |
+> > head -50
+> > 
+> > get_current                        676   5732 155
 > 
-> Why am I copied on this?  Nothing jumps out as being in any area of my
-> interest (which today is limited to ARM architecture only.)
+> Ok, this time for a 'make allyesconfig' build, top 100, for the list of
+> all 6021 inline functions that were expanded more than once in this 281
+> MB vmlinux image download the 93 KB files at:
+>...
 
-Ernst bisected his problem to your
-commit 1fbbac4bcb03033d325c71fc7273aa0b9c1d9a03 
-("serial_cs: convert multi-port table to quirk table").
+Thanks, this is interesting data.
 
-It might be a false positive of the bisecting, but if it turns out to 
-actually cause problems it was your commit.
+One thing you could do for improving the result:
 
-> Russell King
+allyesconfig turns on all debugging option, and there might be functions 
+that are significantely larger due to this fact.
+
+Unsetting *DEBUG* options in the .config might bring a better focus 
+on the real-world problems.
+
+> - Arnaldo
+>...
 
 cu
 Adrian

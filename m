@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWKEFax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWKEFlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbWKEFax (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 00:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWKEFax
+	id S1161008AbWKEFlg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 00:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161051AbWKEFlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 00:30:53 -0500
-Received: from gate.crashing.org ([63.228.1.57]:32190 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030244AbWKEFav (ORCPT
+	Sun, 5 Nov 2006 00:41:36 -0500
+Received: from ns2.suse.de ([195.135.220.15]:23684 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161008AbWKEFlf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 00:30:51 -0500
-Subject: Re: lib/iomap.c mmio_{in,out}s* vs. __raw_* accessors
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Sun, 5 Nov 2006 00:41:35 -0500
+From: Andi Kleen <ak@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <1162703335.28571.159.camel@localhost.localdomain>
-References: <1162626761.28571.14.camel@localhost.localdomain>
-	 <20061104140559.GC19760@flint.arm.linux.org.uk>
-	 <1162678639.28571.63.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611041544030.25218@g5.osdl.org>
-	 <1162689005.28571.118.camel@localhost.localdomain>
-	 <1162697533.28571.131.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611041946020.25218@g5.osdl.org>
-	 <1162699255.28571.150.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611042013400.25218@g5.osdl.org>
-	 <1162701537.28571.156.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611042054210.25218@g5.osdl.org>
-	 <1162703335.28571.159.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 05 Nov 2006 16:28:48 +1100
-Message-Id: <1162704529.28571.164.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Subject: Re: [rfc patch] i386: don't save eflags on task switch
+Date: Sun, 5 Nov 2006 06:41:14 +0100
+User-Agent: KMail/1.9.5
+Cc: Benjamin LaHaise <bcrl@kvack.org>, Zachary Amsden <zach@vmware.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200611040200_MC3-1-D04D-6EA3@compuserve.com> <20061105035556.GQ9057@kvack.org> <Pine.LNX.4.64.0611041959260.25218@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611041959260.25218@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611050641.14724.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 16:08 +1100, Benjamin Herrenschmidt wrote:
-> > Can you work based on something like this instead?
-> > 
-> > (Totally untested, I just did this as an example of what I think is a lot 
-> > more maintainable)
+
+> For me, when compiled with -O2, it results in
 > 
-> Yup, that would definitely work for me.
+> 	84
+> 	88
+> 	132
 > 
-> I'll do the same for the repeat ops..
+> which basically says: a "rdtsc->rdtsc" is 84 cycles, putting a "pushfl" in 
+> between is another _4_ cycles, and putting a "popfl" in between is about 
+> another 48 cycles. 
 
-I'm blind, didn't see you did it for them already :-)
+This means we should definitely change restore_flags() to only STI, 
+never popf
 
-Ok, your patch builds fine here. I can't test at the moment as I don't
-have a machine at hand that has a device whose driver uses the ops in
-iomap though, but I can't see any reason why it wouldn't work if it
-builds, so as far as I'm concerned, that's good to go in 2.6.20.
-(earlier if you wish but I won't submit the patch doing the powerpc
-changes that makes me use those change before 2.6.20 obviously :-)
-
-Cheers,
-Ben.
-
-
+-Andi

@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWKEMCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932681AbWKEMNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWKEMCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 07:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbWKEMCZ
+	id S932681AbWKEMNV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 07:13:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932682AbWKEMNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 07:02:25 -0500
-Received: from thunk.org ([69.25.196.29]:13276 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932672AbWKEMCY (ORCPT
+	Sun, 5 Nov 2006 07:13:21 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:5714 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S932681AbWKEMNV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 07:02:24 -0500
-Date: Sun, 5 Nov 2006 07:02:03 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Christoph Lameter <clameter@sgi.com>,
-       Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-Message-ID: <20061105120203.GA32524@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-	Christoph Lameter <clameter@sgi.com>,
-	Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611030022110.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030228470.7781@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0611031228400.15668@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0611041944460.24713@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
+	Sun, 5 Nov 2006 07:13:21 -0500
+Date: Sun, 5 Nov 2006 13:15:23 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Brent Baccala <cosine@freesoft.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: async I/O seems to be blocking on 2.6.15
+Message-ID: <20061105121522.GC13555@kernel.dk>
+References: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org> <20061103122055.GE13555@kernel.dk> <Pine.LNX.4.64.0611031049120.7173@debian.freesoft.org> <20061103160212.GK13555@kernel.dk> <Pine.LNX.4.64.0611031214560.28100@debian.freesoft.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611041944460.24713@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+In-Reply-To: <Pine.LNX.4.64.0611031214560.28100@debian.freesoft.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2006 at 07:46:05PM +0100, Mikulas Patocka wrote:
-> On Fri, 3 Nov 2006, Christoph Lameter wrote:
+On Fri, Nov 03 2006, Brent Baccala wrote:
+> On Fri, 3 Nov 2006, Jens Axboe wrote:
 > 
-> >On Fri, 3 Nov 2006, Mikulas Patocka wrote:
-> >
-> >>I have, I may find them and post them. (but the university wants me to 
-> >>post
-> >>them to some conference, so I should keep them secret :-/)
-> >
-> >Ph.D. dissertations are public. The problem is that if you have not
-> >finished yet then you may run into trouble with the condition that the
-> >dissertation must not have been published prior to examination by your
-> >advisors.
+> >Try to time it (visual output of the app is not very telling, and it's
+> >buffered) and then apply some profiling.
 > 
-> Yes, but many "paperwork" conferences have the requirement, that the work 
-> submitted must not be published before. Does posting it to mailing list 
-> qualify as "publishing" as well?
+> OK, a little more info.  I added gettimeofday() calls after each call
+> to io_submit(), put the timevals in an array, and after everything was
+> done computed the difference between each timeval and the program start
+> time, as well as the deltas.  I got this:
+> 
+> 0: 0.080s
+> 1: 0.086s  0.006s
+> 2: 0.102s  0.016s
+> 3: 0.111s  0.008s
+> 4: 0.118s  0.007s
+> 5: 0.134s  0.015s
+> 6: 0.141s  0.006s
+> 7: 0.148s  0.006s
+> 8: 0.158s  0.009s
+> 9: 0.164s  0.006s
+> ...
+> 96: 1.036s  0.007s
+> 97: 1.044s  0.007s
+> 98: 1.147s  0.102s
+> 99: 1.155s  0.008s
+> 
+> 98 appears to be an aberration.  Perhaps three of the times on an
+> average run are around a tenth of a second; all of the others are
+> pretty steady at 7 or 8 microseconds.  So, it's basically linear in
+> its time consumption.
+> 
+> Does 7 microseconds seem a bit excessive for an io_submit (and a
+> gettimeofday)?
 
-The requirement by the vast majority of conferences is that it must
-not have been published in a peer-reviewed journal or conference, and
-you most not simultaneously have the paper under consideration by more
-than one peer-reviewed journal or conference.  In general, though, you
-can publish work on a web page, mailing list, or even as an
-un-reviewed Techncial Report published by your department, without
-harming your chances of submission to a peer-reviewed
-conference/journal.  Check with the program committee of the
-conference to be sure, but that's way it general works.
+I guess you mean miliseconds, not microseconds. 7 miliseconds seems way
+too long. I repeated your test here, and the 100 submits take 97000
+microseconds here - or 97 miliseconds. So that's a little less than 1
+msec per io_submit. Still pretty big. You can experiment with oprofile
+to profile where the kernel spends its time in that period.
 
-						- Ted
+-- 
+Jens Axboe
 

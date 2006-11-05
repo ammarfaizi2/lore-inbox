@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753700AbWKEN5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932686AbWKEOAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753700AbWKEN5v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 08:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932689AbWKEN5v
+	id S932686AbWKEOAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 09:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932689AbWKEOAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 08:57:51 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34577 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1753693AbWKEN5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 08:57:50 -0500
-Date: Sun, 5 Nov 2006 14:57:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Lorenz <martin@lorenz.eu.org>, len.brown@intel.com,
-       linux-acpi@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
-Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
-Message-ID: <20061105135751.GC5778@stusta.de>
-References: <20061105064801.GV13381@stusta.de> <20061105132607.GA14245@mellanox.co.il>
+	Sun, 5 Nov 2006 09:00:15 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:1810 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S932686AbWKEOAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 09:00:13 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Scsi cdrom naming confusion; sr or scd?
+Date: Sun, 5 Nov 2006 14:00:11 +0000
+User-Agent: KMail/1.9.5
+Cc: andrew@walrond.org, linux-kernel@vger.kernel.org
+References: <20061105100926.GA2883@pelagius.h-e-r-e-s-y.com> <Pine.LNX.4.61.0611051232580.12727@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0611051232580.12727@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061105132607.GA14245@mellanox.co.il>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611051400.11918.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 05, 2006 at 03:26:07PM +0200, Michael S. Tsirkin wrote:
-> Quoting r. Adrian Bunk <bunk@stusta.de>:
-> > Subject    : ThinkPad T60/X60: lose ACPI events after suspend/resume
-> > References : http://lkml.org/lkml/2006/10/10/39
-> >              http://lkml.org/lkml/2006/10/4/425
-> >              http://lkml.org/lkml/2006/10/16/262
-> >              http://bugzilla.kernel.org/show_bug.cgi?id=7408
-> >              http://lkml.org/lkml/2006/10/30/251
-> >              http://lkml.org/lkml/2006/11/3/244
-> > Submitter  : Martin Lorenz <martin@lorenz.eu.org>
-> >              "Michael S. Tsirkin" <mst@mellanox.co.il>
-> > Status     : problem is being debugged
-> 
-> Add to that
-> http://lkml.org/lkml/2006/11/1/84
-> and a patch in
-> http://lkml.org/lkml/2006/11/1/294
-> 
-> I have been running f9dadfa71bc594df09044da61d1c72701121d802 which hs this patch
-> for several days now and this issue seem to be fixed.
-> 
-> I plan to re-test on -rc5 when that's out.
+On Sunday 05 November 2006 11:33, Jan Engelhardt wrote:
+> > "The prefix /dev/sr (instead of /dev/scd) has been deprecated"
+> >
+> >but booting 2.6.18.2 from a scsi CD only works if I pass the kernel
+> >parameter root=/dev/sr0 and fails with root=/dev/scd0
+> >
+> >I guess the kernel ought to be taught about the scd* names aswell?
+>
+> brw-r-----  1 root disk 11, 0 Mar 19  2005 /dev/scd0
+> brw-r-----  1 root disk 11, 0 Mar 19  2005 /dev/sr0
+>
+> Plus I see sr0 being far more commonly used than scd0.
+> So I guess the doc is wrong.
 
-Thanks for this information, unless you'll tell the opposite I'll assume 
-your problems are fixed.
-
-Martin, are your problems also fixed in the latest -git?
-
-> MST
-
-cu
-Adrian
+udev only creates /dev/sr0, so I'm inclined to agree.
 
 -- 
+Cheers,
+Alistair.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

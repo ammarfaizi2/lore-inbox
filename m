@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965825AbWKEEBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965828AbWKEECG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965825AbWKEEBX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 23:01:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965828AbWKEEBX
+	id S965828AbWKEECG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 23:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965829AbWKEECG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 23:01:23 -0500
-Received: from gate.crashing.org ([63.228.1.57]:60847 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965825AbWKEEBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 23:01:23 -0500
-Subject: Re: lib/iomap.c mmio_{in,out}s* vs. __raw_* accessors
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <Pine.LNX.4.64.0611041946020.25218@g5.osdl.org>
-References: <1162626761.28571.14.camel@localhost.localdomain>
-	 <20061104140559.GC19760@flint.arm.linux.org.uk>
-	 <1162678639.28571.63.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611041544030.25218@g5.osdl.org>
-	 <1162689005.28571.118.camel@localhost.localdomain>
-	 <1162697533.28571.131.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0611041946020.25218@g5.osdl.org>
-Content-Type: text/plain
-Date: Sun, 05 Nov 2006 15:00:55 +1100
-Message-Id: <1162699255.28571.150.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Sat, 4 Nov 2006 23:02:06 -0500
+Received: from out-mta12.ai270.net ([83.244.130.52]:54209 "EHLO
+	out-mta10.ai270.net") by vger.kernel.org with ESMTP id S965828AbWKEECF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 23:02:05 -0500
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <70103A46-EDED-41CF-876F-8CFDC344C5ED@lougher.org.uk>
+Cc: akpm@osdl.org
 Content-Transfer-Encoding: 7bit
+From: Phillip Lougher <phillip@lougher.org.uk>
+Subject: [PATCH] corrupted cramfs filesystems cause kernel oops
+Date: Sun, 5 Nov 2006 04:02:00 +0000
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-11-04 at 19:46 -0800, Linus Torvalds wrote:
-> 
-> On Sun, 5 Nov 2006, Benjamin Herrenschmidt wrote:
-> >
-> > Make the generic lib/iomap.c use arch provided MMIO accessors when
-> > available for big endian and repeat operations. Also while at it,
-> > fix the *_be version which are currently broken for PIO
-> 
-> Just rip the _be versions out, methinks.
+Steve Grubb's fzfuzzer tool (http://people.redhat.com/sgrubb/files/ 
+fsfuzzer-0.6.tar.gz) generates corrupt Cramfs filesystems which cause  
+Cramfs to kernel oops in cramfs_uncompress_block().  The cause of the  
+oops is an unchecked corrupted block length field read by  
+cramfs_readpage().
 
-At least one user:
+This patch adds a sanity check to cramfs_readpage() which checks that  
+the block length field is sensible.   The (PAGE_CACHE_SIZE << 1) size  
+check is intentional, even though the uncompressed data is not going  
+to be larger than PAGE_CACHE_SIZE, gzip sometimes generates  
+compressed data larger than the original source data. Mkcramfs checks  
+that the compressed size is always less than or equal to  
+PAGE_CACHE_SIZE << 1.  Of course Cramfs could use the original  
+uncompressed data in this case, but it doesn't.
 
-./drivers/scsi/53c700.h:        __u32 value = bEBus ? ioread32be(hostdata->base + reg) :
-./drivers/scsi/53c700.h:        bEBus ? iowrite32be(value, hostdata->base + reg):
+Patch is against 2.6.19-rc4.
 
-Should I make it use explicit swab32 instead ?
+Signed-off-by:  Phillip Lougher <phillip <at> lougher.org.uk>
 
-Ben.
+diff -Nurp a/fs/cramfs/inode.c b/fs/cramfs/inode.c
+--- a/fs/cramfs/inode.c	2006-11-05 00:59:53.000000000 +0000
++++ b/fs/cramfs/inode.c	2006-11-05 03:17:43.000000000 +0000
+@@ -481,6 +481,8 @@ static int cramfs_readpage(struct file *
+		pgdata = kmap(page);
+		if (compr_len == 0)
+			; /* hole */
++		else if (compr_len > (PAGE_CACHE_SIZE << 1))
++			printk(KERN_ERR "cramfs: bad compressed blocksize %u\n", compr_len);
+		else {
+			mutex_lock(&read_mutex);
+			bytes_filled = cramfs_uncompress_block(pgdata,
 
 

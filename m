@@ -1,87 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965757AbWKDXyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965759AbWKEAMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965757AbWKDXyt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 18:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965755AbWKDXys
+	id S965759AbWKEAMr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 19:12:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965760AbWKEAMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 18:54:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44256 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965756AbWKDXyr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 18:54:47 -0500
-Date: Sat, 4 Nov 2006 15:52:57 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: lib/iomap.c mmio_{in,out}s* vs. __raw_* accessors
-In-Reply-To: <1162678639.28571.63.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0611041544030.25218@g5.osdl.org>
-References: <1162626761.28571.14.camel@localhost.localdomain> 
- <20061104140559.GC19760@flint.arm.linux.org.uk> <1162678639.28571.63.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 4 Nov 2006 19:12:47 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:28612 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965759AbWKEAMq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 19:12:46 -0500
+Subject: Re: [PATCH 1/9] Task Watchers v2: Task watchers v2
+From: Matt Helsley <matthltc@us.ibm.com>
+To: dwalker@mvista.com
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>,
+       Steve Grubb <sgrubb@redhat.com>, linux-audit@redhat.com,
+       Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1162602805.12956.11.camel@dwalker1.mvista.com>
+References: <20061103042257.274316000@us.ibm.com>
+	 <20061103042748.438619000@us.ibm.com>
+	 <1162560154.2801.13.camel@localhost.localdomain>
+	 <1162600994.12419.397.camel@localhost.localdomain>
+	 <1162602805.12956.11.camel@dwalker1.mvista.com>
+Content-Type: text/plain
+Organization: IBM Linux Technology Center
+Date: Sat, 04 Nov 2006 16:12:42 -0800
+Message-Id: <1162685562.12419.408.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 5 Nov 2006, Benjamin Herrenschmidt wrote:
+On Fri, 2006-11-03 at 17:13 -0800, Daniel Walker wrote:
+> On Fri, 2006-11-03 at 16:43 -0800, Matt Helsley wrote:
 > 
-> I'm tempted to remove those mmio_* things from iomap.c completely. I
-> need to check who uses them, but in all cases, I don't see what they do
-> in iomap.c, it's not their place.
+> > I can certainly change this. In my defense I didn't capitalize it
+> > because very similar macros in init.h were not capitalized. For example:
+> > 
+> > #define core_initcall(fn)               __define_initcall("1",fn)
+> > #define postcore_initcall(fn)           __define_initcall("2",fn)
+> > #define arch_initcall(fn)               __define_initcall("3",fn)
+> > #define subsys_initcall(fn)             __define_initcall("4",fn)
+> > #define fs_initcall(fn)                 __define_initcall("5",fn)
+> > #define device_initcall(fn)             __define_initcall("6",fn)
+> > #define late_initcall(fn)               __define_initcall("7",fn)
+> > 
+> > setup_param, early_param, module_init, etc. do not use all-caps. And I'm
+> > sure that's not all.
+> 
+> True .. It's not mandatory. The reason that I mentioned it is because it
+> looked like a function was being called outside a function block, which
+> looks odd to me. I think I overlook the initcall functions because I see
+> them so often I know what they are.
 
-I don't think you understand the point. The point is that a lot of the 
-tests for whether something is MMIO or PIO can be done _once_, instead of 
-doing it for every access.
+This is a good point -- it does look odd. I'm considering:
 
-> Versions that would transparently use MMIO or PIO would make sense.
+DEFINE_TASK_INITCALL(audit_alloc);
 
-No, they would be idiotic, because we already have those. If you want to 
-use MMIO or PIO transparently one access at a time, YOU SHOULD NOT USE THE 
-"STRING" VERSION. You should just use "ioread8()" or something like that. 
+With others like:
 
-That _is_ the single-access-does-MMIO-or-PIO-transparently function!
+DEFINE_TASK_EXITCALL()
+DEFINE_TASK_CLONECALL()
+etc.
 
-> A pure MMIO implementation doesn't, that has to be arch specific. It makes
-> the generic iomap suddently non-portable in some ways.
+That resembles other macros which create variables. Though I'm not sure
+this patten is appropriate because these variables should not be used by
+name.
 
-Whaa? I really don't see what's wrong with the one that is in lib/iomap.c. 
-But if you want to do your own, go ahead and do so - the whole point of 
-lib/iomap.c is to be a library that can be used by architectures that can 
-use the generic functionality. It's all hidden behind 
-CONFIG_GENERIC_IOMAP.
+Seems that no matter what something about it is going to be unusual. :)
 
-In other words, this whole thread makes absolutely _zero_ sense. Either 
-you use those functions or you don't. Trying to change them would be 
-insane.
+> > All of these declare variables and assign them attributes and values.
+> > 
+> > > Looking at it now could you do something like,
+> > > 
+> > > static int __task_watcher_init 
+> > > audit_alloc(unsigned long val, struct task_struct *tsk)
+> > > 
+> > > Instead of a macro? Might be a little less invasive.
+> > 
+> > 	I like your suggestion. However, I don't see how such a macro could be
+> > made to replace the current macro.
+> > 
+> > 	I need to be able to call every init function during task
+> > initialization. The current macro creates and initializes a function
+> > pointer in an array in the special ELF section. This allows the
+> > notify_task_watchers function to traverse the array and make calls to
+> > the init functions.
+> 
+> 
+> You get an "A" for research. I didn't notice you actually declare a
 
-> So I think we need to make sure all archs grow readsb,sw,sl etc... and
-> just have iomap use those for the "transparent" versions.
+Thanks!
 
-Again, totally insane. If you don't want to use GENERIC_IOMAP, don't. But 
-don't force other architectures to follow that path to insanity.
+<snip>
 
-So, in short:
- (a) if the generic library doesn't work for you, stop using it
+Cheers,
+	-Matt Helsley
 
- (b) the whole _point_ of the "repeat" instructions is to avoid doing the 
-     same tests over and over again for an iomem address that won't 
-     change, so doing them in the individual accessor functions would be 
-     _crazy_.
-
- (c) if you want to add #IO barriers to that thing, again, do it _around_ 
-     the repeat string, not in the individual accesses. If you need them 
-     on an individual access basis, you're probably better off doing your 
-     own version altogether.
-
-Please explain what is so wrong with the current setup, and please explain 
-why you'd want to break the obvious "check the address only once!" rule 
-that makes sense for _any_ architecture that has separate #PIO and #MMIO 
-address spaces.
-
-			Linus

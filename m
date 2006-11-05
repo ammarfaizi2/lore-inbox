@@ -1,104 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422793AbWKEWxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422795AbWKEWyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422793AbWKEWxz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 17:53:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422791AbWKEWxz
+	id S1422795AbWKEWyk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 17:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422777AbWKEWyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 17:53:55 -0500
-Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:38969
-	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
-	with ESMTP id S1422793AbWKEWxy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 17:53:54 -0500
-Date: Sun, 5 Nov 2006 14:33:19 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: ego@in.ibm.com, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-Message-ID: <20061105223319.GB5065@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <20061104173716.GA618@in.ibm.com> <454CDBA4.4040503@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 5 Nov 2006 17:54:40 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:40068 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1422795AbWKEWyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 17:54:37 -0500
+X-Sasl-enc: uGJ5W1FqdKTtvfwPZ19l6jnSZ1sN2G3YsUllg+Pxxj/b 1162767276
+Date: Sun, 5 Nov 2006 20:54:29 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Cc: Richard Purdie <rpurdie@rpsys.net>, Antonino Daplas <adaplas@pol.net>,
+       Holger Macht <hmacht@suse.de>
+Subject: [PATCH] backlight: do not power off backlight when unregistering
+Message-ID: <20061105225429.GE14295@khazad-dum.debian.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <454CDBA4.4040503@cosmosbay.com>
-User-Agent: Mutt/1.5.9i
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2006 at 07:27:48PM +0100, Eric Dumazet wrote:
-> Gautham R Shenoy a écrit :
-> >On Thu, Nov 02, 2006 at 10:52:47PM +0100, Mikulas Patocka wrote:
-> >>Hi
-> >
-> >Hi Mikulas
-> >>As my PhD thesis, I am designing and writing a filesystem, and it's now 
-> >>in a state that it can be released. You can download it from 
-> >>http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
-> >>
-> >>It has some new features, such as keeping inode information directly in 
-> >>directory (until you create hardlink) so that ls -la doesn't seek much, 
-> >>new method to keep data consistent in case of crashes (instead of 
-> >>journaling), free space is organized in lists of free runs and converted 
-> >>to bitmap only in case of extreme fragmentation.
-> >>
-> >>It is not very widely tested, so if you want, test it.
-> >>
-> >>I have these questions:
-> >>
-> >>* There is a rw semaphore that is locked for read for nearly all 
-> >>operations and locked for write only rarely. However locking for read 
-> >>causes cache line pingpong on SMP systems. Do you have an idea how to 
-> >>make it better?
-> >>
-> >>It could be improved by making a semaphore for each CPU and locking for 
-> >>read only the CPU's semaphore and for write all semaphores. Or is there a 
-> >>better method?
-> >
-> >I am currently experimenting with a light-weight reader writer semaphore 
-> >with an objective to do away what you call a reader side cache line
-> >"ping pong". It achieves this by using a per-cpu refcount.
-> >
-> >A drawback of this approach, as Eric Dumazet mentioned elsewhere in this
-> >thread, would be that each instance of the rw_semaphore would require
-> >(NR_CPUS * size_of(int)) bytes worth of memory in order to keep track of
-> >the per-cpu refcount, which can prove to be pretty costly if this
-> >rw_semaphore is for something like inode->i_alloc_sem.
-> 
-> We might use an hybrid approach : Use a percpu counter if NR_CPUS <= 8
-> 
-> #define refcount_addr(zone, cpu) zone[cpu]
-> 
-> For larger setups, have a fixed limit of 8 counters, and use a modulo
-> 
-> #define refcount_addr(zone, cpu) zone[cpu & 7]
-> 
-> In order not use too much memory, we could use kind of vmalloc() space, 
-> using one PAGE per cpu, so that addr(cpu) = base + (cpu)*PAGE_SIZE;
-> (vmalloc space allows a NUMA allocation if possible)
+ACPI drivers like ibm-acpi are moving to the backlight sysfs infrastructure.
+During ibm-acpi testing, I have noticed that backlight_device_unregister()
+sets the display brightness and power to zero.
 
-The fact that counters are shared forces use of atomic instructions.
+This causes the display to be dimmed on ibm-acpi module removal.  It will
+affect all other ACPI drivers that are being converted to use the backlight
+class, as well.
 
-If the situation is highly read-intensive, another memory-saving
-approach would be to share the "lock" among multiple inodes, for
-example, hashing the inode address.  That way there would be NR_CPUS
-counters per hash bucket, but (hopefully) far fewer hash buckets
-than inodes.
+This annoying behaviour in backlight_device_unregister() can either be
+reverted, or it can be worked around on acpi drivers by doing a
+backlightdevice->props->update_status = NULL before calling
+backlight_device_unregister().
 
-						Thanx, Paul
+Given the, AFAIK, lack of a good reason to disable display backlight as the
+_general_ behaviour for the entire sysfs class, the attached patch changes
+backlight.c to not do so anymore.
 
-> So instead of storing in an object a table of 8 pointers, we store only the 
-> address for cpu0.
-> 
-> 
-> >
-> >So the question I am interested in is, how many *live* instances of this
-> >rw_semaphore are you expecting to have at any given time?
-> >If this number is a constant (and/or not very big!), the light-weight
-> >reader writer semaphore might be useful.
-> >
-> >Regards
-> >Gautham.
-> 
+Since the commit that introduced this behaviour (commit
+6ca017658b1f902c9bba2cc1017e301581f7728d) apparently did so because the
+corgi_bl.c driver powered off the backlight, the attached patch also makes
+sure that the corgi_bl.c driver will not have its behaviour changed.
+
+Patch against latest linux-2.6.git.  corgi_bl.c changes untested, as I lack
+the hardware to do so.
+
+Signed-off-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+--
+
+diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
+index 27597c5..de5a6b3 100644
+--- a/drivers/video/backlight/backlight.c
++++ b/drivers/video/backlight/backlight.c
+@@ -259,12 +259,6 @@ void backlight_device_unregister(struct
+ 					 &bl_class_device_attributes[i]);
+ 
+ 	down(&bd->sem);
+-	if (likely(bd->props && bd->props->update_status)) {
+-		bd->props->brightness = 0;
+-		bd->props->power = 0;
+-		bd->props->update_status(bd);
+-	}
+-
+ 	bd->props = NULL;
+ 	up(&bd->sem);
+ 
+diff --git a/drivers/video/backlight/corgi_bl.c b/drivers/video/backlight/corgi_bl.c
+index d07ecb5..61587ca 100644
+--- a/drivers/video/backlight/corgi_bl.c
++++ b/drivers/video/backlight/corgi_bl.c
+@@ -135,6 +135,10 @@ static int corgibl_probe(struct platform
+ 
+ static int corgibl_remove(struct platform_device *dev)
+ {
++	corgibl_data.power = 0;
++	corgibl_data.brightness = 0;
++	corgibl_send_intensity(corgi_backlight_device);
++
+ 	backlight_device_unregister(corgi_backlight_device);
+ 
+ 	printk("Corgi Backlight Driver Unloaded\n");
+
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

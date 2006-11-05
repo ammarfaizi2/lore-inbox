@@ -1,85 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161680AbWKETfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161686AbWKETvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161680AbWKETfU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 14:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161681AbWKETfU
+	id S1161686AbWKETvN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 14:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161687AbWKETvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 14:35:20 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:61602 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1161680AbWKETfS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 14:35:18 -0500
-Date: Sun, 5 Nov 2006 22:34:57 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: PATCH? hrtimer_wakeup: fix a theoretical race wrt rt_mutex_slowlock()
-Message-ID: <20061105193457.GA3082@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sun, 5 Nov 2006 14:51:13 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:32703 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1161686AbWKETvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 14:51:12 -0500
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [Opps] Invalid opcode
+Date: Sun, 5 Nov 2006 21:51:06 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, Zachary Amsden <zach@vmware.com>,
+       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
+References: <200611051507.37196.caglar@pardus.org.tr> <200611051917.56971.caglar@pardus.org.tr> <200611051957.45260.ak@suse.de>
+In-Reply-To: <200611051957.45260.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1399515.S75ohVJijM";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200611052151.14861.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When task->array != NULL, try_to_wake_up() just goes to "out_running" and sets
-task->state = TASK_RUNNING.
+--nextPart1399515.S75ohVJijM
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-In that case hrtimer_wakeup() does:
+Hi;
 
-	timeout->task = NULL;		<----- [1]
+05 Kas 2006 Paz 20:57 tarihinde, Andi Kleen =C5=9Funlar=C4=B1 yazm=C4=B1=C5=
+=9Ft=C4=B1:=20
+> Can you test with "noreplacement" to make sure?
 
-	spin_lock(runqueues->lock);
+I sorry for not to mention that, i tried noreplacement before reporting whi=
+ch=20
+is also ends up with same panic.
 
-	task->state = TASK_RUNNING;	<----- [2]
+> Anyways I suspect we're just getting back some variant of the old CPU set=
+up
+> race.
+>
+> Normally CPU booting in Linux follows a special "cpu hotplug" state
+> machine, but for historical reasons i386 only implements one state of=20
+> this. At one point we had a similar bug (but not in the callback on CPU #=
+0,
+> but in the timer on newly booted CPU). I don't see currently how it can
+> happen (but i haven't thought very deeply about it yet)
+>
+> Probably your timing is just unlucky on those simulators.
 
-from Documentation/memory-barriers.txt
+Hmm, Novell bugzilla seems has similiar issues,=20
+https://bugzilla.novell.com/show_bug.cgi?id=3D204647 and its duplicated one=
+s=20
+gaves same or similiar panic outputs.
 
-	Memory operations that occur before a LOCK operation may appear to
-	happen after it completes.
+> Previously we avoided converting i386 cpu bootup fully to the new state
+> machine because it is very fragile, but it's possible that there
+> is no other choice than to do it properly. Or maybe another kludge
+> is possible.
 
-This means that [2] may be completed before [1], and
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
-CPU_0							CPU_1
-rt_mutex_slowlock:
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
 
-for (;;) {
-	...
-		if (timeout && !timeout->task)
-			return -ETIMEDOUT;
-	...
+--nextPart1399515.S75ohVJijM
+Content-Type: application/pgp-signature
 
-	schedule();
-							hrtimer_wakeup() sets
-	...						task->state = TASK_RUNNING,
-							but "timeout->task = NULL"
-							is not completed
-	set_current_state(TASK_INTERRUPTIBLE);
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-we can miss a timeout.
+iD8DBQBFTkCyy7E6i0LKo6YRAtnwAJ9SOfoqYGUjS+el7sa4ScrqF8decQCgpZNB
+o/zKGlqv0NFl30mc0LErMfw=
+=onCO
+-----END PGP SIGNATURE-----
 
-Of course, this all is scholasticism, this can't happen in practice, but
-may be this patch makes sense as a documentation update.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- STATS/kernel/hrtimer.c~1_hrtw	2006-10-22 18:24:03.000000000 +0400
-+++ STATS/kernel/hrtimer.c	2006-11-05 22:32:36.000000000 +0300
-@@ -662,9 +662,12 @@ static int hrtimer_wakeup(struct hrtimer
- 		container_of(timer, struct hrtimer_sleeper, timer);
- 	struct task_struct *task = t->task;
- 
--	t->task = NULL;
--	if (task)
-+	if (task) {
-+		t->task = NULL;
-+		/* must be visible before task->state = TASK_RUNNING */
-+		smp_wmb();
- 		wake_up_process(task);
-+	}
- 
- 	return HRTIMER_NORESTART;
- }
-
+--nextPart1399515.S75ohVJijM--

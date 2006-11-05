@@ -1,95 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932703AbWKEPwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161315AbWKEQDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932703AbWKEPwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 10:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbWKEPwJ
+	id S1161315AbWKEQDI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 11:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbWKEQDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 10:52:09 -0500
-Received: from smtpa3.netcabo.pt ([212.113.174.18]:29012 "EHLO
-	exch01smtp02.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S932703AbWKEPwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 10:52:07 -0500
-Message-ID: <454E0976.8030303@rncbc.org>
-Date: Sun, 05 Nov 2006 15:55:34 +0000
-From: Rui Nuno Capela <rncbc@rncbc.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Sun, 5 Nov 2006 11:03:08 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:55198 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S932711AbWKEQDF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 11:03:05 -0500
+Message-ID: <454E0B1F.7090106@colorfullife.com>
+Date: Sun, 05 Nov 2006 17:02:39 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Mike Galbraith <efault@gmx.de>, Karsten Wiese <fzu@wemgehoertderstaat.de>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: realtime-preempt patch-2.6.18-rt7 oops
-References: <42997.194.65.103.1.1162464204.squirrel@www.rncbc.org> <200611031230.24983.fzu@wemgehoertderstaat.de> <454BC8D1.1020001@rncbc.org> <454BF608.20803@rncbc.org> <454C714B.8030403@rncbc.org>
-In-Reply-To: <454C714B.8030403@rncbc.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Falk Hueffner <falk@debian.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ipc/msg.c "cleanup" breaks fakeroot on Alpha
+References: <87d583f97t.fsf@debian.org> <20061104172954.GA3668@elte.hu> <Pine.LNX.4.64.0611040938490.25218@g5.osdl.org> <87bqnnjd1w.fsf@debian.org> <Pine.LNX.4.64.0611041019180.25218@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611041019180.25218@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Nov 2006 15:52:05.0809 (UTC) FILETIME=[57C6F210:01C700F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After a suggestion from Mike Galbraith, I now turned to pure and
-original 2.6.18-rt7 and configured with:
+Linus Torvalds wrote:
 
-CONFIG_FRAME_POINTER=y
-CONFIG_UNWIND_INFO=y
-CONFIG_STACK_UNWIND=y
+>[ Removed the kernel mailing list ]
+>  
+>
+[kernel mailing list added back]
 
-Nasty things still do happen, as the following capture can tell as evidence:
+>As far as I can tell, people hold one or the other, but not both, and 
+>happily do strange things to "r_msg". The code seems to _know_ that it is 
+>racy, since in addition to the volatile, it does things like:
+>
+>		...
+>                msr->r_msg = NULL;
+>                wake_up_process(msr->r_tsk);
+>                smp_mb();
+>                msr->r_msg = ERR_PTR(res);
+>		...
+>
+>and that memory barrier again doesn't really seem to make a whole lot of 
+>sense.
+>
+>  
+>
+msr is a msg_receiver structure. The structure is stored on the stack of 
+msr->r_tsk.
+The smp_mb() guarantees that the wake_up_process is complete before 
+ERR_PTR(res) is stored into msr->r_msg.
 
-...
-Oops: 0002 [#1]
- [<c0106455>] show_trace_log_lvl+0x185/0x1a0
- [<c0106ae2>] show_trace+0x12/0x20
- [<c0106c49>] dump_stack+0x19/0x20
- [<c02f8d2f>] __schedule+0x63f/0xea0
- [<c02f9700>] schedule+0x30/0x100
-PREEMPT SMP
-Modules linked in: appletalk ax25 ipx p8023 ipv6 snd_seq_dummy
-snd_pcm_oss snd_mixer_oss snd_seq_midi snd_seq_midi_event edd snd_seq
-button battery ac w83627hf hwmon_vid hwmon i2c_isa loop dm_mod usbhid
-wacom intel_rng shpchp pci_hotplug snd_ice1712 snd_ice17xx_ak4xxx
-snd_ak4xxx_adda snd_cs8427 ohci1394 snd_i2c ieee1394 snd_mpu401_uart
-i8xx_tco ide_cd snd_cs46xx gameport snd_rawmidi snd_seq_device
-snd_intel8x0 cdrom uhci_hcd snd_ac97_codec snd_ac97_bus snd_pcm sk98lin
-i2c_i801 snd_timer snd i2c_core soundcore snd_page_alloc ehci_hcd
-usbcore intel_agp agpgart ext3 jbd reiserfs fan thermal processor piix
-ide_disk ide_core
-CPU:    0
-EIP:    0060:[<c011f4cb>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.18-rt7.0-smp #1)
-EIP is at enqueue_task+0x2b/0x90
-eax: c188f708   ebx: c188f28c   ecx: 00000000   edx: dfd490d8
-esi: dfd490b0   edi: c188edc0   ebp: c5729d74   esp: c5729d6c
-ds: 007b   es: 007b   ss: 0068   preempt: 00000004
-Process sh (pid: 1693, ti=c5728000 task=dfc8d4b0 task.ti=c5728000)
-Stack: c188edc0 dfd490b0 c5729d84 c011f551 00000001 dfd490b0 c5729de8
-c01218c1
-       00000000 c5729da8 c0168fd3 00000000 0000001f c5728000 00000001
-00000000
-       00000004 c5729dcc c0120550 c180edc0 00000001 c19e8bb0 c5729dcc
-c02fb4c8
-Call Trace:
- [<c011f551>] __activate_task+0x21/0x40
- [<c01218c1>] try_to_wake_up+0x321/0x450
- [<c0121a69>] wake_up_process_mutex+0x19/0x20
- [<c0144ab7>] wakeup_next_waiter+0xd7/0x1b0
- [<c02fa46c>] rt_spin_lock_slowunlock+0x4c/0x70
- [<c02fad88>] rt_spin_unlock+0x38/0x40
- [<c02fd8da>] kprobe_flush_task+0x3a/0x50
- [<c02f91fa>] __schedule+0xb0a/0xea0
- [<c02f9700>] schedule+0x30/0x100
- [<c012b04c>] do_wait+0x72c/0xbf0
- [<c012b542>] sys_wait4+0x32/0x40
- [<c012b577>] sys_waitpid+0x27/0x30
- [<c0105309>] sysenter_past_esp+0x56/0x79
- [<b7ef1410>] 0xb7ef1410
-Code: 55 89 e5 56 89 c6 53 89 d3 f6 40 0c 08 74 09 a1 60 60 35 c0 85 c0
-75 4b 8b 46 1c 8d 56 28 8d 44 c3 1c 8b 48 04 89 46 28 89 50 04 <89> 11
-89 4a 04 8b 46 1c 83 43 04 01 0f ab 43 08 83 7e 1c 63 89
-EIP: [<c011f4cb>] enqueue_task+0x2b/0x90 SS:ESP 0068:c5729d6c
- <6>note: sh[1693] exited with preempt_count 3
-...
+>But I don't know. It clearly _tries_ to do some smart locking, I just 
+>don't see what the rules are. 
+>
+>  
+>
+The codes tries to to a lockless receive:
+- the mutex is only required to create/destroy queues.
+- normal queue operations are protected by msg_lock(msqid), which is a 
+spinlock. One spinlock for each queue.
+- if a receiving thread doesn't find a message, then it adds a 
+msg_receiver structure into msq->q_receivers. This linked list is stored 
+in the message queue structure and protected by msg_lock(msqid).
+- if a sending thread finds a msg_receiver structure, then it removes 
+the structure from the msq->q_receivers linked list, places the message 
+into msr->r_msg and wakes up the receiver. All operations happen under 
+msg_lock(msqid)
+- the receiver notices that there is a message in it's msr->r_msg 
+structure and copies it to user space, without acquiring msg_lock(msqid).
 
-Bye.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+ipc/sem.c uses the same idea, I added a longer block with documentation 
+(around line 150 in ipc/sem.c)
+
+I'm only aware of one tricky race:
+- the sender calls wake_up_process().
+- as soon as the receiver finds something in r_msg, it can return to 
+user space. user space can call exit(3). do_exit destroys the task 
+structure.
+- wake_up_process will cause an oops if it's called after do_exit().
+This race happened on s390. The solution is this block:
+
+                msr->r_msg = NULL;
+                wake_up_process(msr->r_tsk);
+                smp_mb();
+                msr->r_msg = ERR_PTR(res);
+
+Initially, r_msg is ERR_PTR(-EAGAIN). The sender first sets it to NULL 
+("message pending"), then calls wake_up_process(), then a memory 
+barrier, then the final value.
+
+Back to the bug report:
+"volatile" shouln't be necessary. The critical part is this loop:
+
+                msg = (struct msg_msg*)msr_d.r_msg;
+                while (msg == NULL) {
+                        cpu_relax();
+                        msg = (struct msg_msg *)msr_d.r_msg;
+                }
+And cpu_relax is a barrier().
+On i386, removing the "volatile" has no effect, the .o remains identical.
+Falk, could you compare the .o files with/without volatile? Are there 
+any differences?
+
+The oops was caused by try_to_wake_up, called by expunge_all.
+I.e.:
+- either the msq->q_receivers linked list got corrupted
+- or the target thread was destroyed before wake_up_process completed.
+Theoretically, both things are impossible:
+- msq->q_receivers is protected by msq_lock()
+- the target thread task_struct is guaranteed to remain in scope due to 
+the "msg == NULL" loop.
+
+I'll try to reproduce the oops on i386 - but I don't see a bug right now.
+
+--
+    Manfred

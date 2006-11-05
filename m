@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965871AbWKEMlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965872AbWKEMrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965871AbWKEMlO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 07:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965872AbWKEMlO
+	id S965872AbWKEMrh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 07:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965873AbWKEMrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 07:41:14 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59856 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965871AbWKEMlN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 07:41:13 -0500
-Subject: Re: [PATCH 1/2] Add Legacy IDE mode support for SB600 SATA
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: conke.hu@amd.com, akpm@osdl.org
+	Sun, 5 Nov 2006 07:47:37 -0500
+Received: from outbound-res.frontbridge.com ([63.161.60.49]:28781 "EHLO
+	outbound2-res-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S965872AbWKEMrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 07:47:36 -0500
+X-BigFish: V
+Subject: Re: [PATCH 2/2] Workaround for SB600 SATA ODD issue
+From: Conke Hu <conke.hu@amd.com>
+Reply-To: conke.hu@amd.com
+To: Arjan van de Ven <arjan@infradead.org>
 Cc: Luugi Marsan <luugi.marsan@amd.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1162729080.8525.49.camel@localhost.localdomain>
-References: <20061103185420.B3FA6CBD48@localhost.localdomain>
-	 <1162582216.12810.40.camel@localhost.localdomain>
-	 <1162729080.8525.49.camel@localhost.localdomain>
+In-Reply-To: <1162661809.3160.53.camel@laptopd505.fenrus.org>
+References: <20061103190004.9ED8DCBD48@localhost.localdomain>
+	 <1162661809.3160.53.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sun, 05 Nov 2006 12:45:26 +0000
-Message-Id: <1162730726.31873.15.camel@localhost.localdomain>
+Organization: AMD
+Date: Sun, 05 Nov 2006 20:45:14 +0800
+Message-Id: <1162730714.8525.60.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.0.2 (2.0.2-27.rhel4.6) 
+X-OriginalArrivalTime: 05 Nov 2006 12:47:27.0123 (UTC) FILETIME=[8C5D9E30:01C700D8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-11-05 am 20:17 +0800, ysgrifennodd Conke Hu:
->     1. The SATA configuration option "Legacy IDE mode" (as well as
-> Native IDE mode) in SB600 BIOS is ONLY for old OS, and it is not useful
-> any longer for new Linux kernels.
+On Sat, 2006-11-04 at 18:36 +0100, Arjan van de Ven wrote:
+> On Fri, 2006-11-03 at 14:00 -0500, Luugi Marsan wrote:
+> > From: conke.hu@amd.com
+> > 
+> > There was an ASIC bug in the SB600 SATA controller of low revision (<=13) and CD burning may hang (only SATA ODD has this issue, and SATA HDD works well). The patch provides a workaround for this issue.
+> > 
+> > Signed-off-by:  Luugi Marsan <luugi.marsan@amd.com>
+> > 
+> > --- linux-2.6.19-rc4-git5/drivers/ata/ahci.c.orig       2006-11-04 03:56:22.000000000 +0800
+> > +++ linux-2.6.19-rc4-git5/drivers/ata/ahci.c    2006-11-04 04:20:36.000000000 +0800
+> > @@ -189,6 +189,7 @@ struct ahci_host_priv {
+> >         unsigned long           flags;
+> >         u32                     cap;    /* cache of HOST_CAP register */
+> >         u32                     port_map; /* cache of HOST_PORTS_IMPL reg */
+> > +       u8                      rev;    /* PCI Revision ID */
+> >  };
+> >  
+> 
+> why put this into the ahci struct rather than in the pci device struct?
+> In the place you use it you already have the pci device struct already..
+> and it's really a pci device property so putting it in that struct makes
+> a whole lot of sense conceptually anyway...
+> 
+> 
 
-Some users choose to use old drivers for the feeling of security and
-reduction of change. Remember there are users out there who have to go
-through a formal verification process to switch the driver they use.
+Hi Arjan,
+    Yes, I also thought it's more reasonable to add "u8 rev;" to pci_dev
+than to ahci_host_priv, but that will effect source code in large scope,
+so I added it here :(
+    Maybe I should resend a patch both for pci_dev and SB600 SATA at the
+same time.
 
->     3. "This should only be done if AHCI is configured into the kernel,
-> so wants a #ifdef check adding".
->     Alan, this fix should always be done whether AHCI is configured into
-> kernel or not, even when AHCI is not configured at all. Because:
->     a). Without it, the SB600 SATA controller will appear as an IDE,
-> which may misguide user to try to load legacy IDE driver (or other IDE
 
-This is not neccessarily misguided. They may want to do this.
-
->     b). We have a RAID driver (close source) for SB600 SATA 
-
-Thats your problem. Some day the lawyers can find out just how legal
-that is.
-
-You are right that most users will want to use the AHCI layer and that
-if AHCI is compiled in then we should switch to AHCI. In the case the
-kernel has no AHCI support compiled in the legacy driver support should
-continue to work for it. This is how other vendors products such as
-Jmicron are handled.
-
-NAK reasserted.
-
-Alan
+Best regards,
+Conke Hu
 

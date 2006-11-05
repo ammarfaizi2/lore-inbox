@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965394AbWKEUsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965880AbWKEUw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965394AbWKEUsG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 15:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965840AbWKEUsF
+	id S965880AbWKEUw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 15:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965885AbWKEUw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 15:48:05 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35512 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965394AbWKEUsD (ORCPT
+	Sun, 5 Nov 2006 15:52:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17090 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965880AbWKEUwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 15:48:03 -0500
-Date: Sun, 5 Nov 2006 21:47:41 +0100
+	Sun, 5 Nov 2006 15:52:55 -0500
+Date: Sun, 5 Nov 2006 21:52:18 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Jonathan Lemon <jlemon@flugsvamp.com>
-Cc: linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru
-Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20061105204741.GA1847@elf.ucw.cz>
-References: <20061103163012.GA84707@cave.trolltruffles.com>
+To: U Kuehn <ukuehn@acm.org>
+Cc: linux-thinkpad@linux-thinkpad.org,
+       Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Greg KH <greg@kroah.com>,
+       Shem Multinymous <multinymous@gmail.com>,
+       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dan Williams <dcbw@redhat.com>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, benh@kernel.crashing.org,
+       Jean Delvare <khali@linux-fr.org>
+Subject: Re: [ltp] Re: [PATCH v2] Re: Battery class driver.
+Message-ID: <20061105205218.GB1847@elf.ucw.cz>
+References: <1162048148.2723.61.camel@zelda.fubar.dk> <41840b750610281112q7790ecao774b3d1b375aca9b@mail.gmail.com> <20061031074946.GA7906@kroah.com> <41840b750610310528p4b60d076v89fc7611a0943433@mail.gmail.com> <20061101193134.GB29929@kroah.com> <41840b750611011153w3a2ace72tcdb45a446e8298@mail.gmail.com> <20061101205330.GA2593@kroah.com> <20061101235540.GA11581@khazad-dum.debian.net> <20061102220145.GB2192@elf.ucw.cz> <454B4042.7050307@acm.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061103163012.GA84707@cave.trolltruffles.com>
+In-Reply-To: <454B4042.7050307@acm.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-On Fri 2006-11-03 10:30:12, Jonathan Lemon wrote:
-> In article <local.mail.linux-kernel/20061103084240.GB1184@2ka.mipt.ru>,
-> Evgeniy Polyakov  <johnpol@2ka.mipt.ru> wrote:
-> >On Thu, Nov 02, 2006 at 11:40:43AM -0800, Nate Diller
-> >kqueue just can not be used as is in Linux (_maybe_ *bsd has different
-> >types, not those which I found in /usr/include in my FC5 and Debian
-> >distro). It will not work on x86_64 for example. Some kind of a pointer
-> >or unsigned long in structures which are transferred between kernelspace
-> >and userspace is so much questionable, than it is much better even do
-> >not see there... (if I would not have so political correctness, I would
-> >describe it in a much different words actually).
-> >So, kqueue API and structures can not be usd in Linux.
+On Fri 2006-11-03 14:12:22, U Kuehn wrote:
+> Hi,
 > 
-> Let me be a little blunt here: that is just so much bullshit.
+> Pavel Machek wrote:
+> > 
+> > echo '(700 mA * hour) / (14*day) \ A' | ucalc
+> > 
+> > ucalc> OK:  0.002083
+> > ucalc>
+> > 
+> >  ...that is about 2mA in low power standby mode (but still listening on
+> > GSM, getting calls, etc).
+> > 
+> >  ...so, mAh are probably good enough for capacity_*_charge, but would
+> > suck for current power consumption, as difference between 2mA and 3mA
+> > would be way too big. We need some finer unit in that case.
+> > 
 > 
-> Yes, I understand the problem that 32-bit userspace on a 64-bit kernel has.
-> Mea culpa - I didn't forsee this years ago, and none of my many reviewers
-> caught it either.  It was designed for 32/32 and 64/64, not 32/64.
-> 
-> However, this is trivially fixed by adding a union to the structure, as
-> pointed out earlier on this list.  Code would still be source compatible
-> with any kqueue apps, which is what counts.  Even NetBSD and FreeBSD have
-> differing definitions of the kq constants, and nobody notices.
+> That very much depends on the system. Having a laptop where the current
+> power consumption is around 10 Watts (or, at about 10 to 12 Volts,
+> nearly 1 A), having a resolution of 10 or even 100 mA would be OK.
+> However, on your cellphone with a standby consumption of 2mA, such a
+> resolution would be meaningless. What kind of resultion does the
+> hardware usually support?
 
-It has been show in this thread that kevent is too different to kqueue
-as is... but what are the advantages of kevent? Perhaps we should use
-kqueue on Linux, too (even if it means one more rewrite for you...?)
-
+I do not know details. Siemens phones have current monitors, but I do
+not recall how accurate those are. Anyway, at least for some
+applications mA is not enough, so we probably should use finer
+unit. Or use ampers and let kernel be "as precise as it needs" in
+simulated floating point.
 								Pavel
+
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

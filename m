@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbWKEL2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWKELcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932648AbWKEL2l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 06:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWKEL2l
+	id S932638AbWKELcu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 06:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWKELcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 06:28:41 -0500
-Received: from wasp.net.au ([203.190.192.17]:22246 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S932648AbWKEL2l (ORCPT
+	Sun, 5 Nov 2006 06:32:50 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:52903 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932638AbWKELct (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 06:28:41 -0500
-Message-ID: <454DCAAC.3080903@wasp.net.au>
-Date: Sun, 05 Nov 2006 15:27:40 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
-MIME-Version: 1.0
-To: James Courtier-Dutton <James@superbug.co.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Albert Cahalan <acahalan@gmail.com>,
-       kangur@polcom.net, mikulas@artax.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
+	Sun, 5 Nov 2006 06:32:49 -0500
+Date: Sun, 5 Nov 2006 12:31:05 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Willy Tarreau <w@1wt.eu>
+cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: New filesystem for Linux
-References: <787b0d920611041159y6171ec25u92716777ce9bea4a@mail.gmail.com> <1162691856.21654.61.camel@localhost.localdomain> <454DC799.9000401@superbug.co.uk>
-In-Reply-To: <454DC799.9000401@superbug.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20061105083416.GA2246@1wt.eu>
+Message-ID: <Pine.LNX.4.61.0611051225130.12727@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.64.0611041633110.25218@g5.osdl.org>
+ <Pine.LNX.4.64.0611050410210.29515@artax.karlin.mff.cuni.cz>
+ <20061105083416.GA2246@1wt.eu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-40927187-1162726265=:12727"
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Courtier-Dutton wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> I have seen this too. I think that when IDE drive relocates the sector 
-> due to hard errors, one would silently loose the information that was 
-> stored in that sector.
-> How can one detect this? Of course it would be nice if the IDE drive 
-> told us that sector X had just gone bad but I don't think they do. They 
-> just silently relocate it because in some cases the sector has only gone 
-> a "bit" bad, so the IDE drive relocates it before it totally fails.
+--1283855629-40927187-1162726265=:12727
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-I've never seen this behaviour in a drive. All the drives I've seen mark bad sectors as "pending 
-reallocation", they they return read errors on that sector unless they manage to jag a good read, in 
-which case they then reallocate the sector. Or else they wait for you to write to the sector 
-triggering a reallocation.
 
-There may be drives less well behaved out there, but I've not come across them.
+>> BTW do you find uppercase typedefs like
+>> typedef struct {
+>> 	...
+>> } SPADFNODE;
+>> confusing too?
+>
+>Yes for the reason above. Also, we don't much use type definitions for
+>structures, because it's easier to understand "struct spadfnode *node"
+>in a function declaration than "SPADFNODE *node".
 
-Brad
+It gets worse when code authors begin to use
+
+typedef struct { ... } MYSTRUCT, *PMYSTRUCT, **PPMYSTRUCT;
+
+Most certainly you will run into "passing argument from incompatible 
+pointer"[1] and "request for member ■a■ in something not a structure or 
+union"[2] and "invalid type argument of ■->■"[3] (BTW I hate gcc using 
+Unicode chars in its output which are not displayed in the console):
+
+struct foo {
+    int bar;
+} ST, *PST;
+void foobar(ST a) {  // [1]
+    a->bar = 1;
+    foobar2(a);  // [3]
+}
+void foobar2(PST a) {  // [2]
+    a.bar = 1;
+}
+
+So I much rather like to see all the 'funky stars' (struct foo *) in the 
+parameter list, instead of trying to keep track of how many of them a 
+PST carries.
+
+
+
+	-`J'
 -- 
-"Human beings, who are almost unique in having the ability
-to learn from the experience of others, are also remarkable
-for their apparent disinclination to do so." -- Douglas Adams
+--1283855629-40927187-1162726265=:12727--

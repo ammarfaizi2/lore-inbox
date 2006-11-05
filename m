@@ -1,119 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161237AbWKEO43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbWKEPEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161237AbWKEO43 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 09:56:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161238AbWKEO43
+	id S1161254AbWKEPEg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 10:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161255AbWKEPEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 09:56:29 -0500
-Received: from hosting.zipcon.net ([209.221.136.3]:33938 "EHLO
-	hosting.zipcon.net") by vger.kernel.org with ESMTP id S1161237AbWKEO42
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 09:56:28 -0500
-Message-ID: <454DFB97.1060703@beezmo.com>
-Date: Sun, 05 Nov 2006 06:56:23 -0800
-From: William D Waddington <william.waddington@beezmo.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IRQ: ease out-of-tree migration to new irq_handler prototype
-References: <454CDC11.5030708@beezmo.com> <20061104190357.GA4971@martell.zuzino.mipt.ru> <454CF2DD.40803@beezmo.com> <20061105020431.GA20243@martell.zuzino.mipt.ru>
-In-Reply-To: <20061105020431.GA20243@martell.zuzino.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 5 Nov 2006 10:04:36 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51597 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161254AbWKEPEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 10:04:35 -0500
+Subject: Re: [PATCH 1/2] Add Legacy IDE mode support for SB600 SATA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: conke.hu@amd.com
+Cc: akpm@osdl.org, Luugi Marsan <luugi.marsan@amd.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1162733934.8525.88.camel@localhost.localdomain>
+References: <20061103185420.B3FA6CBD48@localhost.localdomain>
+	 <1162582216.12810.40.camel@localhost.localdomain>
+	 <1162729080.8525.49.camel@localhost.localdomain>
+	 <1162730726.31873.15.camel@localhost.localdomain>
+	 <1162733934.8525.88.camel@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hosting.zipcon.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - beezmo.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Date: Sun, 05 Nov 2006 15:08:45 +0000
+Message-Id: <1162739325.31873.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Sul, 2006-11-05 am 21:38 +0800, ysgrifennodd Conke Hu:
+>   Consider that the behavior itself of using the new motherboard, SB600,
+> means a lot of change, so even if the user still use IDE driver, he also
+> a need verification process.
 
+It depends on the person but yes I had considered that.
 
-Alexey Dobriyan wrote:
-> On Sat, Nov 04, 2006 at 12:06:53PM -0800, William D Waddington wrote:
-> 
->>Alexey Dobriyan wrote:
->>
->>>On Sat, Nov 04, 2006 at 10:29:37AM -0800, William D Waddington wrote:
->>>
->>>
->>>>Ease out-of-tree driver migration to new irq_handler prototype.
->>>>Define empty 3rd argument macro for use in multi kernel version
->>>>out-of-tree drivers going forward.  Backportable drives can do:
->>>>
->>>>(in a header)
->>>>#ifndef __PT_REGS
->>>># define __PT_REGS , struct pt_regs *regs
->>>>#endif
->>>
->>>
->>>Backportable drivers should check kernel version themselves and define
->>>__PT_REGS themselves.
->>
->>I think I provided too much information :(  It would be sufficiently
->>helpful to just #define __PT_REGS <nothing> in  interrupt.h to make
->>things easier for low-life out-of-tree maintainers.  There isn't any
->>need to actualy detect version.  Just detect __PT_REGS already defined.
-> 
-> 
-> Out-of-tree maintainer will have to change his code ANYWAY. And while he
-> is doing that, he can spend 10 seconds to add 5-line version check.
+> > This is not neccessarily misguided. They may want to do this.
+>   But the SB600 SATA controller is really an AHCI controller. And that
+> will lose high performance (and cannot use NCQ).
 
-I'm a little out of my depth here (obviously) but why is it "better" to
-require a version check rather than the kernel simply flagging the
-function change?  Rather like HAVE_COMPAT_IOCTL.
+Maybe they want stability and certainty first.
 
-With the proposed 1-line kernel patch my drivers build against kernels
-back to 2.6.9 (the earliest I have around here) without any version
-checking.
+>   OK, I am rewriting the patch based on the following considerations:
+>   1. move these code to ahci driver, and add new code to PATA driver.
+>   2. add new options to kernel configuration, and users can choose IDE
+> driver or AHCI driver to support SB600 SATA when it is in IDE mode.
 
-> More, if you've followed pt_regs removal patches, you'd noticed that
-> some of them were not trivial. In this case version check is least of
-> his worries.
+That seems fine to me. I would have thought putting the code you have
+into the quirks.c file as you proposed was the better way to do this,
+but with the addition of the 
 
-Ah. I don't use the *regs arg.  The one line patch just keeps the
-compiler happy. And provides a "tidy" way to detect the interface
-change if necessary.
+#if defined (CONFIG_ATA_AHCI) || defined(CONFIG_ATA_AHCI_MODULE)
 
->>The "in a header" above referred to the driver's header - #ifdefs in
->>executable code really looks nasty IMHO.
->>
->>The "#define __PT_REGS , ..." comment below was intended to be a
->>"helpful" note to driver writers.  Like I said, TMI.
->>
->>
->>>>(in code body)
->>>>static irqreturn_t irq_handler(int irq, void *dev_id __PT_REGS)
->>>
->>>
->>>>+/*
->>>>+ * Irq handler migration helper - empty 3rd argument
->>>>+ * #define __PT_REGS , struct pt_regs *regs
->>>>+ * for older kernel versions
->>>>+ */
->>>>+
->>>>+#define __PT_REGS
->>
->>How should I tidy this up - if it is acceptable at all?
-> 
-> 
-> No, this is not acceptable.
+#endif
 
-Oh well.
+around it, was sufficient ?
 
-Thanks for your time,
-Bill
--- 
---------------------------------------------
-William D Waddington
-Bainbridge Island, WA, USA
-william.waddington@beezmo.com
---------------------------------------------
-"Even bugs...are unexpected signposts on
-the long road of creativity..." - Ken Burtch

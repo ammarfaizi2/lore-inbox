@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWKEFlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWKEFqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbWKEFlg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 00:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161051AbWKEFlg
+	id S1161032AbWKEFqd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 00:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbWKEFqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 00:41:36 -0500
-Received: from ns2.suse.de ([195.135.220.15]:23684 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161008AbWKEFlf (ORCPT
+	Sun, 5 Nov 2006 00:46:33 -0500
+Received: from mx1.suse.de ([195.135.220.2]:23433 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161032AbWKEFqc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 00:41:35 -0500
+	Sun, 5 Nov 2006 00:46:32 -0500
 From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [rfc patch] i386: don't save eflags on task switch
-Date: Sun, 5 Nov 2006 06:41:14 +0100
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs =?iso-8859-15?q?for=09paravirtualizing_critical?= operations
+Date: Sun, 5 Nov 2006 06:46:15 +0100
 User-Agent: KMail/1.9.5
-Cc: Benjamin LaHaise <bcrl@kvack.org>, Zachary Amsden <zach@vmware.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200611040200_MC3-1-D04D-6EA3@compuserve.com> <20061105035556.GQ9057@kvack.org> <Pine.LNX.4.64.0611041959260.25218@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611041959260.25218@g5.osdl.org>
+Cc: Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>,
+       virtualization@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20061029024504.760769000@sous-sol.org> <200611032209.40235.ak@suse.de> <1162701815.29777.6.camel@localhost.localdomain>
+In-Reply-To: <1162701815.29777.6.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611050641.14724.ak@suse.de>
+Message-Id: <200611050646.15334.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> For me, when compiled with -O2, it results in
+> Andi, the patches work against Andrew's tree, and he's merged them in
+> rc4-mm2.  There are a few warnings to clean up, but it seems basically
+> sound.
 > 
-> 	84
-> 	88
-> 	132
-> 
-> which basically says: a "rdtsc->rdtsc" is 84 cycles, putting a "pushfl" in 
-> between is another _4_ cycles, and putting a "popfl" in between is about 
-> another 48 cycles. 
+> At this point I our think time is better spent on beating those patches
+> up, rather than going back and figuring out why they don't work in your
+> tree.
 
-This means we should definitely change restore_flags() to only STI, 
-never popf
+My tree is basically mainline as base. Sure if you don't care about mainline
+merges we can ignore it there and keep it forever in -mm* until Andrew
+gets tired of it?
+
+That's a possible strategy, but only if you want to keep it as a mm-only
+toy forever.
 
 -Andi

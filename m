@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbWKEXNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422777AbWKEXQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932747AbWKEXNN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 18:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932748AbWKEXNN
+	id S1422777AbWKEXQk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 18:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422796AbWKEXQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 18:13:13 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:56514 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932747AbWKEXNM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 18:13:12 -0500
-Message-ID: <454E7008.4020200@vmware.com>
-Date: Sun, 05 Nov 2006 15:13:12 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: caglar@pardus.org.tr
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
-Subject: Re: [Opps] Invalid opcode
-References: <200611051507.37196.caglar@pardus.org.tr> <200611051917.56971.caglar@pardus.org.tr> <200611051957.45260.ak@suse.de> <200611052151.14861.caglar@pardus.org.tr>
-In-Reply-To: <200611052151.14861.caglar@pardus.org.tr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 5 Nov 2006 18:16:40 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30607 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422777AbWKEXQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 18:16:39 -0500
+Subject: Re: sc3200 cpu + apm module kernel crash
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nicolas FR <nicolasfr@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b9481e140611051333p7250179ax6ba3629fcf0ad9e3@mail.gmail.com>
+References: <b9481e140611031506u42e326dbs5c0e97d14c5fb5b3@mail.gmail.com>
+	 <1162750917.31873.38.camel@localhost.localdomain>
+	 <b9481e140611051333p7250179ax6ba3629fcf0ad9e3@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 05 Nov 2006 23:21:05 +0000
+Message-Id: <1162768865.1566.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-S.Çağlar Onur wrote:
-> Hmm, Novell bugzilla seems has similiar issues, 
-> https://bugzilla.novell.com/show_bug.cgi?id=204647 and its duplicated ones 
-> gaves same or similiar panic outputs.
->
->   
->> Previously we avoided converting i386 cpu bootup fully to the new state
->> machine because it is very fragile, but it's possible that there
->> is no other choice than to do it properly. Or maybe another kludge
->> is possible.
->>     
+Ar Sul, 2006-11-05 am 22:33 +0100, ysgrifennodd Nicolas FR:
+> The module was "crashing" on my box because it keeps on receiving
+> events=APM_UPDATE_TIME meaning that it would never get out of the
+> while() loop in check_events. I need to do some tests but I might
 
-Yes, this is some kind of softirq race during init.
+That's a BIOS bug
+
+> simply fix this by ignoring APM_UPDATE_TIME events. I first thought
+
+If that works can you run dmidecode on your box and post me the output,
+from that we can add a blacklist entry to automatically handle this.
+
+

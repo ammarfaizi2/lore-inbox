@@ -1,87 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161317AbWKEQUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161330AbWKEQiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161317AbWKEQUr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 11:20:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932735AbWKEQUr
+	id S1161330AbWKEQiR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 11:38:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161337AbWKEQiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 11:20:47 -0500
-Received: from w241.dkm.cz ([62.24.88.241]:33478 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S932734AbWKEQUr (ORCPT
+	Sun, 5 Nov 2006 11:38:17 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:13149 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1161330AbWKEQiQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 11:20:47 -0500
-Date: Sun, 5 Nov 2006 17:20:44 +0100
-From: Petr Baudis <pasky@suse.cz>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [RESEND][RESEND][PATCH] Script for automated historical Git tree grafting
-Message-ID: <20061105162044.GF17641@pasky.or.cz>
+	Sun, 5 Nov 2006 11:38:16 -0500
+Message-ID: <454E1370.5020403@tls.msk.ru>
+Date: Sun, 05 Nov 2006 19:38:08 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Oliver Neukum <oliver@neukum.org>
+CC: Arjan van de Ven <arjan@infradead.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, andrew@walrond.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Scsi cdrom naming confusion; sr or scd?
+References: <20061105100926.GA2883@pelagius.h-e-r-e-s-y.com> <Pine.LNX.4.61.0611051232580.12727@yvahk01.tjqt.qr> <1162735599.3160.91.camel@laptopd505.fenrus.org> <200611051541.37283.oliver@neukum.org>
+In-Reply-To: <200611051541.37283.oliver@neukum.org>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This script enables Git users to easily graft the historical Git tree
-(Bitkeeper history import) to the current history. It will also record
-the appropriate tags in your refs tree as suggested by Marcel Holtmann.
+Oliver Neukum wrote:
+> Am Sonntag, 5. November 2006 15:06 schrieb Arjan van de Ven:
+>> and this is why it's wrong to make naming policy a kernel thing!
+>> Userspace is the right place to do this (and there I suspect the name
+>> will end up being /dev/cdrom)...... the kernel really shouldn't care at
+>> all what the name is.
+> 
+> I have to disagree. This precisely shows that the reverse is true.
+> This way the chance of having a default name guaranteed to work
+> is lost. If you want an alternate name, use a symlink.
 
-Signed-off-by: Petr Baudis <pasky@suse.cz>
----
+Yes, YES.  That's what I always tried to say during similar discussions.
 
- scripts/git-gethistory.sh |   47 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 47 insertions(+), 0 deletions(-)
+In additional to the "default name" (which is, strictly speaking, is NOT
+"default" in many cases, such as when you have USB drives connected or
+not and all the sdX and srY renumbering, but that's different story, and
+many devices are still has "default name"), there's another reason: kernel
+should name the devices *somehow*, and it'd better the name exists in /dev.
+Think /proc/partitions for example -- I don't damn want to see device numbers
+(major+minor) in there, and all the tools searching the whole /dev to find
+the device node for it.  By the way, lilo breaks if it can't find device
+nodes in /dev listed in /proc/partitions, and I can't blame it.
 
-diff --git a/scripts/git-gethistory.sh b/scripts/git-gethistory.sh
-new file mode 100755
-index 0000000..2f19372
---- /dev/null
-+++ b/scripts/git-gethistory.sh
-@@ -0,0 +1,47 @@
-+#!/bin/sh
-+#
-+# Graft the development history imported from BitKeeper to the current Git
-+# history tree.
-+#
-+# Note that this will download about 160M.
-+
-+httpget="curl -O -C -"
-+if [ -z "`which curl 2>/dev/null`" ]; then
-+	httpget="wget -c"
-+	if [ -z "`which wget 2>/dev/null`" ]; then
-+		echo "Error: You need to have wget or curl installed so that I can fetch the history." >&2
-+		exit 1
-+	fi
-+fi
-+
-+[ "$GIT_DIR" ] || GIT_DIR=.git
-+if ! [ -d "$GIT_DIR" ]; then
-+	echo "Error: You must run this from the project root (or set GIT_DIR to your .git directory)." >&2
-+	exit 1
-+fi
-+cd "$GIT_DIR"
-+export GIT_DIR="$(pwd)"
-+
-+echo "[git-gethistory] Downloading the history"
-+mkdir -p objects/pack
-+cd objects/pack
-+$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-4d27038611fe7755938efd4a2745d5d5d35de1c1.idx
-+$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-4d27038611fe7755938efd4a2745d5d5d35de1c1.pack
-+
-+echo "[git-gethistory] Setting up the grafts"
-+cd "$GIT_DIR"
-+mkdir -p info
-+# master
-+echo 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 e7e173af42dbf37b1d946f9ee00219cb3b2bea6a >>info/grafts
-+
-+echo "[git-gethistory] Setting up tag refs"
-+cd "$GIT_DIR"
-+git-ls-remote http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git | \
-+	grep refs/tags | grep -v '\^{}$' | \
-+	while read obj ref; do
-+		git-update-ref "$ref" "$obj"
-+	done
-+
-+echo "[git-gethistory] Refreshing the dumb server info wrt. new packs"
-+cd "$GIT_DIR"
-+git-update-server-info
+/mjt

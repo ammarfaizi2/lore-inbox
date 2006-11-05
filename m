@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932684AbWKENHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWKENKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932684AbWKENHf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 08:07:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbWKENHf
+	id S932688AbWKENKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 08:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932689AbWKENKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 08:07:35 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:20452 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S932684AbWKENHe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 08:07:34 -0500
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: linux-kernel@vger.kernel.org
-Subject: [Opps] Invalid opcode
-Date: Sun, 5 Nov 2006 15:07:36 +0200
-User-Agent: KMail/1.9.5
-Cc: Zachary Amsden <zach@vmware.com>, Gerd Hoffmann <kraxel@suse.de>,
-       john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart13068103.hnilLZKrUh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sun, 5 Nov 2006 08:10:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57268 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932688AbWKENKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 08:10:14 -0500
+Subject: Re: [PATCH 1/2] Add Legacy IDE mode support for SB600 SATA
+From: Arjan van de Ven <arjan@infradead.org>
+To: conke.hu@amd.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Luugi Marsan <luugi.marsan@amd.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1162729080.8525.49.camel@localhost.localdomain>
+References: <20061103185420.B3FA6CBD48@localhost.localdomain>
+	 <1162582216.12810.40.camel@localhost.localdomain>
+	 <1162729080.8525.49.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 05 Nov 2006 14:10:10 +0100
+Message-Id: <1162732210.3160.86.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611051507.37196.caglar@pardus.org.tr>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart13068103.hnilLZKrUh
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, 2006-11-05 at 20:17 +0800, Conke Hu wrote:
+>     b). We have a RAID driver (close source) for SB600 SATA which does
+> not depends on the open source AHCI driver in linux kernel and supports
+> both AHCI and RAID. But if the controller is configured as legacy IDE by
+> BIOS, the RAID driver cannot run at all because of the IRQ policy. 
 
-Hi;
+that is your own problem and in fact a very good reason to reject your
+change. In linux, device mapper deals with such "raid", and your change
+will block that.
+Reverse engineering such raid is usually a one day effort, and it will
+be done.. and that is a good thing. Trying to make that impossible is
+just even dishonest [1].
 
-2.6.18, 2.6.18.1 and 2.6.18.2 still panics randomly (it seems this is not=20
-related to smpreplacament bug solved in .2) in VmWare and Microsoft Virtual=
-=20
-PC and in order to confirm this bug is not our distro specific i downloaded=
-=20
-and tried latest OpenSuse also [1]  and [2] are screens captured by vmware=
-=20
-but exact same panic occurs in Virtual PC as reported to us in [3]. I CC'ed=
-=20
-previous threads receivers also.
 
-[1] http://cekirdek.pardus.org.tr/~caglar/2.6.18/panic.png
-[2] http://cekirdek.pardus.org.tr/~caglar/2.6.18/panic.png
-[3] http://bugs.pardus.org.tr/show_bug.cgi?id=3D3804
+[1] See Greg Kroah's OLS keynote. It's one thing to think your "raid IP"
+is worth more than the Linux kernels IP, it's another one to sabotage
+the Linux kernel to protect your "raid IP".
+ 
 
-Cheers
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
-
---nextPart13068103.hnilLZKrUh
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFTeIZy7E6i0LKo6YRAi5cAKC7uSg9ndu5dxaqdiPGB4a4LVl7IACgj01w
-Rpkalt60p41psg9ifQM3niQ=
-=ESUl
------END PGP SIGNATURE-----
-
---nextPart13068103.hnilLZKrUh--

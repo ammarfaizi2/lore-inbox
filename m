@@ -1,54 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbWKEN0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbWKENlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932687AbWKEN0P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 08:26:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbWKEN0P
+	id S932614AbWKENlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 08:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbWKENlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 08:26:15 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:50560 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S932614AbWKEN0O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 08:26:14 -0500
-Date: Sun, 5 Nov 2006 15:26:07 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Lorenz <martin@lorenz.eu.org>, len.brown@intel.com,
-       linux-acpi@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
-Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
-Message-ID: <20061105132607.GA14245@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061105064801.GV13381@stusta.de>
+	Sun, 5 Nov 2006 08:41:16 -0500
+Received: from outbound-sin.frontbridge.com ([207.46.51.80]:57777 "EHLO
+	outbound1-sin-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S932614AbWKENlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 08:41:15 -0500
+X-BigFish: V
+Subject: Re: [PATCH 1/2] Add Legacy IDE mode support for SB600 SATA
+From: Conke Hu <conke.hu@amd.com>
+Reply-To: conke.hu@amd.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, Luugi Marsan <luugi.marsan@amd.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1162730726.31873.15.camel@localhost.localdomain>
+References: <20061103185420.B3FA6CBD48@localhost.localdomain>
+	 <1162582216.12810.40.camel@localhost.localdomain>
+	 <1162729080.8525.49.camel@localhost.localdomain>
+	 <1162730726.31873.15.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: AMD
+Date: Sun, 05 Nov 2006 21:38:54 +0800
+Message-Id: <1162733934.8525.88.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061105064801.GV13381@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-27.rhel4.6) 
+X-OriginalArrivalTime: 05 Nov 2006 13:41:06.0780 (UTC) FILETIME=[0B6E49C0:01C700E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Adrian Bunk <bunk@stusta.de>:
-> Subject    : ThinkPad T60/X60: lose ACPI events after suspend/resume
-> References : http://lkml.org/lkml/2006/10/10/39
->              http://lkml.org/lkml/2006/10/4/425
->              http://lkml.org/lkml/2006/10/16/262
->              http://bugzilla.kernel.org/show_bug.cgi?id=7408
->              http://lkml.org/lkml/2006/10/30/251
->              http://lkml.org/lkml/2006/11/3/244
-> Submitter  : Martin Lorenz <martin@lorenz.eu.org>
->              "Michael S. Tsirkin" <mst@mellanox.co.il>
-> Status     : problem is being debugged
+On Sun, 2006-11-05 at 12:45 +0000, Alan Cox wrote:
+> Ar Sul, 2006-11-05 am 20:17 +0800, ysgrifennodd Conke Hu:
+> >     1. The SATA configuration option "Legacy IDE mode" (as well as
+> > Native IDE mode) in SB600 BIOS is ONLY for old OS, and it is not useful
+> > any longer for new Linux kernels.
+> 
+> Some users choose to use old drivers for the feeling of security and
+> reduction of change. Remember there are users out there who have to go
+> through a formal verification process to switch the driver they use.
+> 
+  Consider that the behavior itself of using the new motherboard, SB600,
+means a lot of change, so even if the user still use IDE driver, he also
+a need verification process.
 
-Add to that
-http://lkml.org/lkml/2006/11/1/84
-and a patch in
-http://lkml.org/lkml/2006/11/1/294
+> >     3. "This should only be done if AHCI is configured into the kernel,
+> > so wants a #ifdef check adding".
+> >     Alan, this fix should always be done whether AHCI is configured into
+> > kernel or not, even when AHCI is not configured at all. Because:
+> >     a). Without it, the SB600 SATA controller will appear as an IDE,
+> > which may misguide user to try to load legacy IDE driver (or other IDE
+> 
+> This is not neccessarily misguided. They may want to do this.
+  But the SB600 SATA controller is really an AHCI controller. And that
+will lose high performance (and cannot use NCQ).
 
-I have been running f9dadfa71bc594df09044da61d1c72701121d802 which hs this patch
-for several days now and this issue seem to be fixed.
+> 
+> >     b). We have a RAID driver (close source) for SB600 SATA 
+> 
+> Thats your problem. Some day the lawyers can find out just how legal
+> that is.
+  No, even if there would be a open source RAID driver, it still could
+no run.
 
-I plan to re-test on -rc5 when that's out.
+> 
+> You are right that most users will want to use the AHCI layer and that
+> if AHCI is compiled in then we should switch to AHCI. In the case the
+> kernel has no AHCI support compiled in the legacy driver support should
+> continue to work for it. This is how other vendors products such as
+> Jmicron are handled.
+> 
+  The case of Jmicron is not the same as ours. They use different pci
+functions in the SATA controller.
 
--- 
-MST
+> NAK reasserted.
+  OK, I am rewriting the patch based on the following considerations:
+  1. move these code to ahci driver, and add new code to PATA driver.
+  2. add new options to kernel configuration, and users can choose IDE
+driver or AHCI driver to support SB600 SATA when it is in IDE mode.
+  
+
+> Alan
+> 
+At last, thank you again for your opinions and suggestion. if any other
+advice, please feel free to contact me.
+
+
+Best regards,
+Conke Hu
+
+

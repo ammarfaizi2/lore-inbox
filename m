@@ -1,145 +1,250 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965816AbWKEDa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965810AbWKEDci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965816AbWKEDa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 22:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965817AbWKEDa1
+	id S965810AbWKEDci (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 22:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965811AbWKEDci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 22:30:27 -0500
-Received: from web38401.mail.mud.yahoo.com ([209.191.125.32]:56434 "HELO
-	web38401.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965816AbWKEDa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 22:30:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=CuWCvsGn1wKyM/xdx6nTHXaMsCKKlG7LcJ/mA4OOcB+ZUMy33/cEm1XXzO+xwSl4NzaSPN9SoVqQN2TU4RSLohUf9Qf5W4uBfmqiK67hNeNljm4qxSd0El4yCT0YFPLeeXaS9XWTVTG4FgeH4Ybo7dGYMgw6Me8j/ukV1MS2G/Q=  ;
-Message-ID: <20061105033026.53019.qmail@web38401.mail.mud.yahoo.com>
-Date: Sat, 4 Nov 2006 19:30:26 -0800 (PST)
-From: xp newbie <xp_newbie@yahoo.com>
-Subject: How do I know whether a specific driver being used?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 4 Nov 2006 22:32:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:50410 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965810AbWKEDch (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 22:32:37 -0500
+Subject: Re: lib/iomap.c mmio_{in,out}s* vs. __raw_* accessors
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Paul Mackerras <paulus@samba.org>
+In-Reply-To: <1162689005.28571.118.camel@localhost.localdomain>
+References: <1162626761.28571.14.camel@localhost.localdomain>
+	 <20061104140559.GC19760@flint.arm.linux.org.uk>
+	 <1162678639.28571.63.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0611041544030.25218@g5.osdl.org>
+	 <1162689005.28571.118.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 05 Nov 2006 14:32:13 +1100
+Message-Id: <1162697533.28571.131.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using an Ubuntu system with kernel 2.6.15-27-686.
+Make the generic lib/iomap.c use arch provided MMIO accessors when
+available for big endian and repeat operations. Also while at it,
+fix the *_be version which are currently broken for PIO
 
-I am trying to find out whether I need to compile
-myself a driver for my Promise FastTrack 378
-controller as described here:
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+---
 
-http://www.linuxquestions.org/questions/showthread.php?t=362780
+And because a patch is better than a long email...
 
-But before doing so, I prefer to know in advance (if
-possible) whether this module is already included in
-(and perhaps used by) the kernel.
-
-The instructions in the README file for building this
-particular driver say:
-
-------- START QUOTE -------
-7.) Copy this module to
-/lib/modules/2.4.x/kernel/drivers/scsi/
-
-    
-
-8.) Issue "cat /proc/scsi/ft3xx/x" (x is a SCSI host
-number) to get the
- RAID array status.
-
-------- END QUOTE -------
-
-Due to different kernel I am using, the path is of
-course different, so I listed the modules in:
-
-/lib/modules/2.6.15-27-686/kernel/drivers/scsi/ 
-
-and found no ft3xx entry.
-
-However, I did find a promising entry (no pun
-intended):
-
--rw-r--r-- 1 root root  16219 2006-09-15 23:49
-sata_promise.ko
-
-I then did "ls -l /proc/scsi/sata_promise" and
-received:
--rw-r--r-- 1 root root 0 2006-11-04 22:23 0
--rw-r--r-- 1 root root 0 2006-11-04 22:23 1
--rw-r--r-- 1 root root 0 2006-11-04 22:23 2
-
-a 'cat' on any of these "files" yields the message:
-
-"The driver does not yet support the proc-fs"
-
-Please note that I am using this Promise controller to
-connect to a single PATA drive, not SATA.
-
-The relevant part in my dmesg reads:
-
-[17179575.120000] sata_promise PATA port found
-[17179575.136000] ata1: SATA max UDMA/133 cmd
-0xF8866200 ctl 0xF8866238 bmdma 0x0 irq 169
-[17179575.140000] ata2: SATA max UDMA/133 cmd
-0xF8866280 ctl 0xF88662B8 bmdma 0x0 irq 169
-[17179575.140000] ata3: PATA max UDMA/133 cmd
-0xF8866300 ctl 0xF8866338 bmdma 0x0 irq 169
-[17179575.344000] ata1: no device found (phy stat
-00000000)
-[17179575.344000] scsi0 : sata_promise
-[17179575.552000] ata2: no device found (phy stat
-00000000)
-[17179575.552000] scsi1 : sata_promise
-[17179575.728000] ata3: dev 0 cfg 00:045a 49:2f00
-82:346b 83:7f01 84:4003 85:3c69 86:3c01 87:4003
-88:407f 93:600b
-[17179575.728000] ata3: dev 0 ATA-7, max UDMA/133,
-312581808 sectors: LBA48
-[17179575.728000] ata3: dev 0 configured for UDMA/133
-[17179575.728000] sata_get_dev_handle: SATA dev
-addr=0x40000, handle=0x00000000
-[17179575.728000] scsi2 : sata_promise
-[17179575.728000]   Vendor: ATA       Model: SAMSUNG
-SP1614N   Rev: TM10
-[17179575.728000]   Type:   Direct-Access             
-        ANSI SCSI revision: 05
-[17179575.732000] Driver 'sd' needs updating - please
-use bus_type methods
-[17179575.732000] SCSI device sda: 312581808 512-byte
-hdwr sectors (160042 MB)
-[17179575.732000] SCSI device sda: drive cache: write
-back
-[17179575.732000] SCSI device sda: 312581808 512-byte
-hdwr sectors (160042 MB)
-[17179575.732000] SCSI device sda: drive cache: write
-back
-[17179575.732000]  sda: sda2 sda3 sda4 < sda5 sda6 >
-[17179575.780000] sd 2:0:0:0: Attached scsi disk sda
-
-
-How do I decipher all this information so that I can
-tell whether I am using the correct driver for this
-particular part of my hardware or not?
-
-Is it possible that "the right driver" is already
-there and I don't have to compile anything? :)
-
-Thanks!
-Alex
-
-
-
-
-
-
-
-
-
-
+Index: linux-cell/lib/iomap.c
+===================================================================
+--- linux-cell.orig/lib/iomap.c	2006-11-05 14:21:29.000000000 +1100
++++ linux-cell/lib/iomap.c	2006-11-05 14:30:32.000000000 +1100
+@@ -34,6 +34,71 @@
+ #define PIO_RESERVED	0x40000UL
+ #endif
  
-____________________________________________________________________________________
-Get your email and see which of your friends are online - Right on the New Yahoo.com 
-(http://www.yahoo.com/preview) 
++#ifndef HAVE_ARCH_FULL_MMIO_SET
++/*
++ * Allow arch to provide _be versions and "repeat" versions. If not, we
++ * define default implementations here
++ */
++#define readw_be(addr)		be16_to_cpu(__raw_readw(addr))
++#define readl_be(addr)		be32_to_cpu(__raw_readl(addr))
++#define writew_be(val, addr)	__raw_writew(cpu_to_be16(val), addr)
++#define writel_be(val, addr)	__raw_writel(cpu_to_be32(val), addr)
++
++/*
++ * These are the "repeat MMIO read/write" functions.
++ * Note the "__raw" accesses, since we don't want to
++ * convert to CPU byte order. We write in "IO byte
++ * order" (we also don't have IO barriers).
++ */
++static inline void readsb(void __iomem *addr, u8 *dst, int count)
++{
++	while (--count >= 0) {
++		u8 data = __raw_readb(addr);
++		*dst = data;
++		dst++;
++	}
++}
++static inline void readsw(void __iomem *addr, u16 *dst, int count)
++{
++	while (--count >= 0) {
++		u16 data = __raw_readw(addr);
++		*dst = data;
++		dst++;
++	}
++}
++static inline void readsl(void __iomem *addr, u32 *dst, int count)
++{
++	while (--count >= 0) {
++		u32 data = __raw_readl(addr);
++		*dst = data;
++		dst++;
++	}
++}
++
++static inline void writesb(void __iomem *addr, const u8 *src, int count)
++{
++	while (--count >= 0) {
++		__raw_writeb(*src, addr);
++		src++;
++	}
++}
++static inline void writesw(void __iomem *addr, const u16 *src, int count)
++{
++	while (--count >= 0) {
++		__raw_writew(*src, addr);
++		src++;
++	}
++}
++static inline void writesl(void __iomem *addr, const u32 *src, int count)
++{
++	while (--count >= 0) {
++		__raw_writel(*src, addr);
++		src++;
++	}
++}
++
++#endif /* !defined(HAVE_ARCH_FULL_MMIO_SET) */
++
+ /*
+  * Ugly macros are a way of life.
+  */
+@@ -60,7 +125,7 @@
+ }
+ unsigned int fastcall ioread16be(void __iomem *addr)
+ {
+-	IO_COND(addr, return inw(port), return be16_to_cpu(__raw_readw(addr)));
++	IO_COND(addr, return swab16(inw(port)), return readw_be(addr));
+ }
+ unsigned int fastcall ioread32(void __iomem *addr)
+ {
+@@ -68,7 +133,7 @@
+ }
+ unsigned int fastcall ioread32be(void __iomem *addr)
+ {
+-	IO_COND(addr, return inl(port), return be32_to_cpu(__raw_readl(addr)));
++	IO_COND(addr, return swab32(inl(port)), return readl_be(addr));
+ }
+ EXPORT_SYMBOL(ioread8);
+ EXPORT_SYMBOL(ioread16);
+@@ -86,7 +151,7 @@
+ }
+ void fastcall iowrite16be(u16 val, void __iomem *addr)
+ {
+-	IO_COND(addr, outw(val,port), __raw_writew(cpu_to_be16(val), addr));
++	IO_COND(addr, outw(swab16(val),port), writew_be(val, addr));
+ }
+ void fastcall iowrite32(u32 val, void __iomem *addr)
+ {
+@@ -94,7 +159,7 @@
+ }
+ void fastcall iowrite32be(u32 val, void __iomem *addr)
+ {
+-	IO_COND(addr, outl(val,port), __raw_writel(cpu_to_be32(val), addr));
++	IO_COND(addr, outl(swab32(val),port), writel_be(val, addr));
+ }
+ EXPORT_SYMBOL(iowrite8);
+ EXPORT_SYMBOL(iowrite16);
+@@ -102,70 +167,18 @@
+ EXPORT_SYMBOL(iowrite32);
+ EXPORT_SYMBOL(iowrite32be);
+ 
+-/*
+- * These are the "repeat MMIO read/write" functions.
+- * Note the "__raw" accesses, since we don't want to
+- * convert to CPU byte order. We write in "IO byte
+- * order" (we also don't have IO barriers).
+- */
+-static inline void mmio_insb(void __iomem *addr, u8 *dst, int count)
+-{
+-	while (--count >= 0) {
+-		u8 data = __raw_readb(addr);
+-		*dst = data;
+-		dst++;
+-	}
+-}
+-static inline void mmio_insw(void __iomem *addr, u16 *dst, int count)
+-{
+-	while (--count >= 0) {
+-		u16 data = __raw_readw(addr);
+-		*dst = data;
+-		dst++;
+-	}
+-}
+-static inline void mmio_insl(void __iomem *addr, u32 *dst, int count)
+-{
+-	while (--count >= 0) {
+-		u32 data = __raw_readl(addr);
+-		*dst = data;
+-		dst++;
+-	}
+-}
+-
+-static inline void mmio_outsb(void __iomem *addr, const u8 *src, int count)
+-{
+-	while (--count >= 0) {
+-		__raw_writeb(*src, addr);
+-		src++;
+-	}
+-}
+-static inline void mmio_outsw(void __iomem *addr, const u16 *src, int count)
+-{
+-	while (--count >= 0) {
+-		__raw_writew(*src, addr);
+-		src++;
+-	}
+-}
+-static inline void mmio_outsl(void __iomem *addr, const u32 *src, int count)
+-{
+-	while (--count >= 0) {
+-		__raw_writel(*src, addr);
+-		src++;
+-	}
+-}
+ 
+ void fastcall ioread8_rep(void __iomem *addr, void *dst, unsigned long count)
+ {
+-	IO_COND(addr, insb(port,dst,count), mmio_insb(addr, dst, count));
++	IO_COND(addr, insb(port,dst,count), readsb(addr, dst, count));
+ }
+ void fastcall ioread16_rep(void __iomem *addr, void *dst, unsigned long count)
+ {
+-	IO_COND(addr, insw(port,dst,count), mmio_insw(addr, dst, count));
++	IO_COND(addr, insw(port,dst,count), readsw(addr, dst, count));
+ }
+ void fastcall ioread32_rep(void __iomem *addr, void *dst, unsigned long count)
+ {
+-	IO_COND(addr, insl(port,dst,count), mmio_insl(addr, dst, count));
++	IO_COND(addr, insl(port,dst,count), readsl(addr, dst, count));
+ }
+ EXPORT_SYMBOL(ioread8_rep);
+ EXPORT_SYMBOL(ioread16_rep);
+@@ -173,15 +186,15 @@
+ 
+ void fastcall iowrite8_rep(void __iomem *addr, const void *src, unsigned long count)
+ {
+-	IO_COND(addr, outsb(port, src, count), mmio_outsb(addr, src, count));
++	IO_COND(addr, outsb(port, src, count), writesb(addr, src, count));
+ }
+ void fastcall iowrite16_rep(void __iomem *addr, const void *src, unsigned long count)
+ {
+-	IO_COND(addr, outsw(port, src, count), mmio_outsw(addr, src, count));
++	IO_COND(addr, outsw(port, src, count), writesw(addr, src, count));
+ }
+ void fastcall iowrite32_rep(void __iomem *addr, const void *src, unsigned long count)
+ {
+-	IO_COND(addr, outsl(port, src,count), mmio_outsl(addr, src, count));
++	IO_COND(addr, outsl(port, src,count), writesl(addr, src, count));
+ }
+ EXPORT_SYMBOL(iowrite8_rep);
+ EXPORT_SYMBOL(iowrite16_rep);
+
 

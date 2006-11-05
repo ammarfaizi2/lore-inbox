@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWKENKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbWKEN0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932688AbWKENKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 08:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932689AbWKENKQ
+	id S932687AbWKEN0P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 08:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbWKEN0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 08:10:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:57268 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932688AbWKENKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 08:10:14 -0500
-Subject: Re: [PATCH 1/2] Add Legacy IDE mode support for SB600 SATA
-From: Arjan van de Ven <arjan@infradead.org>
-To: conke.hu@amd.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Luugi Marsan <luugi.marsan@amd.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1162729080.8525.49.camel@localhost.localdomain>
-References: <20061103185420.B3FA6CBD48@localhost.localdomain>
-	 <1162582216.12810.40.camel@localhost.localdomain>
-	 <1162729080.8525.49.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 05 Nov 2006 14:10:10 +0100
-Message-Id: <1162732210.3160.86.camel@laptopd505.fenrus.org>
+	Sun, 5 Nov 2006 08:26:15 -0500
+Received: from dev.mellanox.co.il ([194.90.237.44]:50560 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S932614AbWKEN0O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 08:26:14 -0500
+Date: Sun, 5 Nov 2006 15:26:07 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Lorenz <martin@lorenz.eu.org>, len.brown@intel.com,
+       linux-acpi@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
+Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
+Message-ID: <20061105132607.GA14245@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20061105064801.GV13381@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061105064801.GV13381@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 20:17 +0800, Conke Hu wrote:
->     b). We have a RAID driver (close source) for SB600 SATA which does
-> not depends on the open source AHCI driver in linux kernel and supports
-> both AHCI and RAID. But if the controller is configured as legacy IDE by
-> BIOS, the RAID driver cannot run at all because of the IRQ policy. 
+Quoting r. Adrian Bunk <bunk@stusta.de>:
+> Subject    : ThinkPad T60/X60: lose ACPI events after suspend/resume
+> References : http://lkml.org/lkml/2006/10/10/39
+>              http://lkml.org/lkml/2006/10/4/425
+>              http://lkml.org/lkml/2006/10/16/262
+>              http://bugzilla.kernel.org/show_bug.cgi?id=7408
+>              http://lkml.org/lkml/2006/10/30/251
+>              http://lkml.org/lkml/2006/11/3/244
+> Submitter  : Martin Lorenz <martin@lorenz.eu.org>
+>              "Michael S. Tsirkin" <mst@mellanox.co.il>
+> Status     : problem is being debugged
 
-that is your own problem and in fact a very good reason to reject your
-change. In linux, device mapper deals with such "raid", and your change
-will block that.
-Reverse engineering such raid is usually a one day effort, and it will
-be done.. and that is a good thing. Trying to make that impossible is
-just even dishonest [1].
+Add to that
+http://lkml.org/lkml/2006/11/1/84
+and a patch in
+http://lkml.org/lkml/2006/11/1/294
 
+I have been running f9dadfa71bc594df09044da61d1c72701121d802 which hs this patch
+for several days now and this issue seem to be fixed.
 
-[1] See Greg Kroah's OLS keynote. It's one thing to think your "raid IP"
-is worth more than the Linux kernels IP, it's another one to sabotage
-the Linux kernel to protect your "raid IP".
- 
+I plan to re-test on -rc5 when that's out.
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+MST

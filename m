@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932664AbWKENDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932684AbWKENHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932664AbWKENDL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 08:03:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbWKENDL
+	id S932684AbWKENHf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 08:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbWKENHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 08:03:11 -0500
-Received: from wx-out-0506.google.com ([66.249.82.237]:27611 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932664AbWKENDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 08:03:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IucIMNz55GH23WbK1Icup2PfTP2ahrkxW1l7pxZsHWSzHFtfLBRH4F6CYb7c9qaP7EoOfiReEyOxhJ2Jp8vQlZNow4zEoslWAOnKuBDHbi03UaN4uV84lQsRk2118d5MLauViea+ekWNGLlmhAadUmfdXa4cYpUOym3v8wpcbMc=
-Message-ID: <c87e555d0611050503q5d344ac9r8726d61115b024b3@mail.gmail.com>
-Date: Sun, 5 Nov 2006 14:03:09 +0100
-From: "Maurizio Lombardi" <m.lombardi85@gmail.com>
+	Sun, 5 Nov 2006 08:07:35 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:20452 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S932684AbWKENHe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 08:07:34 -0500
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
 To: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <Pine.LNX.4.64.0611041938490.24713@artax.karlin.mff.cuni.cz>
+Subject: [Opps] Invalid opcode
+Date: Sun, 5 Nov 2006 15:07:36 +0200
+User-Agent: KMail/1.9.5
+Cc: Zachary Amsden <zach@vmware.com>, Gerd Hoffmann <kraxel@suse.de>,
+       john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart13068103.hnilLZKrUh";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
-	 <454A76CC.6030003@cosmosbay.com>
-	 <Pine.LNX.4.64.0611041938490.24713@artax.karlin.mff.cuni.cz>
+Message-Id: <200611051507.37196.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/4/06, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> wrote:
+--nextPart13068103.hnilLZKrUh
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
->free space is organized in lists of free runs
->and converted to bitmap only in case of
->extreme fragmentation.
+Hi;
 
-There is a performance reason to prefer lists of free blocks rather than bitmap?
+2.6.18, 2.6.18.1 and 2.6.18.2 still panics randomly (it seems this is not=20
+related to smpreplacament bug solved in .2) in VmWare and Microsoft Virtual=
+=20
+PC and in order to confirm this bug is not our distro specific i downloaded=
+=20
+and tried latest OpenSuse also [1]  and [2] are screens captured by vmware=
+=20
+but exact same panic occurs in Virtual PC as reported to us in [3]. I CC'ed=
+=20
+previous threads receivers also.
 
-I read from [Tanenbaum: Operating System, Design and Implementation II
-ed. ] that lists are better than bitmap only when disk is almost full.
+[1] http://cekirdek.pardus.org.tr/~caglar/2.6.18/panic.png
+[2] http://cekirdek.pardus.org.tr/~caglar/2.6.18/panic.png
+[3] http://bugs.pardus.org.tr/show_bug.cgi?id=3D3804
 
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
--- 
---------------------
-Maurizio Lombardi
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart13068103.hnilLZKrUh
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFTeIZy7E6i0LKo6YRAi5cAKC7uSg9ndu5dxaqdiPGB4a4LVl7IACgj01w
+Rpkalt60p41psg9ifQM3niQ=
+=ESUl
+-----END PGP SIGNATURE-----
+
+--nextPart13068103.hnilLZKrUh--

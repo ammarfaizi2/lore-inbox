@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161401AbWKESCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161432AbWKESK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161401AbWKESCT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 13:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161432AbWKESCT
+	id S1161432AbWKESK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 13:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161434AbWKESK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 13:02:19 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:9448 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1161401AbWKESCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 13:02:18 -0500
-Subject: Re: realtime-preempt patch-2.6.18-rt7 oops
-From: Daniel Walker <dwalker@mvista.com>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
-       Karsten Wiese <fzu@wemgehoertderstaat.de>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <454E15B0.2050008@rncbc.org>
-References: <42997.194.65.103.1.1162464204.squirrel@www.rncbc.org>
-	 <200611031230.24983.fzu@wemgehoertderstaat.de> <454BC8D1.1020001@rncbc.org>
-	 <454BF608.20803@rncbc.org> <454C714B.8030403@rncbc.org>
-	 <454E0976.8030303@rncbc.org>  <454E15B0.2050008@rncbc.org>
+	Sun, 5 Nov 2006 13:10:28 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15574 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161432AbWKESK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 13:10:27 -0500
+Subject: Re: New filesystem for Linux
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Albert Cahalan <acahalan@gmail.com>, kangur@polcom.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0611051813440.1513@artax.karlin.mff.cuni.cz>
+References: <787b0d920611041159y6171ec25u92716777ce9bea4a@mail.gmail.com>
+	 <1162691856.21654.61.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0611051813440.1513@artax.karlin.mff.cuni.cz>
 Content-Type: text/plain
-Date: Sun, 05 Nov 2006 11:02:15 -0500
-Message-Id: <1162742535.2750.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
+Date: Sun, 05 Nov 2006 18:14:30 +0000
+Message-Id: <1162750470.31873.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 16:47 +0000, Rui Nuno Capela wrote:
-> Rui Nuno Capela wrote:
-> > After a suggestion from Mike Galbraith, I now turned to pure and
-> > original 2.6.18-rt7 and configured with:
-> > 
-> > CONFIG_FRAME_POINTER=y
-> > CONFIG_UNWIND_INFO=y
-> > CONFIG_STACK_UNWIND=y
-> > 
-> > Nasty things still do happen, as the following capture can tell as evidence:
-> > 
-> 
-> Some more evidence, just happening:
-> 
-> ...
-> Oops: 0002 [#1]
->  [<c0106455>] show_trace_log_lvl+0x185/0x1a0
->  [<c0106ae2>] show_trace+0x12/0x20
->  [<c0106c49>] dump_stack+0x19/0x20
->  [<c02f8d2f>] __schedule+0x63f/0xea0
->  [<c02f9700>] schedule+0x30/0x100
->  [<c02fa5db>] rt_spin_lock_slowlock+0x9b/0x1b0
->  [<c02fadb2>] rt_spin_lock+0x22/0x30
->  [<c02fd8b1>] kprobe_flush_task+0x11/0x50
->  [<c02f91fa>] __schedule+0xb0a/0xea0
->  [<c0103b61>] cpu_idle+0xb1/0x120
->  [<c011760f>] start_secondary+0x43f/0x500
+Ar Sul, 2006-11-05 am 18:18 +0100, ysgrifennodd Mikulas Patocka:
+> Should IDE driver read back parameters after writing them before issuing 
+> the command? That should fix this problem. (except when command
+>  is written badly)
 
-Is there more above this log? It looks like your cutting off some stuff
-above this.
+For "normal" usage I suspect not - the lack of ECC memory is probably
+more serious as is the lack of PCI parity checking.
 
-Daniel
 

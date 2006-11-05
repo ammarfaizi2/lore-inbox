@@ -1,102 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965759AbWKEAMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965756AbWKEAYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965759AbWKEAMr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 19:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965760AbWKEAMr
+	id S965756AbWKEAYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 19:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965761AbWKEAYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 19:12:47 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:28612 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965759AbWKEAMq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 19:12:46 -0500
-Subject: Re: [PATCH 1/9] Task Watchers v2: Task watchers v2
-From: Matt Helsley <matthltc@us.ibm.com>
-To: dwalker@mvista.com
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>,
-       Steve Grubb <sgrubb@redhat.com>, linux-audit@redhat.com,
-       Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1162602805.12956.11.camel@dwalker1.mvista.com>
-References: <20061103042257.274316000@us.ibm.com>
-	 <20061103042748.438619000@us.ibm.com>
-	 <1162560154.2801.13.camel@localhost.localdomain>
-	 <1162600994.12419.397.camel@localhost.localdomain>
-	 <1162602805.12956.11.camel@dwalker1.mvista.com>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Sat, 04 Nov 2006 16:12:42 -0800
-Message-Id: <1162685562.12419.408.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Sat, 4 Nov 2006 19:24:09 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:24662 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965756AbWKEAYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 19:24:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=K2/0tU3oY19M3Q6sFP5MMXf24B3h2LEZPHLcsB2mY4Tw7bsKUtC4RIL8oC/YC6aOqCc1I7PQgRUqH5Y99gPw1S7EC/+q3JU8JSHtyBN1nop/XRiJIsG6SF/duiuDWJehS20T9RjWV0NtE2wIVuIpFJwTEj9P8k+gkYWCupAHc0Q=
+Message-ID: <a36005b50611041624x1b9f2602h8d5b90b3337953e2@mail.gmail.com>
+Date: Sat, 4 Nov 2006 16:24:06 -0800
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+Subject: [PATCH] conditionalize some x86-64 options
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-03 at 17:13 -0800, Daniel Walker wrote:
-> On Fri, 2006-11-03 at 16:43 -0800, Matt Helsley wrote:
-> 
-> > I can certainly change this. In my defense I didn't capitalize it
-> > because very similar macros in init.h were not capitalized. For example:
-> > 
-> > #define core_initcall(fn)               __define_initcall("1",fn)
-> > #define postcore_initcall(fn)           __define_initcall("2",fn)
-> > #define arch_initcall(fn)               __define_initcall("3",fn)
-> > #define subsys_initcall(fn)             __define_initcall("4",fn)
-> > #define fs_initcall(fn)                 __define_initcall("5",fn)
-> > #define device_initcall(fn)             __define_initcall("6",fn)
-> > #define late_initcall(fn)               __define_initcall("7",fn)
-> > 
-> > setup_param, early_param, module_init, etc. do not use all-caps. And I'm
-> > sure that's not all.
-> 
-> True .. It's not mandatory. The reason that I mentioned it is because it
-> looked like a function was being called outside a function block, which
-> looks odd to me. I think I overlook the initcall functions because I see
-> them so often I know what they are.
+Shouldn't the X86_MCE{INTEL,AMD} option depend on the other
+manufacturer's CPU not being explicitly selected?
 
-This is a good point -- it does look odd. I'm considering:
+Signed-off-by: Ulrich Drepper <drepper@redhat.com>
 
-DEFINE_TASK_INITCALL(audit_alloc);
 
-With others like:
+diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+index 010d226..f414fe2 100644
+--- a/arch/x86_64/Kconfig
++++ b/arch/x86_64/Kconfig
+@@ -470,7 +470,7 @@ config X86_MCE
 
-DEFINE_TASK_EXITCALL()
-DEFINE_TASK_CLONECALL()
-etc.
+ config X86_MCE_INTEL
+        bool "Intel MCE features"
+-       depends on X86_MCE && X86_LOCAL_APIC
++       depends on X86_MCE && X86_LOCAL_APIC && !MK8
+        default y
+        help
+           Additional support for intel specific MCE features such as
+@@ -478,7 +478,7 @@ config X86_MCE_INTEL
 
-That resembles other macros which create variables. Though I'm not sure
-this patten is appropriate because these variables should not be used by
-name.
-
-Seems that no matter what something about it is going to be unusual. :)
-
-> > All of these declare variables and assign them attributes and values.
-> > 
-> > > Looking at it now could you do something like,
-> > > 
-> > > static int __task_watcher_init 
-> > > audit_alloc(unsigned long val, struct task_struct *tsk)
-> > > 
-> > > Instead of a macro? Might be a little less invasive.
-> > 
-> > 	I like your suggestion. However, I don't see how such a macro could be
-> > made to replace the current macro.
-> > 
-> > 	I need to be able to call every init function during task
-> > initialization. The current macro creates and initializes a function
-> > pointer in an array in the special ELF section. This allows the
-> > notify_task_watchers function to traverse the array and make calls to
-> > the init functions.
-> 
-> 
-> You get an "A" for research. I didn't notice you actually declare a
-
-Thanks!
-
-<snip>
-
-Cheers,
-	-Matt Helsley
-
+ config X86_MCE_AMD
+        bool "AMD MCE features"
+-       depends on X86_MCE && X86_LOCAL_APIC
++       depends on X86_MCE && X86_LOCAL_APIC && !MPSC
+        default y
+        help
+           Additional support for AMD specific MCE features such as

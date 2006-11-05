@@ -1,41 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422777AbWKEXQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422768AbWKEXVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422777AbWKEXQk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 18:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422796AbWKEXQk
+	id S1422768AbWKEXVe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 18:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbWKEXVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 18:16:40 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30607 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1422777AbWKEXQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 18:16:39 -0500
-Subject: Re: sc3200 cpu + apm module kernel crash
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nicolas FR <nicolasfr@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b9481e140611051333p7250179ax6ba3629fcf0ad9e3@mail.gmail.com>
-References: <b9481e140611031506u42e326dbs5c0e97d14c5fb5b3@mail.gmail.com>
-	 <1162750917.31873.38.camel@localhost.localdomain>
-	 <b9481e140611051333p7250179ax6ba3629fcf0ad9e3@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 05 Nov 2006 23:21:05 +0000
-Message-Id: <1162768865.1566.28.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Sun, 5 Nov 2006 18:21:34 -0500
+Received: from ipx10234.ipxserver.de ([80.190.243.121]:6939 "EHLO
+	ipx10234.ipxserver.de") by vger.kernel.org with ESMTP
+	id S932748AbWKEXVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 18:21:33 -0500
+From: Joachim Wagner <jwagner@computing.dcu.ie>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: make install doesn't create target directory (2.6.19-rc4)
+Date: Sun, 5 Nov 2006 23:21:28 +0000
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_5HnTFEt3bp/VNAN"
+Message-Id: <200611052321.29295.jwagner@computing.dcu.ie>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-11-05 am 22:33 +0100, ysgrifennodd Nicolas FR:
-> The module was "crashing" on my box because it keeps on receiving
-> events=APM_UPDATE_TIME meaning that it would never get out of the
-> while() loop in check_events. I need to do some tests but I might
+--Boundary-00=_5HnTFEt3bp/VNAN
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-That's a BIOS bug
+Hi there,
 
-> simply fix this by ignoring APM_UPDATE_TIME events. I first thought
+make install of kernel 2.6.19-rc4 doesn't create a sometimes necessary 
+directory in /lib/modules/. I attach my command history (ls and many "less 
+readme" removed) and the grep^C .config file for reproduceability. However, 
+even with these, I cannot reproduce the error on a different system, see 
+below.
 
-If that works can you run dmidecode on your box and post me the output,
-from that we can add a blacklist entry to automatically handle this.
+Hope this makes any sense and is useful for the final release,
+Joachim
 
 
+Error message:
+[root@localhost linux-2.6.19-rc4]# make install
+sh /extra/build/src/linux-2.6.19-rc4/arch/i386/boot/install.sh 2.6.19-rc4test 
+arch/i386/boot/bzImage System.map "/boot"
+WARNING: Couldn't open directory /lib/modules/2.6.19-rc4test: No such file or 
+directory
+FATAL: Could not open /lib/modules/2.6.19-rc4test/modules.dep.temp for 
+writing: No such file or directory
+No modules available for kernel "2.6.19-rc4test".
+mkinitrd failed
+make[1]: *** [install] Error 1
+make: *** [install] Error 2
+
+Workaround:
+After manually creating the target directory, make install runs normally, and, 
+after make modules_install, the kernel works fine for me. (Actually solving a 
+problem of 2.6.18-1.2200.fc5 with do_IRQ stack overflows. Very happy about 
+this.)
+
+System:
+Pentium 4 2.66GHz, Fedora Core 5, kernel 2.6.18-1.2200.fc5, gcc 4.1.1, GNU 
+Make 3.80, everything run as root.
+
+Unable to reproduce the error on a Pentium 4 2.40GHz, SuSE 10.0, kernel 
+2.6.13-15.11-default, gcc 4.0.2, GNU Make 3.80 (zcat 
+~/Documents/config_c_only.txt.gz >.config, make menuconfig, then just exit). 
+
+Proposed solution:
+Adding an mkdir -p ("no error if existing, make parent directories as needed") 
+shouldn't harm the normal case and fix this problem in the rare case.
+
+
+--Boundary-00=_5HnTFEt3bp/VNAN
+Content-Type: application/x-gzip;
+  name="config_c_only.txt.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="config_c_only.txt.gz"
+
+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
+
+--Boundary-00=_5HnTFEt3bp/VNAN
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="history.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="history.txt"
+
+mkdir build
+cd build/
+mkdir src
+cd src/
+wget -O - http://www.kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.19-rc4.tar.bz2 | tee linux-2.6.19-rc4.tar.bz2 | bunzip2 | tar -xf -
+cd linux-2.6.19-rc4
+cd /extra/build/src/linux-2.6.19-rc4
+make menuconfig
+mv .config .config.old
+make menuconfig
+cat /proc/config.gz | gunzip | less
+find /proc | fgrep config
+make menuconfig
+make
+make modules
+make install
+mkdir -p /lib/modules/2.6.19-rc4test
+make install
+ls /lib/modules/
+make modules_install
+vi /etc/grub.conf 
+cd
+shutdown -r now
+uname -a
+shutdown -r now
+
+--Boundary-00=_5HnTFEt3bp/VNAN--

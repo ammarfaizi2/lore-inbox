@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932670AbWKEL6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWKEMCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932670AbWKEL6S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 06:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbWKEL6S
+	id S932672AbWKEMCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 07:02:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbWKEMCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 06:58:18 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40376 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932670AbWKEL6R (ORCPT
+	Sun, 5 Nov 2006 07:02:25 -0500
+Received: from thunk.org ([69.25.196.29]:13276 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932672AbWKEMCY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 06:58:17 -0500
-Date: Sun, 5 Nov 2006 12:58:04 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-raid@vger.kernel.org
-Subject: Re: [RFC][PATCH -mm][Experimental] suspend: Do not freeze md_threads
-Message-ID: <20061105115804.GG4965@elf.ucw.cz>
-References: <200611022355.52856.rjw@sisk.pl>
+	Sun, 5 Nov 2006 07:02:24 -0500
+Date: Sun, 5 Nov 2006 07:02:03 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Christoph Lameter <clameter@sgi.com>,
+       Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
+Subject: Re: New filesystem for Linux
+Message-ID: <20061105120203.GA32524@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+	Christoph Lameter <clameter@sgi.com>,
+	Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611022346450.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030015150.3266@artax.karlin.mff.cuni.cz> <Pine.LNX.4.63.0611030022110.14187@alpha.polcom.net> <Pine.LNX.4.64.0611030228470.7781@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0611031228400.15668@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0611041944460.24713@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200611022355.52856.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <Pine.LNX.4.64.0611041944460.24713@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, Nov 04, 2006 at 07:46:05PM +0100, Mikulas Patocka wrote:
+> On Fri, 3 Nov 2006, Christoph Lameter wrote:
+> 
+> >On Fri, 3 Nov 2006, Mikulas Patocka wrote:
+> >
+> >>I have, I may find them and post them. (but the university wants me to 
+> >>post
+> >>them to some conference, so I should keep them secret :-/)
+> >
+> >Ph.D. dissertations are public. The problem is that if you have not
+> >finished yet then you may run into trouble with the condition that the
+> >dissertation must not have been published prior to examination by your
+> >advisors.
+> 
+> Yes, but many "paperwork" conferences have the requirement, that the work 
+> submitted must not be published before. Does posting it to mailing list 
+> qualify as "publishing" as well?
 
-> If there's a swap file on a software RAID, it should be possible to use this
-> file for saving the swsusp's suspend image.  Also, this file should be
-> available to the memory management subsystem when memory is being freed before
-> the suspend image is created.
-> 
-> For the above reasons it seems that md_threads should not be frozen during
-> the suspend and the appended patch makes this happen, but then there is the
-> question if they don't cause any data to be written to disks after the
-> suspend image has been created, provided that all filesystems are frozen
-> at that time.
+The requirement by the vast majority of conferences is that it must
+not have been published in a peer-reviewed journal or conference, and
+you most not simultaneously have the paper under consideration by more
+than one peer-reviewed journal or conference.  In general, though, you
+can publish work on a web page, mailing list, or even as an
+un-reviewed Techncial Report published by your department, without
+harming your chances of submission to a peer-reviewed
+conference/journal.  Check with the program committee of the
+conference to be sure, but that's way it general works.
 
-Looks okay to me. It would be nice to have someone (Ingo? Neil?) try
-to suspend to swap on md......
-								Pavel
+						- Ted
 
-> Please advise.
-> 
-> Greetings,
-> Rafael
-> 
-> 
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> ---
->  drivers/md/md.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: linux-2.6.19-rc4-mm2/drivers/md/md.c
-> ===================================================================
-> --- linux-2.6.19-rc4-mm2.orig/drivers/md/md.c	2006-11-02 20:51:51.000000000 +0100
-> +++ linux-2.6.19-rc4-mm2/drivers/md/md.c	2006-11-02 23:25:59.000000000 +0100
-> @@ -4489,6 +4489,7 @@ static int md_thread(void * arg)
->  	 * many dirty RAID5 blocks.
->  	 */
->  
-> +	current->flags |= PF_NOFREEZE;
->  	allow_signal(SIGKILL);
->  	while (!kthread_should_stop()) {
->  
-> @@ -4505,7 +4506,6 @@ static int md_thread(void * arg)
->  			 test_bit(THREAD_WAKEUP, &thread->flags)
->  			 || kthread_should_stop(),
->  			 thread->timeout);
-> -		try_to_freeze();
->  
->  		clear_bit(THREAD_WAKEUP, &thread->flags);
->  
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161357AbWKERCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161359AbWKERDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161357AbWKERCA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 12:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161369AbWKERCA
+	id S1161359AbWKERDT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 12:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161361AbWKERDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 12:02:00 -0500
-Received: from pat.uio.no ([129.240.10.4]:23791 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1161357AbWKERB7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 12:01:59 -0500
-Subject: Re: [PATCH] Fix SUNRPC wakeup/execute race condition
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org, NFS V4 Mailing List <nfsv4@linux-nfs.org>,
-       "J. Bruce Fields" <bfields@citi.umich.edu>
-In-Reply-To: <1162722728.19690.4.camel@leto.intern.saout.de>
-References: <1157576316.3292.13.camel@dyn9047022153>
-	 <20060907150146.GA22586@fieldses.org>
-	 <1157731084.3292.25.camel@dyn9047022153>
-	 <20060908160432.GB19234@fieldses.org>
-	 <1162158228.11247.4.camel@leto.intern.saout.de>
-	 <1162159282.11247.17.camel@leto.intern.saout.de>
-	 <1162321027.23543.6.camel@leto.intern.saout.de>
-	 <1162324141.23543.23.camel@leto.intern.saout.de>
-	 <1162325490.5614.82.camel@lade.trondhjem.org>
-	 <1162602386.26794.5.camel@leto.intern.saout.de>
-	 <1162688688.5153.26.camel@leto.intern.saout.de>
-	 <1162709441.6271.62.camel@lade.trondhjem.org>
-	 <1162722728.19690.4.camel@leto.intern.saout.de>
-Content-Type: text/plain
-Date: Sun, 05 Nov 2006 12:01:33 -0500
-Message-Id: <1162746093.5652.39.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.313, required 12,
-	autolearn=disabled, AWL 1.55, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Sun, 5 Nov 2006 12:03:19 -0500
+Received: from web38405.mail.mud.yahoo.com ([209.191.125.36]:52414 "HELO
+	web38405.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161359AbWKERDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 12:03:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=mNkBoSD3nM+aj6FsrFvEGDYJt3XTg5UsXiDsAN646LigWapjAJTWIVfTa57gs7RTGe3aF5Q2DfoZ4bTDY+KYs+w3dSjovILI+cNAQ8qYH3hSvyvimbW3COzB8zBg0N1S9FOV9Ue00qhkyGzPpktKVTSfIh2LuoLe4uzGe9O8TiU=  ;
+Message-ID: <20061105170318.68879.qmail@web38405.mail.mud.yahoo.com>
+Date: Sun, 5 Nov 2006 09:03:18 -0800 (PST)
+From: xp newbie <xp_newbie@yahoo.com>
+Subject: Re: How do I know whether a specific driver being used?
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <653402b90611050147x5af94b50s46a5f107f29031b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 11:32 +0100, Christophe Saout wrote:
-> Am Sonntag, den 05.11.2006, 01:50 -0500 schrieb Trond Myklebust:
+--- Miguel Ojeda <maxextreme@gmail.com> wrote:
+>
+> This mailing list is about kernel development, this
+> is not the right
+> place to ask that. Anyway, 3rd party kernels,
+> patches, drivers... are
+> not covered here.
 > 
-> > > --- linux-2.6.18/net/sunrpc/sched.c	2006-09-20 05:42:06.000000000 +0200
-> > > +++ linux/net/sunrpc/sched.c	2006-11-04 20:38:56.000000000 +0100
-> > > @@ -302,12 +302,9 @@ EXPORT_SYMBOL(__rpc_wait_for_completion_
-> > >   */
-> > >  static void rpc_make_runnable(struct rpc_task *task)
-> > >  {
-> > > -	int do_ret;
-> > > -
-> > >  	BUG_ON(task->tk_timeout_fn);
-> > > -	do_ret = rpc_test_and_set_running(task);
-> > >  	rpc_clear_queued(task);
-> > > -	if (do_ret)
-> > > +	if (rpc_test_and_set_running(task))
-> > >  		return;
-> > >  	if (RPC_IS_ASYNC(task)) {
-> > >  		int status;
-> > 
-> > This fix looks wrong to me. If we've made it to 'rpc_make_runnable',
-> > then the rpc_task will have already been removed from the
-> > rpc_wait_queue.
-> 
-> I just flipped the two lines, changed nothing else. Why exactly do you
-> think that's wrong, I don't see anything particular that could be broken
-> by chaning the ordering. Anyway, the fsstress has been running for 18
-> hours straight now without showing any signs of problems.
 
-OK. I finally see the bug that you've spotted. The problem occurs when
-__rpc_execute clears RPC_TASK_RUNNING after rpc_make_runnable has called
-rpc_test_and_set_running, but before it has called rpc_clear_queued.
+I appologize for sending to the wrong mailing list.
+Could you please refer me to the correct
+newsgroup/forum/mailinglist?
 
-However if you just swap the two lines, you run into a new race:
-__rpc_execute() may just put the rpc_task back to sleep before your call
-to rpc_test_and_set_running() finishes executing.
-We therefore need an extra test for RPC_IS_QUEUED() in
-rpc_make_runnable().
+Please note that I have already tried
+http://www.ubuntuforums.org/ but the folks seem to be
+confused like me (regarding this particular issue).
+
+More specifically, there is confusion between the
+following statement:
+
+http://packages.debian.org/stable/devel/kernel-patch-2.4-fasttraks150
+
+And the fact that my system shows the following:
+
+~> lsmod | grep promise
+sata_promise           12516  8
+libata                 83440  1 sata_promise
+scsi_mod              145960  6
+sr_mod,sbp2,sg,sd_mod,sata_promise,libata
+
+Do you know what the best place to ask such question?
+
+Thanks!
+Alex
+
+P.S. I didn't browse menuconfig, because I am not
+there yet. It's like the chicken-and-the-egg
+situation: I am using Ubuntu which conceptually
+exempts me from the need to compile kernel modules and
+thus menuconfig is not even installed by default.
+Since (thanks to Arjan's reply) I am pretty sure now
+that the driver is included in the distribution, I
+hope that no compilation is needed.
+
+P.S.2 If I discover something that IMHO points to a
+bug in the kernel, where do I post it?
 
 
-Cheers,
-  Trond
+
+ 
+____________________________________________________________________________________
+Get your email and see which of your friends are online - Right on the New Yahoo.com 
+(http://www.yahoo.com/preview) 
 

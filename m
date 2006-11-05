@@ -1,141 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965833AbWKEEOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965832AbWKEENr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965833AbWKEEOK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Nov 2006 23:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965834AbWKEEOJ
+	id S965832AbWKEENr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Nov 2006 23:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965833AbWKEENr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Nov 2006 23:14:09 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:17632 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965833AbWKEEOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Nov 2006 23:14:08 -0500
-Date: Sun, 5 Nov 2006 05:14:06 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-In-Reply-To: <Pine.LNX.4.64.0611041633110.25218@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0611050410210.29515@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0611022221330.4104@artax.karlin.mff.cuni.cz>
- <Pine.LNX.4.64.0611041633110.25218@g5.osdl.org>
-X-Personality-Disorder: Schizoid
+	Sat, 4 Nov 2006 23:13:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41627 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965832AbWKEENr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Nov 2006 23:13:47 -0500
+Date: Sat, 4 Nov 2006 20:13:29 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+cc: Zachary Amsden <zach@vmware.com>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc patch] i386: don't save eflags on task switch
+In-Reply-To: <20061105035556.GQ9057@kvack.org>
+Message-ID: <Pine.LNX.4.64.0611041959260.25218@g5.osdl.org>
+References: <200611040200_MC3-1-D04D-6EA3@compuserve.com> <454CE576.3000709@vmware.com>
+ <20061105035556.GQ9057@kvack.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Nov 2006, Linus Torvalds wrote:
 
-> On Thu, 2 Nov 2006, Mikulas Patocka wrote:
->>
->> As my PhD thesis, I am designing and writing a filesystem, and it's now in a
->> state that it can be released. You can download it from
->> http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/
->
-> Ok, not having actually tested any of this, I only have a few comments on
-> the source code:
->
-> - the source tree layout is very confusing. Can you please separate the
->   mkfs/fsck parts more clearly from the kernel driver parts?
 
-Yes, fsck is already separated, mkfs could be too.
+On Sat, 4 Nov 2006, Benjamin LaHaise wrote:
 
-> - you have a _very_ confusing usage of upper-case. Not only are a lot of
->   functions upper-case, some filenames are also upper-case. What would
->   otherwise be more readable just ends up being hard to read because it's
->   so odd and unexpected.
->
->   I'm sure there is some logic to it, but it escapes me.
+> On Sat, Nov 04, 2006 at 11:09:42AM -0800, Zachary Amsden wrote:
+> > Every processor I've ever measured it on, popf is slower.  On P4, for 
+> > example, pushf is 6 cycles, and popf is 54.  On Opteron, it is 2 / 12.  
+> > On Xeon, it is 7 / 91.
+> 
+> pushf has to wait until all flag dependancies can be resolved.  On the 
+> P4 with >100 instructions in flight, that can take a long time.
 
-I'm used to this. I usually make important functions with uppercase 
-letters and nonimportant temporary functions with lowercase letters.
+That's like saying that "addc has to wait until all flag dependencies can 
+be resolved". Not so. It just needs to execute _after_, but it pipelines 
+perfectly fine. There's no need for any pipeline flush, nothing like that. 
+Yes, an "addc" needs the flags from previous instructions, but that 
+doesn't really make an addc any slower - it just adds a data dependency.
 
-But I see that it contradicts general kernel coding style, so I can change 
-it.
+Same goes for pushf. Sure - it has a data dependency on the flags. The 
+flags are usually there one cycle (ONE CYCLE!) after the actual value has 
+been computed, so you should expect it to be fast.
 
-BTW do you find uppercase typedefs like
-typedef struct {
- 	...
-} SPADFNODE;
-confusing too?
+> Popf on the other hand has no dependancies on outstanding instructions 
+> as it resets the machine state.
 
-Uppercase filenames are there because the files are taken from another 
-(not yet released) project. But the kernel driver does not share any code 
-except definitions of disk structures, I saw how badly an attempt to share 
-kernel code affected XFS.
+Right. Popf generally has to flush the pipeline, _exactly_ because it 
+actually changes machine state that normally isn't carried along, and that 
+may even be part of the trace-cache state on P4 for all I know.
 
-> - your whitespace usage needs some work: please put empty lines between
->   the declarations and the code in a function, and since you use a fair
->   amount of "goto"s, please do NOT indent them into the code (it's almost
->   impossible to pick out the target labels because you hide them with the
->   code).
->
-> - your whitespace, part 2: you have a fair number of one-liner
->   if-statements, where again there is no indentation, and thus the flow
->   is almost impossible to see. Don't wrote
->
-> 	if (somecomplexconditional) return;
->
->   but please instead write
->
-> 	if (somecomplexcondifional)
-> 		return;
->
->   and perhaps use a few more empty lines to separate out the "paragraphs"
->   of code (the same way you write email - nobody wants to see one solid
->   block of code, you'd prefer to see "logical sections").
->
->   Here's a prime example of what NOT to do:
->
-> 	if (__likely(!(((*c)[1] - 1) & (*c)[1]))) (*c)[0] = key;
->
->   I dare anybody to be able to read that. That wasn't even the worst one:
->   some of those if-statements were so long that you couldn't even _see_
->   what the statement inside the if-statement even was (and I don't use a
->   80-column wide terminal, this was in a 112-column xterm)
+So you got the logic totally wrong. pushf is fast, popf is slow. pushf can 
+pipeline, popf would quite commonly _flush_ the pipeline. 
 
-I see, that is fixable easily.
+Dependencies are _cheap_. What's expensive is state changes.
 
-> - why use "__d_off" etc hard-to-read types? You seem to have typedef'ed
->   it from sector_t, but you use a harder-to-read name than the original
->   type was. Hmm?
+Anyway, I'm right, you're wrong. Why even bother arguing about it? Why are 
+people arguing against REAL HARD NUMBERS that were posted by Zach?
 
-I am used to __d_off from elsewhere. The same reason why I use 
-__likely/__unlikely instead of likely/unlikely.
+Btw, for the P4 people out there who can't admit that they are wrong, just 
+run this small program.
 
-__d_off may have some little meaning --- if someone wants to run 32-bit 
-spadfs filesystem on a kernel configuration with 64-bit sector_t. But I'm 
-not sure if someone would ever want it.
+	#define pushfl(value) \
+		asm volatile("pushfl ; popl %0":"=r" (value));
+	#define popfl(value) \
+		asm volatile("push %0 ; popfl": :"r" (value));
+	#define rdtsc(value) \
+		asm volatile("rdtsc":"=A" (value))
+	
+	int main(int argc, char ** argv)
+	{
+		unsigned long long a,b;
+		unsigned long tmp;
+	
+		rdtsc(a);
+		rdtsc(b);
+		printf("%lld\n", b-a);
+		rdtsc(a);
+		pushfl(tmp);
+		rdtsc(b);
+		printf("%lld\n", b-a);
+		rdtsc(a);
+		popfl(tmp);
+		rdtsc(b);
+		printf("%lld\n", b-a);
+		return 0;
+	}
 
-> - you have a few comments, but you could have a lot more explanation,
->   especially since not all of your names are all that self-explanatory.
->
-> Ok, with that out of the way, let's say what I _like_ about it:
->
-> - it's fairly small
->
-> - the code, while having the above problems, looks generally fairly
->   clean. The whitespace issues get partially cleared by just running
->   "Lindent" on it, although that's not perfect either (it still indents
->   the goto target labels too much, although it at least makes them
->   _visible_. But it won't add empty lines to delineate sections, of
->   course, and it doesn't add comments ;^)
->
-> - I like a lot of the notions, and damn, small and simple are both
->   virtues on their own.
->
-> So if you could make the code easier to read, and were to do some
-> benchmarking to show what it's good at and what the problems are, I think
-> you'd find people looking at it. It doesn't look horrible to me.
+For me, when compiled with -O2, it results in
 
-I placed some benchmark on 
-http://artax.karlin.mff.cuni.cz/~mikulas/spadfs/benchmarks/
+	84
+	88
+	132
 
-The main shortcoming: slow fsync. fsync on spadfs generally has to flush 
-all metadata buffers (it could be improved at least for case when file 
-size does not change --- for databases).
+which basically says: a "rdtsc->rdtsc" is 84 cycles, putting a "pushfl" in 
+between is another _4_ cycles, and putting a "popfl" in between is about 
+another 48 cycles. 
 
-Mikulas
+Now, those numbers aren't scientific, but they tell you something.
 
-> 		Linus
->
+Now, tell me how popfl is faster again.
+
+But dammit, back it up with real numbers and real logic this time. 
+
+		Linus

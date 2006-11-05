@@ -1,72 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932738AbWKEQWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161317AbWKEQUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932738AbWKEQWX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 11:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWKEQWX
+	id S1161317AbWKEQUr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 11:20:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932735AbWKEQUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 11:22:23 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:53917 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932738AbWKEQWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 11:22:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=P2WIKG4dS4tquEGzli2wx1k462NUPNTLqCGIpCupgN3VcAL+0CmlhQmIeqSf4ZULaEABMwT1K5GCK/czsb897TYNhbPSiRAkImdgxN+RtwCLPk6sotGD4Mn3qjOz4UZTNBuzZA+x25D3fpuFOpjjFC5UpvMBACzniqgatW5cNyk=
-Message-ID: <787b0d920611050822p624401cj763397c0558c373d@mail.gmail.com>
-Date: Sun, 5 Nov 2006 11:22:20 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: "James Courtier-Dutton" <James@superbug.co.uk>
-Subject: Re: New filesystem for Linux
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, kangur@polcom.net,
-       mikulas@artax.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <454DC799.9000401@superbug.co.uk>
+	Sun, 5 Nov 2006 11:20:47 -0500
+Received: from w241.dkm.cz ([62.24.88.241]:33478 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S932734AbWKEQUr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 11:20:47 -0500
+Date: Sun, 5 Nov 2006 17:20:44 +0100
+From: Petr Baudis <pasky@suse.cz>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [RESEND][RESEND][PATCH] Script for automated historical Git tree grafting
+Message-ID: <20061105162044.GF17641@pasky.or.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <787b0d920611041159y6171ec25u92716777ce9bea4a@mail.gmail.com>
-	 <1162691856.21654.61.camel@localhost.localdomain>
-	 <454DC799.9000401@superbug.co.uk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/5/06, James Courtier-Dutton <James@superbug.co.uk> wrote:
+This script enables Git users to easily graft the historical Git tree
+(Bitkeeper history import) to the current history. It will also record
+the appropriate tags in your refs tree as suggested by Marcel Holtmann.
 
-> I have seen this too. I think that when IDE drive relocates the sector
-> due to hard errors, one would silently loose the information that was
-> stored in that sector.
+Signed-off-by: Petr Baudis <pasky@suse.cz>
+---
 
-I didn't just mean hidden relocation of bad blocks.
+ scripts/git-gethistory.sh |   47 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 47 insertions(+), 0 deletions(-)
 
-I really meant that sectors can trade places. This is probably
-what happens when the bad-block remapping is itself corrupt.
-
-Inodes 16,17,18,19 trade places with inodes 40,41,42,43.
-An indirect block for your database trades places with an
-indirect block for an outgoing email. A chunk of /etc/shadow
-trades places with a chunk of a user's ~/.bash_logout file.
-
-> I suppose a work around is to provide a fs level error check. This could
-> take the form of the fs adding a checksum to any file. To avoid recheck
-> summing the entire file each time it changes, maybe break the file up
-> into blocks and checksum those. This would slow things down due to CPU
-> use for the checksum, but at least we could tell us as soon as a file
-> became corrupted, as the verification could be done on reading the file.
-
-Yes indeed. This is what ZFS does. You can choose between
-regular and crypto checksums. You can cause the filesystem
-to replicate blocks over multiple devices. Unlike RAID, this lets
-you recover from silent corruption.
-
-> Another possible solution could be using a few bytes from each sector to
-> place a fs level checksum in. Then, if the IDE drive silently relocates
-> the sector, the fs level checksum will fail. A saw a feature like this
-> on some old filesystem, but I don't remember which. It placed a
-> checksum, forwards chain link, and possibly backwards chain link. So, if
-> the filesystem became really badly corrupted, one could pick any sector
-> on the disk and recover the entire file associated with it.
-
-Both OS/400 and AmigaOS had this feature. AmigaOS used regular
-512-byte sectors, making the data portion oddly sized. OS/400 made
-the sectors bigger, by another 8 or 16 bytes if I remember right.
+diff --git a/scripts/git-gethistory.sh b/scripts/git-gethistory.sh
+new file mode 100755
+index 0000000..2f19372
+--- /dev/null
++++ b/scripts/git-gethistory.sh
+@@ -0,0 +1,47 @@
++#!/bin/sh
++#
++# Graft the development history imported from BitKeeper to the current Git
++# history tree.
++#
++# Note that this will download about 160M.
++
++httpget="curl -O -C -"
++if [ -z "`which curl 2>/dev/null`" ]; then
++	httpget="wget -c"
++	if [ -z "`which wget 2>/dev/null`" ]; then
++		echo "Error: You need to have wget or curl installed so that I can fetch the history." >&2
++		exit 1
++	fi
++fi
++
++[ "$GIT_DIR" ] || GIT_DIR=.git
++if ! [ -d "$GIT_DIR" ]; then
++	echo "Error: You must run this from the project root (or set GIT_DIR to your .git directory)." >&2
++	exit 1
++fi
++cd "$GIT_DIR"
++export GIT_DIR="$(pwd)"
++
++echo "[git-gethistory] Downloading the history"
++mkdir -p objects/pack
++cd objects/pack
++$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-4d27038611fe7755938efd4a2745d5d5d35de1c1.idx
++$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-4d27038611fe7755938efd4a2745d5d5d35de1c1.pack
++
++echo "[git-gethistory] Setting up the grafts"
++cd "$GIT_DIR"
++mkdir -p info
++# master
++echo 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 e7e173af42dbf37b1d946f9ee00219cb3b2bea6a >>info/grafts
++
++echo "[git-gethistory] Setting up tag refs"
++cd "$GIT_DIR"
++git-ls-remote http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git | \
++	grep refs/tags | grep -v '\^{}$' | \
++	while read obj ref; do
++		git-update-ref "$ref" "$obj"
++	done
++
++echo "[git-gethistory] Refreshing the dumb server info wrt. new packs"
++cd "$GIT_DIR"
++git-update-server-info

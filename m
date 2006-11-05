@@ -1,1176 +1,1606 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422628AbWKEUjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422630AbWKEUko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422628AbWKEUjp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 15:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422629AbWKEUjp
+	id S1422630AbWKEUko (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 15:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422629AbWKEUko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 15:39:45 -0500
-Received: from il.qumranet.com ([62.219.232.206]:44485 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1422628AbWKEUjn (ORCPT
+	Sun, 5 Nov 2006 15:40:44 -0500
+Received: from il.qumranet.com ([62.219.232.206]:45509 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1422630AbWKEUkm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 15:39:43 -0500
-Subject: [PATCH 11/14] KVM: mmu
+	Sun, 5 Nov 2006 15:40:42 -0500
+Subject: [PATCH 12/14] KVM: x86 emulator
 From: Avi Kivity <avi@qumranet.com>
-Date: Sun, 05 Nov 2006 20:39:35 -0000
+Date: Sun, 05 Nov 2006 20:40:35 -0000
 To: kvm-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
 References: <454E4941.7000108@qumranet.com>
 In-Reply-To: <454E4941.7000108@qumranet.com>
-Message-Id: <20061105203935.CAF332500A7@cleopatra.q>
+Message-Id: <20061105204035.DF0F62500A7@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the shadow page table code.
+Add an x86 instruction emulator for kvm.
 
-This is a fairly naive implementation that uses the tlb management instructions
-to keep the shadow page tables in sync with the guest page tables:
+We need an x86 emulator for the following reasons:
 
-- invlpg: remove the shadow pte for the given virtual address
-- tlb flush: remove all shadow ptes for non-global pages
+- mmio instructions are intercepted as page faults, with no information about
+  the operation to be performed other than the virtual address
+- real-mode is emulated using the old-fashined vm86 mode, with no special
+  intercepts for the privileged instructions, so we need to emulate mov cr,
+  lgdt, and lidt
+- we plan to cache shadow page tables in the future, so that a guest context
+  switch will not throw away all the mappings we worked so hard to build.  but
+  cachine page tables means write-protecting the guest page tables to keep
+  them in sync, so any writes to the guest page tables need to be emulated
 
-The relative simplicity of the approach comes at a price: every guest address
-space switch needs to rebuild the shadow page tables for the new address space.
-
-Other noteworthy items:
-
-- the dirty bit is emulated by mapping non-dirty, writable pages as read-only.
-  the first write will set the dirty bit and remap the page as writable
-- we support both 32-bit and 64-bit guest ptes
-- the host ptes are always 64-bit, even on non-pae i386 hosts
+The emulator was lifted from the Xen hypervisor.
 
 Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
 Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Index: linux-2.6/drivers/kvm/mmu.c
+Index: linux-2.6/drivers/kvm/x86_emulate.c
 ===================================================================
 --- /dev/null
-+++ linux-2.6/drivers/kvm/mmu.c
-@@ -0,0 +1,721 @@
-+/*
-+ * Kernel-based Virtual Machine driver for Linux
++++ linux-2.6/drivers/kvm/x86_emulate.c
+@@ -0,0 +1,1370 @@
++/******************************************************************************
++ * x86_emulate.c
 + *
-+ * This module enables machines with Intel VT-x extensions to run virtual
-+ * machines without emulation or binary translation.
++ * Generic x86 (32-bit and 64-bit) instruction decoder and emulator.
 + *
-+ * MMU support
++ * Copyright (c) 2005 Keir Fraser
 + *
-+ * Copyright (C) 2006 Qumranet, Inc.
++ * Linux coding style, mod r/m decoder, segment base fixes, real-mode
++ * privieged instructions:
 + *
-+ * Authors:
-+ *   Yaniv Kamay  <yaniv@qumranet.com>
-+ *   Avi Kivity   <avi@qumranet.com>
++ * Copyright (C) 2006 Qumranet
 + *
-+ */
-+#include <linux/types.h>
-+#include <linux/string.h>
-+#include <asm/page.h>
-+#include <linux/mm.h>
-+#include <linux/highmem.h>
-+#include <linux/module.h>
-+
-+#include "vmx.h"
-+#include "kvm.h"
-+
-+#define pgprintk(x...) do { } while (0)
-+
-+#define ASSERT(x)							\
-+	if (!(x)) {							\
-+		printk(KERN_WARNING "assertion failed %s:%d: %s\n",	\
-+		       __FILE__, __LINE__, #x);				\
-+	}
-+
-+#define PT64_ENT_PER_PAGE 512
-+#define PT32_ENT_PER_PAGE 1024
-+
-+#define PT_WRITABLE_SHIFT 1
-+
-+#define PT_PRESENT_MASK (1ULL << 0)
-+#define PT_WRITABLE_MASK (1ULL << PT_WRITABLE_SHIFT)
-+#define PT_USER_MASK (1ULL << 2)
-+#define PT_PWT_MASK (1ULL << 3)
-+#define PT_PCD_MASK (1ULL << 4)
-+#define PT_ACCESSED_MASK (1ULL << 5)
-+#define PT_DIRTY_MASK (1ULL << 6)
-+#define PT_PAGE_SIZE_MASK (1ULL << 7)
-+#define PT_PAT_MASK (1ULL << 7)
-+#define PT_GLOBAL_MASK (1ULL << 8)
-+#define PT64_NX_MASK (1ULL << 63)
-+
-+#define PT_PAT_SHIFT 7
-+#define PT_DIR_PAT_SHIFT 12
-+#define PT_DIR_PAT_MASK (1ULL << PT_DIR_PAT_SHIFT)
-+
-+#define PT32_DIR_PSE36_SIZE 4
-+#define PT32_DIR_PSE36_SHIFT 13
-+#define PT32_DIR_PSE36_MASK (((1ULL << PT32_DIR_PSE36_SIZE) - 1) << PT32_DIR_PSE36_SHIFT)
-+
-+
-+#define PT32_PTE_COPY_MASK \
-+	(PT_PRESENT_MASK | PT_PWT_MASK | PT_PCD_MASK | \
-+	PT_ACCESSED_MASK | PT_DIRTY_MASK | PT_PAT_MASK | \
-+	PT_GLOBAL_MASK )
-+
-+#define PT32_NON_PTE_COPY_MASK \
-+	(PT_PRESENT_MASK | PT_PWT_MASK | PT_PCD_MASK | \
-+	PT_ACCESSED_MASK | PT_DIRTY_MASK)
-+
-+
-+#define PT64_PTE_COPY_MASK \
-+	(PT64_NX_MASK | PT32_PTE_COPY_MASK)
-+
-+#define PT64_NON_PTE_COPY_MASK \
-+	(PT64_NX_MASK | PT32_NON_PTE_COPY_MASK)
-+
-+
-+
-+#define PT_FIRST_AVAIL_BITS_SHIFT 9
-+#define PT64_SECOND_AVAIL_BITS_SHIFT 52
-+
-+#define PT_SHADOW_PS_MARK (1ULL << PT_FIRST_AVAIL_BITS_SHIFT)
-+#define PT_SHADOW_IO_MARK (1ULL << PT_FIRST_AVAIL_BITS_SHIFT)
-+
-+#define PT_SHADOW_WRITABLE_SHIFT (PT_FIRST_AVAIL_BITS_SHIFT + 1)
-+#define PT_SHADOW_WRITABLE_MASK (1ULL << PT_SHADOW_WRITABLE_SHIFT)
-+
-+#define PT_SHADOW_USER_SHIFT (PT_SHADOW_WRITABLE_SHIFT + 1)
-+#define PT_SHADOW_USER_MASK (1ULL << (PT_SHADOW_USER_SHIFT))
-+
-+#define PT_SHADOW_BITS_OFFSET (PT_SHADOW_WRITABLE_SHIFT - PT_WRITABLE_SHIFT)
-+
-+#define VALID_PAGE(x) ((x) != INVALID_PAGE)
-+
-+#define PT64_LEVEL_BITS 9
-+
-+#define PT64_LEVEL_SHIFT(level) \
-+		( PAGE_SHIFT + (level - 1) * PT64_LEVEL_BITS )
-+
-+#define PT64_LEVEL_MASK(level) \
-+		(((1ULL << PT64_LEVEL_BITS) - 1) << PT64_LEVEL_SHIFT(level))
-+
-+#define PT64_INDEX(address, level)\
-+	(((address) >> PT64_LEVEL_SHIFT(level)) & ((1 << PT64_LEVEL_BITS) - 1))
-+
-+
-+#define PT32_LEVEL_BITS 10
-+
-+#define PT32_LEVEL_SHIFT(level) \
-+		( PAGE_SHIFT + (level - 1) * PT32_LEVEL_BITS )
-+
-+#define PT32_LEVEL_MASK(level) \
-+		(((1ULL << PT32_LEVEL_BITS) - 1) << PT32_LEVEL_SHIFT(level))
-+
-+#define PT32_INDEX(address, level)\
-+	(((address) >> PT32_LEVEL_SHIFT(level)) & ((1 << PT32_LEVEL_BITS) - 1))
-+
-+
-+#define PT64_BASE_ADDR_MASK (((1ULL << 52) - 1) & PAGE_MASK)
-+#define PT64_DIR_BASE_ADDR_MASK \
-+	(PT64_BASE_ADDR_MASK & ~((1ULL << (PAGE_SHIFT + PT64_LEVEL_BITS)) - 1))
-+
-+#define PT32_BASE_ADDR_MASK PAGE_MASK
-+#define PT32_DIR_BASE_ADDR_MASK \
-+	(PAGE_MASK & ~((1ULL << (PAGE_SHIFT + PT32_LEVEL_BITS)) - 1))
-+
-+
-+#define PFERR_PRESENT_MASK (1U << 0)
-+#define PFERR_WRITE_MASK (1U << 1)
-+#define PFERR_USER_MASK (1U << 2)
-+
-+#define PT64_ROOT_LEVEL 4
-+#define PT32_ROOT_LEVEL 2
-+#define PT32E_ROOT_LEVEL 3
-+
-+#define PT_DIRECTORY_LEVEL 2
-+#define PT_PAGE_TABLE_LEVEL 1
-+
-+static int is_write_protection(void)
-+{
-+	return guest_cr0() & CR0_WP_MASK;
-+}
-+
-+static int is_cpuid_PSE36(void)
-+{
-+	return 1;
-+}
-+
-+static int is_present_pte(unsigned long pte)
-+{
-+	return pte & PT_PRESENT_MASK;
-+}
-+
-+static int is_writeble_pte(unsigned long pte)
-+{
-+	return pte & PT_WRITABLE_MASK;
-+}
-+
-+static int is_io_pte(unsigned long pte)
-+{
-+	return pte & PT_SHADOW_IO_MARK;
-+}
-+
-+static void kvm_mmu_free_page(struct kvm_vcpu *vcpu, hpa_t page_hpa)
-+{
-+	struct kvm_mmu_page *page_head = page_header(page_hpa);
-+
-+	list_del(&page_head->link);
-+	page_head->page_hpa = page_hpa;
-+	list_add(&page_head->link, &vcpu->free_pages);
-+}
-+
-+static int is_empty_shadow_page(hpa_t page_hpa)
-+{
-+	u32 *pos;
-+	u32 *end;
-+	for (pos = __va(page_hpa), end = pos + PAGE_SIZE / sizeof(u32);
-+		      pos != end; pos++)
-+		if (*pos != 0)
-+			return 0;
-+	return 1;
-+}
-+
-+static hpa_t kvm_mmu_alloc_page(struct kvm_vcpu *vcpu, u64 *parent_pte)
-+{
-+	struct kvm_mmu_page *page;
-+
-+	if (list_empty(&vcpu->free_pages))
-+		return INVALID_PAGE;
-+
-+	page = list_entry(vcpu->free_pages.next, struct kvm_mmu_page, link);
-+	list_del(&page->link);
-+	list_add(&page->link, &vcpu->kvm->active_mmu_pages);
-+	ASSERT(is_empty_shadow_page(page->page_hpa));
-+	page->slot_bitmap = 0;
-+	page->global = 1;
-+	page->parent_pte = parent_pte;
-+	return page->page_hpa;
-+}
-+
-+static void page_header_update_slot(struct kvm *kvm, void *pte, gpa_t gpa)
-+{
-+	int slot = memslot_id(kvm, gfn_to_memslot(kvm, gpa >> PAGE_SHIFT));
-+	struct kvm_mmu_page *page_head = page_header(__pa(pte));
-+
-+	__set_bit(slot, &page_head->slot_bitmap);
-+}
-+
-+hpa_t safe_gpa_to_hpa(struct kvm_vcpu *vcpu, gpa_t gpa)
-+{
-+	hpa_t hpa = gpa_to_hpa(vcpu, gpa);
-+
-+	return is_error_hpa(hpa) ? bad_page_address | (gpa & ~PAGE_MASK): hpa;
-+}
-+
-+hpa_t gpa_to_hpa(struct kvm_vcpu *vcpu, gpa_t gpa)
-+{
-+	struct kvm_memory_slot *slot;
-+	struct page *page;
-+
-+	ASSERT((gpa & HPA_ERR_MASK) == 0);
-+	slot = gfn_to_memslot(vcpu->kvm, gpa >> PAGE_SHIFT);
-+	if (!slot)
-+		return gpa | HPA_ERR_MASK;
-+	page = gfn_to_page(slot, gpa >> PAGE_SHIFT);
-+	return ((hpa_t)page_to_pfn(page) << PAGE_SHIFT)
-+		| (gpa & (PAGE_SIZE-1));
-+}
-+
-+hpa_t gva_to_hpa(struct kvm_vcpu *vcpu, gva_t gva)
-+{
-+	gpa_t gpa = vcpu->mmu.gva_to_gpa(vcpu, gva);
-+
-+	if (gpa == UNMAPPED_GVA)
-+		return UNMAPPED_GVA;
-+	return gpa_to_hpa(vcpu, gpa);
-+}
-+
-+
-+static void release_pt_page_64(struct kvm_vcpu *vcpu, hpa_t page_hpa,
-+			       int level)
-+{
-+	ASSERT(vcpu);
-+	ASSERT(VALID_PAGE(page_hpa));
-+	ASSERT(level <= PT64_ROOT_LEVEL && level > 0);
-+
-+	if (level == 1)
-+		memset(__va(page_hpa), 0, PAGE_SIZE);
-+	else {
-+		u64 *pos;
-+		u64 *end;
-+
-+		for (pos = __va(page_hpa), end = pos + PT64_ENT_PER_PAGE;
-+		     pos != end; pos++) {
-+			u64 current_ent = *pos;
-+
-+			*pos = 0;
-+			if (is_present_pte(current_ent))
-+				release_pt_page_64(vcpu,
-+						  current_ent &
-+						  PT64_BASE_ADDR_MASK,
-+						  level - 1);
-+		}
-+	}
-+	kvm_mmu_free_page(vcpu, page_hpa);
-+}
-+
-+static void nonpaging_new_cr3(struct kvm_vcpu *vcpu)
-+{
-+}
-+
-+static int nonpaging_map(struct kvm_vcpu *vcpu, gva_t v, hpa_t p)
-+{
-+	int level = PT32E_ROOT_LEVEL;
-+	hpa_t table_addr = vcpu->mmu.root_hpa;
-+
-+	for (; ; level--) {
-+		u32 index = PT64_INDEX(v, level);
-+		u64 *table;
-+
-+		ASSERT(VALID_PAGE(table_addr));
-+		table = __va(table_addr);
-+
-+		if (level == 1) {
-+			mark_page_dirty(vcpu->kvm, v >> PAGE_SHIFT);
-+			page_header_update_slot(vcpu->kvm, table, v);
-+			table[index] = p | PT_PRESENT_MASK | PT_WRITABLE_MASK |
-+								PT_USER_MASK;
-+			return 0;
-+		}
-+
-+		if (table[index] == 0) {
-+			hpa_t new_table = kvm_mmu_alloc_page(vcpu,
-+							     &table[index]);
-+
-+			if (!VALID_PAGE(new_table)) {
-+				pgprintk("nonpaging_map: ENOMEM\n");
-+				return -ENOMEM;
-+			}
-+
-+			if (level == PT32E_ROOT_LEVEL)
-+				table[index] = new_table | PT_PRESENT_MASK;
-+			else
-+				table[index] = new_table | PT_PRESENT_MASK |
-+						PT_WRITABLE_MASK | PT_USER_MASK;
-+		}
-+		table_addr = table[index] & PT64_BASE_ADDR_MASK;
-+	}
-+}
-+
-+static void nonpaging_flush(struct kvm_vcpu *vcpu)
-+{
-+	hpa_t root = vcpu->mmu.root_hpa;
-+
-+	++kvm_stat.tlb_flush;
-+	pgprintk("nonpaging_flush\n");
-+	ASSERT(VALID_PAGE(root));
-+	release_pt_page_64(vcpu, root, vcpu->mmu.shadow_root_level);
-+	root = kvm_mmu_alloc_page(vcpu, 0);
-+	ASSERT(VALID_PAGE(root));
-+	vcpu->mmu.root_hpa = root;
-+	if (is_paging())
-+		root |= (vcpu->cr3 & (CR3_PCD_MASK | CR3_WPT_MASK));
-+	vmcs_writel(GUEST_CR3, root);
-+}
-+
-+static gpa_t nonpaging_gva_to_gpa(struct kvm_vcpu *vcpu, gva_t vaddr)
-+{
-+	return vaddr;
-+}
-+
-+static int nonpaging_page_fault(struct kvm_vcpu *vcpu, gva_t gva,
-+			       u32 error_code)
-+{
-+	int ret;
-+	gpa_t addr = gva;
-+
-+	ASSERT(vcpu);
-+	ASSERT(VALID_PAGE(vcpu->mmu.root_hpa));
-+
-+	for (;;) {
-+	     hpa_t paddr;
-+
-+	     paddr = gpa_to_hpa(vcpu , addr & PT64_BASE_ADDR_MASK);
-+
-+	     if (is_error_hpa(paddr))
-+		     return 1;
-+
-+	     ret = nonpaging_map(vcpu, addr & PAGE_MASK, paddr);
-+	     if (ret) {
-+		     nonpaging_flush(vcpu);
-+		     continue;
-+	     }
-+	     break;
-+	}
-+	return ret;
-+}
-+
-+static void nonpaging_inval_page(struct kvm_vcpu *vcpu, gva_t addr)
-+{
-+}
-+
-+static void nonpaging_free(struct kvm_vcpu *vcpu)
-+{
-+	hpa_t root;
-+
-+	ASSERT(vcpu);
-+	root = vcpu->mmu.root_hpa;
-+	if (VALID_PAGE(root))
-+		release_pt_page_64(vcpu, root, vcpu->mmu.shadow_root_level);
-+	vcpu->mmu.root_hpa = INVALID_PAGE;
-+}
-+
-+static int nonpaging_init_context(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_mmu *context = &vcpu->mmu;
-+
-+	context->new_cr3 = nonpaging_new_cr3;
-+	context->page_fault = nonpaging_page_fault;
-+	context->inval_page = nonpaging_inval_page;
-+	context->gva_to_gpa = nonpaging_gva_to_gpa;
-+	context->free = nonpaging_free;
-+	context->root_level = PT32E_ROOT_LEVEL;
-+	context->shadow_root_level = PT32E_ROOT_LEVEL;
-+	context->root_hpa = kvm_mmu_alloc_page(vcpu, 0);
-+	ASSERT(VALID_PAGE(context->root_hpa));
-+	vmcs_writel(GUEST_CR3, context->root_hpa);
-+	return 0;
-+}
-+
-+
-+static void kvm_mmu_flush_tlb(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_mmu_page *page, *npage;
-+
-+	list_for_each_entry_safe(page, npage, &vcpu->kvm->active_mmu_pages,
-+				 link) {
-+		if (page->global)
-+			continue;
-+
-+		if (!page->parent_pte)
-+			continue;
-+
-+		*page->parent_pte = 0;
-+		release_pt_page_64(vcpu, page->page_hpa, 1);
-+	}
-+	++kvm_stat.tlb_flush;
-+}
-+
-+static void paging_new_cr3(struct kvm_vcpu *vcpu)
-+{
-+	kvm_mmu_flush_tlb(vcpu);
-+}
-+
-+static void mark_pagetable_nonglobal(void *shadow_pte)
-+{
-+	page_header(__pa(shadow_pte))->global = 0;
-+}
-+
-+static inline void set_pte_common(struct kvm_vcpu *vcpu,
-+			     u64 *shadow_pte,
-+			     gpa_t gaddr,
-+			     int dirty,
-+			     u64 access_bits)
-+{
-+	hpa_t paddr;
-+
-+	*shadow_pte |= access_bits << PT_SHADOW_BITS_OFFSET;
-+	if (!dirty)
-+		access_bits &= ~PT_WRITABLE_MASK;
-+
-+	if (access_bits & PT_WRITABLE_MASK)
-+		mark_page_dirty(vcpu->kvm, gaddr >> PAGE_SHIFT);
-+
-+	*shadow_pte |= access_bits;
-+
-+	paddr = gpa_to_hpa(vcpu, gaddr & PT64_BASE_ADDR_MASK);
-+
-+	if (!(*shadow_pte & PT_GLOBAL_MASK))
-+		mark_pagetable_nonglobal(shadow_pte);
-+
-+	if (is_error_hpa(paddr)) {
-+		*shadow_pte |= gaddr;
-+		*shadow_pte |= PT_SHADOW_IO_MARK;
-+		*shadow_pte &= ~PT_PRESENT_MASK;
-+	} else {
-+		*shadow_pte |= paddr;
-+		page_header_update_slot(vcpu->kvm, shadow_pte, gaddr);
-+	}
-+}
-+
-+static void inject_page_fault(struct kvm_vcpu *vcpu,
-+			      u64 addr,
-+			      u32 err_code)
-+{
-+	u32 vect_info = vmcs_read32(IDT_VECTORING_INFO_FIELD);
-+
-+	pgprintk("inject_page_fault: 0x%llx err 0x%x\n", addr, err_code);
-+
-+	++kvm_stat.pf_guest;
-+
-+	if (is_page_fault(vect_info)) {
-+		printk(KERN_DEBUG "inject_page_fault: "
-+		       "double fault 0x%llx @ 0x%lx\n",
-+		       addr, vmcs_readl(GUEST_RIP));
-+		vmcs_write32(VM_ENTRY_EXCEPTION_ERROR_CODE, 0);
-+		vmcs_write32(VM_ENTRY_INTR_INFO_FIELD,
-+			     DF_VECTOR |
-+			     INTR_TYPE_EXCEPTION |
-+			     INTR_INFO_DELIEVER_CODE_MASK |
-+			     INTR_INFO_VALID_MASK);
-+		return;
-+	}
-+	vcpu->cr2 = addr;
-+	vmcs_write32(VM_ENTRY_EXCEPTION_ERROR_CODE, err_code);
-+	vmcs_write32(VM_ENTRY_INTR_INFO_FIELD,
-+		     PF_VECTOR |
-+		     INTR_TYPE_EXCEPTION |
-+		     INTR_INFO_DELIEVER_CODE_MASK |
-+		     INTR_INFO_VALID_MASK);
-+
-+}
-+
-+static inline int fix_read_pf(u64 *shadow_ent)
-+{
-+	if ((*shadow_ent & PT_SHADOW_USER_MASK) &&
-+	    !(*shadow_ent & PT_USER_MASK)) {
-+		/*
-+		 * If supervisor write protect is disabled, we shadow kernel
-+		 * pages as user pages so we can trap the write access.
-+		 */
-+		*shadow_ent |= PT_USER_MASK;
-+		*shadow_ent &= ~PT_WRITABLE_MASK;
-+
-+		return 1;
-+
-+	}
-+	return 0;
-+}
-+
-+static int may_access(u64 pte, int write, int user)
-+{
-+
-+	if (user && !(pte & PT_USER_MASK))
-+		return 0;
-+	if (write && !(pte & PT_WRITABLE_MASK))
-+		return 0;
-+	return 1;
-+}
-+
-+/*
-+ * Remove a shadow pte.
-+ */
-+static void paging_inval_page(struct kvm_vcpu *vcpu, gva_t addr)
-+{
-+	hpa_t page_addr = vcpu->mmu.root_hpa;
-+	int level = vcpu->mmu.shadow_root_level;
-+
-+	++kvm_stat.invlpg;
-+
-+	for (; ; level--) {
-+		u32 index = PT64_INDEX(addr, level);
-+		u64 *table = __va(page_addr);
-+
-+		if (level == PT_PAGE_TABLE_LEVEL ) {
-+			table[index] = 0;
-+			return;
-+		}
-+
-+		if (!is_present_pte(table[index]))
-+			return;
-+
-+		page_addr = table[index] & PT64_BASE_ADDR_MASK;
-+
-+		if (level == PT_DIRECTORY_LEVEL &&
-+			  (table[index] & PT_SHADOW_PS_MARK)) {
-+			table[index] = 0;
-+			release_pt_page_64(vcpu, page_addr, PT_PAGE_TABLE_LEVEL);
-+
-+			//flush tlb
-+			vmcs_writel(GUEST_CR3, vcpu->mmu.root_hpa |
-+				    (vcpu->cr3 & (CR3_PCD_MASK | CR3_WPT_MASK)));
-+			return;
-+		}
-+	}
-+}
-+
-+static void paging_free(struct kvm_vcpu *vcpu)
-+{
-+	nonpaging_free(vcpu);
-+}
-+
-+#define PTTYPE 64
-+#include "paging_tmpl.h"
-+#undef PTTYPE
-+
-+#define PTTYPE 32
-+#include "paging_tmpl.h"
-+#undef PTTYPE
-+
-+static int paging64_init_context(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_mmu *context = &vcpu->mmu;
-+
-+	ASSERT(is_pae());
-+	context->new_cr3 = paging_new_cr3;
-+	context->page_fault = paging64_page_fault;
-+	context->inval_page = paging_inval_page;
-+	context->gva_to_gpa = paging64_gva_to_gpa;
-+	context->free = paging_free;
-+	context->root_level = PT64_ROOT_LEVEL;
-+	context->shadow_root_level = PT64_ROOT_LEVEL;
-+	context->root_hpa = kvm_mmu_alloc_page(vcpu, 0);
-+	ASSERT(VALID_PAGE(context->root_hpa));
-+	vmcs_writel(GUEST_CR3, context->root_hpa |
-+		    (vcpu->cr3 & (CR3_PCD_MASK | CR3_WPT_MASK)));
-+	return 0;
-+}
-+
-+static int paging32_init_context(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_mmu *context = &vcpu->mmu;
-+
-+	context->new_cr3 = paging_new_cr3;
-+	context->page_fault = paging32_page_fault;
-+	context->inval_page = paging_inval_page;
-+	context->gva_to_gpa = paging32_gva_to_gpa;
-+	context->free = paging_free;
-+	context->root_level = PT32_ROOT_LEVEL;
-+	context->shadow_root_level = PT32E_ROOT_LEVEL;
-+	context->root_hpa = kvm_mmu_alloc_page(vcpu, 0);
-+	ASSERT(VALID_PAGE(context->root_hpa));
-+	vmcs_writel(GUEST_CR3, context->root_hpa |
-+		    (vcpu->cr3 & (CR3_PCD_MASK | CR3_WPT_MASK)));
-+	return 0;
-+}
-+
-+static int paging32E_init_context(struct kvm_vcpu *vcpu)
-+{
-+	int ret;
-+
-+	if ((ret = paging64_init_context(vcpu)))
-+		return ret;
-+
-+	vcpu->mmu.root_level = PT32E_ROOT_LEVEL;
-+	vcpu->mmu.shadow_root_level = PT32E_ROOT_LEVEL;
-+	return 0;
-+}
-+
-+static int init_kvm_mmu(struct kvm_vcpu *vcpu)
-+{
-+	ASSERT(vcpu);
-+	ASSERT(!VALID_PAGE(vcpu->mmu.root_hpa));
-+
-+	if (!is_paging())
-+		return nonpaging_init_context(vcpu);
-+	else if (is_long_mode())
-+		return paging64_init_context(vcpu);
-+	else if (is_pae())
-+		return paging32E_init_context(vcpu);
-+	else
-+		return paging32_init_context(vcpu);
-+}
-+
-+static void destroy_kvm_mmu(struct kvm_vcpu *vcpu)
-+{
-+	ASSERT(vcpu);
-+	if (VALID_PAGE(vcpu->mmu.root_hpa)) {
-+		vcpu->mmu.free(vcpu);
-+		vcpu->mmu.root_hpa = INVALID_PAGE;
-+	}
-+}
-+
-+int kvm_mmu_reset_context(struct kvm_vcpu *vcpu)
-+{
-+	destroy_kvm_mmu(vcpu);
-+	return init_kvm_mmu(vcpu);
-+}
-+
-+static void free_mmu_pages(struct kvm_vcpu *vcpu)
-+{
-+	while (!list_empty(&vcpu->free_pages)) {
-+		struct kvm_mmu_page *page;
-+
-+		page = list_entry(vcpu->free_pages.next,
-+				  struct kvm_mmu_page, link);
-+		list_del(&page->link);
-+		__free_page(pfn_to_page(page->page_hpa >> PAGE_SHIFT));
-+		page->page_hpa = INVALID_PAGE;
-+	}
-+}
-+
-+static int alloc_mmu_pages(struct kvm_vcpu *vcpu)
-+{
-+	int i;
-+
-+	ASSERT(vcpu);
-+
-+	for (i = 0; i < KVM_NUM_MMU_PAGES; i++) {
-+		struct page *page;
-+		struct kvm_mmu_page *page_header = &vcpu->page_header_buf[i];
-+
-+		INIT_LIST_HEAD(&page_header->link);
-+		if ((page = alloc_page(GFP_KVM_MMU)) == NULL)
-+			goto error_1;
-+		page->private = (unsigned long)page_header;
-+		page_header->page_hpa = (hpa_t)page_to_pfn(page) << PAGE_SHIFT;
-+		memset(__va(page_header->page_hpa), 0, PAGE_SIZE);
-+		list_add(&page_header->link, &vcpu->free_pages);
-+	}
-+	return 0;
-+
-+error_1:
-+	free_mmu_pages(vcpu);
-+	return -ENOMEM;
-+}
-+
-+int kvm_mmu_init(struct kvm_vcpu *vcpu)
-+{
-+	int r;
-+
-+	ASSERT(vcpu);
-+	ASSERT(!VALID_PAGE(vcpu->mmu.root_hpa));
-+	ASSERT(list_empty(&vcpu->free_pages));
-+
-+	if ((r = alloc_mmu_pages(vcpu)))
-+		return r;
-+
-+	if ((r = init_kvm_mmu(vcpu))) {
-+		free_mmu_pages(vcpu);
-+		return r;
-+	}
-+	return 0;
-+}
-+
-+void kvm_mmu_destroy(struct kvm_vcpu *vcpu)
-+{
-+	ASSERT(vcpu);
-+
-+	destroy_kvm_mmu(vcpu);
-+	free_mmu_pages(vcpu);
-+}
-+
-+void kvm_mmu_slot_remove_write_access(struct kvm *kvm, int slot)
-+{
-+	struct kvm_mmu_page *page;
-+
-+	list_for_each_entry(page, &kvm->active_mmu_pages, link) {
-+		int i;
-+		u64 *pt;
-+
-+		if (!test_bit(slot, &page->slot_bitmap))
-+			continue;
-+
-+		pt = __va(page->page_hpa);
-+		for (i = 0; i < PT64_ENT_PER_PAGE; ++i)
-+			/* avoid RMW */
-+			if (pt[i] & PT_WRITABLE_MASK)
-+				pt[i] &= ~PT_WRITABLE_MASK;
-+
-+	}
-+}
-Index: linux-2.6/drivers/kvm/paging_tmpl.h
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/kvm/paging_tmpl.h
-@@ -0,0 +1,378 @@
-+/*
-+ * We need the mmu code to access both 32-bit and 64-bit guest ptes,
-+ * so the code in this file is compiled twice, once per pte size.
++ *   Avi Kivity <avi@qumranet.com>
++ *   Yaniv Kamay <yaniv@qumranet.com>
++ *
++ * From: xen-unstable 10676:af9809f51f81a3c43f276f00c81a52ef558afda4
 + */
 +
-+#if PTTYPE == 64
-+	#define pt_element_t u64
-+	#define guest_walker guest_walker64
-+	#define FNAME(name) paging##64_##name
-+	#define PT_BASE_ADDR_MASK PT64_BASE_ADDR_MASK
-+	#define PT_DIR_BASE_ADDR_MASK PT64_DIR_BASE_ADDR_MASK
-+	#define PT_INDEX(addr, level) PT64_INDEX(addr, level)
-+	#define SHADOW_PT_INDEX(addr, level) PT64_INDEX(addr, level)
-+	#define PT_LEVEL_MASK(level) PT64_LEVEL_MASK(level)
-+	#define PT_PTE_COPY_MASK PT64_PTE_COPY_MASK
-+	#define PT_NON_PTE_COPY_MASK PT64_NON_PTE_COPY_MASK
-+#elif PTTYPE == 32
-+	#define pt_element_t u32
-+	#define guest_walker guest_walker32
-+	#define FNAME(name) paging##32_##name
-+	#define PT_BASE_ADDR_MASK PT32_BASE_ADDR_MASK
-+	#define PT_DIR_BASE_ADDR_MASK PT32_DIR_BASE_ADDR_MASK
-+	#define PT_INDEX(addr, level) PT32_INDEX(addr, level)
-+	#define SHADOW_PT_INDEX(addr, level) PT64_INDEX(addr, level)
-+	#define PT_LEVEL_MASK(level) PT32_LEVEL_MASK(level)
-+	#define PT_PTE_COPY_MASK PT32_PTE_COPY_MASK
-+	#define PT_NON_PTE_COPY_MASK PT32_NON_PTE_COPY_MASK
++#ifndef __KERNEL__
++#include <stdio.h>
++#include <stdint.h>
++#include <public/xen.h>
++#define DPRINTF(_f, _a ...) printf( _f , ## _a )
 +#else
-+	#error Invalid PTTYPE value
++#include "kvm.h"
++#define DPRINTF(x...) do {} while (0)
++#endif
++#include "x86_emulate.h"
++
++/*
++ * Opcode effective-address decode tables.
++ * Note that we only emulate instructions that have at least one memory
++ * operand (excluding implicit stack references). We assume that stack
++ * references and instruction fetches will never occur in special memory
++ * areas that require emulation. So, for example, 'mov <imm>,<reg>' need
++ * not be handled.
++ */
++
++/* Operand sizes: 8-bit operands or specified/overridden size. */
++#define ByteOp      (1<<0)	/* 8-bit operands. */
++/* Destination operand type. */
++#define ImplicitOps (1<<1)	/* Implicit in opcode. No generic decode. */
++#define DstReg      (2<<1)	/* Register operand. */
++#define DstMem      (3<<1)	/* Memory operand. */
++#define DstMask     (3<<1)
++/* Source operand type. */
++#define SrcNone     (0<<3)	/* No source operand. */
++#define SrcImplicit (0<<3)	/* Source operand is implicit in the opcode. */
++#define SrcReg      (1<<3)	/* Register operand. */
++#define SrcMem      (2<<3)	/* Memory operand. */
++#define SrcMem16    (3<<3)	/* Memory operand (16-bit). */
++#define SrcMem32    (4<<3)	/* Memory operand (32-bit). */
++#define SrcImm      (5<<3)	/* Immediate operand. */
++#define SrcImmByte  (6<<3)	/* 8-bit sign-extended immediate operand. */
++#define SrcMask     (7<<3)
++/* Generic ModRM decode. */
++#define ModRM       (1<<6)
++/* Destination is only written; never read. */
++#define Mov         (1<<7)
++
++static u8 opcode_table[256] = {
++	/* 0x00 - 0x07 */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstReg | SrcMem | ModRM, DstReg | SrcMem | ModRM,
++	0, 0, 0, 0,
++	/* 0x08 - 0x0F */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstReg | SrcMem | ModRM, DstReg | SrcMem | ModRM,
++	0, 0, 0, 0,
++	/* 0x10 - 0x17 */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstReg | SrcMem | ModRM, DstReg | SrcMem | ModRM,
++	0, 0, 0, 0,
++	/* 0x18 - 0x1F */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstReg | SrcMem | ModRM, DstReg | SrcMem | ModRM,
++	0, 0, 0, 0,
++	/* 0x20 - 0x27 */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstReg | SrcMem | ModRM, DstReg | SrcMem | ModRM,
++	0, 0, 0, 0,
++	/* 0x28 - 0x2F */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstReg | SrcMem | ModRM, DstReg | SrcMem | ModRM,
++	0, 0, 0, 0,
++	/* 0x30 - 0x37 */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstReg | SrcMem | ModRM, DstReg | SrcMem | ModRM,
++	0, 0, 0, 0,
++	/* 0x38 - 0x3F */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstReg | SrcMem | ModRM, DstReg | SrcMem | ModRM,
++	0, 0, 0, 0,
++	/* 0x40 - 0x4F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x50 - 0x5F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x60 - 0x6F */
++	0, 0, 0, DstReg | SrcMem32 | ModRM | Mov /* movsxd (x86/64) */ ,
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x70 - 0x7F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x80 - 0x87 */
++	ByteOp | DstMem | SrcImm | ModRM, DstMem | SrcImm | ModRM,
++	ByteOp | DstMem | SrcImm | ModRM, DstMem | SrcImmByte | ModRM,
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM,
++	/* 0x88 - 0x8F */
++	ByteOp | DstMem | SrcReg | ModRM | Mov, DstMem | SrcReg | ModRM | Mov,
++	ByteOp | DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	0, 0, 0, DstMem | SrcNone | ModRM | Mov,
++	/* 0x90 - 0x9F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xA0 - 0xA7 */
++	ByteOp | DstReg | SrcMem | Mov, DstReg | SrcMem | Mov,
++	ByteOp | DstMem | SrcReg | Mov, DstMem | SrcReg | Mov,
++	ByteOp | ImplicitOps | Mov, ImplicitOps | Mov,
++	ByteOp | ImplicitOps, ImplicitOps,
++	/* 0xA8 - 0xAF */
++	0, 0, ByteOp | ImplicitOps | Mov, ImplicitOps | Mov,
++	ByteOp | ImplicitOps | Mov, ImplicitOps | Mov,
++	ByteOp | ImplicitOps, ImplicitOps,
++	/* 0xB0 - 0xBF */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xC0 - 0xC7 */
++	ByteOp | DstMem | SrcImm | ModRM, DstMem | SrcImmByte | ModRM, 0, 0,
++	0, 0, ByteOp | DstMem | SrcImm | ModRM | Mov,
++	    DstMem | SrcImm | ModRM | Mov,
++	/* 0xC8 - 0xCF */
++	0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xD0 - 0xD7 */
++	ByteOp | DstMem | SrcImplicit | ModRM, DstMem | SrcImplicit | ModRM,
++	ByteOp | DstMem | SrcImplicit | ModRM, DstMem | SrcImplicit | ModRM,
++	0, 0, 0, 0,
++	/* 0xD8 - 0xDF */
++	0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xE0 - 0xEF */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xF0 - 0xF7 */
++	0, 0, 0, 0,
++	0, 0, ByteOp | DstMem | SrcNone | ModRM, DstMem | SrcNone | ModRM,
++	/* 0xF8 - 0xFF */
++	0, 0, 0, 0,
++	0, 0, ByteOp | DstMem | SrcNone | ModRM, DstMem | SrcNone | ModRM
++};
++
++static u8 twobyte_table[256] = {
++	/* 0x00 - 0x0F */
++	0, SrcMem | ModRM | DstReg | Mov, 0, 0, 0, 0, 0, 0,
++	0, 0, 0, 0, 0, ImplicitOps | ModRM, 0, 0,
++	/* 0x10 - 0x1F */
++	0, 0, 0, 0, 0, 0, 0, 0, ImplicitOps | ModRM, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x20 - 0x2F */
++	ImplicitOps, 0, ImplicitOps, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x30 - 0x3F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x40 - 0x47 */
++	DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	/* 0x48 - 0x4F */
++	DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	DstReg | SrcMem | ModRM | Mov, DstReg | SrcMem | ModRM | Mov,
++	/* 0x50 - 0x5F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x60 - 0x6F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x70 - 0x7F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x80 - 0x8F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0x90 - 0x9F */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xA0 - 0xA7 */
++	0, 0, 0, DstMem | SrcReg | ModRM, 0, 0, 0, 0,
++	/* 0xA8 - 0xAF */
++	0, 0, 0, DstMem | SrcReg | ModRM, 0, 0, 0, 0,
++	/* 0xB0 - 0xB7 */
++	ByteOp | DstMem | SrcReg | ModRM, DstMem | SrcReg | ModRM, 0,
++	    DstMem | SrcReg | ModRM,
++	0, 0, ByteOp | DstReg | SrcMem | ModRM | Mov,
++	    DstReg | SrcMem16 | ModRM | Mov,
++	/* 0xB8 - 0xBF */
++	0, 0, DstMem | SrcImmByte | ModRM, DstMem | SrcReg | ModRM,
++	0, 0, ByteOp | DstReg | SrcMem | ModRM | Mov,
++	    DstReg | SrcMem16 | ModRM | Mov,
++	/* 0xC0 - 0xCF */
++	0, 0, 0, 0, 0, 0, 0, ImplicitOps | ModRM, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xD0 - 0xDF */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xE0 - 0xEF */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++	/* 0xF0 - 0xFF */
++	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++};
++
++/* Type, address-of, and value of an instruction's operand. */
++struct operand {
++	enum { OP_REG, OP_MEM, OP_IMM } type;
++	unsigned int bytes;
++	unsigned long val, orig_val, *ptr;
++};
++
++/* EFLAGS bit definitions. */
++#define EFLG_OF (1<<11)
++#define EFLG_DF (1<<10)
++#define EFLG_SF (1<<7)
++#define EFLG_ZF (1<<6)
++#define EFLG_AF (1<<4)
++#define EFLG_PF (1<<2)
++#define EFLG_CF (1<<0)
++
++/*
++ * Instruction emulation:
++ * Most instructions are emulated directly via a fragment of inline assembly
++ * code. This allows us to save/restore EFLAGS and thus very easily pick up
++ * any modified flags.
++ */
++
++#if defined(__x86_64__)
++#define _LO32 "k"		/* force 32-bit operand */
++#define _STK  "%%rsp"		/* stack pointer */
++#elif defined(__i386__)
++#define _LO32 ""		/* force 32-bit operand */
++#define _STK  "%%esp"		/* stack pointer */
 +#endif
 +
 +/*
-+ * The guest_walker structure emulates the behavior of the hardware page
-+ * table walker.
++ * These EFLAGS bits are restored from saved value during emulation, and
++ * any changes are written back to the saved value after emulation.
 + */
-+struct guest_walker {
-+	int level;
-+	pt_element_t *table;
-+	pt_element_t inherited_ar;
-+};
++#define EFLAGS_MASK (EFLG_OF|EFLG_SF|EFLG_ZF|EFLG_AF|EFLG_PF|EFLG_CF)
 +
-+static void FNAME(init_walker)(struct guest_walker *walker,
-+			       struct kvm_vcpu *vcpu)
++/* Before executing instruction: restore necessary bits in EFLAGS. */
++#define _PRE_EFLAGS(_sav, _msk, _tmp) \
++	/* EFLAGS = (_sav & _msk) | (EFLAGS & ~_msk); */	\
++	"push %"_sav"; "					\
++	"movl %"_msk",%"_LO32 _tmp"; "				\
++	"andl %"_LO32 _tmp",("_STK"); "				\
++	"pushf; "						\
++	"notl %"_LO32 _tmp"; "					\
++	"andl %"_LO32 _tmp",("_STK"); "				\
++	"pop  %"_tmp"; "					\
++	"orl  %"_LO32 _tmp",("_STK"); "				\
++	"popf; "						\
++	/* _sav &= ~msk; */					\
++	"movl %"_msk",%"_LO32 _tmp"; "				\
++	"notl %"_LO32 _tmp"; "					\
++	"andl %"_LO32 _tmp",%"_sav"; "
++
++/* After executing instruction: write-back necessary bits in EFLAGS. */
++#define _POST_EFLAGS(_sav, _msk, _tmp) \
++	/* _sav |= EFLAGS & _msk; */		\
++	"pushf; "				\
++	"pop  %"_tmp"; "			\
++	"andl %"_msk",%"_LO32 _tmp"; "		\
++	"orl  %"_LO32 _tmp",%"_sav"; "
++
++/* Raw emulation: instruction has two explicit operands. */
++#define __emulate_2op_nobyte(_op,_src,_dst,_eflags,_wx,_wy,_lx,_ly,_qx,_qy) \
++	do { 								    \
++		unsigned long _tmp;					    \
++									    \
++		switch ((_dst).bytes) {					    \
++		case 2:							    \
++			__asm__ __volatile__ (				    \
++				_PRE_EFLAGS("0","4","2")		    \
++				_op"w %"_wx"3,%1; "			    \
++				_POST_EFLAGS("0","4","2")		    \
++				: "=m" (_eflags), "=m" ((_dst).val),        \
++				  "=&r" (_tmp)				    \
++				: _wy ((_src).val), "i" (EFLAGS_MASK) );    \
++			break;						    \
++		case 4:							    \
++			__asm__ __volatile__ (				    \
++				_PRE_EFLAGS("0","4","2")		    \
++				_op"l %"_lx"3,%1; "			    \
++				_POST_EFLAGS("0","4","2")		    \
++				: "=m" (_eflags), "=m" ((_dst).val),	    \
++				  "=&r" (_tmp)				    \
++				: _ly ((_src).val), "i" (EFLAGS_MASK) );    \
++			break;						    \
++		case 8:							    \
++			__emulate_2op_8byte(_op, _src, _dst,		    \
++					    _eflags, _qx, _qy);		    \
++			break;						    \
++		}							    \
++	} while (0)
++
++#define __emulate_2op(_op,_src,_dst,_eflags,_bx,_by,_wx,_wy,_lx,_ly,_qx,_qy) \
++	do {								     \
++		unsigned long _tmp;					     \
++		switch ( (_dst).bytes )					     \
++		{							     \
++		case 1:							     \
++			__asm__ __volatile__ (				     \
++				_PRE_EFLAGS("0","4","2")		     \
++				_op"b %"_bx"3,%1; "			     \
++				_POST_EFLAGS("0","4","2")		     \
++				: "=m" (_eflags), "=m" ((_dst).val),	     \
++				  "=&r" (_tmp)				     \
++				: _by ((_src).val), "i" (EFLAGS_MASK) );     \
++			break;						     \
++		default:						     \
++			__emulate_2op_nobyte(_op, _src, _dst, _eflags,	     \
++					     _wx, _wy, _lx, _ly, _qx, _qy);  \
++			break;						     \
++		}							     \
++	} while (0)
++
++/* Source operand is byte-sized and may be restricted to just %cl. */
++#define emulate_2op_SrcB(_op, _src, _dst, _eflags)                      \
++	__emulate_2op(_op, _src, _dst, _eflags,				\
++		      "b", "c", "b", "c", "b", "c", "b", "c")
++
++/* Source operand is byte, word, long or quad sized. */
++#define emulate_2op_SrcV(_op, _src, _dst, _eflags)                      \
++	__emulate_2op(_op, _src, _dst, _eflags,				\
++		      "b", "q", "w", "r", _LO32, "r", "", "r")
++
++/* Source operand is word, long or quad sized. */
++#define emulate_2op_SrcV_nobyte(_op, _src, _dst, _eflags)               \
++	__emulate_2op_nobyte(_op, _src, _dst, _eflags,			\
++			     "w", "r", _LO32, "r", "", "r")
++
++/* Instruction has only one explicit operand (no source operand). */
++#define emulate_1op(_op, _dst, _eflags)                                    \
++	do {								\
++		unsigned long _tmp;					\
++									\
++		switch ( (_dst).bytes )					\
++		{							\
++		case 1:							\
++			__asm__ __volatile__ (				\
++				_PRE_EFLAGS("0","3","2")		\
++				_op"b %1; "				\
++				_POST_EFLAGS("0","3","2")		\
++				: "=m" (_eflags), "=m" ((_dst).val),	\
++				  "=&r" (_tmp)				\
++				: "i" (EFLAGS_MASK) );			\
++			break;						\
++		case 2:							\
++			__asm__ __volatile__ (				\
++				_PRE_EFLAGS("0","3","2")		\
++				_op"w %1; "				\
++				_POST_EFLAGS("0","3","2")		\
++				: "=m" (_eflags), "=m" ((_dst).val),	\
++				  "=&r" (_tmp)				\
++				: "i" (EFLAGS_MASK) );			\
++			break;						\
++		case 4:							\
++			__asm__ __volatile__ (				\
++				_PRE_EFLAGS("0","3","2")		\
++				_op"l %1; "				\
++				_POST_EFLAGS("0","3","2")		\
++				: "=m" (_eflags), "=m" ((_dst).val),	\
++				  "=&r" (_tmp)				\
++				: "i" (EFLAGS_MASK) );			\
++			break;						\
++		case 8:							\
++			__emulate_1op_8byte(_op, _dst, _eflags);	\
++			break;						\
++		}							\
++	} while (0)
++
++/* Emulate an instruction with quadword operands (x86/64 only). */
++#if defined(__x86_64__)
++#define __emulate_2op_8byte(_op, _src, _dst, _eflags, _qx, _qy)           \
++	do {								  \
++		__asm__ __volatile__ (					  \
++			_PRE_EFLAGS("0","4","2")			  \
++			_op"q %"_qx"3,%1; "				  \
++			_POST_EFLAGS("0","4","2")			  \
++			: "=m" (_eflags), "=m" ((_dst).val), "=&r" (_tmp) \
++			: _qy ((_src).val), "i" (EFLAGS_MASK) );	  \
++	} while (0)
++
++#define __emulate_1op_8byte(_op, _dst, _eflags)                           \
++	do {								  \
++		__asm__ __volatile__ (					  \
++			_PRE_EFLAGS("0","3","2")			  \
++			_op"q %1; "					  \
++			_POST_EFLAGS("0","3","2")			  \
++			: "=m" (_eflags), "=m" ((_dst).val), "=&r" (_tmp) \
++			: "i" (EFLAGS_MASK) );				  \
++	} while (0)
++
++#elif defined(__i386__)
++#define __emulate_2op_8byte(_op, _src, _dst, _eflags, _qx, _qy)
++#define __emulate_1op_8byte(_op, _dst, _eflags)
++#endif				/* __i386__ */
++
++/* Fetch next part of the instruction being emulated. */
++#define insn_fetch(_type, _size, _eip)                                  \
++({	unsigned long _x;						\
++	rc = ops->read_std((unsigned long)(_eip) + ctxt->cs_base, &_x,	\
++                                                  (_size), ctxt);       \
++	if ( rc != 0 )							\
++		goto done;						\
++	(_eip) += (_size);						\
++	(_type)_x;							\
++})
++
++/* Access/update address held in a register, based on addressing mode. */
++#define register_address(base, reg)                                     \
++	((base) + ((ad_bytes == sizeof(unsigned long)) ? (reg) :	\
++		   ((reg) & ((1UL << (ad_bytes << 3)) - 1))))
++
++#define register_address_increment(reg, inc)                            \
++	do {								\
++		/* signed type ensures sign extension to long */        \
++		int _inc = (inc);					\
++		if ( ad_bytes == sizeof(unsigned long) )		\
++			(reg) += _inc;					\
++		else							\
++			(reg) = ((reg) & ~((1UL << (ad_bytes << 3)) - 1)) | \
++			   (((reg) + _inc) & ((1UL << (ad_bytes << 3)) - 1)); \
++	} while (0)
++
++void *decode_register(u8 modrm_reg, unsigned long *regs,
++		      int highbyte_regs)
 +{
-+	hpa_t hpa;
-+	struct kvm_memory_slot *slot;
++	void *p;
 +
-+	walker->level = vcpu->mmu.root_level;
-+	slot = gfn_to_memslot(vcpu->kvm,
-+			      (vcpu->cr3 & PT64_BASE_ADDR_MASK) >> PAGE_SHIFT);
-+	hpa = safe_gpa_to_hpa(vcpu, vcpu->cr3 & PT64_BASE_ADDR_MASK);
-+	walker->table = kmap_atomic(pfn_to_page(hpa >> PAGE_SHIFT), KM_USER0);
-+
-+	ASSERT((!is_long_mode() && is_pae()) ||
-+	       (vcpu->cr3 & ~(PAGE_MASK | CR3_FLAGS_MASK)) == 0);
-+
-+	walker->table = (pt_element_t *)( (unsigned long)walker->table |
-+		(unsigned long)(vcpu->cr3 & ~(PAGE_MASK | CR3_FLAGS_MASK)) );
-+	walker->inherited_ar = PT_USER_MASK | PT_WRITABLE_MASK;
++	p = &regs[modrm_reg];
++	if (highbyte_regs && modrm_reg >= 4 && modrm_reg < 8)
++		p = (unsigned char *)&regs[modrm_reg & 3] + 1;
++	return p;
 +}
 +
-+static void FNAME(release_walker)(struct guest_walker *walker)
++static int read_descriptor(struct x86_emulate_ctxt *ctxt,
++			   struct x86_emulate_ops *ops,
++			   void *ptr,
++			   u16 *size, unsigned long *address, int op_bytes)
 +{
-+	kunmap_atomic(walker->table, KM_USER0);
++	int rc;
++
++	if (op_bytes == 2)
++		op_bytes = 3;
++	*address = 0;
++	rc = ops->read_std((unsigned long)ptr, (unsigned long *)size, 2, ctxt);
++	if (rc)
++		return rc;
++	rc = ops->read_std((unsigned long)ptr + 2, address, op_bytes, ctxt);
++	return rc;
 +}
 +
-+static void FNAME(set_pte)(struct kvm_vcpu *vcpu, u64 guest_pte,
-+			   u64 *shadow_pte, u64 access_bits)
++int
++x86_emulate_memop(struct x86_emulate_ctxt *ctxt, struct x86_emulate_ops *ops)
 +{
-+	ASSERT(*shadow_pte == 0);
-+	access_bits &= guest_pte;
-+	*shadow_pte = (guest_pte & PT_PTE_COPY_MASK);
-+	set_pte_common(vcpu, shadow_pte, guest_pte & PT_BASE_ADDR_MASK,
-+		       guest_pte & PT_DIRTY_MASK, access_bits);
-+}
++	u8 b, d, sib, twobyte = 0, rex_prefix = 0;
++	u8 modrm, modrm_mod = 0, modrm_reg = 0, modrm_rm = 0;
++	unsigned long *override_base = NULL;
++	unsigned int op_bytes, ad_bytes, lock_prefix = 0, rep_prefix = 0, i;
++	int rc = 0;
++	struct operand src, dst;
++	unsigned long cr2 = ctxt->cr2;
++	int mode = ctxt->mode;
++	unsigned long modrm_ea;
++	int use_modrm_ea, index_reg = 0, base_reg = 0, scale, rip_relative = 0;
 +
-+static void FNAME(set_pde)(struct kvm_vcpu *vcpu, u64 guest_pde,
-+			   u64 *shadow_pte, u64 access_bits,
-+			   int index)
-+{
-+	gpa_t gaddr;
++	/* Shadow copy of register state. Committed on successful emulation. */
++	unsigned long _regs[NR_VCPU_REGS];
++	unsigned long _eip = ctxt->vcpu->rip, _eflags = ctxt->eflags;
++	unsigned long modrm_val = 0;
 +
-+	ASSERT(*shadow_pte == 0);
-+	access_bits &= guest_pde;
-+	gaddr = (guest_pde & PT_DIR_BASE_ADDR_MASK) + PAGE_SIZE * index;
-+	if (PTTYPE == 32 && is_cpuid_PSE36())
-+		gaddr |= (guest_pde & PT32_DIR_PSE36_MASK) <<
-+			(32 - PT32_DIR_PSE36_SHIFT);
-+	*shadow_pte = (guest_pde & PT_NON_PTE_COPY_MASK) |
-+		          ((guest_pde & PT_DIR_PAT_MASK) >>
-+			            (PT_DIR_PAT_SHIFT - PT_PAT_SHIFT));
-+	set_pte_common(vcpu, shadow_pte, gaddr,
-+		       guest_pde & PT_DIRTY_MASK, access_bits);
-+}
++	memcpy(_regs, ctxt->vcpu->regs, sizeof _regs);
 +
-+/*
-+ * Fetch a guest pte from a specific level in the paging hierarchy.
-+ */
-+static pt_element_t *FNAME(fetch_guest)(struct kvm_vcpu *vcpu,
-+					struct guest_walker *walker,
-+					int level,
-+					gva_t addr)
-+{
-+
-+	ASSERT(level > 0  && level <= walker->level);
-+
-+	for (;;) {
-+		int index = PT_INDEX(addr, walker->level);
-+		hpa_t paddr;
-+
-+		ASSERT(((unsigned long)walker->table & PAGE_MASK) ==
-+		       ((unsigned long)&walker->table[index] & PAGE_MASK));
-+		if (level == walker->level ||
-+		    !is_present_pte(walker->table[index]) ||
-+		    (walker->level == PT_DIRECTORY_LEVEL &&
-+		     (walker->table[index] & PT_PAGE_SIZE_MASK) &&
-+		     (PTTYPE == 64 || is_pse())))
-+			return &walker->table[index];
-+		if (walker->level != 3 || is_long_mode())
-+			walker->inherited_ar &= walker->table[index];
-+		paddr = safe_gpa_to_hpa(vcpu, walker->table[index] & PT_BASE_ADDR_MASK);
-+		kunmap_atomic(walker->table, KM_USER0);
-+		walker->table = kmap_atomic(pfn_to_page(paddr >> PAGE_SHIFT),
-+					    KM_USER0);
-+		--walker->level;
++	switch (mode) {
++	case X86EMUL_MODE_REAL:
++	case X86EMUL_MODE_PROT16:
++		op_bytes = ad_bytes = 2;
++		break;
++	case X86EMUL_MODE_PROT32:
++		op_bytes = ad_bytes = 4;
++		break;
++#ifdef __x86_64__
++	case X86EMUL_MODE_PROT64:
++		op_bytes = 4;
++		ad_bytes = 8;
++		break;
++#endif
++	default:
++		return -1;
 +	}
-+}
 +
-+/*
-+ * Fetch a shadow pte for a specific level in the paging hierarchy.
-+ */
-+static u64 *FNAME(fetch)(struct kvm_vcpu *vcpu, gva_t addr,
-+			      struct guest_walker *walker)
-+{
-+	hpa_t shadow_addr;
-+	int level;
-+	u64 *prev_shadow_ent = NULL;
++	/* Legacy prefixes. */
++	for (i = 0; i < 8; i++) {
++		switch (b = insn_fetch(u8, 1, _eip)) {
++		case 0x66:	/* operand-size override */
++			op_bytes ^= 6;	/* switch between 2/4 bytes */
++			break;
++		case 0x67:	/* address-size override */
++			if (mode == X86EMUL_MODE_PROT64)
++				ad_bytes ^= 12;	/* switch between 4/8 bytes */
++			else
++				ad_bytes ^= 6;	/* switch between 2/4 bytes */
++			break;
++		case 0x2e:	/* CS override */
++			override_base = &ctxt->cs_base;
++			break;
++		case 0x3e:	/* DS override */
++			override_base = &ctxt->ds_base;
++			break;
++		case 0x26:	/* ES override */
++			override_base = &ctxt->es_base;
++			break;
++		case 0x64:	/* FS override */
++			override_base = &ctxt->fs_base;
++			break;
++		case 0x65:	/* GS override */
++			override_base = &ctxt->gs_base;
++			break;
++		case 0x36:	/* SS override */
++			override_base = &ctxt->ss_base;
++			break;
++		case 0xf0:	/* LOCK */
++			lock_prefix = 1;
++			break;
++		case 0xf3:	/* REP/REPE/REPZ */
++			rep_prefix = 1;
++			break;
++		case 0xf2:	/* REPNE/REPNZ */
++			break;
++		default:
++			goto done_prefixes;
++		}
++	}
 +
-+	shadow_addr = vcpu->mmu.root_hpa;
-+	level = vcpu->mmu.shadow_root_level;
++done_prefixes:
 +
-+	for (; ; level--) {
-+		u32 index = SHADOW_PT_INDEX(addr, level);
-+		u64 *shadow_ent = ((u64 *)__va(shadow_addr)) + index;
-+		pt_element_t *guest_ent;
++	/* REX prefix. */
++	if ((mode == X86EMUL_MODE_PROT64) && ((b & 0xf0) == 0x40)) {
++		rex_prefix = b;
++		if (b & 8)
++			op_bytes = 8;	/* REX.W */
++		modrm_reg = (b & 4) << 1;	/* REX.R */
++		index_reg = (b & 2) << 2; /* REX.X */
++		modrm_rm = base_reg = (b & 1) << 3; /* REG.B */
++		b = insn_fetch(u8, 1, _eip);
++	}
 +
-+		if (is_present_pte(*shadow_ent) || is_io_pte(*shadow_ent)) {
-+			if (level == PT_PAGE_TABLE_LEVEL)
-+				return shadow_ent;
-+			shadow_addr = *shadow_ent & PT64_BASE_ADDR_MASK;
-+			prev_shadow_ent = shadow_ent;
-+			continue;
++	/* Opcode byte(s). */
++	d = opcode_table[b];
++	if (d == 0) {
++		/* Two-byte opcode? */
++		if (b == 0x0f) {
++			twobyte = 1;
++			b = insn_fetch(u8, 1, _eip);
++			d = twobyte_table[b];
 +		}
 +
-+		if (PTTYPE == 32 && level > PT32_ROOT_LEVEL) {
-+			ASSERT(level == PT32E_ROOT_LEVEL);
-+			guest_ent = FNAME(fetch_guest)(vcpu, walker,
-+						       PT32_ROOT_LEVEL, addr);
-+		} else
-+			guest_ent = FNAME(fetch_guest)(vcpu, walker,
-+						       level, addr);
++		/* Unrecognised? */
++		if (d == 0)
++			goto cannot_emulate;
++	}
 +
-+		if (!is_present_pte(*guest_ent))
-+			return NULL;
++	/* ModRM and SIB bytes. */
++	if (d & ModRM) {
++		modrm = insn_fetch(u8, 1, _eip);
++		modrm_mod |= (modrm & 0xc0) >> 6;
++		modrm_reg |= (modrm & 0x38) >> 3;
++		modrm_rm |= (modrm & 0x07);
++		modrm_ea = 0;
++		use_modrm_ea = 1;
 +
-+		/* Don't set accessed bit on PAE PDPTRs */
-+		if (vcpu->mmu.root_level != 3 || walker->level != 3)
-+			*guest_ent |= PT_ACCESSED_MASK;
++		if (modrm_mod == 3) {
++			modrm_val = *(unsigned long *)
++				decode_register(modrm_rm, _regs, d & ByteOp);
++			goto modrm_done;
++		}
 +
-+		if (level == PT_PAGE_TABLE_LEVEL) {
++		if (ad_bytes == 2) {
++			unsigned bx = _regs[VCPU_REGS_RBX];
++			unsigned bp = _regs[VCPU_REGS_RBP];
++			unsigned si = _regs[VCPU_REGS_RSI];
++			unsigned di = _regs[VCPU_REGS_RDI];
 +
-+			if (walker->level == PT_DIRECTORY_LEVEL) {
-+				if (prev_shadow_ent)
-+					*prev_shadow_ent |= PT_SHADOW_PS_MARK;
-+				FNAME(set_pde)(vcpu, *guest_ent, shadow_ent,
-+					       walker->inherited_ar,
-+				          PT_INDEX(addr, PT_PAGE_TABLE_LEVEL));
-+			} else {
-+				ASSERT(walker->level == PT_PAGE_TABLE_LEVEL);
-+				FNAME(set_pte)(vcpu, *guest_ent, shadow_ent, walker->inherited_ar);
++			/* 16-bit ModR/M decode. */
++			switch (modrm_mod) {
++			case 0:
++				if (modrm_rm == 6)
++					modrm_ea += insn_fetch(u16, 2, _eip);
++				break;
++			case 1:
++				modrm_ea += insn_fetch(s8, 1, _eip);
++				break;
++			case 2:
++				modrm_ea += insn_fetch(u16, 2, _eip);
++				break;
 +			}
-+			return shadow_ent;
-+		}
++			switch (modrm_rm) {
++			case 0:
++				modrm_ea += bx + si;
++				break;
++			case 1:
++				modrm_ea += bx + di;
++				break;
++			case 2:
++				modrm_ea += bp + si;
++				break;
++			case 3:
++				modrm_ea += bp + di;
++				break;
++			case 4:
++				modrm_ea += si;
++				break;
++			case 5:
++				modrm_ea += di;
++				break;
++			case 6:
++				if (modrm_mod != 0)
++					modrm_ea += bp;
++				break;
++			case 7:
++				modrm_ea += bx;
++				break;
++			}
++			if (modrm_rm == 2 || modrm_rm == 3 ||
++			    (modrm_rm == 6 && modrm_mod != 0))
++				if (!override_base)
++					override_base = &ctxt->ss_base;
++			modrm_ea = (u16)modrm_ea;
++		} else {
++			/* 32/64-bit ModR/M decode. */
++			switch (modrm_rm) {
++			case 4:
++			case 12:
++				sib = insn_fetch(u8, 1, _eip);
++				index_reg |= (sib >> 3) & 7;
++				base_reg |= sib & 7;
++				scale = sib >> 6;
 +
-+		shadow_addr = kvm_mmu_alloc_page(vcpu, shadow_ent);
-+		if (!VALID_PAGE(shadow_addr))
-+			return ERR_PTR(-ENOMEM);
-+		if (!is_long_mode() && level == 3)
-+			*shadow_ent = shadow_addr |
-+				(*guest_ent & (PT_PRESENT_MASK | PT_PWT_MASK | PT_PCD_MASK));
-+		else {
-+			*shadow_ent = shadow_addr |
-+				(*guest_ent & PT_NON_PTE_COPY_MASK);
-+			*shadow_ent |= (PT_WRITABLE_MASK | PT_USER_MASK);
++				switch (base_reg) {
++				case 5:
++					if (modrm_mod != 0)
++						modrm_ea += _regs[base_reg];
++					else
++						modrm_ea += insn_fetch(s32, 4, _eip);
++					break;
++				default:
++					modrm_ea += _regs[base_reg];
++				}
++				switch (index_reg) {
++				case 4:
++					break;
++				default:
++					modrm_ea += _regs[index_reg] << scale;
++
++				}
++				break;
++			case 5:
++				if (modrm_mod != 0)
++					modrm_ea += _regs[modrm_rm];
++				else if (mode == X86EMUL_MODE_PROT64)
++					rip_relative = 1;
++				break;
++			default:
++				modrm_ea += _regs[modrm_rm];
++				break;
++			}
++			switch (modrm_mod) {
++			case 0:
++				if (modrm_rm == 5)
++					modrm_ea += insn_fetch(s32, 4, _eip);
++				break;
++			case 1:
++				modrm_ea += insn_fetch(s8, 1, _eip);
++				break;
++			case 2:
++				modrm_ea += insn_fetch(s32, 4, _eip);
++				break;
++			}
 +		}
-+		prev_shadow_ent = shadow_ent;
++		if (!override_base)
++			override_base = &ctxt->ds_base;
++		if (mode == X86EMUL_MODE_PROT64 &&
++		    override_base != &ctxt->fs_base &&
++		    override_base != &ctxt->gs_base)
++			override_base = 0;
++
++		if (override_base)
++			modrm_ea += *override_base;
++
++		if (rip_relative) {
++			modrm_ea += _eip;
++			switch (d & SrcMask) {
++			case SrcImmByte:
++				modrm_ea += 1;
++				break;
++			case SrcImm:
++				if (d & ByteOp)
++					modrm_ea += 1;
++				else
++					if (op_bytes == 8)
++						modrm_ea += 4;
++					else
++						modrm_ea += op_bytes;
++			}
++		}
++		if (ad_bytes != 8)
++			modrm_ea = (u32)modrm_ea;
++		cr2 = modrm_ea;
++	modrm_done:
++		;
 +	}
-+}
 +
-+/*
-+ * The guest faulted for write.  We need to
-+ *
-+ * - check write permissions
-+ * - update the guest pte dirty bit
-+ * - update our own dirty page tracking structures
-+ */
-+static int FNAME(fix_write_pf)(struct kvm_vcpu *vcpu,
-+			       u64 *shadow_ent,
-+			       struct guest_walker *walker,
-+			       gva_t addr,
-+			       int user)
-+{
-+	pt_element_t *guest_ent;
-+	int writable_shadow;
-+	gfn_t gfn;
-+
-+	if (is_writeble_pte(*shadow_ent))
-+		return 0;
-+
-+	writable_shadow = *shadow_ent & PT_SHADOW_WRITABLE_MASK;
-+	if (user) {
-+		/*
-+		 * User mode access.  Fail if it's a kernel page or a read-only
-+		 * page.
-+		 */
-+		if (!(*shadow_ent & PT_SHADOW_USER_MASK) || !writable_shadow)
-+			return 0;
-+		ASSERT(*shadow_ent & PT_USER_MASK);
-+	} else
-+		/*
-+		 * Kernel mode access.  Fail if it's a read-only page and
-+		 * supervisor write protection is enabled.
-+		 */
-+		if (!writable_shadow) {
-+			if (is_write_protection())
-+				return 0;
-+			*shadow_ent &= ~PT_USER_MASK;
++	/* Decode and fetch the destination operand: register or memory. */
++	switch (d & DstMask) {
++	case ImplicitOps:
++		/* Special instructions do their own operand decoding. */
++		goto special_insn;
++	case DstReg:
++		dst.type = OP_REG;
++		if ((d & ByteOp)
++		    && !(twobyte_table && (b == 0xb6 || b == 0xb7))) {
++			dst.ptr = decode_register(modrm_reg, _regs,
++						  (rex_prefix == 0));
++			dst.val = *(u8 *) dst.ptr;
++			dst.bytes = 1;
++		} else {
++			dst.ptr = decode_register(modrm_reg, _regs, 0);
++			switch ((dst.bytes = op_bytes)) {
++			case 2:
++				dst.val = *(u16 *)dst.ptr;
++				break;
++			case 4:
++				dst.val = *(u32 *)dst.ptr;
++				break;
++			case 8:
++				dst.val = *(u64 *)dst.ptr;
++				break;
++			}
 +		}
-+
-+	guest_ent = FNAME(fetch_guest)(vcpu, walker, PT_PAGE_TABLE_LEVEL, addr);
-+
-+	if (!is_present_pte(*guest_ent)) {
-+		*shadow_ent = 0;
-+		return 0;
++		break;
++	case DstMem:
++		dst.type = OP_MEM;
++		dst.ptr = (unsigned long *)cr2;
++		dst.bytes = (d & ByteOp) ? 1 : op_bytes;
++		if (!(d & Mov) && /* optimisation - avoid slow emulated read */
++		    ((rc = ops->read_emulated((unsigned long)dst.ptr,
++					      &dst.val, dst.bytes, ctxt)) != 0))
++			goto done;
++		break;
 +	}
-+
-+	gfn = (*guest_ent & PT64_BASE_ADDR_MASK) >> PAGE_SHIFT;
-+	mark_page_dirty(vcpu->kvm, gfn);
-+	*shadow_ent |= PT_WRITABLE_MASK;
-+	*guest_ent |= PT_DIRTY_MASK;
-+
-+	return 1;
-+}
-+
-+/*
-+ * Page fault handler.  There are several causes for a page fault:
-+ *   - there is no shadow pte for the guest pte
-+ *   - write access through a shadow pte marked read only so that we can set
-+ *     the dirty bit
-+ *   - write access to a shadow pte marked read only so we can update the page
-+ *     dirty bitmap, when userspace requests it
-+ *   - mmio access; in this case we will never install a present shadow pte
-+ *   - normal guest page fault due to the guest pte marked not present, not
-+ *     writable, or not executable
-+ *
-+ *  Returns: 1 if we need to emulate the instruction, 0 otherwise
-+ */
-+static int FNAME(page_fault)(struct kvm_vcpu *vcpu, gva_t addr,
-+			       u32 error_code)
-+{
-+	int write_fault = error_code & PFERR_WRITE_MASK;
-+	int pte_present = error_code & PFERR_PRESENT_MASK;
-+	int user_fault = error_code & PFERR_USER_MASK;
-+	struct guest_walker walker;
-+	u64 *shadow_pte;
-+	int fixed;
++	dst.orig_val = dst.val;
 +
 +	/*
-+	 * Look up the shadow pte for the faulting address.
++	 * Decode and fetch the source operand: register, memory
++	 * or immediate.
 +	 */
-+	for (;;) {
-+		FNAME(init_walker)(&walker, vcpu);
-+		shadow_pte = FNAME(fetch)(vcpu, addr, &walker);
-+		if (IS_ERR(shadow_pte)) {  /* must be -ENOMEM */
-+			nonpaging_flush(vcpu);
-+			FNAME(release_walker)(&walker);
-+			continue;
++	switch (d & SrcMask) {
++	case SrcNone:
++		break;
++	case SrcReg:
++		src.type = OP_REG;
++		if (d & ByteOp) {
++			src.ptr = decode_register(modrm_reg, _regs,
++						  (rex_prefix == 0));
++			src.val = src.orig_val = *(u8 *) src.ptr;
++			src.bytes = 1;
++		} else {
++			src.ptr = decode_register(modrm_reg, _regs, 0);
++			switch ((src.bytes = op_bytes)) {
++			case 2:
++				src.val = src.orig_val = *(u16 *) src.ptr;
++				break;
++			case 4:
++				src.val = src.orig_val = *(u32 *) src.ptr;
++				break;
++			case 8:
++				src.val = src.orig_val = *(u64 *) src.ptr;
++				break;
++			}
++		}
++		break;
++	case SrcMem16:
++		src.bytes = 2;
++		goto srcmem_common;
++	case SrcMem32:
++		src.bytes = 4;
++		goto srcmem_common;
++	case SrcMem:
++		src.bytes = (d & ByteOp) ? 1 : op_bytes;
++	      srcmem_common:
++		src.type = OP_MEM;
++		src.ptr = (unsigned long *)cr2;
++		if ((rc = ops->read_emulated((unsigned long)src.ptr,
++					     &src.val, src.bytes, ctxt)) != 0)
++			goto done;
++		src.orig_val = src.val;
++		break;
++	case SrcImm:
++		src.type = OP_IMM;
++		src.ptr = (unsigned long *)_eip;
++		src.bytes = (d & ByteOp) ? 1 : op_bytes;
++		if (src.bytes == 8)
++			src.bytes = 4;
++		/* NB. Immediates are sign-extended as necessary. */
++		switch (src.bytes) {
++		case 1:
++			src.val = insn_fetch(s8, 1, _eip);
++			break;
++		case 2:
++			src.val = insn_fetch(s16, 2, _eip);
++			break;
++		case 4:
++			src.val = insn_fetch(s32, 4, _eip);
++			break;
++		}
++		break;
++	case SrcImmByte:
++		src.type = OP_IMM;
++		src.ptr = (unsigned long *)_eip;
++		src.bytes = 1;
++		src.val = insn_fetch(s8, 1, _eip);
++		break;
++	}
++
++	if (twobyte)
++		goto twobyte_insn;
++
++	switch (b) {
++	case 0x00 ... 0x05:
++	      add:		/* add */
++		emulate_2op_SrcV("add", src, dst, _eflags);
++		break;
++	case 0x08 ... 0x0d:
++	      or:		/* or */
++		emulate_2op_SrcV("or", src, dst, _eflags);
++		break;
++	case 0x10 ... 0x15:
++	      adc:		/* adc */
++		emulate_2op_SrcV("adc", src, dst, _eflags);
++		break;
++	case 0x18 ... 0x1d:
++	      sbb:		/* sbb */
++		emulate_2op_SrcV("sbb", src, dst, _eflags);
++		break;
++	case 0x20 ... 0x25:
++	      and:		/* and */
++		emulate_2op_SrcV("and", src, dst, _eflags);
++		break;
++	case 0x28 ... 0x2d:
++	      sub:		/* sub */
++		emulate_2op_SrcV("sub", src, dst, _eflags);
++		break;
++	case 0x30 ... 0x35:
++	      xor:		/* xor */
++		emulate_2op_SrcV("xor", src, dst, _eflags);
++		break;
++	case 0x38 ... 0x3d:
++	      cmp:		/* cmp */
++		emulate_2op_SrcV("cmp", src, dst, _eflags);
++		break;
++	case 0x63:		/* movsxd */
++		if (mode != X86EMUL_MODE_PROT64)
++			goto cannot_emulate;
++		dst.val = (s32) src.val;
++		break;
++	case 0x80 ... 0x83:	/* Grp1 */
++		switch (modrm_reg) {
++		case 0:
++			goto add;
++		case 1:
++			goto or;
++		case 2:
++			goto adc;
++		case 3:
++			goto sbb;
++		case 4:
++			goto and;
++		case 5:
++			goto sub;
++		case 6:
++			goto xor;
++		case 7:
++			goto cmp;
++		}
++		break;
++	case 0x84 ... 0x85:
++	      test:		/* test */
++		emulate_2op_SrcV("test", src, dst, _eflags);
++		break;
++	case 0x86 ... 0x87:	/* xchg */
++		/* Write back the register source. */
++		switch (dst.bytes) {
++		case 1:
++			*(u8 *) src.ptr = (u8) dst.val;
++			break;
++		case 2:
++			*(u16 *) src.ptr = (u16) dst.val;
++			break;
++		case 4:
++			*src.ptr = (u32) dst.val;
++			break;	/* 64b reg: zero-extend */
++		case 8:
++			*src.ptr = dst.val;
++			break;
++		}
++		/*
++		 * Write back the memory destination with implicit LOCK
++		 * prefix.
++		 */
++		dst.val = src.val;
++		lock_prefix = 1;
++		break;
++	case 0xa0 ... 0xa1:	/* mov */
++		dst.ptr = (unsigned long *)&_regs[VCPU_REGS_RAX];
++		dst.val = src.val;
++		_eip += ad_bytes;	/* skip src displacement */
++		break;
++	case 0xa2 ... 0xa3:	/* mov */
++		dst.val = (unsigned long)_regs[VCPU_REGS_RAX];
++		_eip += ad_bytes;	/* skip dst displacement */
++		break;
++	case 0x88 ... 0x8b:	/* mov */
++	case 0xc6 ... 0xc7:	/* mov (sole member of Grp11) */
++		dst.val = src.val;
++		break;
++	case 0x8f:		/* pop (sole member of Grp1a) */
++		/* 64-bit mode: POP always pops a 64-bit operand. */
++		if (mode == X86EMUL_MODE_PROT64)
++			dst.bytes = 8;
++		if ((rc = ops->read_std(register_address(ctxt->ss_base,
++							 _regs[VCPU_REGS_RSP]),
++					&dst.val, dst.bytes, ctxt)) != 0)
++			goto done;
++		register_address_increment(_regs[VCPU_REGS_RSP], dst.bytes);
++		break;
++	case 0xc0 ... 0xc1:
++	      grp2:		/* Grp2 */
++		switch (modrm_reg) {
++		case 0:	/* rol */
++			emulate_2op_SrcB("rol", src, dst, _eflags);
++			break;
++		case 1:	/* ror */
++			emulate_2op_SrcB("ror", src, dst, _eflags);
++			break;
++		case 2:	/* rcl */
++			emulate_2op_SrcB("rcl", src, dst, _eflags);
++			break;
++		case 3:	/* rcr */
++			emulate_2op_SrcB("rcr", src, dst, _eflags);
++			break;
++		case 4:	/* sal/shl */
++		case 6:	/* sal/shl */
++			emulate_2op_SrcB("sal", src, dst, _eflags);
++			break;
++		case 5:	/* shr */
++			emulate_2op_SrcB("shr", src, dst, _eflags);
++			break;
++		case 7:	/* sar */
++			emulate_2op_SrcB("sar", src, dst, _eflags);
++			break;
++		}
++		break;
++	case 0xd0 ... 0xd1:	/* Grp2 */
++		src.val = 1;
++		goto grp2;
++	case 0xd2 ... 0xd3:	/* Grp2 */
++		src.val = _regs[VCPU_REGS_RCX];
++		goto grp2;
++	case 0xf6 ... 0xf7:	/* Grp3 */
++		switch (modrm_reg) {
++		case 0 ... 1:	/* test */
++			/*
++			 * Special case in Grp3: test has an immediate
++			 * source operand.
++			 */
++			src.type = OP_IMM;
++			src.ptr = (unsigned long *)_eip;
++			src.bytes = (d & ByteOp) ? 1 : op_bytes;
++			if (src.bytes == 8)
++				src.bytes = 4;
++			switch (src.bytes) {
++			case 1:
++				src.val = insn_fetch(s8, 1, _eip);
++				break;
++			case 2:
++				src.val = insn_fetch(s16, 2, _eip);
++				break;
++			case 4:
++				src.val = insn_fetch(s32, 4, _eip);
++				break;
++			}
++			goto test;
++		case 2:	/* not */
++			dst.val = ~dst.val;
++			break;
++		case 3:	/* neg */
++			emulate_1op("neg", dst, _eflags);
++			break;
++		default:
++			goto cannot_emulate;
++		}
++		break;
++	case 0xfe ... 0xff:	/* Grp4/Grp5 */
++		switch (modrm_reg) {
++		case 0:	/* inc */
++			emulate_1op("inc", dst, _eflags);
++			break;
++		case 1:	/* dec */
++			emulate_1op("dec", dst, _eflags);
++			break;
++		case 6:	/* push */
++			/* 64-bit mode: PUSH always pushes a 64-bit operand. */
++			if (mode == X86EMUL_MODE_PROT64) {
++				dst.bytes = 8;
++				if ((rc = ops->read_std((unsigned long)dst.ptr,
++							&dst.val, 8,
++							ctxt)) != 0)
++					goto done;
++			}
++			register_address_increment(_regs[VCPU_REGS_RSP],
++						   -dst.bytes);
++			if ((rc = ops->write_std(
++				     register_address(ctxt->ss_base,
++						      _regs[VCPU_REGS_RSP]),
++				     dst.val, dst.bytes, ctxt)) != 0)
++				goto done;
++			dst.val = dst.orig_val;	/* skanky: disable writeback */
++			break;
++		default:
++			goto cannot_emulate;
 +		}
 +		break;
 +	}
 +
-+	/*
-+	 * The page is not mapped by the guest.  Let the guest handle it.
-+	 */
-+	if (!shadow_pte) {
-+		inject_page_fault(vcpu, addr, error_code);
-+		FNAME(release_walker)(&walker);
-+		return 0;
++writeback:
++	if ((d & Mov) || (dst.orig_val != dst.val)) {
++		switch (dst.type) {
++		case OP_REG:
++			/* The 4-byte case *is* correct: in 64-bit mode we zero-extend. */
++			switch (dst.bytes) {
++			case 1:
++				*(u8 *)dst.ptr = (u8)dst.val;
++				break;
++			case 2:
++				*(u16 *)dst.ptr = (u16)dst.val;
++				break;
++			case 4:
++				*dst.ptr = (u32)dst.val;
++				break;	/* 64b: zero-ext */
++			case 8:
++				*dst.ptr = dst.val;
++				break;
++			}
++			break;
++		case OP_MEM:
++			if (lock_prefix)
++				rc = ops->cmpxchg_emulated((unsigned long)dst.
++							   ptr, dst.orig_val,
++							   dst.val, dst.bytes,
++							   ctxt);
++			else
++				rc = ops->write_emulated((unsigned long)dst.ptr,
++							 dst.val, dst.bytes,
++							 ctxt);
++			if (rc != 0)
++				goto done;
++		default:
++			break;
++		}
 +	}
 +
-+	/*
-+	 * Update the shadow pte.
-+	 */
-+	if (write_fault)
-+		fixed = FNAME(fix_write_pf)(vcpu, shadow_pte, &walker, addr,
-+					    user_fault);
-+	else
-+		fixed = fix_read_pf(shadow_pte);
++	/* Commit shadow register state. */
++	memcpy(ctxt->vcpu->regs, _regs, sizeof _regs);
++	ctxt->eflags = _eflags;
++	ctxt->vcpu->rip = _eip;
 +
-+	FNAME(release_walker)(&walker);
++done:
++	return (rc == X86EMUL_UNHANDLEABLE) ? -1 : 0;
 +
-+	/*
-+	 * mmio: emulate if accessible, otherwise its a guest fault.
-+	 */
-+	if (is_io_pte(*shadow_pte)) {
-+		if (may_access(*shadow_pte, write_fault, user_fault))
-+			return 1;
-+		pgprintk("%s: io work, no access\n", __FUNCTION__);
-+		inject_page_fault(vcpu, addr,
-+				  error_code | PFERR_PRESENT_MASK);
-+		return 0;
++special_insn:
++	if (twobyte)
++		goto twobyte_special_insn;
++	if (rep_prefix) {
++		if (_regs[VCPU_REGS_RCX] == 0) {
++			ctxt->vcpu->rip = _eip;
++			goto done;
++		}
++		_regs[VCPU_REGS_RCX]--;
++		_eip = ctxt->vcpu->rip;
 +	}
-+
-+	/*
-+	 * pte not present, guest page fault.
-+	 */
-+	if (pte_present && !fixed) {
-+		inject_page_fault(vcpu, addr, error_code);
-+		return 0;
++	switch (b) {
++	case 0xa4 ... 0xa5:	/* movs */
++		dst.type = OP_MEM;
++		dst.bytes = (d & ByteOp) ? 1 : op_bytes;
++		dst.ptr = (unsigned long *)register_address(ctxt->es_base,
++							_regs[VCPU_REGS_RDI]);
++		if ((rc = ops->read_emulated(register_address(
++		      override_base ? *override_base : ctxt->ds_base,
++		      _regs[VCPU_REGS_RSI]), &dst.val, dst.bytes, ctxt)) != 0)
++			goto done;
++		register_address_increment(_regs[VCPU_REGS_RSI],
++			     (_eflags & EFLG_DF) ? -dst.bytes : dst.bytes);
++		register_address_increment(_regs[VCPU_REGS_RDI],
++			     (_eflags & EFLG_DF) ? -dst.bytes : dst.bytes);
++		break;
++	case 0xa6 ... 0xa7:	/* cmps */
++		DPRINTF("Urk! I don't handle CMPS.\n");
++		goto cannot_emulate;
++	case 0xaa ... 0xab:	/* stos */
++		dst.type = OP_MEM;
++		dst.bytes = (d & ByteOp) ? 1 : op_bytes;
++		dst.ptr = (unsigned long *)cr2;
++		dst.val = _regs[VCPU_REGS_RAX];
++		register_address_increment(_regs[VCPU_REGS_RDI],
++			     (_eflags & EFLG_DF) ? -dst.bytes : dst.bytes);
++		break;
++	case 0xac ... 0xad:	/* lods */
++		dst.type = OP_REG;
++		dst.bytes = (d & ByteOp) ? 1 : op_bytes;
++		dst.ptr = (unsigned long *)&_regs[VCPU_REGS_RAX];
++		if ((rc = ops->read_emulated(cr2, &dst.val, dst.bytes, ctxt)) != 0)
++			goto done;
++		register_address_increment(_regs[VCPU_REGS_RSI],
++			   (_eflags & EFLG_DF) ? -dst.bytes : dst.bytes);
++		break;
++	case 0xae ... 0xaf:	/* scas */
++		DPRINTF("Urk! I don't handle SCAS.\n");
++		goto cannot_emulate;
 +	}
++	goto writeback;
 +
-+	++kvm_stat.pf_fixed;
++twobyte_insn:
++	switch (b) {
++	case 0x01: /* lgdt, lidt, lmsw */
++		switch (modrm_reg) {
++			u16 size;
++			unsigned long address;
 +
-+	return 0;
++		case 2: /* lgdt */
++			rc = read_descriptor(ctxt, ops, src.ptr,
++					     &size, &address, op_bytes);
++			if (rc)
++				goto done;
++			realmode_lgdt(ctxt->vcpu, size, address);
++			break;
++		case 3: /* lidt */
++			rc = read_descriptor(ctxt, ops, src.ptr,
++					     &size, &address, op_bytes);
++			if (rc)
++				goto done;
++			realmode_lidt(ctxt->vcpu, size, address);
++			break;
++		case 6: /* lmsw */
++			realmode_lmsw(ctxt->vcpu, (u16)modrm_val, &_eflags);
++			break;
++		default:
++			goto cannot_emulate;
++		}
++		break;
++	case 0x40 ... 0x4f:	/* cmov */
++		dst.val = dst.orig_val = src.val;
++		d &= ~Mov;	/* default to no move */
++		/*
++		 * First, assume we're decoding an even cmov opcode
++		 * (lsb == 0).
++		 */
++		switch ((b & 15) >> 1) {
++		case 0:	/* cmovo */
++			d |= (_eflags & EFLG_OF) ? Mov : 0;
++			break;
++		case 1:	/* cmovb/cmovc/cmovnae */
++			d |= (_eflags & EFLG_CF) ? Mov : 0;
++			break;
++		case 2:	/* cmovz/cmove */
++			d |= (_eflags & EFLG_ZF) ? Mov : 0;
++			break;
++		case 3:	/* cmovbe/cmovna */
++			d |= (_eflags & (EFLG_CF | EFLG_ZF)) ? Mov : 0;
++			break;
++		case 4:	/* cmovs */
++			d |= (_eflags & EFLG_SF) ? Mov : 0;
++			break;
++		case 5:	/* cmovp/cmovpe */
++			d |= (_eflags & EFLG_PF) ? Mov : 0;
++			break;
++		case 7:	/* cmovle/cmovng */
++			d |= (_eflags & EFLG_ZF) ? Mov : 0;
++			/* fall through */
++		case 6:	/* cmovl/cmovnge */
++			d |= (!(_eflags & EFLG_SF) !=
++			      !(_eflags & EFLG_OF)) ? Mov : 0;
++			break;
++		}
++		/* Odd cmov opcodes (lsb == 1) have inverted sense. */
++		d ^= (b & 1) ? Mov : 0;
++		break;
++	case 0xb0 ... 0xb1:	/* cmpxchg */
++		/*
++		 * Save real source value, then compare EAX against
++		 * destination.
++		 */
++		src.orig_val = src.val;
++		src.val = _regs[VCPU_REGS_RAX];
++		emulate_2op_SrcV("cmp", src, dst, _eflags);
++		/* Always write back. The question is: where to? */
++		d |= Mov;
++		if (_eflags & EFLG_ZF) {
++			/* Success: write back to memory. */
++			dst.val = src.orig_val;
++		} else {
++			/* Failure: write the value we saw to EAX. */
++			dst.type = OP_REG;
++			dst.ptr = (unsigned long *)&_regs[VCPU_REGS_RAX];
++		}
++		break;
++	case 0xa3:
++	      bt:		/* bt */
++		src.val &= (dst.bytes << 3) - 1; /* only subword offset */
++		emulate_2op_SrcV_nobyte("bt", src, dst, _eflags);
++		break;
++	case 0xb3:
++	      btr:		/* btr */
++		src.val &= (dst.bytes << 3) - 1; /* only subword offset */
++		emulate_2op_SrcV_nobyte("btr", src, dst, _eflags);
++		break;
++	case 0xab:
++	      bts:		/* bts */
++		src.val &= (dst.bytes << 3) - 1; /* only subword offset */
++		emulate_2op_SrcV_nobyte("bts", src, dst, _eflags);
++		break;
++	case 0xb6 ... 0xb7:	/* movzx */
++		dst.bytes = op_bytes;
++		dst.val = (d & ByteOp) ? (u8) src.val : (u16) src.val;
++		break;
++	case 0xbb:
++	      btc:		/* btc */
++		src.val &= (dst.bytes << 3) - 1; /* only subword offset */
++		emulate_2op_SrcV_nobyte("btc", src, dst, _eflags);
++		break;
++	case 0xba:		/* Grp8 */
++		switch (modrm_reg & 3) {
++		case 0:
++			goto bt;
++		case 1:
++			goto bts;
++		case 2:
++			goto btr;
++		case 3:
++			goto btc;
++		}
++		break;
++	case 0xbe ... 0xbf:	/* movsx */
++		dst.bytes = op_bytes;
++		dst.val = (d & ByteOp) ? (s8) src.val : (s16) src.val;
++		break;
++	}
++	goto writeback;
++
++twobyte_special_insn:
++	/* Disable writeback. */
++	dst.orig_val = dst.val;
++	switch (b) {
++	case 0x0d:		/* GrpP (prefetch) */
++	case 0x18:		/* Grp16 (prefetch/nop) */
++		break;
++	case 0x20: /* mov cr, reg */
++		b = insn_fetch(u8, 1, _eip);
++		if ((b & 0xc0) != 0xc0)
++			goto cannot_emulate;
++		_regs[(b >> 3) & 7] = realmode_get_cr(ctxt->vcpu, b & 7);
++		break;
++	case 0x22: /* mov reg, cr */
++		b = insn_fetch(u8, 1, _eip);
++		if ((b & 0xc0) != 0xc0)
++			goto cannot_emulate;
++		realmode_set_cr(ctxt->vcpu, b & 7, _regs[(b >> 3) & 7] & -1u,
++				&_eflags);
++		break;
++	case 0xc7:		/* Grp9 (cmpxchg8b) */
++#if defined(__i386__)
++		{
++			unsigned long old_lo, old_hi;
++			if (((rc = ops->read_emulated(cr2 + 0, &old_lo, 4,
++						      ctxt)) != 0)
++			    || ((rc = ops->read_emulated(cr2 + 4, &old_hi, 4,
++							 ctxt)) != 0))
++				goto done;
++			if ((old_lo != _regs[VCPU_REGS_RAX])
++			    || (old_hi != _regs[VCPU_REGS_RDI])) {
++				_regs[VCPU_REGS_RAX] = old_lo;
++				_regs[VCPU_REGS_RDX] = old_hi;
++				_eflags &= ~EFLG_ZF;
++			} else if (ops->cmpxchg8b_emulated == NULL) {
++				rc = X86EMUL_UNHANDLEABLE;
++				goto done;
++			} else {
++				if ((rc = ops->cmpxchg8b_emulated(cr2, old_lo,
++							  old_hi,
++							  _regs[VCPU_REGS_RBX],
++							  _regs[VCPU_REGS_RCX],
++							  ctxt)) != 0)
++					goto done;
++				_eflags |= EFLG_ZF;
++			}
++			break;
++		}
++#elif defined(__x86_64__)
++		{
++			unsigned long old, new;
++			if ((rc = ops->read_emulated(cr2, &old, 8, ctxt)) != 0)
++				goto done;
++			if (((u32) (old >> 0) != (u32) _regs[VCPU_REGS_RAX]) ||
++			    ((u32) (old >> 32) != (u32) _regs[VCPU_REGS_RDX])) {
++				_regs[VCPU_REGS_RAX] = (u32) (old >> 0);
++				_regs[VCPU_REGS_RDX] = (u32) (old >> 32);
++				_eflags &= ~EFLG_ZF;
++			} else {
++				new = (_regs[VCPU_REGS_RCX] << 32) | (u32) _regs[VCPU_REGS_RBX];
++				if ((rc = ops->cmpxchg_emulated(cr2, old,
++							  new, 8, ctxt)) != 0)
++					goto done;
++				_eflags |= EFLG_ZF;
++			}
++			break;
++		}
++#endif
++	}
++	goto writeback;
++
++cannot_emulate:
++	DPRINTF("Cannot emulate %02x\n", b);
++	return -1;
 +}
 +
-+static gpa_t FNAME(gva_to_gpa)(struct kvm_vcpu *vcpu, gva_t vaddr)
++#ifdef __XEN__
++
++#include <asm/mm.h>
++#include <asm/uaccess.h>
++
++int
++x86_emulate_read_std(unsigned long addr,
++		     unsigned long *val,
++		     unsigned int bytes, struct x86_emulate_ctxt *ctxt)
 +{
-+	struct guest_walker walker;
-+	pt_element_t guest_pte;
-+	gpa_t gpa;
++	unsigned int rc;
 +
-+	FNAME(init_walker)(&walker, vcpu);
-+	guest_pte = *FNAME(fetch_guest)(vcpu, &walker, PT_PAGE_TABLE_LEVEL,
-+					vaddr);
-+	FNAME(release_walker)(&walker);
++	*val = 0;
 +
-+	if (!is_present_pte(guest_pte))
-+		return UNMAPPED_GVA;
-+
-+	if (walker.level == PT_DIRECTORY_LEVEL) {
-+		ASSERT((guest_pte & PT_PAGE_SIZE_MASK));
-+		ASSERT(PTTYPE == 64 || is_pse());
-+
-+		gpa = (guest_pte & PT_DIR_BASE_ADDR_MASK) | (vaddr &
-+			(PT_LEVEL_MASK(PT_PAGE_TABLE_LEVEL) | ~PAGE_MASK));
-+
-+		if (PTTYPE == 32 && is_cpuid_PSE36())
-+			gpa |= (guest_pte & PT32_DIR_PSE36_MASK) <<
-+					(32 - PT32_DIR_PSE36_SHIFT);
-+	} else {
-+		gpa = (guest_pte & PT_BASE_ADDR_MASK);
-+		gpa |= (vaddr & ~PAGE_MASK);
++	if ((rc = copy_from_user((void *)val, (void *)addr, bytes)) != 0) {
++		propagate_page_fault(addr + bytes - rc, 0);	/* read fault */
++		return X86EMUL_PROPAGATE_FAULT;
 +	}
 +
-+	return gpa;
++	return X86EMUL_CONTINUE;
 +}
 +
-+#undef pt_element_t
-+#undef guest_walker
-+#undef FNAME
-+#undef PT_BASE_ADDR_MASK
-+#undef PT_INDEX
-+#undef SHADOW_PT_INDEX
-+#undef PT_LEVEL_MASK
-+#undef PT_PTE_COPY_MASK
-+#undef PT_NON_PTE_COPY_MASK
-+#undef PT_DIR_BASE_ADDR_MASK
-Index: linux-2.6/drivers/kvm/kvm.h
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm.h
-+++ linux-2.6/drivers/kvm/kvm.h
-@@ -369,4 +369,19 @@ static inline struct kvm_mmu_page *page_
- 	return (struct kvm_mmu_page *)page->private;
- }
- 
-+#ifdef __x86_64__
++int
++x86_emulate_write_std(unsigned long addr,
++		      unsigned long val,
++		      unsigned int bytes, struct x86_emulate_ctxt *ctxt)
++{
++	unsigned int rc;
 +
-+/*
-+ * When emulating 32-bit mode, cr3 is only 32 bits even on x86_64.  Therefore
-+ * we need to allocate shadow page tables in the first 4GB of memory, which
-+ * happens to fit the DMA32 zone.
-+ */
-+#define GFP_KVM_MMU (GFP_KERNEL | __GFP_DMA32)
++	if ((rc = copy_to_user((void *)addr, (void *)&val, bytes)) != 0) {
++		propagate_page_fault(addr + bytes - rc, PGERR_write_access);
++		return X86EMUL_PROPAGATE_FAULT;
++	}
 +
-+#else
-+
-+#define GFP_KVM_MMU GFP_KERNEL
++	return X86EMUL_CONTINUE;
++}
 +
 +#endif
+Index: linux-2.6/drivers/kvm/x86_emulate.h
+===================================================================
+--- /dev/null
++++ linux-2.6/drivers/kvm/x86_emulate.h
+@@ -0,0 +1,185 @@
++/******************************************************************************
++ * x86_emulate.h
++ *
++ * Generic x86 (32-bit and 64-bit) instruction decoder and emulator.
++ *
++ * Copyright (c) 2005 Keir Fraser
++ *
++ * From: xen-unstable 10676:af9809f51f81a3c43f276f00c81a52ef558afda4
++ */
 +
- #endif
++#ifndef __X86_EMULATE_H__
++#define __X86_EMULATE_H__
++
++struct x86_emulate_ctxt;
++
++/*
++ * x86_emulate_ops:
++ *
++ * These operations represent the instruction emulator's interface to memory.
++ * There are two categories of operation: those that act on ordinary memory
++ * regions (*_std), and those that act on memory regions known to require
++ * special treatment or emulation (*_emulated).
++ *
++ * The emulator assumes that an instruction accesses only one 'emulated memory'
++ * location, that this location is the given linear faulting address (cr2), and
++ * that this is one of the instruction's data operands. Instruction fetches and
++ * stack operations are assumed never to access emulated memory. The emulator
++ * automatically deduces which operand of a string-move operation is accessing
++ * emulated memory, and assumes that the other operand accesses normal memory.
++ *
++ * NOTES:
++ *  1. The emulator isn't very smart about emulated vs. standard memory.
++ *     'Emulated memory' access addresses should be checked for sanity.
++ *     'Normal memory' accesses may fault, and the caller must arrange to
++ *     detect and handle reentrancy into the emulator via recursive faults.
++ *     Accesses may be unaligned and may cross page boundaries.
++ *  2. If the access fails (cannot emulate, or a standard access faults) then
++ *     it is up to the memop to propagate the fault to the guest VM via
++ *     some out-of-band mechanism, unknown to the emulator. The memop signals
++ *     failure by returning X86EMUL_PROPAGATE_FAULT to the emulator, which will
++ *     then immediately bail.
++ *  3. Valid access sizes are 1, 2, 4 and 8 bytes. On x86/32 systems only
++ *     cmpxchg8b_emulated need support 8-byte accesses.
++ *  4. The emulator cannot handle 64-bit mode emulation on an x86/32 system.
++ */
++/* Access completed successfully: continue emulation as normal. */
++#define X86EMUL_CONTINUE        0
++/* Access is unhandleable: bail from emulation and return error to caller. */
++#define X86EMUL_UNHANDLEABLE    1
++/* Terminate emulation but return success to the caller. */
++#define X86EMUL_PROPAGATE_FAULT 2 /* propagate a generated fault to guest */
++#define X86EMUL_RETRY_INSTR     2 /* retry the instruction for some reason */
++#define X86EMUL_CMPXCHG_FAILED  2 /* cmpxchg did not see expected value */
++struct x86_emulate_ops {
++	/*
++	 * read_std: Read bytes of standard (non-emulated/special) memory.
++	 *           Used for instruction fetch, stack operations, and others.
++	 *  @addr:  [IN ] Linear address from which to read.
++	 *  @val:   [OUT] Value read from memory, zero-extended to 'u_long'.
++	 *  @bytes: [IN ] Number of bytes to read from memory.
++	 */
++	int (*read_std)(unsigned long addr,
++			unsigned long *val,
++			unsigned int bytes, struct x86_emulate_ctxt * ctxt);
++
++	/*
++	 * write_std: Write bytes of standard (non-emulated/special) memory.
++	 *            Used for stack operations, and others.
++	 *  @addr:  [IN ] Linear address to which to write.
++	 *  @val:   [IN ] Value to write to memory (low-order bytes used as
++	 *                required).
++	 *  @bytes: [IN ] Number of bytes to write to memory.
++	 */
++	int (*write_std)(unsigned long addr,
++			 unsigned long val,
++			 unsigned int bytes, struct x86_emulate_ctxt * ctxt);
++
++	/*
++	 * read_emulated: Read bytes from emulated/special memory area.
++	 *  @addr:  [IN ] Linear address from which to read.
++	 *  @val:   [OUT] Value read from memory, zero-extended to 'u_long'.
++	 *  @bytes: [IN ] Number of bytes to read from memory.
++	 */
++	int (*read_emulated) (unsigned long addr,
++			      unsigned long *val,
++			      unsigned int bytes,
++			      struct x86_emulate_ctxt * ctxt);
++
++	/*
++	 * write_emulated: Read bytes from emulated/special memory area.
++	 *  @addr:  [IN ] Linear address to which to write.
++	 *  @val:   [IN ] Value to write to memory (low-order bytes used as
++	 *                required).
++	 *  @bytes: [IN ] Number of bytes to write to memory.
++	 */
++	int (*write_emulated) (unsigned long addr,
++			       unsigned long val,
++			       unsigned int bytes,
++			       struct x86_emulate_ctxt * ctxt);
++
++	/*
++	 * cmpxchg_emulated: Emulate an atomic (LOCKed) CMPXCHG operation on an
++	 *                   emulated/special memory area.
++	 *  @addr:  [IN ] Linear address to access.
++	 *  @old:   [IN ] Value expected to be current at @addr.
++	 *  @new:   [IN ] Value to write to @addr.
++	 *  @bytes: [IN ] Number of bytes to access using CMPXCHG.
++	 */
++	int (*cmpxchg_emulated) (unsigned long addr,
++				 unsigned long old,
++				 unsigned long new,
++				 unsigned int bytes,
++				 struct x86_emulate_ctxt * ctxt);
++
++	/*
++	 * cmpxchg8b_emulated: Emulate an atomic (LOCKed) CMPXCHG8B operation on an
++	 *                     emulated/special memory area.
++	 *  @addr:  [IN ] Linear address to access.
++	 *  @old:   [IN ] Value expected to be current at @addr.
++	 *  @new:   [IN ] Value to write to @addr.
++	 * NOTES:
++	 *  1. This function is only ever called when emulating a real CMPXCHG8B.
++	 *  2. This function is *never* called on x86/64 systems.
++	 *  2. Not defining this function (i.e., specifying NULL) is equivalent
++	 *     to defining a function that always returns X86EMUL_UNHANDLEABLE.
++	 */
++	int (*cmpxchg8b_emulated) (unsigned long addr,
++				   unsigned long old_lo,
++				   unsigned long old_hi,
++				   unsigned long new_lo,
++				   unsigned long new_hi,
++				   struct x86_emulate_ctxt * ctxt);
++};
++
++struct cpu_user_regs;
++
++struct x86_emulate_ctxt {
++	/* Register state before/after emulation. */
++	struct kvm_vcpu *vcpu;
++
++	/* Linear faulting address (if emulating a page-faulting instruction). */
++	unsigned long eflags;
++	unsigned long cr2;
++
++	/* Emulated execution mode, represented by an X86EMUL_MODE value. */
++	int mode;
++
++	unsigned long cs_base;
++	unsigned long ds_base;
++	unsigned long es_base;
++	unsigned long ss_base;
++	unsigned long gs_base;
++	unsigned long fs_base;
++};
++
++/* Execution mode, passed to the emulator. */
++#define X86EMUL_MODE_REAL     0	/* Real mode.             */
++#define X86EMUL_MODE_PROT16   2	/* 16-bit protected mode. */
++#define X86EMUL_MODE_PROT32   4	/* 32-bit protected mode. */
++#define X86EMUL_MODE_PROT64   8	/* 64-bit (long) mode.    */
++
++/* Host execution mode. */
++#if defined(__i386__)
++#define X86EMUL_MODE_HOST X86EMUL_MODE_PROT32
++#elif defined(__x86_64__)
++#define X86EMUL_MODE_HOST X86EMUL_MODE_PROT64
++#endif
++
++/*
++ * x86_emulate_memop: Emulate an instruction that faulted attempting to
++ *                    read/write a 'special' memory area.
++ * Returns -1 on failure, 0 on success.
++ */
++int x86_emulate_memop(struct x86_emulate_ctxt *ctxt,
++		      struct x86_emulate_ops *ops);
++
++/*
++ * Given the 'reg' portion of a ModRM byte, and a register block, return a
++ * pointer into the block that addresses the relevant register.
++ * @highbyte_regs specifies whether to decode AH,CH,DH,BH.
++ */
++void *decode_register(u8 modrm_reg, unsigned long *regs,
++		      int highbyte_regs);
++
++#endif				/* __X86_EMULATE_H__ */

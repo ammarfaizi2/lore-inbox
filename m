@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422755AbWKEW2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422744AbWKEW3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422755AbWKEW2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 17:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422744AbWKEW2r
+	id S1422744AbWKEW3y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 17:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422757AbWKEW3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 17:28:47 -0500
-Received: from mx2.suse.de ([195.135.220.15]:53901 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161702AbWKEW2q (ORCPT
+	Sun, 5 Nov 2006 17:29:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:55448 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422744AbWKEW3x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 17:28:46 -0500
-From: Neil Brown <neilb@suse.de>
-To: Pavel Machek <pavel@ucw.cz>
-Date: Mon, 6 Nov 2006 09:28:39 +1100
+	Sun, 5 Nov 2006 17:29:53 -0500
+Date: Sun, 5 Nov 2006 14:29:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH? hrtimer_wakeup: fix a theoretical race wrt rt_mutex_slowlock()
+In-Reply-To: <20061105193457.GA3082@oleg>
+Message-ID: <Pine.LNX.4.64.0611051423150.25218@g5.osdl.org>
+References: <20061105193457.GA3082@oleg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17742.26007.249504.79631@cse.unsw.edu.au>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: [RFC][PATCH -mm][Experimental] suspend: Do not freeze md_threads
-In-Reply-To: message from Pavel Machek on Sunday November 5
-References: <200611022355.52856.rjw@sisk.pl>
-	<20061105115804.GG4965@elf.ucw.cz>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday November 5, pavel@ucw.cz wrote:
-> Hi!
+
+
+On Sun, 5 Nov 2006, Oleg Nesterov wrote:
+>
+> When task->array != NULL, try_to_wake_up() just goes to "out_running" and sets
+> task->state = TASK_RUNNING.
 > 
-> > If there's a swap file on a software RAID, it should be possible to use this
-> > file for saving the swsusp's suspend image.  Also, this file should be
-> > available to the memory management subsystem when memory is being freed before
-> > the suspend image is created.
-> > 
-> > For the above reasons it seems that md_threads should not be frozen during
-> > the suspend and the appended patch makes this happen, but then there is the
-> > question if they don't cause any data to be written to disks after the
-> > suspend image has been created, provided that all filesystems are frozen
-> > at that time.
+> In that case hrtimer_wakeup() does:
 > 
-> Looks okay to me. It would be nice to have someone (Ingo? Neil?) try
-> to suspend to swap on md......
+> 	timeout->task = NULL;		<----- [1]
+> 
+> 	spin_lock(runqueues->lock);
+> 
+> 	task->state = TASK_RUNNING;	<----- [2]
+> 
+> from Documentation/memory-barriers.txt
+> 
+> 	Memory operations that occur before a LOCK operation may appear to
+> 	happen after it completes.
+> 
+> This means that [2] may be completed before [1], and
 
-Yes... suspending to swap-on-md would probably be fairly easy.
-Resuming from that same swap might be a bit more of a challenge.
-If only I had more time...
+Yes. On x86 (and x86-64) you'll never see this, because writes are always 
+seen in order regardless, and in addition, the spin_lock is actually 
+totally serializing anyway. On most other architectures, the spin_lock 
+will serialize all the writes too, but it's not guaranteed, so in theory 
+you're right. I suspect no actual architecture will do this, but hey, 
+when talking memory ordering, safe is a lot better than sorry.
 
-but the patch looks good to me.  I'll see that it gets applied.
-Thanks,
+That said, since "task->state" in only tested _inside_ the runqueue lock, 
+there is no race that I can see. Since we've gotten the runqueue lock in 
+order to even check task-state, the processor that _sets_ task state must 
+not only have done the "spin_lock()", it must also have done the 
+"spin_unlock()", and _that_ will not allow either the timeout or the task 
+state to haev leaked out from under it (because that would imply that the 
+critical region leaked out too).
 
-NeilBrown
+So I don't think the race exists anyway - the schedule() will return 
+immediately (because it will see TASK_RUNNING), and we'll just retry.
 
+		Linus

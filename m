@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753331AbWKFQFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753087AbWKFQHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753331AbWKFQFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 11:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753357AbWKFQFZ
+	id S1753087AbWKFQHk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 11:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753338AbWKFQHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 11:05:25 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:47460 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1753331AbWKFQFY (ORCPT
+	Mon, 6 Nov 2006 11:07:40 -0500
+Received: from mail.tmr.com ([64.65.253.246]:60128 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S1753087AbWKFQHj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 11:05:24 -0500
-Date: Mon, 6 Nov 2006 17:07:31 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: SCSI over USB showstopper bug?
-Message-ID: <20061106160731.GZ13555@kernel.dk>
-References: <4547c966.8oyAB/pzCZ7bGUza%Joerg.Schilling@fokus.fraunhofer.de> <1162333090.3044.53.camel@laptopd505.fenrus.org> <4547e164.k3W0GpiCAd3p3Tkh%Joerg.Schilling@fokus.fraunhofer.de> <20061101153128.GM13555@kernel.dk> <4548e680.oVsI92sKYOz7VSzN%Joerg.Schilling@fokus.fraunhofer.de> <20061101183132.GO13555@kernel.dk> <454f5c12.CD9M9/FtHNVm1oDq%Joerg.Schilling@fokus.fraunhofer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <454f5c12.CD9M9/FtHNVm1oDq%Joerg.Schilling@fokus.fraunhofer.de>
+	Mon, 6 Nov 2006 11:07:39 -0500
+Message-ID: <454F5DCA.4070005@tmr.com>
+Date: Mon, 06 Nov 2006 11:07:38 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5
+MIME-Version: 1.0
+To: Daniel J Blueman <daniel.blueman@gmail.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, nfsv4@linux-nfs.org
+Subject: Re: Poor NFSv4 first impressions
+References: <6278d2220611060403j2b63cb9cl1d0707e7cf3d7899@mail.gmail.com>
+In-Reply-To: <6278d2220611060403j2b63cb9cl1d0707e7cf3d7899@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06 2006, Joerg Schilling wrote:
-> Jens Axboe <jens.axboe@oracle.com> wrote:
+Daniel J Blueman wrote:
+> Jeff Garzik wrote:
+>> Being a big user of NFS at home, and a big fan of NFSv4, it was high
+>> time that I converted my home network from NFSv3 to NFSv4.
+>>
+>> Unfortunately applications started breaking left and right.  vim
+>> noticeably malfunctioned, trying repeatedly to create a swapfile (sorta
+>> like a lockfile).  Mozilla Thunderbird would crash reproducibly whenever
+>> it tried anything remotely major with a mailbox, such as compressing
+>> folders (removing deleted messages).
+> [snip]
 > 
-> > > Then someone should change the source to match this statements.
-> > > 
-> > > From a report I have from the k3b Author, readcd and cdda2wav only work
-> > > if you add a "ts=128k" option. 
-> >
-> > Then please file (or have him/her file) a proper bug report. It may be a
-> > usb specific bug, or it may just be something else.
+> This has all the symptoms to an open EACCES NFSv4 bug in 2.6.18/19.
+> This is fixed in:
 > 
-> To me, it looks like a problem that happens with usb because there is 
-> no proper interaction with SG_?ET_RESETVED_SIZE and the usb layer.
+> http://www.citi.umich.edu/projects/nfsv4/linux/kernel-patches/2.6.19-rc3-2/linux-2.6.19-rc3-CITI_NFS4_ALL-2.diff 
+> 
+> (see http://www.citi.umich.edu/projects/nfsv4/linux/).
+> 
+> With this patch, I can run just great with NFSv4 home dir (etc)
+> mounts; without, I get the symptom of many 0-byte temporary/lock files
+> being created and often the inability to create files (!). Be sure to
+> allow callback delegation connections in through your firewall for the
+> extra performance ;-) .
+> 
+> Maybe it's too late for these fixes 2.6.19, but they should certainly
+> make 2.6.19.1 IMHO.
 
-The limits are communicated from the usb layer to the block layer via
-the SCSI layer, by setting proper limits in the scsi host adapter
-template. SCSI then informs the block layer, by setting the appropriate
-limits on the queue. Perhaps there's a usb-storage bug there, who knows,
-so far there's been no real info posted.
+If NFSv4 really works that poorly without the patches, perhaps they 
+should go in 2.6.19 at the start. I'm surprised others aren't having 
+this problem, I thought there was more test use.
 
-> I am still in hope that someone will fix this soon.
-
-Someone may very well fix it, but the odds of that happening when a real
-bug report exists is a lot bigger. Who reported this issue to you? Get
-him/her to file a proper bug report, as I wrote in my last mail as well.
 
 -- 
-Jens Axboe
-
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.

@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422874AbWKFAgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423101AbWKFBUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422874AbWKFAgw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 19:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422888AbWKFAgw
+	id S1423101AbWKFBUU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 20:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423105AbWKFBUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 19:36:52 -0500
-Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:12195 "EHLO
-	smtpq1.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S1422874AbWKFAgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 19:36:51 -0500
-Message-ID: <454E8379.1020100@keyaccess.nl>
-Date: Mon, 06 Nov 2006 01:36:09 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Sun, 5 Nov 2006 20:20:20 -0500
+Received: from mx2.suse.de ([195.135.220.15]:10146 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423101AbWKFBUS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 20:20:18 -0500
+From: Andi Kleen <ak@suse.de>
+To: alsa-devel@alsa-project.org
+Subject: double fault in 2.6.19rc4-git5 while unplugging/replugging a USB headset
+Date: Mon, 6 Nov 2006 02:20:06 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Kyle Moffett <mrmacman_g4@mac.com>,
-       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Albert Cahalan <acahalan@gmail.com>, kangur@polcom.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-References: <787b0d920611041159y6171ec25u92716777ce9bea4a@mail.gmail.com> <Pine.LNX.4.64.0611050034480.26021@artax.karlin.mff.cuni.cz> <AA4E0826-81F3-47AF-8C5E-D691BB02AB32@mac.com> <454E48D9.3060303@zytor.com> <454E575B.40403@keyaccess.nl> <454E5CDC.7000002@zytor.com>
-In-Reply-To: <454E5CDC.7000002@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Disposition: inline
+Message-Id: <200611060220.07024.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
 
-> Rene Herman wrote:
+FYI
 
->> For primary (and extended) partitions, yes. I haven't used any version 
->> of DOS that has ever objected to arbitrarily aligned partitions in the 
->> MBR (and I do align them arbitrarily since I always make my partitions 
->> some exact size and start the next partition in the next sector).
->>
->> Different though for logical partitions inside an extended. As late as 
->> Windows 98, DOS would object to non-aligned logicals, at the very 
->> least with some settings for the BIOS use/don't use LBA or "Large" 
->> settings.
->>
->> Linux doesn't care; I've used type 0x85 instead of 0x05 for my 
->> extended partitions dus to that for years. DOS just ignores that one...
->>
-> 
-> DOS, or FDISK?
+usb 5-2: USB disconnect, address 2
+ALSA /home/lsrc/quilt/linux/sound/usb/usbaudio.c:845: cannot submit datapipe for urb 0, error -19: no device
+[... repeated a lot ...]
+ACPI: PCI interrupt for device 0000:00:1b.0 disabled
+usb 5-2: new full speed USB device using uhci_hcd and address 3
+usb 5-2: configuration #1 chosen from 1 choice
+input: C-Media USB Headphone Set   as /class/input/input3
+input: USB HID v1.00 Device [C-Media USB Headphone Set  ] on usb-0000:00:1d.3-2
+usb 5-2: USB disconnect, address 3
+Unable to handle kernel paging request at ffffffff880e57d4 RIP: 
+ [<ffffffff880e57d4>]
+PGD 203027 PUD 205027 PMD 7f41e067 PTE 0
+Oops: 0010 [1] SMP 
+CPU 0 
+Modules linked in: snd_pcm_oss snd_mixer_oss snd_seq snd_atiixp snd_ac97_codec snd_ac97_bus speedstep_centrino pppoe pppox ppp_generic slhc ipt_MASQUERADE iptable_nat ip_nat_h323 ip_conntrack_h323 ip_nat_sip ip_conntrack_sip ip_nat_ftp ip_nat_irc i2c_isa ip_nat ip6t_LOG ip6t_REJECT ip6table_filter ip6_tables xt_tcpudp xt_state ip_conntrack_ftp ip_conntrack_irc ip_conntrack ipt_LOG ipt_REJECT iptable_filter ip_tables x_tables pl2303 snd_usb_audio snd_pcm snd_timer snd_page_alloc snd_usb_lib snd_rawmidi snd_seq_device snd_hwdep snd usbserial i2c_i801 i2c_core
+Pid: 8104, comm: xmms Not tainted 2.6.19-rc4-git5-BASIL #99
+RIP: 0010:[<ffffffff880e57d4>]  [<ffffffff880e57d4>]
+RSP: 0018:ffff81004730fd50  EFLAGS: 00010286
+RAX: ffffffff880e57d4 RBX: ffff810075368000 RCX: 0000000000000000
+RDX: 000000000000001d RSI: 0000000000000002 RDI: ffff810075368230
+RBP: ffff810075368230 R08: ffff81007a5711f0 R09: ffff81005e5345c0
+R10: 00000000454e8c24 R11: ffff81007bd030b8 R12: 00000000000001f8
+R13: ffff810057422460 R14: ffff810045b7a5c0 R15: ffff81007a4b9080
+FS:  0000000000000000(0000) GS:ffffffff80662000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: ffffffff880e57d4 CR3: 0000000000201000 CR4: 00000000000006e0
+Process xmms (pid: 8104, threadinfo ffff81004730e000, task ffff810076fee180)
+Stack:  ffffffff880a2cd6 0000000000000000 0000000000000001 ffff81007604bcf0
+ ffffffff8024c42b 0000000000000000 ffffffff8058b290 0000001f45880508
+ ffff810001f3fe50 0000000300000000 ffff81007a5711e8 0000000000000000
+Call Trace:
+ [<ffffffff880a2cd6>] :snd_mixer_oss:snd_mixer_oss_notify_handler+0x23e/0x271
+ [<ffffffff8024c42b>] free_pages_bulk+0x2c/0x1f4
+ [<ffffffff802229d2>] __wake_up+0x36/0x4d
+ [<ffffffff880166d7>] :snd:snd_card_do_free+0x17/0xe4
+ [<ffffffff88016e3d>] :snd:snd_card_file_remove+0xfd/0x135
+ [<ffffffff88041fc7>] :snd_pcm:snd_pcm_release+0xb6/0xc1
+ [<ffffffff8026745a>] __fput+0xac/0x18a
+ [<ffffffff802653d4>] filp_close+0x5c/0x64
+ [<ffffffff8022a913>] put_files_struct+0x6b/0xbd
+ [<ffffffff8022ba84>] do_exit+0x233/0x814
+ [<ffffffff8022c0eb>] sys_exit_group+0x0/0xe
+ [<ffffffff802093fe>] system_call+0x7e/0x83
 
-DOS. It was something like DOS accepting the non cylinder-aligned 
-logical but then proceding as if it were cylinder aligned anyway, 
-rounding the starting sector down. This obviously is not good.
 
-Also see the "--DOS-extended" comment in the sfdisk man page. Since I do 
-remember differences when using different "Large" CHSs in the BIOS, for 
-all I remember I was experiencing that problem when I ran into it. If 
-so, the DOS underlying Windows 98 is among the "some versions".
+Code:  Bad RIP value.
+RIP  [<ffffffff880e57d4>]
+ RSP <ffff81004730fd50>
+CR2: ffffffff880e57d4
+ <1>Fixing recursive fault but reboot is needed!
 
-In any case, yes, non-cylinder aligned logical partitions (for whichever 
-defintion of "aligned" fits DOS' idea of the geometry) really do cause 
-trouble.
-
-The DR-DOS (-> Novel DOS -> Caldera OpenDOS) warning in that manpage 
-seems to imply that cylinder alignment was a good idea for all 
-partitions seen by it, and I do remember it being a pain in that regard 
-as well. Guess it's pretty safe to not care about DR-DOS anymore though.
-
-Rene.
+-Andi

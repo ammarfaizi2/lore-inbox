@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753606AbWKFW6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753907AbWKFXFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753606AbWKFW6L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 17:58:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753905AbWKFW6K
+	id S1753907AbWKFXFa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 18:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753908AbWKFXFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 17:58:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41859 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753606AbWKFW6J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 17:58:09 -0500
-Date: Mon, 6 Nov 2006 14:57:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br
-Subject: Re: + net-uninline-skb_put.patch added to -mm tree
-Message-Id: <20061106145757.8f59caa8.akpm@osdl.org>
-In-Reply-To: <20061106.144233.23011532.davem@davemloft.net>
-References: <200611032218.kA3MITih003548@shell0.pdx.osdl.net>
-	<20061106.144233.23011532.davem@davemloft.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Nov 2006 18:05:30 -0500
+Received: from kilderkin.sout.netline.net.uk ([213.40.66.40]:12787 "EHLO
+	kilderkin.sout.netline.net.uk") by vger.kernel.org with ESMTP
+	id S1753907AbWKFXFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 18:05:30 -0500
+Message-ID: <454FBFB7.10102@supanet.com>
+Date: Mon, 06 Nov 2006 23:05:27 +0000
+From: Andrew Benton <b3nt@supanet.com>
+User-Agent: Thunderbird 3.0a1 (X11/20061019)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19 Microcode Update causes a ten second wait
+References: <454FAA44.1080000@supanet.com> <1162850624.3138.83.camel@laptopd505.fenrus.org>
+In-Reply-To: <1162850624.3138.83.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Supanet-AV-out: Mail Scanned as virus free, although you should still use a local virus scanner.
+X-Supanet: This was sent via a www.supanet.com mail server
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Nov 2006 14:42:33 -0800 (PST)
-David Miller <davem@davemloft.net> wrote:
+Arjan van de Ven wrote:
+> you're lucky, for me it hangs forever until I add this patch:
+> 
+> --- linux-2.6.18/arch/i386/kernel/microcode.c.org	2006-11-06 14:50:37.000000000 +0100
+> +++ linux-2.6.18/arch/i386/kernel/microcode.c	2006-11-06 14:52:30.000000000 +0100
+> @@ -577,7 +577,7 @@ static void microcode_init_cpu(int cpu)
+>  	set_cpus_allowed(current, cpumask_of_cpu(cpu));
+>  	mutex_lock(&microcode_mutex);
+>  	collect_cpu_info(cpu);
+> -	if (uci->valid)
+> +	if (uci->valid && system_state==SYSTEM_RUNNING)
+>  		cpu_request_microcode(cpu);
+>  	mutex_unlock(&microcode_mutex);
+>  	set_cpus_allowed(current, old);
+> 
 
-> From: akpm@osdl.org
-> Date: Fri, 03 Nov 2006 14:18:29 -0800
-> 
-> > Subject: net: uninline skb_put()
-> > From: Andrew Morton <akpm@osdl.org>
-> > 
-> > It has 34 callsites for a total of 2650 bytes.
-> > 
-> > Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-> > Signed-off-by: Andrew Morton <akpm@osdl.org>
-> 
-> A more accurate figure would probably be:
-> 
-> davem@sunset:~/src/GIT/net-2.6$ git grep skb_put | grep -v __skb_put | wc -l
-> 1167
-> 
-> :-)
+Thanks, that patch fixes the problem for me.
 
-True.  I'm not sure what .config Arnaldo was using..
+Andy
 
-> Half of the cost of this interface are the assertions, which while
-> useful are obviously over the top for such an oft-used routine in
-> packet processing.
-> 
-> Without the assertion checks it's merely:
-> 
-> 	unsigned char *tmp = skb->tail;
-> 	skb->tail += len;
-> 	skb->len  += len;
-> 	return tmp;
-> 
-> And even with 1167 call sites that is definitely something which
-> should be inlined.
-
-Yes.
-
-Tricky.  I guess one suitable approach would be to create a standalone
-skb-debugging config option.  There's quite a lot of debug stuff in there
-which could be made conditional on that option.
-
-But otoh, skb-debugging finds bugs.

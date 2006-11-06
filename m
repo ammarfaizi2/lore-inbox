@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423563AbWKFGHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932596AbWKFGPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423563AbWKFGHH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 01:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423564AbWKFGHH
+	id S932596AbWKFGPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 01:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWKFGPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 01:07:07 -0500
-Received: from nz-out-0102.google.com ([64.233.162.202]:5540 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1423563AbWKFGHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 01:07:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=CZU3nJ74cfnHWlkHGe2bM+071avJ1rC09qWkBe7J2FRaQcQ6F8C9qHT7Hxxvq5bmJT5hwJNELU/Bz6AJQirGEi2DRrLvchM9srEqldBYcwoCpWhzgTHrWz4/X4q+SvC0PFb3QFYbRmLxtVXqH8Ig5T97U9wmfgHDaowu7sTwjls=
-Message-ID: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
-Date: Mon, 6 Nov 2006 14:07:02 +0800
-From: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: ZONE_NORMAL memory exhausted by 4000 TCP sockets
+	Mon, 6 Nov 2006 01:15:25 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:20461 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932596AbWKFGPZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 01:15:25 -0500
+Message-ID: <454ED2F8.9050608@garzik.org>
+Date: Mon, 06 Nov 2006 01:15:20 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Poor NFSv4 first impressions
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dears,
-    I'm running a linux box with kernel version 2.6.16. The hardware
-has 2 Woodcrest Xeon CPUs (2 cores each) and 4G RAM. The NIC cards is
-Intel 82571 on PCI-e bus.
-    The box is acting as ethernet bridge between 2 Gigabit Ethernets.
-By configuring ebtables and iptables, an application is running as TCP
-proxy which will intercept all TCP connections requests from the
-network and setup another TCP connection to the acture server.  The
-TCP proxy then relays all traffics in both directions.
-    The problem is the memory. Since the box must support thousands of
-concurrent connections, I know the memory size of ZONE_NORMAL would be
-a bottleneck as TCP packets would need many buffers. After setting
-upper limit of net.ipv4.tcp_rmem and net.ipv4.tcp_wmem to 32K bytes,
-our test began.
-    My test scenario employs 2000 concurrent downloading connections
-to a IIS server's port 80. The throughput is about 500~600 Mbps which
-is limited by the capability of the client application. Because all
-traffics are from server to client and the capability of client
-machine is bottleneck, I believe the receiver side of the sockets
-connected with server and the sender side of the sockets connected
-with client should be filled with packets in correspondent windows.
-Thus, roughly there should be about 32K * 2000+ 32K*2000 = 128M bytes
-memory occupied by TCP/IP stack for packet buffering. Data from
-slabtop confermed it. it's about 140M bytes memory cost after I start
-the traffic. That reasonablly matched with my estimation. However,
-/proc/meminfo had a different story. The 'LowFree' dropped from about
-710M to 80M. In other words, there's addtional 500M memory in
-ZONE_NORMAL allocated by someone other than the slab. Why?
-   I also made another test that the upper limit of tcp_rmem and
-tcp_wmem being set to 64K. After 2000 connections transfering a lot of
-data for several seconds, the linux box showed some error messages
-such as error allocating memory pages, etc. and became unstable.
-   My questions are:
+Being a big user of NFS at home, and a big fan of NFSv4, it was high 
+time that I converted my home network from NFSv3 to NFSv4.
 
-1. To calculate memory request of TCP sockets, is there any other
-large amount of memory requested besides send and receive buffer?
-2. Is there any logics that emploied by TCP/IP stack that will
-dynamically allocating memory pages directly instead of from slab?
+Unfortunately applications started breaking left and right.  vim 
+noticeably malfunctioned, trying repeatedly to create a swapfile (sorta 
+like a lockfile).  Mozilla Thunderbird would crash reproducibly whenever 
+it tried anything remotely major with a mailbox, such as compressing 
+folders (removing deleted messages).
 
-Thanks!
+Both NFSv4 server and NFSv4 client were x86-64 Linux boxes, running 
+hyper-recent kernel 2.6.19-rc4-g10b1fbdb 
+(10b1fbdb0a0ca91847a534ad26d0bc250c25b74f).  FC5 userland on the server, 
+FC6 userland on the client.  There were no other clients connected to 
+the NFS server, much less using my NFS homedir.  This data was not being 
+accessed on the server directly, either.
 
-Xiaoming.
+/etc/exports contains:
+/g 
+10.10.10.0/255.255.255.0(rw,fsid=0,insecure,no_subtree_check,no_root_squash)
+
+NFSv4 /etc/fstab line:
+pretzel:/       /g      nfs4    defaults,proto=tcp,hard,intr    0 0
+
+NFSv3 (previous) /etc/fstab line for same file server:
+pretzel:/g              /g              nfs     defaults,tcp    0 0
+
+
+I hope this is just a temporary problem, but as it looks right now, 
+NFSv4 isn't ready for prime time, with all these apps breaking :/
+
+	Jeff
+
+

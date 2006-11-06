@@ -1,65 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753529AbWKFRc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753583AbWKFRf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753529AbWKFRc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 12:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753534AbWKFRc2
+	id S1753583AbWKFRf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 12:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753568AbWKFRf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 12:32:28 -0500
-Received: from nsm.pl ([195.34.211.229]:20413 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S1753529AbWKFRc2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 12:32:28 -0500
-Date: Mon, 6 Nov 2006 18:32:11 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-ID: <20061106173211.GA8512@irc.pl>
-Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
-References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061106132903.GA25257@khazad-dum.debian.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
+	Mon, 6 Nov 2006 12:35:28 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12306 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1753560AbWKFRf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 12:35:27 -0500
+Date: Mon, 6 Nov 2006 18:35:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Jones <davej@redhat.com>, Christian <christiand59@web.de>,
+       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, cpufreq@lists.linux.org.uk
+Subject: Re: [discuss] Linux 2.6.19-rc4: known unfixed regressions (v2)
+Message-ID: <20061106173528.GQ5778@stusta.de>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <454AFD01.4080306@linux.intel.com> <20061103155656.GA1000@redhat.com> <200611051832.13285.christiand59@web.de> <20061105200448.GE859@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061106132903.GA25257@khazad-dum.debian.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061105200448.GE859@redhat.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Nov 05, 2006 at 03:04:48PM -0500, Dave Jones wrote:
+> On Sun, Nov 05, 2006 at 06:32:12PM +0100, Christian wrote:
+>  > Am Freitag, 3. November 2006 16:56 schrieb Dave Jones:
+>  > > On Fri, Nov 03, 2006 at 11:25:37AM +0300, Alexey Starikovskiy wrote:
+>  > >  > Could this be a problem?
+>  > >  > --------------------
+>  > >  > ...
+>  > >  > CONFIG_ACPI_PROCESSOR=m
+>  > >  > ...
+>  > >  > CONFIG_X86_POWERNOW_K8=y
+>  > >
+>  > > Hmm, possibly.  Christian, does it work again if you set them both to =y ?
+>  > 
+>  > Yes, it works now! Only the change to CONFIG_ACPI_PROCESSOR=y made it work 
+>  > again!
+> 
+> So, the reasoning behind this, is that we have this construct..
+> 
+> config X86_POWERNOW_K8_ACPI
+>     bool
+>     depends on X86_POWERNOW_K8 && ACPI_PROCESSOR
+>     depends on !(X86_POWERNOW_K8 = y && ACPI_PROCESSOR = m)
+>     default y
+> 
+> 
+> Which makes us use the ACPI stuff if it's there, otherwise not,
+> and in your case, it seems your system _needs_ this enabled
+> to make powernow work.
+> 
+> Thing is, this was there in 2.6.18 too, so strictly speaking,
+> we haven't regressed here, and you're getting exactly what you asked for.
+> The problem is that it's completely silent as to why it then fails.
+> 
+> I'm open to improvements, but I'm not sure what the right thing to do
+> here is.. opinions ?
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The extreme solution would be
 
-On Mon, Nov 06, 2006 at 11:29:03AM -0200, Henrique de Moraes Holschuh wrote:
-> > > > There is a bug here in that acpiphp shouldn't even be used on the X=
-60 -
-> > > > it has no hotpluggable slots.
->=20
-> What about the internal mini PCI express slots (where the Intel 3945ABG
-> device and EVDO wwwan cards are plugged)?
+config X86_POWERNOW_K8
+        tristate "AMD Opteron/Athlon64 PowerNow!"
+        select CPU_FREQ_TABLE
+        depends ACPI_PROCESSOR
 
-  EVDO is connected to USB. At least it works with usb-serial (after
-manually binding IDs). Works =3D=3D responds to Hayes commands, I didn't
-tried with SIM Card yet.
+A medium solution might be
 
---=20
-Tomasz Torcz               RIP is irrevelant. Spoofing is futile.
-zdzichu@irc.-nie.spam-.pl     Your routes will be aggreggated. -- Alex Yuri=
-ev
+config X86_POWERNOW_K8
+        tristate "AMD Opteron/Athlon64 PowerNow!"
+        select CPU_FREQ_TABLE
+	depends (ACPI_PROCESSOR || ACPI_PROCESSOR=n)
 
+But in the end, the best solution depends on how many percent of the 
+X86_POWERNOW_K8 users have Christian's problem of requiring 
+ACPI_PROCESSOR. If there are only very few people with this problem, I'd 
+say leave it as it is.
 
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> 	Dave
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
+cu
+Adrian
 
-iD8DBQFFT3Gb10UJr+75NrkRAq29AJ99+fd/haEAOeRQtMeLt9bNlf+3xwCffuyn
-sM0gG6SJC4U4No6tkVwAzto=
-=32SB
------END PGP SIGNATURE-----
+-- 
 
---0OAP2g/MAC+5xKAE--
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

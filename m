@@ -1,85 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWKFU4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753789AbWKFU4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWKFU4J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753789AbWKFU4J
+	id S1753789AbWKFU4W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:56:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753803AbWKFU4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:56:09 -0500
-Received: from smtp-out.google.com ([216.239.33.17]:15901 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750724AbWKFU4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:56:08 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=UfGWQ8u1zdyqpvAROw7EH+mwV54IIAzkPu8RvIatz+xNJUH6GDTVl1bRPQ8Ko/1M6
-	/oo/EDMfz5ldZxpg4i/BQ==
-Message-ID: <6599ad830611061255u458a795bpca1c360cb93f253@mail.gmail.com>
-Date: Mon, 6 Nov 2006 12:55:53 -0800
-From: "Paul Menage" <menage@google.com>
-To: balbir@in.ibm.com
-Subject: Re: [ckrm-tech] [PATCH 2/6] Cpusets hooked into containers
-Cc: sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, jlan@sgi.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, pj@sgi.com,
-       mbligh@google.com, winget@google.com, rohitseth@google.com
-In-Reply-To: <454ED769.8040302@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 6 Nov 2006 15:56:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:33713 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1753789AbWKFU4U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 15:56:20 -0500
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
+	that offer x86 compatability
+From: Jeff Layton <jlayton@redhat.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <454F9BB3.6020004@cosmosbay.com>
+References: <1162836725.6952.28.camel@dantu.rdu.redhat.com>
+	 <20061106182222.GO27140@parisc-linux.org>
+	 <1162838843.12129.8.camel@dantu.rdu.redhat.com>
+	 <20061106202313.GA691@wohnheim.fh-wedel.de>
+	 <454F9BB3.6020004@cosmosbay.com>
+Content-Type: text/plain
+Date: Mon, 06 Nov 2006 15:56:11 -0500
+Message-Id: <1162846571.2618.0.camel@tleilax.poochiereds.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061020183819.656586000@menage.corp.google.com>
-	 <20061020190626.810567000@menage.corp.google.com>
-	 <454ED769.8040302@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/5/06, Balbir Singh <balbir@in.ibm.com> wrote:
->
-> I needed the following patches to get the cpuset code to compile.
-> Inlining two patches makes it hard to distinguish between the patches
-> and harder to read them, so I am attaching them along with this email.
+On Mon, 2006-11-06 at 21:31 +0100, Eric Dumazet wrote:
+> > 
+> > Also, do you have a testcase that can actually force the wrap?
+> 
+> while (1) {
+> 	int fd[2];
+> 	pipe(fd);
+> 	close(fd[0]);
+> 	close(fd[1]);
+> }
+> 
 
-The first I missed due to not compiling with CONFIG_HOTPLUG_* - thanks
-for the patch.
+Yep, add an fstat(fd[0]) before the closes and you essentially have the
+reproducer I was given for this.
+-- Jeff
 
-For the second, the following change to fs/proc/base.c should have
-appeared in cpusets_using_containers.patch, but got left out due to
-quilt misusage. It basically makes "cpuset" an alias for "container"
-in the relevant /proc directories if CONFIG_CPUSETS_LEGACY_API is
-defined.
 
---- container-2.6.19-rc2.orig/fs/proc/base.c
-+++ container-2.6.19-rc2/fs/proc/base.c
-@@ -69,7 +69,6 @@
- #include <linux/ptrace.h>
- #include <linux/seccomp.h>
- #include <linux/container.h>
--#include <linux/cpuset.h>
- #include <linux/audit.h>
- #include <linux/poll.h>
- #include <linux/nsproxy.h>
-@@ -1784,8 +1783,8 @@ static struct pid_entry tgid_base_stuff[
- #ifdef CONFIG_CONTAINERS
- 	REG("container",  S_IRUGO, container),
- #endif
--#ifdef CONFIG_CPUSETS
--	REG("cpuset",     S_IRUGO, cpuset),
-+#ifdef CONFIG_CPUSETS_LEGACY_API
-+	REG("cpuset",     S_IRUGO, container),
- #endif
- 	INF("oom_score",  S_IRUGO, oom_score),
- 	REG("oom_adj",    S_IRUGO|S_IWUSR, oom_adjust),
-@@ -2061,8 +2060,8 @@ static struct pid_entry tid_base_stuff[]
- #ifdef CONFIG_CONTAINERS
- 	REG("container",  S_IRUGO, container),
- #endif
--#ifdef CONFIG_CPUSETS
--	REG("cpuset",    S_IRUGO, cpuset),
-+#ifdef CONFIG_CPUSETS_LEGACY_API
-+	REG("cpuset",    S_IRUGO, container),
- #endif
- 	INF("oom_score", S_IRUGO, oom_score),
- 	REG("oom_adj",   S_IRUGO|S_IWUSR, oom_adjust),
-
-Paul

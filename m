@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753177AbWKFULY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753197AbWKFUMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753177AbWKFULY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753179AbWKFULY
+	id S1753197AbWKFUMz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753179AbWKFUMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:11:24 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:44465 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S1753054AbWKFULX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:11:23 -0500
-Date: Mon, 6 Nov 2006 14:11:22 -0600
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: akpm@osdl.org, jens.axboe@oracle.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 1/12] repost: cciss: version change
-Message-ID: <20061106201122.GA17847@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Mon, 6 Nov 2006 15:12:55 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17355 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1753197AbWKFUMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 15:12:55 -0500
+Date: Mon, 6 Nov 2006 12:12:50 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Avoid allocating during interleave from almost full nodes
+In-Reply-To: <20061106115925.1dd41a77.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0611061207310.26685@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+ <20061103134633.a815c7b3.akpm@osdl.org> <Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
+ <20061103143145.85a9c63f.akpm@osdl.org> <Pine.LNX.4.64.0611031622540.16997@schroedinger.engr.sgi.com>
+ <20061103165854.0f3e77ad.akpm@osdl.org> <Pine.LNX.4.64.0611060846070.25351@schroedinger.engr.sgi.com>
+ <20061106115925.1dd41a77.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PATCH 1/12
-Per Jens' request this is a repost of the complete patch set from last week. 
+On Mon, 6 Nov 2006, Andrew Morton wrote:
 
-This patch changes the cciss version number to 3.6.14 to reflect the following
-functionality changes added by the rest of the set. They include:
+> > It should do interleaving because the data is to be accessed from multiple 
+> > nodes.
+> 
+> I think you missed the point.
+> 
+> At present the code does interleaving by taking one page from each zone and
+> then advancing onto the next zone, yes?
 
-Support to fire up on any HP RAID class controller
-Increase nr_cmds to 512 for most controllers by adding it to the product table
-PCI subsystem ID fix fix was pulled
-Disable DMA prefetch for the P600 on IPF platforms
-Change from 512 to 2048 sector_size for performance
-Fix in cciss_open for consistency
-Remove the no longer used revalidate_allvol function
-Bug fix for busy configuring
-Support for more than 16 logical volumes
-Cleanups in cciss_interrupt_mode
-Fix for iostats, it's been broken for several kernel releases
+s/zone/node/ then yes (zone == node if we just have a single zone).
 
-Please consider this for inclusion.
+> If so, this is pretty awful frmo a cache utilsiation POV.  it'd be much
+> better to take 16 pages from one zone before advancing onto the next one.
 
-Thanks,
-mikem
+The L1/L2 cpu cache or the pageset hot / cold caches? Take N pages 
+from a node instead of 1? That would mean we need to have more complex 
+interleaving logic that keeps track of how many pages we took. The number 
+of pages to take will vary depending on the size of the shared data. For 
+shared data areas that are just a couple of pages this wont work.
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
+> > Clustering on a single node may create hotspots or imbalances. 
+> 
+> Umm, but that's exactly what the patch we're discussing will do.
 
---------------------------------------------------------------------------------
----
-
- drivers/block/cciss.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
-
-diff -puN drivers/block/cciss.c~cciss_3614_for_lx2619-rc2 drivers/block/cciss.c
---- linux-2.6/drivers/block/cciss.c~cciss_3614_for_lx2619-rc2	2006-11-06 13:15:02.000000000 -0600
-+++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:15:02.000000000 -0600
-@@ -47,14 +47,15 @@
- #include <linux/completion.h>
- 
- #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
--#define DRIVER_NAME "HP CISS Driver (v 3.6.10)"
--#define DRIVER_VERSION CCISS_DRIVER_VERSION(3,6,10)
-+#define DRIVER_NAME "HP CISS Driver (v 3.6.14)"
-+#define DRIVER_VERSION CCISS_DRIVER_VERSION(3,6,14)
- 
- /* Embedded module documentation macros - see modules.h */
- MODULE_AUTHOR("Hewlett-Packard Company");
--MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 3.6.10");
-+MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 3.6.14");
- MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"
- 			" SA6i P600 P800 P400 P400i E200 E200i E500");
-+MODULE_VERSION("3.6.14");
- MODULE_LICENSE("GPL");
- 
- #include "cciss_cmd.h"
-_
+Not if we have a set of remaining nodes.

@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753818AbWKFVWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753824AbWKFVXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753818AbWKFVWR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 16:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753823AbWKFVWR
+	id S1753824AbWKFVXH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 16:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753826AbWKFVXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 16:22:17 -0500
-Received: from mga03.intel.com ([143.182.124.21]:49002 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S1753818AbWKFVWQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 16:22:16 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,392,1157353200"; 
-   d="scan'208"; a="142079304:sNHT703055402"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Jens Axboe'" <jens.axboe@oracle.com>,
-       "Brent Baccala" <cosine@freesoft.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: async I/O seems to be blocking on 2.6.15
-Date: Mon, 6 Nov 2006 13:22:12 -0800
-Message-ID: <000001c701e9$a1435260$ff0da8c0@amr.corp.intel.com>
+	Mon, 6 Nov 2006 16:23:06 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:54242 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1753824AbWKFVXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 16:23:03 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=GAQZ1H8uvQ/9gn+vCbVFMep3cklcVgS4ymsNgTLnStqBsOGMQxUn1JeMaZCMXgNfX
+	gkXdE2VkONfgY/yz9NtHA==
+Message-ID: <6599ad830611061322r6d11ee38hf8748e3b34f22a0b@mail.gmail.com>
+Date: Mon, 6 Nov 2006 13:22:52 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [ckrm-tech] [PATCH 2/6] Cpusets hooked into containers
+Cc: balbir@in.ibm.com, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       jlan@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       mbligh@google.com, winget@google.com, rohitseth@google.com
+In-Reply-To: <20061106130921.7ed66fa5.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccA0+Q5yIwcnDocTMOzztS+KzaocABE/fOw
-In-Reply-To: <20061105121522.GC13555@kernel.dk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Disposition: inline
+References: <20061020183819.656586000@menage.corp.google.com>
+	 <20061020190626.810567000@menage.corp.google.com>
+	 <454ED769.8040302@in.ibm.com>
+	 <6599ad830611061255u458a795bpca1c360cb93f253@mail.gmail.com>
+	 <20061106130921.7ed66fa5.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote on Sunday, November 05, 2006 4:15 AM
-> On Fri, Nov 03 2006, Brent Baccala wrote:
-> > On Fri, 3 Nov 2006, Jens Axboe wrote:
-> > 
-> > >Try to time it (visual output of the app is not very telling, and it's
-> > >buffered) and then apply some profiling.
-> > 
-> > OK, a little more info.  I added gettimeofday() calls after each call
-> > to io_submit(), put the timevals in an array, and after everything was
-> > done computed the difference between each timeval and the program start
-> > time, as well as the deltas.  I got this:
-> > 
-> > 0: 0.080s
-> > 1: 0.086s  0.006s
-> > 2: 0.102s  0.016s
-> > 3: 0.111s  0.008s
-> > 4: 0.118s  0.007s
-> > 5: 0.134s  0.015s
-> > 6: 0.141s  0.006s
-> > 7: 0.148s  0.006s
-> > 8: 0.158s  0.009s
-> > 9: 0.164s  0.006s
-> > ...
-> > 96: 1.036s  0.007s
-> > 97: 1.044s  0.007s
-> > 98: 1.147s  0.102s
-> > 99: 1.155s  0.008s
-> > 
-> > 98 appears to be an aberration.  Perhaps three of the times on an
-> > average run are around a tenth of a second; all of the others are
-> > pretty steady at 7 or 8 microseconds.  So, it's basically linear in
-> > its time consumption.
-> > 
-> > Does 7 microseconds seem a bit excessive for an io_submit (and a
-> > gettimeofday)?
-> 
-> I guess you mean miliseconds, not microseconds. 7 miliseconds seems way
-> too long. I repeated your test here, and the 100 submits take 97000
-> microseconds here - or 97 miliseconds. So that's a little less than 1
-> msec per io_submit. Still pretty big. You can experiment with oprofile
-> to profile where the kernel spends its time in that period.
+On 11/6/06, Paul Jackson <pj@sgi.com> wrote:
+>
+> But I presume this CONFIG_CPUSETS_LEGACY_API option means I either
+> get to build a kernel that supports the new container API, or a kernel
+> that supports the old cpuset API.  That does not seem useful to me.
 
+No. The changes triggered by CONFIG_CPUSETS_LEGACY_API are:
 
-I've tried that myself too and see similar result.  One thing to note is
-that I/O being submitted are pretty big at 1MB, so the vector list inside
-bio is going to be pretty long and it will take a while to construct that.
-Drop the size for each I/O to something like 4KB will significantly reduce
-the time.  I haven't done the measurement whether the time to submit I/O
-grows linearly with respect to I/O size.  Most likely it will.  If it is
-not, then we might have a scaling problem (though I don't believe we have
-this problem).
+- /proc/<pid>/cpuset is an alias for /proc/<pid>/containers
+- a dummy "cpuset" filesystem exists
+- mounting the "cpuset" filesystem causes:
+  - the container filesystem to be mounted in its place
+  - the release agent to be switched to /sbin/cpuset_release_agent
+  - defaults the "cpuset" container type to be enabled
 
-- Ken
-
-
+Paul

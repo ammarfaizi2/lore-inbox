@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752787AbWKFMD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752790AbWKFMLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752787AbWKFMD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 07:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752790AbWKFMD4
+	id S1752790AbWKFMLi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 07:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752807AbWKFMLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 07:03:56 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:42933 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752787AbWKFMD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 07:03:56 -0500
+	Mon, 6 Nov 2006 07:11:38 -0500
+Received: from qb-out-0506.google.com ([72.14.204.231]:43555 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1752790AbWKFMLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 07:11:37 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=GLyyFm887gs/MFriC6IPqTZ4+vKXFr+t/6cihsBDuf8+Dkh+moAguSK/zNEbJci7mjZIeuV98WLOF90fv7sc+tlmTtEbMyvQyCAlWuNbnw+xoYVzuREWydaow1ludZo2eYCi5lPAxV2b5XIGdPwSbbQAb0YJnoR0VZBNeu69eiw=
-Message-ID: <6278d2220611060403j2b63cb9cl1d0707e7cf3d7899@mail.gmail.com>
-Date: Mon, 6 Nov 2006 12:03:54 +0000
-From: "Daniel J Blueman" <daniel.blueman@gmail.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Subject: Re: Poor NFSv4 first impressions
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>, nfsv4@linux-nfs.org
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=crim692H5vVKDCIXXm+ytv6PuZJWO5l1nnbewXdrzKbdPSbiVSVSRG5PQH1Mecxhe8WQ17TUMj8/RpUgFdQCHZ62wE1u/eeuMwKfdNKOz1Gov5W3jjeApk2ZkPc6bGSHSDLt/VmKIS463tfzzJb2dF+Mwbu7SUl4l8qQlT4ro1I=
+Message-ID: <f55850a70611060221m77194aa6k4c14d8509809e491@mail.gmail.com>
+Date: Mon, 6 Nov 2006 18:21:43 +0800
+From: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
+To: linux-kernel@vger.kernel.org, "Linux Netdev List" <netdev@vger.kernel.org>
+Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
+In-Reply-To: <f55850a70611060221y25528116pa1b73aa89008f906@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
+	 <1162807984.3160.188.camel@laptopd505.fenrus.org>
+	 <f55850a70611060221y25528116pa1b73aa89008f906@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Being a big user of NFS at home, and a big fan of NFSv4, it was high
-> time that I converted my home network from NFSv3 to NFSv4.
+32 bit.  Of course 64 bit kernel can help me overcome the 900M
+barrier. However, if I can't find the reason why so much memory
+getting 'lost', it will be difficult to support more heavy loadded
+concurrent TCP connections.
+
+> 2006/11/6, Arjan van de Ven <arjan@infradead.org>:
+> > On Mon, 2006-11-06 at 14:07 +0800, Zhao Xiaoming wrote:
+> > > Dears,
+> > >     I'm running a linux box with kernel version 2.6.16. The hardware
+> > > has 2 Woodcrest Xeon CPUs (2 cores each) and 4G RAM. The NIC cards is
+> > > Intel 82571 on PCI-e bus.
+> >
+> > are you using a 32 bit or a 64 bit OS?
+> >
+> >
+> >
 >
-> Unfortunately applications started breaking left and right.  vim
-> noticeably malfunctioned, trying repeatedly to create a swapfile (sorta
-> like a lockfile).  Mozilla Thunderbird would crash reproducibly whenever
-> it tried anything remotely major with a mailbox, such as compressing
-> folders (removing deleted messages).
-[snip]
-
-This has all the symptoms to an open EACCES NFSv4 bug in 2.6.18/19.
-This is fixed in:
-
-http://www.citi.umich.edu/projects/nfsv4/linux/kernel-patches/2.6.19-rc3-2/linux-2.6.19-rc3-CITI_NFS4_ALL-2.diff
-(see http://www.citi.umich.edu/projects/nfsv4/linux/).
-
-With this patch, I can run just great with NFSv4 home dir (etc)
-mounts; without, I get the symptom of many 0-byte temporary/lock files
-being created and often the inability to create files (!). Be sure to
-allow callback delegation connections in through your firewall for the
-extra performance ;-) .
-
-Maybe it's too late for these fixes 2.6.19, but they should certainly
-make 2.6.19.1 IMHO.
--- 
-Daniel J Blueman

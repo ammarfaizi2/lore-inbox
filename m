@@ -1,94 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753335AbWKFQEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753331AbWKFQFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753335AbWKFQEa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 11:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753331AbWKFQEa
+	id S1753331AbWKFQFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 11:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753357AbWKFQFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 11:04:30 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:54749 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1753335AbWKFQE3 (ORCPT
+	Mon, 6 Nov 2006 11:05:25 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:47460 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1753331AbWKFQFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 11:04:29 -0500
-Date: Mon, 6 Nov 2006 11:03:53 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 7/11] i386: Kallsyms generate relocatable symbols
-Message-ID: <20061106160353.GD26091@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061023192456.GA13263@in.ibm.com> <20061023193748.GH13263@in.ibm.com> <20061106154857.003dc9d9@cad-250-152.norway.atmel.com>
+	Mon, 6 Nov 2006 11:05:24 -0500
+Date: Mon, 6 Nov 2006 17:07:31 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: SCSI over USB showstopper bug?
+Message-ID: <20061106160731.GZ13555@kernel.dk>
+References: <4547c966.8oyAB/pzCZ7bGUza%Joerg.Schilling@fokus.fraunhofer.de> <1162333090.3044.53.camel@laptopd505.fenrus.org> <4547e164.k3W0GpiCAd3p3Tkh%Joerg.Schilling@fokus.fraunhofer.de> <20061101153128.GM13555@kernel.dk> <4548e680.oVsI92sKYOz7VSzN%Joerg.Schilling@fokus.fraunhofer.de> <20061101183132.GO13555@kernel.dk> <454f5c12.CD9M9/FtHNVm1oDq%Joerg.Schilling@fokus.fraunhofer.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061106154857.003dc9d9@cad-250-152.norway.atmel.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <454f5c12.CD9M9/FtHNVm1oDq%Joerg.Schilling@fokus.fraunhofer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06, 2006 at 03:48:57PM +0100, Haavard Skinnemoen wrote:
-> On Mon, 23 Oct 2006 15:37:48 -0400
-> Vivek Goyal <vgoyal@in.ibm.com> wrote:
+On Mon, Nov 06 2006, Joerg Schilling wrote:
+> Jens Axboe <jens.axboe@oracle.com> wrote:
 > 
-> > Add the _text symbol definitions to the architectures which don't
-> > define it otherwise linker will fail.
+> > > Then someone should change the source to match this statements.
+> > > 
+> > > From a report I have from the k3b Author, readcd and cdda2wav only work
+> > > if you add a "ts=128k" option. 
+> >
+> > Then please file (or have him/her file) a proper bug report. It may be a
+> > usb specific bug, or it may just be something else.
 > 
-> I get lots of this when building latest -mm for avr32:
-> 
-> .tmp_kallsyms2.S:643: Warning: right operand is a bignum; integer 0
-> assumed
-> 
-> Reverting this patch makes the warnings go away. I think it's
-> because on avr32, .init is the first section, not .text, so many of the
-> offsets become negative and kallsyms doesn't seem to handle this very
-> well. Here's a few lines from .tmp_kallsyms2.S:
-> 
-> kallsyms_addresses:
->         PTR     _text + 0xffffffffffff4000
->         PTR     _text + 0xffffffffffff4000
-> 
-> Any idea how to fix this? Could we introduce a new symbol that always
-> marks the start of the image perhaps?
->
+> To me, it looks like a problem that happens with usb because there is 
+> no proper interaction with SG_?ET_RESETVED_SIZE and the usb layer.
 
-Hi Haavard,
+The limits are communicated from the usb layer to the block layer via
+the SCSI layer, by setting proper limits in the scsi host adapter
+template. SCSI then informs the block layer, by setting the appropriate
+limits on the queue. Perhaps there's a usb-storage bug there, who knows,
+so far there's been no real info posted.
 
-Does the attached patch solve the issue for you?
+> I am still in hope that someone will fix this soon.
 
-Thanks
-Vivek
- 
+Someone may very well fix it, but the odds of that happening when a real
+bug report exists is a lot bigger. Who reported this issue to you? Get
+him/her to file a proper bug report, as I wrote in my last mail as well.
 
+-- 
+Jens Axboe
 
-o On some platforms like avr32, section init comes before .text and 
-  not necessarily a symbol's relative position w.r.t _text is positive. 
-  In such cases assembler detects the overflow and emits warning. This
-  patch fixes it.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- scripts/kallsyms.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff -puN scripts/kallsyms.c~i386-reloc-kallsyms-_text-symbol-relative-address-fix scripts/kallsyms.c
---- linux-2.6.19-rc4-reloc/scripts/kallsyms.c~i386-reloc-kallsyms-_text-symbol-relative-address-fix	2006-11-06 10:47:01.000000000 -0500
-+++ linux-2.6.19-rc4-reloc-root/scripts/kallsyms.c	2006-11-06 10:47:01.000000000 -0500
-@@ -277,8 +277,12 @@ static void write_src(void)
- 	output_label("kallsyms_addresses");
- 	for (i = 0; i < table_cnt; i++) {
- 		if (toupper(table[i].sym[0]) != 'A') {
--			printf("\tPTR\t_text + %#llx\n",
--				table[i].addr - _text);
-+			if (_text <= table[i].addr)
-+				printf("\tPTR\t_text + %#llx\n",
-+					table[i].addr - _text);
-+			else
-+				printf("\tPTR\t_text - %#llx\n",
-+					_text - table[i].addr);
- 		} else {
- 			printf("\tPTR\t%#llx\n", table[i].addr);
- 		}
-_

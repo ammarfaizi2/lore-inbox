@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753620AbWKFUiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753791AbWKFUkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753620AbWKFUiE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753786AbWKFUiE
+	id S1753791AbWKFUkR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753790AbWKFUkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:38:04 -0500
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:41830 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1753620AbWKFUiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:38:01 -0500
-X-IronPort-AV: i="4.09,392,1157353200"; 
-   d="scan'208"; a="86293665:sNHT46187199"
-To: Jason Baron <jbaron@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: locking hierarchy based on lockdep
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.64.0611061315380.29750@dhcp83-20.boston.redhat.com>
-	<20061106200529.GA15370@elte.hu> <adapsc0l40x.fsf@cisco.com>
-	<Pine.LNX.4.64.0611061519220.29750@dhcp83-20.boston.redhat.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 06 Nov 2006 12:37:56 -0800
-In-Reply-To: <Pine.LNX.4.64.0611061519220.29750@dhcp83-20.boston.redhat.com> (Jason Baron's message of "Mon, 6 Nov 2006 15:22:33 -0500 (EST)")
-Message-ID: <ada8xiol3a3.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 06 Nov 2006 20:37:56.0543 (UTC) FILETIME=[70D304F0:01C701E3]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Mon, 6 Nov 2006 15:40:17 -0500
+Received: from sp604003mt.neufgp.fr ([84.96.92.56]:47304 "EHLO smTp.neuf.fr")
+	by vger.kernel.org with ESMTP id S1753787AbWKFUkP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 15:40:15 -0500
+Date: Mon, 06 Nov 2006 21:31:47 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
+ that offer x86 compatability
+In-reply-to: <20061106202313.GA691@wohnheim.fh-wedel.de>
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Message-id: <454F9BB3.6020004@cosmosbay.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <1162836725.6952.28.camel@dantu.rdu.redhat.com>
+ <20061106182222.GO27140@parisc-linux.org>
+ <1162838843.12129.8.camel@dantu.rdu.redhat.com>
+ <20061106202313.GA691@wohnheim.fh-wedel.de>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > interesting...perhaps if we layered say the directory structure on the 
- > list too like by the top level kernel directories drivers, kernel, mm, 
- > net, etc. it might be more readable.
+Jörn Engel a écrit :
+> On Mon, 6 November 2006 13:47:23 -0500, Jeff Layton wrote:
+>> On Mon, 2006-11-06 at 11:22 -0700, Matthew Wilcox wrote:
+>>> On Mon, Nov 06, 2006 at 01:12:05PM -0500, Jeff Layton wrote:
+>>>> The attached patch remedies this by making the last_inode counter be an
+>>>> unsigned int on kernels that have ia32 compatability mode enabled.
+>>> ... and this only happens on ia64/x86_64 kernels, not sparc64, ppc64,
+>>> s390x, parisc64 or mips64?
+>> Here's a new (untested) patch that replaces the ia32 specific
+>> compatability mode defines with CONFIG_COMPAT, as suggested by Matthew.
+> 
+> While you're at it, how about making last_ino per-sb instead of
+> system-wide?  ino collisions after a wrap are just as bad as inos
+> beyond 32bit.  And this should be a fairly simple method to reduce the
+> risk.
+> 
+> Also, do you have a testcase that can actually force the wrap?
 
-I'm not sure that you need to do something manual or ad hoc like that,
-although it might be necessary in the end.  I'd be curious to see how
-the list of locks partitions up if you just divide it up into groups
-of locks that have some relationship.  I guess the question is, if you
-draw the graph whose nodes are locks and whose edges connect locks
-that are held together, how many connected pieces does that graph have?
+while (1) {
+	int fd[2];
+	pipe(fd);
+	close(fd[0]);
+	close(fd[1]);
+}
 
- - R.
+

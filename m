@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751975AbWKFLJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752254AbWKFLLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751975AbWKFLJE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 06:09:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752305AbWKFLJD
+	id S1752254AbWKFLLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 06:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752274AbWKFLLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 06:09:03 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:26701 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751975AbWKFLJC (ORCPT
+	Mon, 6 Nov 2006 06:11:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8403 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752254AbWKFLLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 06:09:02 -0500
-Message-ID: <454F17AC.8010003@sw.ru>
-Date: Mon, 06 Nov 2006 14:08:28 +0300
-From: Vasily Averin <vvs@sw.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Matthew Wilcox <willy@debian.org>
-CC: Andy Whitcroft <apw@shadowen.org>, reiserfs-dev@namesys.com,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: [PATCH 2.6.19-rc4] Documentation: remount_fs() needs lock_kernel
-References: <20061101235407.a92f94a5.akpm@osdl.org>	<454B5B56.4090307@shadowen.org> <20061103110210.08169843.akpm@osdl.org> <454F16ED.7060204@sw.ru>
-In-Reply-To: <454F16ED.7060204@sw.ru>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 6 Nov 2006 06:11:06 -0500
+Subject: [GFS2 & DLM] Pull request
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, cluster-devel@redhat.com
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 06 Nov 2006 11:13:14 +0000
+Message-Id: <1162811594.18219.38.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:	Vasily Averin <vvs@sw.ru>
+Hi,
 
-fixed long-lived typo: remount_fs() needs BKL
+Please consider pulling the following GFS2 & DLM bug fixes,
 
-Signed-off-by:	Vasily Averin <vvs@sw.ru>
+Steve.
 
---- linux-2.6.19-rc4/Documentation/filesystems/Locking.umntlk	2006-11-02
-13:25:04.000000000 +0300
-+++ linux-2.6.19-rc4/Documentation/filesystems/Locking	2006-11-06
-13:22:35.000000000 +0300
-@@ -124,7 +124,7 @@ sync_fs:		no	no	read
- write_super_lockfs:	?
- unlockfs:		?
- statfs:			no	no	no
--remount_fs:		no	yes	maybe		(see below)
-+remount_fs:		yes	yes	maybe		(see below)
- clear_inode:		no
- umount_begin:		yes	no	no
- show_options:		no				(vfsmount->sem)
+The following changes since commit d1ed6a3ea10aa7b199c434f6ffd1b6761896567a:
+  Linus Torvalds:
+        Merge master.kernel.org:/.../davem/net-2.6
+
+are found in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6-fixes.git
+
+Alexey Dobriyan:
+      [GFS2] don't panic needlessly
+
+Patrick Caulfield:
+      [DLM] Fix kref_put oops
+      [DLM] fix oops in kref_put when removing a lockspace
+
+Steven Whitehouse:
+      [GFS2] Fix incorrect fs sync behaviour.
+      [GFS2] Fix OOM error handling
+
+ fs/dlm/lockspace.c  |   14 +++++++++++++-
+ fs/gfs2/inode.c     |    3 +++
+ fs/gfs2/main.c      |    4 ++--
+ fs/gfs2/ops_super.c |   44 ++++++++++++++++++++++++++++----------------
+ 4 files changed, 46 insertions(+), 19 deletions(-)
 
 

@@ -1,105 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753882AbWKFW2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753881AbWKFW17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753882AbWKFW2f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 17:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753879AbWKFW2f
+	id S1753881AbWKFW17 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 17:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753879AbWKFW17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 17:28:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31387 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1753875AbWKFW2e (ORCPT
+	Mon, 6 Nov 2006 17:27:59 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:64961 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1753878AbWKFW16 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 17:28:34 -0500
-Message-ID: <454FB710.2030108@redhat.com>
-Date: Mon, 06 Nov 2006 16:28:32 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: [PATCH] - catch blocks beyond pagecache limit in __getblk_slow
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 6 Nov 2006 17:27:58 -0500
+Subject: Re: [RFC/PATCH] - revert generic_fillattr stat->blksize to
+	PAGE_CACHE_SIZE
+From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+To: Eric Sandeen <sandeen@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       Theodore Tso <tytso@mit.edu>, Steve French <smfltc@us.ibm.com>
+In-Reply-To: <454FAE0A.3070409@redhat.com>
+References: <454FAE0A.3070409@redhat.com>
+Content-Type: text/plain
+Date: Mon, 06 Nov 2006 16:27:48 -0600
+Message-Id: <1162852069.11030.70.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=206328
+On Mon, 2006-11-06 at 15:50 -0600, Eric Sandeen wrote:
+> The inode diet patches first did this to generic_fillattr():
+> 
+> -	stat->blksize = inode->i_blksize;
+> +	stat->blksize = PAGE_CACHE_SIZE;
+> 
+> but by 2.6.19-rc3 this was changed again:
+> 
+> -	stat->blksize = PAGE_CACHE_SIZE;
+> +	stat->blksize = (1 << inode->i_blkbits);
+> 
+> I can't find for sure why this was done; perhaps because it exposed a bug
+> in cifs[1]
 
-has a nice analysis of what can go wrong when we try to read blocks which
-are at extremely high offsets, when our sector_t is 64 bits but our pgoff_t
-is only 32.  The cases in question that I've seen are the result of filesystem
-corruption.
+Steve has fixed the bug in cifs_readdir().
 
-In short, __getblk_slow() loops until it gets a buffer head.
+> However, if we are going to pick a default for generic_fillattr, it should probably
+> be what most filesystems were using before, and let filesystems which need something
+> else re-set it to according to their needs.  As it stands today, doing readdirs and
+> the like in block-sized chunks rather than page sized will probably not be the
+> best thing for performance.
 
-        for (;;) {
-                struct buffer_head * bh;
+I agree.
 
-                bh = __find_get_block(bdev, block, size);
-                if (bh)
-                        return bh;
+> 
+> so I would propose the following patch to make PAGE_CACHE_SIZE the default (again), 
+> and let filesystems which need something -else- do that on their own.
+> 
+> [1] http://lists.samba.org/archive/linux-cifs-client/2006-September/001481.html
+> 
+> Thanks,
+> -Eric
+> 
+> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+> 
+> --- linux.orig/fs/stat.c	2006-11-05 23:27:04.962482569 -0600
+> +++ linux/fs/stat.c	2006-11-05 23:27:29.394396050 -0600
+> @@ -33,7 +33,7 @@
+>   	stat->ctime = inode->i_ctime;
+>   	stat->size = i_size_read(inode);
+>   	stat->blocks = inode->i_blocks;
+> -	stat->blksize = (1 << inode->i_blkbits);
+> +	stat->blksize = PAGE_CACHE_SIZE;
+>   }
+> 
+>   EXPORT_SYMBOL(generic_fillattr);
 
-                if (!grow_buffers(bdev, block, size))
-                        free_more_memory();
-        }
+Looks good.  Since cifs is affected by this patch, I propose that cifs
+explicitly set stat->blksize:
 
-When it fails it calls grow_buffers() to create buffers for the block in
-question.  But, nothing stops us from going in there with a huge
-block offset, and then:
+CIFS: Explicitly set stat->blksize
 
-static int
-grow_buffers(struct block_device *bdev, sector_t block, int size)
-{
-        struct page *page;
-        pgoff_t index;		/* 32 bits on 32-bit machines */
-        int sizebits;
+CIFS may perform I/O over the network in larger chunks than the page size,
+so it should explicitly set stat->blksize to ensure optimal I/O bandwidth
 
-        sizebits = -1;
-        do {
-                sizebits++;
-        } while ((size << sizebits) < PAGE_SIZE);
+Signed-off-by: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
 
-        index = block >> sizebits;
-        block = index << sizebits;
-...
-
-has some nasty wrapping, and winds up mapping the wrong block.  Then we try
-again.  Lather, rinse, repeat.
-
-It seems that making sure that our block is not past what we can address is
-worth doing, something like the patch that follows.
-
-This also addresses the problem mentioned at:
-http://kernelfun.blogspot.com/2006/11/mokb-05-11-2006-linux-26x-iso9660.html
-
-notes/questions:
-
-technically it should probably be ((pgoff_t)1 << (sizeof(pgoff_t)*8)) - 1)
-instead of ULONG_MAX?  Maybe that'd be a handy macro... MAX_PAGE_INDEX?
-
-Also I think using ffs(size) here is ok, can we ever have block sizes
-which are not powers of two?
-
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-
-Index: linux-2.6.18/fs/buffer.c
-===================================================================
---- linux-2.6.18.orig/fs/buffer.c
-+++ linux-2.6.18/fs/buffer.c
-@@ -1202,6 +1202,14 @@ __getblk_slow(struct block_device *bdev,
- 		return NULL;
- 	}
- 
-+	/* Don't try to get a block that we can't reach in the page cache... */
-+	if (unlikely(block >> (PAGE_SHIFT - ffs(size)) > ULONG_MAX)) {
-+		printk(KERN_ERR "getblk(): block %llu beyond pagecache limit\n",
-+					(unsigned long long)block);
-+		dump_stack();
-+		return NULL;
+diff -Nurp linux.orig/fs/cifs/inode.c linux/fs/cifs/inode.c
+--- linux.orig/fs/cifs/inode.c	2006-11-03 13:44:04.000000000 -0600
++++ linux/fs/cifs/inode.c	2006-11-06 16:11:21.000000000 -0600
+@@ -1089,8 +1089,10 @@ int cifs_getattr(struct vfsmount *mnt, s
+ 	struct kstat *stat)
+ {
+ 	int err = cifs_revalidate(dentry);
+-	if (!err)
++	if (!err) {
+ 		generic_fillattr(dentry->d_inode, stat);
++		stat->blksize = CIFS_MAX_MSGSIZE;
 +	}
-+
- 	for (;;) {
- 		struct buffer_head * bh;
+ 	return err;
+ }
  
 
-
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

@@ -1,52 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753838AbWKFVhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753827AbWKFVlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753838AbWKFVhY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 16:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753835AbWKFVhY
+	id S1753827AbWKFVlf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 16:41:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753835AbWKFVlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 16:37:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:37827 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753836AbWKFVhV (ORCPT
+	Mon, 6 Nov 2006 16:41:35 -0500
+Received: from gate.crashing.org ([63.228.1.57]:4785 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1753827AbWKFVle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 16:37:21 -0500
-Date: Mon, 6 Nov 2006 13:36:36 -0800
-From: Judith Lebzelter <judith@osdl.org>
-To: linuxppc-dev@ozlabs.org
-Cc: paulus@au.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] 2.6.19-rc4-mm2 iseries net_device compile issue
-Message-ID: <20061106213636.GA1339@shell0.pdx.osdl.net>
+	Mon, 6 Nov 2006 16:41:34 -0500
+Subject: Re: PATCH? hrtimer_wakeup: fix a theoretical race wrt
+	rt_mutex_slowlock()
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0611061609340.22166@gandalf.stny.rr.com>
+References: <20061105193457.GA3082@oleg>
+	 <Pine.LNX.4.64.0611051423150.25218@g5.osdl.org>
+	 <1162803471.28571.303.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0611060732020.14553@gandalf.stny.rr.com>
+	 <1162846433.28571.341.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0611061609340.22166@gandalf.stny.rr.com>
+Content-Type: text/plain
+Date: Tue, 07 Nov 2006 08:41:05 +1100
+Message-Id: <1162849266.28571.352.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-11-06 at 16:17 -0500, Steven Rostedt wrote:
+> On Tue, 7 Nov 2006, Benjamin Herrenschmidt wrote:
+> 
+> > On Mon, 2006-11-06 at 07:35 -0500, Steven Rostedt wrote:
+> >
+> > > It is relevant.  In powerpc, can one write happen before another write?
+> > >
+> > >
+> > >   x = 1;
+> > >   barrier();  (only compiler barrier)
+> > >   b = 2;
+> > >
+> > >
+> > > And have CPU 2 see b=2 before seeing x=1?
+> >
+> > Yes. Definitely.
+> 
+> OK, I see in powerpc, that spin lock calls isync. This just clears the
+> pipeline. It doesn't touch the loads and stores, right?
 
-2.6.19-rc4-mm2 has this error for 'powerpc' allmodconfig:
+Yes. That isync is to prevent loads to be speculated accross spin_lock,
+thus leaking out of the lock by the top. In fact, it doesn't act on the
+load per-se but it prevent speculative execution accross the conditional
+branch in the spin_lock. 
 
-drivers/net/iseries_veth.c: In function 'veth_probe_one':
-drivers/net/iseries_veth.c:1103: error: 'struct net_device' has no member named 'class_dev'
+> So basically saying this:
+> 
+>    x=1;
+>    asm ("isync");
+>    b=2;
+> 
+> Would that have the same problem too?  Where another CPU can see x=1
+> before seeing b=2?
 
-This patch fixes the error.
+Yes.
 
-Signed-off-by: Judith Lebzelter <judith@osdl.org>
----
-Files edited:
-drivers/net/iseries_veth.c
----
+What isync provides is
 
-Index: linux/drivers/net/iseries_veth.c
-===================================================================
---- linux.orig/drivers/net/iseries_veth.c	2006-11-02 13:59:38.000000000 -0800
-+++ linux/drivers/net/iseries_veth.c	2006-11-02 14:05:44.000000000 -0800
-@@ -1100,7 +1100,7 @@
- 	}
- 
- 	kobject_init(&port->kobject);
--	port->kobject.parent = &dev->class_dev.kobj;
-+	port->kobject.parent = &dev->dev.kobj;
- 	port->kobject.ktype  = &veth_port_ktype;
- 	kobject_set_name(&port->kobject, "veth_port");
- 	if (0 != kobject_add(&port->kobject))
+a = *foo
+spin_lock_loop_with_conditional_branch
+isync
+b = *bar
+
+It prevents the read of b from being speculated by the CPU ahead of a
+
+Ben.
+
+
+

@@ -1,102 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423777AbWKFK2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423787AbWKFK2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423777AbWKFK2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 05:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423787AbWKFK2a
+	id S1423787AbWKFK2l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 05:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423788AbWKFK2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 05:28:30 -0500
-Received: from il.qumranet.com ([62.219.232.206]:54156 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1423777AbWKFK23 (ORCPT
+	Mon, 6 Nov 2006 05:28:41 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54425 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1423778AbWKFK2j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 05:28:29 -0500
-Message-ID: <454F0E4A.7030001@qumranet.com>
-Date: Mon, 06 Nov 2006 12:28:26 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Mon, 6 Nov 2006 05:28:39 -0500
+Date: Mon, 6 Nov 2006 11:28:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Neil Brown <neilb@suse.de>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: [RFC][PATCH -mm][Experimental] suspend: Do not freeze md_threads
+Message-ID: <20061106102818.GA3138@elf.ucw.cz>
+References: <200611022355.52856.rjw@sisk.pl> <20061105115804.GG4965@elf.ucw.cz> <17742.26007.249504.79631@cse.unsw.edu.au>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 1/14] KVM: userspace interface
-References: <454E4941.7000108@qumranet.com>	 <20061105202934.B5F842500A7@cleopatra.q> <1162807420.3160.186.camel@laptopd505.fenrus.org>
-In-Reply-To: <1162807420.3160.186.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17742.26007.249504.79631@cse.unsw.edu.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> Hi,
->
-> some nitpicks about the ioctl interfaces while it still can be done ;)
->
->   
+Hi!
 
-There are some changes still planned (to streamline smp support).
+> > > If there's a swap file on a software RAID, it should be possible to use this
+> > > file for saving the swsusp's suspend image.  Also, this file should be
+> > > available to the memory management subsystem when memory is being freed before
+> > > the suspend image is created.
+> > > 
+> > > For the above reasons it seems that md_threads should not be frozen during
+> > > the suspend and the appended patch makes this happen, but then there is the
+> > > question if they don't cause any data to be written to disks after the
+> > > suspend image has been created, provided that all filesystems are frozen
+> > > at that time.
+> > 
+> > Looks okay to me. It would be nice to have someone (Ingo? Neil?) try
+> > to suspend to swap on md......
+> 
+> Yes... suspending to swap-on-md would probably be fairly easy.
+> Resuming from that same swap might be a bit more of a challenge.
+> If only I had more time...
 
->   
->> Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
->> Signed-off-by: Avi Kivity <avi@qumranet.com>
->>
->> --- /dev/null	2006-10-25 17:42:42.376631750 +0200
->> +++ linux-2.6/include/linux/kvm.h	2006-10-26 15:22:01.000000000 +0200
->> @@ -0,0 +1,198 @@
->> +#ifndef __LINUX_KVM_H
->> +#define __LINUX_KVM_H
->> +
->> +/*
->> + * Userspace interface for /dev/kvm - kernel based virtual machine
->> + *
->> + * Note: this interface is considered experimental and may change without
->> + *       notice.
->> + */
->> +
->> +#include <asm/types.h>
->> +#include <linux/ioctl.h>
->> +
->> +/* for KVM_CREATE_MEMORY_REGION */
->> +struct kvm_memory_region {
->> +	__u32 slot;
->> +	__u32 flags;
->> +	__u64 guest_phys_addr;
->> +	__u64 memory_size; /* bytes */
->> +};
->>     
->
-> as a general rule, it's a lot better to sort structures big-to-small, to
-> make sure alignments inside the struct are minimized and don't suck too
-> much. This is especially important to get right for 32/64 bit
-> compatibility. This comment is true for most structures in this header
-> file; please consider this at least
->   
-
-Doesn't that cause an unnatural field order? for example, in some 
-structures I separated in and out variables.  Sorting by size is a bit 
-like sorting alphabetically.
-
-Anyway I observed 32/64 bit compatibility religiously.
-
->   
->> +
->> +enum kvm_exit_reason {
->> +	KVM_EXIT_UNKNOWN,
->> +	KVM_EXIT_EXCEPTION,
->> +	KVM_EXIT_IO,
->> +	KVM_EXIT_CPUID,
->> +	KVM_EXIT_DEBUG,
->> +	KVM_EXIT_HLT,
->> +	KVM_EXIT_MMIO,
->> +};
->>     
->
-> it's probably nicer to use explicit enum values for the interface, just
-> as documentation if nothing else
->
->   
-
-Will do.
-
-
+With uswsusp (scheduled for 10.2), it should be fairly easy, too. I
+guess we shall just get Andrea to try it :-).
+							Pavel 
 -- 
-error compiling committee.c: too many arguments to function
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

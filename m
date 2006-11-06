@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753834AbWKFVg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753838AbWKFVhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753834AbWKFVg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 16:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753836AbWKFVg7
+	id S1753838AbWKFVhY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 16:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753835AbWKFVhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 16:36:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57048 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1753834AbWKFVg6 (ORCPT
+	Mon, 6 Nov 2006 16:37:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37827 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1753836AbWKFVhV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 16:36:58 -0500
-Message-ID: <454FAAF8.8080707@redhat.com>
-Date: Mon, 06 Nov 2006 15:36:56 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
- that offer x86 compatability
-References: <1162836725.6952.28.camel@dantu.rdu.redhat.com> <20061106182222.GO27140@parisc-linux.org> <1162838843.12129.8.camel@dantu.rdu.redhat.com> <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com> <20061106211134.GB691@wohnheim.fh-wedel.de>
-In-Reply-To: <20061106211134.GB691@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 6 Nov 2006 16:37:21 -0500
+Date: Mon, 6 Nov 2006 13:36:36 -0800
+From: Judith Lebzelter <judith@osdl.org>
+To: linuxppc-dev@ozlabs.org
+Cc: paulus@au.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] 2.6.19-rc4-mm2 iseries net_device compile issue
+Message-ID: <20061106213636.GA1339@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> On Mon, 6 November 2006 14:50:58 -0600, Eric Sandeen wrote:
->>> While you're at it, how about making last_ino per-sb instead of
->>> system-wide?  ino collisions after a wrap are just as bad as inos
->>> beyond 32bit.  And this should be a fairly simple method to reduce the
->>> risk.
->> Using a global counter for multiple filesystems should actually -reduce-
->> the chance of a collision on the same filesystem, since after you wrap the
->> recycled number may go to a different filesystem.
-> 
-> You're missing something.  The chance for a collision _per wrap_ is
-> reduced, as you said.  But the number of wraps goes up.  Overall and
-> for large numbers, the two effects compensate each other.
+Hi,
 
-Well, one concern is an intentional exploit.  In which case "longer
-time" and "shorter time" don't matter -so- much.  If it can happen at
-all, it's bad, period.
+2.6.19-rc4-mm2 has this error for 'powerpc' allmodconfig:
 
-OTOH if one filesystem (say, pipes) can wrap the numbers very quickly,
-while other spaces are otherwise more immune, then having it global puts
-everything using it at a bit more risk.
+drivers/net/iseries_veth.c: In function 'veth_probe_one':
+drivers/net/iseries_veth.c:1103: error: 'struct net_device' has no member named 'class_dev'
 
-*shrug* I dunno, it's probably not worth arguing this point, it needs to
-be fixed properly in any case. :)
+This patch fixes the error.
 
--Eric
+Signed-off-by: Judith Lebzelter <judith@osdl.org>
+---
+Files edited:
+drivers/net/iseries_veth.c
+---
+
+Index: linux/drivers/net/iseries_veth.c
+===================================================================
+--- linux.orig/drivers/net/iseries_veth.c	2006-11-02 13:59:38.000000000 -0800
++++ linux/drivers/net/iseries_veth.c	2006-11-02 14:05:44.000000000 -0800
+@@ -1100,7 +1100,7 @@
+ 	}
+ 
+ 	kobject_init(&port->kobject);
+-	port->kobject.parent = &dev->class_dev.kobj;
++	port->kobject.parent = &dev->dev.kobj;
+ 	port->kobject.ktype  = &veth_port_ktype;
+ 	kobject_set_name(&port->kobject, "veth_port");
+ 	if (0 != kobject_add(&port->kobject))

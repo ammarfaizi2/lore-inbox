@@ -1,60 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWKFGml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932762AbWKFHMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbWKFGml (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 01:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWKFGmk
+	id S932762AbWKFHMi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 02:12:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932760AbWKFHMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 01:42:40 -0500
-Received: from pop-satin.atl.sa.earthlink.net ([207.69.195.63]:27272 "EHLO
-	pop-satin.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S932652AbWKFGmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 01:42:40 -0500
-Date: Mon, 6 Nov 2006 01:42:32 -0500 (EST)
-From: Brent Baccala <cosine@freesoft.org>
-X-X-Sender: baccala@debian.freesoft.org
-To: Jens Axboe <jens.axboe@oracle.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: async I/O seems to be blocking on 2.6.15
-In-Reply-To: <20061105121522.GC13555@kernel.dk>
-Message-ID: <Pine.LNX.4.64.0611060136250.4220@debian.freesoft.org>
-References: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org>
- <20061103122055.GE13555@kernel.dk> <Pine.LNX.4.64.0611031049120.7173@debian.freesoft.org>
- <20061103160212.GK13555@kernel.dk> <Pine.LNX.4.64.0611031214560.28100@debian.freesoft.org>
- <20061105121522.GC13555@kernel.dk>
+	Mon, 6 Nov 2006 02:12:37 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:7302 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S932762AbWKFHMh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 02:12:37 -0500
+Message-ID: <454ED769.8040302@in.ibm.com>
+Date: Mon, 06 Nov 2006 12:04:17 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: menage@google.com
+CC: akpm@osdl.org, pj@sgi.com, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, jlan@sgi.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, mbligh@google.com, winget@google.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] [PATCH 2/6] Cpusets hooked into containers
+References: <20061020183819.656586000@menage.corp.google.com> <20061020190626.810567000@menage.corp.google.com>
+In-Reply-To: <20061020190626.810567000@menage.corp.google.com>
+Content-Type: multipart/mixed;
+ boundary="------------090005050301070501020609"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Nov 2006, Jens Axboe wrote:
+This is a multi-part message in MIME format.
+--------------090005050301070501020609
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> On Fri, Nov 03 2006, Brent Baccala wrote:
->>
->> Does 7 microseconds seem a bit excessive for an io_submit (and a
->> gettimeofday)?
->
-> I guess you mean miliseconds, not microseconds. 7 miliseconds seems way
-> too long. I repeated your test here, and the 100 submits take 97000
-> microseconds here - or 97 miliseconds. So that's a little less than 1
-> msec per io_submit. Still pretty big. You can experiment with oprofile
-> to profile where the kernel spends its time in that period.
->
-> -- 
-> Jens Axboe
->
+menage@google.com wrote:
+> This patch removes the process grouping code from the cpusets code,
+> instead hooking it into the generic container system. This temporarily
+> adds cpuset-specific code in kernel/container.c, which is removed by
+> the next patch in the series.
+> 
+> Signed-off-by: Paul Menage <menage@google.com>
 
-Yes, of course, milliseconds.  I have enough other problems with this
-program (measured in minutes, and no mistake that) that I doubt I'll
-be profiling the kernel any time soon, but thank you for your help.
+I needed the following patches to get the cpuset code to compile.
+Inlining two patches makes it hard to distinguish between the patches
+and harder to read them, so I am attaching them along with this email.
 
-More than anything else, you've made me understand that I can't just
-fire off a bunch of async requests like I'm tossing peanuts across the
-table.  I've really got to pay attention to what's in that kernel
-queue and how it gets managed.
+-- 
+	Regards,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs
+
+--------------090005050301070501020609
+Content-Type: text/x-patch;
+ name="fix-cpuset-guarantee-online-cpus-mems-in-subtree.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename*0="fix-cpuset-guarantee-online-cpus-mems-in-subtree.patch"
 
 
 
- 					-bwb
+Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+---
 
- 					Brent Baccala
- 					cosine@freesoft.org
+ kernel/cpuset.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff -puN kernel/cpuset.c~fix-cpuset-guarantee-online-cpus-mems-in-subtree kernel/cpuset.c
+--- linux-2.6.19-rc2/kernel/cpuset.c~fix-cpuset-guarantee-online-cpus-mems-in-subtree	2006-11-06 11:41:25.000000000 +0530
++++ linux-2.6.19-rc2-balbir/kernel/cpuset.c	2006-11-06 11:43:12.000000000 +0530
+@@ -1280,10 +1280,12 @@ int __init cpuset_init(void)
+ 
+ static void guarantee_online_cpus_mems_in_subtree(const struct cpuset *cur)
+ {
++	struct container *cont;
+ 	struct cpuset *c;
+ 
+ 	/* Each of our child cpusets mems must be online */
+-	list_for_each_entry(c, &cur->children, sibling) {
++	list_for_each_entry(cont, &cur->container->children, sibling) {
++		c = container_cs(cont);
+ 		guarantee_online_cpus_mems_in_subtree(c);
+ 		if (!cpus_empty(c->cpus_allowed))
+ 			guarantee_online_cpus(c, &c->cpus_allowed);
+_
+
+--------------090005050301070501020609
+Content-Type: text/x-patch;
+ name="fix-cpuset-proc-operations.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-cpuset-proc-operations.patch"
+
+
+
+Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+---
+
+ fs/proc/base.c |    7 -------
+ 1 file changed, 7 deletions(-)
+
+diff -puN fs/proc/base.c~fix-cpuset-proc-operations fs/proc/base.c
+--- linux-2.6.19-rc2/fs/proc/base.c~fix-cpuset-proc-operations	2006-11-06 11:47:35.000000000 +0530
++++ linux-2.6.19-rc2-balbir/fs/proc/base.c	2006-11-06 11:48:27.000000000 +0530
+@@ -68,7 +68,6 @@
+ #include <linux/security.h>
+ #include <linux/ptrace.h>
+ #include <linux/seccomp.h>
+-#include <linux/cpuset.h>
+ #include <linux/container.h>
+ #include <linux/audit.h>
+ #include <linux/poll.h>
+@@ -1788,9 +1787,6 @@ static struct pid_entry tgid_base_stuff[
+ #ifdef CONFIG_CONTAINERS
+ 	REG("container",  S_IRUGO, container),
+ #endif
+-#ifdef CONFIG_CPUSETS
+-	REG("cpuset",     S_IRUGO, cpuset),
+-#endif
+ 	INF("oom_score",  S_IRUGO, oom_score),
+ 	REG("oom_adj",    S_IRUGO|S_IWUSR, oom_adjust),
+ #ifdef CONFIG_AUDITSYSCALL
+@@ -2065,9 +2061,6 @@ static struct pid_entry tid_base_stuff[]
+ #ifdef CONFIG_CONTAINERS
+ 	REG("container",  S_IRUGO, container),
+ #endif
+-#ifdef CONFIG_CPUSETS
+-	REG("cpuset",    S_IRUGO, cpuset),
+-#endif
+ 	INF("oom_score", S_IRUGO, oom_score),
+ 	REG("oom_adj",   S_IRUGO|S_IWUSR, oom_adjust),
+ #ifdef CONFIG_AUDITSYSCALL
+_
+
+--------------090005050301070501020609--

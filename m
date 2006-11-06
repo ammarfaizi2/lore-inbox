@@ -1,58 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423591AbWKFJWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423183AbWKFJ1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423591AbWKFJWz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 04:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423561AbWKFJWz
+	id S1423183AbWKFJ1n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 04:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423561AbWKFJ1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 04:22:55 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:4053 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1422805AbWKFJWy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 04:22:54 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
-Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
-Date: Mon, 6 Nov 2006 10:22:57 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, "Linux Netdev List" <netdev@vger.kernel.org>
-References: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com> <454EE580.5040506@cosmosbay.com> <f55850a70611060059p28d6baeco9f6f0c0f81b54ba6@mail.gmail.com>
-In-Reply-To: <f55850a70611060059p28d6baeco9f6f0c0f81b54ba6@mail.gmail.com>
+	Mon, 6 Nov 2006 04:27:43 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:31314 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1423183AbWKFJ1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 04:27:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=JTqMRAkHrE8YgIHDlDWw/G27XVMFguG5REbfq1d6Y9mbUP0m8j4P0Xkakt0CAAKJ6oD+faWAVMDO3gbLDgD9cLHXu+TIhXalKCaUSInVpc/9gvk/A7XYcWQ9V5jQbpZQ9a9yIvjiY4LEiN36m8tBDewTxGK+E1+lNgeTVwQsZsk=
+Message-ID: <454F0030.80101@innova-card.com>
+Date: Mon, 06 Nov 2006 10:28:16 +0100
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       adaplas@pol.net, gregkh@suse.de
+Subject: [PATCH] fbcon: ReRe-fix little-endian bogosity in slow_imageblit()
+References: <454B5866.6000207@innova-card.com>	 <20061103105857.874f566c.akpm@osdl.org> <cda58cb80611040122w6cf42014vf17f48edda97e797@mail.gmail.com>
+In-Reply-To: <cda58cb80611040122w6cf42014vf17f48edda97e797@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611061022.57840.dada1@cosmosbay.com>
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 November 2006 09:59, Zhao Xiaoming wrote:
+From: Franck Bui-Huu <fbuihuu@gmail.com>
 
-> Thank you again for your help. To have more detailed statistic data, I
-> did another round of test and gathered some data.  I give the overall
-> description here and detailed /proc/net/sockstat, /proc/meminfo,
-> /proc/slabinfo and /proc/buddyinfo follows.
-> =====================================================
->                            slab mem cost        tcp mem pages       lowmem
-> free with traffic:             254668KB                 34693
->       38772KB
-> without traffic:       104080KB                           1
->        702652KB
-> =====================================================
+It seems that this piece of code has already been fixed twice...
 
-Thank you for detailed infos.
+The first fix has been made by the following commit:
 
-It appears you have an extensive use of threads (about 10000), since :
+	81d3e147ec9ffc6ef04b5f05afa4bef22487b32b
 
-> task_struct        10095  10095   1360    3    1 : tunables   24   12
->   8 : slabdata   3365   3365      0
+by introducing FB_BIT_NR() macro to fix a 'potential' endianess
+bug. It appears that change was broken for big endian platforms,
+but I suspect it was for little-endian ones too.
 
-Each thread has a kernel stack, 8KB (ie 2 pages, order-1 allocation), plus a 
-user vma
+Then a second fix has been made to fix the previous change for
+big-endian platform, see commit:
 
-> vm_area_struct     21346  21504     92   42    1 : tunables  120   60
->   8 : slabdata    512    512      0
+	a536093a2f07007aa572e922752b7491b9ea8ff2
 
-Most likely you dont need that much threads. A program with fewer threads will 
-perform better and use less ram.
+This commit actually reverted the first fix and thus makes the
+big-endian case works but leaves the little-endian case broken.
+Therefore it seems that the very first state was broken only
+on little-endian platform...
 
+This patch is the third and hopefully the last attempt to fix
+this bug correctly. It restores the first fix _and_ swaps the
+little-endian and bit-endian implementations of FB_BIT_NR().
+
+Now, it should work for both endianness but has been tested on
+little-endian machine only.
+
+Signed-off-by: Franck Bui-Huu <fbuihuu@gmail.com>
+---
+
+ Same patch with change log updated.
+
+ drivers/video/cfbimgblt.c |    4 ++--
+ include/linux/fb.h        |    2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/video/cfbimgblt.c b/drivers/video/cfbimgblt.c
+index 51d3538..8f47bf4 100644
+--- a/drivers/video/cfbimgblt.c
++++ b/drivers/video/cfbimgblt.c
+@@ -168,7 +168,7 @@ static inline void slow_imageblit(const
+ 
+ 		while (j--) {
+ 			l--;
+-			color = (*s & (1 << l)) ? fgcolor : bgcolor;
++			color = (*s & (1 << FB_BIT_NR(l))) ? fgcolor : bgcolor;
+ 			val |= FB_SHIFT_HIGH(color, shift);
+ 			
+ 			/* Did the bitshift spill bits to the next long? */
+@@ -258,7 +258,7 @@ static inline void fast_imageblit(const
+ 		s += spitch;
+ 	}
+ }	
+-	
++
+ void cfb_imageblit(struct fb_info *p, const struct fb_image *image)
+ {
+ 	u32 fgcolor, bgcolor, start_index, bitstart, pitch_index = 0;
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 3e69241..6ca18b8 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -854,10 +854,12 @@ struct fb_info {
+ #endif
+ 
+ #if defined (__BIG_ENDIAN)
++#define FB_BIT_NR(b)              (b)
+ #define FB_LEFT_POS(bpp)          (32 - bpp)
+ #define FB_SHIFT_HIGH(val, bits)  ((val) >> (bits))
+ #define FB_SHIFT_LOW(val, bits)   ((val) << (bits))
+ #else
++#define FB_BIT_NR(b)              (7 - (b))
+ #define FB_LEFT_POS(bpp)          (0)
+ #define FB_SHIFT_HIGH(val, bits)  ((val) << (bits))
+ #define FB_SHIFT_LOW(val, bits)   ((val) >> (bits))
+-- 
+1.4.3.4

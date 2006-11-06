@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753390AbWKFQeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753397AbWKFQgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753390AbWKFQeq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 11:34:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753395AbWKFQeq
+	id S1753397AbWKFQgf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 11:36:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753399AbWKFQgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 11:34:46 -0500
-Received: from mx6.mail.ru ([194.67.23.26]:4994 "EHLO mx6.mail.ru")
-	by vger.kernel.org with ESMTP id S1753390AbWKFQep (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 11:34:45 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] 2.6.18.2: lockdep warnings on rmmod ohci_hcd
-Date: Mon, 6 Nov 2006 19:34:58 +0300
-User-Agent: KMail/1.9.5
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0611061113140.6579-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0611061113140.6579-100000@iolanthe.rowland.org>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 6 Nov 2006 11:36:35 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:227 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1753397AbWKFQge
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 11:36:34 -0500
+Message-ID: <454F6431.1010108@zytor.com>
+Date: Mon, 06 Nov 2006 08:34:57 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+CC: vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com, maneesh@in.ibm.com
+Subject: Re: [PATCH 7/11] i386: Kallsyms generate relocatable symbols
+References: <20061023192456.GA13263@in.ibm.com>	<20061023193748.GH13263@in.ibm.com> <20061106154857.003dc9d9@cad-250-152.norway.atmel.com>
+In-Reply-To: <20061106154857.003dc9d9@cad-250-152.norway.atmel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611061934.59569.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Haavard Skinnemoen wrote:
+> On Mon, 23 Oct 2006 15:37:48 -0400
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> 
+>> Add the _text symbol definitions to the architectures which don't
+>> define it otherwise linker will fail.
+> 
+> I get lots of this when building latest -mm for avr32:
+> 
+> .tmp_kallsyms2.S:643: Warning: right operand is a bignum; integer 0
+> assumed
+> 
+> Reverting this patch makes the warnings go away. I think it's
+> because on avr32, .init is the first section, not .text, so many of the
+> offsets become negative and kallsyms doesn't seem to handle this very
+> well. Here's a few lines from .tmp_kallsyms2.S:
+> 
+> kallsyms_addresses:
+>         PTR     _text + 0xffffffffffff4000
+>         PTR     _text + 0xffffffffffff4000
+> 
+> Any idea how to fix this? Could we introduce a new symbol that always
+> marks the start of the image perhaps?
+> 
 
-On Monday 06 November 2006 19:16, Alan Stern wrote:
-> On Mon, 6 Nov 2006, Andrey Borzenkov wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > On Monday 06 November 2006 17:18, Arjan van de Ven wrote:
-> > > On Mon, 2006-11-06 at 15:46 +0300, Andrey Borzenkov wrote:
-> > > > I presume this is lockdep; this looks initially truncated,
-> > > > unfortunately this
-> > > > is how it was stored in messages. I will try to get more complete
-> > > > output ig
-> > > > required.
-> > >
-> > > the interesting bits are missing unfortunately (the first 10 lines or
-> > > so).
-> > >
-> > > Also this will be in "dmesg" if your system actually survives...
-> >
-> > well, dmesg had exactly the same contents. Here full dmesg with increased
-> > LOG_SHIFT.
->
-> I always find it rather difficult to understand the meaning of lockdep
-> warnings, but this looks a bug that was fixed in 2.6.19-rc1.  The patch
-> that fixed it is here:
->
-> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=115938807428103&w=2
->
+Maybe we should generate it as a signed value (-0x8000) instead of an 
+unsigned value.
 
-Yes, it has fixed it. Thank you
-
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFT2QzR6LMutpd94wRAh4OAKCZHqj/W3aFgEiXp3puPLhur5Rb9ACff67R
-oIpIdzM5pMypaqCajAbWLW4=
-=yHf7
------END PGP SIGNATURE-----
+	-hpa

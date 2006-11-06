@@ -1,136 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753756AbWKFVC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753806AbWKFVKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753756AbWKFVC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 16:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753803AbWKFVC5
+	id S1753806AbWKFVKS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 16:10:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753808AbWKFVKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 16:02:57 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:43848 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1753756AbWKFVC4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 16:02:56 -0500
-Date: Mon, 6 Nov 2006 22:05:04 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 12/12] cciss: fix for iostat
-Message-ID: <20061106210504.GK19471@kernel.dk>
-References: <20061106203205.GL17847@beardog.cca.cpqcorp.net> <20061106204550.GI19471@kernel.dk>
+	Mon, 6 Nov 2006 16:10:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:40400 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1753806AbWKFVKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 16:10:16 -0500
+Date: Mon, 6 Nov 2006 13:09:20 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: balbir@in.ibm.com, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       jlan@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       mbligh@google.com, winget@google.com, rohitseth@google.com
+Subject: Re: [ckrm-tech] [PATCH 2/6] Cpusets hooked into containers
+Message-Id: <20061106130921.7ed66fa5.pj@sgi.com>
+In-Reply-To: <6599ad830611061255u458a795bpca1c360cb93f253@mail.gmail.com>
+References: <20061020183819.656586000@menage.corp.google.com>
+	<20061020190626.810567000@menage.corp.google.com>
+	<454ED769.8040302@in.ibm.com>
+	<6599ad830611061255u458a795bpca1c360cb93f253@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061106204550.GI19471@kernel.dk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06 2006, Jens Axboe wrote:
-> On Mon, Nov 06 2006, Mike Miller (OS Dev) wrote:
-> > Patch 12 of 12
-> > 
-> > This patch replaces complete_buffers with end_that_request_first to fix
-> > programs like iostat. This has been broken for the last few kernel releases.
-> > Please consider this for inclusion.
-> > 
-> > Thanks,
-> > mikem
-> > 
-> > Signed-off-by: Mike Miller <mike.miller@hp.com>
-> > 
-> > 
-> > ---
-> > 
-> > 
-> > ---
-> > 
-> >  drivers/block/cciss.c |   20 ++++----------------
-> >  1 files changed, 4 insertions(+), 16 deletions(-)
-> > 
-> > diff -puN drivers/block/cciss.c~cciss_update_diskstats_fix drivers/block/cciss.c
-> > --- linux-2.6/drivers/block/cciss.c~cciss_update_diskstats_fix	2006-11-06 13:28:53.000000000 -0600
-> > +++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:28:53.000000000 -0600
-> > @@ -1156,18 +1156,6 @@ static int cciss_ioctl(struct inode *ino
-> >  	}
-> >  }
-> >  
-> > -static inline void complete_buffers(struct bio *bio, int status)
-> > -{
-> > -	while (bio) {
-> > -		struct bio *xbh = bio->bi_next;
-> > -		int nr_sectors = bio_sectors(bio);
-> > -
-> > -		bio->bi_next = NULL;
-> > -		bio_endio(bio, nr_sectors << 9, status ? 0 : -EIO);
-> > -		bio = xbh;
-> > -	}
-> > -}
-> > -
-> >  static void cciss_check_queues(ctlr_info_t *h)
-> >  {
-> >  	int start_queue = h->next_to_run;
-> > @@ -1236,15 +1224,15 @@ static void cciss_softirq_done(struct re
-> >  		pci_unmap_page(h->pdev, temp64.val, cmd->SG[i].Len, ddir);
-> >  	}
-> >  
-> > -	complete_buffers(rq->bio, rq->errors);
-> > -
-> >  #ifdef CCISS_DEBUG
-> >  	printk("Done with %p\n", rq);
-> >  #endif				/* CCISS_DEBUG */
-> >  
-> > -	add_disk_randomness(rq->rq_disk);
-> >  	spin_lock_irqsave(&h->lock, flags);
-> > -	end_that_request_last(rq, rq->errors);
-> > +	if (!end_that_request_first(rq, rq->errors, rq->nr_sectors)) {
-> > +		add_disk_randomness(rq->rq_disk);
-> > +		end_that_request_last(rq, rq->errors);
-> > +	}
-> >  	cmd_free(h, cmd, 1);
-> >  	cciss_check_queues(h);
-> >  	spin_unlock_irqrestore(&h->lock, flags);
-> 
-> Ah, so there's where that went. Your code isn't clear, though -
-> end_that_request_first() _must_ return 0, so the above looks confusing.
-> It would look cleaner and more informative like:
-> 
->         if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
->                 BUG();
-> 
->         add_disk_randomness(rq->rq_disk);
->         end_that_request_last(rq, rq->errors);
->         ...
-> 
-> and so on. Additionally you don't need the lock for
-> end_that_request_first(), so it's a lot more optimal to rearrange it
-> again.
-> 
->         add_disk_randomness(rq->rq_disk);
->         if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
->                 BUG();
-> 
->         spin_lock_irqsave(&h->lock, flags);
->         end_that_request_last(rq, rq->errors);
->         cmd_free(h, cmd, 1);
->         ...
-> 
-> Not only cleaner to read since it's obvious what will happen, also moves
-> the heavy path (end_that_request_first()) outside of the controller
-> lock.
+Paul M wrote:
+>  It basically makes "cpuset" an alias for "container"
+> in the relevant /proc directories if CONFIG_CPUSETS_LEGACY_API is
+> defined.
 
-IOW, simple one-liner fix:
+Paul M - I never replied to your initial CONFIG_CPUSETS_LEGACY_API
+patch proposal - sorry.
 
-diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
-index 6ffe2b2..f9f128a 100644
---- a/drivers/block/cciss.c
-+++ b/drivers/block/cciss.c
-@@ -1299,6 +1299,7 @@ static void cciss_softirq_done(struct re
- 	}
- 
- 	complete_buffers(rq->bio, rq->errors);
-+	disk_stat_add(rq->rq_disk, sectors[rq_data_dir(rq)], rq->nr_sectors);
- 
- #ifdef CCISS_DEBUG
- 	printk("Done with %p\n", rq);
+An aspect of this proposal never made sense to me, so I put it aside
+and went on to other things.
+
+It is important to me that the current cpuset API be maintained.  The
+cpuset API seems to be working well, for a number of users.
+
+Occassionally I will agree to subtle API changes (see another thread
+concerning cpu_exclusive and sched_domain cpuset flags), but not
+anything likely to break user code outright, except under duress.
+
+But I presume this CONFIG_CPUSETS_LEGACY_API option means I either
+get to build a kernel that supports the new container API, or a kernel
+that supports the old cpuset API.  That does not seem useful to me.
+
+We need to support both API's, at runtime, at the same time.  Not a choice
+of API's at build time with a kernel CONFIG option.
+
+Perhaps I am missing something ...
 
 -- 
-Jens Axboe
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

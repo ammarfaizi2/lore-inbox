@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753885AbWKFWb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753890AbWKFWgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753885AbWKFWb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 17:31:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753883AbWKFWb5
+	id S1753890AbWKFWgv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 17:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753889AbWKFWgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 17:31:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52894 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1753880AbWKFWb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 17:31:56 -0500
-Message-ID: <454FB7DA.5070305@redhat.com>
-Date: Mon, 06 Nov 2006 16:31:54 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Eric Sandeen <sandeen@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH] - catch blocks beyond pagecache limit in __getblk_slow
-References: <454FB710.2030108@redhat.com>
-In-Reply-To: <454FB710.2030108@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 6 Nov 2006 17:36:51 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63897
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1753886AbWKFWgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 17:36:50 -0500
+Date: Mon, 06 Nov 2006 14:36:49 -0800 (PST)
+Message-Id: <20061106.143649.31640600.davem@davemloft.net>
+To: jgarzik@pobox.com
+Cc: jirislaby@gmail.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       alan@redhat.com, kaber@trash.net, netdev@vger.kernel.org
+Subject: Re: [PATCH 1/1] Net: kconfig, correct traffic shaper
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <454EE9A2.4060908@pobox.com>
+References: <43123154321532@wsc.cz>
+	<1202725131414221392@wsc.cz>
+	<454EE9A2.4060908@pobox.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandeen wrote:
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=206328
-> 
-> has a nice analysis of what can go wrong when we try to read blocks which
-> are at extremely high offsets, when our sector_t is 64 bits but our pgoff_t
-> is only 32.  The cases in question that I've seen are the result of filesystem
-> corruption.
+From: Jeff Garzik <jgarzik@pobox.com>
+Date: Mon, 06 Nov 2006 02:52:02 -0500
 
-Urk, scratch that I see a fix is already in.
+> ACK from me, though I think that since it relates to traffic schedulers 
+> I think this patch should be merged through DaveM...
 
-http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=e5657933863f43cc6bb76a54d659303dafaa9e58
-
--Eric
+I've merged it into my tree, thanks everyone.

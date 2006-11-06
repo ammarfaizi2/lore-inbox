@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753061AbWKFNMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753059AbWKFNPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753061AbWKFNMy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 08:12:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753073AbWKFNMy
+	id S1753059AbWKFNPG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 08:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753063AbWKFNPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 08:12:54 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:18852 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1753059AbWKFNMx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 08:12:53 -0500
-Date: Mon, 6 Nov 2006 17:15:02 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: PATCH? hrtimer_wakeup: fix a theoretical race wrt rt_mutex_slowlock()
-Message-ID: <20061106141502.GA164@oleg>
-References: <20061105193457.GA3082@oleg> <Pine.LNX.4.58.0611060729370.14553@gandalf.stny.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0611060729370.14553@gandalf.stny.rr.com>
-User-Agent: Mutt/1.5.11
+	Mon, 6 Nov 2006 08:15:06 -0500
+Received: from il.qumranet.com ([62.219.232.206]:61912 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1753059AbWKFNPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 08:15:05 -0500
+Subject: [PATCH] KVM: fix calculation of initial value of rdx register
+From: Avi Kivity <avi@qumranet.com>
+Date: Mon, 06 Nov 2006 13:15:02 -0000
+To: kvm-devel@lists.sourceforge.net
+Cc: Christian Hesse <mail@earthworm.de>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Message-Id: <20061106131502.BD90D2500A7@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/06, Steven Rostedt wrote:
-> 
-> Acked-by: Steven Rostedt <rostedt@goodmis.org>
+On bootup, the rdx register contains information about the processor.  The
+function which calculates this value has the bugs:
 
-Thanks.
+ - missing 'cpuid' to get the value from the processor
+ - missing register clobber caused a miscompilation in some circumstances
+ - we shouldn't return a value that depends on the current processor in 
+   case we migrate
 
-But on the other hand we probably have a similar code (set condition +
-wake_up_process()) in other places too, and __wake_up(wait_queue_head_t)
-has (in theory) the same problem. Probably we can add something like
+In any case nobody looks at the value, so just return a generic P6
+identifier.
 
-	smp_wmb_unless_spin_lock_implies_memory_barrier_on_this_arch()
+Thanks to Christian Hesse <mail@earthworm.de> for debugging help.
 
-somewhere in try_to_wake_up(). I dunno.
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Oleg.
-
+Index: linux-2.6/drivers/kvm/kvm_main.c
+===================================================================
+--- linux-2.6.orig/drivers/kvm/kvm_main.c
++++ linux-2.6/drivers/kvm/kvm_main.c
+@@ -1052,12 +1052,7 @@ static void set_cr8(struct kvm_vcpu *vcp
+ 
+ static u32 get_rdx_init_val(void)
+ {
+-	u32 val;
+-
+-	asm ("movl $1, %%eax \n\t"
+-	     "movl %%eax, %0 \n\t" : "=g"(val) );
+-	return val;
+-
++	return 0x600; /* P6 family */
+ }
+ 
+ static void fx_init(struct kvm_vcpu *vcpu)

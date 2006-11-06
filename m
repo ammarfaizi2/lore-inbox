@@ -1,75 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753782AbWKFUnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753750AbWKFUnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753782AbWKFUnA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753789AbWKFUnA
+	id S1753750AbWKFUnp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:43:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753747AbWKFUnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:43:00 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46480 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753752AbWKFUm7 (ORCPT
+	Mon, 6 Nov 2006 15:43:45 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:13386 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1753735AbWKFUno (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:42:59 -0500
-Date: Mon, 6 Nov 2006 12:42:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Avoid allocating during interleave from almost full nodes
-Message-Id: <20061106124257.deffa31c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611061229080.29760@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
-	<20061103134633.a815c7b3.akpm@osdl.org>
-	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
-	<20061103143145.85a9c63f.akpm@osdl.org>
-	<Pine.LNX.4.64.0611031622540.16997@schroedinger.engr.sgi.com>
-	<20061103165854.0f3e77ad.akpm@osdl.org>
-	<Pine.LNX.4.64.0611060846070.25351@schroedinger.engr.sgi.com>
-	<20061106115925.1dd41a77.akpm@osdl.org>
-	<Pine.LNX.4.64.0611061207310.26685@schroedinger.engr.sgi.com>
-	<20061106122446.8269f7bc.akpm@osdl.org>
-	<Pine.LNX.4.64.0611061229080.29760@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 6 Nov 2006 15:43:44 -0500
+Date: Mon, 6 Nov 2006 21:45:51 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 12/12] cciss: fix for iostat
+Message-ID: <20061106204550.GI19471@kernel.dk>
+References: <20061106203205.GL17847@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061106203205.GL17847@beardog.cca.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2006 12:31:36 -0800 (PST)
-Christoph Lameter <clameter@sgi.com> wrote:
-
-> On Mon, 6 Nov 2006, Andrew Morton wrote:
+On Mon, Nov 06 2006, Mike Miller (OS Dev) wrote:
+> Patch 12 of 12
 > 
-> > I'm referring to the metadata rather than to the pages themselves: the zone
-> > structure at least.  I bet there are a couple of cache misses in there.
+> This patch replaces complete_buffers with end_that_request_first to fix
+> programs like iostat. This has been broken for the last few kernel releases.
+> Please consider this for inclusion.
 > 
-> Yes, in particular in large systems.
+> Thanks,
+> mikem
 > 
-> > > The number 
-> > > of pages to take will vary depending on the size of the shared data. For 
-> > > shared data areas that are just a couple of pages this wont work.
-> > 
-> > What is "shared data"?
+> Signed-off-by: Mike Miller <mike.miller@hp.com>
 > 
-> Interleave is used for data accessed from many nodes otherwise one would 
-> prefer to allocate from the current zone. The shared data may be very 
-> frequently accessed from multiple nodes and one would like different NUMA 
-> nodes to respond to these requests.
-
-But what is "shared data"??  You're using a new but very general term
-without defining it.
-
-> > > > Umm, but that's exactly what the patch we're discussing will do.
-> > > Not if we have a set of remaining nodes.
-> > 
-> > Yes it is.  You're proposing taking an arbitrarily large number of
-> > successive pages from the same node rather than interleaving the allocations.
-> > That will create "hotspots or imbalances" (whatever they are).
 > 
-> No I proposed to go round robin over the remaining nodes. The special case 
-> of one node left could be dealt with.
+> ---
+> 
+> 
+> ---
+> 
+>  drivers/block/cciss.c |   20 ++++----------------
+>  1 files changed, 4 insertions(+), 16 deletions(-)
+> 
+> diff -puN drivers/block/cciss.c~cciss_update_diskstats_fix drivers/block/cciss.c
+> --- linux-2.6/drivers/block/cciss.c~cciss_update_diskstats_fix	2006-11-06 13:28:53.000000000 -0600
+> +++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:28:53.000000000 -0600
+> @@ -1156,18 +1156,6 @@ static int cciss_ioctl(struct inode *ino
+>  	}
+>  }
+>  
+> -static inline void complete_buffers(struct bio *bio, int status)
+> -{
+> -	while (bio) {
+> -		struct bio *xbh = bio->bi_next;
+> -		int nr_sectors = bio_sectors(bio);
+> -
+> -		bio->bi_next = NULL;
+> -		bio_endio(bio, nr_sectors << 9, status ? 0 : -EIO);
+> -		bio = xbh;
+> -	}
+> -}
+> -
+>  static void cciss_check_queues(ctlr_info_t *h)
+>  {
+>  	int start_queue = h->next_to_run;
+> @@ -1236,15 +1224,15 @@ static void cciss_softirq_done(struct re
+>  		pci_unmap_page(h->pdev, temp64.val, cmd->SG[i].Len, ddir);
+>  	}
+>  
+> -	complete_buffers(rq->bio, rq->errors);
+> -
+>  #ifdef CCISS_DEBUG
+>  	printk("Done with %p\n", rq);
+>  #endif				/* CCISS_DEBUG */
+>  
+> -	add_disk_randomness(rq->rq_disk);
+>  	spin_lock_irqsave(&h->lock, flags);
+> -	end_that_request_last(rq, rq->errors);
+> +	if (!end_that_request_first(rq, rq->errors, rq->nr_sectors)) {
+> +		add_disk_randomness(rq->rq_disk);
+> +		end_that_request_last(rq, rq->errors);
+> +	}
+>  	cmd_free(h, cmd, 1);
+>  	cciss_check_queues(h);
+>  	spin_unlock_irqrestore(&h->lock, flags);
 
-OK, but if two nodes have a lot of free pages and the rest don't then
-interleave will consume those free pages without performing any reclaim
-from all the other nodes.  Hence hostpots or imbalances.
+Ah, so there's where that went. Your code isn't clear, though -
+end_that_request_first() _must_ return 0, so the above looks confusing.
+It would look cleaner and more informative like:
 
-Whatever they are.  Why does it matter?
+        if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
+                BUG();
+
+        add_disk_randomness(rq->rq_disk);
+        end_that_request_last(rq, rq->errors);
+        ...
+
+and so on. Additionally you don't need the lock for
+end_that_request_first(), so it's a lot more optimal to rearrange it
+again.
+
+        add_disk_randomness(rq->rq_disk);
+        if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
+                BUG();
+
+        spin_lock_irqsave(&h->lock, flags);
+        end_that_request_last(rq, rq->errors);
+        cmd_free(h, cmd, 1);
+        ...
+
+Not only cleaner to read since it's obvious what will happen, also moves
+the heavy path (end_that_request_first()) outside of the controller
+lock.
+
+-- 
+Jens Axboe
+

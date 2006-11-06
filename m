@@ -1,157 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753442AbWKFQs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753435AbWKFQsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753442AbWKFQs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 11:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753444AbWKFQs0
+	id S1753435AbWKFQsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 11:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753442AbWKFQsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 11:48:26 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:15771 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1753442AbWKFQsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 11:48:25 -0500
+	Mon, 6 Nov 2006 11:48:09 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:17932 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1753435AbWKFQsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 11:48:06 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e6dcH+A6zSw7sWGq5rJj4Z3fXHs28roIJ+zekwgAT8b88OrxCh8VGBgBfoItTcrkY9j3MpCafhumf+Bo/8BOJfW5Nbyd/xavoVfWnAg8BmPbADC95lsrTLl6qgTvvfFQBpdM20GKugJ/LBXmSu7+dhgd1lx4i2HsBaYrBgLsvY4=
-Message-ID: <6278d2220611060848n3585ebc5odbf39efd6a02ab2@mail.gmail.com>
-Date: Mon, 6 Nov 2006 16:48:23 +0000
-From: "Daniel J Blueman" <daniel.blueman@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>,
-       "Linus Torvalds" <torvalds@osdl.org>
-Subject: Fwd: [PATCH 2/2] nfsd4: fix open-create permissions
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>, nfsv4@linux-nfs.org,
-       "Jeff Garzik" <jeff@garzik.org>, "Neil Brown" <neilb@suse.de>,
-       "J. Bruce Fields" <bfields@fieldses.org>
-In-Reply-To: <20061106162458.GC12372@fieldses.org>
+        b=tm0pltZ2ocHdE7LG/ey0QNA+P1wVs4cRm+QGycjnW9JeMCUprJsjmc//D1AE64KuhSZScMuI79tAsSHCYuLRamWbw+tXVcCMLScP1HAzJH0BneHQU+5yB0aICz0lFB+hS1xzx4FtZdXt+Fgl95HPPHtVHXkidoIkMCv4k1rS0L0=
+Message-ID: <d120d5000611060848k1f5fa2f7r7e78a0eca88a59ce@mail.gmail.com>
+Date: Mon, 6 Nov 2006 11:48:03 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
+Cc: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Vojtech Pavlik" <vojtech@suse.cz>
+In-Reply-To: <161717d50611060822w11e031ebra8f62d0fc5b02d69@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <6278d2220611060403j2b63cb9cl1d0707e7cf3d7899@mail.gmail.com>
-	 <20061106161747.GA12372@fieldses.org>
-	 <20061106162458.GC12372@fieldses.org>
+References: <200608232311.07599.dtor@insightbb.com>
+	 <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com>
+	 <200611030103.17913.dtor@insightbb.com>
+	 <161717d50611060822w11e031ebra8f62d0fc5b02d69@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Trond,
+On 11/6/06, Dave Neuer <mr.fred.smoothie@pobox.com> wrote:
+>
+> As I said, I have had both keyboard and touchpad problems on this
+> laptop (formerly more of the former, lately more of the latter);
+> interestingly, after applying this patch I have had failures much less
+> frequently (multiple instances of several days w/out failure w/ the
+> laptop powered on continuously). Also interestingly, and
+> unfortunately, that may be coincidence; I've discovered a use case
+> that seems to reliably cause the touchpad to freeze up w/ or w/out the
+> patch applied (selecting multiple items in modified file list in
+> EasyTAG). Haven't looked into it yet, on the "hurts when I do this,"
+> "then don't do that" theory, but when I have time to look at the
+> EasyTAG code and try to reason about what's happening, I will.
+>
 
-What is the chance of this patch making it into the final 2.6.19?
+It would be interesting to see dmesg of reloading psmouse module after
+touchpad freezes:
 
-WIthout it, there is a serious NFSv4 open() regression; I've been
-running it on client and server for ~1 week under load and it resolves
-the condition w/o side-effects. See the LKML thread "Poor NFSv4 first
-impressions" for further details.
+echo 1 > /sys/module/i8042/parameters/debug
+rmmod psmouse
+modprobe psmouse
 
-Daniel
-
----------- Forwarded message ----------
-From: J. Bruce Fields <bfields@fieldses.org>
-Date: 06-Nov-2006 16:24
-Subject: [PATCH 2/2] nfsd4: fix open-create permissions
-To: Daniel J Blueman <daniel.blueman@gmail.com>
-Cc: nfsv4@linux-nfs.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-Jeff Garzik <jeff@garzik.org>, Neil Brown <neilb@suse.de>
-
-
-In the case where an open creates the file, we shouldn't be rechecking
-permissions to open the file; the open succeeds regardless of what the
-new file's mode bits say.
-
-This patch fixes the problem, but only by introducing yet another parameter
-to nfsd_create_v3.  This is ugly.  This will be fixed by later patches.
-
-Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
----
- fs/nfsd/nfs3proc.c        |    2 +-
- fs/nfsd/nfs4proc.c        |    6 ++++--
- fs/nfsd/vfs.c             |    4 +++-
- include/linux/nfsd/nfsd.h |    2 +-
- 4 files changed, 9 insertions(+), 5 deletions(-)
-
-diff --git a/fs/nfsd/nfs3proc.c b/fs/nfsd/nfs3proc.c
-index 64db601..7f5bad0 100644
---- a/fs/nfsd/nfs3proc.c
-+++ b/fs/nfsd/nfs3proc.c
-@@ -258,7 +258,7 @@ nfsd3_proc_create(struct svc_rqst *rqstp
-        /* Now create the file and set attributes */
-        nfserr = nfsd_create_v3(rqstp, dirfhp, argp->name, argp->len,
-                                attr, newfhp,
--                               argp->createmode, argp->verf, NULL);
-+                               argp->createmode, argp->verf, NULL, NULL);
-
-        RETURN_STATUS(nfserr);
- }
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 4a73f5b..50bc942 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -93,6 +93,7 @@ do_open_lookup(struct svc_rqst *rqstp, s
- {
-        struct svc_fh resfh;
-        __be32 status;
-+       int created = 0;
-
-        fh_init(&resfh, NFS4_FHSIZE);
-        open->op_truncate = 0;
-@@ -105,7 +106,7 @@ do_open_lookup(struct svc_rqst *rqstp, s
-                status = nfsd_create_v3(rqstp, current_fh, open->op_fname.data,
-                                        open->op_fname.len, &open->op_iattr,
-                                        &resfh, open->op_createmode,
--                                       (u32 *)open->op_verf.data,
-&open->op_truncate);
-+                                       (u32 *)open->op_verf.data,
-&open->op_truncate, &created);
-        } else {
-                status = nfsd_lookup(rqstp, current_fh,
-                                     open->op_fname.data,
-open->op_fname.len, &resfh);
-@@ -122,7 +123,8 @@ do_open_lookup(struct svc_rqst *rqstp, s
-        memcpy(open->op_stateowner->so_replay.rp_openfh,
-                        &resfh.fh_handle.fh_base, resfh.fh_handle.fh_size);
-
--       status = do_open_permission(rqstp, current_fh, open, MAY_NOP);
-+       if (!created)
-+               status = do_open_permission(rqstp, current_fh, open, MAY_NOP);
-
- out:
-        fh_put(&resfh);
-diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-index f21e917..1a7ad8c 100644
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -1237,7 +1237,7 @@ __be32
- nfsd_create_v3(struct svc_rqst *rqstp, struct svc_fh *fhp,
-                char *fname, int flen, struct iattr *iap,
-                struct svc_fh *resfhp, int createmode, u32 *verifier,
--               int *truncp)
-+               int *truncp, int *created)
- {
-        struct dentry   *dentry, *dchild = NULL;
-        struct inode    *dirp;
-@@ -1331,6 +1331,8 @@ nfsd_create_v3(struct svc_rqst *rqstp, s
-        host_err = vfs_create(dirp, dchild, iap->ia_mode, NULL);
-        if (host_err < 0)
-                goto out_nfserr;
-+       if (created)
-+               *created = 1;
-
-        if (EX_ISSYNC(fhp->fh_export)) {
-                err = nfserrno(nfsd_sync_dir(dentry));
-diff --git a/include/linux/nfsd/nfsd.h b/include/linux/nfsd/nfsd.h
-index eb23114..edb54c3 100644
---- a/include/linux/nfsd/nfsd.h
-+++ b/include/linux/nfsd/nfsd.h
-@@ -89,7 +89,7 @@ __be32                nfsd_access(struct svc_rqst *, s
- __be32         nfsd_create_v3(struct svc_rqst *, struct svc_fh *,
-                                char *name, int len, struct iattr *attrs,
-                                struct svc_fh *res, int createmode,
--                               u32 *verifier, int *truncp);
-+                               u32 *verifier, int *truncp, int *created);
- __be32         nfsd_commit(struct svc_rqst *, struct svc_fh *,
-                                loff_t, unsigned long);
- #endif /* CONFIG_NFSD_V3 */
---
-1.4.3.3.g01929
+BTW, what video driver are you using?
 
 -- 
-Daniel J Blueman
+Dmitry

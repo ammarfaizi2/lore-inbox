@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753660AbWKFU0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753726AbWKFU14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753660AbWKFU0D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753687AbWKFU0D
+	id S1753726AbWKFU14 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753719AbWKFU14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:26:03 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:7642 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S1753660AbWKFU0A (ORCPT
+	Mon, 6 Nov 2006 15:27:56 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:8206 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1753158AbWKFU1z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:26:00 -0500
-Date: Mon, 6 Nov 2006 14:25:59 -0600
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: akpm@osdl.org, jens.axboe@oracle.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 9/12] repost: cciss: add busy_configuring flag 
-Message-ID: <20061106202559.GI17847@beardog.cca.cpqcorp.net>
+	Mon, 6 Nov 2006 15:27:55 -0500
+Date: Mon, 6 Nov 2006 21:30:02 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 6/12] repost: cciss: set sector_size to 2048 for performance
+Message-ID: <20061106203001.GF19471@kernel.dk>
+References: <20061106202055.GF17847@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20061106202055.GF17847@beardog.cca.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PATCH 9 of 12
+On Mon, Nov 06 2006, Mike Miller (OS Dev) wrote:
+> PATCH 6/11
+> 
+> This patch changes the blk_queue_max_sectors from 512 to 2048. This helps
+> increase performance.
+> Please consider this for inclusion.
 
-This patch adds a check for busy_configuring to prevent starting a queue
-on a drive that may be in the midst of updating, configuring, deleting, etc.
+Bad naming - I've never seen sector size refer to anything else but the
+actual sector size on the device. Here you use it as the largest
+supported command size. To make matters worse, you also export it in the
+proc file as such, that's certain to confuse users.
 
-This had a test for if the queue was stopped or plugged but that seemed
-to cause issues.
-Please consider this for inclusion.
+In other news, ack on patch 1-5 so far.
 
-Thanks,
-mikem
+-- 
+Jens Axboe
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
-
---------------------------------------------------------------------------------
-
----
-
- drivers/block/cciss.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-
-diff -puN drivers/block/cciss.c~cciss_busy_conf_for_lx2619-rc4 drivers/block/cciss.c
---- linux-2.6/drivers/block/cciss.c~cciss_busy_conf_for_lx2619-rc4	2006-11-06 13:27:53.000000000 -0600
-+++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:27:53.000000000 -0600
-@@ -1190,8 +1190,11 @@ static void cciss_check_queues(ctlr_info
- 		/* make sure the disk has been added and the drive is real
- 		 * because this can be called from the middle of init_one.
- 		 */
--		if (!(h->drv[curr_queue].queue) || !(h->drv[curr_queue].heads))
-+		if (!(h->drv[curr_queue].queue) ||
-+		    !(h->drv[curr_queue].heads) ||
-+		    h->drv[curr_queue].busy_configuring)
- 			continue;
-+
- 		blk_start_queue(h->gendisk[curr_queue]->queue);
- 
- 		/* check to see if we have maxed out the number of commands
-_

@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751676AbWKFKym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751887AbWKFLGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751676AbWKFKym (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 05:54:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751712AbWKFKym
+	id S1751887AbWKFLGA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 06:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWKFLGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 05:54:42 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:39693 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751676AbWKFKyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 05:54:41 -0500
-Date: Mon, 6 Nov 2006 11:54:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc3: more DWARFs and strange messages
-Message-ID: <20061106105442.GK5778@stusta.de>
-References: <20061028200151.GC5619@gimli>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061028200151.GC5619@gimli>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 6 Nov 2006 06:06:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10190 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751887AbWKFLF7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 06:05:59 -0500
+Subject: [GFS2] Fix OOM error handling [3/5]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 06 Nov 2006 11:08:13 +0000
+Message-Id: <1162811293.18219.34.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin, did commit 4b96b1a10cb00c867103b21f0f2a6c91b705db11 that is now 
-in Linus' tree fix this issue?
+>From 26d83dedf61d26d85f10bc34b92f4de7660fd746 Mon Sep 17 00:00:00 2001
+From: Steven Whitehouse <swhiteho@redhat.com>
+Date: Mon, 30 Oct 2006 16:59:08 -0500
+Subject: [PATCH] [GFS2] Fix OOM error handling
+
+Fix the OOM error handling in inode.c where it was possible for
+a NULL pointer to be dereferenced.
+
+Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+---
+ fs/gfs2/inode.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+index 57c43ac..d470e52 100644
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -157,6 +157,9 @@ struct inode *gfs2_inode_lookup(struct s
+ 	struct gfs2_glock *io_gl;
+ 	int error;
+ 
++	if (!inode)
++		return ERR_PTR(-ENOBUFS);
++
+ 	if (inode->i_state & I_NEW) {
+ 		struct gfs2_sbd *sdp = GFS2_SB(inode);
+ 		umode_t mode = DT2IF(type);
+-- 
+1.4.1
 
 
-On Sat, Oct 28, 2006 at 10:01:51PM +0200, Martin Lorenz wrote:
-> With my recent kernel pulled from git on friday I see quite some DWARFs and
-> other strange messages.
-> 
-> lots of those:
-> [18038.721000] thinkpad_ec: thinkpad_ec_request_row: bad end STR3:
-> (0x11:0x00)->0x80
-> 
-> this was said to be triggered by the combination of hdaps and tp_smapi but I
-> do not load the tp_smapi module ...
-> hdaps is configured
-> 
-> and quite a few of those:
-> 
-> [18504.980000] BUG: warning at kernel/cpu.c:56/unlock_cpu_hotplug()
-> [18504.980000]  [<c0103bdd>] dump_trace+0x69/0x1af
-> [18504.980000]  [<c0103d3b>] show_trace_log_lvl+0x18/0x2c
-> [18504.980000]  [<c01043da>] show_trace+0xf/0x11
-> [18504.980000]  [<c01044dd>] dump_stack+0x15/0x17
-> [18504.980000]  [<c0135e94>] unlock_cpu_hotplug+0x3d/0x66
-> [18504.980000]  [<f92e67f3>] do_dbs_timer+0x1c2/0x229 [cpufreq_ondemand]
-> [18504.980000]  [<c012ccb1>] run_workqueue+0x83/0xc5
-> [18504.980000]  [<c012d5d5>] worker_thread+0xd9/0x10c
-> [18504.980000]  [<c012fb36>] kthread+0xc2/0xf0
-> [18504.980000]  [<c010398b>] kernel_thread_helper+0x7/0x10
-> [18504.980000] DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
-> [18504.980000]
-> [18504.980000] Leftover inexact backtrace:
-> [18504.980000]
-> [18504.980000]  =======================
-> 
-> 
-> full config and dmesg is in
-> http://www.lorenz.eu.org/~mlo/kernel/config.2.6.19-rc3-e1-ie-tp-43.3+1757-g18462d6b-dirty.gz
-> http://www.lorenz.eu.org/~mlo/kernel/dmesg.2.6.19-rc3-e1-ie-tp-43.3+1757-g18462d6b-dirty.boot
-> http://www.lorenz.eu.org/~mlo/kernel/dmesg.2.6.19-rc3-e1-ie-tp-43.3+1757-g18462d6b-dirty.run
-> 
-> and more
-> http://www.lorenz.eu.org/~mlo/kernel/?C=M;O=D
-> 
-> greets
->   mlo
-> --
-> Dipl.-Ing. Martin Lorenz
-> 
->             They that can give up essential liberty 
-> 	    to obtain a little temporary safety 
-> 	    deserve neither liberty nor safety.
->                                    Benjamin Franklin
-> 
-> please encrypt your mail to me
-> GnuPG key-ID: F1AAD37D
-> get it here:
-> http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
-> 
-> ICQ UIN: 33588107
+

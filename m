@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423560AbWKFGAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423563AbWKFGHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423560AbWKFGAV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 01:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423564AbWKFGAV
+	id S1423563AbWKFGHH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 01:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423564AbWKFGHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 01:00:21 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26635 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1423560AbWKFGAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 01:00:19 -0500
-Date: Mon, 6 Nov 2006 07:00:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christian <christiand59@web.de>
-Cc: Dave Jones <davej@redhat.com>,
-       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: [discuss] Linux 2.6.19-rc4: known unfixed regressions (v2)
-Message-ID: <20061106060021.GD5778@stusta.de>
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <454AFD01.4080306@linux.intel.com> <20061103155656.GA1000@redhat.com> <200611051832.13285.christiand59@web.de>
+	Mon, 6 Nov 2006 01:07:07 -0500
+Received: from nz-out-0102.google.com ([64.233.162.202]:5540 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1423563AbWKFGHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 01:07:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=CZU3nJ74cfnHWlkHGe2bM+071avJ1rC09qWkBe7J2FRaQcQ6F8C9qHT7Hxxvq5bmJT5hwJNELU/Bz6AJQirGEi2DRrLvchM9srEqldBYcwoCpWhzgTHrWz4/X4q+SvC0PFb3QFYbRmLxtVXqH8Ig5T97U9wmfgHDaowu7sTwjls=
+Message-ID: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
+Date: Mon, 6 Nov 2006 14:07:02 +0800
+From: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ZONE_NORMAL memory exhausted by 4000 TCP sockets
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200611051832.13285.christiand59@web.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 05, 2006 at 06:32:12PM +0100, Christian wrote:
-> Am Freitag, 3. November 2006 16:56 schrieb Dave Jones:
-> > On Fri, Nov 03, 2006 at 11:25:37AM +0300, Alexey Starikovskiy wrote:
-> >  > Could this be a problem?
-> >  > --------------------
-> >  > ...
-> >  > CONFIG_ACPI_PROCESSOR=m
-> >  > ...
-> >  > CONFIG_X86_POWERNOW_K8=y
-> >
-> > Hmm, possibly.  Christian, does it work again if you set them both to =y ?
-> 
-> Yes, it works now! Only the change to CONFIG_ACPI_PROCESSOR=y made it work 
-> again!
+Dears,
+    I'm running a linux box with kernel version 2.6.16. The hardware
+has 2 Woodcrest Xeon CPUs (2 cores each) and 4G RAM. The NIC cards is
+Intel 82571 on PCI-e bus.
+    The box is acting as ethernet bridge between 2 Gigabit Ethernets.
+By configuring ebtables and iptables, an application is running as TCP
+proxy which will intercept all TCP connections requests from the
+network and setup another TCP connection to the acture server.  The
+TCP proxy then relays all traffics in both directions.
+    The problem is the memory. Since the box must support thousands of
+concurrent connections, I know the memory size of ZONE_NORMAL would be
+a bottleneck as TCP packets would need many buffers. After setting
+upper limit of net.ipv4.tcp_rmem and net.ipv4.tcp_wmem to 32K bytes,
+our test began.
+    My test scenario employs 2000 concurrent downloading connections
+to a IIS server's port 80. The throughput is about 500~600 Mbps which
+is limited by the capability of the client application. Because all
+traffics are from server to client and the capability of client
+machine is bottleneck, I believe the receiver side of the sockets
+connected with server and the sender side of the sockets connected
+with client should be filled with packets in correspondent windows.
+Thus, roughly there should be about 32K * 2000+ 32K*2000 = 128M bytes
+memory occupied by TCP/IP stack for packet buffering. Data from
+slabtop confermed it. it's about 140M bytes memory cost after I start
+the traffic. That reasonablly matched with my estimation. However,
+/proc/meminfo had a different story. The 'LowFree' dropped from about
+710M to 80M. In other words, there's addtional 500M memory in
+ZONE_NORMAL allocated by someone other than the slab. Why?
+   I also made another test that the upper limit of tcp_rmem and
+tcp_wmem being set to 64K. After 2000 connections transfering a lot of
+data for several seconds, the linux box showed some error messages
+such as error allocating memory pages, etc. and became unstable.
+   My questions are:
 
-You said 2.6.18 worked for you.
+1. To calculate memory request of TCP sockets, is there any other
+large amount of memory requested besides send and receive buffer?
+2. Is there any logics that emploied by TCP/IP stack that will
+dynamically allocating memory pages directly instead of from slab?
 
-Did you have CONFIG_ACPI_PROCESSOR=y in 2.6.18, or did
-CONFIG_ACPI_PROCESSOR=m, CONFIG_X86_POWERNOW_K8=y work for you in 2.6.18?
+Thanks!
 
-> Nice catch ;-)
-> 
-> Thank you very much!
-> -Christian
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Xiaoming.

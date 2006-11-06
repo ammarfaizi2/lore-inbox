@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753265AbWKFPuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753253AbWKFPws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753265AbWKFPuo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 10:50:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753267AbWKFPun
+	id S1753253AbWKFPws (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 10:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753267AbWKFPws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 10:50:43 -0500
-Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:56040 "EHLO
-	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S1753265AbWKFPum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 10:50:42 -0500
-Message-ID: <454F59AB.9090403@lwfinger.net>
-Date: Mon, 06 Nov 2006 09:50:03 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Mon, 6 Nov 2006 10:52:48 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:31473 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1753253AbWKFPws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 10:52:48 -0500
+Message-ID: <454F5A59.8010309@cfl.rr.com>
+Date: Mon, 06 Nov 2006 10:52:57 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linville@tuxdriver.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] bcm43xx_sprom_write(): add error checks
-References: <20061106142146.GN5778@stusta.de>
-In-Reply-To: <20061106142146.GN5778@stusta.de>
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Brent Baccala <cosine@freesoft.org>, linux-kernel@vger.kernel.org
+Subject: Re: async I/O seems to be blocking on 2.6.15
+References: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org> <20061103122055.GE13555@kernel.dk> <Pine.LNX.4.64.0611031049120.7173@debian.freesoft.org> <20061103160212.GK13555@kernel.dk> <Pine.LNX.4.64.0611031214560.28100@debian.freesoft.org> <20061105121522.G <20061106104350.GR13555@kernel.dk>
+In-Reply-To: <20061106104350.GR13555@kernel.dk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Nov 2006 15:52:56.0747 (UTC) FILETIME=[A08D37B0:01C701BB]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14796.003
+X-TM-AS-Result: No--6.695900-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> The Coverity checker noted that these "if (err)"'s couldn't ever be 
-> true.
-> 
-> It seems the intention was to check the return values of the 
-> bcm43xx_pci_write_config32()'s?
+Jens Axboe wrote:
+> Yeah, I'm afraid so. We really should be returning EAGAIN or something
+> like that for the congested condition, though.
 
-Exactly. This patch sent to wireless-2.6.
+How would user mode know when it was safe to retry the request?
 
-Thanks,
 
-Larry

@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753218AbWKFQAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753286AbWKFQAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753218AbWKFQAp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 11:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753283AbWKFQAp
+	id S1753286AbWKFQAj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 11:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753283AbWKFQAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 11:00:45 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:47415 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1753218AbWKFQAo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 11:00:44 -0500
-Date: Mon, 6 Nov 2006 17:02:51 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: Brent Baccala <cosine@freesoft.org>, linux-kernel@vger.kernel.org
-Subject: Re: async I/O seems to be blocking on 2.6.15
-Message-ID: <20061106160250.GY13555@kernel.dk>
-References: <Pine.LNX.4.64.0611030311430.25096@debian.freesoft.org> <20061103122055.GE13555@kernel.dk> <Pine.LNX.4.64.0611031049120.7173@debian.freesoft.org> <20061103160212.GK13555@kernel.dk> <Pine.LNX.4.64.0611031214560.28100@debian.freesoft.org> <20061106104350.GR13555@kernel.dk> <454F5A59.8010309@cfl.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <454F5A59.8010309@cfl.rr.com>
+	Mon, 6 Nov 2006 11:00:39 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:53214 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1753286AbWKFQAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 11:00:38 -0500
+Date: Mon, 06 Nov 2006 17:00:18 +0100
+From: Joerg.Schilling@fokus.fraunhofer.de (Joerg Schilling)
+To: jens.axboe@oracle.com
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: SCSI over USB showstopper bug?
+Message-ID: <454f5c12.CD9M9/FtHNVm1oDq%Joerg.Schilling@fokus.fraunhofer.de>
+References: <4547c966.8oyAB/pzCZ7bGUza%Joerg.Schilling@fokus.fraunhofer.de>
+ <1162333090.3044.53.camel@laptopd505.fenrus.org>
+ <4547e164.k3W0GpiCAd3p3Tkh%Joerg.Schilling@fokus.fraunhofer.de>
+ <20061101153128.GM13555@kernel.dk>
+ <4548e680.oVsI92sKYOz7VSzN%Joerg.Schilling@fokus.fraunhofer.de>
+ <20061101183132.GO13555@kernel.dk>
+In-Reply-To: <20061101183132.GO13555@kernel.dk>
+User-Agent: nail 11.22 3/20/05
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06 2006, Phillip Susi wrote:
-> Jens Axboe wrote:
-> >Yeah, I'm afraid so. We really should be returning EAGAIN or something
-> >like that for the congested condition, though.
-> 
-> How would user mode know when it was safe to retry the request?
+Jens Axboe <jens.axboe@oracle.com> wrote:
 
-You could optimistically retry when you had reaped some completed
-events, or use some controlled way of blocking for free request
-notification. There are many ways, most of them share the fact that the
-time between notification and new io_submit() may change the picture, in
-which case you'd get EAGAIN once more.
+> > Then someone should change the source to match this statements.
+> > 
+> > From a report I have from the k3b Author, readcd and cdda2wav only work
+> > if you add a "ts=128k" option. 
+>
+> Then please file (or have him/her file) a proper bug report. It may be a
+> usb specific bug, or it may just be something else.
 
-The important bit is imho to make the blocking at least deterministic.
-At some point you _have_ to block for resources, but it's not very
-polite to be blocking for a considerable time indeterministically.
+To me, it looks like a problem that happens with usb because there is 
+no proper interaction with SG_?ET_RESETVED_SIZE and the usb layer.
+
+I am still in hope that someone will fix this soon.
+
+Jörg
 
 -- 
-Jens Axboe
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753828AbWKFVgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753833AbWKFVeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753828AbWKFVgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 16:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753834AbWKFVgM
+	id S1753833AbWKFVeA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 16:34:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753828AbWKFVeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 16:36:12 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:46834 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1753828AbWKFVgL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 16:36:11 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Hoang-Nam Ngyuen <hnguyen@linux.vnet.ibm.com>
-Subject: Re: [PATCH 2.6.19 1/4] ehca: assure 4k alignment for firmware control block in 64k page mode
-Date: Mon, 6 Nov 2006 22:35:28 +0100
-User-Agent: KMail/1.9.5
-Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       openib-general@openib.org, hnguyen@de.ibm.com, raisch@de.ibm.com
-References: <200611062226.44939.hnguyen@linux.vnet.ibm.com>
-In-Reply-To: <200611062226.44939.hnguyen@linux.vnet.ibm.com>
+	Mon, 6 Nov 2006 16:34:00 -0500
+Received: from kilderkin.sout.netline.net.uk ([213.40.66.40]:4554 "EHLO
+	kilderkin.sout.netline.net.uk") by vger.kernel.org with ESMTP
+	id S1753833AbWKFVeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 16:34:00 -0500
+Message-ID: <454FAA44.1080000@supanet.com>
+Date: Mon, 06 Nov 2006 21:33:56 +0000
+From: Andrew Benton <b3nt@supanet.com>
+User-Agent: Thunderbird 3.0a1 (X11/20061019)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200611062235.28667.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.19 Microcode Update causes a ten second wait
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Supanet-AV-out: Mail Scanned as virus free, although you should still use a local virus scanner.
+X-Supanet: This was sent via a www.supanet.com mail server
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 November 2006 22:26, Hoang-Nam Ngyuen wrote:
-> -       rblock = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-> +       rblock = (struct hipz_query_hca*)ehca_alloc_fw_ctrlblock();
+Hello World
+With the 2.6.19 kernels I've tried (2.6.19-rc1-git7 and 
+2.6.19-rc4-git10), enabling the Intel Microcode Update Driver causes the 
+kernel to hang for more than ten seconds when I boot. The last thing it 
+shows on the screen is `TCP reno registered' and then it just stops like 
+its a kernel panic. But it isn't, after about ten seconds the text flies 
+up the screen again and the system boots normally. Disabling support for 
+the microcode update makes the problem go away.
 
->  
-> -       rblock = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-> +       rblock = (struct hipz_query_port*)ehca_alloc_fw_ctrlblock();
-
-The point Heiko made in his comment is that with ehca_alloc_fw_ctrlblock
-returning a void*, you can (and _should_) remove the casts to other
-pointer types.
-
-	Arnd <><
+Andy

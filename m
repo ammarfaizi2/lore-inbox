@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753829AbWKFV1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753830AbWKFVb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753829AbWKFV1k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 16:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753809AbWKFV1k
+	id S1753830AbWKFVb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 16:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753834AbWKFVb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 16:27:40 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:17133 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1753828AbWKFV1j (ORCPT
+	Mon, 6 Nov 2006 16:31:28 -0500
+Received: from iabervon.org ([66.92.72.58]:34834 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S1753830AbWKFVb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 16:27:39 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Marc Perkel <marc@perkel.com>
-Subject: Re: could not find filesystem /dev/root
-Date: Mon, 6 Nov 2006 22:25:55 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <454E95E1.2010708@perkel.com> <200611062112.42202.rjw@sisk.pl> <454FA6AD.7000301@perkel.com>
-In-Reply-To: <454FA6AD.7000301@perkel.com>
+	Mon, 6 Nov 2006 16:31:28 -0500
+Date: Mon, 6 Nov 2006 16:31:26 -0500 (EST)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Dmitry Bohush <dmitrij.bogush@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: High pitch noise on Acer Aspire 5602WLMi
+In-Reply-To: <2ac89c700611042257p6c4ea9cdsdfb7b2d3f2415d8a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0611061626500.9789@iabervon.org>
+References: <2ac89c700611042257p6c4ea9cdsdfb7b2d3f2415d8a@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611062225.56070.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 6 November 2006 22:18, Marc Perkel wrote:
-> 
-> Rafael J. Wysocki wrote:
-> > On Monday, 6 November 2006 02:54, Marc Perkel wrote:
-> >   
-> >> Trying to compile a new kernel and getting this on boot
-> >>
-> >> could not find filesystem /dev/root
-> >>     
-> >
-> > Which kernel?
-> >   
-> 
-> 2.6.19rc4
+On Sun, 5 Nov 2006, Dmitry Bohush wrote:
 
-What is the last working version?
+> Hello,  Probably it is one of resistors on motherboard. This noise
+> goes away with adding acpi=off to boot params.
+> 
+> What is this? It can be fixed?
+
+Try processor.max_cstate=3; if that doesn't work, try =2. Google for 
+max_cstate will give you tons of anecdotes.
+
+	-Daniel
+*This .sig left intentionally blank*

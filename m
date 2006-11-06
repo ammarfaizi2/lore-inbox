@@ -1,36 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753092AbWKFNdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753101AbWKFNdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753092AbWKFNdF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 08:33:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753097AbWKFNdF
+	id S1753101AbWKFNdj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 08:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753099AbWKFNdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 08:33:05 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:52623 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1753092AbWKFNdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 08:33:03 -0500
-Subject: Re: [x86_64] soft lockup with sunrpc/nfsd (also DWARF2 unwinder
-	stuck)
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: "Robin H. Johnson" <robbat2@gentoo.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061106044752.GP15897@curie-int.orbis-terrarum.net>
-References: <20061106044752.GP15897@curie-int.orbis-terrarum.net>
-Content-Type: text/plain
-Date: Mon, 06 Nov 2006 14:31:38 +0100
-Message-Id: <1162819898.14238.1.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Nov 2006 08:33:39 -0500
+Received: from master.altlinux.org ([62.118.250.235]:1550 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP
+	id S1753097AbWKFNdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 08:33:38 -0500
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: Jan Mate <mate@fiit.stuba.sk>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Sergey Vlasov <vsu@altlinux.ru>
+Subject: [PATCH] usb-storage: Remove duplicated unusual_devs.h entries for Sony Ericsson P990i
+Date: Mon,  6 Nov 2006 16:33:07 +0300
+Message-Id: <11628199871999-git-send-email-vsu@altlinux.ru>
+X-Mailer: git-send-email 1.4.3.4.g08e35
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 20:47 -0800, Robin H. Johnson wrote:
-> The -git head as of today (2.6.19-rc4-git9) has a bug with SunRPC by the looks
-> of it. 
+For some reason the unusual_devs.h entry for Sony Ericsson P990i had
+three identical copies in a wrong place in the file in addition to the
+correct entry.
 
-Does:
-  http://lkml.org/lkml/2006/10/29/43
+Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
+---
+ drivers/usb/storage/unusual_devs.h |   21 ---------------------
+ 1 files changed, 0 insertions(+), 21 deletions(-)
 
-fix it?
+diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
+index bc1ac07..2ff1a72 100644
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -1299,27 +1299,6 @@ UNUSUAL_DEV(  0x0fce, 0xe031, 0x0000, 0x
+ 		US_SC_DEVICE, US_PR_DEVICE, NULL,
+ 		US_FL_FIX_CAPACITY ),
+ 
+-/* Reported by Jan Mate <mate@fiit.stuba.sk> */
+-UNUSUAL_DEV(  0x0fce, 0xe030, 0x0000, 0x0000,
+-		"Sony Ericsson",
+-		"P990i",
+-		US_SC_DEVICE, US_PR_DEVICE, NULL,
+-		US_FL_FIX_CAPACITY ),
+-
+-/* Reported by Jan Mate <mate@fiit.stuba.sk> */
+-UNUSUAL_DEV(  0x0fce, 0xe030, 0x0000, 0x0000,
+-		"Sony Ericsson",
+-		"P990i",
+-		US_SC_DEVICE, US_PR_DEVICE, NULL,
+-		US_FL_FIX_CAPACITY ),
+-
+-/* Reported by Jan Mate <mate@fiit.stuba.sk> */
+-UNUSUAL_DEV(  0x0fce, 0xe030, 0x0000, 0x0000,
+-		"Sony Ericsson",
+-		"P990i",
+-		US_SC_DEVICE, US_PR_DEVICE, NULL,
+-		US_FL_FIX_CAPACITY ),
+-
+ /* Reported by Kevin Cernekee <kpc-usbdev@gelato.uiuc.edu>
+  * Tested on hardware version 1.10.
+  * Entry is needed only for the initializer function override.
+-- 
+1.4.3.4.g08e35
 

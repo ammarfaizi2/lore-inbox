@@ -1,101 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752946AbWKFMqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752989AbWKFMrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752946AbWKFMqh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 07:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752971AbWKFMqg
+	id S1752989AbWKFMrn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 07:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752993AbWKFMrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 07:46:36 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:736 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752947AbWKFMqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 07:46:35 -0500
-Subject: Re: [PATCH] add pci revision id to struct pci_dev
-From: Arjan van de Ven <arjan@infradead.org>
-To: Conke Hu <conke.hu@gmail.com>
+	Mon, 6 Nov 2006 07:47:43 -0500
+Received: from relay2.ptmail.sapo.pt ([212.55.154.22]:24707 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S1752992AbWKFMrm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 07:47:42 -0500
+X-AntiVirus: PTMail-AV 0.3-0.88.4
+Subject: Re: VIA IRQ quirk missing PCI ids since 2.6.16.17
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+To: Wilco Beekhuizen <wilcobeekhuizen@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5767b9100611060440i1149e0e3v2162e0604db10da7@mail.gmail.com>
-References: <5767b9100611060440i1149e0e3v2162e0604db10da7@mail.gmail.com>
+In-Reply-To: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com>
+References: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com>
 Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 06 Nov 2006 13:46:33 +0100
-Message-Id: <1162817193.3138.10.camel@laptopd505.fenrus.org>
+Date: Mon, 06 Nov 2006 12:47:33 +0000
+Message-Id: <1162817254.5460.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-06 at 20:40 +0800, Conke Hu wrote:
-> Hi all,
->     PCI revision id had better be added to struct pci_dev and
-> initialized in pci_scan_device.
+
+
+
+On Mon, 2006-11-06 at 12:38 +0100, Wilco Beekhuizen wrote:
+> Hi, since 2.6.17.17 in drivers/pci/quirks.c (quirk_via_irq) all VIA
+> chipsets are listed seperately instead of the "include everything"
+> PCI_ANY_ID.
 > 
->     Signed-off-by: Conke Hu <conke.hu@gmail.com>
+> This is however problematic with my chipset.
+> The ethernet controller, a VT6102 (Rhine-II) and the audio controller,
+> VT8233/A/8235/8237 need a fix to work.
+> Including PCI_ANY_ID again fixes these problems but is of course a
+> pretty evil fix. The problem is I can't find out which PCI ids to
+> include. I'm new to this list so suggestions are welcome.
 
-Hi,
+this is the latest patch 
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm1/broken-out/via-irq-quirk-behaviour-change.patch
+about this issue please try it and report the experience :) 
 
-it's customary to use the email address from the copyright holder (eg
-your employer, AMD) in the Signed-off-by line.
 
 > 
-> -----
-> diff -Nur linux-2.6.19-rc4-git10.orig/drivers/pci/probe.c
-> linux-2.6.19-rc4-git10/drivers/pci/probe.c
-> --- linux-2.6.19-rc4-git10.orig/drivers/pci/probe.c     2006-11-06
-> 19:38:43.000000000 +0800
-
-and your patch is word wrapped...
-
-> +++ linux-2.6.19-rc4-git10/drivers/pci/probe.c  2006-11-06
-> 19:41:17.000000000 +0800
-> @@ -785,6 +785,7 @@
->        u32 l;
->        u8 hdr_type;
->        int delay = 1;
-> +       u8 rev;
-> 
->        if (pci_bus_read_config_dword(bus, devfn, PCI_VENDOR_ID, &l))
->                return NULL;
-> @@ -813,6 +814,9 @@
->        if (pci_bus_read_config_byte(bus, devfn, PCI_HEADER_TYPE, &hdr_type))
->                return NULL;
-> 
-> +       if (pci_bus_read_config_byte(bus, devfn, PCI_REVISION_ID, &rev))
-> +               return NULL;
-> +
->        dev = kzalloc(sizeof(struct pci_dev), GFP_KERNEL);
->        if (!dev)
->                return NULL;
-> @@ -828,6 +832,7 @@
->        dev->device = (l >> 16) & 0xffff;
->        dev->cfg_size = pci_cfg_space_size(dev);
->        dev->error_state = pci_channel_io_normal;
-> +       dev->revision = rev;
-> 
->        /* Assume 32-bit PCI; let 64-bit PCI cards (which are far rarer)
->           set this higher, assuming the system even supports it.  */
-> diff -Nur linux-2.6.19-rc4-git10.orig/include/linux/pci.h
-> linux-2.6.19-rc4-git10/include/linux/pci.h
-> --- linux-2.6.19-rc4-git10.orig/include/linux/pci.h     2006-11-06
-> 19:39:07.000000000 +0800
-> +++ linux-2.6.19-rc4-git10/include/linux/pci.h  2006-11-06
-> 19:41:57.000000000 +0800
-> @@ -123,6 +123,7 @@
->        unsigned short  device;
->        unsigned short  subsystem_vendor;
->        unsigned short  subsystem_device;
-> +       u8              revision;       /* PCI revision ID */
->        unsigned int    class;          /* 3 bytes: (base,sub,prog-if) */
->        u8              hdr_type;       /* PCI header type (`multi'
-> flag masked out) */
-
-pretty badly in fact.
-
-
-can you resend it without the word wrappings ?
-
-It looks good to me otherwise....
-
+> Wilco
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

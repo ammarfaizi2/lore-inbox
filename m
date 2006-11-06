@@ -1,74 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753104AbWKFNdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753096AbWKFNiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753104AbWKFNdt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 08:33:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753102AbWKFNdt
+	id S1753096AbWKFNiw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 08:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753121AbWKFNiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 08:33:49 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:62689 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1753097AbWKFNdr (ORCPT
+	Mon, 6 Nov 2006 08:38:52 -0500
+Received: from nat-132.atmel.no ([80.232.32.132]:48604 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1753096AbWKFNiv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 08:33:47 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
-Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
-Date: Mon, 6 Nov 2006 14:33:50 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, "Linux Netdev List" <netdev@vger.kernel.org>
-References: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com> <200611061022.57840.dada1@cosmosbay.com> <f55850a70611060146o1b2adcabq8c1313f6711f3f4e@mail.gmail.com>
-In-Reply-To: <f55850a70611060146o1b2adcabq8c1313f6711f3f4e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 6 Nov 2006 08:38:51 -0500
+Date: Mon, 6 Nov 2006 14:38:32 +0100
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [GIT PULL] avr32 update
+Message-ID: <20061106143832.721c9e6b@cad-250-152.norway.atmel.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611061433.50912.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 November 2006 10:46, Zhao Xiaoming wrote:
-> 2006/11/6, Eric Dumazet <dada1@cosmosbay.com>:
-> > On Monday 06 November 2006 09:59, Zhao Xiaoming wrote:
-> > > Thank you again for your help. To have more detailed statistic data, I
-> > > did another round of test and gathered some data.  I give the overall
-> > > description here and detailed /proc/net/sockstat, /proc/meminfo,
-> > > /proc/slabinfo and /proc/buddyinfo follows.
-> > > =====================================================
-> > >                            slab mem cost        tcp mem pages      
-> > > lowmem free with traffic:             254668KB                 34693
-> > >       38772KB
-> > > without traffic:       104080KB                           1
-> > >        702652KB
-> > > =====================================================
-> >
-> > Thank you for detailed infos.
-> >
-> > It appears you have an extensive use of threads (about 10000), since :
-> > > task_struct        10095  10095   1360    3    1 : tunables   24   12
-> > >   8 : slabdata   3365   3365      0
-> >
-> > Each thread has a kernel stack, 8KB (ie 2 pages, order-1 allocation),
-> > plus a user vma
-> >
-> > > vm_area_struct     21346  21504     92   42    1 : tunables  120   60
-> > >   8 : slabdata    512    512      0
-> >
-> > Most likely you dont need that much threads. A program with fewer threads
-> > will perform better and use less ram.
->
-> Thanks for the comments. I known the threads may cost many memory.
-> However, I already excluded them from the statistics. The 'after test'
-> info was gotten while the 10000 threads running but no traffics
-> relayed. You may look at the meminfo of 'after test', there is still
-> 104080 kB slab memory which should already included the thread kernel
-> memory cost (8K*10000=80MB). I know 10000 threads are not necessary
-> and just use the simple logic to do some test.
+Linus, please pull from
 
-In fact, your kernel has CONFIG_4KSTACKS, kernel thread stacks use 4K instead 
-of 8K.
+	git://www.atmel.no/~hskinnemoen/linux/kernel/avr32.git for-linus
 
-If you want to increase LOWMEM, (and keep 32bits kernel), you can chose a 
-2G/2G user/kernel split, instead of the 3G/1G default split.
-(see config : CONFIG_VMSPLIT_2G)
+to receive the following updates:
 
-Eric
+Haavard Skinnemoen (4):
+      AVR32: Get rid of board_early_init
+      AVR32: Fix thinko in generic_find_next_zero_le_bit()
+      AVR32: Wire up sys_epoll_pwait
+      AVR32: Add missing return instruction in __raw_writesb
+
+ arch/avr32/boards/atstk1000/setup.c |    9 ---------
+ arch/avr32/kernel/head.S            |    3 ---
+ arch/avr32/kernel/syscall-stubs.S   |    9 +++++++++
+ arch/avr32/kernel/syscall_table.S   |    1 +
+ arch/avr32/lib/findbit.S            |    3 ++-
+ arch/avr32/lib/io-readsb.S          |    2 ++
+ include/asm-avr32/unistd.h          |    3 ++-
+ 7 files changed, 16 insertions(+), 14 deletions(-)
+
+diff --git a/arch/avr32/boards/atstk1000/setup.c b/arch/avr32/boards/atstk1000/setup.c
+index 191ab85..272c011 100644
+--- a/arch/avr32/boards/atstk1000/setup.c
++++ b/arch/avr32/boards/atstk1000/setup.c
+@@ -21,15 +21,6 @@ struct tag *bootloader_tags __initdata;
+ 
+ struct lcdc_platform_data __initdata atstk1000_fb0_data;
+ 
+-asmlinkage void __init board_early_init(void)
+-{
+-	extern void sdram_init(void);
+-
+-#ifdef CONFIG_LOADER_STANDALONE
+-	sdram_init();
+-#endif
+-}
+-
+ void __init board_setup_fbmem(unsigned long fbmem_start,
+ 			      unsigned long fbmem_size)
+ {
+diff --git a/arch/avr32/kernel/head.S b/arch/avr32/kernel/head.S
+index 773b7ad..6163bd0 100644
+--- a/arch/avr32/kernel/head.S
++++ b/arch/avr32/kernel/head.S
+@@ -30,9 +30,6 @@ #ifdef CONFIG_FRAME_POINTER
+ 	mov	r7, 0
+ #endif
+ 
+-	/* Set up the PIO, SDRAM controller, early printk, etc. */
+-	rcall	board_early_init
+-
+ 	/* Start the show */
+ 	lddpc   pc, kernel_start_addr
+ 
+diff --git a/arch/avr32/kernel/syscall-stubs.S b/arch/avr32/kernel/syscall-stubs.S
+index 7589a9b..890286a 100644
+--- a/arch/avr32/kernel/syscall-stubs.S
++++ b/arch/avr32/kernel/syscall-stubs.S
+@@ -100,3 +100,12 @@ __sys_splice:
+ 	rcall	sys_splice
+ 	sub	sp, -4
+ 	popm	pc
++
++	.global	__sys_epoll_pwait
++	.type	__sys_epoll_pwait,@function
++__sys_epoll_pwait:
++	pushm	lr
++	st.w	--sp, ARG6
++	rcall	sys_epoll_pwait
++	sub	sp, -4
++	popm	pc
+diff --git a/arch/avr32/kernel/syscall_table.S b/arch/avr32/kernel/syscall_table.S
+index 63b2069..db8f8b5 100644
+--- a/arch/avr32/kernel/syscall_table.S
++++ b/arch/avr32/kernel/syscall_table.S
+@@ -286,4 +286,5 @@ sys_call_table:
+ 	.long	sys_sync_file_range
+ 	.long	sys_tee
+ 	.long	sys_vmsplice
++	.long	__sys_epoll_pwait	/* 265 */
+ 	.long	sys_ni_syscall		/* r8 is saturated at nr_syscalls */
+diff --git a/arch/avr32/lib/findbit.S b/arch/avr32/lib/findbit.S
+index 2b4856f..c6b91de 100644
+--- a/arch/avr32/lib/findbit.S
++++ b/arch/avr32/lib/findbit.S
+@@ -136,6 +136,7 @@ ENTRY(generic_find_next_zero_le_bit)
+ 	/* offset is not word-aligned. Handle the first (32 - r10) bits */
+ 	ldswp.w	r8, r12[0]
+ 	sub	r12, -4
++	com	r8
+ 	lsr	r8, r8, r10
+ 	brne	.L_found
+ 
+@@ -146,7 +147,7 @@ ENTRY(generic_find_next_zero_le_bit)
+ 
+ 	/* Main loop. offset must be word-aligned */
+ 1:	ldswp.w	r8, r12[0]
+-	cp.w	r8, 0
++	com	r8
+ 	brne	.L_found
+ 	sub	r12, -4
+ 	sub	r9, 32
+diff --git a/arch/avr32/lib/io-readsb.S b/arch/avr32/lib/io-readsb.S
+index b319d5e..2be5da7 100644
+--- a/arch/avr32/lib/io-readsb.S
++++ b/arch/avr32/lib/io-readsb.S
+@@ -45,3 +45,5 @@ __raw_readsb:
+ 	sub	r10, 1
+ 	st.b	r11++, r8
+ 	brne	3b
++
++	retal	r12
+diff --git a/include/asm-avr32/unistd.h b/include/asm-avr32/unistd.h
+index a50e500..56ed1f9 100644
+--- a/include/asm-avr32/unistd.h
++++ b/include/asm-avr32/unistd.h
+@@ -280,9 +280,10 @@ #define __NR_splice		261
+ #define __NR_sync_file_range	262
+ #define __NR_tee		263
+ #define __NR_vmsplice		264
++#define __NR_epoll_pwait	265
+ 
+ #ifdef __KERNEL__
+-#define NR_syscalls		265
++#define NR_syscalls		266
+ 
+ 
+ #define __ARCH_WANT_IPC_PARSE_VERSION

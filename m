@@ -1,55 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753034AbWKFTrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753039AbWKFT73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753034AbWKFTrw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 14:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752990AbWKFTrw
+	id S1753039AbWKFT73 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 14:59:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753048AbWKFT73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 14:47:52 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:34486 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1752745AbWKFTrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 14:47:51 -0500
-X-Sasl-enc: qPcn5DsILRIOCapz7p5W7VcJIj1BndufXUbDHZsxsZvf 1162842471
-Date: Mon, 6 Nov 2006 17:47:44 -0200
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: Stefan Seyfried <seife@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-ID: <20061106194744.GA12458@khazad-dum.debian.net>
-References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061106132903.GA25257@khazad-dum.debian.net> <20061106191351.GA1642@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061106191351.GA1642@suse.de>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 6 Nov 2006 14:59:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12245 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752268AbWKFT72 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 14:59:28 -0500
+Date: Mon, 6 Nov 2006 11:59:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Avoid allocating during interleave from almost full nodes
+Message-Id: <20061106115925.1dd41a77.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611060846070.25351@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+	<20061103134633.a815c7b3.akpm@osdl.org>
+	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
+	<20061103143145.85a9c63f.akpm@osdl.org>
+	<Pine.LNX.4.64.0611031622540.16997@schroedinger.engr.sgi.com>
+	<20061103165854.0f3e77ad.akpm@osdl.org>
+	<Pine.LNX.4.64.0611060846070.25351@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Nov 2006, Stefan Seyfried wrote:
-> On Mon, Nov 06, 2006 at 11:29:03AM -0200, Henrique de Moraes Holschuh wrote:
-> > > > > There is a bug here in that acpiphp shouldn't even be used on the X60 -
-> > > > > it has no hotpluggable slots.
-> > 
-> > What about the internal mini PCI express slots (where the Intel 3945ABG
-> > device and EVDO wwwan cards are plugged)?
+On Mon, 6 Nov 2006 08:53:22 -0800 (PST)
+Christoph Lameter <clameter@sgi.com> wrote:
+
+> On Fri, 3 Nov 2006, Andrew Morton wrote:
 > 
-> These are not in the media bay. I'd also guess that they are not
-> hotpluggable.
+> > This has almost nothing to do with elapsed time.
+> > 
+> > How about doing, in free_pages_bulk():
+> > 
+> > 	if (zone->over_interleave_pages) {
+> > 		zone->over_interleave_pages = 0;
+> > 		node_clear(zone_to_nid(zone), full_interleave_nodes);
+> > 	}
+> 
+> Hmmm... We would also have to compare to the mininum pages 
+> required before clearing the node.
 
-They are hotplug buses.  But the buses themselves are always there (and not
-hotplugged. i.e. the bus doesn't appear and disappear).  Whether they should
-be bothering acpiphp, I don't know.  
+OK.
 
-You have a lot of buses that support hotplugging in the X60, and at least
-one is certainly exported to the dock unless IBM/Lenovo changed completely
-the way they make docks, which I very much doubt.  That was the information
-I was trying to convey.   As I said, I don't know if *these* buses should be
-bothering acpiphp or not.
+> Isnt it a bit much to have two 
+> comparisons added to the page free path?
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Page freeing is not actually a fastpath.  It's rate-limited by the
+frequency at which the CPU can _use_ the page: by filling it from disk, or
+by writing to all of the page with the CPU.
+
+Plus this is free_pages_bulk(), so the additional test occurs once per
+per_cpu_pages.batch pages, not once per page.
+
+And I assume it could be brought down to a single comparison with some
+thought.
+
+> > > It is needlessly expensive if its done for an allocation that is not bound 
+> > > to a specific node and there are other nodes with free pages. We may throw 
+> > > out pages that we need later.
+> > 
+> > Well it grossly changes the meaning of "interleaving".  We might as well
+> > call it something else.  It's not necessarily worse, but it's not
+> > interleaved any more.
+> 
+> It is going from node to node unless there is significant imbalance with 
+> some nodes being over the limit and some under. Then the allocations will 
+> take place round robin from the nodes under the limit until all are under 
+> the limit. Then we continue going over all nodes again.
+
+<head spins>
+
+> > Actually by staying on the same node for a string of successive allocations
+> > it could well be quicker.  How come MPOL_INTERLEAVE doesn't already do some
+> > batching?   Or does it, and I missed it?
+> 
+> It should do interleaving because the data is to be accessed from multiple 
+> nodes.
+
+I think you missed the point.
+
+At present the code does interleaving by taking one page from each zone and
+then advancing onto the next zone, yes?
+
+If so, this is pretty awful frmo a cache utilsiation POV.  it'd be much
+better to take 16 pages from one zone before advancing onto the next one.
+
+> Clustering on a single node may create hotspots or imbalances. 
+
+Umm, but that's exactly what the patch we're discussing will do.
+
+> Hmmm... We should check how many nodes are remaining if there is just a 
+> single node left then we need to ignore the limit.
+
+yup.
+

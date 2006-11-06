@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423101AbWKFBUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423146AbWKFB0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423101AbWKFBUU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 20:20:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423105AbWKFBUU
+	id S1423146AbWKFB0U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 20:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423165AbWKFB0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 20:20:20 -0500
-Received: from mx2.suse.de ([195.135.220.15]:10146 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423101AbWKFBUS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 20:20:18 -0500
-From: Andi Kleen <ak@suse.de>
-To: alsa-devel@alsa-project.org
-Subject: double fault in 2.6.19rc4-git5 while unplugging/replugging a USB headset
-Date: Mon, 6 Nov 2006 02:20:06 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
+	Sun, 5 Nov 2006 20:26:20 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:56496 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1423146AbWKFB0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 20:26:19 -0500
+X-Sasl-enc: W+n+78wqE8bvoA91dzBwXyqqjPfws+eum9YX1FWS9yIV 1162776379
+Date: Sun, 5 Nov 2006 23:26:10 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Antonino Daplas <adaplas@pol.net>, Holger Macht <hmacht@suse.de>
+Subject: Re: [PATCH] backlight: do not power off backlight when unregistering
+Message-ID: <20061106012610.GA9309@khazad-dum.debian.net>
+References: <20061105225429.GE14295@khazad-dum.debian.net> <1162773394.5473.18.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611060220.07024.ak@suse.de>
+In-Reply-To: <1162773394.5473.18.camel@localhost.localdomain>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 06 Nov 2006, Richard Purdie wrote:
+> that other devices would have a similar set of constraints (all the
+> existing users at the time did). On such hardware, deinitialising
+> anything you initialised is the norm and makes sense but the PC/ACPI
+> world is different.
 
-FYI
+Yes, and we don't *init* the hardware with the backlight class either in
+ACPI drivers...  AFAIK, anyway.
 
-usb 5-2: USB disconnect, address 2
-ALSA /home/lsrc/quilt/linux/sound/usb/usbaudio.c:845: cannot submit datapipe for urb 0, error -19: no device
-[... repeated a lot ...]
-ACPI: PCI interrupt for device 0000:00:1b.0 disabled
-usb 5-2: new full speed USB device using uhci_hcd and address 3
-usb 5-2: configuration #1 chosen from 1 choice
-input: C-Media USB Headphone Set   as /class/input/input3
-input: USB HID v1.00 Device [C-Media USB Headphone Set  ] on usb-0000:00:1d.3-2
-usb 5-2: USB disconnect, address 3
-Unable to handle kernel paging request at ffffffff880e57d4 RIP: 
- [<ffffffff880e57d4>]
-PGD 203027 PUD 205027 PMD 7f41e067 PTE 0
-Oops: 0010 [1] SMP 
-CPU 0 
-Modules linked in: snd_pcm_oss snd_mixer_oss snd_seq snd_atiixp snd_ac97_codec snd_ac97_bus speedstep_centrino pppoe pppox ppp_generic slhc ipt_MASQUERADE iptable_nat ip_nat_h323 ip_conntrack_h323 ip_nat_sip ip_conntrack_sip ip_nat_ftp ip_nat_irc i2c_isa ip_nat ip6t_LOG ip6t_REJECT ip6table_filter ip6_tables xt_tcpudp xt_state ip_conntrack_ftp ip_conntrack_irc ip_conntrack ipt_LOG ipt_REJECT iptable_filter ip_tables x_tables pl2303 snd_usb_audio snd_pcm snd_timer snd_page_alloc snd_usb_lib snd_rawmidi snd_seq_device snd_hwdep snd usbserial i2c_i801 i2c_core
-Pid: 8104, comm: xmms Not tainted 2.6.19-rc4-git5-BASIL #99
-RIP: 0010:[<ffffffff880e57d4>]  [<ffffffff880e57d4>]
-RSP: 0018:ffff81004730fd50  EFLAGS: 00010286
-RAX: ffffffff880e57d4 RBX: ffff810075368000 RCX: 0000000000000000
-RDX: 000000000000001d RSI: 0000000000000002 RDI: ffff810075368230
-RBP: ffff810075368230 R08: ffff81007a5711f0 R09: ffff81005e5345c0
-R10: 00000000454e8c24 R11: ffff81007bd030b8 R12: 00000000000001f8
-R13: ffff810057422460 R14: ffff810045b7a5c0 R15: ffff81007a4b9080
-FS:  0000000000000000(0000) GS:ffffffff80662000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: ffffffff880e57d4 CR3: 0000000000201000 CR4: 00000000000006e0
-Process xmms (pid: 8104, threadinfo ffff81004730e000, task ffff810076fee180)
-Stack:  ffffffff880a2cd6 0000000000000000 0000000000000001 ffff81007604bcf0
- ffffffff8024c42b 0000000000000000 ffffffff8058b290 0000001f45880508
- ffff810001f3fe50 0000000300000000 ffff81007a5711e8 0000000000000000
-Call Trace:
- [<ffffffff880a2cd6>] :snd_mixer_oss:snd_mixer_oss_notify_handler+0x23e/0x271
- [<ffffffff8024c42b>] free_pages_bulk+0x2c/0x1f4
- [<ffffffff802229d2>] __wake_up+0x36/0x4d
- [<ffffffff880166d7>] :snd:snd_card_do_free+0x17/0xe4
- [<ffffffff88016e3d>] :snd:snd_card_file_remove+0xfd/0x135
- [<ffffffff88041fc7>] :snd_pcm:snd_pcm_release+0xb6/0xc1
- [<ffffffff8026745a>] __fput+0xac/0x18a
- [<ffffffff802653d4>] filp_close+0x5c/0x64
- [<ffffffff8022a913>] put_files_struct+0x6b/0xbd
- [<ffffffff8022ba84>] do_exit+0x233/0x814
- [<ffffffff8022c0eb>] sys_exit_group+0x0/0xe
- [<ffffffff802093fe>] system_call+0x7e/0x83
+> Setting backlightdevice->props->update_status = NULL before
+> unregistering is a horrible idea and I don't want to see hacks like that
+> so yes, lets move it back into the drivers. 
 
+Sure thing.  I am not at all interested into having such a horrible hack in
+my local version of ibm-acpi for a second longer than strictly needed, so I
+will help if I am able to.
 
-Code:  Bad RIP value.
-RIP  [<ffffffff880e57d4>]
- RSP <ffff81004730fd50>
-CR2: ffffffff880e57d4
- <1>Fixing recursive fault but reboot is needed!
+> > Since the commit that introduced this behaviour (commit
+> > 6ca017658b1f902c9bba2cc1017e301581f7728d) apparently did so because the
+> > corgi_bl.c driver powered off the backlight, the attached patch also makes
+> > sure that the corgi_bl.c driver will not have its behaviour changed.
+> 
+> Those commits were designed to standardise several behaviours amongst
+> several drivers and this specific case was added to the core rather than
+> coding it in each of several drivers. We therefore really need to update
+> those other drivers too (locomo at the very least).
 
--Andi
+Do you have a list of them?  I can try to produce (untested) patches for
+the ones in-tree, if you want me to.
+
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

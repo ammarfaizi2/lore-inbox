@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753391AbWKFUTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753375AbWKFUUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753391AbWKFUTj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:19:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753375AbWKFUTi
+	id S1753375AbWKFUUT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753447AbWKFUUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:19:38 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:6087 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S1752622AbWKFUTh (ORCPT
+	Mon, 6 Nov 2006 15:20:19 -0500
+Received: from hera.kernel.org ([140.211.167.34]:59096 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1753222AbWKFUUQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:19:37 -0500
-Date: Mon, 6 Nov 2006 14:19:36 -0600
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: akpm@osdl.org, jens.axboe@oracle.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 5/12] repost: cciss: disable DMA prefetch on P600
-Message-ID: <20061106201936.GE17847@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Nov 2006 15:20:16 -0500
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [PATCH][Trivial] ACPI: Get rid of 'unused variable' warning in  acpi_ev_global_lock_handler()
+Date: Mon, 6 Nov 2006 15:16:17 -0500
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       trivial@kernel.org
+References: <200611021313.22709.jesper.juhl@gmail.com>
+In-Reply-To: <200611021313.22709.jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Message-Id: <200611061516.17988.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PATCH 5 of 12
+Applied.
 
-This patch unconditionally disables DMA prefetch on the P600 controller. An
-ASIC bug may result in prefetching beyond the end of physical memory.
-Please consider this for inclusion.
+thanks,
+-Len
 
-Thanks,
-mikem
-
-Signed-off-by: Mike Miller <mike.miller@hp.com>
-
---------------------------------------------------------------------------------
-
----
-
- drivers/block/cciss.c     |   11 +++++++++++
- drivers/block/cciss_cmd.h |    1 +
- 2 files changed, 12 insertions(+)
-
-diff -puN drivers/block/cciss.c~cciss_p600_dma_for_lx2619-rc4 drivers/block/cciss.c
---- linux-2.6/drivers/block/cciss.c~cciss_p600_dma_for_lx2619-rc4	2006-11-06 13:16:01.000000000 -0600
-+++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:27:24.000000000 -0600
-@@ -2997,6 +2997,17 @@ static int cciss_pci_init(ctlr_info_t *c
- 	}
- #endif
- 
-+	/* Disabling DMA prefetch for the P600
-+	 * An ASIC bug may result in a prefetch beyond
-+	 * physical memory.
-+	 */
-+	if(board_id == 0x3225103C) {
-+		__u32 dma_prefetch;
-+		dma_prefetch = readl(c->vaddr + I2O_DMA1_CFG);
-+		dma_prefetch |= 0x8000;
-+		writel(dma_prefetch, c->vaddr + I2O_DMA1_CFG);
-+	}
-+
- #ifdef CCISS_DEBUG
- 	printk("Trying to put board into Simple mode\n");
- #endif				/* CCISS_DEBUG */
-diff -puN drivers/block/cciss_cmd.h~cciss_p600_dma_for_lx2619-rc4 drivers/block/cciss_cmd.h
---- linux-2.6/drivers/block/cciss_cmd.h~cciss_p600_dma_for_lx2619-rc4	2006-11-06 13:16:01.000000000 -0600
-+++ linux-2.6-root/drivers/block/cciss_cmd.h	2006-11-06 13:26:42.000000000 -0600
-@@ -55,6 +55,7 @@
- #define I2O_INT_MASK            0x34
- #define I2O_IBPOST_Q            0x40
- #define I2O_OBPOST_Q            0x44
-+#define I2O_DMA1_CFG		0x214
- 
- //Configuration Table
- #define CFGTBL_ChangeReq        0x00000001l
-_
+On Thursday 02 November 2006 07:13, Jesper Juhl wrote:
+> Fix this warning : 
+>   drivers/acpi/events/evmisc.c: In function `acpi_ev_global_lock_handler':
+>   drivers/acpi/events/evmisc.c:334: warning: unused variable `status'
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+>  drivers/acpi/events/evmisc.c |    1 -
+>  1 files changed, 0 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/acpi/events/evmisc.c b/drivers/acpi/events/evmisc.c
+> index ee2a10b..bf63edc 100644
+> --- a/drivers/acpi/events/evmisc.c
+> +++ b/drivers/acpi/events/evmisc.c
+> @@ -331,7 +331,6 @@ static void ACPI_SYSTEM_XFACE acpi_ev_gl
+>  static u32 acpi_ev_global_lock_handler(void *context)
+>  {
+>  	u8 acquired = FALSE;
+> -	acpi_status status;
+>  
+>  	/*
+>  	 * Attempt to get the lock
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

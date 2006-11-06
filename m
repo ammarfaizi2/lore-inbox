@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753309AbWKFQSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753361AbWKFQSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753309AbWKFQSc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 11:18:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753363AbWKFQSc
+	id S1753361AbWKFQSd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 11:18:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753358AbWKFQSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 6 Nov 2006 11:18:33 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:12499 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1753361AbWKFQSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 6 Nov 2006 11:18:32 -0500
-Received: from www.osadl.org ([213.239.205.134]:27794 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1753309AbWKFQSb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 11:18:31 -0500
-Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
-	[2.6.18-rc4-mm1]
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Ingo Molnar <mingo@elte.hu>, len.brown@intel.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061103000631.GA23182@rhlx01.hs-esslingen.de>
-References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
-	 <1162417916.15900.271.camel@localhost.localdomain>
-	 <20061102001838.GA911@rhlx01.hs-esslingen.de>
-	 <1162452676.15900.287.camel@localhost.localdomain>
-	 <1162455263.15900.320.camel@localhost.localdomain>
-	 <1162488129.15900.396.camel@localhost.localdomain>
-	 <20061102192812.GA11815@rhlx01.hs-esslingen.de>
-	 <20061102203430.GA27729@rhlx01.hs-esslingen.de>
-	 <20061103000631.GA23182@rhlx01.hs-esslingen.de>
-Content-Type: text/plain
-Date: Mon, 06 Nov 2006 17:20:32 +0100
-Message-Id: <1162830033.4715.201.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=lXAW44CI1gLqVXFShDn9OVd01z1+NYAtvrSNx1uK7HpiJC9+gFCPJvysnfTvcFCPcliBYvdQju2YoIYVj3+ML2yQjf2mv904IZHb+kLVps/+Ro3sc1AKLVTKwx246CWj1Sg3UYReUK6u+XuCGgAKMwWthK8iDJM9Jo7J9gn+rBc=
+Message-ID: <84144f020611060818t5890143cn32865750073e602c@mail.gmail.com>
+Date: Mon, 6 Nov 2006 18:18:29 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Miguel Ojeda Sandonis" <maxextreme@gmail.com>
+Subject: Re: [PATCH] mm/slab.c: whitespace cleanup
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061106164727.7ad2fb2c.maxextreme@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061106164727.7ad2fb2c.maxextreme@gmail.com>
+X-Google-Sender-Auth: 16a7224a9f9d4fa3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-03 at 01:06 +0100, Andreas Mohr wrote:
-> ACPI: lapic on CPU 0 stops in C2[C2]
+On 11/6/06, Miguel Ojeda Sandonis <maxextreme@gmail.com> wrote:
+> whitespace cleanup for mm/slab.c
 
-> How probable is it that the APIC timer got killed due to mis-programming
-> in Linux versus VIA chipset design garbage probability? I.e. do you think
-> there's a chance to fix C2 malfunction by going into the innards of
-> VIA chipsets operation?
-> How useful would it be to simply disable C2 operation (but not C1)
-> in CONFIG_NO_HZ mode after's been determined to kill APIC timer?:
+[snip]
 
-No, we better disable local apic timer in that case. What happens if you
-boot your machine with ACPI disabled ?
+> -       addr = (unsigned long *)&((char *)addr)[obj_offset(cachep)];
+> +       addr = (unsigned long *)((char *)addr + obj_offset(cachep));
 
-	tglx
+Call me old-fashioned, but this doesn't count as whitespace cleanup.
+Anyway, why do you want to do this? The coding style changes seem too
+minor to be worth it...
 
-
+                               Pekka

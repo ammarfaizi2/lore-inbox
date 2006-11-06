@@ -1,91 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422853AbWKFASN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422868AbWKFATE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422853AbWKFASN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 19:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422857AbWKFASN
+	id S1422868AbWKFATE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 19:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422864AbWKFATD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 19:18:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:22702 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422853AbWKFASL (ORCPT
+	Sun, 5 Nov 2006 19:19:03 -0500
+Received: from mx2.suse.de ([195.135.220.15]:46491 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422863AbWKFATA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 19:18:11 -0500
-Date: Sun, 5 Nov 2006 16:17:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Fabio Coatti <cova@ferrara.linux.it>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jeff@garzik.org>, Tejun Heo <htejun@gmail.com>
-Subject: Re: SATA ICH5 not detected at boot, mm-kernels
-Message-Id: <20061105161725.1a326135.akpm@osdl.org>
-In-Reply-To: <200611051536.35333.cova@ferrara.linux.it>
-References: <200611051536.35333.cova@ferrara.linux.it>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 5 Nov 2006 19:19:00 -0500
+From: Neil Brown <neilb@suse.de>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Date: Mon, 6 Nov 2006 11:18:44 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17742.32612.870346.954568@cse.unsw.edu.au>
+Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001 of 6] md: Send online/offline uevents when an md
+	array starts/stops.
+In-Reply-To: message from Kay Sievers on Friday November 3
+References: <20061031164814.4884.patches@notabene>
+	<1061031060046.5034@suse.de>
+	<20061031211615.GC21597@suse.de>
+	<3ae72650611020413q797cf62co66f76b058a57104b@mail.gmail.com>
+	<17737.58737.398441.111674@cse.unsw.edu.au>
+	<1162475516.7210.32.camel@pim.off.vrfy.org>
+	<17738.59486.140951.821033@cse.unsw.edu.au>
+	<1162542178.14310.26.camel@pim.off.vrfy.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Nov 2006 15:36:33 +0100
-Fabio Coatti <cova@ferrara.linux.it> wrote:
+On Friday November 3, kay.sievers@vrfy.org wrote:
+> 
+> Hmm, why does the open() of device node of a stopped device cause an "add"?
+> Shouldn't it just return a failure, instead of creating a device?
 
-> Hi all; It seems that problems like this has been already reported, but not 
-> exactly the same, so maybe thsi can add some infos. Otherwise, sorry for the 
-> noise.
-> 
-> Starting from 2.6.19-rc1-mm1 and up to rc4-mm2, at boot the kernel is unable 
-> to detect two sata disks, connected to a ICH5 controller. Latest mm working 
-> kernel seems to be 2.6.18-mm3; 2.6.19-rc4 works just fine.
-> 
-> On rc-4 (vanilla) the log is this:
-> Nov  5 13:26:37 kefk libata version 2.00 loaded.
-> Nov  5 13:26:37 kefk ata_piix 0000:00:1f.2: version 2.00ac6
-> Nov  5 13:26:37 kefk ata_piix 0000:00:1f.2: MAP [ P0 P1 IDE IDE ]
-> Nov  5 13:26:37 kefk ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, 
-> low) -> IRQ 17
-> Nov  5 13:26:37 kefk ata: 0x170 IDE port busy
-> Nov  5 13:26:37 kefk ata: conflict with ide1
+Because that is the API I inherited.  To create an MD array, you open
+/dev/mdX and issue some IOCTLs.  Originally I think the devices were
+all created at boot/module-load time much like they still are for
+loop.c.  But when Al Viro did all that work with kmap and blkdev_get
+ages ago he changed it so they didn't have to pre-created but rather
+were created on-the-fly by an attempt to open the block device (this
+calls in to md_probe which does the add_disk).
 
-hm.  What does that mean?
+This creates a deep disconnect between udev and md.
+udev expects a device to appear first, then it created the
+device-special-file in /dev.
+md expect the device-special-file to exist first, and then created the
+device on the first open.
 
-> Nov  5 13:26:37 kefk PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> Nov  5 13:26:37 kefk ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 
-> irq 14
-> Nov  5 13:26:37 kefk ata2: DUMMY
-> Nov  5 13:26:37 kefk scsi1 : ata_piix
-> Nov  5 13:26:37 kefk ata1.00: ATA-7, max UDMA/133, 488397168 sectors: LBA48 
-> NCQ (depth 0/32)
-> Nov  5 13:26:37 kefk ata1.00: ata1: dev 0 multi count 16
-> Nov  5 13:26:37 kefk ata1.01: ATA-7, max UDMA/133, 586114704 sectors: LBA48 
-> NCQ (depth 0/32)
-> Nov  5 13:26:37 kefk ata1.01: ata1: dev 1 multi count 16
-> Nov  5 13:26:37 kefk ata1.00: configured for UDMA/133
-> Nov  5 13:26:37 kefk ata1.01: configured for UDMA/133
 > 
+> > A bit unfortunate really.  This didn't happen when I had
+> > ONLINE/OFFLINE as udev ignored the OFFLINE.
+> > I guess I can removed the CHANGE at shutdown, but as there really is a
+> > change there, that doesn't seem right.
 > 
-> With -mm kernels, I see only the third disk, but attached to a different 
-> controller (output from rc4 vanilla):
-> 
-> Nov  5 13:26:37 kefk ACPI: PCI Interrupt 0000:03:03.0[A] -> GSI 19 (level, 
-> low) -> IRQ 18
-> Nov  5 13:26:37 kefk ata3: SATA max UDMA/100 cmd 0xF8804080 ctl 0xF880408A 
-> bmdma 0xF8804000 irq 18
-> Nov  5 13:26:37 kefk ata4: SATA max UDMA/100 cmd 0xF88040C0 ctl 0xF88040CA 
-> bmdma 0xF8804008 irq 18
-> Nov  5 13:26:37 kefk scsi3 : sata_sil
-> Nov  5 13:26:37 kefk ata3: SATA link up 1.5 Gbps (SStatus 113 SControl 310)
-> Nov  5 13:26:37 kefk ata3.00: ATA-7, max UDMA/133, 625142448 sectors: LBA48 
-> NCQ (depth 0/32)
-> Nov  5 13:26:37 kefk ata3.00: ata3: dev 0 multi count 0
-> Nov  5 13:26:37 kefk ata3.00: configured for UDMA/100
-> Nov  5 13:26:37 kefk scsi4 : sata_sil
-> Nov  5 13:26:37 kefk ata4: SATA link down (SStatus 0 SControl 310)
-> Nov  5 13:26:37 kefk scsi 3:0:0:0: Direct-Access     ATA      Maxtor 6V320F0   
-> VA11 PQ: 0 ANSI: 5
-> Nov  5 13:26:37 kefk SCSI device sdc: 625142448 512-byte hdwr sectors (320073 
-> MB)
-> Nov  5 13:26:37 kefk sdc: Write Protect is off
+> Yeah, it's the same problem we had with device-mapper, nobody could
+> think of any useful action at a dm-device suspend "change"-event, so we
+> didn't add it. :)   
 > 
 
-And why doesn't -mm report the same conflict?  I assume the .config is the
-same?
+Yes... the device cannot disappear until no-one is using it, so no-one
+will be interested in it going away.
 
+> 
+> The persistent naming rules for /dev/disk/by-* are causing this. Md
+> devices will probably just get their own rules file, which will handle
+> this and which can be packaged and installed along with the md tools.
+> 
+> If it's acceptable for you, so leave the shutdown "change" event out for
+> now, until someone has the need for it.
+
+Yes, I'll get rid of the online/offline events and just put in a
+CHANGE when the array becomes available.
+
+I'm still a bit concerned about the open->add->open infinite loop.
+If anyone opens /dev/mdX while it isn't active (e.g. to check if it is
+active), that will (given a patch that I would like to include) cause
+and ADD event which will cause udev to start it's loop again.
+Can we make udev ignore ADD for md and only watch for CHANGE?
+
+Thanks,
+NeilBrown

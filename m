@@ -1,72 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753546AbWKFU64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753561AbWKFU6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753546AbWKFU64 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753568AbWKFU64
+	id S1753561AbWKFU6d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753546AbWKFU6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:58:56 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:41679 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1753546AbWKFU6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:58:55 -0500
-Date: Mon, 6 Nov 2006 12:58:52 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Avoid allocating during interleave from almost full nodes
-In-Reply-To: <20061106124257.deffa31c.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0611061252140.29760@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
- <20061103134633.a815c7b3.akpm@osdl.org> <Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
- <20061103143145.85a9c63f.akpm@osdl.org> <Pine.LNX.4.64.0611031622540.16997@schroedinger.engr.sgi.com>
- <20061103165854.0f3e77ad.akpm@osdl.org> <Pine.LNX.4.64.0611060846070.25351@schroedinger.engr.sgi.com>
- <20061106115925.1dd41a77.akpm@osdl.org> <Pine.LNX.4.64.0611061207310.26685@schroedinger.engr.sgi.com>
- <20061106122446.8269f7bc.akpm@osdl.org> <Pine.LNX.4.64.0611061229080.29760@schroedinger.engr.sgi.com>
- <20061106124257.deffa31c.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Nov 2006 15:58:33 -0500
+Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:16070 "EHLO
+	rhlx01.hs-esslingen.de") by vger.kernel.org with ESMTP
+	id S1753525AbWKFU6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 15:58:32 -0500
+Date: Mon, 6 Nov 2006 21:58:25 +0100
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, Ingo Molnar <mingo@elte.hu>,
+       len.brown@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
+Message-ID: <20061106205825.GA26755@rhlx01.hs-esslingen.de>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de> <1162417916.15900.271.camel@localhost.localdomain> <20061102001838.GA911@rhlx01.hs-esslingen.de> <1162452676.15900.287.camel@localhost.localdomain> <1162455263.15900.320.camel@localhost.localdomain> <1162488129.15900.396.camel@localhost.localdomain> <20061102192812.GA11815@rhlx01.hs-esslingen.de> <20061102203430.GA27729@rhlx01.hs-esslingen.de> <20061103000631.GA23182@rhlx01.hs-esslingen.de> <1162830033.4715.201.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1162830033.4715.201.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2006, Andrew Morton wrote:
+Hi,
 
-> > Interleave is used for data accessed from many nodes otherwise one would 
-> > prefer to allocate from the current zone. The shared data may be very 
-> > frequently accessed from multiple nodes and one would like different NUMA 
-> > nodes to respond to these requests.
+On Mon, Nov 06, 2006 at 05:20:32PM +0100, Thomas Gleixner wrote:
+> On Fri, 2006-11-03 at 01:06 +0100, Andreas Mohr wrote:
+> > ACPI: lapic on CPU 0 stops in C2[C2]
 > 
-> But what is "shared data"??  You're using a new but very general term
-> without defining it.
-
-Data that is shared by applications or by the kernel. The user space 
-programs may allocate shared data with interleave policy. For certain data 
-the kernel may use interleave allocations. F.e. page cache pages in a 
-cpuset configured for memory spreading.
-
-It depends what the application or the kernel designates to be shared 
-data.
-
-> OK, but if two nodes have a lot of free pages and the rest don't then
-> interleave will consume those free pages without performing any reclaim
-> from all the other nodes.  Hence hostpots or imbalances.
+> > How probable is it that the APIC timer got killed due to mis-programming
+> > in Linux versus VIA chipset design garbage probability? I.e. do you think
+> > there's a chance to fix C2 malfunction by going into the innards of
+> > VIA chipsets operation?
+> > How useful would it be to simply disable C2 operation (but not C1)
+> > in CONFIG_NO_HZ mode after's been determined to kill APIC timer?:
 > 
-> Whatever they are.  Why does it matter?
+> No, we better disable local apic timer in that case. What happens if you
+> boot your machine with ACPI disabled ?
 
-Hotspots create lots of requests going to the same numa node. The nodes 
-have a limited capability to service cacheline requests and the bandwidth 
-on the interlink is also limited. If too many processors request 
-information from the same remote node then performance will drop.
+Oh, interesting. Why??
 
-There are different kind of data in a NUMA system:
+Anyway, acpi=off works perfectly fine (still running -rc4-mm1-dynticks4),
+as does setting
+	max_cstate = ACPI_STATE_C1;
+in acpi_processor_power_init()!
+(currently writing this mail with this hack ;)
 
-Data that is node local is only accessed by the local processor. For node 
-local data we have no such concerns since the interlink is not used. Quite 
-a lot of kernel data per node or per cpu and thus is not a problem.
+So why not simply do
+	max_cstate = ACPI_STATE_C1;
+in case acpi_timer_check_state():
 
-For shared data that is known to be performance critical--and where we 
-know that the data is accessed from multiple nodes--there we need to 
-balance the data between multiple nodes to avoid overloads and 
-to keep the system running at optimal speed. That is where interleave 
-becomes important.
++/*
++ * Some BIOS implementations switch to C3 in the published C2 state. This seems
++ * to be a common problem on AMD boxen.
++ */
 
+yells?
+This definitely *is* the problem with my AMD Athlon BIOS, it seems...
 
+Or is it an advantage to switch off lapic in case of C2 brokenness since
+that will enable us to still safely drive C2 with dynticks despite those
+BIOS bugs or what?
+(if I managed to draw the right conclusions about your lapic statement,
+that is...)
+
+BTW, my GUI with dynticks seems quite a lot quicker than without.
+Or is that a placebo? I don't think it is...
+
+Thanks!
+
+Andreas Mohr

@@ -1,75 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753245AbWKFPir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753250AbWKFPn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753245AbWKFPir (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 10:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753248AbWKFPir
+	id S1753250AbWKFPn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 10:43:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753247AbWKFPn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 10:38:47 -0500
-Received: from mga03.intel.com ([143.182.124.21]:65463 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S1753245AbWKFPiq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 10:38:46 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,392,1157353200"; 
-   d="scan'208"; a="141902544:sNHT21098406"
-Message-ID: <454F5703.7040209@intel.com>
-Date: Mon, 06 Nov 2006 07:38:43 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Mon, 6 Nov 2006 10:43:58 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:16070 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1753244AbWKFPn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 10:43:56 -0500
+From: Christian <christiand59@web.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [discuss] Linux 2.6.19-rc4: known unfixed regressions (v2)
+Date: Mon, 6 Nov 2006 16:43:13 +0100
+User-Agent: KMail/1.9.5
+Cc: Dave Jones <davej@redhat.com>,
+       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <200611051832.13285.christiand59@web.de> <20061106060021.GD5778@stusta.de>
+In-Reply-To: <20061106060021.GD5778@stusta.de>
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com,
-       stable@vger.kernel.org, rjw@sisk.pl, bunk@stusta.de, akpm@osdl.org,
-       laurent.riffard@free.fr, rajesh.shah@intel.com, toralf.foerster@gmx.de,
-       pavel@ucw.cz, jesse.brandeburg@intel.com,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       "John W. Linville" <linville@tuxdriver.com>, nhorman@redhat.com,
-       cluebot@fedorafaq.org, notting@redhat.com, bruce.w.allan@intel.com,
-       davej@redhat.com, linville@redhat.com, wtogami@redhat.com,
-       dag@wieers.com, error27@gmail.com,
-       e1000-list <e1000-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] e1000: Fix regression: garbled stats and irq allocation
- during swsusp
-References: <454B9BED.306@intel.com> <454EEA84.4060805@garzik.org>
-In-Reply-To: <454EEA84.4060805@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Nov 2006 15:38:44.0213 (UTC) FILETIME=[A466DA50:01C701B9]
+Content-Disposition: inline
+Message-Id: <200611061643.14217.christiand59@web.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:176b6e6b41629db5898eee8167b5e3a0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Auke Kok wrote:
->>
->> e1000: Fix regression: garbled stats and irq allocation during swsusp
->>
->> After 7.0.33/2.6.16, e1000 suspend/resume left the user with an enabled
->> device showing garbled statistics and undetermined irq allocation state,
->> where `ifconfig eth0 down` would display `trying to free already freed 
->> irq`.
->>
->> Explicitly free and allocate irq as well as powerup the PHY during resume
->> fixes.
->>
->> Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
-> 
-> ACK, but:
-> 
-> Applying 'e1000: Fix regression: garbled stats and irq allocation during 
-> swsusp'
-> 
-> fatal: corrupt patch at line 8
+Am Montag, 6. November 2006 07:00 schrieb Adrian Bunk:
+> On Sun, Nov 05, 2006 at 06:32:12PM +0100, Christian wrote:
+> > Am Freitag, 3. November 2006 16:56 schrieb Dave Jones:
+> > > On Fri, Nov 03, 2006 at 11:25:37AM +0300, Alexey Starikovskiy wrote:
+> > >  > Could this be a problem?
+> > >  > --------------------
+> > >  > ...
+> > >  > CONFIG_ACPI_PROCESSOR=m
+> > >  > ...
+> > >  > CONFIG_X86_POWERNOW_K8=y
+> > >
+> > > Hmm, possibly.  Christian, does it work again if you set them both to
+> > > =y ?
+> >
+> > Yes, it works now! Only the change to CONFIG_ACPI_PROCESSOR=y made it
+> > work again!
+>
+> You said 2.6.18 worked for you.
+>
+> Did you have CONFIG_ACPI_PROCESSOR=y in 2.6.18, or did
+> CONFIG_ACPI_PROCESSOR=m, CONFIG_X86_POWERNOW_K8=y work for you in 2.6.18?
+
+It worked with CONFIG_ACPI_PROCESSOR=m in 2.6.18-rc7. Since 2.6.19-rc1 it 
+doesn't work anymore with CONFIG_ACPI_PROCESSOR=m.
+
+user@ubuntu:~/Projekte/linux-2.6.18-rc7$ uname -a
+Linux ubuntu.localnet 2.6.18-rc7 #2 SMP Wed Sep 13 11:28:41 CEST 2006 x86_64 
+GNU/Linux
+
+user@ubuntu:~/Projekte/linux-2.6.18-rc7$ lsmod | grep -Ei "processor|acpi|
+power"
+powernow_k8            16096  1
+freq_table              6848  2 powernow_k8,cpufreq_stats
+cpufreq_powersave       3584  0
+asus_acpi              20644  0
+processor              36872  2 powernow_k8,thermal
 
 
-There's another problem with it, that needs attention as well. I will reformat and 
-re-post the patch to everyone.
+user@ubuntu:~/Projekte/linux-2.6.18-rc7$ grep -i 
+ACPI_PROCESSOR /boot/config-2.6.18-rc7
+CONFIG_ACPI_PROCESSOR=m
 
-Cheers,
+user@ubuntu:~/Projekte/linux-2.6.18-rc7$ 
+grep -Ei "POWERNOW_K8" /boot/config-2.6.18-rc7
+CONFIG_X86_POWERNOW_K8=m
+CONFIG_X86_POWERNOW_K8_ACPI=y
 
-Auke
++++ There's a difference in 2.6.19! CONFIG_X86_POWERNOW_K8_ACPI is gone +++
 
+user@ubuntu:~/Projekte/linux-2.6.18-rc7$ 
+grep -Ei "POWERNOW_K8" /boot/config-2.6.19-rc1
+CONFIG_X86_POWERNOW_K8=y
 
-From: <chrisw@sous-sol.org>
-Also, would this cause a problem if I ifdown the interface to call
-->close then suspend?  Looks like it'd free_irq twice, maybe need a
-netif_running() check?
+user@ubuntu:~/Projekte/linux-2.6.18-rc7$ grep -Ei "CPUFREQ|
+CPU_FREQ" /boot/config-2.6.18-rc7
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=m
+# CONFIG_CPU_FREQ_DEBUG is not set
+CONFIG_CPU_FREQ_STAT=m
+CONFIG_CPU_FREQ_STAT_DETAILS=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+# CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+CONFIG_CPU_FREQ_GOV_USERSPACE=m
+CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
+# CPUFreq processor drivers
+CONFIG_X86_ACPI_CPUFREQ=m
+# CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
+
+-Christian
+

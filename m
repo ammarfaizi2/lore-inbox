@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753891AbWKFWia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753899AbWKFWkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753891AbWKFWia (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 17:38:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753893AbWKFWia
+	id S1753899AbWKFWkU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 17:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753898AbWKFWkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 17:38:30 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:154
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1753891AbWKFWia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 17:38:30 -0500
-Date: Mon, 06 Nov 2006 14:38:31 -0800 (PST)
-Message-Id: <20061106.143831.88477819.davem@davemloft.net>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Cc: acme@mandriva.com
-Subject: Re: + net-uninline-xfrm_selector_match.patch added to -mm tree
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200611031934.kA3JYCjF030732@shell0.pdx.osdl.net>
-References: <200611031934.kA3JYCjF030732@shell0.pdx.osdl.net>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 6 Nov 2006 17:40:19 -0500
+Received: from hera.kernel.org ([140.211.167.34]:44442 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1753897AbWKFWkR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 17:40:17 -0500
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Greg KH <greg@kroah.com>
+Subject: Re: [patch 4/6] Add output class document
+Date: Mon, 6 Nov 2006 17:42:26 -0500
+User-Agent: KMail/1.8.2
+Cc: Yu Luming <luming.yu@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, Matt Domsch <Matt_Domsch@dell.com>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr,
+       Richard Hughes <hughsient@gmail.com>
+References: <200611042122.00950.luming.yu@gmail.com> <20061104082228.GA30489@kroah.com>
+In-Reply-To: <20061104082228.GA30489@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611061742.27298.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: akpm@osdl.org
-Date: Fri, 03 Nov 2006 11:34:12 -0800
+On Saturday 04 November 2006 03:22, Greg KH wrote:
+> On Sat, Nov 04, 2006 at 09:22:00PM +0800, Yu Luming wrote:
 
-> Subject: net: uninline xfrm_selector_match()
-> From: Andrew Morton <akpm@osdl.org>
-> 
-> Six callsites, huge.
-> 
-> Cc: Arnaldo Carvalho de Melo <acme@mandriva.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Have you been working with the X developers that have been doing a lot
+> of work in describing and interacting with these different video
+> devices?  I think you might want to work with them so that you don't
+> create an interface that will not be used by them.
 
-You can't implement it like this :-)
+We discussed this with Keith Packard, who insisted that video switching
+is best done from within the video driver using native hardware interfaces.
 
-xfrm_user.c is a bad place to put the uninlined version because
-this can be built modular, whereas the callsites in places such
-as xfrm_policy.c will be built statically into the kernel.
+That sounds good to me, but it doesn't answer the question about
+systems who choose to export video switching via ACPI.
+The goal at hand is to export that capability in the event
+it is not available via other means.
+
+The issue that will come up is if this capability and a native
+hardware technique are used at the same time -- probably
+bad things will happen.  In that case, we need a way for
+the native technique to disable use of the ACPI technique.
+
+cheers,
+-Len

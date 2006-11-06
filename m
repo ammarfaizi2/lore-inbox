@@ -1,99 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753844AbWKFVuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753847AbWKFWBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753844AbWKFVuI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 16:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753843AbWKFVuH
+	id S1753847AbWKFWBs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 17:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753848AbWKFWBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 16:50:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21990 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1753785AbWKFVuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 16:50:05 -0500
-Message-ID: <454FAE0A.3070409@redhat.com>
-Date: Mon, 06 Nov 2006 15:50:02 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-CC: Theodore Tso <tytso@mit.edu>
-Subject: [RFC/PATCH] - revert generic_fillattr stat->blksize to PAGE_CACHE_SIZE
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Nov 2006 17:01:48 -0500
+Received: from mail.clusterfs.com ([206.168.112.78]:48308 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1753845AbWKFWBr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 17:01:47 -0500
+Date: Mon, 6 Nov 2006 15:01:40 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Eric Sandeen <sandeen@redhat.com>
+Cc: =?utf-8?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels that offer x86 compatability
+Message-ID: <20061106220140.GD6012@schatzie.adilger.int>
+Mail-Followup-To: Eric Sandeen <sandeen@redhat.com>,
+	=?utf-8?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <1162836725.6952.28.camel@dantu.rdu.redhat.com> <20061106182222.GO27140@parisc-linux.org> <1162838843.12129.8.camel@dantu.rdu.redhat.com> <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com> <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <454FAAF8.8080707@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The inode diet patches first did this to generic_fillattr():
+On Nov 06, 2006  15:36 -0600, Eric Sandeen wrote:
+> OTOH if one filesystem (say, pipes) can wrap the numbers very quickly,
+> while other spaces are otherwise more immune, then having it global puts
+> everything using it at a bit more risk.
 
--	stat->blksize = inode->i_blksize;
-+	stat->blksize = PAGE_CACHE_SIZE;
+One option is having a per-sb counter (to avoid wraps on not-heavily-used
+filesystems), and also a per-sb flag that indicates if the counter has
+wrapped.  If that happens, it would be possible to do a lookup in the
+inode hash for a conflicting inode number, and skip those.  It is more
+overhead, but only hit in the case where there is danger (i.e. post wrap).
 
-but by 2.6.19-rc3 this was changed again:
+There should also be a flag indicating if the caller is actually using
+the inum supplied by new_inode or not, to avoid the overhead if it just
+replaces i_ino with its own value.
 
--	stat->blksize = PAGE_CACHE_SIZE;
-+	stat->blksize = (1 << inode->i_blkbits);
-
-I can't find for sure why this was done; perhaps because it exposed a bug
-in cifs[1]
-
-However, if we are going to pick a default for generic_fillattr, it should probably
-be what most filesystems were using before, and let filesystems which need something
-else re-set it to according to their needs.  As it stands today, doing readdirs and
-the like in block-sized chunks rather than page sized will probably not be the
-best thing for performance.
-
-A bit of quick parsing of the original inode diet patch shows that by far most
-filesystems were using the page size:
-
-(count) (line which sets i_blksize)
-      1 cifs_inode->vfs_inode.i_blksize = CIFS_MAX_MSGSIZE;
-      1 i->i_blksize = 512;
-      1 inode->i_blksize = attr->va_blocksize;
-      1 inode->i_blksize = befs_sb->block_size;
-      1 inode->i_blksize = HFSPLUS_SB(inode->i_sb).alloc_blksz;
-      1 inode->i_blksize = HFSPLUS_SB(sb).alloc_blksz;
-      1 inode->i_blksize = HFS_SB(inode->i_sb)->alloc_blksz;
-      1 inode->i_blksize = HFS_SB(sb)->alloc_blksz;
-      1 inode->i_blksize = HPAGE_SIZE;
-      1 inode->i_blksize = NCP_BLOCK_SIZE;
-      1 inode->i_blksize = QNX4_DIR_ENTRY_SIZE;
-      1 inode->i_blksize = (u32)osb->s_clustersize;
-      1 inode->i_blksize = xfs_preferred_iosize(mp);
-      1 ino->i_blksize = i_blksize;
-      1 ino->i_blksize = proc_ino->i_blksize;
-      1 ip->i_blksize = ip->i_sb->s_blocksize;
-      1 ip->i_blksize = PAGE_SIZE;
-      2 inode->i_blksize = fattr->du.nfs2.blocksize;
-      2 inode->i_blksize = inode->i_sb->s_blocksize;
-      2 inode->i_blksize = reiserfs_default_io_size;
-      2 inode->i_blksize = sbi->cluster_size;
-      2 vi->i_blksize = PAGE_CACHE_SIZE;
-      3 inode->i_blksize = sb->s_blocksize;
-      3 ret->i_blksize = PAGE_CACHE_SIZE;
-      5 inode->i_blksize = 1024;
-      7 inode->i_blksize = 0;
-     12 inode->i_blksize = PAGE_SIZE;
-     22 inode->i_blksize = PAGE_CACHE_SIZE;
-
-so I would propose the following patch to make PAGE_CACHE_SIZE the default (again), 
-and let filesystems which need something -else- do that on their own.
-
-[1] http://lists.samba.org/archive/linux-cifs-client/2006-September/001481.html
-
-Thanks,
--Eric
-
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-
---- linux.orig/fs/stat.c	2006-11-05 23:27:04.962482569 -0600
-+++ linux/fs/stat.c	2006-11-05 23:27:29.394396050 -0600
-@@ -33,7 +33,7 @@
-  	stat->ctime = inode->i_ctime;
-  	stat->size = i_size_read(inode);
-  	stat->blocks = inode->i_blocks;
--	stat->blksize = (1 << inode->i_blkbits);
-+	stat->blksize = PAGE_CACHE_SIZE;
-  }
-
-  EXPORT_SYMBOL(generic_fillattr);
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

@@ -1,91 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752924AbWKFMgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752935AbWKFMiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752924AbWKFMgm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 07:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752929AbWKFMgm
+	id S1752935AbWKFMiz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 07:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752936AbWKFMiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 07:36:42 -0500
-Received: from h01.hostsharing.net ([212.42.230.152]:31210 "EHLO
-	h01.hostsharing.net") by vger.kernel.org with ESMTP
-	id S1752923AbWKFMgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 07:36:41 -0500
-Date: Sun, 5 Nov 2006 23:04:06 +0100
-From: Elimar Riesebieter <riesebie@lxtec.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, riesebie@lxtec.de,
-       Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       Andy Adamson <andros@citi.umich.edu>,
-       "J. Bruce Fields" <bfields@citi.umich.edu>,
-       Trond Myklebust <Trond.Myklebust@netapp.com>,
-       Olaf Kirch <okir@monad.swb.de>, bunk@stusta.de
-Subject: Re: [PATCH 1/2] sunrpc: add missing spin_unlock
-Message-ID: <20061105220406.GA3263@aragorn.home.lxtec.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>,
-	Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-	Andy Adamson <andros@citi.umich.edu>,
-	"J. Bruce Fields" <bfields@citi.umich.edu>,
-	Trond Myklebust <Trond.Myklebust@netapp.com>,
-	Olaf Kirch <okir@monad.swb.de>, bunk@stusta.de
-References: <20061028185554.GM9973@localhost> <20061029133551.GA10072@localhost> <20061029133700.GA10295@localhost> <1162744516.26989.43.camel@twins> <20061105114533.4f57f333.akpm@osdl.org>
+	Mon, 6 Nov 2006 07:38:55 -0500
+Received: from qb-out-0506.google.com ([72.14.204.231]:35291 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1752935AbWKFMiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 07:38:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Hpo72oUwi0qsZHx37bnUGRRWGodxQQwe4YUdqRzm1bhGeUURzgotbQa+8t8lhpzeQSVWPb6D5TC0fSPyKpPp1aUzYRez15YYTaVup6hi6l4I1RGZZWxlDXU05ghjXcXPoqi5LdE69f4uJaEGuEmWt65ZMETyjMuxTUrcKuD7rwE=
+Message-ID: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com>
+Date: Mon, 6 Nov 2006 12:38:21 +0100
+From: "Wilco Beekhuizen" <wilcobeekhuizen@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: VIA IRQ quirk missing PCI ids since 2.6.16.17
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061105114533.4f57f333.akpm@osdl.org>
-Organization: LXTEC
-X-gnupg-key-fingerprint: BE65 85E4 4867 7E9B 1F2A  B2CE DC88 3C6E C54F 7FB0
-X-Editor: VIM - Vi IMproved 7.0 (2006 May 7, compiled Oct 25 2006 19:41:01)
-User-Agent: Mutt/1.5.13-muttng (2006-11-01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, since 2.6.17.17 in drivers/pci/quirks.c (quirk_via_irq) all VIA
+chipsets are listed seperately instead of the "include everything"
+PCI_ANY_ID.
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is however problematic with my chipset.
+The ethernet controller, a VT6102 (Rhine-II) and the audio controller,
+VT8233/A/8235/8237 need a fix to work.
+Including PCI_ANY_ID again fixes these problems but is of course a
+pretty evil fix. The problem is I can't find out which PCI ids to
+include. I'm new to this list so suggestions are welcome.
 
-On Sun, 05 Nov 2006 the mental interface of
-Andrew Morton told:
-
-[...]
-> > > Index: work-fault-inject/net/sunrpc/svcauth.c
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > > --- work-fault-inject.orig/net/sunrpc/svcauth.c
-> > > +++ work-fault-inject/net/sunrpc/svcauth.c
-> > > @@ -126,6 +126,7 @@ void auth_domain_put(struct auth_domain=20
-> > >  	if (atomic_dec_and_lock(&dom->ref.refcount, &auth_domain_lock)) {
-> > >  		hlist_del(&dom->hash);
-> > >  		dom->flavour->domain_release(dom);
-> > > +		spin_unlock(&auth_domain_lock);
-> > >  	}
-> > >  }
->=20
-> I wonder if this will fix http://bugzilla.kernel.org/show_bug.cgi?id=3D74=
-57
-
-It fixes it. Patched a native 2.6.19-rc4 and it works. Thanks.
-
-Elimar
-
---=20
-  Planung:
-  Ersatz des Zufalls durch den Irrtum.
-                                -unknown-
-
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFTl/V3Ig8bsVPf7ARAipwAKChORiiWm9UOsB+ONqB2fsE09ZzTwCgiJiI
-awuru173W083NV9v02iQBlg=
-=fVfr
------END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--
+Wilco

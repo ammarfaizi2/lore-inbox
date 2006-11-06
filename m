@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423712AbWKFKMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423726AbWKFKNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423712AbWKFKMU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 05:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423710AbWKFKMU
+	id S1423726AbWKFKNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 05:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423723AbWKFKNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 05:12:20 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:60886 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1423712AbWKFKMT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 05:12:19 -0500
-Date: Mon, 6 Nov 2006 11:11:17 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, Karsten Wiese <fzu@wemgehoertderstaat.de>
-Subject: Re: realtime-preempt patch-2.6.18-rt7 oops
-Message-ID: <20061106101117.GA20616@elte.hu>
-References: <454BC8D1.1020001@rncbc.org> <454BF608.20803@rncbc.org> <454C714B.8030403@rncbc.org> <454E0976.8030303@rncbc.org> <454E15B0.2050008@rncbc.org> <1162742535.2750.23.camel@localhost.localdomain> <454E2FC1.4040700@rncbc.org> <1162797896.6126.5.camel@Homer.simpson.net> <20061106093815.GB14388@elte.hu> <1162807371.13579.4.camel@Homer.simpson.net>
+	Mon, 6 Nov 2006 05:13:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47786 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1423726AbWKFKNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 05:13:06 -0500
+Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
+From: Arjan van de Ven <arjan@infradead.org>
+To: Zhao Xiaoming <xiaoming.nj@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
+References: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 06 Nov 2006 11:13:04 +0100
+Message-Id: <1162807984.3160.188.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1162807371.13579.4.camel@Homer.simpson.net>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-11-06 at 14:07 +0800, Zhao Xiaoming wrote:
+> Dears,
+>     I'm running a linux box with kernel version 2.6.16. The hardware
+> has 2 Woodcrest Xeon CPUs (2 cores each) and 4G RAM. The NIC cards is
+> Intel 82571 on PCI-e bus.
 
-* Mike Galbraith <efault@gmx.de> wrote:
+are you using a 32 bit or a 64 bit OS?
 
-> > could you try the patch below, does it help? (a quick review seems 
-> > to suggest that all codepaths protected by kretprobe_lock are 
-> > atomic)
-> 
-> Ah, so I did do the right thing.  Besides the oops, I was getting a 
-> pretty frequent non-deadly...
 
-yeah ...
-
-> ...so turned it back into a non-sleeping lock.
-> 
-> You forgot kprobes.h
-
-so the patch solves this problem for you?
-
-	Ingo

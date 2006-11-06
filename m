@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932596AbWKFGPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932644AbWKFGYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932596AbWKFGPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 01:15:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWKFGPZ
+	id S932644AbWKFGYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 01:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932645AbWKFGYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 01:15:25 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:20461 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932596AbWKFGPZ (ORCPT
+	Mon, 6 Nov 2006 01:24:09 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:40357 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S932644AbWKFGYI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 01:15:25 -0500
-Message-ID: <454ED2F8.9050608@garzik.org>
-Date: Mon, 06 Nov 2006 01:15:20 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+	Mon, 6 Nov 2006 01:24:08 -0500
+Message-ID: <454ED4EA.5070701@colorfullife.com>
+Date: Mon, 06 Nov 2006 07:23:38 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Poor NFSv4 first impressions
+To: paulmck@us.ibm.com
+CC: Linus Torvalds <torvalds@osdl.org>, Falk Hueffner <falk@debian.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ipc/msg.c "cleanup" breaks fakeroot on Alpha
+References: <87d583f97t.fsf@debian.org> <20061104172954.GA3668@elte.hu> <Pine.LNX.4.64.0611040938490.25218@g5.osdl.org> <87bqnnjd1w.fsf@debian.org> <Pine.LNX.4.64.0611041019180.25218@g5.osdl.org> <454E0B1F.7090106@colorfullife.com> <20061106055745.GA4080@us.ibm.com>
+In-Reply-To: <20061106055745.GA4080@us.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Being a big user of NFS at home, and a big fan of NFSv4, it was high 
-time that I converted my home network from NFSv3 to NFSv4.
+Paul E. McKenney wrote:
 
-Unfortunately applications started breaking left and right.  vim 
-noticeably malfunctioned, trying repeatedly to create a swapfile (sorta 
-like a lockfile).  Mozilla Thunderbird would crash reproducibly whenever 
-it tried anything remotely major with a mailbox, such as compressing 
-folders (removing deleted messages).
+>I also don't understand why the code in sys_msgrcv() doesn't have
+>to remap the msqid, similar to the way it is done in sys_semtimedop().
+>
+>  
+>
+What do you mean with remap?
 
-Both NFSv4 server and NFSv4 client were x86-64 Linux boxes, running 
-hyper-recent kernel 2.6.19-rc4-g10b1fbdb 
-(10b1fbdb0a0ca91847a534ad26d0bc250c25b74f).  FC5 userland on the server, 
-FC6 userland on the client.  There were no other clients connected to 
-the NFS server, much less using my NFS homedir.  This data was not being 
-accessed on the server directly, either.
+>So, what am I missing here?  How does a msgrcv() racing with an rmid()
+>avoid taking a lock on a message queue that just got freed?  (The
+>ipc_lock_by_ptr() in "Lockless receive, part 3".)  My concern is the
+>following sequence of steps:
+>
+>o	expunge_all() invokes wake_up_process() and sets r_msg.
+>
+>o	sys_msgrcv() is awakened, but for whatever reason does
+>	not actually start executing (e.g., lots of other busy
+>	processes at higher priority).
+>
+>o	expunge_all() returns to freeque(), which runs through the
+>	rest of its processing, finally calling ipc_rcu_putref().
+>
+>o	ipc_rcu_putref() invokes call_rcu() to free the message
+>	queue after a grace period.
+>
+>o	ipc_immediate_free() is invoked at the end of a grace
+>	period, freeing the message queue.
+>
+>o	sys_msgrcv() finally gets a chance to run, and does an
+>	rcu_read_lock() -- but too late!!!
+>
+>  
+>
+Not too late:
+sys_msgrcv() checks msr_d.r_msr, notices that the value is -EIDRM and
+returns to user space with -EIDRM immediately. This codepath
+doesn't touch the message queue pointer, thus it doesn't matter that the
+message queue is already freed.
+The code only touches the message queue pointer if msr_d.r_msr
+is -EAGAIN - and the rcu_read_lock() guarantees there is no rcu grace
+period between the test for -EAGAIN and the ipc_lock_by_ptr.
+Thus this should be safe.
 
-/etc/exports contains:
-/g 
-10.10.10.0/255.255.255.0(rw,fsid=0,insecure,no_subtree_check,no_root_squash)
+But back to the oops:
+The oops happens in expunge_all, called from sys_msgctl.
+Thus it must be an msgctl(IPC_SET).
+IPC_SET is special: it calls expunge_all(-EAGAIN): that's necessary
+because IPC_SET can change the permissions.
+Unfortunately, faked doesn't use IPC_SET at all :-(
 
-NFSv4 /etc/fstab line:
-pretzel:/       /g      nfs4    defaults,proto=tcp,hard,intr    0 0
+Falk - could you strace your "fakeroot ls" test? Are there any IPC_SET 
+calls?
+Which gcc version do you use? Is it possible that gcc auto-inlined 
+something?
 
-NFSv3 (previous) /etc/fstab line for same file server:
-pretzel:/g              /g              nfs     defaults,tcp    0 0
-
-
-I hope this is just a temporary problem, but as it looks right now, 
-NFSv4 isn't ready for prime time, with all these apps breaking :/
-
-	Jeff
-
-
+--
+    Manfred

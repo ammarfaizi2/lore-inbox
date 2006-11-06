@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753821AbWKFVTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753810AbWKFVUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753821AbWKFVTA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 16:19:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753820AbWKFVTA
+	id S1753810AbWKFVUd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 16:20:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753816AbWKFVUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 16:19:00 -0500
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:14306 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1753817AbWKFVS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 16:18:59 -0500
-Date: Mon, 6 Nov 2006 22:19:03 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+	Mon, 6 Nov 2006 16:20:32 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:44725 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1753810AbWKFVUc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 16:20:32 -0500
+Date: Mon, 6 Nov 2006 13:20:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: New filesystem for Linux
-Message-ID: <20061106211903.GC691@wohnheim.fh-wedel.de>
-References: <20061103101901.GA11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031252430.17174@artax.karlin.mff.cuni.cz> <20061103122126.GC11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031428010.17427@artax.karlin.mff.cuni.cz> <20061103134802.GD11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031509500.27698@artax.karlin.mff.cuni.cz> <20061103145329.GE11947@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611031953411.30722@artax.karlin.mff.cuni.cz> <20061104104601.GA16991@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0611041946580.24713@artax.karlin.mff.cuni.cz>
+Subject: Re: Avoid allocating during interleave from almost full nodes
+Message-Id: <20061106132029.28cd88b5.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611061252140.29760@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+	<20061103134633.a815c7b3.akpm@osdl.org>
+	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
+	<20061103143145.85a9c63f.akpm@osdl.org>
+	<Pine.LNX.4.64.0611031622540.16997@schroedinger.engr.sgi.com>
+	<20061103165854.0f3e77ad.akpm@osdl.org>
+	<Pine.LNX.4.64.0611060846070.25351@schroedinger.engr.sgi.com>
+	<20061106115925.1dd41a77.akpm@osdl.org>
+	<Pine.LNX.4.64.0611061207310.26685@schroedinger.engr.sgi.com>
+	<20061106122446.8269f7bc.akpm@osdl.org>
+	<Pine.LNX.4.64.0611061229080.29760@schroedinger.engr.sgi.com>
+	<20061106124257.deffa31c.akpm@osdl.org>
+	<Pine.LNX.4.64.0611061252140.29760@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0611041946580.24713@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 November 2006 19:50:01 +0100, Mikulas Patocka wrote:
+On Mon, 6 Nov 2006 12:58:52 -0800 (PST)
+Christoph Lameter <clameter@sgi.com> wrote:
+
+> > OK, but if two nodes have a lot of free pages and the rest don't then
+> > interleave will consume those free pages without performing any reclaim
+> > from all the other nodes.  Hence hostpots or imbalances.
+> > 
+> > Whatever they are.  Why does it matter?
 > 
-> LFS fragments data by design ... it can't write to already allocated 
-> space, so if you write to the middle of LFS directory, it will allocate 
-> new block, new indirect pointers to that directory, new block in inode 
-> table etc.
+> Hotspots create lots of requests going to the same numa node. The nodes 
+> have a limited capability to service cacheline requests and the bandwidth 
+> on the interlink is also limited. If too many processors request 
+> information from the same remote node then performance will drop.
 
-Based on the assumption that reads don't matter, which proved wrong.
-Yes.
+OK.
 
-Your allocation strategy sounds fairly good.  I'm not a benchmark
-person, so I can only tell horrible from decent, not decent from good.
-Your benchmarks speak for themselves, so I guess it is more than just
-decent.
+> There are different kind of data in a NUMA system:
+> 
+> Data that is node local is only accessed by the local processor. For node 
+> local data we have no such concerns since the interlink is not used. Quite 
+> a lot of kernel data per node or per cpu and thus is not a problem.
+> 
+> For shared data that is known to be performance critical--and where we 
+> know that the data is accessed from multiple nodes--there we need to 
+> balance the data between multiple nodes to avoid overloads and 
+> to keep the system running at optimal speed. That is where interleave 
+> becomes important.
 
-However, going back to crash counts and transaction counts, I still
-don't understand why you don't just have two checkpoints (or any other
-objects, if you don't like the name) with a 64bit version number each
-that you alternately write for sync().  You seem to have that concept
-for managing free space, just not to manage valid data.  What is the
-difference?
-
-Jörn
-
--- 
-Courage is not the absence of fear, but rather the judgement that
-something else is more important than fear.
--- Ambrose Redmoon
+But doesn't this patch introduce considerable risks of the above problems
+occurring?  In the two-nodes-have-lots-of-free-memory scenario?

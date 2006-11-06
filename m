@@ -1,35 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753733AbWKFXjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753179AbWKFXq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753733AbWKFXjK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 18:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753929AbWKFXjK
+	id S1753179AbWKFXq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 18:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWKFXq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 18:39:10 -0500
-Received: from verein.lst.de ([213.95.11.210]:13273 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1753728AbWKFXjH (ORCPT
+	Mon, 6 Nov 2006 18:46:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43230 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1753179AbWKFXq5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 18:39:07 -0500
-Date: Tue, 7 Nov 2006 00:39:00 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 2/3] add dev_to_node()
-Message-ID: <20061106233900.GA7148@lst.de>
-References: <20061104225629.GA31437@lst.de> <20061104230648.GB640@redhat.com> <20061104235323.GA1353@lst.de> <20061105.002237.18309940.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061105.002237.18309940.davem@davemloft.net>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -0.6 () BAYES_01
+	Mon, 6 Nov 2006 18:46:57 -0500
+Message-ID: <454FC945.90903@redhat.com>
+Date: Mon, 06 Nov 2006 18:46:13 -0500
+From: Chris Lalancette <clalance@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marc Perkel <marc@perkel.com>
+CC: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: could not find filesystem /dev/root
+References: <454E95E1.2010708@perkel.com> <200611062112.42202.rjw@sisk.pl> <454FA6AD.7000301@perkel.com> <200611062225.56070.rjw@sisk.pl> <454FA988.7040204@perkel.com>
+In-Reply-To: <454FA988.7040204@perkel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 05, 2006 at 12:22:37AM -0800, David Miller wrote:
-> Looks good to me.
+Marc Perkel wrote:
+> 
+> 
+> Rafael J. Wysocki wrote:
+> 
+>> On Monday, 6 November 2006 22:18, Marc Perkel wrote:
+>>  
+>>
+>>> Rafael J. Wysocki wrote:
+>>>    
+>>>
+>>>> On Monday, 6 November 2006 02:54, Marc Perkel wrote:
+>>>>        
+>>>>
+>>>>> Trying to compile a new kernel and getting this on boot
+>>>>>
+>>>>> could not find filesystem /dev/root
+>>>>>             
+>>>>
+>>>> Which kernel?
+>>>>         
+>>>
+>>> 2.6.19rc4
+>>>     
+>>
+>>
+>> What is the last working version?
+>>   
+> 
+> 
+> Last one I tried that worked other than the stock kernel is 2.6.18 but
+> I've upgraded from FC5 to FC6 since then.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-So what's the right path to get this in?  There's one patch touching
-MM code, one adding something to the driver core and then finally a
-networking patch depending on the previous two.  Do you want to take
-them all and send them in through the networking tree?  Or should
-we put the burden on Andrew?
+I ran into the same problem when using an FC-6 .config file compiling 2.6.19-rc4.  In my case, the problem was that the configuration options for Serial ATA have changed since 2.6.18 (which the FC-6 config is based on).  I had to manually go in to the config (with make menuconfig) and turn on the SATA device that I have.  What kind of SATA controller do you have, and what does your .config look like?
+
+Chris Lalancette

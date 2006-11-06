@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753868AbWKFWSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753870AbWKFWUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753868AbWKFWSp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 17:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753869AbWKFWSp
+	id S1753870AbWKFWUe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 17:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753873AbWKFWUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 17:18:45 -0500
-Received: from outbound-red.frontbridge.com ([216.148.222.49]:51608 "EHLO
-	outbound2-red-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1753868AbWKFWSo convert rfc822-to-8bit (ORCPT
+	Mon, 6 Nov 2006 17:20:34 -0500
+Received: from pm-mx9.mgn.net ([195.46.220.205]:43747 "EHLO pm-mx9.mgn.net")
+	by vger.kernel.org with ESMTP id S1753870AbWKFWUc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 17:18:44 -0500
-X-BigFish: VP
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 6 Nov 2006 17:20:32 -0500
+From: Damien Wyart <damien.wyart@free.fr>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, James@superbug.demon.co.uk
+Subject: Re: ALSA message with 2.6.19-rc4-mm2 (not -mm1)
+References: <20061102102607.GA2176@localhost.localdomain>
+	<20061102192607.GA13635@kroah.com> <878xitpkvy.fsf@brouette.noos.fr>
+	<20061102222242.GA17744@kroah.com> <s5hvelsfv1g.wl%tiwai@suse.de>
+Date: Mon, 06 Nov 2006 18:30:31 +0100
+In-Reply-To: <s5hvelsfv1g.wl%tiwai@suse.de> (Takashi Iwai's message of "Mon\,
+	06 Nov 2006 16\:34\:51 +0100")
+Message-ID: <87wt68a3ew.fsf@brouette.noos.fr>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.90
 MIME-Version: 1.0
-Subject: RE: [Patch] PCI: check szhi when sz is 0 for 64 bit pref mem
-Date: Mon, 6 Nov 2006 14:15:23 -0800
-Message-ID: <5986589C150B2F49A46483AC44C7BCA490719C@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] PCI: check szhi when sz is 0 for 64 bit pref mem
-Thread-Index: AccB76iQA5hCbNAARyOEuq8sJzO/XgAAAx3g
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "Andrew Morton" <akpm@osdl.org>
-cc: "Greg KH" <gregkh@suse.de>, "Andi Kleen" <ak@suse.de>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Nov 2006 22:15:24.0545 (UTC)
- FILETIME=[0E814F10:01C701F1]
-X-WSS-ID: 69516C761AO1093171-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org] 
->I don't really understand what this patch does.
->We have a PCI device with a 64-bit BAR and the size is also 64-bit and
-is
->larger than 4G, yes?
+* Takashi Iwai <tiwai@suse.de> [061106 16:34]:
+> Well, I've not checked the problem in detail yet (since I'm back from
+> vacation), but my rough guess is that snd_card_register() is indeed
+> called multiple times. It's correct behavior as this function is
+> supposed to be callable multiple times. Some components (like
+> emux-synth) are implemented as a kind of "plug-in", and they call
+> snd_card_register() to assure that the underlying card tree gets
+> ready.
 
-Yes
+> A simple fix would be like below.  Could you give it a try?
 
->But the code appears to already be attempting to handle such devices. 
->Confused.
+Yes, with with patch the offending message disappears from the bootlog.
+Thanks for your answer!
 
-The old code will 
-Try to calculate the sz from lo 32 bit addr reg, and sz is 0 if the 64
-bit resource size if 4G above, so it will continue can skip that
-register, and it will go on try to treat the hi 32bit addr reg as
-another 32 bit resource addr reg.
-
-YH
-
-
-
-
-
+-- 
+Damien

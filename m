@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753447AbWKFUvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753783AbWKFUv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753447AbWKFUvD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753783AbWKFUvB
+	id S1753783AbWKFUv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753793AbWKFUv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:51:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27052 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1753780AbWKFUvA (ORCPT
+	Mon, 6 Nov 2006 15:51:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13997 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1753783AbWKFUvz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:51:00 -0500
-Message-ID: <454FA032.1070008@redhat.com>
-Date: Mon, 06 Nov 2006 14:50:58 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 6 Nov 2006 15:51:55 -0500
+Date: Mon, 6 Nov 2006 15:40:59 -0500 (EST)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-20.boston.redhat.com
+To: Roland Dreier <rdreier@cisco.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: locking hierarchy based on lockdep
+In-Reply-To: <ada8xiol3a3.fsf@cisco.com>
+Message-ID: <Pine.LNX.4.64.0611061539400.29750@dhcp83-20.boston.redhat.com>
+References: <Pine.LNX.4.64.0611061315380.29750@dhcp83-20.boston.redhat.com>
+ <20061106200529.GA15370@elte.hu> <adapsc0l40x.fsf@cisco.com>
+ <Pine.LNX.4.64.0611061519220.29750@dhcp83-20.boston.redhat.com>
+ <ada8xiol3a3.fsf@cisco.com>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
- that offer x86 compatability
-References: <1162836725.6952.28.camel@dantu.rdu.redhat.com> <20061106182222.GO27140@parisc-linux.org> <1162838843.12129.8.camel@dantu.rdu.redhat.com> <20061106202313.GA691@wohnheim.fh-wedel.de>
-In-Reply-To: <20061106202313.GA691@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> On Mon, 6 November 2006 13:47:23 -0500, Jeff Layton wrote:
->> On Mon, 2006-11-06 at 11:22 -0700, Matthew Wilcox wrote:
->>> On Mon, Nov 06, 2006 at 01:12:05PM -0500, Jeff Layton wrote:
->>>> The attached patch remedies this by making the last_inode counter be an
->>>> unsigned int on kernels that have ia32 compatability mode enabled.
->>> ... and this only happens on ia64/x86_64 kernels, not sparc64, ppc64,
->>> s390x, parisc64 or mips64?
->> Here's a new (untested) patch that replaces the ia32 specific
->> compatability mode defines with CONFIG_COMPAT, as suggested by Matthew.
+
+On Mon, 6 Nov 2006, Roland Dreier wrote:
+
+>  > interesting...perhaps if we layered say the directory structure on the 
+>  > list too like by the top level kernel directories drivers, kernel, mm, 
+>  > net, etc. it might be more readable.
 > 
-> While you're at it, how about making last_ino per-sb instead of
-> system-wide?  ino collisions after a wrap are just as bad as inos
-> beyond 32bit.  And this should be a fairly simple method to reduce the
-> risk.
+> I'm not sure that you need to do something manual or ad hoc like that,
+> although it might be necessary in the end.  I'd be curious to see how
+> the list of locks partitions up if you just divide it up into groups
+> of locks that have some relationship.  I guess the question is, if you
+> draw the graph whose nodes are locks and whose edges connect locks
+> that are held together, how many connected pieces does that graph have?
+> 
+>  - R.
+> 
 
-Using a global counter for multiple filesystems should actually -reduce-
-the chance of a collision on the same filesystem, since after you wrap the
-recycled number may go to a different filesystem.
+ok, so grouping the list by sections of connected components-that's a nice 
+idea, and would probably make for an interesting list.
 
-Simply making it a per-sb counter makes it worse, because wrapped inodes
-will always go to the same filesystem.
-
-To fix this properly, we'd need some sort of checking that the inode number
-isn't currently being used on the filesystem in question before it's
-assigned to the new inode.
-
--Eric
+-jason

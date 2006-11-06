@@ -1,87 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932644AbWKFGYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbWKFGiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932644AbWKFGYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 01:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932645AbWKFGYJ
+	id S932645AbWKFGiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 01:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbWKFGiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 01:24:09 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:40357 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S932644AbWKFGYI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 01:24:08 -0500
-Message-ID: <454ED4EA.5070701@colorfullife.com>
-Date: Mon, 06 Nov 2006 07:23:38 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: en-us, en
+	Mon, 6 Nov 2006 01:38:16 -0500
+Received: from wx-out-0506.google.com ([66.249.82.230]:13928 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932645AbWKFGiP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 01:38:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AmL5UVSfktoEkx4Per6V05jbcAACZegDJBDQg4r9BPaD51uCpJ4E/Yp2dH9BNCMIO8hD7F9I0qMIuq+HWcBBLm0XL0ku0a1iK8BV2y86OlJEYbS6Q7lh/2jUA8SQRv7qGpExFE8vv1jePrddWyMZVnB0i7fR0ZlRgMaMGf1YACQ=
+Message-ID: <233976e40611052238u4dfa9bdek83c74494b7163b39@mail.gmail.com>
+Date: Mon, 6 Nov 2006 07:38:14 +0100
+From: "Jean-Baptiste BUTET" <ashashiwa@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Promise PDC20375 (SATA150 TX2plus) doesn't work with last kernels.
+Cc: ashashiwa@gmail.com
+In-Reply-To: <233976e40611040503m2a4bf449k78f84b0768d1f14e@mail.gmail.com>
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-CC: Linus Torvalds <torvalds@osdl.org>, Falk Hueffner <falk@debian.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ipc/msg.c "cleanup" breaks fakeroot on Alpha
-References: <87d583f97t.fsf@debian.org> <20061104172954.GA3668@elte.hu> <Pine.LNX.4.64.0611040938490.25218@g5.osdl.org> <87bqnnjd1w.fsf@debian.org> <Pine.LNX.4.64.0611041019180.25218@g5.osdl.org> <454E0B1F.7090106@colorfullife.com> <20061106055745.GA4080@us.ibm.com>
-In-Reply-To: <20061106055745.GA4080@us.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <233976e40611040503m2a4bf449k78f84b0768d1f14e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul E. McKenney wrote:
+Hi all, Hi Jeff,
 
->I also don't understand why the code in sys_msgrcv() doesn't have
->to remap the msqid, similar to the way it is done in sys_semtimedop().
+> My pb : I have a
+> 00:09.0 Mass storage controller: Promise Technology, Inc. PDC20375
+> (SATA150 TX2plus) (rev 02) that worked (under kubuntu) and here
+> doesn't work with new install.
 >
->  
->
-What do you mean with remap?
+> I've a 160 Gb IDE disk on it. (My mother card don't accept such huge
+> disk without this card)
 
->So, what am I missing here?  How does a msgrcv() racing with an rmid()
->avoid taking a lock on a message queue that just got freed?  (The
->ipc_lock_by_ptr() in "Lockless receive, part 3".)  My concern is the
->following sequence of steps:
->
->o	expunge_all() invokes wake_up_process() and sets r_msg.
->
->o	sys_msgrcv() is awakened, but for whatever reason does
->	not actually start executing (e.g., lots of other busy
->	processes at higher priority).
->
->o	expunge_all() returns to freeque(), which runs through the
->	rest of its processing, finally calling ipc_rcu_putref().
->
->o	ipc_rcu_putref() invokes call_rcu() to free the message
->	queue after a grace period.
->
->o	ipc_immediate_free() is invoked at the end of a grace
->	period, freeing the message queue.
->
->o	sys_msgrcv() finally gets a chance to run, and does an
->	rcu_read_lock() -- but too late!!!
->
->  
->
-Not too late:
-sys_msgrcv() checks msr_d.r_msr, notices that the value is -EIDRM and
-returns to user space with -EIDRM immediately. This codepath
-doesn't touch the message queue pointer, thus it doesn't matter that the
-message queue is already freed.
-The code only touches the message queue pointer if msr_d.r_msr
-is -EAGAIN - and the rcu_read_lock() guarantees there is no rcu grace
-period between the test for -EAGAIN and the ipc_lock_by_ptr.
-Thus this should be safe.
+So, I've investigated to see why UBUNTU Dapper see my IDE disk and why
+newer kernels doesn't. There's some big changes in dmesg : a
+sata_promise PATA port is found. Or it's on this port IDE disk is
+plugged.
+---------------------- ubuntu's dmesg
+[17179580.780000] SCSI subsystem initialized
+[17179580.792000] ACPI: bus type scsi registered
+[17179580.792000] libata version 1.20 loaded.
+[17179580.800000] sata_promise 0000:00:09.0: version 1.03
+[17179580.800000] **** SET: Misaligned resource pointer: d6a7d1e2 Type 07 Len 0
+[17179580.804000] ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 9
+[17179580.804000] PCI: setting IRQ 9 as level-triggered
+[17179580.804000] ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKD]
+-> GSI 9 (level, low) -> IRQ 9
+[17179580.804000] sata_promise PATA port found
+[17179580.820000] ata1: SATA max UDMA/133 cmd 0xD8880200 ctl
+0xD8880238 bmdma 0x0 irq 9
+[17179580.820000] ata2: SATA max UDMA/133 cmd 0xD8880280 ctl
+0xD88802B8 bmdma 0x0 irq 9
+[17179580.820000] ata3: PATA max UDMA/133 cmd 0xD8880300 ctl
+0xD8880338 bmdma 0x0 irq 9
+[17179581.024000] ata1: no device found (phy stat 00000000)
+[17179581.024000] scsi0 : sata_promise
+[17179581.228000] ata2: no device found (phy stat 00000000)
+[17179581.228000] scsi1 : sata_promise
+[17179581.392000] ata3: dev 0 cfg 00:0040 49:2f00 82:7c6b 83:7f09
+84:4003 85:7c68 86:3e01 87:4003 88:407f 93:600b
+[17179581.392000] ata3: dev 0 ATA-7, max UDMA/133, 320173056 sectors: LBA48
+[17179581.392000] ata3: dev 0 configured for UDMA/133
+[17179581.392000] sata_get_dev_handle: SATA dev addr=0x90000, handle=0x00000000
+[17179581.392000] scsi2 : sata_promise
+[17179581.392000]   Vendor: ATA       Model: Maxtor 6Y160P0    Rev: YAR4
+[17179581.392000]   Type:   Direct-Access                      ANSI
+SCSI revision: 05
+[17179581.420000] Driver 'sd' needs updating - please use bus_type methods
+[17179581.424000] SCSI device sda: 320173056 512-byte hdwr sectors (163929 MB)
+[17179581.424000] SCSI device sda: drive cache: write back
+[17179581.432000] SCSI device sda: 320173056 512-byte hdwr sectors (163929 MB)
+[17179581.436000] SCSI device sda: drive cache: write back
+[17179581.436000]  sda: sda1 sda2
+---------------------
 
-But back to the oops:
-The oops happens in expunge_all, called from sys_msgctl.
-Thus it must be an msgctl(IPC_SET).
-IPC_SET is special: it calls expunge_all(-EAGAIN): that's necessary
-because IPC_SET can change the permissions.
-Unfortunately, faked doesn't use IPC_SET at all :-(
+Dmesg on 2.6.18.1 :
+scsi_mod: exports duplicate symbol scsi_logging_level (owned by kernel)
+libata version 2.00 loaded.
+sata_promise 0000:00:09.0: version 1.04
+ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKD] -> GSI 9 (level,
+low) -> IRQ 9
+ata1: SATA max UDMA/133 cmd 0xD8876200 ctl 0xD8876238 bmdma 0x0 irq 9
+ata2: SATA max UDMA/133 cmd 0xD8876280 ctl 0xD88762B8 bmdma 0x0 irq 9
+scsi0 : sata_promise
+ata1: SATA link down (SStatus 0 SControl 300)
+scsi1 : sata_promise
+ata2: SATA link down (SStatus 0 SControl 300)
 
-Falk - could you strace your "fakeroot ls" test? Are there any IPC_SET 
-calls?
-Which gcc version do you use? Is it possible that gcc auto-inlined 
-something?
+---------------------
 
---
-    Manfred
+
+Is there any PATA support broken in new sata_promise/libata stuff ? Is
+there any good kernel configuration in order to make it works?
+
+Thanks a lot.
+
+Jean-Baptiste

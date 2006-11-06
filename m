@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423699AbWKFKTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423750AbWKFKVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423699AbWKFKTG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 05:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423711AbWKFKTG
+	id S1423750AbWKFKVP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 05:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423762AbWKFKVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 05:19:06 -0500
-Received: from def92-3-81-56-114-101.fbx.proxad.net ([81.56.114.101]:49373
-	"EHLO barad-dur") by vger.kernel.org with ESMTP id S1423699AbWKFKTD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 05:19:03 -0500
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: could not find filesystem /dev/root
-References: <454E95E1.2010708@perkel.com>
-From: Mathieu SEGAUD <matt@regala.cx>
-Date: Mon, 06 Nov 2006 11:18:59 +0100
-In-Reply-To: <454E95E1.2010708@perkel.com> (Marc Perkel's message of "Sun\, 05 Nov 2006 17\:54\:41 -0800")
-Message-ID: <873b8wubcc.fsf@barad-dur.regala.cx>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
+	Mon, 6 Nov 2006 05:21:15 -0500
+Received: from nz-out-0102.google.com ([64.233.162.207]:1441 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1423750AbWKFKVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 05:21:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=soPs9Midvzjv0NoELDjO3PzzWA8R5mKEl1qqcUL9Jj0ZfeD/aPxZNpO0muIy8M3clikgTAYXH6+0oA4f57jDHpDZ+JcrpepXm3+xxIHm9xgsun8KyY3v9eVOUDUiLphQnQ7WXoUY4ncuEbcgpyA4e1dripfZrLrFnRJRXftZS5k=
+Message-ID: <f55850a70611060221y25528116pa1b73aa89008f906@mail.gmail.com>
+Date: Mon, 6 Nov 2006 18:21:12 +0800
+From: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
+To: linux-kernel@vger.kernel.org, "Linux Netdev List" <netdev@vger.kernel.org>
+Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
+In-Reply-To: <1162807984.3160.188.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
+	 <1162807984.3160.188.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vous m'avez dit récemment :
-
-> Trying to compile a new kernel and getting this on boot
+2006/11/6, Arjan van de Ven <arjan@infradead.org>:
+> On Mon, 2006-11-06 at 14:07 +0800, Zhao Xiaoming wrote:
+> > Dears,
+> >     I'm running a linux box with kernel version 2.6.16. The hardware
+> > has 2 Woodcrest Xeon CPUs (2 cores each) and 4G RAM. The NIC cards is
+> > Intel 82571 on PCI-e bus.
 >
-> could not find filesystem /dev/root
-
-sure it doesn't spit only this to you. Does it panic ? and do FC6
-kernels use an initrd (I guess so) ?
-
-> It boots up fine with the stock FC6 kernel. What am I missing?
-
-many reasons can prevent you from booting a vanilla kernel on modern distros
-
-try to figure out what is really exec'ed _after_ the kernel
-initialization and _before_ init execution
-(hint: initramfs)
-
--- 
-Mathieu Segaud
+> are you using a 32 bit or a 64 bit OS?
+>
+>
+>

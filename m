@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423646AbWKFJjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423657AbWKFJp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423646AbWKFJjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 04:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423648AbWKFJjQ
+	id S1423657AbWKFJp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 04:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423651AbWKFJp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 04:39:16 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25822 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1423647AbWKFJjP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 04:39:15 -0500
-Date: Mon, 6 Nov 2006 10:39:00 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Auke Kok <auke-jan.h.kok@intel.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, greg@kroah.com, stable@vger.kernel.org,
-       rjw@sisk.pl, bunk@stusta.de, akpm@osdl.org, laurent.riffard@free.fr,
-       rajesh.shah@intel.com, toralf.foerster@gmx.de,
-       jesse.brandeburg@intel.com, "Ronciak, John" <john.ronciak@intel.com>,
-       "John W. Linville" <linville@tuxdriver.com>, nhorman@redhat.com,
-       cluebot@fedorafaq.org, notting@redhat.com, bruce.w.allan@intel.com,
-       davej@redhat.com, linville@redhat.com, wtogami@redhat.com,
-       dag@wieers.com, error27@gmail.com,
-       e1000-list <e1000-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] e1000: Fix regression: garbled stats and irq allocation during swsusp
-Message-ID: <20061106093900.GA2978@elf.ucw.cz>
-References: <454B9BED.306@intel.com> <454EEA84.4060805@garzik.org>
+	Mon, 6 Nov 2006 04:45:29 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61196 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1423657AbWKFJp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 04:45:28 -0500
+Date: Mon, 6 Nov 2006 10:45:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: jgarzik@pobox.com, davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: tg3_read_partno(): possible array overrun
+Message-ID: <20061106094527.GG5778@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <454EEA84.4060805@garzik.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The Coverity checker noted the following in drivers/net/tg3.c:
 
-> >e1000: Fix regression: garbled stats and irq allocation during swsusp
-> >
-> >After 7.0.33/2.6.16, e1000 suspend/resume left the user with an enabled
-> >device showing garbled statistics and undetermined irq allocation state,
-> >where `ifconfig eth0 down` would display `trying to free already freed 
-> >irq`.
-> >
-> >Explicitly free and allocate irq as well as powerup the PHY during resume
-> >fixes.
-> >
-> >Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
-> 
-> ACK, but:
-> 
-> Applying 'e1000: Fix regression: garbled stats and irq allocation during 
-> swsusp'
-> 
-> fatal: corrupt patch at line 8
+<--  snip  -->
 
-Toralf posted rediffed (manually applied) version... should I forward
-it to you?
-									Pavel
+...
+static void __devinit tg3_read_partno(struct tg3 *tp)
+{
+        unsigned char vpd_data[256];
+        int i;
+...
+        /* Now parse and find the part number. */
+        for (i = 0; i < 256; ) {
+                unsigned char val = vpd_data[i];
+                int block_end;
+
+                if (val == 0x82 || val == 0x91) {
+                        i = (i + 3 +
+                             (vpd_data[i + 1] +
+                              (vpd_data[i + 2] << 8)));
+                        continue;
+                }
+
+                if (val != 0x90)
+                        goto out_not_found;
+
+                block_end = (i + 3 +
+                             (vpd_data[i + 1] +
+                              (vpd_data[i + 2] << 8)));
+                i += 3;
+...
+
+<--  snip  -->
+
+The problem is that vpd_data[i + 2] could be vpd_data[255 + 2].
+
+cu
+Adrian
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

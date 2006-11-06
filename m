@@ -1,40 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753441AbWKFQ4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753450AbWKFQ5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753441AbWKFQ4U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 11:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753421AbWKFQ4U
+	id S1753450AbWKFQ5W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 11:57:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753457AbWKFQ5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 11:56:20 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:51881 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1753441AbWKFQ4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 11:56:19 -0500
-Date: Mon, 6 Nov 2006 08:56:15 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Avoid allocating during interleave from almost full nodes
-In-Reply-To: <20061104025128.ca3c9859.pj@sgi.com>
-Message-ID: <Pine.LNX.4.64.0611060854000.25351@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
- <20061103134633.a815c7b3.akpm@osdl.org> <Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
- <20061103143145.85a9c63f.akpm@osdl.org> <20061103172605.e646352a.pj@sgi.com>
- <20061103174206.53f2c49e.akpm@osdl.org> <20061104025128.ca3c9859.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Nov 2006 11:57:22 -0500
+Received: from mga03.intel.com ([143.182.124.21]:24168 "EHLO mga03.intel.com")
+	by vger.kernel.org with ESMTP id S1753450AbWKFQ5V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 11:57:21 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,392,1157353200"; 
+   d="scan'208"; a="141944628:sNHT30046639"
+From: Auke Kok <auke-jan.h.kok@intel.com>
+To: jeff@garzik.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+CC: rjw@sisk.pl, bunk@stusta.de, akpm@osdl.org, laurent.riffard@free.fr,
+       rajesh.shah@intel.com, toralf.foerster@gmx.de, pavel@ucw.cz,
+       auke-jan.h.kok@intel.com, jesse.brandeburg@intel.com,
+       "Ronciak, John" <john.ronciak@intel.com>,
+       "John W. Linville" <linville@tuxdriver.com>, nhorman@redhat.com,
+       cluebot@fedorafaq.org, notting@redhat.com, bruce.w.allan@intel.com,
+       davej@redhat.com, e1000-list <e1000-devel@lists.sourceforge.net>
+Subject: [PATCH] e1000: Fix regression: garbled stats and irq allocation during swsusp
+Message-Id: <20061106165712.BAA253FFEA@ahkok-mobl.jf.intel.com>
+Date: Mon,  6 Nov 2006 08:57:12 -0800 (PST)
+X-OriginalArrivalTime: 06 Nov 2006 16:57:12.0994 (UTC) FILETIME=[9B0DD020:01C701C4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Nov 2006, Paul Jackson wrote:
+e1000: Fix suspend/resume powerup and irq allocation
 
->   Do you know of any existing counters that we could use like this?
-> 
-> Adding a system wide count of pages allocated or scanned, just for
-> these fullnode hint caches, bothers me.
+From: Auke Kok <auke-jan.h.kok@intel.com>
 
-There are already such counters. PGALLOC_* and PGSCAN_*. See 
-include/linux/vmstat.h
+After 7.0.33/2.6.16, e1000 suspend/resume left the user with an enabled
+device showing garbled statistics and undetermined irq allocation state,
+where `ifconfig eth0 down` would display `trying to free already freed irq`.
 
-> Perhaps best if we used a node or cpu local counter.
+Explicitly free and allocate irq as well as powerup the PHY during resume
+fixes when needed.
 
-The counters are per cpu and are cpu local.
+Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
+---
+
+ drivers/net/e1000/e1000_main.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+index 8d04752..726ec5e 100644
+--- a/drivers/net/e1000/e1000_main.c
++++ b/drivers/net/e1000/e1000_main.c
+@@ -4800,6 +4800,9 @@ e1000_suspend(struct pci_dev *pdev, pm_m
+ 	if (adapter->hw.phy_type == e1000_phy_igp_3)
+ 		e1000_phy_powerdown_workaround(&adapter->hw);
+ 
++	if (netif_running(netdev))
++		e1000_free_irq(adapter);
++
+ 	/* Release control of h/w to f/w.  If f/w is AMT enabled, this
+ 	 * would have already happened in close and is redundant. */
+ 	e1000_release_hw_control(adapter);
+@@ -4830,6 +4833,10 @@ e1000_resume(struct pci_dev *pdev)
+ 	pci_enable_wake(pdev, PCI_D3hot, 0);
+ 	pci_enable_wake(pdev, PCI_D3cold, 0);
+ 
++	if (netif_running(netdev) && (err = e1000_request_irq(adapter)))
++		return err;
++
++	e1000_power_up_phy(adapter);
+ 	e1000_reset(adapter);
+ 	E1000_WRITE_REG(&adapter->hw, WUS, ~0);
+ 

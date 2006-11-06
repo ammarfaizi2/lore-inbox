@@ -1,120 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753750AbWKFUnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753447AbWKFUvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753750AbWKFUnp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 15:43:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753747AbWKFUnp
+	id S1753447AbWKFUvD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 15:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753783AbWKFUvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 15:43:45 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:13386 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1753735AbWKFUno (ORCPT
+	Mon, 6 Nov 2006 15:51:01 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27052 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1753780AbWKFUvA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 15:43:44 -0500
-Date: Mon, 6 Nov 2006 21:45:51 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 12/12] cciss: fix for iostat
-Message-ID: <20061106204550.GI19471@kernel.dk>
-References: <20061106203205.GL17847@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061106203205.GL17847@beardog.cca.cpqcorp.net>
+	Mon, 6 Nov 2006 15:51:00 -0500
+Message-ID: <454FA032.1070008@redhat.com>
+Date: Mon, 06 Nov 2006 14:50:58 -0600
+From: Eric Sandeen <sandeen@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
+ that offer x86 compatability
+References: <1162836725.6952.28.camel@dantu.rdu.redhat.com> <20061106182222.GO27140@parisc-linux.org> <1162838843.12129.8.camel@dantu.rdu.redhat.com> <20061106202313.GA691@wohnheim.fh-wedel.de>
+In-Reply-To: <20061106202313.GA691@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06 2006, Mike Miller (OS Dev) wrote:
-> Patch 12 of 12
+Jörn Engel wrote:
+> On Mon, 6 November 2006 13:47:23 -0500, Jeff Layton wrote:
+>> On Mon, 2006-11-06 at 11:22 -0700, Matthew Wilcox wrote:
+>>> On Mon, Nov 06, 2006 at 01:12:05PM -0500, Jeff Layton wrote:
+>>>> The attached patch remedies this by making the last_inode counter be an
+>>>> unsigned int on kernels that have ia32 compatability mode enabled.
+>>> ... and this only happens on ia64/x86_64 kernels, not sparc64, ppc64,
+>>> s390x, parisc64 or mips64?
+>> Here's a new (untested) patch that replaces the ia32 specific
+>> compatability mode defines with CONFIG_COMPAT, as suggested by Matthew.
 > 
-> This patch replaces complete_buffers with end_that_request_first to fix
-> programs like iostat. This has been broken for the last few kernel releases.
-> Please consider this for inclusion.
-> 
-> Thanks,
-> mikem
-> 
-> Signed-off-by: Mike Miller <mike.miller@hp.com>
-> 
-> 
-> ---
-> 
-> 
-> ---
-> 
->  drivers/block/cciss.c |   20 ++++----------------
->  1 files changed, 4 insertions(+), 16 deletions(-)
-> 
-> diff -puN drivers/block/cciss.c~cciss_update_diskstats_fix drivers/block/cciss.c
-> --- linux-2.6/drivers/block/cciss.c~cciss_update_diskstats_fix	2006-11-06 13:28:53.000000000 -0600
-> +++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:28:53.000000000 -0600
-> @@ -1156,18 +1156,6 @@ static int cciss_ioctl(struct inode *ino
->  	}
->  }
->  
-> -static inline void complete_buffers(struct bio *bio, int status)
-> -{
-> -	while (bio) {
-> -		struct bio *xbh = bio->bi_next;
-> -		int nr_sectors = bio_sectors(bio);
-> -
-> -		bio->bi_next = NULL;
-> -		bio_endio(bio, nr_sectors << 9, status ? 0 : -EIO);
-> -		bio = xbh;
-> -	}
-> -}
-> -
->  static void cciss_check_queues(ctlr_info_t *h)
->  {
->  	int start_queue = h->next_to_run;
-> @@ -1236,15 +1224,15 @@ static void cciss_softirq_done(struct re
->  		pci_unmap_page(h->pdev, temp64.val, cmd->SG[i].Len, ddir);
->  	}
->  
-> -	complete_buffers(rq->bio, rq->errors);
-> -
->  #ifdef CCISS_DEBUG
->  	printk("Done with %p\n", rq);
->  #endif				/* CCISS_DEBUG */
->  
-> -	add_disk_randomness(rq->rq_disk);
->  	spin_lock_irqsave(&h->lock, flags);
-> -	end_that_request_last(rq, rq->errors);
-> +	if (!end_that_request_first(rq, rq->errors, rq->nr_sectors)) {
-> +		add_disk_randomness(rq->rq_disk);
-> +		end_that_request_last(rq, rq->errors);
-> +	}
->  	cmd_free(h, cmd, 1);
->  	cciss_check_queues(h);
->  	spin_unlock_irqrestore(&h->lock, flags);
+> While you're at it, how about making last_ino per-sb instead of
+> system-wide?  ino collisions after a wrap are just as bad as inos
+> beyond 32bit.  And this should be a fairly simple method to reduce the
+> risk.
 
-Ah, so there's where that went. Your code isn't clear, though -
-end_that_request_first() _must_ return 0, so the above looks confusing.
-It would look cleaner and more informative like:
+Using a global counter for multiple filesystems should actually -reduce-
+the chance of a collision on the same filesystem, since after you wrap the
+recycled number may go to a different filesystem.
 
-        if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
-                BUG();
+Simply making it a per-sb counter makes it worse, because wrapped inodes
+will always go to the same filesystem.
 
-        add_disk_randomness(rq->rq_disk);
-        end_that_request_last(rq, rq->errors);
-        ...
+To fix this properly, we'd need some sort of checking that the inode number
+isn't currently being used on the filesystem in question before it's
+assigned to the new inode.
 
-and so on. Additionally you don't need the lock for
-end_that_request_first(), so it's a lot more optimal to rearrange it
-again.
-
-        add_disk_randomness(rq->rq_disk);
-        if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
-                BUG();
-
-        spin_lock_irqsave(&h->lock, flags);
-        end_that_request_last(rq, rq->errors);
-        cmd_free(h, cmd, 1);
-        ...
-
-Not only cleaner to read since it's obvious what will happen, also moves
-the heavy path (end_that_request_first()) outside of the controller
-lock.
-
--- 
-Jens Axboe
-
+-Eric

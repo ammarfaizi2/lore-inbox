@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422864AbWKFATr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422893AbWKFAhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422864AbWKFATr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 19:19:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422840AbWKFATr
+	id S1422893AbWKFAhV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 19:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422897AbWKFAhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 19:19:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61102 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422864AbWKFATq (ORCPT
+	Sun, 5 Nov 2006 19:37:21 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:22759 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1422888AbWKFAhR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 19:19:46 -0500
-Date: Sun, 5 Nov 2006 16:19:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Remi <remi.colinet@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc4-mm2: ahci: probe of 0000:00:1f.2 failed with error
- -16
-Message-Id: <20061105161941.ec64ae70.akpm@osdl.org>
-In-Reply-To: <1162764770.454e61e2db5ff@imp3-g19.free.fr>
-References: <1162764770.454e61e2db5ff@imp3-g19.free.fr>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 5 Nov 2006 19:37:17 -0500
+Subject: Re: [PATCH] backlight: do not power off backlight when
+	unregistering
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Antonino Daplas <adaplas@pol.net>, Holger Macht <hmacht@suse.de>
+In-Reply-To: <20061105225429.GE14295@khazad-dum.debian.net>
+References: <20061105225429.GE14295@khazad-dum.debian.net>
+Content-Type: text/plain
+Date: Mon, 06 Nov 2006 00:36:34 +0000
+Message-Id: <1162773394.5473.18.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Nov 2006 23:12:50 +0100
-Remi <remi.colinet@free.fr> wrote:
+On Sun, 2006-11-05 at 20:54 -0200, Henrique de Moraes Holschuh wrote:
+> ACPI drivers like ibm-acpi are moving to the backlight sysfs infrastructure.
+> During ibm-acpi testing, I have noticed that backlight_device_unregister()
+> sets the display brightness and power to zero.
+> 
+> This causes the display to be dimmed on ibm-acpi module removal.  It will
+> affect all other ACPI drivers that are being converted to use the backlight
+> class, as well.
+> 
+> This annoying behaviour in backlight_device_unregister() can either be
+> reverted, or it can be worked around on acpi drivers by doing a
+> backlightdevice->props->update_status = NULL before calling
+> backlight_device_unregister().
+> 
+> Given the, AFAIK, lack of a good reason to disable display backlight as the
+> _general_ behaviour for the entire sysfs class, the attached patch changes
+> backlight.c to not do so anymore.
 
-> Hi all,
-> 
-> I'm getting the following error with 2.6.19-rc4-mm2 on Dell D610.
-> 
-> SCSI subsystem initialized
-> libata version 2.00 loaded.
-> ahci 0000:00:1f.2: version 2.0
-> ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 17 (level, low) -> IRQ 18
-> PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
-> ahci: probe of 0000:00:1f.2 failed with error -16
-> ata_piix 0000:00:1f.2: version 2.00ac7
-> ata_piix 0000:00:1f.2: MAP [ P0 P2 IDE IDE ]
-> PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
-> ata_piix: probe of 0000:00:1f.2 failed with error -16
-> Kernel panic - not syncing: Attempted to kill init!
-> 
-> A Google search doesn't help to fix this error.
-> 
-> 2.6.19-rc4 boots fine with similar .config file.
-> Any idea (ahci, pci)?
-> 
-> Should I start a bisecting search?
-> 
-> I have caught the full 2.6.19-rc4-mm2 boot messages over a serial cable if it
-> can help.
-> 
+The reason the corgi code does this is quite simple. If you don't turn
+off the backlight when unloading the backlight driver, nothing can turn
+the backlight off. The backlight is the biggest power consumer on corgi
+and would cause some power drain even if for example you then suspend
+the device. I never want to end up with those bug reports. I reasoned
+that other devices would have a similar set of constraints (all the
+existing users at the time did). On such hardware, deinitialising
+anything you initialised is the norm and makes sense but the PC/ACPI
+world is different.
 
-Do you have CONFIG_USB_MULTITHREAD_PROBE=y?  If so, try =n.
+Setting backlightdevice->props->update_status = NULL before
+unregistering is a horrible idea and I don't want to see hacks like that
+so yes, lets move it back into the drivers. 
 
-Yes please send the full dmesg for both -rc4 and for -rc4-mm2, thanks.
+> Since the commit that introduced this behaviour (commit
+> 6ca017658b1f902c9bba2cc1017e301581f7728d) apparently did so because the
+> corgi_bl.c driver powered off the backlight, the attached patch also makes
+> sure that the corgi_bl.c driver will not have its behaviour changed.
+
+Those commits were designed to standardise several behaviours amongst
+several drivers and this specific case was added to the core rather than
+coding it in each of several drivers. We therefore really need to update
+those other drivers too (locomo at the very least).
+
+Richard
+
+

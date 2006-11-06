@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753435AbWKFQsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753444AbWKFQux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753435AbWKFQsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 11:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753442AbWKFQsJ
+	id S1753444AbWKFQux (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 11:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753445AbWKFQux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 11:48:09 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:17932 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1753435AbWKFQsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 11:48:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tm0pltZ2ocHdE7LG/ey0QNA+P1wVs4cRm+QGycjnW9JeMCUprJsjmc//D1AE64KuhSZScMuI79tAsSHCYuLRamWbw+tXVcCMLScP1HAzJH0BneHQU+5yB0aICz0lFB+hS1xzx4FtZdXt+Fgl95HPPHtVHXkidoIkMCv4k1rS0L0=
-Message-ID: <d120d5000611060848k1f5fa2f7r7e78a0eca88a59ce@mail.gmail.com>
-Date: Mon, 6 Nov 2006 11:48:03 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Dave Neuer" <mr.fred.smoothie@pobox.com>
-Subject: Re: [RFT/PATCH] i8042: remove polling timer (v6)
-Cc: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Vojtech Pavlik" <vojtech@suse.cz>
-In-Reply-To: <161717d50611060822w11e031ebra8f62d0fc5b02d69@mail.gmail.com>
+	Mon, 6 Nov 2006 11:50:53 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:14653 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1753444AbWKFQuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 11:50:52 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CANL1TkWrRApR/2dsb2JhbAA
+X-IronPort-AV: i="4.09,392,1157353200"; 
+   d="scan'208"; a="1862299288:sNHT37368214"
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc-dev@ozlabs.org, Hoang-Nam Nguyen <hnguyen@de.ibm.com>,
+       rolandd@cisco.com, raisch@de.ibm.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 2.6.19 1/4] ehca: assure 4k alignment for firmware control block in 64k page mode
+X-Message-Flag: Warning: May contain useful information
+References: <200611052140.38445.hnguyen@de.ibm.com>
+	<200611060045.59074.arnd@arndb.de>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 06 Nov 2006 08:50:44 -0800
+In-Reply-To: <200611060045.59074.arnd@arndb.de> (Arnd Bergmann's message of "Mon, 6 Nov 2006 00:45:58 +0100")
+Message-ID: <adaslgwo6xn.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608232311.07599.dtor@insightbb.com>
-	 <161717d50610291520i5076901blf8bf253eba6148cc@mail.gmail.com>
-	 <200611030103.17913.dtor@insightbb.com>
-	 <161717d50611060822w11e031ebra8f62d0fc5b02d69@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 06 Nov 2006 16:50:44.0726 (UTC) FILETIME=[B3A0D160:01C701C3]
+Authentication-Results: sj-dkim-6.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/6/06, Dave Neuer <mr.fred.smoothie@pobox.com> wrote:
->
-> As I said, I have had both keyboard and touchpad problems on this
-> laptop (formerly more of the former, lately more of the latter);
-> interestingly, after applying this patch I have had failures much less
-> frequently (multiple instances of several days w/out failure w/ the
-> laptop powered on continuously). Also interestingly, and
-> unfortunately, that may be coincidence; I've discovered a use case
-> that seems to reliably cause the touchpad to freeze up w/ or w/out the
-> patch applied (selecting multiple items in modified file list in
-> EasyTAG). Haven't looked into it yet, on the "hurts when I do this,"
-> "then don't do that" theory, but when I have time to look at the
-> EasyTAG code and try to reason about what's happening, I will.
->
+ > I'd simply move the memset into the alloc function and get rid of the
+ > constructor here.
 
-It would be interesting to see dmesg of reloading psmouse module after
-touchpad freezes:
+Slightly better still would be to use kmem_cache_zalloc() (save a tiny
+bit of text by getting rid of the call to memset).
 
-echo 1 > /sys/module/i8042/parameters/debug
-rmmod psmouse
-modprobe psmouse
-
-BTW, what video driver are you using?
-
--- 
-Dmitry
+ - R.

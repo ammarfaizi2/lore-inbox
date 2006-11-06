@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753083AbWKFOTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753196AbWKFOUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753083AbWKFOTW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 09:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753196AbWKFOTW
+	id S1753196AbWKFOUk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 09:20:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753201AbWKFOUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 09:19:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:20414 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1753083AbWKFOTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 09:19:21 -0500
-Subject: Re: [PATCH] add pci revision id to struct pci_dev
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Conke Hu <conke.hu@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1162819681.1566.63.camel@localhost.localdomain>
-References: <5767b9100611060440i1149e0e3v2162e0604db10da7@mail.gmail.com>
-	 <1162819681.1566.63.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 06 Nov 2006 15:19:17 +0100
-Message-Id: <1162822757.3138.32.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 6 Nov 2006 09:20:40 -0500
+Received: from 8.ctyme.com ([69.50.231.8]:30129 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1753196AbWKFOUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 09:20:39 -0500
+Message-ID: <454F44B6.4090305@perkel.com>
+Date: Mon, 06 Nov 2006 06:20:38 -0800
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: could not find filesystem /dev/root
+References: <454E95E1.2010708@perkel.com>	 <873b8wubcc.fsf@barad-dur.regala.cx> <1162808799.3160.197.camel@laptopd505.fenrus.org>
+In-Reply-To: <1162808799.3160.197.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-06 at 13:28 +0000, Alan Cox wrote:
-> Ar Llu, 2006-11-06 am 20:40 +0800, ysgrifennodd Conke Hu:
-> > Hi all,
-> >     PCI revision id had better be added to struct pci_dev and
-> > initialized in pci_scan_device.
-> 
-> You can read the revision any time you like, we don't need to cache a
-> copy as we don't reference it very often
 
-one consideration is that if you read it from the hw you can't actually
-fix it up in quirks at all, so it might make a lot of sense to just also
-store it in the pci device struct, it's a very logical thing esp since
-the pci device/vendor ids are stored there too (and those you can also
-read from the hw if you want ;)
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Arjan van de Ven wrote:
+> On Mon, 2006-11-06 at 11:18 +0100, Mathieu SEGAUD wrote:
+>   
+>> Vous m'avez dit récemment :
+>>
+>>     
+>>> Trying to compile a new kernel and getting this on boot
+>>>
+>>> could not find filesystem /dev/root
+>>>       
+>> sure it doesn't spit only this to you. Does it panic ? and do FC6
+>> kernels use an initrd (I guess so) ?
+>>     
+>
+> they do and it's more or less required there (for mount-by-label and
+> many other things).
+>
+> But it's easy to do.
+> In fact, if you use "make install" as the last step in your build
+> process, the kernel build process will
+> 1) copy the bzImage over to /boot for you
+> 2) make an initrd for your system
+> 3) add the kernel and initrd to grub for you
+>
+> this is a very convenient step that makes it very robust to do, and
+> beats doing the manual thing even if you wouldn't do an initrd in terms
+> of convenience..
+>   
+
+Yes - I run make - make modules_install - make install. It creates the 
+initrd files and it alters grub. The stock kernel works and in the past 
+compiling my own kernel this way worked. I even started with Fedora's 
+.config file. to make sure I'm compiling the same stuff.
+
 

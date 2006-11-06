@@ -1,40 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932754AbWKFAMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422853AbWKFASN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932754AbWKFAMf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 19:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932755AbWKFAMf
+	id S1422853AbWKFASN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 19:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422857AbWKFASN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 19:12:35 -0500
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:8977 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932754AbWKFAMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 19:12:34 -0500
-Message-ID: <454E7DF1.7020102@superbug.co.uk>
-Date: Mon, 06 Nov 2006 00:12:33 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061020)
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: i387  Floating Point Unit (FPU) testing
-References: <454E54B6.5010206@superbug.co.uk> <Pine.LNX.4.61.0611060035080.29462@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0611060035080.29462@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 5 Nov 2006 19:18:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:22702 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422853AbWKFASL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Nov 2006 19:18:11 -0500
+Date: Sun, 5 Nov 2006 16:17:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Fabio Coatti <cova@ferrara.linux.it>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jeff@garzik.org>, Tejun Heo <htejun@gmail.com>
+Subject: Re: SATA ICH5 not detected at boot, mm-kernels
+Message-Id: <20061105161725.1a326135.akpm@osdl.org>
+In-Reply-To: <200611051536.35333.cova@ferrara.linux.it>
+References: <200611051536.35333.cova@ferrara.linux.it>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> The kernel contains some i387 FPU emulation code.
->> Is there any user land software to test the FPU emulation code?
->> I would like to be able to prove the correctness of the FPU emulation code in
->> the Linux kernel, and also port the test program to other platforms that
->> utilize FPU emulation. For example, DOS emulators like DOSBOX.
-> 
-> If the kernel already emulates it, you don't really need emulation in 
-> userspace, no?
-> 
-> 	-`J'
+On Sun, 5 Nov 2006 15:36:33 +0100
+Fabio Coatti <cova@ferrara.linux.it> wrote:
 
-Hum...Did you actually read my email?
+> Hi all; It seems that problems like this has been already reported, but not 
+> exactly the same, so maybe thsi can add some infos. Otherwise, sorry for the 
+> noise.
+> 
+> Starting from 2.6.19-rc1-mm1 and up to rc4-mm2, at boot the kernel is unable 
+> to detect two sata disks, connected to a ICH5 controller. Latest mm working 
+> kernel seems to be 2.6.18-mm3; 2.6.19-rc4 works just fine.
+> 
+> On rc-4 (vanilla) the log is this:
+> Nov  5 13:26:37 kefk libata version 2.00 loaded.
+> Nov  5 13:26:37 kefk ata_piix 0000:00:1f.2: version 2.00ac6
+> Nov  5 13:26:37 kefk ata_piix 0000:00:1f.2: MAP [ P0 P1 IDE IDE ]
+> Nov  5 13:26:37 kefk ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, 
+> low) -> IRQ 17
+> Nov  5 13:26:37 kefk ata: 0x170 IDE port busy
+> Nov  5 13:26:37 kefk ata: conflict with ide1
+
+hm.  What does that mean?
+
+> Nov  5 13:26:37 kefk PCI: Setting latency timer of device 0000:00:1f.2 to 64
+> Nov  5 13:26:37 kefk ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 
+> irq 14
+> Nov  5 13:26:37 kefk ata2: DUMMY
+> Nov  5 13:26:37 kefk scsi1 : ata_piix
+> Nov  5 13:26:37 kefk ata1.00: ATA-7, max UDMA/133, 488397168 sectors: LBA48 
+> NCQ (depth 0/32)
+> Nov  5 13:26:37 kefk ata1.00: ata1: dev 0 multi count 16
+> Nov  5 13:26:37 kefk ata1.01: ATA-7, max UDMA/133, 586114704 sectors: LBA48 
+> NCQ (depth 0/32)
+> Nov  5 13:26:37 kefk ata1.01: ata1: dev 1 multi count 16
+> Nov  5 13:26:37 kefk ata1.00: configured for UDMA/133
+> Nov  5 13:26:37 kefk ata1.01: configured for UDMA/133
+> 
+> 
+> With -mm kernels, I see only the third disk, but attached to a different 
+> controller (output from rc4 vanilla):
+> 
+> Nov  5 13:26:37 kefk ACPI: PCI Interrupt 0000:03:03.0[A] -> GSI 19 (level, 
+> low) -> IRQ 18
+> Nov  5 13:26:37 kefk ata3: SATA max UDMA/100 cmd 0xF8804080 ctl 0xF880408A 
+> bmdma 0xF8804000 irq 18
+> Nov  5 13:26:37 kefk ata4: SATA max UDMA/100 cmd 0xF88040C0 ctl 0xF88040CA 
+> bmdma 0xF8804008 irq 18
+> Nov  5 13:26:37 kefk scsi3 : sata_sil
+> Nov  5 13:26:37 kefk ata3: SATA link up 1.5 Gbps (SStatus 113 SControl 310)
+> Nov  5 13:26:37 kefk ata3.00: ATA-7, max UDMA/133, 625142448 sectors: LBA48 
+> NCQ (depth 0/32)
+> Nov  5 13:26:37 kefk ata3.00: ata3: dev 0 multi count 0
+> Nov  5 13:26:37 kefk ata3.00: configured for UDMA/100
+> Nov  5 13:26:37 kefk scsi4 : sata_sil
+> Nov  5 13:26:37 kefk ata4: SATA link down (SStatus 0 SControl 310)
+> Nov  5 13:26:37 kefk scsi 3:0:0:0: Direct-Access     ATA      Maxtor 6V320F0   
+> VA11 PQ: 0 ANSI: 5
+> Nov  5 13:26:37 kefk SCSI device sdc: 625142448 512-byte hdwr sectors (320073 
+> MB)
+> Nov  5 13:26:37 kefk sdc: Write Protect is off
+> 
+
+And why doesn't -mm report the same conflict?  I assume the .config is the
+same?
 

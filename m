@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423245AbWKFDQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423333AbWKFEEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423245AbWKFDQi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Nov 2006 22:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423265AbWKFDQi
+	id S1423333AbWKFEEj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Nov 2006 23:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423457AbWKFEEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Nov 2006 22:16:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20958 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423245AbWKFDQh (ORCPT
+	Sun, 5 Nov 2006 23:04:38 -0500
+Received: from mail.ggsys.net ([69.26.161.131]:43724 "EHLO mail.ggsys.net")
+	by vger.kernel.org with ESMTP id S1423333AbWKFEEi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Nov 2006 22:16:37 -0500
-Date: Sun, 5 Nov 2006 19:13:11 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: lib/iomap.c mmio_{in,out}s* vs. __raw_* accessors
-In-Reply-To: <1162781764.28571.275.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0611051911190.25218@g5.osdl.org>
-References: <1162626761.28571.14.camel@localhost.localdomain> 
- <20061104140559.GC19760@flint.arm.linux.org.uk>  <1162678639.28571.63.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0611041544030.25218@g5.osdl.org> 
- <1162689005.28571.118.camel@localhost.localdomain> 
- <1162697533.28571.131.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0611041946020.25218@g5.osdl.org>  <1162699255.28571.150.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0611042013400.25218@g5.osdl.org> 
- <1162701537.28571.156.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0611042054210.25218@g5.osdl.org>  <1162703335.28571.159.camel@localhost.localdomain>
-  <1162704529.28571.164.camel@localhost.localdomain>
- <1162781764.28571.275.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 5 Nov 2006 23:04:38 -0500
+Subject: Re: qstor driver -> irq 193: nobody cared
+From: Alberto Alonso <alberto@ggsys.net>
+To: Mark Lord <lkml@rtr.ca>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <454CDE6E.5000507@rtr.ca>
+References: <1162576973.3967.10.camel@w100>  <454CDE6E.5000507@rtr.ca>
+Content-Type: text/plain
+Organization: Global Gate Systems LLC.
+Date: Sun, 05 Nov 2006 22:04:31 -0600
+Message-Id: <1162785871.5520.20.camel@w100>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have patched the system. I'll let you know if I get the
+same problem. Since I can't reproduce it on demand I may not see
+the problem for months. I don't know what happened the other day
+when it just started to happen repeatedly, I haven't had the issue
+since.
+
+Thanks,
+
+Alberto
 
 
-On Mon, 6 Nov 2006, Benjamin Herrenschmidt wrote:
+On Sat, 2006-11-04 at 13:39 -0500, Mark Lord wrote:
+> Alberto Alonso wrote:
+> > I have a Pacific Digital qstor card on irq 193. I am using kernel
+> > 2.6.17.13 SMP
+> > 
+> > The error happens every now and then. I have not been able to
+> > figure out any triggers and I can not reproduce it on demand. Today
+> > it happened 3 times within a 40 minutes period. 
+> > 
+> > All disks connected to the card are disabled and I can't do anything
+> > other than a reboot to get them back.
+> > 
+> > It is reported as follows:
+> > 
+> > irq 193: nobody cared (try booting with the "irqpoll" option)
+> >  <c013e19a> __report_bad_irq+0x2a/0xa0  <c013d970> handle_IRQ_event
+> > +0x30/0x70
+> >  <c013e2b0> note_interrupt+0x80/0xf0  <c013da8c> __do_IRQ+0xdc/0xf0
+> >  <c0105799> do_IRQ+0x19/0x30  <c010391a> common_interrupt+0x1a/0x20
+> >  <c0100d91> default_idle+0x41/0x70  <c0100e60> cpu_idle+0x80/0x90
+> >  <c046699d> start_kernel+0x18d/0x1d0  <c0466330> unknown_bootoption
+> > +0x0/0x1d0
+> > handlers:
+> > [<c0301300>] (qs_intr+0x0/0x220)
+> > Disabling IRQ #193
 > 
-> In fact, you might want to push it to 2.6.19 since it fixes a bug
-> (current _be operations are incorrect for PIO without the patch).
+> What other devices are routed to that same interrupt line?
+> 
+> The sata_qstor driver is very rigorous in acknowledging *only* it's own
+> interrupts, to prevent other devices sharing the same IRQ from losing theirs.
+> 
+> Mmm.. We could apply a bit of fuzzy tolerance for the odd glitch.
+> Try this patch (attached) and report back.
+> 
+> Thanks.
+> 
+> 
+-- 
+Alberto Alonso                        Global Gate Systems LLC.
+(512) 351-7233                        http://www.ggsys.net
+Hardware, consulting, sysadmin, monitoring and remote backups
 
-Well, I doubt anybody uses them (or we'd have seen the problem), and more 
-importantly, I've already blown the patch away. If you think it's easier 
-for you to sync up later, though, I'll happily apply it. Mind sending it 
-back to me with a Tested-by: line or something? I literally didn't even 
-compile-test the thing, and blew that file away after I had generated the 
-trial patch.
-
-		Linus

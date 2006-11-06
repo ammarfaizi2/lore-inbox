@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423600AbWKFIUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423601AbWKFIie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423600AbWKFIUB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 03:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423603AbWKFIUB
+	id S1423601AbWKFIie (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 03:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423607AbWKFIid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 03:20:01 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:53212 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1423600AbWKFIUA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 03:20:00 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 1/8] Char: istallion, convert to pci probing
-Date: Fri, 3 Nov 2006 19:19:45 +0100
-User-Agent: KMail/1.9.5
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <17413142092390932669@wsc.cz>
-In-Reply-To: <17413142092390932669@wsc.cz>
+	Mon, 6 Nov 2006 03:38:33 -0500
+Received: from twinlark.arctic.org ([207.7.145.18]:20420 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id S1423593AbWKFIic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 03:38:32 -0500
+Date: Mon, 6 Nov 2006 00:38:32 -0800 (PST)
+From: dean gaudet <dean@arctic.org>
+To: Neil Brown <neilb@suse.de>
+cc: Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001 of 6] md: Send online/offline uevents when an md
+ array starts/stops.
+In-Reply-To: <17742.32612.870346.954568@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.64.0611060030320.20361@twinlark.arctic.org>
+References: <20061031164814.4884.patches@notabene> <1061031060046.5034@suse.de>
+ <20061031211615.GC21597@suse.de> <3ae72650611020413q797cf62co66f76b058a57104b@mail.gmail.com>
+ <17737.58737.398441.111674@cse.unsw.edu.au> <1162475516.7210.32.camel@pim.off.vrfy.org>
+ <17738.59486.140951.821033@cse.unsw.edu.au> <1162542178.14310.26.camel@pim.off.vrfy.org>
+ <17742.32612.870346.954568@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart129188314.B7GBZj7ETd";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200611031919.45391.eike-kernel@sf-tec.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart129188314.B7GBZj7ETd
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, 6 Nov 2006, Neil Brown wrote:
 
-Jiri Slaby wrote:
-> istallion, convert to pci probing
->
-> Use probing for pci devices. Change some __inits to __devinits to use these
-> functions in probe function. Create stli_cleanup_ports and move there
-> cleanup code from module_exit() code to not have duplicite cleanup code.
->
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
->
-> ---
-> commit b90798585707a33d1835b752a18f1ca3b6a7da7b
-> tree 7c99e2bcca81b25dc3ffdcf288b5a9c35433c098
-> parent 7e8fb7980d776e6a7c0bd84cc48b1cb9de139b8f
-> author Jiri Slaby <jirislaby@gmail.com> Sun, 29 Oct 2006 23:37:48 +0100
-> committer Jiri Slaby <jirislaby@gmail.com> Sat, 04 Nov 2006 18:26:39 +0059
->
->  drivers/char/istallion.c |  116
-> +++++++++++++++++++++++++++------------------- 1 files changed, 67
-> insertions(+), 49 deletions(-)
->
-> diff --git a/drivers/char/istallion.c b/drivers/char/istallion.c
-> index f07716b..9e73d0d 100644
-> --- a/drivers/char/istallion.c
-> +++ b/drivers/char/istallion.c
-> @@ -402,7 +402,6 @@ static int	stli_eisamempsize = ARRAY_SIZ
->  /*
->   *	Define the Stallion PCI vendor and device IDs.
->   */
-> -#ifdef CONFIG_PCI
->  #ifndef	PCI_VENDOR_ID_STALLION
->  #define	PCI_VENDOR_ID_STALLION		0x124d
->  #endif
+> This creates a deep disconnect between udev and md.
+> udev expects a device to appear first, then it created the
+> device-special-file in /dev.
+> md expect the device-special-file to exist first, and then created the
+> device on the first open.
 
-Remove that ifdef and define too. We _have_ the id in include/linux/pci_ids.h
+could you create a special /dev/mdx device which is used to 
+assemble/create arrays only?  i mean literally "mdx" not "mdX" where X is 
+a number.  mdx would always be there if md module is loaded... so udev 
+would see the driver appear and then create the /dev/mdx.  then mdadm 
+would use /dev/mdx to do assemble/creates/whatever and cause other devices 
+to appear/disappear in a manner which udev is happy with.
 
-Eike
+(much like how /dev/ptmx is used to create /dev/pts/N entries.)
 
---nextPart129188314.B7GBZj7ETd
-Content-Type: application/pgp-signature
+doesn't help legacy mdadm binaries... but seems like it fits the New World 
+Order.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+or hm i suppose the New World Order is to eschew binary interfaces and 
+suggest a /sys/class/md/ hierarchy with a bunch of files you have to splat 
+ascii data into to cause an array to be created/assembled.
 
-iD8DBQBFS4hBXKSJPmm5/E4RAvtYAJ9jgVTxOIVK4XtoDbTqVX8yMf73DQCeIxYf
-3Ofl/x5A6nR91rufw1Vkwx8=
-=U/mr
------END PGP SIGNATURE-----
-
---nextPart129188314.B7GBZj7ETd--
+-dean

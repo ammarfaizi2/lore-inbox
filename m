@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753521AbWKFRaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753529AbWKFRc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753521AbWKFRaF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 12:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753515AbWKFRaF
+	id S1753529AbWKFRc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 12:32:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753534AbWKFRc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 12:30:05 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8722 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1753542AbWKFRaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 12:30:02 -0500
-Date: Mon, 6 Nov 2006 18:30:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, Christian <christiand59@web.de>,
-       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: [discuss] Linux 2.6.19-rc4: known unfixed regressions (v2)
-Message-ID: <20061106173001.GP5778@stusta.de>
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <200611051832.13285.christiand59@web.de> <20061106060021.GD5778@stusta.de> <200611061643.14217.christiand59@web.de> <20061106172049.GA19283@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Nov 2006 12:32:28 -0500
+Received: from nsm.pl ([195.34.211.229]:20413 "EHLO nsm.pl")
+	by vger.kernel.org with ESMTP id S1753529AbWKFRc2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 12:32:28 -0500
+Date: Mon, 6 Nov 2006 18:32:11 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: acpiphp makes noise on every lid close/open
+Message-ID: <20061106173211.GA8512@irc.pl>
+Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
+References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061106132903.GA25257@khazad-dum.debian.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
 Content-Disposition: inline
-In-Reply-To: <20061106172049.GA19283@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061106132903.GA25257@khazad-dum.debian.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06, 2006 at 12:20:49PM -0500, Dave Jones wrote:
-> On Mon, Nov 06, 2006 at 04:43:13PM +0100, Christian wrote:
-> 
->  > > Did you have CONFIG_ACPI_PROCESSOR=y in 2.6.18, or did
->  > > CONFIG_ACPI_PROCESSOR=m, CONFIG_X86_POWERNOW_K8=y work for you in 2.6.18?
->  > 
->  > It worked with CONFIG_ACPI_PROCESSOR=m in 2.6.18-rc7. Since 2.6.19-rc1 it 
->  > doesn't work anymore with CONFIG_ACPI_PROCESSOR=m.
->  > 
->  > user@ubuntu:~/Projekte/linux-2.6.18-rc7$ grep -i ACPI_PROCESSOR /boot/config-2.6.18-rc7
->  > CONFIG_ACPI_PROCESSOR=m
->  > 
->  > user@ubuntu:~/Projekte/linux-2.6.18-rc7$ 
->  > grep -Ei "POWERNOW_K8" /boot/config-2.6.18-rc7
->  > CONFIG_X86_POWERNOW_K8=m
->  > CONFIG_X86_POWERNOW_K8_ACPI=y
->  > 
->  > +++ There's a difference in 2.6.19! CONFIG_X86_POWERNOW_K8_ACPI is gone +++
-> 
-> I don't understand how this was allowed. Because when I try this
-> with a 2.6.18 tree..  (nothing changed between -rc7 and final for cpufreq)
-> 
-> <editted a .config to match your config>
-> 
-> $ grep ACPI_PROCESSOR .config
-> CONFIG_ACPI_PROCESSOR=m
-> $ grep POWERNOW_K8 .config
-> CONFIG_X86_POWERNOW_K8=y
-> CONFIG_X86_POWERNOW_K8_ACPI=y
-> 
-> and then after a make oldconfig the CONFIG_X86_POWERNOW_K8_ACPI is removed
-> as it isn't valid.
-> 
-> Did you edit your .config by hand ?
 
-Look closer, his linux-2.6.18-rc7 .config contains 
-CONFIG_ACPI_PROCESSOR=m, CONFIG_X86_POWERNOW_K8=m.
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 	Dave
+On Mon, Nov 06, 2006 at 11:29:03AM -0200, Henrique de Moraes Holschuh wrote:
+> > > > There is a bug here in that acpiphp shouldn't even be used on the X=
+60 -
+> > > > it has no hotpluggable slots.
+>=20
+> What about the internal mini PCI express slots (where the Intel 3945ABG
+> device and EVDO wwwan cards are plugged)?
 
-cu
-Adrian
+  EVDO is connected to USB. At least it works with usb-serial (after
+manually binding IDs). Works =3D=3D responds to Hayes commands, I didn't
+tried with SIM Card yet.
 
--- 
+--=20
+Tomasz Torcz               RIP is irrevelant. Spoofing is futile.
+zdzichu@irc.-nie.spam-.pl     Your routes will be aggreggated. -- Alex Yuri=
+ev
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 
+--0OAP2g/MAC+5xKAE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
+
+iD8DBQFFT3Gb10UJr+75NrkRAq29AJ99+fd/haEAOeRQtMeLt9bNlf+3xwCffuyn
+sM0gG6SJC4U4No6tkVwAzto=
+=32SB
+-----END PGP SIGNATURE-----
+
+--0OAP2g/MAC+5xKAE--

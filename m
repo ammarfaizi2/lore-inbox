@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423787AbWKFK2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423784AbWKFKcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423787AbWKFK2l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 05:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423788AbWKFK2l
+	id S1423784AbWKFKcS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 05:32:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423789AbWKFKcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 05:28:41 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54425 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1423778AbWKFK2j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 05:28:39 -0500
-Date: Mon, 6 Nov 2006 11:28:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Neil Brown <neilb@suse.de>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: [RFC][PATCH -mm][Experimental] suspend: Do not freeze md_threads
-Message-ID: <20061106102818.GA3138@elf.ucw.cz>
-References: <200611022355.52856.rjw@sisk.pl> <20061105115804.GG4965@elf.ucw.cz> <17742.26007.249504.79631@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17742.26007.249504.79631@cse.unsw.edu.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 6 Nov 2006 05:32:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:2522 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1423784AbWKFKcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 05:32:17 -0500
+Subject: Re: [PATCH 1/14] KVM: userspace interface
+From: Arjan van de Ven <arjan@infradead.org>
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <454F0E4A.7030001@qumranet.com>
+References: <454E4941.7000108@qumranet.com>
+	 <20061105202934.B5F842500A7@cleopatra.q>
+	 <1162807420.3160.186.camel@laptopd505.fenrus.org>
+	 <454F0E4A.7030001@qumranet.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 06 Nov 2006 11:32:08 +0100
+Message-Id: <1162809128.3160.201.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > If there's a swap file on a software RAID, it should be possible to use this
-> > > file for saving the swsusp's suspend image.  Also, this file should be
-> > > available to the memory management subsystem when memory is being freed before
-> > > the suspend image is created.
-> > > 
-> > > For the above reasons it seems that md_threads should not be frozen during
-> > > the suspend and the appended patch makes this happen, but then there is the
-> > > question if they don't cause any data to be written to disks after the
-> > > suspend image has been created, provided that all filesystems are frozen
-> > > at that time.
-> > 
-> > Looks okay to me. It would be nice to have someone (Ingo? Neil?) try
-> > to suspend to swap on md......
+> \> as a general rule, it's a lot better to sort structures big-to-small, to
+> > make sure alignments inside the struct are minimized and don't suck too
+> > much. This is especially important to get right for 32/64 bit
+> > compatibility. This comment is true for most structures in this header
+> > file; please consider this at least
+> >   
 > 
-> Yes... suspending to swap-on-md would probably be fairly easy.
-> Resuming from that same swap might be a bit more of a challenge.
-> If only I had more time...
+> Doesn't that cause an unnatural field order? 
 
-With uswsusp (scheduled for 10.2), it should be fairly easy, too. I
-guess we shall just get Andrea to try it :-).
-							Pavel 
+Does it matter?
+
+> for example, in some 
+> structures I separated in and out variables.  Sorting by size is a bit 
+> like sorting alphabetically.
+> 
+> Anyway I observed 32/64 bit compatibility religiously.
+
+but you did take the alignment rules of 64 bit variables into account,
+eg 32 bit has it 4 byte aligned, while 64 bit has it 8 byte aligned..
+you are 100% sure even your 32 bit structures have all 64 bit values 8
+byte aligned?
+(you get this automatic if you sort by size)
+Also you made sure that if you have such implicit padding that you zero
+out the memory between the fields to avoid information leaks?
+
+Sorting by size at least makes this all go away.....
+
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

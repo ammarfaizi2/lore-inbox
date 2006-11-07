@@ -1,66 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965545AbWKGRCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965555AbWKGRDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965545AbWKGRCk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 12:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965554AbWKGRCk
+	id S965555AbWKGRDv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 12:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965554AbWKGRDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 12:02:40 -0500
-Received: from master.altlinux.org ([62.118.250.235]:16139 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP id S965545AbWKGRCj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 12:02:39 -0500
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Sergey Vlasov <vsu@altlinux.ru>
-Subject: [PATCH] Input: psmouse - fix attribute access on 64-bit systems
-Date: Tue,  7 Nov 2006 20:02:36 +0300
-Message-Id: <11629189562984-git-send-email-vsu@altlinux.ru>
-X-Mailer: git-send-email 1.4.3.3.gddcc6
+	Tue, 7 Nov 2006 12:03:51 -0500
+Received: from lngw1.bjservices.com ([207.193.159.253]:56479 "EHLO
+	lngw02.BJSERVICES.COM") by vger.kernel.org with ESMTP
+	id S965556AbWKGRDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 12:03:50 -0500
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: usb device descriptor read/64, error -110 information.
+X-Mailer: Lotus Notes Release 6.5.1 January 21, 2004
+Message-ID: <OF141C7738.E35FF3F4-ON8625721F.005BA49A-8625721F.005DBB2B@BJSERVICES.COM>
+From: John.Jeffers@bjservices.com
+Date: Tue, 7 Nov 2006 11:01:28 -0600
+X-MIMETrack: Serialize by Router on LnGW02/BJSUSA/BJSERVICES(Release 6.5.4FP2|September
+ 12, 2005) at 11/07/2006 11:01:30,
+	Serialize complete at 11/07/2006 11:01:30
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-psmouse_show_int_attr() and psmouse_set_int_attr() were accessing
-unsigned int fields as unsigned long, which gave garbage on x86_64.
+I too have done this with High speed USB devices: SanDisk Micro 
+Bonzai sold by Simpletech.  My dmesg was device descriptor read/64 error 
+-71
 
-Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
----
- drivers/input/mouse/psmouse-base.c |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
+The work around works for me with SuSE 10.1 Kernel build 2.6.16.21-0 25 
+built Tuesday 19th Sept 2006 6:46:56 AM CDT on eisler.suse.de
 
- The problem was found in 2.6.18.2; the same patch applies to the
- current tree.
+What appears to be going on is that after so many entries in a USB table 
+(which is the SCSI Stub) the High Speed Devices no longer can create an 
+entry in the appropriate time.
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 343afa3..07b0604 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -1332,20 +1332,22 @@ ssize_t psmouse_attr_set_helper(struct d
- 
- static ssize_t psmouse_show_int_attr(struct psmouse *psmouse, void *offset, char *buf)
- {
--	unsigned long *field = (unsigned long *)((char *)psmouse + (size_t)offset);
-+	unsigned int *field = (unsigned int *)((char *)psmouse + (size_t)offset);
- 
--	return sprintf(buf, "%lu\n", *field);
-+	return sprintf(buf, "%u\n", *field);
- }
- 
- static ssize_t psmouse_set_int_attr(struct psmouse *psmouse, void *offset, const char *buf, size_t count)
- {
--	unsigned long *field = (unsigned long *)((char *)psmouse + (size_t)offset);
-+	unsigned int *field = (unsigned int *)((char *)psmouse + (size_t)offset);
- 	unsigned long value;
- 	char *rest;
- 
- 	value = simple_strtoul(buf, &rest, 10);
- 	if (*rest)
- 		return -EINVAL;
-+	if ((unsigned int)value != value)
-+		return -EINVAL;
- 
- 	*field = value;
- 
--- 
-1.4.3.3.gddcc6
+Personally I would vote that this is a module issue.  However it did not 
+appear until unit was updated to above kernel.  Google gives many hits on 
+"descriptor read/64 error -71"
 
+Same SuSE configuration was on P4 2.2G HP xt395 Laptop 1G/60G(12 Mhz USB), 
+Micron Clientpro PIII 1G 512M/40G (12MHZ USB) and Micron Clientpro PIII 1G 
+512M/60G on same hour/day so was quite repeatable.
+
+USB drive was placed in W2K and XPro boxes and was recognized immediately
+
+
+
+Regards John
+
+>From http://ubuntuforums.org/archive/index.php/t-27416.html
+
+Morgoth
+April 16th, 2005, 01:50 AM
+HI all.
+I am having a little trouble with my USB thumb drive. I have successfully 
+installed Kubuntu on both my laptop and desktop systems, however I cannot 
+get my thumb drive to work on my desktop. It works fine in the same 
+computer on my Windows ( sigh, I know ) XP partition and it works great on 
+the laptop, so I figure it can't be the usb port or the drive itself. I 
+think something got broken when I installed but I'm still fairly new when 
+it comes to ripping around in the guts of Linux and am not sure where to 
+even start looking. 
+I have tried to mount the drive manually, but got an error saying no 
+device ( sda1... or sdb1... ) and in fact there are no entries at all in 
+/dev for sd"anything".
+When I insert the drive and do a dmesg, it shows the following errors:
+
+usb 4-6: new high speed USB device using ehci_hcd and address 2
+usb 4-6: device descriptor read/64, error -71
+usb 4-6: new high speed USB device using ehci_hcd and address 3
+usb 4-6: device descriptor read/64, error -71
+usb 4-6: new high speed USB device using ehci_hcd and address 4
+usb 4-6: device descriptor read/64, error -71
+usb 4-6: new high speed USB device using ehci_hcd and address 5
+usb 4-6: device descriptor read/64, error -71
+usb 4-6: device descriptor read/64, error -71
+usb 4-6: new high speed USB device using ehci_hcd and address 6
+usb 4-6: device descriptor read/64, error -71
+usb 4-6: device descriptor read/64, error -71
+
+If anyone out there has seen this or has any insight into my problem I 
+would greatly appreciate a reply.
+
+robajz
+June 3rd, 2005, 01:33 AM
+Hi,
+
+I found this 
+https://www.redhat.com/archives/fedora-list/2005-March/msg04036.html
+... type, as root, modprobe -r ehci-hc ...
+
+it's just workaround but worked for me, don't know why. May be next kernel 
+release may fix it.
+
+robajz
+
+Morgoth
+June 3rd, 2005, 01:58 PM
+IT WORKS!! :) 
+I cannot thank you enough Robajz ( first born ok? )
+As you can tell I posted this 2 months ago and nothing. I had just about 
+given up trying to find a solution. I know it's not a life-threatening 
+situation, but it was inconvenient.
+
+Once again thank you.
+Morgoth
+
+John Jeffers P.Eng. , MS1074
+Software Applications Engineering
+11211 FM 2920, Tomball, TX, 77375
+281.357.2773, 281.357.5491 Fax

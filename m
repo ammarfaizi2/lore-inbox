@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753454AbWKGVzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753333AbWKGV6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753454AbWKGVzH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 16:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753435AbWKGVzH
+	id S1753333AbWKGV6E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 16:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753435AbWKGV6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 16:55:07 -0500
-Received: from mx1.suse.de ([195.135.220.2]:31109 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1753245AbWKGVzE (ORCPT
+	Tue, 7 Nov 2006 16:58:03 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28084 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1753333AbWKGV6B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 16:55:04 -0500
-Date: Tue, 7 Nov 2006 13:54:44 -0800
-From: Seth Arnold <seth.arnold@suse.de>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-       chris friedhoff <chris@friedhoff.org>,
-       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/1] security: introduce file posix caps
-Message-ID: <20061107215444.GO30208@suse.de>
-Mail-Followup-To: "Serge E. Hallyn" <serue@us.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-	Stephen Smalley <sds@tycho.nsa.gov>,
-	James Morris <jmorris@namei.org>,
-	chris friedhoff <chris@friedhoff.org>,
-	Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>
-References: <20061107034550.GA13693@sergelap.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dOjmQabedpZXoTR3"
+	Tue, 7 Nov 2006 16:58:01 -0500
+Date: Tue, 7 Nov 2006 22:57:49 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Bernd Petrovitsch <bernd@firmix.at>, Petr Baudis <pasky@suse.cz>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Faustian Pact between Novell and Microsoft
+Message-ID: <20061107215748.GA7796@elf.ucw.cz>
+References: <454A7BBB.10403@wolfmountaingroup.com> <20061103014907.GG11916@pasky.or.cz> <454AB477.9040107@wolfmountaingroup.com> <20061107081826.GD21655@elf.ucw.cz> <1162894662.19866.15.camel@tara.firmix.at> <4550BA59.1000701@wolfmountaingroup.com> <4550E910.6010107@wolfmountaingroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061107034550.GA13693@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <4550E910.6010107@wolfmountaingroup.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---dOjmQabedpZXoTR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> >>>This is a watershed moment for Linux. It fundamentally changes the
+> >>>rules of the game. We're really excited about this deal, and we hope
+> >>>you are too.
+> >>>  
+> >>>(from http://www.novell.com/linux/microsoft/openletter.html) only make
+> >>>it worse, but acquisition? I'd hope not even mickey$oft has enough
+> >>>cash for _that_.
+> >>
+> >>And the first point in the list is "patents" ....
 
-On Mon, Nov 06, 2006 at 09:45:50PM -0600, Serge E. Hallyn wrote:
->  #define CAP_AUDIT_CONTROL    30
-> =20
-> +#define CAP_NUMCAPS	     31
+> >I can see the lights are coming on now for some folks now.
 
-[...]
+> <snip>
+> 
+> /"Microsoft made it clear that only SUSE users and developers, as well 
+> as unsalaried Linux developers, are protected. 'Let me be clear about 
+> one thing, we don't license our intellectual property to Linux because 
+> of the way Linux licensing GPL framework works, that's not really a 
+> possibility,' said Microsoft chief executive, Steve Ballmer. 'Novell is 
+> actually just a proxy for its customers, and it's only for its 
+> customers,' he added. 'This does not apply to any forms of Linux other 
+> than Novell's SUSE Linux. And if people want to have peace and 
+> interoperability, they'll look at Novell's SUSE Linux. If they make 
+> other choices, they have all of the compliance and intellectual property 
+> issues that are associated with that.'"
+> 
+> </snip>
+> 
+> And those lights are bright indeed ....
 
-> +struct vfs_cap_data_struct {
-> +	__u32 version;
-> +	__u32 effective;
-> +	__u32 permitted;
-> +	__u32 inheritable;
-> +};
+Would you care to elaborate? All sorts of red lights are "on" here
+from friday, some of them flashing...
 
-[...]
-
-> +static int check_cap_sanity(struct vfs_cap_data_struct *cap)
-> +{
-> +	int i;
-> +
-> +	if (cap->version !=3D _LINUX_CAPABILITY_VERSION)
-> +		return -EPERM;
-> +
-> +	for (i=3DCAP_NUMCAPS; i<sizeof(cap->effective); i++) {
-> +		if (cap->effective & CAP_TO_MASK(i))
-> +			return -EPERM;
-> +	}
-> +	for (i=3DCAP_NUMCAPS; i<sizeof(cap->permitted); i++) {
-> +		if (cap->permitted & CAP_TO_MASK(i))
-> +			return -EPERM;
-> +	}
-> +	for (i=3DCAP_NUMCAPS; i<sizeof(cap->inheritable); i++) {
-> +		if (cap->inheritable & CAP_TO_MASK(i))
-> +			return -EPERM;
-> +	}
-> +
-> +	return 0;
-> +}
-
-for (i=3D31; i<4; i++) ...
-
-I'm not sure this checks what you think it checks? :)
-
-Thanks
-
---dOjmQabedpZXoTR3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFFUQCk+9nuM9mwoJkRAnOYAKCgXWFlHKLXbfdbJNbTXf2ns6z/EwCZAcub
-5t+661cnwX0v5xOjVw8z8Tw=
-=+zZH
------END PGP SIGNATURE-----
-
---dOjmQabedpZXoTR3--
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,58 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753776AbWKGNfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753842AbWKGNku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753776AbWKGNfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 08:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753799AbWKGNfZ
+	id S1753842AbWKGNku (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 08:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753840AbWKGNku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 08:35:25 -0500
-Received: from wr-out-0506.google.com ([64.233.184.229]:6087 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1753780AbWKGNfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 08:35:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EmybvjZvlRQMujjbwXlschlylGwQR3YTd5eovDVJqHAw7hUfZ/wTJ8Wv1insrOIOUYuI5cOgAObOkNFdsxKODhqbZZmlfpxpHG8dS5vBj8re6qtIWc+dpDrDu5jmvjMmVeGCEo01PLd1YM4AVcZsT47EOYVyWvsgHbRtlrkmBi4=
-Message-ID: <653402b90611070535hd41867m232fdad39da3c4c5@mail.gmail.com>
-Date: Tue, 7 Nov 2006 14:35:23 +0100
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Avi Kivity" <avi@qumranet.com>
-Subject: Re: [PATCH 12/14] KVM: x86 emulator
-Cc: "Arjan van de Ven" <arjan@infradead.org>, "Pavel Machek" <pavel@ucw.cz>,
-       kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <4550889C.2020708@qumranet.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 7 Nov 2006 08:40:50 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:47038 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1753813AbWKGNkt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 08:40:49 -0500
+Subject: Re: [RFC/PATCH] - revert generic_fillattr stat->blksize to	 
+	PAGE_CACHE_SIZE
+From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+To: Steve French <smfltc@us.ibm.com>
+Cc: Eric Sandeen <sandeen@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       Theodore Tso <tytso@mit.edu>
+In-Reply-To: <454FD2BE.2090302@us.ibm.com>
+References: <454FAE0A.3070409@redhat.com>
+	 <1162852069.11030.70.camel@kleikamp.austin.ibm.com>
+	 <454FD2BE.2090302@us.ibm.com>
+Content-Type: text/plain
+Date: Tue, 07 Nov 2006 07:40:45 -0600
+Message-Id: <1162906845.8123.11.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <454E4941.7000108@qumranet.com>
-	 <20061105204035.DF0F62500A7@cleopatra.q>
-	 <20061107124912.GA23118@elf.ucw.cz> <4550823E.2070108@qumranet.com>
-	 <1162904459.3138.142.camel@laptopd505.fenrus.org>
-	 <4550889C.2020708@qumranet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/06, Avi Kivity <avi@qumranet.com> wrote:
-> Arjan van de Ven wrote:
-> >> The entire patchset is GPL'ed.  Do you mean to make it explicit?  If so,
-> >> how?  I'd rather not copy the entire license into each file.
-> >>
-> >
-> > a simple one liner like
-> > "This file is licensed under the terms of the GPL v2 license"
-> > (add "or later" if you feel like doing that)
-> > is going to be generally useful.
-> >
-> > At least many many legal departments really prefer at least that minimum
-> > line to be there for each file; some even want a much longer blurb.
-> >
->
-> Okay.  I hate to use the word "official", but is there an official
-> position on this somewhere?
->
+On Mon, 2006-11-06 at 18:26 -0600, Steve French wrote:   
+> I assumed that the original intent of the "inode diet patch" was to 
+> remove fields in the inode,
+> which most filesystems can get out of the superblock. 
 
-I don't think so. The best option is to use the 15 lines version so
-there won't be any problem in the future. Many people use only one
-line. Other simply write "License: GPLv2" or something like that.
+I think I may have planted the idea that you could get i_blkbits from
+sb->s_blocksize_bits, but I was wrong.  Consider a block device.  It's
+blocksize is not related to the superblock of its containing filesystem.
+
+>    If 
+> inode->blksize and inode->blkbits were
+> related (2**blkbits == blksize) , it also makes sense to me that someone 
+> (Ted?) removed one and left the other
+> as one would be redundant,
+
+They were never really related.  Some filesystems treated them as if
+they were, but the vfs always used i_blkbits for the block size.
+i_blksize was only really used for returning stat->blksize.
+
+>  but some filesystems like cifs have a large 
+> recommended i/o size (16K),
+> but if someone wants to remove both from the inode that is fine by me, 
+> as long as cifs
+> stat->blksize is set as you suggested on the way out of cifs_getattr.    
+> Eventually cifs should set
+> the stat->blksize to  a smaller value for one rarer case.   For the most 
+> common case
+> cifs should still set it to 16K (CIFS_MAX_MSGSIZE) as that is the most 
+> common negotiated
+> buffer size but if the server does not negotiate large read support, and 
+> the server also is so old
+> that it negotiates a buffer size smaller than 16K (e.g. Windows95 
+> negotiates 2K IIRC)
+> then we could set stat-blksize to the smaller negotiated buffer size - 
+> but since those servers are
+> getting rarer it is probably not that important.    More interesting 
+> will be the future cases in
+> which we will be able to set this value larger to more servers, as in 
+> general for modern
+> network adapters, the larger network i/o size the better.
+
+It would probably be best to just set stat->blksize to the negotiated
+buffer size.
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

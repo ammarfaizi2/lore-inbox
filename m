@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754073AbWKGGaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754078AbWKGGc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754073AbWKGGaV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 01:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754074AbWKGGaV
+	id S1754078AbWKGGc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 01:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754076AbWKGGcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 01:30:21 -0500
-Received: from serv1.oss.ntt.co.jp ([222.151.198.98]:31891 "EHLO
-	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
-	id S1754073AbWKGGaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 01:30:20 -0500
-Subject: [PATCH 0/1] mspec driver: compile error
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
-	<fernando@oss.ntt.co.jp>
-To: jes@sgi.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
-       Dean Nelson <dcn@sgi.com>, Hugh Dickins <hugh@veritas.com>,
+	Tue, 7 Nov 2006 01:32:55 -0500
+Received: from c-66-30-195-131.hsd1.ma.comcast.net ([66.30.195.131]:30140 "EHLO
+	gelk.kernelslacker.org") by vger.kernel.org with ESMTP
+	id S1754071AbWKGGcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 01:32:54 -0500
+Date: Tue, 7 Nov 2006 01:32:45 -0500
+From: Dave Jones <davej@redhat.com>
+To: Josh Triplett <josh@freedesktop.org>
+Cc: linux-sparse@vger.kernel.org, linux-kernel@vger.kernel.org,
        Linus Torvalds <torvalds@osdl.org>
-Content-Type: text/plain
-Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
-	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
-	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
-Date: Tue, 07 Nov 2006 15:30:17 +0900
-Message-Id: <1162881017.13700.105.camel@sebastian.intellilink.co.jp>
+Subject: Re: ANNOUNCE: Sparse 0.1 - first release version of Sparse; new maintainer
+Message-ID: <20061107063245.GA26539@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Josh Triplett <josh@freedesktop.org>, linux-sparse@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+References: <4550228A.6060701@freedesktop.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4550228A.6060701@freedesktop.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jes,
+On Mon, Nov 06, 2006 at 10:07:06PM -0800, Josh Triplett wrote:
 
-After selecting CONFIG_MSPEC as a module I stumbled onto the compile
-error below.
+ >     git clone git://git.kernel.org/pub/scm/linux/kernel/git/josh/sparse.git
 
-WARNING: "bte_copy" [drivers/char/mspec.ko] undefined!
-WARNING: "physical_node_map" [drivers/char/mspec.ko] undefined!
-WARNING: "uncached_free_page" [drivers/char/mspec.ko] undefined!
-WARNING: "per_cpu____sn_hub_info" [drivers/char/mspec.ko] undefined!
-WARNING: "uncached_alloc_page" [drivers/char/mspec.ko] undefined!
-make[1]: *** [__modpost] Error 1
-make: *** [modules] Error 2
+For the git-impaired, I've updated my daily-snapshot script to pull
+from here instead of the old location.
 
-The problem is that the Kconfig dependencies for MSPEC are a bit too
-loose. The mspec driver needs bte_copy (a sn-specific function) as well
-as some functions of the uncached page allocator.
+As always, they're auto-updated once an hour at ..
+http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
 
-I solved the issue by making the dependencies explicit in
-drivers/char/Kconfig:
---- Current Kconfig entry
-config MSPEC
-	tristate "Memory special operations driver"
-	depends on IA64
-	help
-	  If you have an ia64 and you want to enable memory special
-	  operations support (formerly known as fetchop), say Y here,
-	  otherwise say N.
----
---- Proposed Kconfig entry
-config MSPEC
-        tristate "Memory special operations driver"
-        depends on IA64 && (IA64_GENERIC || IA64_SGI_SN2)
-        select IA64_UNCACHED_ALLOCATOR
-        help
-          If you have an ia64 and you want to enable memory special
-          operations support (formerly known as fetchop), say Y here,
-          otherwise say N.
----
-
-I'll be replying to this message with a patch that implements this. I
-would appreciate your review and comments.
-
-Regards,
-
-Fernando
-
+		Dave

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752901AbWKGWxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753447AbWKGW5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752901AbWKGWxl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 17:53:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753417AbWKGWxl
+	id S1753447AbWKGW5V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 17:57:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753821AbWKGW5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 17:53:41 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:47059 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1752901AbWKGWxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 17:53:40 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 7 Nov 2006 14:53:33 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take23 3/5] kevent: poll/select() notifications.
-In-Reply-To: <11629182482792@2ka.mipt.ru>
-Message-ID: <Pine.LNX.4.64.0611071449410.17731@alien.or.mcafeemobile.com>
-References: <11629182482792@2ka.mipt.ru>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Tue, 7 Nov 2006 17:57:21 -0500
+Received: from smtp-out.google.com ([216.239.33.17]:39634 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1753447AbWKGW5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 17:57:20 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=bYNVO5GOASdYSSeI02H4hgjwtdF++F37HFmxSQ406OqD4GXY5YyUW8zsiZ2TVSSSA
+	mNjtDclRgGFdryx3ZoPNQ==
+Message-ID: <8f95bb250611071457g689e7b48v90d381f82cfed22e@mail.gmail.com>
+Date: Tue, 7 Nov 2006 14:57:10 -0800
+From: "Aaron Durbin" <adurbin@google.com>
+To: "Jeff Chua" <jeff.chua.linux@gmail.com>
+Subject: Re: [PATCH] i386: Update MMCONFIG resource insertion to check against e820 map.
+Cc: "Matthew Wilcox" <matthew@wil.cx>, linux-kernel@vger.kernel.org
+In-Reply-To: <b6a2187b0611071444y744c240fq13f4e0cb9cdb2da3@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <8f95bb250611071408x46d6fd1ejb6ef7c59a00f1cb@mail.gmail.com>
+	 <b6a2187b0611071444y744c240fq13f4e0cb9cdb2da3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006, Evgeniy Polyakov wrote:
+On 11/7/06, Jeff Chua <jeff.chua.linux@gmail.com> wrote:
+> On 11/8/06, Aaron Durbin <adurbin@google.com> wrote:
+> >
+> > Signed-off-by: Aaron Durbin <adurbin@google.com>
+> >
+> > This patch is against 2.6.19-rc4. It is only compile tested for i386,
+> > but it is the same patch as x86-64 that I previously submitted.
+>
+> Tested on 2 different machines and MMCONFIG now works!
+>
+> Thanks,
+> Jeff.
+>
 
-> +static int kevent_poll_wait_callback(wait_queue_t *wait,
-> +		unsigned mode, int sync, void *key)
-> +{
-> +	struct kevent_poll_wait_container *cont =
-> +		container_of(wait, struct kevent_poll_wait_container, wait);
-> +	struct kevent *k = cont->k;
-> +	struct file *file = k->st->origin;
-> +	u32 revents;
-> +
-> +	revents = file->f_op->poll(file, NULL);
-> +
-> +	kevent_storage_ready(k->st, NULL, revents);
-> +
-> +	return 0;
-> +}
+Jeff,
 
-Are you sure you can safely call file->f_op->poll() from inside a callback 
-based wakeup? The low level driver may be calling the wakeup with one of 
-its locks held, and during the file->f_op->poll may be trying to acquire 
-the same lock. I remember there was a discussion about this, and assuming 
-the above not true, made epoll code more complex (and slower, since an 
-extra O(R) loop was needed to fetch events).
+Do you mind posting your dmesg from the machine that originally didn't work? I
+would like to take a look it.
 
+Thanks.
 
-
-- Davide
-
-
+-Aaron

@@ -1,241 +1,415 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965394AbWKGQx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965291AbWKGQxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965394AbWKGQx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 11:53:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965419AbWKGQxZ
+	id S965291AbWKGQxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 11:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965419AbWKGQvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 11:53:25 -0500
-Received: from jail1.krisk.org ([216.139.201.203]:33028 "EHLO jail1.krisk.org")
-	by vger.kernel.org with ESMTP id S965394AbWKGQxS (ORCPT
+	Tue, 7 Nov 2006 11:51:32 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:28583 "EHLO
+	kano.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S965335AbWKGQv0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 11:53:18 -0500
-Message-ID: <4550C7F4.9040601@krisk.org>
-Date: Tue, 07 Nov 2006 12:52:52 -0500
-From: Kristian Kielhofner <kris@krisk.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1.centos4 (X11/20051007)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bootc@bootc.net, rpurdie@rpsys.net
-CC: linux-kernel@vger.kernel.org
-Subject: PATCH: PCEngines WRAP LED Support
-Content-Type: multipart/mixed;
- boundary="------------090904010208010504070902"
+	Tue, 7 Nov 2006 11:51:26 -0500
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: [take23 4/5] kevent: Socket notifications.
+In-Reply-To: <11629182482792@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 7 Nov 2006 19:50:48 +0300
+Message-Id: <1162918248688@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090904010208010504070902
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello,
+Socket notifications.
 
-	I have "created" a driver for the PCEngines WRAP boards 
-(http://www.pcengines.ch), which are very similar to the Soekris net4801 
-(same NS SC1100 geode reference design).  It was developed for, applies 
-to, and works quite well (for me) on 2.6.18.
+This patch includes socket send/recv/accept notifications.
+Using trivial web server based on kevent and this features
+instead of epoll it's performance increased more than noticebly.
+More details about various benchmarks and server itself 
+(evserver_kevent.c) can be found on project's homepage.
 
-	The LEDs on the WRAP are on different GPIO lines and I have modified 
-and copied the net48xx error led support for this.  It also includes 
-support for an "extra" led (in addition to error).  The three LEDs on 
-the WRAP are at GPIO lines 2,3,18 (WRAP LEDs from left to right).  This 
-driver gives access to the second and third LEDs by twiddling GPIO lines 
-3 & 18.
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
 
-	Because these boards are so similar to the net48xx, I basically sed-ed 
-that driver to form the basis for leds-wrap.c.  The only changes from 
-leds-net48xx.c are:
-
-- #define WRAP_EXTRA_LED_GPIO
-- name changes
-- duplicate relevant sections to provide support for the "extra" led
-- reverse the various *_led_set values.  The WRAP is "backwards" from 
-the net48xx, and these needed to be updated for that.
-
-	This does need a little work though...  Due to my VERY limited 
-knowledge of C (sorry), I don't know how to properly handle and return 
-error status from multiple led_classdev_register() calls inside of 
-wrap_led_probe().  I'm sure someone can fix this up in a jiffy :).
-
-Signed-off-by: Kristian Kielhofner <kris@krisk.org>
-
-My mail reader does not appear to let me insert text inline, so I have 
-attached the patch.  Hopefully it will be rendered correctly by most 
-mail readers (sure beats bad wrapping).  If it doesn't work out, I can 
-try again.
-
---------------090904010208010504070902
-Content-Type: text/x-patch;
- name="wrap-led.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="wrap-led.patch"
-
-diff -uprN -X linux-2.6.18-vanilla/Documentation/dontdiff linux-2.6.18-vanilla/drivers/leds/Kconfig linux-2.6.18/drivers/leds/Kconfig
---- linux-2.6.18-vanilla/drivers/leds/Kconfig	2006-09-19 23:42:06.000000000 -0400
-+++ linux-2.6.18/drivers/leds/Kconfig	2006-11-03 16:15:44.000000000 -0500
-@@ -76,6 +76,12 @@ config LEDS_NET48XX
- 	  This option enables support for the Soekris net4801 and net4826 error
- 	  LED.
+diff --git a/fs/inode.c b/fs/inode.c
+index ada7643..ff1b129 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -21,6 +21,7 @@ #include <linux/pagemap.h>
+ #include <linux/cdev.h>
+ #include <linux/bootmem.h>
+ #include <linux/inotify.h>
++#include <linux/kevent.h>
+ #include <linux/mount.h>
  
-+config LEDS_WRAP
-+	tristate "LED Support for the WRAP series LEDs"
-+	depends on LEDS_CLASS && SCx200_GPIO
-+	help
-+	  This option enables support for the PCEngines WRAP programmable LEDs.
+ /*
+@@ -164,12 +165,18 @@ #endif
+ 		}
+ 		inode->i_private = 0;
+ 		inode->i_mapping = mapping;
++#if defined CONFIG_KEVENT_SOCKET
++		kevent_storage_init(inode, &inode->st);
++#endif
+ 	}
+ 	return inode;
+ }
+ 
+ void destroy_inode(struct inode *inode) 
+ {
++#if defined CONFIG_KEVENT_SOCKET
++	kevent_storage_fini(&inode->st);
++#endif
+ 	BUG_ON(inode_has_buffers(inode));
+ 	security_inode_free(inode);
+ 	if (inode->i_sb->s_op->destroy_inode)
+diff --git a/include/net/sock.h b/include/net/sock.h
+index edd4d73..d48ded8 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -48,6 +48,7 @@ #include <linux/lockdep.h>
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>	/* struct sk_buff */
+ #include <linux/security.h>
++#include <linux/kevent.h>
+ 
+ #include <linux/filter.h>
+ 
+@@ -450,6 +451,21 @@ static inline int sk_stream_memory_free(
+ 
+ extern void sk_stream_rfree(struct sk_buff *skb);
+ 
++struct socket_alloc {
++	struct socket socket;
++	struct inode vfs_inode;
++};
 +
- comment "LED Triggers"
++static inline struct socket *SOCKET_I(struct inode *inode)
++{
++	return &container_of(inode, struct socket_alloc, vfs_inode)->socket;
++}
++
++static inline struct inode *SOCK_INODE(struct socket *socket)
++{
++	return &container_of(socket, struct socket_alloc, socket)->vfs_inode;
++}
++
+ static inline void sk_stream_set_owner_r(struct sk_buff *skb, struct sock *sk)
+ {
+ 	skb->sk = sk;
+@@ -477,6 +493,7 @@ static inline void sk_add_backlog(struct
+ 		sk->sk_backlog.tail = skb;
+ 	}
+ 	skb->next = NULL;
++	kevent_socket_notify(sk, KEVENT_SOCKET_RECV);
+ }
  
- config LEDS_TRIGGERS
-diff -uprN -X linux-2.6.18-vanilla/Documentation/dontdiff linux-2.6.18-vanilla/drivers/leds/leds-wrap.c linux-2.6.18/drivers/leds/leds-wrap.c
---- linux-2.6.18-vanilla/drivers/leds/leds-wrap.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.18/drivers/leds/leds-wrap.c	2006-11-03 16:27:46.000000000 -0500
+ #define sk_wait_event(__sk, __timeo, __condition)		\
+@@ -679,21 +696,6 @@ static inline struct kiocb *siocb_to_kio
+ 	return si->kiocb;
+ }
+ 
+-struct socket_alloc {
+-	struct socket socket;
+-	struct inode vfs_inode;
+-};
+-
+-static inline struct socket *SOCKET_I(struct inode *inode)
+-{
+-	return &container_of(inode, struct socket_alloc, vfs_inode)->socket;
+-}
+-
+-static inline struct inode *SOCK_INODE(struct socket *socket)
+-{
+-	return &container_of(socket, struct socket_alloc, socket)->vfs_inode;
+-}
+-
+ extern void __sk_stream_mem_reclaim(struct sock *sk);
+ extern int sk_stream_mem_schedule(struct sock *sk, int size, int kind);
+ 
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 7a093d0..69f4ad2 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -857,6 +857,7 @@ static inline int tcp_prequeue(struct so
+ 			tp->ucopy.memory = 0;
+ 		} else if (skb_queue_len(&tp->ucopy.prequeue) == 1) {
+ 			wake_up_interruptible(sk->sk_sleep);
++			kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
+ 			if (!inet_csk_ack_scheduled(sk))
+ 				inet_csk_reset_xmit_timer(sk, ICSK_TIME_DACK,
+ 						          (3 * TCP_RTO_MIN) / 4,
+diff --git a/kernel/kevent/kevent_socket.c b/kernel/kevent/kevent_socket.c
+new file mode 100644
+index 0000000..7f74110
+--- /dev/null
++++ b/kernel/kevent/kevent_socket.c
 @@ -0,0 +1,135 @@
 +/*
-+ * LEDs driver for PCEngines WRAP
-+ *
-+ * Copyright (C) 2006 Kristian Kielhofner <kris@krisk.org>
-+ *
-+ * Based on leds-net48xx.c
-+ *
++ * 	kevent_socket.c
++ * 
++ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
++ * All rights reserved.
++ * 
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
 +
 +#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/platform_device.h>
-+#include <linux/leds.h>
-+#include <linux/err.h>
-+#include <asm/io.h>
-+#include <linux/scx200_gpio.h>
++#include <linux/types.h>
++#include <linux/list.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/timer.h>
++#include <linux/file.h>
++#include <linux/tcp.h>
++#include <linux/kevent.h>
 +
-+#define DRVNAME "wrap-led"
-+#define WRAP_ERROR_LED_GPIO	3
-+#define	WRAP_EXTRA_LED_GPIO	18
++#include <net/sock.h>
++#include <net/request_sock.h>
++#include <net/inet_connection_sock.h>
 +
-+static struct platform_device *pdev;
-+
-+static void wrap_error_led_set(struct led_classdev *led_cdev,
-+		enum led_brightness value)
++static int kevent_socket_callback(struct kevent *k)
 +{
-+	if (value)
-+		scx200_gpio_set_low(WRAP_ERROR_LED_GPIO);
-+	else
-+		scx200_gpio_set_high(WRAP_ERROR_LED_GPIO);
-+}
++	struct inode *inode = k->st->origin;
++	unsigned int events = SOCKET_I(inode)->ops->poll(SOCKET_I(inode)->file, SOCKET_I(inode), NULL);
 +
-+static void wrap_extra_led_set(struct led_classdev *led_cdev,
-+		enum led_brightness value)
-+{
-+	if (value)
-+		scx200_gpio_set_low(WRAP_EXTRA_LED_GPIO);
-+	else
-+		scx200_gpio_set_high(WRAP_EXTRA_LED_GPIO);
-+}
-+
-+static struct led_classdev wrap_error_led = {
-+	.name		= "wrap:error",
-+	.brightness_set	= wrap_error_led_set,
-+};
-+
-+static struct led_classdev wrap_extra_led = {
-+	.name           = "wrap:extra",
-+	.brightness_set = wrap_extra_led_set,
-+};
-+
-+#ifdef CONFIG_PM
-+static int wrap_led_suspend(struct platform_device *dev,
-+		pm_message_t state)
-+{
-+	led_classdev_suspend(&wrap_error_led);
-+	led_classdev_suspend(&wrap_extra_led);
++	if ((events & (POLLIN | POLLRDNORM)) && (k->event.event & (KEVENT_SOCKET_RECV | KEVENT_SOCKET_ACCEPT)))
++		return 1;
++	if ((events & (POLLOUT | POLLWRNORM)) && (k->event.event & KEVENT_SOCKET_SEND))
++		return 1;
 +	return 0;
 +}
 +
-+static int wrap_led_resume(struct platform_device *dev)
++int kevent_socket_enqueue(struct kevent *k)
 +{
-+	led_classdev_resume(&wrap_error_led);
-+	led_classdev_resume(&wrap_extra_led);
++	struct inode *inode;
++	struct socket *sock;
++	int err = -EBADF;
++
++	sock = sockfd_lookup(k->event.id.raw[0], &err);
++	if (!sock)
++		goto err_out_exit;
++
++	inode = igrab(SOCK_INODE(sock));
++	if (!inode)
++		goto err_out_fput;
++
++	err = kevent_storage_enqueue(&inode->st, k);
++	if (err)
++		goto err_out_iput;
++
++	err = k->callbacks.callback(k);
++	if (err)
++		goto err_out_dequeue;
++
++	return err;
++
++err_out_dequeue:
++	kevent_storage_dequeue(k->st, k);
++err_out_iput:
++	iput(inode);
++err_out_fput:
++	sockfd_put(sock);
++err_out_exit:
++	return err;
++}
++
++int kevent_socket_dequeue(struct kevent *k)
++{
++	struct inode *inode = k->st->origin;
++	struct socket *sock;
++
++	kevent_storage_dequeue(k->st, k);
++
++	sock = SOCKET_I(inode);
++	iput(inode);
++	sockfd_put(sock);
++
 +	return 0;
 +}
-+#else
-+#define wrap_led_suspend NULL
-+#define wrap_led_resume NULL
++
++void kevent_socket_notify(struct sock *sk, u32 event)
++{
++	if (sk->sk_socket)
++		kevent_storage_ready(&SOCK_INODE(sk->sk_socket)->st, NULL, event);
++}
++
++/*
++ * It is required for network protocols compiled as modules, like IPv6.
++ */
++EXPORT_SYMBOL_GPL(kevent_socket_notify);
++
++#ifdef CONFIG_LOCKDEP
++static struct lock_class_key kevent_sock_key;
++
++void kevent_socket_reinit(struct socket *sock)
++{
++	struct inode *inode = SOCK_INODE(sock);
++
++	lockdep_set_class(&inode->st.lock, &kevent_sock_key);
++}
++
++void kevent_sk_reinit(struct sock *sk)
++{
++	if (sk->sk_socket) {
++		struct inode *inode = SOCK_INODE(sk->sk_socket);
++
++		lockdep_set_class(&inode->st.lock, &kevent_sock_key);
++	}
++}
 +#endif
-+
-+static int wrap_led_probe(struct platform_device *pdev)
++static int __init kevent_init_socket(void)
 +{
-+	led_classdev_register(&pdev->dev, &wrap_error_led);
-+	return led_classdev_register(&pdev->dev, &wrap_extra_led);
++	struct kevent_callbacks sc = {
++		.callback = &kevent_socket_callback,
++		.enqueue = &kevent_socket_enqueue,
++		.dequeue = &kevent_socket_dequeue};
++
++	return kevent_add_callbacks(&sc, KEVENT_SOCKET);
 +}
-+
-+static int wrap_led_remove(struct platform_device *pdev)
-+{
-+	led_classdev_unregister(&wrap_error_led);
-+	led_classdev_unregister(&wrap_extra_led);
-+	return 0;
-+}
-+
-+static struct platform_driver wrap_led_driver = {
-+	.probe		= wrap_led_probe,
-+	.remove		= wrap_led_remove,
-+	.suspend	= wrap_led_suspend,
-+	.resume		= wrap_led_resume,
-+	.driver		= {
-+		.name		= DRVNAME,
-+		.owner		= THIS_MODULE,
-+	},
-+};
-+
-+static int __init wrap_led_init(void)
-+{
-+	int ret;
-+
-+	if (!scx200_gpio_present()) {
-+		ret = -ENODEV;
-+		goto out;
-+	}
-+
-+	ret = platform_driver_register(&wrap_led_driver);
-+	if (ret < 0)
-+		goto out;
-+
-+	pdev = platform_device_register_simple(DRVNAME, -1, NULL, 0);
-+	if (IS_ERR(pdev)) {
-+		ret = PTR_ERR(pdev);
-+		platform_driver_unregister(&wrap_led_driver);
-+		goto out;
-+	}
-+
-+out:
-+	return ret;
-+}
-+
-+static void __exit wrap_led_exit(void)
-+{
-+	platform_device_unregister(pdev);
-+	platform_driver_unregister(&wrap_led_driver);
-+}
-+
-+module_init(wrap_led_init);
-+module_exit(wrap_led_exit);
-+
-+MODULE_AUTHOR("Kristian Kielhofner <kris@krisk.org>");
-+MODULE_DESCRIPTION("PCEngines WRAP LED driver");
-+MODULE_LICENSE("GPL");
-+
-diff -uprN -X linux-2.6.18-vanilla/Documentation/dontdiff linux-2.6.18-vanilla/drivers/leds/Makefile linux-2.6.18/drivers/leds/Makefile
---- linux-2.6.18-vanilla/drivers/leds/Makefile	2006-09-19 23:42:06.000000000 -0400
-+++ linux-2.6.18/drivers/leds/Makefile	2006-11-03 16:15:44.000000000 -0500
-@@ -13,6 +13,7 @@ obj-$(CONFIG_LEDS_TOSA)			+= leds-tosa.o
- obj-$(CONFIG_LEDS_S3C24XX)		+= leds-s3c24xx.o
- obj-$(CONFIG_LEDS_AMS_DELTA)		+= leds-ams-delta.o
- obj-$(CONFIG_LEDS_NET48XX)		+= leds-net48xx.o
-+obj-$(CONFIG_LEDS_WRAP)			+= leds-wrap.o
++module_init(kevent_init_socket);
+diff --git a/net/core/sock.c b/net/core/sock.c
+index b77e155..7d5fa3e 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1402,6 +1402,7 @@ static void sock_def_wakeup(struct sock
+ 	if (sk->sk_sleep && waitqueue_active(sk->sk_sleep))
+ 		wake_up_interruptible_all(sk->sk_sleep);
+ 	read_unlock(&sk->sk_callback_lock);
++	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
+ }
  
- # LED Triggers
- obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
+ static void sock_def_error_report(struct sock *sk)
+@@ -1411,6 +1412,7 @@ static void sock_def_error_report(struct
+ 		wake_up_interruptible(sk->sk_sleep);
+ 	sk_wake_async(sk,0,POLL_ERR); 
+ 	read_unlock(&sk->sk_callback_lock);
++	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
+ }
+ 
+ static void sock_def_readable(struct sock *sk, int len)
+@@ -1420,6 +1422,7 @@ static void sock_def_readable(struct soc
+ 		wake_up_interruptible(sk->sk_sleep);
+ 	sk_wake_async(sk,1,POLL_IN);
+ 	read_unlock(&sk->sk_callback_lock);
++	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
+ }
+ 
+ static void sock_def_write_space(struct sock *sk)
+@@ -1439,6 +1442,7 @@ static void sock_def_write_space(struct
+ 	}
+ 
+ 	read_unlock(&sk->sk_callback_lock);
++	kevent_socket_notify(sk, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
+ }
+ 
+ static void sock_def_destruct(struct sock *sk)
+@@ -1489,6 +1493,8 @@ #endif
+ 	sk->sk_state		=	TCP_CLOSE;
+ 	sk->sk_socket		=	sock;
+ 
++	kevent_sk_reinit(sk);
++
+ 	sock_set_flag(sk, SOCK_ZAPPED);
+ 
+ 	if(sock)
+@@ -1555,8 +1561,10 @@ void fastcall release_sock(struct sock *
+ 	if (sk->sk_backlog.tail)
+ 		__release_sock(sk);
+ 	sk->sk_lock.owner = NULL;
+-	if (waitqueue_active(&sk->sk_lock.wq))
++	if (waitqueue_active(&sk->sk_lock.wq)) {
+ 		wake_up(&sk->sk_lock.wq);
++		kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
++	}
+ 	spin_unlock_bh(&sk->sk_lock.slock);
+ }
+ EXPORT_SYMBOL(release_sock);
+diff --git a/net/core/stream.c b/net/core/stream.c
+index d1d7dec..2878c2a 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -36,6 +36,7 @@ void sk_stream_write_space(struct sock *
+ 			wake_up_interruptible(sk->sk_sleep);
+ 		if (sock->fasync_list && !(sk->sk_shutdown & SEND_SHUTDOWN))
+ 			sock_wake_async(sock, 2, POLL_OUT);
++		kevent_socket_notify(sk, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
+ 	}
+ }
+ 
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 3f884ce..e7dd989 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3119,6 +3119,7 @@ static void tcp_ofo_queue(struct sock *s
+ 
+ 		__skb_unlink(skb, &tp->out_of_order_queue);
+ 		__skb_queue_tail(&sk->sk_receive_queue, skb);
++		kevent_socket_notify(sk, KEVENT_SOCKET_RECV);
+ 		tp->rcv_nxt = TCP_SKB_CB(skb)->end_seq;
+ 		if(skb->h.th->fin)
+ 			tcp_fin(skb, sk, skb->h.th);
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index c83938b..b0dd70d 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -61,6 +61,7 @@ #include <linux/cache.h>
+ #include <linux/jhash.h>
+ #include <linux/init.h>
+ #include <linux/times.h>
++#include <linux/kevent.h>
+ 
+ #include <net/icmp.h>
+ #include <net/inet_hashtables.h>
+@@ -870,6 +871,7 @@ #endif
+ 	   	reqsk_free(req);
+ 	} else {
+ 		inet_csk_reqsk_queue_hash_add(sk, req, TCP_TIMEOUT_INIT);
++		kevent_socket_notify(sk, KEVENT_SOCKET_ACCEPT);
+ 	}
+ 	return 0;
+ 
+diff --git a/net/socket.c b/net/socket.c
+index 1bc4167..5582b4a 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -85,6 +85,7 @@ #include <linux/compat.h>
+ #include <linux/kmod.h>
+ #include <linux/audit.h>
+ #include <linux/wireless.h>
++#include <linux/kevent.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -490,6 +491,8 @@ static struct socket *sock_alloc(void)
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_gid = current->fsgid;
+ 
++	kevent_socket_reinit(sock);
++
+ 	get_cpu_var(sockets_in_use)++;
+ 	put_cpu_var(sockets_in_use);
+ 	return sock;
 
---------------090904010208010504070902--

@@ -1,82 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753999AbWKGEWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754001AbWKGEfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753999AbWKGEWO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 23:22:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754000AbWKGEWN
+	id S1754001AbWKGEfI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 23:35:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754003AbWKGEfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 23:22:13 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48136 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1753999AbWKGEWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 23:22:13 -0500
-Date: Tue, 7 Nov 2006 05:22:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Bryan O'Sullivan" <bos@serpentine.com>
-Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
-Message-ID: <20061107042214.GC8099@stusta.de>
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org> <20061105064801.GV13381@stusta.de> <m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
+	Mon, 6 Nov 2006 23:35:08 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:42964 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1754001AbWKGEfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 23:35:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
+        b=QFudYscppc2/x026PjEFlnUslw0uJIn9S5LN0OF+9EAEnwYtDWrUovyZhzwuYesKkJXjjEetawzRRrjmXqi0rYyltb2FS98lK1Q0Qyyl/Y2JbMBBNQDXPxRw022GkQiN7o+6iAx8L3vRCsHhk1Qr+0xwRg7Do9SViJpMrLPjlq4=
+Message-ID: <86802c440611062035m7b530ct5e79174e4008f32b@mail.gmail.com>
+Date: Mon, 6 Nov 2006 20:35:04 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [Patch] PCI: check szhi when sz is 0 for 64 bit pref mem
+Cc: "Greg KH" <gregkh@suse.de>, "Andi Kleen" <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       myles@mouselemur.cs.byu.edu
+In-Reply-To: <20061106160441.1a06bf76.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_384_5261661.1162874104018"
+References: <5986589C150B2F49A46483AC44C7BCA490719C@ssvlexmb2.amd.com>
+	 <20061106160441.1a06bf76.akpm@osdl.org>
+X-Google-Sender-Auth: a66da0a1307830b8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 05, 2006 at 08:17:53AM -0700, Eric W. Biederman wrote:
-> Adrian Bunk <bunk@stusta.de> writes:
-> 
-> > This email lists some known regressions in 2.6.19-rc4 compared to 2.6.18
-> > that are not yet fixed in Linus' tree.
-> >
-> > If you find your name in the Cc header, you are either submitter of one
-> > of the bugs, maintainer of an affectected subsystem or driver, a patch
-> > of you caused a breakage or I'm considering you in any other way possibly
-> > involved with one or more of these issues.
-> >
-> > Due to the huge amount of recipients, please trim the Cc when answering.
-> >
-> >
-> > Subject    : ipath driver MCEs system on load when HT chip present
-> > References : http://bugzilla.kernel.org/show_bug.cgi?id=7455
-> > Submitter  : Bryan O'Sullivan <bos@serpentine.com>
-> > Caused-By  : Eric W. Biederman <ebiederm@xmission.com>
-> > Status     : unknown
-> 
-> Status in problem is being debugged. I have posted some infrastructure
-> patches that should allow Bryan to fix his driver cleanly.  
-> 
-> I did not cause this. The ipath HTX card driver's irq handling has
-> never been anything but a hack.  It has never worked correctly even in
-> the instances it worked.  It only worked on i386 or x86_64 when
-> CONFIG_PCI_MSI was enabled but did not use MSI.  It was relying on the
-> implementation detail that the architecture specific vector number was
-> placed in the dev->irq.  dev->irq is actually meaningless on this card
-> as it doesn't have any ordinary pci interrupts.
-> 
-> So while I am happy to take credit for flushing this bug out I did not
-> introduce it.
+------=_Part_384_5261661.1162874104018
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-My notion of "regression" is from a user's perspective.
+please check version with pci_size64.
 
-Therefore, if a hack that worked at least for some users no longer 
-works, that's a regression. That's independent of the technical question 
-whose fault it actually was.
+------=_Part_384_5261661.1162874104018
+Content-Type: text/x-patch; name=pci_64bit_pref_4g_1106.patch; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_eu7t3f1j
+Content-Disposition: attachment; filename="pci_64bit_pref_4g_1106.patch"
 
-We should either get this fixed before 2.6.19 or at least make it clear 
-for users that support for this hardware won't be back before 2.6.20.
-
-> Eric
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+W1BBVENIXSBQQ0k6IGNoZWNrIHN6aGkgd2hlbiBzeiBpcyAwIHdoZW4gNjQgYml0IGlvbWVtIGJp
+Z2dlciB0aGFuIDRHCgoJSWYgdGhlIFBDSSBkZXZpY2UgaXMgNjQtYml0IG1lbW9yeSBhbmQgaGFz
+IGEgc2l6ZSBvZiAweG5ubm5ubm5uMDAwMDAwMDAgdGhlbgoJcGNpX3JlYWRfYmFzZXMoKSB3aWxs
+IGluY29ycmVjdGx5IGFzc3VtZSB0aGF0IGl0IGhhcyBhIHNpemUgb2YgemVyby4KCglDYzogTXls
+ZXMgV2F0c29uIDxteWxlc0Btb3VzZWxlbXVyLmNzLmJ5dS5lZHU+CglTaWduZWQtb2ZmLWJ5OiBZ
+aW5naGFpIEx1IDx5aW5naGFpLmx1QGFtZC5jb20+CglDYzogR3JlZyBLSCA8Z3JlZ0Brcm9haC5j
+b20+CglTaWduZWQtb2ZmLWJ5OiBBbmRyZXcgTW9ydG9uIDxha3BtQG9zZGwub3JnPgoKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvcGNpL3Byb2JlLmMgYi9kcml2ZXJzL3BjaS9wcm9iZS5jCmluZGV4IGUx
+NTlkNjYuLjBlMmIxMGMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvcGNpL3Byb2JlLmMKKysrIGIvZHJp
+dmVycy9wY2kvcHJvYmUuYwpAQCAtMTQ0LDYgKzE0NCwyNCBAQCBzdGF0aWMgdTMyIHBjaV9zaXpl
+KHUzMiBiYXNlLCB1MzIgbWF4YmFzCiAJcmV0dXJuIHNpemU7CiB9CiAKK3N0YXRpYyB1NjQgcGNp
+X3NpemU2NCh1NjQgYmFzZSwgdTY0IG1heGJhc2UsIHU2NCBtYXNrKQoreworCXU2NCBzaXplID0g
+bWFzayAmIG1heGJhc2U7CS8qIEZpbmQgdGhlIHNpZ25pZmljYW50IGJpdHMgKi8KKwlpZiAoIXNp
+emUpCisJCXJldHVybiAwOworCisJLyogR2V0IHRoZSBsb3dlc3Qgb2YgdGhlbSB0byBmaW5kIHRo
+ZSBkZWNvZGUgc2l6ZSwgYW5kCisJICAgZnJvbSB0aGF0IHRoZSBleHRlbnQuICAqLworCXNpemUg
+PSAoc2l6ZSAmIH4oc2l6ZS0xKSkgLSAxOworCisJLyogYmFzZSA9PSBtYXhiYXNlIGNhbiBiZSB2
+YWxpZCBvbmx5IGlmIHRoZSBCQVIgaGFzCisJICAgYWxyZWFkeSBiZWVuIHByb2dyYW1tZWQgd2l0
+aCBhbGwgMXMuICAqLworCWlmIChiYXNlID09IG1heGJhc2UgJiYgKChiYXNlIHwgc2l6ZSkgJiBt
+YXNrKSAhPSBtYXNrKQorCQlyZXR1cm4gMDsKKworCXJldHVybiBzaXplOworfQorCiBzdGF0aWMg
+dm9pZCBwY2lfcmVhZF9iYXNlcyhzdHJ1Y3QgcGNpX2RldiAqZGV2LCB1bnNpZ25lZCBpbnQgaG93
+bWFueSwgaW50IHJvbSkKIHsKIAl1bnNpZ25lZCBpbnQgcG9zLCByZWcsIG5leHQ7CkBAIC0xNTEs
+NiArMTY5LDcgQEAgc3RhdGljIHZvaWQgcGNpX3JlYWRfYmFzZXMoc3RydWN0IHBjaV9kZQogCXN0
+cnVjdCByZXNvdXJjZSAqcmVzOwogCiAJZm9yKHBvcz0wOyBwb3M8aG93bWFueTsgcG9zID0gbmV4
+dCkgeworCQl1NjQgbDY0LCBzejY0OwogCQluZXh0ID0gcG9zKzE7CiAJCXJlcyA9ICZkZXYtPnJl
+c291cmNlW3Bvc107CiAJCXJlcy0+bmFtZSA9IHBjaV9uYW1lKGRldik7CkBAIC0xNjQsOSArMTgz
+LDE1IEBAIHN0YXRpYyB2b2lkIHBjaV9yZWFkX2Jhc2VzKHN0cnVjdCBwY2lfZGUKIAkJaWYgKGwg
+PT0gMHhmZmZmZmZmZikKIAkJCWwgPSAwOwogCQlpZiAoKGwgJiBQQ0lfQkFTRV9BRERSRVNTX1NQ
+QUNFKSA9PSBQQ0lfQkFTRV9BRERSRVNTX1NQQUNFX01FTU9SWSkgeworCQkJc3o2NCA9IHN6Owog
+CQkJc3ogPSBwY2lfc2l6ZShsLCBzeiwgKHUzMilQQ0lfQkFTRV9BRERSRVNTX01FTV9NQVNLKTsK
+LQkJCWlmICghc3opCi0JCQkJY29udGludWU7CisJCQkvKiBmb3IgNjRiaXQgcHJlZiwgc3ogY291
+bGQgYmUgMCwgaWYgdGhlIHJlYWwgc2l6ZSBpcyBiaWdnZXIgdGhhbiA0RywKKwkJCQlzbyBuZWVk
+IHRvIGNoZWNrIHN6aGkgZm9yIGl0CisJCQkgKi8KKwkJCWlmICgobCAmIChQQ0lfQkFTRV9BRERS
+RVNTX1NQQUNFIHwgUENJX0JBU0VfQUREUkVTU19NRU1fVFlQRV9NQVNLKSkKKwkJCSAgICAhPSAo
+UENJX0JBU0VfQUREUkVTU19TUEFDRV9NRU1PUlkgfCBQQ0lfQkFTRV9BRERSRVNTX01FTV9UWVBF
+XzY0KSkgCisJCQkJaWYgKCFzeikKKwkJCQkJY29udGludWU7CiAJCQlyZXMtPnN0YXJ0ID0gbCAm
+IFBDSV9CQVNFX0FERFJFU1NfTUVNX01BU0s7CiAJCQlyZXMtPmZsYWdzIHw9IGwgJiB+UENJX0JB
+U0VfQUREUkVTU19NRU1fTUFTSzsKIAkJfSBlbHNlIHsKQEAgLTE4NSwxNyArMjEwLDIxIEBAIHN0
+YXRpYyB2b2lkIHBjaV9yZWFkX2Jhc2VzKHN0cnVjdCBwY2lfZGUKIAkJCXBjaV93cml0ZV9jb25m
+aWdfZHdvcmQoZGV2LCByZWcrNCwgfjApOwogCQkJcGNpX3JlYWRfY29uZmlnX2R3b3JkKGRldiwg
+cmVnKzQsICZzemhpKTsKIAkJCXBjaV93cml0ZV9jb25maWdfZHdvcmQoZGV2LCByZWcrNCwgbGhp
+KTsKLQkJCXN6aGkgPSBwY2lfc2l6ZShsaGksIHN6aGksIDB4ZmZmZmZmZmYpOworCQkJc3o2NCB8
+PSAoKHVuc2lnbmVkIGxvbmcpIHN6aGkpIDw8IDMyOworCQkJbDY0ID0gKCgodW5zaWduZWQgbG9u
+ZykgbGhpKSA8PCAzMikgfCBsOworCQkJc3o2NCA9IHBjaV9zaXplNjQobDY0LCBzejY0LCBQQ0lf
+QkFTRV9BRERSRVNTX01FTV9NQVNLKTsKIAkJCW5leHQrKzsKICNpZiBCSVRTX1BFUl9MT05HID09
+IDY0Ci0JCQlyZXMtPnN0YXJ0IHw9ICgodW5zaWduZWQgbG9uZykgbGhpKSA8PCAzMjsKLQkJCXJl
+cy0+ZW5kID0gcmVzLT5zdGFydCArIHN6OwotCQkJaWYgKHN6aGkpIHsKLQkJCQkvKiBUaGlzIEJB
+UiBuZWVkcyA+IDRHQj8gIFdvdy4gKi8KLQkJCQlyZXMtPmVuZCB8PSAodW5zaWduZWQgbG9uZylz
+emhpPDwzMjsKKwkJCWlmICghc3o2NCkgeworCQkJCXJlcy0+c3RhcnQgPSAwOworCQkJCXJlcy0+
+ZW5kID0gMDsKKwkJCQlyZXMtPmZsYWdzID0gMDsKKwkJCQljb250aW51ZTsKIAkJCX0KKwkJCXJl
+cy0+c3RhcnQgPSBsNjQgJiBQQ0lfQkFTRV9BRERSRVNTX01FTV9NQVNLOworCQkJcmVzLT5lbmQg
+PSByZXMtPnN0YXJ0ICsgc3o2NDsKICNlbHNlCi0JCQlpZiAoc3poaSkgeworCQkJaWYgKHN6NjQ+
+MHgxMDAwMDAwMDBVTEwpIHsKIAkJCQlwcmludGsoS0VSTl9FUlIgIlBDSTogVW5hYmxlIHRvIGhh
+bmRsZSA2NC1iaXQgQkFSIGZvciBkZXZpY2UgJXNcbiIsIHBjaV9uYW1lKGRldikpOwogCQkJCXJl
+cy0+c3RhcnQgPSAwOwogCQkJCXJlcy0+ZmxhZ3MgPSAwOwo=
+------=_Part_384_5261661.1162874104018--

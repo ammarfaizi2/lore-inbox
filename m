@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754158AbWKGJqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754161AbWKGJxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754158AbWKGJqq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 04:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754159AbWKGJqq
+	id S1754161AbWKGJxv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 04:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754164AbWKGJxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 04:46:46 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:33204 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1754158AbWKGJqp (ORCPT
+	Tue, 7 Nov 2006 04:53:50 -0500
+Received: from tag.witbe.net ([81.88.96.48]:5566 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S1754161AbWKGJxu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 04:46:45 -0500
-Message-ID: <45505602.4000607@pobox.com>
-Date: Tue, 07 Nov 2006 04:46:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+	Tue, 7 Nov 2006 04:53:50 -0500
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Jan Engelhardt'" <jengelh@linux01.gwdg.de>
+Cc: "'Marc Perkel'" <marc@perkel.com>,
+       "'Chris Lalancette'" <clalance@redhat.com>,
+       "'Rafael J. Wysocki'" <rjw@sisk.pl>, <linux-kernel@vger.kernel.org>
+Subject: RE: could not find filesystem /dev/root
+Date: Tue, 7 Nov 2006 10:52:55 +0100
+Organization: AS2917.net
+Message-ID: <004001c70252$82702570$4b00a8c0@donald>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH] pdc202xx_old: Fix name clashes with PA-RISC
-References: <1162559886.12810.12.camel@localhost.localdomain>
-In-Reply-To: <1162559886.12810.12.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <Pine.LNX.4.61.0611071013420.11192@yvahk01.tjqt.qr>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Thread-Index: AccCTeH044QjMYmcTgqRrJ9Fip1lBgABBaGw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> pdc_* functions are part of the global namespace for the PDC on PA-RISC
-> systems and this means our choice of pdc_ causes collisions between the
-> PDC globals and our static functions. Rename them to pdc202xx where they
-> are for both 2024x and 2026x.
+Hello,
+
+> The order in which disks are discovered, is basically
+> (1) what module (let's take the "core kernel" as a module 
+> too) is loaded first (core kernel always comes first)
+> (2) running order of the __init functions in a specific module;
+>     running order mostly defined by linking order
+
+Yes... What is painful is that moving from a configuration with modules
+to a configuration without modules, this can change. 
+
+> >and resulted in drives changing devices :
+> >FC5               Vanilla
+> >/dev/sda   <--->  /dev/sdb
+> >/dev/sdb   <--->  /dev/sdc
+> >/dev/sdc   <--->  /dev/sda
+
+> If you don't want udev, make an initramfs, build your disk driver as 
+> modules, and load them in the order you want your disks numbered.
 > 
-> Signed-off-by: Alan Cox <alan@redhat.com>
+> udev or initramfs, you ought to choose at least one.
 
-applied
+Nope, you don't. I'm now using a kernel without modules for what's disk 
+related, and unless people (read kernel developpers) change something 
+in the init order, I'm now with a stable environment, without udev or
+initramfs.
 
+Paul
 

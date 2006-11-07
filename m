@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752041AbWKGTMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751850AbWKGTRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752041AbWKGTMu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 14:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752129AbWKGTMt
+	id S1751850AbWKGTRo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 14:17:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbWKGTRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 14:12:49 -0500
-Received: from mail.gmx.de ([213.165.64.20]:13460 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752041AbWKGTMt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 14:12:49 -0500
-X-Authenticated: #283898
-Message-ID: <4550DABA.40600@gmx.net>
-Date: Tue, 07 Nov 2006 20:12:58 +0100
-From: Tobias Pflug <tobias.pflug@gmx.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Tue, 7 Nov 2006 14:17:44 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50387 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750724AbWKGTRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 14:17:43 -0500
+Date: Tue, 7 Nov 2006 11:17:07 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org, mm-commits@vger.kernel.org,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+In-Reply-To: <20061107095049.B3262@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0611071113390.4582@schroedinger.engr.sgi.com>
+References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
+ <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>
+ <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
+ <20061107095049.B3262@unix-os.sc.intel.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: fs indexing/ querying on meta-data
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Tasklets are scheduled on the same cpu that triggered the tasklet. They 
+are just moved to other processors if the processor goes down. So that 
+aspect is fine. We just need a tasklet struct per cpu.
 
-At university I am currently dealing with file indexing/query features
-as they exist in the BeFS or SkyFS. In BeFS you could commit a query like:
 
-(name == "*.c" || name == "*.h" ) && size > 20000
 
-API functions were available to commit such queries which would use some 
-attribute b-tree to find matching files.
+User a per cpu tasklet to schedule rebalancing
 
-Now to get to the point: I would like to implement such functionality on 
-a very basic level (Only very simple queries) for a fs in the linux 
-kernel. I thought of parsing files in userland, extracting any usable 
-meta-data (such as id3 tags) and storing them as extended attributes of 
-the respective
-files.
+Turns out that tasklets have a flag that only allows one instance to run
+on all processors. So we need a tasklet structure for each processor.
 
-My problem is that I am not sure on which approach I should take on 
-this. Should I attempt to hack such functionality into an existing fs ? 
-If so, which one would be suited best? Maybe the much discussed 
-reiser4-plugin-interface could actually be useful for this one?
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-I also considered using FiST (http://www.am-utils.org/project-fist.html, 
-stackable filesystem language)
-but the development seems to be stalled, I am having issues with 
-compilation, the author doesn't respond
-and I read about people having major issues with it (segfaults etc..)
+Index: linux-2.6.19-rc4-mm2/kernel/sched.c
+===================================================================
+--- linux-2.6.19-rc4-mm2.orig/kernel/sched.c	2006-11-06 13:58:38.000000000 -0600
++++ linux-2.6.19-rc4-mm2/kernel/sched.c	2006-11-07 13:05:56.236343144 -0600
+@@ -2918,7 +2918,8 @@ static void rebalance_domains(unsigned l
+ 	this_rq->next_balance = next_balance;
+ }
+ 
+-DECLARE_TASKLET(rebalance, &rebalance_domains, 0L);
++static DEFINE_PER_CPU(struct tasklet_struct, rebalance) =
++		{ NULL, 0, ATOMIC_INIT(0), rebalance_domains, 0L };
+ #else
+ /*
+  * on UP we do not need to balance between CPUs:
+@@ -3171,7 +3172,7 @@ void scheduler_tick(void)
+ #ifdef CONFIG_SMP
+ 	update_load(rq);
+ 	if (time_after_eq(jiffies, rq->next_balance))
+-		tasklet_schedule(&rebalance);
++		tasklet_schedule(&__get_cpu_var(rebalance));
+ #endif
+ }
+ 
 
-Finally there is the option of using FUSE, but I have to admit I haven't 
-had a closer look at it yet.
-
-I hope this posting isn't so clueless&chaotic that people can't be 
-bothered to answer :) I'd be thankful
-for any word of advice and/or pointers on this topic.
-
-regards,
-Tobi
-
-PS: please CC to tobias.pflug@gmx.net , I am not subscribed to lkml. 
-Thank you!

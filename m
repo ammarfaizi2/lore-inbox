@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753811AbWKGBDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753889AbWKGBLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753811AbWKGBDE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 20:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753854AbWKGBDE
+	id S1753889AbWKGBLP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 20:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753910AbWKGBLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 20:03:04 -0500
-Received: from cantor.suse.de ([195.135.220.2]:33664 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1753811AbWKGBDB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 20:03:01 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Lasse Karkkainen <tronic@trn.iki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mapping between ata9 and /dev/sd[a-z]
-References: <454FD142.5060103@trn.iki.fi>
-X-Yow: ..  are the STEWED PRUNES still in the HAIR DRYER?
-Date: Tue, 07 Nov 2006 02:02:59 +0100
-In-Reply-To: <454FD142.5060103@trn.iki.fi> (Lasse Karkkainen's message of
-	"Tue, 07 Nov 2006 02:20:18 +0200")
-Message-ID: <jefycwukzg.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Mon, 6 Nov 2006 20:11:14 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:28099 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1753762AbWKGBLO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Nov 2006 20:11:14 -0500
+Message-ID: <454FDD27.6000506@zytor.com>
+Date: Mon, 06 Nov 2006 17:11:03 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: James Courtier-Dutton <James@superbug.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: i387  Floating Point Unit (FPU) testing
+References: <454E54B6.5010206@superbug.co.uk>
+In-Reply-To: <454E54B6.5010206@superbug.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lasse Karkkainen <tronic@trn.iki.fi> writes:
+James Courtier-Dutton wrote:
+> Hi,
+> 
+> The kernel contains some i387 FPU emulation code.
+> Is there any user land software to test the FPU emulation code?
+> I would like to be able to prove the correctness of the FPU emulation 
+> code in the Linux kernel, and also port the test program to other 
+> platforms that utilize FPU emulation. For example, DOS emulators like 
+> DOSBOX.
+> 
 
-> I am getting errors from ata9 (and ata10), but how can I find which HDD
-> it is? The kernel log never mentions ataN and its associated device name
-> together.
+The i387 FPU emulation code is originally from DJGPP, I believe.
 
-Try looking in /sys for clues.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+	-hpa

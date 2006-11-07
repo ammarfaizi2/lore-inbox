@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWKGTWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752249AbWKGTXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWKGTWB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 14:22:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751907AbWKGTWB
+	id S1752249AbWKGTXF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 14:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752190AbWKGTXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 14:22:01 -0500
-Received: from mga07.intel.com ([143.182.124.22]:18259 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1750714AbWKGTWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 14:22:00 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,397,1157353200"; 
-   d="scan'208"; a="142594770:sNHT17991771"
-Subject: 2.6.19-rc1: Volanomark slowdown
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: linux-kernel@vger.kernel.org
-Cc: davem@sunset.davemloft.net, kuznet@ms2.inr.ac.ru
-Content-Type: text/plain
-Organization: Intel
-Date: Tue, 07 Nov 2006 10:32:34 -0800
-Message-Id: <1162924354.10806.172.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 14:23:05 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40927 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751798AbWKGTXC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 14:23:02 -0500
+Date: Tue, 7 Nov 2006 11:22:49 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org, mm-commits@vger.kernel.org,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+In-Reply-To: <20061107095049.B3262@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0611071118010.4614@schroedinger.engr.sgi.com>
+References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
+ <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>
+ <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
+ <20061107095049.B3262@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 7 Nov 2006, Siddha, Suresh B wrote:
 
-The patch
+> tasklet_schedule doesn't schedule if there is already one scheduled.
 
-[TCP]: Send ACKs each 2nd received segment
-commit: 1ef9696c909060ccdae3ade245ca88692b49285b
-http://kernel.org/git/?
-p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1ef9696c909060ccdae3ade245ca88692b49285b
+Correct. The effect of this is to only allow load balancing on one cpu at a 
+time. Subsequent attempts to schedule load balancing on other cpus are 
+ignored until the cpu that is load balancing has finished. Then the 
+others (hopefully) get a turn.
 
-reduced Volanomark benchmark throughput by 10%.  
-This is because Volanomark sends 
-short message (<100 bytes) on its TCP
-connections.  This patch increases the number of ACKs 
-traffic by 3.5 times.  
+A pretty interesting unintended effect. It certainly solves the concurrent 
+load balancing scalability issues and would avoid the need to stagger 
+load balancing. Wonder how fair it would be?
 
-By adopting this patch, we assume that with
-small segment, having short delay is important 
-enough that we are willing to reduce bandwidth 
-with more ACKs.  
-
-Is there any real application out there
-that this new behavior could be a concern?
-
-Tim 

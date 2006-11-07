@@ -1,305 +1,241 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965468AbWKGQws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965394AbWKGQx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965468AbWKGQws (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 11:52:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965291AbWKGQve
+	id S965394AbWKGQx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 11:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965419AbWKGQxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 11:51:34 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:29351 "EHLO
-	kano.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S965357AbWKGQv1 convert rfc822-to-8bit (ORCPT
+	Tue, 7 Nov 2006 11:53:25 -0500
+Received: from jail1.krisk.org ([216.139.201.203]:33028 "EHLO jail1.krisk.org")
+	by vger.kernel.org with ESMTP id S965394AbWKGQxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 11:51:27 -0500
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: [take23 3/5] kevent: poll/select() notifications.
-In-Reply-To: <11629182482529@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 7 Nov 2006 19:50:48 +0300
-Message-Id: <11629182482792@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Tue, 7 Nov 2006 11:53:18 -0500
+Message-ID: <4550C7F4.9040601@krisk.org>
+Date: Tue, 07 Nov 2006 12:52:52 -0500
+From: Kristian Kielhofner <kris@krisk.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1.centos4 (X11/20051007)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: bootc@bootc.net, rpurdie@rpsys.net
+CC: linux-kernel@vger.kernel.org
+Subject: PATCH: PCEngines WRAP LED Support
+Content-Type: multipart/mixed;
+ boundary="------------090904010208010504070902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090904010208010504070902
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-poll/select() notifications.
+Hello,
 
-This patch includes generic poll/select notifications.
-kevent_poll works simialr to epoll and has the same issues (callback
-is invoked not from internal state machine of the caller, but through
-process awake, a lot of allocations and so on).
+	I have "created" a driver for the PCEngines WRAP boards 
+(http://www.pcengines.ch), which are very similar to the Soekris net4801 
+(same NS SC1100 geode reference design).  It was developed for, applies 
+to, and works quite well (for me) on 2.6.18.
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
+	The LEDs on the WRAP are on different GPIO lines and I have modified 
+and copied the net48xx error led support for this.  It also includes 
+support for an "extra" led (in addition to error).  The three LEDs on 
+the WRAP are at GPIO lines 2,3,18 (WRAP LEDs from left to right).  This 
+driver gives access to the second and third LEDs by twiddling GPIO lines 
+3 & 18.
 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 5baf3a1..f81299f 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -276,6 +276,7 @@ #include <linux/prio_tree.h>
- #include <linux/init.h>
- #include <linux/sched.h>
- #include <linux/mutex.h>
-+#include <linux/kevent.h>
+	Because these boards are so similar to the net48xx, I basically sed-ed 
+that driver to form the basis for leds-wrap.c.  The only changes from 
+leds-net48xx.c are:
+
+- #define WRAP_EXTRA_LED_GPIO
+- name changes
+- duplicate relevant sections to provide support for the "extra" led
+- reverse the various *_led_set values.  The WRAP is "backwards" from 
+the net48xx, and these needed to be updated for that.
+
+	This does need a little work though...  Due to my VERY limited 
+knowledge of C (sorry), I don't know how to properly handle and return 
+error status from multiple led_classdev_register() calls inside of 
+wrap_led_probe().  I'm sure someone can fix this up in a jiffy :).
+
+Signed-off-by: Kristian Kielhofner <kris@krisk.org>
+
+My mail reader does not appear to let me insert text inline, so I have 
+attached the patch.  Hopefully it will be rendered correctly by most 
+mail readers (sure beats bad wrapping).  If it doesn't work out, I can 
+try again.
+
+--------------090904010208010504070902
+Content-Type: text/x-patch;
+ name="wrap-led.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="wrap-led.patch"
+
+diff -uprN -X linux-2.6.18-vanilla/Documentation/dontdiff linux-2.6.18-vanilla/drivers/leds/Kconfig linux-2.6.18/drivers/leds/Kconfig
+--- linux-2.6.18-vanilla/drivers/leds/Kconfig	2006-09-19 23:42:06.000000000 -0400
++++ linux-2.6.18/drivers/leds/Kconfig	2006-11-03 16:15:44.000000000 -0500
+@@ -76,6 +76,12 @@ config LEDS_NET48XX
+ 	  This option enables support for the Soekris net4801 and net4826 error
+ 	  LED.
  
- #include <asm/atomic.h>
- #include <asm/semaphore.h>
-@@ -586,6 +587,10 @@ #ifdef CONFIG_INOTIFY
- 	struct mutex		inotify_mutex;	/* protects the watches list */
- #endif
- 
-+#ifdef CONFIG_KEVENT_SOCKET
-+	struct kevent_storage	st;
-+#endif
++config LEDS_WRAP
++	tristate "LED Support for the WRAP series LEDs"
++	depends on LEDS_CLASS && SCx200_GPIO
++	help
++	  This option enables support for the PCEngines WRAP programmable LEDs.
 +
- 	unsigned long		i_state;
- 	unsigned long		dirtied_when;	/* jiffies of first dirtying */
+ comment "LED Triggers"
  
-@@ -739,6 +744,9 @@ #ifdef CONFIG_EPOLL
- 	struct list_head	f_ep_links;
- 	spinlock_t		f_ep_lock;
- #endif /* #ifdef CONFIG_EPOLL */
-+#ifdef CONFIG_KEVENT_POLL
-+	struct kevent_storage	st;
-+#endif
- 	struct address_space	*f_mapping;
- };
- extern spinlock_t files_lock;
-diff --git a/kernel/kevent/kevent_poll.c b/kernel/kevent/kevent_poll.c
-new file mode 100644
-index 0000000..94facbb
---- /dev/null
-+++ b/kernel/kevent/kevent_poll.c
-@@ -0,0 +1,222 @@
+ config LEDS_TRIGGERS
+diff -uprN -X linux-2.6.18-vanilla/Documentation/dontdiff linux-2.6.18-vanilla/drivers/leds/leds-wrap.c linux-2.6.18/drivers/leds/leds-wrap.c
+--- linux-2.6.18-vanilla/drivers/leds/leds-wrap.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.18/drivers/leds/leds-wrap.c	2006-11-03 16:27:46.000000000 -0500
+@@ -0,0 +1,135 @@
 +/*
-+ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
++ * LEDs driver for PCEngines WRAP
++ *
++ * Copyright (C) 2006 Kristian Kielhofner <kris@krisk.org>
++ *
++ * Based on leds-net48xx.c
 + *
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + */
 +
 +#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/timer.h>
-+#include <linux/file.h>
-+#include <linux/kevent.h>
-+#include <linux/poll.h>
-+#include <linux/fs.h>
++#include <linux/init.h>
++#include <linux/platform_device.h>
++#include <linux/leds.h>
++#include <linux/err.h>
++#include <asm/io.h>
++#include <linux/scx200_gpio.h>
 +
-+static kmem_cache_t *kevent_poll_container_cache;
-+static kmem_cache_t *kevent_poll_priv_cache;
++#define DRVNAME "wrap-led"
++#define WRAP_ERROR_LED_GPIO	3
++#define	WRAP_EXTRA_LED_GPIO	18
 +
-+struct kevent_poll_ctl
++static struct platform_device *pdev;
++
++static void wrap_error_led_set(struct led_classdev *led_cdev,
++		enum led_brightness value)
 +{
-+	struct poll_table_struct 	pt;
-+	struct kevent			*k;
++	if (value)
++		scx200_gpio_set_low(WRAP_ERROR_LED_GPIO);
++	else
++		scx200_gpio_set_high(WRAP_ERROR_LED_GPIO);
++}
++
++static void wrap_extra_led_set(struct led_classdev *led_cdev,
++		enum led_brightness value)
++{
++	if (value)
++		scx200_gpio_set_low(WRAP_EXTRA_LED_GPIO);
++	else
++		scx200_gpio_set_high(WRAP_EXTRA_LED_GPIO);
++}
++
++static struct led_classdev wrap_error_led = {
++	.name		= "wrap:error",
++	.brightness_set	= wrap_error_led_set,
 +};
 +
-+struct kevent_poll_wait_container
-+{
-+	struct list_head		container_entry;
-+	wait_queue_head_t		*whead;
-+	wait_queue_t			wait;
-+	struct kevent			*k;
++static struct led_classdev wrap_extra_led = {
++	.name           = "wrap:extra",
++	.brightness_set = wrap_extra_led_set,
 +};
 +
-+struct kevent_poll_private
++#ifdef CONFIG_PM
++static int wrap_led_suspend(struct platform_device *dev,
++		pm_message_t state)
 +{
-+	struct list_head		container_list;
-+	spinlock_t			container_lock;
-+};
-+
-+static int kevent_poll_enqueue(struct kevent *k);
-+static int kevent_poll_dequeue(struct kevent *k);
-+static int kevent_poll_callback(struct kevent *k);
-+
-+static int kevent_poll_wait_callback(wait_queue_t *wait,
-+		unsigned mode, int sync, void *key)
-+{
-+	struct kevent_poll_wait_container *cont =
-+		container_of(wait, struct kevent_poll_wait_container, wait);
-+	struct kevent *k = cont->k;
-+	struct file *file = k->st->origin;
-+	u32 revents;
-+
-+	revents = file->f_op->poll(file, NULL);
-+
-+	kevent_storage_ready(k->st, NULL, revents);
-+
++	led_classdev_suspend(&wrap_error_led);
++	led_classdev_suspend(&wrap_extra_led);
 +	return 0;
 +}
 +
-+static void kevent_poll_qproc(struct file *file, wait_queue_head_t *whead,
-+		struct poll_table_struct *poll_table)
++static int wrap_led_resume(struct platform_device *dev)
 +{
-+	struct kevent *k =
-+		container_of(poll_table, struct kevent_poll_ctl, pt)->k;
-+	struct kevent_poll_private *priv = k->priv;
-+	struct kevent_poll_wait_container *cont;
-+	unsigned long flags;
++	led_classdev_resume(&wrap_error_led);
++	led_classdev_resume(&wrap_extra_led);
++	return 0;
++}
++#else
++#define wrap_led_suspend NULL
++#define wrap_led_resume NULL
++#endif
 +
-+	cont = kmem_cache_alloc(kevent_poll_container_cache, SLAB_KERNEL);
-+	if (!cont) {
-+		kevent_break(k);
-+		return;
-+	}
-+
-+	cont->k = k;
-+	init_waitqueue_func_entry(&cont->wait, kevent_poll_wait_callback);
-+	cont->whead = whead;
-+
-+	spin_lock_irqsave(&priv->container_lock, flags);
-+	list_add_tail(&cont->container_entry, &priv->container_list);
-+	spin_unlock_irqrestore(&priv->container_lock, flags);
-+
-+	add_wait_queue(whead, &cont->wait);
++static int wrap_led_probe(struct platform_device *pdev)
++{
++	led_classdev_register(&pdev->dev, &wrap_error_led);
++	return led_classdev_register(&pdev->dev, &wrap_extra_led);
 +}
 +
-+static int kevent_poll_enqueue(struct kevent *k)
++static int wrap_led_remove(struct platform_device *pdev)
 +{
-+	struct file *file;
-+	int err, ready = 0;
-+	unsigned int revents;
-+	struct kevent_poll_ctl ctl;
-+	struct kevent_poll_private *priv;
-+
-+	file = fget(k->event.id.raw[0]);
-+	if (!file)
-+		return -EBADF;
-+
-+	err = -EINVAL;
-+	if (!file->f_op || !file->f_op->poll)
-+		goto err_out_fput;
-+
-+	err = -ENOMEM;
-+	priv = kmem_cache_alloc(kevent_poll_priv_cache, SLAB_KERNEL);
-+	if (!priv)
-+		goto err_out_fput;
-+
-+	spin_lock_init(&priv->container_lock);
-+	INIT_LIST_HEAD(&priv->container_list);
-+
-+	k->priv = priv;
-+
-+	ctl.k = k;
-+	init_poll_funcptr(&ctl.pt, &kevent_poll_qproc);
-+
-+	err = kevent_storage_enqueue(&file->st, k);
-+	if (err)
-+		goto err_out_free;
-+
-+	revents = file->f_op->poll(file, &ctl.pt);
-+	if (revents & k->event.event) {
-+		ready = 1;
-+		kevent_poll_dequeue(k);
-+	}
-+
-+	return ready;
-+
-+err_out_free:
-+	kmem_cache_free(kevent_poll_priv_cache, priv);
-+err_out_fput:
-+	fput(file);
-+	return err;
-+}
-+
-+static int kevent_poll_dequeue(struct kevent *k)
-+{
-+	struct file *file = k->st->origin;
-+	struct kevent_poll_private *priv = k->priv;
-+	struct kevent_poll_wait_container *w, *n;
-+	unsigned long flags;
-+
-+	kevent_storage_dequeue(k->st, k);
-+
-+	spin_lock_irqsave(&priv->container_lock, flags);
-+	list_for_each_entry_safe(w, n, &priv->container_list, container_entry) {
-+		list_del(&w->container_entry);
-+		remove_wait_queue(w->whead, &w->wait);
-+		kmem_cache_free(kevent_poll_container_cache, w);
-+	}
-+	spin_unlock_irqrestore(&priv->container_lock, flags);
-+
-+	kmem_cache_free(kevent_poll_priv_cache, priv);
-+	k->priv = NULL;
-+
-+	fput(file);
-+
++	led_classdev_unregister(&wrap_error_led);
++	led_classdev_unregister(&wrap_extra_led);
 +	return 0;
 +}
 +
-+static int kevent_poll_callback(struct kevent *k)
++static struct platform_driver wrap_led_driver = {
++	.probe		= wrap_led_probe,
++	.remove		= wrap_led_remove,
++	.suspend	= wrap_led_suspend,
++	.resume		= wrap_led_resume,
++	.driver		= {
++		.name		= DRVNAME,
++		.owner		= THIS_MODULE,
++	},
++};
++
++static int __init wrap_led_init(void)
 +{
-+	struct file *file = k->st->origin;
-+	unsigned int revents = file->f_op->poll(file, NULL);
++	int ret;
 +
-+	k->event.ret_data[0] = revents & k->event.event;
-+
-+	return (revents & k->event.event);
-+}
-+
-+static int __init kevent_poll_sys_init(void)
-+{
-+	struct kevent_callbacks pc = {
-+		.callback = &kevent_poll_callback,
-+		.enqueue = &kevent_poll_enqueue,
-+		.dequeue = &kevent_poll_dequeue};
-+
-+	kevent_poll_container_cache = kmem_cache_create("kevent_poll_container_cache",
-+			sizeof(struct kevent_poll_wait_container), 0, 0, NULL, NULL);
-+	if (!kevent_poll_container_cache) {
-+		printk(KERN_ERR "Failed to create kevent poll container cache.\n");
-+		return -ENOMEM;
++	if (!scx200_gpio_present()) {
++		ret = -ENODEV;
++		goto out;
 +	}
 +
-+	kevent_poll_priv_cache = kmem_cache_create("kevent_poll_priv_cache",
-+			sizeof(struct kevent_poll_private), 0, 0, NULL, NULL);
-+	if (!kevent_poll_priv_cache) {
-+		printk(KERN_ERR "Failed to create kevent poll private data cache.\n");
-+		kmem_cache_destroy(kevent_poll_container_cache);
-+		kevent_poll_container_cache = NULL;
-+		return -ENOMEM;
++	ret = platform_driver_register(&wrap_led_driver);
++	if (ret < 0)
++		goto out;
++
++	pdev = platform_device_register_simple(DRVNAME, -1, NULL, 0);
++	if (IS_ERR(pdev)) {
++		ret = PTR_ERR(pdev);
++		platform_driver_unregister(&wrap_led_driver);
++		goto out;
 +	}
 +
-+	kevent_add_callbacks(&pc, KEVENT_POLL);
-+
-+	printk(KERN_INFO "Kevent poll()/select() subsystem has been initialized.\n");
-+	return 0;
++out:
++	return ret;
 +}
 +
-+static struct lock_class_key kevent_poll_key;
-+
-+void kevent_poll_reinit(struct file *file)
++static void __exit wrap_led_exit(void)
 +{
-+	lockdep_set_class(&file->st.lock, &kevent_poll_key);
++	platform_device_unregister(pdev);
++	platform_driver_unregister(&wrap_led_driver);
 +}
 +
-+static void __exit kevent_poll_sys_fini(void)
-+{
-+	kmem_cache_destroy(kevent_poll_priv_cache);
-+	kmem_cache_destroy(kevent_poll_container_cache);
-+}
++module_init(wrap_led_init);
++module_exit(wrap_led_exit);
 +
-+module_init(kevent_poll_sys_init);
-+module_exit(kevent_poll_sys_fini);
++MODULE_AUTHOR("Kristian Kielhofner <kris@krisk.org>");
++MODULE_DESCRIPTION("PCEngines WRAP LED driver");
++MODULE_LICENSE("GPL");
++
+diff -uprN -X linux-2.6.18-vanilla/Documentation/dontdiff linux-2.6.18-vanilla/drivers/leds/Makefile linux-2.6.18/drivers/leds/Makefile
+--- linux-2.6.18-vanilla/drivers/leds/Makefile	2006-09-19 23:42:06.000000000 -0400
++++ linux-2.6.18/drivers/leds/Makefile	2006-11-03 16:15:44.000000000 -0500
+@@ -13,6 +13,7 @@ obj-$(CONFIG_LEDS_TOSA)			+= leds-tosa.o
+ obj-$(CONFIG_LEDS_S3C24XX)		+= leds-s3c24xx.o
+ obj-$(CONFIG_LEDS_AMS_DELTA)		+= leds-ams-delta.o
+ obj-$(CONFIG_LEDS_NET48XX)		+= leds-net48xx.o
++obj-$(CONFIG_LEDS_WRAP)			+= leds-wrap.o
+ 
+ # LED Triggers
+ obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
 
+--------------090904010208010504070902--

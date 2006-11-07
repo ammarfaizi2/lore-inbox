@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752261AbWKGTZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752280AbWKGTZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752261AbWKGTZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 14:25:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752254AbWKGTZJ
+	id S1752280AbWKGTZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 14:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752254AbWKGTZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 14:25:09 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:28402 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1752190AbWKGTZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 14:25:07 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=xMahOTxaNGS170z5exvxlQUp4kCI52BGIqfkTPCaCPWmCqIuHm8kaxuhb66IKNMRA
-	46hmnRCSbK0/YXDdsPi/A==
-Message-ID: <6599ad830611071124p7e0d5b20r67bbc8f8d75b3f44@mail.gmail.com>
-Date: Tue, 7 Nov 2006 11:24:49 -0800
-From: "Paul Menage" <menage@google.com>
-To: "Paul Jackson" <pj@sgi.com>
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-In-Reply-To: <20061107111131.48a9ae49.pj@sgi.com>
+	Tue, 7 Nov 2006 14:25:16 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:31839 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1752190AbWKGTZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 14:25:13 -0500
+X-IronPort-AV: i="4.09,397,1157353200"; 
+   d="scan'208"; a="755234781:sNHT47996868"
+To: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
+Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       openib-general@openib.org, raisch@de.ibm.com
+Subject: Re: [PATCH 2.6.19 2/4] ehca: hcp_phyp.c: correct page mapping in 64k page mode
+X-Message-Flag: Warning: May contain useful information
+References: <200611052141.29030.hnguyen@de.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 07 Nov 2006 11:25:12 -0800
+In-Reply-To: <200611052141.29030.hnguyen@de.ibm.com> (Hoang-Nam Nguyen's message of "Sun, 5 Nov 2006 21:41:28 +0100")
+Message-ID: <aday7qngiuf.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061030031531.8c671815.pj@sgi.com>
-	 <20061031115342.GB9588@in.ibm.com>
-	 <6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
-	 <20061101172540.GA8904@in.ibm.com>
-	 <6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
-	 <20061106124948.GA3027@in.ibm.com>
-	 <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
-	 <20061107104118.f02a1114.pj@sgi.com>
-	 <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-	 <20061107111131.48a9ae49.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 07 Nov 2006 19:25:12.0332 (UTC) FILETIME=[71F704C0:01C702A2]
+Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/06, Paul Jackson <pj@sgi.com> wrote:
-> > This will happen if you configure CONFIG_CPUSETS_LEGACY_API
->
-> So why is this CONFIG_* option separate?  When would I ever not
-> want it?
+ > -	*mapaddr = (u64)(ioremap(physaddr, EHCA_PAGESIZE));
+ > +	*mapaddr = (u64)ioremap((physaddr & PAGE_MASK), PAGE_SIZE) +
+ > +		(physaddr & (~PAGE_MASK));
 
-If you weren't bothered about having the legacy semantics. The main
-issue is that it adds an extra file to /proc/<pid>. I guess the other
-stuff could be made nonconditional without breaking anyone who didn't
-try to mount cpusetfs
+I'm confused -- shouldn't ioremap() do the right thing even if
+physaddr isn't page-aligned?  Why is this needed?
 
-Paul
+ - R.

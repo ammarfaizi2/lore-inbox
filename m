@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWKGKgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753285AbWKGKlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWKGKgw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 05:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753489AbWKGKgw
+	id S1753285AbWKGKlW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 05:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753714AbWKGKlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 05:36:52 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:15630 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750961AbWKGKgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 05:36:51 -0500
-Message-ID: <455061BD.3000901@shadowen.org>
-Date: Tue, 07 Nov 2006 10:36:45 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
-MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: schwidefsky@de.ibm.com, linux390@de.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-390@vm.marist.edu
-Subject: Re: [PATCH] s390 need definitions for pagefault_disable and pagefault_enable
-References: <20061101235407.a92f94a5.akpm@osdl.org> <7e94d9e3967f67b1151689921a21fd65@pinky> <20061107081326.GA7057@osiris.boeblingen.de.ibm.com> <45505B68.7000607@shadowen.org> <20061107101344.GB7057@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20061107101344.GB7057@osiris.boeblingen.de.ibm.com>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: url=http://www.shadowen.org/~apw/public-key
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 05:41:22 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:47750 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1753285AbWKGKlV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 05:41:21 -0500
+Date: Tue, 7 Nov 2006 05:41:19 -0500
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: [git patches] net driver fixes
+Message-ID: <20061107104119.GA6802@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko Carstens wrote:
-> On Tue, Nov 07, 2006 at 10:09:44AM +0000, Andy Whitcroft wrote:
->> Heiko Carstens wrote:
->>> On Mon, Nov 06, 2006 at 06:35:21PM +0000, Andy Whitcroft wrote:
->>>> diff --git a/arch/s390/lib/uaccess_std.c b/arch/s390/lib/uaccess_std.c
->>>> index 9bbeaa0..ad296dc 100644
->>>> --- a/arch/s390/lib/uaccess_std.c
->>>> +++ b/arch/s390/lib/uaccess_std.c
->>>> @@ -11,6 +11,8 @@
->>>>  
->>>>  #include <linux/errno.h>
->>>>  #include <linux/mm.h>
->>>> +#include <linux/uaccess.h>
->>>> +
->>>>  #include <asm/uaccess.h>
->>>>  #include <asm/futex.h>
->>> http://lkml.org/lkml/2006/11/2/54
->>>
->>> ;)
->> Perhaps it would be helpful if these went out as replies to akpm's -mm
->> announcement else you have to sift the whole of lkml for them :(.
-> 
-> ??? It was the first reply to the -mm accouncement and that's where you
-> can find it in the tree: http://lkml.org/lkml/2006/11/2/33
 
-Applogies, I have no idea what kind of user incompetance led me twice to
-look and miss it.  But for sure its there.
+Please pull from 'upstream-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
 
--apw
+to receive the following updates:
+
+ drivers/net/b44.c              |    5 +++--
+ drivers/net/e1000/e1000_main.c |    7 +++++++
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+Auke Kok:
+      e1000: Fix regression: garbled stats and irq allocation during swsusp
+
+Johannes Berg:
+      b44: change comment about irq mask register
+
+diff --git a/drivers/net/b44.c b/drivers/net/b44.c
+index 1ec2174..474a4e3 100644
+--- a/drivers/net/b44.c
++++ b/drivers/net/b44.c
+@@ -908,8 +908,9 @@ static irqreturn_t b44_interrupt(int irq
+ 	istat = br32(bp, B44_ISTAT);
+ 	imask = br32(bp, B44_IMASK);
+ 
+-	/* ??? What the fuck is the purpose of the interrupt mask
+-	 * ??? register if we have to mask it out by hand anyways?
++	/* The interrupt mask register controls which interrupt bits
++	 * will actually raise an interrupt to the CPU when set by hw/firmware,
++	 * but doesn't mask off the bits.
+ 	 */
+ 	istat &= imask;
+ 	if (istat) {
+diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+index 8d04752..726ec5e 100644
+--- a/drivers/net/e1000/e1000_main.c
++++ b/drivers/net/e1000/e1000_main.c
+@@ -4800,6 +4800,9 @@ #endif
+ 	if (adapter->hw.phy_type == e1000_phy_igp_3)
+ 		e1000_phy_powerdown_workaround(&adapter->hw);
+ 
++	if (netif_running(netdev))
++		e1000_free_irq(adapter);
++
+ 	/* Release control of h/w to f/w.  If f/w is AMT enabled, this
+ 	 * would have already happened in close and is redundant. */
+ 	e1000_release_hw_control(adapter);
+@@ -4830,6 +4833,10 @@ e1000_resume(struct pci_dev *pdev)
+ 	pci_enable_wake(pdev, PCI_D3hot, 0);
+ 	pci_enable_wake(pdev, PCI_D3cold, 0);
+ 
++	if (netif_running(netdev) && (err = e1000_request_irq(adapter)))
++		return err;
++
++	e1000_power_up_phy(adapter);
+ 	e1000_reset(adapter);
+ 	E1000_WRITE_REG(&adapter->hw, WUS, ~0);
+ 

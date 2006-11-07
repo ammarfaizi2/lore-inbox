@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWKGQJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbWKGQKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965225AbWKGQJj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 11:09:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWKGQJi
+	id S965186AbWKGQKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 11:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965253AbWKGQKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 11:09:38 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31901 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965225AbWKGQJi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 11:09:38 -0500
-Subject: [PATCH] tty_ioctl: use termios for the old structure and termios2
-	for the new
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Nov 2006 16:13:09 +0000
-Message-Id: <1162915989.11073.76.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 7 Nov 2006 11:10:08 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:18587 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S965186AbWKGQKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 11:10:05 -0500
+Date: Tue, 7 Nov 2006 09:10:05 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jeff Layton <jlayton@redhat.com>
+Cc: Eric Sandeen <sandeen@redhat.com>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels that offer x86 compatability
+Message-ID: <20061107161004.GS27140@parisc-linux.org>
+References: <1162836725.6952.28.camel@dantu.rdu.redhat.com> <20061106182222.GO27140@parisc-linux.org> <1162838843.12129.8.camel@dantu.rdu.redhat.com> <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com> <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com> <1162914966.28425.24.camel@dantu.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1162914966.28425.24.camel@dantu.rdu.redhat.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having split out the user and kernel structures it turns out that some
-non glibc C libraries pull their termios struct from the kernel headers
-directly or indirectly. This means we must keep "struct termios" as the
-library sees it correct for the old ioctls. Not a big problem just
-shuffle the names and ifdef around a bit
+On Tue, Nov 07, 2006 at 10:56:06AM -0500, Jeff Layton wrote:
+>  retry:
+> -	if (counter > max_reserved) {
+> -		head = inode_hashtable + hash(sb,counter);
+> -		res = counter++;
+> +	if (sb->s_lastino >= max_reserved) {
+> +		head = inode_hashtable + hash(sb,++sb->s_lastino);
+> +		res = sb->s_lastino;
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+I think it'd be clearer to write this as:
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc4-mm1/drivers/char/tty_ioctl.c linux-2.6.19-rc4-mm1/drivers/char/tty_ioctl.c
---- linux.vanilla-2.6.19-rc4-mm1/drivers/char/tty_ioctl.c	2006-10-31 21:11:49.000000000 +0000
-+++ linux-2.6.19-rc4-mm1/drivers/char/tty_ioctl.c	2006-11-07 10:05:02.000000000 +0000
-@@ -408,14 +408,18 @@
- 	} else if (opt & TERMIOS_OLD) {
- 		memcpy(&tmp_termios, tty->termios, sizeof(struct termios));
- 		if (user_termios_to_kernel_termios_1(&tmp_termios,
--						(struct termios_v1 __user *)arg))
-+						(struct termios __user *)arg))
- 			return -EFAULT;
--#endif
- 	} else {
- 		if (user_termios_to_kernel_termios(&tmp_termios,
--						(struct termios __user *)arg))
-+						(struct termios2 __user *)arg))
- 			return -EFAULT;
- 	}
-+#else
-+	else if (user_termios_to_kernel_termios(&tmp_termios,
-+					(struct termios __user *)arg))
-+		return -EFAULT;
-+#endif
- 
- 	/* If old style Bfoo values are used then load c_ispeed/c_ospeed with the real speed
- 	   so its unconditionally usable */
-@@ -707,11 +711,11 @@
- 			return 0;
- #else
- 		case TCGETS:
--			if (kernel_termios_to_user_termios_1((struct termios_v1 __user *)arg, real_tty->termios))
-+			if (kernel_termios_to_user_termios_1((struct termios __user *)arg, real_tty->termios))
- 				return -EFAULT;
- 			return 0;
- 		case TCGETS2:
--			if (kernel_termios_to_user_termios((struct termios __user *)arg, real_tty->termios))
-+			if (kernel_termios_to_user_termios((struct termios2 __user *)arg, real_tty->termios))
- 				return -EFAULT;
- 			return 0;
- 		case TCSETSF2:
+		res = ++sb->s_lastino;
+		head = inode_hashtable + hash(sb, res);
 
+My eye skipped over the preincrement entirely the way it's currently
+written.
+
+>  		inode = find_inode_fast(sb, head, res);
+>  		if (!inode) {
+>  			spin_unlock(&inode_lock);
+>  			return res;
+>  		}
+>  	} else {
+> -		counter = max_reserved + 1;
+> +		 sb->s_lastino = max_reserved;
+>  	}
+>  	goto retry;
+>  	

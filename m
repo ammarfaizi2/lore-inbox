@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754099AbWKGIXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754112AbWKGIZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754099AbWKGIXc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 03:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754107AbWKGIXc
+	id S1754112AbWKGIZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 03:25:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754113AbWKGIZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 03:23:32 -0500
-Received: from www.osadl.org ([213.239.205.134]:414 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1754099AbWKGIXb (ORCPT
+	Tue, 7 Nov 2006 03:25:29 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11397 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1754112AbWKGIZ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 03:23:31 -0500
-Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
-	[2.6.18-rc4-mm1]
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Len Brown <lenb@kernel.org>, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+	Tue, 7 Nov 2006 03:25:28 -0500
+Date: Tue, 7 Nov 2006 09:24:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Len Brown <lenb@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20061107080733.GB9910@elte.hu>
-References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
-	 <1162830033.4715.201.camel@localhost.localdomain>
-	 <20061106205825.GA26755@rhlx01.hs-esslingen.de>
-	 <200611070141.16593.len.brown@intel.com>  <20061107080733.GB9910@elte.hu>
-Content-Type: text/plain
-Date: Tue, 07 Nov 2006 09:25:35 +0100
-Message-Id: <1162887935.4715.349.camel@localhost.localdomain>
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
+Message-ID: <20061107082434.GA13585@elte.hu>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de> <1162830033.4715.201.camel@localhost.localdomain> <20061106205825.GA26755@rhlx01.hs-esslingen.de> <200611070141.16593.len.brown@intel.com> <20061107081839.GA26290@rhlx01.hs-esslingen.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061107081839.GA26290@rhlx01.hs-esslingen.de>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-07 at 09:07 +0100, Ingo Molnar wrote:
-> * Len Brown <len.brown@intel.com> wrote:
+
+* Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+
+> The results are (waited for values to settle down each time):
 > 
-> > So given that C3 on every known system that has shipped to date breaks 
-> > the LAPIC timer (and apparently this applies to C2 on these AMD 
-> > boxes), dynticks needs a solid story for co-existing with C3.
+> -dyntick4, C1, CONFIG_NO_HZ:
+>      83.9W KDE idle, 95.2W bash while 1
+> -dyntick4, C2 (C1-only hack disabled, kernel rebuilt), CONFIG_NO_HZ off:
+>      84.4W KDE idle, 95.4W bash while 1
+> -dyntick4, acpi=off (i.e. APM active), -dynticks:
+>      85.5W KDE idle, 95.5W bash while 1
 > 
-> check out 2.6.19-rc4-mm2: it detects this breakage and works it around 
-> by using the PIT as a clock-events source. That did the trick on my 
-> laptop which has this problem too. I agree with you that degrading the 
-> powersaving mode is not an option.
+> Bet you didn't see this coming...
 
-Andreas tested with the latest -mm1-hrt-dyntick patches, so he has all
-the checks already. The thing which worries me here is, that we detect
-the breakage and use the fallback path already, but it still has this
-weird effect on that system, while others just work fine. I'm cooking a
-more brute force fallback right now.
+interesting that there's any savings from dynticks in this workload. 
+When the CPU is busy then dynticks generates the usual HZ scheduler 
+tick.
 
-	tglx
+could you try the same measurement with a completely idle system too? 
+That is where dynticks has its true effects: longer idle intervals. (but 
+even on an idle system dynticks might not make a difference unless the 
+hardware can utilize the much larger and more predictable idle times 
+that dynticks offers.)
 
-
+	Ingo

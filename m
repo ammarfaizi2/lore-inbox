@@ -1,86 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753971AbWKGCu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753980AbWKGDoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753971AbWKGCu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Nov 2006 21:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753967AbWKGCu7
+	id S1753980AbWKGDoT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Nov 2006 22:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753979AbWKGDoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Nov 2006 21:50:59 -0500
-Received: from nz-out-0102.google.com ([64.233.162.196]:60036 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1753970AbWKGCu6 convert rfc822-to-8bit (ORCPT
+	Mon, 6 Nov 2006 22:44:19 -0500
+Received: from thunk.org ([69.25.196.29]:39810 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1753977AbWKGDoS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Nov 2006 21:50:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WRrNk2/PuJKSN6B4znGUENBel3BkMZBg40YPKLN2eTDyzunvB0qUVLK6xoXaZFKqeuv3WVg7C6vgUn2muPVO1K8VPUMuZEbRXSBCPp9WYJGESckBlxBRSAwHkoHbEtE9d81oUZPDiEq6KcUv6YRnQWfGLS2mE26REKniXqYPa6o=
-Message-ID: <f55850a70611061850i47ca73adt6a5c71e6732db69e@mail.gmail.com>
-Date: Tue, 7 Nov 2006 10:50:57 +0800
-From: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
-Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
-Cc: linux-kernel@vger.kernel.org, "Linux Netdev List" <netdev@vger.kernel.org>
-In-Reply-To: <454F6483.4010307@osdl.org>
+	Mon, 6 Nov 2006 22:44:18 -0500
+Date: Mon, 6 Nov 2006 22:43:44 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Eric Sandeen <sandeen@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] - revert generic_fillattr stat->blksize to PAGE_CACHE_SIZE
+Message-ID: <20061107034344.GA23959@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Eric Sandeen <sandeen@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-fsdevel <linux-fsdevel@vger.kernel.org>
+References: <454FAE0A.3070409@redhat.com> <20061106230547.GA29711@infradead.org> <454FC20F.8040206@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
-	 <454EE580.5040506@cosmosbay.com> <454F6483.4010307@osdl.org>
-To: unlisted-recipients:; (no To-header on input)
+In-Reply-To: <454FC20F.8040206@redhat.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/06, Stephen Hemminger <shemminger@osdl.org> wrote:
-> Eric Dumazet wrote:
-> > Zhao Xiaoming a écrit :
-> >> Dears,
-> >>    I'm running a linux box with kernel version 2.6.16. The hardware
-> >> has 2 Woodcrest Xeon CPUs (2 cores each) and 4G RAM. The NIC cards is
-> >> Intel 82571 on PCI-e bus.
-> >>    The box is acting as ethernet bridge between 2 Gigabit Ethernets.
-> >> By configuring ebtables and iptables, an application is running as TCP
-> >> proxy which will intercept all TCP connections requests from the
-> >> network and setup another TCP connection to the acture server.  The
-> >> TCP proxy then relays all traffics in both directions.
-> >>    The problem is the memory. Since the box must support thousands of
-> >> concurrent connections, I know the memory size of ZONE_NORMAL would be
-> >> a bottleneck as TCP packets would need many buffers. After setting
-> >> upper limit of net.ipv4.tcp_rmem and net.ipv4.tcp_wmem to 32K bytes,
-> >> our test began.
-> >>    My test scenario employs 2000 concurrent downloading connections
-> >> to a IIS server's port 80. The throughput is about 500~600 Mbps which
-> >> is limited by the capability of the client application. Because all
-> >> traffics are from server to client and the capability of client
-> >> machine is bottleneck, I believe the receiver side of the sockets
-> >> connected with server and the sender side of the sockets connected
-> >> with client should be filled with packets in correspondent windows.
-> >> Thus, roughly there should be about 32K * 2000+ 32K*2000 = 128M bytes
-> >> memory occupied by TCP/IP stack for packet buffering. Data from
-> >> slabtop confermed it. it's about 140M bytes memory cost after I start
-> >> the traffic. That reasonablly matched with my estimation. However,
-> >> /proc/meminfo had a different story. The 'LowFree' dropped from about
-> >> 710M to 80M. In other words, there's addtional 500M memory in
-> >> ZONE_NORMAL allocated by someone other than the slab. Why?
-> The amount of memory per socket is controlled by the socket buffering.
-> Your application
-> could be setting the value by calling setsockopt(). Otherwise, the tcp
-> memory is limited
-> by the sysctl settings tcp_rmem (receiver) and tcp_wmem (sender).
->
-> For example on this server:
-> $ cat /proc/sys/net/ipv4/tcp_wmem
-> 4096    16384   131072
->
-> Each sending socket would start with 16K of buffering, but could grow up
-> to 128K based
-> on TCP send autotuning.
->
->
->
-Of course I can change the TCP buffers and I already discribed I set
-both uppper limit of tcp_rmem and tcp_wmem to 32K. And if you go
-through my former posts, you should notic that TCP stack on my machine
-only occupied 34K memory pages for buffering which is close to my
-theoretical estimation: 128M. But at the same time, my free LOMEM size
-decreased from over 700M to less than 100M. The question is where the
-additional 500M bytes gone?
+On Mon, Nov 06, 2006 at 05:15:27PM -0600, Eric Sandeen wrote:
+> Christoph Hellwig wrote:
+> > On Mon, Nov 06, 2006 at 03:50:02PM -0600, Eric Sandeen wrote:
+> >> so I would propose the following patch to make PAGE_CACHE_SIZE the default (again), 
+> >> and let filesystems which need something -else- do that on their own.
+> > 
+> > I agree with the conclusion, but the patch is incomplete.  You went down
+> > all the way to find out what the fileystems do in this messages, so add
+> > the hunks to override the defaults for non-standard filesystems to the
+> > patch aswell to restore the pre-inode diet state.
+> 
+> Well, agreed.  I put 80% or more back to pre-patch state, but not all.
+> :)  So it's less broken with my patch than without, so at least it's
+> moving forward.  So... Ted's patches get in w/o fixing up all the other
+> filesystems (left as an exercise to the patch reader) but mine can't? :)
+
+Note that *I* wasn't the one who changed it from PAGE_CACHE_SIZE to (1
+<< inode->i_blkbits).  This was done by Andrew.  (See below, from an
+e-mail dated September 19th).
+
+Given that Steve French was cc'ed, I assume this was done as a hack to
+fix CIFS, but it was a bad idea; I agree that PAGE_CACHE_SIZE is a way
+better default than (1 << inode->i_blkbits).
+
+As far as fixing all of the other filesystems, I did *try*; I know I
+screwed up with XFS, but that's because I still think the code is a
+screaming horror of indirections that make it impossible to understand
+what the heck is going on, and I guess I screwed up with CIFS.  Some
+of the changes away from "pre inode diet" state were deliberate,
+though, since some filesystems had very clearly broken "optimal I/O
+sizes" of 512, and one even had something incredibly bogus that was
+something like 96 bytes (!) if I remember correctly.
+
+					- Ted
+
+
+Subject: inode-diet-eliminate-i_blksize-and-use-a-per-superblock-default-fix-fix
+From: Andrew Morton <akpm@osdl.org>
+
+Cc: <sbenni@gmx.de>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Steven French <sfrench@us.ibm.com>,
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ fs/stat.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN
+fs/stat.c~inode-diet-eliminate-i_blksize-and-use-a-per-superblock-default-fix-fi
+x fs/stat.c
+---
+a/fs/stat.c~inode-diet-eliminate-i_blksize-and-use-a-per-superblock-default-fix-
+fix
++++ a/fs/stat.c
+@@ -33,7 +33,7 @@ void generic_fillattr(struct inode *inod
+        stat->ctime = inode->i_ctime;
+        stat->size = i_size_read(inode);
+        stat->blocks = inode->i_blocks;
+-       stat->blksize = PAGE_CACHE_SIZE;
++       stat->blksize = (1 << inode->i_blkbits);
+ }
+
+ EXPORT_SYMBOL(generic_fillattr);
+_
+

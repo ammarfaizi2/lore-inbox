@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754237AbWKGSTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965675AbWKGSVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754237AbWKGSTK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 13:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965673AbWKGSTJ
+	id S965675AbWKGSVR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 13:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965686AbWKGSVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 13:19:09 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63450 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1754224AbWKGSTG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 13:19:06 -0500
-Date: Tue, 7 Nov 2006 10:18:44 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org, mm-commits@vger.kernel.org,
-       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
-In-Reply-To: <20061107095049.B3262@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0611071015030.4249@schroedinger.engr.sgi.com>
-References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
- <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>
- <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
- <20061107095049.B3262@unix-os.sc.intel.com>
+	Tue, 7 Nov 2006 13:21:17 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:4547 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965675AbWKGSVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 13:21:17 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: olson@pathscale.com
+Cc: "Bryan O'Sullivan" <bos@serpentine.com>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+	<20061105064801.GV13381@stusta.de>
+	<m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
+	<20061107042214.GC8099@stusta.de> <45501730.8020802@serpentine.com>
+	<m1psbzbpxw.fsf@ebiederm.dsl.xmission.com>
+	<4550B22C.1060307@serpentine.com>
+	<m18xinb1qn.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0611070934570.25925@topaz.pathscale.com>
+Date: Tue, 07 Nov 2006 11:20:20 -0700
+In-Reply-To: <Pine.LNX.4.64.0611070934570.25925@topaz.pathscale.com> (Dave
+	Olson's message of "Tue, 7 Nov 2006 09:37:07 -0800 (PST)")
+Message-ID: <m1mz739l0b.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006, Siddha, Suresh B wrote:
+Dave Olson <olson@pathscale.com> writes:
 
-> tasklet_schedule doesn't schedule if there is already one scheduled.
+> On Tue, 7 Nov 2006, Eric W. Biederman wrote:
+> | Huh?  As I read the ipath code I am passing you the value that needs to go
+> | into ipath->int_config and thus into dd->ipath_kregs->kr_interrupt_config.
+>
+> Yes.
+>
+> | Sure it is coming as 2 32bit words instead of a one big 64 bit one, but
+> | that is simple to fix.
+>
+> It would be cleaner, but not absolutely necessary.
+>
+> | If your card doesn't pay attention to configuration space access cycles then
+> | there should be no reason to write the value there.   If your card does pay
+> | attention to the configuration space access cycles it should be trivial to
+> | make this work.
+>
+> The card does pay attention, and other programs such as lspci and the
+> like also look at the config space.  They should definitely be kept
+> in sync, and config writes are fairly cheap, anyway.
 
-Right. 
+Well this is a rathole so it really isn't safe for lspci to play with
+(races with the kernel accessing it)
 
-/* Tasklets --- multithreaded analogue of BHs.
+This hole concept of you having the register but not connecting it up on
+the card is rather bizarre.
 
-   Main feature differing them of generic softirqs: tasklet
-   is running only on one CPU simultaneously.
+> | If you really need to write to both the config space registers and your
+> | magic shadow copy of the register I can certainly do the config space
+> | writes for you.  I just figured it would be more efficient not to.
+>
+> The HT layer should always do the config updates, since you are trying
+> to clean up that layer.  Only the "extra" stuff (if any) should be done by
+> the callback.
 
-   Main feature differing them of BHs: different tasklets
-   may be run simultaneously on different CPUs.
+Fine by me.  That's why the patch was up for review.  That is just moving
+the if statement I currently have.  So it should be trivial.  If that
+won't break your card that is good enough for me.
 
-   Properties:
-   * If tasklet_schedule() is called, then tasklet is guaranteed
-     to be executed on some cpu at least once after this.
-
-^^^^ Crap. Not equivalent. Must be guaranteed to run on the same cpu.
-
-   * If the tasklet is already scheduled, but its excecution is still not
-     started, it will be executed only once.
-   * If this tasklet is already running on another CPU (or schedule is called
-     from tasklet itself), it is rescheduled for later.
-   * Tasklet is strictly serialized wrt itself, but not
-     wrt another tasklets. If client needs some intertask synchronization,
-     he makes it with spinlocks.
- */
-
+Eric

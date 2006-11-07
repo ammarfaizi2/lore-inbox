@@ -1,87 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753250AbWKGUsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753309AbWKGUuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753250AbWKGUsH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:48:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753251AbWKGUsH
+	id S1753309AbWKGUuL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753331AbWKGUuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:48:07 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:37290 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1753250AbWKGUsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:48:04 -0500
-Date: Tue, 07 Nov 2006 15:37:19 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Faustian Pact between Novell and Microsoft
-In-reply-to: <4550E910.6010107@wolfmountaingroup.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Bernd Petrovitsch <bernd@firmix.at>, Pavel Machek <pavel@ucw.cz>,
-       Petr Baudis <pasky@suse.cz>
-Message-id: <200611071537.19263.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <454A7BBB.10403@wolfmountaingroup.com>
- <4550BA59.1000701@wolfmountaingroup.com>
- <4550E910.6010107@wolfmountaingroup.com>
-User-Agent: KMail/1.7
+	Tue, 7 Nov 2006 15:50:10 -0500
+Received: from smtp-out.google.com ([216.239.33.17]:55233 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1753309AbWKGUuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:50:08 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:mime-version:
+	content-type:content-transfer-encoding:content-disposition;
+	b=VCqowS8U9cvYb7rOdbf0MMT2Yo8l1mxoFbq77+z4X6z8/0i8IGXgXQ14SRnTBf6Lx
+	k+lwWBSLuKx3l9OQUFrsQ==
+Message-ID: <8f95bb250611071249i6cf92b98p99d4b08275de6656@mail.gmail.com>
+Date: Tue, 7 Nov 2006 12:49:53 -0800
+From: "Aaron Durbin" <adurbin@google.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: [PATCH] Update MMCONFIG resource insertion to check against e820 map.
+Cc: linux-kernel@vger.kernel.org, "Matthew Wilcox" <matthew@wil.cx>,
+       "Jeff Chua" <jeff.chua.linux@gmail.com>, discuss@x86-64.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 November 2006 15:14, Jeff V. Merkey wrote:
->Jeff V. Merkey wrote:
->> Bernd Petrovitsch wrote:
->>> On Tue, 2006-11-07 at 09:18 +0100, Pavel Machek wrote:
->>> [...]
->>>
->>>> This is a watershed moment for Linux. It fundamentally changes the
->>>> rules of the game. We're really excited about this deal, and we hope
->>>> you are too.
->>>>
->>>> (from http://www.novell.com/linux/microsoft/openletter.html) only
->>>> make it worse, but acquisition? I'd hope not even mickey$oft has
->>>> enough cash for _that_.
->>>
->>> And the first point in the list is "patents" ....
->>>
->>>     Bernd
->>
->> I can see the lights are coming on now for some folks now.
->> Jeff
->
-><snip>
->
->/"Microsoft made it clear that only SUSE users and developers, as well
->as unsalaried Linux developers, are protected. 'Let me be clear about
->one thing, we don't license our intellectual property to Linux because
->of the way Linux licensing GPL framework works, that's not really a
->possibility,' said Microsoft chief executive, Steve Ballmer. 'Novell is
->actually just a proxy for its customers, and it's only for its
->customers,' he added. 'This does not apply to any forms of Linux other
->than Novell's SUSE Linux. And if people want to have peace and
->interoperability, they'll look at Novell's SUSE Linux. If they make
->other choices, they have all of the compliance and intellectual property
->issues that are associated with that.'"
->
-></snip>
->
->And those lights are bright indeed ....
->
->Jeff
+Check to see if MMCONFIG region is marked as reserved in the e820 map before
+inserting the MMCONFIG region into the resource map. If the region is not
+entirely marked as reserved in the e820 map attempt to find a region that is.
+Only insert the MMCONFIG region into the resource map if there was a region
+found marked as reserved in the e820 map.  This should fix a known regression
+in 2.6.19 by not reserving all of the I/O space on misconfigured systems.
 
-Amen, Jeff, now where did I put my sunglasses, I want to watch this as 
-carefully as I watched the SCO debacle, at least till the outcome is 
-carved in legal decisions rendered.  In a pinch I can go get my welding 
-helmet, its can auto-darken to ND13.  But at that brightness, I want all 
-bare skin covered too, else instant sunburns...
+---
 
+This patch is against 2.6.19-rc4.
+
+ arch/x86_64/pci/mmconfig.c |   76 ++++++++++++++++++++++++++++++++++++++------
+ 1 files changed, 65 insertions(+), 11 deletions(-)
+
+diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
+index e61093b..c39ec4d 100644
+--- a/arch/x86_64/pci/mmconfig.c
++++ b/arch/x86_64/pci/mmconfig.c
+@@ -163,33 +163,87 @@ static __init void unreachable_devices(v
+ 	}
+ }
+
++#define PCI_MMCFG_RESOURCE_NAME_LEN 19
++/* Check the given mcfg_entry to see if its reported address range is marked
++ * as reserved in the e820 map. If it is not entirely marked as reserved it
++ * attempts to find a given bus range that is marked as reserved. If no range
++ * is determined, do not insert the MCFG resource into the resource map. */
++static __init void pci_mmcfg_check_and_insert_resource(int mcfg_entry,
++						      struct resource *res)
++{
++	struct acpi_table_mcfg_config *mcfg;
++	unsigned start_bus_num, end_bus_num;
++	unsigned num_buses;
++
++	mcfg = &pci_mmcfg_config[mcfg_entry];
++
++	start_bus_num = mcfg->start_bus_number;
++	end_bus_num = mcfg->end_bus_number;
++
++	if (end_bus_num < start_bus_num) {
++		printk(KERN_ERR "PCI: BIOS Bug: MCFG region %u has "
++				"misconfigured bus entries [%u,%u].\n",
++				mcfg_entry, mcfg->start_bus_number,
++				mcfg->end_bus_number);
++		return;
++	}
++
++	while (end_bus_num >= start_bus_num) {
++		num_buses = end_bus_num - start_bus_num + 1;
++		if (e820_all_mapped(mcfg->base_address,
++				mcfg->base_address + (num_buses << 20) -1,
++				E820_RESERVED))
++			break;
++		end_bus_num--;
++	}
++
++	if (mcfg->end_bus_number != end_bus_num) {
++		unsigned long end_addr;
++		unsigned long start_addr;
++		start_addr = mcfg->base_address;
++		num_buses = mcfg->end_bus_number - mcfg->start_bus_number + 1;
++		end_addr =  mcfg->base_address + (num_buses << 20) - 1;
++		printk(KERN_ERR "PCI: BIOS Bug: MCFG region %u not entirely "
++				"marked as e280-reserved (%016lx-%016lx).\n",
++			mcfg_entry, start_addr, end_addr);
++	}
++
++	/* If we could not find a region reserved in the e820 then we should
++	 * not reserve the resource. We will hope for the best that there
++	 * are no collisions. */
++	if (end_bus_num < start_bus_num)
++		return;
++
++	/* Fixup the resource limits for allocation without affecting the
++	 * reported bus number limits in the MCFG table. */
++	num_buses = end_bus_num - start_bus_num + 1;
++	res->start = mcfg->base_address;
++	res->end = res->start + (num_buses << 20) - 1;
++
++	snprintf((char *)res->name, PCI_MMCFG_RESOURCE_NAME_LEN,
++		 "PCI MMCONFIG %u", mcfg->pci_segment_group_number);
++	res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
++	insert_resource(&iomem_resource, res);
++}
++
+ static __init void pci_mmcfg_insert_resources(void)
+ {
+-#define PCI_MMCFG_RESOURCE_NAME_LEN 19
+ 	int i;
+ 	struct resource *res;
+ 	char *names;
+-	unsigned num_buses;
+
+ 	res = kcalloc(PCI_MMCFG_RESOURCE_NAME_LEN + sizeof(*res),
+ 			pci_mmcfg_config_num, GFP_KERNEL);
+
+ 	if (!res) {
+-		printk(KERN_ERR "PCI: Unable to allocate MMCONFIG resources\n");
++		printk(KERN_ERR "PCI: Unable to allocate MMCONFIG resources.\n");
+ 		return;
+ 	}
+
+ 	names = (void *)&res[pci_mmcfg_config_num];
+ 	for (i = 0; i < pci_mmcfg_config_num; i++, res++) {
+-		num_buses = pci_mmcfg_config[i].end_bus_number -
+-		    pci_mmcfg_config[i].start_bus_number + 1;
+ 		res->name = names;
+-		snprintf(names, PCI_MMCFG_RESOURCE_NAME_LEN, "PCI MMCONFIG %u",
+-			pci_mmcfg_config[i].pci_segment_group_number);
+-		res->start = pci_mmcfg_config[i].base_address;
+-		res->end = res->start + (num_buses << 20) - 1;
+-		res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
+-		insert_resource(&iomem_resource, res);
++		pci_mmcfg_check_and_insert_resource(i, res);
+ 		names += PCI_MMCFG_RESOURCE_NAME_LEN;
+ 	}
+ }
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+1.4.2.1.g4daf

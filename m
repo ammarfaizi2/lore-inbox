@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752745AbWKGU7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752626AbWKGVBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752745AbWKGU7P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752629AbWKGU7P
+	id S1752626AbWKGVBp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 16:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752638AbWKGVBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:59:15 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:16870 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1752626AbWKGU7O (ORCPT
+	Tue, 7 Nov 2006 16:01:45 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:54220 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1752626AbWKGVBp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:59:14 -0500
-Date: Tue, 7 Nov 2006 12:59:05 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
-       mm-commits@vger.kernel.org, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
-In-Reply-To: <20061107203147.GB4753@elte.hu>
-Message-ID: <Pine.LNX.4.64.0611071258280.5516@schroedinger.engr.sgi.com>
-References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
- <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>
- <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
- <20061107095049.B3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611071113390.4582@schroedinger.engr.sgi.com>
- <20061107203147.GB4753@elte.hu>
+	Tue, 7 Nov 2006 16:01:45 -0500
+Date: Tue, 7 Nov 2006 13:01:44 -0800 (PST)
+From: Dave Olson <olson@pathscale.com>
+Reply-To: olson@pathscale.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Bryan O'Sullivan" <bos@serpentine.com>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
+In-Reply-To: <m1wt677zgr.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.64.0611071258220.8122@topaz.pathscale.com>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+ <20061105064801.GV13381@stusta.de> <m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
+ <20061107042214.GC8099@stusta.de> <45501730.8020802@serpentine.com>
+ <m1psbzbpxw.fsf@ebiederm.dsl.xmission.com> <4550B22C.1060307@serpentine.com>
+ <m18xinb1qn.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0611070934570.25925@topaz.pathscale.com>
+ <m1mz739l0b.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0611071228230.8122@topaz.pathscale.com>
+ <m1wt677zgr.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006, Ingo Molnar wrote:
+On Tue, 7 Nov 2006, Eric W. Biederman wrote:
+| > Displaying something that might change is a fact of life, and no
+| > different than the PCI world.  It's still best to keep things as
+| > correct as possible.
+| 
+| No.  I was thinking of the rat hole in pci config space you have to
+| access to read these registers.  You have to actively write a pci
+| config value to select which register you are going to read.
+| 
+| So by default it is not safe to touch this value from user space,
+| because you could mess up the kernel, if the kernel is updating the
+| value.
 
-> Per-CPU tasklets are equivalent to softirqs, with extra complexity and 
-> overhead ontop of it :-)
-> 
-> so please just introduce a rebalance softirq and attach the scheduling 
-> rebalance tick to it. But i'd suggest to re-test on the 4096-CPU box, 
-> maybe what 'fixed' your workload was the global serialization of the 
-> tasklet. With a per-CPU softirq approach we are i think back to the same 
-> situation that broke your system before.
+Nonetheless, as root, lspci already does that (it displays the MSI
+interrupt info).  I  wasn't talking about fixing that, just saying
+that having the data being as correct as possible, is highly
+desirable.   We can't know everything that everybody is doing with
+the data.
 
-What broke the system was the disabling of interrupts over long time 
-periods during load balancing.
+Improvements in the pciutils library and locking with respect to the
+kernel may well be desirable, but are an independent issue from
+correctness.
 
+Dave Olson
+dave.olson@qlogic.com

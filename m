@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754247AbWKGS3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754252AbWKGSa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754247AbWKGS3a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 13:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754250AbWKGS3a
+	id S1754252AbWKGSa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 13:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754255AbWKGSa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 13:29:30 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:24994 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1754246AbWKGS33
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 13:29:29 -0500
-Message-ID: <4550D004.1060206@zytor.com>
-Date: Tue, 07 Nov 2006 10:27:16 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Auke Kok <auke-jan.h.kok@intel.com>
-CC: linux-kernel@vger.kernel.org, saw@saw.sw.com.sg, thockin@hockin.org,
-       me@privacy.net
-Subject: Re: Intel 82559 NIC corrupted EEPROM
-References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com> <45506C9A.5010009@privacy.net> <4550BF91.2020403@zytor.com> <4550C5D1.3040601@intel.com>
-In-Reply-To: <4550C5D1.3040601@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 13:30:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53894 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1754252AbWKGSaz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 13:30:55 -0500
+Date: Tue, 7 Nov 2006 18:30:46 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Subject: [PATCH 2.6.19 2/5] dm: suspend: fix error path
+Message-ID: <20061107183046.GD6993@agk.surrey.redhat.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Auke Kok wrote:
-> 
-> (Please CC either me or at netdev on all intel nic drivers. thanks. I 
-> removed `john@privacy.net` since it throws a bounce, and 
-> linux.nics@intel.com is a support address only, doesn't reach us 
-> developers)
-> 
+If the device is already suspended, just return the error and skip the
+code that would incorrectly wipe md->suspended_bdev.
 
-I think John <me@privacy.net> is the one who can actually answer your 
-questions...
+(This isn't currently a problem because existing code avoids
+calling this function if the device is already suspended.)
 
-	-hpa
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+Cc: dm-devel@redhat.com
+
+Index: linux-2.6.19-rc4/drivers/md/dm.c
+===================================================================
+--- linux-2.6.19-rc4.orig/drivers/md/dm.c	2006-11-07 17:06:27.000000000 +0000
++++ linux-2.6.19-rc4/drivers/md/dm.c	2006-11-07 17:07:57.000000000 +0000
+@@ -1285,7 +1285,7 @@ int dm_suspend(struct mapped_device *md,
+ 	down(&md->suspend_lock);
+ 
+ 	if (dm_suspended(md))
+-		goto out;
++		goto out_unlock;
+ 
+ 	map = dm_get_table(md);
+ 
+@@ -1361,6 +1361,8 @@ out:
+ 	}
+ 
+ 	dm_table_put(map);
++
++out_unlock:
+ 	up(&md->suspend_lock);
+ 	return r;
+ }

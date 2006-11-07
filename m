@@ -1,149 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753309AbWKGUuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753331AbWKGUv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753309AbWKGUuL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753331AbWKGUuK
+	id S1753331AbWKGUv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753333AbWKGUv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:50:10 -0500
-Received: from smtp-out.google.com ([216.239.33.17]:55233 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1753309AbWKGUuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:50:08 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:mime-version:
-	content-type:content-transfer-encoding:content-disposition;
-	b=VCqowS8U9cvYb7rOdbf0MMT2Yo8l1mxoFbq77+z4X6z8/0i8IGXgXQ14SRnTBf6Lx
-	k+lwWBSLuKx3l9OQUFrsQ==
-Message-ID: <8f95bb250611071249i6cf92b98p99d4b08275de6656@mail.gmail.com>
-Date: Tue, 7 Nov 2006 12:49:53 -0800
-From: "Aaron Durbin" <adurbin@google.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: [PATCH] Update MMCONFIG resource insertion to check against e820 map.
-Cc: linux-kernel@vger.kernel.org, "Matthew Wilcox" <matthew@wil.cx>,
-       "Jeff Chua" <jeff.chua.linux@gmail.com>, discuss@x86-64.org
+	Tue, 7 Nov 2006 15:51:56 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7859 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1753331AbWKGUv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:51:56 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: olson@pathscale.com
+Cc: "Bryan O'Sullivan" <bos@serpentine.com>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+	<20061105064801.GV13381@stusta.de>
+	<m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
+	<20061107042214.GC8099@stusta.de> <45501730.8020802@serpentine.com>
+	<m1psbzbpxw.fsf@ebiederm.dsl.xmission.com>
+	<4550B22C.1060307@serpentine.com>
+	<m18xinb1qn.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0611070934570.25925@topaz.pathscale.com>
+	<m1mz739l0b.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0611071228230.8122@topaz.pathscale.com>
+Date: Tue, 07 Nov 2006 13:51:00 -0700
+In-Reply-To: <Pine.LNX.4.64.0611071228230.8122@topaz.pathscale.com> (Dave
+	Olson's message of "Tue, 7 Nov 2006 12:30:25 -0800 (PST)")
+Message-ID: <m1wt677zgr.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check to see if MMCONFIG region is marked as reserved in the e820 map before
-inserting the MMCONFIG region into the resource map. If the region is not
-entirely marked as reserved in the e820 map attempt to find a region that is.
-Only insert the MMCONFIG region into the resource map if there was a region
-found marked as reserved in the e820 map.  This should fix a known regression
-in 2.6.19 by not reserving all of the I/O space on misconfigured systems.
+Dave Olson <olson@pathscale.com> writes:
 
----
+> On Tue, 7 Nov 2006, Eric W. Biederman wrote:
+> | > | If your card doesn't pay attention to configuration space access cycles
+> then
+> | > | there should be no reason to write the value there.  If your card does pay
+> | > | attention to the configuration space access cycles it should be trivial to
+> | > | make this work.
+> | >
+> | > The card does pay attention, and other programs such as lspci and the
+> | > like also look at the config space.  They should definitely be kept
+> | > in sync, and config writes are fairly cheap, anyway.
+> | 
+> | Well this is a rathole so it really isn't safe for lspci to play with
+> | (races with the kernel accessing it)
+>
+> Displaying something that might change is a fact of life, and no
+> different than the PCI world.  It's still best to keep things as
+> correct as possible.
 
-This patch is against 2.6.19-rc4.
+No.  I was thinking of the rat hole in pci config space you have to
+access to read these registers.  You have to actively write a pci
+config value to select which register you are going to read.
 
- arch/x86_64/pci/mmconfig.c |   76 ++++++++++++++++++++++++++++++++++++++------
- 1 files changed, 65 insertions(+), 11 deletions(-)
+So by default it is not safe to touch this value from user space,
+because you could mess up the kernel, if the kernel is updating the
+value.
 
-diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
-index e61093b..c39ec4d 100644
---- a/arch/x86_64/pci/mmconfig.c
-+++ b/arch/x86_64/pci/mmconfig.c
-@@ -163,33 +163,87 @@ static __init void unreachable_devices(v
- 	}
- }
-
-+#define PCI_MMCFG_RESOURCE_NAME_LEN 19
-+/* Check the given mcfg_entry to see if its reported address range is marked
-+ * as reserved in the e820 map. If it is not entirely marked as reserved it
-+ * attempts to find a given bus range that is marked as reserved. If no range
-+ * is determined, do not insert the MCFG resource into the resource map. */
-+static __init void pci_mmcfg_check_and_insert_resource(int mcfg_entry,
-+						      struct resource *res)
-+{
-+	struct acpi_table_mcfg_config *mcfg;
-+	unsigned start_bus_num, end_bus_num;
-+	unsigned num_buses;
-+
-+	mcfg = &pci_mmcfg_config[mcfg_entry];
-+
-+	start_bus_num = mcfg->start_bus_number;
-+	end_bus_num = mcfg->end_bus_number;
-+
-+	if (end_bus_num < start_bus_num) {
-+		printk(KERN_ERR "PCI: BIOS Bug: MCFG region %u has "
-+				"misconfigured bus entries [%u,%u].\n",
-+				mcfg_entry, mcfg->start_bus_number,
-+				mcfg->end_bus_number);
-+		return;
-+	}
-+
-+	while (end_bus_num >= start_bus_num) {
-+		num_buses = end_bus_num - start_bus_num + 1;
-+		if (e820_all_mapped(mcfg->base_address,
-+				mcfg->base_address + (num_buses << 20) -1,
-+				E820_RESERVED))
-+			break;
-+		end_bus_num--;
-+	}
-+
-+	if (mcfg->end_bus_number != end_bus_num) {
-+		unsigned long end_addr;
-+		unsigned long start_addr;
-+		start_addr = mcfg->base_address;
-+		num_buses = mcfg->end_bus_number - mcfg->start_bus_number + 1;
-+		end_addr =  mcfg->base_address + (num_buses << 20) - 1;
-+		printk(KERN_ERR "PCI: BIOS Bug: MCFG region %u not entirely "
-+				"marked as e280-reserved (%016lx-%016lx).\n",
-+			mcfg_entry, start_addr, end_addr);
-+	}
-+
-+	/* If we could not find a region reserved in the e820 then we should
-+	 * not reserve the resource. We will hope for the best that there
-+	 * are no collisions. */
-+	if (end_bus_num < start_bus_num)
-+		return;
-+
-+	/* Fixup the resource limits for allocation without affecting the
-+	 * reported bus number limits in the MCFG table. */
-+	num_buses = end_bus_num - start_bus_num + 1;
-+	res->start = mcfg->base_address;
-+	res->end = res->start + (num_buses << 20) - 1;
-+
-+	snprintf((char *)res->name, PCI_MMCFG_RESOURCE_NAME_LEN,
-+		 "PCI MMCONFIG %u", mcfg->pci_segment_group_number);
-+	res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
-+	insert_resource(&iomem_resource, res);
-+}
-+
- static __init void pci_mmcfg_insert_resources(void)
- {
--#define PCI_MMCFG_RESOURCE_NAME_LEN 19
- 	int i;
- 	struct resource *res;
- 	char *names;
--	unsigned num_buses;
-
- 	res = kcalloc(PCI_MMCFG_RESOURCE_NAME_LEN + sizeof(*res),
- 			pci_mmcfg_config_num, GFP_KERNEL);
-
- 	if (!res) {
--		printk(KERN_ERR "PCI: Unable to allocate MMCONFIG resources\n");
-+		printk(KERN_ERR "PCI: Unable to allocate MMCONFIG resources.\n");
- 		return;
- 	}
-
- 	names = (void *)&res[pci_mmcfg_config_num];
- 	for (i = 0; i < pci_mmcfg_config_num; i++, res++) {
--		num_buses = pci_mmcfg_config[i].end_bus_number -
--		    pci_mmcfg_config[i].start_bus_number + 1;
- 		res->name = names;
--		snprintf(names, PCI_MMCFG_RESOURCE_NAME_LEN, "PCI MMCONFIG %u",
--			pci_mmcfg_config[i].pci_segment_group_number);
--		res->start = pci_mmcfg_config[i].base_address;
--		res->end = res->start + (num_buses << 20) - 1;
--		res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
--		insert_resource(&iomem_resource, res);
-+		pci_mmcfg_check_and_insert_resource(i, res);
- 		names += PCI_MMCFG_RESOURCE_NAME_LEN;
- 	}
- }
--- 
-1.4.2.1.g4daf
+Eric

@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWKGL7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754208AbWKGL7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWKGL7N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 06:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754205AbWKGL7N
+	id S1754208AbWKGL7w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 06:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754209AbWKGL7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 06:59:13 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:40402 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1754202AbWKGL7L (ORCPT
+	Tue, 7 Nov 2006 06:59:52 -0500
+Received: from mail.kroah.org ([69.55.234.183]:2284 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1754208AbWKGL7v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 06:59:11 -0500
-Date: Tue, 7 Nov 2006 14:58:57 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [take21 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20061107115857.GB13028@2ka.mipt.ru>
-References: <11619654014077@2ka.mipt.ru> <45506D51.30604@garzik.org> <45507232.7010104@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Tue, 7 Nov 2006 06:59:51 -0500
+Date: Tue, 7 Nov 2006 20:53:11 +0900
+From: Greg KH <gregkh@suse.de>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Cc: Wolfgang M?es <wolfgang@iksw-muees.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc4] usb auerswald possible memleak fix
+Message-ID: <20061107115311.GA18587@suse.de>
+References: <200611061903.09320.m.kozlowski@tuxland.pl> <200611070031.52051.m.kozlowski@tuxland.pl> <20061107002734.GA5236@suse.de> <200611071025.15061.m.kozlowski@tuxland.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45507232.7010104@garzik.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 07 Nov 2006 14:59:00 +0300 (MSK)
+In-Reply-To: <200611071025.15061.m.kozlowski@tuxland.pl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2006 at 06:46:58AM -0500, Jeff Garzik (jeff@garzik.org) wrote:
-> At an aside...  This may be useful.  Or not.
+On Tue, Nov 07, 2006 at 10:25:14AM +0100, Mariusz Kozlowski wrote:
+> Witam, 
 > 
-> Al Viro had an interesting idea about kernel<->userspace data passing 
-> interfaces.  He had suggested creating a task-specific filesystem 
-> derived from ramfs.  Through the normal VFS/VM codepaths, the user can 
-> easily create [subject to resource/priv checks] a buffer that is locked 
-> into the pagecache.  Using mmap, read, write, whatever they prefer. 
-> Derive from tmpfs, and the buffers are swappable.
-
-It looks like Al likes filesystems more than any other part of kernel
-tree...
-Existing ring buffer is created in process' memory, so it is swappable
-too (which is probably the most significant part of this ring buffer 
-version), but in theory kevent file descriptor can be obtained not from
-the char device, but from special filesystem (well, it was done in that
-way in first releases but then I was asked to remove such
-functionality).
-
-> Then it would be a simple matter to associate a file stored in 
-> "keventfs" with a ring buffer guaranteed to be pagecache-friendly.
+> > On Tue, Nov 07, 2006 at 12:31:51AM +0100, Mariusz Kozlowski wrote:
+> > > Witam, 
+> > > 
+> > > > Hello,
+> > > > 
+> > > > 	There is possible memleak in auerbuf_setup(). Fix is to replace kfree() with auerbuf_free().
+> > > > An argument to usb_free_urb() does not need a check as usb_free_urb() already does that. Not sure if I should
+> > > > send this in two separate patches. The patch is against 2.6.19-rc4 (not -mm).
+> > > 
+> > > As I posted the bigger usb_free_urb() patch in another mail this one
+> > > should do only one thing which is to fix possible memory leak in
+> > > auerbuf_setup().
+> > 
+> > That is a big patch, care to split it up into smaller pieces like this
+> > one so that it is easier to review and apply?
 > 
-> Heck, that might make zero-copy easier in some cases, too.  And using a 
-> filesystem would mean that you could do all this without adding 
-> syscalls, by using special (poll-able!) files in the filesystem for 
-> control and notification purposes.
+> Sure I can but Andrew already included it in -mm as-is. Do I have to
+> prepare another set of patches and send them to you (which is no
+> problem to me - just not sure how it works)?
 
-There are too many ideas about networking zero-copy both sending and
-receiving, and some of them are even implemented on different layers
-(starting from special allocator down to splice() with additional
-single allocation/copy).
+Please just send a new series of patches to me, and then when they show
+up in my tree, Andrew will drop his patch.
 
-> 	Jeff
+This will also get you to fix your email client so that you can continue
+to send more patches in the future :)
 
--- 
-	Evgeniy Polyakov
+And please CC: usb patches to the linux-usb-devel mailing list, so the
+developers there can comment on them if needed.
+
+thanks,
+
+greg k-h

@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753333AbWKGV6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752463AbWKGWA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753333AbWKGV6E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 16:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753435AbWKGV6D
+	id S1752463AbWKGWA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 17:00:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752622AbWKGWA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 16:58:03 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28084 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1753333AbWKGV6B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 16:58:01 -0500
-Date: Tue, 7 Nov 2006 22:57:49 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Bernd Petrovitsch <bernd@firmix.at>, Petr Baudis <pasky@suse.cz>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Faustian Pact between Novell and Microsoft
-Message-ID: <20061107215748.GA7796@elf.ucw.cz>
-References: <454A7BBB.10403@wolfmountaingroup.com> <20061103014907.GG11916@pasky.or.cz> <454AB477.9040107@wolfmountaingroup.com> <20061107081826.GD21655@elf.ucw.cz> <1162894662.19866.15.camel@tara.firmix.at> <4550BA59.1000701@wolfmountaingroup.com> <4550E910.6010107@wolfmountaingroup.com>
+	Tue, 7 Nov 2006 17:00:58 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33500 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1752463AbWKGWA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 17:00:57 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       olson@pathscale.com, akpm@osdl.org
+Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+	<20061105064801.GV13381@stusta.de>
+	<m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
+	<20061107042214.GC8099@stusta.de> <45501730.8020802@serpentine.com>
+	<m1psbzbpxw.fsf@ebiederm.dsl.xmission.com>
+	<4550B22C.1060307@serpentine.com>
+	<m18xinb1qn.fsf@ebiederm.dsl.xmission.com>
+	<4550FB5D.5010804@serpentine.com>
+Date: Tue, 07 Nov 2006 15:00:12 -0700
+In-Reply-To: <4550FB5D.5010804@serpentine.com> (Bryan O'Sullivan's message of
+	"Tue, 07 Nov 2006 13:32:13 -0800")
+Message-ID: <m18xim9atv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4550E910.6010107@wolfmountaingroup.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Bryan O'Sullivan" <bos@serpentine.com> writes:
 
-> >>>This is a watershed moment for Linux. It fundamentally changes the
-> >>>rules of the game. We're really excited about this deal, and we hope
-> >>>you are too.
-> >>>  
-> >>>(from http://www.novell.com/linux/microsoft/openletter.html) only make
-> >>>it worse, but acquisition? I'd hope not even mickey$oft has enough
-> >>>cash for _that_.
-> >>
-> >>And the first point in the list is "patents" ....
+> Eric W. Biederman wrote:
+>
+>> If you really need to write to both the config space registers and your
+>> magic shadow copy of the register I can certainly do the config space
+>> writes for you.
+>
+> Here's an updated copy of your second patch that does just that.
+>
+> I've also included a preview of the ipath patch that depends on this. With your
+> original patch, my rework of your second patch, and the new ipath patch, the
+> driver is back to working happily for me on top of current -git.
+>
+> I need to test the ipath patch on powerpc before I consider it cooked, but I
+> won't have time to do that today.
 
-> >I can see the lights are coming on now for some folks now.
+Ok.  It looks good except you aren't calling ht_destroy_irq on driver unload.
+Which is a small resource leak.
 
-> <snip>
-> 
-> /"Microsoft made it clear that only SUSE users and developers, as well 
-> as unsalaried Linux developers, are protected. 'Let me be clear about 
-> one thing, we don't license our intellectual property to Linux because 
-> of the way Linux licensing GPL framework works, that's not really a 
-> possibility,' said Microsoft chief executive, Steve Ballmer. 'Novell is 
-> actually just a proxy for its customers, and it's only for its 
-> customers,' he added. 'This does not apply to any forms of Linux other 
-> than Novell's SUSE Linux. And if people want to have peace and 
-> interoperability, they'll look at Novell's SUSE Linux. If they make 
-> other choices, they have all of the compliance and intellectual property 
-> issues that are associated with that.'"
-> 
-> </snip>
-> 
-> And those lights are bright indeed ....
+Cool looks like we have got this one.
 
-Would you care to elaborate? All sorts of red lights are "on" here
-from friday, some of them flashing...
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Eric

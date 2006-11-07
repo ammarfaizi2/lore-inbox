@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752984AbWKGKfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWKGKgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752984AbWKGKfu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 05:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753170AbWKGKft
+	id S1750961AbWKGKgw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 05:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753489AbWKGKgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 05:35:49 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:62249 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1752984AbWKGKft (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 05:35:49 -0500
-Message-ID: <45506177.1070706@sw.ru>
-Date: Tue, 07 Nov 2006 13:35:35 +0300
-From: Vasily Averin <vvs@sw.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Tue, 7 Nov 2006 05:36:52 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:15630 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750961AbWKGKgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 05:36:51 -0500
+Message-ID: <455061BD.3000901@shadowen.org>
+Date: Tue, 07 Nov 2006 10:36:45 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc3-mm1: compilation fails if CONFIG_KEVENT is disabled
-References: <45487246.2080309@sw.ru> <20061107101506.GA26943@2ka.mipt.ru>
-In-Reply-To: <20061107101506.GA26943@2ka.mipt.ru>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=KOI8-R
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: schwidefsky@de.ibm.com, linux390@de.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-390@vm.marist.edu
+Subject: Re: [PATCH] s390 need definitions for pagefault_disable and pagefault_enable
+References: <20061101235407.a92f94a5.akpm@osdl.org> <7e94d9e3967f67b1151689921a21fd65@pinky> <20061107081326.GA7057@osiris.boeblingen.de.ibm.com> <45505B68.7000607@shadowen.org> <20061107101344.GB7057@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20061107101344.GB7057@osiris.boeblingen.de.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: url=http://www.shadowen.org/~apw/public-key
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> On Wed, Nov 01, 2006 at 01:09:10PM +0300, Vasily Averin (vvs@sw.ru) wrote:
->> arch/i386/kernel/built-in.o(.rodata+0x520): In function `sys_call_table':
->> : undefined reference to `sys_kevent_get_events'
->> arch/i386/kernel/built-in.o(.rodata+0x524): In function `sys_call_table':
->> : undefined reference to `sys_kevent_ctl'
->> arch/i386/kernel/built-in.o(.rodata+0x528): In function `sys_call_table':
->> : undefined reference to `sys_kevent_wait'
->> make: *** [.tmp_vmlinux1] Error 1
->> [linux-2.6.19-rc3-mm1]$ grep KEVENT .config
->> CONFIG_GENERIC_CLOCKEVENTS=y
->> # CONFIG_KEVENT is not set
+Heiko Carstens wrote:
+> On Tue, Nov 07, 2006 at 10:09:44AM +0000, Andy Whitcroft wrote:
+>> Heiko Carstens wrote:
+>>> On Mon, Nov 06, 2006 at 06:35:21PM +0000, Andy Whitcroft wrote:
+>>>> diff --git a/arch/s390/lib/uaccess_std.c b/arch/s390/lib/uaccess_std.c
+>>>> index 9bbeaa0..ad296dc 100644
+>>>> --- a/arch/s390/lib/uaccess_std.c
+>>>> +++ b/arch/s390/lib/uaccess_std.c
+>>>> @@ -11,6 +11,8 @@
+>>>>  
+>>>>  #include <linux/errno.h>
+>>>>  #include <linux/mm.h>
+>>>> +#include <linux/uaccess.h>
+>>>> +
+>>>>  #include <asm/uaccess.h>
+>>>>  #include <asm/futex.h>
+>>> http://lkml.org/lkml/2006/11/2/54
+>>>
+>>> ;)
+>> Perhaps it would be helpful if these went out as replies to akpm's -mm
+>> announcement else you have to sift the whole of lkml for them :(.
 > 
-> Could you send output of
-> cat kernel/sys_ni.c | grep kevent 
-> there should be all above syscalls, but it looks like they are not.
+> ??? It was the first reply to the -mm accouncement and that's where you
+> can find it in the tree: http://lkml.org/lkml/2006/11/2/33
 
-Sorry, I've switched to new kernels and removed your tree already. :(
+Applogies, I have no idea what kind of user incompetance led me twice to
+look and miss it.  But for sure its there.
 
-Thank you,
-	Vasily Averin
+-apw

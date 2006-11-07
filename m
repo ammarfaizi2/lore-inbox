@@ -1,126 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752250AbWKGTYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752261AbWKGTZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752250AbWKGTYl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 14:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752190AbWKGTYl
+	id S1752261AbWKGTZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 14:25:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752254AbWKGTZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 14:24:41 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:3237 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S1751803AbWKGTYk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 14:24:40 -0500
-Date: Tue, 7 Nov 2006 13:24:37 -0600
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 12/12] cciss: fix for iostat
-Message-ID: <20061107192437.GM17847@beardog.cca.cpqcorp.net>
-References: <20061106203205.GL17847@beardog.cca.cpqcorp.net> <20061106204550.GI19471@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Nov 2006 14:25:09 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:28402 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1752190AbWKGTZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 14:25:07 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=xMahOTxaNGS170z5exvxlQUp4kCI52BGIqfkTPCaCPWmCqIuHm8kaxuhb66IKNMRA
+	46hmnRCSbK0/YXDdsPi/A==
+Message-ID: <6599ad830611071124p7e0d5b20r67bbc8f8d75b3f44@mail.gmail.com>
+Date: Tue, 7 Nov 2006 11:24:49 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+In-Reply-To: <20061107111131.48a9ae49.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061106204550.GI19471@kernel.dk>
-User-Agent: Mutt/1.5.9i
+References: <20061030031531.8c671815.pj@sgi.com>
+	 <20061031115342.GB9588@in.ibm.com>
+	 <6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
+	 <20061101172540.GA8904@in.ibm.com>
+	 <6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
+	 <20061106124948.GA3027@in.ibm.com>
+	 <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
+	 <20061107104118.f02a1114.pj@sgi.com>
+	 <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
+	 <20061107111131.48a9ae49.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06, 2006 at 09:45:51PM +0100, Jens Axboe wrote:
-> On Mon, Nov 06 2006, Mike Miller (OS Dev) wrote:
-> > Patch 12 of 12
-> > 
-> > This patch replaces complete_buffers with end_that_request_first to fix
-> > programs like iostat. This has been broken for the last few kernel releases.
-> > Please consider this for inclusion.
-> > 
-> > Thanks,
-> > mikem
-> > 
-> > Signed-off-by: Mike Miller <mike.miller@hp.com>
-> > 
-> > 
-> > ---
-> > 
-> > 
-> > ---
-> > 
-> >  drivers/block/cciss.c |   20 ++++----------------
-> >  1 files changed, 4 insertions(+), 16 deletions(-)
-> > 
-> > diff -puN drivers/block/cciss.c~cciss_update_diskstats_fix drivers/block/cciss.c
-> > --- linux-2.6/drivers/block/cciss.c~cciss_update_diskstats_fix	2006-11-06 13:28:53.000000000 -0600
-> > +++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:28:53.000000000 -0600
-> > @@ -1156,18 +1156,6 @@ static int cciss_ioctl(struct inode *ino
-> >  	}
-> >  }
-> >  
-> > -static inline void complete_buffers(struct bio *bio, int status)
-> > -{
-> > -	while (bio) {
-> > -		struct bio *xbh = bio->bi_next;
-> > -		int nr_sectors = bio_sectors(bio);
-> > -
-> > -		bio->bi_next = NULL;
-> > -		bio_endio(bio, nr_sectors << 9, status ? 0 : -EIO);
-> > -		bio = xbh;
-> > -	}
-> > -}
-> > -
-> >  static void cciss_check_queues(ctlr_info_t *h)
-> >  {
-> >  	int start_queue = h->next_to_run;
-> > @@ -1236,15 +1224,15 @@ static void cciss_softirq_done(struct re
-> >  		pci_unmap_page(h->pdev, temp64.val, cmd->SG[i].Len, ddir);
-> >  	}
-> >  
-> > -	complete_buffers(rq->bio, rq->errors);
-> > -
-> >  #ifdef CCISS_DEBUG
-> >  	printk("Done with %p\n", rq);
-> >  #endif				/* CCISS_DEBUG */
-> >  
-> > -	add_disk_randomness(rq->rq_disk);
-> >  	spin_lock_irqsave(&h->lock, flags);
-> > -	end_that_request_last(rq, rq->errors);
-> > +	if (!end_that_request_first(rq, rq->errors, rq->nr_sectors)) {
-> > +		add_disk_randomness(rq->rq_disk);
-> > +		end_that_request_last(rq, rq->errors);
-> > +	}
-> >  	cmd_free(h, cmd, 1);
-> >  	cciss_check_queues(h);
-> >  	spin_unlock_irqrestore(&h->lock, flags);
-> 
-> Ah, so there's where that went. Your code isn't clear, though -
-> end_that_request_first() _must_ return 0, so the above looks confusing.
-> It would look cleaner and more informative like:
-> 
->         if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
->                 BUG();
-> 
->         add_disk_randomness(rq->rq_disk);
->         end_that_request_last(rq, rq->errors);
->         ...
-> 
-> and so on. Additionally you don't need the lock for
-> end_that_request_first(), so it's a lot more optimal to rearrange it
-> again.
-> 
->         add_disk_randomness(rq->rq_disk);
->         if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
->                 BUG();
-> 
->         spin_lock_irqsave(&h->lock, flags);
->         end_that_request_last(rq, rq->errors);
->         cmd_free(h, cmd, 1);
->         ...
-> 
-> Not only cleaner to read since it's obvious what will happen, also moves
-> the heavy path (end_that_request_first()) outside of the controller
-> lock.
-> 
-> -- 
-> Jens Axboe
-> 
-Thanks Jens. I'm fighting several fires right now so the cleanup will 
-be done in a day or 2.
+On 11/7/06, Paul Jackson <pj@sgi.com> wrote:
+> > This will happen if you configure CONFIG_CPUSETS_LEGACY_API
+>
+> So why is this CONFIG_* option separate?  When would I ever not
+> want it?
 
-mikem
+If you weren't bothered about having the legacy semantics. The main
+issue is that it adds an extra file to /proc/<pid>. I guess the other
+stuff could be made nonconditional without breaking anyone who didn't
+try to mount cpusetfs
+
+Paul

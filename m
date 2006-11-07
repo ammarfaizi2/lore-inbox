@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754136AbWKGJYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754137AbWKGJZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754136AbWKGJYx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 04:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754137AbWKGJYx
+	id S1754137AbWKGJZL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 04:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754140AbWKGJZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 04:24:53 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26521 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1754136AbWKGJYw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 04:24:52 -0500
-Date: Tue, 7 Nov 2006 01:21:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Shaohua Li <shaohua.li@intel.com>, linux-kernel@vger.kernel.org,
-       bunk@stusta.de
-Subject: Re: [patch] Regression in 2.6.19-rc microcode driver
-Message-Id: <20061107012137.a99fab3b.akpm@osdl.org>
-In-Reply-To: <45504E2D.80504@linux.intel.com>
-References: <1162822538.3138.28.camel@laptopd505.fenrus.org>
-	<1162862427.22565.4.camel@sli10-conroe.sh.intel.com>
-	<20061106175914.a9491eab.akpm@osdl.org>
-	<45504E2D.80504@linux.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 04:25:10 -0500
+Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:4520 "EHLO
+	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1754137AbWKGJZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 04:25:05 -0500
+Message-ID: <455050EE.2060505@freedesktop.org>
+Date: Tue, 07 Nov 2006 01:25:02 -0800
+From: Josh Triplett <josh@freedesktop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>, linux-sparse@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ANNOUNCE: Sparse 0.1 - first release version of Sparse; new maintainer
+References: <4550228A.6060701@freedesktop.org> <20061107063245.GA26539@redhat.com>
+In-Reply-To: <20061107063245.GA26539@redhat.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig63908FB2B03D3A1A0EB07C72"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Nov 2006 10:13:17 +0100
-Arjan van de Ven <arjan@linux.intel.com> wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig63908FB2B03D3A1A0EB07C72
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> > 
-> > Due to the timeout?  So it should come back after 10*num_online_cpus seconds?
-> > 
-> > Does Arjan have a lot of CPUs?
-> 
-> eh yes, my test machine has quite a large number of those.
+Dave Jones wrote:
+> On Mon, Nov 06, 2006 at 10:07:06PM -0800, Josh Triplett wrote:
+>  >     git clone git://git.kernel.org/pub/scm/linux/kernel/git/josh/spa=
+rse.git
+>=20
+> For the git-impaired, I've updated my daily-snapshot script to pull
+> from here instead of the old location.
 
-So did it really hang?
+Thanks!
+
+> As always, they're auto-updated once an hour at ..
+> http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
+
+I've added this URL and the URL for the sparse-latest tarball to the Spar=
+se
+homepage.
+
+- Josh Triplett
+
+
+--------------enig63908FB2B03D3A1A0EB07C72
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFUFDuGJuZRtD+evsRArlsAKCF+6j5haplHLExUT4h7LP0rRh0wACgmueF
+aDl8Qffl7kMrIMOSxEldP9M=
+=JmFC
+-----END PGP SIGNATURE-----
+
+--------------enig63908FB2B03D3A1A0EB07C72--

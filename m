@@ -1,57 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWKGMDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWKGMGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWKGMDA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 07:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754212AbWKGMDA
+	id S932107AbWKGMGS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 07:06:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754223AbWKGMGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 07:03:00 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:20409 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1754210AbWKGMC7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 07:02:59 -0500
-Message-ID: <455075E9.4080202@garzik.org>
-Date: Tue, 07 Nov 2006 07:02:49 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+	Tue, 7 Nov 2006 07:06:18 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:53357 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1754221AbWKGMGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 07:06:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=sFUm/nGmAgeuRvazyeu1xPA3i4oXK+SbhGcx9gOyHI1ihFREfSYCkDHQzePt2YbT+4W/bZg5X+HjFSZMdFUNjsgjUJIldjNsNJd+hhjBf27FYj7Om2W3q6JPRBMjdtFy5BLFxySSU9YkkTcGkCXTa620rlImfJG1fUeaftJbRuo=
+Date: Tue, 7 Nov 2006 21:06:05 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/2] input: make serio_register_driver() return error code
+Message-ID: <20061107120605.GA13896@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
-To: Nate Diller <nate.diller@gmail.com>
-CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Oleg Verych <olecom@flower.upol.cz>, Pavel Machek <pavel@ucw.cz>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
-References: <1154985aa0591036@2ka.mipt.ru> <1162380963981@2ka.mipt.ru>	 <20061101130614.GB7195@atrey.karlin.mff.cuni.cz>	 <20061101132506.GA6433@2ka.mipt.ru> <20061101160551.GA2598@elf.ucw.cz>	 <20061101162403.GA29783@2ka.mipt.ru>	 <slrnekhpbr.2j1.olecom@flower.upol.cz>	 <20061101185745.GA12440@2ka.mipt.ru> <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com>
-In-Reply-To: <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nate Diller wrote:
-> Indesiciveness has certainly been an issue here, but I remember akpm
-> and Ulrich both giving concrete suggestions.  I was particularly
-> interested in Andrew's request to explain and justify the differences
-> between kevent and BSD's kqueue interface.  Was there a discussion
-> that I missed?  I am very interested to see your work on this
-> mechanism merged, because you've clearly emphasized performance and
-> shown impressive results.  But it seems like we lose out on a lot by
-> throwing out all the applications that already use kqueue.
+serio_register_driver() may fail under memory shortage.
 
+When serio_register_driver() called, it queues SERIO_REGISTER_DRIVER
+event into global serio_event_list, and then kseriod kernel thread
+handles that event and do driver_register().
 
-kqueue looks pretty nice, the filter/note models in particular.  I don't 
-see anything about ring buffers though.
+But event allocation by serio_register_driver() may fail.
+Because it is GFP_ATOMIC allocation. It will cause the problem
+by serio_unregister_driver() with not being registered driver
+at module_exit() time 
 
-I also wonder about the asynchronous event side (send), not just the 
-event reception side.
+This patch makes serio_register_driver() call driver_register()
+directly instead of kseriod so that it can check whether
+driver_register() is succeeded or not.
 
-	Jeff
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
+ drivers/input/serio/serio.c |   18 ++++--------------
+ include/linux/serio.h       |    7 +------
+ 2 files changed, 5 insertions(+), 20 deletions(-)
 
+Index: work-fault-inject/drivers/input/serio/serio.c
+===================================================================
+--- work-fault-inject.orig/drivers/input/serio/serio.c
++++ work-fault-inject/drivers/input/serio/serio.c
+@@ -46,7 +46,7 @@ EXPORT_SYMBOL(__serio_register_port);
+ EXPORT_SYMBOL(serio_unregister_port);
+ EXPORT_SYMBOL(serio_unregister_child_port);
+ EXPORT_SYMBOL(__serio_unregister_port_delayed);
+-EXPORT_SYMBOL(__serio_register_driver);
++EXPORT_SYMBOL(serio_register_driver);
+ EXPORT_SYMBOL(serio_unregister_driver);
+ EXPORT_SYMBOL(serio_open);
+ EXPORT_SYMBOL(serio_close);
+@@ -175,7 +175,6 @@ enum serio_event_type {
+ 	SERIO_RECONNECT,
+ 	SERIO_REGISTER_PORT,
+ 	SERIO_UNREGISTER_PORT,
+-	SERIO_REGISTER_DRIVER,
+ };
+ 
+ struct serio_event {
+@@ -322,10 +321,6 @@ static void serio_handle_event(void)
+ 				serio_find_driver(event->object);
+ 				break;
+ 
+-			case SERIO_REGISTER_DRIVER:
+-				serio_add_driver(event->object);
+-				break;
+-
+ 			default:
+ 				break;
+ 		}
+@@ -791,22 +786,17 @@ static struct bus_type serio_bus = {
+ 	.remove = serio_driver_remove,
+ };
+ 
+-static void serio_add_driver(struct serio_driver *drv)
++int serio_register_driver(struct serio_driver *drv)
+ {
+ 	int error;
+ 
++	drv->driver.bus = &serio_bus;
+ 	error = driver_register(&drv->driver);
+ 	if (error)
+ 		printk(KERN_ERR
+ 			"serio: driver_register() failed for %s, error: %d\n",
+ 			drv->driver.name, error);
+-}
+-
+-void __serio_register_driver(struct serio_driver *drv, struct module *owner)
+-{
+-	drv->driver.bus = &serio_bus;
+-
+-	serio_queue_event(drv, owner, SERIO_REGISTER_DRIVER);
++	return error;
+ }
+ 
+ void serio_unregister_driver(struct serio_driver *drv)
+Index: work-fault-inject/include/linux/serio.h
+===================================================================
+--- work-fault-inject.orig/include/linux/serio.h
++++ work-fault-inject/include/linux/serio.h
+@@ -91,12 +91,7 @@ static inline void serio_unregister_port
+ 	__serio_unregister_port_delayed(serio, THIS_MODULE);
+ }
+ 
+-void __serio_register_driver(struct serio_driver *drv, struct module *owner);
+-static inline void serio_register_driver(struct serio_driver *drv)
+-{
+-	__serio_register_driver(drv, THIS_MODULE);
+-}
+-
++int serio_register_driver(struct serio_driver *drv);
+ void serio_unregister_driver(struct serio_driver *drv);
+ 
+ static inline int serio_write(struct serio *serio, unsigned char data)

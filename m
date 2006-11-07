@@ -1,87 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965663AbWKGSDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932798AbWKGSBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965663AbWKGSDX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 13:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965664AbWKGSDX
+	id S932798AbWKGSBT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 13:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932797AbWKGSBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 13:03:23 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28944 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965663AbWKGSDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 13:03:22 -0500
-Date: Tue, 7 Nov 2006 19:03:23 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: perex@suse.cz, alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Subject: sound/pci/ac97/ac97_patch.c: possible negative array index
-Message-ID: <20061107180323.GI4729@stusta.de>
+	Tue, 7 Nov 2006 13:01:18 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:1471 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932798AbWKGSBS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 13:01:18 -0500
+Message-ID: <4550C9ED.9050308@serpentine.com>
+Date: Tue, 07 Nov 2006 10:01:17 -0800
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       olson@pathscale.com
+Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>	<20061105064801.GV13381@stusta.de>	<m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>	<20061107042214.GC8099@stusta.de> <45501730.8020802@serpentine.com>	<m1psbzbpxw.fsf@ebiederm.dsl.xmission.com>	<4550B22C.1060307@serpentine.com> <m18xinb1qn.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m18xinb1qn.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker noted the following in sound/pci/ac97/ac97_patch.c:
+Eric W. Biederman wrote:
 
-<--  snip  -->
+> If you really need to write to both the config space registers and your
+> magic shadow copy of the register I can certainly do the config space
+> writes for you.  I just figured it would be more efficient not to.
 
-...
-static int patch_ad1881_chained1(struct snd_ac97 * ac97, int idx, unsigned short codec_bits)
-{
-        static int cfg_bits[3] = { 1<<12, 1<<14, 1<<13 };
-        unsigned short val;
-        
-        snd_ac97_update_bits(ac97, AC97_AD_SERIAL_CFG, 0x7000, cfg_bits[idx]);
-        snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0004);  // SDIE
-        val = snd_ac97_read(ac97, AC97_VENDOR_ID2);
-        if ((val & 0xff40) != 0x5340)
-                return 0;
-        if (codec_bits)
-                snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, codec_bits);
-        ac97->spec.ad18xx.chained[idx] = cfg_bits[idx];
-        ac97->spec.ad18xx.id[idx] = val;
-        ac97->spec.ad18xx.codec_cfg[idx] = codec_bits ? codec_bits : 0x0004;
-        return 1;
-}
+Yes, we need to do both.
 
-static void patch_ad1881_chained(struct snd_ac97 * ac97, int unchained_idx, int cidx1, int cidx2)
-{
-        // already detected?
-        if (ac97->spec.ad18xx.unchained[cidx1] || ac97->spec.ad18xx.chained[cidx1])
-                cidx1 = -1;
-        if (ac97->spec.ad18xx.unchained[cidx2] || ac97->spec.ad18xx.chained[cidx2])
-                cidx2 = -1;
-        if (cidx1 < 0 && cidx2 < 0)
-                return;
-        // test for chained codecs
-        snd_ac97_update_bits(ac97, AC97_AD_SERIAL_CFG, 0x7000,
-                             ac97->spec.ad18xx.unchained[unchained_idx]);
-        snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0002);          // ID1C
-        ac97->spec.ad18xx.codec_cfg[unchained_idx] = 0x0002;
-        if (cidx1 >= 0) {
-                if (patch_ad1881_chained1(ac97, cidx1, 0x0006))         // SDIE | ID1C
-                        patch_ad1881_chained1(ac97, cidx2, 0);
-                else if (patch_ad1881_chained1(ac97, cidx2, 0x0006))    // SDIE | ID1C
-                        patch_ad1881_chained1(ac97, cidx1, 0);
-        } else if (cidx2 >= 0) {
-                patch_ad1881_chained1(ac97, cidx2, 0);
-        }
-}
-...
+I've got code that refactors your patch a little as I try to get the 
+driver happy, but so far it's not seeing any interrupts.  I'll keep you 
+posted.
 
-<--  snip  -->
-
-If there are in patch_ad1881_chained() (cidx2 == -1) and (cidx1 >= 0), 
--1 will be used as array index in patch_ad1881_chained1().
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	<b

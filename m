@@ -1,83 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754090AbWKGISm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754099AbWKGIXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754090AbWKGISm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 03:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754099AbWKGISm
+	id S1754099AbWKGIXc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 03:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754107AbWKGIXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 03:18:42 -0500
-Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:20135 "EHLO
-	rhlx01.hs-esslingen.de") by vger.kernel.org with ESMTP
-	id S1754090AbWKGISl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 03:18:41 -0500
-Date: Tue, 7 Nov 2006 09:18:39 +0100
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Len Brown <lenb@kernel.org>
-Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+	Tue, 7 Nov 2006 03:23:32 -0500
+Received: from www.osadl.org ([213.239.205.134]:414 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1754099AbWKGIXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 03:23:31 -0500
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
+	[2.6.18-rc4-mm1]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Len Brown <lenb@kernel.org>, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
-Message-ID: <20061107081839.GA26290@rhlx01.hs-esslingen.de>
-References: <20061101140729.GA30005@rhlx01.hs-esslingen.de> <1162830033.4715.201.camel@localhost.localdomain> <20061106205825.GA26755@rhlx01.hs-esslingen.de> <200611070141.16593.len.brown@intel.com>
+In-Reply-To: <20061107080733.GB9910@elte.hu>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
+	 <1162830033.4715.201.camel@localhost.localdomain>
+	 <20061106205825.GA26755@rhlx01.hs-esslingen.de>
+	 <200611070141.16593.len.brown@intel.com>  <20061107080733.GB9910@elte.hu>
+Content-Type: text/plain
+Date: Tue, 07 Nov 2006 09:25:35 +0100
+Message-Id: <1162887935.4715.349.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611070141.16593.len.brown@intel.com>
-User-Agent: Mutt/1.4.2.2i
-X-Priority: none
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Nov 07, 2006 at 01:41:16AM -0500, Len Brown wrote:
-> On Monday 06 November 2006 15:58, Andreas Mohr wrote:
+On Tue, 2006-11-07 at 09:07 +0100, Ingo Molnar wrote:
+> * Len Brown <len.brown@intel.com> wrote:
 > 
-> > > > How useful would it be to simply disable C2 operation (but not C1)
-> > > > in CONFIG_NO_HZ mode after's been determined to kill APIC timer?:
+> > So given that C3 on every known system that has shipped to date breaks 
+> > the LAPIC timer (and apparently this applies to C2 on these AMD 
+> > boxes), dynticks needs a solid story for co-existing with C3.
 > 
-> If the goal is saving power, then disabling dynticks will likely
-> be more attractive than disabling C2.  Perhaps you can measure it?
-> eg. simply run "bltk -I" to measure idle battery life (http://sourceforge.net/projects/bltk)
+> check out 2.6.19-rc4-mm2: it detects this breakage and works it around 
+> by using the PIT as a clock-events source. That did the trick on my 
+> laptop which has this problem too. I agree with you that degrading the 
+> powersaving mode is not an option.
 
-Surely the CMOS battery?? Seriously, no battery here anywhere ;)
+Andreas tested with the latest -mm1-hrt-dyntick patches, so he has all
+the checks already. The thing which worries me here is, that we detect
+the breakage and use the fallback path already, but it still has this
+weird effect on that system, while others just work fine. I'm cooking a
+more brute force fallback right now.
 
-Anyway, I was already afraid that I didn't have any of my *two* different
-power measurement devices here, but  then I found one in the drawer
-(Conrad EKM 265, to be precise).
+	tglx
 
-The results are (waited for values to settle down each time):
 
--dyntick4, C1, CONFIG_NO_HZ:
-     83.9W KDE idle, 95.2W bash while 1
--dyntick4, C2 (C1-only hack disabled, kernel rebuilt), CONFIG_NO_HZ off:
-     84.4W KDE idle, 95.4W bash while 1
--dyntick4, acpi=off (i.e. APM active), -dynticks:
-     85.5W KDE idle, 95.5W bash while 1
-
-Bet you didn't see this coming...
-
-Again, this is Athlon 1200 *desktop*, with some EPOX VIA motherboard
-("8K5A3+" ??).
-
-Note that even with dynticks disabled did I have a pause on boot where I had
-to fiddle with the keyboard once to continue booting, IOW our APIC timer
-probing disrupts normal interrupt processing due to C2 -> C3 AMD BIOS bug.
-We might want to fix probing to not require manual generation of the next
-interrupt event due to APIC timer temporarily being "dead".
-
-> But this is even more true when talking about C3 -- it certainly saves more
-> power than dynticks does.  This is true for the example system here:
-> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/doc/OLS2006-bltk-paper.pdf
-> 
-> So given that C3 on every known system that has shipped to date
-> breaks the LAPIC timer (and apparently this applies to C2 on these AMD boxes),
-> dynticks needs a solid story for co-existing with C3.
-
-Indeed, we need a good and flexible fallback mechanism.
-However I would slightly slant dynticks towards being active even in cases
-where it actually happens to consume *slightly* more power due to C2 disabled,
-since it *seems* that CPU load is lower with dynticks
-(less timer background load) / desktop timing is slightly more precise.
-And we all want fast desktops that are waaaaay better than XP, right?
-
-Andreas Mohr

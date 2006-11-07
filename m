@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932750AbWKGRvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932766AbWKGRxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932750AbWKGRvc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 12:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932712AbWKGRvc
+	id S932766AbWKGRxK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 12:53:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbWKGRxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 12:51:32 -0500
-Received: from vms046pub.verizon.net ([206.46.252.46]:57983 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932750AbWKGRvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 12:51:31 -0500
-Date: Tue, 07 Nov 2006 12:47:52 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Faustian Pact between Novell and Microsoft
-In-reply-to: <4550BA59.1000701@wolfmountaingroup.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <200611071247.52540.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <454A7BBB.10403@wolfmountaingroup.com>
- <1162894662.19866.15.camel@tara.firmix.at>
- <4550BA59.1000701@wolfmountaingroup.com>
-User-Agent: KMail/1.7
+	Tue, 7 Nov 2006 12:53:09 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:31710 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932766AbWKGRxH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 12:53:07 -0500
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
+	that offer x86 compatability
+From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Jeff Layton <jlayton@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061107174217.GA29746@wohnheim.fh-wedel.de>
+References: <1162836725.6952.28.camel@dantu.rdu.redhat.com>
+	 <20061106182222.GO27140@parisc-linux.org>
+	 <1162838843.12129.8.camel@dantu.rdu.redhat.com>
+	 <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com>
+	 <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com>
+	 <1162914966.28425.24.camel@dantu.rdu.redhat.com>
+	 <20061107172835.GB15629@wohnheim.fh-wedel.de>
+	 <20061107174217.GA29746@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 07 Nov 2006 11:53:03 -0600
+Message-Id: <1162921983.8123.22.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 November 2006 11:54, Jeff V. Merkey wrote:
->Bernd Petrovitsch wrote:
->>On Tue, 2006-11-07 at 09:18 +0100, Pavel Machek wrote:
->>[...]
->>
->>>This is a watershed moment for Linux. It fundamentally changes the
->>>rules of the game. We're really excited about this deal, and we hope
->>>you are too.
->>>
->>>
->>>(from http://www.novell.com/linux/microsoft/openletter.html) only make
->>>it worse, but acquisition? I'd hope not even mickey$oft has enough
->>>cash for _that_.
->>
->>And the first point in the list is "patents" ....
->>
->> Bernd
->
->I can see the lights are coming on now for some folks now.
->
->Jeff
+On Tue, 2006-11-07 at 18:42 +0100, Jörn Engel wrote:
+> On Tue, 7 November 2006 18:28:35 +0100, Jörn Engel wrote:
+> > 
+> > Anyway, here is a first patch converting some callers that looked
+> > obvious.
+> 
+> Next patch with the not-so-obvious ones.  I believe this patch is
+> correct, but someone should double-check it.
+> 
+> Jfs really surprised me.  It appears as if it just takes the number
+> returned from new_inode in some cases - unbelievable.
 
-The 'lights' have been on for quite some time Jeff, but getting our govmnt 
-to recognize that is going to take some housecleaning, which I intend to 
-do in the ballotbox yet this afternoon.
+jfs set it in diInitInode() (pardon the uglyMixedCaps), which is called
+in several places under diAlloc().  diAlloc() is called after
+new_inode() for most inodes.  The exceptions are for special inodes,
+which also initialize i_ino in some manner.
 
-Wish us good luck in that endeavor folks.
-
+Shaggy
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+David Kleikamp
+IBM Linux Technology Center
+

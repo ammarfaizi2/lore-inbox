@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbWKGQE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWKGP5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932645AbWKGQE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 11:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWKGQE7
+	id S964797AbWKGP5t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 10:57:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964769AbWKGP5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 11:04:59 -0500
-Received: from il.qumranet.com ([62.219.232.206]:31145 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S932645AbWKGQE6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 11:04:58 -0500
-Subject: [PATCH] KVM: Fix guest cr4 corruption
-From: Avi Kivity <avi@qumranet.com>
-Date: Tue, 07 Nov 2006 16:04:54 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-Id: <20061107160454.34E7BA0001@cleopatra.q>
+	Tue, 7 Nov 2006 10:57:49 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:43689 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964797AbWKGP5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 10:57:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lCwauUGFT2JmMnBlMGFtWimkfFxGgw8AQKEmxemjofr221mIVrkI2s3gp9E34Rpb/b8YI3ouaDGIipIcfg6qJ1zigefTQQOsQOxZZvhUErycVBLouzhElzAMk7cAcxwkEE/60oIi8xrThk2OPEb02SeuTIHSrS14/do1jq0VucQ=
+Message-ID: <610823610611070757o38898dddm90ee66f1f3926d3e@mail.gmail.com>
+Date: Tue, 7 Nov 2006 10:57:46 -0500
+From: "Andrew Wade" <andrew.j.wade@gmail.com>
+Reply-To: ajwade@alumni.uwaterloo.ca
+To: "Richardson, Charlotte" <Charlotte.Richardson@stratus.com>
+Subject: Re: 2.6.19-rc4-mm2
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Kimball Murray" <kimball.murray@gmail.com>,
+       linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <1C68BCE03F80CD46A821B5B9C5F2163E01D7A051@EXNA.corp.stratus.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1C68BCE03F80CD46A821B5B9C5F2163E01D7A051@EXNA.corp.stratus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Upon entry to protected mode, we set cr4 to a value derived from cr0
-accidentally.  Fix.
+Hello Charlotte,
 
-This could cause a guest to crash (though I never observed it).
+> (Sorry, I don't know what timezone you're in, but I went home, cooked
+> supper, ate supper, did two loads of laundry, slept for about seven
+> hours, ate breakfast, did another load of laundry, and voted, and now
+> I'm back!)
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+I'm EST (GMT-5). But the hours I'm online are somewhat erratic.
 
-Index: linux-2.6/drivers/kvm/kvm_main.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm_main.c
-+++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -697,7 +697,7 @@ static void enter_pmode(struct kvm_vcpu 
- 	vmcs_writel(GUEST_RFLAGS, flags);
- 
- 	vmcs_writel(GUEST_CR4, (vmcs_readl(GUEST_CR4) & ~CR4_VME_MASK) |
--			(vmcs_readl(CR0_READ_SHADOW) & CR4_VME_MASK) );
-+			(vmcs_readl(CR4_READ_SHADOW) & CR4_VME_MASK));
- 
- 	update_exception_bitmap(vcpu);
- 
+...
+> If I can't repro it with this chip, if you want to mess around with it
+> on yours, here's what I think we had to do... I believe the trick was
+> to use 16bpp mode as far as what mode you write to the chip, and then
+> double all the x coordinate values for things like offset, width, and
+> pitch. You would have to do that to the accelerated routines also.
+
+I'd be happy to mess around with the driver, but I won't have much
+time to do so until tomorrow. I'll let you know if I find anything,
+and of course I'll be happy to test patches.
+
+-ajw

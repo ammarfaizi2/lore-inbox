@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754176AbWKGKXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWKGK2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754176AbWKGKXP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 05:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754186AbWKGKXP
+	id S1751638AbWKGK2y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 05:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751859AbWKGK2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 05:23:15 -0500
-Received: from ns.firmix.at ([62.141.48.66]:44201 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1754176AbWKGKXO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 05:23:14 -0500
-Subject: Re: UNIX domain socket problem
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Bin Chen <binary.chen@gmail.com>
+	Tue, 7 Nov 2006 05:28:54 -0500
+Received: from ensim03.ffm.m2soft.com ([195.38.20.12]:6047 "EHLO
+	ensim03.ffm.m2soft.com") by vger.kernel.org with ESMTP
+	id S1751638AbWKGK2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 05:28:53 -0500
+X-ClientAddr: 85.126.108.208
+Date: Tue, 7 Nov 2006 11:06:06 +0100
+From: Nicolas Kaiser <nikai@nikai.net>
+To: trivial@kernel.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <454fe59b.6455ade0.6506.1f45@mx.google.com>
-References: <454fe59b.6455ade0.6506.1f45@mx.google.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Tue, 07 Nov 2006 11:23:08 +0100
-Message-Id: <1162894988.19866.19.camel@tara.firmix.at>
+Subject: [PATCH][TRIVIAL] arch/i386: double inclusions
+Message-ID: <20061107110606.1505e19a@lucky.kitzblitz>
+Organization: -
+X-Face: "fF&[w2"Nws:JNH4'g|:gVhgGKLhj|X}}&w&V?]0=,7n`jy8D6e[Jh=7+ca|4~t5e[ItpL5
+ N'y~Mvi-vJm`"1T5fi1^b!&EG]6nW~C!FN},=$G?^U2t~n[3;u\"5-|~H{-5]IQ2
+X-Mailer: Sylpheed-claws (Linux)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.402 () AWL,BAYES_00,FORGED_RCVD_HELO
+X-M2Soft-MailScanner-Information: Please contact the ISP for more information
+X-M2Soft-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-MailScanner-From: nikai@nikai.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-07 at 09:47 +0800, Bin Chen wrote:
-> Sorry for cross post, it has been posted on
-> comp.os.linux.development.apps.
-> 
-> I wrote a domain socket sever, which is a STREAM type, let it listen a
-> sun_path, and in a while loop it accept new connections. I analyze it
-> using netstat.
-> 
-> Abstractly, the communication need two end. Even the listen socket is
-> only one, each time the accept returns, there should be two end
-> produced: one by connect() issued by client, one by accept() issued by
-> server. These two should have different inode number.
+double inclusions in arch/i386
 
-Why should they?
-The filename (actually and more to the point: the i-node) in the
-filesystem is just an "anchor" so that the clients can find the server
-(if you have several servers on your system, they *must* have different
-filenames to bind(2) to).
+Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
+---
 
-> What is strange is that I sometimes find the RefCnt of some unix domain
-> socket have values 2,3,4,5,6,7 or even 258, if each connection in
-> stream should be in pair, why this problem occurs?
+ arch/i386/kernel/cpuid.c |    1 -
+ arch/i386/kernel/tsc.c   |    1 -
+ 2 files changed, 2 deletions(-)
 
-Probably (because I didn't look at source code) because every connect(2)
-and/or accept(2) sys-call increments it.
-And BTW I assume that you meand the in memory ref count, not the one in
-the inode on the disk (which is incremented with hardlinks).
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+diff -uprN a/arch/i386/kernel/cpuid.c b/arch/i386/kernel/cpuid.c
+--- a/arch/i386/kernel/cpuid.c	2006-09-20 05:42:06.000000000 +0200
++++ b/arch/i386/kernel/cpuid.c	2006-11-07 10:05:17.000000000 +0100
+@@ -34,7 +34,6 @@
+ #include <linux/major.h>
+ #include <linux/fs.h>
+ #include <linux/smp_lock.h>
+-#include <linux/fs.h>
+ #include <linux/device.h>
+ #include <linux/cpu.h>
+ #include <linux/notifier.h>
+diff -uprN a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
+--- a/arch/i386/kernel/tsc.c	2006-09-20 05:42:06.000000000 +0200
++++ b/arch/i386/kernel/tsc.c	2006-11-07 10:05:42.000000000 +0100
+@@ -13,7 +13,6 @@
+ 
+ #include <asm/delay.h>
+ #include <asm/tsc.h>
+-#include <asm/delay.h>
+ #include <asm/io.h>
+ 
+ #include "mach_timer.h"
 

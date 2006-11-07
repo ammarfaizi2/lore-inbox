@@ -1,94 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752344AbWKGUf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753218AbWKGUoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752344AbWKGUf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753190AbWKGUf0
+	id S1753218AbWKGUoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:44:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753201AbWKGUoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:35:26 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:42214 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1752344AbWKGUfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:35:25 -0500
-Date: Tue, 7 Nov 2006 12:34:58 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Paul Menage" <menage@google.com>
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061107123458.e369f62a.pj@sgi.com>
-In-Reply-To: <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-References: <20061030031531.8c671815.pj@sgi.com>
-	<20061030123652.d1574176.pj@sgi.com>
-	<6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com>
-	<20061031115342.GB9588@in.ibm.com>
-	<6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
-	<20061101172540.GA8904@in.ibm.com>
-	<6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
-	<20061106124948.GA3027@in.ibm.com>
-	<6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
-	<20061107104118.f02a1114.pj@sgi.com>
-	<6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Tue, 7 Nov 2006 15:44:16 -0500
+Received: from mail.acc.umu.se ([130.239.18.156]:52462 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S1753196AbWKGUoO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:44:14 -0500
+Date: Tue, 7 Nov 2006 21:44:09 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <linux-acpi@vger.kernel.org>
+Subject: Re: acpiphp makes noise on every lid close/open
+Message-ID: <20061107204409.GA37488@vasa.acc.umu.se>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	ACPI mailing list <linux-acpi@vger.kernel.org>
+References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061106092117.GB2175@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul M wroteL
-> One of the issues that crops up with it is what do you put in
-> /proc/<pid>/container if there are multiple hierarchies?
+On Mon, Nov 06, 2006 at 10:21:17AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > > With 2.6.19-rc4, acpi complains about "acpiphp_glue: cannot get bridge
+> > > > info" each time I close/reopen the lid... On thinkpad x60. Any ideas?
+> > > > (-mm1 behaves the same).
+> > > 
+> > > Looks like acpi is sending a BUS_CHECK notification to acpiphp on the 
+> > > PCI Root Bridge whenever the lid opens up.
+> > > 
+> > > There is a bug here in that acpiphp shouldn't even be used on the X60 -
+> > > it has no hotpluggable slots.
+> > 
+> > How about the docking station?
+> 
+> "Dock" for x60 only contains cdrom slot and aditional slots, no PCI or
+> PCMCIA slots.
 
-Thanks for your rapid responses - good.
+Well, when I press the undock button on the dock without the acpiphp
+module loaded, I never get the green light that confirms that removing
+the laptop is safe.  If acpiphp is loaded, things work just fine.
 
-How about /proc/<pid>/containers being a directory, with each
-controller having one regular file entry (so long as we haven't done
-the multiple controller instances in my item (5)) containing the path,
-relative to some container file system mount point (which container
-mount is up to user space code to track) of the container that contains
-that task?
 
-Or how about each controller type, such as cpusets, having its own
-/proc/<pid>/<controller-type> file, with no generic file
-/proc</pid>/container at all.  Just extend the current model
-seen in /proc/<pid>/cpuset ?
-
-Actually, I rather like that last alternative - forcing the word
-'container' into these /proc/<pid>/??? pathnames strikes me as
-an exercise in branding, not in technical necessity.  But that
-could just mean I am still missing a big fat clue somewhere ...
-
-Feel free to keep hitting me with clue sticks, as need be.
-
-It will take a while (as in a year or two) for me and others to train
-all the user level code that 'knows' that cpusets are always mounted at
-"/dev/cpuset" to find the mount point for the container handling
-cpusets anywhere else.
-
-I knew when I hardcoded the "/dev/cpuset" path in various places
-in user space that I might need to revisit that, but my crystal
-ball wasn't good enough to predict what form this generalization
-would take.  So I followed one of my favorite maxims - if you can't
-get it right, at least keep it stupid, simple, so that whomever does
-have to fix it up has the least amount of legacy mechanism to rip out.
-
-However this fits in nicely with my expectation that we will have
-only limited need, if any, in the short term, to run systems with
-both cpusets and resource groups at the same time.  Systems just
-needing cpusets can jolly well continue to mount at /dev/cpuset,
-in perpetuity.  Systems needing other or fancier combinations of
-controllers will need to handle alternative mount points, and keep
-track somehow in user space of what's mounted where.
-
-And while we're here, how about each controller naming itself with a
-well known string compiled into its kernel code, and a file such
-as /proc/containers listing what controllers are known to it?  Not
-surprisingly, I claim the word "cpuset" to name the cpuset controller ;)
-
+Regards: David
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

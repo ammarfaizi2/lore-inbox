@@ -1,154 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWKGGHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWKGGIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWKGGHN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 01:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWKGGHN
+	id S932068AbWKGGIe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 01:08:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754073AbWKGGId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 01:07:13 -0500
-Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:34723 "EHLO
-	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932091AbWKGGHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 01:07:10 -0500
-Message-ID: <4550228A.6060701@freedesktop.org>
-Date: Mon, 06 Nov 2006 22:07:06 -0800
-From: Josh Triplett <josh@freedesktop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+	Tue, 7 Nov 2006 01:08:33 -0500
+Received: from nz-out-0102.google.com ([64.233.162.203]:9540 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1754069AbWKGGIc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 01:08:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RED0A9q7xB0EffqCSlFDqMRl6eNR6Id9XouGGjEVH6C994nehyFfRByKEeKimrDkzpnSaybFzkgxm7Oyfjzsyxi0gEYUAWISCcZNjuGQ08Km5AlyblMbtZshBcwv4SxVcZ0Yz+GOTK+dNfS12HPDl5xlTOkiDDdjcXYaAcBvfUA=
+Message-ID: <f55850a70611062208l214c1a62vc8ec9133eaca2e5e@mail.gmail.com>
+Date: Tue, 7 Nov 2006 14:08:31 +0800
+From: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
+To: "Eric Dumazet" <dada1@cosmosbay.com>
+Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
+Cc: linux-kernel@vger.kernel.org, "Linux Netdev List" <netdev@vger.kernel.org>
+In-Reply-To: <45501F60.4070606@cosmosbay.com>
 MIME-Version: 1.0
-To: linux-sparse@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: ANNOUNCE: Sparse 0.1 - first release version of Sparse; new maintainer
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigEAEB546D91651AA04C05A1F0"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
+	 <200611061022.57840.dada1@cosmosbay.com>
+	 <f55850a70611060146o1b2adcabq8c1313f6711f3f4e@mail.gmail.com>
+	 <200611061433.50912.dada1@cosmosbay.com>
+	 <f55850a70611061848g5f316399oe877a38705e7f99b@mail.gmail.com>
+	 <45501F60.4070606@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigEAEB546D91651AA04C05A1F0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On 11/7/06, Eric Dumazet <dada1@cosmosbay.com> wrote:
+> Zhao Xiaoming a écrit :
+> > On 11/6/06, Eric Dumazet <dada1@cosmosbay.com> wrote:
+> >> In fact, your kernel has CONFIG_4KSTACKS, kernel thread stacks use 4K
+> >> instead
+> >> of 8K.
+> >>
+> >> If you want to increase LOWMEM, (and keep 32bits kernel), you can chose a
+> >> 2G/2G user/kernel split, instead of the 3G/1G default split.
+> >> (see config : CONFIG_VMSPLIT_2G)
+> >>
+> >> Eric
+>
+> > Thank you for your advice. I know increase LOMEM could be help, but
+> > now my concern is why I lose my 500M bytes memory after excluding all
+> > known memory cost.
+>
+> Unfortunatly you dont provide very much details.
+> AFAIK you didnt even gave whcih version of linux you run, which programs you
+> run...
+> You keep answering where you 'lost' your mem, it's quite buging.
+> Maybe some Oracles on this list will see the light for you, before exchanging
+> 100 mails with you ?
+>
+>
+I think I aready gave the kernel version and introduced my application
+in the first post. What are the further details you want? The reason I
+keep asking for the 'lost mem' is that I want to focus on the problem,
+not the workarrounds that may lead to further problems if I keep
+increasing the concurrent scale.
+Anyway, since the problem is already solved (see my last post), I'd
+like to thank you for the help.
 
-I have tagged and tarballed a 0.1 release of Sparse, now available
-from:
-
-<http://kernel.org/pub/linux/kernel/people/josh/sparse/dist/sparse-0.1.ta=
-r.gz>
-sha1sum: 9e0a4d5abb8e8a4be4cf8d9fe632c69dbec3e242=20
-
-As discussed in
-<http://marc.theaimsgroup.com/?i=3DPine.LNX.4.64.0610311030370.25218@g5.o=
-sdl.org>,
-I've taken maintainership of sparse.  Thanks to Linus Torvalds for his
-previous maintainership.
-
-As a result, this release comes from my sparse Git repository.  You can
-obtain the latest version of sparse directly from my Git repository with
-the command:
-
-    git clone git://git.kernel.org/pub/scm/linux/kernel/git/josh/sparse.g=
-it
-
-You can also browse the Git repository via gitweb, at
-<http://www.kernel.org/git/?p=3Dlinux/kernel/git/josh/sparse.git>
-
-This release corresponds to the Git tag "0.1", signed by my GPG key,
-with key ID D0FE7AFB.  In the sparse Git repository, you can verify this
-tag with the command:
-
-    git verify-tag 0.1
-
-I've chosen to use a versioning system similar to the current system
-used for the Linux kernel, with s/2\.6/0/.  The major number (0 for this
-release) will change only with major architectural changes to Sparse.
-The minor number (1 for this release) represents the normal release
-number; thus, the next release will have version 0.2.  If a need arises
-to make bugfixes to a released version of sparse, the bugfix versions
-will use a third, micro number; for example, a bugfix release for 0.1
-would use the version number 0.1.1.  (I considered the idea of using the
-old Linux versioning system, with the odd/even unstable/stable
-convention for the second number, but I believe that git feature
-branches should satisfy any need for an "unstable" tree.)
-
-In addition to all the work in the previous Sparse repository
-(pub/scm/devel/sparse/sparse.git), this release includes the following
-changes:
-
-Adam DiCarlo (1):
-      Add type information to enum mismatch warning
-
-Al Viro (2):
-      added a bunch of gcc builtins
-      switch to hash-based get_one_special()
-
-Josh Triplett (15):
-      "Initializer entry defined twice" should not trigger with zero-size=
- fields
-      Fix incorrect symbol in comment on #endif for multiple-inclusion gu=
-ard
-      Add -Wno-uninitialized
-      graph: Show position in basic block nodes
-      bb_terminated: Use boundary values rather than specific opcodes
-      Turn on -Wcontext by default
-      Merge branch 'fix-defined-twice-error-on-empty-struct' into staging=
-
-      Merge branch 'graph' into staging
-      merge branch 'more-warning-flags' into staging and fix conflicts
-      merge branch 'no-semantic-h' into staging and fix conflicts
-      Merge branch 'Wcontext-default' into staging
-      Add test cases to validation/context.c for the Linux __cond_lock ma=
-cro
-      Merge branch 'context-test-cases-for-cond-lock' into josh
-      Rename test case bad-assignement.c to bad-assignment.c, fixing the =
-typo.
-      Stop building and installing libsparse.so
-
-Josh Triplett and Pavel Roskin (1):
-      Recognize and ignore __alias__ and __visibility__
-
-Pavel Roskin (4):
-      Compile sparse executable under it's own name, not as "check"
-      Add support for __builtin_strpbrk()
-      Typo fixes
-      Install cgcc on "make install", refactor installation code
-
-Known issue with this release:
-
-* Sparse does not produce the expected set of warnings for several of the=
-
-  validation programs, included in the sparse source in the directory
-  validation/ .  Some scripts should provoke warnings but don't, and othe=
-rs
-  provoke warnings they shouldn't.
-
-
-I've also put up a sparse website, at
-<http://kernel.org/pub/linux/kernel/people/josh/sparse/>.  This site will=
-
-include news and updates about sparse (including release announcements),
-information on obtaining sparse, and documentation about sparse.  This ne=
-w
-website uses ikiwiki <http://ikiwiki.kitenet.net/>, by Joey Hess, and the=
-
-ikiwiki Git backend.  I plan to move the underlying Git repository to
-kernel.org as soon as I get ikiwiki and its dependencies installed on
-master.kernel.org.
-
-- Josh Triplett
-
-
---------------enigEAEB546D91651AA04C05A1F0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFUCKKGJuZRtD+evsRAhSyAJ4qTWIXotHSsCsTeqi60TUtH9G/mgCfYhRn
-UKqEI+8A3hlJ4YGxianFBc4=
-=o+kw
------END PGP SIGNATURE-----
-
---------------enigEAEB546D91651AA04C05A1F0--
+Xiaoming.

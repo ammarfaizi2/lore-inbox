@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753331AbWKGUv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753335AbWKGUwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753331AbWKGUv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:51:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753333AbWKGUv4
+	id S1753335AbWKGUwm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:52:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753334AbWKGUwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:51:56 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7859 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1753331AbWKGUv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:51:56 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: olson@pathscale.com
-Cc: "Bryan O'Sullivan" <bos@serpentine.com>, Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
-	<20061105064801.GV13381@stusta.de>
-	<m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
-	<20061107042214.GC8099@stusta.de> <45501730.8020802@serpentine.com>
-	<m1psbzbpxw.fsf@ebiederm.dsl.xmission.com>
-	<4550B22C.1060307@serpentine.com>
-	<m18xinb1qn.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0611070934570.25925@topaz.pathscale.com>
-	<m1mz739l0b.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0611071228230.8122@topaz.pathscale.com>
-Date: Tue, 07 Nov 2006 13:51:00 -0700
-In-Reply-To: <Pine.LNX.4.64.0611071228230.8122@topaz.pathscale.com> (Dave
-	Olson's message of "Tue, 7 Nov 2006 12:30:25 -0800 (PST)")
-Message-ID: <m1wt677zgr.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Nov 2006 15:52:41 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63453
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1753255AbWKGUwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:52:40 -0500
+Date: Tue, 07 Nov 2006 12:52:41 -0800 (PST)
+Message-Id: <20061107.125241.39157521.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: jeff@garzik.org, johnpol@2ka.mipt.ru, drepper@redhat.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [take21 0/4] kevent: Generic event handling mechanism.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061107113400.880e1ce9.akpm@osdl.org>
+References: <20061107115111.GA13028@2ka.mipt.ru>
+	<45507CD4.5030600@garzik.org>
+	<20061107113400.880e1ce9.akpm@osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Olson <olson@pathscale.com> writes:
+From: Andrew Morton <akpm@osdl.org>
+Date: Tue, 7 Nov 2006 11:34:00 -0800
 
-> On Tue, 7 Nov 2006, Eric W. Biederman wrote:
-> | > | If your card doesn't pay attention to configuration space access cycles
-> then
-> | > | there should be no reason to write the value there.  If your card does pay
-> | > | attention to the configuration space access cycles it should be trivial to
-> | > | make this work.
-> | >
-> | > The card does pay attention, and other programs such as lspci and the
-> | > like also look at the config space.  They should definitely be kept
-> | > in sync, and config writes are fairly cheap, anyway.
-> | 
-> | Well this is a rathole so it really isn't safe for lspci to play with
-> | (races with the kernel accessing it)
->
-> Displaying something that might change is a fact of life, and no
-> different than the PCI world.  It's still best to keep things as
-> correct as possible.
+> What Evgeniy means here is that copy_to_user() is slower than memcpy() (on
+> his machine, with his kernel config, at least).
+> 
+> Which is kinda weird and unexpected and is something which we should
+> investigate independently from this project.  (Rather than simply going
+> and bypassing it!)
 
-No.  I was thinking of the rat hole in pci config space you have to
-access to read these registers.  You have to actively write a pci
-config value to select which register you are going to read.
+It's straightforward to me. :-)
 
-So by default it is not safe to touch this value from user space,
-because you could mess up the kernel, if the kernel is updating the
-value.
+If the kerne memcpy()'s, it uses those nice 4MB PTE mappings to
+the kernel pages.  With copy_to_user() you run through tiny
+4K or 8K PTE mappings which thrash the TLB.
 
-Eric
+The TLB is therefore able to hold more of the accessed state at
+a time if you touch the pages on the kernel side.

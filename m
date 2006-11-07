@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753083AbWKGUTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753068AbWKGUSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753083AbWKGUTy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753084AbWKGUTy
+	id S1753068AbWKGUSM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753074AbWKGUSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:19:54 -0500
-Received: from moci.net4u.de ([217.7.64.195]:61920 "EHLO moci.net4u.de")
-	by vger.kernel.org with ESMTP id S1753082AbWKGUTx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:19:53 -0500
-From: Ernst Herzberg <earny@net4u.de>
-Reply-To: earny@net4u.de
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: 2.6.19-rc <-> ThinkPads, summary
-Date: Tue, 7 Nov 2006 21:19:47 +0100
-User-Agent: KMail/1.9.1
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20061029231358.GI27968@stusta.de> <20061105062330.GT13381@stusta.de> <20061107200646.GD9533@flint.arm.linux.org.uk>
-In-Reply-To: <20061107200646.GD9533@flint.arm.linux.org.uk>
+	Tue, 7 Nov 2006 15:18:12 -0500
+Received: from wr-out-0506.google.com ([64.233.184.225]:30403 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1753068AbWKGUSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:18:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CNraNV1afI5jiMwLfzE0IP4Jxg2wJJo2/4Ge2mIGjDmhd/3R8URZ0LaaFCCultiJjAtemePD4jJnb74gsc1wZF95jUOQQTVLgOp8TyJx8b75C6HNXlZ6GpXCtz+LQJifg7fV1Es4GoFhqUgl2jWgkm0EjJBw2ZFdZXtQ2TVLli4=
+Message-ID: <170fa0d20611071218t3c145ef9i5413e432597d78a5@mail.gmail.com>
+Date: Tue, 7 Nov 2006 15:18:08 -0500
+From: "Mike Snitzer" <snitzer@gmail.com>
+To: "device-mapper development" <dm-devel@redhat.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Ingo Molnar" <mingo@elte.hu>, "Eric Sandeen" <sandeen@sandeen.net>,
+       "Srinivasa DS" <srinivasa@in.ibm.com>
+Subject: Re: [dm-devel] [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+In-Reply-To: <20061107183459.GG6993@agk.surrey.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611072119.49397.earny@net4u.de>
+References: <20061107183459.GG6993@agk.surrey.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 November 2006 21:06, Russell King wrote:
-> On Sun, Nov 05, 2006 at 07:23:30AM +0100, Adrian Bunk wrote:
-> > On Sat, Nov 04, 2006 at 02:04:40PM +0000, Russell King wrote:
-> > > On Sat, Nov 04, 2006 at 04:49:07AM +0100, Adrian Bunk wrote:
-> > > > As far as I can see, the 2.6.19-rc ThinkPad situation is still
-> > > > confusing and we don't even know how many different bugs we are
-> > > > chasing...
-> > >
-> > > Why am I copied on this?  Nothing jumps out as being in any area of
-> > > my interest (which today is limited to ARM architecture only.)
-> >
-> > Ernst bisected his problem to your
-> > commit 1fbbac4bcb03033d325c71fc7273aa0b9c1d9a03
-> > ("serial_cs: convert multi-port table to quirk table").
-> >
-> > It might be a false positive of the bisecting, but if it turns out to
-> > actually cause problems it was your commit.
+On 11/7/06, Alasdair G Kergon <agk@redhat.com> wrote:
+> From: Srinivasa Ds <srinivasa@in.ibm.com>
 >
-> No idea, sorry.
->
-> No information if a serial card was in the PCMCIA slot.  If there's
-> no _PCMCIA_ serial card inserted, the code in that patch will not be
-> run.
->
-> Also no indication if serial_cs was built into Earnst's kernel.  If
-> it wasn't, this commit couldn't be the cause.
->
-> NeedMoreInformation.
+> On debugging I found out that,"dmsetup suspend <device name>" calls
+> "freeze_bdev()",which locks "bd_mount_mutex" to make sure that no new mounts
+> happen on bdev until thaw_bdev() is called.  This "thaw_bdev()" is getting
+> called when we resume the device through "dmsetup resume <device-name>".
+> Hence we have 2 processes,one of which locks "bd_mount_mutex"(dmsetup
+> suspend) and another(dmsetup resume) unlocks it.
 
-It was a false positive of the bisecting. Now i can reproduce the problem 
-without Cardbus/PCMCIA complied in.
+Srinivasa's description of the patch just speaks to how freeze_bdev
+and thaw_bdev are used by DM but completely skips justification for
+switching from mutex to semaphore.  Why is it beneficial and/or
+necessary to use a semaphore instead of a mutex here?
 
-So you are now allowed to remove yoursef from the distribution list ;-)
-
-Sorry,
-
-<earny>
+Mike

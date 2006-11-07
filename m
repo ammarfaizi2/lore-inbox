@@ -1,70 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWKGGIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753982AbWKGG0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWKGGIe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 01:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754073AbWKGGId
+	id S1753982AbWKGG0F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 01:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754070AbWKGG0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 01:08:33 -0500
-Received: from nz-out-0102.google.com ([64.233.162.203]:9540 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1754069AbWKGGIc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 01:08:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RED0A9q7xB0EffqCSlFDqMRl6eNR6Id9XouGGjEVH6C994nehyFfRByKEeKimrDkzpnSaybFzkgxm7Oyfjzsyxi0gEYUAWISCcZNjuGQ08Km5AlyblMbtZshBcwv4SxVcZ0Yz+GOTK+dNfS12HPDl5xlTOkiDDdjcXYaAcBvfUA=
-Message-ID: <f55850a70611062208l214c1a62vc8ec9133eaca2e5e@mail.gmail.com>
-Date: Tue, 7 Nov 2006 14:08:31 +0800
-From: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
-To: "Eric Dumazet" <dada1@cosmosbay.com>
-Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
-Cc: linux-kernel@vger.kernel.org, "Linux Netdev List" <netdev@vger.kernel.org>
-In-Reply-To: <45501F60.4070606@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Tue, 7 Nov 2006 01:26:05 -0500
+Received: from server99.tchmachines.com ([72.9.230.178]:22925 "EHLO
+	server99.tchmachines.com") by vger.kernel.org with ESMTP
+	id S1753982AbWKGG0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 01:26:01 -0500
+Date: Mon, 6 Nov 2006 22:25:36 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Dave Jones <davej@redhat.com>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-mm@kvack.org,
+       "Benzi Galili (Benzi@ScaleMP.com)" <benzi@scalemp.com>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
+Subject: Re: [PATCH 2/3] add dev_to_node()
+Message-ID: <20061107062536.GA3729@localhost.localdomain>
+References: <20061030141501.GC7164@lst.de> <20061030.143357.130208425.davem@davemloft.net> <20061104225629.GA31437@lst.de> <20061104230648.GB640@redhat.com> <20061104235323.GA1353@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <f55850a70611052207j384e1d3flaf40bb9dd74df7c5@mail.gmail.com>
-	 <200611061022.57840.dada1@cosmosbay.com>
-	 <f55850a70611060146o1b2adcabq8c1313f6711f3f4e@mail.gmail.com>
-	 <200611061433.50912.dada1@cosmosbay.com>
-	 <f55850a70611061848g5f316399oe877a38705e7f99b@mail.gmail.com>
-	 <45501F60.4070606@cosmosbay.com>
+In-Reply-To: <20061104235323.GA1353@lst.de>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server99.tchmachines.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/06, Eric Dumazet <dada1@cosmosbay.com> wrote:
-> Zhao Xiaoming a écrit :
-> > On 11/6/06, Eric Dumazet <dada1@cosmosbay.com> wrote:
-> >> In fact, your kernel has CONFIG_4KSTACKS, kernel thread stacks use 4K
-> >> instead
-> >> of 8K.
-> >>
-> >> If you want to increase LOWMEM, (and keep 32bits kernel), you can chose a
-> >> 2G/2G user/kernel split, instead of the 3G/1G default split.
-> >> (see config : CONFIG_VMSPLIT_2G)
-> >>
-> >> Eric
->
-> > Thank you for your advice. I know increase LOMEM could be help, but
-> > now my concern is why I lose my 500M bytes memory after excluding all
-> > known memory cost.
->
-> Unfortunatly you dont provide very much details.
-> AFAIK you didnt even gave whcih version of linux you run, which programs you
-> run...
-> You keep answering where you 'lost' your mem, it's quite buging.
-> Maybe some Oracles on this list will see the light for you, before exchanging
-> 100 mails with you ?
->
->
-I think I aready gave the kernel version and introduced my application
-in the first post. What are the further details you want? The reason I
-keep asking for the 'lost mem' is that I want to focus on the problem,
-not the workarrounds that may lead to further problems if I keep
-increasing the concurrent scale.
-Anyway, since the problem is already solved (see my last post), I'd
-like to thank you for the help.
+On Sun, Nov 05, 2006 at 12:53:23AM +0100, Christoph Hellwig wrote:
+> On Sat, Nov 04, 2006 at 06:06:48PM -0500, Dave Jones wrote:
+> > On Sat, Nov 04, 2006 at 11:56:29PM +0100, Christoph Hellwig wrote:
+> > 
+> > This will break the compile for !NUMA if someone ends up doing a bisect
+> > and lands here as a bisect point.
+> > 
+> > You introduce this nice wrapper..
+> 
+> The dev_to_node wrapper is not enough as we can't assign to (-1) for
+> the non-NUMA case.  So I added a second macro, set_dev_node for that.
+> 
+> The patch below compiles and works on numa and non-NUMA platforms.
+> 
+> 
 
-Xiaoming.
+Hi Christoph,
+dev_to_node does not work as expected on x86_64 (and i386).  This is because
+node value returned by pcibus_to_node is initialized after a struct device
+is created with current x86_64 code.
+
+We need the node value initialized before the call to pci_scan_bus_parented,
+as the generic devices are allocated and initialized
+off pci_scan_child_bus, which gets called from pci_scan_bus_parented
+The following patch does that using "pci_sysdata" introduced by the PCI
+domain patches in -mm.
+
+Signed-off-by: Alok N Kataria <alok.kataria@calsoftinc.com>
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
+
+Index: linux-2.6.19-rc4mm2/arch/i386/pci/acpi.c
+===================================================================
+--- linux-2.6.19-rc4mm2.orig/arch/i386/pci/acpi.c	2006-11-06 11:03:50.000000000 -0800
++++ linux-2.6.19-rc4mm2/arch/i386/pci/acpi.c	2006-11-06 22:04:14.000000000 -0800
+@@ -9,6 +9,7 @@ struct pci_bus * __devinit pci_acpi_scan
+ {
+ 	struct pci_bus *bus;
+ 	struct pci_sysdata *sd;
++	int pxm;
+ 
+ 	/* Allocate per-root-bus (not per bus) arch-specific data.
+ 	 * TODO: leak; this memory is never freed.
+@@ -30,15 +31,21 @@ struct pci_bus * __devinit pci_acpi_scan
+ 	}
+ #endif /* CONFIG_PCI_DOMAINS */
+ 
++	sd->node = -1;
++
++	pxm = acpi_get_pxm(device->handle);
++#ifdef CONFIG_ACPI_NUMA
++	if (pxm >= 0)
++		sd->node = pxm_to_node(pxm);
++#endif
++
+ 	bus = pci_scan_bus_parented(NULL, busnum, &pci_root_ops, sd);
+ 	if (!bus)
+ 		kfree(sd);
+ 
+ #ifdef CONFIG_ACPI_NUMA
+ 	if (bus != NULL) {
+-		int pxm = acpi_get_pxm(device->handle);
+ 		if (pxm >= 0) {
+-			sd->node = pxm_to_node(pxm);
+ 			printk("bus %d -> pxm %d -> node %d\n",
+ 				busnum, pxm, sd->node);
+ 		}

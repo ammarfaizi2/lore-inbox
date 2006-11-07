@@ -1,617 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965470AbWKGQwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965464AbWKGQvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965470AbWKGQwF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 11:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965357AbWKGQwB
+	id S965464AbWKGQvc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 11:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965368AbWKGQva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 11:52:01 -0500
-Received: from nz-out-0102.google.com ([64.233.162.197]:47111 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965468AbWKGQvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 11:51:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=L7jp/+jHJpoD/rYNeL69SKN3uY7PPdW3M5UyeZWrUVAbr5zXiVufiHHwSJZSVOZXx/XnvwZF4b9YXodb1+84o2r6C1RraFXmYSYH2rliP5gW060tx0XSCUYhmQ2vBA9EZXOf/tSFzd6SoIj7n2B0gA6jZ8jsYFFdN2MOV7SXbSw=
-From: Yu Luming <luming.yu@gmail.com>
-Organization: gmail
-To: Andrew Morton <akpm@osdl.org>
-Subject: [patch 3/5] backlight and output sysfs support for acpi video driver
-Date: Wed, 8 Nov 2006 00:50:50 +0800
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, len.brown@intel.com,
-       Matt Domsch <Matt_Domsch@dell.com>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr,
-       Richard Hughes <hughsient@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611080050.51103.luming.yu@gmail.com>
+	Tue, 7 Nov 2006 11:51:30 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:28327 "EHLO
+	kano.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S965291AbWKGQv0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 11:51:26 -0500
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: [take23 0/5] kevent: Generic event handling mechanism.
+In-Reply-To: <1154985aa0591036@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 7 Nov 2006 19:50:48 +0300
+Message-Id: <11629182482886@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 3/5: 
-1. Adds backlight and output sysfs support for acpi video driver.
-2. several minor coding style fixes and cleanup.
 
-signed-off-by: Luming Yu <Luming.yu@intel.com>
---
- acpi/Kconfig   |    2
- acpi/video.c   |  323 +++++++++++++++++++++++++++++++++++++++++++++------------
- video/Kconfig  |    9 +
- video/Makefile |    1
- 4 files changed, 266 insertions(+), 69 deletions(-)
+Generic event handling mechanism.
 
-diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
-index 3f7e9f3..1ffbf30 100644
---- a/drivers/acpi/Kconfig
-+++ b/drivers/acpi/Kconfig
-@@ -106,7 +106,7 @@ config ACPI_BUTTON
- 
- config ACPI_VIDEO
- 	tristate "Video"
--	depends on X86
-+	depends on X86 && (BACKLIGHT_CLASS_DEVICE && VIDEO_OUTPUT_CONTROL)
- 	help
- 	  This driver implement the ACPI Extensions For Display Adapters
- 	  for integrated graphics devices on motherboard, as specified in
-diff --git a/drivers/acpi/video.c b/drivers/acpi/video.c
-index 53a9eb0..bafaa7a 100644
---- a/drivers/acpi/video.c
-+++ b/drivers/acpi/video.c
-@@ -30,6 +30,9 @@ #include <linux/types.h>
- #include <linux/list.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
-+#include <linux/pci.h>
-+#include <linux/backlight.h>
-+#include <linux/video_output.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -55,11 +58,17 @@ #define ACPI_VIDEO_NOTIFY_DISPLAY_OFF		0
- 
- #define ACPI_VIDEO_HEAD_INVALID		(~0u - 1)
- #define ACPI_VIDEO_HEAD_END		(~0u)
-+#define DEBUG 0
-+#if DEBUG
-+#define dprintk(fmt,args...) printk(fmt,args)
-+#else
-+#define dprintk(fmt,args...)
-+#endif
- 
- #define _COMPONENT		ACPI_VIDEO_COMPONENT
- ACPI_MODULE_NAME("acpi_video")
- 
--    MODULE_AUTHOR("Bruno Ducrot");
-+MODULE_AUTHOR("Bruno Ducrot");
- MODULE_DESCRIPTION(ACPI_VIDEO_DRIVER_NAME);
- MODULE_LICENSE("GPL");
- 
-@@ -141,11 +150,11 @@ struct acpi_video_device_cap {
- 	u8 _ADR:1;		/*Return the unique ID */
- 	u8 _BCL:1;		/*Query list of brightness control levels supported */
- 	u8 _BCM:1;		/*Set the brightness level */
-+	u8 _BQC:1;		/* Get current brightness level */
- 	u8 _DDC:1;		/*Return the EDID for this device */
- 	u8 _DCS:1;		/*Return status of output device */
- 	u8 _DGS:1;		/*Query graphics state */
- 	u8 _DSS:1;		/*Device state set */
--	u8 _reserved:1;
- };
- 
- struct acpi_video_device_brightness {
-@@ -162,6 +171,7 @@ struct acpi_video_device {
- 	struct acpi_video_bus *video;
- 	struct acpi_device *dev;
- 	struct acpi_video_device_brightness *brightness;
-+	struct output_device *output_dev;
- };
- 
- /* bus */
-@@ -250,16 +260,71 @@ static char device_decode[][30] = {
- 	"UNKNOWN",
- };
- 
--static void acpi_video_device_notify(acpi_handle handle, u32 event, void *data);
-+static void acpi_video_device_notify(acpi_handle handle, u32 event,void *data);
- static void acpi_video_device_rebind(struct acpi_video_bus *video);
- static void acpi_video_device_bind(struct acpi_video_bus *video,
--				   struct acpi_video_device *device);
-+		struct acpi_video_device *device);
- static int acpi_video_device_enumerate(struct acpi_video_bus *video);
--static int acpi_video_switch_output(struct acpi_video_bus *video, int event);
-+static int acpi_video_switch_output(struct acpi_video_bus *video,int event);
- static int acpi_video_get_next_level(struct acpi_video_device *device,
--				     u32 level_current, u32 event);
-+		u32 level_current,u32 event);
- static void acpi_video_switch_brightness(struct acpi_video_device *device,
--					 int event);
-+		int event);
-+static int acpi_video_device_lcd_set_level(struct acpi_video_device *,int);
-+static int acpi_video_device_lcd_get_level_current(struct acpi_video_device *,
-+		unsigned long *);
-+/*backlight device sysfs support*/
-+static int acpi_video_get_brightness(struct backlight_device *bd);
-+static int acpi_video_set_brightness(struct backlight_device *bd);
-+static int acpi_video_output_get(struct output_device *);
-+static int acpi_video_output_set(struct output_device *);
-+static int acpi_video_device_get_state(struct acpi_video_device *,
-+		unsigned long *);
-+static int acpi_video_device_set_state(struct acpi_video_device *,int);
-+
-+static struct backlight_device *acpi_video_backlight;
-+static struct acpi_video_device *backlight_acpi_device;
-+static struct backlight_properties acpi_video_data = {
-+	.owner		= THIS_MODULE,
-+	.max_brightness = 0,
-+	.get_brightness = acpi_video_get_brightness,
-+	.update_status  = acpi_video_set_brightness,
-+};
-+static struct output_properties acpi_output_properties = {
-+	.set_state = acpi_video_output_set,
-+	.get_status = acpi_video_output_get,
-+};
-+static int acpi_video_get_brightness(struct backlight_device *bd)
-+{
-+	unsigned long cur_level;
-+	acpi_video_device_lcd_get_level_current(backlight_acpi_device,
-+		&cur_level);
-+	return (int) cur_level;
-+}
-+
-+static int acpi_video_set_brightness(struct backlight_device *bd)
-+{
-+	int request_level = bd->props->brightness;
-+	acpi_video_device_lcd_set_level(backlight_acpi_device,request_level);
-+	return 0;
-+}
-+
-+static int acpi_video_output_get(struct output_device *od)
-+{
-+	unsigned long state;
-+	struct acpi_video_device *vd =
-+		(struct acpi_video_device *)class_get_devdata(&od->class_dev);
-+	acpi_video_device_get_state(vd,&state);
-+	return (int)state;
-+}
-+
-+static int acpi_video_output_set(struct output_device *od)
-+{
-+	unsigned long state = od->request_state;
-+	struct acpi_video_device *vd =
-+		(struct acpi_video_device *)class_get_devdata(&od->class_dev);
-+	return acpi_video_device_set_state(vd,state);
-+}
- 
- /* --------------------------------------------------------------------------
-                                Video Management
-@@ -268,39 +333,27 @@ static void acpi_video_switch_brightness
- /* device */
- 
- static int
--acpi_video_device_query(struct acpi_video_device *device, unsigned long *state)
-+acpi_video_device_query(struct acpi_video_device *device,unsigned long *state)
- {
--	int status;
--
--	status = acpi_evaluate_integer(device->dev->handle, "_DGS", NULL, state);
--
--	return status;
-+	return acpi_evaluate_integer(device->dev->handle,"_DGS",NULL,state);
- }
- 
- static int
- acpi_video_device_get_state(struct acpi_video_device *device,
- 			    unsigned long *state)
- {
--	int status;
--
--	status = acpi_evaluate_integer(device->dev->handle, "_DCS", NULL, state);
--
--	return status;
-+	return acpi_evaluate_integer(device->dev->handle,"_DCS",NULL,state);
- }
- 
- static int
- acpi_video_device_set_state(struct acpi_video_device *device, int state)
- {
--	int status;
- 	union acpi_object arg0 = { ACPI_TYPE_INTEGER };
- 	struct acpi_object_list args = { 1, &arg0 };
- 	unsigned long ret;
- 
--
- 	arg0.integer.value = state;
--	status = acpi_evaluate_integer(device->dev->handle, "_DSS", &args, &ret);
--
--	return status;
-+	return acpi_evaluate_integer(device->dev->handle,"_DSS",&args,&ret);
- }
- 
- static int
-@@ -311,10 +364,8 @@ acpi_video_device_lcd_query_levels(struc
- 	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
- 	union acpi_object *obj;
- 
--
- 	*levels = NULL;
--
--	status = acpi_evaluate_object(device->dev->handle, "_BCL", NULL, &buffer);
-+	status = acpi_evaluate_object(device->dev->handle,"_BCL",NULL,&buffer);
- 	if (!ACPI_SUCCESS(status))
- 		return status;
- 	obj = (union acpi_object *)buffer.pointer;
-@@ -323,29 +374,23 @@ acpi_video_device_lcd_query_levels(struc
- 		status = -EFAULT;
- 		goto err;
- 	}
--
- 	*levels = obj;
--
- 	return 0;
--
-       err:
- 	kfree(buffer.pointer);
--
- 	return status;
- }
- 
- static int
--acpi_video_device_lcd_set_level(struct acpi_video_device *device, int level)
-+acpi_video_device_lcd_set_level(struct acpi_video_device *device,int level)
- {
- 	int status;
- 	union acpi_object arg0 = { ACPI_TYPE_INTEGER };
--	struct acpi_object_list args = { 1, &arg0 };
--
-+	struct acpi_object_list args = { 1,&arg0 };
- 
- 	arg0.integer.value = level;
--	status = acpi_evaluate_object(device->dev->handle, "_BCM", &args, NULL);
--
--	printk(KERN_DEBUG "set_level status: %x\n", status);
-+	status = acpi_evaluate_object(device->dev->handle,"_BCM",&args,NULL);
-+	dprintk(KERN_DEBUG PREFIX "set_level status: %x\n",status);
- 	return status;
- }
- 
-@@ -353,11 +398,7 @@ static int
- acpi_video_device_lcd_get_level_current(struct acpi_video_device *device,
- 					unsigned long *level)
- {
--	int status;
--
--	status = acpi_evaluate_integer(device->dev->handle, "_BQC", NULL, level);
--
--	return status;
-+	return acpi_evaluate_integer(device->dev->handle,"_BQC",NULL,level);
- }
- 
- static int
-@@ -482,6 +523,129 @@ acpi_video_bus_DOS(struct acpi_video_bus
- 	return status;
- }
- 
-+
-+/*
-+ * cut&paste code for acpi_pci_data,acpi_pci_data_handler,acpi_pci_data
-+ * from pci_bind.c
-+ * To-do: write a new API: acpi_pci_get.
-+ */
-+struct acpi_pci_data {
-+	struct acpi_pci_id id;
-+	struct pci_bus *bus;
-+	struct pci_dev *dev;
-+};
-+static void acpi_pci_data_handler(acpi_handle handle, u32 function,
-+	void *context)
-+{
-+	/* TBD: Anything we need to do here? */
-+	return;
-+}
-+
-+static struct acpi_pci_data * acpi_pci_get (struct acpi_device *device)
-+{
-+	acpi_status status = AE_OK;
-+	struct acpi_pci_data *data = NULL;
-+	struct acpi_pci_data *pdata = NULL;
-+	char *pathname = NULL;
-+	struct acpi_buffer buffer = { 0,NULL };
-+	struct pci_dev *dev;
-+	struct pci_bus *bus;
-+	struct acpi_device *tmp_dev = NULL;
-+
-+	if (!device || !device->parent)
-+		return NULL;
-+
-+	pathname = kzalloc(ACPI_PATHNAME_MAX,GFP_KERNEL);
-+	if (!pathname)
-+		return NULL;
-+	buffer.length = ACPI_PATHNAME_MAX;
-+	buffer.pointer = pathname;
-+
-+	data = kzalloc(sizeof(struct acpi_pci_data),GFP_KERNEL);
-+	if (!data) {
-+		kfree(pathname);
-+		return NULL;
-+	}
-+	acpi_get_name(device->handle,ACPI_FULL_PATHNAME,&buffer);
-+	printk(KERN_INFO PREFIX "finding PCI device [%s]...\n",pathname);
-+	/*
-+	 * Segment & Bus
-+	 * -------------
-+	 * These are obtained via the parent device's ACPI-PCI context.
-+	 */
-+	do {
-+		status = acpi_get_data(device->parent->handle,
-+				acpi_pci_data_handler,
-+				(void **)&pdata);
-+		if (ACPI_FAILURE(status) || !pdata || !pdata->bus) {
-+			tmp_dev = device->parent;
-+			if (tmp_dev->parent &&
-+				(tmp_dev->parent->handle != ACPI_ROOT_OBJECT))
-+				device = tmp_dev;
-+			else {
-+				ACPI_EXCEPTION((AE_INFO, status,
-+				"Invalid ACPI-PCI context for parent device %s",
-+				acpi_device_bid(device->parent)));
-+				kfree(pathname);
-+				kfree(data);
-+				return NULL;
-+			}
-+		}
-+	} while (tmp_dev); 
-+
-+	data->id.segment = pdata->id.segment;
-+	data->id.bus = pdata->bus->number;
-+
-+	/*
-+	 * Device & Function
-+	 * -----------------
-+	 * These are simply obtained from the device's _ADR method.  Note
-+	 * that a value of zero is valid.
-+	 */
-+	data->id.device = device->pnp.bus_address >> 16;
-+	data->id.function = device->pnp.bus_address & 0xFFFF;
-+
-+	printk(KERN_INFO PREFIX "...to %02x:%02x:%02x.%02x\n",
-+		data->id.segment,data->id.bus, data->id.device,
-+		data->id.function);
-+	/*
-+	 * TBD: Support slot devices (e.g. function=0xFFFF).
-+	 */
-+
-+	/*
-+	 * Locate PCI Device
-+	 * -----------------
-+	 * Locate matching device in PCI namespace.  If it doesn't exist
-+	 * this typically means that the device isn't currently inserted
-+	 * (e.g. docking station, port replicator, etc.).
-+	 * We cannot simply search the global pci device list, since
-+	 * PCI devices are added to the global pci list when the root
-+	 * bridge start ops are run, which may not have happened yet.
-+	 */
-+	bus = pci_find_bus(data->id.segment, data->id.bus);
-+	if (bus) {
-+		list_for_each_entry(dev, &bus->devices, bus_list) {
-+			if (dev->devfn == PCI_DEVFN(data->id.device,
-+					data->id.function)) {
-+				data->dev = dev;
-+				break;
-+			}
-+		}
-+	}
-+	dprintk(KERN_INFO PREFIX "data->dev =%p", &data->dev);
-+	dprintk(KERN_INFO PREFIX "data->dev->dev =%p\n", &data->dev->dev);
-+	kfree(pathname);
-+	if (!data->dev) {
-+		printk(KERN_ERR PREFIX 
-+		"Device %02x:%02x:%02x.%02x not present in PCI namespace\n",
-+		data->id.segment, data->id.bus,
-+		data->id.device, data->id.function);
-+		kfree(data);
-+		return NULL;
-+	}
-+	return data;
-+}
-+
- /*
-  *  Arg:	
-  *  	device	: video output device (LCD, CRT, ..)
-@@ -498,35 +662,36 @@ static void acpi_video_device_find_cap(s
- 	acpi_integer status;
- 	acpi_handle h_dummy1;
- 	int i;
-+	u32 max_level = 0;
- 	union acpi_object *obj = NULL;
- 	struct acpi_video_device_brightness *br = NULL;
-+	struct acpi_pci_data *data;
- 
--
-+	data = acpi_pci_get (device->video->device);
-+	if (!data || !(data->dev)) {
-+		printk(KERN_ERR PREFIX
-+		"acpi_video_device:no valid data from acpi_pci_get\n");
-+		return;
-+	}
- 	memset(&device->cap, 0, 4);
--
--	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle, "_ADR", &h_dummy1))) {
-+	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle,"_ADR",&h_dummy1)))
- 		device->cap._ADR = 1;
--	}
--	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle, "_BCL", &h_dummy1))) {
-+	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle,"_BCL",&h_dummy1)))
- 		device->cap._BCL = 1;
--	}
--	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle, "_BCM", &h_dummy1))) {
-+	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle,"_BCM",&h_dummy1)))
- 		device->cap._BCM = 1;
--	}
--	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle, "_DDC", &h_dummy1))) {
-+	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle,"_BQC",&h_dummy1)))
-+		device->cap._BQC = 1;
-+	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle,"_DDC",&h_dummy1)))
- 		device->cap._DDC = 1;
--	}
--	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle, "_DCS", &h_dummy1))) {
-+	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle,"_DCS",&h_dummy1)))
- 		device->cap._DCS = 1;
--	}
--	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle, "_DGS", &h_dummy1))) {
-+	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle,"_DGS",&h_dummy1)))
- 		device->cap._DGS = 1;
--	}
--	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle, "_DSS", &h_dummy1))) {
-+	if (ACPI_SUCCESS(acpi_get_handle(device->dev->handle,"_DSS",&h_dummy1)))
- 		device->cap._DSS = 1;
--	}
- 
--	status = acpi_video_device_lcd_query_levels(device, &obj);
-+	status = acpi_video_device_lcd_query_levels(device,&obj);
- 
- 	if (obj && obj->type == ACPI_TYPE_PACKAGE && obj->package.count >= 2) {
- 		int count = 0;
-@@ -534,11 +699,11 @@ static void acpi_video_device_find_cap(s
- 
- 		br = kmalloc(sizeof(*br), GFP_KERNEL);
- 		if (!br) {
--			printk(KERN_ERR "can't allocate memory\n");
-+			printk(KERN_ERR PREFIX "can't allocate memory\n");
- 		} else {
- 			memset(br, 0, sizeof(*br));
- 			br->levels = kmalloc(obj->package.count *
--					     sizeof *(br->levels), GFP_KERNEL);
-+				sizeof *(br->levels), GFP_KERNEL);
- 			if (!br->levels)
- 				goto out;
- 
-@@ -546,10 +711,12 @@ static void acpi_video_device_find_cap(s
- 				o = (union acpi_object *)&obj->package.
- 				    elements[i];
- 				if (o->type != ACPI_TYPE_INTEGER) {
--					printk(KERN_ERR PREFIX "Invalid data\n");
-+				printk(KERN_ERR PREFIX "Invalid data\n");
- 					continue;
- 				}
- 				br->levels[count] = (u32) o->integer.value;
-+				if (br->levels[count] > max_level)
-+					max_level = br->levels[count];
- 				count++;
- 			}
- 		      out:
-@@ -560,14 +727,34 @@ static void acpi_video_device_find_cap(s
- 				br->count = count;
- 				device->brightness = br;
- 				ACPI_DEBUG_PRINT((ACPI_DB_INFO,
--						  "found %d brightness levels\n",
--						  count));
-+					"found %d brightness levels\n",
-+					 count));
- 			}
- 		}
- 	}
- 
- 	kfree(obj);
- 
-+	if (device->cap._BCL && device->cap._BCM && device->cap._BQC){
-+		unsigned long tmp;
-+		acpi_video_data.max_brightness = max_level;
-+		acpi_video_device_lcd_get_level_current(device, &tmp);
-+		acpi_video_data.brightness = tmp;
-+		acpi_video_backlight = backlight_device_register("acpi-video",
-+			&(data->dev->dev),NULL,&acpi_video_data);
-+		backlight_acpi_device = device;
-+	}
-+
-+	if (device->cap._DCS && device->cap._DSS){
-+		char name[16];
-+		memset(name,0,16);
-+		strcat(name,acpi_device_bid(device->dev->parent));
-+		strcat(name,"_");
-+		strcpy(name,acpi_device_bid(device->dev));
-+		device->output_dev = video_output_register(name,
-+					&(data->dev->dev),
-+					device,&acpi_output_properties);
-+	}
- 	return;
- }
- 
-@@ -1007,7 +1194,6 @@ static int acpi_video_bus_POST_info_seq_
- 			printk(KERN_WARNING PREFIX
- 			       "This indicate a BIOS bug.  Please contact the manufacturer.\n");
- 		}
--		printk("%lx\n", options);
- 		seq_printf(seq, "can POST: <intgrated video>");
- 		if (options & 2)
- 			seq_printf(seq, " <PCI video>");
-@@ -1264,7 +1450,6 @@ acpi_video_bus_get_one_device(struct acp
- 			return -ENOMEM;
- 
- 		memset(data, 0, sizeof(struct acpi_video_device));
--
- 		strcpy(acpi_device_name(device), ACPI_VIDEO_DEVICE_NAME);
- 		strcpy(acpi_device_class(device), ACPI_VIDEO_CLASS);
- 		acpi_driver_data(device) = data;
-@@ -1564,6 +1749,10 @@ static int acpi_video_bus_put_one_device
- 	status = acpi_remove_notify_handler(device->dev->handle,
- 					    ACPI_DEVICE_NOTIFY,
- 					    acpi_video_device_notify);
-+	if (device == backlight_acpi_device)
-+		backlight_device_unregister(acpi_video_backlight);
-+
-+	video_output_unregister(device->output_dev);
- 
- 	return 0;
- }
-@@ -1611,7 +1800,7 @@ static void acpi_video_bus_notify(acpi_h
- 	struct acpi_video_bus *video = data;
- 	struct acpi_device *device = NULL;
- 
--	printk("video bus notify\n");
-+	printk(KERN_INFO PREFIX "video bus notify\n");
- 
- 	if (!video)
- 		return;
-@@ -1653,8 +1842,6 @@ static void acpi_video_device_notify(acp
- 	struct acpi_video_device *video_device = data;
- 	struct acpi_device *device = NULL;
- 
--
--	printk("video device notify\n");
- 	if (!video_device)
- 		return;
- 
-diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-index 7a43020..effcb23 100644
---- a/drivers/video/Kconfig
-+++ b/drivers/video/Kconfig
-@@ -1644,5 +1644,14 @@ if SYSFS
- 	source "drivers/video/backlight/Kconfig"
- endif
- 
-+
-+config VIDEO_OUTPUT_CONTROL
-+	tristate "Video Output Switcher control"
-+	depends on SYSFS
-+	---help---
-+	  The output sysfs class driver is to provide video output abstract
-+	  layer that can be used to hook platform specific driver methods
-+	  to enable/disable display output device through common sysfs
-+	  interface.	  
- endmenu
- 
-diff --git a/drivers/video/Makefile b/drivers/video/Makefile
-index a6980e9..0f82eed 100644
---- a/drivers/video/Makefile
-+++ b/drivers/video/Makefile
-@@ -108,3 +108,4 @@ obj-$(CONFIG_FB_OF)               += off
- 
- # the test framebuffer is last
- obj-$(CONFIG_FB_VIRTUAL)          += vfb.o
-+obj-$(CONFIG_VIDEO_OUTPUT_CONTROL) += output.o
+Kevent is a generic subsytem which allows to handle event notifications.
+It supports both level and edge triggered events. It is similar to
+poll/epoll in some cases, but it is more scalable, it is faster and
+allows to work with essentially eny kind of events.
+
+Events are provided into kernel through control syscall and can be read
+back through mmaped ring or syscall.
+Kevent update (i.e. readiness switching) happens directly from internals
+of the appropriate state machine of the underlying subsytem (like
+network, filesystem, timer or any other).
+
+Homepage:
+http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+
+Documentation page:
+http://linux-net.osdl.org/index.php/Kevent
+
+Consider for inclusion.
+
+Changes from 'take22' patchset:
+* new ring buffer implementation in process' memory
+* wakeup-one-thread flag
+* edge-triggered behaviour
+With this release additional independent benchmark shows kevent speed compared to epoll:
+Eric Dumazet created special benchmark which creates set of AF_INET sockets and two threads 
+start to simultaneously read and write data from/into them.
+Here is results:
+epoll (no EPOLLET): 57428 events/sec
+kevent (no ET): 59794 events/sec
+epoll (with EPOLLET): 71000 events/sec
+kevent (with ET): 78265 events/sec
+Maximum (busy loop reading events): 88482 events/sec
+
+Changes from 'take21' patchset:
+ * minor cleanups (different return values, removed unneded variables, whitespaces and so on)
+ * fixed bug in kevent removal in case when kevent being removed
+   is the same as overflow_kevent (spotted by Eric Dumazet)
+
+Changes from 'take20' patchset:
+ * new ring buffer implementation
+ * removed artificial limit on possible number of kevents
+With this release and fixed userspace web server it was possible to 
+achive 3960+ req/s with client connection rate of 4000 con/s
+over 100 Mbit lan, data IO over network was about 10582.7 KB/s, which
+is too close to wire speed if we get into account headers and the like.
+
+Changes from 'take19' patchset:
+ * use __init instead of __devinit
+ * removed 'default N' from config for user statistic
+ * removed kevent_user_fini() since kevent can not be unloaded
+ * use KERN_INFO for statistic output
+
+Changes from 'take18' patchset:
+ * use __init instead of __devinit
+ * removed 'default N' from config for user statistic
+ * removed kevent_user_fini() since kevent can not be unloaded
+ * use KERN_INFO for statistic output
+
+Changes from 'take17' patchset:
+ * Use RB tree instead of hash table. 
+	At least for a web sever, frequency of addition/deletion of new kevent 
+	is comparable with number of search access, i.e. most of the time events 
+	are added, accesed only couple of times and then removed, so it justifies 
+	RB tree usage over AVL tree, since the latter does have much slower deletion 
+	time (max O(log(N)) compared to 3 ops), 
+	although faster search time (1.44*O(log(N)) vs. 2*O(log(N))). 
+	So for kevents I use RB tree for now and later, when my AVL tree implementation 
+	is ready, it will be possible to compare them.
+ * Changed readiness check for socket notifications.
+
+With both above changes it is possible to achieve more than 3380 req/second compared to 2200, 
+sometimes 2500 req/second for epoll() for trivial web-server and httperf client on the same
+hardware.
+It is possible that above kevent limit is due to maximum allowed kevents in a time limit, which is
+4096 events.
+
+Changes from 'take16' patchset:
+ * misc cleanups (__read_mostly, const ...)
+ * created special macro which is used for mmap size (number of pages) calculation
+ * export kevent_socket_notify(), since it is used in network protocols which can be 
+	built as modules (IPv6 for example)
+
+Changes from 'take15' patchset:
+ * converted kevent_timer to high-resolution timers, this forces timer API update at
+	http://linux-net.osdl.org/index.php/Kevent
+ * use struct ukevent* instead of void * in syscalls (documentation has been updated)
+ * added warning in kevent_add_ukevent() if ring has broken index (for testing)
+
+Changes from 'take14' patchset:
+ * added kevent_wait()
+    This syscall waits until either timeout expires or at least one event
+    becomes ready. It also commits that @num events from @start are processed
+    by userspace and thus can be be removed or rearmed (depending on it's flags).
+    It can be used for commit events read by userspace through mmap interface.
+    Example userspace code (evtest.c) can be found on project's homepage.
+ * added socket notifications (send/recv/accept)
+
+Changes from 'take13' patchset:
+ * do not get lock aroung user data check in __kevent_search()
+ * fail early if there were no registered callbacks for given type of kevent
+ * trailing whitespace cleanup
+
+Changes from 'take12' patchset:
+ * remove non-chardev interface for initialization
+ * use pointer to kevent_mring instead of unsigned longs
+ * use aligned 64bit type in raw user data (can be used by high-res timer if needed)
+ * simplified enqueue/dequeue callbacks and kevent initialization
+ * use nanoseconds for timeout
+ * put number of milliseconds into timer's return data
+ * move some definitions into user-visible header
+ * removed filenames from comments
+
+Changes from 'take11' patchset:
+ * include missing headers into patchset
+ * some trivial code cleanups (use goto instead of if/else games and so on)
+ * some whitespace cleanups
+ * check for ready_callback() callback before main loop which should save us some ticks
+
+Changes from 'take10' patchset:
+ * removed non-existent prototypes
+ * added helper function for kevent_registered_callbacks
+ * fixed 80 lines comments issues
+ * added shared between userspace and kernelspace header instead of embedd them in one
+ * core restructuring to remove forward declarations
+ * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
+ * use vm_insert_page() instead of remap_pfn_range()
+
+Changes from 'take9' patchset:
+ * fixed ->nopage method
+
+Changes from 'take8' patchset:
+ * fixed mmap release bug
+ * use module_init() instead of late_initcall()
+ * use better structures for timer notifications
+
+Changes from 'take7' patchset:
+ * new mmap interface (not tested, waiting for other changes to be acked)
+	- use nopage() method to dynamically substitue pages
+	- allocate new page for events only when new added kevent requres it
+	- do not use ugly index dereferencing, use structure instead
+	- reduced amount of data in the ring (id and flags), 
+		maximum 12 pages on x86 per kevent fd
+
+Changes from 'take6' patchset:
+ * a lot of comments!
+ * do not use list poisoning for detection of the fact, that entry is in the list
+ * return number of ready kevents even if copy*user() fails
+ * strict check for number of kevents in syscall
+ * use ARRAY_SIZE for array size calculation
+ * changed superblock magic number
+ * use SLAB_PANIC instead of direct panic() call
+ * changed -E* return values
+ * a lot of small cleanups and indent fixes
+
+Changes from 'take5' patchset:
+ * removed compilation warnings about unused wariables when lockdep is not turned on
+ * do not use internal socket structures, use appropriate (exported) wrappers instead
+ * removed default 1 second timeout
+ * removed AIO stuff from patchset
+
+Changes from 'take4' patchset:
+ * use miscdevice instead of chardevice
+ * comments fixes
+
+Changes from 'take3' patchset:
+ * removed serializing mutex from kevent_user_wait()
+ * moved storage list processing to RCU
+ * removed lockdep screaming - all storage locks are initialized in the same function, so it was
+learned 
+	to differentiate between various cases
+ * remove kevent from storage if is marked as broken after callback
+ * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
+
+Changes from 'take2' patchset:
+ * split kevent_finish_user() to locked and unlocked variants
+ * do not use KEVENT_STAT ifdefs, use inline functions instead
+ * use array of callbacks of each type instead of each kevent callback initialization
+ * changed name of ukevent guarding lock
+ * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
+ * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
+ * various indent cleanups
+ * added optimisation, which is aimed to help when a lot of kevents are being copied from
+userspace
+ * mapped buffer (initial) implementation (no userspace yet)
+
+Changes from 'take1' patchset:
+ - rebased against 2.6.18-git tree
+ - removed ioctl controlling
+ - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
+			unsigned int timeout, void __user *buf, unsigned flags)
+ - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
+	initialization
+ - use mutuxes instead of semaphores
+ - added file descriptor check and return error if provided descriptor does not match
+	kevent file operations
+ - various indent fixes
+ - removed aio_sendfile() declarations.
+
+Thank you.
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
+

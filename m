@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753177AbWKGUaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753169AbWKGUcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753177AbWKGUaz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:30:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753190AbWKGUaz
+	id S1753169AbWKGUcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753185AbWKGUcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:30:55 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48068 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1753192AbWKGUax (ORCPT
+	Tue, 7 Nov 2006 15:32:46 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17349 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1753169AbWKGUco (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:30:53 -0500
-Date: Tue, 7 Nov 2006 21:29:43 +0100
+	Tue, 7 Nov 2006 15:32:44 -0500
+Date: Tue, 7 Nov 2006 21:31:47 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Christoph Lameter <clameter@sgi.com>
 Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
        mm-commits@vger.kernel.org, nickpiggin@yahoo.com.au,
        linux-kernel@vger.kernel.org
 Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
-Message-ID: <20061107202943.GA4753@elte.hu>
-References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net> <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com> <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
+Message-ID: <20061107203147.GB4753@elte.hu>
+References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net> <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com> <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com> <20061107095049.B3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611071113390.4582@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0611071113390.4582@schroedinger.engr.sgi.com>
 User-Agent: Mutt/1.4.2.2i
 X-ELTE-SpamScore: -2.8
 X-ELTE-SpamLevel: 
@@ -39,18 +39,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Christoph Lameter <clameter@sgi.com> wrote:
 
-> On Tue, 7 Nov 2006, Siddha, Suresh B wrote:
+> Tasklets are scheduled on the same cpu that triggered the tasklet. 
+> They are just moved to other processors if the processor goes down. So 
+> that aspect is fine. We just need a tasklet struct per cpu.
 > 
-> > Christoph, DECLARE_TASKLET that you had atleast needs to be per 
-> > cpu.. Not sure if there are any other concerns.
+> User a per cpu tasklet to schedule rebalancing
 > 
-> Nope. Tasklets scheduled and executed per cpu. These are the former 
-> bottom halves. See tasklet_schedule in kernel/softirq.c
+> Turns out that tasklets have a flag that only allows one instance to 
+> run on all processors. So we need a tasklet structure for each 
+> processor.
 
-no, they are "task"-lets. Softirqs are the equivalent of former 
-bottom-halves.
+Per-CPU tasklets are equivalent to softirqs, with extra complexity and 
+overhead ontop of it :-)
 
-a tasklet may run on any CPU but its execution is globally serialized - 
-it's not what we want to do in the scheduler.
+so please just introduce a rebalance softirq and attach the scheduling 
+rebalance tick to it. But i'd suggest to re-test on the 4096-CPU box, 
+maybe what 'fixed' your workload was the global serialization of the 
+tasklet. With a per-CPU softirq approach we are i think back to the same 
+situation that broke your system before.
 
 	Ingo

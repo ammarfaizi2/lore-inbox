@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753816AbWKGWps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752901AbWKGWxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753816AbWKGWps (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 17:45:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753817AbWKGWps
+	id S1752901AbWKGWxl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 17:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753417AbWKGWxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 17:45:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:50083 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1753816AbWKGWpr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 17:45:47 -0500
-Message-ID: <45510C73.7060408@redhat.com>
-Date: Tue, 07 Nov 2006 16:45:07 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Tue, 7 Nov 2006 17:53:41 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:47059 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1752901AbWKGWxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 17:53:40 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 7 Nov 2006 14:53:33 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take23 3/5] kevent: poll/select() notifications.
+In-Reply-To: <11629182482792@2ka.mipt.ru>
+Message-ID: <Pine.LNX.4.64.0611071449410.17731@alien.or.mcafeemobile.com>
+References: <11629182482792@2ka.mipt.ru>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
-       Srinivasa DS <srinivasa@in.ibm.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061107122837.54828e24.akpm@osdl.org>
-In-Reply-To: <20061107122837.54828e24.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Tue, 7 Nov 2006, Evgeniy Polyakov wrote:
 
->> --- linux-2.6.19-rc4.orig/fs/buffer.c	2006-11-07 17:06:20.000000000 +0000
->> +++ linux-2.6.19-rc4/fs/buffer.c	2006-11-07 17:26:04.000000000 +0000
->> @@ -188,7 +188,9 @@ struct super_block *freeze_bdev(struct b
->>  {
->>  	struct super_block *sb;
->>  
->> -	mutex_lock(&bdev->bd_mount_mutex);
->> +	if (down_trylock(&bdev->bd_mount_sem))
->> +		return -EBUSY;
->> +
-> 
-> This is a functional change which isn't described in the changelog.  What's
-> happening here?
+> +static int kevent_poll_wait_callback(wait_queue_t *wait,
+> +		unsigned mode, int sync, void *key)
+> +{
+> +	struct kevent_poll_wait_container *cont =
+> +		container_of(wait, struct kevent_poll_wait_container, wait);
+> +	struct kevent *k = cont->k;
+> +	struct file *file = k->st->origin;
+> +	u32 revents;
+> +
+> +	revents = file->f_op->poll(file, NULL);
+> +
+> +	kevent_storage_ready(k->st, NULL, revents);
+> +
+> +	return 0;
+> +}
 
-Only allow one bdev-freezer in at a time, rather than queueing them up?
+Are you sure you can safely call file->f_op->poll() from inside a callback 
+based wakeup? The low level driver may be calling the wakeup with one of 
+its locks held, and during the file->f_op->poll may be trying to acquire 
+the same lock. I remember there was a discussion about this, and assuming 
+the above not true, made epoll code more complex (and slower, since an 
+extra O(R) loop was needed to fetch events).
 
--Eric
+
+
+- Davide
+
+

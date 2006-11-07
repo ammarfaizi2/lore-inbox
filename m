@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753036AbWKGUDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753057AbWKGUC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753036AbWKGUDI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753065AbWKGUDI
+	id S1753057AbWKGUC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:02:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753064AbWKGUC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:03:08 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:21986 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1753036AbWKGUDF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:03:05 -0500
-Date: Tue, 7 Nov 2006 12:02:46 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Paul Menage" <menage@google.com>
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061107120246.4b6b3f0b.pj@sgi.com>
-In-Reply-To: <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-References: <20061030031531.8c671815.pj@sgi.com>
-	<20061030123652.d1574176.pj@sgi.com>
-	<6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com>
-	<20061031115342.GB9588@in.ibm.com>
-	<6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
-	<20061101172540.GA8904@in.ibm.com>
-	<6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
-	<20061106124948.GA3027@in.ibm.com>
-	<6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
-	<20061107104118.f02a1114.pj@sgi.com>
-	<6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Nov 2006 15:02:57 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:22740 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1753036AbWKGUC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:02:56 -0500
+From: Wolfgang =?iso-8859-2?q?M=FCes?= <wolfgang@iksw-muees.de>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Subject: Re: [PATCH 2.6.19-rc4] usb auerswald possible memleak fix
+Date: Tue, 7 Nov 2006 21:02:46 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
+References: <200611061903.09320.m.kozlowski@tuxland.pl> <200611070031.52051.m.kozlowski@tuxland.pl>
+In-Reply-To: <200611070031.52051.m.kozlowski@tuxland.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611072102.46447.wolfgang@iksw-muees.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:1c3f630c649b643c232b32cec9bf2e10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul M wrote:
-> I think it's better to treat resource groups as a common framework for
-> resource controllers, rather than a resource controller itself.
+Mariusz,
 
-You could well be right here - I was just using resource groups
-as another good example of a controller.  I'll let others decide
-if that's one or several controllers.
+On Tuesday 07 November 2006 00:31, Mariusz Kozlowski wrote:
+> > 	There is possible memleak in auerbuf_setup(). Fix is to replace
+> > kfree() with auerbuf_free(). An argument to usb_free_urb() does not
+> > need a check as usb_free_urb() already does that. Not sure if I
+> > should send this in two separate patches. The patch is against
+> > 2.6.19-rc4 (not -mm).
+>
+> As I posted the bigger usb_free_urb() patch in another mail this one
+> should do only one thing which is to fix possible memory leak in
+> auerbuf_setup().
+>
+> Regards,
+>
+> 	Mariusz Kozlowski
+>
+> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Signed-off-by: Wolfgang Muees <wolfgang@iksw-muees.de>
+
+> diff -up linux-2.6.19-rc4-orig/drivers/usb/misc/auerswald.c
+> linux-2.6.19-rc4/drivers/usb/misc/auerswald.c ---
+> linux-2.6.19-rc4-orig/drivers/usb/misc/auerswald.c  2006-11-06
+> 17:08:20.000000000 +0100 +++
+> linux-2.6.19-rc4/drivers/usb/misc/auerswald.c     2006-11-07
+> 00:26:25.000000000 +0100 @@ -780,7 +780,7 @@ static int auerbuf_setup
+> (pauerbufctl_t
+>
+>  bl_fail:/* not enough memory. Free allocated elements */
+>          dbg ("auerbuf_setup: no more memory");
+> -       kfree(bep);
+> +        auerbuf_free (bep);
+>          auerbuf_free_buffers (bcp);
+>          return -ENOMEM;
+>  }
+
+Many thanks for pointing this out.
+
+regards
+Wolfgang

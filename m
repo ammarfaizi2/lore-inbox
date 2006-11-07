@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbWKGGsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753377AbWKGHD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751601AbWKGGsY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 01:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752808AbWKGGsY
+	id S1753377AbWKGHD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 02:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753393AbWKGHD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 01:48:24 -0500
-Received: from mail01.verismonetworks.com ([164.164.99.228]:20381 "EHLO
-	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
-	id S1751601AbWKGGsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 01:48:23 -0500
-Subject: [PATCH] drivers/scsi/mca_53c9x.c : save_flags()/cli() removal
-From: Amol Lad <amol@verismonetworks.com>
-To: James.Bottomley@steeleye.com, akpm@osdl.org
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 07 Nov 2006 12:21:26 +0530
-Message-Id: <1162882286.22062.150.camel@amol.verismonetworks.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 02:03:57 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30686 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1753377AbWKGHD4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 02:03:56 -0500
+Date: Tue, 7 Nov 2006 08:03:47 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Burman Yan <yan_952@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HP Mobile data protection system driver with interrupt handling
+Message-ID: <20061107070347.GA21655@elf.ucw.cz>
+References: <BAY20-F36829F468180F55694798D8FE0@phx.gbl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BAY20-F36829F468180F55694798D8FE0@phx.gbl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replaced calls with save_flags()/cli() pair with
-spi_lock_irqsave()/spin_unlock_irqrestore()
+Hi!
 
-Tested:
-1. compilation only 
-2. Code review to verify that the change does not result in a recursive
-locking
+> The driver supports:
+> 1) interface similar to hdaps that allows running hdapsd with trivial 
+> modifiations
+> 2) input class device that allows playing games such as neverball by using 
+> the laptop as a joystick
+...
+> 4) A misc device /dev/acel similar in interface to /dev/rtc that reacts on 
+> interrupts from the accelerometer allowing userspace to catch such events 
+> and react accordingly - park the HD heads, or perhaps print "Your laptop is 
+> falling. Are you sure you want to catch it?" The daemon for that
+> i trivial.
 
-Signed-off-by: Amol Lad <amol@verismonetworks.com>
----
-Andrew, 
-Please add this to -mm
----
---- linux-2.6.19-rc4-orig/drivers/scsi/mca_53c9x.c	2006-08-24 02:46:33.000000000 +0530
-+++ linux-2.6.19-rc4/drivers/scsi/mca_53c9x.c	2006-11-06 18:03:22.000000000 +0530
-@@ -341,9 +341,7 @@ static void dma_init_read(struct NCR_ESP
- {
- 	unsigned long flags;
- 
--
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(esp->ehost->host_lock, flags);
- 
- 	mca_disable_dma(esp->dma);
- 	mca_set_dma_mode(esp->dma, MCA_DMA_MODE_XFER | MCA_DMA_MODE_16 |
-@@ -352,16 +350,14 @@ static void dma_init_read(struct NCR_ESP
- 	mca_set_dma_count(esp->dma, length / 2); /* !!! */
- 	mca_enable_dma(esp->dma);
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(esp->ehost->host_lock, flags);
- }
- 
- static void dma_init_write(struct NCR_ESP *esp, __u32 addr, int length)
- {
- 	unsigned long flags;
- 
--
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(esp->ehost->host_lock, flags);
- 
- 	mca_disable_dma(esp->dma);
- 	mca_set_dma_mode(esp->dma, MCA_DMA_MODE_XFER | MCA_DMA_MODE_WRITE |
-@@ -370,7 +366,7 @@ static void dma_init_write(struct NCR_ES
- 	mca_set_dma_count(esp->dma, length / 2); /* !!! */
- 	mca_enable_dma(esp->dma);
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(esp->ehost->host_lock, flags);
- }
- 
- static void dma_ints_off(struct NCR_ESP *esp)
+Ahh, so 2 different interfaces (/sys + input) for hdaps was not
+enough, now we have 3rd one :-(. Can't we somehow improve one of them
+(input?) so that we can remove  the remaining two?
+									Pavel
 
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

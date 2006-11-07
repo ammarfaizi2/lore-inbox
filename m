@@ -1,60 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWKGRhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932762AbWKGRnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWKGRhK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 12:37:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932712AbWKGRhK
+	id S932762AbWKGRnw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 12:43:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932754AbWKGRnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 12:37:10 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:2493 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932293AbWKGRhI (ORCPT
+	Tue, 7 Nov 2006 12:43:52 -0500
+Received: from mga01.intel.com ([192.55.52.88]:61742 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S932751AbWKGRnv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 12:37:08 -0500
-Date: Tue, 7 Nov 2006 09:37:07 -0800 (PST)
-From: Dave Olson <olson@pathscale.com>
-Reply-To: olson@pathscale.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Bryan O'Sullivan" <bos@serpentine.com>, Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
-In-Reply-To: <m18xinb1qn.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.64.0611070934570.25925@topaz.pathscale.com>
-References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
- <20061105064801.GV13381@stusta.de> <m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
- <20061107042214.GC8099@stusta.de> <45501730.8020802@serpentine.com>
- <m1psbzbpxw.fsf@ebiederm.dsl.xmission.com> <4550B22C.1060307@serpentine.com>
- <m18xinb1qn.fsf@ebiederm.dsl.xmission.com>
+	Tue, 7 Nov 2006 12:43:51 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,397,1157353200"; 
+   d="scan'208"; a="12781793:sNHT28670904"
+Message-ID: <4550C5D1.3040601@intel.com>
+Date: Tue, 07 Nov 2006 09:43:45 -0800
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: "H. Peter Anvin" <hpa@zytor.com>, saw@saw.sw.com.sg, thockin@hockin.org
+Subject: Re: Intel 82559 NIC corrupted EEPROM
+References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com> <45506C9A.5010009@privacy.net> <4550BF91.2020403@zytor.com>
+In-Reply-To: <4550BF91.2020403@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Nov 2006 17:43:46.0419 (UTC) FILETIME=[467A6430:01C70294]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006, Eric W. Biederman wrote:
-| Huh?  As I read the ipath code I am passing you the value that needs to go
-| into ipath->int_config and thus into dd->ipath_kregs->kr_interrupt_config.
+H. Peter Anvin wrote:
+> John wrote:
+>>
+>> I then used ethtool to dump the contents of the EEPROMs.
+>>
+>> # ethtool -e eth0
+>> Offset          Values
+>> ------          ------
+>> 0x0000          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>> 0x0010          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>> 0x0020          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>> 0x0030          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>> 0x0040          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>> 0x0050          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>> 0x0060          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>> 0x0070          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>>
+>> Either the EEPROM image on eth0 is corrupted, or ethtool is not
+>> able to read the contents of the EEPROM.
+>>
+> 
+> [...]
+> 
+>>
+>> I then used Donald Becker's program to dump the contents of all
+>> the EEPROMs. ( ftp://www.scyld.com/pub/diag/ )
+>>
+>> # eepro100-diag -ee
+>> eepro100-diag.c:v2.13 2/28/2005 Donald Becker (becker@scyld.com)
+>>  http://www.scyld.com/diag/index.html
+>>
+>> Index #1: Found a Intel i82557/8/9 EtherExpressPro100 adapter at 0xd800.
+>> EEPROM contents, size 64x16:
+>>     00: 3000 0464 e4e6 0e03 0000 0201 4701 0000  _0d__________G__
+>>   0x08: 7213 8310 40a2 0001 8086 0000 0000 0000  _r___@__________
+>>       ...
+>>   0x30: 0128 0000 0000 0000 0000 0000 0000 0000  (_______________
+>>   0x38: 0000 0000 0000 0000 0000 0000 0000 92f7  ________________
+>>  The EEPROM checksum is correct.
+>> Intel EtherExpress Pro 10/100 EEPROM contents:
+>>   Station address 00:30:64:04:E6:E4.
+>>   Board assembly 721383-016, Physical connectors present: RJ45
+>>   Primary interface chip i82555 PHY #1.
+>>    Sleep mode is enabled.  This is not recommended.
+>>    Under high load the card may not respond to
+>>    PCI requests, and thus cause a master abort.
+>>    To clear sleep mode use the '-G 0 -w -w -f' options.
+>>
+>> Index #2: Found a Intel i82557/8/9 EtherExpressPro100 adapter at 0xdc00.
+>> EEPROM contents, size 64x16:
+>>     00: 3000 0464 e5e6 0e03 0000 0201 4701 0000  _0d__________G__
+>>   0x08: 7213 8310 40a2 0001 8086 0000 0000 0000  _r___@__________
+>>       ...
+>>   0x30: 0128 0000 0000 0000 0000 0000 0000 0000  (_______________
+>>   0x38: 0000 0000 0000 0000 0000 0000 0000 91f7  ________________
+>>  The EEPROM checksum is correct.
+>> Intel EtherExpress Pro 10/100 EEPROM contents:
+>>   Station address 00:30:64:04:E6:E5.
+>>   Board assembly 721383-016, Physical connectors present: RJ45
+>>   Primary interface chip i82555 PHY #1.
+>>    Sleep mode is enabled.  This is not recommended.
+>>    Under high load the card may not respond to
+>>    PCI requests, and thus cause a master abort.
+>>    To clear sleep mode use the '-G 0 -w -w -f' options.
+>>
+>> Index #3: Found a Intel i82557/8/9 EtherExpressPro100 adapter at 0xe000.
+>> EEPROM contents, size 64x16:
+>>     00: 3000 0464 e6e6 0e03 0000 0201 4701 0000  _0d__________G__
+>>   0x08: 7213 8310 40a2 0001 8086 0000 0000 0000  _r___@__________
+>>       ...
+>>   0x30: 0128 0000 0000 0000 0000 0000 0000 0000  (_______________
+>>   0x38: 0000 0000 0000 0000 0000 0000 0000 90f7  ________________
+>>  The EEPROM checksum is correct.
+>> Intel EtherExpress Pro 10/100 EEPROM contents:
+>>   Station address 00:30:64:04:E6:E6.
+>>   Board assembly 721383-016, Physical connectors present: RJ45
+>>   Primary interface chip i82555 PHY #1.
+>>    Sleep mode is enabled.  This is not recommended.
+>>    Under high load the card may not respond to
+>>    PCI requests, and thus cause a master abort.
+>>    To clear sleep mode use the '-G 0 -w -w -f' options.
+>>
+>> Apparently, eepro100.ko is able to read the contents of the EEPROM on 
+>> eth0 and it declares the checksum correct. Is it possible that there 
+>> is a bug in e100.c that makes it fail to read the EEPROM on eth0?
+>>
+> 
+> Sure as heck sounds like it.
 
-Yes.
+(Please CC either me or at netdev on all intel nic drivers. thanks. I removed 
+`john@privacy.net` since it throws a bounce, and linux.nics@intel.com is a support 
+address only, doesn't reach us developers)
 
-| Sure it is coming as 2 32bit words instead of a one big 64 bit one, but
-| that is simple to fix.
+how did you do the first `ethtool` eeprom dump? did you have the `e100` module loaded at 
+that time? Did you use the new `override` mechanism graciously donated by David M?
 
-It would be cleaner, but not absolutely necessary.
+Cheers,
 
-| If your card doesn't pay attention to configuration space access cycles then
-| there should be no reason to write the value there.   If your card does pay
-| attention to the configuration space access cycles it should be trivial to
-| make this work.
-
-The card does pay attention, and other programs such as lspci and the
-like also look at the config space.  They should definitely be kept
-in sync, and config writes are fairly cheap, anyway.
-
-| If you really need to write to both the config space registers and your
-| magic shadow copy of the register I can certainly do the config space
-| writes for you.  I just figured it would be more efficient not to.
-
-The HT layer should always do the config updates, since you are trying
-to clean up that layer.  Only the "extra" stuff (if any) should be done by
-the callback.
-
-Dave Olson
-dave.olson@qlogic.com
+Auke

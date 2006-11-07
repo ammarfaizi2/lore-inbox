@@ -1,113 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752125AbWKGNMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbWKGNVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752125AbWKGNMr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 08:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752717AbWKGNMr
+	id S932615AbWKGNVR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 08:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWKGNVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 08:12:47 -0500
-Received: from lugor.de ([212.112.242.222]:29085 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S1752125AbWKGNMq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 08:12:46 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
-To: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 12/14] KVM: x86 emulator
-Date: Tue, 7 Nov 2006 14:12:02 +0100
-User-Agent: KMail/1.9.4
-Cc: Pavel Machek <pavel@ucw.cz>, kvm-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <454E4941.7000108@qumranet.com> <20061107124912.GA23118@elf.ucw.cz> <4550823E.2070108@qumranet.com>
-In-Reply-To: <4550823E.2070108@qumranet.com>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart8496485.T9ueW8W05g";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200611071412.07196.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Tue, 07 Nov 2006 14:12:04 +0100 (CET)
-X-Spam-Flag: NO
+	Tue, 7 Nov 2006 08:21:17 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:29380 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932615AbWKGNVQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 08:21:16 -0500
+Date: Tue, 7 Nov 2006 18:50:14 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: "Paul Menage" <menage@google.com>
+Cc: "Paul Jackson" <pj@sgi.com>, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Message-ID: <20061107132014.GA21811@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20061030042714.fa064218.pj@sgi.com> <6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com> <20061030123652.d1574176.pj@sgi.com> <6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com> <20061031115342.GB9588@in.ibm.com> <6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com> <20061101172540.GA8904@in.ibm.com> <6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com> <20061106124948.GA3027@in.ibm.com> <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart8496485.T9ueW8W05g
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Nov 06, 2006 at 12:23:44PM -0800, Paul Menage wrote:
+> In practice though, do you think the admin would really want to be
+> have to move individual processes around by hand? Sure, it's possible,
+> but wouldn't it make more sense to just give the entire student/www
+> class more network bandwidth? Or more generically, how often are
 
-On Tuesday 07 November 2006 13:55, Avi Kivity wrote:
-> Pavel Machek wrote:
-> >> Index: linux-2.6/drivers/kvm/x86_emulate.c
-> >> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> >> --- /dev/null
-> >> +++ linux-2.6/drivers/kvm/x86_emulate.c
-> >> @@ -0,0 +1,1370 @@
-> >> +/********************************************************************=
-**
-> >>******** + * x86_emulate.c
-> >> + *
-> >> + * Generic x86 (32-bit and 64-bit) instruction decoder and emulator.
-> >> + *
-> >> + * Copyright (c) 2005 Keir Fraser
-> >> + *
-> >> + * Linux coding style, mod r/m decoder, segment base fixes, real-mode
-> >> + * privieged instructions:
-> >> + *
-> >> + * Copyright (C) 2006 Qumranet
-> >> + *
-> >> + *   Avi Kivity <avi@qumranet.com>
-> >> + *   Yaniv Kamay <yaniv@qumranet.com>
-> >> + *
-> >> + * From: xen-unstable 10676:af9809f51f81a3c43f276f00c81a52ef558afda4
-> >> + */
-> >
-> > This needs GPL, I'd say.
-> > 									Pavel
->
-> The entire patchset is GPL'ed.  Do you mean to make it explicit?  If so,
-> how?  I'd rather not copy the entire license into each file.
->
-> Doesn't ../../COPYING cover it, presuming it's accepted?
+Wouldn't that cause -all- browsers to get enhanced network access? This
+is when your intention was to give one particular student's browser
+enhanced network access (to do online gaming) while retaining its
+existing cpu/mem/io limits or another particular students simulation app 
+enhanced CPU access while retaining existing mem/io limits.
 
-I think Pavel references to these lines...
+> people going to be needing to move individual processes from one QoS
+> class to another, rather than changing the QoS for the existing class?
 
-/*
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  U=
-SA
- */
+If we are talking of tasks moving from one QoS class to another, then it
+can be pretty frequent in case of threaded databases and webservers.
+I have been told that, atleast in case of databases, depending on the
+workload, tasks may migrate from one group to another on every request.
+In general, duration of requests fall within the milliseconds to seconds
+range. So, IMO, design should support frequent task-migration.
 
-You should at least add a line like "This file is licensed under the terms =
-of=20
-the GPL v2 license (or any later version).".
-=2D-=20
+Also, the requirement to tune individual resource availability for
+specific apps/processes (ex: boost its CPU usage but retain other existing
+limits) may not be unrealistic.
+
+-- 
 Regards,
-Chris
-
---nextPart8496485.T9ueW8W05g
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFUIYnlZfG2c8gdSURAhJeAJ40OoiSfMJ68Stqa9F00zLvFExI6ACfZGsi
-r6jPNML0FMHVZrXLqqv7jGU=
-=OhAj
------END PGP SIGNATURE-----
-
---nextPart8496485.T9ueW8W05g--
+vatsa

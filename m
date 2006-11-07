@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753048AbWKGMt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753493AbWKGMuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753048AbWKGMt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 07:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWKGMt1
+	id S1753493AbWKGMuN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 07:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753528AbWKGMuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 07:49:27 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32227 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1753048AbWKGMt1 (ORCPT
+	Tue, 7 Nov 2006 07:50:13 -0500
+Received: from main.gmane.org ([80.91.229.2]:46212 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1753493AbWKGMuL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 07:49:27 -0500
-Date: Tue, 7 Nov 2006 13:49:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Avi Kivity <avi@qumranet.com>
-Cc: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 12/14] KVM: x86 emulator
-Message-ID: <20061107124912.GA23118@elf.ucw.cz>
-References: <454E4941.7000108@qumranet.com> <20061105204035.DF0F62500A7@cleopatra.q>
-MIME-Version: 1.0
+	Tue, 7 Nov 2006 07:50:11 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Torsten Wolf <t.wolf@tu-bs.de>
+Subject: No AGP/DRI on Intel 875P chipset?
+Date: Tue, 7 Nov 2006 12:33:12 +0000 (UTC)
+Message-ID: <loom.20061107T131657-596@post.gmane.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061105204035.DF0F62500A7@cleopatra.q>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 134.169.46.66 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060830 Firefox/1.5.0.7 (Debian-1.5.dfsg+1.5.0.7-2))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI!
+Hi!
 
-> Add an x86 instruction emulator for kvm.
-> 
-> We need an x86 emulator for the following reasons:
-> 
-> - mmio instructions are intercepted as page faults, with no information about
->   the operation to be performed other than the virtual address
-> - real-mode is emulated using the old-fashined vm86 mode, with no special
->   intercepts for the privileged instructions, so we need to emulate mov cr,
->   lgdt, and lidt
-> - we plan to cache shadow page tables in the future, so that a guest context
->   switch will not throw away all the mappings we worked so hard to build.  but
->   cachine page tables means write-protecting the guest page tables to keep
->   them in sync, so any writes to the guest page tables need to be emulated
-> 
-> The emulator was lifted from the Xen hypervisor.
-> 
-> Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
-> Signed-off-by: Avi Kivity <avi@qumranet.com>
-> 
-> Index: linux-2.6/drivers/kvm/x86_emulate.c
-> ===================================================================
-> --- /dev/null
-> +++ linux-2.6/drivers/kvm/x86_emulate.c
-> @@ -0,0 +1,1370 @@
-> +/******************************************************************************
-> + * x86_emulate.c
-> + *
-> + * Generic x86 (32-bit and 64-bit) instruction decoder and emulator.
-> + *
-> + * Copyright (c) 2005 Keir Fraser
-> + *
-> + * Linux coding style, mod r/m decoder, segment base fixes, real-mode
-> + * privieged instructions:
-> + *
-> + * Copyright (C) 2006 Qumranet
-> + *
-> + *   Avi Kivity <avi@qumranet.com>
-> + *   Yaniv Kamay <yaniv@qumranet.com>
-> + *
-> + * From: xen-unstable 10676:af9809f51f81a3c43f276f00c81a52ef558afda4
-> + */
+I'm struggling for days to enable 3D acceleration on the following machine:
 
-This needs GPL, I'd say.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+P4@3.2GHz, 3GB RAM, Intel i875P chipset and Ati RV280 [Radeon 9200 SE] graphics
+card. I tried 2.6.16 and 2.6.18-2 (both Debian kernels) and have the following
+issue. As soon as I load agpgart.ko the following line appears in dmesg:
+
+Linux agpgart interface v0.101 (c) Dave Jones
+
+But after loading intel-agp.ko nothing happens i.e. no message which chipset
+has been detected and not even that the chipset is unsupported and one should
+try agp_try_unsupported. Both proprietary and open source display drivers do
+not give a working dri setup but complain e.g.
+
+[agp] unable to acquire AGP, error "xf86_ENODEV"
+cannot init AGP
+
+I added some printk to intel-agp.c in agp_intel_probe to see if/why the id of
+the chipset does not match, but got no output at all. lspci on this machine
+yields
+
+00:00.0 Host bridge: Intel Corporation 82875P/E7210 Memory Controller Hub
+ (rev 02)
+00:01.0 PCI bridge: Intel Corporation 82875P Processor to AGP Controller
+ (rev 02)
+
+and lspci -n
+
+00:00.0 0600: 8086:2578 (rev 02)
+00:01.0 0604: 8086:2579 (rev 02)
+
+Via google I found that i875P is supported since 2.5.70/2.4.22 (pciid 0x2578).
+In a desperate attempt I added 0x2579 to intel-agp.c but again without effect.
+I compared the drivers/char/agp directories of the vanilla kernel and the
+debian sources but found not enough differences to give the vanilla kernel
+another try. Please help me out of this mess.
+
+Best regards,
+Torsten
+

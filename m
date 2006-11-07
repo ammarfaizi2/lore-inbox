@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751676AbWKGTLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752041AbWKGTMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751676AbWKGTLy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 14:11:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWKGTLy
+	id S1752041AbWKGTMu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 14:12:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752129AbWKGTMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 14:11:54 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:15570 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751676AbWKGTLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 14:11:53 -0500
-Date: Tue, 7 Nov 2006 11:11:31 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Paul Menage" <menage@google.com>
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061107111131.48a9ae49.pj@sgi.com>
-In-Reply-To: <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-References: <20061030031531.8c671815.pj@sgi.com>
-	<20061030123652.d1574176.pj@sgi.com>
-	<6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com>
-	<20061031115342.GB9588@in.ibm.com>
-	<6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
-	<20061101172540.GA8904@in.ibm.com>
-	<6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
-	<20061106124948.GA3027@in.ibm.com>
-	<6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
-	<20061107104118.f02a1114.pj@sgi.com>
-	<6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Nov 2006 14:12:49 -0500
+Received: from mail.gmx.de ([213.165.64.20]:13460 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1752041AbWKGTMt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 14:12:49 -0500
+X-Authenticated: #283898
+Message-ID: <4550DABA.40600@gmx.net>
+Date: Tue, 07 Nov 2006 20:12:58 +0100
+From: Tobias Pflug <tobias.pflug@gmx.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: fs indexing/ querying on meta-data
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This will happen if you configure CONFIG_CPUSETS_LEGACY_API
+Hi everyone,
 
-So why is this CONFIG_* option separate?  When would I ever not
-want it?
+At university I am currently dealing with file indexing/query features
+as they exist in the BeFS or SkyFS. In BeFS you could commit a query like:
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+(name == "*.c" || name == "*.h" ) && size > 20000
+
+API functions were available to commit such queries which would use some 
+attribute b-tree to find matching files.
+
+Now to get to the point: I would like to implement such functionality on 
+a very basic level (Only very simple queries) for a fs in the linux 
+kernel. I thought of parsing files in userland, extracting any usable 
+meta-data (such as id3 tags) and storing them as extended attributes of 
+the respective
+files.
+
+My problem is that I am not sure on which approach I should take on 
+this. Should I attempt to hack such functionality into an existing fs ? 
+If so, which one would be suited best? Maybe the much discussed 
+reiser4-plugin-interface could actually be useful for this one?
+
+I also considered using FiST (http://www.am-utils.org/project-fist.html, 
+stackable filesystem language)
+but the development seems to be stalled, I am having issues with 
+compilation, the author doesn't respond
+and I read about people having major issues with it (segfaults etc..)
+
+Finally there is the option of using FUSE, but I have to admit I haven't 
+had a closer look at it yet.
+
+I hope this posting isn't so clueless&chaotic that people can't be 
+bothered to answer :) I'd be thankful
+for any word of advice and/or pointers on this topic.
+
+regards,
+Tobi
+
+PS: please CC to tobias.pflug@gmx.net , I am not subscribed to lkml. 
+Thank you!

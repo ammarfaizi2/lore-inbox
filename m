@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754200AbWKGLmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWKGLrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754200AbWKGLmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 06:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754202AbWKGLmJ
+	id S932127AbWKGLrN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 06:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWKGLrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 06:42:09 -0500
-Received: from nat-132.atmel.no ([80.232.32.132]:31230 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1754200AbWKGLmH (ORCPT
+	Tue, 7 Nov 2006 06:47:13 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:57784 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932127AbWKGLrL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 06:42:07 -0500
-Date: Tue, 7 Nov 2006 12:25:07 +0100
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Brownell <david-b@pacbell.net>, Andrew Victor <andrew@sanpeople.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [-mm patch 0/4] Atmel SPI driver and related AVR32 changes
-Message-ID: <20061107122507.6f1c6e81@cad-250-152.norway.atmel.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Nov 2006 06:47:11 -0500
+Message-ID: <45507232.7010104@garzik.org>
+Date: Tue, 07 Nov 2006 06:46:58 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [take21 0/4] kevent: Generic event handling mechanism.
+References: <11619654014077@2ka.mipt.ru> <45506D51.30604@garzik.org>
+In-Reply-To: <45506D51.30604@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+At an aside...  This may be useful.  Or not.
 
-This series contains a SPI master driver for the Atmel AT32/AT91 SPI
-controller along with a GPIO API for avr32 and a few other changes this
-driver depends on to work.
+Al Viro had an interesting idea about kernel<->userspace data passing 
+interfaces.  He had suggested creating a task-specific filesystem 
+derived from ramfs.  Through the normal VFS/VM codepaths, the user can 
+easily create [subject to resource/priv checks] a buffer that is locked 
+into the pagecache.  Using mmap, read, write, whatever they prefer. 
+Derive from tmpfs, and the buffers are swappable.
 
-I have compile-tested the driver on arm, but someone please verify that
-it works on at91 boards. It should be usable for both at91rm9200 and
-at91sam926x after the necessary platform-specific code is added. David
-sent me some code to do this on at91 once, but I dropped it from the
-patch since I don't think it will work anymore. Please let me know if
-you want med to send those changes as a separate patch anyway.
+Then it would be a simple matter to associate a file stored in 
+"keventfs" with a ring buffer guaranteed to be pagecache-friendly.
 
-The driver has been tested with mtd_dataflash and a LCD panel driver on
-atstk1000 (avr32). Unfortunately, I haven't been able to use it with
-jffs2, as the jffs2 wbuf code BUGs on me with mtd_dataflash (this has
-been reported by several people on linux-mtd, but there doesn't seem to
-be a solution yet.)
+Heck, that might make zero-copy easier in some cases, too.  And using a 
+filesystem would mean that you could do all this without adding 
+syscalls, by using special (poll-able!) files in the filesystem for 
+control and notification purposes.
 
-I'd appreciate comments on both the SPI driver itself (big thanks to
-David for all the comments I got so far) and the GPIO API. I think we
-should work towards minimizing the differences between the at32 and
-at91 gpio apis so that we can eliminate a few #ifdefs in the common
-drivers.
+	Jeff
 
-Haavard
+
+

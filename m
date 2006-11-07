@@ -1,86 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWKGONr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWKGON4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbWKGONr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 09:13:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWKGONr
+	id S932638AbWKGON4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 09:13:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWKGON4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 09:13:47 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47373 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932637AbWKGONr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 09:13:47 -0500
-Date: Tue, 7 Nov 2006 15:13:49 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.31
-Message-ID: <20061107141349.GA4729@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 7 Nov 2006 09:13:56 -0500
+Received: from nat-132.atmel.no ([80.232.32.132]:52424 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S932638AbWKGONz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 09:13:55 -0500
+Date: Tue, 7 Nov 2006 15:12:41 +0100
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Brownell <david-b@pacbell.net>, Andrew Victor <andrew@sanpeople.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [-mm patch 5/4] Atmel SPI driver: MAINTAINERS entry
+Message-ID: <20061107151241.1ccbd36e@cad-250-152.norway.atmel.com>
+In-Reply-To: <20061107124128.0d847889@cad-250-152.norway.atmel.com>
+References: <20061107122507.6f1c6e81@cad-250-152.norway.atmel.com>
+	<20061107122715.3022da2f@cad-250-152.norway.atmel.com>
+	<20061107123106.69032174@cad-250-152.norway.atmel.com>
+	<20061107123345.2de13fed@cad-250-152.norway.atmel.com>
+	<20061107124128.0d847889@cad-250-152.norway.atmel.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fixes since 2.6.16.30:
-- CVE-2006-4572: fix ip6_tables bypass bugs
-- CVE-2006-5174: s390: fix user readable uninitialised kernel memory
-- CVE-2006-5619: IPV6: fix lockup via /proc/net/ip6_flowlabel
+Add myself as maintainer of the atmel_spi driver.
 
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ MAINTAINERS |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-Location:
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d708702..401fa5d 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -426,6 +426,13 @@ L:	linux-atm-general@lists.sourceforge.n
+ W:	http://linux-atm.sourceforge.net
+ S:	Maintained
+ 
++ATMEL SPI DRIVER
++P:	Atmel AVR32 Support Team
++M:	avr32@atmel.com
++P:	Haavard Skinnemoen
++M:	hskinnemoen@atmel.com
++S:	Supported
++
+ ATMEL WIRELESS DRIVER
+ P:	Simon Kelley
+ M:	simon@thekelleys.org.uk
+-- 
+1.4.3.2
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
-
-
-Changes since 2.6.16.30:
-
-Adrian Bunk (2):
-      Linux 2.6.16.31-rc1
-      Linux 2.6.16.31
-
-Al Viro (1):
-      fix RARP ic_servaddr breakage
-
-James Morris (1):
-      [IPV6]: fix lockup via /proc/net/ip6_flowlabel (CVE-2006-5619)
-
-Martin Schwidefsky (2):
-      [S390] fix user readable uninitialised kernel memory (CVE-2006-5174)
-      [S390] fix user readable uninitialised kernel memory, take 2.
-
-Neil Brown (1):
-      knfsd: Fix race that can disable NFS server.
-
-Patrick McHardy (2):
-      [NETFILTER]: Fix ip6_tables protocol bypass bug (CVE-2006-4572)
-      [NETFILTER]: Fix ip6_tables extension header bypass bug (CVE-2006-4572)
-
-Shaohua Li (1):
-      ACPI: enable SMP C-states on x86_64
-
-Thomas Gleixner (1):
-      posix-cpu-timers: prevent signal delivery starvation
-
-
- Makefile                            |    2 
- arch/s390/lib/uaccess.S             |   12 ++++
- arch/s390/lib/uaccess64.S           |   12 ++++
- arch/x86_64/kernel/acpi/Makefile    |    1 
- arch/x86_64/kernel/acpi/processor.c |   72 ----------------------------
- include/asm-x86_64/acpi.h           |    2 
- kernel/posix-cpu-timers.c           |   27 ++++++++--
- net/ipv4/ipconfig.c                 |    2 
- net/ipv6/ip6_flowlabel.c            |    2 
- net/ipv6/netfilter/ip6_tables.c     |   21 +++++---
- net/ipv6/netfilter/ip6t_ah.c        |    7 ++
- net/ipv6/netfilter/ip6t_dst.c       |    9 ++-
- net/ipv6/netfilter/ip6t_frag.c      |    7 ++
- net/ipv6/netfilter/ip6t_hbh.c       |    9 ++-
- net/ipv6/netfilter/ip6t_rt.c        |    7 ++
- net/sunrpc/svcsock.c                |    2 
- 16 files changed, 96 insertions(+), 98 deletions(-)

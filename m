@@ -1,41 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752249AbWKGTXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752250AbWKGTYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752249AbWKGTXF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 14:23:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752190AbWKGTXF
+	id S1752250AbWKGTYl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 14:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752190AbWKGTYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 14:23:05 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40927 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751798AbWKGTXC (ORCPT
+	Tue, 7 Nov 2006 14:24:41 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:3237 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S1751803AbWKGTYk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 14:23:02 -0500
-Date: Tue, 7 Nov 2006 11:22:49 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org, mm-commits@vger.kernel.org,
-       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
-In-Reply-To: <20061107095049.B3262@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0611071118010.4614@schroedinger.engr.sgi.com>
-References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
- <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>
- <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
- <20061107095049.B3262@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Nov 2006 14:24:40 -0500
+Date: Tue, 7 Nov 2006 13:24:37 -0600
+From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 12/12] cciss: fix for iostat
+Message-ID: <20061107192437.GM17847@beardog.cca.cpqcorp.net>
+References: <20061106203205.GL17847@beardog.cca.cpqcorp.net> <20061106204550.GI19471@kernel.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061106204550.GI19471@kernel.dk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006, Siddha, Suresh B wrote:
+On Mon, Nov 06, 2006 at 09:45:51PM +0100, Jens Axboe wrote:
+> On Mon, Nov 06 2006, Mike Miller (OS Dev) wrote:
+> > Patch 12 of 12
+> > 
+> > This patch replaces complete_buffers with end_that_request_first to fix
+> > programs like iostat. This has been broken for the last few kernel releases.
+> > Please consider this for inclusion.
+> > 
+> > Thanks,
+> > mikem
+> > 
+> > Signed-off-by: Mike Miller <mike.miller@hp.com>
+> > 
+> > 
+> > ---
+> > 
+> > 
+> > ---
+> > 
+> >  drivers/block/cciss.c |   20 ++++----------------
+> >  1 files changed, 4 insertions(+), 16 deletions(-)
+> > 
+> > diff -puN drivers/block/cciss.c~cciss_update_diskstats_fix drivers/block/cciss.c
+> > --- linux-2.6/drivers/block/cciss.c~cciss_update_diskstats_fix	2006-11-06 13:28:53.000000000 -0600
+> > +++ linux-2.6-root/drivers/block/cciss.c	2006-11-06 13:28:53.000000000 -0600
+> > @@ -1156,18 +1156,6 @@ static int cciss_ioctl(struct inode *ino
+> >  	}
+> >  }
+> >  
+> > -static inline void complete_buffers(struct bio *bio, int status)
+> > -{
+> > -	while (bio) {
+> > -		struct bio *xbh = bio->bi_next;
+> > -		int nr_sectors = bio_sectors(bio);
+> > -
+> > -		bio->bi_next = NULL;
+> > -		bio_endio(bio, nr_sectors << 9, status ? 0 : -EIO);
+> > -		bio = xbh;
+> > -	}
+> > -}
+> > -
+> >  static void cciss_check_queues(ctlr_info_t *h)
+> >  {
+> >  	int start_queue = h->next_to_run;
+> > @@ -1236,15 +1224,15 @@ static void cciss_softirq_done(struct re
+> >  		pci_unmap_page(h->pdev, temp64.val, cmd->SG[i].Len, ddir);
+> >  	}
+> >  
+> > -	complete_buffers(rq->bio, rq->errors);
+> > -
+> >  #ifdef CCISS_DEBUG
+> >  	printk("Done with %p\n", rq);
+> >  #endif				/* CCISS_DEBUG */
+> >  
+> > -	add_disk_randomness(rq->rq_disk);
+> >  	spin_lock_irqsave(&h->lock, flags);
+> > -	end_that_request_last(rq, rq->errors);
+> > +	if (!end_that_request_first(rq, rq->errors, rq->nr_sectors)) {
+> > +		add_disk_randomness(rq->rq_disk);
+> > +		end_that_request_last(rq, rq->errors);
+> > +	}
+> >  	cmd_free(h, cmd, 1);
+> >  	cciss_check_queues(h);
+> >  	spin_unlock_irqrestore(&h->lock, flags);
+> 
+> Ah, so there's where that went. Your code isn't clear, though -
+> end_that_request_first() _must_ return 0, so the above looks confusing.
+> It would look cleaner and more informative like:
+> 
+>         if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
+>                 BUG();
+> 
+>         add_disk_randomness(rq->rq_disk);
+>         end_that_request_last(rq, rq->errors);
+>         ...
+> 
+> and so on. Additionally you don't need the lock for
+> end_that_request_first(), so it's a lot more optimal to rearrange it
+> again.
+> 
+>         add_disk_randomness(rq->rq_disk);
+>         if (end_that_request_first(rq, rq->errors, rq->nr_sectors))
+>                 BUG();
+> 
+>         spin_lock_irqsave(&h->lock, flags);
+>         end_that_request_last(rq, rq->errors);
+>         cmd_free(h, cmd, 1);
+>         ...
+> 
+> Not only cleaner to read since it's obvious what will happen, also moves
+> the heavy path (end_that_request_first()) outside of the controller
+> lock.
+> 
+> -- 
+> Jens Axboe
+> 
+Thanks Jens. I'm fighting several fires right now so the cleanup will 
+be done in a day or 2.
 
-> tasklet_schedule doesn't schedule if there is already one scheduled.
-
-Correct. The effect of this is to only allow load balancing on one cpu at a 
-time. Subsequent attempts to schedule load balancing on other cpus are 
-ignored until the cpu that is load balancing has finished. Then the 
-others (hopefully) get a turn.
-
-A pretty interesting unintended effect. It certainly solves the concurrent 
-load balancing scalability issues and would avoid the need to stagger 
-load balancing. Wonder how fair it would be?
-
+mikem

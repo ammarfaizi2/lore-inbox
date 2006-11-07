@@ -1,49 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932607AbWKGOHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWKGONr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932607AbWKGOHV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 09:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWKGOHU
+	id S932637AbWKGONr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 09:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWKGONr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 09:07:20 -0500
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:33442 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP id S932607AbWKGOHT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 09:07:19 -0500
-Message-ID: <455092F5.3090402@in.ibm.com>
-Date: Tue, 07 Nov 2006 19:36:45 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Tue, 7 Nov 2006 09:13:47 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47373 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932637AbWKGONr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 09:13:47 -0500
+Date: Tue, 7 Nov 2006 15:13:49 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.31
+Message-ID: <20061107141349.GA4729@stusta.de>
 MIME-Version: 1.0
-To: Paul Menage <menage@google.com>
-CC: sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, jlan@sgi.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, pj@sgi.com,
-       mbligh@google.com, winget@google.com, rohitseth@google.com
-Subject: Re: [ckrm-tech] [PATCH 2/6] Cpusets hooked into containers
-References: <20061020183819.656586000@menage.corp.google.com>	 <20061020190626.810567000@menage.corp.google.com>	 <454ED769.8040302@in.ibm.com> <6599ad830611061255u458a795bpca1c360cb93f253@mail.gmail.com>
-In-Reply-To: <6599ad830611061255u458a795bpca1c360cb93f253@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Menage wrote:
-[snip]
+Security fixes since 2.6.16.30:
+- CVE-2006-4572: fix ip6_tables bypass bugs
+- CVE-2006-5174: s390: fix user readable uninitialised kernel memory
+- CVE-2006-5619: IPV6: fix lockup via /proc/net/ip6_flowlabel
 
-> For the second, the following change to fs/proc/base.c should have
-> appeared in cpusets_using_containers.patch, but got left out due to
-> quilt misusage. It basically makes "cpuset" an alias for "container"
-> in the relevant /proc directories if CONFIG_CPUSETS_LEGACY_API is
-> defined.
-> 
 
-[snip]
+Location:
+ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
 
-Yeah, this looks much better and more like the fix
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
--- 
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
 
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+
+Changes since 2.6.16.30:
+
+Adrian Bunk (2):
+      Linux 2.6.16.31-rc1
+      Linux 2.6.16.31
+
+Al Viro (1):
+      fix RARP ic_servaddr breakage
+
+James Morris (1):
+      [IPV6]: fix lockup via /proc/net/ip6_flowlabel (CVE-2006-5619)
+
+Martin Schwidefsky (2):
+      [S390] fix user readable uninitialised kernel memory (CVE-2006-5174)
+      [S390] fix user readable uninitialised kernel memory, take 2.
+
+Neil Brown (1):
+      knfsd: Fix race that can disable NFS server.
+
+Patrick McHardy (2):
+      [NETFILTER]: Fix ip6_tables protocol bypass bug (CVE-2006-4572)
+      [NETFILTER]: Fix ip6_tables extension header bypass bug (CVE-2006-4572)
+
+Shaohua Li (1):
+      ACPI: enable SMP C-states on x86_64
+
+Thomas Gleixner (1):
+      posix-cpu-timers: prevent signal delivery starvation
+
+
+ Makefile                            |    2 
+ arch/s390/lib/uaccess.S             |   12 ++++
+ arch/s390/lib/uaccess64.S           |   12 ++++
+ arch/x86_64/kernel/acpi/Makefile    |    1 
+ arch/x86_64/kernel/acpi/processor.c |   72 ----------------------------
+ include/asm-x86_64/acpi.h           |    2 
+ kernel/posix-cpu-timers.c           |   27 ++++++++--
+ net/ipv4/ipconfig.c                 |    2 
+ net/ipv6/ip6_flowlabel.c            |    2 
+ net/ipv6/netfilter/ip6_tables.c     |   21 +++++---
+ net/ipv6/netfilter/ip6t_ah.c        |    7 ++
+ net/ipv6/netfilter/ip6t_dst.c       |    9 ++-
+ net/ipv6/netfilter/ip6t_frag.c      |    7 ++
+ net/ipv6/netfilter/ip6t_hbh.c       |    9 ++-
+ net/ipv6/netfilter/ip6t_rt.c        |    7 ++
+ net/sunrpc/svcsock.c                |    2 
+ 16 files changed, 96 insertions(+), 98 deletions(-)

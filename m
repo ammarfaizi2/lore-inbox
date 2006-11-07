@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753084AbWKGUXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753092AbWKGU0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753084AbWKGUXT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753086AbWKGUXT
+	id S1753092AbWKGU0O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:26:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753098AbWKGU0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:23:19 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7825 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1753082AbWKGUXS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:23:18 -0500
-Message-ID: <4550EB22.9060805@redhat.com>
-Date: Tue, 07 Nov 2006 14:22:58 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 7 Nov 2006 15:26:14 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:13753 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1753089AbWKGU0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:26:14 -0500
+Message-ID: <4550E910.6010107@wolfmountaingroup.com>
+Date: Tue, 07 Nov 2006 13:14:08 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mike Snitzer <snitzer@gmail.com>
-CC: device-mapper development <dm-devel@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Srinivasa DS <srinivasa@in.ibm.com>
-Subject: Re: [dm-devel] [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore
- not mutex
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <170fa0d20611071218t3c145ef9i5413e432597d78a5@mail.gmail.com>
-In-Reply-To: <170fa0d20611071218t3c145ef9i5413e432597d78a5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: Bernd Petrovitsch <bernd@firmix.at>, Pavel Machek <pavel@ucw.cz>,
+       Petr Baudis <pasky@suse.cz>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Faustian Pact between Novell and Microsoft
+References: <454A7BBB.10403@wolfmountaingroup.com>	 <20061103014907.GG11916@pasky.or.cz>	 <454AB477.9040107@wolfmountaingroup.com>	 <20061107081826.GD21655@elf.ucw.cz> <1162894662.19866.15.camel@tara.firmix.at> <4550BA59.1000701@wolfmountaingroup.com>
+In-Reply-To: <4550BA59.1000701@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Snitzer wrote:
-> On 11/7/06, Alasdair G Kergon <agk@redhat.com> wrote:
->> From: Srinivasa Ds <srinivasa@in.ibm.com>
+Jeff V. Merkey wrote:
+
+> Bernd Petrovitsch wrote:
+>
+>> On Tue, 2006-11-07 at 09:18 +0100, Pavel Machek wrote:
+>> [...]
+>>  
 >>
->> On debugging I found out that,"dmsetup suspend <device name>" calls
->> "freeze_bdev()",which locks "bd_mount_mutex" to make sure that no new mounts
->> happen on bdev until thaw_bdev() is called.  This "thaw_bdev()" is getting
->> called when we resume the device through "dmsetup resume <device-name>".
->> Hence we have 2 processes,one of which locks "bd_mount_mutex"(dmsetup
->> suspend) and another(dmsetup resume) unlocks it.
-> 
-> Srinivasa's description of the patch just speaks to how freeze_bdev
-> and thaw_bdev are used by DM but completely skips justification for
-> switching from mutex to semaphore.  Why is it beneficial and/or
-> necessary to use a semaphore instead of a mutex here?
+>>> This is a watershed moment for Linux. It fundamentally changes the
+>>> rules of the game. We're really excited about this deal, and we hope
+>>> you are too.
+>>>   
+>>> (from http://www.novell.com/linux/microsoft/openletter.html) only make
+>>> it worse, but acquisition? I'd hope not even mickey$oft has enough
+>>> cash for _that_.
+>>>   
+>>
+>>
+>> And the first point in the list is "patents" ....
+>>
+>>     Bernd
+>>  
+>>
+> I can see the lights are coming on now for some folks now.
+> Jeff
+>
 
-Because mutexes are not supposed to be released by anything other than
-the thread that took them, as enforced by the various checking code and
-noted in the docs...
+<snip>
 
-"The stricter mutex API means you cannot use mutexes the same way you
-can use semaphores: e.g. they cannot be used from an interrupt context,
-nor can they be unlocked from a different context that which acquired
-it."
+/"Microsoft made it clear that only SUSE users and developers, as well 
+as unsalaried Linux developers, are protected. 'Let me be clear about 
+one thing, we don't license our intellectual property to Linux because 
+of the way Linux licensing GPL framework works, that's not really a 
+possibility,' said Microsoft chief executive, Steve Ballmer. 'Novell is 
+actually just a proxy for its customers, and it's only for its 
+customers,' he added. 'This does not apply to any forms of Linux other 
+than Novell's SUSE Linux. And if people want to have peace and 
+interoperability, they'll look at Novell's SUSE Linux. If they make 
+other choices, they have all of the compliance and intellectual property 
+issues that are associated with that.'"
 
-this particular resource can sometimes be locked & unlocked from 2
-different userspace threads.
+</snip>
 
--Eric
+And those lights are bright indeed ....
+
+Jeff
+/

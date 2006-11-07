@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753557AbWKGWLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753710AbWKGWML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753557AbWKGWLh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 17:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753691AbWKGWLe
+	id S1753710AbWKGWML (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 17:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753568AbWKGWJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 17:11:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42629 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1753586AbWKGWKA (ORCPT
+	Tue, 7 Nov 2006 17:09:56 -0500
+Received: from ns2.suse.de ([195.135.220.15]:42953 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1753532AbWKGWJs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 17:10:00 -0500
-Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
-	that offer x86 compatability
-From: Jeff Layton <jlayton@redhat.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>, Eric Sandeen <sandeen@redhat.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061107212012.GC27140@parisc-linux.org>
-References: <454FA032.1070008@redhat.com>
-	 <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com>
-	 <1162914966.28425.24.camel@dantu.rdu.redhat.com>
-	 <20061107172835.GB15629@wohnheim.fh-wedel.de>
-	 <20061107174217.GA29746@wohnheim.fh-wedel.de>
-	 <20061107175601.GB29746@wohnheim.fh-wedel.de>
-	 <1162928464.28425.59.camel@dantu.rdu.redhat.com>
-	 <20061107204135.GF29746@wohnheim.fh-wedel.de>
-	 <1162933980.28425.64.camel@dantu.rdu.redhat.com>
-	 <20061107212012.GC27140@parisc-linux.org>
-Content-Type: text/plain
-Date: Tue, 07 Nov 2006 17:09:57 -0500
-Message-Id: <1162937397.3689.5.camel@tleilax.poochiereds.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 17:09:48 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Wed, 8 Nov 2006 09:09:51 +1100
+Message-Id: <1061107220951.12549@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
+Subject: [PATCH 006 of 9] md: Define raid5_mergeable_bvec
+References: <20061108085917.12064.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-07 at 14:20 -0700, Matthew Wilcox wrote:
-> On Tue, Nov 07, 2006 at 04:13:00PM -0500, Jeff Layton wrote:
-> > +	/* ino must not collide with any ino assigned in the loop below. Set
-> > +	   it to the highest possible inode number */
-> > +	inode->i_ino = (1 << (sizeof(s->s_lastino) * 8)) - 1;
-> 
-> This really isn't a good idiom to be using; GCC now takes this to mean
-> "I can reformat your hard drive because you did something outside the
-> spec".
-> 
-> Try instead:
-> +	inode->i_ino = -1;
-> 
 
-The problem there is that on platforms with a 64-bit ino_t, this will be
-too large to fit in a 32-bit field and we'll end up with the same
-EOVERFLOW problem. Is there a more correct way to make it size
-appropriately given the different possible sizes of s_lastino?
+From: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
 
-I suppose we could just set it to 0xffffffff and hope that that is "big
-enough" for most cases.
+This will encourage read request to be on only one device,
+so we will often be able to bypass the cache for read
+requests.
 
--- Jeff
+Signed-off-by: Neil Brown <neilb@suse.de>
 
+### Diffstat output
+ ./drivers/md/raid5.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
+diff .prev/drivers/md/raid5.c ./drivers/md/raid5.c
+--- .prev/drivers/md/raid5.c	2006-11-06 11:28:51.000000000 +1100
++++ ./drivers/md/raid5.c	2006-11-06 11:29:13.000000000 +1100
+@@ -2611,6 +2611,28 @@ static int raid5_congested(void *data, i
+ 	return 0;
+ }
+ 
++/* We want read requests to align with chunks where possible,
++ * but write requests don't need to.
++ */
++static int raid5_mergeable_bvec(request_queue_t *q, struct bio *bio, struct bio_vec *biovec)
++{
++	mddev_t *mddev = q->queuedata;
++	sector_t sector = bio->bi_sector + get_start_sect(bio->bi_bdev);
++	int max;
++	unsigned int chunk_sectors = mddev->chunk_size >> 9;
++	unsigned int bio_sectors = bio->bi_size >> 9;
++
++	if (bio_data_dir(bio))
++		return biovec->bv_len; /* always allow writes to be mergeable */
++
++	max =  (chunk_sectors - ((sector & (chunk_sectors - 1)) + bio_sectors)) << 9;
++	if (max < 0) max = 0;
++	if (max <= biovec->bv_len && bio_sectors == 0)
++		return biovec->bv_len;
++	else
++		return max;
++}
++
+ static int make_request(request_queue_t *q, struct bio * bi)
+ {
+ 	mddev_t *mddev = q->queuedata;
+@@ -3320,6 +3342,8 @@ static int run(mddev_t *mddev)
+ 	mddev->array_size =  mddev->size * (conf->previous_raid_disks -
+ 					    conf->max_degraded);
+ 
++	blk_queue_merge_bvec(mddev->queue, raid5_mergeable_bvec);
++
+ 	return 0;
+ abort:
+ 	if (conf) {

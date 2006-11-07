@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752629AbWKGXXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752790AbWKGXX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752629AbWKGXXP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 18:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752790AbWKGXXP
+	id S1752790AbWKGXX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 18:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753245AbWKGXX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 18:23:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22212 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752629AbWKGXXO (ORCPT
+	Tue, 7 Nov 2006 18:23:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53696 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752790AbWKGXX1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 18:23:14 -0500
-Date: Tue, 7 Nov 2006 23:23:03 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
-       Eric Sandeen <sandeen@sandeen.net>, Srinivasa DS <srinivasa@in.ibm.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061107232303.GB30653@agk.surrey.redhat.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org,
-	dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
-	Eric Sandeen <sandeen@sandeen.net>,
-	Srinivasa DS <srinivasa@in.ibm.com>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061107122837.54828e24.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061107122837.54828e24.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 7 Nov 2006 18:23:27 -0500
+Date: Tue, 7 Nov 2006 15:23:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: eki@sci.fi, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PULL] Missing *eof assignment in Alpha's srm_env driver
+In-Reply-To: <20061107230201.GY21485@lug-owl.de>
+Message-ID: <Pine.LNX.4.64.0611071522050.3667@g5.osdl.org>
+References: <20061107230201.GY21485@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2006 at 12:28:37PM -0800, Andrew Morton wrote:
-> So...  what does this have to do with switching from mutex to semaphore?
- 
-I should have summarised the discussion, sorry.
-
-This has always been a semaphore, but it got changed it to a mutex as part
-of a global switch recently - and this indeed generated bug reports
-from people who turn debugging on and report the error messages.
-
-So the quick fix in this patch was to put things back how they were.
 
 
-Now mutex.h states:
- * - only the owner can unlock the mutex
- * - task may not exit with mutex held
+On Wed, 8 Nov 2006, Jan-Benedict Glaw wrote:
+> 
+> Please pull from
+> git://git.kernel.org/pub/scm/linux/kernel/git/jbglaw/vax-linux.git ,
+> branch `upstream-linus'.
 
- * These semantics are fully enforced when DEBUG_MUTEXES is
- * enabled.
+error: no such remote ref refs/heads/upstream-linus
 
-Which begs the question whether the stated semantics are stricter than
-is actually necessary.
+Did you forget to push it out?
 
-> If so, it's a bit sad to switch to semaphore just because of some errant
-> debugging code.  Perhaps it would be better to create a new
-> mutex_unlock_stfu() which suppresses the warning?
- 
-Ingo?
+Also, please put the reponame and the branch-name on the same line, like
 
-> > +	if (down_trylock(&bdev->bd_mount_sem))
-> > +		return -EBUSY;
-> > +
- 
-> This is a functional change which isn't described in the changelog.  What's
-> happening here?
+  "Please pull from
 
-Srinivasa added it as a precaution.
-Device-mapper should never fall foul of it, but confirming that is not
-trivial unless you know the code well, so it's a useful check to prevent a
-bug creeping back in.
+	git://git.kernel.org/pub/scm/linux/kernel/git/jbglaw/vax-linux.git upstream-linus
 
-Alasdair
--- 
-agk@redhat.com
+   to get these changes:
+		..."
+
+because that way I can cut-and-paste the thing as a whole line.
+
+		Linus

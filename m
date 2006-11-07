@@ -1,60 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752292AbWKGTfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752375AbWKGTlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752292AbWKGTfe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 14:35:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752268AbWKGTfe
+	id S1752375AbWKGTlI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 14:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752532AbWKGTlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 14:35:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:18838 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752129AbWKGTfd (ORCPT
+	Tue, 7 Nov 2006 14:41:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27346 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752375AbWKGTlF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 14:35:33 -0500
-Date: Tue, 7 Nov 2006 11:34:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [take21 0/4] kevent: Generic event handling mechanism.
-Message-Id: <20061107113400.880e1ce9.akpm@osdl.org>
-In-Reply-To: <45507CD4.5030600@garzik.org>
-References: <11619654014077@2ka.mipt.ru>
-	<45506D51.30604@garzik.org>
-	<20061107115111.GA13028@2ka.mipt.ru>
-	<45507CD4.5030600@garzik.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 7 Nov 2006 14:41:05 -0500
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
+	that offer x86 compatability
+From: Jeff Layton <jlayton@redhat.com>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Eric Sandeen <sandeen@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061107175601.GB29746@wohnheim.fh-wedel.de>
+References: <1162836725.6952.28.camel@dantu.rdu.redhat.com>
+	 <20061106182222.GO27140@parisc-linux.org>
+	 <1162838843.12129.8.camel@dantu.rdu.redhat.com>
+	 <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com>
+	 <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com>
+	 <1162914966.28425.24.camel@dantu.rdu.redhat.com>
+	 <20061107172835.GB15629@wohnheim.fh-wedel.de>
+	 <20061107174217.GA29746@wohnheim.fh-wedel.de>
+	 <20061107175601.GB29746@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 07 Nov 2006 14:41:04 -0500
+Message-Id: <1162928464.28425.59.camel@dantu.rdu.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Nov 2006 07:32:20 -0500
-Jeff Garzik <jeff@garzik.org> wrote:
-
-> Evgeniy Polyakov wrote:
-> > Mmap ring buffer implementation was stopped by Andrew Morton and Ulrich
-> > Drepper, process' memory is used instead. copy_to_user() is slower (and
-> > some times noticebly), but there are major advantages of such approach.
+On Tue, 2006-11-07 at 18:56 +0100, Jörn Engel wrote:
+> Things are getting more interesting.  simple_fill_super() looked like
+> a bug waiting to happen.  It is fairly hard to trigger, but still.
+> This should fix it, although in a fairly crude manner.
 > 
+> The other callers were save - it is hard to have the root inode
+> collide with anything existing.
 > 
-> hmmmm.  I say there are advantages to both.
-
-My problem with the old mmapped ringbuffer was that it permitted each user
-to pin (typically) 48MB of unswappable memory.  Plus this pinned-memory
-problem would put upper bounds on the ring size.
-
-> Perhaps create a "kevent_direct_limit" resource limit for each thread. 
-> By default, each thread could mmap $n pinned pagecache pages.  Sysadmin 
-> can tune certain app resource limits to permit more.
+> Jörn
 > 
-> I would think that retaining the option to avoid copy_to_user() 
-> -somehow- in -some- cases would be wise.
 
-What Evgeniy means here is that copy_to_user() is slower than memcpy() (on
-his machine, with his kernel config, at least).
+Jörn,
+  How about this patch instead here? I don't think anything depends on
+i_ino being any certain value for these files, and this seems less
+"magic-numbery". This should also mostly prevent us from assigning out
+i_ino=0.
 
-Which is kinda weird and unexpected and is something which we should
-investigate independently from this project.  (Rather than simply going
-and bypassing it!)
+Signed-off-by: Jeff Layton <jlayton@redhat.com>
+
+diff --git a/fs/libfs.c b/fs/libfs.c
+index bd08e0e..506268e 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -373,6 +373,8 @@ int simple_fill_super(struct super_block
+ 	inode = new_inode(s);
+ 	if (!inode)
+ 		return -ENOMEM;
++	/* ino must not collide with any ino assigned in the loop below */
++	inode->i_ino = 1;
+ 	inode->i_mode = S_IFDIR | 0755;
+ 	inode->i_uid = inode->i_gid = 0;
+ 	inode->i_blocks = 0;
+@@ -385,7 +387,7 @@ int simple_fill_super(struct super_block
+ 		iput(inode);
+ 		return -ENOMEM;
+ 	}
+-	for (i = 0; !files->name || files->name[0]; i++, files++) {
++	for (i = 2; !files->name || files->name[0]; i++, files++) {
+ 		if (!files->name)
+ 			continue;
+ 		dentry = d_alloc_name(root, files->name);
+
 

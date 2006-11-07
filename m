@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753233AbWKGVvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753201AbWKGVvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753233AbWKGVvc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 16:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753201AbWKGVvc
+	id S1753201AbWKGVvl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 16:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753241AbWKGVvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 16:51:32 -0500
-Received: from mail.isohunt.com ([69.64.61.20]:8932 "EHLO mail.isohunt.com")
-	by vger.kernel.org with ESMTP id S1753233AbWKGVvb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 16:51:31 -0500
-X-Spam-Check-By: mail.isohunt.com
-Date: Tue, 7 Nov 2006 13:31:38 -0800
-From: "Robin H. Johnson" <robbat2@gentoo.org>
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, "Robin H. Johnson" <robbat2@gentoo.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: e1000/ICH8LAN weirdness - no ethtool link until initially forced up
-Message-ID: <20061107213138.GA16523@curie-int.orbis-terrarum.net>
-References: <20061106013153.GN15897@curie-int.orbis-terrarum.net> <20061107071449.GB21655@elf.ucw.cz> <4550AB7A.10508@intel.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Content-Disposition: inline
-In-Reply-To: <4550AB7A.10508@intel.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 7 Nov 2006 16:51:41 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:45703 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1753201AbWKGVvk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 16:51:40 -0500
+Date: Tue, 7 Nov 2006 13:50:54 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Message-Id: <20061107135054.bbc584f9.pj@sgi.com>
+In-Reply-To: <6599ad830611071241p255b205em52ed3ba13e02cdc2@mail.gmail.com>
+References: <20061030031531.8c671815.pj@sgi.com>
+	<20061031115342.GB9588@in.ibm.com>
+	<6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
+	<20061101172540.GA8904@in.ibm.com>
+	<6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
+	<20061106124948.GA3027@in.ibm.com>
+	<6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
+	<20061107104118.f02a1114.pj@sgi.com>
+	<6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
+	<20061107123458.e369f62a.pj@sgi.com>
+	<6599ad830611071241p255b205em52ed3ba13e02cdc2@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul M wrote:
+> Is it possible to dynamically extend the /proc/<pid>/ directory?
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Not that I know of -- sounds like a nice idea for a patch.
 
-On Tue, Nov 07, 2006 at 07:51:22AM -0800, Auke Kok wrote:
-> >I think you should cc e1000 maintainers, and perhaps provide a patch....
-> I've read it and not come up with an answer due to some other issues at=
-=20
-> hand. E1000 hardware works differently and this has been asked before, bu=
-t=20
-> the cards itself are in low power state when down. Changing this to bring=
-=20
-> up the link would make the card start to consume lots more power, which=
-=20
-> would automatically suck enormously for anyone using a laptop.
->=20
-> Unfortunately, we have no way to distinguish directly between mobile and=
-=20
-> non-mobile adapters, since they are usually the same.
->=20
-> Your application should really `ifconfig up` the device before checking f=
-or=20
-> link.
-Actually pushing the link up in userspace doesn't specifically help my
-applications, as I care about actual link status (as reported by
-ethtool).
+> We're currently planning on using cpusets for the memory node
+> isolation properties, but we have a whole bunch of other resource
+> controllers that we'd like to be able to hang off the same
+> infrastructure, so I don't think the need is that limited.
 
-Is there no way to keep the link status correct (within 0.5 seconds),
-without bringing the card to full power? Maybe a timer that fires a
-proper check (with the power implications).
+So long as you can update the code in your user space stack that
+knows about this, then you should have nothing stopping you.
 
-Would a patch that adds a modparam (not enabled by default) running the
-behavior I'm after, be acceptable, so the e1000 driver can act identical
-to all of the other drivers?
+I've got a major (albeit not well publicized) open source user space
+C library for working with cpusets which I will have to fix up.
 
---=20
-Robin Hugh Johnson
-E-Mail     : robbat2@gentoo.org
-GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
+> The naming is already in my patch. You can tell from the top-level
+> directory which containers are registered, since each one has an
+> xxx_enabled file to control whether it's in use;
 
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+But there are other *_enabled per-cpuset flags, not naming controllers,
+so that is not a robust way to list container types.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Robbat2 @ Orbis-Terrarum Networks
+Right now, I'm rather fond of the /proc/containers (or should it
+be /proc/controllers?) idea.  Though since I don't time to code
+the patch today, I'll have to shut up.
 
-iD8DBQFFUPs6PpIsIjIzwiwRAjtPAJ0RADzmyF3p6tMI8fEcIvrkn0397ACcD0EZ
-EtggGNoW1z0u/BINexsXx9w=
-=NrRt
------END PGP SIGNATURE-----
-
---SUOF0GtieIMvvwua--
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

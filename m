@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752280AbWKGTZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752292AbWKGTfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752280AbWKGTZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 14:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752254AbWKGTZQ
+	id S1752292AbWKGTfe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 14:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752268AbWKGTfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 14:25:16 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:31839 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1752190AbWKGTZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 14:25:13 -0500
-X-IronPort-AV: i="4.09,397,1157353200"; 
-   d="scan'208"; a="755234781:sNHT47996868"
-To: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
-Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       openib-general@openib.org, raisch@de.ibm.com
-Subject: Re: [PATCH 2.6.19 2/4] ehca: hcp_phyp.c: correct page mapping in 64k page mode
-X-Message-Flag: Warning: May contain useful information
-References: <200611052141.29030.hnguyen@de.ibm.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 07 Nov 2006 11:25:12 -0800
-In-Reply-To: <200611052141.29030.hnguyen@de.ibm.com> (Hoang-Nam Nguyen's message of "Sun, 5 Nov 2006 21:41:28 +0100")
-Message-ID: <aday7qngiuf.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 07 Nov 2006 19:25:12.0332 (UTC) FILETIME=[71F704C0:01C702A2]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Tue, 7 Nov 2006 14:35:34 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18838 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752129AbWKGTfd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 14:35:33 -0500
+Date: Tue, 7 Nov 2006 11:34:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [take21 0/4] kevent: Generic event handling mechanism.
+Message-Id: <20061107113400.880e1ce9.akpm@osdl.org>
+In-Reply-To: <45507CD4.5030600@garzik.org>
+References: <11619654014077@2ka.mipt.ru>
+	<45506D51.30604@garzik.org>
+	<20061107115111.GA13028@2ka.mipt.ru>
+	<45507CD4.5030600@garzik.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > -	*mapaddr = (u64)(ioremap(physaddr, EHCA_PAGESIZE));
- > +	*mapaddr = (u64)ioremap((physaddr & PAGE_MASK), PAGE_SIZE) +
- > +		(physaddr & (~PAGE_MASK));
+On Tue, 07 Nov 2006 07:32:20 -0500
+Jeff Garzik <jeff@garzik.org> wrote:
 
-I'm confused -- shouldn't ioremap() do the right thing even if
-physaddr isn't page-aligned?  Why is this needed?
+> Evgeniy Polyakov wrote:
+> > Mmap ring buffer implementation was stopped by Andrew Morton and Ulrich
+> > Drepper, process' memory is used instead. copy_to_user() is slower (and
+> > some times noticebly), but there are major advantages of such approach.
+> 
+> 
+> hmmmm.  I say there are advantages to both.
 
- - R.
+My problem with the old mmapped ringbuffer was that it permitted each user
+to pin (typically) 48MB of unswappable memory.  Plus this pinned-memory
+problem would put upper bounds on the ring size.
+
+> Perhaps create a "kevent_direct_limit" resource limit for each thread. 
+> By default, each thread could mmap $n pinned pagecache pages.  Sysadmin 
+> can tune certain app resource limits to permit more.
+> 
+> I would think that retaining the option to avoid copy_to_user() 
+> -somehow- in -some- cases would be wise.
+
+What Evgeniy means here is that copy_to_user() is slower than memcpy() (on
+his machine, with his kernel config, at least).
+
+Which is kinda weird and unexpected and is something which we should
+investigate independently from this project.  (Rather than simply going
+and bypassing it!)
+

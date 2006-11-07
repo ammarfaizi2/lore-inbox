@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753286AbWKGUxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752745AbWKGU7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753286AbWKGUxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753334AbWKGUxg
+	id S1752745AbWKGU7P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752629AbWKGU7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:53:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4800 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753286AbWKGUxf (ORCPT
+	Tue, 7 Nov 2006 15:59:15 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:16870 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1752626AbWKGU7O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:53:35 -0500
-Date: Tue, 7 Nov 2006 12:53:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Amol Lad <amol@verismonetworks.com>
-Cc: James.Bottomley@steeleye.com, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drivers/scsi/mca_53c9x.c : save_flags()/cli() removal
-Message-Id: <20061107125329.6dc4eb53.akpm@osdl.org>
-In-Reply-To: <1162816931.22062.132.camel@amol.verismonetworks.com>
-References: <1162816931.22062.132.camel@amol.verismonetworks.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 15:59:14 -0500
+Date: Tue, 7 Nov 2006 12:59:05 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
+       mm-commits@vger.kernel.org, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+In-Reply-To: <20061107203147.GB4753@elte.hu>
+Message-ID: <Pine.LNX.4.64.0611071258280.5516@schroedinger.engr.sgi.com>
+References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
+ <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>
+ <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
+ <20061107095049.B3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611071113390.4582@schroedinger.engr.sgi.com>
+ <20061107203147.GB4753@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Nov 2006 18:12:11 +0530
-Amol Lad <amol@verismonetworks.com> wrote:
+On Tue, 7 Nov 2006, Ingo Molnar wrote:
 
-> Replaced save_flags()/cli() with spin_lock alternatives
+> Per-CPU tasklets are equivalent to softirqs, with extra complexity and 
+> overhead ontop of it :-)
 > 
-> Signed-off-by: Amol Lad <amol@verismonetworks.com>
-> ---
-> Andrew, 
-> Please add this to -mm
-> ---
-> --- linux-2.6.19-rc4-orig/drivers/scsi/mca_53c9x.c	2006-08-24 02:46:33.000000000 +0530
-> +++ linux-2.6.19-rc4/drivers/scsi/mca_53c9x.c	2006-11-06 18:03:22.000000000 +0530
-> @@ -341,9 +341,7 @@ static void dma_init_read(struct NCR_ESP
->  {
->  	unsigned long flags;
->  
-> -
-> -	save_flags(flags);
-> -	cli();
-> +	spin_lock_irqsave(esp->ehost->host_lock, flags);
->  
->  	mca_disable_dma(esp->dma);
->  	mca_set_dma_mode(esp->dma, MCA_DMA_MODE_XFER | MCA_DMA_MODE_16 |
-> @@ -352,16 +350,14 @@ static void dma_init_read(struct NCR_ESP
->  	mca_set_dma_count(esp->dma, length / 2); /* !!! */
->  	mca_enable_dma(esp->dma);
->  
-> -	restore_flags(flags);
-> +	spin_unlock_irqrestore(esp->ehost->host_lock, flags);
->  }
->  
->  static void dma_init_write(struct NCR_ESP *esp, __u32 addr, int length)
->  {
->  	unsigned long flags;
->  
-> -
-> -	save_flags(flags);
-> -	cli();
-> +	spin_lock_irqsave(esp->ehost->host_lock, flags);
->  
->  	mca_disable_dma(esp->dma);
->  	mca_set_dma_mode(esp->dma, MCA_DMA_MODE_XFER | MCA_DMA_MODE_WRITE |
-> @@ -370,7 +366,7 @@ static void dma_init_write(struct NCR_ES
->  	mca_set_dma_count(esp->dma, length / 2); /* !!! */
->  	mca_enable_dma(esp->dma);
->  
-> -	restore_flags(flags);
-> +	spin_unlock_irqrestore(esp->ehost->host_lock, flags);
->  }
->  
->  static void dma_ints_off(struct NCR_ESP *esp)
+> so please just introduce a rebalance softirq and attach the scheduling 
+> rebalance tick to it. But i'd suggest to re-test on the 4096-CPU box, 
+> maybe what 'fixed' your workload was the global serialization of the 
+> tasklet. With a per-CPU softirq approach we are i think back to the same 
+> situation that broke your system before.
 
-hm.  How do we find out if this works?
-
-If it _does_ work then we can now remove the Kconfig BROKEN_ON_SMP dependency
-for this driver.
+What broke the system was the disabling of interrupts over long time 
+periods during load balancing.
 

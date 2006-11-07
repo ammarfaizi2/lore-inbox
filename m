@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965464AbWKGQvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965334AbWKGQv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965464AbWKGQvc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 11:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965368AbWKGQva
+	id S965334AbWKGQv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 11:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965357AbWKGQvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 11:51:30 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:28327 "EHLO
+	Tue, 7 Nov 2006 11:51:36 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:29607 "EHLO
 	kano.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S965291AbWKGQv0 convert rfc822-to-8bit (ORCPT
+	id S965359AbWKGQv2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 11:51:26 -0500
+	Tue, 7 Nov 2006 11:51:28 -0500
 Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
@@ -17,11 +17,11 @@ Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Chase Venters <chase.venters@clientec.com>,
        Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
        Jeff Garzik <jeff@garzik.org>
-Subject: [take23 0/5] kevent: Generic event handling mechanism.
-In-Reply-To: <1154985aa0591036@2ka.mipt.ru>
+Subject: [take23 1/5] kevent: Description.
+In-Reply-To: <11629182482886@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
 Date: Tue, 7 Nov 2006 19:50:48 +0300
-Message-Id: <11629182482886@2ka.mipt.ru>
+Message-Id: <1162918248891@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -32,208 +32,165 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Generic event handling mechanism.
+Description.
 
-Kevent is a generic subsytem which allows to handle event notifications.
-It supports both level and edge triggered events. It is similar to
-poll/epoll in some cases, but it is more scalable, it is faster and
-allows to work with essentially eny kind of events.
+int kevent_ctl(int fd, unsigned int cmd, unsigned int num, struct ukevent *arg);
 
-Events are provided into kernel through control syscall and can be read
-back through mmaped ring or syscall.
-Kevent update (i.e. readiness switching) happens directly from internals
-of the appropriate state machine of the underlying subsytem (like
-network, filesystem, timer or any other).
+fd - is the file descriptor referring to the kevent queue to manipulate. 
+It is created by opening "/dev/kevent" char device, which is created with dynamic 
+minor number and major number assigned for misc devices. 
 
-Homepage:
-http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+cmd - is the requested operation. It can be one of the following:
+    KEVENT_CTL_ADD - add event notification 
+    KEVENT_CTL_REMOVE - remove event notification 
+    KEVENT_CTL_MODIFY - modify existing notification 
 
-Documentation page:
-http://linux-net.osdl.org/index.php/Kevent
+num - number of struct ukevent in the array pointed to by arg 
+arg - array of struct ukevent
 
-Consider for inclusion.
+When called, kevent_ctl will carry out the operation specified in the cmd parameter.
+-------------------------------------------------------------------------------------
 
-Changes from 'take22' patchset:
-* new ring buffer implementation in process' memory
-* wakeup-one-thread flag
-* edge-triggered behaviour
-With this release additional independent benchmark shows kevent speed compared to epoll:
-Eric Dumazet created special benchmark which creates set of AF_INET sockets and two threads 
-start to simultaneously read and write data from/into them.
-Here is results:
-epoll (no EPOLLET): 57428 events/sec
-kevent (no ET): 59794 events/sec
-epoll (with EPOLLET): 71000 events/sec
-kevent (with ET): 78265 events/sec
-Maximum (busy loop reading events): 88482 events/sec
+ int kevent_get_events(int ctl_fd, unsigned int min_nr, unsigned int max_nr, __u64 timeout, struct ukevent *buf, unsigned flags)
 
-Changes from 'take21' patchset:
- * minor cleanups (different return values, removed unneded variables, whitespaces and so on)
- * fixed bug in kevent removal in case when kevent being removed
-   is the same as overflow_kevent (spotted by Eric Dumazet)
+ctl_fd - file descriptor referring to the kevent queue 
+min_nr - minimum number of completed events that kevent_get_events will block waiting for 
+max_nr - number of struct ukevent in buf 
+timeout - number of nanoseconds to wait before returning less than min_nr events. 
+	If this is -1, then wait forever. 
+buf - pointer to an array of struct ukevent. 
+flags - unused 
 
-Changes from 'take20' patchset:
- * new ring buffer implementation
- * removed artificial limit on possible number of kevents
-With this release and fixed userspace web server it was possible to 
-achive 3960+ req/s with client connection rate of 4000 con/s
-over 100 Mbit lan, data IO over network was about 10582.7 KB/s, which
-is too close to wire speed if we get into account headers and the like.
+kevent_get_events will wait timeout milliseconds for at least min_nr completed events, 
+copying completed struct ukevents to buf and deleting any KEVENT_REQ_ONESHOT event requests. 
+In nonblocking mode it returns as many events as possible, but not more than max_nr. 
+In blocking mode it waits until timeout or if at least min_nr events are ready.
+-------------------------------------------------------------------------------------
 
-Changes from 'take19' patchset:
- * use __init instead of __devinit
- * removed 'default N' from config for user statistic
- * removed kevent_user_fini() since kevent can not be unloaded
- * use KERN_INFO for statistic output
+ int kevent_wait(int ctl_fd, unsigned int num, __u64 timeout)
 
-Changes from 'take18' patchset:
- * use __init instead of __devinit
- * removed 'default N' from config for user statistic
- * removed kevent_user_fini() since kevent can not be unloaded
- * use KERN_INFO for statistic output
+ctl_fd - file descriptor referring to the kevent queue 
+num - number of processed kevents 
+timeout - this timeout specifies number of nanoseconds to wait until there is free space in kevent queue 
 
-Changes from 'take17' patchset:
- * Use RB tree instead of hash table. 
-	At least for a web sever, frequency of addition/deletion of new kevent 
-	is comparable with number of search access, i.e. most of the time events 
-	are added, accesed only couple of times and then removed, so it justifies 
-	RB tree usage over AVL tree, since the latter does have much slower deletion 
-	time (max O(log(N)) compared to 3 ops), 
-	although faster search time (1.44*O(log(N)) vs. 2*O(log(N))). 
-	So for kevents I use RB tree for now and later, when my AVL tree implementation 
-	is ready, it will be possible to compare them.
- * Changed readiness check for socket notifications.
+This syscall waits until either timeout expires or at least one event becomes ready. 
+It also copies that num events into special ring buffer and requeues them (or removes depending on flags). 
+-------------------------------------------------------------------------------------
 
-With both above changes it is possible to achieve more than 3380 req/second compared to 2200, 
-sometimes 2500 req/second for epoll() for trivial web-server and httperf client on the same
-hardware.
-It is possible that above kevent limit is due to maximum allowed kevents in a time limit, which is
-4096 events.
+ int kevent_ring_init(int ctl_fd, struct kevent_ring *ring, unsigned int num)
 
-Changes from 'take16' patchset:
- * misc cleanups (__read_mostly, const ...)
- * created special macro which is used for mmap size (number of pages) calculation
- * export kevent_socket_notify(), since it is used in network protocols which can be 
-	built as modules (IPv6 for example)
+ctl_fd - file descriptor referring to the kevent queue 
+num - size of the ring buffer in events 
 
-Changes from 'take15' patchset:
- * converted kevent_timer to high-resolution timers, this forces timer API update at
-	http://linux-net.osdl.org/index.php/Kevent
- * use struct ukevent* instead of void * in syscalls (documentation has been updated)
- * added warning in kevent_add_ukevent() if ring has broken index (for testing)
+ struct kevent_ring
+ {
+   unsigned int ring_kidx;
+   struct ukevent event[0];
+ }
 
-Changes from 'take14' patchset:
- * added kevent_wait()
-    This syscall waits until either timeout expires or at least one event
-    becomes ready. It also commits that @num events from @start are processed
-    by userspace and thus can be be removed or rearmed (depending on it's flags).
-    It can be used for commit events read by userspace through mmap interface.
-    Example userspace code (evtest.c) can be found on project's homepage.
- * added socket notifications (send/recv/accept)
+ring_kidx - is an index in the ring buffer where kernel will put new events when 
+  kevent_wait() or kevent_get_events() is called 
 
-Changes from 'take13' patchset:
- * do not get lock aroung user data check in __kevent_search()
- * fail early if there were no registered callbacks for given type of kevent
- * trailing whitespace cleanup
+Example userspace code (ring_buffer.c) can be found on project's homepage.
 
-Changes from 'take12' patchset:
- * remove non-chardev interface for initialization
- * use pointer to kevent_mring instead of unsigned longs
- * use aligned 64bit type in raw user data (can be used by high-res timer if needed)
- * simplified enqueue/dequeue callbacks and kevent initialization
- * use nanoseconds for timeout
- * put number of milliseconds into timer's return data
- * move some definitions into user-visible header
- * removed filenames from comments
+Each kevent syscall can be so called cancellation point in glibc, i.e. when thread has 
+been cancelled in kevent syscall, thread can be safely removed and no events will be lost, 
+since each syscall (kevent_wait() or kevent_get_events()) will copy event into special ring buffer, 
+accessible from other threads or even processes (if shared memory is used).
 
-Changes from 'take11' patchset:
- * include missing headers into patchset
- * some trivial code cleanups (use goto instead of if/else games and so on)
- * some whitespace cleanups
- * check for ready_callback() callback before main loop which should save us some ticks
+When kevent is removed (not dequeued when it is ready, but just removed), even if it was ready, 
+it is not copied into ring buffer, since if it is removed, no one cares about it (otherwise user 
+would wait until it becomes ready and got it through usual way using kevent_get_events() or kevent_wait()) 
+and thus no need to copy it to the ring buffer.
 
-Changes from 'take10' patchset:
- * removed non-existent prototypes
- * added helper function for kevent_registered_callbacks
- * fixed 80 lines comments issues
- * added shared between userspace and kernelspace header instead of embedd them in one
- * core restructuring to remove forward declarations
- * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
- * use vm_insert_page() instead of remap_pfn_range()
+It is possible with userspace ring buffer, that events in the ring buffer can be replaced without knowledge 
+for the thread currently reading them (when other thread calls kevent_get_events() or kevent_wait()), 
+so appropriate locking between threads or processes, which can simultaneously access the same ring buffer, 
+is required.
+-------------------------------------------------------------------------------------
 
-Changes from 'take9' patchset:
- * fixed ->nopage method
+The bulk of the interface is entirely done through the ukevent struct. 
+It is used to add event requests, modify existing event requests, 
+specify which event requests to remove, and return completed events.
 
-Changes from 'take8' patchset:
- * fixed mmap release bug
- * use module_init() instead of late_initcall()
- * use better structures for timer notifications
+struct ukevent contains the following members:
 
-Changes from 'take7' patchset:
- * new mmap interface (not tested, waiting for other changes to be acked)
-	- use nopage() method to dynamically substitue pages
-	- allocate new page for events only when new added kevent requres it
-	- do not use ugly index dereferencing, use structure instead
-	- reduced amount of data in the ring (id and flags), 
-		maximum 12 pages on x86 per kevent fd
+struct kevent_id id
+    Id of this request, e.g. socket number, file descriptor and so on 
+__u32 type
+    Event type, e.g. KEVENT_SOCK, KEVENT_INODE, KEVENT_TIMER and so on 
+__u32 event
+    Event itself, e.g. SOCK_ACCEPT, INODE_CREATED, TIMER_FIRED 
+__u32 req_flags
+    Per-event request flags,
 
-Changes from 'take6' patchset:
- * a lot of comments!
- * do not use list poisoning for detection of the fact, that entry is in the list
- * return number of ready kevents even if copy*user() fails
- * strict check for number of kevents in syscall
- * use ARRAY_SIZE for array size calculation
- * changed superblock magic number
- * use SLAB_PANIC instead of direct panic() call
- * changed -E* return values
- * a lot of small cleanups and indent fixes
+    KEVENT_REQ_ONESHOT
+        event will be removed when it is ready 
 
-Changes from 'take5' patchset:
- * removed compilation warnings about unused wariables when lockdep is not turned on
- * do not use internal socket structures, use appropriate (exported) wrappers instead
- * removed default 1 second timeout
- * removed AIO stuff from patchset
+    KEVENT_REQ_WAKEUP_ONE
+        When several threads wait on the same kevent queue and requested the same event, 
+	for example 'wake me up when new client has connected, so I could call accept()', 
+	then all threads will be awakened when new client has connected, but only one of 
+	them can process the data. This problem is known as thundering nerd problem. 
+	Events which have this flag set will not be marked as ready (and appropriate threads 
+	will not be awakened) if at least one event has been already marked. 
 
-Changes from 'take4' patchset:
- * use miscdevice instead of chardevice
- * comments fixes
+    KEVENT_REQ_ET
+        Edge Triggered behaviour. It is an optimisation which allows to move ready and dequeued 
+	(i.e. copied to userspace) event to move into set of interest for given storage (socket, 
+	inode and so on) again. It is very usefull for cases when the same event should be used 
+	many times (like reading from pipe). It is similar to epoll()'s EPOLLET flag. 
 
-Changes from 'take3' patchset:
- * removed serializing mutex from kevent_user_wait()
- * moved storage list processing to RCU
- * removed lockdep screaming - all storage locks are initialized in the same function, so it was
-learned 
-	to differentiate between various cases
- * remove kevent from storage if is marked as broken after callback
- * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
+__u32 ret_flags
+    Per-event return flags
 
-Changes from 'take2' patchset:
- * split kevent_finish_user() to locked and unlocked variants
- * do not use KEVENT_STAT ifdefs, use inline functions instead
- * use array of callbacks of each type instead of each kevent callback initialization
- * changed name of ukevent guarding lock
- * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
- * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
- * various indent cleanups
- * added optimisation, which is aimed to help when a lot of kevents are being copied from
-userspace
- * mapped buffer (initial) implementation (no userspace yet)
+    KEVENT_RET_BROKEN
+        Kevent is broken 
 
-Changes from 'take1' patchset:
- - rebased against 2.6.18-git tree
- - removed ioctl controlling
- - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
-			unsigned int timeout, void __user *buf, unsigned flags)
- - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
-	initialization
- - use mutuxes instead of semaphores
- - added file descriptor check and return error if provided descriptor does not match
-	kevent file operations
- - various indent fixes
- - removed aio_sendfile() declarations.
+    KEVENT_RET_DONE
+        Kevent processing was finished successfully 
 
-Thank you.
+    KEVENT_RET_COPY_FAILED
+        Kevent was not copied into ring buffer due to some error conditions. 
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+__u32 ret_data
+    Event return data. Event originator fills it with anything it likes (for example 
+    timer notifications put number of milliseconds when timer has fired 
+union { __u32 user[2]; void *ptr; }
+    User's data. It is not used, just copied to/from user. The whole structure is aligned 
+    to 8 bytes already, so the last union is aligned properly. 
+
+---------------------------------------------------------------------------------
+
+Usage
+
+For KEVENT_CTL_ADD, all fields relevant to the event type must be filled 
+(id, type, possibly event, req_flags). After kevent_ctl(..., KEVENT_CTL_ADD, ...) 
+returns each struct's ret_flags should be checked to see if the event is already broken or done.
+
+For KEVENT_CTL_MODIFY, the id, req_flags, and user and event fields must be set and an 
+existing kevent request must have matching id and user fields. If a match is found, 
+req_flags and event are replaced with the newly supplied values and requeueing is started, 
+so modified kevent can be checked and probably marked as ready immediately. If a match can't
+be found, the passed in ukevent's ret_flags has KEVENT_RET_BROKEN set. KEVENT_RET_DONE is always set.
+
+For KEVENT_CTL_REMOVE, the id and user fields must be set and an existing kevent request must 
+have matching id and user fields. If a match is found, the kevent request is removed. 
+If a match can't be found, the passed in ukevent's ret_flags has KEVENT_RET_BROKEN set. 
+KEVENT_RET_DONE is always set.
+
+For kevent_get_events, the entire structure is returned.
+
+---------------------------------------------------------------------------------
+
+Usage cases
+
+kevent_timer
+struct ukevent should contain following fields:
+    type - KEVENT_TIMER 
+    event - KEVENT_TIMER_FIRED 
+    req_flags - KEVENT_REQ_ONESHOT if you want to fire that timer only once 
+    id.raw[0] - number of seconds after commit when this timer shout expire 
+    id.raw[0] - additional to number of seconds number of nanoseconds 
 
 

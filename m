@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932766AbWKGRxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965606AbWKGRxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932766AbWKGRxK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 12:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbWKGRxJ
+	id S965606AbWKGRxj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 12:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbWKGRxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 12:53:09 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:31710 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932766AbWKGRxH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 12:53:07 -0500
-Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels
-	that offer x86 compatability
-From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Jeff Layton <jlayton@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061107174217.GA29746@wohnheim.fh-wedel.de>
-References: <1162836725.6952.28.camel@dantu.rdu.redhat.com>
-	 <20061106182222.GO27140@parisc-linux.org>
-	 <1162838843.12129.8.camel@dantu.rdu.redhat.com>
-	 <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com>
-	 <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com>
-	 <1162914966.28425.24.camel@dantu.rdu.redhat.com>
-	 <20061107172835.GB15629@wohnheim.fh-wedel.de>
-	 <20061107174217.GA29746@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 07 Nov 2006 11:53:03 -0600
-Message-Id: <1162921983.8123.22.camel@kleikamp.austin.ibm.com>
+	Tue, 7 Nov 2006 12:53:39 -0500
+Received: from mga05.intel.com ([192.55.52.89]:42393 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932784AbWKGRxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 12:53:37 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,397,1157353200"; 
+   d="scan'208"; a="12786887:sNHT15673221"
+Date: Tue, 7 Nov 2006 09:31:12 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org, mm-commits@vger.kernel.org,
+       nickpiggin@yahoo.com.au, suresh.b.siddha@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+Message-ID: <20061107093112.A3262@unix-os.sc.intel.com>
+References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net> <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>; from clameter@sgi.com on Tue, Nov 07, 2006 at 09:44:11AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-07 at 18:42 +0100, Jörn Engel wrote:
-> On Tue, 7 November 2006 18:28:35 +0100, Jörn Engel wrote:
-> > 
-> > Anyway, here is a first patch converting some callers that looked
-> > obvious.
+On Tue, Nov 07, 2006 at 09:44:11AM -0800, Christoph Lameter wrote:
+> On Tue, 7 Nov 2006, Ingo Molnar wrote:
 > 
-> Next patch with the not-so-obvious ones.  I believe this patch is
-> correct, but someone should double-check it.
+> > i'm not sure i get the point of this whole do-rebalance-in-tasklet idea. 
+> > A tasklet is global to the system. The rebalance tick was per-CPU. This 
+> > is not an equivalent change at all. What am i missing?
 > 
-> Jfs really surprised me.  It appears as if it just takes the number
-> returned from new_inode in some cases - unbelievable.
+> A tasklet runs per cpu. In many ways it is equivalent to an interrupt 
+> context just interrupts are enabled.
 
-jfs set it in diInitInode() (pardon the uglyMixedCaps), which is called
-in several places under diAlloc().  diAlloc() is called after
-new_inode() for most inodes.  The exceptions are for special inodes,
-which also initialize i_ino in some manner.
+Christoph, DECLARE_TASKLET that you had atleast needs to be per cpu.. 
+Not sure if there are any other concerns.
 
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+thanks,
+suresh

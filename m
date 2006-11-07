@@ -1,68 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932711AbWKGQev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932738AbWKGQi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932711AbWKGQev (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 11:34:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbWKGQev
+	id S932738AbWKGQi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 11:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932747AbWKGQi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 11:34:51 -0500
-Received: from gate.cdi.cz ([80.95.109.117]:63635 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id S932711AbWKGQev (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 11:34:51 -0500
-Message-ID: <4550B5A8.2050000@cdi.cz>
-Date: Tue, 07 Nov 2006 17:34:48 +0100
-From: Martin Devera <devik@cdi.cz>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060729)
+	Tue, 7 Nov 2006 11:38:26 -0500
+Received: from py-out-1112.google.com ([64.233.166.177]:16281 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932738AbWKGQiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 11:38:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:organization:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=ic4SpXD3YmIxtSnZ4MSmDIwOkJsGYPHQ1HqLrmCf92RWyeWWB0ycsCt5ralHtteh49iSBCIEjlJmao24UfHtY/d8R9EZ0P4M9bKI42iWhqtYGskchNV4d1wurZVKkFIMnd5JstDCJob40QIewObBnaxGi75wxgvyFjXf+R83GOg=
+From: Yu Luming <luming.yu@gmail.com>
+Organization: gmail
+To: Andrew Morton <akpm@osdl.org>
+Subject: [patch 1/5] video sysfs support - take 2: Add dev argument for backlight_device_register.
+Date: Wed, 8 Nov 2006 00:33:55 +0800
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, len.brown@intel.com,
+       Matt Domsch <Matt_Domsch@dell.com>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr,
+       Richard Hughes <hughsient@gmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: oops in do_no_page, 2.6.19-rc4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.6 (--)
-X-Spam-Report: * -2.6 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
+Content-Disposition: inline
+Message-Id: <200611080033.56035.luming.yu@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-while hunting >=2.6.18 regression my HW (see my older posts) I was able to get
-the hw offline for testing. I'm able to reproduce oops below by taking cpu1
-offline, then online and running "top".
-More info is at http://luxik.cdi.cz/~devik/files/2618-corrupt/oops2/, I have
-also /proc/kcore copy if someone wants it.
-In reality there was second recursive BUG, see url above.
 
-I run testsuite now in hope to trigger the original bug (without cpu hotplug
-involved) and save crashdump using kexec..
-devik
+This patch set adds generic abstract layer support for acpi video driver to have
+generic user interface to control backlight and output switch control by leveraging
+the existing backlight sysfs class driver, and by adding a new video output sysfs 
+class driver.
 
-[  337.052000] BUG: unable to handle kernel paging request at virtual address 687475f9
-[  337.052000]  printing eip:
-[  337.052000] c01654cd
-[  337.052000] *pde = 00000000
-[  337.052000] Oops: 0000 [#1]
-[  337.052000] SMP DEBUG_PAGEALLOC
-[  337.052000] Modules linked in:
-[  337.052000] CPU:    1
-[  337.052000] EIP:    0060:[<c01654cd>]    Not tainted VLI
-[  337.052000] EFLAGS: 00010206   (2.6.19-rc4 #7)
-[  337.052000] EIP is at do_no_page+0x3e/0x2f8
-[  337.052000] eax: 68747541   ebx: 00000000   ecx: c04de420   edx: c04de420
-[  337.052000] esi: c6af9b7c   edi: c645254c   ebp: c70f1f30   esp: c70f1ef8
-[  337.052000] ds: 007b   es: 007b   ss: 0068
-[  337.052000] Process httpd (pid: 1405, ti=c70f1000 task=c70f05c0 task.ti=c70f1000)
-[  337.052000] Stack: c70f05c0 c70f0ad0 00000001 cddfb85c 00000002 00000246 00000000 00000000
-[  337.052000]        c70f1f40 00000246 00000002 00000000 c6af9b7c c645254c c70f1f64 c01659c4
-[  337.052000]        c6af8dc8 c04de420 b7d538b5 c645254c c6af9b7c 00000000 00000001 00000001
-[  337.052000] Call Trace:
-[  337.052000]  [<c01659c4>] __handle_mm_fault+0xdf/0x25f
-[  337.052000]  [<c034cfba>] do_page_fault+0x24a/0x5f0
-[  337.052000]  [<c034b691>] error_code+0x39/0x40
-[  337.052000]  [<b7f83f58>] 0xb7f83f58
-[  337.052000]  =======================
-[  337.052000] Code: f6 40 15 04 74 08 0f 0b 6d 08 45 0a 38 c0 c7 45 e0 00 00 00 00 c7 45 e4 
-00 00
-00 00 8b 55 0c 83 7a 48 00 74 1b 8b 4d 0c 8b 41 48 <8b> 80 b8 00 00 00 89 45 e0 8b 70 5c 89 
-75 e4 0
-f ae e8 66 66 90
-[  337.056000] EIP: [<c01654cd>] do_no_page+0x3e/0x2f8 SS:ESP 0068:c70f1ef8
+Patch 1/5:  adds dev argument for backlight_device_register to link the class device
+to real device object. The platform specific driver should find a way to get the real
+device object for their video device.
+
+signed-off-by: Luming Yu <Luming.yu@intel.com>
+---
+ drivers/acpi/asus_acpi.c            |    2 +-
+ drivers/acpi/ibm_acpi.c             |    2 +-
+ drivers/acpi/toshiba_acpi.c         |    3 ++-
+ drivers/video/backlight/backlight.c |    7 +++++--
+ include/linux/backlight.h           |    2 +-
+ 5 files changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
+index a36436f..4d24efc 100644
+--- a/drivers/acpi/asus_acpi.c
++++ b/drivers/acpi/asus_acpi.c
+@@ -1401,7 +1401,7 @@ static int __init asus_acpi_init(void)
+ 		return -ENODEV;
+ 	}
+ 
+-	asus_backlight_device = backlight_device_register("asus", NULL,
++	asus_backlight_device = backlight_device_register("asus",NULL,NULL,
+ 							  &asus_backlight_data);
+         if (IS_ERR(asus_backlight_device)) {
+ 		printk(KERN_ERR "Could not register asus backlight device\n");
+diff --git a/drivers/acpi/ibm_acpi.c b/drivers/acpi/ibm_acpi.c
+index 9658253..ba52b78 100644
+--- a/drivers/acpi/ibm_acpi.c
++++ b/drivers/acpi/ibm_acpi.c
+@@ -2072,7 +2072,7 @@ #endif
+ 		}
+ 	}
+ 
+-	ibm_backlight_device = backlight_device_register("ibm", NULL,
++	ibm_backlight_device = backlight_device_register("ibm",NULL,NULL,
+ 							 &ibm_backlight_data);
+         if (IS_ERR(ibm_backlight_device)) {
+ 		printk(IBM_ERR "Could not register ibm backlight device\n");
+diff --git a/drivers/acpi/toshiba_acpi.c b/drivers/acpi/toshiba_acpi.c
+index 2f35f89..88aeccb 100644
+--- a/drivers/acpi/toshiba_acpi.c
++++ b/drivers/acpi/toshiba_acpi.c
+@@ -590,7 +590,8 @@ static int __init toshiba_acpi_init(void
+ 			remove_proc_entry(PROC_TOSHIBA, acpi_root_dir);
+ 	}
+ 
+-	toshiba_backlight_device = backlight_device_register("toshiba", NULL,
++	toshiba_backlight_device = backlight_device_register("toshiba",NULL,
++						NULL,
+ 						&toshiba_backlight_data);
+         if (IS_ERR(toshiba_backlight_device)) {
+ 		printk(KERN_ERR "Could not register toshiba backlight device\n");
+diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
+index 27597c5..1d97cdf 100644
+--- a/drivers/video/backlight/backlight.c
++++ b/drivers/video/backlight/backlight.c
+@@ -190,8 +190,10 @@ static int fb_notifier_callback(struct n
+  * Creates and registers new backlight class_device. Returns either an
+  * ERR_PTR() or a pointer to the newly allocated device.
+  */
+-struct backlight_device *backlight_device_register(const char *name, void *devdata,
+-						   struct backlight_properties *bp)
++struct backlight_device *backlight_device_register(const char *name,
++	struct device *dev,
++	void *devdata,
++	struct backlight_properties *bp)
+ {
+ 	int i, rc;
+ 	struct backlight_device *new_bd;
+@@ -206,6 +208,7 @@ struct backlight_device *backlight_devic
+ 	new_bd->props = bp;
+ 	memset(&new_bd->class_dev, 0, sizeof(new_bd->class_dev));
+ 	new_bd->class_dev.class = &backlight_class;
++	new_bd->class_dev.dev = dev;
+ 	strlcpy(new_bd->class_dev.class_id, name, KOBJ_NAME_LEN);
+ 	class_set_devdata(&new_bd->class_dev, devdata);
+ 
+diff --git a/include/linux/backlight.h b/include/linux/backlight.h
+index 75e91f5..a5cf1be 100644
+--- a/include/linux/backlight.h
++++ b/include/linux/backlight.h
+@@ -54,7 +54,7 @@ struct backlight_device {
+ };
+ 
+ extern struct backlight_device *backlight_device_register(const char *name,
+-	void *devdata, struct backlight_properties *bp);
++	struct device *dev,void *devdata,struct backlight_properties *bp);
+ extern void backlight_device_unregister(struct backlight_device *bd);
+ 
+ #define to_backlight_device(obj) container_of(obj, struct backlight_device, class_dev)

@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752906AbWKGPLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753559AbWKGPKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752906AbWKGPLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 10:11:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753961AbWKGPLZ
+	id S1753559AbWKGPKd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 10:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753734AbWKGPKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 10:11:25 -0500
-Received: from excu-mxob-1.symantec.com ([198.6.49.12]:26294 "EHLO
-	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1752906AbWKGPLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 10:11:24 -0500
-Date: Tue, 7 Nov 2006 15:11:29 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Paulo Marques <pmarques@grupopie.com>
-cc: Rik Bobbaers <Rik.Bobbaers@cc.kuleuven.be>, linux-kernel@vger.kernel.org,
-       linux-mm@vger.kernel.org
-Subject: Re: very small code cleanup
-In-Reply-To: <45509B97.2080104@grupopie.com>
-Message-ID: <Pine.LNX.4.64.0611071505040.6764@blonde.wat.veritas.com>
-References: <4550986C.8020802@cc.kuleuven.be> <45509B97.2080104@grupopie.com>
+	Tue, 7 Nov 2006 10:10:32 -0500
+Received: from 8.ctyme.com ([69.50.231.8]:43963 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1752906AbWKGPKc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 10:10:32 -0500
+Message-ID: <4550A1E6.1070708@perkel.com>
+Date: Tue, 07 Nov 2006 07:10:30 -0800
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 07 Nov 2006 15:11:11.0868 (UTC) FILETIME=[F5F0C3C0:01C7027E]
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Paul Rolland <rol@as2917.net>, "'Chris Lalancette'" <clalance@redhat.com>,
+       "'Rafael J. Wysocki'" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: could not find filesystem /dev/root - menucinfig
+References: <02e401c7023a$fdcce1d0$4b00a8c0@donald> <Pine.LNX.4.61.0611071013420.11192@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0611071013420.11192@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006, Paulo Marques wrote:
-> Rik Bobbaers wrote:
-> > 
-> > in mm/mlock.c , mm is defined as vma->vm_mm, why not use that one for the
-> > decrement of pages?
-> 
-> Because vma can change here:
-> 
-> 	if (*prev) {
-> 		vma = *prev;
-> 		goto success;
-> 	}
+I figured out the problem. the SATA drivers weren't being compiled. 
+That's because the menu system was rearanged. May I suggest that if you 
+are going to change the structure that you include some upgrade mapping 
+so that if old items are mapped to new items and people like me won't 
+waste many hours just to find out that what I though was selected isn't.
 
-That's a good piece of cautious observation ...
+menuconfig needs to be upgrade smart.
 
-> 
-> and then mm won't be the same as vma->vm_mm..
-
-... but it would be a bug if *prev's vm_mm were different from mm
-and from the original vma->vm_mm: Rik's patch looks sensible to me.
-
-Hugh

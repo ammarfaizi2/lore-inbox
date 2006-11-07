@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754087AbWKGH1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754092AbWKGHdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754087AbWKGH1A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 02:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754088AbWKGH1A
+	id S1754092AbWKGHdn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 02:33:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754091AbWKGHdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 02:27:00 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:13122 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1754087AbWKGH07 (ORCPT
+	Tue, 7 Nov 2006 02:33:43 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:47795 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1754090AbWKGHdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 02:26:59 -0500
-Date: Tue, 7 Nov 2006 08:29:07 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Brent Baccala <cosine@freesoft.org>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: async I/O seems to be blocking on 2.6.15
-Message-ID: <20061107072906.GO19471@kernel.dk>
-References: <Pine.LNX.4.64.0611061903220.27775@debian.freesoft.org>
+	Tue, 7 Nov 2006 02:33:42 -0500
+Date: Tue, 7 Nov 2006 08:32:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: akpm@osdl.org
+Cc: mm-commits@vger.kernel.org, clameter@sgi.com, nickpiggin@yahoo.com.au,
+       suresh.b.siddha@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+Message-ID: <20061107073248.GB5148@elte.hu>
+References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611061903220.27775@debian.freesoft.org>
+In-Reply-To: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06 2006, Brent Baccala wrote:
-> On Mon, 6 Nov 2006, Chen, Kenneth W wrote:
-> 
-> >I've tried that myself too and see similar result.  One thing to note is
-> >that I/O being submitted are pretty big at 1MB, so the vector list inside
-> >bio is going to be pretty long and it will take a while to construct that.
-> >Drop the size for each I/O to something like 4KB will significantly reduce
-> >the time.  I haven't done the measurement whether the time to submit I/O
-> >grows linearly with respect to I/O size.  Most likely it will.  If it is
-> >not, then we might have a scaling problem (though I don't believe we have
-> >this problem).
-> >
-> >- Ken
-> >
-> >
-> 
-> I'm basically an end user here (as far as the kernel is concerned), so
-> let me ask the basic "dumb user" question here:
-> 
-> How should I do my async I/O if I just want to read or write
-> sequentially through a file, using O_DIRECT, and letting the CPU get
-> some work done in the meantime?  What about more random access?
 
-For sequential io, you'll pretty quickly hit the transfer size sweet
-spot where growing the io larger wont yield any benefits. In this case
-you don't want a huge queue depth, 100 ios is an insane amount for
-sequential io. If you have a properly sized io unit and a depth of 4 or
-so, I doubt you'll see any improvement beyond that on most hardware.
+* akpm@osdl.org <akpm@osdl.org> wrote:
 
-For random io, you want a bigger queue depth. If the hardware can do
-queueing, you want to make sure that you can fill that queue. 100 ios is
-still a lot in this case, though.
+> +DECLARE_TASKLET(rebalance, &rebalance_domains, 0L);
 
-> I've already concluded that I should try to keep my read and write
-> files on seperate disks and hopefully on seperate controllers, but I
-> still seem to be fighting this thing to keep it from blocking.
+i'm not sure i get the point of this whole do-rebalance-in-tasklet idea. 
+A tasklet is global to the system. The rebalance tick was per-CPU. This 
+is not an equivalent change at all. What am i missing?
 
-Shrink your queue size and/or io size :-)
-
--- 
-Jens Axboe
-
+	Ingo

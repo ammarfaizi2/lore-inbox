@@ -1,110 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWKGScv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754265AbWKGSep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWKGScv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 13:32:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754262AbWKGScv
+	id S1754265AbWKGSep (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 13:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754264AbWKGSep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 13:32:51 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43656 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1754255AbWKGSct (ORCPT
+	Tue, 7 Nov 2006 13:34:45 -0500
+Received: from mga01.intel.com ([192.55.52.88]:16499 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1754261AbWKGSeo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 13:32:49 -0500
-Date: Tue, 7 Nov 2006 18:32:43 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Jonathan E Brassow <jbrassow@redhat.com>
-Subject: [PATCH 2.6.19 4/5] dm: raid1: fix waiting for io on suspend
-Message-ID: <20061107183243.GF6993@agk.surrey.redhat.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-	Jonathan E Brassow <jbrassow@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 7 Nov 2006 13:34:44 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,397,1157353200"; 
+   d="scan'208"; a="159518108:sNHT149253559"
+Message-ID: <4550D1C2.4030308@intel.com>
+Date: Tue, 07 Nov 2006 10:34:42 -0800
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org, saw@saw.sw.com.sg, thockin@hockin.org,
+       me@privacy.net
+Subject: Re: Intel 82559 NIC corrupted EEPROM
+References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com> <45506C9A.5010009@privacy.net> <4550BF91.2020403@zytor.com> <4550C5D1.3040601@intel.com> <4550D004.1060206@zytor.com>
+In-Reply-To: <4550D004.1060206@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Nov 2006 18:34:42.0698 (UTC) FILETIME=[64298EA0:01C7029B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jonathan E Brassow <jbrassow@redhat.com>
+H. Peter Anvin wrote:
+> Auke Kok wrote:
+>>
+>> (Please CC either me or at netdev on all intel nic drivers. thanks. I 
+>> removed `john@privacy.net` since it throws a bounce, and 
+>> linux.nics@intel.com is a support address only, doesn't reach us 
+>> developers)
+>>
+> 
+> I think John <me@privacy.net> is the one who can actually answer your 
+> questions...
 
-All device-mapper targets must complete outstanding I/O before suspending.  The
-mirror target generates I/O in its recovery phase and fails to wait for it.  It
-needs to be tracked so we can ensure that it has completed before we suspend.
+his original mail reads:
 
-Signed-off-by: Jonathan E Brassow <jbrassow@redhat.com>
-Signed-off-by: Alasdair G Kergon <agk@redhat.com>
-Cc: dm-devel@redhat.com
-
-Index: linux-2.6.19-rc4/drivers/md/dm-raid1.c
-===================================================================
---- linux-2.6.19-rc4.orig/drivers/md/dm-raid1.c	2006-11-07 17:06:23.000000000 +0000
-+++ linux-2.6.19-rc4/drivers/md/dm-raid1.c	2006-11-07 17:25:42.000000000 +0000
-@@ -24,6 +24,7 @@
- 
- static struct workqueue_struct *_kmirrord_wq;
- static struct work_struct _kmirrord_work;
-+DECLARE_WAIT_QUEUE_HEAD(_kmirrord_recovery_stopped);
- 
- static inline void wake(void)
- {
-@@ -83,6 +84,7 @@ struct region_hash {
- 	struct list_head *buckets;
- 
- 	spinlock_t region_lock;
-+	atomic_t recovery_in_flight;
- 	struct semaphore recovery_count;
- 	struct list_head clean_regions;
- 	struct list_head quiesced_regions;
-@@ -191,6 +193,7 @@ static int rh_init(struct region_hash *r
- 
- 	spin_lock_init(&rh->region_lock);
- 	sema_init(&rh->recovery_count, 0);
-+	atomic_set(&rh->recovery_in_flight, 0);
- 	INIT_LIST_HEAD(&rh->clean_regions);
- 	INIT_LIST_HEAD(&rh->quiesced_regions);
- 	INIT_LIST_HEAD(&rh->recovered_regions);
-@@ -382,6 +385,8 @@ static void rh_update_states(struct regi
- 		rh->log->type->clear_region(rh->log, reg->key);
- 		rh->log->type->complete_resync_work(rh->log, reg->key, 1);
- 		dispatch_bios(rh->ms, &reg->delayed_bios);
-+		if (atomic_dec_and_test(&rh->recovery_in_flight))
-+			wake_up_all(&_kmirrord_recovery_stopped);
- 		up(&rh->recovery_count);
- 		mempool_free(reg, rh->region_pool);
- 	}
-@@ -502,11 +507,21 @@ static int __rh_recovery_prepare(struct 
- 
- static void rh_recovery_prepare(struct region_hash *rh)
- {
--	while (!down_trylock(&rh->recovery_count))
-+	/* Extra reference to avoid race with rh_stop_recovery */
-+	atomic_inc(&rh->recovery_in_flight);
-+
-+	while (!down_trylock(&rh->recovery_count)) {
-+		atomic_inc(&rh->recovery_in_flight);
- 		if (__rh_recovery_prepare(rh) <= 0) {
-+			atomic_dec(&rh->recovery_in_flight);
- 			up(&rh->recovery_count);
- 			break;
- 		}
-+	}
-+
-+	/* Drop the extra reference */
-+	if (atomic_dec_and_test(&rh->recovery_in_flight))
-+		wake_up_all(&_kmirrord_recovery_stopped);
- }
- 
- /*
-@@ -1177,6 +1192,11 @@ static void mirror_postsuspend(struct dm
- 	struct dirty_log *log = ms->rh.log;
- 
- 	rh_stop_recovery(&ms->rh);
-+
-+	/* Wait for all I/O we generated to complete */
-+	wait_event(_kmirrord_recovery_stopped,
-+		   !atomic_read(&ms->rh.recovery_in_flight));
-+
- 	if (log->type->suspend && log->type->suspend(log))
- 		/* FIXME: need better error handling */
- 		DMWARN("log suspend failed");
+"Please note, email address is a bit-bucket.
+I do monitor the mailing list. "

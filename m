@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753458AbWKGVqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752593AbWKGVuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753458AbWKGVqT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 16:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753455AbWKGVqT
+	id S1752593AbWKGVuD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 16:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753242AbWKGVuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 16:46:19 -0500
-Received: from mga09.intel.com ([134.134.136.24]:20627 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1753450AbWKGVqR (ORCPT
+	Tue, 7 Nov 2006 16:50:02 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39401 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1753196AbWKGVuA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 16:46:17 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,397,1157353200"; 
-   d="scan'208"; a="157693262:sNHT19303158"
-Date: Tue, 7 Nov 2006 13:44:39 -0800
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: David Weinehall <tao@acc.umu.se>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-Id: <20061107134439.1d54dc66.kristen.c.accardi@intel.com>
-In-Reply-To: <20061107204409.GA37488@vasa.acc.umu.se>
-References: <20061101115618.GA1683@elf.ucw.cz>
-	<20061102175403.279df320.kristen.c.accardi@intel.com>
-	<20061105232944.GA23256@vasa.acc.umu.se>
-	<20061106092117.GB2175@elf.ucw.cz>
-	<20061107204409.GA37488@vasa.acc.umu.se>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 16:50:00 -0500
+Date: Tue, 7 Nov 2006 13:49:54 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: Ingo Molnar <mingo@elte.hu>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
+       mm-commits@vger.kernel.org, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: RE: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+In-Reply-To: <000001c702b4$9895c730$e734030a@amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.64.0611071339001.5893@schroedinger.engr.sgi.com>
+References: <000001c702b4$9895c730$e734030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006 21:44:09 +0100
-David Weinehall <tao@acc.umu.se> wrote:
+On Tue, 7 Nov 2006, Chen, Kenneth W wrote:
 
-> On Mon, Nov 06, 2006 at 10:21:17AM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > > With 2.6.19-rc4, acpi complains about "acpiphp_glue: cannot get bridge
-> > > > > info" each time I close/reopen the lid... On thinkpad x60. Any ideas?
-> > > > > (-mm1 behaves the same).
-> > > > 
-> > > > Looks like acpi is sending a BUS_CHECK notification to acpiphp on the 
-> > > > PCI Root Bridge whenever the lid opens up.
-> > > > 
-> > > > There is a bug here in that acpiphp shouldn't even be used on the X60 -
-> > > > it has no hotpluggable slots.
-> > > 
-> > > How about the docking station?
-> > 
-> > "Dock" for x60 only contains cdrom slot and aditional slots, no PCI or
-> > PCMCIA slots.
-> 
-> Well, when I press the undock button on the dock without the acpiphp
-> module loaded, I never get the green light that confirms that removing
-> the laptop is safe.  If acpiphp is loaded, things work just fine.
-> 
-> 
-> Regards: David
-> -- 
->  /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-> //  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-> \)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+> > What broke the system was the disabling of interrupts over long time 
+> > periods during load balancing.
+> The previous global load balancing tasket could be an interesting data point.
 
-David,
-What kernel version are you using?  You should not need acpiphp to do
-docking on the X60.  If you are using a recent kernel, do you mind sending
-the dmesg output so we can figure out why this doesn't work for you?
+Yup seems also very interesting to me. We could drop the staggering code 
+f.e. if we would leave the patch as is. Maybe there are other ways to 
+optimize the code because we know that there are no concurrent 
+balance_tick() functions running.
 
-Thanks,
-kristen
+> Do you see a lot of imbalance in the system with the global tasket?  Does it
+> take prolonged interval to reach balanced system from imbalance?
+
+I am rather surprised that I did not see any problems but I think we would 
+need some more testing. It seems that having only one load balance 
+running at one time speeds up load balacing in general since there is 
+less lock contention.
+
+Timer interrupts are staggered already. If the tasklet finishes soon then 
+we will not have a problem and load balancing runs as before. If the 
+tasklet performance gets throttled by something then it is good to 
+serialize load balancing since we already have memory contention.  
+Performing concurrent scans of runqueues (as is now) would increase the 
+problem.
+
+Before we saw multiple load balance actions ongoing at the same time which 
+caused node overload because multiple cache line refetches from remote 
+nodes occurred. I think it was mostly node 0 that got overloaded so that 
+load balancing performance dropped significantly.
+
+> Conceptually, it doesn't make a lot of sense to serialize load balance in the
+> System.  But in practice, maybe it is good enough to cycle through each cpu
+> (I suppose it all depends on the user environment).  This exercise certainly
+> make me to think in regards to what is the best algorithm in terms of efficiency
+> and minimal latency to achieve maximum system throughput.  Does kernel really
+> have to do load balancing so aggressively in polling mode? Perhaps an event
+> driven mechanism is a better solution.
+
+There is no other way to do load balancing since we have to calculate the 
+load over many processors and then figure out the one with the most load.

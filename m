@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753375AbWKGVcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753376AbWKGVfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753375AbWKGVcb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 16:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753376AbWKGVcb
+	id S1753376AbWKGVfL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 16:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753381AbWKGVfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 16:32:31 -0500
-Received: from mail1.key-systems.net ([81.3.43.253]:3477 "HELO
-	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
-	id S1753375AbWKGVca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 16:32:30 -0500
-Message-ID: <4550FB6B.4090807@scientia.net>
-Date: Tue, 07 Nov 2006 22:32:27 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
+	Tue, 7 Nov 2006 16:35:11 -0500
+Received: from mga01.intel.com ([192.55.52.88]:26467 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1753376AbWKGVfJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 16:35:09 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,397,1157353200"; 
+   d="scan'208"; a="159625408:sNHT27163430"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Christoph Lameter'" <clameter@sgi.com>, "Ingo Molnar" <mingo@elte.hu>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, <akpm@osdl.org>,
+       <mm-commits@vger.kernel.org>, <nickpiggin@yahoo.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+Date: Tue, 7 Nov 2006 13:35:07 -0800
+Message-ID: <000001c702b4$9895c730$e734030a@amr.corp.intel.com>
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange write errors on FAT32 partition (maybe an FAT32 bug?!)
-References: <4550A481.2010408@scientia.net> <87psbzrss2.fsf@duaron.myhome.or.jp>
-In-Reply-To: <87psbzrss2.fsf@duaron.myhome.or.jp>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccCsDHIO4bzIg0gTSqgbP3QsFM9JgAAeLEw
+In-Reply-To: <Pine.LNX.4.64.0611071258280.5516@schroedinger.engr.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
-> Christoph Anton Mitterer <calestyo@scientia.net> writes:
->
->   
->> The strange thing is that one time the differences were found directly
->> after copying (thus one would thing RAM is damaged, because the data was
->> probalby (I cannot tell this for sure) taken from file cache).
->> and the other time after restarting with a certainly empty file cache.
->>
->> Any ideas? I'm willing to help debugging and so on but I must admit that
->> I need someone to say me what to do :D
->>     
-> bit interesting. Could you send the output of diff? I'd like to see
-> how it's breaking.
->   
-Unfortunately I don't have currently any of the corrupted files (deleted
-them,..) but as soon as I'll encounter the issue again I'll send you :)
+Christoph Lameter wrote on Tuesday, November 07, 2006 12:59 PM
+> On Tue, 7 Nov 2006, Ingo Molnar wrote:
+> 
+> > Per-CPU tasklets are equivalent to softirqs, with extra complexity and 
+> > overhead ontop of it :-)
+> > 
+> > so please just introduce a rebalance softirq and attach the scheduling 
+> > rebalance tick to it. But i'd suggest to re-test on the 4096-CPU box, 
+> > maybe what 'fixed' your workload was the global serialization of the 
+> > tasklet. With a per-CPU softirq approach we are i think back to the same 
+> > situation that broke your system before.
+> 
+> What broke the system was the disabling of interrupts over long time 
+> periods during load balancing.
 
-But as far as I remember there was no pattern,.. on time a small part
-was replaced by 0x0's and the other time by any bytes.
 
-Chris.
+The previous global load balancing tasket could be an interesting data point.
+Do you see a lot of imbalance in the system with the global tasket?  Does it
+take prolonged interval to reach balanced system from imbalance?
+
+Conceptually, it doesn't make a lot of sense to serialize load balance in the
+System.  But in practice, maybe it is good enough to cycle through each cpu
+(I suppose it all depends on the user environment).  This exercise certainly
+make me to think in regards to what is the best algorithm in terms of efficiency
+and minimal latency to achieve maximum system throughput.  Does kernel really
+have to do load balancing so aggressively in polling mode? Perhaps an event
+driven mechanism is a better solution.
+
+- Ken
 

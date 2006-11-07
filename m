@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWKGM1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWKGMcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbWKGM1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 07:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWKGM1Y
+	id S1751191AbWKGMcd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 07:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWKGMcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 07:27:24 -0500
-Received: from wx-out-0506.google.com ([66.249.82.224]:8878 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932500AbWKGM1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 07:27:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:sender;
-        b=tWMUETrPrQrXoRaP6bJ3OIfEd7dR7Y9ldiPkJ0SW9LeSGdqQ0AzJFUPKmtQNggRNdG/Uq5IG1/sdQ1QRkMEQD2c0RyzoJJHyhpuWQLrwLYbkus6jSrQkvHOtPr4saRBGN65NahSz+fH2lRtQ8POr8Jk/aNz8fn9M/AdqXM/VJ64=
-Message-ID: <45507BA3.9010700@kaigai.gr.jp>
-Date: Tue, 07 Nov 2006 21:27:15 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Tue, 7 Nov 2006 07:32:33 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:25018 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750953AbWKGMcc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 07:32:32 -0500
+Message-ID: <45507CD4.5030600@garzik.org>
+Date: Tue, 07 Nov 2006 07:32:20 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-       chris friedhoff <chris@friedhoff.org>,
-       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/1] security: introduce file posix caps
-References: <20061107034550.GA13693@sergelap.austin.ibm.com>
-In-Reply-To: <20061107034550.GA13693@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [take21 0/4] kevent: Generic event handling mechanism.
+References: <11619654014077@2ka.mipt.ru> <45506D51.30604@garzik.org> <20061107115111.GA13028@2ka.mipt.ru>
+In-Reply-To: <20061107115111.GA13028@2ka.mipt.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Serge.
+Evgeniy Polyakov wrote:
+> Mmap ring buffer implementation was stopped by Andrew Morton and Ulrich
+> Drepper, process' memory is used instead. copy_to_user() is slower (and
+> some times noticebly), but there are major advantages of such approach.
 
-I packaged the xattr extension of libcap, get/setfcaps command and
-manual pages with original libcap-1.10-25.
-See, http://www.kaigai.gr.jp/index.php?FrontPage#b556e50d
 
-You can download RPM and SRPM package for the latest FC6 system.
-There are no difference at its functionality, but the part of xattr
-extension is moved into /lib/libcap.so.1.
+hmmmm.  I say there are advantages to both.
 
-Thanks,
+Perhaps create a "kevent_direct_limit" resource limit for each thread. 
+By default, each thread could mmap $n pinned pagecache pages.  Sysadmin 
+can tune certain app resource limits to permit more.
 
-Serge E. Hallyn wrote:
-> Implement file posix capabilities.  This allows programs to be given
-> a subset of root's powers regardless of who runs them, without
-> having to use setuid and giving the binary all of root's powers.
-> 
-> This version works with Kaigai Kohei's userspace tools, found at
-> http://www.kaigai.gr.jp/pub/fscaps-1.0-kg.src.rpm under
-> http://www.kaigai.gr.jp/index.php?FrontPage#b556e50d.
-> 
-> (For more information on how to use, Chris Friedhoff has posted a nice
-> page on his use of file caps at http://www.friedhoff.org/fscaps.html.
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+I would think that retaining the option to avoid copy_to_user() 
+-somehow- in -some- cases would be wise.
+
+	Jeff
+
+

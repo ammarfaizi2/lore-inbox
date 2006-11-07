@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754079AbWKGPvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932681AbWKGPtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754079AbWKGPvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 10:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754076AbWKGPvZ
+	id S932681AbWKGPtd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 10:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754076AbWKGPtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 10:51:25 -0500
-Received: from mga01.intel.com ([192.55.52.88]:19559 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1754072AbWKGPvY (ORCPT
+	Tue, 7 Nov 2006 10:49:33 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:59322 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1754069AbWKGPtc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 10:51:24 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,396,1157353200"; 
-   d="scan'208"; a="12723947:sNHT19458054"
-Message-ID: <4550AB7A.10508@intel.com>
-Date: Tue, 07 Nov 2006 07:51:22 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Tue, 7 Nov 2006 10:49:32 -0500
+Message-ID: <4550AB43.10704@us.ibm.com>
+Date: Tue, 07 Nov 2006 09:50:27 -0600
+From: Steve French <smfltc@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: "Robin H. Johnson" <robbat2@gentoo.org>, linux-kernel@vger.kernel.org
-Subject: Re: e1000/ICH8LAN weirdness - no ethtool link until initially forced
- up
-References: <20061106013153.GN15897@curie-int.orbis-terrarum.net> <20061107071449.GB21655@elf.ucw.cz>
-In-Reply-To: <20061107071449.GB21655@elf.ucw.cz>
+To: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+CC: Eric Sandeen <sandeen@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       Theodore Tso <tytso@mit.edu>
+Subject: Re: [RFC/PATCH] - revert generic_fillattr stat->blksize to	 	PAGE_CACHE_SIZE
+References: <454FAE0A.3070409@redhat.com>	 <1162852069.11030.70.camel@kleikamp.austin.ibm.com>	 <454FD2BE.2090302@us.ibm.com>	 <1162906845.8123.11.camel@kleikamp.austin.ibm.com> <1162913653.8123.13.camel@kleikamp.austin.ibm.com>
+In-Reply-To: <1162913653.8123.13.camel@kleikamp.austin.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2006 15:51:22.0321 (UTC) FILETIME=[92AEB410:01C70284]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
->> [Please CC me on responses].
->>
->> A spot of weirdness I ran into on my e1000 card.
->> It's the 82566DC model [8086:104b] (rev 02) x1 PCIe.
->>
->> After modprobe e1000, ethtool reports that there is no link, despite the
->> correct link lights on the port. This breaks booting during a boot process that
->> checks for actual link status before using a device.
-> ...
->> This behavior differs from every other network card, and is also present in the
->> 7.3* version of the driver from sourceforge.
->>
->> I think the e1000 should try to raise the link during the probe, so that it
->> works properly, without having to set ifconfig ethX up first.
-> 
-> I think you should cc e1000 maintainers, and perhaps provide a patch....
-
-I've read it and not come up with an answer due to some other issues at hand. E1000 
-hardware works differently and this has been asked before, but the cards itself are in 
-low power state when down. Changing this to bring up the link would make the card start 
-to consume lots more power, which would automatically suck enormously for anyone using a 
-laptop.
-
-Unfortunately, we have no way to distinguish directly between mobile and non-mobile 
-adapters, since they are usually the same.
-
-Your application should really `ifconfig up` the device before checking for link.
-
-Cheers,
-
-Auke
+Dave Kleikamp wrote:
+> On Tue, 2006-11-07 at 07:40 -0600, Dave Kleikamp wrote:
+>   
+>> It would probably be best to just set stat->blksize to the negotiated
+>> buffer size.
+>>     
+>
+> But be careful here.  I don't know how applications/glibc may behave if
+> stat->blksize is not a power of 2.
+>   
+The man page is not particularly helpful either as it simply indicates:
+    "The st_blksize field gives the preferred blocksize for efficient 
+file system  I/O. "
+but it appears that blksize would affects readdir performance more than 
+read/write
+(since read/write go through the pagecache and thus readpages/writepages
+will request readahead/writebehind for many pages at a time) unless the 
+application
+opens the file direct i/o.

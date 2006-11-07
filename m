@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754140AbWKGJ0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754139AbWKGJ0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754140AbWKGJ0N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 04:26:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754142AbWKGJ0N
+	id S1754139AbWKGJ0x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 04:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754142AbWKGJ0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 04:26:13 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:62478 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1754140AbWKGJ0L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 04:26:11 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Organization: tuxland
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.19-rc4] usb auerswald possible memleak fix
-Date: Tue, 7 Nov 2006 10:25:14 +0100
-User-Agent: KMail/1.9.5
-Cc: Wolfgang M?es <wolfgang@iksw-muees.de>, linux-kernel@vger.kernel.org
-References: <200611061903.09320.m.kozlowski@tuxland.pl> <200611070031.52051.m.kozlowski@tuxland.pl> <20061107002734.GA5236@suse.de>
-In-Reply-To: <20061107002734.GA5236@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 7 Nov 2006 04:26:53 -0500
+Received: from www.osadl.org ([213.239.205.134]:52894 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1754139AbWKGJ0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 04:26:52 -0500
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
+	[2.6.18-rc4-mm1]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061107091628.GA5399@rhlx01.hs-esslingen.de>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
+	 <1162830033.4715.201.camel@localhost.localdomain>
+	 <20061106205825.GA26755@rhlx01.hs-esslingen.de>
+	 <200611070141.16593.len.brown@intel.com> <20061107080733.GB9910@elte.hu>
+	 <1162887935.4715.349.camel@localhost.localdomain>
+	 <20061107091628.GA5399@rhlx01.hs-esslingen.de>
+Content-Type: text/plain
+Date: Tue, 07 Nov 2006 10:28:57 +0100
+Message-Id: <1162891737.4715.354.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611071025.15061.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Witam, 
-
-> On Tue, Nov 07, 2006 at 12:31:51AM +0100, Mariusz Kozlowski wrote:
-> > Witam, 
-> > 
-> > > Hello,
-> > > 
-> > > 	There is possible memleak in auerbuf_setup(). Fix is to replace kfree() with auerbuf_free().
-> > > An argument to usb_free_urb() does not need a check as usb_free_urb() already does that. Not sure if I should
-> > > send this in two separate patches. The patch is against 2.6.19-rc4 (not -mm).
-> > 
-> > As I posted the bigger usb_free_urb() patch in another mail this one
-> > should do only one thing which is to fix possible memory leak in
-> > auerbuf_setup().
+On Tue, 2006-11-07 at 10:16 +0100, Andreas Mohr wrote:
+> Hi,
 > 
-> That is a big patch, care to split it up into smaller pieces like this
-> one so that it is easier to review and apply?
+> On Tue, Nov 07, 2006 at 09:25:35AM +0100, Thomas Gleixner wrote:
+> > Andreas tested with the latest -mm1-hrt-dyntick patches, so he has all
+> > the checks already. The thing which worries me here is, that we detect
+> > the breakage and use the fallback path already, but it still has this
+> > weird effect on that system, while others just work fine. I'm cooking a
+> > more brute force fallback right now.
+> 
+> That's what I didn't understand all that time:
+> I do get the "C2 unusable, kills APIC timer" message, so I expected the code
+> to not use C2, but it seems it did use it (causing hangs) and I didn't
+> fully analyze the code whether it truly tried to prevent C2 here
+> (handling was a bit opaque to me, should have analyzed it
+> more thoroughly to get to know exactly what happens).
+> 
+> And like I said, brutally hard-wiring max_cstate to C1 already fixed
+> dynticks things for me, so it seems as if it still touched C2 before.
 
-Sure I can but Andrew already included it in -mm as-is. Do I have to prepare another set of patches
-and send them to you (which is no problem to me - just not sure how it works)?
+Yes, it leaves the C states untouched, it uses (should use) PIT instead
+of the local APIC timer. I'm a bit confused, why this does not work on
+your box.
 
-Regards,
+	tglx
 
-	Mariusz Kozlowski
 

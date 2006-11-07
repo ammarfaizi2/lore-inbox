@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753092AbWKGU0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753095AbWKGU3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753092AbWKGU0O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753098AbWKGU0O
+	id S1753095AbWKGU3J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753100AbWKGU3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:26:14 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:13753 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1753089AbWKGU0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:26:14 -0500
-Message-ID: <4550E910.6010107@wolfmountaingroup.com>
-Date: Tue, 07 Nov 2006 13:14:08 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-CC: Bernd Petrovitsch <bernd@firmix.at>, Pavel Machek <pavel@ucw.cz>,
-       Petr Baudis <pasky@suse.cz>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Faustian Pact between Novell and Microsoft
-References: <454A7BBB.10403@wolfmountaingroup.com>	 <20061103014907.GG11916@pasky.or.cz>	 <454AB477.9040107@wolfmountaingroup.com>	 <20061107081826.GD21655@elf.ucw.cz> <1162894662.19866.15.camel@tara.firmix.at> <4550BA59.1000701@wolfmountaingroup.com>
-In-Reply-To: <4550BA59.1000701@wolfmountaingroup.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 7 Nov 2006 15:29:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2227 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1753095AbWKGU3G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:29:06 -0500
+Date: Tue, 7 Nov 2006 12:28:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alasdair G Kergon <agk@redhat.com>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Ingo Molnar <mingo@elte.hu>, Eric Sandeen <sandeen@sandeen.net>,
+       Srinivasa DS <srinivasa@in.ibm.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-Id: <20061107122837.54828e24.akpm@osdl.org>
+In-Reply-To: <20061107183459.GG6993@agk.surrey.redhat.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
+On Tue, 7 Nov 2006 18:34:59 +0000
+Alasdair G Kergon <agk@redhat.com> wrote:
 
-> Bernd Petrovitsch wrote:
->
->> On Tue, 2006-11-07 at 09:18 +0100, Pavel Machek wrote:
->> [...]
->>  
->>
->>> This is a watershed moment for Linux. It fundamentally changes the
->>> rules of the game. We're really excited about this deal, and we hope
->>> you are too.
->>>   
->>> (from http://www.novell.com/linux/microsoft/openletter.html) only make
->>> it worse, but acquisition? I'd hope not even mickey$oft has enough
->>> cash for _that_.
->>>   
->>
->>
->> And the first point in the list is "patents" ....
->>
->>     Bernd
->>  
->>
-> I can see the lights are coming on now for some folks now.
-> Jeff
->
+> From: Srinivasa Ds <srinivasa@in.ibm.com>
+> 
+> On debugging I found out that,"dmsetup suspend <device name>" calls
+> "freeze_bdev()",which locks "bd_mount_mutex" to make sure that no new mounts
+> happen on bdev until thaw_bdev() is called.  This "thaw_bdev()" is getting
+> called when we resume the device through "dmsetup resume <device-name>".
+> Hence we have 2 processes,one of which locks "bd_mount_mutex"(dmsetup
+> suspend) and another(dmsetup resume) unlocks it.                                               
 
-<snip>
+So...  what does this have to do with switching from mutex to semaphore?
 
-/"Microsoft made it clear that only SUSE users and developers, as well 
-as unsalaried Linux developers, are protected. 'Let me be clear about 
-one thing, we don't license our intellectual property to Linux because 
-of the way Linux licensing GPL framework works, that's not really a 
-possibility,' said Microsoft chief executive, Steve Ballmer. 'Novell is 
-actually just a proxy for its customers, and it's only for its 
-customers,' he added. 'This does not apply to any forms of Linux other 
-than Novell's SUSE Linux. And if people want to have peace and 
-interoperability, they'll look at Novell's SUSE Linux. If they make 
-other choices, they have all of the compliance and intellectual property 
-issues that are associated with that.'"
+Perhaps this works around the debugging code which gets offended if a mutex
+is unlocked by a process which didn't do the lock?
 
-</snip>
+If so, it's a bit sad to switch to semaphore just because of some errant
+debugging code.  Perhaps it would be better to create a new
+mutex_unlock_stfu() which suppresses the warning?
 
-And those lights are bright indeed ....
 
-Jeff
-/
+> --- linux-2.6.19-rc4.orig/fs/buffer.c	2006-11-07 17:06:20.000000000 +0000
+> +++ linux-2.6.19-rc4/fs/buffer.c	2006-11-07 17:26:04.000000000 +0000
+> @@ -188,7 +188,9 @@ struct super_block *freeze_bdev(struct b
+>  {
+>  	struct super_block *sb;
+>  
+> -	mutex_lock(&bdev->bd_mount_mutex);
+> +	if (down_trylock(&bdev->bd_mount_sem))
+> +		return -EBUSY;
+> +
+
+This is a functional change which isn't described in the changelog.  What's
+happening here?
+

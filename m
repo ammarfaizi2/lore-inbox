@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753688AbWKGJms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754147AbWKGJnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753688AbWKGJms (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 04:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753918AbWKGJms
+	id S1754147AbWKGJnb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 04:43:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754151AbWKGJnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 04:42:48 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56453 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1753688AbWKGJmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 04:42:47 -0500
-Subject: Re: VIA IRQ quirk missing PCI ids since 2.6.16.17
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>, akpm@osdl.org,
-       Wilco Beekhuizen <wilcobeekhuizen@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061107012519.GC25719@redhat.com>
-References: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com>
-	 <1162817254.5460.4.camel@localhost.localdomain>
-	 <1162847625.10086.36.camel@localhost.localdomain>
-	 <20061107012519.GC25719@redhat.com>
-Content-Type: text/plain
+	Tue, 7 Nov 2006 04:43:31 -0500
+Received: from mga07.intel.com ([143.182.124.22]:8773 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1754147AbWKGJna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 04:43:30 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,395,1157353200"; 
+   d="scan'208"; a="142327033:sNHT26970314"
+Message-ID: <45505531.4080909@linux.intel.com>
+Date: Tue, 07 Nov 2006 10:43:13 +0100
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Shaohua Li <shaohua.li@intel.com>, linux-kernel@vger.kernel.org,
+       bunk@stusta.de
+Subject: Re: [patch] Regression in 2.6.19-rc microcode driver
+References: <1162822538.3138.28.camel@laptopd505.fenrus.org>	<1162862427.22565.4.camel@sli10-conroe.sh.intel.com>	<20061106175914.a9491eab.akpm@osdl.org>	<45504E2D.80504@linux.intel.com> <20061107012137.a99fab3b.akpm@osdl.org>
+In-Reply-To: <20061107012137.a99fab3b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Nov 2006 01:34:34 +0000
-Message-Id: <1162863274.11073.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-11-06 am 20:25 -0500, ysgrifennodd Dave Jones:
-> This got me wondering what PCI_VDEVICE was, so I went looking.
-> It's a libata'ism it seems with the comment..
+Andrew Morton wrote:
+> On Tue, 07 Nov 2006 10:13:17 +0100
+> Arjan van de Ven <arjan@linux.intel.com> wrote:
 > 
-> /* move to PCI layer? */
+>>> Due to the timeout?  So it should come back after 10*num_online_cpus seconds?
+>>>
+>>> Does Arjan have a lot of CPUs?
+>> eh yes, my test machine has quite a large number of those.
 > 
-> Which sounds like a good idea to me.  But until this is moved,
-> does quirks.c actually compile with this patch? I don't see
-> an include of linux/libata.h there.
+> So did it really hang?
 
-Probably not - as I said "not tested"
-
+ok so it eventually continues.. just way past my "it hang" patience 
+window of about a minute

@@ -1,87 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753224AbWKGUmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753159AbWKGUhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753224AbWKGUmF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753201AbWKGUmF
+	id S1753159AbWKGUhy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:37:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753192AbWKGUhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:42:05 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:44816 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1753196AbWKGUmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:42:02 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=NnAHwXjypL2o/oj3QJ9ZFTRpKgB43dNagmskUYfwaPklaDD55YwGixvxZXZFFbdHE
-	j7tfP6OH81FbWInGScbAg==
-Message-ID: <6599ad830611071241p255b205em52ed3ba13e02cdc2@mail.gmail.com>
-Date: Tue, 7 Nov 2006 12:41:37 -0800
-From: "Paul Menage" <menage@google.com>
-To: "Paul Jackson" <pj@sgi.com>
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-In-Reply-To: <20061107123458.e369f62a.pj@sgi.com>
+	Tue, 7 Nov 2006 15:37:54 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:63670 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1753159AbWKGUhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:37:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SdvqZU1eUfL/gsRgYowrUInFeZWEpfibKU9QX7W9jkiFWVx2Jt8nG01va1rKyXspBs63a29KRLLBrLmdyRiV5R1VYE5HLv9smzxAiHF0BH5gi/Jy4vc18IPzz/G5WUv5vLRtv6oc3mAWquVnRLlxXSFzCZvqHBykhAmbpDOpmfE=
+Message-ID: <d120d5000611071237j509d0cbfxe441b68066fb75f5@mail.gmail.com>
+Date: Tue, 7 Nov 2006 15:37:51 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Burman Yan" <yan_952@hotmail.com>
+Subject: Re: [PATCH] HP Mobile data protection system driver with interrupt handling
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, khali@linux-fr.org
+In-Reply-To: <BAY20-F50109D67E42239D2B911AD8F20@phx.gbl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061030031531.8c671815.pj@sgi.com>
-	 <20061031115342.GB9588@in.ibm.com>
-	 <6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
-	 <20061101172540.GA8904@in.ibm.com>
-	 <6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
-	 <20061106124948.GA3027@in.ibm.com>
-	 <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
-	 <20061107104118.f02a1114.pj@sgi.com>
-	 <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-	 <20061107123458.e369f62a.pj@sgi.com>
+References: <d120d5000611061418i65f27cd6w1c60692aff8bd1b1@mail.gmail.com>
+	 <BAY20-F50109D67E42239D2B911AD8F20@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/06, Paul Jackson <pj@sgi.com> wrote:
-> How about /proc/<pid>/containers being a directory, with each
-> controller having one regular file entry (so long as we haven't done
-> the multiple controller instances in my item (5)) containing the path,
-> relative to some container file system mount point (which container
-> mount is up to user space code to track) of the container that contains
-> that task?
-
-Hmm. Seems a bit fancier than necessary, but maybe reasonable. I'll
-probably start with a single file listing all the different container
-associations and we can turn it into a directory later as a finishing
-touch.
-
+On 11/7/06, Burman Yan <yan_952@hotmail.com> wrote:
 >
-> Or how about each controller type, such as cpusets, having its own
-> /proc/<pid>/<controller-type> file, with no generic file
-> /proc</pid>/container at all.  Just extend the current model
-> seen in /proc/<pid>/cpuset ?
-
-Is it possible to dynamically extend the /proc/<pid>/ directory? If
-not, then every container subsystem would involve a patch in
-fs/proc/base.c, which seems a bit nasty.
-
-> However this fits in nicely with my expectation that we will have
-> only limited need, if any, in the short term, to run systems with
-> both cpusets and resource groups at the same time.
-
-We're currently planning on using cpusets for the memory node
-isolation properties, but we have a whole bunch of other resource
-controllers that we'd like to be able to hang off the same
-infrastructure, so I don't think the need is that limited.
-
+> >From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+> >To: "Andrew Morton" <akpm@osdl.org>
+> >CC: "Burman Yan" <yan_952@hotmail.com>, linux-kernel@vger.kernel.org, "Jean
+> >Delvare" <khali@linux-fr.org>
+> >Subject: Re: [PATCH] HP Mobile data protection system driver with interrupt
+> >handling
+> >Date: Mon, 6 Nov 2006 17:18:53 -0500
+> >
+> >On 11/6/06, Andrew Morton <akpm@osdl.org> wrote:
+> >>On Fri, 03 Nov 2006 18:33:31 +0200
+> >>"Burman Yan" <yan_952@hotmail.com> wrote:
+> >> > +
+> >> > +static unsigned int mouse = 0;
+> >>
+> >>The `= 0' is unneeded.
+> >>
+> >> > +module_param(mouse, bool, S_IRUGO);
+> >> > +MODULE_PARM_DESC(mouse, "Enable the input class device on module
+> >>load");
+> >
+> >Does the parameter have to be called "mouse"? I'd rename it to "input"
+> >and drop the work "class" from parameter description.
 >
-> And while we're here, how about each controller naming itself with a
-> well known string compiled into its kernel code, and a file such
-> as /proc/containers listing what controllers are known to it?  Not
+> Dropping the "class" seems logical, but calling the parameter input
+> seems confusing to me - to a user that doesn't want to read too much
+> manual/code and just wants to play around with the device (I do that
+> sometimes)
+> mouse sounds more reasonable to me.
+>
 
-The naming is already in my patch. You can tell from the top-level
-directory which containers are registered, since each one has an
-xxx_enabled file to control whether it's in use; there's not a
-separate /proc/containers file yet.
+Except that the device is more similar to a joystick than a mouse...
 
-Paul
+-- 
+Dmitry

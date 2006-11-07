@@ -1,126 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753961AbWKGPVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753973AbWKGP27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753961AbWKGPVo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 10:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753973AbWKGPVo
+	id S1753973AbWKGP27 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 10:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWKGP27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 10:21:44 -0500
-Received: from mail1.key-systems.net ([81.3.43.253]:40429 "HELO
-	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
-	id S1753961AbWKGPVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 10:21:43 -0500
-Message-ID: <4550A481.2010408@scientia.net>
-Date: Tue, 07 Nov 2006 16:21:37 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Strange write errors on FAT32 partition (maybe an FAT32 bug?!)
-Content-Type: multipart/mixed;
- boundary="------------020302020502020006080903"
+	Tue, 7 Nov 2006 10:28:59 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:38080 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1751357AbWKGP26 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 10:28:58 -0500
+Subject: Re: [PATCH 1/1] security: introduce file posix caps
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       James Morris <jmorris@namei.org>, chris friedhoff <chris@friedhoff.org>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061107151020.GA18660@sergelap.austin.ibm.com>
+References: <20061107034550.GA13693@sergelap.austin.ibm.com>
+	 <1162911403.3009.33.camel@moss-spartans.epoch.ncsc.mil>
+	 <20061107151020.GA18660@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 07 Nov 2006 10:26:57 -0500
+Message-Id: <1162913217.3009.38.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020302020502020006080903
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Tue, 2006-11-07 at 09:10 -0600, Serge E. Hallyn wrote:
+> Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> > On Mon, 2006-11-06 at 21:45 -0600, Serge E. Hallyn wrote:
+> > > Implement file posix capabilities.  This allows programs to be given
+> > > a subset of root's powers regardless of who runs them, without
+> > > having to use setuid and giving the binary all of root's powers.
+> > 
+> > > diff --git a/include/linux/security.h b/include/linux/security.h
+> > > index b200b98..ea631ee 100644
+> > > --- a/include/linux/security.h
+> > > +++ b/include/linux/security.h
+> > > @@ -53,6 +53,10 @@ extern int cap_inode_setxattr(struct den
+> > >  extern int cap_inode_removexattr(struct dentry *dentry, char *name);
+> > >  extern int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid, int flags);
+> > >  extern void cap_task_reparent_to_init (struct task_struct *p);
+> > > +extern int cap_task_kill(struct task_struct *p, struct siginfo *info, int sig, u32 secid);
+> > > +extern int cap_task_setscheduler (struct task_struct *p, int policy, struct sched_param *lp);
+> > > +extern int cap_task_setioprio (struct task_struct *p, int ioprio);
+> > > +extern int cap_task_setnice (struct task_struct *p, int nice);
+> > >  extern int cap_syslog (int type);
+> > >  extern int cap_vm_enough_memory (long pages);
+> > >  
+> > > @@ -2594,12 +2598,12 @@ static inline int security_task_setgroup
+> > >  
+> > >  static inline int security_task_setnice (struct task_struct *p, int nice)
+> > >  {
+> > > -	return 0;
+> > > +	return cap_task_setnice(p, nice);
+> > >  }
+> > >  
+> > >  static inline int security_task_setioprio (struct task_struct *p, int ioprio)
+> > >  {
+> > > -	return 0;
+> > > +	return cap_task_setioprio(p, ioprio);
+> > >  }
+> > >  
+> > >  static inline int security_task_getioprio (struct task_struct *p)
+> > 
+> > setscheduler change seems to be missing here.
+> 
+> I'm confused - my kernel version already had selinux_task_setscheduler()
+> calling a secondary_ops->task_setscheduler().
 
-Hi.
+I meant you didn't change the default implementation of
+security_task_setscheduler() to call cap_task_setscheduler() in
+security.h.  For the case where CONFIG_SECURITY is not defined.
 
-I've got a very strange problem which I'm going to try to explain here
-in detail.
-As one could easily suppose that issue results from hardware problems
-I'm going to explain it very very detailed because the facts let me
-think that my hardware is ok (unfortunately I've got no other computer
-to try to reproduce the problem).
+-- 
+Stephen Smalley
+National Security Agency
 
-I'm archiving my personal CD-DA collection and for that reason I had to
-install Windows (yes I feel very ugly ;-) ) because I wanted to use EAC
-(Exact Audo Copy) for that, due to its superior features.
-
-So I've installed Windows XP (on NTFS) and created on additional FAT32
-partition to store the extracted audio.
-I did several badblock scans in addition to long SMART checks on the
-whole drive, so the disc should be ok.
-
-When extracting (under Windows): I extracted each CD twice,.. so
-Windows/WAC should write exactly the same data for each CD twice to the
-FAT32 partition.
-This is important because I think, that if there would be errors in the
-drive/FAT32 filesystem/RAM/CPU it would be likely that these files are
-_not_ equal.
-
-After ripping about 20 CDs I went back to linux and wanted to compare
-the pairs of extracted data (originally I did that just to find any
-errors in the ripping process).
-Before doing anything I wrote sha512sums for all files.
-
-At some point (I did that procedure for every CD) I've copied (cp -a)
-the directory with all data for that CD to a temporary location on the
-FAT32 partition.
-Right after that, I've diffed the whole stuff (diff -q -r dirA dirB).
-And there were differences in one file!!!
-I copied again diffed again,.. and differences again (but in another file).
-
-First of all I've thought that this would be an hardware issue. I
-supposed the RAM could be damaged because diff would use probably the
-cached data from the files I've had just copied.
-So I did excessive memtests (memtest86+) for several hours/passes. But
-no errors have been found in my 4GB ECC/Reg RAMs.
-So I supposed it could be a CPU related problem (2x DualCore Opteron
-275) and I've startet an mprime/gimps torture test on each core and let
-it run for 16 hours with no errors at all.
-
-Some days later I had the same or at least a very equal problem.
-I copied,... diffed,.. but this time _no_ differences.
-I restartet the system (thus the file cache was cleard)... diffed
-again,.. and know differences!! This was also a reason to not believe
-that my RAM is defect but the writing to the FAT32 disc.
-
-Ok,... the original files written by Windows/EAC seem to be ok and never
-changed or corrupted. Why? First of all, the sha512sums are still equal,
-but one could say, that the data was already damaged when calculating
-those hashes.
-But EAC stores internally a hash (some CRCxx) which is (afaik)
-calculated from data from the RAM. So if the RAMs are ok (and I suppose
-that because of my memtests) the hashes should be correct, too.
-
-I compared those EAC hashes with the original data and all data seem to
-be correct.
-
-So this is as far as I can say,.. only a Linux/FAT32 related problem, as
-the data written by Windows seems to be correct.
-And as I've said, I'm pretty sure my hardware is correct, too.
-
-The strange thing is that one time the differences were found directly
-after copying (thus one would thing RAM is damaged, because the data was
-probalby (I cannot tell this for sure) taken from file cache).
-and the other time after restarting with a certainly empty file cache.
-
-
-Any ideas? I'm willing to help debugging and so on but I must admit that
-I need someone to say me what to do :D
-
-btw:
-my system:
-Debian sid (which should be unimportant)
-kernel 2.6.18.2
-
-For further data please ask :)
-
-
-Thanks in advance,
-Chris.
-
---------------020302020502020006080903
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
-
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------020302020502020006080903--

@@ -1,47 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754265AbWKGSep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWKGSfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754265AbWKGSep (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 13:34:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754264AbWKGSep
+	id S964990AbWKGSfa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 13:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754264AbWKGSfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 13:34:45 -0500
-Received: from mga01.intel.com ([192.55.52.88]:16499 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1754261AbWKGSeo (ORCPT
+	Tue, 7 Nov 2006 13:35:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52874 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1754266AbWKGSf3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 13:34:44 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,397,1157353200"; 
-   d="scan'208"; a="159518108:sNHT149253559"
-Message-ID: <4550D1C2.4030308@intel.com>
-Date: Tue, 07 Nov 2006 10:34:42 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org, saw@saw.sw.com.sg, thockin@hockin.org,
-       me@privacy.net
-Subject: Re: Intel 82559 NIC corrupted EEPROM
-References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com> <45506C9A.5010009@privacy.net> <4550BF91.2020403@zytor.com> <4550C5D1.3040601@intel.com> <4550D004.1060206@zytor.com>
-In-Reply-To: <4550D004.1060206@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2006 18:34:42.0698 (UTC) FILETIME=[64298EA0:01C7029B]
+	Tue, 7 Nov 2006 13:35:29 -0500
+Date: Tue, 7 Nov 2006 18:34:59 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Ingo Molnar <mingo@elte.hu>, Eric Sandeen <sandeen@sandeen.net>,
+       Srinivasa DS <srinivasa@in.ibm.com>
+Subject: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061107183459.GG6993@agk.surrey.redhat.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+	Ingo Molnar <mingo@elte.hu>, Eric Sandeen <sandeen@sandeen.net>,
+	Srinivasa DS <srinivasa@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Auke Kok wrote:
->>
->> (Please CC either me or at netdev on all intel nic drivers. thanks. I 
->> removed `john@privacy.net` since it throws a bounce, and 
->> linux.nics@intel.com is a support address only, doesn't reach us 
->> developers)
->>
-> 
-> I think John <me@privacy.net> is the one who can actually answer your 
-> questions...
+From: Srinivasa Ds <srinivasa@in.ibm.com>
 
-his original mail reads:
+On debugging I found out that,"dmsetup suspend <device name>" calls
+"freeze_bdev()",which locks "bd_mount_mutex" to make sure that no new mounts
+happen on bdev until thaw_bdev() is called.  This "thaw_bdev()" is getting
+called when we resume the device through "dmsetup resume <device-name>".
+Hence we have 2 processes,one of which locks "bd_mount_mutex"(dmsetup
+suspend) and another(dmsetup resume) unlocks it.                                               
 
-"Please note, email address is a bit-bucket.
-I do monitor the mailing list. "
+Signed-off-by: Srinivasa DS <srinivasa@in.ibm.com>
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Eric Sandeen <sandeen@sandeen.net>
+Cc: dm-devel@redhat.com
+
+Index: linux-2.6.19-rc4/fs/block_dev.c
+===================================================================
+--- linux-2.6.19-rc4.orig/fs/block_dev.c	2006-11-07 17:06:20.000000000 +0000
++++ linux-2.6.19-rc4/fs/block_dev.c	2006-11-07 17:26:04.000000000 +0000
+@@ -263,7 +263,7 @@ static void init_once(void * foo, kmem_c
+ 	{
+ 		memset(bdev, 0, sizeof(*bdev));
+ 		mutex_init(&bdev->bd_mutex);
+-		mutex_init(&bdev->bd_mount_mutex);
++		sema_init(&bdev->bd_mount_sem, 1);
+ 		INIT_LIST_HEAD(&bdev->bd_inodes);
+ 		INIT_LIST_HEAD(&bdev->bd_list);
+ #ifdef CONFIG_SYSFS
+Index: linux-2.6.19-rc4/fs/buffer.c
+===================================================================
+--- linux-2.6.19-rc4.orig/fs/buffer.c	2006-11-07 17:06:20.000000000 +0000
++++ linux-2.6.19-rc4/fs/buffer.c	2006-11-07 17:26:04.000000000 +0000
+@@ -188,7 +188,9 @@ struct super_block *freeze_bdev(struct b
+ {
+ 	struct super_block *sb;
+ 
+-	mutex_lock(&bdev->bd_mount_mutex);
++	if (down_trylock(&bdev->bd_mount_sem))
++		return -EBUSY;
++
+ 	sb = get_super(bdev);
+ 	if (sb && !(sb->s_flags & MS_RDONLY)) {
+ 		sb->s_frozen = SB_FREEZE_WRITE;
+@@ -230,7 +232,7 @@ void thaw_bdev(struct block_device *bdev
+ 		drop_super(sb);
+ 	}
+ 
+-	mutex_unlock(&bdev->bd_mount_mutex);
++	up(&bdev->bd_mount_sem);
+ }
+ EXPORT_SYMBOL(thaw_bdev);
+ 
+Index: linux-2.6.19-rc4/fs/super.c
+===================================================================
+--- linux-2.6.19-rc4.orig/fs/super.c	2006-11-07 17:06:20.000000000 +0000
++++ linux-2.6.19-rc4/fs/super.c	2006-11-07 17:26:04.000000000 +0000
+@@ -735,9 +735,9 @@ int get_sb_bdev(struct file_system_type 
+ 	 * will protect the lockfs code from trying to start a snapshot
+ 	 * while we are mounting
+ 	 */
+-	mutex_lock(&bdev->bd_mount_mutex);
++	down(&bdev->bd_mount_sem);
+ 	s = sget(fs_type, test_bdev_super, set_bdev_super, bdev);
+-	mutex_unlock(&bdev->bd_mount_mutex);
++	up(&bdev->bd_mount_sem);
+ 	if (IS_ERR(s))
+ 		goto error_s;
+ 
+Index: linux-2.6.19-rc4/include/linux/fs.h
+===================================================================
+--- linux-2.6.19-rc4.orig/include/linux/fs.h	2006-11-07 17:06:20.000000000 +0000
++++ linux-2.6.19-rc4/include/linux/fs.h	2006-11-07 17:26:04.000000000 +0000
+@@ -456,7 +456,7 @@ struct block_device {
+ 	struct inode *		bd_inode;	/* will die */
+ 	int			bd_openers;
+ 	struct mutex		bd_mutex;	/* open/close mutex */
+-	struct mutex		bd_mount_mutex;	/* mount mutex */
++	struct semaphore        bd_mount_sem;
+ 	struct list_head	bd_inodes;
+ 	void *			bd_holder;
+ 	int			bd_holders;

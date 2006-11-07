@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753057AbWKGUC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753059AbWKGUGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753057AbWKGUC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 15:02:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753064AbWKGUC5
+	id S1753059AbWKGUGz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 15:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753066AbWKGUGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 15:02:57 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:22740 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1753036AbWKGUC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 15:02:56 -0500
-From: Wolfgang =?iso-8859-2?q?M=FCes?= <wolfgang@iksw-muees.de>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Subject: Re: [PATCH 2.6.19-rc4] usb auerswald possible memleak fix
-Date: Tue, 7 Nov 2006 21:02:46 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-References: <200611061903.09320.m.kozlowski@tuxland.pl> <200611070031.52051.m.kozlowski@tuxland.pl>
-In-Reply-To: <200611070031.52051.m.kozlowski@tuxland.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 15:06:55 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:31496 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1753062AbWKGUGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 15:06:54 -0500
+Date: Tue, 7 Nov 2006 20:06:46 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ernst Herzberg <earny@net4u.de>
+Subject: Re: 2.6.19-rc <-> ThinkPads, summary
+Message-ID: <20061107200646.GD9533@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Ernst Herzberg <earny@net4u.de>
+References: <20061029231358.GI27968@stusta.de> <20061030135625.GB1601@mellanox.co.il> <20061101030126.GE27968@stusta.de> <20061104034906.GO13381@stusta.de> <20061104140440.GB19760@flint.arm.linux.org.uk> <20061105062330.GT13381@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611072102.46447.wolfgang@iksw-muees.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:1c3f630c649b643c232b32cec9bf2e10
+In-Reply-To: <20061105062330.GT13381@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mariusz,
+On Sun, Nov 05, 2006 at 07:23:30AM +0100, Adrian Bunk wrote:
+> On Sat, Nov 04, 2006 at 02:04:40PM +0000, Russell King wrote:
+> > On Sat, Nov 04, 2006 at 04:49:07AM +0100, Adrian Bunk wrote:
+> > > As far as I can see, the 2.6.19-rc ThinkPad situation is still 
+> > > confusing and we don't even know how many different bugs we are 
+> > > chasing...
+> > 
+> > Why am I copied on this?  Nothing jumps out as being in any area of my
+> > interest (which today is limited to ARM architecture only.)
+> 
+> Ernst bisected his problem to your
+> commit 1fbbac4bcb03033d325c71fc7273aa0b9c1d9a03 
+> ("serial_cs: convert multi-port table to quirk table").
+> 
+> It might be a false positive of the bisecting, but if it turns out to 
+> actually cause problems it was your commit.
 
-On Tuesday 07 November 2006 00:31, Mariusz Kozlowski wrote:
-> > 	There is possible memleak in auerbuf_setup(). Fix is to replace
-> > kfree() with auerbuf_free(). An argument to usb_free_urb() does not
-> > need a check as usb_free_urb() already does that. Not sure if I
-> > should send this in two separate patches. The patch is against
-> > 2.6.19-rc4 (not -mm).
->
-> As I posted the bigger usb_free_urb() patch in another mail this one
-> should do only one thing which is to fix possible memory leak in
-> auerbuf_setup().
->
-> Regards,
->
-> 	Mariusz Kozlowski
->
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+No idea, sorry.
 
-Signed-off-by: Wolfgang Muees <wolfgang@iksw-muees.de>
+No information if a serial card was in the PCMCIA slot.  If there's
+no _PCMCIA_ serial card inserted, the code in that patch will not be
+run.
 
-> diff -up linux-2.6.19-rc4-orig/drivers/usb/misc/auerswald.c
-> linux-2.6.19-rc4/drivers/usb/misc/auerswald.c ---
-> linux-2.6.19-rc4-orig/drivers/usb/misc/auerswald.c  2006-11-06
-> 17:08:20.000000000 +0100 +++
-> linux-2.6.19-rc4/drivers/usb/misc/auerswald.c     2006-11-07
-> 00:26:25.000000000 +0100 @@ -780,7 +780,7 @@ static int auerbuf_setup
-> (pauerbufctl_t
->
->  bl_fail:/* not enough memory. Free allocated elements */
->          dbg ("auerbuf_setup: no more memory");
-> -       kfree(bep);
-> +        auerbuf_free (bep);
->          auerbuf_free_buffers (bcp);
->          return -ENOMEM;
->  }
+Also no indication if serial_cs was built into Earnst's kernel.  If
+it wasn't, this commit couldn't be the cause.
 
-Many thanks for pointing this out.
+NeedMoreInformation.
 
-regards
-Wolfgang
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

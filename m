@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932784AbWKGSA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965667AbWKGSCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932784AbWKGSA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 13:00:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932791AbWKGSA2
+	id S965667AbWKGSCL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 13:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965664AbWKGSCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 13:00:28 -0500
-Received: from fgwiel01.wie.de.future-gate.com ([193.108.164.2]:5099 "EHLO
-	fgwiel01.wie.de.future-gate.com") by vger.kernel.org with ESMTP
-	id S932784AbWKGSA1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 13:00:27 -0500
-Message-Id: <4550D7B2020000F10000528D@fgbsll01a.bsl.ch.future-gate.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Tue, 07 Nov 2006 19:00:02 +0100
-From: "Ronny Bremer" <rbremer@future-gate.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: PCI card not detected on Intel 845G chipset
+	Tue, 7 Nov 2006 13:02:10 -0500
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:8923 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965326AbWKGSCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 13:02:06 -0500
+Date: Tue, 7 Nov 2006 19:01:27 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jeff Layton <jlayton@redhat.com>
+Cc: Eric Sandeen <sandeen@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels that offer x86 compatability
+Message-ID: <20061107180127.GC29746@wohnheim.fh-wedel.de>
+References: <20061106182222.GO27140@parisc-linux.org> <1162838843.12129.8.camel@dantu.rdu.redhat.com> <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com> <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com> <1162914966.28425.24.camel@dantu.rdu.redhat.com> <20061107172835.GB15629@wohnheim.fh-wedel.de> <20061107174217.GA29746@wohnheim.fh-wedel.de> <20061107175601.GB29746@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-X-future-gate-MailScanner-Information: Please contact the ISP for more information
-X-future-gate-MailScanner: Found to be clean
-X-MailScanner-From: rbremer@future-gate.com
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061107175601.GB29746@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, windows finds the card. I even check with Netgear to make sure they haven't changed the chipset.
+And the last one is xfs_mapping_buftarg().  I am completely at a loss.
+As far as I can tell, inode allocated, partially initiated and -
+leaked.  Am I missing something?
 
-Apparently, their support was wrong. I replaced the Netgear card with a different model and Linux finds it immediately.
+STATIC int
+xfs_mapping_buftarg(
+	xfs_buftarg_t		*btp,
+	struct block_device	*bdev)
+{
+	struct backing_dev_info	*bdi;
+	struct inode		*inode;
+	struct address_space	*mapping;
+	static const struct address_space_operations mapping_aops = {
+		.sync_page = block_sync_page,
+		.migratepage = fail_migrate_page,
+	};
 
-I am still a bit confused but there is no way to blame the kernel on this one :-)
+	inode = new_inode(bdev->bd_inode->i_sb);
+	if (!inode) {
+		printk(KERN_WARNING
+			"XFS: Cannot allocate mapping inode for device %s\n",
+			XFS_BUFTARG_NAME(btp));
+		return ENOMEM;
+	}
+	inode->i_mode = S_IFBLK;
+	inode->i_bdev = bdev;
+	inode->i_rdev = bdev->bd_dev;
+	bdi = blk_get_backing_dev_info(bdev);
+	if (!bdi)
+		bdi = &default_backing_dev_info;
+	mapping = &inode->i_data;
+	mapping->a_ops = &mapping_aops;
+	mapping->backing_dev_info = bdi;
+	mapping_set_gfp_mask(mapping, GFP_NOFS);
+	btp->bt_mapping = mapping;
+	return 0;
+}
 
-Thank you for taking time to look into this.
 
-Ronny
+Jörn
 
->>> "John Stoffel" <john@stoffel.org> 11/02/06 3:55 PM >>>
-
-Ronny> I recently installed 2.6.16 on a compaq evo PC running Intel
-Ronny> 845G chipset. Kernel finds all major system devices (USB, VGA,
-Ronny> etc) but fails to find the installed Netgear WG311T card in the
-Ronny> PCI slot.  lspci doesn't even show this card.
-
-Does Windows find this card?  And have you made sure you've got the
-card propery seated in the slot?  Maybe you've got a bad connection,
-or a 3.3v card in 5v slot.  In other words, check the hardware.  
-
-Ronny> No error messages concerning the PCI bus appear in dmesg.
-Ronny> The only weird thing is, that lspci shows this device:
-Ronny> Unknown non-vga adapter
-Ronny> with the ID 0200:7008
-
-Wierd, but try using 'lspci -vvvvv' for even more details on this
-unknown device.  
-
-John
-
+-- 
+Those who come seeking peace without a treaty are plotting.
+-- Sun Tzu

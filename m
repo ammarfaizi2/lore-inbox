@@ -1,90 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965266AbWKGQnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965253AbWKGQna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965266AbWKGQnn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 11:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965242AbWKGQnn
+	id S965253AbWKGQna (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 11:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWKGQna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 11:43:43 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:25982 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S965230AbWKGQnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 11:43:42 -0500
-Message-ID: <4550B7BA.7080906@mvista.com>
-Date: Tue, 07 Nov 2006 08:43:38 -0800
-From: Kevin Hilman <khilman@mvista.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Tue, 7 Nov 2006 11:43:30 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:34789 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964990AbWKGQn3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 11:43:29 -0500
+Date: Tue, 7 Nov 2006 10:43:08 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org, James Morris <jmorris@namei.org>,
+       chris friedhoff <chris@friedhoff.org>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/1] security: introduce file posix caps
+Message-ID: <20061107164308.GC18660@sergelap.austin.ibm.com>
+References: <20061107034550.GA13693@sergelap.austin.ibm.com> <1162911403.3009.33.camel@moss-spartans.epoch.ncsc.mil> <20061107151020.GA18660@sergelap.austin.ibm.com> <1162913217.3009.38.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rt7 1/1] ARM: add latency timing support
-References: <20061107002140.662370000@mvista.com>
-In-Reply-To: <20061107002140.662370000@mvista.com>
-Content-Type: multipart/mixed;
- boundary="------------080403060004020003030205"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1162913217.3009.38.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080403060004020003030205
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Tue, 2006-11-07 at 09:10 -0600, Serge E. Hallyn wrote:
+> > Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> > > On Mon, 2006-11-06 at 21:45 -0600, Serge E. Hallyn wrote:
+> > > > Implement file posix capabilities.  This allows programs to be given
+> > > > a subset of root's powers regardless of who runs them, without
+> > > > having to use setuid and giving the binary all of root's powers.
+> > > 
+> > > > diff --git a/include/linux/security.h b/include/linux/security.h
+> > > > index b200b98..ea631ee 100644
+> > > > --- a/include/linux/security.h
+> > > > +++ b/include/linux/security.h
+> > > > @@ -53,6 +53,10 @@ extern int cap_inode_setxattr(struct den
+> > > >  extern int cap_inode_removexattr(struct dentry *dentry, char *name);
+> > > >  extern int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid, int flags);
+> > > >  extern void cap_task_reparent_to_init (struct task_struct *p);
+> > > > +extern int cap_task_kill(struct task_struct *p, struct siginfo *info, int sig, u32 secid);
+> > > > +extern int cap_task_setscheduler (struct task_struct *p, int policy, struct sched_param *lp);
+> > > > +extern int cap_task_setioprio (struct task_struct *p, int ioprio);
+> > > > +extern int cap_task_setnice (struct task_struct *p, int nice);
+> > > >  extern int cap_syslog (int type);
+> > > >  extern int cap_vm_enough_memory (long pages);
+> > > >  
+> > > > @@ -2594,12 +2598,12 @@ static inline int security_task_setgroup
+> > > >  
+> > > >  static inline int security_task_setnice (struct task_struct *p, int nice)
+> > > >  {
+> > > > -	return 0;
+> > > > +	return cap_task_setnice(p, nice);
+> > > >  }
+> > > >  
+> > > >  static inline int security_task_setioprio (struct task_struct *p, int ioprio)
+> > > >  {
+> > > > -	return 0;
+> > > > +	return cap_task_setioprio(p, ioprio);
+> > > >  }
+> > > >  
+> > > >  static inline int security_task_getioprio (struct task_struct *p)
+> > > 
+> > > setscheduler change seems to be missing here.
+> > 
+> > I'm confused - my kernel version already had selinux_task_setscheduler()
+> > calling a secondary_ops->task_setscheduler().
+> 
+> I meant you didn't change the default implementation of
+> security_task_setscheduler() to call cap_task_setscheduler() in
+> security.h.  For the case where CONFIG_SECURITY is not defined.
 
-Kevin Hilman wrote:
-> Add latency-timing support for IXP4xx.
+Oh, I thought my git tree had gotten messed up.
 
-On second thought, here's a better patch that will cover all ARM
-subarches.  Each sub-arch only has to implement mach_get_cycles()
+So I guess that CONFIG_SECURITY_FS_CAPABILITIES should not be dependent
+on CONFIG_SECURITY_CAPABILITIES, since the !CONFIG_SECURITY case
+actually enables capabilities?
 
-Signed-off-by: Kevin Hilman <khilman@mvista.com>
-
-
---------------080403060004020003030205
-Content-Type: text/x-patch;
- name="arm_latency_timing.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="arm_latency_timing.patch"
-
-Index: linux-2.6.18/include/asm-arm/arch-ixp4xx/timex.h
-===================================================================
---- linux-2.6.18.orig/include/asm-arm/arch-ixp4xx/timex.h
-+++ linux-2.6.18/include/asm-arm/arch-ixp4xx/timex.h
-@@ -13,3 +13,5 @@
- #define FREQ 66666666
- #define CLOCK_TICK_RATE (((FREQ / HZ & ~IXP4XX_OST_RELOAD_MASK) + 1) * HZ)
- 
-+extern u64 ixp4xx_get_cycles(void);
-+#define mach_read_cycles() ixp4xx_get_cycles()
-Index: linux-2.6.18/include/asm-arm/timex.h
-===================================================================
---- linux-2.6.18.orig/include/asm-arm/timex.h
-+++ linux-2.6.18/include/asm-arm/timex.h
-@@ -18,10 +18,13 @@ typedef unsigned long cycles_t;
- 
- #ifndef mach_read_cycles
-  #define mach_read_cycles() (0)
--#ifdef CONFIG_LATENCY_TIMING
-- #define mach_cycles_to_usecs(d) (d)
-- #define mach_usecs_to_cycles(d) (d)
- #endif
-+
-+#ifdef CONFIG_LATENCY_TIMING
-+ #define mach_cycles_to_usecs(d) \
-+   (((d) * ((1000000LL << 32) / CLOCK_TICK_RATE)) >> 32)
-+ #define mach_usecs_to_cycles(d) \
-+   (((d) * (((long long)CLOCK_TICK_RATE << 32) / 1000000)) >> 32)
- #endif
- 
- static inline cycles_t get_cycles (void)
-Index: linux-2.6.18/include/asm-arm/arch-pxa/timex.h
-===================================================================
---- linux-2.6.18.orig/include/asm-arm/arch-pxa/timex.h
-+++ linux-2.6.18/include/asm-arm/arch-pxa/timex.h
-@@ -26,5 +26,3 @@
- #endif
- 
- #define mach_read_cycles() OSCR
--#define mach_cycles_to_usecs(d) (((d) * ((1000000LL << 32) / CLOCK_TICK_RATE)) >> 32)
--#define mach_usecs_to_cycles(d) (((d) * (((long long)CLOCK_TICK_RATE << 32) / 1000000)) >> 32)
-
---------------080403060004020003030205--
+-serge

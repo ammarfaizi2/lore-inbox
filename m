@@ -1,81 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753754AbWKGWVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753768AbWKGWY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753754AbWKGWVg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 17:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753756AbWKGWVg
+	id S1753768AbWKGWY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 17:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753773AbWKGWY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 17:21:36 -0500
-Received: from smtp-out.google.com ([216.239.33.17]:18893 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1753745AbWKGWVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 17:21:35 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=E+PiDD4LmCd9/25ly7OIhQFDKVBWlAz27NBtxD89+MBQuj01ThiCNGIuuBTkRznoR
-	wrP322kAYFLheZ5DI6vLA==
-Message-ID: <6599ad830611071421s7792bbb1qd9c7b1fc840dfa50@mail.gmail.com>
-Date: Tue, 7 Nov 2006 14:21:19 -0800
-From: "Paul Menage" <menage@google.com>
-To: "Paul Jackson" <pj@sgi.com>
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Cc: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       rohitseth@google.com
-In-Reply-To: <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
+	Tue, 7 Nov 2006 17:24:27 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:31636 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1753768AbWKGWY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 17:24:26 -0500
+Message-ID: <455104C9.4040901@wolfmountaingroup.com>
+Date: Tue, 07 Nov 2006 15:12:25 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Bernd Petrovitsch <bernd@firmix.at>
+CC: Pavel Machek <pavel@ucw.cz>, Petr Baudis <pasky@suse.cz>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Faustian Pact between Novell and Microsoft
+References: <454A7BBB.10403@wolfmountaingroup.com>	 <20061103014907.GG11916@pasky.or.cz>	 <454AB477.9040107@wolfmountaingroup.com>	 <20061107081826.GD21655@elf.ucw.cz>	 <1162894662.19866.15.camel@tara.firmix.at>	 <4550BA59.1000701@wolfmountaingroup.com> <1162937650.3408.2.camel@gimli.at.home>
+In-Reply-To: <1162937650.3408.2.camel@gimli.at.home>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061030031531.8c671815.pj@sgi.com>
-	 <6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com>
-	 <20061031115342.GB9588@in.ibm.com>
-	 <6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
-	 <20061101172540.GA8904@in.ibm.com>
-	 <6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
-	 <20061106124948.GA3027@in.ibm.com>
-	 <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
-	 <20061107104118.f02a1114.pj@sgi.com>
-	 <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/06, Paul Menage <menage@google.com> wrote:
-> > Perhaps the interface to binding multiple controllers to a single container
-> > hierarchy is via multiple mount commands, each of type 'container', with
-> > different options specifying which controller(s) to bind.  Then the
-> > command 'mount -t cpuset cpuset /dev/cpuset' gets remapped to the command
-> > 'mount -t container -o controller=cpuset /dev/cpuset'.
+Bernd Petrovitsch wrote:
+
+>On Tue, 2006-11-07 at 09:54 -0700, Jeff V. Merkey wrote:
+>  
 >
-> Yes, that's the aproach that I'm thinking of currently. It should
-> require pretty reasonably robotic changes to the existing code.
+>>Bernd Petrovitsch wrote:
+>>
+>>    
+>>
+>>>On Tue, 2006-11-07 at 09:18 +0100, Pavel Machek wrote:
+>>>[...]
+>>> 
+>>>
+>>>      
+>>>
+>>>>This is a watershed moment for Linux. It fundamentally changes the
+>>>>rules of the game. We're really excited about this deal, and we hope
+>>>>you are too.
+>>>>   
+>>>>
+>>>>(from http://www.novell.com/linux/microsoft/openletter.html) only make
+>>>>it worse, but acquisition? I'd hope not even mickey$oft has enough
+>>>>cash for _that_.
+>>>>        
+>>>>
+>[...]
+>  
+>
+>>>And the first point in the list is "patents" ....
+>>>      
+>>>
+>[...]
+>  
+>
+>>I can see the lights are coming on now for some folks now. 
+>>    
+>>
+>
+>How many patenst does Novell have? Do they play in the "more than 1000
+>trivial, prior art and software patents" league like M$?
+>So from Novell's point of view it is probably somewhat a cross-licensing
+>deal.
+>"What does M$ really gain from it?" is the interesting question.
+>
+>	Bernd
+>  
+>
+The Pike patent from the USL acquisition is the one Microsoft most 
+wanted to get their hands on, as well as the SMP
+patents.  The Pike patent controls overlapping Windows.     M$ has 
+wanted to get clear of it for some time.  With the
+cross license from Novell, they are home free.  Novell has a large 
+number of networking and directory patents. 
 
-One drawback to this that I can see is the following:
+Not quite 1000, but they have some very good ones on SMP, clustering, 
+and form the USL acquisition.
 
-- suppose you mount a containerfs with controllers cpuset and cpu, and
-create some nodes, and then unmount it, what happens? do the resource
-nodes stick around still?
-
-- suppose you then try to mount a containers with controllers cpuset
-and diskio, but the resource nodes are still around, what happens
-then?
-
-Is there any way to prevent unmounting (at the dentry level) a busy filesystem?
-
-If we enforced a completely separate hierarchy for each resource
-controller (i.e. one resource controller per mount), then it wouldn't
-be too hard to hang the node structure off the controller itself, and
-there would never be a problem with mounting two controllers with
-existing inconsistent hierarchies on the same mount. But that would
-rule out being able to hook several resource controllers together in
-the same container node.
-
-One alternative to this would be to have a fixed number of container
-hierarchies; at mount time you'd mount hierarchy N, and optionally
-bind a set of resource controllers to it, or else use the existing
-set. Then the hierarchy can be hung off the appropriate entry in the
-hierarchy array even when the fs isn't mounted.
-
-Paul
+Jeff

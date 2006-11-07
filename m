@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754116AbWKGIb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754117AbWKGIco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754116AbWKGIb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 03:31:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754117AbWKGIb7
+	id S1754117AbWKGIco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 03:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754119AbWKGIco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 03:31:59 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:2994 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1754116AbWKGIb6 (ORCPT
+	Tue, 7 Nov 2006 03:32:44 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:9917 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1754118AbWKGIcn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 03:31:58 -0500
-Message-ID: <45504477.90902@garzik.org>
-Date: Tue, 07 Nov 2006 03:31:51 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>, akpm@osdl.org,
-       Wilco Beekhuizen <wilcobeekhuizen@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: VIA IRQ quirk missing PCI ids since 2.6.16.17
-References: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com> <1162817254.5460.4.camel@localhost.localdomain> <1162847625.10086.36.camel@localhost.localdomain> <20061107012519.GC25719@redhat.com>
-In-Reply-To: <20061107012519.GC25719@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Tue, 7 Nov 2006 03:32:43 -0500
+Date: Tue, 7 Nov 2006 11:32:30 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: zhou drangon <drangon.mail@gmail.com>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20061107083229.GA2864@2ka.mipt.ru>
+References: <20061101160551.GA2598@elf.ucw.cz> <20061101162403.GA29783@2ka.mipt.ru> <slrnekhpbr.2j1.olecom@flower.upol.cz> <20061101185745.GA12440@2ka.mipt.ru> <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com> <aaf959cb0611011829k36deda6ahe61bcb9bf8e612e1@mail.gmail.com> <aaf959cb0611011830j1ca3e469tc4a6af3a2a010fa@mail.gmail.com> <4549A261.9010007@cosmosbay.com> <20061102080122.GA1302@2ka.mipt.ru> <454FA671.7000204@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <454FA671.7000204@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 07 Nov 2006 11:32:32 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Mon, Nov 06, 2006 at 09:13:45PM +0000, Alan Cox wrote:
+On Mon, Nov 06, 2006 at 10:17:37PM +0100, Eric Dumazet (dada1@cosmosbay.com) wrote:
+> AF_INET
+> # ./epoll_bench -n 2000 -i
+> 2000 handles setup
+> 69210 evts/sec 2.97224 samples per call
+> 59436 evts/sec 12876 ctxt/sec 5.48675 samples per call
+> 60722 evts/sec 12093 ctxt/sec 8.03185 samples per call
+> 60583 evts/sec 14582 ctxt/sec 10.5644 samples per call
+> 58192 evts/sec 12066 ctxt/sec 12.999 samples per call
+> 54291 evts/sec 10613 ctxt/sec 15.2398 samples per call
+> 47978 evts/sec 10942 ctxt/sec 17.2222 samples per call
+> 59009 evts/sec 13692 ctxt/sec 19.6426 samples per call
+> 58248 evts/sec 15099 ctxt/sec 22.0306 samples per call
+> 58708 evts/sec 15118 ctxt/sec 24.4497 samples per call
+> 58613 evts/sec 14608 ctxt/sec 26.816 samples per call
+> 58490 evts/sec 13593 ctxt/sec 29.1708 samples per call
+> 59108 evts/sec 15078 ctxt/sec 31.5557 samples per call
+> 59636 evts/sec 15053 ctxt/sec 33.9292 samples per call
+> 59355 evts/sec 15531 ctxt/sec 36.2914 samples per call
+> Avg: 58771 evts/sec
 > 
->  > +static const struct pci_device_id via_vlink_fixup_tbl[] = {
->  > +	{ PCI_VDEVICE(VIA, PCI_DEVICE_ID_VIA_8233_0), 17},
->  > +	{ PCI_VDEVICE(VIA, PCI_DEVICE_ID_VIA_8233A), 17 },
->  > +	{ PCI_VDEVICE(VIA, PCI_DEVICE_ID_VIA_8233C_0), 17 },
->  > +	{ PCI_VDEVICE(VIA, PCI_DEVICE_ID_VIA_8235), 16 },
->  > +	/* May not be needed for the 8237 */
->  > +	{ PCI_VDEVICE(VIA, PCI_DEVICE_ID_VIA_8237), 15 },
->  > +	{ PCI_VDEVICE(VIA, PCI_DEVICE_ID_VIA_8237A), 15 },
->  >  	{ 0, },
-> 
-> This got me wondering what PCI_VDEVICE was, so I went looking.
-> It's a libata'ism it seems with the comment..
-> 
-> /* move to PCI layer? */
-> 
-> Which sounds like a good idea to me.  But until this is moved,
-> does quirks.c actually compile with this patch? I don't see
-> an include of linux/libata.h there.
-> 
-> When it gets moved to the PCI layer, I wonder if it'd be worth
-> doing the same thing to the second argument, so that we'd be
-> able to do..
-> 
-> 	{ PCI_VDEVICE(VIA, VIA_8233_0), 17},
-> 
-> Or maybe even..
-> 
-> 	{ PCI_VDEVICE(VIA, 8233_0), 17},
+> The last sample shows that epoll overhead is very small indeed, since 
+> disabling it doesnt boost AF_INET perf at all.
+> AF_INET + no epoll
+> # ./epoll_bench -n 2000 -i -f
+> 2000 handles setup
+> 79939 evts/sec
+> 78468 evts/sec 9989 ctxt/sec
+> 73153 evts/sec 10207 ctxt/sec
+> 73668 evts/sec 10163 ctxt/sec
+> 73667 evts/sec 20084 ctxt/sec
+> 74106 evts/sec 10068 ctxt/sec
+> 73442 evts/sec 10119 ctxt/sec
+> 74220 evts/sec 10122 ctxt/sec
+> 74367 evts/sec 10097 ctxt/sec
+> 64402 evts/sec 47873 ctxt/sec
+> 53555 evts/sec 58733 ctxt/sec
+> 46000 evts/sec 48984 ctxt/sec
+> 67052 evts/sec 21006 ctxt/sec
+> 68460 evts/sec 12344 ctxt/sec
+> 67629 evts/sec 10655 ctxt/sec
+> Avg: 69475 evts/sec
 
-Won't work, libata passes hex constants as the second argument...  which 
-is the policy I'm encouraging for all places where the PCI_DEVICE_ID_xxx 
-is only used in a single place.
+Without epoll number of events/sec is about 18% more - 58k vs 69k.
 
-	Jeff
-
-
-
+-- 
+	Evgeniy Polyakov

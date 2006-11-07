@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753421AbWKGVjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753442AbWKGVlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753421AbWKGVjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 16:39:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753442AbWKGVjM
+	id S1753442AbWKGVlK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 16:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753447AbWKGVlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 16:39:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:55767 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753421AbWKGVjL (ORCPT
+	Tue, 7 Nov 2006 16:41:10 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:40912 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1753442AbWKGVlJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 16:39:11 -0500
-Date: Tue, 7 Nov 2006 13:38:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: jeff@garzik.org, johnpol@2ka.mipt.ru, drepper@redhat.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [take21 0/4] kevent: Generic event handling mechanism.
-Message-Id: <20061107133803.4487a666.akpm@osdl.org>
-In-Reply-To: <20061107.125241.39157521.davem@davemloft.net>
-References: <20061107115111.GA13028@2ka.mipt.ru>
-	<45507CD4.5030600@garzik.org>
-	<20061107113400.880e1ce9.akpm@osdl.org>
-	<20061107.125241.39157521.davem@davemloft.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 16:41:09 -0500
+Date: Tue, 7 Nov 2006 13:41:08 -0800 (PST)
+From: Dave Olson <olson@pathscale.com>
+Reply-To: olson@pathscale.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Bryan O'Sullivan" <bos@serpentine.com>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc4: known unfixed regressions (v3)
+In-Reply-To: <m1hcxb7xes.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.64.0611071339410.8122@topaz.pathscale.com>
+References: <Pine.LNX.4.64.0610302019560.25218@g5.osdl.org>
+ <20061105064801.GV13381@stusta.de> <m1lkmpq5we.fsf@ebiederm.dsl.xmission.com>
+ <20061107042214.GC8099@stusta.de> <45501730.8020802@serpentine.com>
+ <m1psbzbpxw.fsf@ebiederm.dsl.xmission.com> <4550B22C.1060307@serpentine.com>
+ <m18xinb1qn.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0611070934570.25925@topaz.pathscale.com>
+ <m1mz739l0b.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0611071228230.8122@topaz.pathscale.com>
+ <m1wt677zgr.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0611071258220.8122@topaz.pathscale.com>
+ <m1hcxb7xes.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Nov 2006 12:52:41 -0800 (PST)
-David Miller <davem@davemloft.net> wrote:
+On Tue, 7 Nov 2006, Eric W. Biederman wrote:
+| I think we are talking past each other.  I think it is fine but silly
+| to set a standard register that isn't actually used.  It probably makes
+| debugging a little easier but it might also make things a little more
+| confusing because we are doing something totally unnecessary.
 
-> From: Andrew Morton <akpm@osdl.org>
-> Date: Tue, 7 Nov 2006 11:34:00 -0800
-> 
-> > What Evgeniy means here is that copy_to_user() is slower than memcpy() (on
-> > his machine, with his kernel config, at least).
-> > 
-> > Which is kinda weird and unexpected and is something which we should
-> > investigate independently from this project.  (Rather than simply going
-> > and bypassing it!)
-> 
-> It's straightforward to me. :-)
-> 
-> If the kerne memcpy()'s, it uses those nice 4MB PTE mappings to
-> the kernel pages.  With copy_to_user() you run through tiny
-> 4K or 8K PTE mappings which thrash the TLB.
-> 
-> The TLB is therefore able to hold more of the accessed state at
-> a time if you touch the pages on the kernel side.
+I think we are saying exactly the same thing, so I'll leave it at that.
 
-Maybe.  Evgeniy tends to favour teeny microbenchmarks.  I'd also be
-suspecting the considerable setup code in the x86 uaccess funtions.  That
-would show up in a tight loop doing large numbers of small copies.
+Dave Olson
+dave.olson@qlogic.com

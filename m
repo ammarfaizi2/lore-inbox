@@ -1,129 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932762AbWKGRnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932752AbWKGRmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932762AbWKGRnw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 12:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932754AbWKGRnw
+	id S932752AbWKGRmx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 12:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932751AbWKGRmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 12:43:52 -0500
-Received: from mga01.intel.com ([192.55.52.88]:61742 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S932751AbWKGRnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 12:43:51 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,397,1157353200"; 
-   d="scan'208"; a="12781793:sNHT28670904"
-Message-ID: <4550C5D1.3040601@intel.com>
-Date: Tue, 07 Nov 2006 09:43:45 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "H. Peter Anvin" <hpa@zytor.com>, saw@saw.sw.com.sg, thockin@hockin.org
-Subject: Re: Intel 82559 NIC corrupted EEPROM
-References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com> <45506C9A.5010009@privacy.net> <4550BF91.2020403@zytor.com>
-In-Reply-To: <4550BF91.2020403@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2006 17:43:46.0419 (UTC) FILETIME=[467A6430:01C70294]
+	Tue, 7 Nov 2006 12:42:53 -0500
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:18127 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932747AbWKGRmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 12:42:52 -0500
+Date: Tue, 7 Nov 2006 18:42:17 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jeff Layton <jlayton@redhat.com>
+Cc: Eric Sandeen <sandeen@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels that offer x86 compatability
+Message-ID: <20061107174217.GA29746@wohnheim.fh-wedel.de>
+References: <1162836725.6952.28.camel@dantu.rdu.redhat.com> <20061106182222.GO27140@parisc-linux.org> <1162838843.12129.8.camel@dantu.rdu.redhat.com> <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com> <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com> <1162914966.28425.24.camel@dantu.rdu.redhat.com> <20061107172835.GB15629@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061107172835.GB15629@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> John wrote:
->>
->> I then used ethtool to dump the contents of the EEPROMs.
->>
->> # ethtool -e eth0
->> Offset          Values
->> ------          ------
->> 0x0000          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> 0x0010          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> 0x0020          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> 0x0030          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> 0x0040          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> 0x0050          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> 0x0060          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> 0x0070          ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->>
->> Either the EEPROM image on eth0 is corrupted, or ethtool is not
->> able to read the contents of the EEPROM.
->>
+On Tue, 7 November 2006 18:28:35 +0100, Jörn Engel wrote:
 > 
-> [...]
-> 
->>
->> I then used Donald Becker's program to dump the contents of all
->> the EEPROMs. ( ftp://www.scyld.com/pub/diag/ )
->>
->> # eepro100-diag -ee
->> eepro100-diag.c:v2.13 2/28/2005 Donald Becker (becker@scyld.com)
->>  http://www.scyld.com/diag/index.html
->>
->> Index #1: Found a Intel i82557/8/9 EtherExpressPro100 adapter at 0xd800.
->> EEPROM contents, size 64x16:
->>     00: 3000 0464 e4e6 0e03 0000 0201 4701 0000  _0d__________G__
->>   0x08: 7213 8310 40a2 0001 8086 0000 0000 0000  _r___@__________
->>       ...
->>   0x30: 0128 0000 0000 0000 0000 0000 0000 0000  (_______________
->>   0x38: 0000 0000 0000 0000 0000 0000 0000 92f7  ________________
->>  The EEPROM checksum is correct.
->> Intel EtherExpress Pro 10/100 EEPROM contents:
->>   Station address 00:30:64:04:E6:E4.
->>   Board assembly 721383-016, Physical connectors present: RJ45
->>   Primary interface chip i82555 PHY #1.
->>    Sleep mode is enabled.  This is not recommended.
->>    Under high load the card may not respond to
->>    PCI requests, and thus cause a master abort.
->>    To clear sleep mode use the '-G 0 -w -w -f' options.
->>
->> Index #2: Found a Intel i82557/8/9 EtherExpressPro100 adapter at 0xdc00.
->> EEPROM contents, size 64x16:
->>     00: 3000 0464 e5e6 0e03 0000 0201 4701 0000  _0d__________G__
->>   0x08: 7213 8310 40a2 0001 8086 0000 0000 0000  _r___@__________
->>       ...
->>   0x30: 0128 0000 0000 0000 0000 0000 0000 0000  (_______________
->>   0x38: 0000 0000 0000 0000 0000 0000 0000 91f7  ________________
->>  The EEPROM checksum is correct.
->> Intel EtherExpress Pro 10/100 EEPROM contents:
->>   Station address 00:30:64:04:E6:E5.
->>   Board assembly 721383-016, Physical connectors present: RJ45
->>   Primary interface chip i82555 PHY #1.
->>    Sleep mode is enabled.  This is not recommended.
->>    Under high load the card may not respond to
->>    PCI requests, and thus cause a master abort.
->>    To clear sleep mode use the '-G 0 -w -w -f' options.
->>
->> Index #3: Found a Intel i82557/8/9 EtherExpressPro100 adapter at 0xe000.
->> EEPROM contents, size 64x16:
->>     00: 3000 0464 e6e6 0e03 0000 0201 4701 0000  _0d__________G__
->>   0x08: 7213 8310 40a2 0001 8086 0000 0000 0000  _r___@__________
->>       ...
->>   0x30: 0128 0000 0000 0000 0000 0000 0000 0000  (_______________
->>   0x38: 0000 0000 0000 0000 0000 0000 0000 90f7  ________________
->>  The EEPROM checksum is correct.
->> Intel EtherExpress Pro 10/100 EEPROM contents:
->>   Station address 00:30:64:04:E6:E6.
->>   Board assembly 721383-016, Physical connectors present: RJ45
->>   Primary interface chip i82555 PHY #1.
->>    Sleep mode is enabled.  This is not recommended.
->>    Under high load the card may not respond to
->>    PCI requests, and thus cause a master abort.
->>    To clear sleep mode use the '-G 0 -w -w -f' options.
->>
->> Apparently, eepro100.ko is able to read the contents of the EEPROM on 
->> eth0 and it declares the checksum correct. Is it possible that there 
->> is a bug in e100.c that makes it fail to read the EEPROM on eth0?
->>
-> 
-> Sure as heck sounds like it.
+> Anyway, here is a first patch converting some callers that looked
+> obvious.
 
-(Please CC either me or at netdev on all intel nic drivers. thanks. I removed 
-`john@privacy.net` since it throws a bounce, and linux.nics@intel.com is a support 
-address only, doesn't reach us developers)
+Next patch with the not-so-obvious ones.  I believe this patch is
+correct, but someone should double-check it.
 
-how did you do the first `ethtool` eeprom dump? did you have the `e100` module loaded at 
-that time? Did you use the new `override` mechanism graciously donated by David M?
+Jfs really surprised me.  It appears as if it just takes the number
+returned from new_inode in some cases - unbelievable.
 
-Cheers,
+Jörn
 
-Auke
+-- 
+"[One] doesn't need to know [...] how to cause a headache in order
+to take an aspirin."
+-- Scott Culp, Manager of the Microsoft Security Response Center, 2001
+
+
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+---
+
+ fs/9p/vfs_inode.c  |    2 +-
+ fs/cifs/inode.c    |    8 +++++---
+ fs/jfs/jfs_inode.c |    2 +-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
+
+--- iunique/fs/9p/vfs_inode.c~iunique_nonobvious	2006-10-13 15:55:45.000000000 +0200
++++ iunique/fs/9p/vfs_inode.c	2006-11-07 18:30:59.000000000 +0100
+@@ -199,7 +199,7 @@ struct inode *v9fs_get_inode(struct supe
+ 
+ 	dprintk(DEBUG_VFS, "super block: %p mode: %o\n", sb, mode);
+ 
+-	inode = new_inode(sb);
++	inode = new_inode_autonum(sb);
+ 	if (inode) {
+ 		inode->i_mode = mode;
+ 		inode->i_uid = current->fsuid;
+--- iunique/fs/cifs/inode.c~iunique_nonobvious	2006-10-13 15:55:50.000000000 +0200
++++ iunique/fs/cifs/inode.c	2006-11-07 18:33:53.000000000 +0100
+@@ -90,7 +90,9 @@ int cifs_get_inode_info_unix(struct inod
+ 			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM) {
+ 				(*pinode)->i_ino =
+ 					(unsigned long)findData.UniqueId;
+-			} /* note ino incremented to unique num in new_inode */
++			} else {
++				(*pinode)->i_ino = iunique(sb, 0);
++			}
+ 			insert_inode_hash(*pinode);
+ 		}
+ 
+@@ -384,7 +386,7 @@ int cifs_get_inode_info(struct inode **p
+ 
+ 		/* get new inode */
+ 		if (*pinode == NULL) {
+-			*pinode = new_inode(sb);
++			*pinode = new_inode_autonum(sb);
+ 			if (*pinode == NULL)
+ 				return -ENOMEM;
+ 			/* Is an i_ino of zero legal? Can we use that to check
+@@ -416,7 +418,7 @@ int cifs_get_inode_info(struct inode **p
+ 					/* BB EOPNOSUPP disable SERVER_INUM? */
+ 				} else /* do we need cast or hash to ino? */
+ 					(*pinode)->i_ino = inode_num;
+-			} /* else ino incremented to unique num in new_inode*/
++			} /* else ino incremented to unique num in new_inode_autonum*/
+ 			insert_inode_hash(*pinode);
+ 		}
+ 		inode = *pinode;
+--- iunique/fs/jfs/jfs_inode.c~iunique_nonobvious	2006-10-13 15:56:05.000000000 +0200
++++ iunique/fs/jfs/jfs_inode.c	2006-11-07 18:36:55.000000000 +0100
+@@ -58,7 +58,7 @@ struct inode *ialloc(struct inode *paren
+ 	struct jfs_inode_info *jfs_inode;
+ 	int rc;
+ 
+-	inode = new_inode(sb);
++	inode = new_inode_autonum(sb);
+ 	if (!inode) {
+ 		jfs_warn("ialloc: new_inode returned NULL!");
+ 		return inode;

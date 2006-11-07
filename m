@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754232AbWKGSPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754237AbWKGSTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754232AbWKGSPR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 13:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754202AbWKGSPR
+	id S1754237AbWKGSTK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 13:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965673AbWKGSTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 13:15:17 -0500
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:20193 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751360AbWKGSPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 13:15:15 -0500
-Date: Tue, 7 Nov 2006 19:14:08 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jeff Layton <jlayton@redhat.com>
-Cc: Eric Sandeen <sandeen@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make last_inode counter in new_inode 32-bit on kernels that offer x86 compatability
-Message-ID: <20061107181408.GE29746@wohnheim.fh-wedel.de>
-References: <1162836725.6952.28.camel@dantu.rdu.redhat.com> <20061106182222.GO27140@parisc-linux.org> <1162838843.12129.8.camel@dantu.rdu.redhat.com> <20061106202313.GA691@wohnheim.fh-wedel.de> <454FA032.1070008@redhat.com> <20061106211134.GB691@wohnheim.fh-wedel.de> <454FAAF8.8080707@redhat.com> <1162914966.28425.24.camel@dantu.rdu.redhat.com> <20061107172835.GB15629@wohnheim.fh-wedel.de> <1162922488.28425.51.camel@dantu.rdu.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1162922488.28425.51.camel@dantu.rdu.redhat.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 7 Nov 2006 13:19:09 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63450 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1754224AbWKGSTG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 13:19:06 -0500
+Date: Tue, 7 Nov 2006 10:18:44 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org, mm-commits@vger.kernel.org,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+In-Reply-To: <20061107095049.B3262@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0611071015030.4249@schroedinger.engr.sgi.com>
+References: <200611032205.kA3M5wmJ003178@shell0.pdx.osdl.net>
+ <20061107073248.GB5148@elte.hu> <Pine.LNX.4.64.0611070943160.3791@schroedinger.engr.sgi.com>
+ <20061107093112.A3262@unix-os.sc.intel.com> <Pine.LNX.4.64.0611070954210.3791@schroedinger.engr.sgi.com>
+ <20061107095049.B3262@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 November 2006 13:01:28 -0500, Jeff Layton wrote:
-> 
-> Thanks for the feedback. Yeah, I held back on converting any filesystems
-> until I had some comments. Thanks for doing the legwork on that part.
-> Here's a respun patch with the suggested modification to
-> new_inode_autonum. This also adds it to fs.h.
-> 
-> Signed-off-by: Jeff Layton <jlayton@redhat.com>
-Acked-by: Joern Engel <joern@wh.fh-wedel.de>
+On Tue, 7 Nov 2006, Siddha, Suresh B wrote:
 
-Looks good to me.
+> tasklet_schedule doesn't schedule if there is already one scheduled.
 
-Jeff, would you mind taking my patches and putting them into a decent
-patch series?  I really should be working on other things.
+Right. 
 
-Jörn
+/* Tasklets --- multithreaded analogue of BHs.
 
--- 
-Time? What's that? Time is only worth what you do with it.
--- Theo de Raadt
+   Main feature differing them of generic softirqs: tasklet
+   is running only on one CPU simultaneously.
+
+   Main feature differing them of BHs: different tasklets
+   may be run simultaneously on different CPUs.
+
+   Properties:
+   * If tasklet_schedule() is called, then tasklet is guaranteed
+     to be executed on some cpu at least once after this.
+
+^^^^ Crap. Not equivalent. Must be guaranteed to run on the same cpu.
+
+   * If the tasklet is already scheduled, but its excecution is still not
+     started, it will be executed only once.
+   * If this tasklet is already running on another CPU (or schedule is called
+     from tasklet itself), it is rescheduled for later.
+   * Tasklet is strictly serialized wrt itself, but not
+     wrt another tasklets. If client needs some intertask synchronization,
+     he makes it with spinlocks.
+ */
+

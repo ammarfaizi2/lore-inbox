@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754104AbWKGIEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754094AbWKGIIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754104AbWKGIEK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 03:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754101AbWKGIEK
+	id S1754094AbWKGIIb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 03:08:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754106AbWKGIIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 03:04:10 -0500
-Received: from [213.184.169.47] ([213.184.169.47]:64384 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1754098AbWKGIEH (ORCPT
+	Tue, 7 Nov 2006 03:08:31 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:19884 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1754094AbWKGIIa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 03:04:07 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ZONE_NORMAL memory exhausted by 4000 TCP sockets
-Date: Tue, 7 Nov 2006 11:06:53 +0300
-User-Agent: KMail/1.5
-Cc: netdev@vger.kernel.org, linux-net@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 03:08:30 -0500
+Date: Tue, 7 Nov 2006 09:07:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Len Brown <lenb@kernel.org>
+Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
+Message-ID: <20061107080733.GB9910@elte.hu>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de> <1162830033.4715.201.camel@localhost.localdomain> <20061106205825.GA26755@rhlx01.hs-esslingen.de> <200611070141.16593.len.brown@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611071106.53975.a1426z@gawab.com>
+In-Reply-To: <200611070141.16593.len.brown@intel.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhao Xiaoming wrote:
-> The latest update:
->     It seems that Linux kernel memory management mechanisms including
-> buddy and slab algorisms are not very efficient under my test
-> conditions that tcp stack requires a lot of (hundreds of MB) packet
-> buffers and release them very frequently.
->     Here is the proof. After change my kernel configuration to support
-> 2/2 VM splition, LOMEM consumption reduced to 270M bytes compared with
-> 640M bytes of the 1/3 kernel. All test conditions are the same and
-> memory pages allocated by TCP stack are also the same, 34K ~ 38K
-> pages. In other words, 'lost' memory changed from ~500M to ~130M.
-> Thus, I have nothing to do but guessing the much more free pages make
-> the slab/buddy algorisms more efficient and waste less memory.
 
-I kind of agree, and always compile for a 2G/2G VM split, as this also seems 
-to affect certain OOM conditions positively.
+* Len Brown <len.brown@intel.com> wrote:
 
-What isn't quite clear though, why is the 2G/2G VM split not the default?
+> So given that C3 on every known system that has shipped to date breaks 
+> the LAPIC timer (and apparently this applies to C2 on these AMD 
+> boxes), dynticks needs a solid story for co-existing with C3.
 
+check out 2.6.19-rc4-mm2: it detects this breakage and works it around 
+by using the PIT as a clock-events source. That did the trick on my 
+laptop which has this problem too. I agree with you that degrading the 
+powersaving mode is not an option.
 
-Thanks!
+we've got a question about HPET: it seems all recent hardware has it, 
+but the BIOS rarely mentions it, so the Linux driver does not enable 
+HPET. Is there any chance to enable HPET (in the chipset?) - this would 
+probably be a higher-quality clock-events source than the PIT.
 
---
-Al
-
+	Ingo

@@ -1,102 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753886AbWKGOwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753918AbWKGO6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753886AbWKGOwb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 09:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753876AbWKGOwb
+	id S1753918AbWKGO6y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 09:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752906AbWKGO6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 09:52:31 -0500
-Received: from wr-out-0506.google.com ([64.233.184.237]:41806 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1753886AbWKGOwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 09:52:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=bAWjpl1yG+9wlkanMcVjnUGC9m7stJhLSW9K6/PG1HnnP6sIJMuvh/nnD/JIArFNuD+Rv8gQSpdzDeoCKiiYccVLCzNkHMWdpaWBsivEGknV2oZg7VR1pgOvT0KVerSM239c1IBQkpgQZI/RlSVuSwuMk/+60EpsBV/qEOzQjbw=
-Message-ID: <f356cfa0611070652u75eb5622v2144daa9fa4b563f@mail.gmail.com>
-Date: Tue, 7 Nov 2006 09:52:27 -0500
-From: "Robotis Konstantinos" <krobotis@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: write data to a file from a kernel module
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 7 Nov 2006 09:58:54 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:16311 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1753876AbWKGO6x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 09:58:53 -0500
+Subject: Re: [PATCH 1/1] security: introduce file posix caps
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       James Morris <jmorris@namei.org>, chris friedhoff <chris@friedhoff.org>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061107034550.GA13693@sergelap.austin.ibm.com>
+References: <20061107034550.GA13693@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 07 Nov 2006 09:56:43 -0500
+Message-Id: <1162911403.3009.33.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2006-11-06 at 21:45 -0600, Serge E. Hallyn wrote:
+> Implement file posix capabilities.  This allows programs to be given
+> a subset of root's powers regardless of who runs them, without
+> having to use setuid and giving the binary all of root's powers.
 
-I am trying to create a module for kernel 2.4.27 that writes data to a
-file when it
-receives a packet from the network interface card. In the code below
-the pkt_handler function is called each time a packet is received. A
-while after the insmod, the CPU reaches 100% and the pc freezes.
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index b200b98..ea631ee 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -53,6 +53,10 @@ extern int cap_inode_setxattr(struct den
+>  extern int cap_inode_removexattr(struct dentry *dentry, char *name);
+>  extern int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid, int flags);
+>  extern void cap_task_reparent_to_init (struct task_struct *p);
+> +extern int cap_task_kill(struct task_struct *p, struct siginfo *info, int sig, u32 secid);
+> +extern int cap_task_setscheduler (struct task_struct *p, int policy, struct sched_param *lp);
+> +extern int cap_task_setioprio (struct task_struct *p, int ioprio);
+> +extern int cap_task_setnice (struct task_struct *p, int nice);
+>  extern int cap_syslog (int type);
+>  extern int cap_vm_enough_memory (long pages);
+>  
+> @@ -2594,12 +2598,12 @@ static inline int security_task_setgroup
+>  
+>  static inline int security_task_setnice (struct task_struct *p, int nice)
+>  {
+> -	return 0;
+> +	return cap_task_setnice(p, nice);
+>  }
+>  
+>  static inline int security_task_setioprio (struct task_struct *p, int ioprio)
+>  {
+> -	return 0;
+> +	return cap_task_setioprio(p, ioprio);
+>  }
+>  
+>  static inline int security_task_getioprio (struct task_struct *p)
 
-Is there something wrong with the code or is there an alternate way to
-write data to a file?  I think the problem is because the opening and
-writing are happening too often. Don't tell me to use the proc
-filesystem, it is
-not appropriate in my case.
+setscheduler change seems to be missing here.
 
-Thanks in advance.
+> @@ -2634,7 +2638,7 @@ static inline int security_task_kill (st
+>  				      struct siginfo *info, int sig,
+>  				      u32 secid)
+>  {
+> -	return 0;
+> +	return cap_task_kill(p, info, sig, secid);
+>  }
+>  
+>  static inline int security_task_wait (struct task_struct *p)
 
-(I've commented out the semaphore operations because they don't seem to
-work as they are currently used)
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index 5a5ef5c..0eae004 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> +int cap_task_kill(struct task_struct *p, struct siginfo *info,
+> +				int sig, u32 secid)
+> +{
+> +	if (info != SEND_SIG_NOINFO && (is_si_special(info) || SI_FROMKERNEL(info)))
+> +		return 0;
+> +
+> +	if (secid)
+> +		/*
+> +		 * Signal sent as a particular user.
+> +		 * Capabilities are ignored.  May be wrong, but it's the
+> +		 * only thing we can do at the moment.
+> +		 * Used only by usb drivers?
+> +		 */
+> +		return 0;
+> +	if (capable(CAP_KILL))
+> +		return 0;
 
-/* Packet handler. It is called by the kernel when a new packet has
-been received.  */
-int pkt_handler (struct sk_buff *skb, struct net_device *dv, struct
-packet_type *pt)
-{
- static int calls = 0;
- kfree_skb (skb);
+This will trigger spurious audit messages; should only be checked if
+next test fails.
 
- printk (KERN_ALERT "packet %d received\n", calls);
- if (calls++ > 10) {
-   open_f_and_write ("/tmp/tmp.log");
-   calls = 0;
- }
+> +	if (cap_issubset(p->cap_permitted, current->cap_permitted))
+> +		return 0;
+> +
+> +	return -EPERM;
+> +}
+> +
+>  void cap_task_reparent_to_init (struct task_struct *p)
+>  {
+>  	p->cap_effective = CAP_INIT_EFF_SET;
 
- return 0;
-}
+-- 
+Stephen Smalley
+National Security Agency
 
-
-int open_f_and_write (const char *file_name)
-{
- struct file *file = NULL;
- mm_segment_t fs;
- char *tmp;
- struct inode *inode;
-
- tmp = getname (file_name);
-
- file = filp_open (tmp, O_CREAT | O_WRONLY | O_APPEND, S_IRWXU);
- if (IS_ERR (file)) {
-   int errno = PTR_ERR (file);
-   printk (KERN_DEBUG "error %i\n", errno);
-   return 2;
- }
- if (!file->f_op->write) {
-   fput (file);
-   return 3;
- }
-
- fs = get_fs ();
- set_fs (KERNEL_DS);
- //inode = file->f_dentry->d_inode;
- //down (&inode->i_sem);
-
- {
-   char *buffer = "write something\n";
-   int p = file->f_op->write (file, buffer, m_strlen (buffer),
-&file->f_pos);
-   printk (KERN_ALERT "write returned %d\n", p);
- }
- //up(&inode->i_sem);
- set_fs (fs);
- putname (tmp);
- filp_close (file, NULL);
-
- return 0;
-}

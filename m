@@ -1,105 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932793AbWKHVdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423796AbWKHVjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932793AbWKHVdS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 16:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932790AbWKHVdS
+	id S1423796AbWKHVjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 16:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423794AbWKHVjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 16:33:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:55170 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423792AbWKHVdR (ORCPT
+	Wed, 8 Nov 2006 16:39:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16261 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423797AbWKHVjH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 16:33:17 -0500
-Date: Wed, 8 Nov 2006 13:33:13 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: General network driver suspend/resume (was e1000 carrier
- related)
-Message-ID: <20061108133313.20ea5f7c@freekitty>
-In-Reply-To: <455247DA.3090406@intel.com>
-References: <20061106013153.GN15897@curie-int.orbis-terrarum.net>
-	<20061107071449.GB21655@elf.ucw.cz>
-	<4550AB7A.10508@intel.com>
-	<20061108120407.GA9506@elf.ucw.cz>
-	<20061108115414.7e089a58@freekitty>
-	<455247DA.3090406@intel.com>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+	Wed, 8 Nov 2006 16:39:07 -0500
+Date: Wed, 8 Nov 2006 13:38:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LHMS <lhms-devel@lists.sourceforge.net>
+Subject: Re: [PATHC] [2.6.19-rc4-mm2] driver/base/memory.c :: remove
+ warnings of sysfs_create_file()
+Message-Id: <20061108133859.cdaa8127.akpm@osdl.org>
+In-Reply-To: <20061108155921.62f9a68f.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20061108155921.62f9a68f.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Nov 2006 13:10:50 -0800
-Auke Kok <auke-jan.h.kok@intel.com> wrote:
+On Wed, 8 Nov 2006 15:59:21 +0900
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 
-> Stephen Hemminger wrote:
-> > On Wed, 8 Nov 2006 13:04:07 +0100
-> > Pavel Machek <pavel@ucw.cz> wrote:
-> > 
-> >> Hi!
-> >>
-> >>>>> This behavior differs from every other network card, and is also present 
-> >>>>> in the
-> >>>>> 7.3* version of the driver from sourceforge.
-> >>>>>
-> >>>>> I think the e1000 should try to raise the link during the probe, so that 
-> >>>>> it
-> >>>>> works properly, without having to set ifconfig ethX up first.
-> >>>> I think you should cc e1000 maintainers, and perhaps provide a patch....
-> >>> I've read it and not come up with an answer due to some other issues at 
-> >>> hand. E1000 hardware works differently and this has been asked before, but 
-> >>> the cards itself are in low power state when down. Changing this to bring 
-> >>> up the link would make the card start to consume lots more power, which 
-> >>> would automatically suck enormously for anyone using a laptop.
-> >> Well, maybe E1000 should behave as the other cards behave, and
-> >> different solution needs to be found for power saving? ifconfig eth0
-> >> suspend?
-> >>
-> >> 									Pavel
-> >>  
-> >>
-> > 
-> > The standard which all network drivers should use is:
-> > 
-> > module insertion:
-> > 	start in initial powerdown state
-> > 
-> > open:
-> > 	power up, bring up link
-> > 
-> > stop:
-> > 	bring down link
-> > 	return to powerdown state unless WOL is set.
-> > 	if doing WOL go to lowest power sensing state
-> > 
-> > suspend:
-> > 	same as stop
-> > 
-> > resume:
-> > 	same as open
-> > 
-> > module removal:
-> > 	stop already called so device should be in power down state.
-> > 
-> > 
-> > Since suspend is basically same as stop, and resume is open
-> > I am going to investigate doing suspend/resume in the network device layer
-> > (unless subclassed by driver), so we can rip out the suspend/resume hook
-> > from many network drivers. There will still be boards like sky2
-> > that need own suspend/resume to deal with dual port etc.
+> I got following messages at compile time.
+> ==
+> drivers/base/memory.c: In function `memory_dev_init':
+> drivers/base/memory.c:293: warning: ignoring return value of `sysfs_create_file'
+> , declared with attribute warn_unused_result
+> ==
 > 
+> This patch adds tests for returned value from sysfs_create_file().
+> This patch just prints warning if failed.
 > 
-> beware that e1000 needs to save pci msi config space on top of the normal pci config 
-> space. Perhaps this needs to be fixed upstream in pci_save_state for msi devices, but 
-> the api for msi is not capable of detecting this atm.
+> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 > 
+> Index: linux-2.6.19-rc4-mm2/drivers/base/memory.c
+> ===================================================================
+> --- linux-2.6.19-rc4-mm2.orig/drivers/base/memory.c	2006-11-08 15:15:59.000000000 +0900
+> +++ linux-2.6.19-rc4-mm2/drivers/base/memory.c	2006-11-08 15:26:52.000000000 +0900
+> @@ -290,8 +290,14 @@
+>  
+>  static int block_size_init(void)
+>  {
+> -	sysfs_create_file(&memory_sysdev_class.kset.kobj,
+> -		&class_attr_block_size_bytes.attr);
+> +	int ret;
+> +	ret = sysfs_create_file(&memory_sysdev_class.kset.kobj,
+> +				&class_attr_block_size_bytes.attr);
+> +	if (ret < 0) {
+> +		/* We failed to init memory-hotplug infrastructure.
+> +		   But don't panic here */
+> +		printk(KERN_WARNING "cannot create memory hotplug interface\n");
+> +	}
+>  	return 0;
+>  }
+>  
+> @@ -323,8 +329,14 @@
+>  
+>  static int memory_probe_init(void)
+>  {
+> -	sysfs_create_file(&memory_sysdev_class.kset.kobj,
+> +	int ret;
+> +	ret = sysfs_create_file(&memory_sysdev_class.kset.kobj,
+>  		&class_attr_probe.attr);
+> +	if (ret < 0) {
+> +		/* we failed to init memory hotplug infrastructure.
+> +		   But don't panic here */
+> +		printk(KERN_WARNING "cannot create memory hotplug interface\n");
+> +	}
+>  	return 0;
+>  }
+>  #else
 
-pci_config save needs to save more (including all the pci express stuff).
-But until the mmconfig issues are fixed on x86_64 that will be impossible.
-Maybe the last fix will solve the problem.
+I think the below is better?
 
+From: Andrew Morton <akpm@osdl.org>
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+Do proper error-checking and propagation in drivers/base/memory.c, hence fix
+__must_check warnings.
+
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/base/memory.c |   34 +++++++++++++++++++++++-----------
+ 1 files changed, 23 insertions(+), 11 deletions(-)
+
+diff -puN drivers/base/memory.c~driver-base-memoryc-remove-warnings-of drivers/base/memory.c
+--- a/drivers/base/memory.c~driver-base-memoryc-remove-warnings-of
++++ a/drivers/base/memory.c
+@@ -290,9 +290,8 @@ static CLASS_ATTR(block_size_bytes, 0444
+ 
+ static int block_size_init(void)
+ {
+-	sysfs_create_file(&memory_sysdev_class.kset.kobj,
+-		&class_attr_block_size_bytes.attr);
+-	return 0;
++	return sysfs_create_file(&memory_sysdev_class.kset.kobj,
++				&class_attr_block_size_bytes.attr);
+ }
+ 
+ /*
+@@ -323,12 +322,14 @@ static CLASS_ATTR(probe, 0700, NULL, mem
+ 
+ static int memory_probe_init(void)
+ {
+-	sysfs_create_file(&memory_sysdev_class.kset.kobj,
+-		&class_attr_probe.attr);
+-	return 0;
++	return sysfs_create_file(&memory_sysdev_class.kset.kobj,
++				&class_attr_probe.attr);
+ }
+ #else
+-#define memory_probe_init(...)	do {} while (0)
++static inline int memory_probe_init(void)
++{
++	return 0;
++}
+ #endif
+ 
+ /*
+@@ -431,9 +432,12 @@ int __init memory_dev_init(void)
+ {
+ 	unsigned int i;
+ 	int ret;
++	int err;
+ 
+ 	memory_sysdev_class.kset.uevent_ops = &memory_uevent_ops;
+ 	ret = sysdev_class_register(&memory_sysdev_class);
++	if (ret)
++		goto out;
+ 
+ 	/*
+ 	 * Create entries for memory sections that were found
+@@ -442,11 +446,19 @@ int __init memory_dev_init(void)
+ 	for (i = 0; i < NR_MEM_SECTIONS; i++) {
+ 		if (!valid_section_nr(i))
+ 			continue;
+-		add_memory_block(0, __nr_to_section(i), MEM_ONLINE, 0);
++		err = add_memory_block(0, __nr_to_section(i), MEM_ONLINE, 0);
++		if (!ret)
++			ret = err;
+ 	}
+ 
+-	memory_probe_init();
+-	block_size_init();
+-
++	err = memory_probe_init();
++	if (!ret)
++		ret = err;
++	err = block_size_init();
++	if (!ret)
++		ret = err;
++out:
++	if (ret)
++		printk(KERN_ERR "%s() failed: %d\n", __FUNCTION__, ret);
+ 	return ret;
+ }
+_
+

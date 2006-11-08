@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965868AbWKHOhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965864AbWKHOiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965868AbWKHOhn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965861AbWKHOg7
+	id S965864AbWKHOiX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965819AbWKHOhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:36:59 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:63238 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S965838AbWKHOgx (ORCPT
+	Wed, 8 Nov 2006 09:37:55 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:65030 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S965864AbWKHOhB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:36:53 -0500
+	Wed, 8 Nov 2006 09:37:01 -0500
 From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 Organization: tuxland
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 18/33] usb: usbkbd free urb cleanup
-Date: Wed, 8 Nov 2006 15:35:58 +0100
+Subject: [PATCH 21/33] usb: phidgetkit free urb cleanup
+Date: Wed, 8 Nov 2006 15:36:07 +0100
 User-Agent: KMail/1.9.5
 Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        linux-usb-devel@lists.sourceforge.net
@@ -24,7 +24,7 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611081536.00087.m.kozlowski@tuxland.pl>
+Message-Id: <200611081536.08682.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -34,18 +34,15 @@ Hello,
 
 Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
---- linux-2.6.19-rc4-orig/drivers/usb/input/usbkbd.c	2006-11-06 17:08:20.000000000 +0100
-+++ linux-2.6.19-rc4/drivers/usb/input/usbkbd.c	2006-11-06 19:26:18.000000000 +0100
-@@ -208,10 +208,8 @@ static int usb_kbd_alloc_mem(struct usb_
- 
- static void usb_kbd_free_mem(struct usb_device *dev, struct usb_kbd *kbd)
- {
--	if (kbd->irq)
--		usb_free_urb(kbd->irq);
--	if (kbd->led)
--		usb_free_urb(kbd->led);
-+	usb_free_urb(kbd->irq);
-+	usb_free_urb(kbd->led);
- 	if (kbd->new)
- 		usb_buffer_free(dev, 8, kbd->new, kbd->new_dma);
- 	if (kbd->cr)
+--- linux-2.6.19-rc4-orig/drivers/usb/misc/phidgetkit.c	2006-11-06 17:08:21.000000000 +0100
++++ linux-2.6.19-rc4/drivers/usb/misc/phidgetkit.c	2006-11-06 19:27:48.000000000 +0100
+@@ -650,8 +650,7 @@ out2:
+ 		device_remove_file(kit->dev, &dev_output_attrs[i]);
+ out:
+ 	if (kit) {
+-		if (kit->irq)
+-			usb_free_urb(kit->irq);
++		usb_free_urb(kit->irq);
+ 		if (kit->data)
+ 			usb_buffer_free(dev, URB_INT_SIZE, kit->data, kit->data_dma);
+ 		if (kit->dev)

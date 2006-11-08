@@ -1,90 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965916AbWKHPMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965904AbWKHPQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965916AbWKHPMw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 10:12:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965904AbWKHPMw
+	id S965904AbWKHPQO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 10:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965917AbWKHPQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 10:12:52 -0500
-Received: from smtpout08-04.prod.mesa1.secureserver.net ([64.202.165.12]:31903
-	"HELO smtpout08-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S965916AbWKHPMv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 10:12:51 -0500
-Message-ID: <4551F3F0.5020405@seclark.us>
-Date: Wed, 08 Nov 2006 10:12:48 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Wed, 8 Nov 2006 10:16:13 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:3250 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S965904AbWKHPQM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 10:16:12 -0500
+Message-ID: <4551F4AD.4020401@gmail.com>
+Date: Wed, 08 Nov 2006 16:15:57 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
-Subject: Re: New laptop - problems with linux
-References: <4551EC86.5010600@seclark.us> <1162997980.3138.332.camel@laptopd505.fenrus.org>
-In-Reply-To: <1162997980.3138.332.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Marco Schwarz <marco.schwarz@gmx.net>
+CC: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: Re: Kernel error messages
+References: <20061108141801.241790@gmx.net>
+In-Reply-To: <20061108141801.241790@gmx.net>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Cc: trond.myklebust@fys.uio.no
 
->On Wed, 2006-11-08 at 09:41 -0500, Stephen Clark wrote:
->  
->
->>Hi list,
->>
->>I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core 
->>2 Duo T560,0 2gb pc5400 memory.
->> From checking around it appeared all the
->>hardware was well supported by linux - but I am having major problems.
->>
->>
->>1. neither the wireless lan Intel pro 3945ABG or built in ethernet 
->>    
->>
->
->you can get the driver for this from ipw3945.sf.net
->
->  
->
->>RTL-8169C are detected and configured
->>    
->>
-Could you propose any reason why it is not be configured? Can I force 
-load a module to
-make it work. It is a real pain without a enet conniection, since I have 
-to ferry stuff on thumbdrive
+Marco Schwarz wrote:
+> Hi,
+> 
+> with a vanilla 2.6.18.2 Kernel I get the following messages when I run a process with high CPU/memory consumption:
+> 
+> Nov  8 15:08:24 linux kernel: BUG: unable to handle kernel paging request at virtual address 6e696c43
+> Nov  8 15:08:24 linux kernel:  printing eip:
+> Nov  8 15:08:12 linux last message repeated 146 times
 
->>2. the disk which is a 7200rpm Hitachi travelmate transfers data at 1.xx 
->>mb/sec
->>    according to hdparm. This same drive in my old laptop an HP n5430 with a
->>    850 duron the rate was 12-14 mb/sec.
->>    
->>
->
->it seems you're using your sata disk in legacy IDE compatibility mode,
->and not AHCI mode... usually there is a bios setting to switch this
->(but be careful, if you switch it without adding the ahci driver to your
->initrd your system won't boot)
->
->
->
->
->  
->
-Actually this is a pata drive. This laptop provides a pata interface 
-even though it has
-sata in the ICH7 chipset.
+Which message? (some kind of cut&paste mismatch?)
 
+> Nov  8 15:08:24 linux kernel: c043d3d5
+> Nov  8 15:08:24 linux kernel: *pde = 00000000
+> Nov  8 15:08:24 linux kernel: Oops: 0000 [#1]
+> Nov  8 15:08:24 linux kernel: SMP
+> Nov  8 15:08:24 linux kernel: Modules linked in:
+> Nov  8 15:08:24 linux kernel: CPU:    1
+> Nov  8 15:08:24 linux kernel: EIP:    0060:[<c043d3d5>]    Not tainted VLI
+> Nov  8 15:08:24 linux kernel: EFLAGS: 00010246   (2.6.18.2 #8)
+> Nov  8 15:08:24 linux kernel: EIP is at rpcauth_refreshcred+0x15/0x50
+> Nov  8 15:08:24 linux kernel: eax: df6df240   ebx: df6df240   ecx: 00000001   edx: 6e696c2f
+> Nov  8 15:08:24 linux kernel: esi: df1b5000   edi: 00000000   ebp: df6df2a8   esp: d8ccfd00
+> Nov  8 15:08:24 linux kernel: ds: 007b   es: 007b   ss: 0068
+> Nov  8 15:08:24 linux kernel: Process ln (pid: 11343, ti=d8cce000 task=d5d5a030 task.ti=d8cce000)
+> Nov  8 15:08:24 linux kernel: Stack: df6df240 00000000 c043bfcd df6df240 00000000 d8ccfd48 d8ccfd20 c0436ecd
+> Nov  8 15:08:24 linux kernel:        00000000 00000000 df1e1410 df1b5000 d8ccfd58 00000006 c01ff735 dd24e7a4
+> Nov  8 15:08:24 linux kernel:        df1e12f8 df1e12f0 c050ee20 d8ccfd68 00000006 df1b5000 00000017 d8ccfed8
+> Nov  8 15:08:24 linux kernel: Call Trace:
+> Nov  8 15:08:24 linux kernel:  [<c043bfcd>] __rpc_execute+0x4d/0x1f0
+> Nov  8 15:08:24 linux kernel:  [<c0436ecd>] rpc_call_sync+0x8d/0xb0
+> Nov  8 15:08:24 linux kernel:  [<c01ff735>] nfs_proc_symlink+0xd5/0x150
+> Nov  8 15:08:24 linux kernel:  [<c01f8159>] nfs_symlink+0x89/0x190
+> Nov  8 15:08:24 linux kernel:  [<c0175556>] d_alloc+0xf6/0x180
+> Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
+> Nov  8 15:08:24 linux kernel:  [<c0269e8b>] _atomic_dec_and_lock+0x2b/0x50
+> Nov  8 15:08:24 linux kernel:  [<c01793e3>] mntput_no_expire+0x13/0x70
+> Nov  8 15:08:24 linux kernel:  [<c016bbe0>] __link_path_walk+0x3f0/0xef0
+> Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
+> Nov  8 15:08:24 linux kernel:  [<c01f8841>] nfs_permission+0xb1/0x160
+> Nov  8 15:08:24 linux kernel:  [<c01f8790>] nfs_permission+0x0/0x160
+> Nov  8 15:08:24 linux kernel:  [<c016b23a>] permission+0xba/0xe0
+> Nov  8 15:08:24 linux kernel:  [<c016bb83>] __link_path_walk+0x393/0xef0
+> Nov  8 15:08:24 linux kernel:  [<c01793e3>] mntput_no_expire+0x13/0x70
+> Nov  8 15:08:24 linux kernel:  [<c016c74b>] link_path_walk+0x6b/0xd0
+> Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
+> Nov  8 15:08:24 linux kernel:  [<c01f8790>] nfs_permission+0x0/0x160
+> Nov  8 15:08:24 linux kernel:  [<c016b23a>] permission+0xba/0xe0
+> Nov  8 15:08:24 linux kernel:  [<c016e511>] vfs_symlink+0x91/0x100
+> Nov  8 15:08:24 linux kernel:  [<c016e5f7>] sys_symlinkat+0x77/0xc0
+> Nov  8 15:08:24 linux kernel:  [<c016e651>] sys_symlink+0x11/0x20
+> Nov  8 15:08:24 linux kernel:  [<c0102b4d>] sysenter_past_esp+0x56/0x79
+> Nov  8 15:08:24 linux kernel: Code: e8 31 16 ce ff 83 c4 10 eb a2 8d b6 00 00 00 00 8d bf 00 00 00 00 56 53 8b 70 28 89 c3 f6 05 68 da 67 c0 10 75 16 8b 56 08 89 d8 <ff> 52 14 8
+> 5 c0 78 04 5b 5e c3 90 89 43 18 5b 5e c3 56 8b 40 10
+> Nov  8 15:08:24 linux kernel: EIP: [<c043d3d5>] rpcauth_refreshcred+0x15/0x50 SS:ESP 0068:d8ccfd00
+> 
+> Anyone knows what could be going wrong ?
 
+regards,
 -- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

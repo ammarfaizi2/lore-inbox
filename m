@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752892AbWKHBKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752129AbWKHBXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752892AbWKHBKw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 20:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753117AbWKHBKw
+	id S1752129AbWKHBXc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 20:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753808AbWKHBXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 20:10:52 -0500
-Received: from gw.goop.org ([64.81.55.164]:31921 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1752892AbWKHBKw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 20:10:52 -0500
-Message-ID: <45512E9C.9030702@goop.org>
-Date: Tue, 07 Nov 2006 17:10:52 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+	Tue, 7 Nov 2006 20:23:32 -0500
+Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:56266 "EHLO
+	pne-smtpout4-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1752129AbWKHBXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 20:23:31 -0500
+Message-ID: <455130DB.3020307@trn.iki.fi>
+Date: Wed, 08 Nov 2006 03:20:27 +0200
+From: =?UTF-8?B?TGFzc2UgS8Okcmtrw6RpbmVu?= <tronic+bpsk@trn.iki.fi>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060605)
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix kunmap_atomic's use of kpte_clear_flush()
-References: <4551232A.4020203@goop.org> <1162946572.29130.9.camel@localhost.localdomain>
-In-Reply-To: <1162946572.29130.9.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andreas Schwab <schwab@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Mapping between ata9 and /dev/sd[a-z]
+References: <454FD142.5060103@trn.iki.fi> <jefycwukzg.fsf@sykes.suse.de>
+In-Reply-To: <jefycwukzg.fsf@sykes.suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig3A9CCD3E31386F58F94ECE05"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> On Tue, 2006-11-07 at 16:22 -0800, Jeremy Fitzhardinge wrote:
->   
->> kunmap_atomic() will call kpte_clear_flush with vaddr/ptep arguments
->> which don't correspond if the vaddr is just a normal lowmem address
->> (ie, not in the KMAP area).  This patch makes sure that the pte is
->> only cleared if kmap area was actually used for the mapping.
->>     
->
-> Or in other words, if kmap_atomic() does nothing, kunmap_atomic() should
-> do nothing.
->   
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig3A9CCD3E31386F58F94ECE05
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Sure.  I guess there's no particular reason why kmap_atomic() couldn't 
-always map, but I guess avoid the pagetable updates is worthwhile.
+>> I am getting errors from ata9 (and ata10), but how can I find which HD=
+D
+>> it is? The kernel log never mentions ataN and its associated device na=
+me
+>> together.
+>=20
+> Try looking in /sys for clues.
 
-    J
+Couldn't find any references to ataN from there.
+
+- Tronic -
+
+
+
+--------------enig3A9CCD3E31386F58F94ECE05
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFUTDfOBbAI1NE8/ERAgqPAKCtJbMKWeoJRDA9xBE4JpeOvpRoBQCfT8Km
+4t9kwH9cPskS6wsHMjeWTNk=
+=tN6w
+-----END PGP SIGNATURE-----
+
+--------------enig3A9CCD3E31386F58F94ECE05--

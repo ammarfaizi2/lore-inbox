@@ -1,56 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161431AbWKHSkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754652AbWKHSev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161431AbWKHSkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 13:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161483AbWKHSkW
+	id S1754652AbWKHSev (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:34:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754651AbWKHSev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 13:40:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19887 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161431AbWKHSkV (ORCPT
+	Wed, 8 Nov 2006 13:34:51 -0500
+Received: from pat.uio.no ([129.240.10.4]:2251 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1754650AbWKHSeu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 13:40:21 -0500
-Date: Wed, 8 Nov 2006 10:36:54 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>, Jeff Chua <jeff.chua.linux@gmail.com>
-cc: Matthew Wilcox <matthew@wil.cx>, Andi Kleen <ak@suse.de>,
-       Aaron Durbin <adurbin@google.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
-In-Reply-To: <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0611081010120.3667@g5.osdl.org>
-References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com>
- <20061107171143.GU27140@parisc-linux.org> <200611080839.46670.ak@suse.de>
- <20061108122237.GF27140@parisc-linux.org> <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
- <20061108172650.GC4729@stusta.de> <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org>
- <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Nov 2006 13:34:50 -0500
+Subject: Re: [PATCH] Fix SUNRPC wakeup/execute race condition
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel@vger.kernel.org, NFS V4 Mailing List <nfsv4@linux-nfs.org>,
+       "J. Bruce Fields" <bfields@citi.umich.edu>
+In-Reply-To: <1162748568.22904.28.camel@leto.intern.saout.de>
+References: <1157576316.3292.13.camel@dyn9047022153>
+	 <20060907150146.GA22586@fieldses.org>
+	 <1157731084.3292.25.camel@dyn9047022153>
+	 <20060908160432.GB19234@fieldses.org>
+	 <1162158228.11247.4.camel@leto.intern.saout.de>
+	 <1162159282.11247.17.camel@leto.intern.saout.de>
+	 <1162321027.23543.6.camel@leto.intern.saout.de>
+	 <1162324141.23543.23.camel@leto.intern.saout.de>
+	 <1162325490.5614.82.camel@lade.trondhjem.org>
+	 <1162602386.26794.5.camel@leto.intern.saout.de>
+	 <1162688688.5153.26.camel@leto.intern.saout.de>
+	 <1162709441.6271.62.camel@lade.trondhjem.org>
+	 <1162722728.19690.4.camel@leto.intern.saout.de>
+	 <1162746093.5652.39.camel@lade.trondhjem.org>
+	 <1162748568.22904.28.camel@leto.intern.saout.de>
+Content-Type: text/plain
+Date: Wed, 08 Nov 2006 10:34:29 -0800
+Message-Id: <1163010869.15467.1.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.75, required 12,
+	autolearn=disabled, AWL 1.25, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 8 Nov 2006, Linus Torvalds wrote:
+On Sun, 2006-11-05 at 18:42 +0100, Christophe Saout wrote:
+> On Sun, 2006-11-05 at 12:01 -0500, Trond Myklebust wrote:
+> > On Sun, 2006-11-05 at 11:32 +0100, Christophe Saout wrote:
+> > > Am Sonntag, den 05.11.2006, 01:50 -0500 schrieb Trond Myklebust:
+> > > 
+> > > > > --- linux-2.6.18/net/sunrpc/sched.c	2006-09-20 05:42:06.000000000 +0200
+> > > > > +++ linux/net/sunrpc/sched.c	2006-11-04 20:38:56.000000000 +0100
+> > > > > @@ -302,12 +302,9 @@ EXPORT_SYMBOL(__rpc_wait_for_completion_
+> > > > >   */
+> > > > >  static void rpc_make_runnable(struct rpc_task *task)
+> > > > >  {
+> > > > > -	int do_ret;
+> > > > > -
+> > > > >  	BUG_ON(task->tk_timeout_fn);
+> > > > > -	do_ret = rpc_test_and_set_running(task);
+> > > > >  	rpc_clear_queued(task);
+> > > > > -	if (do_ret)
+> > > > > +	if (rpc_test_and_set_running(task))
+> > > > >  		return;
+> > > > >  	if (RPC_IS_ASYNC(task)) {
+> > > > >  		int status;
+> > > > 
+> > > > This fix looks wrong to me. If we've made it to 'rpc_make_runnable',
+> > > > then the rpc_task will have already been removed from the
+> > > > rpc_wait_queue.
+> > > 
+> > > I just flipped the two lines, changed nothing else. Why exactly do you
+> > > think that's wrong, I don't see anything particular that could be broken
+> > > by chaning the ordering. Anyway, the fsstress has been running for 18
+> > > hours straight now without showing any signs of problems.
+> > 
+> > OK. I finally see the bug that you've spotted. The problem occurs when
+> > __rpc_execute clears RPC_TASK_RUNNING after rpc_make_runnable has called
+> > rpc_test_and_set_running, but before it has called rpc_clear_queued.
 > 
-> I'm going to revert that totally bogus commit that added that broken 
-> "pci_mmcfg_insert_resources()" function.
+> Yes, exactly.
+> 
+> > However if you just swap the two lines, you run into a new race:
+> > __rpc_execute() may just put the rpc_task back to sleep before your call
+> > to rpc_test_and_set_running() finishes executing.
+> > We therefore need an extra test for RPC_IS_QUEUED() in
+> > rpc_make_runnable().
+> 
+> Damn, you're right. I missed that one. What about that:
+> 
+> ----
+> The sunrpc scheduler contains a race condition that can let an RPC
+> task end up being neither running nor on any wait queue. The race takes
+> place between rpc_make_runnable (called from rpc_wake_up_task) and
+> __rpc_execute under the following condition:
+> 
+> First __rpc_execute calls tk_action which puts the task on some wait
+> queue. The task is dequeued by another process before __rpc_execute
+> continues its execution. While executing rpc_make_runnable exactly after
+> setting the task `running' bit and before clearing the `queued' bit
+> __rpc_execute picks up execution, clears `running' and subsequently
+> both functions fall through, both under the false assumption somebody
+> else took the job.
+> 
+> Swapping rpc_test_and_set_running with rpc_clear_queued in
+> rpc_make_runnable fixes that hole. This introduces another possible
+> race condition that can be handled by checking for `queued' after
+> setting the `running' bit.
+> 
+> Bug noticed on a 4-way x86_64 system under XEN with an NFSv4 server
+> on the same physical machine, apparently one of the few ways to hit
+> this race condition at all.
+> 
+> Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
+> Cc: J. Bruce Fields <bfields@citi.umich.edu>
+> Signed-off-by: Christophe Saout <christophe@saout.de>
+> 
+> --- linux-2.6.18/net/sunrpc/sched.c	2006-09-20 05:42:06.000000000 +0200
+> +++ linux/net/sunrpc/sched.c	2006-11-04 20:38:56.000000000 +0100
+> @@ -302,12 +302,15 @@ EXPORT_SYMBOL(__rpc_wait_for_completion_
+>   */
+>  static void rpc_make_runnable(struct rpc_task *task)
+>  {
+> -	int do_ret;
+> -
+>  	BUG_ON(task->tk_timeout_fn);
+> -	do_ret = rpc_test_and_set_running(task);
+>  	rpc_clear_queued(task);
+> -	if (do_ret)
+> +	if (rpc_test_and_set_running(task))
+>  		return;
+> +	/* We might have raced */
+> +	if (RPC_IS_QUEUED(task)) {
+> +		rpc_clear_running(task);
+> +		return;
+> +	}
+>  	if (RPC_IS_ASYNC(task)) {
+>  		int status;
 
-Pushed out. Jeff, can you verify that current git does the right thing.
+This looks OK.
 
-Andi - I also ported the x86 io-apic cleanup and fixes to x86-64. I'll 
-push those out too once I've verified them on the machines I have access 
-to.
+> -	int do_ret;
+> -
+>  	BUG_ON(task->tk_timeout_fn);
+> -	do_ret = rpc_test_and_set_running(task);
+>  	rpc_clear_queued(task);
+> -	if (do_ret)
+> +	if (rpc_test_and_set_running(task))
+>  		return;
+> +	/* We might have raced with __rpc_execute */
+> +	if (RPC_IS_QUEUED(task)) {
+> +		rpc_clear_running(task);
+> +		return;
+> +	}
+>  	if (RPC_IS_ASYNC(task)) {
+>  		int status;
 
-I'm still not 100% happy about the io-apic thing (for example, I was 
-thinking that maybe we should just automatically choose the order of 
-writes in apic_write_entry() by just checking whether "mask" was set or 
-not), but the code really is cleaner, and on x86 it was verified to fix 
-some things.
+A cut'n paste error?
 
-Keeping in sync is still better than having two different approaches, one 
-of which was confirmed broken. And the i386 code is definitely more tested 
-over the years than the x86-64 code could ever have hoped to be, so going 
-back to the original ordering makes sense.
+Cheers,
+  Trond
 
-		Linus

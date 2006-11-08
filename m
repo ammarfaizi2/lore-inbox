@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965915AbWKHPO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965914AbWKHPLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965915AbWKHPO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 10:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965918AbWKHPO5
+	id S965914AbWKHPLu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 10:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965916AbWKHPLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 10:14:57 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8130 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965915AbWKHPO4
+	Wed, 8 Nov 2006 10:11:49 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:15286 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S965914AbWKHPLt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 10:14:56 -0500
-Subject: Re: VIA IRQ quirk missing PCI ids since 2.6.16.17
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wilco Beekhuizen <wilcobeekhuizen@gmail.com>
-Cc: Dave Jones <davej@redhat.com>,
-       Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <6c4c86470611080054r21f5c632u674da23bf3d1cc32@mail.gmail.com>
-References: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com>
-	 <1162817254.5460.4.camel@localhost.localdomain>
-	 <1162847625.10086.36.camel@localhost.localdomain>
-	 <20061107012519.GC25719@redhat.com>
-	 <1162863274.11073.41.camel@localhost.localdomain>
-	 <6c4c86470611080054r21f5c632u674da23bf3d1cc32@mail.gmail.com>
-Content-Type: text/plain
+	Wed, 8 Nov 2006 10:11:49 -0500
+Message-ID: <4551F3A6.8040807@gmail.com>
+Date: Wed, 08 Nov 2006 16:11:34 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Stephen.Clark@seclark.us
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
+Subject: Re: New laptop - problems with linux
+References: <4551EC86.5010600@seclark.us>
+In-Reply-To: <4551EC86.5010600@seclark.us>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Date: Wed, 08 Nov 2006 15:19:08 +0000
-Message-Id: <1162999148.23956.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-11-08 am 09:54 +0100, ysgrifennodd Wilco Beekhuizen:
-> Why was this changed in the stable kernel anyway, especially in a
-> micro-stability update? It seems to me it breaks more than it fixes.
+Stephen Clark wrote:
+> Hi list,
+> 
+> I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core
+> 2 Duo T560,0 2gb pc5400 memory.
+> From checking around it appeared all the
+> hardware was well supported by linux - but I am having major problems.
+> 
+> 
+> 1. neither the wireless lan Intel pro 3945ABG or built in ethernet
+> RTL-8169C are detected and configured
 
-Because it suffered from an acute case of being wrong. The blanket patch
-proposed by Sergio is also wrong. Both break valid correct and working
-systems while fixing some others.
+If you searched the web, you would get ipw3945 sourceforge homepage in return --
+it's not in the vanilla kernel for the time being.
 
-The draft patch I posted fixes up precisely the right devices on
-precisely the right bridges and nothing else which should mean we now
-have a patch that gets all cases right.
+Is r8169 module loaded?
 
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

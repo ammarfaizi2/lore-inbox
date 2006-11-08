@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965888AbWKHOoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965823AbWKHOft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965888AbWKHOoV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965833AbWKHOgO
+	id S965823AbWKHOft (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965819AbWKHOfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:36:14 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:56070 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S965816AbWKHOf5 (ORCPT
+	Wed, 8 Nov 2006 09:35:46 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:50182 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S965816AbWKHOfR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:35:57 -0500
+	Wed, 8 Nov 2006 09:35:17 -0500
 From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 Organization: tuxland
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 11/33] usb: quickcam_messenger free urb cleanup
-Date: Wed, 8 Nov 2006 15:35:02 +0100
+Subject: [PATCH 5/33] usb: cinergyT2 free kill urb cleanup
+Date: Wed, 8 Nov 2006 15:34:22 +0100
 User-Agent: KMail/1.9.5
 Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        linux-usb-devel@lists.sourceforge.net
@@ -24,25 +24,36 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611081535.04282.m.kozlowski@tuxland.pl>
+Message-Id: <200611081534.23484.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
 - usb_free_urb() cleanup
+- usb_kill_urb() cleanup
 
 Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
---- linux-2.6.19-rc4-orig/drivers/media/video/usbvideo/quickcam_messenger.c	2006-11-06 17:07:45.000000000 +0100
-+++ linux-2.6.19-rc4/drivers/media/video/usbvideo/quickcam_messenger.c	2006-11-06 19:58:08.000000000 +0100
-@@ -190,8 +190,7 @@ static int qcm_alloc_int_urb(struct qcm 
+--- linux-2.6.19-rc4-orig/drivers/media/dvb/cinergyT2/cinergyT2.c	2006-11-06 17:07:38.000000000 +0100
++++ linux-2.6.19-rc4/drivers/media/dvb/cinergyT2/cinergyT2.c	2006-11-07 16:52:07.000000000 +0100
+@@ -275,8 +275,7 @@ static void cinergyt2_free_stream_urbs (
+ 	int i;
  
- static void qcm_free_int(struct qcm *cam)
- {
--	if (cam->button_urb)
--		usb_free_urb(cam->button_urb);
-+	usb_free_urb(cam->button_urb);
+ 	for (i=0; i<STREAM_URB_COUNT; i++)
+-		if (cinergyt2->stream_urb[i])
+-			usb_free_urb(cinergyt2->stream_urb[i]);
++		usb_free_urb(cinergyt2->stream_urb[i]);
+ 
+ 	usb_buffer_free(cinergyt2->udev, STREAM_URB_COUNT*STREAM_BUF_SIZE,
+ 			    cinergyt2->streambuf, cinergyt2->streambuf_dmahandle);
+@@ -320,8 +319,7 @@ static void cinergyt2_stop_stream_xfer (
+ 	cinergyt2_control_stream_transfer(cinergyt2, 0);
+ 
+ 	for (i=0; i<STREAM_URB_COUNT; i++)
+-		if (cinergyt2->stream_urb[i])
+-			usb_kill_urb(cinergyt2->stream_urb[i]);
++		usb_kill_urb(cinergyt2->stream_urb[i]);
  }
- #endif /* CONFIG_INPUT */
  
+ static int cinergyt2_start_stream_xfer (struct cinergyt2 *cinergyt2)

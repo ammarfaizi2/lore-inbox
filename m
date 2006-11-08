@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753733AbWKHACc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753726AbWKHABo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753733AbWKHACc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 19:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753746AbWKHACc
+	id S1753726AbWKHABo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 19:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753730AbWKHABn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 19:02:32 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:5264 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1753733AbWKHACb (ORCPT
+	Tue, 7 Nov 2006 19:01:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37857 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1753725AbWKHABn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 19:02:31 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alasdair G Kergon <agk@redhat.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Date: Wed, 8 Nov 2006 01:00:17 +0100
-User-Agent: KMail/1.9.1
+	Tue, 7 Nov 2006 19:01:43 -0500
+Date: Wed, 8 Nov 2006 00:01:09 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
 Cc: Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Ingo Molnar <mingo@elte.hu>, Srinivasa DS <srinivasa@in.ibm.com>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611080005.50070.rjw@sisk.pl> <20061107234951.GD30653@agk.surrey.redhat.com>
-In-Reply-To: <20061107234951.GD30653@agk.surrey.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+       Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
+       Srinivasa DS <srinivasa@in.ibm.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061108000109.GE30653@agk.surrey.redhat.com>
+Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
+	Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org,
+	dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
+	Srinivasa DS <srinivasa@in.ibm.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611080005.50070.rjw@sisk.pl> <45511430.8030703@redhat.com> <200611080042.03563.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611080100.18290.rjw@sisk.pl>
+In-Reply-To: <200611080042.03563.rjw@sisk.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 8 November 2006 00:49, Alasdair G Kergon wrote:
-> On Wed, Nov 08, 2006 at 12:05:49AM +0100, Rafael J. Wysocki wrote:
-> > But freeze_bdev() is supposed to return the result of get_super(bdev)
-> > _unconditionally_.  Moreover, in its current form freeze_bdev() _cannot_
-> > _fail_, so I don't see how this change doesn't break any existing code.
-> > For example freeze_filesystems() (recently added to -mm) will be broken
-> > if the down_trylock() is unsuccessful.
->  
-> I hadn't noticed that -mm patch.  I'll take a look. Up to now, device-mapper 
-> (via dmsetup) and xfs (via xfs_freeze, which dates from before device-mapper
-> handled this automatically) were the only users.  Only one freeze should be
-> issued at once.  A freeze is a temporary thing, normally used while creating a
-> snapshot.  (One problem we still have is lots of old documentation on the web
-> advising people to run xfs_freeze before creating device-mapper snapshots.)
-> 
-> You're right that the down_trylock idea is more trouble than it's worth and
-> should be scrapped.
+On Wed, Nov 08, 2006 at 12:42:02AM +0100, Rafael J. Wysocki wrote:
+> On Wednesday, 8 November 2006 00:18, Eric Sandeen wrote:
+> > But, how is a stampede of fs-freezers -supposed- to work?  I could
+> > imagine something like a freezer count, and the filesystem is only
+> > unfrozen after everyone has thawed?  Or should only one freezer be
+> > active at a time... which is what we have now I guess.
+> I think it shouldn't be possible to freeze an fs more than once.
 
-Well, having looked at it once again I think I was wrong that this change would
-break freeze_filesystems(), because it only calls freeze_bdev() after checking
-if sb->s_frozen is not set to SB_FREEZE_TRANS (freeze_filesystems() is only
-called after all of the userspace processes have been frozen).
+In device-mapper today, the only way to get more than one freeze on the
+same device is to use xfs and issue xfs_freeze before creating an lvm snapshot
+(or issuing the dmsetup equivalent), and at the moment we tell people not to do
+that any more.  The device-mapper API does not permit multiple freezes of the
+same device.  (The interesting question is actually whether the request should
+be cascaded in any way when devices depend on other devices.)
 
-However, XFS_IOC_FREEZE happily returns 0 after calling freeze_bdev(),
-apparetnly assuming that it won't fail.
+Now if someone's introducing a new use for freeze_bdev, perhaps now's the time
+to revisit the semantics and allow for concurrent freeze requests.
 
-Greetings,
-Rafael
-
-
+Alasdair
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+agk@redhat.com

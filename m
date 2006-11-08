@@ -1,90 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWKHRrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754625AbWKHRrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161383AbWKHRrG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 12:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754628AbWKHRrF
+	id S1754625AbWKHRrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 12:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754623AbWKHRrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 12:47:05 -0500
+	Wed, 8 Nov 2006 12:47:16 -0500
 Received: from wr-out-0506.google.com ([64.233.184.234]:23158 "EHLO
 	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1754623AbWKHRrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 12:47:02 -0500
+	id S1754625AbWKHRrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 12:47:13 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:references:user-agent:date:from:to:cc:subject:content-disposition:message-id;
-        b=O7Vt2hycas34dDIde6GVjVxk9chYDsMw9cOfPuRworN+61aIy4SxTys0M1zPqyBVjdcZWRMcdI12MQVH87yWcQODHYQxYaAGpg7Ohb8ThHCGcEczwzFoDS7GVFgZ07bX30VmxJKZWJGiR8hKfy6LTcEMiZdXPoyUmWjnQbGVc6M=
+        b=P4NDBQBLRAy/gniKGynD1q4rk4yIXlfvf/87ynP1SzXi+5V9h9DQpvw7AtRjkkpuZE4+OXNAVTqLNXehbpxSGPLcYcZDlm8+PF/0QtRR71ZQ+CSaDg9RmAb6WMKOlxDzCUB+wgRf32Y5v9owXc4qXMqcrFuJcomGGqB2u/xxbIQ=
 References: <20061108174540.976625689@gmail.com>>
 User-Agent: quilt/0.45-1
-Date: Thu, 09 Nov 2006 02:45:44 +0900
+Date: Thu, 09 Nov 2006 02:45:45 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: [patch 3/7] fault-injection capability for kmalloc
-Content-Disposition: inline; filename=failslab.patch
-Message-ID: <45521813.412c5676.7a02.7181@mx.google.com>
+Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>
+Subject: [patch 4/7] fault-injection capability for alloc_pages()
+Content-Disposition: inline; filename=fail_alloc_pages.patch
+Message-ID: <4552181f.433fa8bd.2171.457e@mx.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Akinobu Mita <akinobu.mita@gmail.com>
 
-This patch provides fault-injection capability for kmalloc.
+This patch provides fault-injection capability for alloc_pages()
 
 Boot option:
 
-failslab=<interval>,<probability>,<space>,<times>
+fail_page_alloc=<interval>,<probability>,<space>,<times>
 
 	<interval> -- specifies the interval of failures.
 
 	<probability> -- specifies how often it should fail in percent.
 
 	<space> -- specifies the size of free space where memory can be
-		   allocated safely in bytes.
+		   allocated safely in pages.
 
 	<times> -- specifies how many times failures may happen at most.
 
 Debugfs:
 
-/debug/failslab/interval
-/debug/failslab/probability
-/debug/failslab/specifies
-/debug/failslab/times
-/debug/failslab/ignore-gfp-highmem
-/debug/failslab/ignore-gfp-wait
+/debug/fail_page_alloc/interval
+/debug/fail_page_alloc/probability
+/debug/fail_page_alloc/specifies
+/debug/fail_page_alloc/times
+/debug/fail_page_alloc/ignore-gfp-highmem
+/debug/fail_page_alloc/ignore-gfp-wait
 
 Example:
 
-	failslab=10,100,0,-1
+	fail_page_alloc=10,100,0,-1
 
-slab allocation (kmalloc(), kmem_cache_alloc(),..) fails once per 10 times.
+The page allocation (alloc_pages(), ...) fails once per 10 times.
 
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
  lib/Kconfig.debug |    7 ++++
- mm/slab.c         |   90 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 97 insertions(+)
+ mm/page_alloc.c   |   87 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 94 insertions(+)
 
-Index: 2.6-rc/mm/slab.c
+Index: 2.6-rc/lib/Kconfig.debug
 ===================================================================
---- 2.6-rc.orig/mm/slab.c
-+++ 2.6-rc/mm/slab.c
-@@ -107,6 +107,7 @@
- #include	<linux/mempolicy.h>
- #include	<linux/mutex.h>
- #include	<linux/rtmutex.h>
-+#include	<linux/fault-inject.h>
+--- 2.6-rc.orig/lib/Kconfig.debug
++++ 2.6-rc/lib/Kconfig.debug
+@@ -423,6 +423,13 @@ config FAILSLAB
+ 	help
+ 	  This option provides fault-injection capabilitiy for kmalloc.
  
- #include	<asm/uaccess.h>
- #include	<asm/cacheflush.h>
-@@ -3069,12 +3070,101 @@ static void *cache_alloc_debugcheck_afte
- #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
- #endif
++config FAIL_PAGE_ALLOC
++	bool "Fault-injection capabilitiy for alloc_pages()"
++	depends on DEBUG_KERNEL
++	select FAULT_INJECTION
++	help
++	  This option provides fault-injection capabilitiy for alloc_pages().
++
+ config FAULT_INJECTION_DEBUG_FS
+ 	bool "Debugfs entries for fault-injection capabilities"
+ 	depends on FAULT_INJECTION && SYSFS
+Index: 2.6-rc/mm/page_alloc.c
+===================================================================
+--- 2.6-rc.orig/mm/page_alloc.c
++++ 2.6-rc/mm/page_alloc.c
+@@ -40,6 +40,7 @@
+ #include <linux/sort.h>
+ #include <linux/pfn.h>
+ #include <linux/backing-dev.h>
++#include <linux/fault-inject.h>
  
-+#ifdef CONFIG_FAILSLAB
+ #include <asm/tlbflush.h>
+ #include <asm/div64.h>
+@@ -893,6 +894,89 @@ failed:
+ #define ALLOC_HIGH		0x20 /* __GFP_HIGH set */
+ #define ALLOC_CPUSET		0x40 /* check for correct cpuset */
+ 
++#ifdef CONFIG_FAIL_PAGE_ALLOC
 +
-+static struct failslab_attr {
-+
++static struct fail_page_alloc_attr {
 +	struct fault_attr attr;
 +
 +	u32 ignore_gfp_highmem;
@@ -97,105 +112,86 @@ Index: 2.6-rc/mm/slab.c
 +
 +#endif /* CONFIG_FAULT_INJECTION_DEBUG_FS */
 +
-+} failslab = {
++} fail_page_alloc = {
 +	.attr = FAULT_ATTR_INITIALIZER,
 +};
 +
-+static int __init setup_failslab(char *str)
++static int __init setup_fail_page_alloc(char *str)
 +{
-+	return setup_fault_attr(&failslab.attr, str);
++	return setup_fault_attr(&fail_page_alloc.attr, str);
 +}
-+__setup("failslab=", setup_failslab);
++__setup("fail_page_alloc=", setup_fail_page_alloc);
 +
-+static int should_failslab(struct kmem_cache *cachep, gfp_t flags)
++static int should_fail_alloc_page(gfp_t gfp_mask, unsigned int order)
 +{
-+	if (cachep == &cache_cache)
++	if (gfp_mask & __GFP_NOFAIL)
 +		return 0;
-+	if (flags & __GFP_NOFAIL)
++	if (fail_page_alloc.ignore_gfp_highmem && (gfp_mask & __GFP_HIGHMEM))
 +		return 0;
-+	if (failslab.ignore_gfp_highmem && (flags & __GFP_HIGHMEM))
-+		return 0;
-+	if (failslab.ignore_gfp_wait && (flags & __GFP_WAIT))
++	if (fail_page_alloc.ignore_gfp_wait && (gfp_mask & __GFP_WAIT))
 +		return 0;
 +
-+	return should_fail(&failslab.attr, obj_size(cachep));
++	return should_fail(&fail_page_alloc.attr, 1 << order);
 +}
 +
 +#ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
 +
-+static int __init failslab_debugfs(void)
++static int __init fail_page_alloc_debugfs(void)
 +{
 +	mode_t mode = S_IFREG | S_IRUSR | S_IWUSR;
 +	struct dentry *dir;
 +	int err;
 +
-+       	err = init_fault_attr_dentries(&failslab.attr, "failslab");
++	err = init_fault_attr_dentries(&fail_page_alloc.attr,
++				       "fail_page_alloc");
 +	if (err)
 +		return err;
-+	dir = failslab.attr.dentries.dir;
++	dir = fail_page_alloc.attr.dentries.dir;
 +
-+	failslab.ignore_gfp_wait_file =
++	fail_page_alloc.ignore_gfp_wait_file =
 +		debugfs_create_bool("ignore-gfp-wait", mode, dir,
-+				      &failslab.ignore_gfp_wait);
++				      &fail_page_alloc.ignore_gfp_wait);
 +
-+	failslab.ignore_gfp_highmem_file =
++	fail_page_alloc.ignore_gfp_highmem_file =
 +		debugfs_create_bool("ignore-gfp-highmem", mode, dir,
-+				      &failslab.ignore_gfp_highmem);
++				      &fail_page_alloc.ignore_gfp_highmem);
 +
-+	if (!failslab.ignore_gfp_wait_file ||
-+			!failslab.ignore_gfp_highmem_file) {
++	if (!fail_page_alloc.ignore_gfp_wait_file ||
++			!fail_page_alloc.ignore_gfp_highmem_file) {
 +		err = -ENOMEM;
-+		debugfs_remove(failslab.ignore_gfp_wait_file);
-+		debugfs_remove(failslab.ignore_gfp_highmem_file);
-+		cleanup_fault_attr_dentries(&failslab.attr);
++		debugfs_remove(fail_page_alloc.ignore_gfp_wait_file);
++		debugfs_remove(fail_page_alloc.ignore_gfp_highmem_file);
++		cleanup_fault_attr_dentries(&fail_page_alloc.attr);
 +	}
 +
 +	return err;
 +}
 +
-+late_initcall(failslab_debugfs);
++late_initcall(fail_page_alloc_debugfs);
 +
 +#endif /* CONFIG_FAULT_INJECTION_DEBUG_FS */
 +
-+#else /* CONFIG_FAILSLAB */
++#else /* CONFIG_FAIL_PAGE_ALLOC */
 +
-+static inline int should_failslab(struct kmem_cache *cachep, gfp_t flags)
++static inline int should_fail_alloc_page(gfp_t gfp_mask, unsigned int order)
 +{
 +	return 0;
 +}
 +
-+#endif /* CONFIG_FAILSLAB */
++#endif /* CONFIG_FAIL_PAGE_ALLOC */
 +
- static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
- {
- 	void *objp;
- 	struct array_cache *ac;
+ /*
+  * Return 1 if free pages are above 'mark'. This takes into account the order
+  * of the allocation.
+@@ -992,6 +1076,9 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
  
- 	check_irq_off();
-+
-+	if (should_failslab(cachep, flags))
+ 	might_sleep_if(wait);
+ 
++	if (should_fail_alloc_page(gfp_mask, order))
 +		return NULL;
 +
- 	ac = cpu_cache_get(cachep);
- 	if (likely(ac->avail)) {
- 		STATS_INC_ALLOCHIT(cachep);
-Index: 2.6-rc/lib/Kconfig.debug
-===================================================================
---- 2.6-rc.orig/lib/Kconfig.debug
-+++ 2.6-rc/lib/Kconfig.debug
-@@ -416,6 +416,13 @@ config LKDTM
- config FAULT_INJECTION
- 	bool
+ restart:
+ 	z = zonelist->zones;  /* the list of zones suitable for gfp_mask */
  
-+config FAILSLAB
-+	bool "Fault-injection capabilitiy for kmalloc"
-+	depends on DEBUG_KERNEL
-+	select FAULT_INJECTION
-+	help
-+	  This option provides fault-injection capabilitiy for kmalloc.
-+
- config FAULT_INJECTION_DEBUG_FS
- 	bool "Debugfs entries for fault-injection capabilities"
- 	depends on FAULT_INJECTION && SYSFS
 
 --

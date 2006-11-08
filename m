@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754439AbWKHIZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754435AbWKHIZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754439AbWKHIZk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 03:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754440AbWKHIZk
+	id S1754435AbWKHIZo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 03:25:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754438AbWKHIZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 03:25:40 -0500
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:57688 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1754424AbWKHIZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 03:25:39 -0500
-Date: Wed, 8 Nov 2006 10:25:36 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-input@atrey.karlin.mff.cuni.cz,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: DMA APIs gumble grumble
-Message-ID: <20061108082536.GA3405@rhun.haifa.ibm.com>
-References: <1162950877.28571.623.camel@localhost.localdomain>
+	Wed, 8 Nov 2006 03:25:44 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:59557 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1754424AbWKHIZn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 03:25:43 -0500
+Date: Wed, 8 Nov 2006 11:24:44 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take23 2/5] kevent: Core files.
+Message-ID: <20061108082444.GC2447@2ka.mipt.ru>
+References: <1162918248891@2ka.mipt.ru> <11629182482529@2ka.mipt.ru> <20061107141657.b2378218.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <1162950877.28571.623.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061107141657.b2378218.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 08 Nov 2006 11:24:44 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 12:54:37PM +1100, Benjamin Herrenschmidt wrote:
+On Tue, Nov 07, 2006 at 02:16:57PM -0800, Andrew Morton (akpm@osdl.org) wrote:
+> On Tue, 7 Nov 2006 19:50:48 +0300
+> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> 
+> > This patch includes core kevent files:
+> >  * userspace controlling
+> >  * kernelspace interfaces
+> >  * initialization
+> >  * notification state machines
+> 
+> I fixed up all the rejects, but your syscall numbers changed.  Please
+> always raise patches against the latest kernel.
 
->  - For platforms like powerpc where I can have multiple busses on
-> different IOMMU's and with possibly different DMA ops, I really need to
-> have a per-device data structure for use by the DMA ops (in fact, in my
-> case, containing the DMA ops themselves). Right now, I defined a notion
-> of "device extension" (struct device_ext) that my current implementation
-> puts in device->firmware_data (don't look for it upstream, it's all
-> patches queuing up for 2.6.20 and about to go into powerpc.git), but
-> that I'd like to have flat in struct device instead. Would it be agreed
-> that linux/device.h includes itself an asm/device.h which contains a
-> definition for a struct device_ext that is within struct device ? That
-> would also avoid a pointer indirection which is a good thing for DMA
-> operations
+Will do. NUmbers actually are the same, but added new syscall which was
+against old tree.
+Thanks Andrew.
 
-I want multiple dma_ops for Calgary on x86-64, so strong thumbs up for
-doing this in a generic manner. device_ext kinda sucks as a name,
-though... if it's used for just dma_ops, how about device_dma_ops?
-
-I agree with the rest of your suggestions too, FWIW.
-
-Cheers,
-Muli
+-- 
+	Evgeniy Polyakov

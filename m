@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422717AbWKHTzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422751AbWKHT52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422717AbWKHTzT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422718AbWKHTzT
+	id S1422751AbWKHT52 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422759AbWKHT52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:55:19 -0500
-Received: from rune.pobox.com ([208.210.124.79]:31366 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S1422717AbWKHTzQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:55:16 -0500
-Date: Wed, 8 Nov 2006 13:55:11 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: [PATCH] nvidiafb: fix unreachable code in nv10GetConfig
-Message-ID: <20061108195511.GK17028@localdomain>
+	Wed, 8 Nov 2006 14:57:28 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:64740 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1422751AbWKHT51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 14:57:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=DHzzX+LtajolkzU+NxOBiHHVRmHbE7BqBSdVhblWiXiHFaEai4eGkrj+rkQqhqLmJW6+cvxbyhaS9ownP/ThY4TTn0mLKJfxI6GwqiUtsLvNZt/R8ynJ+A0yAZCflBZvqVJWF84+a4fjt6aF/lfbxV6LR9ItXzrmT9fZ04m/e5U=
+Date: Wed, 8 Nov 2006 20:57:33 +0100
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pci quirks: Sort out the VIA mess once and for all ?(hopefully)
+Message-ID: <20061108195732.GA11067@dreamland.darkstar.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1163003156.23956.40.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix binary/logical operator typo which leads to unreachable code.
-Noticed while looking at other issues; I don't have the relevant
-hardware to test this.
+Alan Cox <alan@lxorguk.ukuu.org.uk> ha scritto:
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc4-mm1/include/linux/pci.h linux-2.6.19-rc4-mm1/include/linux/pci.h
+> --- linux.vanilla-2.6.19-rc4-mm1/include/linux/pci.h    2006-10-31 21:11:50.000000000 +0000
+> +++ linux-2.6.19-rc4-mm1/include/linux/pci.h    2006-11-07 10:07:06.000000000 +0000
+> @@ -389,6 +390,21 @@
+>        .vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
+>        .subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+> 
+> +/**
+> + * PCI_VDEVICE - macro used to describe a specific pci device in short form
+> + * @vend: the vendor name
+> + * @dev: the 16 bit PCI Device ID
+> + *
+> + * This macro is used to create a struct pci_device_id that matches a
+> + * specific PCI device.  The vendor, device, subvendor, and subdevice
+> + * fields will be set to PCI_ANY_ID. The macro allows the next field
 
+Hello Alan,
+the comment doesn't match the macro: vendor and device are passed by the
+caller, they're not PCI_ANY_ID.
 
-Signed-off-by: Nathan Lynch <ntl@pobox.com>
+> + * to follow as the device private data.
+> + */
+> + 
+> +#define PCI_VDEVICE(vendor, device)            \
+> +       PCI_VENDOR_ID_##vendor, (device),       \
+> +       PCI_ANY_ID, PCI_ANY_ID, 0, 0
+> +
+> /* these external functions are only available when PCI support is enabled */
+> #ifdef CONFIG_PCI
 
---- linux-2.6-powerpc.git.orig/drivers/video/nvidia/nv_setup.c
-+++ linux-2.6-powerpc.git/drivers/video/nvidia/nv_setup.c
-@@ -262,7 +262,7 @@ static void nv10GetConfig(struct nvidia_
- #endif
- 
- 	dev = pci_find_slot(0, 1);
--	if ((par->Chipset && 0xffff) == 0x01a0) {
-+	if ((par->Chipset & 0xffff) == 0x01a0) {
- 		int amt = 0;
- 
- 		pci_read_config_dword(dev, 0x7c, &amt);
+Luca
+-- 
+Recursion n.:
+	See Recursion.

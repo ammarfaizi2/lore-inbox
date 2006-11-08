@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422626AbWKHT2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422627AbWKHTeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422626AbWKHT2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:28:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161721AbWKHT2X
+	id S1422627AbWKHTeu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161727AbWKHTeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:28:23 -0500
-Received: from mga05.intel.com ([192.55.52.89]:53766 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1161694AbWKHT2V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:28:21 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,401,1157353200"; 
-   d="scan'208"; a="13405789:sNHT19614699"
-Subject: Re: 2.6.19-rc1: Volanomark slowdown
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: Olaf Kirch <okir@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       davem@sunset.davemloft.net, kuznet@ms2.inr.ac.ru,
-       netdev@vger.kernel.org
-In-Reply-To: <20061108162955.GA4364@suse.de>
-References: <1162924354.10806.172.camel@localhost.localdomain>
-	 <1163001318.3138.346.camel@laptopd505.fenrus.org>
-	 <20061108162955.GA4364@suse.de>
+	Wed, 8 Nov 2006 14:34:50 -0500
+Received: from www.osadl.org ([213.239.205.134]:36576 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161725AbWKHTet (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 14:34:49 -0500
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
+	[2.6.18-rc4-mm1]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061107222711.GA22612@rhlx01.hs-esslingen.de>
+References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
+	 <1162830033.4715.201.camel@localhost.localdomain>
+	 <20061106205825.GA26755@rhlx01.hs-esslingen.de>
+	 <200611070141.16593.len.brown@intel.com> <20061107080733.GB9910@elte.hu>
+	 <1162887935.4715.349.camel@localhost.localdomain>
+	 <20061107091628.GA5399@rhlx01.hs-esslingen.de>
+	 <1162891737.4715.354.camel@localhost.localdomain>
+	 <1162892758.4715.362.camel@localhost.localdomain>
+	 <20061107222711.GA22612@rhlx01.hs-esslingen.de>
 Content-Type: text/plain
-Organization: Intel
-Date: Wed, 08 Nov 2006 10:38:52 -0800
-Message-Id: <1163011132.10806.189.camel@localhost.localdomain>
+Date: Wed, 08 Nov 2006 20:36:59 +0100
+Message-Id: <1163014620.8335.46.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 17:29 +0100, Olaf Kirch wrote:
-
-> Is it proven that the number of ACKs actually cause bandwidth problems?
-> I found Volanomark to exercise the scheduler more than anything else,
-> so maybe the slowdown, while triggered by an increased number of ACKs,
-> is caused by something else entirely.
+On Tue, 2006-11-07 at 23:27 +0100, Andreas Mohr wrote:
+> I applied the patch, the changes *are* in the tree and I did create and
+> install a new image (with CONFIG_NO_HZ re-enabled and C1 hard-wiring removed),
+> but it failed again, completely. The usual hang during boot with
+> keyboard activity required, and then it didn't even manage to finish booting
+> (I probably was too slow in generating the necessary amount of events).
 > 
+> Let me think a bit about that stuff, maybe I'll be able to figure out what's
+> happening on my system. Or any other ideas?
+> (since I would like to somehow get this resolved without less than perfect
+> workarounds if possible)
 
-The patch in question affects purely TCP and not the scheduler.  I don't
-think the scheduler has anything to do with the slowdown seen after
-the patch is applied.
+Yes, I'm going to drop the detection as it can never be perfect and
+enforce the PIT usage on UP boxen, as it seems that the lapic / BIOS
+crap is more or less unfixable. Working on a patch against rc5-mm1 right
+now.
 
-The total number of messages being exchanged around the chatrooms in 
-Volanomark remain unchanged.  But ACKS increase by 3.5 times and
-segments received increase by 38% from netstat.  
+	tglx
 
-ACK is comparable in size to the actual Volanomark messages as 
-those are  pretty small (<100 byte).
 
-So I think it is reasonable to conclude that the increase in TCP traffic
-reduce the bandwidth and throughput in Volanomark.
-
-However, Volanomark is just a benchmark to alert us to changes.  
-If in real applications with small segment, this patch is 
-needed to fix congestion window adjustment as Dave pointed 
-out, and impact on bandwidth not as important, so be it.
-
-Tim

@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965563AbWKHMEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754551AbWKHMG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965563AbWKHMEo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 07:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754545AbWKHMEo
+	id S1754551AbWKHMG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 07:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754549AbWKHMG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 07:04:44 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38368 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1754537AbWKHMEo (ORCPT
+	Wed, 8 Nov 2006 07:06:29 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:64137 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1754548AbWKHMG2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 07:04:44 -0500
-Date: Wed, 8 Nov 2006 13:04:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Cc: "Robin H. Johnson" <robbat2@gentoo.org>, linux-kernel@vger.kernel.org
-Subject: Re: e1000/ICH8LAN weirdness - no ethtool link until initially forced up
-Message-ID: <20061108120407.GA9506@elf.ucw.cz>
-References: <20061106013153.GN15897@curie-int.orbis-terrarum.net> <20061107071449.GB21655@elf.ucw.cz> <4550AB7A.10508@intel.com>
-MIME-Version: 1.0
+	Wed, 8 Nov 2006 07:06:28 -0500
+Date: Wed, 8 Nov 2006 13:05:25 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: mm-commits@vger.kernel.org, tglx@linutronix.de,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: + i386-apic-cleanup.patch added to -mm tree
+Message-ID: <20061108120525.GA19843@elte.hu>
+References: <200611012045.kA1KjIdp018937@shell0.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4550AB7A.10508@intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <200611012045.kA1KjIdp018937@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >>This behavior differs from every other network card, and is also present 
-> >>in the
-> >>7.3* version of the driver from sourceforge.
-> >>
-> >>I think the e1000 should try to raise the link during the probe, so that 
-> >>it
-> >>works properly, without having to set ifconfig ethX up first.
-> >
-> >I think you should cc e1000 maintainers, and perhaps provide a patch....
+* akpm@osdl.org <akpm@osdl.org> wrote:
+
+> Subject: i386/apic: Code cleanup, comment fixes
+> From: Thomas Gleixner <tglx@linutronix.de>
 > 
-> I've read it and not come up with an answer due to some other issues at 
-> hand. E1000 hardware works differently and this has been asked before, but 
-> the cards itself are in low power state when down. Changing this to bring 
-> up the link would make the card start to consume lots more power, which 
-> would automatically suck enormously for anyone using a laptop.
+> The apic code is quite unstructured and missing a lot of comment.
+> 
+> - Restructure the code into helper functions, timer, setup/shutdown,
+>   interrupt and power management blocks. 
+> - Fixup comments.
+> - Namespace fixups
+> - Inline helpers for version and is_integrated
+> - Combine the ack_bad_irq functions
+> 
+> No functional changes.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-Well, maybe E1000 should behave as the other cards behave, and
-different solution needs to be found for power saving? ifconfig eth0
-suspend?
+very nice cleanup!
 
-									Pavel
- 
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+	Ingo

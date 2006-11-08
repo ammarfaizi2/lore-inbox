@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754660AbWKHUOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422773AbWKHUJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754660AbWKHUOO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754661AbWKHUOO
+	id S1422773AbWKHUJI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 15:09:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422791AbWKHUJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:14:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62929 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1754660AbWKHUON (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:14:13 -0500
-Date: Wed, 8 Nov 2006 12:13:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [PATCH] nvidiafb: fix unreachable code in nv10GetConfig
-Message-Id: <20061108121311.29dd0bda.akpm@osdl.org>
-In-Reply-To: <20061108195511.GK17028@localdomain>
-References: <20061108195511.GK17028@localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 8 Nov 2006 15:09:08 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:39927 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422773AbWKHUJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 15:09:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Aj9vqHtyMbjlyyJCBUpWFmXdPJ8Kb10nG0PU0xT11tM9nbsggrNqYKX3ieoh5njeNIBe5n1dx7cZdhBPSqZTGaW+Fzfa2ZXUrS3BoUvQlkws8WWg6/q2VfHaEahCs67/4cHt2mQJXrm8o32owyLu1OPtSwzsbbbLW+t/KAuyLxo=
+Message-ID: <9a8748490611081209s37e5bfa7m2ddb49a23288ffbd@mail.gmail.com>
+Date: Wed, 8 Nov 2006 21:09:04 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
+Subject: Re: How to compile module params into kernel?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <02fd01c70370$d9af6700$020120ac@Jocke>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <9a8748490611081105j5ca1d24ahd49c6d9ea7d980d3@mail.gmail.com>
+	 <02fd01c70370$d9af6700$020120ac@Jocke>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2006 13:55:11 -0600
-Nathan Lynch <ntl@pobox.com> wrote:
+On 08/11/06, Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+> > -----Original Message-----
+> > From: Jesper Juhl [mailto:jesper.juhl@gmail.com]
+> >
+> > On 08/11/06, Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+> > > Instead of passing a module param on the cmdline I want to
+> > compile that
+> > > into
+> > > the kernel, but I can't figure out how.
+> > >
+> > > The module param I want compile into kernel is
+> > > rtc-ds1307.force=0,0x68
+> > >
+> > > This is for an embeddet target that doesn't have loadable module
+> > > support.
+> > >
+> > You could edit the module source and hardcode default values.
+> >
+>
+> Yes, but I don't want to do that since it makes maintance
+> harder.
+>
+Well, as far as I know, there's no way to specify default module
+options at compile time. The defaults are set in the module source and
+are modifiable at module load time or by setting options on the kernel
+command line at boot tiem. So, if that's no good for you I don't see
+any other way except modifying the source to hardcode new defaults.
 
-> Fix binary/logical operator typo which leads to unreachable code.
-> Noticed while looking at other issues; I don't have the relevant
-> hardware to test this.
-> 
-> 
-> Signed-off-by: Nathan Lynch <ntl@pobox.com>
-> 
-> --- linux-2.6-powerpc.git.orig/drivers/video/nvidia/nv_setup.c
-> +++ linux-2.6-powerpc.git/drivers/video/nvidia/nv_setup.c
-> @@ -262,7 +262,7 @@ static void nv10GetConfig(struct nvidia_
->  #endif
->  
->  	dev = pci_find_slot(0, 1);
-> -	if ((par->Chipset && 0xffff) == 0x01a0) {
-> +	if ((par->Chipset & 0xffff) == 0x01a0) {
->  		int amt = 0;
->  
->  		pci_read_config_dword(dev, 0x7c, &amt);
-
-That looks like a pretty significant bug.  It'll cause the kernel to
-potentially map the wrong amount of memory for all cards except the
-NV_ARCH_04 type.  Has been there for over a year though.  hmm..
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

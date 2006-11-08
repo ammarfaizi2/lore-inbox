@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422702AbWKHTvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161725AbWKHTwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422702AbWKHTvi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754659AbWKHTvi
+	id S1161725AbWKHTwg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754659AbWKHTwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:51:38 -0500
-Received: from www.osadl.org ([213.239.205.134]:60127 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1754658AbWKHTvh (ORCPT
+	Wed, 8 Nov 2006 14:52:36 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20170 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1754658AbWKHTwf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:51:37 -0500
-Subject: Re: AMD X2 unsynced TSC fix?
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: sergio@sergiomb.no-ip.org
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, Andi Kleen <ak@suse.de>,
-       Lee Revell <rlrevell@joe-job.com>, Chris Friesen <cfriesen@nortel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, len.brown@intel.com,
-       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <1162945339.4455.12.camel@monteirov>
-References: <1161969308.27225.120.camel@mindpipe>
-	 <1162009373.26022.22.camel@localhost.localdomain>
-	 <1162177848.2914.13.camel@localhost.portugal>
-	 <200610301623.14535.ak@suse.de>
-	 <1162253008.2999.9.camel@localhost.portugal>
-	 <20061030184155.A3790@unix-os.sc.intel.com>
-	 <1162345608.2961.7.camel@localhost.portugal>
-	 <20061031184411.E3790@unix-os.sc.intel.com>
-	 <1162945339.4455.12.camel@monteirov>
-Content-Type: text/plain
-Date: Wed, 08 Nov 2006 20:53:48 +0100
-Message-Id: <1163015628.8335.52.camel@localhost.localdomain>
+	Wed, 8 Nov 2006 14:52:35 -0500
+Date: Wed, 8 Nov 2006 11:50:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: Andrew Victor <andrew@sanpeople.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [-mm patch 0/2] MACB driver update
+Message-Id: <20061108115039.58e7f6f5.akpm@osdl.org>
+In-Reply-To: <20061108203358.558c28d3@cad-250-152.norway.atmel.com>
+References: <20061108203358.558c28d3@cad-250-152.norway.atmel.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 00:22 +0000, Sergio Monteiro Basto wrote:
-> I had update bugzilla with dmesg from 2.6.19-RC4-mm2, which already came
-> with the latest release of hrtimers, because for the first time I could
-> boot without hang on boot, with hrtimers and without notsc boot option.
-> But it have a long long oops that maybe could give you some clues.
+On Wed, 8 Nov 2006 20:33:58 +0100
+Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
+
+> Hi Andrew,
 > 
-> http://bugzilla.kernel.org/show_bug.cgi?id=6419#c55
+> After Andrew Victor explained to me how at91rm9200 does hardware
+> address initialization and phy probing, I decided to give it a go on
+> avr32 as well. So here's one patch for the avr32 platform code and one
+> for the actual macb driver which implements those changes.
+> 
+> I suspect that the avr32 platform patches might get messy, so feel free
+> to drop them all
 
-This one is a lock dependency problem, which is fixed in -rc5-mm1
+You'll need to be a lot more specific than "platform patches" and "them all".
 
-	tglx
+Patches have names.  I currently have
 
+gpio-framework-for-avr32.patch
+avr32-spi-ethernet-platform_device-update.patch
+avr32-move-spi-device-definitions-into-main-board.patch
+atmel-spi-driver.patch
+atmel-spi-driver-maintainers-entry.patch
+avr32-move-ethernet-tag-parsing-to-board-specific.patch
+atmel-macb-ethernet-driver.patch
+adapt-macb-driver-to-net_device-changes.patch
+
+I'd prefer to drop the lot, but we do have those SPI patches which David
+needs to see.
+
+> and pull from the master branch of
+> 
+> 	git://www.atmel.no/~hskinnemoen/linux/kernel/avr32.git master
+> 
+> instead. I won't put any new drivers or updates to drivers that are not
+> in mainline there.
+> 
+> I will still post patches for the avr32 platform code just to show how
+> things are affecting the platform-specific bits.
+> 
+
+So in fact I do think I'd prefer to drop everything.  How about
+
+a) you sort out the SPI patches with David, send them over to me when
+   it's ready and
+
+b) everything else goes into Linus from your git tree, and I include
+   your git tree in -mm?
+
+(I hope that tree works, btw - for some reason it seems that any git tree
+which isn't on kernel.org is down half the time).
 

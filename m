@@ -1,72 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754602AbWKHR0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161374AbWKHR1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754602AbWKHR0t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 12:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754604AbWKHR0s
+	id S1161374AbWKHR1y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 12:27:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161369AbWKHR1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 12:26:48 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4877 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1754602AbWKHR0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 12:26:48 -0500
-Date: Wed, 8 Nov 2006 18:26:50 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, Andi Kleen <ak@suse.de>,
-       Jeff Chua <jeff.chua.linux@gmail.com>,
-       Aaron Durbin <adurbin@google.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
-Message-ID: <20061108172650.GC4729@stusta.de>
-References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com> <20061107171143.GU27140@parisc-linux.org> <200611080839.46670.ak@suse.de> <20061108122237.GF27140@parisc-linux.org> <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 8 Nov 2006 12:27:54 -0500
+Received: from pat.uio.no ([129.240.10.4]:949 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1754607AbWKHR1x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 12:27:53 -0500
+Subject: Re: Kernel error messages
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Marco Schwarz <marco.schwarz@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061108141801.241790@gmx.net>
+References: <20061108141801.241790@gmx.net>
+Content-Type: text/plain
+Date: Wed, 08 Nov 2006 09:27:43 -0800
+Message-Id: <1163006863.5712.38.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
+	autolearn=disabled, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 08:05:18AM -0800, Linus Torvalds wrote:
+On Wed, 2006-11-08 at 15:18 +0100, Marco Schwarz wrote:
+> Hi,
 > 
+> with a vanilla 2.6.18.2 Kernel I get the following messages when I run a process with high CPU/memory consumption:
 > 
-> On Wed, 8 Nov 2006, Matthew Wilcox wrote:
-> >
-> > On Wed, Nov 08, 2006 at 08:39:44AM +0100, Andi Kleen wrote:
-> > > ACPI knows the number of busses.
-> > 
-> > But what if the number of busses increases later, eg by hotplugging
-> > a card with a PCI-PCI bridge on it?  Or does it know the number of
-> > busses which can be supported by this machine's MMCONFIG region?
+> Nov  8 15:08:24 linux kernel: BUG: unable to handle kernel paging request at virtual address 6e696c43
+> Nov  8 15:08:24 linux kernel:  printing eip:
+> Nov  8 15:08:12 linux last message repeated 146 times
+> Nov  8 15:08:24 linux kernel: c043d3d5
+> Nov  8 15:08:24 linux kernel: *pde = 00000000
+> Nov  8 15:08:24 linux kernel: Oops: 0000 [#1]
+> Nov  8 15:08:24 linux kernel: SMP
+> Nov  8 15:08:24 linux kernel: Modules linked in:
+> Nov  8 15:08:24 linux kernel: CPU:    1
+> Nov  8 15:08:24 linux kernel: EIP:    0060:[<c043d3d5>]    Not tainted VLI
+> Nov  8 15:08:24 linux kernel: EFLAGS: 00010246   (2.6.18.2 #8)
+> Nov  8 15:08:24 linux kernel: EIP is at rpcauth_refreshcred+0x15/0x50
+> Nov  8 15:08:24 linux kernel: eax: df6df240   ebx: df6df240   ecx: 00000001   edx: 6e696c2f
+> Nov  8 15:08:24 linux kernel: esi: df1b5000   edi: 00000000   ebp: df6df2a8   esp: d8ccfd00
+> Nov  8 15:08:24 linux kernel: ds: 007b   es: 007b   ss: 0068
+> Nov  8 15:08:24 linux kernel: Process ln (pid: 11343, ti=d8cce000 task=d5d5a030 task.ti=d8cce000)
+> Nov  8 15:08:24 linux kernel: Stack: df6df240 00000000 c043bfcd df6df240 00000000 d8ccfd48 d8ccfd20 c0436ecd
+> Nov  8 15:08:24 linux kernel:        00000000 00000000 df1e1410 df1b5000 d8ccfd58 00000006 c01ff735 dd24e7a4
+> Nov  8 15:08:24 linux kernel:        df1e12f8 df1e12f0 c050ee20 d8ccfd68 00000006 df1b5000 00000017 d8ccfed8
+> Nov  8 15:08:24 linux kernel: Call Trace:
+> Nov  8 15:08:24 linux kernel:  [<c043bfcd>] __rpc_execute+0x4d/0x1f0
+> Nov  8 15:08:24 linux kernel:  [<c0436ecd>] rpc_call_sync+0x8d/0xb0
+> Nov  8 15:08:24 linux kernel:  [<c01ff735>] nfs_proc_symlink+0xd5/0x150
+> Nov  8 15:08:24 linux kernel:  [<c01f8159>] nfs_symlink+0x89/0x190
+> Nov  8 15:08:24 linux kernel:  [<c0175556>] d_alloc+0xf6/0x180
+> Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
+> Nov  8 15:08:24 linux kernel:  [<c0269e8b>] _atomic_dec_and_lock+0x2b/0x50
+> Nov  8 15:08:24 linux kernel:  [<c01793e3>] mntput_no_expire+0x13/0x70
+> Nov  8 15:08:24 linux kernel:  [<c016bbe0>] __link_path_walk+0x3f0/0xef0
+> Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
+> Nov  8 15:08:24 linux kernel:  [<c01f8841>] nfs_permission+0xb1/0x160
+> Nov  8 15:08:24 linux kernel:  [<c01f8790>] nfs_permission+0x0/0x160
+> Nov  8 15:08:24 linux kernel:  [<c016b23a>] permission+0xba/0xe0
+> Nov  8 15:08:24 linux kernel:  [<c016bb83>] __link_path_walk+0x393/0xef0
+> Nov  8 15:08:24 linux kernel:  [<c01793e3>] mntput_no_expire+0x13/0x70
+> Nov  8 15:08:24 linux kernel:  [<c016c74b>] link_path_walk+0x6b/0xd0
+> Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
+> Nov  8 15:08:24 linux kernel:  [<c01f8790>] nfs_permission+0x0/0x160
+> Nov  8 15:08:24 linux kernel:  [<c016b23a>] permission+0xba/0xe0
+> Nov  8 15:08:24 linux kernel:  [<c016e511>] vfs_symlink+0x91/0x100
+> Nov  8 15:08:24 linux kernel:  [<c016e5f7>] sys_symlinkat+0x77/0xc0
+> Nov  8 15:08:24 linux kernel:  [<c016e651>] sys_symlink+0x11/0x20
+> Nov  8 15:08:24 linux kernel:  [<c0102b4d>] sysenter_past_esp+0x56/0x79
+> Nov  8 15:08:24 linux kernel: Code: e8 31 16 ce ff 83 c4 10 eb a2 8d b6 00 00 00 00 8d bf 00 00 00 00 56 53 8b 70 28 89 c3 f6 05 68 da 67 c0 10 75 16 8b 56 08 89 d8 <ff> 52 14 8
+> 5 c0 78 04 5b 5e c3 90 89 43 18 5b 5e c3 56 8b 40 10
+> Nov  8 15:08:24 linux kernel: EIP: [<c043d3d5>] rpcauth_refreshcred+0x15/0x50 SS:ESP 0068:d8ccfd00
 > 
-> ACPI will give the maximum number.
-> 
-> However, in this case, the correct thing to do (always _has_ been) is to 
-> not use ACPI for _anything_, but just read the base and the size of the 
-> MMCONFIG region from the hardware itself.
-> 
-> Anyway, I do not consider this a regression. MMCONFIG has _never_ worked 
-> reliably. It has always been a case of "we can make it work on some 
-> machines by making it break on others".
+> Anyone knows what could be going wrong ?
 
-It is a serious regression:
+Some credential appears to be corrupt. What mount options are you
+running with?
 
-The problem is that with the default CONFIG_PCI_GOANY, MMCONFIG is the 
-_first_ method tried.
-
-In practice, this implies that nearly every system possibly affected 
-will suffer from a MMCONFIG breakage like the one Jeff observed...
-
-> 			Linus
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Cheers,
+  Trond
 

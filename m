@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754588AbWKHOej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965828AbWKHOft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754588AbWKHOej (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754589AbWKHOej
+	id S965828AbWKHOft (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965823AbWKHOfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:34:39 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:32517 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1754588AbWKHOej
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:34:39 -0500
+	Wed, 8 Nov 2006 09:35:47 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:49158 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S965804AbWKHOfM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 09:35:12 -0500
 From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 Organization: tuxland
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/33] usb: writing_usb_driver free urb cleanup
-Date: Wed, 8 Nov 2006 15:33:38 +0100
+Subject: [PATCH 4/33] usb: usb-gigaset free kill urb cleanup
+Date: Wed, 8 Nov 2006 15:34:17 +0100
 User-Agent: KMail/1.9.5
 Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        linux-usb-devel@lists.sourceforge.net
@@ -24,47 +24,48 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611081533.41048.m.kozlowski@tuxland.pl>
+Message-Id: <200611081534.18562.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-	Allright. As Greg KH suggested I split this big patch into smaller ones to
-make the changes easier to review. Having no better idea how to split that I 
-split it on a 'patch per file' basis. All those patches clean redundant 'if' before 
-usb_unlink/free/kill_urb():
-
-if (urb)
-	usb_free_urb(urb); /* unlink / free / kill */
-
-I decided not to touch bigger 'if's like 
-
-if (urb) {
-	usb_kill_urb(urb);
-	usb_free_urb(urb);
-	urb = NULL;
-}
-
-as that would be probably too intrusive. One of patches also fixes 
-drivers/usb/misc/auerswald.c memleak I found when digging the code. All those
-patches are against 2.6.19-rc4.
--- 
-Regards,
-
-	Mariusz Kozlowski
+- usb_free_urb() cleanup
+- usb_kill_urb() cleanup
 
 Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
---- linux-2.6.19-rc4-orig/Documentation/DocBook/writing_usb_driver.tmpl	2006-11-06 17:06:39.000000000 +0100
-+++ linux-2.6.19-rc4/Documentation/DocBook/writing_usb_driver.tmpl	2006-11-06 19:50:58.000000000 +0100
-@@ -345,8 +345,7 @@ static inline void skel_delete (struct u
-         usb_buffer_free (dev->udev, dev->bulk_out_size,
-             dev->bulk_out_buffer,
-             dev->write_urb->transfer_dma);
--    if (dev->write_urb != NULL)
--        usb_free_urb (dev->write_urb);
-+    usb_free_urb (dev->write_urb);
-     kfree (dev);
- }
-   </programlisting>
+--- linux-2.6.19-rc4-orig/drivers/isdn/gigaset/usb-gigaset.c	2006-11-06 17:07:30.000000000 +0100
++++ linux-2.6.19-rc4/drivers/isdn/gigaset/usb-gigaset.c	2006-11-07 16:51:17.000000000 +0100
+@@ -815,14 +815,11 @@ static int gigaset_probe(struct usb_inte
+ 	return 0;
+ 
+ error:
+-	if (ucs->read_urb)
+-		usb_kill_urb(ucs->read_urb);
++	usb_kill_urb(ucs->read_urb);
+ 	kfree(ucs->bulk_out_buffer);
+-	if (ucs->bulk_out_urb != NULL)
+-		usb_free_urb(ucs->bulk_out_urb);
++	usb_free_urb(ucs->bulk_out_urb);
+ 	kfree(cs->inbuf[0].rcvbuf);
+-	if (ucs->read_urb != NULL)
+-		usb_free_urb(ucs->read_urb);
++	usb_free_urb(ucs->read_urb);
+ 	usb_set_intfdata(interface, NULL);
+ 	ucs->read_urb = ucs->bulk_out_urb = NULL;
+ 	cs->inbuf[0].rcvbuf = ucs->bulk_out_buffer = NULL;
+@@ -850,11 +847,9 @@ static void gigaset_disconnect(struct us
+ 	usb_kill_urb(ucs->bulk_out_urb);	/* FIXME: only if active? */
+ 
+ 	kfree(ucs->bulk_out_buffer);
+-	if (ucs->bulk_out_urb != NULL)
+-		usb_free_urb(ucs->bulk_out_urb);
++	usb_free_urb(ucs->bulk_out_urb);
+ 	kfree(cs->inbuf[0].rcvbuf);
+-	if (ucs->read_urb != NULL)
+-		usb_free_urb(ucs->read_urb);
++	usb_free_urb(ucs->read_urb);
+ 	ucs->read_urb = ucs->bulk_out_urb = NULL;
+ 	cs->inbuf[0].rcvbuf = ucs->bulk_out_buffer = NULL;
+ 

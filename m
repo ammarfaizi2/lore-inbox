@@ -1,147 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753359AbWKHRFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161340AbWKHRGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753359AbWKHRFX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 12:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754592AbWKHRFW
+	id S1161340AbWKHRGN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 12:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754593AbWKHRGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 12:05:22 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:63098 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1753359AbWKHRFV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 12:05:21 -0500
-Date: Wed, 8 Nov 2006 09:04:54 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Michael Holzheu <holzheu@de.ibm.com>
-Cc: pavel@ucw.cz, Ingo Oeser <ioe-lkml@rameria.de>,
-       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com
-Subject: Re: How to document dimension units for virtual files?
-Message-Id: <20061108090454.dba20e01.randy.dunlap@oracle.com>
-In-Reply-To: <20061108175412.3c2be30c.holzheu@de.ibm.com>
-References: <20061108175412.3c2be30c.holzheu@de.ibm.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 8 Nov 2006 12:06:13 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:17301 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1753271AbWKHRGL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 12:06:11 -0500
+Date: Wed, 8 Nov 2006 20:03:59 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take23 3/5] kevent: poll/select() notifications.
+Message-ID: <20061108170358.GA27557@2ka.mipt.ru>
+References: <11629182482792@2ka.mipt.ru> <Pine.LNX.4.64.0611071449410.17731@alien.or.mcafeemobile.com> <20061108084554.GD2447@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20061108084554.GD2447@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 08 Nov 2006 20:04:00 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2006 17:54:12 +0100 Michael Holzheu wrote:
+On Wed, Nov 08, 2006 at 11:45:54AM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> > Are you sure you can safely call file->f_op->poll() from inside a callback 
+> > based wakeup? The low level driver may be calling the wakeup with one of 
+> > its locks held, and during the file->f_op->poll may be trying to acquire 
+> > the same lock. I remember there was a discussion about this, and assuming 
+> > the above not true, made epoll code more complex (and slower, since an 
+> > extra O(R) loop was needed to fetch events).
+> 
+> Indeed, I have not paid too much attention to poll/select notifications in 
+> kevent actually. As far as I recall it should be called on behalf of process 
+> doing kevent_get_event(). I will check and fix if that is not correct.
+> Thanks Davide.
 
-> Pavel, Ingo,
-> 
-> Pavel Machek <pavel@ucw.cz> wrote on 10/28/2006 07:40:48 PM:
-> > Hi!
-> > 
-> > > > > 2. Encode dimension unit into filename (e.g. onlinetime_ms or
-> > > memory_kb)
-> > > >
-> > > > This is the recommended one.
-> > > > - simple to implement and understand on both sides
-> > > >
-> 
-> [snip]
-> 
-> > > I also think that this is the best solution. It would be nice to have
-> > > that documented somewhere. Maybe in the Documentation directory
-> > > something like:
-> > > 
-> > > Howto export data in virtual files
-> > > ==================================
-> > > 
-> > > If you want to export data to userspace via virtual filesystems
-> > > like procfs, sysfs, debugfs etc., the following rules are recommended:
-> > 
-> > ...yes please... such patch would be nice.
-> 
-> What about the following ...
-> 
-> Michael
-> 
-> ---
-> 
->  Documentation/filesystems/00-INDEX   |    2 +
->  Documentation/filesystems/ExportData |   47 +++++++++++++++++++++++++++++++++++
->  2 files changed, 49 insertions(+)
-> 
-> diff -Naur linux-2.6.18/Documentation/filesystems/00-INDEX linux-2.6.18-exp-data-doc/Documentation/filesystems/00-INDEX
-> --- linux-2.6.18/Documentation/filesystems/00-INDEX	2006-09-20 10:50:34.000000000 +0200
-> +++ linux-2.6.18-exp-data-doc/Documentation/filesystems/00-INDEX	2006-11-08 17:45:31.000000000 +0100
-> @@ -1,5 +1,7 @@
->  00-INDEX
->  	- this file (info on some of the filesystems supported by linux).
-> +ExportData
-> +	- recommendation of how to export data via virtual File Systems.
->  Exporting
->  	- explanation of how to make filesystems exportable.
->  Locking
-> diff -Naur linux-2.6.18/Documentation/filesystems/ExportData linux-2.6.18-exp-data-doc/Documentation/filesystems/ExportData
-> --- linux-2.6.18/Documentation/filesystems/ExportData	1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.6.18-exp-data-doc/Documentation/filesystems/ExportData	2006-11-08 17:44:59.000000000 +0100
-> @@ -0,0 +1,47 @@
-> +
-> +Export data via virtual File Systems
-> +====================================
-> +
-> +If you want to export data to userspace via virtual filesystems
-> +like procfs, sysfs, debugfs etc., the following rules are recommended:
-> +
-> +- Export only one value in one virtual file.
+Indeed there was a bug.
+Actually poll/select patch was broken quite noticebly - patchset did not
+include major changes I made for it.
+I will put them all into next release.
 
-I don't think that makes sense for procfs.  It's too late,
-but even it weren't, we don't need a large increase in the number
-of procfs files.
+Thanks again Davide for pointing that out.
 
-And debugfs shouldn't be constrained either.
-It's not a regular user interface like sysfs is.
-
-> +- Data format should be as simple as possible.
-> +- Use ASCII formated strings, no binary data if possible.
-
-*              formatted
-
-> +- If data has dimension units, encode that in the filename.
-> +
-> +Please use the following prefixes, when dimension units are required (According
-> +to IEC 60027-2 and SI/International System of Units):
-> +
-> +Storage size (SI prefixes)
-> +--------------------------
-> +* kB: kilobyte (10^3 Byte)
-> +* MB: megabyte (10^6 Byte)
-> +* GB: gigabyte (10^9 Byte)
-> +* TB: terabyte (10^12 Byte)
-> +* PB: petabyte (10^15 Byte)
-> +
-> +Storage size (Binary prefixes)
-> +------------------------------
-> +* KiB: kibibyte (2^10 Byte)
-> +* MiB: mebibyte (2^20 Byte)
-> +* GiB: gibibyte (2^30 Byte)
-> +* TiB: tebibyte (2^40 Byte)
-> +* PiB: pebibyte (2^50 Byte)
-> +
-> +Time (SI pefixes)
-> +-----------------
-> +* s:  Second
-> +* ms: Millisecond (10^-3 Seconds)
-> +* us: Microsecond (10^-6 Seconds)
-> +* ns: Nanosecond (10^-9 Seconds)
-> +
-> +Examples:
-> +---------
-> +> ls /sys/kernel/debug/sysinfo
-> +free_mem_KiB
-> +online_time_ms
-> +cpu_time_us
-> +
-> +> cat /sys/kernel/debug/free_mem_KiB
-> +147536
-> -
-
----
-~Randy
+-- 
+	Evgeniy Polyakov

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965838AbWKHOld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965861AbWKHOlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965838AbWKHOld (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965834AbWKHOlF
+	id S965861AbWKHOlD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965834AbWKHOho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:41:05 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:8967 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S965838AbWKHOhq (ORCPT
+	Wed, 8 Nov 2006 09:37:44 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:3079 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S965838AbWKHOhU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:37:46 -0500
+	Wed, 8 Nov 2006 09:37:20 -0500
 From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 Organization: tuxland
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 30/33] usb: usb-serial free urb cleanup
-Date: Wed, 8 Nov 2006 15:36:51 +0100
+Subject: [PATCH 24/33] usb: ftdi_sio kill urb cleanup
+Date: Wed, 8 Nov 2006 15:36:25 +0100
 User-Agent: KMail/1.9.5
 Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        linux-usb-devel@lists.sourceforge.net
@@ -24,52 +24,25 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611081536.52739.m.kozlowski@tuxland.pl>
+Message-Id: <200611081536.26972.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-- usb_free_urb() cleanup
+- usb_kill_urb() cleanup
 
 Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
---- linux-2.6.19-rc4-orig/drivers/usb/serial/usb-serial.c	2006-11-06 17:08:21.000000000 +0100
-+++ linux-2.6.19-rc4/drivers/usb/serial/usb-serial.c	2006-11-06 19:36:24.000000000 +0100
-@@ -952,32 +952,28 @@ probe_error:
- 		port = serial->port[i];
- 		if (!port)
- 			continue;
--		if (port->read_urb)
--			usb_free_urb (port->read_urb);
-+		usb_free_urb (port->read_urb);
- 		kfree(port->bulk_in_buffer);
- 	}
- 	for (i = 0; i < num_bulk_out; ++i) {
- 		port = serial->port[i];
- 		if (!port)
- 			continue;
--		if (port->write_urb)
--			usb_free_urb (port->write_urb);
-+		usb_free_urb (port->write_urb);
- 		kfree(port->bulk_out_buffer);
- 	}
- 	for (i = 0; i < num_interrupt_in; ++i) {
- 		port = serial->port[i];
- 		if (!port)
- 			continue;
--		if (port->interrupt_in_urb)
--			usb_free_urb (port->interrupt_in_urb);
-+		usb_free_urb (port->interrupt_in_urb);
- 		kfree(port->interrupt_in_buffer);
- 	}
- 	for (i = 0; i < num_interrupt_out; ++i) {
- 		port = serial->port[i];
- 		if (!port)
- 			continue;
--		if (port->interrupt_out_urb)
--			usb_free_urb (port->interrupt_out_urb);
-+		usb_free_urb (port->interrupt_out_urb);
- 		kfree(port->interrupt_out_buffer);
- 	}
+--- linux-2.6.19-rc4-orig/drivers/usb/serial/ftdi_sio.c	2006-11-06 17:08:21.000000000 +0100
++++ linux-2.6.19-rc4/drivers/usb/serial/ftdi_sio.c	2006-11-07 17:39:20.000000000 +0100
+@@ -1386,8 +1386,7 @@ static void ftdi_close (struct usb_seria
+ 	flush_scheduled_work();
+ 
+ 	/* shutdown our bulk read */
+-	if (port->read_urb)
+-		usb_kill_urb(port->read_urb);
++	usb_kill_urb(port->read_urb);
+ } /* ftdi_close */
+ 
  

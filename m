@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161169AbWKHQWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWKHQQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161169AbWKHQWB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 11:22:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161179AbWKHQWB
+	id S1161008AbWKHQQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 11:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbWKHQQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 11:22:01 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16652 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161177AbWKHQWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 11:22:00 -0500
-Date: Wed, 8 Nov 2006 17:22:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tim Chen <tim.c.chen@linux.intel.com>
-Subject: Re: 2.6.19-rc5: known regressions
-Message-ID: <20061108162202.GA4729@stusta.de>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061108085235.GT4729@stusta.de> <m1y7qm425l.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0611080745150.3667@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611080745150.3667@g5.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 8 Nov 2006 11:16:56 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:26830 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161008AbWKHQQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 11:16:56 -0500
+Subject: [PATCH] hpt37x: Check the enablebits
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Nov 2006 16:18:26 +0000
+Message-Id: <1163002706.23956.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 07:47:07AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 8 Nov 2006, Eric W. Biederman wrote:
-> > 
-> > I haven't seen anyone reproduce this but Tim Chen, and Tim wasn't
-> > able to root cause the problem so I believe we are going to have
-> > this regression :(
-> 
-> Note that you really shouldn't look too closely at lmbench scheduling 
-> fluctuations. They can fluctuate a _lot_, especially under SMP, and it can 
-> depend on things like cache layout that has nothing to do with the 
-> scheduler (ie just code movement can make the lmbench numbers change).
-> 
-> So there are "regressions" and there are "shit happens". It can sometimes 
-> be hard to tell the two apart, of course ;)
+Helps for PATA but SATA bridged devices lie and always set all the bits
+so will need the error handling fixes from Tejun.
 
-There's perhaps one thing that might help us to see whether it's just a 
-benchmark effekt or a real problem:
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-With Tim's CONFIG_NR_CPUS=8, NR_IRQS only increases from 224 in 2.6.18 
-to 512 in 2.6.19-rc.
-
-With CONFIG_NR_CPUS=255, NR_IRQS increases from 224 in 2.6.18
-to 8416 in 2.6.19-rc.
-
-@Tim:
-Can you try CONFIG_NR_CPUS=255 with both 2.6.18 and 2.6.19-rc5?
-
-> 		Linus
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc4-mm1/drivers/ata/pata_hpt37x.c linux-2.6.19-rc4-mm1/drivers/ata/pata_hpt37x.c
+--- linux.vanilla-2.6.19-rc4-mm1/drivers/ata/pata_hpt37x.c	2006-10-31 21:11:29.000000000 +0000
++++ linux-2.6.19-rc4-mm1/drivers/ata/pata_hpt37x.c	2006-11-03 11:26:29.000000000 +0000
+@@ -25,7 +25,7 @@
+ #include <linux/libata.h>
+ 
+ #define DRV_NAME	"pata_hpt37x"
+-#define DRV_VERSION	"0.5"
++#define DRV_VERSION	"0.5.1"
+ 
+ struct hpt_clock {
+ 	u8	xfer_speed;
+@@ -453,7 +453,13 @@
+ {
+ 	u8 scr2, ata66;
+ 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
+-
++	static const struct pci_bits hpt37x_enable_bits[] = {
++		{ 0x50, 1, 0x04, 0x04 },
++		{ 0x54, 1, 0x04, 0x04 }
++	};
++	if (!pci_test_config_bits(pdev, &hpt37x_enable_bits[ap->port_no]))
++		return -ENOENT;
++		
+ 	pci_read_config_byte(pdev, 0x5B, &scr2);
+ 	pci_write_config_byte(pdev, 0x5B, scr2 & ~0x01);
+ 	/* Cable register now active */
+@@ -488,10 +499,17 @@
+ 
+ static int hpt374_pre_reset(struct ata_port *ap)
+ {
++	static const struct pci_bits hpt37x_enable_bits[] = {
++		{ 0x50, 1, 0x04, 0x04 },
++		{ 0x54, 1, 0x04, 0x04 }
++	};
+ 	u16 mcr3, mcr6;
+ 	u8 ata66;
+-
+ 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
++
++	if (!pci_test_config_bits(pdev, &hpt37x_enable_bits[ap->port_no]))
++		return -ENOENT;
++		
+ 	/* Do the extra channel work */
+ 	pci_read_config_word(pdev, 0x52, &mcr3);
+ 	pci_read_config_word(pdev, 0x56, &mcr6);
 

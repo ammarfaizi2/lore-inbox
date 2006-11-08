@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161727AbWKHWGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161722AbWKHWGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161727AbWKHWGp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 17:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161483AbWKHWGp
+	id S1161722AbWKHWGE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 17:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161483AbWKHWGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 17:06:45 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:49512 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1161361AbWKHWGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 17:06:43 -0500
-X-IronPort-AV: i="4.09,401,1157353200"; 
-   d="scan'208"; a="449163056:sNHT47443276"
-To: Christoph Raisch <RAISCH@de.ibm.com>
-Cc: Hoang-Nam Nguyen <hnguyen@de.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, openib-general@openib.org, rolandd@cisco.com
-Subject: Re: [PATCH 2.6.19 2/4] ehca: hcp_phyp.c: correct page mapping in 64k page mode
-X-Message-Flag: Warning: May contain useful information
-References: <OF60EFC2CD.F8FB1D23-ONC1257220.00315F90-C1257220.0038B8E3@de.ibm.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 08 Nov 2006 14:06:42 -0800
-In-Reply-To: <OF60EFC2CD.F8FB1D23-ONC1257220.00315F90-C1257220.0038B8E3@de.ibm.com> (Christoph Raisch's message of "Wed, 8 Nov 2006 11:22:27 +0100")
-Message-ID: <adaejsdfv9p.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Wed, 8 Nov 2006 17:06:03 -0500
+Received: from mta6.adelphia.net ([68.168.78.190]:12539 "EHLO
+	mta6.adelphia.net") by vger.kernel.org with ESMTP id S1161722AbWKHWGB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 17:06:01 -0500
+Date: Wed, 8 Nov 2006 15:36:02 -0600
+From: Corey Minyard <minyard@acm.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: Frederic Lelievre <Frederic.Lelievre@ca.kontron.com>
+Subject: [PATCH] IPMI: retry messages on certain error returns
+Message-ID: <20061108213602.GA19762@localdomain>
+Reply-To: minyard@acm.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 08 Nov 2006 22:06:42.0720 (UTC) FILETIME=[2C4CA200:01C70382]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > We plan to change that as soon as the base kernel can handle mixed
- > pagesizes in a more official way.
+Some errors more from the IPMI send message command are retryable,
+but are not being retried by the IPMI code.  Make sure they get
+retried.
 
-OK, so this is just a temporary workaround for powerpc's broken ioremap()?
+Signed-off-by: Corey Minyard <minyard@acm.org>
+Cc: Frederic Lelievre <Frederic.Lelievre@ca.kontron.com>
 
-I'll apply for 2.6.19, and I hope we can back this out in 2.6.20.
-
- - R.
+Index: linux-2.6.18/drivers/char/ipmi/ipmi_msghandler.c
+===================================================================
+--- linux-2.6.18.orig/drivers/char/ipmi/ipmi_msghandler.c
++++ linux-2.6.18/drivers/char/ipmi/ipmi_msghandler.c
+@@ -3468,7 +3468,9 @@ void ipmi_smi_msg_received(ipmi_smi_t   
+                    report the error immediately. */
+ 		if ((msg->rsp_size >= 3) && (msg->rsp[2] != 0)
+ 		    && (msg->rsp[2] != IPMI_NODE_BUSY_ERR)
+-		    && (msg->rsp[2] != IPMI_LOST_ARBITRATION_ERR))
++		    && (msg->rsp[2] != IPMI_LOST_ARBITRATION_ERR)
++		    && (msg->rsp[2] != IPMI_BUS_ERR)
++		    && (msg->rsp[2] != IPMI_NAK_ON_WRITE_ERR))
+ 		{
+ 			int chan = msg->rsp[3] & 0xf;
+ 
+Index: linux-2.6.18/include/linux/ipmi_msgdefs.h
+===================================================================
+--- linux-2.6.18.orig/include/linux/ipmi_msgdefs.h
++++ linux-2.6.18/include/linux/ipmi_msgdefs.h
+@@ -80,6 +80,8 @@
+ #define IPMI_INVALID_COMMAND_ERR	0xc1
+ #define IPMI_ERR_MSG_TRUNCATED		0xc6
+ #define IPMI_LOST_ARBITRATION_ERR	0x81
++#define IPMI_BUS_ERR			0x82
++#define IPMI_NAK_ON_WRITE_ERR		0x83
+ #define IPMI_ERR_UNSPECIFIED		0xff
+ 
+ #define IPMI_CHANNEL_PROTOCOL_IPMB	1

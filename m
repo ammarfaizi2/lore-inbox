@@ -1,160 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754652AbWKHSev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161491AbWKHSn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754652AbWKHSev (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 13:34:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754651AbWKHSev
+	id S1161491AbWKHSn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161493AbWKHSn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 13:34:51 -0500
-Received: from pat.uio.no ([129.240.10.4]:2251 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1754650AbWKHSeu (ORCPT
+	Wed, 8 Nov 2006 13:43:26 -0500
+Received: from 147.175.241.83.in-addr.dgcsystems.net ([83.241.175.147]:64108
+	"EHLO tmnt04.transmode.se") by vger.kernel.org with ESMTP
+	id S1161491AbWKHSnZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 13:34:50 -0500
-Subject: Re: [PATCH] Fix SUNRPC wakeup/execute race condition
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org, NFS V4 Mailing List <nfsv4@linux-nfs.org>,
-       "J. Bruce Fields" <bfields@citi.umich.edu>
-In-Reply-To: <1162748568.22904.28.camel@leto.intern.saout.de>
-References: <1157576316.3292.13.camel@dyn9047022153>
-	 <20060907150146.GA22586@fieldses.org>
-	 <1157731084.3292.25.camel@dyn9047022153>
-	 <20060908160432.GB19234@fieldses.org>
-	 <1162158228.11247.4.camel@leto.intern.saout.de>
-	 <1162159282.11247.17.camel@leto.intern.saout.de>
-	 <1162321027.23543.6.camel@leto.intern.saout.de>
-	 <1162324141.23543.23.camel@leto.intern.saout.de>
-	 <1162325490.5614.82.camel@lade.trondhjem.org>
-	 <1162602386.26794.5.camel@leto.intern.saout.de>
-	 <1162688688.5153.26.camel@leto.intern.saout.de>
-	 <1162709441.6271.62.camel@lade.trondhjem.org>
-	 <1162722728.19690.4.camel@leto.intern.saout.de>
-	 <1162746093.5652.39.camel@lade.trondhjem.org>
-	 <1162748568.22904.28.camel@leto.intern.saout.de>
-Content-Type: text/plain
-Date: Wed, 08 Nov 2006 10:34:29 -0800
-Message-Id: <1163010869.15467.1.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.75, required 12,
-	autolearn=disabled, AWL 1.25, UIO_MAIL_IS_INTERNAL -5.00)
+	Wed, 8 Nov 2006 13:43:25 -0500
+content-class: urn:content-classes:message
+Subject: How to compile module params into kernel?
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 8 Nov 2006 19:43:22 +0100
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Message-ID: <F6AD7E21CDF4E145A44F61F43EE6D939AA94F9@tmnt04.transmode.se>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: How to compile module params into kernel?
+Thread-Index: AccDZb5fs/7EapKURbq9t871smnZpg==
+From: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-05 at 18:42 +0100, Christophe Saout wrote:
-> On Sun, 2006-11-05 at 12:01 -0500, Trond Myklebust wrote:
-> > On Sun, 2006-11-05 at 11:32 +0100, Christophe Saout wrote:
-> > > Am Sonntag, den 05.11.2006, 01:50 -0500 schrieb Trond Myklebust:
-> > > 
-> > > > > --- linux-2.6.18/net/sunrpc/sched.c	2006-09-20 05:42:06.000000000 +0200
-> > > > > +++ linux/net/sunrpc/sched.c	2006-11-04 20:38:56.000000000 +0100
-> > > > > @@ -302,12 +302,9 @@ EXPORT_SYMBOL(__rpc_wait_for_completion_
-> > > > >   */
-> > > > >  static void rpc_make_runnable(struct rpc_task *task)
-> > > > >  {
-> > > > > -	int do_ret;
-> > > > > -
-> > > > >  	BUG_ON(task->tk_timeout_fn);
-> > > > > -	do_ret = rpc_test_and_set_running(task);
-> > > > >  	rpc_clear_queued(task);
-> > > > > -	if (do_ret)
-> > > > > +	if (rpc_test_and_set_running(task))
-> > > > >  		return;
-> > > > >  	if (RPC_IS_ASYNC(task)) {
-> > > > >  		int status;
-> > > > 
-> > > > This fix looks wrong to me. If we've made it to 'rpc_make_runnable',
-> > > > then the rpc_task will have already been removed from the
-> > > > rpc_wait_queue.
-> > > 
-> > > I just flipped the two lines, changed nothing else. Why exactly do you
-> > > think that's wrong, I don't see anything particular that could be broken
-> > > by chaning the ordering. Anyway, the fsstress has been running for 18
-> > > hours straight now without showing any signs of problems.
-> > 
-> > OK. I finally see the bug that you've spotted. The problem occurs when
-> > __rpc_execute clears RPC_TASK_RUNNING after rpc_make_runnable has called
-> > rpc_test_and_set_running, but before it has called rpc_clear_queued.
-> 
-> Yes, exactly.
-> 
-> > However if you just swap the two lines, you run into a new race:
-> > __rpc_execute() may just put the rpc_task back to sleep before your call
-> > to rpc_test_and_set_running() finishes executing.
-> > We therefore need an extra test for RPC_IS_QUEUED() in
-> > rpc_make_runnable().
-> 
-> Damn, you're right. I missed that one. What about that:
-> 
-> ----
-> The sunrpc scheduler contains a race condition that can let an RPC
-> task end up being neither running nor on any wait queue. The race takes
-> place between rpc_make_runnable (called from rpc_wake_up_task) and
-> __rpc_execute under the following condition:
-> 
-> First __rpc_execute calls tk_action which puts the task on some wait
-> queue. The task is dequeued by another process before __rpc_execute
-> continues its execution. While executing rpc_make_runnable exactly after
-> setting the task `running' bit and before clearing the `queued' bit
-> __rpc_execute picks up execution, clears `running' and subsequently
-> both functions fall through, both under the false assumption somebody
-> else took the job.
-> 
-> Swapping rpc_test_and_set_running with rpc_clear_queued in
-> rpc_make_runnable fixes that hole. This introduces another possible
-> race condition that can be handled by checking for `queued' after
-> setting the `running' bit.
-> 
-> Bug noticed on a 4-way x86_64 system under XEN with an NFSv4 server
-> on the same physical machine, apparently one of the few ways to hit
-> this race condition at all.
-> 
-> Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
-> Cc: J. Bruce Fields <bfields@citi.umich.edu>
-> Signed-off-by: Christophe Saout <christophe@saout.de>
-> 
-> --- linux-2.6.18/net/sunrpc/sched.c	2006-09-20 05:42:06.000000000 +0200
-> +++ linux/net/sunrpc/sched.c	2006-11-04 20:38:56.000000000 +0100
-> @@ -302,12 +302,15 @@ EXPORT_SYMBOL(__rpc_wait_for_completion_
->   */
->  static void rpc_make_runnable(struct rpc_task *task)
->  {
-> -	int do_ret;
-> -
->  	BUG_ON(task->tk_timeout_fn);
-> -	do_ret = rpc_test_and_set_running(task);
->  	rpc_clear_queued(task);
-> -	if (do_ret)
-> +	if (rpc_test_and_set_running(task))
->  		return;
-> +	/* We might have raced */
-> +	if (RPC_IS_QUEUED(task)) {
-> +		rpc_clear_running(task);
-> +		return;
-> +	}
->  	if (RPC_IS_ASYNC(task)) {
->  		int status;
+Instead of passing a module param on the cmdline I want to compile that
+into
+the kernel, but I can't figure out how.
 
-This looks OK.
+The module param I want compile into kernel is
+rtc-ds1307.force=0,0x68
 
-> -	int do_ret;
-> -
->  	BUG_ON(task->tk_timeout_fn);
-> -	do_ret = rpc_test_and_set_running(task);
->  	rpc_clear_queued(task);
-> -	if (do_ret)
-> +	if (rpc_test_and_set_running(task))
->  		return;
-> +	/* We might have raced with __rpc_execute */
-> +	if (RPC_IS_QUEUED(task)) {
-> +		rpc_clear_running(task);
-> +		return;
-> +	}
->  	if (RPC_IS_ASYNC(task)) {
->  		int status;
+This is for an embeddet target that doesn't have loadable module
+support.
 
-A cut'n paste error?
-
-Cheers,
-  Trond
-
+ Thanks
+      Jocke

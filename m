@@ -1,42 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161198AbWKHQaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161191AbWKHQbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161198AbWKHQaM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 11:30:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161196AbWKHQaM
+	id S1161191AbWKHQbv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 11:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161196AbWKHQbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 11:30:12 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:42730 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161138AbWKHQaK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 11:30:10 -0500
-Date: Wed, 8 Nov 2006 17:29:55 +0100
-From: Olaf Kirch <okir@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: tim.c.chen@linux.intel.com, linux-kernel@vger.kernel.org,
-       davem@sunset.davemloft.net, kuznet@ms2.inr.ac.ru,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.19-rc1: Volanomark slowdown
-Message-ID: <20061108162955.GA4364@suse.de>
-References: <1162924354.10806.172.camel@localhost.localdomain> <1163001318.3138.346.camel@laptopd505.fenrus.org>
+	Wed, 8 Nov 2006 11:31:51 -0500
+Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:10144 "EHLO
+	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
+	id S1161191AbWKHQbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 11:31:50 -0500
+Subject: Re: infiniband/hw/amso1100/c2_provider.c: possible NULL dereference
+From: Steve WIse <swise@opengridcomputing.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Tom Tucker <tom@opengridcomputing.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061108162832.GB4729@stusta.de>
+References: <20061108162832.GB4729@stusta.de>
+Content-Type: text/plain
+Date: Wed, 08 Nov 2006 08:31:47 -0800
+Message-Id: <1163003508.4142.0.camel@linux-q667.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163001318.3138.346.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 04:55:18PM +0100, Arjan van de Ven wrote:
-> I wonder if it's an option to use low priority QoS fields for these acks
-> (heck I don't even know if ACKs have such fields in their packet) so
-> that they can get dropped if there are more packets then there is
-> bandwidth ....
 
-Is it proven that the number of ACKs actually cause bandwidth problems?
-I found Volanomark to exercise the scheduler more than anything else,
-so maybe the slowdown, while triggered by an increased number of ACKs,
-is caused by something else entirely.
+yep.  We'll fix this up asap...
 
-Olaf
--- 
-Walks like a duck. Quacks like a duck. Must be a chicken.
+
+Thanks,
+
+
+Steve.
+
+
+On Wed, 2006-11-08 at 17:28 +0100, Adrian Bunk wrote:
+> The Coverity checker noted the following in 
+> drivers/infiniband/hw/amso1100/c2_provider.c:
+> 
+> <--  snip  -->
+> 
+> ...
+> int c2_register_device(struct c2_dev *dev)
+> {
+>         int ret;
+>         int i;
+> 
+>         /* Register pseudo network device */
+>         dev->pseudo_netdev = c2_pseudo_netdev_init(dev);
+>         if (dev->pseudo_netdev) {
+>                 ret = register_netdev(dev->pseudo_netdev);
+>                 if (ret) {
+>                         printk(KERN_ERR PFX
+>                                 "Unable to register netdev, ret = %d\n", ret);
+>                         free_netdev(dev->pseudo_netdev);
+>                         return ret;
+>                 }
+>         }
+> 
+>         pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
+>         strlcpy(dev->ibdev.name, "amso%d", IB_DEVICE_NAME_MAX);
+>         dev->ibdev.owner = THIS_MODULE;
+>         dev->ibdev.uverbs_cmd_mask =
+>             (1ull << IB_USER_VERBS_CMD_GET_CONTEXT) |
+>             (1ull << IB_USER_VERBS_CMD_QUERY_DEVICE) |
+>             (1ull << IB_USER_VERBS_CMD_QUERY_PORT) |
+>             (1ull << IB_USER_VERBS_CMD_ALLOC_PD) |
+>             (1ull << IB_USER_VERBS_CMD_DEALLOC_PD) |
+>             (1ull << IB_USER_VERBS_CMD_REG_MR) |
+>             (1ull << IB_USER_VERBS_CMD_DEREG_MR) |
+>             (1ull << IB_USER_VERBS_CMD_CREATE_COMP_CHANNEL) |
+>             (1ull << IB_USER_VERBS_CMD_CREATE_CQ) |
+>             (1ull << IB_USER_VERBS_CMD_DESTROY_CQ) |
+>             (1ull << IB_USER_VERBS_CMD_REQ_NOTIFY_CQ) |
+>             (1ull << IB_USER_VERBS_CMD_CREATE_QP) |
+>             (1ull << IB_USER_VERBS_CMD_MODIFY_QP) |
+>             (1ull << IB_USER_VERBS_CMD_POLL_CQ) |
+>             (1ull << IB_USER_VERBS_CMD_DESTROY_QP) |
+>             (1ull << IB_USER_VERBS_CMD_POST_SEND) |
+>             (1ull << IB_USER_VERBS_CMD_POST_RECV);
+> 
+>         dev->ibdev.node_type = RDMA_NODE_RNIC;
+>         memset(&dev->ibdev.node_guid, 0, sizeof(dev->ibdev.node_guid));
+>         memcpy(&dev->ibdev.node_guid, dev->pseudo_netdev->dev_addr, 6);
+> ...                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 
+> <--  snip  -->
+> 
+> Above there's an "if (dev->pseudo_netdev)" check, but here it's 
+> dereferenced without a check.
+> 
+> It seems instead of the "if (dev->pseudo_netdev)", there should be some 
+> kind of
+> 
+>   if (!dev->pseudo_netdev)
+>   	return -ESOME_ERROR;
+> 
+> 
+> cu
+> Adrian
+> 
+

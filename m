@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754502AbWKHKCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754499AbWKHKET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754502AbWKHKCB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 05:02:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754510AbWKHKCB
+	id S1754499AbWKHKET (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 05:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754506AbWKHKET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 05:02:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:47082 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1754502AbWKHKCA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 05:02:00 -0500
-Subject: Re: [PATCH 0/14] KVM: Kernel-based Virtual Machine (v4)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Avi Kivity <avi@qumranet.com>
-Cc: Andrew Morton <akpm@osdl.org>, Roland Dreier <rdreier@cisco.com>,
-       kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <4551A970.9090704@qumranet.com>
-References: <454E4941.7000108@qumranet.com>
-	 <20061107204440.090450ea.akpm@osdl.org>	<adafycuh77b.fsf@cisco.com>
-	 <455183EA.2020405@qumranet.com> <20061107233323.c984fa9b.akpm@osdl.org>
-	 <45519033.3060409@qumranet.com>
-	 <1162978754.3138.266.camel@laptopd505.fenrus.org>
-	 <4551A970.9090704@qumranet.com>
+	Wed, 8 Nov 2006 05:04:19 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:57564 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1754499AbWKHKES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 05:04:18 -0500
+Subject: Re: Linux 2.6.19-rc5
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a4c581d0611080159x381a9afdy26f3dd1f1ed704f1@mail.gmail.com>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	 <1162979018.12585.0.camel@nigel.suspend2.net>
+	 <5a4c581d0611080159x381a9afdy26f3dd1f1ed704f1@mail.gmail.com>
 Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 08 Nov 2006 11:01:41 +0100
-Message-Id: <1162980101.3138.276.camel@laptopd505.fenrus.org>
+Date: Wed, 08 Nov 2006 21:04:14 +1100
+Message-Id: <1162980254.12585.4.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
+On Wed, 2006-11-08 at 10:59 +0100, Alessandro Suardi wrote:
+> On 11/8/06, Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+> > Gidday.
+> >
+> > On Tue, 2006-11-07 at 18:33 -0800, Linus Torvalds wrote:
+> > > Ok, things are finally calming down, it seems.
+> > >
+> > > The -rc5 thing is mainly a few random architecture updates (arm, mips,
+> > > uml, avr, power) and the only really noticeable one there is likely some
+> > > fixes to the local APIC accesses on x86, which apparently fixes a few
+> > > machines.
+> > >
+> > > The rest is really mostly one-liners (or close) to various subsystems. New
+> > > PCI ID's, trivial fixes, cifs, dvb, things like that. I'm feeling better
+> > > about this - there may be a -rc6, but maybe we don't even need one.
+> > >
+> > > As usual, thanks to everybody who tested and chased down some of the
+> > > regressions,
+> > >
+> > >               Linus
+> >
+> > The patch etc doesn't seem to be available yet. (The front page is still
+> > showing -rc4, for example).
 > 
-> The problem with that is that the test comes too late: after we've 
-> configured.  Andrew wants to keep allmodconfig working, and for that we 
-> need to deselect CONFIG_KVM before compilation starts.
-
-not really. You can also select to just not compile kvm at all *from the
-Makefile*
+> The patch is available, it's just the kernel.org home that
+>  isn't updated.
 > 
-> gcc.*protector.sh only affects the Makefile, not the configuration, AFAICT.
+> http://www.kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.19-rc5.bz2
 
-but it is the Makefile that goes into the kvm directory and compiles
-stuff!
+Ta. I was more concerned that whoever needs to fix whatever's broken
+knows the issue exists.
 
-yes it's ugly and not so elegant, but it's effective and you can warn
-bigtime via nasty messages if you want ;)
+Regards,
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Nigel
 

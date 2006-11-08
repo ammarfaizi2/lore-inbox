@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965711AbWKHM61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965716AbWKHNIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965711AbWKHM61 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 07:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965716AbWKHM60
+	id S965716AbWKHNIr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 08:08:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965718AbWKHNIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 07:58:26 -0500
-Received: from lugor.de ([212.112.242.222]:38076 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S965711AbWKHM60 (ORCPT
+	Wed, 8 Nov 2006 08:08:47 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59804 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965716AbWKHNIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 07:58:26 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
-To: "Yakov Lerner" <iler.ml@gmail.com>
-Subject: Re: invalidate/drop filesystem caches & io buffers
-Date: Wed, 8 Nov 2006 13:58:25 +0100
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <f36b08ee0611080453p5401de04td2fef8bff4d0efb3@mail.gmail.com>
-In-Reply-To: <f36b08ee0611080453p5401de04td2fef8bff4d0efb3@mail.gmail.com>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Wed, 8 Nov 2006 08:08:46 -0500
+Date: Wed, 8 Nov 2006 14:08:33 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jason Baron <jbaron@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org, rdreier@cisco.com
+Subject: Re: locking hierarchy based on lockdep
+Message-ID: <20061108130833.GA9599@elf.ucw.cz>
+References: <Pine.LNX.4.64.0611061315380.29750@dhcp83-20.boston.redhat.com> <20061106200529.GA15370@elte.hu> <Pine.LNX.4.64.0611071833450.22572@dhcp83-20.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3063529.bODHxDzXyQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200611081358.25245.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Wed, 08 Nov 2006 13:58:21 +0100 (CET)
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611071833450.22572@dhcp83-20.boston.redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3063529.bODHxDzXyQ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi!
 
-On Wednesday 08 November 2006 13:53, Yakov Lerner wrote:
-> I'd like to invalidate/free the filesystem caches and io buffer cache
-> How can I do this when I can't unmount the filesystem (and w/o reboot) ?
->
-> (I run filesystem I/O test that needs to  start from fresh  cache &
-> buffer state -- as emty as possible, like right after mount/boot).
->
-> I tried  'mount -o remount' but it didn't make any difference
-> on the timing. Apparently 'mount -o remount' did not invalidate
-> cases/buffers ? ( The difference between fresh run vs non-fresh
-> run timing is x5 times ).
+> > * Jason Baron <jbaron@redhat.com> wrote:
+> > 
+> > > I've implemented this as a /proc file, but Ingo suggested that it 
+> > > might be better for us to simply produce an adjaceny list, and then 
+> > > generate a locking hierarchy or anything else of interest off of that 
+> > > list.... [...]
+> > 
+> > this would certainly be the simplest thing to do - we could extend 
+> > /proc/lockdep with the list of 'immediately after' locks separated by 
+> > commas. (that list already exists: it's the lock_class.locks_after list)
+> > 
+> > i like your idea of using lockdep to document locking hierarchies.
+> > 
+> > 	Ingo
+> > 
+> 
+> hi,
+> 
+> So below is patch that does what you suggest, although i had to add the 
+> concept of 'distance' to the patch since the locks_after list loses this 
+> dependency info afaict. i also wrote a user space program to sort the 
+> locks into cluster of interelated locks and then sorted within these 
+> clusters...the results show one large clump of locks...perhaps there are a 
+> few locks that time them all together like scheduler locks...but i 
+> couldn't figure out which ones to exclude to make the list look really 
+> pretty (also, there could be a bug in my program :). Anyways i'm including 
+> my test program and its output too...
 
-You can do
-
-echo 3 > /proc/sys/vm/drop_caches
-
-Take a look at filesystems/proc.txt for details.
-=2D-=20
-Regards,
-Christian
-
---nextPart3063529.bODHxDzXyQ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFUdRxlZfG2c8gdSURAmwoAKCah0rL0Yk/upucG183bhuqTvZ4ZgCfTQoY
-orLxtSWeDZXYFr1HU/cs3Lo=
-=SLHS
------END PGP SIGNATURE-----
-
---nextPart3063529.bODHxDzXyQ--
+Perhaps presenting it as a tree is worth it?
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

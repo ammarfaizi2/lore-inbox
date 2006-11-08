@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754476AbWKHJca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754482AbWKHJj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754476AbWKHJca (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 04:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754472AbWKHJca
+	id S1754482AbWKHJj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 04:39:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754481AbWKHJj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 04:32:30 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:62770 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1754476AbWKHJc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 04:32:29 -0500
-Date: Wed, 8 Nov 2006 10:34:43 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: romosan@sycorax.lbl.gov
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5: known regressions
-Message-ID: <20061108093442.GB19471@kernel.dk>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061108085235.GT4729@stusta.de>
+	Wed, 8 Nov 2006 04:39:27 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:4740 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1754482AbWKHJj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 04:39:27 -0500
+Subject: Re: [PATCH 0/14] KVM: Kernel-based Virtual Machine (v4)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Avi Kivity <avi@qumranet.com>
+Cc: Andrew Morton <akpm@osdl.org>, Roland Dreier <rdreier@cisco.com>,
+       kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <45519033.3060409@qumranet.com>
+References: <454E4941.7000108@qumranet.com>
+	 <20061107204440.090450ea.akpm@osdl.org>	<adafycuh77b.fsf@cisco.com>
+	 <455183EA.2020405@qumranet.com> <20061107233323.c984fa9b.akpm@osdl.org>
+	 <45519033.3060409@qumranet.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 08 Nov 2006 10:39:14 +0100
+Message-Id: <1162978754.3138.266.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061108085235.GT4729@stusta.de>
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08 2006, Adrian Bunk wrote:
-> Subject    : unable to rip cd
-> References : http://lkml.org/lkml/2006/10/13/100
-> Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
-> Status     : unknown
 
-Alex, was/is this repeatable? If so I'd like you to repeat with this
-debug patch applied, I cannot reproduce it locally.
+> 
+> > Would
+> > really prefer something at Kconfig-time, but we have no way of letting the
+> > assembler version feed into the Kconfig system (nor do we want it, I
+> > suspect).
+> >   
+> 
+> config AS_VERSION
+>         eval as --version | awk '{ ... }'
 
-diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
-index bddfebd..ad03e19 100644
---- a/drivers/ide/ide-cd.c
-+++ b/drivers/ide/ide-cd.c
-@@ -1726,8 +1726,10 @@ static ide_startstop_t cdrom_newpc_intr(
- 		/*
- 		 * write to drive
- 		 */
--		if (cdrom_write_check_ireason(drive, len, ireason))
-+		if (cdrom_write_check_ireason(drive, len, ireason)) {
-+			blk_dump_rq_flags(rq, "cdrom_newpc");
- 			return ide_stopped;
-+		}
- 
- 		xferfunc = HWIF(drive)->atapi_output_bytes;
- 	} else  {
-@@ -1859,8 +1861,10 @@ static ide_startstop_t cdrom_write_intr(
- 	}
- 
- 	/* Check that the drive is expecting to do the same thing we are. */
--	if (cdrom_write_check_ireason(drive, len, ireason))
-+	if (cdrom_write_check_ireason(drive, len, ireason)) {
-+		blk_dump_rq_flags(rq, "cdrom_pc");
- 		return ide_stopped;
-+	}
- 
- 	sectors_to_transfer = len / SECTOR_SIZE;
- 
+
+config time is not possible (not to mention it's not that uncommon to
+config on a different box than you compile). Makefile side is not that
+hard; in fact what you'd need is a very small check similar to
+scripts/gcc-x86_64-has-stack-protector.sh . While that checks a gcc
+feature, checking the VMX operations via a C program with inline asm is
+actually the most realistic test ANYWAY ...
+
+
 
 -- 
-Jens Axboe
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

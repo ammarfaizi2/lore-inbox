@@ -1,89 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161683AbWKHTBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161690AbWKHTDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161683AbWKHTBY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161688AbWKHTBY
+	id S1161690AbWKHTDw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161692AbWKHTDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:01:24 -0500
-Received: from mail.zeugmasystems.com ([192.139.122.66]:16597 "EHLO
-	zeugmasystems.com") by vger.kernel.org with ESMTP id S1161683AbWKHTBX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:01:23 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: Jiffies wraparound is not treated in the schedstats
-Date: Wed, 8 Nov 2006 11:01:21 -0800
-Message-ID: <66910A579C9312469A7DF9ADB54A8B7D44DBFB@exchange.ZeugmaSystems.local>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: Jiffies wraparound is not treated in the schedstats
-Thread-Index: AccDaEekBsZu9d71T6m75dG1dttOxA==
-From: "Kaz Kylheku" <kaz@zeugmasystems.com>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 8 Nov 2006 14:03:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42937 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161690AbWKHTDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 14:03:52 -0500
+Date: Wed, 8 Nov 2006 10:56:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Layton <jlayton@redhat.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Possible spinlock recursion in search_module_extables() ?
+Message-Id: <20061108105625.c08f4615.akpm@osdl.org>
+In-Reply-To: <1163007738.12604.4.camel@dantu.rdu.redhat.com>
+References: <200606190635_MC3-1-C2D8-258F@compuserve.com>
+	<1163007738.12604.4.camel@dantu.rdu.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mauricio Lin wrote:
-> For instance the delta_jiffies variable is simply calculated as:
+On Wed, 08 Nov 2006 12:42:17 -0500
+Jeff Layton <jlayton@redhat.com> wrote:
+
+> On Mon, 2006-06-19 at 06:31 -0400, Chuck Ebbert wrote:
+> > Looking at this code:
+> > 
+> > const struct exception_table_entry *search_exception_tables(unsigned long addr)
+> > {
+> >         const struct exception_table_entry *e;
+> > 
+> >         e = search_extable(__start___ex_table, __stop___ex_table-1, addr);
+> >         if (!e)
+> >                 e = search_module_extables(addr);
+> >         return e;
+> > }
+> > 
+> > const struct exception_table_entry *search_module_extables(unsigned long addr)
+> > {
+> >         unsigned long flags;
+> >         const struct exception_table_entry *e = NULL;
+> >         struct module *mod;
+> > 
+> >         spin_lock_irqsave(&modlist_lock, flags);
+> >         list_for_each_entry(mod, &modules, list) {
+> >                 if (mod->num_exentries == 0)
+> >                         continue;
+> > 
+> >                 e = search_extable(mod->extable,
+> >                                    mod->extable + mod->num_exentries - 1,
+> >                                    addr);
+> >                 if (e)
+> >                         break;
+> >         }
+> >         spin_unlock_irqrestore(&modlist_lock, flags);
+> > 
+> >         /* Now, if we found one, we are running inside it now, hence
+> >            we cannot unload the module, hence no refcnt needed. */
+> >         return e;
+> > }
+> > 
+> > 
+> > search_module_extables() takes a spinlock.  If some kind of fault occurs
+> > while it's holding that lock (module list corrupted etc.,) won't it be
+> > re-entered while looking for its own fault handler?  If so, would this
+> > be a possible fix?
+> > 
+> > const struct exception_table_entry *search_exception_tables(unsigned long addr)
+> > {
+> >         const struct exception_table_entry *e;
+> > 
+> >         if (core_kernel_text(addr))
+> >                 e = search_extable(__start___ex_table, __stop___ex_table-1, addr);
+> >         else
+> >                 e = search_module_extables(addr);
+> > 
+> >         return e;
+> > }
 > 
-> delta_jiffies = now - t->sched_info.last_queued;
->
-> Do not you think the more logical way should be
+> I seem to be able to reliably trigger this spinlock recursion problem
+> with systemtap on a RHEL4 kernel. The patch suggested above does seem to
+> correct it, but I'm not familiar enough with extables to know whether
+> the approach here is correct.
+> 
 
-No. Learn about the modulo arithmetic properties of the unsigned types.
- 
-> if (time_after(now, t->sched_info.last_queued))
+It'll still deadlock if we take an oops from a module, won't it?
 
-Have you looked at time_after? It just performs a subtraction, after
-casting both operands to long. It does not care which one is bigger than
-the other. Basically, it performs the same calculation as the
-delta_jiffies above, and then checks the sign bit.
+The usual way of fixing this sort of thing is to play games with
+oops_in_progress.
 
->    delta_jiffies = now - t->sched_info.last_queued;
-> else
->    delta_jiffies = (MAX_JIFFIES - t->sched_info.last_queued) + now
-
-I'm looking at a 2.6.17 kernel, and I can't find MAX_JIFFIES, or
-JIFFIES_MAX. There is a MAX_JIFFY_OFFSET, which is something else. It's
-the biggest delta that you can add to a value X so that time_after(X, X
-+ delta) is still true. If you try to schedule something beyond now +
-MAX_JIFFY_OFFSET, it will be put back in time.
-
-Also, your calculation is buggy. MAX_JIFFIES would correspond to
-ULONG_MAX. What you want is:
-
-  (ULONG_MAX + 1 - last_queued + now)
-
-This expression is now mathematically congruent to 
-
-  -last_queued + now (mod ULONG_MAX + 1)
-
-or
-
-   now - last_queued (mod ULONG_MAX + 1).
-
-The arithmetic of the unsigned long type is /already/ carried out modulo
-ULONG_MAX + 1, so the ULONG_MAX + 1 term can be dropped from your
-expression, leaving it as
-
-  now - last_queued
-
-> I have included more variables to measure some issues of schedule in
-> the kernel (following schedstat idea) and I noticed that jiffies
-> wraparound has led to wrong values, since the user space tool when
-> collecting the values is producing negative values.
-
-What user space tool?
-
-> Any comments?
-
-The user space tool is perhaps buggy, or you are misinterpreting its
-output.
- 
-> Can I provide a patch for that?
-
-Some day, when you learn how to program.

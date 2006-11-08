@@ -1,101 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753017AbWKHDyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753985AbWKHD4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753017AbWKHDyk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 22:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753985AbWKHDyk
+	id S1753985AbWKHD4V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 22:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754086AbWKHD4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 22:54:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48613 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753017AbWKHDyj (ORCPT
+	Tue, 7 Nov 2006 22:56:21 -0500
+Received: from mail.isohunt.com ([69.64.61.20]:7404 "EHLO mail.isohunt.com")
+	by vger.kernel.org with ESMTP id S1753985AbWKHD4U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 22:54:39 -0500
-Date: Tue, 7 Nov 2006 19:54:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: ak@suse.de, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, ashok.raj@intel.com
-Subject: Re: [patch 2/4] introduce the mechanism of disabling cpu hotplug
- control
-Message-Id: <20061107195430.37f8deb0.akpm@osdl.org>
-In-Reply-To: <20061107174024.B5401@unix-os.sc.intel.com>
-References: <20061107173306.C3262@unix-os.sc.intel.com>
-	<20061107173624.A5401@unix-os.sc.intel.com>
-	<20061107174024.B5401@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 22:56:20 -0500
+X-Spam-Check-By: mail.isohunt.com
+Date: Tue, 7 Nov 2006 19:56:19 -0800
+From: "Robin H. Johnson" <robbat2@gentoo.org>
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: "Robin H. Johnson" <robbat2@gentoo.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: e1000/ICH8LAN weirdness - no ethtool link until initially forced up
+Message-ID: <20061108035619.GE16523@curie-int.orbis-terrarum.net>
+References: <20061106013153.GN15897@curie-int.orbis-terrarum.net> <20061107071449.GB21655@elf.ucw.cz> <4550AB7A.10508@intel.com> <20061107213138.GA16523@curie-int.orbis-terrarum.net> <45510980.2040808@intel.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uCPdOCrL+PnN2Vxy"
+Content-Disposition: inline
+In-Reply-To: <45510980.2040808@intel.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006 17:40:25 -0800
-"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
 
-> Add 'cpu_hotplug_no_control' and when set, the hotplug control file("online")
-> will not be added under /sys/devices/system/cpu/cpuX/
-> 
-> Next patch doing PCI quirks will use this.
-> 
+--uCPdOCrL+PnN2Vxy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't understand what this (ugly) patch has to do with the overall
-bugfix.  We're fixing the APCI initialisation - what does that have to do
-with presenting cpu-hotplug files in sysfs?
+On Tue, Nov 07, 2006 at 02:32:32PM -0800, Auke Kok wrote:
+> >Would a patch that adds a modparam (not enabled by default) running the
+> >behavior I'm after, be acceptable, so the e1000 driver can act identical
+> >to all of the other drivers?
+> I bet that all drivers work fine if you `ifconfig up` them. What happens =
+if=20
+> other NIC drivers implement similar powersaving methods and start working=
+=20
+> the same?
+In that, case the following (puesdo-code) would need to be added to
+ethtool.
 
+(before reading link status)
+1. $oldstate =3D GET(current software state of UP/DOWN from ifconfig)
+2. if($oldstate !=3D UP) then SET(software state to UP)
+3. if($oldstate !=3D UP) then (some delay might be needed)
+4. read PHY status
+5. if($oldstate !=3D UP) then SET(software state to $oldstate)
 
-> ---
-> 
-> diff --git a/arch/i386/kernel/topology.c b/arch/i386/kernel/topology.c
-> index 07d6da3..9b766e7 100644
-> --- a/arch/i386/kernel/topology.c
-> +++ b/arch/i386/kernel/topology.c
-> @@ -40,14 +40,22 @@ int arch_register_cpu(int num)
->  	 * restrictions and assumptions in kernel. This basically
->  	 * doesnt add a control file, one cannot attempt to offline
->  	 * BSP.
-> +	 *
-> +	 * Also certain PCI quirks require to remove this control file
-> +	 * for all CPU's.
->  	 */
-> +#ifdef CONFIG_HOTPLUG_CPU
-> +	if (!num || cpu_hotplug_no_control)
-> +#else
->  	if (!num)
-> +#endif
+Thus ethtool should always report the correct PHY state.
 
-This ifdef could be removed 
+--=20
+Robin Hugh Johnson
+E-Mail     : robbat2@gentoo.org
+GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
 
->  		cpu_devices[num].cpu.no_control = 1;
->  
->  	return register_cpu(&cpu_devices[num].cpu, num);
->  }
->  
->  #ifdef CONFIG_HOTPLUG_CPU
-> +int cpu_hotplug_no_control;
->  
->  void arch_unregister_cpu(int num) {
->  	return unregister_cpu(&cpu_devices[num].cpu);
-> diff --git a/include/asm-i386/cpu.h b/include/asm-i386/cpu.h
-> index b1bc7b1..3c5da33 100644
-> --- a/include/asm-i386/cpu.h
-> +++ b/include/asm-i386/cpu.h
-> @@ -13,6 +13,7 @@ struct i386_cpu {
->  extern int arch_register_cpu(int num);
->  #ifdef CONFIG_HOTPLUG_CPU
->  extern void arch_unregister_cpu(int);
-> +extern int cpu_hotplug_no_control;
+--uCPdOCrL+PnN2Vxy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-via:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Robbat2 @ Orbis-Terrarum Networks
 
-#else
-#define cpu_hotplug_no_control 1
+iD8DBQFFUVVjPpIsIjIzwiwRAqixAKCmDy8ZshY+NdIeprpDzpFfkKvCPACdFbtP
+czfroCmZclqejmQ2A/50dzw=
+=AFGr
+-----END PGP SIGNATURE-----
 
-here.
-
-
-But does this variable _have_ to be a negative like this?  The code would
-be simpler if it had the opposite sense and was called, say,
-cpu_hotplug_enable_control_file.
-
-Are these patches considered 2.6.19 material?  They look a bit big, ugly
-and scary for that.
-
+--uCPdOCrL+PnN2Vxy--

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965862AbWKHOg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965889AbWKHOp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965862AbWKHOg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965844AbWKHOg4
+	id S965889AbWKHOp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:45:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965825AbWKHOfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:36:56 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:61446 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S965819AbWKHOgs (ORCPT
+	Wed, 8 Nov 2006 09:35:44 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:51206 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S965819AbWKHOfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:36:48 -0500
+	Wed, 8 Nov 2006 09:35:22 -0500
 From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 Organization: tuxland
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 16/33] usb: ati_remote2 free urb cleanup
-Date: Wed, 8 Nov 2006 15:35:50 +0100
+Subject: [PATCH 6/33] usb: ttusb_dec free urb cleanup
+Date: Wed, 8 Nov 2006 15:34:27 +0100
 User-Agent: KMail/1.9.5
 Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        linux-usb-devel@lists.sourceforge.net
@@ -24,7 +24,7 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611081535.51421.m.kozlowski@tuxland.pl>
+Message-Id: <200611081534.28503.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -34,15 +34,15 @@ Hello,
 
 Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
---- linux-2.6.19-rc4-orig/drivers/usb/input/ati_remote2.c	2006-11-06 17:08:20.000000000 +0100
-+++ linux-2.6.19-rc4/drivers/usb/input/ati_remote2.c	2006-11-06 19:24:20.000000000 +0100
-@@ -372,8 +372,7 @@ static void ati_remote2_urb_cleanup(stru
- 	int i;
+--- linux-2.6.19-rc4-orig/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2006-11-06 17:07:39.000000000 +0100
++++ linux-2.6.19-rc4/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2006-11-06 19:55:08.000000000 +0100
+@@ -1135,8 +1135,7 @@ static void ttusb_dec_free_iso_urbs(stru
+ 	dprintk("%s\n", __FUNCTION__);
  
- 	for (i = 0; i < 2; i++) {
--		if (ar2->urb[i])
--			usb_free_urb(ar2->urb[i]);
-+		usb_free_urb(ar2->urb[i]);
+ 	for (i = 0; i < ISO_BUF_COUNT; i++)
+-		if (dec->iso_urb[i])
+-			usb_free_urb(dec->iso_urb[i]);
++		usb_free_urb(dec->iso_urb[i]);
  
- 		if (ar2->buf[i])
- 			usb_buffer_free(ar2->udev, 4, ar2->buf[i], ar2->buf_dma[i]);
+ 	pci_free_consistent(NULL,
+ 			    ISO_FRAME_SIZE * (FRAMES_PER_ISO_BUF *

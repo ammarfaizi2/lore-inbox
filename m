@@ -1,33 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965920AbWKHPkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965924AbWKHPoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965920AbWKHPkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 10:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965921AbWKHPkV
+	id S965924AbWKHPoA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 10:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965925AbWKHPoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 10:40:21 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51399 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965920AbWKHPkT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 10:40:19 -0500
-Subject: S2RAM and PCI quirks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 08 Nov 2006 15:45:05 +0000
-Message-Id: <1163000705.23956.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 8 Nov 2006 10:44:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:13267 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965924AbWKHPn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 10:43:59 -0500
+Date: Wed, 8 Nov 2006 07:43:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.19-rc5
+In-Reply-To: <1162979018.12585.0.camel@nigel.suspend2.net>
+Message-ID: <Pine.LNX.4.64.0611080740400.3667@g5.osdl.org>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+ <1162979018.12585.0.camel@nigel.suspend2.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm tracing down a case where suspend to ram/resume from RAM causes
-horrible corruption but not immediately. From a PCI dump it appears that
-we are not running the PCI quirks again on the S2RAM resume. Is this
-actually the case or am I missing something scanning through the code.
-If it is the case then we have multiple corruptors lurking because the
-PCI config restore doesn't cover the special registers that need poking
-in some cases.
 
-Alan
 
+On Wed, 8 Nov 2006, Nigel Cunningham wrote:
+> 
+> The patch etc doesn't seem to be available yet. (The front page is still
+> showing -rc4, for example).
+
+It seems that mirroring is taking forever again. The patch and tar-balls 
+are definitely there on the master site, and even gitweb has mirrored out 
+(at least to one of the mirrors), but it looks like the mirroring hasn't 
+gotten to the kernel source "testing" directory yet.
+
+			Linus

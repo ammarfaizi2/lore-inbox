@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161395AbWKHSFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161401AbWKHSHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161395AbWKHSFN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 13:05:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161415AbWKHSFN
+	id S1161401AbWKHSHK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161439AbWKHSHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 13:05:13 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:26893 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161395AbWKHSFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 13:05:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Bh8h5uZ/wBT4oonlmAHl1CqW3F6jVtGxQeMHqHzaqomsNXU17UxYQCHpHgC7ofO68l2BOm8ig9EZ/e8Q/109jpOldLX5TjXQ1Gmkbfkp9orqIzchRPMw6TfgIh/JCrFRg/rscw7RMzgtPXFi1aTGqL1MWq4zymD0PIHkkjIbt94=
-Message-ID: <3f250c710611081005v5fcf3236qfb10b47bab1ada5f@mail.gmail.com>
-Date: Wed, 8 Nov 2006 14:05:10 -0400
-From: "Mauricio Lin" <mauriciolin@gmail.com>
-To: balbir@in.ibm.com
-Subject: Jiffies wraparound is not treated in the schedstats
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 8 Nov 2006 13:07:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12964 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161401AbWKHSHH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 13:07:07 -0500
+Date: Wed, 8 Nov 2006 10:04:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Daniel J Blueman <daniel.blueman@gmail.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, nfsv4@linux-nfs.org,
+       Neil Brown <neilb@suse.de>, "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: Fwd: [PATCH 2/2] nfsd4: fix open-create permissions
+Message-Id: <20061108100436.f56986dc.akpm@osdl.org>
+In-Reply-To: <4551DCBE.1060508@garzik.org>
+References: <6278d2220611060403j2b63cb9cl1d0707e7cf3d7899@mail.gmail.com>
+	<20061106161747.GA12372@fieldses.org>
+	<20061106162458.GC12372@fieldses.org>
+	<6278d2220611060848n3585ebc5odbf39efd6a02ab2@mail.gmail.com>
+	<4551DCBE.1060508@garzik.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Balbir,
+On Wed, 08 Nov 2006 08:33:50 -0500
+Jeff Garzik <jeff@garzik.org> wrote:
 
-Do you know why in the sched_info_arrive() and sched_info_depart()
-functions the calculation of delta_jiffies does not use the time_after
-or time_before macro to prevent  the miscalculation when jiffies
-overflow?
+> Daniel J Blueman wrote:
+> > Linus, Trond,
+> > 
+> > What is the chance of this patch making it into the final 2.6.19?
+> > 
+> > WIthout it, there is a serious NFSv4 open() regression; I've been
+> > running it on client and server for ~1 week under load and it resolves
+> > the condition w/o side-effects. See the LKML thread "Poor NFSv4 first
+> > impressions" for further details.
+> 
+> strong ACK, provided that someone who knows the NFSv4 server code well 
+> (Neil B?) gives it an ACK.
+> 
 
-For instance the delta_jiffies variable is simply calculated as:
-
-delta_jiffies = now - t->sched_info.last_queued;
-
-Do not you think the more logical way should be
-
-if (time_after(now, t->sched_info.last_queued))
-   delta_jiffies = now - t->sched_info.last_queued;
-else
-   delta_jiffies = (MAX_JIFFIES - t->sched_info.last_queued) + now
-
-I have included more variables to measure some issues of schedule in
-the kernel (following schedstat idea) and I noticed that jiffies
-wraparound has led to wrong values, since the user space tool when
-collecting the values is producing negative values.
-
-Any comments?
-
-Can I provide a patch for that?
-
-BR,
-
-Mauricio Lin.
+Neil has acked it.  This is in my for-2.6.19 queue, probably later today.

@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753867AbWKHCFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753872AbWKHCGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753867AbWKHCFj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 21:05:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753871AbWKHCFj
+	id S1753872AbWKHCGu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 21:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753881AbWKHCGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 21:05:39 -0500
-Received: from mga09.intel.com ([134.134.136.24]:41223 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1753867AbWKHCFj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 21:05:39 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,398,1157353200"; 
-   d="scan'208"; a="157809229:sNHT24166786"
-Date: Tue, 7 Nov 2006 17:43:15 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: ak@suse.de, akpm@osdl.org
-Cc: shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       ashok.raj@intel.com, suresh.b.siddha@intel.com
-Subject: [patch 3/4] x86_64: add genapic_force
-Message-ID: <20061107174315.C5401@unix-os.sc.intel.com>
-References: <20061107173306.C3262@unix-os.sc.intel.com> <20061107173624.A5401@unix-os.sc.intel.com> <20061107174024.B5401@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061107174024.B5401@unix-os.sc.intel.com>; from suresh.b.siddha@intel.com on Tue, Nov 07, 2006 at 05:40:25PM -0800
+	Tue, 7 Nov 2006 21:06:50 -0500
+Received: from dpc691978010.direcpc.com ([69.19.78.10]:63372 "EHLO
+	third-harmonic.com") by vger.kernel.org with ESMTP id S1753872AbWKHCGt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 21:06:49 -0500
+Message-ID: <45513BB6.4010308@third-harmonic.com>
+Date: Tue, 07 Nov 2006 21:06:46 -0500
+From: john cooper <john.cooper@third-harmonic.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Kevin Hilman <khilman@mvista.com>
+CC: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org,
+       john cooper <john.cooper@third-harmonic.com>
+Subject: Re: 2.6.18-rt7: rollover with 32-bit cycles_t
+References: <4551348B.6070604@mvista.com>
+In-Reply-To: <4551348B.6070604@mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add genapic_force. Used by the next Intel quirks patch.
+Kevin Hilman wrote:
+> On ARM, I'm noticing the 'bug' message from check_critical_timing()
+> where two calls to get_cycles() are compared and the 2nd is assumed to
+> be >= the first.
+> 
+> This isn't properly handling the case of rollover which occurs
+> relatively often with fast hardware clocks and 32-bit cycle counters.
+> 
+> Is this really a bug?  If the get_cycles() can be assumed to run between
+> 0 and (cycles_t)~0, using the right unsigned math could get a proper
+> delta even in the rollover case.  Is this a safe assumption?
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
----
+I was concerned about that as well back when I was getting the
+instrumentation functional on the pxa270 as the rollover could
+be as short as ~8s which wasn't really long enough for test
+validation.  However there is a /64 prescaler on that ARM core
+(and others) which can function as a bandaid and extend the range
+to ~8minutes.
 
-diff --git a/arch/x86_64/kernel/genapic.c b/arch/x86_64/kernel/genapic.c
-index 8e78a75..236dc9e 100644
---- a/arch/x86_64/kernel/genapic.c
-+++ b/arch/x86_64/kernel/genapic.c
-@@ -33,7 +33,7 @@ extern struct genapic apic_flat;
- extern struct genapic apic_physflat;
- 
- struct genapic *genapic = &apic_flat;
--
-+struct genapic *genapic_force;
- 
- /*
-  * Check the APIC IDs in bios_cpu_apicid and choose the APIC mode.
-@@ -46,6 +46,14 @@ void __init clustered_apic_check(void)
- 	u8 cluster_cnt[NUM_APIC_CLUSTERS];
- 	int max_apic = 0;
- 
-+	/* genapic selection can be forced because of certain quirks and
-+	 * in future perhaps user can select this through cmdline
-+	 */
-+	if (genapic_force) {
-+		genapic = genapic_force;
-+		goto print;
-+	}
-+
- #if defined(CONFIG_ACPI)
- 	/*
- 	 * Some x86_64 machines use physical APIC mode regardless of how many
-diff --git a/include/asm-x86_64/genapic.h b/include/asm-x86_64/genapic.h
-index a0e9a4b..b80f4bb 100644
---- a/include/asm-x86_64/genapic.h
-+++ b/include/asm-x86_64/genapic.h
-@@ -30,6 +30,6 @@ struct genapic {
- };
- 
- 
--extern struct genapic *genapic;
-+extern struct genapic *genapic, *genapic_force, apic_flat;
- 
- #endif
+I wasn't able to convince myself in a quick read of the code if
+roll over was being detected/corrected (though it certainly may).
+But even if not the only requirement needed to do so would be to
+assure any two consecutive data points logged per CPU were spaced
+apart less than the counter's wrap interval.  Given the periodic
+events being logged in the normal course of operation this condition
+would certainly be met.
+
+-john
+
+-- 
+john.cooper@third-harmonic.com

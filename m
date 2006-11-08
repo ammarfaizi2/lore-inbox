@@ -1,34 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754533AbWKHLbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754531AbWKHLat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754533AbWKHLbH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 06:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754537AbWKHLbH
+	id S1754531AbWKHLat (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 06:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754533AbWKHLat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 06:31:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13280 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1754533AbWKHLbF (ORCPT
+	Wed, 8 Nov 2006 06:30:49 -0500
+Received: from www.osadl.org ([213.239.205.134]:30119 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1754531AbWKHLas (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 06:31:05 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061106150329.GA226@oleg> 
-References: <20061106150329.GA226@oleg> 
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: David Howells <dhowells@redhat.com>, Steven Rostedt <rostedt@goodmis.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] a minor fix for set_mb() in Documentation/memory-barriers.txt 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 08 Nov 2006 11:29:10 +0000
-Message-ID: <11039.1162985350@redhat.com>
+	Wed, 8 Nov 2006 06:30:48 -0500
+Subject: Re: 2.6.19-rc5: known regressions
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mingo@redhat.com, Komuro <komurojun-mbn@nifty.com>
+In-Reply-To: <20061108085235.GT4729@stusta.de>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	 <20061108085235.GT4729@stusta.de>
+Content-Type: text/plain
+Date: Wed, 08 Nov 2006 12:32:58 +0100
+Message-Id: <1162985578.8335.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
+On Wed, 2006-11-08 at 09:52 +0100, Adrian Bunk wrote:
+> Subject    : SMP kernel can not generate ISA irq properly
+> References : http://lkml.org/lkml/2006/10/22/15
+> Submitter  : Komuro <komurojun-mbn@nifty.com>
+> Handled-By : Thomas Gleixner <tglx@linutronix.de>
+> Status     : Thomas is investigating
 
-> set_mb() is used by set_current_state() which needs mb(), not wmb().
-> I think it would be right to assume that set_mb() implies mb(), all
-> arches seem to do just this.
+Problem is not reproducable on any of my boxen. 
 
-Yes, you're right.  Copy'n'paste error from the text about set_wmb() I think.
+Komuro, 
 
-Acked-By: David Howells <dhowells@redhat.com>
+is this still happening on -rc5 ? If yes, can you please provide the
+boot log with "apic=verbose" on the commandline ?
+
+	tglx
+
+

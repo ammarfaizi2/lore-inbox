@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161735AbWKHWLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423798AbWKHWKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161735AbWKHWLb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 17:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161742AbWKHWLa
+	id S1423798AbWKHWKp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 17:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423800AbWKHWKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 17:11:30 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:6502 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161735AbWKHWL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 17:11:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=Uf0rbvIMd3aHg8CKWIrBPr6SENKhtvVRTT6397t0qL0KPJDggCRdM55/EJIqeOR0YzLsxkeJZ3hlSau5g156ESMsW3sbBRhsYFujR7ERHlKmjddS5mXU0L4PuHIXAUzf0KsW9Gx1xCAeuqXzqvoXMfbODCLLSelA+ZH9b65TrSs=
-Date: Thu, 9 Nov 2006 01:11:21 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Tom Tucker <tom@opengridcomputing.com>,
-       Steve Wise <swise@opengridcomputing.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] amso1100: fix "&& 0xff" typo
-Message-ID: <20061108221121.GC4972@martell.zuzino.mipt.ru>
+	Wed, 8 Nov 2006 17:10:45 -0500
+Received: from mx2.suse.de ([195.135.220.15]:2992 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423798AbWKHWKn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 17:10:43 -0500
+Date: Wed, 8 Nov 2006 23:10:28 +0100
+From: Olaf Kirch <okir@suse.de>
+To: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       davem@sunset.davemloft.net, kuznet@ms2.inr.ac.ru,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.19-rc1: Volanomark slowdown
+Message-ID: <20061108221028.GA16889@suse.de>
+References: <1162924354.10806.172.camel@localhost.localdomain> <1163001318.3138.346.camel@laptopd505.fenrus.org> <20061108162955.GA4364@suse.de> <1163011132.10806.189.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1163011132.10806.189.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+On Wed, Nov 08, 2006 at 10:38:52AM -0800, Tim Chen wrote:
+> The patch in question affects purely TCP and not the scheduler.  I don't
 
- drivers/infiniband/hw/amso1100/c2_rnic.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I know.
 
---- a/drivers/infiniband/hw/amso1100/c2_rnic.c
-+++ b/drivers/infiniband/hw/amso1100/c2_rnic.c
-@@ -157,8 +157,8 @@ static int c2_rnic_query(struct c2_dev *
- 
- 	props->fw_ver =
- 		((u64)be32_to_cpu(reply->fw_ver_major) << 32) |
--		((be32_to_cpu(reply->fw_ver_minor) && 0xFFFF) << 16) |
--		(be32_to_cpu(reply->fw_ver_patch) && 0xFFFF);
-+		((be32_to_cpu(reply->fw_ver_minor) & 0xFFFF) << 16) |
-+		(be32_to_cpu(reply->fw_ver_patch) & 0xFFFF);
- 	memcpy(&props->sys_image_guid, c2dev->netdev->dev_addr, 6);
- 	props->max_mr_size         = 0xFFFFFFFF;
- 	props->page_size_cap       = ~(C2_MIN_PAGESIZE-1);
+> think the scheduler has anything to do with the slowdown seen after
+> the patch is applied.
 
+In fixing performance issues, the most obvious explanation isn't always
+the right one. It's quite possible you're right, sure.
+
+What I'm saying though is that it doesn't rhyme with what I've seen of
+Volanomark - we ran 2.6.16 on a 4p Intel box for instance and it didn't
+come close to saturating a Gigabit pipe before it maxed out on CPU load.
+
+> The total number of messages being exchanged around the chatrooms in 
+> Volanomark remain unchanged.  But ACKS increase by 3.5 times and
+> segments received increase by 38% from netstat.  
+
+> So I think it is reasonable to conclude that the increase in TCP traffic
+> reduce the bandwidth and throughput in Volanomark.
+
+You could count the number of outbound packets dropped on the server.
+
+Olaf
+-- 
+Walks like a duck. Quacks like a duck. Must be a chicken.

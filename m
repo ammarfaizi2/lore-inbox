@@ -1,59 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965932AbWKHPzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWKHP4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965932AbWKHPzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 10:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965935AbWKHPzY
+	id S1030205AbWKHP4J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 10:56:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWKHP4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 10:55:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45719 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965932AbWKHPzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 10:55:23 -0500
-Subject: Re: 2.6.19-rc1: Volanomark slowdown
-From: Arjan van de Ven <arjan@infradead.org>
-To: tim.c.chen@linux.intel.com
-Cc: linux-kernel@vger.kernel.org, davem@sunset.davemloft.net,
-       kuznet@ms2.inr.ac.ru, netdev@vger.kernel.org
-In-Reply-To: <1162924354.10806.172.camel@localhost.localdomain>
-References: <1162924354.10806.172.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 08 Nov 2006 16:55:18 +0100
-Message-Id: <1163001318.3138.346.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Wed, 8 Nov 2006 10:56:09 -0500
+Received: from smtpout07-01.prod.mesa1.secureserver.net ([64.202.165.230]:64467
+	"HELO smtpout07-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1030205AbWKHP4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 10:56:06 -0500
+Message-ID: <4551FE14.7010801@seclark.us>
+Date: Wed, 08 Nov 2006 10:56:04 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Luming Yu <luming.yu@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
+Subject: Re: New laptop - problems with linux
+References: <4551EC86.5010600@seclark.us> <3877989d0611080704j30b88bd4o4558e606fd6ffc11@mail.gmail.com>
+In-Reply-To: <3877989d0611080704j30b88bd4o4558e606fd6ffc11@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-07 at 10:32 -0800, Tim Chen wrote:
-> The patch
-> 
-> [TCP]: Send ACKs each 2nd received segment
-> commit: 1ef9696c909060ccdae3ade245ca88692b49285b
-> http://kernel.org/git/?
-> p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1ef9696c909060ccdae3ade245ca88692b49285b
-> 
-> reduced Volanomark benchmark throughput by 10%.  
-> This is because Volanomark sends 
-> short message (<100 bytes) on its TCP
-> connections.  This patch increases the number of ACKs 
-> traffic by 3.5 times.  
-> 
-> By adopting this patch, we assume that with
-> small segment, having short delay is important 
-> enough that we are willing to reduce bandwidth 
-> with more ACKs.  
+Luming Yu wrote:
 
-I wonder if it's an option to use low priority QoS fields for these acks
-(heck I don't even know if ACKs have such fields in their packet) so
-that they can get dropped if there are more packets then there is
-bandwidth ....
+>On 11/8/06, Stephen Clark <Stephen.Clark@seclark.us> wrote:
+>  
+>
+>>Hi list,
+>>
+>>I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core
+>>2 Duo T560,0 2gb pc5400 memory.
+>> From checking around it appeared all the
+>>hardware was well supported by linux - but I am having major problems.
+>>
+>>
+>>1. neither the wireless lan Intel pro 3945ABG or built in ethernet
+>>RTL-8169C are detected and configured
+>>2. the disk which is a 7200rpm Hitachi travelmate transfers data at 1.xx
+>>mb/sec
+>>   according to hdparm. This same drive in my old laptop an HP n5430 with a
+>>   850 duron the rate was 12-14 mb/sec.
+>>
+>>Attached are the output of lspci -vvv, dmesg and hdparm
+>>Any insight would be greatly appreciated.
+>>
+>>    
+>>
+>
+>Sounds like interrupt problem. Could you post /proc/interrupts?
+>It is worthy to try pci=noacpi.
+>
+>  
+>
 
+           CPU0       CPU1
+  0:     902788     893290    IO-APIC-edge  timer
+  1:       1444       1393    IO-APIC-edge  i8042
+  8:          1          0    IO-APIC-edge  rtc
+  9:      16443      16618   IO-APIC-level  acpi
+ 12:      13089      14223    IO-APIC-edge  i8042
+ 14:          0          0    IO-APIC-edge  libata
+ 15:     223418     202091    IO-APIC-edge  ide1
+169:     129430     129240   IO-APIC-level  uhci_hcd:usb4, ohci1394, HDA 
+Intel, i915@pci:0000:00:02.0
+177:          0          0   IO-APIC-level  sdhci:slot0
+185:          0          0   IO-APIC-level  uhci_hcd:usb3
+225:        527        660   IO-APIC-level  uhci_hcd:usb1, ehci_hcd:usb5
+233:        629        145   IO-APIC-level  uhci_hcd:usb2
+NMI:          0          0
+LOC:    1793413    1794404
+ERR:          0
+MIS:          0
+
+tried pci=noacpi
+only minor difference in interrupt assignments.
+
+Steve
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
 

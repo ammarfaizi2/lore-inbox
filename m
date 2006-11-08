@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754313AbWKHFh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754322AbWKHFp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754313AbWKHFh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 00:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754314AbWKHFh3
+	id S1754322AbWKHFp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 00:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754323AbWKHFp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 00:37:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:3989 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1754312AbWKHFh2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 00:37:28 -0500
-Date: Tue, 7 Nov 2006 21:36:27 -0800
-From: Paul Jackson <pj@sgi.com>
-To: vatsa@in.ibm.com
-Cc: dev@openvz.org, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       balbir@in.ibm.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       matthltc@us.ibm.com, dipankar@in.ibm.com, rohitseth@google.com,
-       menage@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-Message-Id: <20061107213627.dc6ba1ce.pj@sgi.com>
-In-Reply-To: <20061108051257.GB2964@in.ibm.com>
-References: <20061031115342.GB9588@in.ibm.com>
-	<6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>
-	<20061101172540.GA8904@in.ibm.com>
-	<6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>
-	<20061106124948.GA3027@in.ibm.com>
-	<6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
-	<20061107104118.f02a1114.pj@sgi.com>
-	<6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>
-	<6599ad830611071421s7792bbb1qd9c7b1fc840dfa50@mail.gmail.com>
-	<20061107191518.c094ce1a.pj@sgi.com>
-	<20061108051257.GB2964@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Wed, 8 Nov 2006 00:45:59 -0500
+Received: from mga07.intel.com ([143.182.124.22]:56456 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1754321AbWKHFp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 00:45:58 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,399,1157353200"; 
+   d="scan'208"; a="142841858:sNHT19343807"
+Date: Tue, 7 Nov 2006 21:23:32 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, ak@suse.de,
+       shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       ashok.raj@intel.com
+Subject: Re: [patch 2/4] introduce the mechanism of disabling cpu hotplug control
+Message-ID: <20061107212332.A6418@unix-os.sc.intel.com>
+References: <20061107173306.C3262@unix-os.sc.intel.com> <20061107173624.A5401@unix-os.sc.intel.com> <20061107174024.B5401@unix-os.sc.intel.com> <20061107195430.37f8deb0.akpm@osdl.org> <20061107200133.A5933@unix-os.sc.intel.com> <20061107203504.b8e17ea8.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061107203504.b8e17ea8.akpm@osdl.org>; from akpm@osdl.org on Tue, Nov 07, 2006 at 08:35:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa wrote:
-> As was discussed in a previous thread, having a 'threads' file also will
-> be good.
+On Tue, Nov 07, 2006 at 08:35:04PM -0800, Andrew Morton wrote:
+> On Tue, 7 Nov 2006 20:01:34 -0800
+> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
 > 
-> 	http://lkml.org/lkml/2006/11/1/386
+> > I wanted to add something like disable_cpu_hotplug
 > 
-> Writing to 'tasks' file will move that single thread to the new
-> container. Writing to 'threads' file will move all the threads of the
-> process into the new container.
+> My point is, `enable_cpu_hotplug' is nicer
 
-Yup - agreed.
+Yep. I got it and hence my "will clean this up" assurance :)
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+This is all coming from the `no_control' member in cpu structure and I will
+change that to something like `hotpluggable'. That will make the patch slightly
+big but def clean.
+
+thanks,
+suresh

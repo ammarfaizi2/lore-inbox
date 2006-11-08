@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423918AbWKHXMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161562AbWKHXUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423918AbWKHXMx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 18:12:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423922AbWKHXMx
+	id S1161562AbWKHXUw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 18:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161680AbWKHXUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 18:12:53 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:44511 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S1423918AbWKHXMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 18:12:52 -0500
-Date: Thu, 9 Nov 2006 00:12:48 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: How to interpret MCE messages?
-Message-ID: <20061108231248.GC28926@piper.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20061108162022.GA4258@piper.madduck.net> <1163003354.23956.43.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
-Content-Disposition: inline
-In-Reply-To: <1163003354.23956.43.camel@localhost.localdomain>
-X-OS: Debian GNU/Linux 4.0 kernel 2.6.17-2-amd64 x86_64
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 8 Nov 2006 18:20:52 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:18667 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1161562AbWKHXUv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 18:20:51 -0500
+Date: Thu, 9 Nov 2006 10:20:32 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Judith Lebzelter <judith@osdl.org>
+Cc: linuxppc-dev@ozlabs.org, hch@lst.de, paulus@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  powerpc iseries link error in allmodconfig
+Message-Id: <20061109102032.8c3e3b58.sfr@canb.auug.org.au>
+In-Reply-To: <20061108173429.GB14991@shell0.pdx.osdl.net>
+References: <20061108173429.GB14991@shell0.pdx.osdl.net>
+X-Mailer: Sylpheed version 2.3.0beta4 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__9_Nov_2006_10_20_32_+1100_imOnlbEjKaY9r.oi"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---i7F3eY7HS/tUJxUd
-Content-Type: text/plain; charset=us-ascii
+--Signature=_Thu__9_Nov_2006_10_20_32_+1100_imOnlbEjKaY9r.oi
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
-also sprach Alan Cox <alan@lxorguk.ukuu.org.uk> [2006.11.08.1729 +0100]:
-> >     memory/cache error 'data read mem transaction, data
-> >     transaction, level 2'
->=20
-> L2 Cache
+On Wed, 8 Nov 2006 09:34:29 -0800 Judith Lebzelter <judith@osdl.org> wrote:
+>
+> Choose rpa_vscsi.c over iseries_vscsi.c when building both
+> pseries and iseries.  This fixes a link error.
+>
+> Signed-off-by:  Judith Lebzelter <judith@osdl.org>
 
-Gosh, I must be blind. Somehow there was too much information in
-that dump. Thanks Alan!
+Acked-by: Stephen Rothwell <sfr@canb.auug.org.au>
 
-> > Before I go out and buy a new motherboard (as I assume that it's
-> > a L1/L2 cache problem),=20
->=20
-> L1/L2 cache are on the CPU these days. Double check with the processor
-> docs and vendor but I think mcelog is actually trying to tell you that
-> the CPU wants to be warranty returned. It might also of course be a heat
-> problem.
+--
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-I am afraid the CPU might be out of warranty, but I'll try; I doubt
-it's a heat problem since there are plenty fans and the machine's
-interior is actually of quite agreeable temperature.
-
-I'll check the CPU. Again, thanks.
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-spamtraps: madduck.bogus@madduck.net
-=20
-if you find a spelling mistake in the above, you get to keep it.
-
---i7F3eY7HS/tUJxUd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature (GPG/PGP)
-Content-Disposition: inline
+--Signature=_Thu__9_Nov_2006_10_20_32_+1100_imOnlbEjKaY9r.oi
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQFFUmRwIgvIgzMMSnURArhnAKDPeK6XlBbsHshUKCo4xy0CsIWN+QCgthCO
-GWdddii8u33GaFtzEcGQO30=
-=5dCP
+iD8DBQFFUmZGFdBgD/zoJvwRAqQdAJ4q6UB2eodBXXBt+BeyEEb8e9MxRACfb2BK
+bLPrP4dxPqP1HJPwFnsKW04=
+=WKsI
 -----END PGP SIGNATURE-----
 
---i7F3eY7HS/tUJxUd--
+--Signature=_Thu__9_Nov_2006_10_20_32_+1100_imOnlbEjKaY9r.oi--

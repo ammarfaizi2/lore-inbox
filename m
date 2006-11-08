@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965864AbWKHOiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965872AbWKHOhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965864AbWKHOiX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:38:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965819AbWKHOhz
+	id S965872AbWKHOhi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965879AbWKHOhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:37:55 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:65030 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S965864AbWKHOhB (ORCPT
+	Wed, 8 Nov 2006 09:37:38 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:6151 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S965871AbWKHOhd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:37:01 -0500
+	Wed, 8 Nov 2006 09:37:33 -0500
 From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 Organization: tuxland
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 21/33] usb: phidgetkit free urb cleanup
-Date: Wed, 8 Nov 2006 15:36:07 +0100
+Subject: [PATCH 27/33] usb: kobil_sct kill urb cleanup
+Date: Wed, 8 Nov 2006 15:36:38 +0100
 User-Agent: KMail/1.9.5
 Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        linux-usb-devel@lists.sourceforge.net
@@ -24,25 +24,25 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611081536.08682.m.kozlowski@tuxland.pl>
+Message-Id: <200611081536.40314.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-- usb_free_urb() cleanup
+- usb_kill_urb() cleanup
 
 Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
---- linux-2.6.19-rc4-orig/drivers/usb/misc/phidgetkit.c	2006-11-06 17:08:21.000000000 +0100
-+++ linux-2.6.19-rc4/drivers/usb/misc/phidgetkit.c	2006-11-06 19:27:48.000000000 +0100
-@@ -650,8 +650,7 @@ out2:
- 		device_remove_file(kit->dev, &dev_output_attrs[i]);
- out:
- 	if (kit) {
--		if (kit->irq)
--			usb_free_urb(kit->irq);
-+		usb_free_urb(kit->irq);
- 		if (kit->data)
- 			usb_buffer_free(dev, URB_INT_SIZE, kit->data, kit->data_dma);
- 		if (kit->dev)
+--- linux-2.6.19-rc4-orig/drivers/usb/serial/kobil_sct.c	2006-11-06 17:08:21.000000000 +0100
++++ linux-2.6.19-rc4/drivers/usb/serial/kobil_sct.c	2006-11-07 17:05:56.000000000 +0100
+@@ -355,8 +355,7 @@ static void kobil_close (struct usb_seri
+ 		usb_free_urb( port->write_urb );
+ 		port->write_urb = NULL;
+ 	}
+-	if (port->interrupt_in_urb)
+-		usb_kill_urb(port->interrupt_in_urb);
++	usb_kill_urb(port->interrupt_in_urb);
+ }
+ 
+ 

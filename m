@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161748AbWKHXmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161693AbWKHXro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161748AbWKHXmL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 18:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161753AbWKHXmL
+	id S1161693AbWKHXro (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 18:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161750AbWKHXro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 18:42:11 -0500
-Received: from gate.crashing.org ([63.228.1.57]:452 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161748AbWKHXmJ (ORCPT
+	Wed, 8 Nov 2006 18:47:44 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19943 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161693AbWKHXro (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 18:42:09 -0500
-Subject: Re: DMA APIs gumble grumble
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>, linux-input@atrey.karlin.mff.cuni.cz,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20061108225612.GA12345@flint.arm.linux.org.uk>
-References: <1162950877.28571.623.camel@localhost.localdomain>
-	 <20061108082536.GA3405@rhun.haifa.ibm.com>
-	 <1162975653.28571.723.camel@localhost.localdomain>
-	 <20061108225612.GA12345@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Thu, 09 Nov 2006 10:41:21 +1100
-Message-Id: <1163029281.28571.767.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Nov 2006 18:47:44 -0500
+Date: Thu, 9 Nov 2006 00:47:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, pm list <linux-pm@lists.osdl.org>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [linux-pm] S2RAM and PCI quirks
+Message-ID: <20061108234729.GB23816@elf.ucw.cz>
+References: <1163000705.23956.18.camel@localhost.localdomain> <1163000924.3138.342.camel@laptopd505.fenrus.org> <1163001711.23956.30.camel@localhost.localdomain> <200611082218.55052.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611082218.55052.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 22:56 +0000, Russell King wrote:
-> On Wed, Nov 08, 2006 at 07:47:33PM +1100, Benjamin Herrenschmidt wrote:
-> > Yes, I need multiple dma_ops for powerpc too
+On Wed 2006-11-08 22:18:54, Rafael J. Wysocki wrote:
+> On Wednesday, 8 November 2006 17:01, Alan Cox wrote:
+> > Ar Mer, 2006-11-08 am 16:48 +0100, ysgrifennodd Arjan van de Ven:
+> > > at the same time I'm not 100% convinced it's ok to always run all quirks
+> > > at resume, for one the difference is that there now is a driver active
+> > > owning the device... Almost sounds like having a per quirk flag stating
+> > > "run at resume" is needed ;-(
+> > 
+> > We probably need a quirk class for resume in this situation. The kind of
+> > things that worry me if we are not doing the quirk handling, and what I
+> > suspect happened in the case I looked at are that chipset bug
+> > workarounds did not get restored, and in this case the older VIA chipset
+> > involved then corrupted DMA streams and trashed the users disk.
 > 
-> Ditto for ARM.
+> Now that would explain why many boxes resume from disk correctly, but don't
+> resume from RAM by any means.
 
-Ok, so there is some interest in having the dma_ops in struct device
-beyond powerpc.
-
-I'll put together today a patch doing:
-
- - add #include <asm/device.h> to linux/device.h
- - add a device.h file in asm/* that does:
-
-	struct dev_sysdata {
-	};
-
- - add a struct dev_sysdata sysdata; field to struct device
-
-That patch alone is 0 overhead and allows archs to start adding things.
-I'll then modify my pending patches for 2.6.20 to use that instead of my
-current device_ext thing.
-
-Is that ok with everybody for 2.6.20 ?
-
-Then, we can do, in no special order:
-
-  - on x86, put the acpi data in there and remove firmware_data from
-struct device
-
-  - on x86, m32, frv, put the dma_coherent_mem pointer in there too and
-remove it from struct device
-
-  - you can use it on ARM to put your dma_operations pointer as I'm
-doing in for powerpc
-
-  - x86 can do the same 
-
-etc...
-
-Cheers,
-Ben.
-
-
+Well, there are other good reasons, too. (suspend-to-disk resume works
+with hardware in mostly-initialized state, while suspend-to-ram resume
+works with hardware in mostly-weird state). Yes, per-quirk "run me on
+resume-from-ram" is probably the way forward.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

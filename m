@@ -1,72 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754573AbWKHMgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754572AbWKHMif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754573AbWKHMgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 07:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754572AbWKHMgn
+	id S1754572AbWKHMif (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 07:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754569AbWKHMie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 07:36:43 -0500
-Received: from nz-out-0102.google.com ([64.233.162.199]:52642 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1754573AbWKHMgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 07:36:42 -0500
+	Wed, 8 Nov 2006 07:38:34 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:31280 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1754572AbWKHMie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 07:38:34 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=l3xjIB8X1heXHFk1eEJW+aSrxK4XAKSozJdTb9mDqZstXv0/bM761ifRQq5+2RWic4TMwiw2MHmGJIasXy536/YWnvO9pm2AocQn4n02ZqY9yLXGz/Gv18BoUozEW1rxA1yJ2EH1qk3EZTCVWRq6xVokMaY6WDm2WP42kCxukPA=
-Date: Wed, 8 Nov 2006 21:36:36 +0900
+        h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=aOTpVBRwt2muymBVkBPWOXSJwdYiec8+2tu5doJtCJx1dmzZOnDE6c6VOAEJ7KoQJq22Fv+MLEX/ZfTt21JIupNoBdWbtbpciGI18Q8jz4lGVDQgU+JxQXjhc6t8CeOrV8SXY9MhVVSHVqTCI5JfDLn5d9VmKu0CW6oVZQ9F9eI=
+Date: Wed, 8 Nov 2006 21:38:22 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] input: make serio_register_driver() return error code
-Message-ID: <20061108123636.GA14871@localhost>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] input: make serio_register_driver() return error
+Message-ID: <20061108123822.GB14871@localhost>
 Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-kernel@vger.kernel.org
-References: <20061107120605.GA13896@localhost> <d120d5000611070620l5a0731d8jd5778bc8c8b49b2b@mail.gmail.com>
+References: <20061107120605.GA13896@localhost> <d120d5000611070620l5a0731d8jd5778bc8c8b49b2b@mail.gmail.com> <20061108123636.GA14871@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d5000611070620l5a0731d8jd5778bc8c8b49b2b@mail.gmail.com>
+In-Reply-To: <20061108123636.GA14871@localhost>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2006 at 09:20:07AM -0500, Dmitry Torokhov wrote:
-> >This patch makes serio_register_driver() call driver_register()
-> >directly instead of kseriod so that it can check whether
-> >driver_register() is succeeded or not.
-> >
-> 
-> This slows down boot process because probing for mice and keyboards
-> takes too long (for some touchpads it takes about 4 seconds to do
+This patch makes serio_register_driver() return error
+when serio_event allocation is failed or unable to get module reference.
 
-I understand the reason why driver_register() is done by kseriod.
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-> reset). We could change allocation from GFP_ATOMIC to GFP_KERNEL for
-> SERIO_REGISTER_DRIVER events to make it more robust but otherwise I'd
-> leave serio_register_driver return void. You could also add a flag to
-> serio driver indicating whether registration is complete and check
-> that flag in serio_unregister_driver so it does not do stupid things.
+ drivers/input/serio/serio.c |   12 ++++++++----
+ include/linux/serio.h       |    6 +++---
+ 2 files changed, 11 insertions(+), 7 deletions(-)
 
-I reorganzed the patch set.
-
-serio driver registration can fail in two different ways.
-
-1) serio_event allocation failure by serio_register_driver().
-
-   It happens in module_init() context. It is possible to check this
-   allocation failure by making serio_register_driver() return error.
-
-2) driver_register() failure by kseriod.
-
-   This failure cannot be checked by serio_register_driver().
-   But it is necessary to prevent serio_unregister_driver() from
-   trying to call driver_unregister() with not registered driver
-   by adding flag to serio driver indicating whether registration is
-   complete.
-
-1/4: make serio_register_driver() return error -- 1)
-2/4: check serio_register_driver() error -- 1)
-3/4: check whether serio dirver registration is completed -- 2)
-4/4: change to GFP_KERNEL for SERIO_REGISTER_DRIVER event allocation
-
+Index: work-fault-inject/drivers/input/serio/serio.c
+===================================================================
+--- work-fault-inject.orig/drivers/input/serio/serio.c
++++ work-fault-inject/drivers/input/serio/serio.c
+@@ -190,11 +190,12 @@ static LIST_HEAD(serio_event_list);
+ static DECLARE_WAIT_QUEUE_HEAD(serio_wait);
+ static struct task_struct *serio_task;
+ 
+-static void serio_queue_event(void *object, struct module *owner,
+-			      enum serio_event_type event_type)
++static int serio_queue_event(void *object, struct module *owner,
++			     enum serio_event_type event_type)
+ {
+ 	unsigned long flags;
+ 	struct serio_event *event;
++	int err = 0;
+ 
+ 	spin_lock_irqsave(&serio_event_lock, flags);
+ 
+@@ -215,6 +216,7 @@ static void serio_queue_event(void *obje
+ 
+ 	if ((event = kmalloc(sizeof(struct serio_event), GFP_ATOMIC))) {
+ 		if (!try_module_get(owner)) {
++			err = -EINVAL;
+ 			printk(KERN_WARNING "serio: Can't get module reference, dropping event %d\n", event_type);
+ 			kfree(event);
+ 			goto out;
+@@ -227,10 +229,12 @@ static void serio_queue_event(void *obje
+ 		list_add_tail(&event->node, &serio_event_list);
+ 		wake_up(&serio_wait);
+ 	} else {
++		err = -ENOMEM;
+ 		printk(KERN_ERR "serio: Not enough memory to queue event %d\n", event_type);
+ 	}
+ out:
+ 	spin_unlock_irqrestore(&serio_event_lock, flags);
++	return err;
+ }
+ 
+ static void serio_free_event(struct serio_event *event)
+@@ -802,11 +806,11 @@ static void serio_add_driver(struct seri
+ 			drv->driver.name, error);
+ }
+ 
+-void __serio_register_driver(struct serio_driver *drv, struct module *owner)
++int __serio_register_driver(struct serio_driver *drv, struct module *owner)
+ {
+ 	drv->driver.bus = &serio_bus;
+ 
+-	serio_queue_event(drv, owner, SERIO_REGISTER_DRIVER);
++	return serio_queue_event(drv, owner, SERIO_REGISTER_DRIVER);
+ }
+ 
+ void serio_unregister_driver(struct serio_driver *drv)
+Index: work-fault-inject/include/linux/serio.h
+===================================================================
+--- work-fault-inject.orig/include/linux/serio.h
++++ work-fault-inject/include/linux/serio.h
+@@ -91,10 +91,10 @@ static inline void serio_unregister_port
+ 	__serio_unregister_port_delayed(serio, THIS_MODULE);
+ }
+ 
+-void __serio_register_driver(struct serio_driver *drv, struct module *owner);
+-static inline void serio_register_driver(struct serio_driver *drv)
++int __serio_register_driver(struct serio_driver *drv, struct module *owner);
++static inline int serio_register_driver(struct serio_driver *drv)
+ {
+-	__serio_register_driver(drv, THIS_MODULE);
++	return __serio_register_driver(drv, THIS_MODULE);
+ }
+ 
+ void serio_unregister_driver(struct serio_driver *drv);

@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754009AbWKHDXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754028AbWKHDfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754009AbWKHDXn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 22:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754028AbWKHDXn
+	id S1754028AbWKHDfS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 22:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753985AbWKHDfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 22:23:43 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:13625 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1754009AbWKHDXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 22:23:42 -0500
-Subject: Re: 2.6.18-rt7: rollover with 32-bit cycles_t
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Kevin Hilman <khilman@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4551348B.6070604@mvista.com>
-References: <4551348B.6070604@mvista.com>
-Content-Type: text/plain
-Date: Tue, 07 Nov 2006 19:23:41 -0800
-Message-Id: <1162956221.20694.13.camel@dwalker1.mvista.com>
+	Tue, 7 Nov 2006 22:35:18 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57486 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1754028AbWKHDfR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 22:35:17 -0500
+Date: Wed, 8 Nov 2006 14:33:50 +1100
+From: David Chinner <dgc@sgi.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
+       Srinivasa DS <srinivasa@in.ibm.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061108033350.GR11034@melbourne.sgi.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611080005.50070.rjw@sisk.pl> <20061107234951.GD30653@agk.surrey.redhat.com> <200611080100.18290.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611080100.18290.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-07 at 17:36 -0800, Kevin Hilman wrote:
-> On ARM, I'm noticing the 'bug' message from check_critical_timing()
-> where two calls to get_cycles() are compared and the 2nd is assumed to
-> be >= the first.
+On Wed, Nov 08, 2006 at 01:00:17AM +0100, Rafael J. Wysocki wrote:
 > 
-> This isn't properly handling the case of rollover which occurs
-> relatively often with fast hardware clocks and 32-bit cycle counters.
-> 
-> Is this really a bug?  If the get_cycles() can be assumed to run between
-> 0 and (cycles_t)~0, using the right unsigned math could get a proper
-> delta even in the rollover case.  Is this a safe assumption?
+> However, XFS_IOC_FREEZE happily returns 0 after calling freeze_bdev(),
+> apparetnly assuming that it won't fail.
 
-Seems like the check should really be using something like time_before()
-time_after() which takes the rollover into account .. What I don't
-understand is why we don't see those on x86 ..
+Because it _can't_ fail at this point. We've got an active superblock,
+because we've had to open a fd on the filesystem to get to the point
+where we can issue the ioctl.
 
-Daniel
+Hence the get_super() call will always succeed and the freeze
+will be executed if we are not read only. The superblock
+state changes if the freeze goes ahead, and XFS uses this state
+change to determine what to do when the thaw command is sent.
 
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

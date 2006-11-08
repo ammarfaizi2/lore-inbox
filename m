@@ -1,77 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423688AbWKHUqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423694AbWKHUs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423688AbWKHUqk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423698AbWKHUqk
+	id S1423694AbWKHUs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 15:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423698AbWKHUs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:46:40 -0500
-Received: from nz-out-0102.google.com ([64.233.162.199]:8911 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1423688AbWKHUqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:46:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Pg749rRrXZ3sjoHph7hqF5ANFil3mI6Lfkzg/Ox6M81BVbuwa/r+YL7lFMJ+YN9lD4eIyNfkv2wVGOwkjU9fiQ0TIgl3b3LMaLz/RTN9HyzDpFL5fndbYAyRYtBT9EZoF0OTzxZWezyrAuWssdK7t9DBnl/ml+OkHUwW+62isVc=
-Message-ID: <1defaf580611081246p7158e083h9e3658f2344ed121@mail.gmail.com>
-Date: Wed, 8 Nov 2006 21:46:37 +0100
-From: "Haavard Skinnemoen" <hskinnemoen@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [-mm patch 0/2] MACB driver update
-Cc: "Haavard Skinnemoen" <hskinnemoen@atmel.com>,
-       "Andrew Victor" <andrew@sanpeople.com>,
-       "Jeff Garzik" <jgarzik@pobox.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061108115039.58e7f6f5.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 8 Nov 2006 15:48:28 -0500
+Received: from nigel.suspend2.net ([203.171.70.205]:7660 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1423694AbWKHUs1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 15:48:27 -0500
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>
+In-Reply-To: <200611081310.19100.rjw@sisk.pl>
+References: <20061107183459.GG6993@agk.surrey.redhat.com>
+	 <20061107234951.GD30653@agk.surrey.redhat.com>
+	 <20061108023039.GF30653@agk.surrey.redhat.com>
+	 <200611081310.19100.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Thu, 09 Nov 2006 07:48:20 +1100
+Message-Id: <1163018900.8844.2.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061108203358.558c28d3@cad-250-152.norway.atmel.com>
-	 <20061108115039.58e7f6f5.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/8/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Wed, 8 Nov 2006 20:33:58 +0100
-> Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
+Hi.
 
-> Patches have names.  I currently have
+On Wed, 2006-11-08 at 13:10 +0100, Rafael J. Wysocki wrote:
+> On Wednesday, 8 November 2006 03:30, Alasdair G Kergon wrote:
+> > On Tue, Nov 07, 2006 at 11:49:51PM +0000, Alasdair G Kergon wrote:
+> > > I hadn't noticed that -mm patch.  I'll take a look.  
+> > 
+> > swsusp-freeze-filesystems-during-suspend-rev-2.patch
+> > 
+> > I think you need to give more thought to device-mapper
+> > interactions here.  If an underlying device is suspended
+> > by device-mapper without freezing the filesystem (the
+> > normal state) and you issue a freeze_bdev on a device
+> > above it, the freeze_bdev may never return if it attempts
+> > any synchronous I/O (as it should).
+> 
+> Well, it looks like the interactions with dm add quite a bit of
+> complexity here.
+> 
+> > Try:
+> >   while process generating I/O to filesystem on LVM
+> >   issue dmsetup suspend --nolockfs (which the lvm2 tools often do)
+> >   try your freeze_filesystems()
+> 
+> Okay, I will.
+> 
+> > Maybe: don't allow freeze_filesystems() to run when the system is in that
+> > state;
+> 
+> I'd like to avoid that (we may be running out of battery power at this point).
+> 
+> > or, use device-mapper suspend instead of freeze_bdev directly where 
+> > dm is involved;
+> 
+> How do I check if dm is involved?
+> 
+> > or skip dm devices that are already frozen - all with 
+> > appropriate dependency tracking to process devices in the right order.
+> 
+> I'd prefer this one, but probably the previous one is simpler to start with.
 
-Sorry. I meant that you can drop these:
+Shouldn't we just go for the right thing to begin with? Otherwise we'll
+just make more problems for ourselves later.
 
-> gpio-framework-for-avr32.patch
-> avr32-spi-ethernet-platform_device-update.patch
-> avr32-move-spi-device-definitions-into-main-board.patch
-> avr32-move-ethernet-tag-parsing-to-board-specific.patch
+If we do this last one, I guess we want to do something like I was doing
+before (creating a list of the devices we've frozen)?
 
-and keep these:
+Regards,
 
-> atmel-spi-driver.patch
-> atmel-spi-driver-maintainers-entry.patch
-> atmel-macb-ethernet-driver.patch
-> adapt-macb-driver-to-net_device-changes.patch
->
-> I'd prefer to drop the lot, but we do have those SPI patches which David
-> needs to see.
+Nigel
 
-Ok, just do that. We need to get the GPIO stuff sorted out before the
-SPI driver can be considered final.
-
-> So in fact I do think I'd prefer to drop everything.  How about
->
-> a) you sort out the SPI patches with David, send them over to me when
->    it's ready and
->
-> b) everything else goes into Linus from your git tree, and I include
->    your git tree in -mm?
-
-Fine with me. Sorry for pushing this mess to you. I'll post a new macb
-patch for review to the netdev list tomorrow.
-
-> (I hope that tree works, btw - for some reason it seems that any git tree
-> which isn't on kernel.org is down half the time).
-
-I hope so too. I'll pull from it myself from time to see how it works.
-
-Haavard

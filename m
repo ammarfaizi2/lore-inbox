@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965917AbWKHPVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965919AbWKHP0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965917AbWKHPVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 10:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965919AbWKHPVQ
+	id S965919AbWKHP0g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 10:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965932AbWKHP0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 10:21:16 -0500
-Received: from smtpauth03.prod.mesa1.secureserver.net ([64.202.165.183]:28381
-	"HELO smtpauth03.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S965917AbWKHPVP (ORCPT
+	Wed, 8 Nov 2006 10:26:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25540 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965939AbWKHP0e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 10:21:15 -0500
-Message-ID: <4551F5B7.1050709@seclark.us>
-Date: Wed, 08 Nov 2006 10:20:23 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
-Subject: Re: New laptop - problems with linux
-References: <4551EC86.5010600@seclark.us> <4551F3A6.8040807@gmail.com>
-In-Reply-To: <4551F3A6.8040807@gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Nov 2006 10:26:34 -0500
+Date: Wed, 8 Nov 2006 15:25:33 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Alasdair G Kergon <agk@redhat.com>, David Chinner <dgc@sgi.com>,
+       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Ingo Molnar <mingo@elte.hu>, Srinivasa DS <srinivasa@in.ibm.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061108152533.GH30653@agk.surrey.redhat.com>
+Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
+	Alasdair G Kergon <agk@redhat.com>, David Chinner <dgc@sgi.com>,
+	Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+	Ingo Molnar <mingo@elte.hu>, Srinivasa DS <srinivasa@in.ibm.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061108082722.GH8394166@melbourne.sgi.com> <20061108142511.GG30653@agk.surrey.redhat.com> <200611081543.28548.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611081543.28548.rjw@sisk.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
+On Wed, Nov 08, 2006 at 03:43:26PM +0100, Rafael J. Wysocki wrote:
+> Will it be enough to cover the interactions with dm?
+ 
+There are cases where you *cannot* freeze the filesystem (unless
+you wait for userspace processes to finish what they are doing) -
+and only dm can tell you that.
 
->Stephen Clark wrote:
->  
->
->>Hi list,
->>
->>I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core
->>2 Duo T560,0 2gb pc5400 memory.
->>From checking around it appeared all the
->>hardware was well supported by linux - but I am having major problems.
->>
->>
->>1. neither the wireless lan Intel pro 3945ABG or built in ethernet
->>RTL-8169C are detected and configured
->>    
->>
->
->If you searched the web, you would get ipw3945 sourceforge homepage in return --
->it's not in the vanilla kernel for the time being.
->
->Is r8169 module loaded?
->
->  
->
-No it is not loaded - i did a modprobe on it and it loaded but still no 
-ethx device.
+The freeze_filesystems() code ought to do it's best in any given 
+circumstances within the constraints.
 
->regards,
->  
->
+So:
+  Get the filesystem's block device.
+  Check the full tree of devices that that block device depends upon
+and for any device that belongs to device-mapper check if it is suspended.
+If it is, skip the original device.
 
+  struct mapped_device *dm_get_md(dev_t dev);
+  int dm_suspended(struct mapped_device *md);
+  void dm_put(struct mapped_device *md);
 
+Handling the tree is the difficult bit, but sysfs could help.
+[You can get the device-mapper dependencies with:
+  struct mapped_device *dm_get_md(dev_t dev);
+  struct dm_table *dm_get_table(struct mapped_device *md);
+  struct list_head *dm_table_get_devices(struct dm_table *t);
+  void dm_table_put(struct dm_table *t);
+  void dm_put(struct mapped_device *md);
+]
+
+Consider that you could have an already-frozen filesystem containing a loop
+device containing a device-mapper device containing a not-frozen filesystem.
+You won't be able to freeze that top filesystem because the I/O would
+queue lower down the stack.  (Similar problem if the device-mapper device
+in the stack was suspended.)
+
+Alasdair
 -- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+agk@redhat.com

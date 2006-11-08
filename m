@@ -1,360 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423165AbWKHUcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423290AbWKHUda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423165AbWKHUcI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423251AbWKHUcH
+	id S1423290AbWKHUda (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 15:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423329AbWKHUda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:32:07 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5556 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1423165AbWKHUcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:32:03 -0500
-Subject: [TEST SUITE] termios: basic test set for the new termios code
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-serial@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 08 Nov 2006 20:36:46 +0000
-Message-Id: <1163018206.23956.85.camel@localhost.localdomain>
+	Wed, 8 Nov 2006 15:33:30 -0500
+Received: from master.altlinux.org ([62.118.250.235]:9222 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP
+	id S1423290AbWKHUd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 15:33:29 -0500
+Date: Wed, 8 Nov 2006 23:33:19 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>, akpm@osdl.org,
+       Wilco Beekhuizen <wilcobeekhuizen@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: VIA IRQ quirk missing PCI ids since 2.6.16.17
+Message-ID: <20061108203319.GA7485@procyon.home>
+References: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com> <1162817254.5460.4.camel@localhost.localdomain> <1162847625.10086.36.camel@localhost.localdomain> <20061108202218.8f542fbf.vsu@altlinux.ru> <1163009130.23956.57.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
+In-Reply-To: <1163009130.23956.57.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please send any updates/extra test cases to me.
 
-/*
- *	Test suite for the new termios functions
- *
- *	gcc -iquote kernel-src/include/asm-x86_64 test-suite.c -o ./ts
- */
- 
-#include "termbits.h"
-#include "termios.h"
-#include "ioctls.h"
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-#define TCGETS2         _IOR('T',0x2A, struct termios2)
-#define TCSETS2         _IOW('T',0x2B, struct termios2)
-#define TCSETSW2        _IOW('T',0x2C, struct termios2)
-#define TCSETSF2        _IOW('T',0x2D, struct termios2)
+On Wed, Nov 08, 2006 at 06:05:30PM +0000, Alan Cox wrote:
+> > > +struct pci_device_id *pci_find_present(const struct pci_device_id *i=
+ds)
+> >=20
+> > New API without proper refcounting?  Ewww.
+>=20
+> pci_device_id objects are not refcounted and don't vanish underneath us.
+> Devices may but we aren't dealing in devices. The function operates
+> under the list lock internally so should be safe.
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
+Oops, sorry, did not read the patch carefully enough...  Please ignore
+this comment.
 
-static int compare_termios_11(struct termios *a, struct termios *b)
-{
-  int diff = 0;
-  
-  if(a->c_iflag != b->c_iflag) {
-    printf("Iflag change of %04X\n", a->c_iflag ^ b->c_iflag);
-    diff = 1;
-  }
-  if(a->c_oflag != b->c_oflag) {
-    printf("Oflag change of %04X\n", a->c_oflag ^ b->c_oflag);
-    diff = 1;
-  }
-  if(a->c_cflag != b->c_cflag) {
-    printf("Iflag change of %04X\n", a->c_cflag ^ b->c_cflag);
-    diff = 1;
-  }
-  if(a->c_lflag != b->c_lflag) {
-    printf("Iflag change of %04X\n", a->c_lflag ^ b->c_lflag);
-    diff = 1;
-  }
-  if(a->c_line != b->c_line) {
-    printf("Line differs %02X v %02X\n", a->c_line, b->c_line);
-    diff = 1;
-  }
-#ifdef NCC_V1  
-  if(memcmp(a->c_cc, b->c_cc, NCC_V1)) {
-#else
-  if(memcmp(a->c_cc, b->c_cc, NCC)) {
-#endif  
-    printf("CC differs.\n");
-    diff = 1;
-  }
-  return diff;
-}
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-static int compare_termios_12(struct termios *a, struct termios2 *b)
-{
-  int diff = 0;
-  
-  if(a->c_iflag != b->c_iflag) {
-    printf("Iflag change of %04X\n", a->c_iflag ^ b->c_iflag);
-    diff = 1;
-  }
-  if(a->c_oflag != b->c_oflag) {
-    printf("Oflag change of %04X\n", a->c_oflag ^ b->c_oflag);
-    diff = 1;
-  }
-  if(a->c_cflag != b->c_cflag) {
-    printf("Iflag change of %04X\n", a->c_cflag ^ b->c_cflag);
-    diff = 1;
-  }
-  if(a->c_lflag != b->c_lflag) {
-    printf("Iflag change of %04X\n", a->c_lflag ^ b->c_lflag);
-    diff = 1;
-  }
-  if(a->c_line != b->c_line) {
-    printf("Line differs %02X v %02X\n", a->c_line, b->c_line);
-    diff = 1;
-  }
-#ifdef NCC_V1  
-  if(memcmp(a->c_cc, b->c_cc, NCC_V1)) {
-#else
-  if(memcmp(a->c_cc, b->c_cc, NCC)) {
-#endif  
-    printf("CC differs.\n");
-    diff = 1;
-  }
-  return diff;
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-static int compare_termios_22(struct termios2 *a, struct termios2 *b)
-{
-  int diff = 0;
-  
-  if(a->c_iflag != b->c_iflag) {
-    printf("Iflag change of %04X\n", a->c_iflag ^ b->c_iflag);
-    diff = 1;
-  }
-  if(a->c_oflag != b->c_oflag) {
-    printf("Oflag change of %04X\n", a->c_oflag ^ b->c_oflag);
-    diff = 1;
-  }
-  if(a->c_cflag != b->c_cflag) {
-    printf("Iflag change of %04X\n", a->c_cflag ^ b->c_cflag);
-    diff = 1;
-  }
-  if(a->c_lflag != b->c_lflag) {
-    printf("Iflag change of %04X\n", a->c_lflag ^ b->c_lflag);
-    diff = 1;
-  }
-  if(a->c_line != b->c_line) {
-    printf("Line differs %02X v %02X\n", a->c_line, b->c_line);
-    diff = 1;
-  }
-  if(memcmp(a->c_cc, b->c_cc, NCC)) {
-    printf("CC differs.\n");
-    diff = 1;
-  }
-  if(a->c_ispeed != b->c_ispeed) {
-    printf("Ispeed differs %d v %d\n", a->c_ispeed, b->c_ispeed);
-    diff = 1;
-  }
-  if(a->c_ospeed != b->c_ospeed) {
-    printf("Ospeed differs %d v %d\n", a->c_ospeed, b->c_ospeed);
-    diff = 1;
-  }
-  return diff;
-}
+iD8DBQFFUj8PW82GfkQfsqIRAm08AJ0TYAZjI6RWV3BxxOTisw63nEr+SQCfU9he
+ph0zfpLBN215cjrWnyJH/Uw=
+=cYA2
+-----END PGP SIGNATURE-----
 
-
-struct padcheck1
-{
-  struct termios a;
-  unsigned int cookie;
-};
-
-struct padcheck2
-{
-  struct termios2 a;
-  unsigned int cookie;
-};
-
-
-static void do_check_no_overrun(int fd, unsigned int cookie)
-{
-  static struct padcheck1 t1;
-  static struct padcheck2 t2;
-
-  t1.cookie = cookie;
-  t2.cookie = cookie;
-  t2.a.c_ospeed = cookie;
-  
-  if(ioctl(fd, TCGETS, &t1) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-  
-  if(t1.cookie != cookie) {
-   printf("FAIL: TCGETS scribbled on cookie.\n");
-    exit(1);
-  }
-
-  if(ioctl(fd, TCGETS2, &t2) < 0) {
-    perror("ioctl");
-    fprintf(stderr, "This kernel does not appear to support extended termios.\n");
-    exit(1);
-  }
-  
-  if(t2.cookie != cookie) {
-   printf("FAIL: TCGETS2 scribbled on cookie.\n");
-    exit(1);
-  }
-  
-  if(t2.a.c_ospeed == cookie) {
-    printf("FAIL: TCGETS2 read appears short.\n");
-    exit(1);
-  }
-  
-  if(compare_termios_12(&t1.a, &t2.a)) {
-    printf("FAIL: TCGETS and TCGETS2 disagree on common data.\n");
-    exit(1);
-  }
-  printf("PASS: Basic scribble test.\n");
-}
-
-static void test_functions(int fd)
-{
-  struct termios2 t1;
-  struct termios2 t2;
-  struct termios t1_v1;
-  
-  if(ioctl(fd, TCGETS2, &t1) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-  printf("Initial ospeed %d\n", t1.c_ospeed);
-  t1.c_ospeed = 12345;
-  t1.c_cflag &= ~CBAUD;
-  t1.c_cflag |= BOTHER;
-  
-  if(ioctl(fd, TCSETS2, &t1) < 0) {
-    perror("ioctl");
-    printf("FAIL: unsupported speed should not error\n");
-    exit(1);
-  }
-  
-  /* Get the actual values set: May differ */
-  if(ioctl(fd, TCGETS2, &t2) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-  
-  /* May be differences to report but are ok */
-  compare_termios_22(&t1, &t2);
-  
-  if(ioctl(fd, TCGETS2, &t1) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-
-  if(compare_termios_22(&t1, &t2)) {
-    printf("FAIL: Repeating TCGETS gives different result.\n");
-    exit(1);
-  }
-
-  if(ioctl(fd, TCGETS, &t1_v1) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-
-  if(compare_termios_12(&t1_v1, &t2)) {
-    printf("FAIL: Repeating TCGETS in old form gives different result.\n");
-    exit(1);
-  }
-
-  if(ioctl(fd, TCSETS2, &t1) < 0) {
-    perror("ioctl");
-    printf("FAIL: settings provided by terminal should not fail on set.\n");
-    exit(1);
-  }
-
-  if(ioctl(fd, TCGETS, &t1_v1) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-
-  if(ioctl(fd, TCGETS2, &t2) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-
-  /* Differences are bad because this is using the settings the tty said were ok */  
-  if (compare_termios_22(&t1, &t2)) {
-    printf("FAIL: fetched settings differ from set ones yet were tty provided.\n");
-    exit(1);
-  }  
-
-  if (compare_termios_12(&t1_v1, &t1)) {
-    printf("FAIL: old ioctl settings differ from set ones yet were tty provided and new setting agreed.\n");
-    exit(1);
-  }  
-
-  if(t1.c_ospeed != 12345) {
-    printf("SKIP: Tests that may need a pty.\n");
-    return;
-  }
-  
-  if(t1_v1.c_cflag & BOTHER)
-    printf("t1_v1 BOTHER - OK");
-  /* Now see what occurs if we set an old style and get new style, speed should
-     be preserved. */
-     
-  if(ioctl(fd, TCSETS, &t1_v1) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-  
-  if(ioctl(fd, TCGETS2, &t2) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-  
-  if(t2.c_ospeed != 12345) {
-    printf("FAIL: setting old style termios disturbed extended speed.\n");
-    printf("SPEED: %d\n", t2.c_ospeed);
-    exit(1);
-  }
-  
-  /* Now try the reverse */
-  
-  t1_v1.c_cflag &= ~CBAUD;
-  t1_v1.c_cflag |= B9600;
-  
-  if(ioctl(fd, TCSETS, &t1_v1) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-  
-  if(ioctl(fd, TCGETS2, &t2) < 0) {
-    perror("ioctl");
-    exit(1);
-  }
-  
-  if(t2.c_ospeed != 9600) {
-    printf("FAIL: speed was not reset by old style termios set.\n");
-    exit(1);
-  }
-  
-}
-
-
-int main(int argc, char *argv[])
-{
-  int fd;
-  if(argc != 2) {
-    fprintf(stderr, "%s: [ttypath].\n", argv[0]);
-    exit(1);
-  }
-  
-  fd = open(argv[1], O_RDWR);
-  if(fd == -1) {
-    perror(argv[1]);
-    exit(1);
-  }
-  
-  do_check_no_overrun(fd, 0xA5A5A5A5);
-  do_check_no_overrun(fd, 0x5A5A5A5A);
-  test_functions(fd);
-  
-  printf("PASS\n");
-  exit(0);
-}
-
+--dDRMvlgZJXvWKvBx--

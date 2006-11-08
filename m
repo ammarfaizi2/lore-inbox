@@ -1,50 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423943AbWKHXIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423930AbWKHXJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423943AbWKHXIV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 18:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423871AbWKHXIV
+	id S1423930AbWKHXJD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 18:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423948AbWKHXJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 18:08:21 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:41434 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1423943AbWKHXIU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 18:08:20 -0500
-Message-ID: <4552636E.3090809@pathscale.com>
-Date: Wed, 08 Nov 2006 15:08:30 -0800
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: rdreier@cisco.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+	Wed, 8 Nov 2006 18:09:01 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:2336 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1423930AbWKHXI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 18:08:59 -0500
+X-IronPort-AV: i="4.09,401,1157353200"; 
+   d="scan'208"; a="449181677:sNHT46498276"
+To: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
+Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
        openib-general@openib.org
-Subject: Re: [PATCH] IB/ipath - program intconfig register using new HT irq
- hook
-References: <545156d49f883c43af70.1163024486@localhost.localdomain> <20061108144402.0b6a7b23.akpm@osdl.org>
-In-Reply-To: <20061108144402.0b6a7b23.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 2.6.19 4/4] ehca: ehca_av.c use constant for max mtu
+X-Message-Flag: Warning: May contain useful information
+References: <200611052142.56722.hnguyen@de.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 08 Nov 2006 15:08:58 -0800
+In-Reply-To: <200611052142.56722.hnguyen@de.ibm.com> (Hoang-Nam Nguyen's message of "Sun, 5 Nov 2006 21:42:56 +0100")
+Message-ID: <ada64dpfsdx.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 08 Nov 2006 23:08:58.0784 (UTC) FILETIME=[DF2AC200:01C7038A]
+Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> so...  Is this:
-> 
-> htirq-refactor-so-we-only-have-one-function-that-writes-to-the-chip.patch
-> htirq-allow-buggy-drivers-of-buggy-hardware-to-write-the-registers.patch
-
-You should drop the above patch from Eric...
-
-> htirq-allow-buggy-drivers-of-buggy-hardware-to-write-the-registers-update.patch
-
-...in favour of this one, which is my rework of Eric's patch.
-
-> ib-ipath-program-intconfig-register-using-new-ht-irq-hook.patch
-> 
-> considered 2.6.19 material?
-
-Yes, please.  I might be able to simplify the ib-ipath patch (by a 
-matter of a few lines), but it works fine as it stands.
-
-	<b
-
+Thanks, I've applied 1 through 4.

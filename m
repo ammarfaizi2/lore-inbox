@@ -1,98 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161690AbWKHTDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161689AbWKHTFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161690AbWKHTDw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161692AbWKHTDw
+	id S1161689AbWKHTFa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161692AbWKHTFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:03:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:42937 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161690AbWKHTDw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:03:52 -0500
-Date: Wed, 8 Nov 2006 10:56:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Layton <jlayton@redhat.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Possible spinlock recursion in search_module_extables() ?
-Message-Id: <20061108105625.c08f4615.akpm@osdl.org>
-In-Reply-To: <1163007738.12604.4.camel@dantu.rdu.redhat.com>
-References: <200606190635_MC3-1-C2D8-258F@compuserve.com>
-	<1163007738.12604.4.camel@dantu.rdu.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 8 Nov 2006 14:05:30 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:26544 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161689AbWKHTF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 14:05:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q4jQJ72kI8u+gXF3TT6GAT8D93CVQqfhqG4CJmd4WjUS59HBpi2cdrK3H3mTNhisko5gI1wejtpKrbDuhkdcySCdpeAfi37rUZPjSOHRlIbA8JkgCFSwW2k4eB+8Y/UFlA1JhGTo5uNAi90yTUq2Q07bJZvqfyg38lNYQWFf7bE=
+Message-ID: <9a8748490611081105j5ca1d24ahd49c6d9ea7d980d3@mail.gmail.com>
+Date: Wed, 8 Nov 2006 20:05:27 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
+Subject: Re: How to compile module params into kernel?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F6AD7E21CDF4E145A44F61F43EE6D939AA94F9@tmnt04.transmode.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <F6AD7E21CDF4E145A44F61F43EE6D939AA94F9@tmnt04.transmode.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Nov 2006 12:42:17 -0500
-Jeff Layton <jlayton@redhat.com> wrote:
+On 08/11/06, Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+> Instead of passing a module param on the cmdline I want to compile that
+> into
+> the kernel, but I can't figure out how.
+>
+> The module param I want compile into kernel is
+> rtc-ds1307.force=0,0x68
+>
+> This is for an embeddet target that doesn't have loadable module
+> support.
+>
+You could edit the module source and hardcode default values.
 
-> On Mon, 2006-06-19 at 06:31 -0400, Chuck Ebbert wrote:
-> > Looking at this code:
-> > 
-> > const struct exception_table_entry *search_exception_tables(unsigned long addr)
-> > {
-> >         const struct exception_table_entry *e;
-> > 
-> >         e = search_extable(__start___ex_table, __stop___ex_table-1, addr);
-> >         if (!e)
-> >                 e = search_module_extables(addr);
-> >         return e;
-> > }
-> > 
-> > const struct exception_table_entry *search_module_extables(unsigned long addr)
-> > {
-> >         unsigned long flags;
-> >         const struct exception_table_entry *e = NULL;
-> >         struct module *mod;
-> > 
-> >         spin_lock_irqsave(&modlist_lock, flags);
-> >         list_for_each_entry(mod, &modules, list) {
-> >                 if (mod->num_exentries == 0)
-> >                         continue;
-> > 
-> >                 e = search_extable(mod->extable,
-> >                                    mod->extable + mod->num_exentries - 1,
-> >                                    addr);
-> >                 if (e)
-> >                         break;
-> >         }
-> >         spin_unlock_irqrestore(&modlist_lock, flags);
-> > 
-> >         /* Now, if we found one, we are running inside it now, hence
-> >            we cannot unload the module, hence no refcnt needed. */
-> >         return e;
-> > }
-> > 
-> > 
-> > search_module_extables() takes a spinlock.  If some kind of fault occurs
-> > while it's holding that lock (module list corrupted etc.,) won't it be
-> > re-entered while looking for its own fault handler?  If so, would this
-> > be a possible fix?
-> > 
-> > const struct exception_table_entry *search_exception_tables(unsigned long addr)
-> > {
-> >         const struct exception_table_entry *e;
-> > 
-> >         if (core_kernel_text(addr))
-> >                 e = search_extable(__start___ex_table, __stop___ex_table-1, addr);
-> >         else
-> >                 e = search_module_extables(addr);
-> > 
-> >         return e;
-> > }
-> 
-> I seem to be able to reliably trigger this spinlock recursion problem
-> with systemtap on a RHEL4 kernel. The patch suggested above does seem to
-> correct it, but I'm not familiar enough with extables to know whether
-> the approach here is correct.
-> 
-
-It'll still deadlock if we take an oops from a module, won't it?
-
-The usual way of fixing this sort of thing is to play games with
-oops_in_progress.
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

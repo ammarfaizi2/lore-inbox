@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965934AbWKHWEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161359AbWKHWGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965934AbWKHWEn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 17:04:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161361AbWKHWEm
+	id S1161359AbWKHWGD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 17:06:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161483AbWKHWGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 17:04:42 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:5901 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965928AbWKHWEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 17:04:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=sDDHg48vgka/i/PP9DqwXz/LiOHP6ZP8G9LmzAyF9OwbSlejkPIgJFws5zvez2hT4ca1bZdiZmRXtGJ6Lkt8O+NjCLrZqqQsCxCQ6HVOcirv8qbP/WdDaaV7ulr+65b5Tb2BKOOvvrIiB9ar6V8e3iEZGH9UtaK9zU9hLg/yvn0=
-Date: Thu, 9 Nov 2006 01:04:35 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] gx-suspmod: fix "&& 0xff" typo
-Message-ID: <20061108220435.GA4972@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
+	Wed, 8 Nov 2006 17:06:01 -0500
+Received: from mta6.adelphia.net ([68.168.78.190]:12539 "EHLO
+	mta6.adelphia.net") by vger.kernel.org with ESMTP id S1161359AbWKHWGA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 17:06:00 -0500
+Date: Wed, 8 Nov 2006 15:31:43 -0600
+From: Corey Minyard <minyard@acm.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: Patrick Schoeller <Patrick.Schoeller@hp.com>
+Subject: [PATCH] IPMI: Clean up the waiting message queue properly on unload
+Message-ID: <20061108213143.GA17513@localdomain>
+Reply-To: minyard@acm.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+A wrong function was being used to free a list; this fixes
+the problem.  Otherwise, an oops at unload time was possible.
+But not likely, since you can't have any users when you unload
+the modules and it is very hard to get messages into this
+queue without users.
 
- arch/i386/kernel/cpu/cpufreq/gx-suspmod.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Signed-off-by: Corey Minyard <minyard@acm.org>
+Cc: Patrick Schoeller <Patrick.Schoeller@hp.com>
 
---- a/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c
-+++ b/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c
-@@ -473,7 +473,7 @@ static int __init cpufreq_gx_init(void)
- 	pci_read_config_byte(params->cs55x0, PCI_MODON, &(params->on_duration));
- 	pci_read_config_byte(params->cs55x0, PCI_MODOFF, &(params->off_duration));
-         pci_read_config_dword(params->cs55x0, PCI_CLASS_REVISION, &class_rev);
--	params->pci_rev = class_rev && 0xff;
-+	params->pci_rev = class_rev & 0xff;
+Index: linux-2.6.18/drivers/char/ipmi/ipmi_msghandler.c
+===================================================================
+--- linux-2.6.18.orig/drivers/char/ipmi/ipmi_msghandler.c
++++ linux-2.6.18/drivers/char/ipmi/ipmi_msghandler.c
+@@ -387,13 +387,23 @@ static void free_recv_msg_list(struct li
+ 	}
+ }
  
- 	if ((ret = cpufreq_register_driver(&gx_suspmod_driver))) {
- 		kfree(params);
-
++static void free_smi_msg_list(struct list_head *q)
++{
++	struct ipmi_smi_msg *msg, *msg2;
++
++	list_for_each_entry_safe(msg, msg2, q, link) {
++		list_del(&msg->link);
++		ipmi_free_smi_msg(msg);
++	}
++}
++
+ static void clean_up_interface_data(ipmi_smi_t intf)
+ {
+ 	int              i;
+ 	struct cmd_rcvr  *rcvr, *rcvr2;
+ 	struct list_head list;
+ 
+-	free_recv_msg_list(&intf->waiting_msgs);
++	free_smi_msg_list(&intf->waiting_msgs);
+ 	free_recv_msg_list(&intf->waiting_events);
+ 
+ 	/* Wholesale remove all the entries from the list in the

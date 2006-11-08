@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754457AbWKHIrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754459AbWKHI4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754457AbWKHIrU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 03:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754459AbWKHIrT
+	id S1754459AbWKHI4u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 03:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754461AbWKHI4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 03:47:19 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:34756 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1754456AbWKHIrS (ORCPT
+	Wed, 8 Nov 2006 03:56:50 -0500
+Received: from ns.firmix.at ([62.141.48.66]:59330 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1754459AbWKHI4t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 03:47:18 -0500
-Date: Wed, 8 Nov 2006 11:45:54 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take23 3/5] kevent: poll/select() notifications.
-Message-ID: <20061108084554.GD2447@2ka.mipt.ru>
-References: <11629182482792@2ka.mipt.ru> <Pine.LNX.4.64.0611071449410.17731@alien.or.mcafeemobile.com>
+	Wed, 8 Nov 2006 03:56:49 -0500
+Subject: Re: Faustian Pact between Novell and Microsoft
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Avuton Olrich <avuton@gmail.com>
+Cc: davids@webmaster.com,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3aa654a40611072111k4b22b42xcfebff9faeb68a88@mail.gmail.com>
+References: <4550E910.6010107@wolfmountaingroup.com>
+	 <MDEHLPKNGKAHNMBLJOLKEEJKPJAB.davids@webmaster.com>
+	 <3aa654a40611072111k4b22b42xcfebff9faeb68a88@mail.gmail.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Wed, 08 Nov 2006 09:56:42 +0100
+Message-Id: <1162976202.11973.25.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611071449410.17731@alien.or.mcafeemobile.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 08 Nov 2006 11:46:17 +0300 (MSK)
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.402 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2006 at 02:53:33PM -0800, Davide Libenzi (davidel@xmailserver.org) wrote:
-> On Tue, 7 Nov 2006, Evgeniy Polyakov wrote:
+On Tue, 2006-11-07 at 21:11 -0800, Avuton Olrich wrote:
+> On 11/7/06, David Schwartz <davids@webmaster.com> wrote:
+> >         How can they do that if licensing the work requires licensing patents that
+> > Novell has no right to license?
 > 
-> > +static int kevent_poll_wait_callback(wait_queue_t *wait,
-> > +		unsigned mode, int sync, void *key)
-> > +{
-> > +	struct kevent_poll_wait_container *cont =
-> > +		container_of(wait, struct kevent_poll_wait_container, wait);
-> > +	struct kevent *k = cont->k;
-> > +	struct file *file = k->st->origin;
-> > +	u32 revents;
-> > +
-> > +	revents = file->f_op->poll(file, NULL);
-> > +
-> > +	kevent_storage_ready(k->st, NULL, revents);
-> > +
-> > +	return 0;
-> > +}
+> rtfa: http://www.novell.com/linux/microsoft/faq_opensource.html
 > 
-> Are you sure you can safely call file->f_op->poll() from inside a callback 
-> based wakeup? The low level driver may be calling the wakeup with one of 
-> its locks held, and during the file->f_op->poll may be trying to acquire 
-> the same lock. I remember there was a discussion about this, and assuming 
-> the above not true, made epoll code more complex (and slower, since an 
-> extra O(R) loop was needed to fetch events).
+> May not be correct, but it's an answer nonetheless :)
 
-Indeed, I have not paid too much attention to poll/select notifications in 
-kevent actually. As far as I recall it should be called on behalf of process 
-doing kevent_get_event(). I will check and fix if that is not correct.
-Thanks Davide.
- 
-> - Davide
-> 
+If I understand the first answer correctly, there actually is:
+----  snip  ----
+This agreement is primarily intended for Novell's customers. It doesn't
+imply or guarantee that you are *not* sued. An exception may be if you
+are a customer of Novell, than M$ will not sue you *directly*.
+So for all Non-Novell customers: You may be sued directly from M$ (and
+from all others).
+So for all: You may be sued indirectly by M$ (and directly from all
+others).
+----  snip  ----
 
+SCNR,
+	Bernd
 -- 
-	Evgeniy Polyakov
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

@@ -1,137 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754388AbWKHHMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754400AbWKHHTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754388AbWKHHMz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 02:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754390AbWKHHMz
+	id S1754400AbWKHHTz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 02:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754398AbWKHHTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 02:12:55 -0500
-Received: from bgerelbas02.asiapac.hp.net ([15.219.201.135]:20368 "EHLO
-	bgerelbas02.asiapac.hp.net") by vger.kernel.org with ESMTP
-	id S1754388AbWKHHMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 02:12:54 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C70305.4A951305"
-Subject: Need help in writing Layered driver in Linux
-Date: Wed, 8 Nov 2006 12:42:46 +0530
-Message-ID: <B57F74065657FA4F85110272279E461B01745A13@BGEEXC07.asiapacific.cpqcorp.net>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Need help in writing Layered driver in Linux
-Thread-Index: AccAw+4mkENF0fgnTtiitbmGIJbKdwA2YHCgACahhcAAL3RVkAAD3fnQ
-From: "Palakodeti, Srinivasa Rao (STSD)" <palakodetisrinivasa.rao@hp.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Nov 2006 07:12:46.0627 (UTC) FILETIME=[4AB25730:01C70305]
+	Wed, 8 Nov 2006 02:19:54 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:4541 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1754395AbWKHHTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 02:19:53 -0500
+Date: Wed, 8 Nov 2006 16:22:35 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-ia64@vger.kernel.org, auke-jan.h.kok@intel.com, jeff@garzik.org
+Subject: Re: [BUG] [2.6.19-rc4-mm2] can't compile
+ drivers/acpi/processor_idle.c
+Message-Id: <20061108162235.7645bb40.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20061107225259.0eff22d2.akpm@osdl.org>
+References: <20061108150141.b792fbdb.kamezawa.hiroyu@jp.fujitsu.com>
+	<20061107225259.0eff22d2.akpm@osdl.org>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, 7 Nov 2006 22:52:59 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-------_=_NextPart_001_01C70305.4A951305
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+> On Wed, 8 Nov 2006 15:01:41 +0900
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> 
+> > 
+> > While compiling 2.6.19-rc4-mm2 on ia64, I met this compile error.
+> > ==
+> >   CC [M]  drivers/acpi/processor_idle.o
+> > drivers/acpi/processor_idle.c:43:22: asm/apic.h: No such file or directory
+> > drivers/acpi/processor_idle.c: In function `acpi_processor_power_seq_show':
+> > drivers/acpi/processor_idle.c:1202: warning: long long unsigned int format, u64 arg (arg 5)
+> > ==
+> > 
+> > This is because of acpi-include-apic-h.patch, maybe.
+> > ia64 doesn't have asm/acpi.h
+> 
+> That got fixed (by ugly means).
 
+Ah, okay. I'll move to rc5-mm1. Thank you.
 
-Hi,
+> 
+> > my .config is attached.
+> 
+> But rc5-mm1 remains broken with that .config:
+> 
+> arch/ia64/pci/pci.c: In function `pci_acpi_scan_root':
+> arch/ia64/pci/pci.c:354: warning: implicit declaration of function `pxm_to_node'
+> ...
+> arch/ia64/pci/built-in.o(.text+0xe92): In function `pci_acpi_scan_root':
+> : undefined reference to `pxm_to_node'
+> 
+> This bug exists in mainline.
+> 
 
-I have attached InterSbull.c. I have sbull and sbull1 block drivers with
-major number 254, 253 respectively.=20
-In InterSbull.c, in init_module, I am replacing sbull's ( major 254  )
-make_request_fn with my kti_make_request_fn. Everything is going fine
-with this.=20
+How about this ? Maybe ia64 people's review is necessary.
 
-But when I want to write same data to other sbull1 (major number 253 ).
-I am getting kernel panic. When I do an I/O to sbull device ( major
-number 254 ). In WRITE, in kti_make_request_fn I am using brw_kiovec to
-send I/O to 253 device
+-Kame
+==
+When ACPI && NUMA, pxm_to_node is used and it exists in drivers/acpi/numa.c
 
-Could you help me what can be the issue in this? Any help is
-appreciated.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujtisu.com>
 
+Index: linux-2.6.19-rc4-mm2/arch/ia64/Kconfig
+===================================================================
+--- linux-2.6.19-rc4-mm2.orig/arch/ia64/Kconfig	2006-11-08 14:15:21.000000000 +0900
++++ linux-2.6.19-rc4-mm2/arch/ia64/Kconfig	2006-11-08 16:16:40.000000000 +0900
+@@ -353,6 +353,7 @@
+ 	bool "NUMA support"
+ 	depends on !IA64_HP_SIM && !FLATMEM
+ 	default y if IA64_SGI_SN2
++	select ACPI_NUMA if ACPI
+ 	help
+ 	  Say Y to compile the kernel to support NUMA (Non-Uniform Memory
+ 	  Access).  This option is for configuring high-end multiprocessor
 
-Thanks and regards,
-Srinivas
-
-
-------_=_NextPart_001_01C70305.4A951305
-Content-Type: application/octet-stream;
-	name="InterSbull.c"
-Content-Transfer-Encoding: base64
-Content-Description: InterSbull.c
-Content-Disposition: attachment;
-	filename="InterSbull.c"
-
-I2RlZmluZSBNT0RVTEUNCiNkZWZpbmUgX19LRVJORUxfXyANCiNkZWZpbmUgX19OT19WRVJTSU9O
-X18NCg0KICAgLy8gTmVlZGVkIGJ5IGFsbCBtb2R1bGVzDQojaW5jbHVkZSA8bGludXgvYmxrLmg+
-DQojaW5jbHVkZSA8bGludXgva2VybmVsLmg+IA0KI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPiAN
-CiNpbmNsdWRlIDxsaW51eC9ibGtkZXYuaD4NCiAgLy8gTmVlZGVkIGZvciBLRVJOX0FMRVJUDQoj
-aW5jbHVkZSA8bGludXgvc2NoZWQuaD4NCiNpbmNsdWRlIDxsaW51eC9mcy5oPg0KDQoNCi8vI2Rl
-ZmluZSBTQ0hFRF9ZSUVMRCAxDQpzcGlubG9ja190IGlvX3JlcXVlc3RfbG9jayA9IFNQSU5fTE9D
-S19VTkxPQ0tFRDsNCnNwaW5sb2NrX3QgZGV2X2xvY2sgPSBTUElOX0xPQ0tfVU5MT0NLRUQ7DQov
-L3R5cGVkZWYgIHN0cnVjdCBidWZmZXJfaGVhZCAqIHBteV9iX2VuZF9pbzsNCnR5cGVkZWYgdm9p
-ZCAoKmJfZW5kX2lvMSkoc3RydWN0IGJ1ZmZlcl9oZWFkICpiaCwgaW50IHVwdG9kYXRlKTsgLyog
-SS9PIGNvbXBsZXRpb24gKi8NCg0KdHlwZWRlZiBzdHJ1Y3Qgew0Kc3RydWN0IGJ1ZmZlcl9oZWFk
-ICpiaDsNCnZvaWQgKCpiX2VuZF9pbykoc3RydWN0IGJ1ZmZlcl9oZWFkICpiaCwgaW50IHVwdG9k
-YXRlKTsgLyogSS9PIGNvbXBsZXRpb24gKi8NCi8vYl9lbmRfaW8xIGJfZW5kX2lvOw0KDQp9bXlf
-Yl9lbmRfaW8sICogcG15X2JfZW5kX2lvOw0KDQoNCmFzbWxpbmthZ2Ugdm9pZCBrdGlfYl9lbmRf
-aW8oc3RydWN0IGJ1ZmZlcl9oZWFkICpiaCwgaW50IHVwdG9kYXRlKQ0Kew0KaW50IGo7DQoNCi8v
-cHJpbnRrKCJJbiBrdGlfYl9lbmRfaW8gXG4gIik7DQovL3N0cnVjdCBidWZmZXJfaGVhZCBwcml2
-YXRlOw0KcG15X2JfZW5kX2lvIHByaXZhdGU7DQoNCg0KcHJpdmF0ZSA9IGJoLT5iX3ByaXZhdGU7
-DQpiaC0+Yl9wcml2YXRlID0gTlVMTDsNCmJoLT5iX2VuZF9pbyA9IHByaXZhdGUtPmJfZW5kX2lv
-Ow0KDQoNCnNwaW5fbG9ja19pcnEoJmlvX3JlcXVlc3RfbG9jayk7DQppZih1cHRvZGF0ZSl7DQoN
-Cg0KDQp9DQoNCi8vcHJpbnRrKCJlbmQgaW8gZW5kIFxuIik7DQoNCnNwaW5fdW5sb2NrX2lycSgm
-aW9fcmVxdWVzdF9sb2NrKTsNCg0KDQpiaC0+Yl9lbmRfaW8oYmgsIHVwdG9kYXRlKTsNCg0KDQpr
-ZnJlZShwcml2YXRlKTsNCn0NCg0KDQphc21saW5rYWdlIGludCAoKm9yaWdpbmFsX21ha2VfcmVx
-dWVzdF9mbikocmVxdWVzdF9xdWV1ZV90ICogcSwgaW50IHJ3LHN0cnVjdCBidWZmZXJfaGVhZCAq
-YmgpOw0KDQoNCmFzbWxpbmthZ2UgcG15X2JfZW5kX2lvIGt0aV9nZXRfcHJpdmF0ZSh2b2lkKQ0K
-ew0KDQojaWYgMQ0KcG15X2JfZW5kX2lvIHB0ciA9IE5VTEw7DQp3aGlsZSAoIXB0cikgew0KcHRy
-ID0gKHBteV9iX2VuZF9pbylrbWFsbG9jKHNpemVvZihteV9iX2VuZF9pbyksIEdGUF9OT0lPKTsN
-CmlmKCFwdHIpIHsNCl9fc2V0X2N1cnJlbnRfc3RhdGUoVEFTS19SVU5OSU5HKTsNCmN1cnJlbnQt
-PnBvbGljeSB8PSBTQ0hFRF9OT1JNQUw7DQpzY2hlZHVsZSgpOw0KfQ0KDQp9DQojZW5kaWYgDQoN
-CnJldHVybiBwdHI7DQp9DQoNCmFzbWxpbmthZ2UgaW50IGt0aV9tYWtlX3JlcXVlc3RfZm4ocmVx
-dWVzdF9xdWV1ZV90ICogcSwgaW50IHJ3LA0Kc3RydWN0IGJ1ZmZlcl9oZWFkICpiaCkNCnsNCmlu
-dCByZXRjb2RlOw0KaW50IGk7DQpwbXlfYl9lbmRfaW8gcHJpdmF0ZTsNCg0KcHJpbnRrKCJJbiBr
-dGlfbWFrZV9yZXF1ZXN0X2ZuXG4iKTsNCg0KDQpwcml2YXRlID0ga3RpX2dldF9wcml2YXRlKCk7
-DQpwcml2YXRlLT5iaCA9IGJoOw0KcHJpdmF0ZS0+Yl9lbmRfaW8gPSBiaC0+Yl9lbmRfaW87DQpi
-aC0+Yl9wcml2YXRlID0gcHJpdmF0ZTsNCmJoLT5iX2VuZF9pbyA9IGt0aV9iX2VuZF9pbzsNCg0K
-c3RydWN0IGJ1ZmZlcl9oZWFkICpiaF90ZW1wID0gYmg7DQoNCmludCBzaXplOw0Kc3RydWN0IHJl
-cXVlc3QgKnJlcTsNCmludCBrPTA7DQoNCg0KDQojaWYgMQ0Kc3dpdGNoIChydykgew0KY2FzZSBS
-RUFEQToNCmNhc2UgUkVBRDoNCglwcmludGsoIkluIGt0aV9tYWtlX3JlcXVlc3RfZm4gcmVhZFxu
-Iik7DQoNCgkvL3JldCA9IGJyd19raW92ZWMoUkVBRCwgMSwgJmlvYnVmLCBvbGRfZGV2LA0KCS8v
-CQkJIGlvYnVmLT5ibG9ja3MsIG9sZF9ibGtzaXplKSA7DQoJCQ0KDQpicmVhazsNCg0KY2FzZSBX
-UklURToNCgl7DQoJc3RydWN0IGtpb2J1ZiAqaW9idWY7ICAgICAgIA0KICAgIGludCByZXN1bHQ7
-DQoJaW50IHJldDsNCglwcmludGsoIkluIGt0aV9tYWtlX3JlcXVlc3RfZm4gd3JpdGVcbiIpOw0K
-DQoJLyogQWxsb2NhdGUgYW4gSS9PIHZlY3RvciAqLw0KICAgIHJlc3VsdCA9IGFsbG9jX2tpb3Zl
-YygxLCAmaW9idWYpOw0KICAgIGlmIChyZXN1bHQpDQogICAgICAgIHJldHVybiByZXN1bHQ7DQoN
-CgljaGFyICpidWYgPSAiQUJDREVGIjsgLy9iaC0+Yl9kYXRhOw0KCWludCBuZXdfYmxrc2l6ZSA9
-IGJoLT5iX3NpemU7DQoJaW50IG51bWJlckJsb2NrcyA9IDE7DQoJa2Rldl90IG5ld19kZXYgPSBN
-S0RFVigyNTMsMCk7DQoJaW50IGNvdW50ID0gNjsgLy9uZXdfYmxrc2l6ZTsNCg0KICAgIC8qIE1h
-cCB0aGUgdXNlciBJL08gYnVmZmVyIGFuZCBkbyB0aGUgSS9PLiAqLw0KICAgIHJlc3VsdCA9IG1h
-cF91c2VyX2tpb2J1ZihydywgaW9idWYsICh1bnNpZ25lZCBsb25nKSBidWYsIGNvdW50KTsNCiAg
-ICBpZiAocmVzdWx0KSB7DQogICAgICAgIGZyZWVfa2lvdmVjKDEsICZpb2J1Zik7DQogICAgICAg
-IHJldHVybiByZXN1bHQ7DQogICAgfQ0KICAgIHNwaW5fbG9jaygmZGV2X2xvY2spOw0KICAgIHJl
-dCA9IGJyd19raW92ZWMoV1JJVEUsIDEsICZpb2J1ZiwgbmV3X2RldiwNCgkJCQkgbnVtYmVyQmxv
-Y2tzLCBuZXdfYmxrc2l6ZSk7DQoJDQogICAgc3Bpbl91bmxvY2soJmRldl9sb2NrKTsNCg0KICAg
-IC8qIENsZWFuIHVwIGFuZCByZXR1cm4uICovDQogICAgdW5tYXBfa2lvYnVmKGlvYnVmKTsNCiAg
-ICBmcmVlX2tpb3ZlYygxLCAmaW9idWYpOw0KCQ0KCQ0KLyoNCgkJYmgtPmJfZGV2ID0gTUtERVYo
-MjUzLDApOw0KCQlhdG9taWNfc2V0KCZiaC0+Yl9jb3VudCwgMSk7DQoJCXByaW50aygiYmVmb3Jl
-IHN1Ym1pdCBzYnVsbCBcbiIpOw0KCQkvL2Jsa19kZXZbMjUzXS5yZXF1ZXN0X3F1ZXVlLm1ha2Vf
-cmVxdWVzdF9mbihxLCBydywgYmgpOw0KDQoJCS8vc3VibWl0X2JoKFdSSVRFLCBiaCk7DQoNCgkJ
-cHJpbnRrKCJhZnRlciBzdWJtaXQgc2J1bGwgXG4iKTsNCiovDQoNCgl9DQoNCmJyZWFrOw0KDQp9
-DQojZW5kaWYNCg0KDQoNCg0KcmV0Y29kZSA9IG9yaWdpbmFsX21ha2VfcmVxdWVzdF9mbihxLCBy
-dywgYmgpOw0KDQoNCg0KcmV0dXJuIHJldGNvZGU7DQoNCg0KfQ0KDQoNCmludCBpbml0X21vZHVs
-ZSgpDQp7DQoNCg0KcHJpbnRrKCJJbiBzYnVsbCBtb2R1bGUgc3RhcnQgXG4iKTsNCnNwaW5fbG9j
-a19pcnEoJmlvX3JlcXVlc3RfbG9jayk7DQpvcmlnaW5hbF9tYWtlX3JlcXVlc3RfZm4gPSBibGtf
-ZGV2WzI1NF0ucmVxdWVzdF9xdWV1ZS5tYWtlX3JlcXVlc3RfZm47DQpibGtfZGV2WzI1NF0ucmVx
-dWVzdF9xdWV1ZS5tYWtlX3JlcXVlc3RfZm4gPSBrdGlfbWFrZV9yZXF1ZXN0X2ZuOw0Kc3Bpbl91
-bmxvY2tfaXJxKCZpb19yZXF1ZXN0X2xvY2spOw0KcHJpbnRrKCJJbiBzYnVsbCBtb2R1bGUgZW5k
-IFxuIik7DQoNCnJldHVybiAwOw0KfQ0KDQoNCnZvaWQgY2xlYW51cF9tb2R1bGUoKQ0Kew0KcHJp
-bnRrKCJDbGVhbiBzYnVsbCBtb2R1bGUgc3RhcnQgXG4iKTsNCnNwaW5fbG9ja19pcnEoJmlvX3Jl
-cXVlc3RfbG9jayk7DQpibGtfZGV2WzI1NF0ucmVxdWVzdF9xdWV1ZS5tYWtlX3JlcXVlc3RfZm4g
-PSBvcmlnaW5hbF9tYWtlX3JlcXVlc3RfZm47DQpzcGluX3VubG9ja19pcnEoJmlvX3JlcXVlc3Rf
-bG9jayk7DQpwcmludGsoIkNsZWFuIHNidWxsIG1vZHVsZSBlbmQgXG4iKTsNCn0NCg0K
-
-------_=_NextPart_001_01C70305.4A951305--

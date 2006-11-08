@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbWKHKSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWKHKTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965230AbWKHKSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 05:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965335AbWKHKSQ
+	id S964857AbWKHKTh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 05:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965335AbWKHKTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 05:18:16 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50886 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S965230AbWKHKSP
+	Wed, 8 Nov 2006 05:19:37 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:13744 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964857AbWKHKTg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 05:18:15 -0500
-Date: Wed, 8 Nov 2006 02:20:37 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Zack Weinberg <zackw@panix.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC PATCH: apply security_syslog() only to the syslog() syscall, not to /proc/kmsg
-Message-ID: <20061108102037.GA6602@sequoia.sous-sol.org>
-References: <eb97335b0611072016y51e1625hcd6504fddfe9aa6c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <eb97335b0611072016y51e1625hcd6504fddfe9aa6c@mail.gmail.com>
-User-Agent: Mutt/1.4.2.2i
+	Wed, 8 Nov 2006 05:19:36 -0500
+In-Reply-To: <aday7qngiuf.fsf@cisco.com>
+Subject: Re: [PATCH 2.6.19 2/4] ehca: hcp_phyp.c: correct page mapping in 64k page
+ mode
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Hoang-Nam Nguyen <hnguyen@de.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, openib-general@openib.org, rolandd@cisco.com
+X-Mailer: Lotus Notes Release 7.0 HF277 June 21, 2006
+Message-ID: <OF60EFC2CD.F8FB1D23-ONC1257220.00315F90-C1257220.0038B8E3@de.ibm.com>
+From: Christoph Raisch <RAISCH@de.ibm.com>
+Date: Wed, 8 Nov 2006 11:22:27 +0100
+X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
+ 08/11/2006 11:22:38
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zack Weinberg (zackw@panix.com) wrote:
-> Presently, the security checks for syslog(2) apply also to access to
-> /proc/kmsg, because /proc/kmsg's file_operations functions just call
-> do_syslog, and the call to security_syslog is in do_syslog, not
-> sys_syslog.  [The only callers of do_syslog are sys_syslog and
-> kmsg_{read,poll,open,release}.]  This has the effect, with the default
-> security policy, that no matter what the file permissions on
-> /proc/kmsg are, only a process with CAP_SYS_ADMIN can actually open or
-> read it.  [Yes, if you open /proc/kmsg as root and then drop
-> privileges, subsequent reads on that fd fail.]  In consequence, if one
-> wishes to run klogd as an unprivileged user, one is forced to jump
-> through awkward hoops - for example, Ubuntu's /etc/init.d/klogd
-> interposes a root-privileged "dd" process and a named pipe between
-> /proc/kmsg and the actual klogd.
 
-The act of reading from /proc/kmsg alters the state of the ring buffer.
-This is not the same as smth like dmesg, which simply dumps the messages.
-That's why only getting current size and dumping are treated as
-less-privileged.
+Roland Dreier wrote on 07.11.2006 20:25:12:
 
-> I propose to move the security_syslog() check from do_syslog to
-> sys_syslog, so that the syscall remains restricted to CAP_SYS_ADMIN in
-> the default policy, but /proc/kmsg is governed by its file
-> permissions.  With the attached patch, I can run klogd as an
-> unprivileged user, having changed the ownership of /proc/kmsg to that
-> user before starting it, and it still works.  Equally, I can leave the
-> ownership alone but modify klogd to get messages from stdin, start it
-> with stdin open on /proc/kmsg (again unprivileged) and it works.
-> 
-> I think this is safe in the default security policy - /proc/kmsg
-> starts out owned by root and mode 400 - but I am not sure of the
-> impact on SELinux or other alternate policy frameworks.
+>  > -   *mapaddr = (u64)(ioremap(physaddr, EHCA_PAGESIZE));
+>  > +   *mapaddr = (u64)ioremap((physaddr & PAGE_MASK), PAGE_SIZE) +
+>  > +      (physaddr & (~PAGE_MASK));
+>
+> I'm confused -- shouldn't ioremap() do the right thing even if
+> physaddr isn't page-aligned?  Why is this needed?
+>
+>  - R.
 
-SELinux doesn't distinguish the entrypoint to the ringbuffer,
-so this patch would break its current behaviour.
+ioremap maps 4k pages on 4k kernels and on 64k pages on 64k kernels. So far
+the theory.
 
-thanks,
--chris
+This is true for memory.
+
+For mapped PCI or ebus registers things are a bit different.
+Some PCI adapters expect that every other 4k page is a new area with
+different meaning starts
+(some PCI adapters are definetly ehca and mellanox here). The consequence
+is you have to map
+only 4k instead of 64k, otherwise you'd map 15 other "access areas" are
+also mapped.
+
+On POWER the ebus memory is mapped by H_ENTER.
+The hypervisor checks for 4k page size on H_ENTER, reason see above.
+
+The nopage handler now does seperate 4k H_ENTERs even for 64k pages in the
+ebus area,
+therefore we have to register a 64k page on a 64k boundary, and the nopage
+triggers the right H_ENTER
+as soon as we access the page at the right offset.
+
+We plan to change that as soon as the base kernel can handle mixed
+pagesizes in a more official way.
+
+Christop R.
+
+

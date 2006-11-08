@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965355AbWKHKVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965368AbWKHKVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965355AbWKHKVb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 05:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965368AbWKHKVb
+	id S965368AbWKHKVp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 05:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965472AbWKHKVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 05:21:31 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9737 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965355AbWKHKVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 05:21:30 -0500
-Date: Wed, 8 Nov 2006 11:21:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org, Martin Lorenz <martin@lorenz.eu.org>
-Subject: Re: [discuss] 2.6.19-rc5: known regressions
-Message-ID: <20061108102132.GW4729@stusta.de>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061108085235.GT4729@stusta.de> <4551B190.76E4.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4551B190.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 8 Nov 2006 05:21:44 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23459 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965368AbWKHKVm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 05:21:42 -0500
+Date: Wed, 8 Nov 2006 02:21:36 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Avoid allocating during interleave from almost full nodes
+Message-Id: <20061108022136.3b9b0748.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0611060854000.25351@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+	<20061103134633.a815c7b3.akpm@osdl.org>
+	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
+	<20061103143145.85a9c63f.akpm@osdl.org>
+	<20061103172605.e646352a.pj@sgi.com>
+	<20061103174206.53f2c49e.akpm@osdl.org>
+	<20061104025128.ca3c9859.pj@sgi.com>
+	<Pine.LNX.4.64.0611060854000.25351@schroedinger.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 10:29:36AM +0100, Jan Beulich wrote:
-> >Subject    : i386: more DWARFs and strange messages
-> >References : http://lkml.org/lkml/2006/10/29/127 
-> >Submitter  : Martin Lorenz <martin@lorenz.eu.org>
-> >Status     : should be fixed by
-> >             commit 4b96b1a10cb00c867103b21f0f2a6c91b705db11
+Christoph wrote:
+> On Sat, 4 Nov 2006, Paul Jackson wrote:
 > 
-> This commit should be related only to the 'strange messages'; I'm
-> yet to look into the DWARFs.
+> >   Do you know of any existing counters that we could use like this?
+> > 
+> > Adding a system wide count of pages allocated or scanned, just for
+> > these fullnode hint caches, bothers me.
+> 
+> There are already such counters. PGALLOC_* and PGSCAN_*. See 
+> include/linux/vmstat.h
 
-Thanks for the information, I've updated it in my list.
 
-> Jan
+  Andrew,
 
-cu
-Adrian
+    I'm willing to take a shot at replacing the wall clock time
+    base with one of these vm counters, in my patch in *-mm:
+
+	memory-page_alloc-zonelist-caching-speedup.patch
+
+    But it will be a few weeks before I can get to it.
+
+    I really need to do some other stuff first.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

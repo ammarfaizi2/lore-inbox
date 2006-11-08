@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422751AbWKHT52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422768AbWKHT7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422751AbWKHT52 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422759AbWKHT52
+	id S1422768AbWKHT7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422764AbWKHT7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:57:28 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:64740 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1422751AbWKHT51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:57:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=DHzzX+LtajolkzU+NxOBiHHVRmHbE7BqBSdVhblWiXiHFaEai4eGkrj+rkQqhqLmJW6+cvxbyhaS9ownP/ThY4TTn0mLKJfxI6GwqiUtsLvNZt/R8ynJ+A0yAZCflBZvqVJWF84+a4fjt6aF/lfbxV6LR9ItXzrmT9fZ04m/e5U=
-Date: Wed, 8 Nov 2006 20:57:33 +0100
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pci quirks: Sort out the VIA mess once and for all ?(hopefully)
-Message-ID: <20061108195732.GA11067@dreamland.darkstar.lan>
+	Wed, 8 Nov 2006 14:59:23 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:9621 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1422768AbWKHT7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 14:59:22 -0500
+X-Sasl-enc: z7muBsVCoN3SrIhC9SbUKZcuPE8xMXSQgJOGk8gd+XEh 1163015962
+Date: Wed, 8 Nov 2006 17:59:15 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com, pavel@ucw.cz
+Subject: Re: How to document dimension units for virtual files?
+Message-ID: <20061108195915.GD15063@khazad-dum.debian.net>
+References: <20061108180154.GC15063@khazad-dum.debian.net> <OFAE836F2F.99AEEBE4-ON41257220.0065E716-41257220.006655A4@de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1163003156.23956.40.camel@localhost.localdomain>
+In-Reply-To: <OFAE836F2F.99AEEBE4-ON41257220.0065E716-41257220.006655A4@de.ibm.com>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> ha scritto:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc4-mm1/include/linux/pci.h linux-2.6.19-rc4-mm1/include/linux/pci.h
-> --- linux.vanilla-2.6.19-rc4-mm1/include/linux/pci.h    2006-10-31 21:11:50.000000000 +0000
-> +++ linux-2.6.19-rc4-mm1/include/linux/pci.h    2006-11-07 10:07:06.000000000 +0000
-> @@ -389,6 +390,21 @@
->        .vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
->        .subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+On Wed, 08 Nov 2006, Michael Holzheu wrote:
+> > Please consider using ":" to separate units and other specific
+> > qualifiers (e.g. led colors) from the main attribute name.  This helps
+> > userspace applications to behave better when faced with stuff like
+> > "a_b_c:unit1"
+> and
+> > "a_b_c:unit2" at the same time.
 > 
-> +/**
-> + * PCI_VDEVICE - macro used to describe a specific pci device in short form
-> + * @vend: the vendor name
-> + * @dev: the 16 bit PCI Device ID
-> + *
-> + * This macro is used to create a struct pci_device_id that matches a
-> + * specific PCI device.  The vendor, device, subvendor, and subdevice
-> + * fields will be set to PCI_ANY_ID. The macro allows the next field
+> ":" is probably not a good idea.  I think it is treated by the bash as a
+> special character. Try:
 
-Hello Alan,
-the comment doesn't match the macro: vendor and device are passed by the
-caller, they're not PCI_ANY_ID.
+We could use some other char (but in that case, it is best to change what
+the led sysfs class is doing, they are already using ":", and that's why I
+suggested ":").  As long as it is not "_"...
 
-> + * to follow as the device private data.
-> + */
-> + 
-> +#define PCI_VDEVICE(vendor, device)            \
-> +       PCI_VENDOR_ID_##vendor, (device),       \
-> +       PCI_ANY_ID, PCI_ANY_ID, 0, 0
-> +
-> /* these external functions are only available when PCI support is enabled */
-> #ifdef CONFIG_PCI
+That said, is it just a problem for the bash completion or does it *really*
+process the : to be something else?
 
-Luca
 -- 
-Recursion n.:
-	See Recursion.
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

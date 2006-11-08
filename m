@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965891AbWKHOvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965903AbWKHOz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965891AbWKHOvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:51:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965893AbWKHOvI
+	id S965903AbWKHOz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965905AbWKHOz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:51:08 -0500
-Received: from wr-out-0506.google.com ([64.233.184.234]:42264 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965891AbWKHOvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:51:06 -0500
+	Wed, 8 Nov 2006 09:55:28 -0500
+Received: from wx-out-0506.google.com ([66.249.82.227]:59078 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965903AbWKHOz1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 09:55:27 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fOYNXVGXLfzoLGi6wJh/wsFXtTsfzayR7UvCo6Rt/O4vhJLC1ocRhBbVZs0loUUODd2cPyOCPmbblPg/S1q+QJ4QFMI1dNZN7lbG99ODJDV+c3iJkRePKD4mUCr6fiYRWXpWKIUyEXP6Bt7iBt/C6jGULLF5V4JbQRvH+JpBevY=
-Message-ID: <b6a2187b0611080651tf0313dfp706ec15b8b7776e7@mail.gmail.com>
-Date: Wed, 8 Nov 2006 22:51:06 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: [PATCH] Update MMCONFIG resource insertion to check against e820 map.
-Cc: "Aaron Durbin" <adurbin@google.com>, linux-kernel@vger.kernel.org,
-       "Matthew Wilcox" <matthew@wil.cx>, discuss@x86-64.org
-In-Reply-To: <200611081254.31635.ak@suse.de>
+        b=fSAaulCxBA9s2u+aYo5cVM2N9QNK0y/nRLJ3ggEjU/ByW62mpZdm8cnlHY7Jc3vg0lbZhZZSGX8UW1AFRTW9ucZUrEukx/oYaetJGsAnE4UYvBdSH59rsc+K++dWLMEFiqIVnQnr0Yy7cUeefo9Hh5J2h7ahyQNiDNE/q6+bsBY=
+Message-ID: <6c4c86470611080655s22fc26c8xe23b4f6d37dc4b6d@mail.gmail.com>
+Date: Wed, 8 Nov 2006 15:55:25 +0100
+From: "Wilco Beekhuizen" <wilcobeekhuizen@gmail.com>
+To: "Sergio Monteiro Basto" <sergio@sergiomb.no-ip.org>
+Subject: Re: VIA IRQ quirk missing PCI ids since 2.6.16.17
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Dave Jones" <davej@redhat.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1162989792.2693.8.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <8f95bb250611071249i6cf92b98p99d4b08275de6656@mail.gmail.com>
-	 <200611081254.31635.ak@suse.de>
+References: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com>
+	 <1162817254.5460.4.camel@localhost.localdomain>
+	 <1162847625.10086.36.camel@localhost.localdomain>
+	 <20061107012519.GC25719@redhat.com>
+	 <1162863274.11073.41.camel@localhost.localdomain>
+	 <6c4c86470611080054r21f5c632u674da23bf3d1cc32@mail.gmail.com>
+	 <1162989792.2693.8.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/8/06, Andi Kleen <ak@suse.de> wrote:
-> On Tuesday 07 November 2006 21:49, Aaron Durbin wrote:
-> > Check to see if MMCONFIG region is marked as reserved in the e820 map
-> > before inserting the MMCONFIG region into the resource map. If the region
-> > is not entirely marked as reserved in the e820 map attempt to find a region
-> > that is. Only insert the MMCONFIG region into the resource map if there was
-> > a region found marked as reserved in the e820 map.  This should fix a known
-> > regression in 2.6.19 by not reserving all of the I/O space on misconfigured
-> > systems.
->
-> Jeff, did this fix your problem?
-
-Yes, it did. I can only verify that x86 32-bit tg3 is working nicely now.
-
-Thanks to all who helped!
-
-Jeff.
+Yes your patch works fine but I saw some objections from Alan.

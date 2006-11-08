@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754381AbWKHHCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754391AbWKHHPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754381AbWKHHCx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 02:02:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754382AbWKHHCx
+	id S1754391AbWKHHPY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 02:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754393AbWKHHPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 02:02:53 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16829
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1753781AbWKHHCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 02:02:52 -0500
-Date: Tue, 07 Nov 2006 23:02:52 -0800 (PST)
-Message-Id: <20061107.230252.38711277.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: kamezawa.hiroyu@jp.fujitsu.com, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linux-ia64@vger.kernel.org, auke-jan.h.kok@intel.com, jeff@garzik.org
-Subject: Re: [BUG] [2.6.19-rc4-mm2] can't compile
- drivers/acpi/processor_idle.c
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061107225259.0eff22d2.akpm@osdl.org>
-References: <20061108150141.b792fbdb.kamezawa.hiroyu@jp.fujitsu.com>
-	<20061107225259.0eff22d2.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 8 Nov 2006 02:15:24 -0500
+Received: from mis011-2.exch011.intermedia.net ([64.78.21.129]:39851 "EHLO
+	mis011-2.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1754391AbWKHHPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 02:15:24 -0500
+Message-ID: <455183EA.2020405@qumranet.com>
+Date: Wed, 08 Nov 2006 09:14:50 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+MIME-Version: 1.0
+To: Roland Dreier <rdreier@cisco.com>
+CC: Andrew Morton <akpm@osdl.org>, kvm-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/14] KVM: Kernel-based Virtual Machine (v4)
+References: <454E4941.7000108@qumranet.com>	<20061107204440.090450ea.akpm@osdl.org> <adafycuh77b.fsf@cisco.com>
+In-Reply-To: <adafycuh77b.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Nov 2006 07:15:23.0654 (UTC) FILETIME=[A84AC260:01C70305]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Tue, 7 Nov 2006 22:52:59 -0800
+Roland Dreier wrote:
+>  > That's gas 2.16.1.  I assume it needs some super-new binutils.
+>  > 
+>  > I'm not sure what to do about this.  What's the minimum version?
+>
+> According to http://kvm.sourceforge.net/howto.html :
+>     A recent enough binutils (>= 2.16.91.0.2) for vmx instruction support
+>   
 
-> Also,
-> 
-> drivers/built-in.o(.text+0xd9a72): In function `e1000_xmit_frame':
-> : undefined reference to `csum_ipv6_magic'
-> 
-> I don't know how this got broken.  ia64 seems to be the only architecture
-> which doesn't have an implementation of csum_ipv6_magic().  This bug
-> appears to be introduced by git-netdev-all.patch.
+Either that or a bunch of ugly .byte macros.
 
-There is a generic version, which e1000 would get if it included
-the net/ip_checksum.h header file.
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

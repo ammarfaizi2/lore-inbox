@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422627AbWKHTeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422630AbWKHTiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422627AbWKHTeu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161727AbWKHTeu
+	id S1422630AbWKHTiL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422628AbWKHTiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:34:50 -0500
-Received: from www.osadl.org ([213.239.205.134]:36576 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161725AbWKHTet (ORCPT
+	Wed, 8 Nov 2006 14:38:10 -0500
+Received: from sycorax.lbl.gov ([128.3.5.196]:37650 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S1161725AbWKHTiJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:34:49 -0500
-Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required)
-	[2.6.18-rc4-mm1]
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061107222711.GA22612@rhlx01.hs-esslingen.de>
-References: <20061101140729.GA30005@rhlx01.hs-esslingen.de>
-	 <1162830033.4715.201.camel@localhost.localdomain>
-	 <20061106205825.GA26755@rhlx01.hs-esslingen.de>
-	 <200611070141.16593.len.brown@intel.com> <20061107080733.GB9910@elte.hu>
-	 <1162887935.4715.349.camel@localhost.localdomain>
-	 <20061107091628.GA5399@rhlx01.hs-esslingen.de>
-	 <1162891737.4715.354.camel@localhost.localdomain>
-	 <1162892758.4715.362.camel@localhost.localdomain>
-	 <20061107222711.GA22612@rhlx01.hs-esslingen.de>
-Content-Type: text/plain
-Date: Wed, 08 Nov 2006 20:36:59 +0100
-Message-Id: <1163014620.8335.46.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Nov 2006 14:38:09 -0500
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc5: known regressions
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<20061108085235.GT4729@stusta.de> <20061108093442.GB19471@kernel.dk>
+	<87ejsd3gcr.fsf@sycorax.lbl.gov> <20061108192924.GA4527@kernel.dk>
+Date: Wed, 08 Nov 2006 11:38:06 -0800
+In-Reply-To: <20061108192924.GA4527@kernel.dk> (message from Jens Axboe on
+	Wed, 8 Nov 2006 20:29:25 +0100)
+Message-ID: <87ac313f1d.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-07 at 23:27 +0100, Andreas Mohr wrote:
-> I applied the patch, the changes *are* in the tree and I did create and
-> install a new image (with CONFIG_NO_HZ re-enabled and C1 hard-wiring removed),
-> but it failed again, completely. The usual hang during boot with
-> keyboard activity required, and then it didn't even manage to finish booting
-> (I probably was too slow in generating the necessary amount of events).
-> 
-> Let me think a bit about that stuff, maybe I'll be able to figure out what's
-> happening on my system. Or any other ideas?
-> (since I would like to somehow get this resolved without less than perfect
-> workarounds if possible)
+Jens Axboe <jens.axboe@oracle.com> writes:
 
-Yes, I'm going to drop the detection as it can never be perfect and
-enforce the PIT usage on UP boxen, as it seems that the lapic / BIOS
-crap is more or less unfixable. Working on a patch against rc5-mm1 right
-now.
+> It helps a lot, thanks! I may ask you to retest with another patch,
+> if you don't mind.
 
-	tglx
+send the patches, i'll test them all. thanks.
 
+--alex--
 
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

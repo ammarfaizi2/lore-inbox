@@ -1,126 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWKHTt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422702AbWKHTvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422701AbWKHTt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWKHTt0
+	id S1422702AbWKHTvi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754659AbWKHTvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:49:26 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:46759 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422701AbWKHTtY convert rfc822-to-8bit (ORCPT
+	Wed, 8 Nov 2006 14:51:38 -0500
+Received: from www.osadl.org ([213.239.205.134]:60127 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1754658AbWKHTvh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:49:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=qcmfGs7I6qrif7i6d948KR2Zy1ZjxIvTaFTorIhbbG0iTZiRchDy1gDbSVTlDQ6hVQMgjf/hSv/iz7NMPalUFwEhp3Vlq0ZVta6RGmqgsGspK+QJZtz3jTL1YOSzG/kwtUesHqP/C27GyX6hCGDFk+YDKag67iwzhGQVmErSBV8=
-Date: Wed, 8 Nov 2006 20:49:08 +0100
-From: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-To: davem@davemloft.net
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1 dcache] drivers: add LCD support
-Message-Id: <20061108204908.8def2283.maxextreme@gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Wed, 8 Nov 2006 14:51:37 -0500
+Subject: Re: AMD X2 unsynced TSC fix?
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: sergio@sergiomb.no-ip.org
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, Andi Kleen <ak@suse.de>,
+       Lee Revell <rlrevell@joe-job.com>, Chris Friesen <cfriesen@nortel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, len.brown@intel.com,
+       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <1162945339.4455.12.camel@monteirov>
+References: <1161969308.27225.120.camel@mindpipe>
+	 <1162009373.26022.22.camel@localhost.localdomain>
+	 <1162177848.2914.13.camel@localhost.portugal>
+	 <200610301623.14535.ak@suse.de>
+	 <1162253008.2999.9.camel@localhost.portugal>
+	 <20061030184155.A3790@unix-os.sc.intel.com>
+	 <1162345608.2961.7.camel@localhost.portugal>
+	 <20061031184411.E3790@unix-os.sc.intel.com>
+	 <1162945339.4455.12.camel@monteirov>
+Content-Type: text/plain
+Date: Wed, 08 Nov 2006 20:53:48 +0100
+Message-Id: <1163015628.8335.52.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David, as akpm suggested, may this patch will solve the dcache aliasing problem?
+On Wed, 2006-11-08 at 00:22 +0000, Sergio Monteiro Basto wrote:
+> I had update bugzilla with dmesg from 2.6.19-RC4-mm2, which already came
+> with the latest release of hrtimers, because for the first time I could
+> boot without hang on boot, with hrtimers and without notsc boot option.
+> But it have a long long oops that maybe could give you some clues.
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=6419#c55
 
-I will give you a introduction:
+This one is a lock dependency problem, which is fixed in -rc5-mm1
 
-The user mmaped page (got by __get_free_page()) is cfag12864b_buffer.
+	tglx
 
-The kernel only access it for reading at the same function 1 or 2 times:
 
-  1º memcmp() it against the cache, so we can tell if we must update the screen
-  2º if true, memcpy() the buffer to the cache buffer
-
-So, if we want the kernel to know the last state of the data, we should call
-flush_dcache_page() just once before we access it, right?
-
-The relevant code:
-
-	flush_dcache_page(virt_to_page(cfag12864b_buffer));
-	if (memcmp(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE)) {
-		memcpy(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE);
-
-		/***... update using cfag12864b_cache ...***/
-	}
-
-You know, I can't test this stuff ;) so please review and check if it is right.
-
-Thanks you.
----
-
- - remove the "depends on x86" as it is portable again
-
- - memcpy() buffer to cache, then update from cache, not buffer,
-   This way we only read the mmapped buffer 2 times.
-
- - add a flush_dcache_page() to flush the user mmaped page so
-   the kernel has the last written data before accessing it.
-
- drivers/auxdisplay/Kconfig      |    1 -
- drivers/auxdisplay/cfag12864b.c |    9 +++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
-
-drivers-add-lcd-support-dcache.patch
-Signed-off-by: Miguel Ojeda Sandonis <maxextreme@gmail.com>
----
-diff --git a/drivers/auxdisplay/Kconfig b/drivers/auxdisplay/Kconfig
-index 8d41f72..ee30c48 100644
---- a/drivers/auxdisplay/Kconfig
-+++ b/drivers/auxdisplay/Kconfig
-@@ -64,7 +64,6 @@ config KS0108_DELAY
- 
- config CFAG12864B
- 	tristate "CFAG12864B LCD"
--	depends on X86
- 	depends on KS0108
- 	default n
- 	---help---
-diff --git a/drivers/auxdisplay/cfag12864b.c b/drivers/auxdisplay/cfag12864b.c
-index 7b3c9ab..a654d54 100644
---- a/drivers/auxdisplay/cfag12864b.c
-+++ b/drivers/auxdisplay/cfag12864b.c
-@@ -37,7 +37,7 @@
- #include <linux/workqueue.h>
- #include <linux/ks0108.h>
- #include <linux/cfag12864b.h>
--
-+#include <asm/cacheflush.h>
- 
- #define CFAG12864B_NAME "cfag12864b"
- 
-@@ -272,7 +272,10 @@ static void cfag12864b_update(void *arg)
- 	unsigned char c;
- 	unsigned short i, j, k, b;
- 
-+	flush_dcache_page(virt_to_page(cfag12864b_buffer));
- 	if (memcmp(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE)) {
-+		memcpy(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE);
-+
- 		for (i = 0; i < CFAG12864B_CONTROLLERS; i++) {
- 			cfag12864b_controller(i);
- 			cfag12864b_nop();
-@@ -283,7 +286,7 @@ static void cfag12864b_update(void *arg)
- 				cfag12864b_nop();
- 				for (k = 0; k < CFAG12864B_ADDRESSES; k++) {
- 					for (c = 0, b = 0; b < 8; b++)
--						if (cfag12864b_buffer
-+						if (cfag12864b_cache
- 							[i * CFAG12864B_ADDRESSES / 8
- 							+ k / 8 + (j * 8 + b) *
- 							CFAG12864B_WIDTH / 8]
-@@ -293,8 +296,6 @@ static void cfag12864b_update(void *arg)
- 				}
- 			}
- 		}
--
--		memcpy(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE);
- 	}
- 
- 	if (cfag12864b_updating)

@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754520AbWKHLGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754523AbWKHLI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754520AbWKHLGL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 06:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754519AbWKHLGK
+	id S1754523AbWKHLI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 06:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754525AbWKHLI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 06:06:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1474 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1754521AbWKHLGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 06:06:10 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Bryan O'Sullivan" <bos@serpentine.com>
-Subject: Re: 2.6.19-rc5: known regressions
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
-	<20061108085235.GT4729@stusta.de>
-Date: Wed, 08 Nov 2006 04:04:37 -0700
-In-Reply-To: <20061108085235.GT4729@stusta.de> (Adrian Bunk's message of "Wed,
-	8 Nov 2006 09:52:35 +0100")
-Message-ID: <m17iy65hdm.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 8 Nov 2006 06:08:56 -0500
+Received: from 80-218-222-94.dclient.hispeed.ch ([80.218.222.94]:61449 "EHLO
+	steudten.com") by vger.kernel.org with ESMTP id S1754519AbWKHLIz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 06:08:55 -0500
+Message-ID: <4551BABE.1060307@steudten.com>
+Date: Wed, 08 Nov 2006 12:08:46 +0100
+From: "alpha @ steudten Engineering" <NWQ3MzhlY2QwZDAzODVhN@steudten.com>
+Organization: Steudten Engineering
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org
+Subject: Re: INFO alpha CPU: Locking API testsuite: Results kernel 2.6.18.1
+References: <20061108093201.GA2489@ff.dom.local>
+In-Reply-To: <20061108093201.GA2489@ff.dom.local>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Mailer
+X-Check: 404ed6adb598d0f60b9b752914fbdbcd on steudten.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+CONFIG_PROVE_LOCKING=y ?
 
-> Subject    : ipath driver MCEs system on load when HT chip present
-> References : http://bugzilla.kernel.org/show_bug.cgi?id=7455
-> Submitter  : Bryan O'Sullivan <bos@serpentine.com>
-> Caused-By  : Eric W. Biederman <ebiederm@xmission.com>
-> Handled-By : Bryan O'Sullivan <bos@serpentine.com>
->              Eric W. Biederman <ebiederm@xmission.com>
-> Status     : Bryan and Eric are working on fixing the ipath driver
+It't not there/set! It depends on:
+config PROVE_LOCKING
+        bool "Lock debugging: prove locking correctness"
+        depends on DEBUG_KERNEL && TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
+        select LOCKDEP
+so it looks like only DEBUG_KERNEL is set for alpha.
+Maybe some dependencies are missing.. I'll check this.
 
-Except for some stupid little issues the fixes are now agreed to.  Just
-final code reviews and testing are needed.
+Jarek Poplawski wrote:
+> On 04-11-2006 15:27, alpha @ steudten Engineering wrote:
+>> kernel-2.6.18.1 ALPHA SX164
+>> No "failed" on x86.
+>> ------------------------
+>> | Locking API testsuite:
+>> ----------------------------------------------------------------------------
+>>                                  | spin |wlock |rlock |mutex | wsem | rsem |
+>>   --------------------------------------------------------------------------
+>>                      A-A deadlock:failed|failed|  ok  |failed|failed|failed|
+> ...
+>> --------------------------------------------------------
+>> 143 out of 218 testcases failed, as expected. |
+>> ----------------------------------------------------
+> 
+> CONFIG_PROVE_LOCKING=y ?
 
-Eric

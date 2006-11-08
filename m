@@ -1,41 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754230AbWKHEvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754233AbWKHE53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754230AbWKHEvY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 23:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754233AbWKHEvY
+	id S1754233AbWKHE53 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 23:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754235AbWKHE53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 23:51:24 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:46963 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1754226AbWKHEvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 23:51:23 -0500
-X-IronPort-AV: i="4.09,399,1157353200"; 
-   d="scan'208"; a="1862694352:sNHT74714394"
-To: Andrew Morton <akpm@osdl.org>
-Cc: Avi Kivity <avi@qumranet.com>, kvm-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/14] KVM: Kernel-based Virtual Machine (v4)
-X-Message-Flag: Warning: May contain useful information
-References: <454E4941.7000108@qumranet.com>
-	<20061107204440.090450ea.akpm@osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 07 Nov 2006 20:51:20 -0800
-In-Reply-To: <20061107204440.090450ea.akpm@osdl.org> (Andrew Morton's message of "Tue, 7 Nov 2006 20:44:40 -0800")
-Message-ID: <adafycuh77b.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Tue, 7 Nov 2006 23:57:29 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:33287 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1754229AbWKHE52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 23:57:28 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Faustian Pact between Novell and Microsoft
+Date: Tue, 7 Nov 2006 20:57:23 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEJKPJAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 08 Nov 2006 04:51:20.0777 (UTC) FILETIME=[88BC6390:01C702F1]
-Authentication-Results: sj-dkim-6.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <4550E910.6010107@wolfmountaingroup.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 07 Nov 2006 22:00:29 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 07 Nov 2006 22:00:30 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > That's gas 2.16.1.  I assume it needs some super-new binutils.
- > 
- > I'm not sure what to do about this.  What's the minimum version?
 
-According to http://kvm.sourceforge.net/howto.html :
-    A recent enough binutils (>= 2.16.91.0.2) for vmx instruction support
+> <snip>
+>
+> /"Microsoft made it clear that only SUSE users and developers, as well
+> as unsalaried Linux developers, are protected. 'Let me be clear about
+> one thing, we don't license our intellectual property to Linux because
+> of the way Linux licensing GPL framework works, that's not really a
+> possibility,' said Microsoft chief executive, Steve Ballmer. 'Novell is
+> actually just a proxy for its customers, and it's only for its
+> customers,' he added. 'This does not apply to any forms of Linux other
+> than Novell's SUSE Linux. And if people want to have peace and
+> interoperability, they'll look at Novell's SUSE Linux. If they make
+> other choices, they have all of the compliance and intellectual property
+> issues that are associated with that.'"
+>
+> </snip>
+>
+> And those lights are bright indeed ....
 
- - R.
+	Maybe I'm dense, but doesn't the GPL say:
+
+  7. If, as a consequence of a court judgment or allegation of patent
+infringement or for any other reason (not limited to patent issues),
+conditions are imposed on you (whether by court order, agreement or
+otherwise) that contradict the conditions of this License, they do not
+excuse you from the conditions of this License.  If you cannot
+distribute so as to satisfy simultaneously your obligations under this
+License and any other pertinent obligations, then as a consequence you
+may not distribute the Program at all.
+
+	If SUSE Linux contains derivative works of GPL'd works that Novell wants to
+distribute, they must ensure that their customers may engage in royalty-free
+redistribution and that the recipients of the redistribution can lawfully
+engage in the expected use.
+
+	And of course:
+
+    You must cause any work that you distribute or publish, that in
+    whole or in part contains or is derived from the Program or any
+    part thereof, to be licensed as a whole at no charge to all third
+    parties under the terms of this License.
+
+	How can they do that if licensing the work requires licensing patents that
+Novell has no right to license?
+
+	It seems absolutely 100% clear to me that you cannot distribute under the
+GPL a work whose ordinary use requires obtaining a patent license that is
+not freely avialable to anyone who possess the work. You cannot distribute a
+GPL'd work with a non-shareable "right to use" that work. If that's not
+precisely what section 7 is trying to say, what else could it possibly mean?
+
+DS
+
+

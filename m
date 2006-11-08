@@ -1,96 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965909AbWKHPIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965916AbWKHPMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965909AbWKHPIt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 10:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965912AbWKHPIt
+	id S965916AbWKHPMw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 10:12:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965904AbWKHPMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 10:08:49 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:34759 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965909AbWKHPIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 10:08:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=d+pT3240PQ3z885fPFHv1IEhGKmViQiqhASKsg+qF48uzunOGpqEt9xfGch0LaFFHhL0qUo4HyDJ6JpNAVjFYAM5ho7S6oYcUZp84M8r7C9VdP9KNbOPz4qO7GBKy/42ArH2KoS6SxsiY044BKT/U2womO+PM0l4HHNAOHKvzZ0=
-Message-ID: <40f323d00611080708j2eeaefc1kee4f22211d3f276d@mail.gmail.com>
-Date: Wed, 8 Nov 2006 16:08:45 +0100
-From: "Benoit Boissinot" <bboissin@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.19-rc5-mm1
-Cc: linux-kernel@vger.kernel.org, "Thomas Gleixner" <tglx@linutronix.de>
-In-Reply-To: <20061108015452.a2bb40d2.akpm@osdl.org>
+	Wed, 8 Nov 2006 10:12:52 -0500
+Received: from smtpout08-04.prod.mesa1.secureserver.net ([64.202.165.12]:31903
+	"HELO smtpout08-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S965916AbWKHPMv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 10:12:51 -0500
+Message-ID: <4551F3F0.5020405@seclark.us>
+Date: Wed, 08 Nov 2006 10:12:48 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
+Subject: Re: New laptop - problems with linux
+References: <4551EC86.5010600@seclark.us> <1162997980.3138.332.camel@laptopd505.fenrus.org>
+In-Reply-To: <1162997980.3138.332.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/8/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> Temporarily at
->
-> http://userweb.kernel.org/~akpm/2.6.19-rc5-mm1/
->
-> will turn up at
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm1/
->
-> when kernel.org mirroring catches up.
->
-I have the following traceback during boot:
-[   20.359613] BUG: unable to handle kernel NULL pointer dereference
-at virtual address 00000000
-[   20.359618]  printing eip:
-[   20.359620] 00000000
-[   20.359621] *pde = 00000000
-[   20.359625] Oops: 0000 [#1]
-[   20.359627] last sysfs file:
-[   20.359630] Modules linked in: processor fan
-[   20.359635] CPU:    0
-[   20.359636] EIP:    0060:[<00000000>]    Not tainted VLI
-[   20.359638] EFLAGS: 00010006   (2.6.19-rc5-mm1 #15)
-[   20.359642] EIP is at 0x0
-[   20.359644] eax: 00000002   ebx: 00000002   ecx: c04332c0   edx: c04332c0
-[   20.359648] esi: e6b71ee0   edi: 00000008   ebp: e6b71e94   esp: dfc27dac
-[   20.359651] ds: 007b   es: 007b   ss: 0068
-[   20.359654] Process modprobe (pid: 939, ti=dfc26000 task=e6429030
-task.ti=dfc26000)
-[   20.359656] Stack: c012fae0 e6b71c00 e80307bd 00000001 e8030b76
-dfc27e40 00000000 e6b71d28
-[   20.359663]        00000003 00000003 00000000 00000003 00000004
-00000000 e6f8fa00 00000300
-[   20.359669]        00001015 00000300 00000055 00000000 000000fa
-00000000 00000000 00000000
-[   20.359675] Call Trace:
-[   20.359677]  [<c012fae0>] clockevents_set_global_broadcast+0x60/0x70
-[   20.359686]  [<e80307bd>] acpi_propagate_timer_broadcast+0x24/0x31
-[processor]
-[   20.359695]  [<e8030b76>] acpi_processor_get_power_info+0x3ac/0x4e7
-[processor]
-[   20.359704]  [<e80204fa>] acpi_processor_power_init+0x9b/0x15e [processor]
-[   20.359712]  [<e8020386>] acpi_processor_start+0x386/0x3f8 [processor]
-[   20.359719]  [<c020e4cf>] acpi_start_single_object+0x1b/0x3b
-[   20.359727]  [<c020ead3>] acpi_bus_register_driver+0x65/0x7c
-[   20.359732]  [<e802043b>] acpi_processor_init+0x43/0x67 [processor]
-[   20.359739]  [<c0134137>] sys_init_module+0x157/0x1820
-[   20.359746]  [<c0102f90>] syscall_call+0x7/0xb
-[   20.359751]  =======================
-[   20.359753] Code:  Bad EIP value.
-[   20.359756] EIP: [<00000000>] 0x0 SS:ESP 0068:dfc27dac
+Arjan van de Ven wrote:
 
-reverting:
-i386-apic-timer-use-clockevents-broadcast.patch
-acpi-verify-lapic-timer.patch
-acpi-verify-lapic-timer-exports.patch
-acpi-verify-lapic-timer-fix.patch
+>On Wed, 2006-11-08 at 09:41 -0500, Stephen Clark wrote:
+>  
+>
+>>Hi list,
+>>
+>>I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core 
+>>2 Duo T560,0 2gb pc5400 memory.
+>> From checking around it appeared all the
+>>hardware was well supported by linux - but I am having major problems.
+>>
+>>
+>>1. neither the wireless lan Intel pro 3945ABG or built in ethernet 
+>>    
+>>
+>
+>you can get the driver for this from ipw3945.sf.net
+>
+>  
+>
+>>RTL-8169C are detected and configured
+>>    
+>>
+Could you propose any reason why it is not be configured? Can I force 
+load a module to
+make it work. It is a real pain without a enet conniection, since I have 
+to ferry stuff on thumbdrive
 
-fixes it.
+>>2. the disk which is a 7200rpm Hitachi travelmate transfers data at 1.xx 
+>>mb/sec
+>>    according to hdparm. This same drive in my old laptop an HP n5430 with a
+>>    850 duron the rate was 12-14 mb/sec.
+>>    
+>>
+>
+>it seems you're using your sata disk in legacy IDE compatibility mode,
+>and not AHCI mode... usually there is a bios setting to switch this
+>(but be careful, if you switch it without adding the ahci driver to your
+>initrd your system won't boot)
+>
+>
+>
+>
+>  
+>
+Actually this is a pata drive. This laptop provides a pata interface 
+even though it has
+sata in the ICH7 chipset.
 
-regards,
 
-Benoit
+-- 
 
-dmesg and kernel config at: http://perso.ens-lyon.fr/benoit.boissinot/kernel/
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
+

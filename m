@@ -1,50 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754028AbWKHDfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753017AbWKHDyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754028AbWKHDfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 22:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753985AbWKHDfS
+	id S1753017AbWKHDyk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 22:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753985AbWKHDyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 22:35:18 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57486 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1754028AbWKHDfR (ORCPT
+	Tue, 7 Nov 2006 22:54:40 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48613 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1753017AbWKHDyj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 22:35:17 -0500
-Date: Wed, 8 Nov 2006 14:33:50 +1100
-From: David Chinner <dgc@sgi.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
-       Srinivasa DS <srinivasa@in.ibm.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061108033350.GR11034@melbourne.sgi.com>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611080005.50070.rjw@sisk.pl> <20061107234951.GD30653@agk.surrey.redhat.com> <200611080100.18290.rjw@sisk.pl>
+	Tue, 7 Nov 2006 22:54:39 -0500
+Date: Tue, 7 Nov 2006 19:54:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: ak@suse.de, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, ashok.raj@intel.com
+Subject: Re: [patch 2/4] introduce the mechanism of disabling cpu hotplug
+ control
+Message-Id: <20061107195430.37f8deb0.akpm@osdl.org>
+In-Reply-To: <20061107174024.B5401@unix-os.sc.intel.com>
+References: <20061107173306.C3262@unix-os.sc.intel.com>
+	<20061107173624.A5401@unix-os.sc.intel.com>
+	<20061107174024.B5401@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611080100.18290.rjw@sisk.pl>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 01:00:17AM +0100, Rafael J. Wysocki wrote:
+On Tue, 7 Nov 2006 17:40:25 -0800
+"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+
+> Add 'cpu_hotplug_no_control' and when set, the hotplug control file("online")
+> will not be added under /sys/devices/system/cpu/cpuX/
 > 
-> However, XFS_IOC_FREEZE happily returns 0 after calling freeze_bdev(),
-> apparetnly assuming that it won't fail.
+> Next patch doing PCI quirks will use this.
+> 
 
-Because it _can't_ fail at this point. We've got an active superblock,
-because we've had to open a fd on the filesystem to get to the point
-where we can issue the ioctl.
+I don't understand what this (ugly) patch has to do with the overall
+bugfix.  We're fixing the APCI initialisation - what does that have to do
+with presenting cpu-hotplug files in sysfs?
 
-Hence the get_super() call will always succeed and the freeze
-will be executed if we are not read only. The superblock
-state changes if the freeze goes ahead, and XFS uses this state
-change to determine what to do when the thaw command is sent.
 
-Cheers,
+> ---
+> 
+> diff --git a/arch/i386/kernel/topology.c b/arch/i386/kernel/topology.c
+> index 07d6da3..9b766e7 100644
+> --- a/arch/i386/kernel/topology.c
+> +++ b/arch/i386/kernel/topology.c
+> @@ -40,14 +40,22 @@ int arch_register_cpu(int num)
+>  	 * restrictions and assumptions in kernel. This basically
+>  	 * doesnt add a control file, one cannot attempt to offline
+>  	 * BSP.
+> +	 *
+> +	 * Also certain PCI quirks require to remove this control file
+> +	 * for all CPU's.
+>  	 */
+> +#ifdef CONFIG_HOTPLUG_CPU
+> +	if (!num || cpu_hotplug_no_control)
+> +#else
+>  	if (!num)
+> +#endif
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+This ifdef could be removed 
+
+>  		cpu_devices[num].cpu.no_control = 1;
+>  
+>  	return register_cpu(&cpu_devices[num].cpu, num);
+>  }
+>  
+>  #ifdef CONFIG_HOTPLUG_CPU
+> +int cpu_hotplug_no_control;
+>  
+>  void arch_unregister_cpu(int num) {
+>  	return unregister_cpu(&cpu_devices[num].cpu);
+> diff --git a/include/asm-i386/cpu.h b/include/asm-i386/cpu.h
+> index b1bc7b1..3c5da33 100644
+> --- a/include/asm-i386/cpu.h
+> +++ b/include/asm-i386/cpu.h
+> @@ -13,6 +13,7 @@ struct i386_cpu {
+>  extern int arch_register_cpu(int num);
+>  #ifdef CONFIG_HOTPLUG_CPU
+>  extern void arch_unregister_cpu(int);
+> +extern int cpu_hotplug_no_control;
+
+via:
+
+#else
+#define cpu_hotplug_no_control 1
+
+here.
+
+
+But does this variable _have_ to be a negative like this?  The code would
+be simpler if it had the opposite sense and was called, say,
+cpu_hotplug_enable_control_file.
+
+Are these patches considered 2.6.19 material?  They look a bit big, ugly
+and scary for that.
+

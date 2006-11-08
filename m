@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965889AbWKHOp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965822AbWKHOqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965889AbWKHOp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965825AbWKHOfo
+	id S965822AbWKHOqE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965893AbWKHOqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:35:44 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:51206 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S965819AbWKHOfW (ORCPT
+	Wed, 8 Nov 2006 09:46:04 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:9880 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965891AbWKHOqA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:35:22 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Organization: tuxland
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 6/33] usb: ttusb_dec free urb cleanup
-Date: Wed, 8 Nov 2006 15:34:27 +0100
-User-Agent: KMail/1.9.5
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <200611062228.38937.m.kozlowski@tuxland.pl> <200611071030.57152.m.kozlowski@tuxland.pl> <20061107013702.46b5710f.akpm@osdl.org>
-In-Reply-To: <20061107013702.46b5710f.akpm@osdl.org>
+	Wed, 8 Nov 2006 09:46:00 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alasdair G Kergon <agk@redhat.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Date: Wed, 8 Nov 2006 15:43:26 +0100
+User-Agent: KMail/1.9.1
+Cc: David Chinner <dgc@sgi.com>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
+       Srinivasa DS <srinivasa@in.ibm.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061108082722.GH8394166@melbourne.sgi.com> <20061108142511.GG30653@agk.surrey.redhat.com>
+In-Reply-To: <20061108142511.GG30653@agk.surrey.redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611081534.28503.m.kozlowski@tuxland.pl>
+Content-Disposition: inline
+Message-Id: <200611081543.28548.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wednesday, 8 November 2006 15:25, Alasdair G Kergon wrote:
+> On Wed, Nov 08, 2006 at 07:27:22PM +1100, David Chinner wrote:
+> > But it's trivial to detect this condition - if (sb->s_frozen != SB_UNFROZEN)
+> > then the filesystem is already frozen and you shouldn't try to freeze
+> > it again. It's simple to do, and the whole problem then just goes away....
+>  
+> So is that another vote in support of explicitly supporting multiple concurrent
+> freeze requests, letting them all succeed, and only thawing after the last one
+> has requested its thaw?  (It's not enough just to check SB_UNFROZEN - also need
+> to track whether any other outstanding requests to avoid risk of it getting
+> unfrozen while something independent believes it still to be frozen.)
 
-- usb_free_urb() cleanup
+So, I think, we need the following patch to fix freeze_filesystems().
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Will it be enough to cover the interactions with dm?
 
---- linux-2.6.19-rc4-orig/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2006-11-06 17:07:39.000000000 +0100
-+++ linux-2.6.19-rc4/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2006-11-06 19:55:08.000000000 +0100
-@@ -1135,8 +1135,7 @@ static void ttusb_dec_free_iso_urbs(stru
- 	dprintk("%s\n", __FUNCTION__);
- 
- 	for (i = 0; i < ISO_BUF_COUNT; i++)
--		if (dec->iso_urb[i])
--			usb_free_urb(dec->iso_urb[i]);
-+		usb_free_urb(dec->iso_urb[i]);
- 
- 	pci_free_consistent(NULL,
- 			    ISO_FRAME_SIZE * (FRAMES_PER_ISO_BUF *
+Rafael
+
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ fs/buffer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.19-rc5-mm1/fs/buffer.c
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/fs/buffer.c
++++ linux-2.6.19-rc5-mm1/fs/buffer.c
+@@ -264,7 +264,7 @@ void freeze_filesystems(void)
+ 	 */
+ 	list_for_each_entry_reverse(sb, &super_blocks, s_list) {
+ 		if (!sb->s_root || !sb->s_bdev ||
+-		    (sb->s_frozen == SB_FREEZE_TRANS) ||
++		    (sb->s_frozen != SB_UNFROZEN) ||
+ 		    (sb->s_flags & MS_RDONLY) ||
+ 		    (sb->s_flags & MS_FROZEN))
+ 			continue;

@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754628AbWKHR6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754632AbWKHSBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754628AbWKHR6l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 12:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754630AbWKHR6l
+	id S1754632AbWKHSBE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754634AbWKHSBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 12:58:41 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:34961 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1754628AbWKHR6k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 12:58:40 -0500
-Message-ID: <45521ACE.9050606@garzik.org>
-Date: Wed, 08 Nov 2006 12:58:38 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pci quirks: Sort out the VIA mess once and for all	(hopefully)
-References: <1163003156.23956.40.camel@localhost.localdomain>
-In-Reply-To: <1163003156.23956.40.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 8 Nov 2006 13:01:03 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35280 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1754632AbWKHSBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 13:01:01 -0500
+Subject: Re: VIA IRQ quirk missing PCI ids since 2.6.16.17
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>, akpm@osdl.org,
+       Wilco Beekhuizen <wilcobeekhuizen@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061108202218.8f542fbf.vsu@altlinux.ru>
+References: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com>
+	 <1162817254.5460.4.camel@localhost.localdomain>
+	 <1162847625.10086.36.camel@localhost.localdomain>
+	 <20061108202218.8f542fbf.vsu@altlinux.ru>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Date: Wed, 08 Nov 2006 18:05:30 +0000
+Message-Id: <1163009130.23956.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc4-mm1/include/linux/libata.h linux-2.6.19-rc4-mm1/include/linux/libata.h
-> --- linux.vanilla-2.6.19-rc4-mm1/include/linux/libata.h	2006-10-31 21:11:50.000000000 +0000
-> +++ linux-2.6.19-rc4-mm1/include/linux/libata.h	2006-11-07 10:07:10.000000000 +0000
-> @@ -109,11 +109,6 @@
->  /* defines only for the constants which don't work well as enums */
->  #define ATA_TAG_POISON		0xfafbfcfdU
->  
-> -/* move to PCI layer? */
-> -#define PCI_VDEVICE(vendor, device)		\
-> -	PCI_VENDOR_ID_##vendor, (device),	\
-> -	PCI_ANY_ID, PCI_ANY_ID, 0, 0
-> -
->  static inline struct device *pci_dev_to_dev(struct pci_dev *pdev)
->  {
+Ar Mer, 2006-11-08 am 20:22 +0300, ysgrifennodd Sergey Vlasov:
+> Hmm, the old comment mentions 686A/B explicitly - seems that these old
+> chips also use PCI_INTERRUPT_LINE to control interrupt routing.  Is it
+> correct to ignore them here?  Yes, that chips used PCI and not VLink,
+> but they also had an internal PIC (and even internal IO-APIC).
+> 
+> Unfortunately, I no longer have such hardware available.
 
+I have enough docs to extend this approach to those chips if neccessary.
+Anyone got an old 686 board to check.
 
-nit:  don't remove the "move to PCI layer?" comment, it also applies to 
-code below that which you are moving.
+> > +	/* May not be needed for the 8237 */
+> > +	{ PCI_VDEVICE(VIA, PCI_DEVICE_ID_VIA_8237), 15 },
+> > +	{ PCI_VDEVICE(VIA, PCI_DEVICE_ID_VIA_8237A), 15 },
+> 
+> 8237 definitely uses PCI_INTERRUPT_LINE to control interrupt routing in
+> PIC mode - tested with the audio part by writing bogus values with
+> setpci and checking whether interrupts are delivered.
 
-Patch overall seems sane to me.
+Ok
 
-	Jeff
+> If there is no VIA ISA bridge in the system, this won't cache anything.
 
+I no, thats noted in the comments when I posted the diff. If it works
+I'll cache ->driver_data instead.
+
+> > -int pci_dev_present(const struct pci_device_id *ids)
+> > +struct pci_device_id *pci_find_present(const struct pci_device_id *ids)
+> 
+> New API without proper refcounting?  Ewww.
+
+pci_device_id objects are not refcounted and don't vanish underneath us.
+Devices may but we aren't dealing in devices. The function operates
+under the list lock internally so should be safe.
+
+Alan
 

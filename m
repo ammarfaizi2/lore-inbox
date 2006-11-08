@@ -1,86 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965893AbWKHOvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965906AbWKHO7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965893AbWKHOvO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965895AbWKHOvO
+	id S965906AbWKHO7q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965907AbWKHO7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:51:14 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:48772 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S965893AbWKHOvM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:51:12 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [take23 0/5] kevent: Generic event handling mechanism.
-Date: Wed, 8 Nov 2006 15:51:13 +0100
-User-Agent: KMail/1.9.5
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-References: <1154985aa0591036@2ka.mipt.ru> <20061107141718.f7414b31.akpm@osdl.org> <20061108082147.GA2447@2ka.mipt.ru>
-In-Reply-To: <20061108082147.GA2447@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_i7eUF/uHD39geVt"
-Message-Id: <200611081551.14671.dada1@cosmosbay.com>
+	Wed, 8 Nov 2006 09:59:45 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:43704 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965906AbWKHO7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 09:59:45 -0500
+Subject: Re: New laptop - problems with linux
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stephen.Clark@seclark.us
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
+In-Reply-To: <4551EC86.5010600@seclark.us>
+References: <4551EC86.5010600@seclark.us>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 08 Nov 2006 15:59:40 +0100
+Message-Id: <1162997980.3138.332.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_i7eUF/uHD39geVt
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, 2006-11-08 at 09:41 -0500, Stephen Clark wrote:
+> Hi list,
+> 
+> I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core 
+> 2 Duo T560,0 2gb pc5400 memory.
+>  From checking around it appeared all the
+> hardware was well supported by linux - but I am having major problems.
+> 
+> 
+> 1. neither the wireless lan Intel pro 3945ABG or built in ethernet 
 
-On Wednesday 08 November 2006 09:21, Evgeniy Polyakov wrote:
-> On Tue, Nov 07, 2006 at 02:17:18PM -0800, Andrew Morton (akpm@osdl.org) 
-wrote:
-> > From: Andrew Morton <akpm@osdl.org>
-> >
-> > If kevent_user_wait() gets -EFAULT on the attempt to copy the first
-> > event, it will return 0, which is indistinguishable from "no events
-> > pending".
-> >
-> > It can and should return EFAULT in this case.
->
-> Correct, I missed that.
-> Thanks Andrew, I will put into my tree, -mm seems to have it already.
+you can get the driver for this from ipw3945.sf.net
 
-I believe eventpoll has a similar problem. Not a big problem, but we can be 
-cleaner. Normally, the access_ok() done in sys_epoll_wait() should catch non 
-writeable user area, unless another thread play VM game (the thread in 
-sys_epoll_wait() can sleep)
+> RTL-8169C are detected and configured
+> 2. the disk which is a 7200rpm Hitachi travelmate transfers data at 1.xx 
+> mb/sec
+>     according to hdparm. This same drive in my old laptop an HP n5430 with a
+>     850 duron the rate was 12-14 mb/sec.
 
-[PATCH] eventpoll : In case a fault occurs during copy_to_user(), we should 
-report the count of events that were successfully copied into user space, 
-instead of EFAULT. That would be consistent with behavior of read/write() 
-syscalls for example.
-
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+it seems you're using your sata disk in legacy IDE compatibility mode,
+and not AHCI mode... usually there is a bios setting to switch this
+(but be careful, if you switch it without adding the ahci driver to your
+initrd your system won't boot)
 
 
---Boundary-00=_i7eUF/uHD39geVt
-Content-Type: text/plain;
-  charset="koi8-r";
-  name="eventpoll.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="eventpoll.patch"
 
---- linux/fs/eventpoll.c	2006-11-08 15:37:36.000000000 +0100
-+++ linux/fs/eventpoll.c	2006-11-08 15:38:31.000000000 +0100
-@@ -1447,7 +1447,7 @@
- 				       &events[eventcnt].events) ||
- 			    __put_user(epi->event.data,
- 				       &events[eventcnt].data))
--				return -EFAULT;
-+				return eventcnt ? eventcnt : -EFAULT;
- 			if (epi->event.events & EPOLLONESHOT)
- 				epi->event.events &= EP_PRIVATE_BITS;
- 			eventcnt++;
 
---Boundary-00=_i7eUF/uHD39geVt--
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

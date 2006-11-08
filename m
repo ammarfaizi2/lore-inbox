@@ -1,91 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422863AbWKHU1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422848AbWKHUW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422863AbWKHU1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:27:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422875AbWKHU1Q
+	id S1422848AbWKHUW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 15:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422863AbWKHUW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:27:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:42454 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422863AbWKHU1O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:27:14 -0500
-Date: Wed, 8 Nov 2006 12:26:49 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Stephen.Clark@seclark.us
-Cc: Francois Romieu <romieu@fr.zoreil.com>, Jiri Slaby <jirislaby@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>, netdev@vger.kernel.org
-Subject: Re: New laptop - problems with linux
-Message-ID: <20061108122649.2f79ec1f@freekitty>
-In-Reply-To: <45523289.2010002@seclark.us>
-References: <4551EC86.5010600@seclark.us>
-	<4551F3A6.8040807@gmail.com>
-	<4551F5B7.1050709@seclark.us>
-	<20061108182658.GA21154@electric-eye.fr.zoreil.com>
-	<45523289.2010002@seclark.us>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 8 Nov 2006 15:22:28 -0500
+Received: from 147.175.241.83.in-addr.dgcsystems.net ([83.241.175.147]:54389
+	"EHLO tmnt04.transmode.se") by vger.kernel.org with ESMTP
+	id S1422848AbWKHUW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 15:22:27 -0500
+From: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
+To: "'Miguel Ojeda'" <maxextreme@gmail.com>,
+       "'Jesper Juhl'" <jesper.juhl@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: How to compile module params into kernel?
+Date: Wed, 8 Nov 2006 21:22:24 +0100
+Message-ID: <030b01c70373$9a46ebd0$020120ac@Jocke>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Thread-Index: AccDcsws6UOzPNrZS3al8PnYIxyajwAAH6Ig
+In-Reply-To: <653402b90611081216o640b1499u8c758775c1cceb51@mail.gmail.com>
+X-OriginalArrivalTime: 08 Nov 2006 20:22:25.0560 (UTC) FILETIME=[9ABDC980:01C70373]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Nov 2006 14:39:53 -0500
-Stephen Clark <Stephen.Clark@seclark.us> wrote:
-
-> Francois Romieu wrote:
+> -----Original Message-----
+> From: Miguel Ojeda [mailto:maxextreme@gmail.com] 
+> Sent: den 8 november 2006 21:17
+> To: Jesper Juhl
+> Cc: Joakim Tjernlund; linux-kernel@vger.kernel.org
+> Subject: Re: How to compile module params into kernel?
 > 
-> >Stephen Clark <Stephen.Clark@seclark.us> :
-> >[...]
-> >  
+> On 11/8/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > On 08/11/06, Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+> > > > -----Original Message-----
+> > > > From: Jesper Juhl [mailto:jesper.juhl@gmail.com]
+> > > >
+> > > > On 08/11/06, Joakim Tjernlund 
+> <joakim.tjernlund@transmode.se> wrote:
+> > > > > Instead of passing a module param on the cmdline I want to
+> > > > compile that
+> > > > > into
+> > > > > the kernel, but I can't figure out how.
+> > > > >
+> > > > > The module param I want compile into kernel is
+> > > > > rtc-ds1307.force=0,0x68
+> > > > >
+> > > > > This is for an embeddet target that doesn't have 
+> loadable module
+> > > > > support.
+> > > > >
+> > > > You could edit the module source and hardcode default values.
+> > > >
+> > >
+> > > Yes, but I don't want to do that since it makes maintance
+> > > harder.
+> > >
+> > Well, as far as I know, there's no way to specify default module
+> > options at compile time. The defaults are set in the module 
+> source and
+> > are modifiable at module load time or by setting options on 
+> the kernel
+> > command line at boot tiem. So, if that's no good for you I don't see
+> > any other way except modifying the source to hardcode new defaults.
 > >
-> >>No it is not loaded - i did a modprobe on it and it loaded but still no 
-> >>ethx device.
-> >>    
-> >>
-> >
-> >Send complete 'dmesg' and 'lspci -vvx' (please Cc: netdev@vger.kernel.org)
-> >
-> >  
-> >
-> lspci and dmesg attached below:
-> Thanks, anything else I can do please let me know.
-
-> 03:00.0 Network controller: Intel Corporation PRO/Wireless 3945ABG 
-> Network Connection (rev 02)
->         Subsystem: Intel Corporation Unknown device 1000
 > 
-
-Use the ipw3945 driver and binary regulatory daemon from:
-	http://ipw3945.sourceforge.net/#downloads
-
- 
-> 05:07.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169SC 
-> Gigabit Ethernet (rev 10)
->         Subsystem: ASUSTeK Computer Inc. Unknown device 1345
->         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-> ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-> <TAbort- <MAbort- >SERR- <PERR-
->         Latency: 64 (8000ns min, 16000ns max), Cache Line Size: 32 bytes
->         Interrupt: pin A routed to IRQ 11
->         Region 0: I/O ports at d800 [size=256]
->         Region 1: Memory at fe8ffc00 (32-bit, non-prefetchable) [size=256]
->         Expansion ROM at 80000000 [disabled] [size=128K]
->         Capabilities: [dc] Power Management version 2
->                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
-> PME(D0-,D1+,D2+,D3hot+,D3cold+)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 00: ec 10 67 81 17 00 b0 02 10 00 00 02 08 40 00 00
-> 10: 01 d8 00 00 00 fc 8f fe 00 00 00 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 45 13
-> 30: 00 00 8c fe dc 00 00 00 00 00 00 00 0b 01 20 40
+> You can add parameter values at Kconfig using "int", "hex"... instead
+> of tristate, and then do something like:
 > 
+> static unsigned int foo = CONFIG_foo;
+> module_param(foo, uint, S_IRUGO);
+> MODULE_PARM_DESC(foo, "foo value (uint)");
 
-This PCI ID was added to 2.6.19.  You should run 2.6.19-rc5 or backport the changes.
-
-
-
-
+hmm, don't quite understand.
+Can you rewrite that to match the cmdvar "rtc-ds1307.force=0,0x68" ? 
 

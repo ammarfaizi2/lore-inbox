@@ -1,45 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161720AbWKHTZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753424AbWKHT1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161720AbWKHTZb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161722AbWKHTZa
+	id S1753424AbWKHT1L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:27:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753451AbWKHT1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:25:30 -0500
-Received: from zrtps0kn.nortel.com ([47.140.192.55]:49899 "EHLO
-	zrtps0kn.nortel.com") by vger.kernel.org with ESMTP
-	id S1161720AbWKHTZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:25:30 -0500
-Message-ID: <45522F1E.8040002@nortel.com>
-Date: Wed, 08 Nov 2006 13:25:18 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Paul Jackson <pj@sgi.com>, Paul Menage <menage@google.com>, dev@openvz.org,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, matthltc@us.ibm.com,
-       dipankar@in.ibm.com, rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
-References: <20061031115342.GB9588@in.ibm.com> <6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com> <20061101172540.GA8904@in.ibm.com> <6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com> <20061106124948.GA3027@in.ibm.com> <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com> <20061107104118.f02a1114.pj@sgi.com> <6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com> <6599ad830611071421s7792bbb1qd9c7b1fc840dfa50@mail.gmail.com> <20061107191518.c094ce1a.pj@sgi.com> <20061108051257.GB2964@in.ibm.com>
-In-Reply-To: <20061108051257.GB2964@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Nov 2006 19:25:22.0666 (UTC) FILETIME=[A2899CA0:01C7036B]
+	Wed, 8 Nov 2006 14:27:11 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:47669 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1753424AbWKHT1K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 14:27:10 -0500
+Date: Wed, 8 Nov 2006 20:29:25 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Alex Romosan <romosan@sycorax.lbl.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc5: known regressions
+Message-ID: <20061108192924.GA4527@kernel.dk>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061108085235.GT4729@stusta.de> <20061108093442.GB19471@kernel.dk> <87ejsd3gcr.fsf@sycorax.lbl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87ejsd3gcr.fsf@sycorax.lbl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-
-> As was discussed in a previous thread, having a 'threads' file also will
-> be good.
+On Wed, Nov 08 2006, Alex Romosan wrote:
+> Jens Axboe <jens.axboe@oracle.com> writes:
 > 
-> 	http://lkml.org/lkml/2006/11/1/386
+> > On Wed, Nov 08 2006, Adrian Bunk wrote:
+> >> Subject    : unable to rip cd
+> >> References : http://lkml.org/lkml/2006/10/13/100
+> >> Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
+> >> Status     : unknown
+> >
+> > Alex, was/is this repeatable? If so I'd like you to repeat with this
+> > debug patch applied, I cannot reproduce it locally.
+> >
+> > diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+> > index bddfebd..ad03e19 100644
+> > --- a/drivers/ide/ide-cd.c
+> > +++ b/drivers/ide/ide-cd.c
+> > @@ -1726,8 +1726,10 @@ static ide_startstop_t cdrom_newpc_intr(
+> >  		/*
+> >  		 * write to drive
+> >  		 */
+> > -		if (cdrom_write_check_ireason(drive, len, ireason))
+> > +		if (cdrom_write_check_ireason(drive, len, ireason)) {
+> > +			blk_dump_rq_flags(rq, "cdrom_newpc");
+> >  			return ide_stopped;
+> > +		}
+> >  
+> >  		xferfunc = HWIF(drive)->atapi_output_bytes;
+> >  	} else  {
+> > @@ -1859,8 +1861,10 @@ static ide_startstop_t cdrom_write_intr(
+> >  	}
+> >  
+> >  	/* Check that the drive is expecting to do the same thing we are. */
+> > -	if (cdrom_write_check_ireason(drive, len, ireason))
+> > +	if (cdrom_write_check_ireason(drive, len, ireason)) {
+> > +		blk_dump_rq_flags(rq, "cdrom_pc");
+> >  		return ide_stopped;
+> > +	}
+> >  
+> >  	sectors_to_transfer = len / SECTOR_SIZE;
+> >  
+> 
+> i've tried it again with the above patch applied and when i start
+> cdparanoia i get:
+> 
+> kernel: hdc: write_intr: wrong transfer direction!
+> kernel: cdrom_newpc: dev hdc: type=2, flags=114c9
+> kernel: 
+> kernel: sector 59534648, nr/cnr 0/0
+> kernel: bio 00000000, biotail c14b2800, buffer 00000000, data 00000000, len 56
+> kernel: cdb: 12 00 00 00 38 00 00 00 00 00 00 00 00 00 00 00 
 
-> Writing to 'tasks' file will move that single thread to the new
-> container. Writing to 'threads' file will move all the threads of the
-> process into the new container.
+Wonderful! So this is an INQUIRY command, yet the WRITE bit is set. The
+drive gets really confused about that, for good reason. The question is
+where that write bit comes from, it looks really odd. Additionally, we
+have killed ->bio but ->biotail still looks valid. Perhaps it's some of
+the error handling that got screwed.
 
-That's exactly backwards to the proposal that you linked to.
+> as for the lock up, the ripping process never completes, it starts and
+> then it hangs somewhere in the middle of the track. it could be that
+> the disk has some problems. anyway, abort execution doesn't work until
+> i physically eject the cd from the drive (which seems to be an
+> improvement from a couple of rc's ago). hope this helps.
 
-Chris
+It helps a lot, thanks! I may ask you to retest with another patch, if
+you don't mind.
+
+-- 
+Jens Axboe
+

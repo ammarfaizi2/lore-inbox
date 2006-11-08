@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753927AbWKHChy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753933AbWKHCru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753927AbWKHChy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 21:37:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753931AbWKHChy
+	id S1753933AbWKHCru (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 21:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753940AbWKHCru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 21:37:54 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:29325 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1753927AbWKHChy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 21:37:54 -0500
-Date: Wed, 8 Nov 2006 11:40:38 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: davem@davemloft.net, hch@lst.de, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, linux-mm@kvack.org
-Subject: Re: [PATCH 2/3] add dev_to_node()
-Message-Id: <20061108114038.59831f9d.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20061104225629.GA31437@lst.de>
-References: <20061030141501.GC7164@lst.de>
-	<20061030.143357.130208425.davem@davemloft.net>
-	<20061104225629.GA31437@lst.de>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Tue, 7 Nov 2006 21:47:50 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:30179 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1753933AbWKHCrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 21:47:49 -0500
+Date: Wed, 8 Nov 2006 13:47:44 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, stable@kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Fix sys_move_pages when a NULL node list is passed.
+Message-Id: <20061108134744.ffc504ea.sfr@canb.auug.org.au>
+In-Reply-To: <20061108111341.748d034a.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20061103144243.4601ba76.sfr@canb.auug.org.au>
+	<20061108105648.4a149cca.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0611071800250.7749@schroedinger.engr.sgi.com>
+	<20061108111341.748d034a.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer: Sylpheed version 2.3.0beta4 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__8_Nov_2006_13_47_44_+1100_QfM8F8A/ohkeMlV+"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I have a question.
+--Signature=_Wed__8_Nov_2006_13_47_44_+1100_QfM8F8A/ohkeMlV+
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-On Sat, 4 Nov 2006 23:56:29 +0100
-Christoph Hellwig <hch@lst.de> wrote:
-> Index: linux-2.6/include/linux/device.h
-> ===================================================================
-> --- linux-2.6.orig/include/linux/device.h	2006-10-29 16:02:38.000000000 +0100
-> +++ linux-2.6/include/linux/device.h	2006-11-02 12:47:17.000000000 +0100
-> @@ -347,6 +347,9 @@
->  					   BIOS data),reserved for device core*/
->  	struct dev_pm_info	power;
->  
-> +#ifdef CONFIG_NUMA
-> +	int		numa_node;	/* NUMA node this device is close to */
-> +#endif
+On Wed, 8 Nov 2006 11:13:41 +0900 KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+>
+> Ah.. I'm mentioning to this.
+> ==
+> +			pm[i].node = 0;	/* anything to not match MAX_NUMNODES */
+> ==
+> Sorry for my bad cut & paste.
+>
+> It seems that this 0 will be passed to alloc_pages_node().
+> alloc_pages_node() doesn't check whether a node is online or not before using
+> NODE_DATA().
 
-> +	dev->dev.numa_node = pcibus_to_node(bus);
+Actually, it won't.  If you do that assignment, then the nodes parameter
+was NULL and you will only call do_pages_stat() and so never call
+alloc_pages_node().
 
-Does this "node" is guaranteed to be online ?
+--
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-if node is not online, NODE_DATA(node) is NULL or not initialized.
-Then, alloc_pages_node() at el. will panic.
+--Signature=_Wed__8_Nov_2006_13_47_44_+1100_QfM8F8A/ohkeMlV+
+Content-Type: application/pgp-signature
 
-I wonder there are no code for creating NODE_DATA() for device-only-node.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
--Kame
+iD8DBQFFUUVQFdBgD/zoJvwRAlkAAJ9xVpVPGVxzgTBXK43YZT06LIAuRACgg9U8
+aG8yonkAKDqcPmYKXVM5m2I=
+=FE0y
+-----END PGP SIGNATURE-----
 
+--Signature=_Wed__8_Nov_2006_13_47_44_+1100_QfM8F8A/ohkeMlV+--

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754574AbWKHMkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754577AbWKHMlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754574AbWKHMkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 07:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754577AbWKHMkV
+	id S1754577AbWKHMlb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 07:41:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754578AbWKHMlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 07:40:21 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:50744 "EHLO
+	Wed, 8 Nov 2006 07:41:31 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:54081 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1754574AbWKHMkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 07:40:20 -0500
+	id S1754577AbWKHMla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 07:41:30 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=qyaLmr94YT0fYiVGiFyjGqVH+ZcY/ikUdZphuA0RhPVnfWX7Z6q9lf5Dg4zMU+R24FTDPsZ7mqJg/zVD8NCtwjWL74TNo/h9DOVm2VP/qN0N29+v4CHqXToWquI8L4xDNqMINLu9ZQrfOthvgS12i7gSXeB4ZDGo6GsfAxx5Y3o=
-Date: Wed, 8 Nov 2006 21:40:10 +0900
+        b=CB2uI5KdZvNvkYGo0/1vNbC3qsn/Xhq0dSNsD8IAUNm4/23cIIYAA1LuWrfvs0c0ypgiNI/413I9Zk+4+3yFiYnZWUMCCuE4/TyKQheDxFVNB5vEaxhkjonc7mziB5owqqWmCv8sMc0l5jyNMH824A4wIs9D/ULP/46On3VzLTM=
+Date: Wed, 8 Nov 2006 21:41:21 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] input: check whether serio dirver registration is completed
-Message-ID: <20061108124010.GD14871@localhost>
+Subject: [PATCH 4/4] input: change to GFP_KERNEL for SERIO_REGISTER_DRIVER event allocation
+Message-ID: <20061108124121.GE14871@localhost>
 Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-kernel@vger.kernel.org
@@ -30,50 +30,110 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a flag to serio driver indicating whether registration is
-complete and check that flag in serio_unregister_driver.
+This patch changes allocation from GFP_ATOMIC to GFP_KERNEL for
+SERIO_REGISTER_DRIVER events to make it more robust.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
- drivers/input/serio/serio.c |    7 ++++++-
- include/linux/serio.h       |    1 +
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/input/serio/serio.c |   31 ++++++++++++++++++-------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
 
-Index: work-fault-inject/include/linux/serio.h
-===================================================================
---- work-fault-inject.orig/include/linux/serio.h
-+++ work-fault-inject/include/linux/serio.h
-@@ -68,6 +68,7 @@ struct serio_driver {
- 	void (*cleanup)(struct serio *);
- 
- 	struct device_driver driver;
-+	int registered;
- };
- #define to_serio_driver(d)	container_of(d, struct serio_driver, driver)
- 
 Index: work-fault-inject/drivers/input/serio/serio.c
 ===================================================================
 --- work-fault-inject.orig/drivers/input/serio/serio.c
 +++ work-fault-inject/drivers/input/serio/serio.c
-@@ -804,6 +804,8 @@ static void serio_add_driver(struct seri
- 		printk(KERN_ERR
- 			"serio: driver_register() failed for %s, error: %d\n",
- 			drv->driver.name, error);
-+	else
-+		drv->registered = 1;
- }
+@@ -191,12 +191,15 @@ static DECLARE_WAIT_QUEUE_HEAD(serio_wai
+ static struct task_struct *serio_task;
  
- int __serio_register_driver(struct serio_driver *drv, struct module *owner)
-@@ -830,7 +832,10 @@ start_over:
+ static int serio_queue_event(void *object, struct module *owner,
+-			     enum serio_event_type event_type)
++			     enum serio_event_type event_type, gfp_t gfp_flags)
+ {
+ 	unsigned long flags;
+ 	struct serio_event *event;
++	struct serio_event *new_event;
+ 	int err = 0;
+ 
++	new_event = kmalloc(sizeof(struct serio_event), gfp_flags);
++
+ 	spin_lock_irqsave(&serio_event_lock, flags);
+ 
+ 	/*
+@@ -208,25 +211,27 @@ static int serio_queue_event(void *objec
+ 	 */
+ 	list_for_each_entry_reverse(event, &serio_event_list, node) {
+ 		if (event->object == object) {
+-			if (event->type == event_type)
++			if (event->type == event_type) {
++				kfree(new_event);
+ 				goto out;
++			}
+ 			break;
  		}
  	}
  
--	driver_unregister(&drv->driver);
-+	if (drv->registered) {
-+		driver_unregister(&drv->driver);
-+		drv->registered = 0;
-+	}
- 	mutex_unlock(&serio_mutex);
+-	if ((event = kmalloc(sizeof(struct serio_event), GFP_ATOMIC))) {
++	if (new_event) {
+ 		if (!try_module_get(owner)) {
+ 			err = -EINVAL;
+ 			printk(KERN_WARNING "serio: Can't get module reference, dropping event %d\n", event_type);
+-			kfree(event);
++			kfree(new_event);
+ 			goto out;
+ 		}
+ 
+-		event->type = event_type;
+-		event->object = object;
+-		event->owner = owner;
++		new_event->type = event_type;
++		new_event->object = object;
++		new_event->owner = owner;
+ 
+-		list_add_tail(&event->node, &serio_event_list);
++		list_add_tail(&new_event->node, &serio_event_list);
+ 		wake_up(&serio_wait);
+ 	} else {
+ 		err = -ENOMEM;
+@@ -679,12 +684,12 @@ static void serio_disconnect_port(struct
+ 
+ void serio_rescan(struct serio *serio)
+ {
+-	serio_queue_event(serio, NULL, SERIO_RESCAN);
++	serio_queue_event(serio, NULL, SERIO_RESCAN, GFP_ATOMIC);
  }
  
+ void serio_reconnect(struct serio *serio)
+ {
+-	serio_queue_event(serio, NULL, SERIO_RECONNECT);
++	serio_queue_event(serio, NULL, SERIO_RECONNECT, GFP_ATOMIC);
+ }
+ 
+ /*
+@@ -694,7 +699,7 @@ void serio_reconnect(struct serio *serio
+ void __serio_register_port(struct serio *serio, struct module *owner)
+ {
+ 	serio_init_port(serio);
+-	serio_queue_event(serio, owner, SERIO_REGISTER_PORT);
++	serio_queue_event(serio, owner, SERIO_REGISTER_PORT, GFP_ATOMIC);
+ }
+ 
+ /*
+@@ -728,7 +733,7 @@ void serio_unregister_child_port(struct 
+  */
+ void __serio_unregister_port_delayed(struct serio *serio, struct module *owner)
+ {
+-	serio_queue_event(serio, owner, SERIO_UNREGISTER_PORT);
++	serio_queue_event(serio, owner, SERIO_UNREGISTER_PORT, GFP_ATOMIC);
+ }
+ 
+ 
+@@ -812,7 +817,7 @@ int __serio_register_driver(struct serio
+ {
+ 	drv->driver.bus = &serio_bus;
+ 
+-	return serio_queue_event(drv, owner, SERIO_REGISTER_DRIVER);
++	return serio_queue_event(drv, owner, SERIO_REGISTER_DRIVER, GFP_KERNEL);
+ }
+ 
+ void serio_unregister_driver(struct serio_driver *drv)

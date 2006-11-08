@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965593AbWKHV5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965843AbWKHWE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965593AbWKHV5M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 16:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965668AbWKHV5M
+	id S965843AbWKHWE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 17:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965934AbWKHWE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 16:57:12 -0500
-Received: from dexter.tse.gov.br ([200.252.157.99]:5806 "EHLO
-	dexter.tse.gov.br") by vger.kernel.org with ESMTP id S965593AbWKHV5L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 16:57:11 -0500
-X-Virus-Scanner: This message was checked by NOD32 Antivirus system
-	NOD32 for Linux Mail Server.
-	For more information on NOD32 Antivirus System,
-	please, visit our website: http://www.nod32.com/.
-X-Virus-Scanner: This message was checked by NOD32 Antivirus system
-	for Linux Server. For more information on NOD32 Antivirus System,
-	please, visit our website: http://www.nod32.com/.
-Message-ID: <4552608D.7000900@tse.gov.br>
-Date: Wed, 08 Nov 2006 19:56:13 -0300
-From: Saulo <slima@tse.gov.br>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
+	Wed, 8 Nov 2006 17:04:29 -0500
+Received: from rune.pobox.com ([208.210.124.79]:6542 "EHLO rune.pobox.com")
+	by vger.kernel.org with ESMTP id S965843AbWKHWE2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 17:04:28 -0500
+Date: Wed, 8 Nov 2006 16:04:22 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [PATCH] nvidiafb: fix unreachable code in nv10GetConfig
+Message-ID: <20061108220422.GL17028@localdomain>
+References: <20061108195511.GK17028@localdomain> <20061108121311.29dd0bda.akpm@osdl.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE cs5530 hda: lost interrupt
-References: <455254B8.4000704@tse.gov.br> <1163022263.23956.100.camel@localhost.localdomain>
-In-Reply-To: <1163022263.23956.100.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061108121311.29dd0bda.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried others operating systems, this machine work fine with DOS 6.22 
-and Windows CE 4.2, but lock on FreeBSD and Linux.
+Andrew Morton wrote:
+> On Wed, 8 Nov 2006 13:55:11 -0600
+> Nathan Lynch <ntl@pobox.com> wrote:
+> 
+> > Fix binary/logical operator typo which leads to unreachable code.
+> > Noticed while looking at other issues; I don't have the relevant
+> > hardware to test this.
+> > 
+> > 
+> > Signed-off-by: Nathan Lynch <ntl@pobox.com>
+> > 
+> > --- linux-2.6-powerpc.git.orig/drivers/video/nvidia/nv_setup.c
+> > +++ linux-2.6-powerpc.git/drivers/video/nvidia/nv_setup.c
+> > @@ -262,7 +262,7 @@ static void nv10GetConfig(struct nvidia_
+> >  #endif
+> >  
+> >  	dev = pci_find_slot(0, 1);
+> > -	if ((par->Chipset && 0xffff) == 0x01a0) {
+> > +	if ((par->Chipset & 0xffff) == 0x01a0) {
+> >  		int amt = 0;
+> >  
+> >  		pci_read_config_dword(dev, 0x7c, &amt);
+> 
+> That looks like a pretty significant bug.  It'll cause the kernel to
+> potentially map the wrong amount of memory for all cards except the
+> NV_ARCH_04 type.  Has been there for over a year though.  hmm..
 
-Other strange think is that after lots and lots of "lost interrupts" 
-this work. I can mount and list files but with lots of "lost interrupts" 
-and after a long time.
+Did some searching, and assuming that chipset == PCI device id
+(dubious?), I think the bug would affect only some integrated GeForce2
+cards, which are somewhat old.
 
-Saulo Alessandre
+It looks to me like the other devices handled by nv10GetConfig would
+still be handled as intended, but I'm not familiar with this code.
 
-
-Alan Cox wrote:
-
->Ar Mer, 2006-11-08 am 19:05 -0300, ysgrifennodd Saulo:
->  
->
->>14:          2    XT-PIC  ide0    >>> just 2 interrupts
->>15:       2964    XT-PIC  ide1
->>NMI:         0
->>ERR:         0
->>    
->>
->
->Thats very odd indeed as the IRQ is hard wired to 14. Are you sure the
->system works with other OS's and isn't faulty (I ask this as its the
->first 5530 report of this kind I've seen in about ten years, and the
->device is in legacy mode which means its hard wired to IRQ 14)
->
->Alan
->
->  
->

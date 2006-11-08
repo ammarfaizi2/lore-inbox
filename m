@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754621AbWKHSPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754637AbWKHSRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754621AbWKHSPw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 13:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754636AbWKHSPw
+	id S1754637AbWKHSRr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754639AbWKHSRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 13:15:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34514 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1754621AbWKHSPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 13:15:51 -0500
-Date: Wed, 8 Nov 2006 13:04:31 -0500 (EST)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp83-20.boston.redhat.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, arjan@infradead.org, rdreier@cisco.com
-Subject: Re: locking hierarchy based on lockdep
-In-Reply-To: <20061107235342.GA5496@elte.hu>
-Message-ID: <Pine.LNX.4.64.0611081254150.18340@dhcp83-20.boston.redhat.com>
-References: <Pine.LNX.4.64.0611061315380.29750@dhcp83-20.boston.redhat.com>
- <20061106200529.GA15370@elte.hu> <Pine.LNX.4.64.0611071833450.22572@dhcp83-20.boston.redhat.com>
- <20061107235342.GA5496@elte.hu>
+	Wed, 8 Nov 2006 13:17:47 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:1886 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1754637AbWKHSRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 13:17:46 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=WwfQKDQ9F61kIfmS2i1TFj2u2mCkIYhMIfr9Y09ikz+aejIaUULHxYGJjh1qlWqOy
+	Xu6/LZl2QjOWSV2vK1gQg==
+Message-ID: <8f95bb250611081017lf8171e9y30e404e4a4336e89@mail.gmail.com>
+Date: Wed, 8 Nov 2006 10:17:32 -0800
+From: "Aaron Durbin" <adurbin@google.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
+Cc: "Adrian Bunk" <bunk@stusta.de>, "Matthew Wilcox" <matthew@wil.cx>,
+       "Andi Kleen" <ak@suse.de>, "Jeff Chua" <jeff.chua.linux@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com>
+	 <20061107171143.GU27140@parisc-linux.org>
+	 <200611080839.46670.ak@suse.de>
+	 <20061108122237.GF27140@parisc-linux.org>
+	 <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
+	 <20061108172650.GC4729@stusta.de>
+	 <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 8 Nov 2006, Ingo Molnar wrote:
-
-> 
-> * Jason Baron <jbaron@redhat.com> wrote:
-> 
-> > > this would certainly be the simplest thing to do - we could extend 
-> > > /proc/lockdep with the list of 'immediately after' locks separated by 
-> > > commas. (that list already exists: it's the lock_class.locks_after list)
+On 11/8/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>
+> On Wed, 8 Nov 2006, Adrian Bunk wrote:
+> > >
+> > > Anyway, I do not consider this a regression. MMCONFIG has _never_ worked
+> > > reliably. It has always been a case of "we can make it work on some
+> > > machines by making it break on others".
 > >
-> > So below is patch that does what you suggest, although i had to add 
-> > the concept of 'distance' to the patch since the locks_after list 
-> > loses this dependency info afaict. i also wrote a user space program 
-> > to sort the locks into cluster of interelated locks and then sorted 
-> > within these clusters...the results show one large clump of 
-> > locks...perhaps there are a few locks that time them all together like 
-> > scheduler locks...but i couldn't figure out which ones to exclude to 
-> > make the list look really pretty (also, there could be a bug in my 
-> > program :). Anyways i'm including my test program and its output 
-> > too...
-> 
-> nice!
-> 
-> small detail: i'm wondering why 'distance' is needed explicitly? The 
-> dependency graph as it is represented by locks_after should be a full 
-> representation of all locking dependencies. What is the intended 
-> definition of 'distance' - the distance from the root of the dependency 
-> tree? (Maybe i'm misunderstanding what you are trying to achieve.)
-> 
+> > It is a serious regression:
+> >
+> > The problem is that with the default CONFIG_PCI_GOANY, MMCONFIG is the
+> > _first_ method tried.
+>
+> No. That was a bug at some point, but it's not that way now. See
+>
+>         pci_access_init(void)
+>
+> which checks the pci_direct_probe() first, and only _then_ calls
+> pci_mmcfg_init(). And pci_mmcfg_init() will refuse to even use MMCONFIG
+> unless either the direct probe failed _or_ the MMCONFIG area is marked
+> entirely reserved in the e820 tables. Exactly because MMCONFIG generally
+> doesn't _work_.
+>
 
-'distance' is associated with a link, and is meant to represent the number 
-of intervening locks. So a distance of 1 b/w say lock a and b is to say 
-there is no intervening lock, whereas 2 would mean there is 1 
-intervening lock etc.
+It appears in both i386 and x86-64 that the check is only on the first MCFG
+entry and it only checks a hard-coded value of 16 buses.  This check is only
+done if pci access type == 1.  The patches I posted yesterday have a few more
+checks and warnings concerning the MCFG region, but these checks are only for
+the resource allocation.  They do not concern actual config access. With those
+patches applied we should be at least able to track more buggy BIOS's provided
+that people notice messages in their dmesg.
 
-The reason i added this was that in my algorithm to order locks, say i 
-come to lock a, which has lock b and lock c in its 'after' list. I don't 
-know at that point if lock b needs to come before c, or maybe that c has 
-to come before b.
-
-You are right though, i think that the data in the locks after lists is 
-sufficient to re-create the entire graph, since its acyclic, but by simply 
-printing out nodes of distance '1', the algorithm is greatly simplified. 
-Otherwise, i'd have to first reconstruct the graph...
-
-Also, i was only looking for a link to be label as distance 1, or not...so 
-we only need to associate 1 bit of information with each link, if you are 
-concerned about struture bloat.
-
-thanks,
-
--jason
+-Aaron

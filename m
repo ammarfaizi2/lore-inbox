@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161445AbWKHS2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754641AbWKHS0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161445AbWKHS2p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 13:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161431AbWKHS2p
+	id S1754641AbWKHS0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754644AbWKHS0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 13:28:45 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:28126 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1754643AbWKHS2o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 13:28:44 -0500
-Date: Wed, 8 Nov 2006 19:26:58 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Stephen Clark <Stephen.Clark@seclark.us>
-Cc: Jiri Slaby <jirislaby@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>
-Subject: Re: New laptop - problems with linux
-Message-ID: <20061108182658.GA21154@electric-eye.fr.zoreil.com>
-References: <4551EC86.5010600@seclark.us> <4551F3A6.8040807@gmail.com> <4551F5B7.1050709@seclark.us>
-Mime-Version: 1.0
+	Wed, 8 Nov 2006 13:26:25 -0500
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:3757 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S1754641AbWKHS0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 13:26:24 -0500
+X-IronPort-AV: i="4.09,401,1157353200"; 
+   d="scan'208"; a="87356468:sNHT45043020"
+To: Avi Kivity <avi@qumranet.com>
+Cc: Andrew Morton <akpm@osdl.org>, kvm-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/14] KVM: Kernel-based Virtual Machine (v4)
+X-Message-Flag: Warning: May contain useful information
+References: <454E4941.7000108@qumranet.com>
+	<20061107204440.090450ea.akpm@osdl.org> <adafycuh77b.fsf@cisco.com>
+	<455183EA.2020405@qumranet.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 08 Nov 2006 10:26:22 -0800
+In-Reply-To: <455183EA.2020405@qumranet.com> (Avi Kivity's message of "Wed, 08 Nov 2006 09:14:50 +0200")
+Message-ID: <adabqnhhk1d.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4551F5B7.1050709@seclark.us>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-OriginalArrivalTime: 08 Nov 2006 18:26:23.0039 (UTC) FILETIME=[64C164F0:01C70363]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Clark <Stephen.Clark@seclark.us> :
-[...]
-> No it is not loaded - i did a modprobe on it and it loaded but still no 
-> ethx device.
+ > Either that or a bunch of ugly .byte macros.
 
-Send complete 'dmesg' and 'lspci -vvx' (please Cc: netdev@vger.kernel.org)
+After reading this thread, I have to say that this seems preferable to
+relying on new-ish binutils.  Someday in the future we can fix it up
+but I think too many people are still using old gas versions now.
 
--- 
-Ueimor
+You can hide the .byte crap in one place with #defines I think, so
+it's not so bad.  We already do this for a few things in asm-i386 and
+asm-x86_64 anyway.
+
+ - R.

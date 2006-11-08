@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWKHQQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWKHQSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbWKHQQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 11:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbWKHQQ4
+	id S1161032AbWKHQSN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 11:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbWKHQSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 11:16:56 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:26830 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161008AbWKHQQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 11:16:56 -0500
-Subject: [PATCH] hpt37x: Check the enablebits
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 08 Nov 2006 16:18:26 +0000
-Message-Id: <1163002706.23956.33.camel@localhost.localdomain>
+	Wed, 8 Nov 2006 11:18:12 -0500
+Received: from gwmail.nue.novell.com ([195.135.221.19]:20610 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1161032AbWKHQSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 11:18:11 -0500
+Message-Id: <45521193.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Wed, 08 Nov 2006 17:19:15 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Martin Lorenz" <martin@lorenz.eu.org>
+Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc3: more DWARFs and strange messages
+References: <20061028200151.GC5619@gimli> <p73hcxklfoy.fsf@verdi.suse.de>
+ <20061031160815.GM27390@gimli> <454787AB.76E4.0078.0@novell.com>
+ <20061031170320.GA6227@gimli>
+In-Reply-To: <20061031170320.GA6227@gimli>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helps for PATA but SATA bridged devices lie and always set all the bits
-so will need the error handling fixes from Tejun.
+>>> Martin Lorenz <martin@lorenz.eu.org> 31.10.06 18:03 >>>
+>On Tue, Oct 31, 2006 at 05:28:11PM +0100, Jan Beulich wrote:
+>> Can you perhaps get us arch/i386/kernel/{entry,process}.o,
+>> .config, and (assuming you can reproduce the original problem)
+>> the raw stack dump obtained with a sufficiently high kstack=
+>> option?
+>
+>config and the requested .o files are attached
+>...hoping I diden't loose track of my kernel bilds
+>stacktrace will follow ASAP
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+I'm unable to find anything pointing out the reason for this
+misbehavior, and I continue to be unable to reproduce it on my
+test systems.
+Short of somebody else wanting to try to debug this, perhaps
+the only way to get more insight is to add some more debug
+printing to the unwinder and/or its callers, which I don't have
+time to do immediately.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc4-mm1/drivers/ata/pata_hpt37x.c linux-2.6.19-rc4-mm1/drivers/ata/pata_hpt37x.c
---- linux.vanilla-2.6.19-rc4-mm1/drivers/ata/pata_hpt37x.c	2006-10-31 21:11:29.000000000 +0000
-+++ linux-2.6.19-rc4-mm1/drivers/ata/pata_hpt37x.c	2006-11-03 11:26:29.000000000 +0000
-@@ -25,7 +25,7 @@
- #include <linux/libata.h>
- 
- #define DRV_NAME	"pata_hpt37x"
--#define DRV_VERSION	"0.5"
-+#define DRV_VERSION	"0.5.1"
- 
- struct hpt_clock {
- 	u8	xfer_speed;
-@@ -453,7 +453,13 @@
- {
- 	u8 scr2, ata66;
- 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
--
-+	static const struct pci_bits hpt37x_enable_bits[] = {
-+		{ 0x50, 1, 0x04, 0x04 },
-+		{ 0x54, 1, 0x04, 0x04 }
-+	};
-+	if (!pci_test_config_bits(pdev, &hpt37x_enable_bits[ap->port_no]))
-+		return -ENOENT;
-+		
- 	pci_read_config_byte(pdev, 0x5B, &scr2);
- 	pci_write_config_byte(pdev, 0x5B, scr2 & ~0x01);
- 	/* Cable register now active */
-@@ -488,10 +499,17 @@
- 
- static int hpt374_pre_reset(struct ata_port *ap)
- {
-+	static const struct pci_bits hpt37x_enable_bits[] = {
-+		{ 0x50, 1, 0x04, 0x04 },
-+		{ 0x54, 1, 0x04, 0x04 }
-+	};
- 	u16 mcr3, mcr6;
- 	u8 ata66;
--
- 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
-+
-+	if (!pci_test_config_bits(pdev, &hpt37x_enable_bits[ap->port_no]))
-+		return -ENOENT;
-+		
- 	/* Do the extra channel work */
- 	pci_read_config_word(pdev, 0x52, &mcr3);
- 	pci_read_config_word(pdev, 0x56, &mcr6);
-
+Jan

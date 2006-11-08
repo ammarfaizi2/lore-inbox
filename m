@@ -1,81 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965770AbWKHOSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965773AbWKHOTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965770AbWKHOSF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965773AbWKHOSF
+	id S965773AbWKHOTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:19:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965778AbWKHOTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:18:05 -0500
-Received: from mail.gmx.net ([213.165.64.20]:31619 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965770AbWKHOSD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:18:03 -0500
-Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 08 Nov 2006 15:18:01 +0100
-From: "Marco Schwarz" <marco.schwarz@gmx.net>
-Message-ID: <20061108141801.241790@gmx.net>
-MIME-Version: 1.0
-Subject: Kernel error messages
+	Wed, 8 Nov 2006 09:19:25 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:53335 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S965773AbWKHOTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 09:19:24 -0500
+Date: Wed, 08 Nov 2006 09:19:06 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.19-rc5
+In-reply-to: <5a4c581d0611080159x381a9afdy26f3dd1f1ed704f1@mail.gmail.com>
 To: linux-kernel@vger.kernel.org
-X-Authenticated: #12086198
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 7bit
+Message-id: <200611080919.06254.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+ <1162979018.12585.0.camel@nigel.suspend2.net>
+ <5a4c581d0611080159x381a9afdy26f3dd1f1ed704f1@mail.gmail.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 08 November 2006 04:59, Alessandro Suardi wrote:
+>On 11/8/06, Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+>> Gidday.
+>>
+>> On Tue, 2006-11-07 at 18:33 -0800, Linus Torvalds wrote:
+>> > Ok, things are finally calming down, it seems.
+>> >
+>> > The -rc5 thing is mainly a few random architecture updates (arm,
+>> > mips, uml, avr, power) and the only really noticeable one there is
+>> > likely some fixes to the local APIC accesses on x86, which apparently
+>> > fixes a few machines.
+>> >
+>> > The rest is really mostly one-liners (or close) to various
+>> > subsystems. New PCI ID's, trivial fixes, cifs, dvb, things like that.
+>> > I'm feeling better about this - there may be a -rc6, but maybe we
+>> > don't even need one.
+>> >
+>> > As usual, thanks to everybody who tested and chased down some of the
+>> > regressions,
+>> >
+>> >               Linus
+>>
+>> The patch etc doesn't seem to be available yet. (The front page is
+>> still showing -rc4, for example).
+>
+>The patch is available, it's just the kernel.org home that
+> isn't updated.
+>
+Tis now, I have it building.
 
-with a vanilla 2.6.18.2 Kernel I get the following messages when I run a process with high CPU/memory consumption:
+>http://www.kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.19-rc5.bz2
+>
+>--alessandro
+>
+>"...when I get it, I _get_ it"
+>
+>     (Lara Eidemiller)
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-Nov  8 15:08:24 linux kernel: BUG: unable to handle kernel paging request at virtual address 6e696c43
-Nov  8 15:08:24 linux kernel:  printing eip:
-Nov  8 15:08:12 linux last message repeated 146 times
-Nov  8 15:08:24 linux kernel: c043d3d5
-Nov  8 15:08:24 linux kernel: *pde = 00000000
-Nov  8 15:08:24 linux kernel: Oops: 0000 [#1]
-Nov  8 15:08:24 linux kernel: SMP
-Nov  8 15:08:24 linux kernel: Modules linked in:
-Nov  8 15:08:24 linux kernel: CPU:    1
-Nov  8 15:08:24 linux kernel: EIP:    0060:[<c043d3d5>]    Not tainted VLI
-Nov  8 15:08:24 linux kernel: EFLAGS: 00010246   (2.6.18.2 #8)
-Nov  8 15:08:24 linux kernel: EIP is at rpcauth_refreshcred+0x15/0x50
-Nov  8 15:08:24 linux kernel: eax: df6df240   ebx: df6df240   ecx: 00000001   edx: 6e696c2f
-Nov  8 15:08:24 linux kernel: esi: df1b5000   edi: 00000000   ebp: df6df2a8   esp: d8ccfd00
-Nov  8 15:08:24 linux kernel: ds: 007b   es: 007b   ss: 0068
-Nov  8 15:08:24 linux kernel: Process ln (pid: 11343, ti=d8cce000 task=d5d5a030 task.ti=d8cce000)
-Nov  8 15:08:24 linux kernel: Stack: df6df240 00000000 c043bfcd df6df240 00000000 d8ccfd48 d8ccfd20 c0436ecd
-Nov  8 15:08:24 linux kernel:        00000000 00000000 df1e1410 df1b5000 d8ccfd58 00000006 c01ff735 dd24e7a4
-Nov  8 15:08:24 linux kernel:        df1e12f8 df1e12f0 c050ee20 d8ccfd68 00000006 df1b5000 00000017 d8ccfed8
-Nov  8 15:08:24 linux kernel: Call Trace:
-Nov  8 15:08:24 linux kernel:  [<c043bfcd>] __rpc_execute+0x4d/0x1f0
-Nov  8 15:08:24 linux kernel:  [<c0436ecd>] rpc_call_sync+0x8d/0xb0
-Nov  8 15:08:24 linux kernel:  [<c01ff735>] nfs_proc_symlink+0xd5/0x150
-Nov  8 15:08:24 linux kernel:  [<c01f8159>] nfs_symlink+0x89/0x190
-Nov  8 15:08:24 linux kernel:  [<c0175556>] d_alloc+0xf6/0x180
-Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
-Nov  8 15:08:24 linux kernel:  [<c0269e8b>] _atomic_dec_and_lock+0x2b/0x50
-Nov  8 15:08:24 linux kernel:  [<c01793e3>] mntput_no_expire+0x13/0x70
-Nov  8 15:08:24 linux kernel:  [<c016bbe0>] __link_path_walk+0x3f0/0xef0
-Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
-Nov  8 15:08:24 linux kernel:  [<c01f8841>] nfs_permission+0xb1/0x160
-Nov  8 15:08:24 linux kernel:  [<c01f8790>] nfs_permission+0x0/0x160
-Nov  8 15:08:24 linux kernel:  [<c016b23a>] permission+0xba/0xe0
-Nov  8 15:08:24 linux kernel:  [<c016bb83>] __link_path_walk+0x393/0xef0
-Nov  8 15:08:24 linux kernel:  [<c01793e3>] mntput_no_expire+0x13/0x70
-Nov  8 15:08:24 linux kernel:  [<c016c74b>] link_path_walk+0x6b/0xd0
-Nov  8 15:08:24 linux kernel:  [<c0175b1d>] __d_lookup+0x8d/0x110
-Nov  8 15:08:24 linux kernel:  [<c01f8790>] nfs_permission+0x0/0x160
-Nov  8 15:08:24 linux kernel:  [<c016b23a>] permission+0xba/0xe0
-Nov  8 15:08:24 linux kernel:  [<c016e511>] vfs_symlink+0x91/0x100
-Nov  8 15:08:24 linux kernel:  [<c016e5f7>] sys_symlinkat+0x77/0xc0
-Nov  8 15:08:24 linux kernel:  [<c016e651>] sys_symlink+0x11/0x20
-Nov  8 15:08:24 linux kernel:  [<c0102b4d>] sysenter_past_esp+0x56/0x79
-Nov  8 15:08:24 linux kernel: Code: e8 31 16 ce ff 83 c4 10 eb a2 8d b6 00 00 00 00 8d bf 00 00 00 00 56 53 8b 70 28 89 c3 f6 05 68 da 67 c0 10 75 16 8b 56 08 89 d8 <ff> 52 14 8
-5 c0 78 04 5b 5e c3 90 89 43 18 5b 5e c3 56 8b 40 10
-Nov  8 15:08:24 linux kernel: EIP: [<c043d3d5>] rpcauth_refreshcred+0x15/0x50 SS:ESP 0068:d8ccfd00
-
-Anyone knows what could be going wrong ?
-
-Best regards,
-Marco Schwarz
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

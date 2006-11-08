@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423694AbWKHUs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423692AbWKHUsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423694AbWKHUs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423698AbWKHUs2
+	id S1423692AbWKHUsU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 15:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423694AbWKHUsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:48:28 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:7660 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1423694AbWKHUs1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:48:27 -0500
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>
-In-Reply-To: <200611081310.19100.rjw@sisk.pl>
-References: <20061107183459.GG6993@agk.surrey.redhat.com>
-	 <20061107234951.GD30653@agk.surrey.redhat.com>
-	 <20061108023039.GF30653@agk.surrey.redhat.com>
-	 <200611081310.19100.rjw@sisk.pl>
+	Wed, 8 Nov 2006 15:48:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:24704 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1423692AbWKHUsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 15:48:19 -0500
+Subject: Re: [PATCH] HZ: 300Hz support
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <1163018557.23956.92.camel@localhost.localdomain>
+References: <1163018557.23956.92.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 09 Nov 2006 07:48:20 +1100
-Message-Id: <1163018900.8844.2.camel@nigel.suspend2.net>
+Organization: Intel International BV
+Date: Wed, 08 Nov 2006 21:48:17 +0100
+Message-Id: <1163018898.3138.388.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 2006-11-08 at 20:42 +0000, Alan Cox wrote:
+> Fix two things. Firstly the unit is "Hz" not "HZ". Secondly it is useful
+> to have 300Hz support when doing multimedia work. 250 is fine for us in
+> Europe but the US frame rate is 30fps (29.99 blah for pedants). 300
+> gives us a tick divisible by both 25 and 30, and for interlace work 50
+> and 60. It's also giving similar performance to 250Hz.
+> 
+> I'd argue we should remove 250 and add 300, but that might be excess
+> disruption for now.
 
-On Wed, 2006-11-08 at 13:10 +0100, Rafael J. Wysocki wrote:
-> On Wednesday, 8 November 2006 03:30, Alasdair G Kergon wrote:
-> > On Tue, Nov 07, 2006 at 11:49:51PM +0000, Alasdair G Kergon wrote:
-> > > I hadn't noticed that -mm patch.  I'll take a look.  
-> > 
-> > swsusp-freeze-filesystems-during-suspend-rev-2.patch
-> > 
-> > I think you need to give more thought to device-mapper
-> > interactions here.  If an underlying device is suspended
-> > by device-mapper without freezing the filesystem (the
-> > normal state) and you issue a freeze_bdev on a device
-> > above it, the freeze_bdev may never return if it attempts
-> > any synchronous I/O (as it should).
-> 
-> Well, it looks like the interactions with dm add quite a bit of
-> complexity here.
-> 
-> > Try:
-> >   while process generating I/O to filesystem on LVM
-> >   issue dmsetup suspend --nolockfs (which the lvm2 tools often do)
-> >   try your freeze_filesystems()
-> 
-> Okay, I will.
-> 
-> > Maybe: don't allow freeze_filesystems() to run when the system is in that
-> > state;
-> 
-> I'd like to avoid that (we may be running out of battery power at this point).
-> 
-> > or, use device-mapper suspend instead of freeze_bdev directly where 
-> > dm is involved;
-> 
-> How do I check if dm is involved?
-> 
-> > or skip dm devices that are already frozen - all with 
-> > appropriate dependency tracking to process devices in the right order.
-> 
-> I'd prefer this one, but probably the previous one is simpler to start with.
 
-Shouldn't we just go for the right thing to begin with? Otherwise we'll
-just make more problems for ourselves later.
+the last time 300 was proposed the counter argument was that it was
+lousy in terms of PIT rounding... did you check that out?
 
-If we do this last one, I guess we want to do something like I was doing
-before (creating a list of the devices we've frozen)?
-
-Regards,
-
-Nigel
 

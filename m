@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754648AbWKHS07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161439AbWKHS03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754648AbWKHS07 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 13:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754645AbWKHS07
+	id S1161439AbWKHS03 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161431AbWKHS03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 13:26:59 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:46380 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1754647AbWKHS06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 13:26:58 -0500
-In-Reply-To: <20061108090454.dba20e01.randy.dunlap@oracle.com>
-Subject: Re: How to document dimension units for virtual files?
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       mschwid2@de.ibm.com, pavel@ucw.cz
-X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
-Message-ID: <OF2A3BB933.427A044B-ON41257220.006509CA-41257220.00656F8A@de.ibm.com>
-From: Michael Holzheu <HOLZHEU@de.ibm.com>
-Date: Wed, 8 Nov 2006 19:27:56 +0100
-X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
- 08/11/2006 19:30:01
+	Wed, 8 Nov 2006 13:26:29 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:62435 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1161439AbWKHS02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 13:26:28 -0500
+Date: Wed, 8 Nov 2006 19:26:26 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2048 CPUs [was: Re: New filesystem for Linux]
+In-Reply-To: <20061107231456.GB7796@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.64.0611081921170.5694@artax.karlin.mff.cuni.cz>
+References: <787b0d920611041154l69db46abv4c8c467809ada57c@mail.gmail.com>
+ <Pine.LNX.4.64.0611042332240.20974@artax.karlin.mff.cuni.cz>
+ <20061107212614.GA6730@ucw.cz> <Pine.LNX.4.64.0611072328220.10497@artax.karlin.mff.cuni.cz>
+ <20061107231456.GB7796@elf.ucw.cz>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy,
+Hi!
 
-Randy Dunlap <randy.dunlap@oracle.com> wrote on 11/08/2006 06:04:54 PM:
-
-> On Wed, 8 Nov 2006 17:54:12 +0100 Michael Holzheu wrote:
-
-[snip]
-
-> 01:00:00.000000000 +0100
-> > +++ linux-2.6.18-exp-data-doc/Documentation/filesystems/ExportData
-> 2006-11-08 17:44:59.000000000 +0100
-> > @@ -0,0 +1,47 @@
-> > +
-> > +Export data via virtual File Systems
-> > +====================================
-> > +
-> > +If you want to export data to userspace via virtual filesystems
-> > +like procfs, sysfs, debugfs etc., the following rules are recommended:
-> > +
-> > +- Export only one value in one virtual file.
+>>> Lets say time-spent-outside-spinlock == time-spent-in-spinlock and
+>>> number-of-cpus == 2.
+>>>
+>>> 1 < 2 , so it should livelock according to you...
+>>
+>> There is off-by-one bug in the condition. It should be:
+>> (time_spent_in_spinlock + time_spent_outside_spinlock) /
+>> time_spent_in_spinlock < number_of_cpus
+>>
+>> ... or if you divide it by time_spent_in_spinlock:
+>> time_spent_outside_spinlock / time_spent_in_spinlock + 1 < number_of_cpus
+>>
+>>> ...but afaict this should work okay. Even if spinlocks are very
+>>> unfair, as long as time-outside and time-inside comes in big chunks,
+>>> it should work.
+>>>
+>>> If you are unlucky, one cpu may stall for a while, but... I see no
+>>> livelock.
+>>
+>> If some rogue threads (and it may not even be intetional) call the same
+>> syscall stressing the one spinlock all the time, other syscalls needing
+>> the same spinlock may stall.
 >
-> I don't think that makes sense for procfs.  It's too late,
-> but even it weren't, we don't need a large increase in the number
-> of procfs files.
+> Fortunately, they'll unstall with probability of 1... so no, I do not
+> think this is real problem.
+
+You can't tell that CPUs behave exactly probabilistically --- it may 
+happen that one gets out of the wait loop always too late.
+
+SMP buses have complex protocols to prevent starvation in case all CPUs 
+are writing to the same cache line and similar --- however it is unusable 
+againt spinlock starvation.
+
+> If someone takes semaphore in syscall (we do), same problem may
+> happen, right...? Without need for 2048 cpus. Maybe semaphores/mutexes
+> are fair (or mostly fair) these days, but rwlocks may not be or
+> something.
+
+Scheduler increases priority of sleeping process, so starving process 
+should be waken up first. But if there are so many processes, that process 
+that passed the semaphore, sleeps and tries to take the semaphore has 
+already increased priority to the level of process that waited on the 
+semaphor, livelock can happen too.
+
+Mikulas
+
+> 									Pavel
 >
-> And debugfs shouldn't be constrained either.
-> It's not a regular user interface like sysfs is.
+> -- 
+> (english) http://www.livejournal.com/~pavelmachek
+> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
 >
-
-Ok, fine:
-
-If you want to export data to userspace via a virtual filesystem
-like sysfs, the following rules are recommended:
-
-....
-
-Michael
-

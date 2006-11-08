@@ -1,105 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754318AbWKHFo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754330AbWKHFyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754318AbWKHFo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 00:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754319AbWKHFo5
+	id S1754330AbWKHFyV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 00:54:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754331AbWKHFyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 00:44:57 -0500
-Received: from gate.crashing.org ([63.228.1.57]:41622 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1754317AbWKHFo5 (ORCPT
+	Wed, 8 Nov 2006 00:54:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64162 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1754329AbWKHFyV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 00:44:57 -0500
-Subject: Re: DMA APIs gumble grumble
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Miller <davem@davemloft.net>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       paulus@samba.org, anton@samba.org, greg@kroah.com
-In-Reply-To: <20061107.212937.70218368.davem@davemloft.net>
-References: <1162950877.28571.623.camel@localhost.localdomain>
-	 <20061107.204653.44098205.davem@davemloft.net>
-	 <1162963420.28571.700.camel@localhost.localdomain>
-	 <20061107.212937.70218368.davem@davemloft.net>
-Content-Type: text/plain
-Date: Wed, 08 Nov 2006 16:44:42 +1100
-Message-Id: <1162964682.28571.715.camel@localhost.localdomain>
+	Wed, 8 Nov 2006 00:54:21 -0500
+Date: Tue, 7 Nov 2006 21:52:56 -0800
+From: Bryce Harrington <bryce@osdl.org>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       vatsa@in.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       shaohua.li@intel.com, hotplug_sig@osdl.org,
+       lhcs-devel@lists.sourceforge.net
+Subject: Re: Status on CPU hotplug issues
+Message-ID: <20061108055256.GA26843@osdl.org>
+References: <20060316174447.GA8184@in.ibm.com> <20060316170814.02fa55a1.akpm@osdl.org> <20060317084653.GA4515@in.ibm.com> <20060317010412.3243364c.akpm@osdl.org> <20061006231012.GH22139@osdl.org> <20061007215749.GC4277@ucw.cz> <20061009144024.6364b6ba.rdunlap@xenotime.net> <20061023222624.GG6555@osdl.org> <20061107213532.a0db2aae.rdunlap@xenotime.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061107213532.a0db2aae.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Then, maybe 6 month, maybe 1 year later, we can change archs that use
-> > the "alternate" semantic like sparc64 to no longer fail
-> > pci_set_dma_mask(64bits).
+On Tue, Nov 07, 2006 at 09:35:32PM -0800, Randy Dunlap wrote:
+> On Mon, 23 Oct 2006 15:26:24 -0700 Bryce Harrington wrote:
+> 
+> > On Mon, Oct 09, 2006 at 02:40:24PM -0700, Randy Dunlap wrote:
+> > > On Sat, 7 Oct 2006 21:57:49 +0000 Pavel Machek wrote:
+> > > 
+> > > > Hi!
+> > > > 
+> > > > > 1.  Oops offlining cpu twice on AMD64 (but not on EM64t)
+> > > > >     with the 2.6.18-git22 kernel
+> > > > > 
+> > > > >     Reported to hotplug lists 10/05:
+> > > > >       http://lists.osdl.org/pipermail/hotplug_sig/2006-October/000680.html
+> > > > > 
+> > > > >     To recreate: offline, online, and then offline a CPU, then oopses
+> > > > >       http://crucible.osdl.org/runs/2397/sysinfo/amd01.console
+> > > > >       http://crucible.osdl.org/runs/2397/sysinfo/amd01.2/proc/config
+> > > > > 
+> > > > >     Here's a snippet of the oops:
+> > > > > 
+> > > > > # echo 0 > /sys/devices/system/cpu/cpu1/online
+> > > > > 
+> > > > >  Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+> > > > >  [<ffffffff80255287>] __drain_pages+0x29/0x5f
+> > > > > PGD 7e56d067 PUD 7ee80067 PMD 0
+> > > > > Oops: 0000 [1] PREEMPT SMP
+> > > > > CPU 0
+> > > > > Modules linked in:
+> > > > > Pid: 7203, comm: bash Tainted: G   M  2.6.18-git22 #1
+> > > >                                  ~~~~~
+> > > > kernel is unhappy here. Forced module unload?
+> > > 
+> > > Machine check exception.  'G' is Good, same place where 'P'
+> > > for proprietary would be.  But yes, kernel or machine is unhappy.
 > > 
-> > In fact, the only breakage here would be for those archs to have some
-> > drivers start going slowly, though we could expect drivers to have been
-> > fixed by then.... (And we can delay that second part of the change as
-> > long as deemed necessary).
+> > To followup on this issue...
+> > 
+> > I found a BIOS update for the motherboard of this machine indicating it
+> > includes a fix for MCE during hibernate operations; my guess is that
+> > cpu hotplug may be triggering this bug.
+> > 
+> > Meanwhile, we checked against a couple other different AMD64 systems;
+> > these are behaving correctly.
+> > 
+> > Anyway, thanks for the pointers, it sounds like this is probably just a
+> > hardware issue.  I'll report back if I find differently.
 > 
-> The arch implementations of pci_map_*() et al. might start
-> failing since they were written assuming that DAC never got
-> enabled.
+> Regarding the MCE (that the BIOS update did not fix for this one
+> particular machine), I don't see the actual Machine Check Exception
+> kernel message log anywhere.  It would have happened before the
+> oops that is printed by this CPU hotplug test.  Is the complete
+> kerne log available or can it be reproduced?
 
-True. However, as I said, we don't have to deprecate the old technique
-right away, we have time to get the drivers fixed, provided we agree
-that this is the way to go.
+I never could actually get a bonified MCE error message - the only clue
+it was an MCE was your read on the line you highlighted above.  All the
+info we have is what we posted.
 
-> > Yup, but you didn't fix sparc32 :-) I suppose I can try to do it and ask
-> > Anton for help if things go wrong, though I can't be bothered building a
-> > cross toolchain or getting a box on ebay so I'll rely on your for
-> > testing :-)
-> 
-> I only do sparc32 build testing, which you can do on a sparc64
-> box and Al Viro has great recipies for cross tool building and
-> usage.
-
-Yup, I might have a look. (Or maybe can you give accounts on a box I can
-use ? That would be even easier)
-
-> > Thus, that is 3 pointers gone for archs who don't use these, and the ability
-> > to put things like your dma ops in every struct device.
-> 
-> How exactly does your device struct extension work?  I ask because
-> struct device is embedded into other structs, such as pci_dev,
-> so it has to be fixed in size unless you have some clever trick. :)
-
-Nah, my extension is fixed, it's just that it's defined by the arch. So
-archs who don't care don't get the bloat.
-
-Right now, my implementation just hijacks firmare_data, so it's a
-pointer (and thus potentially could be variable size) but I want to have
-it "flat" in for performances.
-
-My current device_ext on powerpc is:
-
-struct device_ext {
-        /* Optional pointer to an OF device node */
-        struct device_node      *of_node;
-
-        /* DMA operations on that device */
-        struct dma_mapping_ops  *dma_ops;
-        void                    *dma_data;
-
-        /* NUMA node if applicable */
-        int                     numa_node;
-};
-
-If we remove plaform_data and firmware_data from struct device, then the
-size difference is one pointer and one int, which isn't -that- much (for
-powerpc, I consider that acceptable).
-
-The idea is just to have asm/device.h do
-
-struct device_ext {
-};
-
-That is, define an empty struct, for all archs that don't care about it,
-though I want to move the dma_cohrerent_map thingy into the extension
-for the 3 archs that seem to use it (x86, frv and m32.
-
-Cheers,
-Ben
-
-
+Bryce

@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161562AbWKHXUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161738AbWKHXVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161562AbWKHXUw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 18:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161680AbWKHXUw
+	id S1161738AbWKHXVi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 18:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161747AbWKHXVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 18:20:52 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:18667 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1161562AbWKHXUv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 18:20:51 -0500
-Date: Thu, 9 Nov 2006 10:20:32 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Judith Lebzelter <judith@osdl.org>
-Cc: linuxppc-dev@ozlabs.org, hch@lst.de, paulus@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  powerpc iseries link error in allmodconfig
-Message-Id: <20061109102032.8c3e3b58.sfr@canb.auug.org.au>
-In-Reply-To: <20061108173429.GB14991@shell0.pdx.osdl.net>
-References: <20061108173429.GB14991@shell0.pdx.osdl.net>
-X-Mailer: Sylpheed version 2.3.0beta4 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Wed, 8 Nov 2006 18:21:38 -0500
+Received: from mga05.intel.com ([192.55.52.89]:63347 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1161709AbWKHXVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 18:21:37 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,401,1157353200"; 
+   d="scan'208"; a="160377060:sNHT21353255"
+Subject: Re: 2.6.19-rc1: Volanomark slowdown
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Olaf Kirch <okir@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, davem@sunset.davemloft.net,
+       kuznet@ms2.inr.ac.ru, netdev@vger.kernel.org
+In-Reply-To: <20061108150007.49eaea68@freekitty>
+References: <1162924354.10806.172.camel@localhost.localdomain>
+	 <1163001318.3138.346.camel@laptopd505.fenrus.org>
+	 <20061108162955.GA4364@suse.de>
+	 <1163011132.10806.189.camel@localhost.localdomain>
+	 <20061108221028.GA16889@suse.de>
+	 <1163023652.10806.203.camel@localhost.localdomain>
+	 <20061108150007.49eaea68@freekitty>
+Content-Type: text/plain
+Organization: Intel
+Date: Wed, 08 Nov 2006 14:32:08 -0800
+Message-Id: <1163025128.10806.217.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__9_Nov_2006_10_20_32_+1100_imOnlbEjKaY9r.oi"
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__9_Nov_2006_10_20_32_+1100_imOnlbEjKaY9r.oi
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Wed, 2006-11-08 at 15:00 -0800, Stephen Hemminger wrote:
 
-On Wed, 8 Nov 2006 09:34:29 -0800 Judith Lebzelter <judith@osdl.org> wrote:
->
-> Choose rpa_vscsi.c over iseries_vscsi.c when building both
-> pseries and iseries.  This fixes a link error.
->
-> Signed-off-by:  Judith Lebzelter <judith@osdl.org>
+> 
+> Optimizing for loopback is perversion; perversion can be fun but it gets
+> to be a obsession then it's sick.
+> 
 
-Acked-by: Stephen Rothwell <sfr@canb.auug.org.au>
+It is not my intention to optimize for this case, but rather to
+detect change in kernel behavior.
 
---
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+That's why in my original mail I ask if increase in ACKs could
+cause problem for any real application.  
 
---Signature=_Thu__9_Nov_2006_10_20_32_+1100_imOnlbEjKaY9r.oi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFUmZGFdBgD/zoJvwRAqQdAJ4q6UB2eodBXXBt+BeyEEb8e9MxRACfb2BK
-bLPrP4dxPqP1HJPwFnsKW04=
-=WKsI
------END PGP SIGNATURE-----
-
---Signature=_Thu__9_Nov_2006_10_20_32_+1100_imOnlbEjKaY9r.oi--
+Tim

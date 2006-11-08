@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965472AbWKHKbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965335AbWKHKax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965472AbWKHKbh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 05:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965548AbWKHKbg
+	id S965335AbWKHKax (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 05:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965398AbWKHKax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 05:31:36 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:56547 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965515AbWKHKbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 05:31:35 -0500
-Message-ID: <4551B1ED.2000405@sgi.com>
-Date: Wed, 08 Nov 2006 11:31:09 +0100
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: =?ISO-8859-1?Q?Fernando_Luis_V=E1zquez_Cao?= 
-	<fernando@oss.ntt.co.jp>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Robin Holt <holt@sgi.com>, Dean Nelson <dcn@sgi.com>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ia64 <linux-ia64@vger.kernel.org>,
-       Tony Luck <tony.luck@gmail.com>
-Subject: Re: [PATCH 0/1] mspec driver: compile error
-References: <1162881017.13700.105.camel@sebastian.intellilink.co.jp>	<4550609A.7010908@sgi.com>	<20061107133512.a49b11e0.akpm@osdl.org>	<1162977589.7805.77.camel@sebastian.intellilink.co.jp>	<4551A66A.2070506@sgi.com>	<1162979130.7805.80.camel@sebastian.intellilink.co.jp> <20061108015618.571242fb.akpm@osdl.org>
-In-Reply-To: <20061108015618.571242fb.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 8 Nov 2006 05:30:53 -0500
+Received: from nat-132.atmel.no ([80.232.32.132]:13023 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S965335AbWKHKaw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 05:30:52 -0500
+Date: Wed, 8 Nov 2006 11:30:23 +0100
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, andrew@sanpeople.com
+Subject: Re: [-mm patch 1/4] GPIO framework for AVR32
+Message-ID: <20061108113023.0281c0f6@cad-250-152.norway.atmel.com>
+In-Reply-To: <20061107213604.692421DC800@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+References: <20061107122507.6f1c6e81@cad-250-152.norway.atmel.com>
+	<20061107122715.3022da2f@cad-250-152.norway.atmel.com>
+	<20061107213604.692421DC800@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 08 Nov 2006 18:45:30 +0900
-> Fernando Luis Vázquez Cao <fernando@oss.ntt.co.jp> wrote:
->> On Wed, 2006-11-08 at 10:42 +0100, Jes Sorensen wrote:
->>> Given that MSPEC is clearly marked as depending on IA64, it seems bogus
->>> for i386 allmodconfig to barf over it and the problem should be fixed
->>> there instead IMHO.
->> Agreed. That is why I asked if that was allmodconfig's expected
->> behaviour. Andrew?
+On Tue, 07 Nov 2006 13:36:04 -0800
+David Brownell <david-b@pacbell.net> wrote:
+
+> > +#define EXTERNAL_IRQ_BASE	NR_INTERNAL_IRQS
+> > +#define NR_EXTERNAL_IRQS	32
+> > +#define GPIO_IRQ_BASE		(EXTERNAL_IRQ_BASE +
+> > NR_EXTERNAL_IRQS) +#define NR_GPIO_IRQS		(4 * 32)
+> > +
+> > +#define NR_IRQS			(GPIO_IRQ_BASE +
+> > NR_GPIO_IRQS)
 > 
-> kconfig's `select' isn't very smart.  This is one of the reasons why one
-> should avoid using it.
+> Did I miss something, or are the IRQs starting at GPIO_IRQ_BASE
+> not actually implemented?  There's no irq_chip with name "GPIO"
+> or anything.  The AT91 code should be almost a drop-in there...
 
-Hmmm, so what do we do? I really don't like the idea that one has to
-manually select the uncached allocator in order for mspec to be
-available.
+No, you didn't miss anything, but I do want to implement a "GPIO"
+irq_chip like at91 does. I suppose I can reduce NR_IRQS a bit until
+it happens, but then again it's perhaps better to just implement the
+irq_chip thing...
 
-Alternatively can move the Kconfig field for MSPEC to arch/ia64/Kconfig,
-but that seems a bit dodgy too.
-
-Cheers,
-Jes
+Haavard

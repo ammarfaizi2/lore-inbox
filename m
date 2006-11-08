@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161689AbWKHTFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161696AbWKHTHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161689AbWKHTFa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161692AbWKHTFa
+	id S1161696AbWKHTHA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161695AbWKHTHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:05:30 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:26544 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161689AbWKHTF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:05:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Q4jQJ72kI8u+gXF3TT6GAT8D93CVQqfhqG4CJmd4WjUS59HBpi2cdrK3H3mTNhisko5gI1wejtpKrbDuhkdcySCdpeAfi37rUZPjSOHRlIbA8JkgCFSwW2k4eB+8Y/UFlA1JhGTo5uNAi90yTUq2Q07bJZvqfyg38lNYQWFf7bE=
-Message-ID: <9a8748490611081105j5ca1d24ahd49c6d9ea7d980d3@mail.gmail.com>
-Date: Wed, 8 Nov 2006 20:05:27 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
-Subject: Re: How to compile module params into kernel?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <F6AD7E21CDF4E145A44F61F43EE6D939AA94F9@tmnt04.transmode.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 8 Nov 2006 14:07:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48826 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161692AbWKHTG7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 14:06:59 -0500
+Date: Wed, 8 Nov 2006 11:06:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, NetDev <netdev@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>
+Subject: Re: e1000: include <net/ip6_checksum.h> for IA64
+Message-Id: <20061108110601.01d9a4f4.akpm@osdl.org>
+In-Reply-To: <45521873.20402@intel.com>
+References: <45521873.20402@intel.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <F6AD7E21CDF4E145A44F61F43EE6D939AA94F9@tmnt04.transmode.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/11/06, Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
-> Instead of passing a module param on the cmdline I want to compile that
-> into
-> the kernel, but I can't figure out how.
->
-> The module param I want compile into kernel is
-> rtc-ds1307.force=0,0x68
->
-> This is for an embeddet target that doesn't have loadable module
-> support.
->
-You could edit the module source and hardcode default values.
+On Wed, 08 Nov 2006 09:48:35 -0800
+Auke Kok <auke-jan.h.kok@intel.com> wrote:
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> Here's a slightly better patch to fix ia64 not building atm.
+
+fsvo "better".
+
+> Jeff, please apply this to netdev-2.6#upstream instead of akpm's patch that I acked earlier.
+> 
+> Of course, someone really should come up with an asm version for ia64 of the missing 
+> function ;)
+> 
+> Cheers,
+> 
+> Auke
+> 
+> ---
+> 
+> e1000: include <net/ip6_checksum.h> for IA64
+> 
+> IA64 does not have an optimized asm version for ipv6 csum magic. Fall
+> back to generic implementation.
+> 
+> Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
+> 
+> diff --git a/drivers/net/e1000/e1000.h b/drivers/net/e1000/e1000.h
+> index f091042..26e7506 100644
+> --- a/drivers/net/e1000/e1000.h
+> +++ b/drivers/net/e1000/e1000.h
+> @@ -61,6 +61,7 @@
+>   #include <linux/ip.h>
+>   #ifdef NETIF_F_TSO6
+>   #include <linux/ipv6.h>
+> +#include <net/ip6_checksum.h>
+>   #endif
+>   #include <linux/tcp.h>
+>   #include <linux/udp.h>
+
+It is noxious of e1000 to do a #include <everything.h> from its driver-wide
+header file and I refused to be a party to such a thing!
+
+Jeff probably won't be able to apply this because, like your other patches,
+it is space-stuffed.  Then again, maybe git understands format=flowed, dunno.

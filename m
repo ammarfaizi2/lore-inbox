@@ -1,122 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422864AbWKHUXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422863AbWKHU1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422864AbWKHUXR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:23:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422874AbWKHUXR
+	id S1422863AbWKHU1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 15:27:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422875AbWKHU1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:23:17 -0500
-Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:9366 "EHLO
-	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
-	id S1422864AbWKHUXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:23:15 -0500
-Subject: [PATCH 1/1] Unitialized pseudo_netdev accessed in
-	c2_register_device
-From: Tom Tucker <tom@opengridcomputing.com>
-To: Adrian Bunk <bunk@stusta.de>, Roland Dreier <rdreier@cisco.com>
-Cc: linux-kernel@vger.kernel.org, openib-general <openib-general@openib.org>,
-       Steve Wise <swise@opengridcomputing.com>
-Content-Type: text/plain
-Date: Wed, 08 Nov 2006 14:23:22 -0600
-Message-Id: <1163017402.8753.13.camel@trinity.ogc.int>
+	Wed, 8 Nov 2006 15:27:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42454 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422863AbWKHU1O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 15:27:14 -0500
+Date: Wed, 8 Nov 2006 12:26:49 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Stephen.Clark@seclark.us
+Cc: Francois Romieu <romieu@fr.zoreil.com>, Jiri Slaby <jirislaby@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, netdev@vger.kernel.org
+Subject: Re: New laptop - problems with linux
+Message-ID: <20061108122649.2f79ec1f@freekitty>
+In-Reply-To: <45523289.2010002@seclark.us>
+References: <4551EC86.5010600@seclark.us>
+	<4551F3A6.8040807@gmail.com>
+	<4551F5B7.1050709@seclark.us>
+	<20061108182658.GA21154@electric-eye.fr.zoreil.com>
+	<45523289.2010002@seclark.us>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland/Adrian:
+On Wed, 08 Nov 2006 14:39:53 -0500
+Stephen Clark <Stephen.Clark@seclark.us> wrote:
 
-Reworked some load-time error handling. c2_register_device 
-leaked when it failed and the function that called it didn't 
-check the return code.
+> Francois Romieu wrote:
+> 
+> >Stephen Clark <Stephen.Clark@seclark.us> :
+> >[...]
+> >  
+> >
+> >>No it is not loaded - i did a modprobe on it and it loaded but still no 
+> >>ethx device.
+> >>    
+> >>
+> >
+> >Send complete 'dmesg' and 'lspci -vvx' (please Cc: netdev@vger.kernel.org)
+> >
+> >  
+> >
+> lspci and dmesg attached below:
+> Thanks, anything else I can do please let me know.
 
-Signed-off-by: Tom Tucker <tom@opengridcomputing.com>
+> 03:00.0 Network controller: Intel Corporation PRO/Wireless 3945ABG 
+> Network Connection (rev 02)
+>         Subsystem: Intel Corporation Unknown device 1000
+> 
 
----
+Use the ipw3945 driver and binary regulatory daemon from:
+	http://ipw3945.sourceforge.net/#downloads
 
- drivers/infiniband/hw/amso1100/c2.c          |    3 +-
- drivers/infiniband/hw/amso1100/c2_provider.c |   39 +++++++++++++-------------
- 2 files changed, 22 insertions(+), 20 deletions(-)
+ 
+> 05:07.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169SC 
+> Gigabit Ethernet (rev 10)
+>         Subsystem: ASUSTeK Computer Inc. Unknown device 1345
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+> ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+> <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 64 (8000ns min, 16000ns max), Cache Line Size: 32 bytes
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: I/O ports at d800 [size=256]
+>         Region 1: Memory at fe8ffc00 (32-bit, non-prefetchable) [size=256]
+>         Expansion ROM at 80000000 [disabled] [size=128K]
+>         Capabilities: [dc] Power Management version 2
+>                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
+> PME(D0-,D1+,D2+,D3hot+,D3cold+)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 00: ec 10 67 81 17 00 b0 02 10 00 00 02 08 40 00 00
+> 10: 01 d8 00 00 00 fc 8f fe 00 00 00 00 00 00 00 00
+> 20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 45 13
+> 30: 00 00 8c fe dc 00 00 00 00 00 00 00 0b 01 20 40
+> 
 
-diff --git a/drivers/infiniband/hw/amso1100/c2.c b/drivers/infiniband/hw/amso1100/c2.c
-index 9e7bd94..27fe242 100644
---- a/drivers/infiniband/hw/amso1100/c2.c
-+++ b/drivers/infiniband/hw/amso1100/c2.c
-@@ -1155,7 +1155,8 @@ static int __devinit c2_probe(struct pci
- 		goto bail10;
- 	}
- 
--	c2_register_device(c2dev);
-+	if (c2_register_device(c2dev))
-+		goto bail10;
- 
- 	return 0;
- 
-diff --git a/drivers/infiniband/hw/amso1100/c2_provider.c b/drivers/infiniband/hw/amso1100/c2_provider.c
-index da98d9f..fef9727 100644
---- a/drivers/infiniband/hw/amso1100/c2_provider.c
-+++ b/drivers/infiniband/hw/amso1100/c2_provider.c
-@@ -757,20 +757,17 @@ #endif
- 
- int c2_register_device(struct c2_dev *dev)
- {
--	int ret;
-+	int ret = -ENOMEM;
- 	int i;
- 
- 	/* Register pseudo network device */
- 	dev->pseudo_netdev = c2_pseudo_netdev_init(dev);
--	if (dev->pseudo_netdev) {
--		ret = register_netdev(dev->pseudo_netdev);
--		if (ret) {
--			printk(KERN_ERR PFX
--				"Unable to register netdev, ret = %d\n", ret);
--			free_netdev(dev->pseudo_netdev);
--			return ret;
--		}
--	}
-+	if (!dev->pseudo_netdev)
-+		goto out3;
-+
-+	ret = register_netdev(dev->pseudo_netdev);
-+	if (ret)
-+		goto out2;
- 
- 	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
- 	strlcpy(dev->ibdev.name, "amso%d", IB_DEVICE_NAME_MAX);
-@@ -848,21 +845,25 @@ int c2_register_device(struct c2_dev *de
- 
- 	ret = ib_register_device(&dev->ibdev);
- 	if (ret)
--		return ret;
-+		goto out1;
- 
- 	for (i = 0; i < ARRAY_SIZE(c2_class_attributes); ++i) {
- 		ret = class_device_create_file(&dev->ibdev.class_dev,
- 					       c2_class_attributes[i]);
--		if (ret) {
--			unregister_netdev(dev->pseudo_netdev);
--			free_netdev(dev->pseudo_netdev);
--			ib_unregister_device(&dev->ibdev);
--			return ret;
--		}
-+		if (ret)
-+			goto out0;
- 	}
-+	goto out3;
- 
--	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
--	return 0;
-+out0:
-+	ib_unregister_device(&dev->ibdev);
-+out1:
-+	unregister_netdev(dev->pseudo_netdev);
-+out2:
-+	free_netdev(dev->pseudo_netdev);
-+out3:
-+	pr_debug("%s:%u ret=%d\n", __FUNCTION__, __LINE__, ret);
-+	return ret;
- }
- 
- void c2_unregister_device(struct c2_dev *dev)
+This PCI ID was added to 2.6.19.  You should run 2.6.19-rc5 or backport the changes.
+
+
+
+
 

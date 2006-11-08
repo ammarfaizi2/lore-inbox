@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753393AbWKHBgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751678AbWKHBzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753393AbWKHBgO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 20:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753827AbWKHBgO
+	id S1751678AbWKHBzu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 20:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWKHBzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 20:36:14 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:30463 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1753393AbWKHBgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 20:36:13 -0500
-Message-ID: <4551348B.6070604@mvista.com>
-Date: Tue, 07 Nov 2006 17:36:11 -0800
-From: Kevin Hilman <khilman@mvista.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: 2.6.18-rt7: rollover with 32-bit cycles_t
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Nov 2006 20:55:50 -0500
+Received: from mga05.intel.com ([192.55.52.89]:372 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751678AbWKHBzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 20:55:49 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,398,1157353200"; 
+   d="scan'208"; a="159773206:sNHT3142403936"
+Date: Tue, 7 Nov 2006 17:33:06 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: ak@suse.de, akpm@osdl.org
+Cc: shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       ashok.raj@intel.com, suresh.b.siddha@intel.com
+Subject: [patch 0/4] i386, x86_64: fix the irqbalance quirk for E7520/E7320/E7525
+Message-ID: <20061107173306.C3262@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ARM, I'm noticing the 'bug' message from check_critical_timing()
-where two calls to get_cycles() are compared and the 2nd is assumed to
-be >= the first.
+Mechanism of selecting physical mode in genapic when cpu hotplug is enabled
+on x86_64, broke the quirk(quirk_intel_irqbalance()) introduced for working
+around the transposing interrupt message errata in E7520/E7320/E7525
+(revision ID 0x9 and below. errata #23 in 
+http://download.intel.com/design/chipsets/specupdt/30304203.pdf).
 
-This isn't properly handling the case of rollover which occurs
-relatively often with fast hardware clocks and 32-bit cycle counters.
+This errata requires the mode to be in logical flat, so that interrupts
+can be directed to more than one cpu(and thus use hardware IRQ balancing
+enabled by BIOS on these platforms).
 
-Is this really a bug?  If the get_cycles() can be assumed to run between
-0 and (cycles_t)~0, using the right unsigned math could get a proper
-delta even in the rollover case.  Is this a safe assumption?
+Following four patches fixes this by moving the quirk to early quirk
+and forcing the x86_64 genapic selection to logical flat on these platforms.
 
-Kevin
-
-
-
-
-
+Thanks to Shaohua for pointing out the breakage.

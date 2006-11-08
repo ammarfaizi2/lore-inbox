@@ -1,86 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161743AbWKHWQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161734AbWKHWSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161743AbWKHWQu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 17:16:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932790AbWKHWQu
+	id S1161734AbWKHWSA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 17:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161483AbWKHWSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 17:16:50 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:7337 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932797AbWKHWQt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 17:16:49 -0500
-Date: Wed, 8 Nov 2006 17:16:21 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH][2.6.19-rc5-mm1] i386: Convert more absolute symbols to section relative
-Message-ID: <20061108221621.GB29705@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 8 Nov 2006 17:18:00 -0500
+Received: from dexter.tse.gov.br ([200.252.157.99]:59322 "EHLO
+	dexter.tse.gov.br") by vger.kernel.org with ESMTP id S1161734AbWKHWR6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 17:17:58 -0500
+X-Virus-Scanner: This message was checked by NOD32 Antivirus system
+	NOD32 for Linux Mail Server.
+	For more information on NOD32 Antivirus System,
+	please, visit our website: http://www.nod32.com/.
+X-Virus-Scanner: This message was checked by NOD32 Antivirus system
+	for Linux Server. For more information on NOD32 Antivirus System,
+	please, visit our website: http://www.nod32.com/.
+Message-ID: <4552656C.9090807@tse.gov.br>
+Date: Wed, 08 Nov 2006 20:17:00 -0300
+From: Saulo <slima@tse.gov.br>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE cs5530 hda: lost interrupt
+References: <455254B8.4000704@tse.gov.br>	 <1163022263.23956.100.camel@localhost.localdomain>	 <45525EB0.1070907@tse.gov.br> <1163023173.23956.111.camel@localhost.localdomain>
+In-Reply-To: <1163023173.23956.111.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Other strange think is that after lots and lots of "lost interrupts" 
+this work. I can mount and list files but with lots of "lost interrupts" 
+and after a long time.
+
+this is the strange.
+
+before ls in primary master
+
+14:          2    XT-PIC  ide0    >>> just 2 interrupts
+15:       3893    XT-PIC  ide1
+
+after ls and many "lost interrupts"
+
+14:          2    XT-PIC  ide0    >>> just 2 interrupts
+15:       3901    XT-PIC  ide1    >>> more interrupts
 
 
-o Convert more absolute symbols to section relative to keep the theme in
-  vmlinux.lds.S file and to avoid problem if kernel is relocated.
+[]´s Saulo Alessandre
 
-o Also put a message so that in future people can be aware of it and 
-  avoid introducing absolute symbols.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- arch/i386/kernel/vmlinux.lds.S |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
-
-diff -puN arch/i386/kernel/vmlinux.lds.S~i386-reloc-convert-more-abs-syms-to-section-relative arch/i386/kernel/vmlinux.lds.S
---- linux-2.6.19-rc5-mm1-reloc/arch/i386/kernel/vmlinux.lds.S~i386-reloc-convert-more-abs-syms-to-section-relative	2006-11-08 16:24:31.000000000 -0500
-+++ linux-2.6.19-rc5-mm1-reloc-root/arch/i386/kernel/vmlinux.lds.S	2006-11-08 16:29:51.000000000 -0500
-@@ -2,6 +2,12 @@
-  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>;
-  */
- 
-+/* Don't define absolute symbols until and unless you know that symbol
-+ * value is should remain constant even if kernel image is relocated
-+ * at run time. Absolute symbols are not relocated. If symbol value should
-+ * change if kernel is relocated, make the symbol section relative and
-+ * put it inside the section definition.
-+ */
- #define LOAD_OFFSET __PAGE_OFFSET
- 
- #include <asm-generic/vmlinux.lds.h>
-@@ -63,11 +69,11 @@ SECTIONS
- 	CONSTRUCTORS
- 	} :data
- 
--  __start_paravirtprobe = .;
-   .paravirtprobe : AT(ADDR(.paravirtprobe) - LOAD_OFFSET) {
-+  	__start_paravirtprobe = .;
- 	*(.paravirtprobe)
-+  	__stop_paravirtprobe = .;
-   }
--  __stop_paravirtprobe = .;
- 
-   . = ALIGN(4096);
-   .data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) {
-@@ -163,11 +169,11 @@ SECTIONS
- 	*(.altinstr_replacement)
-   }
-   . = ALIGN(4);
--  __start_parainstructions = .;
-   .parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
-+  	__start_parainstructions = .;
- 	*(.parainstructions)
-+  	__stop_parainstructions = .;
-   }
--  __stop_parainstructions = .;
-   /* .exit.text is discard at runtime, not link time, to deal with references
-      from .altinstructions and .eh_frame */
-   .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
-_

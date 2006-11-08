@@ -1,48 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWKHQAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965931AbWKHQEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbWKHQAc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 11:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWKHQAc
+	id S965931AbWKHQEG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 11:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965934AbWKHQEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 11:00:32 -0500
-Received: from mga01.intel.com ([192.55.52.88]:57487 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1030210AbWKHQAa (ORCPT
+	Wed, 8 Nov 2006 11:04:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6621 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965931AbWKHQEC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 11:00:30 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,401,1157353200"; 
-   d="scan'208"; a="160127307:sNHT307653199"
-Message-ID: <4551FEFD.2060002@intel.com>
-Date: Wed, 08 Nov 2006 07:59:57 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Wed, 8 Nov 2006 11:04:02 -0500
+Date: Wed, 8 Nov 2006 08:00:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Komuro <komurojun-mbn@nifty.com>
+cc: tglx@linutronix.de, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mingo@redhat.com
+Subject: Re: Re: 2.6.19-rc5: known regressions
+In-Reply-To: <7813413.118221162987983254.komurojun-mbn@nifty.com>
+Message-ID: <Pine.LNX.4.64.0611080749090.3667@g5.osdl.org>
+References: <1162985578.8335.12.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>  <20061108085235.GT4729@stusta.de>
+ <7813413.118221162987983254.komurojun-mbn@nifty.com>
 MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, Auke Kok <auke-jan.h.kok@intel.com>,
-       Pavel Machek <pavel@ucw.cz>, "Robin H. Johnson" <robbat2@gentoo.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: e1000/ICH8LAN weirdness - no ethtool link until initially forced
- up
-References: <20061106013153.GN15897@curie-int.orbis-terrarum.net> <20061107071449.GB21655@elf.ucw.cz> <4550AB7A.10508@intel.com> <20061107193518.GA26579@thunk.org>
-In-Reply-To: <20061107193518.GA26579@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Nov 2006 15:59:57.0909 (UTC) FILETIME=[F068F050:01C7034E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> On Tue, Nov 07, 2006 at 07:51:22AM -0800, Auke Kok wrote:
->> Your application should really `ifconfig up` the device before checking for 
->> link.
-> 
-> And for those of us with laptops, application authors should do an
-> "ifconfig down" the device if it doesn't find a link.  Right now
-> thanks to such applications on my desktop, I boot with e1000
-> blacklisted so I can run in low-power mode when on a laptop.
-> 
-> BTW, it would be nice if the e1000 driver could be more safely
-> unloaded when it is built as a module.
 
-I'm not aware of unload issues, what is the problem that you have?
 
-Auke
+On Wed, 8 Nov 2006, Komuro wrote:
+>
+> Intel ISA PCIC probe: 
+>   Intel i82365sl B step ISA-to-PCMCIA at port 0x3e0 ofs 0x00, 2 sockets
+>     host opts [0]: none
+>     host opts [1]: none
+>     ISA irqs (scanned) = 3,4,5,7,9,11,15 status change on irq 15
+
+This definitely means that the IRQ subsystem works, at least here. That 
+"scanned" means that the PCMCIA driver actually tested those interrupts, 
+and they worked.
+
+At that point, at least.
+
+Of course, the "they worked" test is fairly simple, so it's by no means 
+foolproof, but in general, it does sound like it all really should be ok.
+
+Komuro, if you're a git user (or are willing to learn), and it's reliable 
+with one particular card, it really would make most sense to bisect it. 
+Just start off with
+
+	git bisect start
+	git bisect good v2.6.18
+	git bisect bad v2.6.19-rc1
+
+and off you go. That's a lot of commits (abotu 5000), but even if you 
+don't ant to do the 12 or 13 kernel compiles and reboots that are needed 
+for a full bisection,  doing just 4-5 would cut the number down a lot, and 
+then you can send the bisection log out.
+
+But testing 2.6.19-rc5 is still worth it. The APIC fixes might fix it, or 
+some other changes might.
+
+		Linus
+
+
+
+
+
+
+> warning: process `date' used the removed sysctl system call
+> EXT3 FS on hda1, internal journal
+> Adding 257032k swap on /dev/hda2.  Priority:-1 extents:1 across:257032k
+> warning: process `ls' used the removed sysctl system call
+> warning: process `sleep' used the removed sysctl system call
+> cs: IO port probe 0x100-0x3af: excluding 0x170-0x177 0x290-0x297 0x370-0x37f
+> cs: IO port probe 0x3e0-0x4ff: excluding 0x4d0-0x4d7
+> cs: IO port probe 0x820-0x8ff: clean.
+> cs: IO port probe 0xc00-0xcf7: clean.
+> cs: IO port probe 0xa00-0xaff: clean.
+> cs: IO port probe 0x100-0x3af: excluding 0x170-0x177 0x290-0x297 0x370-0x37f
+> cs: IO port probe 0x3e0-0x4ff: excluding 0x4d0-0x4d7
+> cs: IO port probe 0x820-0x8ff: clean.
+> cs: IO port probe 0xc00-0xcf7: clean.
+> cs: IO port probe 0xa00-0xaff: clean.
+> 
+> Best Regards
+> Komuro
+> 
+> 

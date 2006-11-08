@@ -1,39 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754475AbWKHJ2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754476AbWKHJca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754475AbWKHJ2h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 04:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754476AbWKHJ2g
+	id S1754476AbWKHJca (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 04:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754472AbWKHJca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 04:28:36 -0500
-Received: from gwmail.nue.novell.com ([195.135.221.19]:44730 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1754475AbWKHJ2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 04:28:36 -0500
-Message-Id: <4551B190.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Wed, 08 Nov 2006 10:29:36 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <discuss@x86-64.org>
-Subject: Re: [discuss] 2.6.19-rc5: known regressions
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
- <20061108085235.GT4729@stusta.de>
-In-Reply-To: <20061108085235.GT4729@stusta.de>
+	Wed, 8 Nov 2006 04:32:30 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:62770 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1754476AbWKHJc3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 04:32:29 -0500
+Date: Wed, 8 Nov 2006 10:34:43 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: romosan@sycorax.lbl.gov
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc5: known regressions
+Message-ID: <20061108093442.GB19471@kernel.dk>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061108085235.GT4729@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061108085235.GT4729@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Subject    : i386: more DWARFs and strange messages
->References : http://lkml.org/lkml/2006/10/29/127 
->Submitter  : Martin Lorenz <martin@lorenz.eu.org>
->Status     : should be fixed by
->             commit 4b96b1a10cb00c867103b21f0f2a6c91b705db11
+On Wed, Nov 08 2006, Adrian Bunk wrote:
+> Subject    : unable to rip cd
+> References : http://lkml.org/lkml/2006/10/13/100
+> Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
+> Status     : unknown
 
-This commit should be related only to the 'strange messages'; I'm
-yet to look into the DWARFs.
+Alex, was/is this repeatable? If so I'd like you to repeat with this
+debug patch applied, I cannot reproduce it locally.
 
-Jan
+diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+index bddfebd..ad03e19 100644
+--- a/drivers/ide/ide-cd.c
++++ b/drivers/ide/ide-cd.c
+@@ -1726,8 +1726,10 @@ static ide_startstop_t cdrom_newpc_intr(
+ 		/*
+ 		 * write to drive
+ 		 */
+-		if (cdrom_write_check_ireason(drive, len, ireason))
++		if (cdrom_write_check_ireason(drive, len, ireason)) {
++			blk_dump_rq_flags(rq, "cdrom_newpc");
+ 			return ide_stopped;
++		}
+ 
+ 		xferfunc = HWIF(drive)->atapi_output_bytes;
+ 	} else  {
+@@ -1859,8 +1861,10 @@ static ide_startstop_t cdrom_write_intr(
+ 	}
+ 
+ 	/* Check that the drive is expecting to do the same thing we are. */
+-	if (cdrom_write_check_ireason(drive, len, ireason))
++	if (cdrom_write_check_ireason(drive, len, ireason)) {
++		blk_dump_rq_flags(rq, "cdrom_pc");
+ 		return ide_stopped;
++	}
+ 
+ 	sectors_to_transfer = len / SECTOR_SIZE;
+ 
+
+-- 
+Jens Axboe
+

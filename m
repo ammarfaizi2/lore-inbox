@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753868AbWKHCCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753849AbWKHCCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753868AbWKHCCu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 21:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753867AbWKHCCu
+	id S1753849AbWKHCCA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 21:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753859AbWKHCCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 21:02:50 -0500
-Received: from mga07.intel.com ([143.182.124.22]:28712 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1753859AbWKHCCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 21:02:49 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,398,1157353200"; 
-   d="scan'208"; a="142764576:sNHT47952247"
-Date: Tue, 7 Nov 2006 17:40:25 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: ak@suse.de, akpm@osdl.org
-Cc: shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       ashok.raj@intel.com, suresh.b.siddha@intel.com
-Subject: Re: [patch 2/4] introduce the mechanism of disabling cpu hotplug control
-Message-ID: <20061107174024.B5401@unix-os.sc.intel.com>
-References: <20061107173306.C3262@unix-os.sc.intel.com> <20061107173624.A5401@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061107173624.A5401@unix-os.sc.intel.com>; from suresh.b.siddha@intel.com on Tue, Nov 07, 2006 at 05:36:24PM -0800
+	Tue, 7 Nov 2006 21:02:00 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:52148 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1753849AbWKHCB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 21:01:59 -0500
+Date: Wed, 8 Nov 2006 03:01:34 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: ajwade@alumni.uwaterloo.ca, Andrew Morton <akpm@osdl.org>,
+       Kimball Murray <kimball.murray@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] 2.6.19-rc4-mm2
+In-Reply-To: <1C68BCE03F80CD46A821B5B9C5F2163E01D7A051@EXNA.corp.stratus.com>
+Message-ID: <Pine.LNX.4.62.0611080259340.28657@pademelon.sonytel.be>
+References: <1C68BCE03F80CD46A821B5B9C5F2163E01D7A051@EXNA.corp.stratus.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add 'cpu_hotplug_no_control' and when set, the hotplug control file("online")
-will not be added under /sys/devices/system/cpu/cpuX/
+On Tue, 7 Nov 2006, Richardson, Charlotte wrote:
+> If I can't repro it with this chip, if you want to mess around with it
+> on yours, here's what I think we had to do... I believe the trick was
+> to use 16bpp mode as far as what mode you write to the chip, and then
+> double all the x coordinate values for things like offset, width, and
+> pitch. You would have to do that to the accelerated routines also.
 
-Next patch doing PCI quirks will use this.
+> > From: Andrew Wade [mailto:andrew.j.wade@gmail.com]
+> > On 11/6/06, Richardson, Charlotte <Charlotte.Richardson@stratus.com>
+> > wrote:
+> > ...
+> > > How much is each line offset when you have the garbled stuff? I
+> mean,
+> > > is it a couple pixels, half the total width, something else? And is
+> > > it always the same for each line (or can you tell)?
+> > 
+> > Each ghost is 1/3 of a screen horizontally from the other ghosts. I've
+> > been looking carefully at test patterns to figure out what is going
+> on.
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
----
+Since the ghosts are 1/3 of a screen apart and not 1/2...
 
-diff --git a/arch/i386/kernel/topology.c b/arch/i386/kernel/topology.c
-index 07d6da3..9b766e7 100644
---- a/arch/i386/kernel/topology.c
-+++ b/arch/i386/kernel/topology.c
-@@ -40,14 +40,22 @@ int arch_register_cpu(int num)
- 	 * restrictions and assumptions in kernel. This basically
- 	 * doesnt add a control file, one cannot attempt to offline
- 	 * BSP.
-+	 *
-+	 * Also certain PCI quirks require to remove this control file
-+	 * for all CPU's.
- 	 */
-+#ifdef CONFIG_HOTPLUG_CPU
-+	if (!num || cpu_hotplug_no_control)
-+#else
- 	if (!num)
-+#endif
- 		cpu_devices[num].cpu.no_control = 1;
- 
- 	return register_cpu(&cpu_devices[num].cpu, num);
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
-+int cpu_hotplug_no_control;
- 
- void arch_unregister_cpu(int num) {
- 	return unregister_cpu(&cpu_devices[num].cpu);
-diff --git a/include/asm-i386/cpu.h b/include/asm-i386/cpu.h
-index b1bc7b1..3c5da33 100644
---- a/include/asm-i386/cpu.h
-+++ b/include/asm-i386/cpu.h
-@@ -13,6 +13,7 @@ struct i386_cpu {
- extern int arch_register_cpu(int num);
- #ifdef CONFIG_HOTPLUG_CPU
- extern void arch_unregister_cpu(int);
-+extern int cpu_hotplug_no_control;
- #endif
- 
- DECLARE_PER_CPU(int, cpu_state);
+If this is similar to the old Mach64, for 24-bit you have to use 8-bit mode and
+multiply all horizontal values by _3_.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

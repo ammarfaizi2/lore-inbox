@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754465AbWKHIrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754457AbWKHIrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754465AbWKHIrv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 03:47:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754463AbWKHIrv
+	id S1754457AbWKHIrU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 03:47:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754459AbWKHIrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 03:47:51 -0500
-Received: from gate.crashing.org ([63.228.1.57]:57004 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1754464AbWKHIru (ORCPT
+	Wed, 8 Nov 2006 03:47:19 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:34756 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1754456AbWKHIrS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 03:47:50 -0500
-Subject: Re: DMA APIs gumble grumble
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20061108082536.GA3405@rhun.haifa.ibm.com>
-References: <1162950877.28571.623.camel@localhost.localdomain>
-	 <20061108082536.GA3405@rhun.haifa.ibm.com>
-Content-Type: text/plain
-Date: Wed, 08 Nov 2006 19:47:33 +1100
-Message-Id: <1162975653.28571.723.camel@localhost.localdomain>
+	Wed, 8 Nov 2006 03:47:18 -0500
+Date: Wed, 8 Nov 2006 11:45:54 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take23 3/5] kevent: poll/select() notifications.
+Message-ID: <20061108084554.GD2447@2ka.mipt.ru>
+References: <11629182482792@2ka.mipt.ru> <Pine.LNX.4.64.0611071449410.17731@alien.or.mcafeemobile.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611071449410.17731@alien.or.mcafeemobile.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 08 Nov 2006 11:46:17 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 10:25 +0200, Muli Ben-Yehuda wrote:
-> On Wed, Nov 08, 2006 at 12:54:37PM +1100, Benjamin Herrenschmidt wrote:
+On Tue, Nov 07, 2006 at 02:53:33PM -0800, Davide Libenzi (davidel@xmailserver.org) wrote:
+> On Tue, 7 Nov 2006, Evgeniy Polyakov wrote:
 > 
-> >  - For platforms like powerpc where I can have multiple busses on
-> > different IOMMU's and with possibly different DMA ops, I really need to
-> > have a per-device data structure for use by the DMA ops (in fact, in my
-> > case, containing the DMA ops themselves). Right now, I defined a notion
-> > of "device extension" (struct device_ext) that my current implementation
-> > puts in device->firmware_data (don't look for it upstream, it's all
-> > patches queuing up for 2.6.20 and about to go into powerpc.git), but
-> > that I'd like to have flat in struct device instead. Would it be agreed
-> > that linux/device.h includes itself an asm/device.h which contains a
-> > definition for a struct device_ext that is within struct device ? That
-> > would also avoid a pointer indirection which is a good thing for DMA
-> > operations
+> > +static int kevent_poll_wait_callback(wait_queue_t *wait,
+> > +		unsigned mode, int sync, void *key)
+> > +{
+> > +	struct kevent_poll_wait_container *cont =
+> > +		container_of(wait, struct kevent_poll_wait_container, wait);
+> > +	struct kevent *k = cont->k;
+> > +	struct file *file = k->st->origin;
+> > +	u32 revents;
+> > +
+> > +	revents = file->f_op->poll(file, NULL);
+> > +
+> > +	kevent_storage_ready(k->st, NULL, revents);
+> > +
+> > +	return 0;
+> > +}
 > 
-> I want multiple dma_ops for Calgary on x86-64, so strong thumbs up for
-> doing this in a generic manner. device_ext kinda sucks as a name,
-> though... if it's used for just dma_ops, how about device_dma_ops?
+> Are you sure you can safely call file->f_op->poll() from inside a callback 
+> based wakeup? The low level driver may be calling the wakeup with one of 
+> its locks held, and during the file->f_op->poll may be trying to acquire 
+> the same lock. I remember there was a discussion about this, and assuming 
+> the above not true, made epoll code more complex (and slower, since an 
+> extra O(R) loop was needed to fetch events).
+
+Indeed, I have not paid too much attention to poll/select notifications in 
+kevent actually. As far as I recall it should be called on behalf of process 
+doing kevent_get_event(). I will check and fix if that is not correct.
+Thanks Davide.
+ 
+> - Davide
 > 
-> I agree with the rest of your suggestions too, FWIW.
 
-Yes, I need multiple dma_ops for powerpc too and additional void * data
-that go with them (iommu instance).
-
-I use it for more than dma ops though. I posted the actual structure
-content in another reply to Dave.
-
-I agree, though, device_ext sucks as a name, you are welcome to propose
-something better, I'm no good at finding names :-)
-
-Ben.
-
-
+-- 
+	Evgeniy Polyakov

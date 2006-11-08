@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754637AbWKHSRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161390AbWKHSUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754637AbWKHSRr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 13:17:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754639AbWKHSRr
+	id S1161390AbWKHSUL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754639AbWKHSUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 13:17:47 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:1886 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1754637AbWKHSRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 13:17:46 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=WwfQKDQ9F61kIfmS2i1TFj2u2mCkIYhMIfr9Y09ikz+aejIaUULHxYGJjh1qlWqOy
-	Xu6/LZl2QjOWSV2vK1gQg==
-Message-ID: <8f95bb250611081017lf8171e9y30e404e4a4336e89@mail.gmail.com>
-Date: Wed, 8 Nov 2006 10:17:32 -0800
-From: "Aaron Durbin" <adurbin@google.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
-Cc: "Adrian Bunk" <bunk@stusta.de>, "Matthew Wilcox" <matthew@wil.cx>,
-       "Andi Kleen" <ak@suse.de>, "Jeff Chua" <jeff.chua.linux@gmail.com>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org>
+	Wed, 8 Nov 2006 13:20:11 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14479 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1754629AbWKHSUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 13:20:09 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Yinghai Lu" <yinghai.lu@amd.com>, "Greg KH" <gregkh@suse.de>,
+       "Andi Kleen" <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] PCI: check szhi when sz is 0 for 64 bit pref mem
+References: <86802c440611032127u33442a33ufc4cf3b11e9b8c7a@mail.gmail.com>
+	<20061106140432.44d3c19f.akpm@osdl.org>
+Date: Wed, 08 Nov 2006 11:19:40 -0700
+In-Reply-To: <20061106140432.44d3c19f.akpm@osdl.org> (Andrew Morton's message
+	of "Mon, 6 Nov 2006 14:04:32 -0800")
+Message-ID: <m18xil4x8j.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com>
-	 <20061107171143.GU27140@parisc-linux.org>
-	 <200611080839.46670.ak@suse.de>
-	 <20061108122237.GF27140@parisc-linux.org>
-	 <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
-	 <20061108172650.GC4729@stusta.de>
-	 <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/8/06, Linus Torvalds <torvalds@osdl.org> wrote:
->
->
-> On Wed, 8 Nov 2006, Adrian Bunk wrote:
-> > >
-> > > Anyway, I do not consider this a regression. MMCONFIG has _never_ worked
-> > > reliably. It has always been a case of "we can make it work on some
-> > > machines by making it break on others".
-> >
-> > It is a serious regression:
-> >
-> > The problem is that with the default CONFIG_PCI_GOANY, MMCONFIG is the
-> > _first_ method tried.
->
-> No. That was a bug at some point, but it's not that way now. See
->
->         pci_access_init(void)
->
-> which checks the pci_direct_probe() first, and only _then_ calls
-> pci_mmcfg_init(). And pci_mmcfg_init() will refuse to even use MMCONFIG
-> unless either the direct probe failed _or_ the MMCONFIG area is marked
-> entirely reserved in the e820 tables. Exactly because MMCONFIG generally
-> doesn't _work_.
->
+Andrew Morton <akpm@osdl.org> writes:
 
-It appears in both i386 and x86-64 that the check is only on the first MCFG
-entry and it only checks a hard-coded value of 16 buses.  This check is only
-done if pci access type == 1.  The patches I posted yesterday have a few more
-checks and warnings concerning the MCFG region, but these checks are only for
-the resource allocation.  They do not concern actual config access. With those
-patches applied we should be at least able to track more buggy BIOS's provided
-that people notice messages in their dmesg.
+> On Fri, 3 Nov 2006 21:27:35 -0800
+> "Yinghai Lu" <yinghai.lu@amd.com> wrote:
+>
+>> For co-prcessor with mem installed, the ram will be treated to pref mem.
+>
+> What is "pref mem"?
 
--Aaron
+Memory mapped base address registers can be either normal or for prefetchable
+sections of memory mapped I/O.  Frequently all prefetchable bars are 64bit.
+The prefetchable bars are also frequently ask for the largest amounts of
+memory.  So it is easy and worthwhile to place all prefetchable bars about 4G.
+
+The "pref mem" short hand comes from a the LinuxBIOS print statements that
+report every bar value and what kind of bar it is, during boot up.
+
+Eric

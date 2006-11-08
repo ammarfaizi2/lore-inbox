@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965885AbWKHOi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965873AbWKHOho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965885AbWKHOi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:38:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965819AbWKHOiZ
+	id S965873AbWKHOho (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 09:37:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965869AbWKHOhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:38:25 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:10759 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S965804AbWKHOhz (ORCPT
+	Wed, 8 Nov 2006 09:37:43 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:4103 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S965868AbWKHOhY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:37:55 -0500
+	Wed, 8 Nov 2006 09:37:24 -0500
 From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 Organization: tuxland
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 32/33] usb: usbmidi kill urb cleanup
-Date: Wed, 8 Nov 2006 15:37:00 +0100
+Subject: [PATCH 25/33] usb: io_edgeport kill urb cleanup
+Date: Wed, 8 Nov 2006 15:36:29 +0100
 User-Agent: KMail/1.9.5
 Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        linux-usb-devel@lists.sourceforge.net
@@ -24,7 +24,7 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611081537.01905.m.kozlowski@tuxland.pl>
+Message-Id: <200611081536.31231.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -34,14 +34,16 @@ Hello,
 
 Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
---- linux-2.6.19-rc4-orig/sound/usb/usbmidi.c	2006-11-06 17:09:28.000000000 +0100
-+++ linux-2.6.19-rc4/sound/usb/usbmidi.c	2006-11-07 17:08:32.000000000 +0100
-@@ -981,7 +981,7 @@ void snd_usbmidi_disconnect(struct list_
- 			if (umidi->usb_protocol_ops->finish_out_endpoint)
- 				umidi->usb_protocol_ops->finish_out_endpoint(ep->out);
- 		}
--		if (ep->in && ep->in->urb)
-+		if (ep->in)
- 			usb_kill_urb(ep->in->urb);
- 	}
- }
+--- linux-2.6.19-rc4-orig/drivers/usb/serial/io_edgeport.c	2006-11-06 17:08:21.000000000 +0100
++++ linux-2.6.19-rc4/drivers/usb/serial/io_edgeport.c	2006-11-07 17:03:34.000000000 +0100
+@@ -1038,9 +1038,7 @@ static void edge_close (struct usb_seria
+ 	edge_port->open = FALSE;
+ 	edge_port->openPending = FALSE;
+ 
+-	if (edge_port->write_urb) {
+-		usb_kill_urb(edge_port->write_urb);
+-	}
++	usb_kill_urb(edge_port->write_urb);
+ 
+ 	if (edge_port->write_urb) {
+ 		/* if this urb had a transfer buffer already (old transfer) free it */

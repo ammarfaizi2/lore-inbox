@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754126AbWKHEHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754138AbWKHEQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754126AbWKHEHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 23:07:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754135AbWKHEHZ
+	id S1754138AbWKHEQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 23:16:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754145AbWKHEQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 23:07:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38634 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1754126AbWKHEHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 23:07:24 -0500
-Date: Tue, 7 Nov 2006 20:07:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: ak@suse.de, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, ashok.raj@intel.com
-Subject: Re: [patch 0/4] i386, x86_64: fix the irqbalance quirk for
- E7520/E7320/E7525
-Message-Id: <20061107200702.8abac851.akpm@osdl.org>
-In-Reply-To: <20061107173306.C3262@unix-os.sc.intel.com>
-References: <20061107173306.C3262@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Nov 2006 23:16:57 -0500
+Received: from wx-out-0506.google.com ([66.249.82.233]:53490 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1754138AbWKHEQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Nov 2006 23:16:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
+        b=CqJ/ZLwfX3vkXbaP7ww+aKRe0IqO9oaZlNZkXCNF7XepGx6gjNpwvsuc6h9TPNlgZqEGmfwhOxy9S2rGYJIG86V7+mRkIA+R26NXhtHT17Arn+rag+9PoFHKVfRMBdtgAHq9W1pEFnccs+8sbr4wNJBmUMsylsyPSNrkwytV8vQ=
+Message-ID: <eb97335b0611072016y51e1625hcd6504fddfe9aa6c@mail.gmail.com>
+Date: Tue, 7 Nov 2006 20:16:55 -0800
+From: "Zack Weinberg" <zackw@panix.com>
+To: linux-kernel@vger.kernel.org
+Subject: RFC PATCH: apply security_syslog() only to the syslog() syscall, not to /proc/kmsg
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Google-Sender-Auth: ad15fbb2888145e9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2006 17:33:06 -0800
-"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+Presently, the security checks for syslog(2) apply also to access to
+/proc/kmsg, because /proc/kmsg's file_operations functions just call
+do_syslog, and the call to security_syslog is in do_syslog, not
+sys_syslog.  [The only callers of do_syslog are sys_syslog and
+kmsg_{read,poll,open,release}.]  This has the effect, with the default
+security policy, that no matter what the file permissions on
+/proc/kmsg are, only a process with CAP_SYS_ADMIN can actually open or
+read it.  [Yes, if you open /proc/kmsg as root and then drop
+privileges, subsequent reads on that fd fail.]  In consequence, if one
+wishes to run klogd as an unprivileged user, one is forced to jump
+through awkward hoops - for example, Ubuntu's /etc/init.d/klogd
+interposes a root-privileged "dd" process and a named pipe between
+/proc/kmsg and the actual klogd.
 
-> Mechanism of selecting physical mode in genapic when cpu hotplug is enabled
-> on x86_64, broke the quirk(quirk_intel_irqbalance()) introduced for working
-> around the transposing interrupt message errata in E7520/E7320/E7525
-> (revision ID 0x9 and below. errata #23 in 
-> http://download.intel.com/design/chipsets/specupdt/30304203.pdf).
-> 
-> This errata requires the mode to be in logical flat, so that interrupts
-> can be directed to more than one cpu(and thus use hardware IRQ balancing
-> enabled by BIOS on these platforms).
-> 
-> Following four patches fixes this by moving the quirk to early quirk
-> and forcing the x86_64 genapic selection to logical flat on these platforms.
-> 
-> Thanks to Shaohua for pointing out the breakage.
+I propose to move the security_syslog() check from do_syslog to
+sys_syslog, so that the syscall remains restricted to CAP_SYS_ADMIN in
+the default policy, but /proc/kmsg is governed by its file
+permissions.  With the attached patch, I can run klogd as an
+unprivileged user, having changed the ownership of /proc/kmsg to that
+user before starting it, and it still works.  Equally, I can leave the
+ownership alone but modify klogd to get messages from stdin, start it
+with stdin open on /proc/kmsg (again unprivileged) and it works.
 
-It blew up with the first config I tried
-(http://userweb.kernel.org/~akpm/config-vmm.txt):
+I think this is safe in the default security policy - /proc/kmsg
+starts out owned by root and mode 400 - but I am not sure of the
+impact on SELinux or other alternate policy frameworks.
 
-arch/i386/kernel/built-in.o: In function `verify_quirk_intel_irqbalance':
-arch/i386/kernel/quirks.c:19: undefined reference to `genapic'
-arch/i386/kernel/quirks.c:19: undefined reference to `apic_default'
-arch/i386/kernel/built-in.o: In function `__cpu_up':
-arch/i386/kernel/smpboot.c:1487: undefined reference to `genapic'
-arch/i386/kernel/smpboot.c:1487: undefined reference to `apic_default'
+Patch versus 2.6.19-rc4; please consider for the next release.
 
-The dependencies in the code which you're touching here are really really
-complex and fragile.  One needs to review the change very carefully and
-test it exhaustively.
+zw
 
+Signed-off-by: Zack Weinberg <zackw@panix.com>
+
+--- kernel/printk.c.unmod	2006-11-06 15:00:44.000000000 -0800
++++ kernel/printk.c	2006-11-06 15:01:51.000000000 -0800
+@@ -187,10 +187,6 @@ int do_syslog(int type, char __user *buf
+ 	char c;
+ 	int error = 0;
+
+-	error = security_syslog(type);
+-	if (error)
+-		return error;
+-
+ 	switch (type) {
+ 	case 0:		/* Close log */
+ 		break;
+@@ -317,6 +313,10 @@ out:
+
+ asmlinkage long sys_syslog(int type, char __user *buf, int len)
+ {
++	int error = security_syslog(type);
++	if (error)
++		return error;
++
+ 	return do_syslog(type, buf, len);
+ }

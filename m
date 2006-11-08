@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754539AbWKHLzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965563AbWKHMEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754539AbWKHLzf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 06:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754542AbWKHLze
+	id S965563AbWKHMEo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 07:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754545AbWKHMEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 06:55:34 -0500
-Received: from cantor.suse.de ([195.135.220.2]:44965 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1754539AbWKHLze (ORCPT
+	Wed, 8 Nov 2006 07:04:44 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38368 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1754537AbWKHMEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 06:55:34 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Aaron Durbin" <adurbin@google.com>
-Subject: Re: [PATCH] Update MMCONFIG resource insertion to check against e820 map.
-Date: Wed, 8 Nov 2006 12:54:31 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, "Matthew Wilcox" <matthew@wil.cx>,
-       "Jeff Chua" <jeff.chua.linux@gmail.com>, discuss@x86-64.org
-References: <8f95bb250611071249i6cf92b98p99d4b08275de6656@mail.gmail.com>
-In-Reply-To: <8f95bb250611071249i6cf92b98p99d4b08275de6656@mail.gmail.com>
+	Wed, 8 Nov 2006 07:04:44 -0500
+Date: Wed, 8 Nov 2006 13:04:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: "Robin H. Johnson" <robbat2@gentoo.org>, linux-kernel@vger.kernel.org
+Subject: Re: e1000/ICH8LAN weirdness - no ethtool link until initially forced up
+Message-ID: <20061108120407.GA9506@elf.ucw.cz>
+References: <20061106013153.GN15897@curie-int.orbis-terrarum.net> <20061107071449.GB21655@elf.ucw.cz> <4550AB7A.10508@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611081254.31635.ak@suse.de>
+In-Reply-To: <4550AB7A.10508@intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 November 2006 21:49, Aaron Durbin wrote:
-> Check to see if MMCONFIG region is marked as reserved in the e820 map
-> before inserting the MMCONFIG region into the resource map. If the region
-> is not entirely marked as reserved in the e820 map attempt to find a region
-> that is. Only insert the MMCONFIG region into the resource map if there was
-> a region found marked as reserved in the e820 map.  This should fix a known
-> regression in 2.6.19 by not reserving all of the I/O space on misconfigured
-> systems.
+Hi!
 
-Jeff, did this fix your problem?
+> >>This behavior differs from every other network card, and is also present 
+> >>in the
+> >>7.3* version of the driver from sourceforge.
+> >>
+> >>I think the e1000 should try to raise the link during the probe, so that 
+> >>it
+> >>works properly, without having to set ifconfig ethX up first.
+> >
+> >I think you should cc e1000 maintainers, and perhaps provide a patch....
+> 
+> I've read it and not come up with an answer due to some other issues at 
+> hand. E1000 hardware works differently and this has been asked before, but 
+> the cards itself are in low power state when down. Changing this to bring 
+> up the link would make the card start to consume lots more power, which 
+> would automatically suck enormously for anyone using a laptop.
 
--Andi
+Well, maybe E1000 should behave as the other cards behave, and
+different solution needs to be found for power saving? ifconfig eth0
+suspend?
+
+									Pavel
+ 
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

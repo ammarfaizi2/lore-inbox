@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161680AbWKHXWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161334AbWKHX2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161680AbWKHXWF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 18:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161712AbWKHXWE
+	id S1161334AbWKHX2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 18:28:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754673AbWKHX2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 18:22:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53177 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161680AbWKHXWC (ORCPT
+	Wed, 8 Nov 2006 18:28:24 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:19436 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1754670AbWKHX2X convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 18:22:02 -0500
-Date: Wed, 8 Nov 2006 15:18:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: rdreier@cisco.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH] IB/ipath - program intconfig register using new HT irq
- hook
-Message-Id: <20061108151821.5a55fecd.akpm@osdl.org>
-In-Reply-To: <4552636E.3090809@pathscale.com>
-References: <545156d49f883c43af70.1163024486@localhost.localdomain>
-	<20061108144402.0b6a7b23.akpm@osdl.org>
-	<4552636E.3090809@pathscale.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 8 Nov 2006 18:28:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=BzCGnekO1wop004ZHkuVk7kT9HpxNd5+kVB4tGK3NfdtR9Xlky+M5YPK9pSulxYPN8XM58AWY4z6v117DfTLfng687buKEmofB+Dwg6K4wpU2MwOhCW0pV5NMyt2JKWN7/3v1ns0qy7PpcZuGPfU4YpvWGg/6mqX4OGXnyEjwvg=
+Date: Thu, 9 Nov 2006 00:28:02 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+Message-Id: <20061109002802.f61804fa.diegocg@gmail.com>
+In-Reply-To: <1163024531.3138.406.camel@laptopd505.fenrus.org>
+References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com>
+	<1163024531.3138.406.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Nov 2006 15:08:30 -0800
-"Bryan O'Sullivan" <bos@pathscale.com> wrote:
+El Wed, 08 Nov 2006 23:22:11 +0100,
+Arjan van de Ven <arjan@infradead.org> escribió:
 
-> Andrew Morton wrote:
+> > There are many parts of the kernel that are not documented.
 > 
-> > so...  Is this:
-> > 
-> > htirq-refactor-so-we-only-have-one-function-that-writes-to-the-chip.patch
-> > htirq-allow-buggy-drivers-of-buggy-hardware-to-write-the-registers.patch
-> 
-> You should drop the above patch from Eric...
-> 
-> > htirq-allow-buggy-drivers-of-buggy-hardware-to-write-the-registers-update.patch
-> 
-> ...in favour of this one, which is my rework of Eric's patch.
-> 
-> > ib-ipath-program-intconfig-register-using-new-ht-irq-hook.patch
+> this is where the OSDL Documentation Person will help a lot; a full time
+> person.
 
-If you look, you'll see that the
-htirq-allow-buggy-drivers-of-buggy-hardware-to-write-the-registers-update.patch
-which I merged is the diff between Eric's patch and yours (ie: the diff
-which you should have sent ;))
+Maybe it's just me, but wouldn't be this fixed by just asking developers
+to document their code? I maintain the LinuxChanges page at kernelnewbies
+and very often I see things merged with zero documentation that I can't
+understand even trying to understand the code and I need some googling.
+For example, in 2.6.19 there're several "UTS namespace" patches that I
+just don't really know exactly what they do...
 
-> > considered 2.6.19 material?
-> 
-> Yes, please.  I might be able to simplify the ib-ipath patch (by a 
-> matter of a few lines), but it works fine as it stands.
-> 
+One of the biggest problems I see when looking at Documentation/ (I
+tried to update and fix the sysctl documentation; someone probably feed
+me some drugs) is that out-of-code documentation that tries to explain
+what the code does, like sysctls, just gets outdated (and that's if the
+feature is lucky enought to get documented :) 
 
-ho hum, OK.
+The "in-code" documentation using kernel-doc seems to incite developers
+to document their code and update it. I think that it should be possible
+to document things like sysctls or sysfs. Sysfs really needs something
+like that, there's a lot of things in sysfs that aren't documented at all
+and the few ones that are documented in Documentation/ are documented
+in separated files that _will_ get outdated just like sysctls did. Not
+that a "documentation guy" is a bad idea, but I think that getting the
+developers envolved in the documentation process would be a better first
+step :)

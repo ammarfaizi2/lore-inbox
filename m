@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965548AbWKHKfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752913AbWKHKjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965548AbWKHKfv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 05:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965563AbWKHKfv
+	id S1752913AbWKHKjR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 05:39:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965574AbWKHKjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 05:35:51 -0500
-Received: from qb-out-0506.google.com ([72.14.204.236]:40980 "EHLO
-	qb-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965548AbWKHKfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 05:35:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=amjMlu2upexoi6y09Gw/x79EO78XmAU4F9COzbHXXYDwdWNi+AhMYcJyw1ZDSk6O6xE54lOzvngw66yqolqxxaFUm4Msr6bpbj2y8FkDcWSmHdV5ahFa2GtjGAOeaRnGkXV+WE74VC1hrwC6lvcjpv3K+7pGHRO0hMXLHxBUAaU=
-Message-ID: <6c4c86470611080054r21f5c632u674da23bf3d1cc32@mail.gmail.com>
-Date: Wed, 8 Nov 2006 09:54:16 +0100
-From: "Wilco Beekhuizen" <wilcobeekhuizen@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VIA IRQ quirk missing PCI ids since 2.6.16.17
-Cc: "Dave Jones" <davej@redhat.com>,
-       "Sergio Monteiro Basto" <sergio@sergiomb.no-ip.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1162863274.11073.41.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 8 Nov 2006 05:39:17 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:19942 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1752913AbWKHKjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 05:39:16 -0500
+Date: Wed, 8 Nov 2006 02:38:36 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: dino@in.ibm.com, nickpiggin@yahoo.com.au, akpm@osdl.org, mbligh@google.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
+       suresh.b.siddha@intel.com
+Subject: Re: [RFC] cpuset:  Explicit dynamic sched domain cpuset flag
+Message-Id: <20061108023836.0f3bbd18.pj@sgi.com>
+In-Reply-To: <20061031064300.10a97c13.pj@sgi.com>
+References: <20061030212615.GA10567@in.ibm.com>
+	<20061030212922.GA20369@in.ibm.com>
+	<20061031064300.10a97c13.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6c4c86470611060338j7f216e26od93e35b4b061890e@mail.gmail.com>
-	 <1162817254.5460.4.camel@localhost.localdomain>
-	 <1162847625.10086.36.camel@localhost.localdomain>
-	 <20061107012519.GC25719@redhat.com>
-	 <1162863274.11073.41.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why was this changed in the stable kernel anyway, especially in a
-micro-stability update? It seems to me it breaks more than it fixes.
+Dinakar,
+
+Where do we stand on this patch?
+
+Last I knew, as of a week ago:
+
+  * I had (still have) a patch in *-mm to nuke the old connection
+    between the cpu_exclusive flag and sched domain partitioning:
+	cpuset-remove-sched-domain-hooks-from-cpusets.patch
+  * and you have this patch posted on lkml, with some non-trivial
+    comments from myself, to provide a new 'sched_domain' per-cpuset
+    flag to control sched domain partitioning.
+
+Ideally, we'd agree on this new 'sched_domain' (or whatever we call it)
+flag, so that my patch to remove the old hooks could travel to 2.6.20
+along with this present patch to provide new and improved hooks.
+
+However ... I need to focus on some other stuff for roughly four
+weeks, so can't focus on pushing this effort along right now.
+
+My guess is that I will end up asking Andrew to hold the above
+named "remove ... hooks" patch in *-mm until you and I get our
+act together on the replacement, which most likely will mean he
+holds it until we start work on what will become 2.6.21.
+
+Do you see any better choices?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

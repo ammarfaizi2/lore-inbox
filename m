@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161359AbWKHWGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161727AbWKHWGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161359AbWKHWGD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 17:06:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161483AbWKHWGB
+	id S1161727AbWKHWGp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 17:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161483AbWKHWGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 17:06:01 -0500
-Received: from mta6.adelphia.net ([68.168.78.190]:12539 "EHLO
-	mta6.adelphia.net") by vger.kernel.org with ESMTP id S1161359AbWKHWGA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 17:06:00 -0500
-Date: Wed, 8 Nov 2006 15:31:43 -0600
-From: Corey Minyard <minyard@acm.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Cc: Patrick Schoeller <Patrick.Schoeller@hp.com>
-Subject: [PATCH] IPMI: Clean up the waiting message queue properly on unload
-Message-ID: <20061108213143.GA17513@localdomain>
-Reply-To: minyard@acm.org
+	Wed, 8 Nov 2006 17:06:45 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:49512 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1161361AbWKHWGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 17:06:43 -0500
+X-IronPort-AV: i="4.09,401,1157353200"; 
+   d="scan'208"; a="449163056:sNHT47443276"
+To: Christoph Raisch <RAISCH@de.ibm.com>
+Cc: Hoang-Nam Nguyen <hnguyen@de.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, openib-general@openib.org, rolandd@cisco.com
+Subject: Re: [PATCH 2.6.19 2/4] ehca: hcp_phyp.c: correct page mapping in 64k page mode
+X-Message-Flag: Warning: May contain useful information
+References: <OF60EFC2CD.F8FB1D23-ONC1257220.00315F90-C1257220.0038B8E3@de.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 08 Nov 2006 14:06:42 -0800
+In-Reply-To: <OF60EFC2CD.F8FB1D23-ONC1257220.00315F90-C1257220.0038B8E3@de.ibm.com> (Christoph Raisch's message of "Wed, 8 Nov 2006 11:22:27 +0100")
+Message-ID: <adaejsdfv9p.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-OriginalArrivalTime: 08 Nov 2006 22:06:42.0720 (UTC) FILETIME=[2C4CA200:01C70382]
+Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A wrong function was being used to free a list; this fixes
-the problem.  Otherwise, an oops at unload time was possible.
-But not likely, since you can't have any users when you unload
-the modules and it is very hard to get messages into this
-queue without users.
+ > We plan to change that as soon as the base kernel can handle mixed
+ > pagesizes in a more official way.
 
-Signed-off-by: Corey Minyard <minyard@acm.org>
-Cc: Patrick Schoeller <Patrick.Schoeller@hp.com>
+OK, so this is just a temporary workaround for powerpc's broken ioremap()?
 
-Index: linux-2.6.18/drivers/char/ipmi/ipmi_msghandler.c
-===================================================================
---- linux-2.6.18.orig/drivers/char/ipmi/ipmi_msghandler.c
-+++ linux-2.6.18/drivers/char/ipmi/ipmi_msghandler.c
-@@ -387,13 +387,23 @@ static void free_recv_msg_list(struct li
- 	}
- }
- 
-+static void free_smi_msg_list(struct list_head *q)
-+{
-+	struct ipmi_smi_msg *msg, *msg2;
-+
-+	list_for_each_entry_safe(msg, msg2, q, link) {
-+		list_del(&msg->link);
-+		ipmi_free_smi_msg(msg);
-+	}
-+}
-+
- static void clean_up_interface_data(ipmi_smi_t intf)
- {
- 	int              i;
- 	struct cmd_rcvr  *rcvr, *rcvr2;
- 	struct list_head list;
- 
--	free_recv_msg_list(&intf->waiting_msgs);
-+	free_smi_msg_list(&intf->waiting_msgs);
- 	free_recv_msg_list(&intf->waiting_events);
- 
- 	/* Wholesale remove all the entries from the list in the
+I'll apply for 2.6.19, and I hope we can back this out in 2.6.20.
+
+ - R.

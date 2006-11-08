@@ -1,139 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754577AbWKHMlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754579AbWKHMmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754577AbWKHMlb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 07:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754578AbWKHMlb
+	id S1754579AbWKHMmg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 07:42:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754578AbWKHMmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 07:41:31 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:54081 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1754577AbWKHMla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 07:41:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=CB2uI5KdZvNvkYGo0/1vNbC3qsn/Xhq0dSNsD8IAUNm4/23cIIYAA1LuWrfvs0c0ypgiNI/413I9Zk+4+3yFiYnZWUMCCuE4/TyKQheDxFVNB5vEaxhkjonc7mziB5owqqWmCv8sMc0l5jyNMH824A4wIs9D/ULP/46On3VzLTM=
-Date: Wed, 8 Nov 2006 21:41:21 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] input: change to GFP_KERNEL for SERIO_REGISTER_DRIVER event allocation
-Message-ID: <20061108124121.GE14871@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20061107120605.GA13896@localhost> <d120d5000611070620l5a0731d8jd5778bc8c8b49b2b@mail.gmail.com> <20061108123636.GA14871@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061108123636.GA14871@localhost>
-User-Agent: Mutt/1.5.11
+	Wed, 8 Nov 2006 07:42:36 -0500
+Received: from mivlgu.ru ([81.18.140.87]:25577 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S1754579AbWKHMmf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 07:42:35 -0500
+Date: Wed, 8 Nov 2006 15:42:29 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Zack Weinberg <zackw@panix.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC PATCH: apply security_syslog() only to the syslog()
+ syscall, not to /proc/kmsg
+Message-Id: <20061108154229.eb6d4626.vsu@altlinux.ru>
+In-Reply-To: <20061108102037.GA6602@sequoia.sous-sol.org>
+References: <eb97335b0611072016y51e1625hcd6504fddfe9aa6c@mail.gmail.com>
+	<20061108102037.GA6602@sequoia.sous-sol.org>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.2; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__8_Nov_2006_15_42_29_+0300_iLnLG.wxngx=LeZr"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes allocation from GFP_ATOMIC to GFP_KERNEL for
-SERIO_REGISTER_DRIVER events to make it more robust.
+--Signature=_Wed__8_Nov_2006_15_42_29_+0300_iLnLG.wxngx=LeZr
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+On Wed, 8 Nov 2006 02:20:37 -0800 Chris Wright wrote:
 
- drivers/input/serio/serio.c |   31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+> * Zack Weinberg (zackw@panix.com) wrote:
+> > Presently, the security checks for syslog(2) apply also to access to
+> > /proc/kmsg, because /proc/kmsg's file_operations functions just call
+> > do_syslog, and the call to security_syslog is in do_syslog, not
+> > sys_syslog.  [The only callers of do_syslog are sys_syslog and
+> > kmsg_{read,poll,open,release}.]  This has the effect, with the default
+> > security policy, that no matter what the file permissions on
+> > /proc/kmsg are, only a process with CAP_SYS_ADMIN can actually open or
+> > read it.  [Yes, if you open /proc/kmsg as root and then drop
+> > privileges, subsequent reads on that fd fail.]  In consequence, if one
+> > wishes to run klogd as an unprivileged user, one is forced to jump
+> > through awkward hoops - for example, Ubuntu's /etc/init.d/klogd
+> > interposes a root-privileged "dd" process and a named pipe between
+> > /proc/kmsg and the actual klogd.
 
-Index: work-fault-inject/drivers/input/serio/serio.c
-===================================================================
---- work-fault-inject.orig/drivers/input/serio/serio.c
-+++ work-fault-inject/drivers/input/serio/serio.c
-@@ -191,12 +191,15 @@ static DECLARE_WAIT_QUEUE_HEAD(serio_wai
- static struct task_struct *serio_task;
- 
- static int serio_queue_event(void *object, struct module *owner,
--			     enum serio_event_type event_type)
-+			     enum serio_event_type event_type, gfp_t gfp_flags)
- {
- 	unsigned long flags;
- 	struct serio_event *event;
-+	struct serio_event *new_event;
- 	int err = 0;
- 
-+	new_event = kmalloc(sizeof(struct serio_event), gfp_flags);
-+
- 	spin_lock_irqsave(&serio_event_lock, flags);
- 
- 	/*
-@@ -208,25 +211,27 @@ static int serio_queue_event(void *objec
- 	 */
- 	list_for_each_entry_reverse(event, &serio_event_list, node) {
- 		if (event->object == object) {
--			if (event->type == event_type)
-+			if (event->type == event_type) {
-+				kfree(new_event);
- 				goto out;
-+			}
- 			break;
- 		}
- 	}
- 
--	if ((event = kmalloc(sizeof(struct serio_event), GFP_ATOMIC))) {
-+	if (new_event) {
- 		if (!try_module_get(owner)) {
- 			err = -EINVAL;
- 			printk(KERN_WARNING "serio: Can't get module reference, dropping event %d\n", event_type);
--			kfree(event);
-+			kfree(new_event);
- 			goto out;
- 		}
- 
--		event->type = event_type;
--		event->object = object;
--		event->owner = owner;
-+		new_event->type = event_type;
-+		new_event->object = object;
-+		new_event->owner = owner;
- 
--		list_add_tail(&event->node, &serio_event_list);
-+		list_add_tail(&new_event->node, &serio_event_list);
- 		wake_up(&serio_wait);
- 	} else {
- 		err = -ENOMEM;
-@@ -679,12 +684,12 @@ static void serio_disconnect_port(struct
- 
- void serio_rescan(struct serio *serio)
- {
--	serio_queue_event(serio, NULL, SERIO_RESCAN);
-+	serio_queue_event(serio, NULL, SERIO_RESCAN, GFP_ATOMIC);
- }
- 
- void serio_reconnect(struct serio *serio)
- {
--	serio_queue_event(serio, NULL, SERIO_RECONNECT);
-+	serio_queue_event(serio, NULL, SERIO_RECONNECT, GFP_ATOMIC);
- }
- 
- /*
-@@ -694,7 +699,7 @@ void serio_reconnect(struct serio *serio
- void __serio_register_port(struct serio *serio, struct module *owner)
- {
- 	serio_init_port(serio);
--	serio_queue_event(serio, owner, SERIO_REGISTER_PORT);
-+	serio_queue_event(serio, owner, SERIO_REGISTER_PORT, GFP_ATOMIC);
- }
- 
- /*
-@@ -728,7 +733,7 @@ void serio_unregister_child_port(struct 
-  */
- void __serio_unregister_port_delayed(struct serio *serio, struct module *owner)
- {
--	serio_queue_event(serio, owner, SERIO_UNREGISTER_PORT);
-+	serio_queue_event(serio, owner, SERIO_UNREGISTER_PORT, GFP_ATOMIC);
- }
- 
- 
-@@ -812,7 +817,7 @@ int __serio_register_driver(struct serio
- {
- 	drv->driver.bus = &serio_bus;
- 
--	return serio_queue_event(drv, owner, SERIO_REGISTER_DRIVER);
-+	return serio_queue_event(drv, owner, SERIO_REGISTER_DRIVER, GFP_KERNEL);
- }
- 
- void serio_unregister_driver(struct serio_driver *drv)
+And ALT Linux uses exactly the same patch as you have posted :)
+
+klogd starts as root, opens /proc/kmsg, then chroots to a directory
+which contains just the dev/log socket and drops all privileges.
+
+> The act of reading from /proc/kmsg alters the state of the ring buffer.
+> This is not the same as smth like dmesg, which simply dumps the messages.
+> That's why only getting current size and dumping are treated as
+> less-privileged.
+
+But in order to read from /proc/kmsg, you need to open() it first - and
+that operation is restricted both by DAC checks on /proc/kmsg and by
+do_syslog(1,NULL,0) call in kmsg_open().  (However, the patch by Zack
+effectively removes that access check, which is probably not good for
+SELinux.)
+
+> > I propose to move the security_syslog() check from do_syslog to
+> > sys_syslog, so that the syscall remains restricted to CAP_SYS_ADMIN in
+> > the default policy, but /proc/kmsg is governed by its file
+> > permissions.  With the attached patch, I can run klogd as an
+> > unprivileged user, having changed the ownership of /proc/kmsg to that
+> > user before starting it, and it still works.  Equally, I can leave the
+> > ownership alone but modify klogd to get messages from stdin, start it
+> > with stdin open on /proc/kmsg (again unprivileged) and it works.
+> >
+> > I think this is safe in the default security policy - /proc/kmsg
+> > starts out owned by root and mode 400 - but I am not sure of the
+> > impact on SELinux or other alternate policy frameworks.
+>
+> SELinux doesn't distinguish the entrypoint to the ringbuffer,
+> so this patch would break its current behaviour.
+
+Then what would you think about another solution:
+
+ 1) When sys_syslog() is called with commands 2 (read) or 9 (get unread
+    count), additionally call security_syslog(1) to check that the
+    process has permissions to open the kernel log.  This change by
+    itself will not make any difference, because all existing
+    implementations of the security_ops->syslog hook treat the operation
+    codes 1, 2 and 9 the same way.
+
+ 2) Change cap_syslog() and dummy_syslog() to permit commands 2 and 9
+    for unprivileged users, in addition to 3 and 10 which are currently
+    permitted.  This will not really permit access through sys_syslog()
+    due to the added security_syslog(1) check, but if a process somehow
+    got access to an open file descriptor for /proc/kmsg, it would be
+    able to read from it.  Also, because selinux_syslog() is not
+    changed, under SELinux the process will still need to have
+    additional privileges even if it has /proc/kmsg open.
+
+Two patches will follow.
+
+--Signature=_Wed__8_Nov_2006_15_42_29_+0300_iLnLG.wxngx=LeZr
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFUdC4W82GfkQfsqIRAqXvAJ95rQSQx0wrl6TY0E9lj6fJZntqIgCeKCjo
+xtSWpXRaYZt+l6HCBRzklJI=
+=qcqh
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__8_Nov_2006_15_42_29_+0300_iLnLG.wxngx=LeZr--

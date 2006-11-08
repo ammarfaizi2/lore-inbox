@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754605AbWKHR1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754602AbWKHR0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754605AbWKHR1A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 12:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754607AbWKHR1A
+	id S1754602AbWKHR0t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 12:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754604AbWKHR0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 12:27:00 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:49486 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1754605AbWKHR06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 12:26:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ucXBnawxd7jga8CU1thCu4ttMsa898P+CprKMD+J8HlaT6/dOmQ4s7XJBa7Dct6aIQU3iqoImjBwVEqlwSjfL3UmyYEuUYfnvPI/8FYIC5CDwNGcCL7V3F61xw7DBUwrOHRdPJpVoYIpSlGNcSt3bqnfVjReNo2SRn9BZNc1dCI=
-Message-ID: <4807377b0611080926x21bd6326xc5e7683100d20948@mail.gmail.com>
-Date: Wed, 8 Nov 2006 09:26:56 -0800
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: John <me@privacy.net>
-Subject: Re: Intel 82559 NIC corrupted EEPROM
-Cc: auke-jan.h.kok@intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, hpa@zytor.com, saw@saw.sw.com.sg
-In-Reply-To: <4551B7B8.8080601@privacy.net>
+	Wed, 8 Nov 2006 12:26:48 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4877 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1754602AbWKHR0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 12:26:48 -0500
+Date: Wed, 8 Nov 2006 18:26:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, Andi Kleen <ak@suse.de>,
+       Jeff Chua <jeff.chua.linux@gmail.com>,
+       Aaron Durbin <adurbin@google.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
+Message-ID: <20061108172650.GC4729@stusta.de>
+References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com> <20061107171143.GU27140@parisc-linux.org> <200611080839.46670.ak@suse.de> <20061108122237.GF27140@parisc-linux.org> <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com>
-	 <45506C9A.5010009@privacy.net> <4551B7B8.8080601@privacy.net>
+In-Reply-To: <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/8/06, John <me@privacy.net> wrote:
-> Hello all,
->
-> [ E-mail address is a bit-bucket. I *do* monitor the mailing lists. ]
->
-> I will try and summarize the problem as I understand it at this point.
->
-> I've written two messages so far:
-> http://groups.google.com/group/linux.kernel/msg/3a05d819c66474db
-> http://groups.google.com/group/linux.kernel/msg/391aebbb3dfd6039
->
-> And here is a link to the complete thread:
-> http://lkml.org/lkml/fancy/2006/11/3/124
->
-> I have a motherboard with three on-board 82559 NICs.
->
->   o eepro100.ko properly initializes all three NICs
->   o e100.ko fails to initialize one of them
->
-> NOTE: With kernel 2.6.14, e100.ko fails to initialize the NIC with MAC
-> address 00:30:64:04:E6:E4. With kernel 2.6.18 e100.ko fails to
-> initialize the NIC with MAC address 00:30:64:04:E6:E5.
->
-> The problem is not an incorrect checksum. (Donald Becker's dump utility
-> reports a correct checksum for all three NICs.) The problem seems to be
-> that e100.ko fails to read the contents of one of the EEPROMs.
+On Wed, Nov 08, 2006 at 08:05:18AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 8 Nov 2006, Matthew Wilcox wrote:
+> >
+> > On Wed, Nov 08, 2006 at 08:39:44AM +0100, Andi Kleen wrote:
+> > > ACPI knows the number of busses.
+> > 
+> > But what if the number of busses increases later, eg by hotplugging
+> > a card with a PCI-PCI bridge on it?  Or does it know the number of
+> > busses which can be supported by this machine's MMCONFIG region?
+> 
+> ACPI will give the maximum number.
+> 
+> However, in this case, the correct thing to do (always _has_ been) is to 
+> not use ACPI for _anything_, but just read the base and the size of the 
+> MMCONFIG region from the hardware itself.
+> 
+> Anyway, I do not consider this a regression. MMCONFIG has _never_ worked 
+> reliably. It has always been a case of "we can make it work on some 
+> machines by making it break on others".
 
-<snip>
+It is a serious regression:
 
-Thanks for the report, I have some thoughts.
-I suspect that one reason beckers code works is that it uses IO based
-access (slower, and different method) to the adapter rather than
-memory mapped access.
+The problem is that with the default CONFIG_PCI_GOANY, MMCONFIG is the 
+_first_ method tried.
 
-The second thought is that the adapter is in D3, and something about
-your kernel or the driver doesn't successfully wake it up to D0.  An
-indication of this would be looking at lspci -vv before/after loading
-the driver.  Also, after loading/unloading eepro100 does the e100
-driver work?
+In practice, this implies that nearly every system possibly affected 
+will suffer from a MMCONFIG breakage like the one Jeff observed...
 
-A third idea is look for a master abort in lspci after e100 fails to load.
+> 			Linus
 
-And a last idea is for us to instrument the reads /writes from/to the
-device during init and see if everything is returning 0xffffffff, as
-that indicates the I/O and/or memory bar is not enabled, or the
-address returned from ioremap is invalid.
+cu
+Adrian
 
-Jesse
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

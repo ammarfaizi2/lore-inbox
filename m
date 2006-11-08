@@ -1,47 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754322AbWKHFp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754318AbWKHFo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754322AbWKHFp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 00:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754323AbWKHFp7
+	id S1754318AbWKHFo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 00:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754319AbWKHFo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 00:45:59 -0500
-Received: from mga07.intel.com ([143.182.124.22]:56456 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1754321AbWKHFp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 00:45:58 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,399,1157353200"; 
-   d="scan'208"; a="142841858:sNHT19343807"
-Date: Tue, 7 Nov 2006 21:23:32 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, ak@suse.de,
-       shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       ashok.raj@intel.com
-Subject: Re: [patch 2/4] introduce the mechanism of disabling cpu hotplug control
-Message-ID: <20061107212332.A6418@unix-os.sc.intel.com>
-References: <20061107173306.C3262@unix-os.sc.intel.com> <20061107173624.A5401@unix-os.sc.intel.com> <20061107174024.B5401@unix-os.sc.intel.com> <20061107195430.37f8deb0.akpm@osdl.org> <20061107200133.A5933@unix-os.sc.intel.com> <20061107203504.b8e17ea8.akpm@osdl.org>
+	Wed, 8 Nov 2006 00:44:57 -0500
+Received: from gate.crashing.org ([63.228.1.57]:41622 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1754317AbWKHFo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 00:44:57 -0500
+Subject: Re: DMA APIs gumble grumble
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Miller <davem@davemloft.net>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       paulus@samba.org, anton@samba.org, greg@kroah.com
+In-Reply-To: <20061107.212937.70218368.davem@davemloft.net>
+References: <1162950877.28571.623.camel@localhost.localdomain>
+	 <20061107.204653.44098205.davem@davemloft.net>
+	 <1162963420.28571.700.camel@localhost.localdomain>
+	 <20061107.212937.70218368.davem@davemloft.net>
+Content-Type: text/plain
+Date: Wed, 08 Nov 2006 16:44:42 +1100
+Message-Id: <1162964682.28571.715.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061107203504.b8e17ea8.akpm@osdl.org>; from akpm@osdl.org on Tue, Nov 07, 2006 at 08:35:04PM -0800
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2006 at 08:35:04PM -0800, Andrew Morton wrote:
-> On Tue, 7 Nov 2006 20:01:34 -0800
-> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+
+> > Then, maybe 6 month, maybe 1 year later, we can change archs that use
+> > the "alternate" semantic like sparc64 to no longer fail
+> > pci_set_dma_mask(64bits).
+> > 
+> > In fact, the only breakage here would be for those archs to have some
+> > drivers start going slowly, though we could expect drivers to have been
+> > fixed by then.... (And we can delay that second part of the change as
+> > long as deemed necessary).
 > 
-> > I wanted to add something like disable_cpu_hotplug
+> The arch implementations of pci_map_*() et al. might start
+> failing since they were written assuming that DAC never got
+> enabled.
+
+True. However, as I said, we don't have to deprecate the old technique
+right away, we have time to get the drivers fixed, provided we agree
+that this is the way to go.
+
+> > Yup, but you didn't fix sparc32 :-) I suppose I can try to do it and ask
+> > Anton for help if things go wrong, though I can't be bothered building a
+> > cross toolchain or getting a box on ebay so I'll rely on your for
+> > testing :-)
 > 
-> My point is, `enable_cpu_hotplug' is nicer
+> I only do sparc32 build testing, which you can do on a sparc64
+> box and Al Viro has great recipies for cross tool building and
+> usage.
 
-Yep. I got it and hence my "will clean this up" assurance :)
+Yup, I might have a look. (Or maybe can you give accounts on a box I can
+use ? That would be even easier)
 
-This is all coming from the `no_control' member in cpu structure and I will
-change that to something like `hotpluggable'. That will make the patch slightly
-big but def clean.
+> > Thus, that is 3 pointers gone for archs who don't use these, and the ability
+> > to put things like your dma ops in every struct device.
+> 
+> How exactly does your device struct extension work?  I ask because
+> struct device is embedded into other structs, such as pci_dev,
+> so it has to be fixed in size unless you have some clever trick. :)
 
-thanks,
-suresh
+Nah, my extension is fixed, it's just that it's defined by the arch. So
+archs who don't care don't get the bloat.
+
+Right now, my implementation just hijacks firmare_data, so it's a
+pointer (and thus potentially could be variable size) but I want to have
+it "flat" in for performances.
+
+My current device_ext on powerpc is:
+
+struct device_ext {
+        /* Optional pointer to an OF device node */
+        struct device_node      *of_node;
+
+        /* DMA operations on that device */
+        struct dma_mapping_ops  *dma_ops;
+        void                    *dma_data;
+
+        /* NUMA node if applicable */
+        int                     numa_node;
+};
+
+If we remove plaform_data and firmware_data from struct device, then the
+size difference is one pointer and one int, which isn't -that- much (for
+powerpc, I consider that acceptable).
+
+The idea is just to have asm/device.h do
+
+struct device_ext {
+};
+
+That is, define an empty struct, for all archs that don't care about it,
+though I want to move the dma_cohrerent_map thingy into the extension
+for the 3 archs that seem to use it (x86, frv and m32.
+
+Cheers,
+Ben
+
+

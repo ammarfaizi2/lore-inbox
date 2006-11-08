@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754336AbWKHGDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754351AbWKHGTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754336AbWKHGDa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 01:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754335AbWKHGDa
+	id S1754351AbWKHGTw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 01:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754355AbWKHGTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 01:03:30 -0500
-Received: from lug-owl.de ([195.71.106.12]:46263 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1753127AbWKHGD3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 01:03:29 -0500
-Date: Wed, 8 Nov 2006 07:03:28 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: eki@sci.fi, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PULL] Missing *eof assignment in Alpha's srm_env driver
-Message-ID: <20061108060328.GA21485@lug-owl.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>, eki@sci.fi,
-	linux-kernel@vger.kernel.org
-References: <20061107230201.GY21485@lug-owl.de> <Pine.LNX.4.64.0611071522050.3667@g5.osdl.org> <20061107232546.GZ21485@lug-owl.de> <Pine.LNX.4.64.0611071822360.3667@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SBYWXwvsCkEY5LOm"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611071822360.3667@g5.osdl.org>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Wed, 8 Nov 2006 01:19:52 -0500
+Received: from www.wytron.com.tw ([211.75.82.101]:12776 "EHLO
+	fc4.wytron.com.tw") by vger.kernel.org with ESMTP id S1754354AbWKHGTv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 01:19:51 -0500
+Message-ID: <455176F9.4080903@wytron.com.tw>
+Date: Wed, 08 Nov 2006 14:19:37 +0800
+From: Thomas Chou <thomas@wytron.com.tw>
+User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060425)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] initramfs : handle more than one source dir or file list
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Thomas Chou <thomas@wytron.com.tw>
 
---SBYWXwvsCkEY5LOm
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Handle more than one source dir or file list to the initramfs gen scripts.
 
-On Tue, 2006-11-07 18:23:26 -0800, Linus Torvalds <torvalds@osdl.org> wrote:
-> On Wed, 8 Nov 2006, Jan-Benedict Glaw wrote:
-> >=20
-> > git://git.kernel.org/pub/scm/linux/kernel/git/jbglaw/vax-linux.git fixe=
-s_for_linus
->=20
-> Your kernel.org repo is _really_ slow. Have you repacked it and otherwise=
-=20
-> maintained it? Or maybe it's just kernel.org being slow right now.
+Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+---
+Bug ID 7401, updated
 
-Packed and using your repo for alternates:
+diff -uprN -X linux-2.6.19-rc3-vanilla/Documentation/dontdiff 
+linux-2.6.19-rc3-vanilla/scripts/gen_initramfs_list.sh 
+linux-2.6.19-rc3/scripts/gen_initramfs_list.sh
+--- linux-2.6.19-rc3-vanilla/scripts/gen_initramfs_list.sh    2006-09-20 
+11:42:06.000000000 +0800
++++ linux-2.6.19-rc3/scripts/gen_initramfs_list.sh    2006-10-25 
+09:59:28.000000000 +0800
+@@ -158,7 +158,7 @@ unknown_option() {
+ }
+ 
+ list_header() {
+-    echo "deps_initramfs := \\"
++       :
+ }
+ 
+ header() {
+@@ -227,6 +227,7 @@ arg="$1"
+ case "$arg" in
+     "-l")    # files included in initramfs - used by kbuild
+         dep_list="list_"
++        echo "deps_initramfs := \\"
+         shift
+         ;;
+     "-o")    # generate gzipped cpio image named $1
+diff -uprN -X linux-2.6.19-rc3-vanilla/Documentation/dontdiff 
+linux-2.6.19-rc3-vanilla/usr/Makefile linux-2.6.19-rc3/usr/Makefile
+--- linux-2.6.19-rc3-vanilla/usr/Makefile    2006-10-25 
+09:53:54.000000000 +0800
++++ linux-2.6.19-rc3/usr/Makefile    2006-10-25 09:58:41.000000000 +0800
+@@ -20,7 +20,7 @@ $(obj)/initramfs_data.o: $(obj)/initramf
+ hostprogs-y := gen_init_cpio
+ initramfs   := $(CONFIG_SHELL) $(srctree)/scripts/gen_initramfs_list.sh
+ ramfs-input := $(if $(filter-out "",$(CONFIG_INITRAMFS_SOURCE)), \
+-                    $(CONFIG_INITRAMFS_SOURCE),-d)
++                    $(shell echo $(CONFIG_INITRAMFS_SOURCE)),-d)
+ ramfs-args  := \
+         $(if $(CONFIG_INITRAMFS_ROOT_UID), -u 
+$(CONFIG_INITRAMFS_ROOT_UID)) \
+         $(if $(CONFIG_INITRAMFS_ROOT_GID), -g $(CONFIG_INITRAMFS_ROOT_GID))
 
-jbglaw@hera:/pub/scm/linux/kernel/git/jbglaw$ du -ms vax-linux.git/
-8       vax-linux.git/
-
-MfG, JBG
-
---=20
-      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
-  Signature of:                           Wenn ich wach bin, tr=C3=A4ume ic=
-h.
-  the second  :
-
---SBYWXwvsCkEY5LOm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFUXMwHb1edYOZ4bsRAl88AJ0cMSWyyP5Sbwefk37uWorJp1Pr6gCeNfad
-/WV8QGp+W/fHuyGCRNnA9tw=
-=zpxT
------END PGP SIGNATURE-----
-
---SBYWXwvsCkEY5LOm--

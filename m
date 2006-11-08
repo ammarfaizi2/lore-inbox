@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423692AbWKHUsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423715AbWKHUsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423692AbWKHUsU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:48:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423694AbWKHUsU
+	id S1423715AbWKHUsq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 15:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423710AbWKHUsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:48:20 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24704 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1423692AbWKHUsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:48:19 -0500
-Subject: Re: [PATCH] HZ: 300Hz support
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1163018557.23956.92.camel@localhost.localdomain>
-References: <1163018557.23956.92.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 08 Nov 2006 21:48:17 +0100
-Message-Id: <1163018898.3138.388.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Wed, 8 Nov 2006 15:48:45 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:24591 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1423699AbWKHUso
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 15:48:44 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Organization: tuxland
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc5-mm1
+Date: Wed, 8 Nov 2006 21:47:46 +0100
+User-Agent: KMail/1.9.5
+Cc: "Hesse, Christian" <mail@earthworm.de>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+References: <20061108015452.a2bb40d2.akpm@osdl.org> <200611081557.21516.m.kozlowski@tuxland.pl> <20061108111907.a534f61d.akpm@osdl.org>
+In-Reply-To: <20061108111907.a534f61d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200611082147.47394.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 20:42 +0000, Alan Cox wrote:
-> Fix two things. Firstly the unit is "Hz" not "HZ". Secondly it is useful
-> to have 300Hz support when doing multimedia work. 250 is fine for us in
-> Europe but the US frame rate is 30fps (29.99 blah for pedants). 300
-> gives us a tick divisible by both 25 and 30, and for interlace work 50
-> and 60. It's also giving similar performance to 250Hz.
-> 
-> I'd argue we should remove 250 and add 300, but that might be excess
-> disruption for now.
+Hello,
 
+> Ah, you're i386, not x86_64.   This should help.
 
-the last time 300 was proposed the counter argument was that it was
-lousy in terms of PIT rounding... did you check that out?
+Confirm. Now it seems to be fine. Thanks.
 
+-- 
+Regards,
 
+	Mariusz Kozlowski

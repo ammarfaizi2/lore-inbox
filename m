@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965906AbWKHO7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754590AbWKHPEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965906AbWKHO7q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 09:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965907AbWKHO7p
+	id S1754590AbWKHPEH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 10:04:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753226AbWKHPEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 09:59:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:43704 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965906AbWKHO7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 09:59:45 -0500
-Subject: Re: New laptop - problems with linux
-From: Arjan van de Ven <arjan@infradead.org>
+	Wed, 8 Nov 2006 10:04:06 -0500
+Received: from wx-out-0506.google.com ([66.249.82.235]:37079 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1754590AbWKHPEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 10:04:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DjupI0ClXLDCGRVsbF/Sk8jicMa+kDUk9DW4NgZUfcV+WJUD/GBi0rsPINhAeB/HcxtndR5AK0qZKfL4ynC75rlSzXGQ/bLHE1FH3m0776mVmKzQXKjiY2B/cJCJ+I0GW1DaQLU6muEbn4FGsA1KiXmaXTklvUUs8bqfcovvYHM=
+Message-ID: <3877989d0611080704j30b88bd4o4558e606fd6ffc11@mail.gmail.com>
+Date: Wed, 8 Nov 2006 23:04:02 +0800
+From: "Luming Yu" <luming.yu@gmail.com>
 To: Stephen.Clark@seclark.us
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
+Subject: Re: New laptop - problems with linux
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Dave Jones" <davej@redhat.com>
 In-Reply-To: <4551EC86.5010600@seclark.us>
-References: <4551EC86.5010600@seclark.us>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 08 Nov 2006 15:59:40 +0100
-Message-Id: <1162997980.3138.332.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <4551EC86.5010600@seclark.us>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 09:41 -0500, Stephen Clark wrote:
+On 11/8/06, Stephen Clark <Stephen.Clark@seclark.us> wrote:
 > Hi list,
-> 
-> I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core 
+>
+> I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core
 > 2 Duo T560,0 2gb pc5400 memory.
 >  From checking around it appeared all the
 > hardware was well supported by linux - but I am having major problems.
-> 
-> 
-> 1. neither the wireless lan Intel pro 3945ABG or built in ethernet 
-
-you can get the driver for this from ipw3945.sf.net
-
+>
+>
+> 1. neither the wireless lan Intel pro 3945ABG or built in ethernet
 > RTL-8169C are detected and configured
-> 2. the disk which is a 7200rpm Hitachi travelmate transfers data at 1.xx 
+> 2. the disk which is a 7200rpm Hitachi travelmate transfers data at 1.xx
 > mb/sec
->     according to hdparm. This same drive in my old laptop an HP n5430 with a
->     850 duron the rate was 12-14 mb/sec.
+>    according to hdparm. This same drive in my old laptop an HP n5430 with a
+>    850 duron the rate was 12-14 mb/sec.
+>
+> Attached are the output of lspci -vvv, dmesg and hdparm
+> Any insight would be greatly appreciated.
+>
 
-it seems you're using your sata disk in legacy IDE compatibility mode,
-and not AHCI mode... usually there is a bios setting to switch this
-(but be careful, if you switch it without adding the ahci driver to your
-initrd your system won't boot)
-
-
-
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Sounds like interrupt problem. Could you post /proc/interrupts?
+It is worthy to try pci=noacpi.

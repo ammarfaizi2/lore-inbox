@@ -1,43 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423146AbWKHUgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423592AbWKHUhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423146AbWKHUgD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423510AbWKHUgD
+	id S1423592AbWKHUhz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 15:37:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423593AbWKHUhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:36:03 -0500
-Received: from pne-smtpout3-sn2.hy.skanova.net ([81.228.8.111]:23743 "EHLO
-	pne-smtpout3-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1423146AbWKHUgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:36:00 -0500
-Date: Wed, 8 Nov 2006 22:35:46 +0200
-From: Riku Voipio <riku.voipio@iki.fi>
-To: Martin Michlmayr <tbm@cyrius.com>
-Cc: romieu@fr.zoreil.com, linux-kernel@vger.kernel.org, buytenh@wantstofly.org
-Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)]
-Message-ID: <20061108203546.GA32247@kos.to>
-References: <20061107115940.GA23954@unjust.cyrius.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061107115940.GA23954@unjust.cyrius.com>
-X-message-flag: Warning: message not sent with a DRM-Certified client
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 8 Nov 2006 15:37:55 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56526 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1423592AbWKHUhy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 15:37:54 -0500
+Subject: [PATCH] HZ: 300Hz support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Nov 2006 20:42:37 +0000
+Message-Id: <1163018557.23956.92.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Fix two things. Firstly the unit is "Hz" not "HZ". Secondly it is useful
+to have 300Hz support when doing multimedia work. 250 is fine for us in
+Europe but the US frame rate is 30fps (29.99 blah for pedants). 300
+gives us a tick divisible by both 25 and 30, and for interlace work 50
+and 60. It's also giving similar performance to 250Hz.
 
-> Lennert, I have compared 2.6.19-rc4 + 0001-r8169-perform-a-PHY-reset-etc
-> with the serie of patches against 2.6.18-rc4 which was reported to work
-> on your n2100 (thread on netdev around 05/09/2006). Can you:
-> 
-> - apply the patch below on top of 2.6.19-rc4 + 0001 and see if it works ?
->   Don't apply 0002, it is not required.
+I'd argue we should remove 250 and add 300, but that might be excess
+disruption for now.
 
-I took 2.6.19-rc5 as there was no changes in this driver relative to -rc4. 
-applied Francois's 0001-r8169-perform-a-PHY-reset.. and finally the
-patch in this mail. And networking _does_not_ work on Thecus N2100.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-mii-tool sees the link being connected and disconnected, but dhcp or ping
-with static ip goes nowhere.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude
+linux.vanilla-2.6.19-rc4-mm1/kernel/Kconfig.hz
+linux-2.6.19-rc4-mm1/kernel/Kconfig.hz
+--- linux.vanilla-2.6.19-rc4-mm1/kernel/Kconfig.hz	2006-10-31
+15:40:54.000000000 +0000
++++ linux-2.6.19-rc4-mm1/kernel/Kconfig.hz	2006-11-08 17:06:38.000000000
++0000
+@@ -7,7 +7,7 @@
+ 	default HZ_250
+ 	help
+ 	 Allows the configuration of the timer frequency. It is customary
+-	 to have the timer interrupt run at 1000 HZ but 100 HZ may be more
++	 to have the timer interrupt run at 1000 Hz but 100 Hz may be more
+ 	 beneficial for servers and NUMA systems that do not need to have
+ 	 a fast response for user interaction and that may experience bus
+ 	 contention and cacheline bounces as a result of timer interrupts.
+@@ -19,21 +19,30 @@
+ 	config HZ_100
+ 		bool "100 HZ"
+ 	help
+-	  100 HZ is a typical choice for servers, SMP and NUMA systems
++	  100 Hz is a typical choice for servers, SMP and NUMA systems
+ 	  with lots of processors that may show reduced performance if
+ 	  too many timer interrupts are occurring.
+ 
+ 	config HZ_250
+ 		bool "250 HZ"
+ 	help
+-	 250 HZ is a good compromise choice allowing server performance
++	 250 Hz is a good compromise choice allowing server performance
+ 	 while also showing good interactive responsiveness even
+-	 on SMP and NUMA systems.
++	 on SMP and NUMA systems. If you are going to be using NTSC video
++	 or multimedia, selected 300Hz instead.
++
++	config HZ_300
++		bool "300 HZ"
++	help
++	 300 Hz is a good compromise choice allowing server performance
++	 while also showing good interactive responsiveness even
++	 on SMP and NUMA systems and exactly dividing by both PAL and
++	 NTSC frame rates for video and multimedia work.
+ 
+ 	config HZ_1000
+ 		bool "1000 HZ"
+ 	help
+-	 1000 HZ is the preferred choice for desktop systems and other
++	 1000 Hz is the preferred choice for desktop systems and other
+ 	 systems requiring fast interactive responses to events.
+ 
+ endchoice
+@@ -42,5 +51,6 @@
+ 	int
+ 	default 100 if HZ_100
+ 	default 250 if HZ_250
++	default 300 if HZ_300
+ 	default 1000 if HZ_1000
+ 
+
+ 
 

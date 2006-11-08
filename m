@@ -1,46 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161361AbWKHWIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161728AbWKHWIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161361AbWKHWIb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 17:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161726AbWKHWIb
+	id S1161728AbWKHWIx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 17:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161729AbWKHWIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 17:08:31 -0500
-Received: from www.osadl.org ([213.239.205.134]:51143 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161361AbWKHWIa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 17:08:30 -0500
-Subject: Re: 2.6.19-rc5-mm1
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Benoit Boissinot <bboissin@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <40f323d00611080708j2eeaefc1kee4f22211d3f276d@mail.gmail.com>
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
-	 <40f323d00611080708j2eeaefc1kee4f22211d3f276d@mail.gmail.com>
+	Wed, 8 Nov 2006 17:08:53 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9363 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161733AbWKHWIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 17:08:51 -0500
+Subject: Re: Faustian Pact between Novell and Microsoft
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061108114549.1aa58243@freekitty>
+References: <454A7BBB.10403@wolfmountaingroup.com>
+	 <20061108141050.GB2489@ff.dom.local>  <20061108114549.1aa58243@freekitty>
 Content-Type: text/plain
-Date: Wed, 08 Nov 2006 23:10:41 +0100
-Message-Id: <1163023841.8335.93.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Nov 2006 22:13:33 +0000
+Message-Id: <1163024013.23956.121.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 16:08 +0100, Benoit Boissinot wrote:
-> I have the following traceback during boot:
-> [   20.359613] BUG: unable to handle kernel NULL pointer dereference
-> at virtual address 00000000
-> [   20.359618]  printing eip:
-> [   20.359620] 00000000
->
-> reverting:
-> i386-apic-timer-use-clockevents-broadcast.patch
-> acpi-verify-lapic-timer.patch
-> acpi-verify-lapic-timer-exports.patch
-> acpi-verify-lapic-timer-fix.patch
+Ar Mer, 2006-11-08 am 11:45 -0800, ysgrifennodd Stephen Hemminger:
+> Companies with direct sales to end-users are always making partner
+> arrangements; that is the nature of business. But like teenagers the
+> romances don't always last long, and someone usually gets dropped.
 
-Yep, my bad. working on a fix
-
-	tglx
-
+Usually on their head
 

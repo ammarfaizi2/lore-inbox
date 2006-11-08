@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965919AbWKHP0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965927AbWKHP0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965919AbWKHP0g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 10:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965932AbWKHP0f
+	id S965927AbWKHP0N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 10:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965933AbWKHP0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 10:26:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:25540 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965939AbWKHP0e (ORCPT
+	Wed, 8 Nov 2006 10:26:13 -0500
+Received: from mx2.suse.de ([195.135.220.15]:47583 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965939AbWKHP0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 10:26:34 -0500
-Date: Wed, 8 Nov 2006 15:25:33 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alasdair G Kergon <agk@redhat.com>, David Chinner <dgc@sgi.com>,
-       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Ingo Molnar <mingo@elte.hu>, Srinivasa DS <srinivasa@in.ibm.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061108152533.GH30653@agk.surrey.redhat.com>
-Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
-	Alasdair G Kergon <agk@redhat.com>, David Chinner <dgc@sgi.com>,
-	Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-	Ingo Molnar <mingo@elte.hu>, Srinivasa DS <srinivasa@in.ibm.com>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061108082722.GH8394166@melbourne.sgi.com> <20061108142511.GG30653@agk.surrey.redhat.com> <200611081543.28548.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Nov 2006 10:26:11 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Aaron Durbin" <adurbin@google.com>
+Subject: Re: [PATCH] Update MMCONFIG resource insertion to check against e820 map.
+Date: Wed, 8 Nov 2006 16:25:35 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, "Matthew Wilcox" <matthew@wil.cx>,
+       "Jeff Chua" <jeff.chua.linux@gmail.com>, discuss@x86-64.org
+References: <8f95bb250611071249i6cf92b98p99d4b08275de6656@mail.gmail.com>
+In-Reply-To: <8f95bb250611071249i6cf92b98p99d4b08275de6656@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200611081543.28548.rjw@sisk.pl>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200611081625.35318.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 03:43:26PM +0100, Rafael J. Wysocki wrote:
-> Will it be enough to cover the interactions with dm?
- 
-There are cases where you *cannot* freeze the filesystem (unless
-you wait for userspace processes to finish what they are doing) -
-and only dm can tell you that.
+On Tuesday 07 November 2006 21:49, Aaron Durbin wrote:
+> Check to see if MMCONFIG region is marked as reserved in the e820 map
+> before inserting the MMCONFIG region into the resource map. If the region
+> is not entirely marked as reserved in the e820 map attempt to find a region
+> that is. Only insert the MMCONFIG region into the resource map if there was
+> a region found marked as reserved in the e820 map.  This should fix a known
+> regression in 2.6.19 by not reserving all of the I/O space on misconfigured
+> systems.
 
-The freeze_filesystems() code ought to do it's best in any given 
-circumstances within the constraints.
+I added the patch. Thanks
 
-So:
-  Get the filesystem's block device.
-  Check the full tree of devices that that block device depends upon
-and for any device that belongs to device-mapper check if it is suspended.
-If it is, skip the original device.
-
-  struct mapped_device *dm_get_md(dev_t dev);
-  int dm_suspended(struct mapped_device *md);
-  void dm_put(struct mapped_device *md);
-
-Handling the tree is the difficult bit, but sysfs could help.
-[You can get the device-mapper dependencies with:
-  struct mapped_device *dm_get_md(dev_t dev);
-  struct dm_table *dm_get_table(struct mapped_device *md);
-  struct list_head *dm_table_get_devices(struct dm_table *t);
-  void dm_table_put(struct dm_table *t);
-  void dm_put(struct mapped_device *md);
-]
-
-Consider that you could have an already-frozen filesystem containing a loop
-device containing a device-mapper device containing a not-frozen filesystem.
-You won't be able to freeze that top filesystem because the I/O would
-queue lower down the stack.  (Similar problem if the device-mapper device
-in the stack was suspended.)
-
-Alasdair
--- 
-agk@redhat.com
+-Andi

@@ -1,78 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161725AbWKHTwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754659AbWKHTyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161725AbWKHTwg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:52:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754659AbWKHTwg
+	id S1754659AbWKHTyz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754660AbWKHTyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:52:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20170 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1754658AbWKHTwf (ORCPT
+	Wed, 8 Nov 2006 14:54:55 -0500
+Received: from hera.kernel.org ([140.211.167.34]:3002 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1754659AbWKHTyy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:52:35 -0500
-Date: Wed, 8 Nov 2006 11:50:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Andrew Victor <andrew@sanpeople.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [-mm patch 0/2] MACB driver update
-Message-Id: <20061108115039.58e7f6f5.akpm@osdl.org>
-In-Reply-To: <20061108203358.558c28d3@cad-250-152.norway.atmel.com>
-References: <20061108203358.558c28d3@cad-250-152.norway.atmel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 8 Nov 2006 14:54:54 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: General network driver suspend/resume (was e1000 carrier related)
+Date: Wed, 8 Nov 2006 11:54:14 -0800
+Organization: OSDL
+Message-ID: <20061108115414.7e089a58@freekitty>
+References: <20061106013153.GN15897@curie-int.orbis-terrarum.net>
+	<20061107071449.GB21655@elf.ucw.cz>
+	<4550AB7A.10508@intel.com>
+	<20061108120407.GA9506@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1163015654 32463 10.8.0.54 (8 Nov 2006 19:54:14 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 8 Nov 2006 19:54:14 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2006 20:33:58 +0100
-Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
+On Wed, 8 Nov 2006 13:04:07 +0100
+Pavel Machek <pavel@ucw.cz> wrote:
 
-> Hi Andrew,
+> Hi!
 > 
-> After Andrew Victor explained to me how at91rm9200 does hardware
-> address initialization and phy probing, I decided to give it a go on
-> avr32 as well. So here's one patch for the avr32 platform code and one
-> for the actual macb driver which implements those changes.
+> > >>This behavior differs from every other network card, and is also present 
+> > >>in the
+> > >>7.3* version of the driver from sourceforge.
+> > >>
+> > >>I think the e1000 should try to raise the link during the probe, so that 
+> > >>it
+> > >>works properly, without having to set ifconfig ethX up first.
+> > >
+> > >I think you should cc e1000 maintainers, and perhaps provide a patch....
+> > 
+> > I've read it and not come up with an answer due to some other issues at 
+> > hand. E1000 hardware works differently and this has been asked before, but 
+> > the cards itself are in low power state when down. Changing this to bring 
+> > up the link would make the card start to consume lots more power, which 
+> > would automatically suck enormously for anyone using a laptop.
 > 
-> I suspect that the avr32 platform patches might get messy, so feel free
-> to drop them all
-
-You'll need to be a lot more specific than "platform patches" and "them all".
-
-Patches have names.  I currently have
-
-gpio-framework-for-avr32.patch
-avr32-spi-ethernet-platform_device-update.patch
-avr32-move-spi-device-definitions-into-main-board.patch
-atmel-spi-driver.patch
-atmel-spi-driver-maintainers-entry.patch
-avr32-move-ethernet-tag-parsing-to-board-specific.patch
-atmel-macb-ethernet-driver.patch
-adapt-macb-driver-to-net_device-changes.patch
-
-I'd prefer to drop the lot, but we do have those SPI patches which David
-needs to see.
-
-> and pull from the master branch of
+> Well, maybe E1000 should behave as the other cards behave, and
+> different solution needs to be found for power saving? ifconfig eth0
+> suspend?
 > 
-> 	git://www.atmel.no/~hskinnemoen/linux/kernel/avr32.git master
-> 
-> instead. I won't put any new drivers or updates to drivers that are not
-> in mainline there.
-> 
-> I will still post patches for the avr32 platform code just to show how
-> things are affecting the platform-specific bits.
+> 									Pavel
+>  
 > 
 
-So in fact I do think I'd prefer to drop everything.  How about
+The standard which all network drivers should use is:
 
-a) you sort out the SPI patches with David, send them over to me when
-   it's ready and
+module insertion:
+	start in initial powerdown state
 
-b) everything else goes into Linus from your git tree, and I include
-   your git tree in -mm?
+open:
+	power up, bring up link
 
-(I hope that tree works, btw - for some reason it seems that any git tree
-which isn't on kernel.org is down half the time).
+stop:
+	bring down link
+	return to powerdown state unless WOL is set.
+	if doing WOL go to lowest power sensing state
 
+suspend:
+	same as stop
+
+resume:
+	same as open
+
+module removal:
+	stop already called so device should be in power down state.
+
+
+Since suspend is basically same as stop, and resume is open
+I am going to investigate doing suspend/resume in the network device layer
+(unless subclassed by driver), so we can rip out the suspend/resume hook
+from many network drivers. There will still be boards like sky2
+that need own suspend/resume to deal with dual port etc.
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>

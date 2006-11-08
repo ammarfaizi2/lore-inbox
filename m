@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754550AbWKHMMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754564AbWKHMZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754550AbWKHMMd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 07:12:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754556AbWKHMMd
+	id S1754564AbWKHMZA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 07:25:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754567AbWKHMZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 07:12:33 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:23446 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1754550AbWKHMMc (ORCPT
+	Wed, 8 Nov 2006 07:25:00 -0500
+Received: from www.osadl.org ([213.239.205.134]:36306 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1754564AbWKHMY7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 07:12:32 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alasdair G Kergon <agk@redhat.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Date: Wed, 8 Nov 2006 13:10:18 +0100
-User-Agent: KMail/1.9.1
-Cc: Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061107234951.GD30653@agk.surrey.redhat.com> <20061108023039.GF30653@agk.surrey.redhat.com>
-In-Reply-To: <20061108023039.GF30653@agk.surrey.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 8 Nov 2006 07:24:59 -0500
+Subject: Re: + i386-lapic-timer-calibration.patch added to -mm tree
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, mm-commits@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061108120914.GB19843@elte.hu>
+References: <200611012045.kA1KjM1p018949@shell0.pdx.osdl.net>
+	 <20061108120914.GB19843@elte.hu>
+Content-Type: text/plain
+Date: Wed, 08 Nov 2006 13:27:10 +0100
+Message-Id: <1162988830.8335.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611081310.19100.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 8 November 2006 03:30, Alasdair G Kergon wrote:
-> On Tue, Nov 07, 2006 at 11:49:51PM +0000, Alasdair G Kergon wrote:
-> > I hadn't noticed that -mm patch.  I'll take a look.  
+On Wed, 2006-11-08 at 13:09 +0100, Ingo Molnar wrote:
+> one question:
 > 
-> swsusp-freeze-filesystems-during-suspend-rev-2.patch
+> > +	long tapic = apic_read(APIC_TMCCT);
+> > +	unsigned long pm = acpi_pm_read_early();
 > 
-> I think you need to give more thought to device-mapper
-> interactions here.  If an underlying device is suspended
-> by device-mapper without freezing the filesystem (the
-> normal state) and you issue a freeze_bdev on a device
-> above it, the freeze_bdev may never return if it attempts
-> any synchronous I/O (as it should).
+> is this function call safe if the box has no pm-timer?
 
-Well, it looks like the interactions with dm add quite a bit of
-complexity here.
+That's in the pm-timer-allow-early-access.patch:
 
-> Try:
->   while process generating I/O to filesystem on LVM
->   issue dmsetup suspend --nolockfs (which the lvm2 tools often do)
->   try your freeze_filesystems()
+Subject: pmtimer: Allow early access to pm timer
 
-Okay, I will.
++static inline u32 acpi_pm_read_early(void)
++{
++       if (!pmtmr_ioport)
++               return 0;
++       /* mask the output to 24 bits */
++       return acpi_pm_read_verified();
++}
 
-> Maybe: don't allow freeze_filesystems() to run when the system is in that
-> state;
+If pmtmr is not available, the function returns 0, so the resulting
+delta is 0 and therefor ignored. Same applies, when PMTIMER is disabled
+in the config.
 
-I'd like to avoid that (we may be running out of battery power at this point).
-
-> or, use device-mapper suspend instead of freeze_bdev directly where 
-> dm is involved;
-
-How do I check if dm is involved?
-
-> or skip dm devices that are already frozen - all with 
-> appropriate dependency tracking to process devices in the right order.
-
-I'd prefer this one, but probably the previous one is simpler to start with.
-
-Greetings,
-Rafael
+	tglx
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

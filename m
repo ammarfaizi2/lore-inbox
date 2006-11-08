@@ -1,52 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932676AbWKHUzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423743AbWKHVAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932676AbWKHUzm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 15:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbWKHUzm
+	id S1423743AbWKHVAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 16:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWKHVAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 15:55:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37092 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932676AbWKHUzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 15:55:41 -0500
-Subject: Re: [PATCH] sysctl: Undeprecate sys_sysctl
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@redhat.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jakub Jelinek <jakub@redhat.com>, Mike Galbraith <efault@gmx.de>,
-       Albert Cahalan <acahalan@gmail.com>,
-       Bill Nottingham <notting@redhat.com>,
-       Marco Roeland <marco.roeland@xs4all.nl>,
-       Michael Kerrisk <mtk-manpages@gmx.net>
-In-Reply-To: <20061108204948.GC20284@devserv.devel.redhat.com>
-References: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com>
-	 <20061108204948.GC20284@devserv.devel.redhat.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 08 Nov 2006 21:55:26 +0100
-Message-Id: <1163019326.3138.391.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Wed, 8 Nov 2006 16:00:15 -0500
+Received: from smtp10.dc2.safesecureweb.com ([65.36.255.234]:11471 "EHLO
+	smtp10.dc2.safesecureweb.com") by vger.kernel.org with ESMTP
+	id S932748AbWKHVAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 16:00:14 -0500
+Message-ID: <00fc01c70378$d1ffa760$0732700a@djlaptop>
+From: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
+To: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>,
+       "'Jesper Juhl'" <jesper.juhl@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <02fd01c70370$d9af6700$020120ac@Jocke>
+Subject: Re: How to compile module params into kernel?
+Date: Wed, 8 Nov 2006 15:59:44 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 15:49 -0500, Alan Cox wrote:
-> On Wed, Nov 08, 2006 at 12:00:10PM -0700, Eric W. Biederman wrote:
-> > Now that I know there are a few real users the only sane way to
-> > proceed with deprecation is to push the time limit out to a year or
-> > two work and work with distributions that have big testing pools like
-> > fedora core to find these last remaining users.
-> 
-> Some early boot code needs to know the kernel version and
-> it needs to do it before /proc is mounted and potentially in order
-> to run mount. In places it has its role but only in places.
+----- Original Message ----- 
+From: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
+To: "'Jesper Juhl'" <jesper.juhl@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, November 08, 2006 3:02 PM
+Subject: RE: How to compile module params into kernel?
 
-isn't kernel version passed as AT vector nowadays?
+
+>> -----Original Message-----
+>> From: Jesper Juhl [mailto:jesper.juhl@gmail.com]
+>>
+>> On 08/11/06, Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+>> > Instead of passing a module param on the cmdline I want to
+>> compile that
+>> > into
+>> > the kernel, but I can't figure out how.
+>> >
+>> > The module param I want compile into kernel is
+>> > rtc-ds1307.force=0,0x68
+>> >
+>> > This is for an embeddet target that doesn't have loadable module
+>> > support.
+>> >
+>> You could edit the module source and hardcode default values.
+>>
+>
+> Yes, but I don't want to do that since it makes maintance
+> harder.
+>
+> Jocke
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+If you don't have a module, you can not use module parameters. However, it 
+might even be simpler...
+You just put your parameters (strings to parse) on the kernel command-line 
+and you put code in your driver to interpret them.
+
+You want to look at "saved_command_line." It is a string as:
+extern char saved_command_line[COMMAND_LINE_SIZE];
+You need to parse ASCII text yourself, in your driver, but it's trivial. 
+Look at .../arch/i386/kernel/setup.c parse_cmdline_early().
+I don't see anywhere in the kernel that it gets overwritten so it should be 
+good to use.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 (somewhere). IT removed email  for 
+engineers!
+New Book: http://www.AbominableFirebug.com
+
+
 
 

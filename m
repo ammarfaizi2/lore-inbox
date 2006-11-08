@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161705AbWKHTKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161695AbWKHTJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161705AbWKHTKd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 14:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161704AbWKHTKd
+	id S1161695AbWKHTJy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 14:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161697AbWKHTJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 14:10:33 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:13842 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161694AbWKHTKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 14:10:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YF+uAk6sy+GNyqcYPBfV+mwzJfKASONETs7QjsSiqGgQQLEGcEDnBiyGSAPPHl8gMUgZkPgFlmYn24Q4yYOgK7cMQlx5j0Utc0C6ccQzkTlDU5KhFvyKJydTlfxrQcwKmfbXOs8s37pZu4qn8t4NfMeYhGr4M9k1F0Qd/3JUDLA=
-Message-ID: <9a8748490611081110m4cc62c1bp3a36aba3fc314e56@mail.gmail.com>
-Date: Wed, 8 Nov 2006 20:10:30 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] sysctl: Undeprecate sys_sysctl
-Cc: "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>,
-       alan@redhat.com, "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Jakub Jelinek" <jakub@redhat.com>, "Mike Galbraith" <efault@gmx.de>,
-       "Albert Cahalan" <acahalan@gmail.com>,
-       "Bill Nottingham" <notting@redhat.com>,
-       "Marco Roeland" <marco.roeland@xs4all.nl>,
-       "Michael Kerrisk" <mtk-manpages@gmx.net>
-In-Reply-To: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com>
+	Wed, 8 Nov 2006 14:09:54 -0500
+Received: from sycorax.lbl.gov ([128.3.5.196]:58127 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S1161695AbWKHTJy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 14:09:54 -0500
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc5: known regressions
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<20061108085235.GT4729@stusta.de> <20061108093442.GB19471@kernel.dk>
+Date: Wed, 08 Nov 2006 11:09:40 -0800
+In-Reply-To: <20061108093442.GB19471@kernel.dk> (message from Jens Axboe on
+	Wed, 8 Nov 2006 10:34:43 +0100)
+Message-ID: <87ejsd3gcr.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/11/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
->
-[...]
->
-> Since the sys_sysctl implementation needs to stay around for a while
-> and the worst of the maintenance issues that caused us to occasionally
-> break the ABI have been addressed I don't see any advantage in
-> continuing with the removal of sys_sysctl.
->
-> So instead of merely increasing the deprecation period this patch
-> removes the deprecation of sys_sysctl and modifies the kernel to
-> compile the code in by default.
->
-[...]
->
->  config SYSCTL_SYSCALL
->         bool "Sysctl syscall support" if EMBEDDED
-> -       default n
-> +       default y
->         select SYSCTL
->         ---help---
->           Enable the deprecated sysctl system call.  sys_sysctl uses
+Jens Axboe <jens.axboe@oracle.com> writes:
 
-Perhaps you should also change the help text here to not say "the
-deprecated sysctl system call". Perhaps change to something like :
+> On Wed, Nov 08 2006, Adrian Bunk wrote:
+>> Subject    : unable to rip cd
+>> References : http://lkml.org/lkml/2006/10/13/100
+>> Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
+>> Status     : unknown
+>
+> Alex, was/is this repeatable? If so I'd like you to repeat with this
+> debug patch applied, I cannot reproduce it locally.
+>
+> diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+> index bddfebd..ad03e19 100644
+> --- a/drivers/ide/ide-cd.c
+> +++ b/drivers/ide/ide-cd.c
+> @@ -1726,8 +1726,10 @@ static ide_startstop_t cdrom_newpc_intr(
+>  		/*
+>  		 * write to drive
+>  		 */
+> -		if (cdrom_write_check_ireason(drive, len, ireason))
+> +		if (cdrom_write_check_ireason(drive, len, ireason)) {
+> +			blk_dump_rq_flags(rq, "cdrom_newpc");
+>  			return ide_stopped;
+> +		}
+>  
+>  		xferfunc = HWIF(drive)->atapi_output_bytes;
+>  	} else  {
+> @@ -1859,8 +1861,10 @@ static ide_startstop_t cdrom_write_intr(
+>  	}
+>  
+>  	/* Check that the drive is expecting to do the same thing we are. */
+> -	if (cdrom_write_check_ireason(drive, len, ireason))
+> +	if (cdrom_write_check_ireason(drive, len, ireason)) {
+> +		blk_dump_rq_flags(rq, "cdrom_pc");
+>  		return ide_stopped;
+> +	}
+>  
+>  	sectors_to_transfer = len / SECTOR_SIZE;
+>  
 
-"Deselect this option, to not build sysctl suport into the kernel, if
-you are sure you won't be running any applications that depend on the
-sysctl system call.
-If unsure, say Y."
+i've tried it again with the above patch applied and when i start
+cdparanoia i get:
+
+kernel: hdc: write_intr: wrong transfer direction!
+kernel: cdrom_newpc: dev hdc: type=2, flags=114c9
+kernel: 
+kernel: sector 59534648, nr/cnr 0/0
+kernel: bio 00000000, biotail c14b2800, buffer 00000000, data 00000000, len 56
+kernel: cdb: 12 00 00 00 38 00 00 00 00 00 00 00 00 00 00 00 
+
+as for the lock up, the ripping process never completes, it starts and
+then it hangs somewhere in the middle of the track. it could be that
+the disk has some problems. anyway, abort execution doesn't work until
+i physically eject the cd from the drive (which seems to be an
+improvement from a couple of rc's ago). hope this helps.
+
+--alex--
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

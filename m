@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965368AbWKHKVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965472AbWKHKbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965368AbWKHKVp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 05:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965472AbWKHKVo
+	id S965472AbWKHKbh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 05:31:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965548AbWKHKbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 05:21:44 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:23459 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965368AbWKHKVm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 05:21:42 -0500
-Date: Wed, 8 Nov 2006 02:21:36 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Avoid allocating during interleave from almost full nodes
-Message-Id: <20061108022136.3b9b0748.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0611060854000.25351@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
-	<20061103134633.a815c7b3.akpm@osdl.org>
-	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
-	<20061103143145.85a9c63f.akpm@osdl.org>
-	<20061103172605.e646352a.pj@sgi.com>
-	<20061103174206.53f2c49e.akpm@osdl.org>
-	<20061104025128.ca3c9859.pj@sgi.com>
-	<Pine.LNX.4.64.0611060854000.25351@schroedinger.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Nov 2006 05:31:36 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:56547 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965515AbWKHKbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 05:31:35 -0500
+Message-ID: <4551B1ED.2000405@sgi.com>
+Date: Wed, 08 Nov 2006 11:31:09 +0100
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: =?ISO-8859-1?Q?Fernando_Luis_V=E1zquez_Cao?= 
+	<fernando@oss.ntt.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Robin Holt <holt@sgi.com>, Dean Nelson <dcn@sgi.com>,
+       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-ia64 <linux-ia64@vger.kernel.org>,
+       Tony Luck <tony.luck@gmail.com>
+Subject: Re: [PATCH 0/1] mspec driver: compile error
+References: <1162881017.13700.105.camel@sebastian.intellilink.co.jp>	<4550609A.7010908@sgi.com>	<20061107133512.a49b11e0.akpm@osdl.org>	<1162977589.7805.77.camel@sebastian.intellilink.co.jp>	<4551A66A.2070506@sgi.com>	<1162979130.7805.80.camel@sebastian.intellilink.co.jp> <20061108015618.571242fb.akpm@osdl.org>
+In-Reply-To: <20061108015618.571242fb.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph wrote:
-> On Sat, 4 Nov 2006, Paul Jackson wrote:
+Andrew Morton wrote:
+> On Wed, 08 Nov 2006 18:45:30 +0900
+> Fernando Luis Vázquez Cao <fernando@oss.ntt.co.jp> wrote:
+>> On Wed, 2006-11-08 at 10:42 +0100, Jes Sorensen wrote:
+>>> Given that MSPEC is clearly marked as depending on IA64, it seems bogus
+>>> for i386 allmodconfig to barf over it and the problem should be fixed
+>>> there instead IMHO.
+>> Agreed. That is why I asked if that was allmodconfig's expected
+>> behaviour. Andrew?
 > 
-> >   Do you know of any existing counters that we could use like this?
-> > 
-> > Adding a system wide count of pages allocated or scanned, just for
-> > these fullnode hint caches, bothers me.
-> 
-> There are already such counters. PGALLOC_* and PGSCAN_*. See 
-> include/linux/vmstat.h
+> kconfig's `select' isn't very smart.  This is one of the reasons why one
+> should avoid using it.
 
+Hmmm, so what do we do? I really don't like the idea that one has to
+manually select the uncached allocator in order for mspec to be
+available.
 
-  Andrew,
+Alternatively can move the Kconfig field for MSPEC to arch/ia64/Kconfig,
+but that seems a bit dodgy too.
 
-    I'm willing to take a shot at replacing the wall clock time
-    base with one of these vm counters, in my patch in *-mm:
-
-	memory-page_alloc-zonelist-caching-speedup.patch
-
-    But it will be a few weeks before I can get to it.
-
-    I really need to do some other stuff first.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Cheers,
+Jes

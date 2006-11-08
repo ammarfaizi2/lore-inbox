@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161334AbWKHX2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161343AbWKHXd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161334AbWKHX2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 18:28:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754673AbWKHX2Y
+	id S1161343AbWKHXd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 18:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161712AbWKHXd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 18:28:24 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:19436 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1754670AbWKHX2X convert rfc822-to-8bit (ORCPT
+	Wed, 8 Nov 2006 18:33:57 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:6815 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1161343AbWKHXd4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 18:28:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=BzCGnekO1wop004ZHkuVk7kT9HpxNd5+kVB4tGK3NfdtR9Xlky+M5YPK9pSulxYPN8XM58AWY4z6v117DfTLfng687buKEmofB+Dwg6K4wpU2MwOhCW0pV5NMyt2JKWN7/3v1ns0qy7PpcZuGPfU4YpvWGg/6mqX4OGXnyEjwvg=
-Date: Thu, 9 Nov 2006 00:28:02 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Message-Id: <20061109002802.f61804fa.diegocg@gmail.com>
-In-Reply-To: <1163024531.3138.406.camel@laptopd505.fenrus.org>
-References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com>
-	<1163024531.3138.406.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 8 Nov 2006 18:33:56 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc5-mm1
+Date: Thu, 9 Nov 2006 00:31:34 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
+In-Reply-To: <20061108015452.a2bb40d2.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611090031.35069.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 08 Nov 2006 23:22:11 +0100,
-Arjan van de Ven <arjan@infradead.org> escribió:
-
-> > There are many parts of the kernel that are not documented.
+On Wednesday, 8 November 2006 10:54, Andrew Morton wrote:
 > 
-> this is where the OSDL Documentation Person will help a lot; a full time
-> person.
+> Temporarily at
+> 
+> http://userweb.kernel.org/~akpm/2.6.19-rc5-mm1/
+> 
+> will turn up at
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm1/
+> 
+> when kernel.org mirroring catches up.
+> 
+> 
+> 
+> - Merged the Kernel-based Virtual Machine patches.  See kvm.sf.net for
+>   userspace tools, instructions, etc.
+> 
+>   It needs a recent binutils to build.
+> 
+> - The hrtimer+dynticks code still doesn't work right for machines which halt
+>   their TSC in low-power states.
 
-Maybe it's just me, but wouldn't be this fixed by just asking developers
-to document their code? I maintain the LinuxChanges page at kernelnewbies
-and very often I see things merged with zero documentation that I can't
-understand even trying to understand the code and I need some googling.
-For example, in 2.6.19 there're several "UTS namespace" patches that I
-just don't really know exactly what they do...
+On my HPC nx6325 it doesn't even reach the point in which the messages become
+visible on the console, so I'm unable to get any debug info from it.
 
-One of the biggest problems I see when looking at Documentation/ (I
-tried to update and fix the sysctl documentation; someone probably feed
-me some drugs) is that out-of-code documentation that tries to explain
-what the code does, like sysctls, just gets outdated (and that's if the
-feature is lucky enought to get documented :) 
+Will do a binary search tomorrow (unless someone finds the solution before).
 
-The "in-code" documentation using kernel-doc seems to incite developers
-to document their code and update it. I think that it should be possible
-to document things like sysctls or sysfs. Sysfs really needs something
-like that, there's a lot of things in sysfs that aren't documented at all
-and the few ones that are documented in Documentation/ are documented
-in separated files that _will_ get outdated just like sysctls did. Not
-that a "documentation guy" is a bad idea, but I think that getting the
-developers envolved in the documentation process would be a better first
-step :)
+Greetings,
+Rafael

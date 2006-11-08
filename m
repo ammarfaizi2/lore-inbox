@@ -1,87 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754631AbWKHSOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754621AbWKHSPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754631AbWKHSOS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 13:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754621AbWKHSOS
+	id S1754621AbWKHSPw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 13:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754636AbWKHSPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 13:14:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13990 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1754631AbWKHSOQ (ORCPT
+	Wed, 8 Nov 2006 13:15:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34514 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1754621AbWKHSPv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 13:14:16 -0500
-Date: Wed, 8 Nov 2006 10:13:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: "Hesse, Christian" <mail@earthworm.de>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.19-rc5-mm1
-Message-Id: <20061108101346.c2c3c862.akpm@osdl.org>
-In-Reply-To: <200611081557.21516.m.kozlowski@tuxland.pl>
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
-	<200611081332.36644.mail@earthworm.de>
-	<200611081354.23671.m.kozlowski@tuxland.pl>
-	<200611081557.21516.m.kozlowski@tuxland.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Nov 2006 13:15:51 -0500
+Date: Wed, 8 Nov 2006 13:04:31 -0500 (EST)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-20.boston.redhat.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, arjan@infradead.org, rdreier@cisco.com
+Subject: Re: locking hierarchy based on lockdep
+In-Reply-To: <20061107235342.GA5496@elte.hu>
+Message-ID: <Pine.LNX.4.64.0611081254150.18340@dhcp83-20.boston.redhat.com>
+References: <Pine.LNX.4.64.0611061315380.29750@dhcp83-20.boston.redhat.com>
+ <20061106200529.GA15370@elte.hu> <Pine.LNX.4.64.0611071833450.22572@dhcp83-20.boston.redhat.com>
+ <20061107235342.GA5496@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2006 15:57:20 +0100
-Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
 
-> > > > 	This was seen on athlon machine with 'make allmodconfig'.
-> > > 
-> > > You need binutils >= 2.16.91.0.2 if CONFIG_KVM is enabled. See "[PATCH 0/14] 
-> > > KVM: Kernel-based Virtual Machine (v4)" for details and discussion.
-> > 
-> > True. Thanks.
+On Wed, 8 Nov 2006, Ingo Molnar wrote:
+
 > 
-> binutils upgrade helped. Another problem (also in 2.6.19-rc4-mm2) is:
+> * Jason Baron <jbaron@redhat.com> wrote:
 > 
->   CC [M]  drivers/media/video/pwc/pwc-uncompress.o
-> In file included from drivers/media/video/pwc/pwc-uncompress.c:29:
-> include/asm/current.h: In function `get_current':
-> include/asm/current.h:11: error: `size_t' undeclared (first use in this function)
-> include/asm/current.h:11: error: (Each undeclared identifier is reported only once
-> include/asm/current.h:11: error: for each function it appears in.)
-> make[4]: *** [drivers/media/video/pwc/pwc-uncompress.o] Error 1
-> make[3]: *** [drivers/media/video/pwc] Error 2
-> make[2]: *** [drivers/media/video] Error 2
-> make[1]: *** [drivers/media] Error 2
-> make: *** [drivers] Error 2
+> > > this would certainly be the simplest thing to do - we could extend 
+> > > /proc/lockdep with the list of 'immediately after' locks separated by 
+> > > commas. (that list already exists: it's the lock_class.locks_after list)
+> >
+> > So below is patch that does what you suggest, although i had to add 
+> > the concept of 'distance' to the patch since the locks_after list 
+> > loses this dependency info afaict. i also wrote a user space program 
+> > to sort the locks into cluster of interelated locks and then sorted 
+> > within these clusters...the results show one large clump of 
+> > locks...perhaps there are a few locks that time them all together like 
+> > scheduler locks...but i couldn't figure out which ones to exclude to 
+> > make the list look really pretty (also, there could be a bug in my 
+> > program :). Anyways i'm including my test program and its output 
+> > too...
 > 
-> It is the same athlon box with 'make allmodconfig'.
+> nice!
 > 
-> Linux localhost 2.6.16-gentoo-r13 #4 PREEMPT Sat Oct 14 17:47:21 CEST 2006 i686 AMD Athlon(tm) XP 1700+ AuthenticAMD GNU/Linux
->  
-> Gnu C                  3.4.6
+> small detail: i'm wondering why 'distance' is needed explicitly? The 
+> dependency graph as it is represented by locks_after should be a full 
+> representation of all locking dependencies. What is the intended 
+> definition of 'distance' - the distance from the root of the dependency 
+> tree? (Maybe i'm misunderstanding what you are trying to achieve.)
+> 
 
-Well I dunno - I cannot reproduce this with gcc-3.4.2.
+'distance' is associated with a link, and is meant to represent the number 
+of intervening locks. So a distance of 1 b/w say lock a and b is to say 
+there is no intervening lock, whereas 2 would mean there is 1 
+intervening lock etc.
 
-I assume what's happening is that
+The reason i added this was that in my algorithm to order locks, say i 
+come to lock a, which has lock b and lock c in its 'after' list. I don't 
+know at that point if lock b needs to come before c, or maybe that c has 
+to come before b.
 
-	get_current->read_pda->pda_from_op->pda_offset->offsetof
+You are right though, i think that the data in the locks after lists is 
+sufficient to re-create the entire graph, since its acyclic, but by simply 
+printing out nodes of distance '1', the algorithm is greatly simplified. 
+Otherwise, i'd have to first reconstruct the graph...
 
-is using the gcc-3 version of offsetof:
+Also, i was only looking for a link to be label as distance 1, or not...so 
+we only need to associate 1 bit of information with each link, if you are 
+concerned about struture bloat.
 
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+thanks,
 
-only we don't have a definition of size_t in scope.
-
-Except pda.h includes linux/types.h.
-
-Another possibility is that the compiler is being silly and is expanding
-typeof(a_size_t_type) into `size_t' and is then unable to find a definition
-of size_t.
-
-Hey, I've got an idea: I'll punt this to the maintainer ;)
-
-
-Can you please run
-
-	make drivers/media/video/pwc/pwc-uncompress.i
-
-and then make that file available?  (It's half a meg - just mail it to me
-privately and I'll upload it).  
+-jason

@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752945AbWKGXyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753733AbWKHACc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752945AbWKGXyo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Nov 2006 18:54:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753691AbWKGXyo
+	id S1753733AbWKHACc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Nov 2006 19:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753746AbWKHACc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Nov 2006 18:54:44 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14265 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1752945AbWKGXyn (ORCPT
+	Tue, 7 Nov 2006 19:02:32 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:5264 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1753733AbWKHACb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Nov 2006 18:54:43 -0500
-Date: Wed, 8 Nov 2006 00:53:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jason Baron <jbaron@redhat.com>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org, rdreier@cisco.com
-Subject: Re: locking hierarchy based on lockdep
-Message-ID: <20061107235342.GA5496@elte.hu>
-References: <Pine.LNX.4.64.0611061315380.29750@dhcp83-20.boston.redhat.com> <20061106200529.GA15370@elte.hu> <Pine.LNX.4.64.0611071833450.22572@dhcp83-20.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Nov 2006 19:02:31 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alasdair G Kergon <agk@redhat.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Date: Wed, 8 Nov 2006 01:00:17 +0100
+User-Agent: KMail/1.9.1
+Cc: Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Ingo Molnar <mingo@elte.hu>, Srinivasa DS <srinivasa@in.ibm.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611080005.50070.rjw@sisk.pl> <20061107234951.GD30653@agk.surrey.redhat.com>
+In-Reply-To: <20061107234951.GD30653@agk.surrey.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611071833450.22572@dhcp83-20.boston.redhat.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200611080100.18290.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday, 8 November 2006 00:49, Alasdair G Kergon wrote:
+> On Wed, Nov 08, 2006 at 12:05:49AM +0100, Rafael J. Wysocki wrote:
+> > But freeze_bdev() is supposed to return the result of get_super(bdev)
+> > _unconditionally_.  Moreover, in its current form freeze_bdev() _cannot_
+> > _fail_, so I don't see how this change doesn't break any existing code.
+> > For example freeze_filesystems() (recently added to -mm) will be broken
+> > if the down_trylock() is unsuccessful.
+>  
+> I hadn't noticed that -mm patch.  I'll take a look. Up to now, device-mapper 
+> (via dmsetup) and xfs (via xfs_freeze, which dates from before device-mapper
+> handled this automatically) were the only users.  Only one freeze should be
+> issued at once.  A freeze is a temporary thing, normally used while creating a
+> snapshot.  (One problem we still have is lots of old documentation on the web
+> advising people to run xfs_freeze before creating device-mapper snapshots.)
+> 
+> You're right that the down_trylock idea is more trouble than it's worth and
+> should be scrapped.
 
-* Jason Baron <jbaron@redhat.com> wrote:
+Well, having looked at it once again I think I was wrong that this change would
+break freeze_filesystems(), because it only calls freeze_bdev() after checking
+if sb->s_frozen is not set to SB_FREEZE_TRANS (freeze_filesystems() is only
+called after all of the userspace processes have been frozen).
 
-> > this would certainly be the simplest thing to do - we could extend 
-> > /proc/lockdep with the list of 'immediately after' locks separated by 
-> > commas. (that list already exists: it's the lock_class.locks_after list)
->
-> So below is patch that does what you suggest, although i had to add 
-> the concept of 'distance' to the patch since the locks_after list 
-> loses this dependency info afaict. i also wrote a user space program 
-> to sort the locks into cluster of interelated locks and then sorted 
-> within these clusters...the results show one large clump of 
-> locks...perhaps there are a few locks that time them all together like 
-> scheduler locks...but i couldn't figure out which ones to exclude to 
-> make the list look really pretty (also, there could be a bug in my 
-> program :). Anyways i'm including my test program and its output 
-> too...
+However, XFS_IOC_FREEZE happily returns 0 after calling freeze_bdev(),
+apparetnly assuming that it won't fail.
 
-nice!
+Greetings,
+Rafael
 
-small detail: i'm wondering why 'distance' is needed explicitly? The 
-dependency graph as it is represented by locks_after should be a full 
-representation of all locking dependencies. What is the intended 
-definition of 'distance' - the distance from the root of the dependency 
-tree? (Maybe i'm misunderstanding what you are trying to achieve.)
 
-	Ingo
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

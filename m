@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754493AbWKHJpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754492AbWKHJy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754493AbWKHJpd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 04:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754491AbWKHJpd
+	id S1754492AbWKHJy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 04:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754499AbWKHJy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 04:45:33 -0500
-Received: from ns.oss.ntt.co.jp ([222.151.198.98]:50585 "EHLO
-	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
-	id S1754487AbWKHJpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 04:45:32 -0500
-Subject: Re: [PATCH 0/1] mspec driver: compile error
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
-	<fernando@oss.ntt.co.jp>
-To: Jes Sorensen <jes@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Robin Holt <holt@sgi.com>, Dean Nelson <dcn@sgi.com>,
-       Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ia64 <linux-ia64@vger.kernel.org>,
-       Tony Luck <tony.luck@gmail.com>
-In-Reply-To: <4551A66A.2070506@sgi.com>
-References: <1162881017.13700.105.camel@sebastian.intellilink.co.jp>
-	 <4550609A.7010908@sgi.com>  <20061107133512.a49b11e0.akpm@osdl.org>
-	 <1162977589.7805.77.camel@sebastian.intellilink.co.jp>
-	 <4551A66A.2070506@sgi.com>
-Content-Type: text/plain; charset=utf-8
-Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
-	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
-	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
-Date: Wed, 08 Nov 2006 18:45:30 +0900
-Message-Id: <1162979130.7805.80.camel@sebastian.intellilink.co.jp>
+	Wed, 8 Nov 2006 04:54:57 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8871 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1754492AbWKHJy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 04:54:56 -0500
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eric Sandeen <sandeen@redhat.com>, Alasdair G Kergon <agk@redhat.com>,
+       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Ingo Molnar <mingo@elte.hu>, Srinivasa DS <srinivasa@in.ibm.com>
+In-Reply-To: <20061107150017.fb78a327.akpm@osdl.org>
+References: <20061107183459.GG6993@agk.surrey.redhat.com>
+	 <20061107122837.54828e24.akpm@osdl.org> <45510C73.7060408@redhat.com>
+	 <20061107150017.fb78a327.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 08 Nov 2006 10:54:45 +0100
+Message-Id: <1162979690.3138.273.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 10:42 +0100, Jes Sorensen wrote:
-> Fernando Luis Vázquez Cao wrote:
-> > On Tue, 2006-11-07 at 13:35 -0800, Andrew Morton wrote:
-> > The problem occurs because i386 (as expected) does not define
-> > IA64_UNCACHED_ALLOCATOR. I thought that making the select expression
-> > depend on IA64 as shown below might silence allmodconfig:
-> > 
-> >   select IA64_UNCACHED_ALLOCATOR if IA64
-> > 
-> > But my guess was wrong and the same warning appeared. It seems that "if"
-> > expressions do not prevent allmodconfig from checking the symbol
-> > indicated by the select the "if" is conditioning. By the way, is this
-> > the expected behaviour? If so, we need to get rid of the reverse
-> > dependency, modify the "depends on" line accordingly, and make
-> > IA64_UNCACHED_ALLOCATOR selectable. I may be missing the whole point so
-> > please correct if I am wrong.
-> 
-> This patch is a bad solution as it requires people to manually select
-> the uncached allocator. It should be enabled automatically by MSPEC,
-> not the other way round.
-> 
-> Given that MSPEC is clearly marked as depending on IA64, it seems bogus
-> for i386 allmodconfig to barf over it and the problem should be fixed
-> there instead IMHO.
-Agreed. That is why I asked if that was allmodconfig's expected
-behaviour. Andrew?
 
-Cheers,
+> 
+> You're asking me? ;)
+> 
+> Guys, I'm going to park this patch pending a full description of what it
+> does, a description of what the above hunk is doing and pending an
+> examination of whether we'd be better off changing the mutex-debugging code
+> rather than switching to semaphores.
 
-Fernando
+It's not used as a mutex. Sad but true. It's not so easy to say "just
+shut up the debug code", because it's just not that easy: The interface
+allows double "unlock", which is fine for semaphores for example. There
+fundamentally is no "owner" for this case, and all the mutex concepts
+assume that there is an owner. If the owner goes away, pointers to their
+task struct for example are no longer valid (used by lockdep and the
+other debugging parts). It's what makes the difference between a mutex
+and a semaphore: a mutex has an owner and several semantics follow from
+that. These semantics allow a more efficient implementation (no multiple
+"owners" possible) but once you go away from that fundamental property,
+soon we'll see "oh and it needs <this extra code> to cover the wider
+semantics correctly.. and soon you have a semaphore again.
+
+Let true semaphores be semaphores, and make all real mutexes mutexes.
+But lets not make actual semaphores use mutex code...
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

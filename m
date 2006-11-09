@@ -1,79 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965965AbWKINAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965983AbWKINTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965965AbWKINAr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 08:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965974AbWKINAr
+	id S965983AbWKINTX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 08:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965984AbWKINTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 08:00:47 -0500
-Received: from dexter.tse.gov.br ([200.252.157.99]:14810 "EHLO
-	dexter.tse.gov.br") by vger.kernel.org with ESMTP id S965965AbWKINAq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 08:00:46 -0500
-X-Virus-Scanner: This message was checked by NOD32 Antivirus system
-	NOD32 for Linux Mail Server.
-	For more information on NOD32 Antivirus System,
-	please, visit our website: http://www.nod32.com/.
-X-Virus-Scanner: This message was checked by NOD32 Antivirus system
-	for Linux Server. For more information on NOD32 Antivirus System,
-	please, visit our website: http://www.nod32.com/.
-Message-ID: <4553345A.3090305@tse.gov.br>
-Date: Thu, 09 Nov 2006 10:59:54 -0300
-From: Saulo <slima@tse.gov.br>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE cs5530 hda: lost interrupt
-References: <455254B8.4000704@tse.gov.br> <45526E11.9000503@rtr.ca>
-In-Reply-To: <45526E11.9000503@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 9 Nov 2006 08:19:23 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:50361 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S965983AbWKINTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 08:19:22 -0500
+Date: Thu, 9 Nov 2006 22:18:57 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [PATHC] [2.6.19-rc4-mm2] driver/base/memory.c :: remove
+ warnings of sysfs_create_file()
+Message-Id: <20061109221857.77df443a.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20061108133859.cdaa8127.akpm@osdl.org>
+References: <20061108155921.62f9a68f.kamezawa.hiroyu@jp.fujitsu.com>
+	<20061108133859.cdaa8127.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
+On Wed, 8 Nov 2006 13:38:59 -0800
+Andrew Morton <akpm@osdl.org> wrote:
+> I think the below is better?
+> 
+Ah yes. It seems better. Thank you.
 
-> Saulo wrote:
->
->> Hi all,
->>
->> any help is wellcome...
->>
->> --------------------
->> CPU: NSC Geode(TM) Integrated Processor by National Semi stepping 02
->> ...
->> ide: Assuming 33MHz system bus speed for PIO modes; override with 
->> idebus=xx
->> CS5530: ide CONTROLLER AT pci SLOT 0000:00:12.2
->> CS5530: chipset revision 0
->> CS5530: not 100% native mode: will probe irqs later
->> PCI: Enabling bus mastering for device 0000:00:12.2
->> PCI: Setting latency timer of device 0000:00:12.2 to 64
->>     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:pio, hdb:pio
->>     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
->> hda: CF 32MB, CFA DISK drive
->> hda: IRQ probe failed (0xfeba)    >>> I think my problem may start 
->> here, but when I fix to IRQ 14 in try_to_identify() to hda the 
->> problem persist
->> ide0 at 0x1f0-0x1f7,0x3f6 on irq14
->> hdc: Hitachi CV 5.1.1, CFA DISK drive
->> ide1 at 0x170-0x177,0x376 on irq 15 (serialized with ide0)
->> hda: max request size: 128KiB
->> hda: 62976 sectors (32MB) w/1KiB Cache, CHS=492/4/32
->> hda:<4>hda: lost interrupt
->> hda: lost interrupt
->> hda: lost interrupt
->> ...
->
-> ...
->
-> Send me one of those devices and I'll fix it.
->
-> Cheers
+-Kame
+
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> Do proper error-checking and propagation in drivers/base/memory.c, hence fix
+> __must_check warnings.
+> 
+> Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  drivers/base/memory.c |   34 +++++++++++++++++++++++-----------
+>  1 files changed, 23 insertions(+), 11 deletions(-)
+> 
+> diff -puN drivers/base/memory.c~driver-base-memoryc-remove-warnings-of drivers/base/memory.c
+> --- a/drivers/base/memory.c~driver-base-memoryc-remove-warnings-of
+> +++ a/drivers/base/memory.c
+> @@ -290,9 +290,8 @@ static CLASS_ATTR(block_size_bytes, 0444
+>  
+>  static int block_size_init(void)
+>  {
+> -	sysfs_create_file(&memory_sysdev_class.kset.kobj,
+> -		&class_attr_block_size_bytes.attr);
+> -	return 0;
+> +	return sysfs_create_file(&memory_sysdev_class.kset.kobj,
+> +				&class_attr_block_size_bytes.attr);
+>  }
+>  
+>  /*
+> @@ -323,12 +322,14 @@ static CLASS_ATTR(probe, 0700, NULL, mem
+>  
+>  static int memory_probe_init(void)
+>  {
+> -	sysfs_create_file(&memory_sysdev_class.kset.kobj,
+> -		&class_attr_probe.attr);
+> -	return 0;
+> +	return sysfs_create_file(&memory_sysdev_class.kset.kobj,
+> +				&class_attr_probe.attr);
+>  }
+>  #else
+> -#define memory_probe_init(...)	do {} while (0)
+> +static inline int memory_probe_init(void)
+> +{
+> +	return 0;
+> +}
+>  #endif
+>  
+>  /*
+> @@ -431,9 +432,12 @@ int __init memory_dev_init(void)
+>  {
+>  	unsigned int i;
+>  	int ret;
+> +	int err;
+>  
+>  	memory_sysdev_class.kset.uevent_ops = &memory_uevent_ops;
+>  	ret = sysdev_class_register(&memory_sysdev_class);
+> +	if (ret)
+> +		goto out;
+>  
+>  	/*
+>  	 * Create entries for memory sections that were found
+> @@ -442,11 +446,19 @@ int __init memory_dev_init(void)
+>  	for (i = 0; i < NR_MEM_SECTIONS; i++) {
+>  		if (!valid_section_nr(i))
+>  			continue;
+> -		add_memory_block(0, __nr_to_section(i), MEM_ONLINE, 0);
+> +		err = add_memory_block(0, __nr_to_section(i), MEM_ONLINE, 0);
+> +		if (!ret)
+> +			ret = err;
+>  	}
+>  
+> -	memory_probe_init();
+> -	block_size_init();
 > -
+> +	err = memory_probe_init();
+> +	if (!ret)
+> +		ret = err;
+> +	err = block_size_init();
+> +	if (!ret)
+> +		ret = err;
+> +out:
+> +	if (ret)
+> +		printk(KERN_ERR "%s() failed: %d\n", __FUNCTION__, ret);
+>  	return ret;
+>  }
+> _
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Sorry... I would like but I can´t send one of this device to you. If you 
-have any idea about this problem, any help is wellcome.
-
-Saulo

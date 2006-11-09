@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424227AbWKIXPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424248AbWKIXR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424227AbWKIXPw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 18:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424249AbWKIXPv
+	id S1424248AbWKIXR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 18:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424250AbWKIXR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 18:15:51 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35047 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1424227AbWKIXPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 18:15:51 -0500
-Date: Fri, 10 Nov 2006 00:15:33 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Holzheu <holzheu@de.ibm.com>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       mschwid2@de.ibm.com
-Subject: Re: How to document dimension units for virtual files?
-Message-ID: <20061109231533.GE2616@elf.ucw.cz>
-References: <20061108175412.3c2be30c.holzheu@de.ibm.com>
+	Thu, 9 Nov 2006 18:17:26 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:60937 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1424248AbWKIXRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 18:17:25 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] sysctl: Undeprecate sys_sysctl
+Date: Thu, 9 Nov 2006 23:17:26 +0000
+User-Agent: KMail/1.9.5
+References: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061108175412.3c2be30c.holzheu@de.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200611092317.26459.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wednesday 08 November 2006 19:00, you wrote:
+> The basic issue is that despite have been deprecated and warned about
+> as a very bad thing in the man pages since its inception there are a
+> few real users of sys_sysctl.  It was my assumption that because
+> sysctl had been deprecated for all of 2.6 there would be no user space
+> users by this point, so I initially gave sys_sysctl a very short
+> deprecation period.
+>
+> Now that I know there are a few real users the only sane way to
+> proceed with deprecation is to push the time limit out to a year or
+> two work and work with distributions that have big testing pools like
+> fedora core to find these last remaining users.
 
-> What about the following ...
+Eric, do you have a list of the remaining users? It'd be good to know for 
+people using Linux in an embedded environment, where they may want to switch 
+off the option, but only if it doesn't break their userspace.
 
-Looks good to me.
-
-> +> ls /sys/kernel/debug/sysinfo
-> +free_mem_KiB
-> +online_time_ms
-> +cpu_time_us
-> +
-> +> cat /sys/kernel/debug/free_mem_KiB
-> +147536
-
-Someone had idea of free_mem:KiB ... which is quite neat.
-
-Anyway, Greg's opinion was that we should just document units in
-documentation and not pollute names with that. I'm not sure if it
-works for battery (because of current:mA vs. current:mW confusion).
-
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

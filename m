@@ -1,62 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754472AbWKIDB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754568AbWKIDKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754472AbWKIDB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 22:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754517AbWKIDB5
+	id S1754568AbWKIDKV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 22:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754575AbWKIDKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 22:01:57 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:64994 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1754472AbWKIDB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 22:01:56 -0500
-Date: Wed, 8 Nov 2006 22:01:22 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: LKML <linux-kernel@vger.kernel.org>
-cc: sct@redhat.com, ak@suse.de, herbert@gondor.apana.org.au,
-       xen-devel@lists.xensource.com
-Subject: [PATCH] shorten the x86_64 boot setup GDT to what the comment says
-Message-ID: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Nov 2006 22:10:21 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:666 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1754568AbWKIDKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 22:10:20 -0500
+Date: Wed, 8 Nov 2006 19:09:44 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Reuben Farrelly <reuben-linuxkernel@reub.net>,
+       linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
+Subject: [PATCH] cpufreq: select consistently (Re: 2.6.19-rc5-mm1)
+Message-Id: <20061108190944.6849b8d4.randy.dunlap@oracle.com>
+In-Reply-To: <20061108201539.GB32721@redhat.com>
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
+	<4551BB5E.6090602@reub.net>
+	<20061108120547.78048229.akpm@osdl.org>
+	<20061108201539.GB32721@redhat.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 8 Nov 2006 15:15:39 -0500 Dave Jones wrote:
 
-Andi,
+> On Wed, Nov 08, 2006 at 12:05:47PM -0800, Andrew Morton wrote:
+> 
+>  > The problem is that you have 
+>  > 
+>  > > CONFIG_CPU_FREQ_TABLE=m
+>  > > CONFIG_X86_ACPI_CPUFREQ=y
+>  > 
+>  > but acpi-cpufreq needs the stuff in freq_table.c.
+>  > 
+>  > This happens again and again and again and again.  I wish people would just
+>  > stop using `select'.  It.  Doesn't.  Work.
+>  > 
+>  > Either we fix select or we stop using the damn thing.
+> 
+> So, why doesn't select set the symbol it's selecting to the
+> same value as the symbol being configured ?
+> That would solve the issue no?
 
-Stephen Tweedie, Herbert Xu, and myself have been struggling with a very
-nasty bug in Xen.  But it also pointed out a small bug in the x86_64
-kernel boot setup.
+Why does arch/i386/kernel/cpu/cpufreq/Kconfig say:
 
-The GDT limit being setup by the initial bzImage code when entering into
-protected mode is way too big.  The comment by the code states that the
-size of the GDT is 2048, but the actual size being set up is much bigger
-(32768). This happens simply because of one extra '0'.
+config X86_ACPI_CPUFREQ
+	tristate "ACPI Processor P-States driver"
+	select CPU_FREQ_TABLE
+	depends on ACPI_PROCESSOR
 
-Instead of setting up a 0x800 size, 0x8000 is set up.  On bare metal this
-is fine because the CPU wont load any segments unless  they are
-explicitly used.  But unfortunately, this breaks Xen on vmx FV, since it
-(for now) blindly loads all the segments into the VMCS if they are less
-than the gdt limit. Since the real mode segments are around 0x3000, we are
-getting junk into the VMCS and that later causes an exception.
+but arch/x86_64/kernel/cpufreq/Kconfig say:
 
-Stephen Tweedie has written up a patch to fix the Xen side and will be
-submitting that to those folks. But that doesn't excuse the GDT limit
-being a magnitude too big.
+config X86_ACPI_CPUFREQ
+	tristate "ACPI Processor P-States driver"
+	depends on ACPI_PROCESSOR
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+# NOTE: no "select" on the latter one.  // Randy
 
-Index: linux-2.6.19-rc2/arch/x86_64/boot/setup.S
-===================================================================
---- linux-2.6.19-rc2.orig/arch/x86_64/boot/setup.S	2006-11-08 21:37:58.000000000 -0500
-+++ linux-2.6.19-rc2/arch/x86_64/boot/setup.S	2006-11-08 21:38:16.000000000 -0500
-@@ -840,7 +840,7 @@ idt_48:
- 	.word	0				# idt limit = 0
- 	.word	0, 0				# idt base = 0L
- gdt_48:
--	.word	0x8000				# gdt limit=2048,
-+	.word	0x800				# gdt limit=2048,
- 						#  256 GDT entries
 
- 	.word	0, 0				# gdt base (filled in later)
+Let's see.  Does that one-line patch fix anything?  <builds>
+
+make oldconfig
+
+< CONFIG_CPU_FREQ_TABLE=m
+> CONFIG_CPU_FREQ_TABLE=y
+
+Builds cleanly now.
+
+---
+From: Randy Dunlap <randy.dunlap@oracle.com>
+
+Make x86_64 ACPI_CPU_FREQ select CPU_FREQ_TABLE like other methods do.
+(although we should still eliminate as much use of 'select' as possible)
+
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ arch/x86_64/kernel/cpufreq/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- linux-2.6.19-rc5-mm1.orig/arch/x86_64/kernel/cpufreq/Kconfig
++++ linux-2.6.19-rc5-mm1/arch/x86_64/kernel/cpufreq/Kconfig
+@@ -49,6 +49,7 @@ config X86_SPEEDSTEP_CENTRINO_ACPI
+ 
+ config X86_ACPI_CPUFREQ
+ 	tristate "ACPI Processor P-States driver"
++	select CPU_FREQ_TABLE
+ 	depends on ACPI_PROCESSOR
+ 	help
+ 	  This driver adds a CPUFreq driver which utilizes the ACPI
+

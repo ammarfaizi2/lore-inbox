@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966060AbWKIVmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966063AbWKIVwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966060AbWKIVmT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 16:42:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965695AbWKIVmT
+	id S966063AbWKIVwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 16:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966064AbWKIVwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 16:42:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:129 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S966060AbWKIVmT (ORCPT
+	Thu, 9 Nov 2006 16:52:16 -0500
+Received: from ozlabs.org ([203.10.76.45]:20628 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S966063AbWKIVwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 16:42:19 -0500
-Date: Thu, 9 Nov 2006 22:41:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061109214159.GB2616@elf.ucw.cz>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611092059.48722.rjw@sisk.pl> <20061109211722.GA2616@elf.ucw.cz> <200611092218.58970.rjw@sisk.pl>
+	Thu, 9 Nov 2006 16:52:12 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611092218.58970.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
+Message-ID: <17746.52343.815568.368590@cargo.ozlabs.ibm.com>
+Date: Thu, 9 Nov 2006 17:36:39 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Christoph Raisch <RAISCH@de.ibm.com>
+Cc: Roland Dreier <rdreier@cisco.com>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 2.6.19 2/4] ehca: hcp_phyp.c: correct page mapping in 64k
+	page mode
+In-Reply-To: <OF60EFC2CD.F8FB1D23-ONC1257220.00315F90-C1257220.0038B8E3@de.ibm.com>
+References: <aday7qngiuf.fsf@cisco.com>
+	<OF60EFC2CD.F8FB1D23-ONC1257220.00315F90-C1257220.0038B8E3@de.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Christoph Raisch writes:
 
-> > > This is from a work queue, so in fact from a process context, but from
-> > > a process that is running with PF_NOFREEZE.
-> > 
-> > Why not simply &~ PF_NOFREEZE on that particular process? Filesystems
-> > are free to use threads/work queues/whatever, but refrigerator should
-> > mean "no writes to filesystem" for them...
+> ioremap maps 4k pages on 4k kernels and on 64k pages on 64k kernels. So far
+> the theory.
 > 
-> But how we differentiate worker_threads used by filesystems from the
-> other ones?
+> This is true for memory.
 
-I'd expect filesystems to do &~ PF_NOFREEZE by hand.
+And for I/O. :)  ioremap updates the (Linux) page tables that map the
+vmalloc/ioremap area, and that is at page granularity.  So there is in
+fact no difference in the end result in the page tables whether you
+ask to map a small amount inside a page, or the whole page.
 
-> BTW, I think that worker_threads run with PF_NOFREEZE for a reason,
-> but what exactly is it?
+> On POWER the ebus memory is mapped by H_ENTER.
+> The hypervisor checks for 4k page size on H_ENTER, reason see above.
 
-I do not think we had particulary good reasons...
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+The next part of the story is that the low-level MMU code on System-P
+(pSeries) machines only does the H_ENTER when you access an I/O
+mapping.  It does H_ENTER for 4k pages for non-cacheable mappings,
+and it only does the H_ENTER for the 4k subpages of a 64k page that
+the kernel actually accesses.
+
+So Roland is correct in his comment about how ioremap is called.
+
+Regards,
+Paul.

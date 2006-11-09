@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966044AbWKIVLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965928AbWKIVLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966044AbWKIVLT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 16:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966058AbWKIVLT
+	id S965928AbWKIVLN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 16:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966044AbWKIVLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 16:11:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:13327 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S966044AbWKIVLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 16:11:18 -0500
-Date: Thu, 9 Nov 2006 22:11:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Message-ID: <20061109211121.GW4729@stusta.de>
-References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com> <1163024531.3138.406.camel@laptopd505.fenrus.org> <20061108145150.80ceebf4.akpm@osdl.org> <1163064401.3138.472.camel@laptopd505.fenrus.org> <20061109013645.7bef848d.akpm@osdl.org> <1163065920.3138.486.camel@laptopd505.fenrus.org> <20061109111212.eee33367.akpm@osdl.org> <1163100115.3138.524.camel@laptopd505.fenrus.org>
+	Thu, 9 Nov 2006 16:11:13 -0500
+Received: from mail1.key-systems.net ([81.3.43.253]:49108 "HELO
+	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
+	id S965928AbWKIVLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 16:11:12 -0500
+Message-ID: <4553996C.2060605@scientia.net>
+Date: Thu, 09 Nov 2006 22:11:08 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.7 (X11/20061014)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163100115.3138.524.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Roger Heflin <rheflin@atipa.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Strange write errors on FAT32 partition (maybe an FAT32 bug?!)
+References: <4550A481.2010408@scientia.net> <87psbzrss2.fsf@duaron.myhome.or.jp> <4553744E.3050007@scientia.net> <45539188.5080607@atipa.com> <45539366.7070809@scientia.net> <45539588.7020504@atipa.com> <45539699.40105@scientia.net> <455397AE.2040207@atipa.com>
+In-Reply-To: <455397AE.2040207@atipa.com>
+Content-Type: multipart/mixed;
+ boundary="------------070101060403030305070902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2006 at 08:21:55PM +0100, Arjan van de Ven wrote:
-> On Thu, 2006-11-09 at 11:12 -0800, Andrew Morton wrote:
-> > On Thu, 09 Nov 2006 10:52:00 +0100
-> > Arjan van de Ven <arjan@infradead.org> wrote:
-> > 
-> > > Do you have the
-> > > impression that high quality bug reports on lkml (with this I mean ones
-> > > where there is sufficient information, which are not a request for
-> > > support and where the reporter actually answers questions that are asked
-> > > him) are not getting reasonable attention? 
-> > 
-> > Yes.
-> > 
-> > And why does the report quality matter?  
-> 
-> because it matters where people spend their time. And if you count
-> bugreports that are actually distro support questions and then say "but
-> these aren't looked at" it's not fair either.
-> 
-> > If there's insufficient info you
-> > just ask for more.
-> 
-> and that does happen. And half the time people just remain silent :(
-> I know I look at a whole bunch of bugreports in areas that I work on. I
-> see a lot of other people doing something similar. That doesn't mean
-> nothing slips through. I'm sure stuff does slip through. I would HOPE
-> it's really obscure things only; but I fear it's also cases where the
-> reporter didn't put the right people on the CC as well ;(
->...
+This is a multi-part message in MIME format.
+--------------070101060403030305070902
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-There are bad bug reports, but not all bug reports are that bad.
+Roger Heflin wrote:
+> Are both disks of the same type and connected to the same
+> hardware?
+>
+> Or do they have different physical connections/drivers to the
+> machine?
 
-What if the quality of the bug report is good and the submitter is 
-responsive, and there's still zero reaction?
+The system has 2 DualCore Opterons 275, on a Tyan S2895 board...
+The disk with the originak data is a PATA disk from IBM.
+The disk where I've copied the stuff to... is a SATA.
 
-Let's make an example:
+I did several diffs the last hours between the two disks and experienced
+what you've described, that sometimes no differences sometimes there are
+differences (in different files).
 
-Since the first list I sent immediately after 2.6.19-rc1 was released, 
-kernel Bugzilla #7255 is part of my list of 2.6.19-rc regressions but 
-has gotten exactly zero developer responses.
+But note that the same happened already on the SAME disk.
+In the beginning I copied the data to another place on the same disk,
+then diffed and there were the same problems.
+So I still wonder why this never affects the original files. When I
+check sha512sums there I never get an error.
 
-What exactly were the mistakes of the submitter resulting in noone 
-caring about Bugzilla #7255?
 
-cu
-Adrian
+Right now I compile a new kernel with that module... and pray to god
+that this is not an hardware error :/
 
--- 
+--------------070101060403030305070902
+Content-Type: text/x-vcard; charset=utf-8;
+ name="calestyo.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="calestyo.vcf"
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
+Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
+CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------070101060403030305070902--

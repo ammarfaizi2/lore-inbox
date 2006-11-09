@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424147AbWKIRKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424146AbWKIRNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424147AbWKIRKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 12:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424143AbWKIRJ7
+	id S1424146AbWKIRNA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 12:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424144AbWKIRNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 12:09:59 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:30165 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1424140AbWKIRJ6 (ORCPT
+	Thu, 9 Nov 2006 12:13:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:61587 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1424127AbWKIRM6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 12:09:58 -0500
-Message-ID: <455360CF.9070600@cfl.rr.com>
-Date: Thu, 09 Nov 2006 12:09:35 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Thu, 9 Nov 2006 12:12:58 -0500
+Message-ID: <45536192.1050501@sandeen.net>
+Date: Thu, 09 Nov 2006 11:12:50 -0600
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Jano <jasieczek@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
-References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com> <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com> <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com>
-In-Reply-To: <45534D2C.6080509@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Jeff Layton <jlayton@redhat.com>
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/3] new_inode_autonum: add per-sb lastino counter and
+ add	new_inode_autonum function that guarantees i_ino uniqueness
+References: <1163085879.21469.45.camel@dantu.rdu.redhat.com>
+In-Reply-To: <1163085879.21469.45.camel@dantu.rdu.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Nov 2006 17:09:33.0533 (UTC) FILETIME=[D3B058D0:01C70421]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14802.003
-X-TM-AS-Result: No--15.130100-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Phillip: please, so not top-post
+Jeff Layton wrote:
+> - add a new per superblock s_nextino counter and change iunique to use it
+>   instead of its global inode counter
+> - make the size of the counter conditional on CONFIG_COMPAT. This is to try
+>   prevent userspace EOVERFLOWs when 32-bit programs not compiled with large
+>   offsets are run on 64-bit kernels
+> - add new_inode_autonum which guarantees that i_ino is assigned a unique val
+>   on the filesystem.
+> - Change new_inode to assign i_ino to 0 to catch filesystems that use it and
+>   don't reset it to a unique value.
 
-Please stop discouraging top posting.  There is no reason to have to 
-scroll down through a screen or two of quoted message that you  just 
-read the original of, before getting to the new subject matter.
+I like the general approach.  A few tidbits...
 
-> Jano: please, do not remove Cc people, when replying (i.e. reply to all)
-> 
-<snip>
-> There is a proc/mounts here:
-> http://lkml.org/lkml/2006/11/08/322
-> 
+- the comment for __new_inode isn't accurate, there is no @autonum
+parameter added.
 
-I didn't ask for /proc/mounts, I asked for the output of the mount 
-command with no arguments, which prints the contents of /etc/mtab.  I 
-was thinking that /etc/mtab might show the partitions as mounted even 
-though they are not, which could be why mount is complaining.
+- I'm not sure what the point of wrapping __new_inode() in new_inode()
+is.  Why not just remove the i_ino setting from new_inode, (or
+initialize it to 0*), and let new_inode_autonum() call new_inode();
+iunique() ?  Less indirection IMHO....
 
+- *does setting the new i_ino to 0 really help catch anything?  And if
+it does, perhaps just setting it in alloc_inode() with all the other
+field initializations would be more consistent.
 
+- the comment for the s_nextino field is a bit misleading, it is
+actually not used in new_inode(), only in iunique().
+
+-Eric

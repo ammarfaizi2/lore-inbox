@@ -1,110 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753543AbWKISqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754300AbWKISwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753543AbWKISqK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 13:46:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753932AbWKISqJ
+	id S1754300AbWKISwG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 13:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754358AbWKISwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 13:46:09 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:60576 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1753543AbWKISqH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 13:46:07 -0500
-Subject: Re: [PATCH -mm 3/3][AIO] - AIO completion signal notification
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Ulrich Drepper <drepper@redhat.com>, Zach Brown <zach.brown@oracle.com>,
-       Dave Jones <davej@redhat.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <1163087946.3879.43.camel@frecb000686>
-References: <1163087717.3879.34.camel@frecb000686>
-	 <1163087946.3879.43.camel@frecb000686>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 09 Nov 2006 10:46:15 -0800
-Message-Id: <1163097975.29807.18.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+	Thu, 9 Nov 2006 13:52:06 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:11756 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1753608AbWKISwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 13:52:03 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 9 Nov 2006 10:51:56 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take24 3/6] kevent: poll/select() notifications.
+In-Reply-To: <11630606373650@2ka.mipt.ru>
+Message-ID: <Pine.LNX.4.64.0611091047120.25481@alien.or.mcafeemobile.com>
+References: <11630606373650@2ka.mipt.ru>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-09 at 16:59 +0100, Sébastien Dugué wrote:
+On Thu, 9 Nov 2006, Evgeniy Polyakov wrote:
 
-> +
-> +static long aio_setup_sigevent(struct kiocb *iocb,
-> +			       struct sigevent __user *user_event)
+> +static int kevent_poll_callback(struct kevent *k)
 > +{
-> +	int error = 0;
-> +	sigevent_t event;
-> +	struct task_struct *target;
-> +	unsigned long flags;
+> +	if (k->event.req_flags & KEVENT_REQ_LAST_CHECK) {
+> +		return 1;
+> +	} else {
+> +		struct file *file = k->st->origin;
+> +		unsigned int revents = file->f_op->poll(file, NULL);
 > +
-> +	if (!access_ok(VERIFY_READ, user_event, sizeof(struct sigevent)))
-> +		return -EFAULT;
-> +
-> +	if (copy_from_user(&event, user_event, sizeof (event)))
-> +		return -EFAULT;
-> +
-> +	/* Check for the SIGEV_NONE case */
-> +	if (event.sigev_notify == SIGEV_NONE)
-> +		return 0;
-> +
-> +	/* Setup the request completion notification parameters */
-> +	iocb->ki_notify.notify = event.sigev_notify;
-> +	iocb->ki_notify.signo = event.sigev_signo;
-> +	iocb->ki_notify.value = event.sigev_value;
-> +
-> +	/* Now get the notification target */
-> +	read_lock(&tasklist_lock);
-> +
-> +	if ((target = good_sigevent(&event))) {
-> +
-> +		spin_lock_irqsave(&target->sighand->siglock, flags);
-> +
-> +		if (!(target->flags & PF_EXITING)) {
-> +			iocb->ki_notify.target = target;
-> +
-> +			spin_unlock_irqrestore(&target->sighand->siglock, flags);
-> +
-> +			/*
-> +			 * Get a ref on the task. It is dropped in really_put_req()
-> +			 * when we're done with the iocb, be it from the normal
-> +			 * completion path, the cancellation path or an error path.
-> +			 */
-> +			if (iocb->ki_notify.notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
-> +				get_task_struct(target);
-> +		} else {
-> +			spin_unlock_irqrestore(&target->sighand->siglock, flags);
-> +			error = -EINVAL;
-> +		}
-> +	} else
-> +		error = -EINVAL;
-> +
-> +	read_unlock(&tasklist_lock);
-> +
-> +	if (!error) {
-> +		/*
-> +		 * Alloc a sigqueue for this request
-> +		 *
-> +		 * NOTE: we cannot free the sigqueue in the completion path as
-> +		 * the signal may not have been delivered to the target task.
-> +		 * Therefore it has to be freed in __sigqueue_free() when the
-> +		 * signal is collected if si_code is SI_ASYNCIO.
-> +		 */
-> +		if (unlikely(!(iocb->ki_sigq = sigqueue_alloc())))
-> +			error =  -EAGAIN;
-
-Don't you have to do put_task_struct() here ?
-
+> +		k->event.ret_data[0] = revents & k->event.event;
+> +		
+> +		return (revents & k->event.event);
 > +	}
-> +
-> +
-> +	return error;
 > +}
-> +
 
-Thanks,
-Badari
+You need to be careful that file->f_op->poll is not called inside the 
+spin_lock_irqsave/spin_lock_irqrestore pair, since (even this came up 
+during epoll developemtn days) file->f_op->poll might do a simple 
+spin_lock_irq/spin_unlock_irq. This unfortunate constrain forced epoll to 
+have a suboptimal double O(R) loop to handle LT events.
+
+
+
+- Davide
+
 

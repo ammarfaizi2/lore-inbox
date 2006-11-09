@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754804AbWKIJ0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754799AbWKIJ3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754804AbWKIJ0p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 04:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754803AbWKIJ0p
+	id S1754799AbWKIJ3J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 04:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754805AbWKIJ3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 04:26:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:2481 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1754804AbWKIJ0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 04:26:44 -0500
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <20061108145150.80ceebf4.akpm@osdl.org>
-References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com>
-	 <1163024531.3138.406.camel@laptopd505.fenrus.org>
-	 <20061108145150.80ceebf4.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 09 Nov 2006 10:26:41 +0100
-Message-Id: <1163064401.3138.472.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Thu, 9 Nov 2006 04:29:09 -0500
+Received: from outmx023.isp.belgacom.be ([195.238.4.204]:33209 "EHLO
+	outmx023.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1754799AbWKIJ3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 04:29:07 -0500
+Message-ID: <4552F4E1.2090104@trollprod.org>
+Date: Thu, 09 Nov 2006 10:29:05 +0100
+From: Olivier Nicolas <olivn@trollprod.org>
+User-Agent: Thunderbird 2.0b1pre (X11/20061106)
+MIME-Version: 1.0
+To: Yinghai Lu <yinghai.lu@amd.com>
+CC: Adrian Bunk <bunk@stusta.de>, Stephen Hemminger <shemminger@osdl.org>,
+       Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@suse.cz>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz, len.brown@intel.com,
+       linux-acpi@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.19-rc5 x86_64 irq 22: nobody cared
+References: <4551D12D.4010304@trollprod.org> <20061109064956.GG4729@stusta.de> <86802c440611082355q67c69da2v316062bbe0170a9@mail.gmail.com>
+In-Reply-To: <86802c440611082355q67c69da2v316062bbe0170a9@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 14:51 -0800, Andrew Morton wrote:
-> On Wed, 08 Nov 2006 23:22:11 +0100
-> Arjan van de Ven <arjan@infradead.org> wrote:
+Yinghai Lu wrote:
+> olivier,
 > 
-> > > - A while back, akpm made some statements about being worried that the
-> > > 2.6 kernel is getting buggier
-> > > (http://news.zdnet.com/2100-3513_22-6069363.html).
-> > 
-> > and at this years Kernel Summit actual data
+> lspci -vvxxx please.
 > 
-> Not true.  70% of surveyed users had hit a new kernel bug. 
+> it seems usb and audio share the interrtupts by ioapic.
+> 
+> YH
 
-70% of surveyed users hit ANY kernel bug. Not "new bugs"
-Including "my new wizzbang hardware doesn't work" and "I'll try
-something new, oh looky a 4 year old bug" and "this new feature isn't
-quite mature yet now that I try it".
+lspci -vvxxx is available at http://olivn.trollprod.org/lspci.gz
 
-One of the things that happened was during early 2.6 udev broke left and
-right ABI wise. We've gotten a lot better at that, and that's the kind
-of bug that hits a really wide audience.
+2.6.19-rc5 can be booted properly on my system if "notsc" parameter is used.
 
-Statistics can be misleading ... bigtime.
-83% of the people also said things were not getting less reliable in
-2.6.
+Could it be related to http://lkml.org/lkml/2006/10/27/141 as I'm usage 
+a dual core AMD64 ?
 
 
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Olivier
+
 

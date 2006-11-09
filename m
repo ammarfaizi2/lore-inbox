@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424132AbWKIRCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424134AbWKIREQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424132AbWKIRCP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 12:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424134AbWKIRCO
+	id S1424134AbWKIREQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 12:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424135AbWKIREQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 12:02:14 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:16265 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1424132AbWKIRCM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 12:02:12 -0500
-Message-ID: <45535F03.8020105@gmail.com>
-Date: Thu, 09 Nov 2006 18:01:55 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Thu, 9 Nov 2006 12:04:16 -0500
+Received: from mga02.intel.com ([134.134.136.20]:55720 "EHLO mga02.intel.com")
+	by vger.kernel.org with ESMTP id S1424134AbWKIREO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 12:04:14 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,406,1157353200"; 
+   d="scan'208"; a="158905302:sNHT3864016499"
+Message-ID: <45535F66.8010803@intel.com>
+Date: Thu, 09 Nov 2006 09:03:34 -0800
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-To: Jano <jasieczek@gmail.com>
-CC: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
-References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>	 <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com>	 <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com> <d9a083460611090855w3b3a9eb6w347a24b1e704ca61@mail.gmail.com>
-In-Reply-To: <d9a083460611090855w3b3a9eb6w347a24b1e704ca61@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+To: John <me@privacy.net>
+CC: Auke Kok <auke-jan.h.kok@intel.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, hpa@zytor.com, saw@saw.sw.com.sg
+Subject: Re: Intel 82559 NIC corrupted EEPROM
+References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com> <45506C9A.5010009@privacy.net> <4551B7B8.8080601@privacy.net> <45520337.2070303@intel.com> <45531C42.3070503@privacy.net>
+In-Reply-To: <45531C42.3070503@privacy.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
+X-OriginalArrivalTime: 09 Nov 2006 17:03:35.0792 (UTC) FILETIME=[FE756700:01C70420]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jano wrote:
->> Phillip Susi wrote:
->> > Ubuntu uses an initramfs, so unless he has rebuilt his kernel to get
->> > around that, he should still be using one.
->>
+John wrote:
+> Auke Kok wrote:
 > 
-> I've compiled it into the kernel, but it doesn't work.
+>> This is what I was afraid of: even though the code allows you to 
+>> bypass the EEPROM checksum, the probe fails on a further check to see 
+>> if the MAC address is valid.
+>>
+>> Since something with this NIC specifically made the EEPROM return all 
+>> 0xff's, the MAC address is automatically invalid, and thus probe fails.
+> 
+> I don't understand why you think there is something wrong with a
+> specific NIC?
 
-But I guess, you either haven't mkinitrd'ed it or you don't have an initrd line
-in your loader config (I can't see any difference in dmesgs diff)?
+that was completely not my point - I was merely trying to point out that the original 
+problem causes a cascade of error events later on, and bypassing the eeprom check in 
+this case didn't help you at all. Something is wrong in the driver, but I don't 
+understand yet why it only affects one of the 3 nics in your system.
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+> In 2.6.14.7, e100.ko fails to read the EEPROM on 0000:00:08.0 (eth0)
+> In 2.6.18.1, e100.ko fails to read the EEPROM on 0000:00:09.0 (eth1)
+
+almost sounds like a bug got fixed and it introduced a regression. this wouldn't be the 
+right time to pull out git-bisect would it? even loading 2.6.15, 2.6.16, 2.6.17 on it 
+would give us some good information.
+
+
+Cheers,
+
+Auke

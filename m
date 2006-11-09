@@ -1,81 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423992AbWKIBRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423981AbWKIBSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423992AbWKIBRN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 20:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423989AbWKIBQr
+	id S1423981AbWKIBSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 20:18:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423993AbWKIBSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 20:16:47 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:21726 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161777AbWKIBQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 20:16:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=rLm93wMYcfQU1w2vBE8RGWKb/UHTypfdZT+291wOUJys8Jlig4EPOm1/SgMxXK5076SSjLaFebQwRm6p/RY+9S/oMgPlqamqV0sSavUrEiqhKvzg5n3wK2TdHxXYfKon5v60U1dHBaAYFmnvjYn+iKNmthiTNHOq2+cF5BIlM2k=
-Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 5/5] direct-io: fix double completion on partially valid async requests
-In-Reply-To: <11630349713427-git-send-email-htejun@gmail.com>
-X-Mailer: git-send-email
-Date: Thu, 9 Nov 2006 10:16:12 +0900
-Message-Id: <1163034972736-git-send-email-htejun@gmail.com>
+	Wed, 8 Nov 2006 20:18:25 -0500
+Received: from smtp3.netcabo.pt ([212.113.174.30]:7200 "EHLO
+	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1423981AbWKIBSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 20:18:24 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CAKQPUkVThFhodGdsb2JhbACMSwE
+X-IronPort-AV: i="4.09,401,1157324400"; 
+   d="p7s'?scan'208"; a="125049346:sNHT25656597"
+X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.181.60):SA:0(-1.3/5.0):. Processed in 2.321235 secs Process 5720)
+Subject: Re: [PATCH] pci quirks: Sort out the VIA mess once and for
+	all	(hopefully)
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Reply-To: sergio@sergiomb.no-ip.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Daniel Drake <dsd@gentoo.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+In-Reply-To: <1163018356.23956.88.camel@localhost.localdomain>
+References: <1163003156.23956.40.camel@localhost.localdomain>
+	 <45523848.7010709@gentoo.org>
+	 <1163018356.23956.88.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-pdHth8gGXK7b2ellht2k"
+Date: Thu, 09 Nov 2006 01:18:13 +0000
+Message-Id: <1163035093.13988.9.camel@monteirov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Tejun Heo <htejun@gmail.com>
-To: zach.brown@oracle.com, pbadari@us.ibm.com, suparna@in.ibm.com,
-       jmoyer@redhat.com, akpm@osdl.org, cwyang@aratech.co.kr,
-       linux-kernel@vger.kernel.org, htejun@gmail.com
-Content-Transfer-Encoding: 7BIT
-From: Tejun Heo <htejun@gmail.com>
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+X-OriginalArrivalTime: 09 Nov 2006 01:18:22.0205 (UTC) FILETIME=[F286CAD0:01C7039C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If a request which is valid in the first half but has the second half
-unmapped, the current code issues the first half and returns issue
-error.  This causes both the caller and completion callback complete
-the aio request thus either causing oops immediately or memory
-corruption.
 
-This path makes direct_io_worker() wait completion for such request
-and return error without aio_complete()'ing it.
+--=-pdHth8gGXK7b2ellht2k
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-This bug has been spotted by Chul-Woong Yang.
+First a salute to subject :) I hope so!
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
-Cc: Chul-Woong Yang <cwyang@aratech.co.kr>
----
- fs/direct-io.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+I will try the patch on my old laptop, which need the quirks, soon as
+possible but I don't know if can be in this month.
 
-diff --git a/fs/direct-io.c b/fs/direct-io.c
-index c558aa6..316598b 100644
---- a/fs/direct-io.c
-+++ b/fs/direct-io.c
-@@ -956,19 +956,17 @@ direct_io_worker(int rw, struct kiocb *i
- 	 * If this request can be completed asynchronously, drop the
- 	 * extra reference and return.
- 	 */
--	if (!is_sync_kiocb(iocb) &&
-+	if (!is_sync_kiocb(iocb) && ret == 0 &&
- 	    ((rw == READ) || (dio->result == dio->size &&
- 			      offset + dio->size <= dio->i_size))) {
--		if (ret == 0)
--			ret = dio->result;
- 		finished_one_bio(dio);		/* This can free the dio */
--		return ret;
-+		return dio->result;
- 	}
- 
- 	/*
- 	 * We need to wait for the request to complete if the request
--	 * is synchronous or an async write which writes to hole or
--	 * extends the file.
-+	 * is synchronous, failed to issue in the middle or is an
-+	 * async write which writes to hole or extends the file.
- 	 *
- 	 * For file extending writes updating i_size before data
- 	 * writeouts complete can expose uninitialized blocks. So even
--- 
-1.4.3.3
+On Wed, 2006-11-08 at 20:39 +0000, Alan Cox wrote:
+> I think your patch is going to break stuff, without the patch will
+> break more,=20
+
+My point of view is: The stuff was already breaked in kernels before
+2.6.16. And the patch is a improvement from kernel 2.6.16. Not perfect,
+we now.
+
+> and hopefully this patch will not break anything - but there is risk.
+> I think it's up to Linus what he wants to do for .19=20
+
+yap, it a risk because, drivers team tend to workaround the problems and
+when we change IRQ routing, in this case correctly, workaround may blow
+it.
+
+Thanks,
+--=20
+S=E9rgio M.B.
+
+--=-pdHth8gGXK7b2ellht2k
+Content-Type: application/x-pkcs7-signature; name=smime.p7s
+Content-Disposition: attachment; filename=smime.p7s
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
+ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
+d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
+YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
+ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
+bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
+m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
+kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
+EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
+eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
+VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
+MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
+hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
+dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
+8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
+BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
+VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
+MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
+dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
+ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
+7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
+1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
+kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
+LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
+pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
+Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
+C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
+0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
+c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
+dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0wNjExMDkwMTE4MDhaMCMGCSqGSIb3DQEJBDEWBBTMbGY2a0AGM19RpA/L1xB/
+t3psQTANBgkqhkiG9w0BAQEFAASCAQBwMA4VGQuayTV3ne5ycD7NbD6WHUAKBZBt3WMFf/uTDPh0
+eoIPyAdjFIhxlVc6a2EtCFwCKi1CHIJSfH01R4zxgDHhEjo1FNDKHes3AhP9rchT3rbsHOftx+AI
+4CbpCOixXd6mqEpZYHezNYsHOiotOfueGWxoARXtdqyId3YTpcqKR5THaTP3da3lBt1PSnn9eNrP
+JXrIAtBJBfT+Fd/EQFfxwn2T+RXQwjq3pBYy7/d683yHeWS6esIUalrxIlE2O9nfbIzRQhSHojrh
+x4FO810AiHfsYjbznOO2r/NZeHJNoJ37VQBr7nNDgvUc+qxsSD0Jj0eIbkYCJikKF86iAAAAAAAA
 
 
+
+--=-pdHth8gGXK7b2ellht2k--

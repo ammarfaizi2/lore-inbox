@@ -1,349 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424123AbWKIQyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424121AbWKIQzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424123AbWKIQyg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 11:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424106AbWKIQyg
+	id S1424121AbWKIQzY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 11:55:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424125AbWKIQzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 11:54:36 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:13351 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1424123AbWKIQyf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 11:54:35 -0500
-Message-ID: <45535F29.10907@sw.ru>
-Date: Thu, 09 Nov 2006 20:02:33 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Thu, 9 Nov 2006 11:55:24 -0500
+Received: from py-out-1112.google.com ([64.233.166.177]:45888 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1424121AbWKIQzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 11:55:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pSYsJ92wJ50t6c+e2QGUzhJj/wkTisKEV/U3tC0uTzbIYPUOyMIVfsMgsyUKiimwkCnbGOTFEufgcJdYa2GhPdpql8yUt9rtbBbVCiwOKTBb5u1ySwuEH9jDViXsMNNwRxbUnm/yNigFMWHP4kmJLR3P+HbvEDy0sO/CfWCSHpY=
+Message-ID: <d9a083460611090855w3b3a9eb6w347a24b1e704ca61@mail.gmail.com>
+Date: Thu, 9 Nov 2006 17:55:20 +0100
+From: Jano <jasieczek@gmail.com>
+To: "Jiri Slaby" <jirislaby@gmail.com>
+Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
+Cc: "Phillip Susi" <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+In-Reply-To: <45534D2C.6080509@gmail.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, xemul@openvz.org, devel@openvz.org,
-       oleg@tv-sign.ru, hch@infradead.org, matthltc@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net
-Subject: [PATCH 8/13] BC: privvmpages accounting (core)
-References: <45535C18.4040000@sw.ru>
-In-Reply-To: <45535C18.4040000@sw.ru>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>
+	 <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com>
+	 <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch instroduces new resource - BC_PRIVVMPAGES.
-It is an upper estimation of currently used physical memory.
+2006/11/9, Jiri Slaby <jirislaby@gmail.com>:
+> Jano: please, do not remove Cc people, when replying (i.e. reply to all)
+>
 
-There are different approaches to user pages control:
-a) account all the mappings on mmap/brk and reject as
-   soon as the sum of VMA's lengths reaches the barrier.
+Oops, apologise, I'm getting used to a different mail client
+interface. I'll try to do my best to follow the etiquette.
 
-   This approach is very bad as applications always map
-   more than they really use, very often MUCH more.
+>
+> Phillip Susi wrote:
+> > Ubuntu uses an initramfs, so unless he has rebuilt his kernel to get
+> > around that, he should still be using one.
+>
 
-b) account only the really used memory and reject as
-   soon as RSS reaches the limit.
+I've compiled it into the kernel, but it doesn't work.
 
-   This approach is not good either as user space pages are
-   allocated in page fault handler and the only way to reject
-   allocation is to kill the task.
-   
-   Comparing to previous scenarion this is much worse as
-   application won't even be able to terminate gracefully.
+> > OP, please check dmesg for any new errors after you attempt to mount
+> > something on hdb.  Also what is the output of a mount command with no
+> > options?
 
-c) account a part of memory on mmap/brk and reject there,
-   and account the rest of the memory in page fault handlers
-   without any rejects.
-   This type of accounting is used in UBC.
+Mount haven't changed. And here's my dmesg acquired after the last
+compilation. It's a diff from the previous version I posted, which can
+be found here: http://lkml.org/lkml/2006/11/08/322
 
-d) account physical memory and behave like a standalone
-   kernel - reclaim user memory when run out of it.
+--- 2.6.18.1	2006-11-08 22:07:53.000000000 +0100
++++ 2.6.18.1b	2006-11-09 18:32:26.000000000 +0100
+@@ -51,7 +51,7 @@
+ Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+ Memory: 906300k/917504k available (1813k kernel code, 10728k
+reserved, 571k data, 172k init, 0k highmem)
+ Checking if this processor honours the WP bit even in supervisor mode... Ok.
+-Calibrating delay using timer specific routine.. 3682.73 BogoMIPS (lpj=7365468)
++Calibrating delay using timer specific routine.. 3682.72 BogoMIPS (lpj=7365441)
+ Mount-cache hash table entries: 512
+ CPU: After generic identify, caps: 0383fbff c1c3fbff 00000000
+00000000 00000000 00000000 00000000
+ CPU: After vendor identify, caps: 0383fbff c1c3fbff 00000000 00000000
+00000000 00000000 00000000
+@@ -150,31 +150,16 @@
+ Freeing unused kernel memory: 172k freed
+ input: ImExPS/2 Logitech Wheel Mouse as /class/input/input1
+ NET: Registered protocol family 1
+-hdc: ATAPI 52X DVD-ROM drive, 256kB Cache
+-Uniform CD-ROM driver Revision: 3.20
+ eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+ Linux agpgart interface v0.101 (c) Dave Jones
+ agpgart: Detected VIA KT400/KT400A/KT600 chipset
+ agpgart: AGP aperture is 64M @ 0xf8000000
+-usbcore: registered new driver usbfs
+-usbcore: registered new driver hub
+-ACPI: PCI Interrupt 0000:00:10.3[D] -> GSI 21 (level, low) -> IRQ 17
+-PCI: VIA IRQ fixup for 0000:00:10.3, from 0 to 1
+-ehci_hcd 0000:00:10.3: EHCI Host Controller
+-ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 1
+-ehci_hcd 0000:00:10.3: irq 17, io mem 0xbe000000
+-ehci_hcd 0000:00:10.3: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
+-usb usb1: configuration #1 chosen from 1 choice
+-hub 1-0:1.0: USB hub found
+-hub 1-0:1.0: 6 ports detected
+ Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+ serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+-hdd: ATAPI 52X CD-ROM CD-R/RW drive, 2048kB Cache
+-ACPI: PCI Interrupt 0000:00:0d.0[A] -> GSI 16 (level, low) -> IRQ 18
++ACPI: PCI Interrupt 0000:00:0d.0[A] -> GSI 16 (level, low) -> IRQ 17
+ ACPI: PCI interrupt for device 0000:00:0d.0 disabled
+-usb 1-1: new high speed USB device using ehci_hcd and address 2
+-usb 1-1: configuration #1 chosen from 1 choice
+-ACPI: PCI Interrupt 0000:00:13.0[A] -> GSI 18 (level, low) -> IRQ 19
++hdc: ATAPI 52X DVD-ROM drive, 256kB Cache
++Uniform CD-ROM driver Revision: 3.20
+ VP_IDE: IDE controller at PCI slot 0000:00:11.1
+ ACPI: Unable to derive IRQ for device 0000:00:11.1
+ ACPI: PCI Interrupt 0000:00:11.1[A]: no GSI
+@@ -185,10 +170,25 @@
+ VP_IDE: port 0x01f0 already claimed by ide0
+ VP_IDE: port 0x0170 already claimed by ide1
+ VP_IDE: neither IDE port enabled (BIOS)
++hdd: ATAPI 52X CD-ROM CD-R/RW drive, 2048kB Cache
++usbcore: registered new driver usbfs
++usbcore: registered new driver hub
++ACPI: PCI Interrupt 0000:00:10.3[D] -> GSI 21 (level, low) -> IRQ 18
++PCI: VIA IRQ fixup for 0000:00:10.3, from 0 to 2
++ehci_hcd 0000:00:10.3: EHCI Host Controller
++ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 1
++ehci_hcd 0000:00:10.3: irq 18, io mem 0xbe000000
++ehci_hcd 0000:00:10.3: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
++usb usb1: configuration #1 chosen from 1 choice
++hub 1-0:1.0: USB hub found
++hub 1-0:1.0: 6 ports detected
+ NET: Registered protocol family 17
++usb 1-1: new high speed USB device using ehci_hcd and address 2
++usb 1-1: configuration #1 chosen from 1 choice
+ drivers/usb/class/usblp.c: usblp0: USB Bidirectional printer dev 2 if
+0 alt 0 proto 2 vid 0x03F0 pid 0x2B17
+ usbcore: registered new driver usblp
+ drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
++ACPI: PCI Interrupt 0000:00:13.0[A] -> GSI 18 (level, low) -> IRQ 19
+ parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
+ parport0: irq 7 detected
+ lp0: using parport0 (polling).
 
-   This type of memory control is to be introduced later
-   as an addition to c). UBC provides all the needed
-   statistics for this (physical memory, swap pages etc.)
+Below I've attach diff of my current .config in comparison to the one
+posted over here: http://lkml.org/lkml/2006/11/09/11
 
-Privvmpages accounting is described in details in
-http://wiki.openvz.org/User_pages_accounting
+--- config_old	2006-11-09 18:50:59.000000000 +0100
++++ /usr/src/linux-2.6.18.1/.config	2006-11-09 18:25:25.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+ # Linux kernel version: 2.6.18.1
+-# Thu Nov  9 00:28:54 2006
++# Thu Nov  9 18:25:25 2006
+ #
+ CONFIG_X86_32=y
+ CONFIG_GENERIC_TIME=y
+@@ -187,6 +187,7 @@
+ CONFIG_PHYSICAL_START=0x100000
+ CONFIG_COMPAT_VDSO=y
+ CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG=y
++
+ #
+ # Power management options (ACPI, APM)
+ #
+@@ -592,8 +593,11 @@
+ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_SX8=m
+ # CONFIG_BLK_DEV_UB is not set
+-# CONFIG_BLK_DEV_RAM is not set
+-# CONFIG_BLK_DEV_INITRD is not set
++CONFIG_BLK_DEV_RAM=y
++CONFIG_BLK_DEV_RAM_COUNT=16
++CONFIG_BLK_DEV_RAM_SIZE=4096
++CONFIG_BLK_DEV_RAM_BLOCKSIZE=1024
++CONFIG_BLK_DEV_INITRD=y
+ # CONFIG_CDROM_PKTCDVD is not set
+ # CONFIG_ATA_OVER_ETH is not set
 
-A note about sys_mprotect: as it can change mapping state from
-bc_vm_private to !bc_vm_private and vice-versa appropriate amount of
-pages is (un)charged in mprotect_fixup.
+@@ -607,7 +611,7 @@
+ # Please see Documentation/ide.txt for help/info on IDE drives
+ #
+ # CONFIG_BLK_DEV_IDE_SATA is not set
+-# CONFIG_BLK_DEV_HD_IDE is not set
++CONFIG_BLK_DEV_HD_IDE=y
+ CONFIG_BLK_DEV_IDEDISK=y
+ # CONFIG_IDEDISK_MULTI_MODE is not set
+ CONFIG_BLK_DEV_IDECD=m
+@@ -618,7 +622,7 @@
+ #
+ # IDE chipset support/bugfixes
+ #
+-CONFIG_IDE_GENERIC=y
++CONFIG_IDE_GENERIC=m
+ # CONFIG_BLK_DEV_CMD640 is not set
+ CONFIG_BLK_DEV_IDEPCI=y
+ CONFIG_IDEPCI_SHARE_IRQ=y
+@@ -658,7 +662,7 @@
+ CONFIG_BLK_DEV_IDEDMA=y
+ # CONFIG_IDEDMA_IVB is not set
+ CONFIG_IDEDMA_AUTO=y
+-# CONFIG_BLK_DEV_HD is not set
++CONFIG_BLK_DEV_HD=y
 
-Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+ #
+ # SCSI device support
+@@ -758,6 +762,7 @@
+ CONFIG_SCSI_DC390T=m
+ CONFIG_SCSI_NSP32=m
+ CONFIG_SCSI_DEBUG=m
++
+ #
+ # Multi-device support (RAID and LVM)
+ #
+@@ -882,6 +887,7 @@
+ # CONFIG_IXGB is not set
+ # CONFIG_S2IO is not set
+ # CONFIG_MYRI10GE is not set
++
+ #
+ # Token Ring devices
+ #
 
----
+I hope this will be helpful. Thank you for your feedback.
 
- include/bc/vmpages.h    |   90 +++++++++++++++++++++++++++++++
- include/linux/mm.h      |    3 +
- include/linux/sched.h   |    3 +
- kernel/bc/beancounter.c |    1 
- kernel/bc/vmpages.c     |  138 ++++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 235 insertions(+)
-
---- /dev/null	2006-07-18 14:52:43.075228448 +0400
-+++ ./include/bc/vmpages.h	2006-11-03 17:49:13.000000000 +0300
-@@ -0,0 +1,90 @@
-+/*
-+ * include/bc/vmpages.h
-+ *
-+ * Copyright (C) 2006 OpenVZ SWsoft Inc
-+ *
-+ */
-+
-+#ifndef __BC_VMPAGES_H_
-+#define __BC_VMPAGES_H_
-+
-+#include <bc/beancounter.h>
-+
-+struct vm_area_struct;
-+struct mm_struct;
-+struct file;
-+
-+#define BC_NOCHARGE	0
-+#define BC_UNCHARGE	1
-+#define BC_CHARGE	2
-+
-+#ifdef CONFIG_BEANCOUNTERS
-+#define __vma_set_bc(vma, bc) do { (vma)->vma_bc = bc_get(bc); } while (0)
-+#define vma_set_bc(vma)	__vma_set_bc(vma, (vma)->vm_mm->mm_bc)
-+#define vma_copy_bc(vma) __vma_set_bc(vma, (vma)->vma_bc)
-+#define vma_release_bc(vma) do { bc_put((vma)->vma_bc); } while (0)
-+
-+#define mm_init_beancounter(mm) do {		\
-+		struct beancounter *bc;		\
-+		bc = get_exec_bc();		\
-+		(mm)->mm_bc = bc_get(bc);	\
-+	} while (0)
-+#define mm_free_beancounter(mm) do { bc_put(mm->mm_bc); } while (0)
-+
-+int __must_check bc_need_memory_recharge(struct vm_area_struct *vma,
-+		struct file *new_file, unsigned long new_flags);
-+
-+int __must_check __bc_memory_charge(struct mm_struct *mm, unsigned long len,
-+		int severity);
-+int __must_check bc_memory_charge(struct mm_struct *mm, unsigned long len,
-+		struct file *file, unsigned long flags, int severity);
-+int __must_check bc_vma_charge(struct vm_area_struct *vma);
-+
-+void __bc_memory_uncharge(struct mm_struct *mm, unsigned long len);
-+void bc_memory_uncharge(struct mm_struct *mm, unsigned long len,
-+		struct file *file, unsigned long flags);
-+void bc_vma_uncharge(struct vm_area_struct *vma);
-+
-+#define bc_equal(bc1, bc2)	(bc1 == bc2)
-+#else
-+static inline
-+int __must_check bc_need_memory_recharge(struct vm_area_struct *vma,
-+		struct file *new_file, unsigned long new_flags)
-+{
-+	return BC_NOCHARGE;
-+}
-+static inline int __must_check __bc_memory_charge(struct mm_struct *mm,
-+		unsigned long len, int severity)
-+{
-+	return 0;
-+}
-+static inline int __must_check bc_memory_charge(struct mm_struct *mm,
-+		unsigned long len, struct file *file, unsigned long flags,
-+		int severity)
-+{
-+	return 0;
-+}
-+static inline int __must_check bc_vma_charge(struct vm_area_struct *vma)
-+{
-+	return 0;
-+}
-+static inline void __bc_memory_uncharge(struct mm_struct *mm, unsigned long len)
-+{
-+}
-+static inline void bc_memory_uncharge(struct mm_struct *mm, unsigned long len,
-+		struct file *file, unsigned long flags)
-+{
-+}
-+static inline void bc_vma_uncharge(struct vm_area_struct *vma)
-+{
-+}
-+
-+#define mm_init_beancounter(mm)	do { } while (0)
-+#define mm_free_beancounter(mm)	do { } while (0)
-+#define __vma_set_bc(vma, bc)	do { } while (0)
-+#define vma_set_bc(vma)		do { } while (0)
-+#define vma_copy_bc(vma)	do { } while (0)
-+#define vma_release_bc(vma)	do { } while (0)
-+#define bc_equal(bc1, bc2)	1
-+#endif
-+#endif
---- ./include/linux/mm.h.bcvmpcore	2006-11-03 17:48:37.000000000 +0300
-+++ ./include/linux/mm.h	2006-11-03 17:49:13.000000000 +0300
-@@ -112,6 +112,9 @@ struct vm_area_struct {
- #ifdef CONFIG_NUMA
- 	struct mempolicy *vm_policy;	/* NUMA policy for the VMA */
- #endif
-+#ifdef CONFIG_BEANCOUNTERS
-+	struct beancounter *vma_bc;
-+#endif
- };
- 
- /*
---- ./include/linux/sched.h.bcvmpcore	2006-11-03 17:47:38.000000000 +0300
-+++ ./include/linux/sched.h	2006-11-03 17:49:13.000000000 +0300
-@@ -374,6 +374,9 @@ struct mm_struct {
- 	/* aio bits */
- 	rwlock_t		ioctx_list_lock;
- 	struct kioctx		*ioctx_list;
-+#ifdef CONFIG_BEANCOUNTERS
-+	struct beancounter	*mm_bc;
-+#endif
- };
- 
- struct sighand_struct {
---- ./kernel/bc/beancounter.c.bcvmpcore	2006-11-03 17:47:38.000000000 +0300
-+++ ./kernel/bc/beancounter.c	2006-11-03 17:49:36.000000000 +0300
-@@ -237,6 +237,7 @@ void __init bc_init_early(void)
- 	hlist_add_head(&init_bc.bc_hash, &bc_hash[hash_long(0, BC_HASH_BITS)]);
- 
- 	current->exec_bc = bc_get(&init_bc);
-+	init_mm.mm_bc = bc_get(&init_bc);
- }
- 
- int __init bc_init_late(void)
---- /dev/null	2006-07-18 14:52:43.075228448 +0400
-+++ ./kernel/bc/vmpages.c	2006-11-03 17:49:13.000000000 +0300
-@@ -0,0 +1,138 @@
-+/*
-+ * kernel/bc/vmpages.c
-+ *
-+ * Copyright (C) 2006 OpenVZ SWsoft Inc
-+ *
-+ */
-+
-+#include <linux/mm.h>
-+
-+#include <bc/beancounter.h>
-+#include <bc/vmpages.h>
-+
-+#define BC_PRIVVMPAGES_BARRIER	BC_MAXVALUE
-+#define BC_PRIVVMPAGES_LIMIT	BC_MAXVALUE
-+
-+/*
-+ * Core routines
-+ */
-+
-+/*
-+ * bc_vma_private checks whether VMA (file, flags) is private
-+ * from BC point of view. private VMAs are charged when they are mapped
-+ * thus prventing system from resource exhausting when pages from these VMAs
-+ * are touched.
-+ */
-+static inline int bc_vma_private(struct file *file, unsigned long flags)
-+{
-+	return (flags & VM_LOCKED) ||
-+		((flags & VM_WRITE) && (file == NULL || !(flags & VM_SHARED)));
-+}
-+
-+/*
-+ * Accounting is performed in pages (not in Kbytes)
-+ */
-+static inline int do_memory_charge(struct beancounter *bc,
-+		unsigned long len, int severity)
-+{
-+	return bc_charge(bc, BC_PRIVVMPAGES, len >> PAGE_SHIFT, severity);
-+}
-+
-+static inline void do_memory_uncharge(struct beancounter *bc, unsigned long len)
-+{
-+	bc_uncharge(bc, BC_PRIVVMPAGES, len >> PAGE_SHIFT);
-+}
-+
-+/*
-+ * API calls
-+ */
-+
-+int __bc_memory_charge(struct mm_struct *mm, unsigned long len, int severity)
-+{
-+	return do_memory_charge(mm->mm_bc, len, severity);
-+}
-+
-+int bc_memory_charge(struct mm_struct *mm, unsigned long len,
-+		struct file *file, unsigned long flags, int severity)
-+{
-+	int ret;
-+
-+	ret = 0;
-+	if (bc_vma_private(file, flags))
-+		ret = do_memory_charge(mm->mm_bc, len, severity);
-+	return ret;
-+}
-+
-+int bc_vma_charge(struct vm_area_struct *vma)
-+{
-+	int ret;
-+
-+	ret = (bc_vma_private(vma->vm_file, vma->vm_flags) ?
-+			do_memory_charge(vma->vm_mm->mm_bc,
-+				vma->vm_end - vma->vm_start, BC_BARRIER) : 0);
-+	if (ret == 0)
-+		vma_set_bc(vma);
-+	return ret;
-+}
-+
-+void __bc_memory_uncharge(struct mm_struct *mm, unsigned long len)
-+{
-+	do_memory_uncharge(mm->mm_bc, len);
-+}
-+
-+void bc_memory_uncharge(struct mm_struct *mm, unsigned long len,
-+		struct file *file, unsigned long flags)
-+{
-+	if (bc_vma_private(file, flags))
-+		do_memory_uncharge(mm->mm_bc, len);
-+}
-+
-+void bc_vma_uncharge(struct vm_area_struct *vma)
-+{
-+	if (bc_vma_private(vma->vm_file, vma->vm_flags))
-+		do_memory_uncharge(vma->vma_bc, vma->vm_end - vma->vm_start);
-+	vma_release_bc(vma);
-+}
-+
-+
-+int bc_need_memory_recharge(struct vm_area_struct *vma, struct file *new_file,
-+		unsigned long new_flags)
-+{
-+	if (bc_vma_private(vma->vm_file, vma->vm_flags)) {
-+		if (bc_vma_private(new_file, new_flags))
-+			return BC_NOCHARGE;
-+
-+		/* private -> non-private */
-+		return BC_UNCHARGE;
-+	} else {
-+		if (!bc_vma_private(new_file, new_flags))
-+			return BC_NOCHARGE;
-+
-+		/* non-private -> private */
-+		return BC_CHARGE;
-+	}
-+}
-+
-+/*
-+ * Generic resource info
-+ */
-+
-+static int bc_privvm_init(struct beancounter *bc, int res)
-+{
-+	bc_init_resource(&bc->bc_parms[BC_PRIVVMPAGES],
-+			BC_PRIVVMPAGES_BARRIER, BC_PRIVVMPAGES_LIMIT);
-+	return 0;
-+}
-+
-+struct bc_resource bc_privvm_resource = {
-+	.bcr_name		= "privvmpages",
-+	.bcr_init		= bc_privvm_init,
-+};
-+
-+static int __init bc_privvm_init_resource(void)
-+{
-+	bc_register_resource(BC_PRIVVMPAGES, &bc_privvm_resource);
-+	return 0;
-+}
-+
-+__initcall(bc_privvm_init_resource);
+Best regards,
+Jano
+-- 
+Mail 	jano at stepien com pl
+Jabber 	jano at jabber aster pl
+GG 	1894343
+Web	stepien.com.pl

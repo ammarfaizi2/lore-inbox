@@ -1,109 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424122AbWKIUKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161828AbWKIULy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424122AbWKIUKq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 15:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161829AbWKIUKq
+	id S1161828AbWKIULy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 15:11:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161825AbWKIULy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 15:10:46 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:22508 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1161828AbWKIUKp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 15:10:45 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 9 Nov 2006 12:10:42 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take24 3/6] kevent: poll/select() notifications.
-In-Reply-To: <Pine.LNX.4.64.0611091137290.25481@alien.or.mcafeemobile.com>
-Message-ID: <Pine.LNX.4.64.0611091207080.25481@alien.or.mcafeemobile.com>
-References: <11630606373650@2ka.mipt.ru> <Pine.LNX.4.64.0611091047120.25481@alien.or.mcafeemobile.com>
- <20061109191036.GA30138@2ka.mipt.ru> <Pine.LNX.4.64.0611091137290.25481@alien.or.mcafeemobile.com>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Nov 2006 15:11:54 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:50148 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161828AbWKIULx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 15:11:53 -0500
+Date: Thu, 9 Nov 2006 15:11:18 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Jay Lan <jlan@sgi.com>
+Cc: Don Zickus <dzickus@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       "Lu, Yinghai" <yinghai.lu@amd.com>
+Subject: Re: [Fastboot] Kexec with latest kernel fail
+Message-ID: <20061109201118.GB23081@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <5986589C150B2F49A46483AC44C7BCA49071BF@ssvlexmb2.amd.com> <20061109163922.GE5622@redhat.com> <45538A4E.6040404@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45538A4E.6040404@sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2006, Davide Libenzi wrote:
+On Thu, Nov 09, 2006 at 12:06:38PM -0800, Jay Lan wrote:
+> Don Zickus wrote:
+> > On Wed, Nov 08, 2006 at 08:07:22PM -0800, Lu, Yinghai wrote:
+> >> Eric,
+> >>
+> >> I got "Invalid memory segment 0x100000 - ..."
+> >> using kexec latest kernel...
+> > 
+> > I usually see this when people forget to add the "crashkernel=X@Y" into
+> > their /etc/grub.conf kernel command line.  Where X and Y are arch
+> > specific.
+> 
+> I have had "Invalid memory segment 0x4000000 - 0x4997fff" problem with
+> '-l' option _always_. Since my priority was on '-p' i did not spent time
+> on debugging this problem yet...
+> 
+> Maybe this "crashkerenl=X@Y" was the cause of my problem? Some platform
+> can not specify a location to load so that it is legal to only specify
+> "crashkernel=X" now. Is it possible '-l' code path still expect to
+> see Y?
+> 
 
-> On Thu, 9 Nov 2006, Evgeniy Polyakov wrote:
-> 
-> > On Thu, Nov 09, 2006 at 10:51:56AM -0800, Davide Libenzi (davidel@xmailserver.org) wrote:
-> > > On Thu, 9 Nov 2006, Evgeniy Polyakov wrote:
-> > > 
-> > > > +static int kevent_poll_callback(struct kevent *k)
-> > > > +{
-> > > > +	if (k->event.req_flags & KEVENT_REQ_LAST_CHECK) {
-> > > > +		return 1;
-> > > > +	} else {
-> > > > +		struct file *file = k->st->origin;
-> > > > +		unsigned int revents = file->f_op->poll(file, NULL);
-> > > > +
-> > > > +		k->event.ret_data[0] = revents & k->event.event;
-> > > > +		
-> > > > +		return (revents & k->event.event);
-> > > > +	}
-> > > > +}
-> > > 
-> > > You need to be careful that file->f_op->poll is not called inside the 
-> > > spin_lock_irqsave/spin_lock_irqrestore pair, since (even this came up 
-> > > during epoll developemtn days) file->f_op->poll might do a simple 
-> > > spin_lock_irq/spin_unlock_irq. This unfortunate constrain forced epoll to 
-> > > have a suboptimal double O(R) loop to handle LT events.
-> >  
-> > It is tricky - users call wake_up() from any context, which in turn ends
-> > up calling kevent_storage_ready(), which calls kevent_poll_callback() with
-> > KEVENT_REQ_LAST_CHECK bit set, which becomes almost empty call in fast
-> > path. Since callback returns 1, kevent will be queued into ready queue,
-> > which is processed on behalf of syscalls - in that case kevent will
-> > check the flag and since KEVENT_REQ_LAST_CHECK is set, will call
-> > callback again to check if kevent is correctly marked, but already
-> > without that flag (it happens in syscall context, i.e. process context
-> > without any locks held), so callback calls ->poll(), which can sleep,
-> > but it is safe. If ->poll() returns 'ready' value, kevent is transfers
-> > data into userspace, otherwise it is 'requeued' (just removed from
-> > ready queue).
-> 
-> Oh, mine was only a general warn. I hadn't looked at the generic code 
-> before. But now that I poke on it, I see:
-> 
-> void kevent_requeue(struct kevent *k)
-> {
->        unsigned long flags;
-> 
->        spin_lock_irqsave(&k->st->lock, flags);
->        __kevent_requeue(k, 0);
->        spin_unlock_irqrestore(&k->st->lock, flags);
-> }
-> 
-> and then:
-> 
-> static int __kevent_requeue(struct kevent *k, u32 event)
-> {
->        int ret, rem;
->        unsigned long flags;
-> 
->        ret = k->callbacks.callback(k);
-> 
-> Isn't the k->callbacks.callback() possibly end up calling f_op->poll?
+kexec -l patch does not worry about crashkernel=. Only kexec -p path
+does. So this is something else.
 
-Ack, there the check for KEVENT_REQ_LAST_CHECK inside the callback.
-The problem with f_op->poll was not that it can sleep (not excluded 
-though) but that some f_op->poll can do a simple spin_lock_irq/spin_unlock_irq.
-But for a quick peek your new code seems fine with that.
-
-
-
-- Davide
-
-
+Thanks
+Vivek

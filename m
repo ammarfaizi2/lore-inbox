@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422707AbWKIARr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423951AbWKIARw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422707AbWKIARr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 19:17:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423950AbWKIARq
+	id S1423951AbWKIARw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 19:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423952AbWKIARw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 19:17:46 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21711 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422707AbWKIARq (ORCPT
+	Wed, 8 Nov 2006 19:17:52 -0500
+Received: from mail.suse.de ([195.135.220.2]:26063 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1423950AbWKIARv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 19:17:46 -0500
-Date: Wed, 8 Nov 2006 16:17:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5-mm1
-Message-Id: <20061108161732.1225730d.akpm@osdl.org>
-In-Reply-To: <200611090031.35069.rjw@sisk.pl>
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
-	<200611090031.35069.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 8 Nov 2006 19:17:51 -0500
+From: Neil Brown <neilb@suse.de>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Date: Thu, 9 Nov 2006 11:17:57 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17746.29621.106336.339322@cse.unsw.edu.au>
+Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001 of 6] md: Send online/offline uevents when an md
+	array starts/stops.
+In-Reply-To: message from Kay Sievers on Wednesday November 8
+References: <20061031164814.4884.patches@notabene>
+	<1061031060046.5034@suse.de>
+	<20061031211615.GC21597@suse.de>
+	<3ae72650611020413q797cf62co66f76b058a57104b@mail.gmail.com>
+	<17737.58737.398441.111674@cse.unsw.edu.au>
+	<1162475516.7210.32.camel@pim.off.vrfy.org>
+	<17738.59486.140951.821033@cse.unsw.edu.au>
+	<1162542178.14310.26.camel@pim.off.vrfy.org>
+	<17742.32612.870346.954568@cse.unsw.edu.au>
+	<1162984482.16735.25.camel@pim.off.vrfy.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2006 00:31:34 +0100
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-
-> On Wednesday, 8 November 2006 10:54, Andrew Morton wrote:
-> > 
-> > Temporarily at
-> > 
-> > http://userweb.kernel.org/~akpm/2.6.19-rc5-mm1/
-> > 
-> > will turn up at
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm1/
-> > 
-> > when kernel.org mirroring catches up.
-> > 
-> > 
-> > 
-> > - Merged the Kernel-based Virtual Machine patches.  See kvm.sf.net for
-> >   userspace tools, instructions, etc.
-> > 
-> >   It needs a recent binutils to build.
-> > 
-> > - The hrtimer+dynticks code still doesn't work right for machines which halt
-> >   their TSC in low-power states.
+On Wednesday November 8, kay.sievers@vrfy.org wrote:
 > 
-> On my HPC nx6325 it doesn't even reach the point in which the messages become
-> visible on the console, so I'm unable to get any debug info from it.
+> Is there a sysfs file or something similar(we could also call a md-tool)
+> udev could look at, before it tries to open the device? Like:
+>   KERNEL=="md*", ATTR{state}=="active", IMPORT{program}= ...
 
-Nice.  You're using earlyprintk?
+If the /sys/block/mdX directory exists at all, it is safe to open the
+device-special file.  But that is racy.  It could disappear between
+checking that the dir exists, and opening the device-special-file.
 
+I still think it would make SO much sense if /sys/block/md4/dev were a
+device-special-file instead of a (silly) ascii file with 9:4.  Then
+this race could be closed.  But I feel that is a battle I've never
+going to win.
 
+You could look at /sys/block/mdX/md/array_state.  If that contains
+'clean' or 'inactive' then there is no point opening the device.
+Otherwise there might be a point, and the race would be a lot harder
+to lose.
+
+I guess it is time for me to learn about udev config files...
+
+NeilBrown

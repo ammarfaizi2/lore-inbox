@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754709AbWKIJkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754817AbWKIJqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754709AbWKIJkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 04:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754814AbWKIJkJ
+	id S1754817AbWKIJqs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 04:46:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754822AbWKIJqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 04:40:09 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59831 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1754709AbWKIJkH (ORCPT
+	Thu, 9 Nov 2006 04:46:48 -0500
+Received: from iona.labri.fr ([147.210.8.143]:13541 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S1754817AbWKIJqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 04:40:07 -0500
-Date: Thu, 9 Nov 2006 01:36:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Message-Id: <20061109013645.7bef848d.akpm@osdl.org>
-In-Reply-To: <1163064401.3138.472.camel@laptopd505.fenrus.org>
-References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com>
-	<1163024531.3138.406.camel@laptopd505.fenrus.org>
-	<20061108145150.80ceebf4.akpm@osdl.org>
-	<1163064401.3138.472.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 9 Nov 2006 04:46:47 -0500
+Message-ID: <4552F905.3020109@ens-lyon.org>
+Date: Thu, 09 Nov 2006 10:46:45 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Gregor Jasny <gjasny@googlemail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org
+Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
+References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com> <20061030114503.GW4563@kernel.dk> <9d2cd630610300517q5187043eieb0880047ddd03eb@mail.gmail.com> <20061030132745.GE4563@kernel.dk>
+In-Reply-To: <20061030132745.GE4563@kernel.dk>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 09 Nov 2006 10:26:41 +0100
-Arjan van de Ven <arjan@infradead.org> wrote:
+ens Axboe wrote:
+> On Mon, Oct 30 2006, Gregor Jasny wrote:
+>   
+>> 2006/10/30, Jens Axboe <jens.axboe@oracle.com>:
+>>     
+>>> Can you confirm that 2.6.18 works?
+>>>       
+>> The reporter of [1] states that his SATA Thinkpad freezes with 2.6.17
+>> and 2.6.18, too.
+>>
+>> Gregor
+>>
+>> [1] http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=391901
+>>     
+>
+> Ok, mainly just checking if this was a potential dupe of another bug.
+>
+>   
 
-> On Wed, 2006-11-08 at 14:51 -0800, Andrew Morton wrote:
-> > On Wed, 08 Nov 2006 23:22:11 +0100
-> > Arjan van de Ven <arjan@infradead.org> wrote:
-> > 
-> > > > - A while back, akpm made some statements about being worried that the
-> > > > 2.6 kernel is getting buggier
-> > > > (http://news.zdnet.com/2100-3513_22-6069363.html).
-> > > 
-> > > and at this years Kernel Summit actual data
-> > 
-> > Not true.  70% of surveyed users had hit a new kernel bug. 
+Jens (or anybody else who has any idea of how to debug this),
 
-<funny, I could have sworn I had some additional text in here.  Where'd it go?>
+Did you have a chance to reproduce the problem? I guess we "only" need a
+machine with SATA/ata_piix and cdparanoia 3.10. If you want me to debug
+some stuff, feel free to tell me what. But, since it freezes the machine
+and sysrq doesn't even work, I don't really know what to try...
 
-> 70% of surveyed users hit ANY kernel bug. Not "new bugs"
-> Including "my new wizzbang hardware doesn't work" and "I'll try
-> something new, oh looky a 4 year old bug" and "this new feature isn't
-> quite mature yet now that I try it".
-> 
-> One of the things that happened was during early 2.6 udev broke left and
-> right ABI wise. We've gotten a lot better at that, and that's the kind
-> of bug that hits a really wide audience.
-> 
-> Statistics can be misleading ... bigtime.
-> 83% of the people also said things were not getting less reliable in
-> 2.6.
-> 
+I just tried on rc5 and rc5-mm1, both have the problem (as 2.6.16, .17
+and .18 do, don't know about earlier kernels). I didn't have a audio CD
+here, so I tried abcde on a DVD on purpose. With cdparanoia 3.10-pre0
+(from Debian testing), it reports nothing during about 5 seconds and
+then the machine freezes. With cdparanoia 3a9.8-11 (from Debian stable),
+it reports an error very quickly, and dmesg gets a couple line like these:
+    sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing
+data in;
+       program cdparanoia not setting count and/or reply_len properly
 
-70% hit a bug
-1/7th think it's deteriorating
-1/4th think lkml response is inadequate
-3/5ths think bugzilla response is inadequate
-2/5ths think we have features-vs-stability wrong
-2/3rds hit a bug.  Of those, 1/3rd remain unfixed
-1/5th of users are presently impacted by a kernel bug
+Thanks,
+Brice
 
-Happy with that?

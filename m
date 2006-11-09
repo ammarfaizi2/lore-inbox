@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966043AbWKIQiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424100AbWKIQkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966043AbWKIQiB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 11:38:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966044AbWKIQiB
+	id S1424100AbWKIQkc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 11:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424104AbWKIQkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 11:38:01 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:45293 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S966043AbWKIQiA convert rfc822-to-8bit (ORCPT
+	Thu, 9 Nov 2006 11:40:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24785 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1424100AbWKIQkb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 11:38:00 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [PATCH] KVM: Avoid using vmx instruction directly
-Date: Thu, 9 Nov 2006 17:37:48 +0100
-User-Agent: KMail/1.9.5
-Cc: kvm-devel@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <20061109110852.A6B712500F7@cleopatra.q> <200611091542.31101.arnd@arndb.de> <455340B8.2080206@qumranet.com>
-In-Reply-To: <455340B8.2080206@qumranet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 9 Nov 2006 11:40:31 -0500
+Date: Thu, 9 Nov 2006 11:39:22 -0500
+From: Don Zickus <dzickus@redhat.com>
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: ebiederm@xmission.com, Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Kexec with latest kernel fail
+Message-ID: <20061109163922.GE5622@redhat.com>
+References: <5986589C150B2F49A46483AC44C7BCA49071BF@ssvlexmb2.amd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611091737.48801.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA49071BF@ssvlexmb2.amd.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 November 2006 15:52, Avi Kivity wrote:
-> Wouldn't that make inline assembly useless?  Suppose the contents is 
-> itself a pointer.  What about the pointed-to contents?
+On Wed, Nov 08, 2006 at 08:07:22PM -0800, Lu, Yinghai wrote:
+> Eric,
 > 
-> e.g.
-> 
->     int x = 3;
->     int *y = &x;
->     int z;
-> 
->     asm ("mov %1, %%rax; movl (%%rax), %0" : "=r"(z) : "g"(y) : "rax");
->     assert(z == 3);
+> I got "Invalid memory segment 0x100000 - ..."
+> using kexec latest kernel...
 
-Same here, you need to tell gcc what is really accessed, like 
+I usually see this when people forget to add the "crashkernel=X@Y" into
+their /etc/grub.conf kernel command line.  Where X and Y are arch
+specific.
 
-asm ("mov %1, %%rax; movl (%%rax), %0" : "=r"(z) : "g"(y), "m"(*y) : "rax");
+Cheers,
+Don
 
-I know that the s390 kernel developers have hit that problem
-frequently with inline assemblies. It may be that it's harder
-to hit on x86, because there are fewer registers available and
-data therefore tends to spill to the stack.
-
-> > Or gcc
-> > might move the assignment of phys_addr to after the inline assembly.
-> >   
-> "asm volatile" prevents that (and I'm not 100% sure it's necessary).
-
-Yes, I think that's right. The 'volatile' should not be necessary though,
-if you get the inputs right.
-
-	Arnd <><

@@ -1,94 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966031AbWKIOYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965463AbWKIOf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966031AbWKIOYT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 09:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966030AbWKIOYT
+	id S965463AbWKIOf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 09:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966015AbWKIOfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 09:24:19 -0500
-Received: from ra.tuxdriver.com ([70.61.120.52]:36110 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S966031AbWKIOYS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 09:24:18 -0500
-Date: Thu, 9 Nov 2006 09:21:59 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, alan@redhat.com, davej@codemonkey.org.uk,
-       akpm@osdl.org
-Cc: nhorman@tuxdriver.com
-Subject: [PATCH] i386: Fix machine_check entry point in entry.S to not dereference kernel memory from user space context
-Message-ID: <20061109142159.GA4200@hmsreliant.homelinux.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Nov 2006 09:35:55 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:15571 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965463AbWKIOfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 09:35:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U55g1CeXoB7XA59HCrxpM1GWeOLRRpOk1WhDiQ+/ILIW6GvbaLnYS1tgQRMxL3gfyLXtE44KLyZGNT4DYR0e9OHne9Gygc8nr2J5CE/0QewgMmIrz7wKwZ4Vb1C6Mot1N/5bRnnGmK4AGPUq3d9c830tmdRvuq1PXk95kh5QMpQ=
+Message-ID: <3f250c710611090635j530e7f02q7a84d367fa2ab41c@mail.gmail.com>
+Date: Thu, 9 Nov 2006 10:35:53 -0400
+From: "Mauricio Lin" <mauriciolin@gmail.com>
+To: balbir@in.ibm.com
+Subject: Re: Jiffies wraparound is not treated in the schedstats
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4552CAD9.1080603@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <3f250c710611081005v5fcf3236qfb10b47bab1ada5f@mail.gmail.com>
+	 <4552CAD9.1080603@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey-
-        It appears that when the i386 arch traps on a machine check, the code in 
-entry.S loads the vector pointed to by the machine_check_vector kernel varialbe.  
-Since this happens before the switch to the kernel context in error_code, the 
-result is an oops, if the reverenced address is unmapped, or silent memory 
-corruption if the address is mapped.  This patch corrects that, by jumping 
-instead to a statically allocated kernel function instead, allowing us to load a 
-static value, rather than the contents of a memory address before the switch to 
-kernel context, like all of our other entry points do.
+Hi Balbir,
 
-Thanks & Regards
-Neil
+I did not know about arithmetic properties of the unsigned types, so
+the misundertanding about jiffies calculation. It was my mistake.
 
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+On 11/9/06, Balbir Singh <balbir@in.ibm.com> wrote:
+> Mauricio Lin wrote:
+> > Hi Balbir,
+> >
+> > Do you know why in the sched_info_arrive() and sched_info_depart()
+> > functions the calculation of delta_jiffies does not use the time_after
+> > or time_before macro to prevent  the miscalculation when jiffies
+> > overflow?
+> >
+> > For instance the delta_jiffies variable is simply calculated as:
+> >
+> > delta_jiffies = now - t->sched_info.last_queued;
+> >
+> > Do not you think the more logical way should be
+> >
+> > if (time_after(now, t->sched_info.last_queued))
+> >    delta_jiffies = now - t->sched_info.last_queued;
+> > else
+> >    delta_jiffies = (MAX_JIFFIES - t->sched_info.last_queued) + now
+> >
+>
+> What's MAX_JIFFIES? Is it MAX_ULONG? jiffies is unsigned long
+> so you'll have to be careful with unsigned long arithmetic.
 
+It is ULONG_MAX. :)
 
- cpu/mcheck/mce.c |    5 +++++
- cpu/mcheck/mce.h |    1 +
- entry.S          |    2 +-
- 3 files changed, 7 insertions(+), 1 deletion(-)
+>
+> Consider that now is 5 and t->sched_info.last_queued is 10.
+>
+> On my system
+>
+> perl -e '{printf("%lu\n", -5 + (1<<32) - 1);}'
+> 4294967291
+>
+> perl -e '{printf("%lu\n", -5 );}'
+> 4294967291
+>
+>
+> > I have included more variables to measure some issues of schedule in
+> > the kernel (following schedstat idea) and I noticed that jiffies
+> > wraparound has led to wrong values, since the user space tool when
+> > collecting the values is producing negative values.
+> >
+>
+> hmm.. jiffies wrapped around in sched_info_depart()? I've never seen
+> that happen. Could you post the additions and user space tool to look at?
+> What additional features are you planning to measure in the scheduler?
 
+Well, one of the behaviour we would like to check its the time that
+the system remains idle. As the schedstat already provide the
+sched_goidle (number of time the system gets idle), during the
+measurements we would like to know also the time spent in the idle
+state.
 
-diff --git a/arch/i386/kernel/cpu/mcheck/mce.c b/arch/i386/kernel/cpu/mcheck/mce.c
-index d555bec..a8e8e80 100644
---- a/arch/i386/kernel/cpu/mcheck/mce.c
-+++ b/arch/i386/kernel/cpu/mcheck/mce.c
-@@ -29,6 +29,11 @@ static fastcall void unexpected_machine_
- /* Call the installed machine check handler for this CPU setup. */
- void fastcall (*machine_check_vector)(struct pt_regs *, long error_code) = unexpected_machine_check;
- 
-+asmlinkage void do_machine_check(struct pt_regs *regs, long error_code)
-+{
-+	machine_check_vector(regs, error_code);
-+}
-+
- /* This has to be run for each processor */
- void mcheck_init(struct cpuinfo_x86 *c)
- {
-diff --git a/arch/i386/kernel/cpu/mcheck/mce.h b/arch/i386/kernel/cpu/mcheck/mce.h
-index 84fd4cf..0e7003f 100644
---- a/arch/i386/kernel/cpu/mcheck/mce.h
-+++ b/arch/i386/kernel/cpu/mcheck/mce.h
-@@ -8,6 +8,7 @@ void winchip_mcheck_init(struct cpuinfo_
- 
- /* Call the installed machine check handler for this CPU setup. */
- extern fastcall void (*machine_check_vector)(struct pt_regs *, long error_code);
-+extern asmlinkage void do_machine_check(struct pt_regs *, long error_code);
- 
- extern int mce_disabled;
- extern int nr_mce_banks;
-diff --git a/arch/i386/kernel/entry.S b/arch/i386/kernel/entry.S
-index 5a63d6f..19a2929 100644
---- a/arch/i386/kernel/entry.S
-+++ b/arch/i386/kernel/entry.S
-@@ -928,7 +928,7 @@ ENTRY(machine_check)
- 	RING0_INT_FRAME
- 	pushl $0
- 	CFI_ADJUST_CFA_OFFSET 4
--	pushl machine_check_vector
-+	pushl $do_machine_check
- 	CFI_ADJUST_CFA_OFFSET 4
- 	jmp error_code
- 	CFI_ENDPROC
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+Checking the results, perhaps such new info is not necessary to be
+included if we want the percentage of use in our measurements. For
+instance if we want the cpu_load calculated as:
+
+cpu_load = (cpu_time2 - cpu_time1)/sample_period
+
+where "cpu_time" corresponds to the rq->rq_sched_info.cpu_time in the
+kernel and "sample period" is the time spent running the use case.
+
+So the "cpu_idle_load" can be calculated as (1-cpu_load).
+
+If we include in the __sched_info_switch() (kernel) something like:
+
+...
+	if (prev != rq->idle)
+		sched_info_depart(prev);
+	else
+		rq->rq_sched_info.idle_time +=
+			jiffies - prev->sched_info.last_arrival;
+
+	if (next != rq->idle)
+		sched_info_arrive(next);
+	else
+		next->sched_info.last_arrival = jiffies;
+...
+
+We can calculated the cpu_idle_load at user space as:
+
+cpu_idle_load = (cpu_idle_time2 - cpu_idle_time1)/sample_period
+
+where cpu_idle_time corresponds to rq->rq_sched_info.idle_time
+
+This info leads to the same result if we just base the calculation on
+the (1-cpu_load) as mentioned previously.
+
+BR,
+
+Mauricio Lin.

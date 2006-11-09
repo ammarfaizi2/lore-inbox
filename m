@@ -1,89 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754761AbWKII2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754705AbWKIIbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754761AbWKII2y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 03:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754767AbWKII2y
+	id S1754705AbWKIIbk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 03:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754711AbWKIIbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 03:28:54 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:8853 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1754761AbWKII2x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 03:28:53 -0500
-Message-ID: <4552E6C4.2020703@drzeus.cx>
-Date: Thu, 09 Nov 2006 09:28:52 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+	Thu, 9 Nov 2006 03:31:40 -0500
+Received: from 147.175.241.83.in-addr.dgcsystems.net ([83.241.175.147]:25536
+	"EHLO tmnt04.transmode.se") by vger.kernel.org with ESMTP
+	id S1754705AbWKIIbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 03:31:39 -0500
+Message-ID: <4552E769.2030303@transmode.se>
+Date: Thu, 09 Nov 2006 09:31:37 +0100
+From: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061017)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: [GIT PULL] MMC update
+To: Jesper Juhl <jesper.juhl@gmail.com>,
+       Joakim Tjernlund <joakim.tjernlund@transmode.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to compile module params into kernel?
+References: <9a8748490611081105j5ca1d24ahd49c6d9ea7d980d3@mail.gmail.com> <02fd01c70370$d9af6700$020120ac@Jocke> <9a8748490611081209s37e5bfa7m2ddb49a23288ffbd@mail.gmail.com> <20061108201456.GD21485@lug-owl.de>
+In-Reply-To: <20061108201456.GD21485@lug-owl.de>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Nov 2006 08:31:37.0480 (UTC) FILETIME=[78EAF880:01C703D9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+Jan-Benedict Glaw wrote:
+> On Wed, 2006-11-08 21:09:04 +0100, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>   
+>> On 08/11/06, Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+>>     
+>>>> -----Original Message-----
+>>>> From: Jesper Juhl [mailto:jesper.juhl@gmail.com]
+>>>> On 08/11/06, Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+>>>>         
+>>>>> Instead of passing a module param on the cmdline I want to compile that
+>>>>> into the kernel, but I can't figure out how.
+>>>>>           
+>>>> You could edit the module source and hardcode default values.
+>>>>         
+>>> Yes, but I don't want to do that since it makes maintance
+>>> harder.
+>>>       
+>> Well, as far as I know, there's no way to specify default module
+>> options at compile time. The defaults are set in the module source and
+>> are modifiable at module load time or by setting options on the kernel
+>> command line at boot tiem. So, if that's no good for you I don't see
+>> any other way except modifying the source to hardcode new defaults.
+>>     
+>
+> However, that could probably be hacked in easily. We use a similar
+> approach for VAX, since we're not yet regularly booting off a local
+> harddisk, but commonly via MOP off the network.
+>
+> MfG, JBG
+>
+>   
+This works for me in should want to known:
 
-        git://git.kernel.org/pub/scm/linux/kernel/git/drzeus/mmc.git
-for-linus
+#include <linux/moduleparam.h>
+int set_module_params(void)
+{
+   extern struct kernel_param __start___param[], __stop___param[];
+   char module_params[]="rtc-ds1307.force=0,0x68";
 
-to receive the following updates:
+   parse_args("hard module params", module_params, __start___param,
+          __stop___param - __start___param, NULL);
+   return 0;
+}
+arch_initcall(set_module_params);
 
- drivers/mmc/mmc.c |   19 +++++++++++++++++--
- 1 files changed, 17 insertions(+), 2 deletions(-)
-
-Timo Teras:
-      MMC: Poll card status after rescanning cards
-      MMC: Do not set unsupported bits in OCR response
-
-diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
-index ee8863c..766bc54 100644
---- a/drivers/mmc/mmc.c
-+++ b/drivers/mmc/mmc.c
-@@ -475,7 +475,7 @@ static u32 mmc_select_voltage(struct mmc
-        if (bit) {
-                bit -= 1;
-
--               ocr = 3 << bit;
-+               ocr &= 3 << bit;
-
-                host->ios.vdd = bit;
-                mmc_set_ios(host);
-@@ -1178,14 +1178,29 @@ static void mmc_rescan(void *data)
- {
-        struct mmc_host *host = data;
-        struct list_head *l, *n;
-+       unsigned char power_mode;
-
-        mmc_claim_host(host);
-
--       if (host->ios.power_mode == MMC_POWER_ON)
-+       /*
-+        * Check for removed cards and newly inserted ones. We check for
-+        * removed cards first so we can intelligently re-select the VDD.
-+        */
-+       power_mode = host->ios.power_mode;
-+       if (power_mode == MMC_POWER_ON)
-                mmc_check_cards(host);
-
-        mmc_setup(host);
-
-+       /*
-+        * Some broken cards process CMD1 even in stand-by state. There is
-+        * no reply, but an ILLEGAL_COMMAND error is cached and returned
-+        * after next command. We poll for card status here to clear any
-+        * possibly pending error.
-+        */
-+       if (power_mode == MMC_POWER_ON)
-+               mmc_check_cards(host);
-+
-        if (!list_empty(&host->cards)) {
-                /*
-                 * (Re-)calculate the fastest clock rate which the
-
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org

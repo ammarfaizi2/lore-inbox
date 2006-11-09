@@ -1,91 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932824AbWKIMqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965965AbWKINAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932824AbWKIMqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 07:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932825AbWKIMqJ
+	id S965965AbWKINAr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 08:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965974AbWKINAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 07:46:09 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:24722 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S932824AbWKIMqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 07:46:06 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Date: Thu, 9 Nov 2006 13:45:46 +0100
-User-Agent: KMail/1.9.5
-Cc: Diego Calleja <diegocg@gmail.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com> <20061109002802.f61804fa.diegocg@gmail.com> <1163054902.3138.454.camel@laptopd505.fenrus.org>
-In-Reply-To: <1163054902.3138.454.camel@laptopd505.fenrus.org>
+	Thu, 9 Nov 2006 08:00:47 -0500
+Received: from dexter.tse.gov.br ([200.252.157.99]:14810 "EHLO
+	dexter.tse.gov.br") by vger.kernel.org with ESMTP id S965965AbWKINAq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 08:00:46 -0500
+X-Virus-Scanner: This message was checked by NOD32 Antivirus system
+	NOD32 for Linux Mail Server.
+	For more information on NOD32 Antivirus System,
+	please, visit our website: http://www.nod32.com/.
+X-Virus-Scanner: This message was checked by NOD32 Antivirus system
+	for Linux Server. For more information on NOD32 Antivirus System,
+	please, visit our website: http://www.nod32.com/.
+Message-ID: <4553345A.3090305@tse.gov.br>
+Date: Thu, 09 Nov 2006 10:59:54 -0300
+From: Saulo <slima@tse.gov.br>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3375255.QJBFWYpzcT";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200611091345.51940.eike-kernel@sf-tec.de>
+To: Mark Lord <lkml@rtr.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE cs5530 hda: lost interrupt
+References: <455254B8.4000704@tse.gov.br> <45526E11.9000503@rtr.ca>
+In-Reply-To: <45526E11.9000503@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3375255.QJBFWYpzcT
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Mark Lord wrote:
 
-Arjan van de Ven wrote:
-> On Thu, 2006-11-09 at 00:28 +0100, Diego Calleja wrote:
-> > El Wed, 08 Nov 2006 23:22:11 +0100,
-> >
-> > Arjan van de Ven <arjan@infradead.org> escribi=C3=B3:
-> > > > There are many parts of the kernel that are not documented.
-> > >
-> > > this is where the OSDL Documentation Person will help a lot; a full
-> > > time person.
-> >
-> > Maybe it's just me, but wouldn't be this fixed by just asking developers
-> > to document their code?
+> Saulo wrote:
 >
-> it's a matter of skills. Someone can be awesome at coding a feature but
-> his english and writing skills may be waaaaay down there.
+>> Hi all,
+>>
+>> any help is wellcome...
+>>
+>> --------------------
+>> CPU: NSC Geode(TM) Integrated Processor by National Semi stepping 02
+>> ...
+>> ide: Assuming 33MHz system bus speed for PIO modes; override with 
+>> idebus=xx
+>> CS5530: ide CONTROLLER AT pci SLOT 0000:00:12.2
+>> CS5530: chipset revision 0
+>> CS5530: not 100% native mode: will probe irqs later
+>> PCI: Enabling bus mastering for device 0000:00:12.2
+>> PCI: Setting latency timer of device 0000:00:12.2 to 64
+>>     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:pio, hdb:pio
+>>     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
+>> hda: CF 32MB, CFA DISK drive
+>> hda: IRQ probe failed (0xfeba)    >>> I think my problem may start 
+>> here, but when I fix to IRQ 14 in try_to_identify() to hda the 
+>> problem persist
+>> ide0 at 0x1f0-0x1f7,0x3f6 on irq14
+>> hdc: Hitachi CV 5.1.1, CFA DISK drive
+>> ide1 at 0x170-0x177,0x376 on irq 15 (serialized with ide0)
+>> hda: max request size: 128KiB
+>> hda: 62976 sectors (32MB) w/1KiB Cache, CHS=492/4/32
+>> hda:<4>hda: lost interrupt
+>> hda: lost interrupt
+>> hda: lost interrupt
+>> ...
+>
+> ...
+>
+> Send me one of those devices and I'll fix it.
+>
+> Cheers
+> -
 
-Yes, that's maybe part of the problem. Nevertheless I think we should rejec=
-t=20
-every patch that adds new functions of global use (everything that might ge=
-t=20
-called from outside this module) without proper kerneldoc comments on it. A=
-t=20
-least everything that comes with EXPORT_SYMBOl_*.
+Sorry... I would like but I can´t send one of this device to you. If you 
+have any idea about this problem, any help is wellcome.
 
-I just remember that digging out all this cdev_* stuff from inside the code=
-=20
-was just pain. If your new feature is _that_ cool that it has to be=20
-immediately merged than there will be surely someone out there to help you=
-=20
-with the documentation if your English is a bit poor. Someone has to review=
-=20
-that code anyway. If you can give him hints even in bad English what is goi=
-ng=20
-on it will surely help him (or her) to understand what you're doing, review=
-=20
-your code and write up some nice comments to make life for the next one to=
-=20
-touch it a _lot_ easier.
-
-Eike
-
---nextPart3375255.QJBFWYpzcT
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBFUyL/XKSJPmm5/E4RAthVAJ9rzAt3+lPP+GcoVhXDy+HE9AkSKgCgiR7D
-7n1R9TMzI5AhPDeiZyN23PA=
-=l83P
------END PGP SIGNATURE-----
-
---nextPart3375255.QJBFWYpzcT--
+Saulo

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161777AbWKIBqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423726AbWKIBuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161777AbWKIBqY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 20:46:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161780AbWKIBqY
+	id S1423726AbWKIBuG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 20:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161783AbWKIBuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 20:46:24 -0500
-Received: from mga05.intel.com ([192.55.52.89]:42131 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1161777AbWKIBqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 20:46:23 -0500
+	Wed, 8 Nov 2006 20:50:05 -0500
+Received: from mga07.intel.com ([143.182.124.22]:5801 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1161782AbWKIBuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 20:50:02 -0500
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.09,401,1157353200"; 
-   d="scan'208"; a="13570112:sNHT29925045"
-Date: Wed, 8 Nov 2006 17:23:52 -0800
+   d="scan'208"; a="143342213:sNHT19927999"
+Date: Wed, 8 Nov 2006 17:27:32 -0800
 From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
 To: ak@suse.de, akpm@osdl.org
 Cc: shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
        ashok.raj@intel.com, suresh.b.siddha@intel.com, greg@kroah.com
-Subject: [patch 1/4] i386: add write_pci_config_byte() to direct PCI access routines
-Message-ID: <20061108172352.B10294@unix-os.sc.intel.com>
+Subject: [patch 2/4] i386: introduce the mechanism of disabling cpu hotplug control
+Message-ID: <20061108172732.C10294@unix-os.sc.intel.com>
 References: <20061108172017.A10294@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,38 +28,49 @@ In-Reply-To: <20061108172017.A10294@unix-os.sc.intel.com>; from suresh.b.siddha@
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add write_pci_config_byte() to direct PCI access  routines
+Add 'enable_cpu_hotplug' flag and when cleared, the hotplug control file
+("online") will not be added under /sys/devices/system/cpu/cpuX/
+
+Next patch doing PCI quirks will use this.
 
 Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 ---
 
-diff --git a/arch/i386/pci/early.c b/arch/i386/pci/early.c
-index 713d6c8..42df4b6 100644
---- a/arch/i386/pci/early.c
-+++ b/arch/i386/pci/early.c
-@@ -45,6 +45,13 @@ void write_pci_config(u8 bus, u8 slot, u
- 	outl(val, 0xcfc);
+diff --git a/arch/i386/kernel/topology.c b/arch/i386/kernel/topology.c
+index 07d6da3..844c08f 100644
+--- a/arch/i386/kernel/topology.c
++++ b/arch/i386/kernel/topology.c
+@@ -40,14 +40,18 @@ int arch_register_cpu(int num)
+ 	 * restrictions and assumptions in kernel. This basically
+ 	 * doesnt add a control file, one cannot attempt to offline
+ 	 * BSP.
++	 *
++	 * Also certain PCI quirks require not to enable hotplug control
++	 * for all CPU's.
+ 	 */
+-	if (!num)
++	if (!num || !enable_cpu_hotplug)
+ 		cpu_devices[num].cpu.no_control = 1;
+ 
+ 	return register_cpu(&cpu_devices[num].cpu, num);
  }
  
-+void write_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset, u8 val)
-+{
-+	PDprintk("%x writing to %x: %x\n", slot, offset, val);
-+	outl(0x80000000 | (bus<<16) | (slot<<11) | (func<<8) | offset, 0xcf8);
-+	outb(val, 0xcfc);
-+}
-+
- int early_pci_allowed(void)
- {
- 	return (pci_probe & (PCI_PROBE_CONF1|PCI_PROBE_NOEARLY)) ==
-diff --git a/include/asm-x86_64/pci-direct.h b/include/asm-x86_64/pci-direct.h
-index eba9cb4..6823fa4 100644
---- a/include/asm-x86_64/pci-direct.h
-+++ b/include/asm-x86_64/pci-direct.h
-@@ -10,6 +10,7 @@ extern u32 read_pci_config(u8 bus, u8 sl
- extern u8 read_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset);
- extern u16 read_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset);
- extern void write_pci_config(u8 bus, u8 slot, u8 func, u8 offset, u32 val);
-+extern void write_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset, u8 val);
+ #ifdef CONFIG_HOTPLUG_CPU
++int enable_cpu_hotplug = 1;
  
- extern int early_pci_allowed(void);
+ void arch_unregister_cpu(int num) {
+ 	return unregister_cpu(&cpu_devices[num].cpu);
+diff --git a/include/asm-i386/cpu.h b/include/asm-i386/cpu.h
+index b1bc7b1..9d914e1 100644
+--- a/include/asm-i386/cpu.h
++++ b/include/asm-i386/cpu.h
+@@ -13,6 +13,9 @@ struct i386_cpu {
+ extern int arch_register_cpu(int num);
+ #ifdef CONFIG_HOTPLUG_CPU
+ extern void arch_unregister_cpu(int);
++extern int enable_cpu_hotplug;
++#else
++#define enable_cpu_hotplug	0
+ #endif
  
+ DECLARE_PER_CPU(int, cpu_state);

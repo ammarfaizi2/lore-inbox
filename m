@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965652AbWKIUlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161834AbWKIUpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965652AbWKIUlj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 15:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965754AbWKIUlj
+	id S1161834AbWKIUpb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 15:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965928AbWKIUpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 15:41:39 -0500
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:8372 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965652AbWKIUli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 15:41:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:Received:Date:From:To:Subject:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=h+ArFCvkpYjEanxJOj4eyw6I+IThaRqz/mDMTwLfPFn6nNACm4XbS2HocAjKmRnOsLQGsRINasF+634ttObzUmOv7iSx4TYzfq53vzY27BtEVj7bpe97kN8XrGNakRzV3t6jXMcV73ieUUvIkZJLnjBWdz5fMwYxPY3r4DB1Rdk=  ;
-Date: Thu, 09 Nov 2006 12:41:31 -0800
-From: David Brownell <david-b@pacbell.net>
-To: andrew@sanpeople.com
-Subject: Re: [Bulk] Re: [-mm patch 1/4] GPIO framework for AVR32
-Cc: linux-kernel@vger.kernel.org, hskinnemoen@atmel.com, akpm@osdl.org
-References: <20061107122507.6f1c6e81@cad-250-152.norway.atmel.com>
- <20061107122715.3022da2f@cad-250-152.norway.atmel.com>
- <20061107131014.535ab280.akpm@osdl.org>
- <20061107223741.62FA21DC801@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
- <20061108124823.308ae3b4@cad-250-152.norway.atmel.com>
- <20061108180059.845DE1DC95A@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
- <1163057161.14573.180.camel@fuzzie.sanpeople.com>
-In-Reply-To: <1163057161.14573.180.camel@fuzzie.sanpeople.com>
+	Thu, 9 Nov 2006 15:45:31 -0500
+Received: from mail1.key-systems.net ([81.3.43.253]:48851 "HELO
+	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
+	id S965997AbWKIUpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 15:45:30 -0500
+Message-ID: <45539366.7070809@scientia.net>
+Date: Thu, 09 Nov 2006 21:45:26 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.7 (X11/20061014)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20061109204131.E49241DA30B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+To: Roger Heflin <rheflin@atipa.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Strange write errors on FAT32 partition (maybe an FAT32 bug?!)
+References: <4550A481.2010408@scientia.net> <87psbzrss2.fsf@duaron.myhome.or.jp> <4553744E.3050007@scientia.net> <45539188.5080607@atipa.com>
+In-Reply-To: <45539188.5080607@atipa.com>
+Content-Type: multipart/mixed;
+ boundary="------------070103070701090606000204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We originally had at91_set_gpio_direction() in the AT91 GPIO layer, and
-> that seemed to cause confusion  (eg, do I pass a 1 or 0 to enable output
-> mode?)
+This is a multi-part message in MIME format.
+--------------070103070701090606000204
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-I was thinking the __bitwise annotation on GPIO_IN and GPIO_OUT should
-address that problem, but for some reason it isn't doing that.  I must
-be doing something wrong; even "sparse" isn't warning when passing a
-bogus parameter.
+Roger Heflin wrote:
+> Christoph,
+>
+> Install then edac_mc module, and make sure  through the
+> sysctl command that pci parity checking is enabled.
+>
+> I have seen pci parity errors produce this sort of results,
+> ie make 100 identical 50MB files, and cksum them and one
+> will be wrong, do it a again, and the "wrong" one is now
+> right, but someone else is "wrong".
+Ah thx,... is it in the vanilla kernel?
+And do you know of any possible results that this issue has? When I just
+read data (see my original stuff with fat32) is it possible that this
+had been modified or damaged?
+Or are the only consequences that diff errors occur?
 
+And what is responsible for that parity errors? Is it possible that any
+hardware is damaged?
 
-> So I'd personally prefer to keep gpio_set_input() and
-> gpio_set_output().  (alternative is "enable" instead of "set").
-> I think it's more readable.
+Thanks,
+Chris.
 
-To be clear ... having two different function calls is a brand
-new proposal.  :)
+--------------070103070701090606000204
+Content-Type: text/x-vcard; charset=utf-8;
+ name="calestyo.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="calestyo.vcf"
 
-Agreed on readable, and I do recall the problem.  If I can't get
-the __bitwise annotation to behave, that's how I'll do it.
-
-- Dave
-
-
+YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
+Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
+CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------070103070701090606000204--

@@ -1,92 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424277AbWKIXmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424269AbWKIXog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424277AbWKIXmN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 18:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424261AbWKIXlp
+	id S1424269AbWKIXog (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 18:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161826AbWKIXjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 18:41:45 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:52040 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1424259AbWKIXjs convert rfc822-to-8bit (ORCPT
+	Thu, 9 Nov 2006 18:39:06 -0500
+Received: from www.osadl.org ([213.239.205.134]:47004 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161829AbWKIXjC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 18:39:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PyP1MXo/gxvpYTx8G1IeVkyfo11gPVto+Xnk7zGp2AlWUq80fSETibAqqusqYds/oGyQ6hInOkxUDJJyB79mVAKr8t4XHCGORJIQ06jw6n8ZAxsv+pUXuTmhDCd2pFqlEipK6NIQ/o89ny/9vjm31Cm0pQ9aOlbZ4pJ1ovGKUhQ=
-Message-ID: <f56c1ba00611091539n1d1cbe99obdb1c5f608646c96@mail.gmail.com>
-Date: Fri, 10 Nov 2006 00:39:46 +0100
-From: "=?ISO-8859-1?Q?C=E9dric_Augonnet?=" <cedric.augonnet@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [linux-usb-devel] 2.6.19-rc5-mm1
-Cc: "Alan Stern" <stern@rowland.harvard.edu>,
-       "Benoit Boissinot" <bboissin@gmail.com>,
-       "Mattia Dongili" <malattia@linux.it>,
-       "USB development list" <linux-usb-devel@lists.sourceforge.net>,
-       "Kernel development list" <linux-kernel@vger.kernel.org>,
-       "SCSI development list" <linux-scsi@vger.kernel.org>
-In-Reply-To: <20061109145100.01d6ec46.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <20061109192658.GA2560@inferi.kami.home>
-	 <Pine.LNX.4.44L0.0611091655080.2262-100000@iolanthe.rowland.org>
-	 <20061109145100.01d6ec46.akpm@osdl.org>
+	Thu, 9 Nov 2006 18:39:02 -0500
+Message-Id: <20061109233034.182462000@cruncher.tec.linutronix.de>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+Date: Thu, 09 Nov 2006 23:38:17 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Len Brown <lenb@kernel.org>, John Stultz <johnstul@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: [patch 01/19] hrtimers: state tracking
+Content-Disposition: inline; filename=hrtimers-state-tracking.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/11/9, Andrew Morton <akpm@osdl.org>:
+From: Thomas Gleixner <tglx@linutronix.de>
 
->
-> hm.  Maybe it's the disk_sysfs_symlinks() changes.
->
-> Could someone who can reproduce this please try this revert, on
-> 2.6.19-rc2-mm2 through 2.6.19-rc5-mm1?
->
->
->
->  fs/partitions/check.c |    5 +++--
->  1 files changed, 3 insertions(+), 2 deletions(-)
->
-> diff -puN fs/partitions/check.c~revert-fix-ide-cs-hang-after-device-removal fs/partitions/check.c
-> --- a/fs/partitions/check.c~revert-fix-ide-cs-hang-after-device-removal
-> +++ a/fs/partitions/check.c
-> @@ -416,7 +416,7 @@ static char *make_block_name(struct gend
->
->  static int disk_sysfs_symlinks(struct gendisk *disk)
->  {
-> -       struct device *target = disk->driverfs_dev;
-> +       struct device *target = get_device(disk->driverfs_dev);
->         int err;
->         char *disk_name = NULL;
->
-> @@ -452,8 +452,9 @@ err_out_dev_link:
->                 sysfs_remove_link(&disk->kobj, "device");
->  err_out_disk_name:
->                 kfree(disk_name);
-> -       }
->  err_out:
-> +               put_device(target);
-> +       }
->         return err;
->  }
->
-> _
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Reintroduce ktimers feature "optimized away" by the ktimers review process:
+multiple hrtimer states to enable the running of hrtimers without holding the
+cpu-base-lock.
 
-Hi,
+(The "optimized" rbtree hack carried only 2 states worth of information and we
+need 4 for high resolution timers and dynamic ticks.)
 
-This patch seems to be working : whereas i had the same oops as Mattia
-each time I unplugged my USB external DD drive, now it does not happen
-anymore.
-Thank you very much for this one !
+Build-fixes-from: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Best regards,
-Cédric
+Index: linux-2.6.19-rc5-mm1/include/linux/hrtimer.h
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/include/linux/hrtimer.h	2006-11-09 21:06:05.000000000 +0100
++++ linux-2.6.19-rc5-mm1/include/linux/hrtimer.h	2006-11-09 21:06:07.000000000 +0100
+@@ -40,6 +40,34 @@ enum hrtimer_restart {
+ 	HRTIMER_RESTART,	/* Timer must be restarted */
+ };
+ 
++/*
++ * Bit values to track state of the timer
++ *
++ * Possible states:
++ *
++ * 0x00		inactive
++ * 0x01		enqueued into rbtree
++ * 0x02		callback function running
++ * 0x03		callback function running and enqueued
++ *		(was requeued on another CPU)
++ *
++ * The "callback function running and enqueued" status is only possible on
++ * SMP. It happens for example when a posix timer expired and the callback
++ * queued a signal. Between dropping the lock which protects the posix timer
++ * and reacquiring the base lock of the hrtimer, another CPU can deliver the
++ * signal and rearm the timer. We have to preserve the callback running state,
++ * as otherwise the timer could be removed before the softirq code finishes the
++ * the handling of the timer.
++ *
++ * The HRTIMER_STATE_ENQUEUE bit is always or'ed to the current state to
++ * preserve the HRTIMER_STATE_CALLBACK bit in the above scenario.
++ *
++ * All state transitions are protected by cpu_base->lock.
++ */
++#define HRTIMER_STATE_INACTIVE	0x00
++#define HRTIMER_STATE_ENQUEUED	0x01
++#define HRTIMER_STATE_CALLBACK	0x02
++
+ /**
+  * struct hrtimer - the basic hrtimer structure
+  * @node:	red black tree node for time ordered insertion
+@@ -48,6 +76,7 @@ enum hrtimer_restart {
+  *		which the timer is based.
+  * @function:	timer expiry callback function
+  * @base:	pointer to the timer base (per cpu and per clock)
++ * @state:	state information (See bit values above)
+  *
+  * The hrtimer structure must be initialized by init_hrtimer_#CLOCKTYPE()
+  */
+@@ -56,6 +85,7 @@ struct hrtimer {
+ 	ktime_t				expires;
+ 	enum hrtimer_restart		(*function)(struct hrtimer *);
+ 	struct hrtimer_clock_base	*base;
++	unsigned long			state;
+ };
+ 
+ /**
+@@ -141,9 +171,13 @@ extern int hrtimer_get_res(const clockid
+ extern ktime_t hrtimer_get_next_event(void);
+ #endif
+ 
++/*
++ * A timer is active, when it is enqueued into the rbtree or the callback
++ * function is running.
++ */
+ static inline int hrtimer_active(const struct hrtimer *timer)
+ {
+-	return rb_parent(&timer->node) != &timer->node;
++	return timer->state != HRTIMER_STATE_INACTIVE;
+ }
+ 
+ /* Forward a hrtimer so it expires after now: */
+Index: linux-2.6.19-rc5-mm1/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/kernel/hrtimer.c	2006-11-09 21:06:05.000000000 +0100
++++ linux-2.6.19-rc5-mm1/kernel/hrtimer.c	2006-11-09 21:06:07.000000000 +0100
+@@ -235,6 +235,12 @@ lock_hrtimer_base(const struct hrtimer *
+ 
+ #endif	/* !CONFIG_SMP */
+ 
++static inline int hrtimer_is_queued(struct hrtimer *timer)
++{
++	return timer->state != HRTIMER_STATE_INACTIVE &&
++		timer->state != HRTIMER_STATE_CALLBACK;
++}
++
+ /*
+  * Functions for the union type storage format of ktime_t which are
+  * too large for inlining:
+@@ -385,6 +391,11 @@ static void enqueue_hrtimer(struct hrtim
+ 	 */
+ 	rb_link_node(&timer->node, parent, link);
+ 	rb_insert_color(&timer->node, &base->active);
++	/*
++	 * HRTIMER_STATE_ENQUEUED is or'ed to the current state to preserve the
++	 * state of a possibly running callback.
++	 */
++	timer->state |= HRTIMER_STATE_ENQUEUED;
+ 
+ 	if (!base->first || timer->expires.tv64 <
+ 	    rb_entry(base->first, struct hrtimer, node)->expires.tv64)
+@@ -397,7 +408,8 @@ static void enqueue_hrtimer(struct hrtim
+  * Caller must hold the base lock.
+  */
+ static void __remove_hrtimer(struct hrtimer *timer,
+-			     struct hrtimer_clock_base *base)
++			     struct hrtimer_clock_base *base,
++			     unsigned long newstate)
+ {
+ 	/*
+ 	 * Remove the timer from the rbtree and replace the
+@@ -406,7 +418,7 @@ static void __remove_hrtimer(struct hrti
+ 	if (base->first == &timer->node)
+ 		base->first = rb_next(&timer->node);
+ 	rb_erase(&timer->node, &base->active);
+-	rb_set_parent(&timer->node, &timer->node);
++	timer->state = newstate;
+ }
+ 
+ /*
+@@ -415,8 +427,8 @@ static void __remove_hrtimer(struct hrti
+ static inline int
+ remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base)
+ {
+-	if (hrtimer_active(timer)) {
+-		__remove_hrtimer(timer, base);
++	if (hrtimer_is_queued(timer)) {
++		__remove_hrtimer(timer, base, HRTIMER_STATE_INACTIVE);
+ 		return 1;
+ 	}
+ 	return 0;
+@@ -488,7 +500,7 @@ int hrtimer_try_to_cancel(struct hrtimer
+ 
+ 	base = lock_hrtimer_base(timer, &flags);
+ 
+-	if (base->cpu_base->curr_timer != timer)
++	if (!(timer->state & HRTIMER_STATE_CALLBACK))
+ 		ret = remove_hrtimer(timer, base);
+ 
+ 	unlock_hrtimer_base(timer, &flags);
+@@ -593,7 +605,6 @@ void hrtimer_init(struct hrtimer *timer,
+ 		clock_id = CLOCK_MONOTONIC;
+ 
+ 	timer->base = &cpu_base->clock_base[clock_id];
+-	rb_set_parent(&timer->node, &timer->node);
+ }
+ EXPORT_SYMBOL_GPL(hrtimer_init);
+ 
+@@ -644,13 +655,14 @@ static inline void run_hrtimer_queue(str
+ 
+ 		fn = timer->function;
+ 		set_curr_timer(cpu_base, timer);
+-		__remove_hrtimer(timer, base);
++		__remove_hrtimer(timer, base, HRTIMER_STATE_CALLBACK);
+ 		spin_unlock_irq(&cpu_base->lock);
+ 
+ 		restart = fn(timer);
+ 
+ 		spin_lock_irq(&cpu_base->lock);
+ 
++		timer->state &= ~HRTIMER_STATE_CALLBACK;
+ 		if (restart != HRTIMER_NORESTART) {
+ 			BUG_ON(hrtimer_active(timer));
+ 			enqueue_hrtimer(timer, base);
+@@ -821,7 +833,8 @@ static void migrate_hrtimer_list(struct 
+ 
+ 	while ((node = rb_first(&old_base->active))) {
+ 		timer = rb_entry(node, struct hrtimer, node);
+-		__remove_hrtimer(timer, old_base);
++		BUG_ON(timer->state & HRTIMER_STATE_CALLBACK);
++		__remove_hrtimer(timer, old_base, HRTIMER_STATE_INACTIVE);
+ 		timer->base = new_base;
+ 		enqueue_hrtimer(timer, new_base);
+ 	}
+
+--
+

@@ -1,75 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753760AbWKIHhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753813AbWKIHsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753760AbWKIHhi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 02:37:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753792AbWKIHhh
+	id S1753813AbWKIHsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 02:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753845AbWKIHsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 02:37:37 -0500
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:14552 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1753760AbWKIHhg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 02:37:36 -0500
-Message-ID: <4552EAFC.5060400@soleranetworks.com>
-Date: Thu, 09 Nov 2006 01:46:52 -0700
-From: "Jeffrey V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-CC: "Jeff V. Merkey" <jmerkey@soleranetworks.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       NetDEV list <netdev@vger.kernel.org>
-Subject: Re: e1000 driver 2.6.18 - how to waste processor cycles
-References: <45524E3A.7080301@soleranetworks.com> <4807377b0611081701i26ee7ce0k1f822dbbe52c2c8@mail.gmail.com>
-In-Reply-To: <4807377b0611081701i26ee7ce0k1f822dbbe52c2c8@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Nov 2006 02:48:16 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49313 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1753813AbWKIHsO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 02:48:14 -0500
+Subject: Re: Abysmal PATA IDE performance
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: Stephen Clark <Stephen.Clark@seclark.us>, Mark Lord <lkml@rtr.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061109020758.GA21537@atjola.homenet>
+References: <455206E7.2050104@seclark.us> <45526D50.5020105@rtr.ca>
+	 <455277E1.3040803@seclark.us>  <20061109020758.GA21537@atjola.homenet>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 09 Nov 2006 07:52:35 +0000
+Message-Id: <1163058755.23956.124.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Brandeburg wrote:
+Ar Iau, 2006-11-09 am 03:07 +0100, ysgrifennodd Björn Steinbrink:
+> Appears first and that's where the other driver has taken control of the
+> drives. I had the same issue on my thinkpad, getting rid of the whole
+> IDE stuff solved the problem (because the other drivers does no longer
+> grab the drive).
 
-> included netdev...
->
-> On 11/8/06, Jeff V. Merkey <jmerkey@soleranetworks.com> wrote:
->
->>
->> Is there a good reason the skb refill routine in e1000_alloc_rx_buffers
->> needs to go and touch and remap skb memory
->> on already loaded descriptors/  This seems extremely wasteful of
->> processor cycles when refilling the ring buffer.
->>
->> I note that the archtiecture has changed and is recycling buffers from
->> the rx_irq routine and when the routine is called
->> to refill the ring buffers, a lot of wasteful and needless calls for
->> map_skb is occurring.
->
->
-> we have to unmap the descriptor (or at least do
-> pci_dma_sync_single_for_cpu / pci_dma_sync_single_for_device) because
-> the dma API says we can't be guaranteed the cacheable memory is
-> consistent until we do one of the afore mentioned pci dma ops.
-
-In the case I am referring to, the memory is already mapped with a 
-previous call, which means it may be getting
-mapped twice.
-
-Jeff
-
->
-> we have to do *something* before we access it.  Simplest path is to
-> unmap it and then recycle/map it.
->
-> If you can show that it is faster to use pci_dma_sync_single_for_cpu
-> and friends I'd be glad to take a patch.
->
-> Hope this helps,
->  Jesse
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+For reference you can also use ide0=noprobe ide1=noprobe and similar to
+control this

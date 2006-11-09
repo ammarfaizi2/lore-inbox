@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424177AbWKISBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424184AbWKISIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424177AbWKISBm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 13:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424182AbWKISBm
+	id S1424184AbWKISIm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 13:08:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424183AbWKISIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 13:01:42 -0500
-Received: from py-out-1112.google.com ([64.233.166.178]:47576 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1424177AbWKISBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 13:01:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sILBqsSOWvjFOoBbs443jhqwFj5Oe9EWcGUAf3GqmYZk/jtJGXBMX7YsrVexRR8uP7uxl+mgxFETJaa5dhrp77LlNRY6tzTT1nhgGOAEYpCmp3YyBgj5hm7Odd87T38Mnlg2w/CQjWMr9/YFcQRAZHmRB63aa/s17+3cuqjn3i8=
-Message-ID: <d9a083460611091001tfee2abauf4b5bce88eec1110@mail.gmail.com>
-Date: Thu, 9 Nov 2006 19:01:02 +0100
-From: Jano <jasieczek@gmail.com>
-To: "Jiri Slaby" <jirislaby@gmail.com>
-Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
-Cc: "Phillip Susi" <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-In-Reply-To: <455369C9.7020909@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>
-	 <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com>
-	 <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com>
-	 <455360CF.9070600@cfl.rr.com> <455369C9.7020909@gmail.com>
+	Thu, 9 Nov 2006 13:08:42 -0500
+Received: from cattelan-host202.dsl.visi.com ([208.42.117.202]:37602 "EHLO
+	slurp.thebarn.com") by vger.kernel.org with ESMTP id S1424184AbWKISIl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 13:08:41 -0500
+Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
+From: Russell Cattelan <cattelan@thebarn.com>
+To: "Igor A. Valcov" <viaprog@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
+References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JuSEL1a0MCem7VzSRDyt"
+Date: Thu, 09 Nov 2006 12:08:35 -0600
+Message-Id: <1163095715.5632.102.camel@xenon.msp.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1-1mdv2007.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/11/9, Jiri Slaby <jirislaby@gmail.com>:
-> Phillip Susi wrote:
-> >
-> > Please stop discouraging top posting.  There is no reason to have to
-> > scroll down through a screen or two of quoted message that you  just
-> > read the original of, before getting to the new subject matter.
->
-> Nope.
-> http://www.zipworld.com.au/~akpm/linux/patches/stuff/top-posting.txt
->
 
-I'm sorry to interrupt, but could you continue this discussion
-elsewhere? We've begun to bottom-post in this topic, and let's
-continue it this way. Fair enough?
+--=-JuSEL1a0MCem7VzSRDyt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->
-> Mount(8) calls mount(2) no matter what is in the /etc/mtab.
->
+On Thu, 2006-11-09 at 20:30 +0300, Igor A. Valcov wrote:
+> Hello,
+>=20
+> For one of our projects we have a test program that measures file
+> system performance by writing up to 1000 files simultaneously. After
+> installing kernel v2.6.16 we noticed that XFS performance dropped by a
+> factor of 5 (tests that took around 4 minutes on kernel 2.6.15 now
+> take around 20 minutes to complete). We then checked all kernels
+> starting from 2.6.16 up to 2.6.19-rc5 with the same unpleasant result.
+> The funny thing about all this is that we chose XFS for that
+> particular project specifically because it was about 5 times faster
+> with the tests than the other file systems. Now they all take about
+> the same time.
+>=20
+> I also noticed that I/O barriers were introduced in v2.6.16 and
+> thought they may be the cause, but mounting the file system with
+> 'nobarrier' doesn't seem to affect the performance in any way.
+>=20
+> Any thoughts on the matter are appreciated.
+I would try verifying the problem on a non ide disk just
+to confirm the write barrier theory.
 
-So what should I actually post? 'cat /etc/mtab'? If so, here it is:
-
-# cat /etc/mtab
-/dev/hda3 / ext3 rw,errors=remount-ro 0 0
-proc /proc proc rw 0 0
-/sys /sys sysfs rw 0 0
-varrun /var/run tmpfs rw 0 0
-varlock /var/lock tmpfs rw 0 0
-udev /dev tmpfs rw 0 0
-devpts /dev/pts devpts rw,gid=5,mode=620 0 0
-devshm /dev/shm tmpfs rw 0 0
-/dev/hda1 /boot ext3 rw 0 0
-/dev/hda5 /usr ext3 rw 0 0
+Also file a bug.
+http://oss/sgi.com/bugzilla
+include test case and hard description if possible.
 
 
-Best regards,
-Jano
--- 
-Mail 	jano at stepien com pl
-Jabber 	jano at jabber aster pl
-GG 	1894343
-Web	http://stepien.com.pl
+>=20
+> Thanks in advance,
+
+--=20
+Russell Cattelan <cattelan@thebarn.com>
+
+--=-JuSEL1a0MCem7VzSRDyt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFU26jNRmM+OaGhBgRAv3EAJoD46oZI7tAel8SFTVxfYRbC8gXXACff0ge
+/N33Dq1iluQOkxKfZWacUIw=
+=PPqj
+-----END PGP SIGNATURE-----
+
+--=-JuSEL1a0MCem7VzSRDyt--
+

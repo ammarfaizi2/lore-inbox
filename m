@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWKIBnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161777AbWKIBqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWKIBnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 20:43:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWKIBnI
+	id S1161777AbWKIBqY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 20:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161780AbWKIBqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 20:43:08 -0500
-Received: from mga05.intel.com ([192.55.52.89]:20550 "EHLO
+	Wed, 8 Nov 2006 20:46:24 -0500
+Received: from mga05.intel.com ([192.55.52.89]:42131 "EHLO
 	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932164AbWKIBnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 20:43:07 -0500
+	id S1161777AbWKIBqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 20:46:23 -0500
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.09,401,1157353200"; 
-   d="scan'208"; a="160443923:sNHT135499210"
-Date: Wed, 8 Nov 2006 17:20:18 -0800
+   d="scan'208"; a="13570112:sNHT29925045"
+Date: Wed, 8 Nov 2006 17:23:52 -0800
 From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
 To: ak@suse.de, akpm@osdl.org
 Cc: shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
        ashok.raj@intel.com, suresh.b.siddha@intel.com, greg@kroah.com
-Subject: [patch 0/4] i386, x86_64: fix the irqbalance quirk for E7520/E7320/E7525 - V2
-Message-ID: <20061108172017.A10294@unix-os.sc.intel.com>
+Subject: [patch 1/4] i386: add write_pci_config_byte() to direct PCI access routines
+Message-ID: <20061108172352.B10294@unix-os.sc.intel.com>
+References: <20061108172017.A10294@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061108172017.A10294@unix-os.sc.intel.com>; from suresh.b.siddha@intel.com on Wed, Nov 08, 2006 at 05:20:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mechanism of selecting physical mode in genapic when cpu hotplug is enabled
-on x86_64, broke the quirk(quirk_intel_irqbalance()) introduced for working
-around the transposing interrupt message errata in E7520/E7320/E7525
-(revision ID 0x9 and below. errata #23 in 
-http://download.intel.com/design/chipsets/specupdt/30304203.pdf).
+Add write_pci_config_byte() to direct PCI access  routines
 
-This errata requires the mode to be in logical flat, so that interrupts
-can be directed to more than one cpu(and thus use hardware IRQ balancing
-enabled by BIOS on these platforms).
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+---
 
-Following four patches fixes this by moving the quirk to early quirk
-and forcing the x86_64 genapic selection to logical flat on these platforms.
-
-Thanks to Shaohua for pointing out the breakage.
-
-Changes in V2:
-- Fix compilation breakages
-- ifdef and variable name cleanups
+diff --git a/arch/i386/pci/early.c b/arch/i386/pci/early.c
+index 713d6c8..42df4b6 100644
+--- a/arch/i386/pci/early.c
++++ b/arch/i386/pci/early.c
+@@ -45,6 +45,13 @@ void write_pci_config(u8 bus, u8 slot, u
+ 	outl(val, 0xcfc);
+ }
+ 
++void write_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset, u8 val)
++{
++	PDprintk("%x writing to %x: %x\n", slot, offset, val);
++	outl(0x80000000 | (bus<<16) | (slot<<11) | (func<<8) | offset, 0xcf8);
++	outb(val, 0xcfc);
++}
++
+ int early_pci_allowed(void)
+ {
+ 	return (pci_probe & (PCI_PROBE_CONF1|PCI_PROBE_NOEARLY)) ==
+diff --git a/include/asm-x86_64/pci-direct.h b/include/asm-x86_64/pci-direct.h
+index eba9cb4..6823fa4 100644
+--- a/include/asm-x86_64/pci-direct.h
++++ b/include/asm-x86_64/pci-direct.h
+@@ -10,6 +10,7 @@ extern u32 read_pci_config(u8 bus, u8 sl
+ extern u8 read_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset);
+ extern u16 read_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset);
+ extern void write_pci_config(u8 bus, u8 slot, u8 func, u8 offset, u32 val);
++extern void write_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset, u8 val);
+ 
+ extern int early_pci_allowed(void);
+ 

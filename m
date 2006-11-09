@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161848AbWKIV55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161855AbWKIWAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161848AbWKIV55 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 16:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161854AbWKIV55
+	id S1161855AbWKIWAU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 17:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161858AbWKIWAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 16:57:57 -0500
-Received: from mail1.key-systems.net ([81.3.43.253]:21462 "HELO
-	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
-	id S1161851AbWKIV54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 16:57:56 -0500
-Message-ID: <4553A461.4080002@scientia.net>
-Date: Thu, 09 Nov 2006 22:57:53 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
-MIME-Version: 1.0
-To: Roger Heflin <rheflin@atipa.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange write errors on FAT32 partition (maybe an FAT32 bug?!)
-References: <4550A481.2010408@scientia.net> <87psbzrss2.fsf@duaron.myhome.or.jp> <4553744E.3050007@scientia.net> <45539188.5080607@atipa.com> <45539366.7070809@scientia.net> <45539588.7020504@atipa.com> <45539699.40105@scientia.net> <45539753.7060906@atipa.com>
-In-Reply-To: <45539753.7060906@atipa.com>
-Content-Type: multipart/mixed;
- boundary="------------090008090302000607010600"
+	Thu, 9 Nov 2006 17:00:20 -0500
+Received: from vena.lwn.net ([206.168.112.25]:54765 "EHLO vena.lwn.net")
+	by vger.kernel.org with ESMTP id S1161855AbWKIWAT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 17:00:19 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Prevent an oops in vmalloc_user()
+cc: akpm@osdl.org
+From: Jonathan Corbet <corbet@lwn.net>
+Date: Thu, 09 Nov 2006 15:00:19 -0700
+Message-ID: <31360.1163109619@lwn.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090008090302000607010600
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Prevent an oops in vmalloc_user()
 
-It seems that I don't get any data at all.
-I only get the edac_mc module but none that seems to support my chipset
-or so...
-Any ideas?
+If an attempt to allocate memory with vmalloc_user() fails, the result
+will be an oops when it tries to tweak the flags in the (non-existent)
+VMA.  One could argue that __find_vm_area() should not return a random
+pointer on failure, but vmalloc_user() requires a check regardless.
 
---------------090008090302000607010600
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------090008090302000607010600--
+--- 2.6.19-rc5/mm/vmalloc.c.orig	2006-11-09 13:51:38.000000000 -0700
++++ 2.6.19-rc5/mm/vmalloc.c	2006-11-09 13:52:10.000000000 -0700
+@@ -532,10 +532,12 @@ void *vmalloc_user(unsigned long size)
+ 	void *ret;
+ 
+ 	ret = __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM | __GFP_ZERO, PAGE_KERNEL);
+-	write_lock(&vmlist_lock);
+-	area = __find_vm_area(ret);
+-	area->flags |= VM_USERMAP;
+-	write_unlock(&vmlist_lock);
++	if (ret) {
++		write_lock(&vmlist_lock);
++		area = __find_vm_area(ret);
++		area->flags |= VM_USERMAP;
++		write_unlock(&vmlist_lock);
++	}
+ 
+ 	return ret;
+ }

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161441AbWKIBQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423589AbWKIBQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161441AbWKIBQV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 20:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161780AbWKIBQV
+	id S1423589AbWKIBQq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 20:16:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161757AbWKIBQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 20:16:21 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:3501 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161441AbWKIBQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 20:16:21 -0500
+	Wed, 8 Nov 2006 20:16:27 -0500
+Received: from wr-out-0506.google.com ([64.233.184.225]:11876 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161780AbWKIBQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 20:16:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=ohb/0dn2wjJnoAV669U4hjIulCDeosTk9Wn5qpZlj7eWh2oXnME3CSnHDC0J4mGiOdW+9jEDfTE0b9/wvshTI7R79Xtcy/Lt8o54onhkiLKm43fHi43vuKXTZsWHTjQmaxVC95Hp4Jq3sq4thC/OlNgr+NNDnas/mRodqEOIggM=
+        b=oA4apeXDwMdTjOyTOQFU7vZ+J1nfxvzRyxaRTZYNsU5gMsCWBvY1gF2JU4j3IVuL/a97OWbh6aJpvCjtS6VZSc6dLDu9NyVhG7np1slezkJzBGX9e6mc3epXUKoNHQ+KNzVzE807r0slqdemfcFwcaNslpjOl4OSzV08d/8oNOg=
 Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 1/5] direct-io: fix page_errors handling
+Subject: [PATCH 3/5] direct-io: factor out dio_determine_result()
 In-Reply-To: <11630349713427-git-send-email-htejun@gmail.com>
 X-Mailer: git-send-email
 Date: Thu, 9 Nov 2006 10:16:11 +0900
-Message-Id: <1163034971471-git-send-email-htejun@gmail.com>
+Message-Id: <11630349714058-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Tejun Heo <htejun@gmail.com>
@@ -30,61 +30,129 @@ From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a page error occurs during write request, dio_refill_page() sets
-dio->page_errors, maps zero page instead and proceeds as usual if
-mapped blocks exist to clear mapped blocks.  After clearing all
-blocks, get_more_blocks() is called to map more blocks.  The function
-fails if dio->page_errors is set thus propagating the delayed error
-condition.
+Code to determine dio result value is shared between async and sync
+completion paths.  Factor it out.
 
-However, the delayed propagation doesn't work if page error occurs for
-the last chunk.  get_more_blocks() is not called after clearing
-currently mapped buffers; thus, the error condition is not reflected
-in the return value.  dio->page_errors is later taken into account in
-synchronous completion path but not in async completion path.
-
-This bug can be exposed by direct aio writing a buffer which has the
-tailing pages munmapped.  The file blocks corresponding to the
-unmapped area are cleared to zero but the write successfully completes
-with result set to full length of the request.
-
-This patch fixes the bug by making do_direct_IO() always propagate
-page_errors to its return value.  As this makes page_errors
-propagation the responsibility of do_direct_IO() proper,
-dio->page_errors handling in synchronous completion path is removed.
-
-This patch also fixes error precedence bug in synchronous completion
-path.  If both page_errors and io_error occur, page_errors should be
-reported to user but the original code gave precedence to IO error
-reported from dio_await_completion().
+This is in preparation of unifying sync and async completion paths.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 ---
- fs/direct-io.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ fs/direct-io.c |   68 +++++++++++++++++++++++++------------------------------
+ 1 files changed, 31 insertions(+), 37 deletions(-)
 
 diff --git a/fs/direct-io.c b/fs/direct-io.c
-index 5981e17..25721b2 100644
+index c85aee3..98d8c2e 100644
 --- a/fs/direct-io.c
 +++ b/fs/direct-io.c
-@@ -940,6 +940,8 @@ next_block:
- 		block_in_page = 0;
- 	}
- out:
-+	if (ret == 0)
-+		ret = dio->page_errors;
- 	return ret;
+@@ -210,15 +210,38 @@ static struct page *dio_get_page(struct
  }
  
-@@ -1125,8 +1127,6 @@ direct_io_worker(int rw, struct kiocb *i
- 		ret2 = dio_await_completion(dio);
- 		if (ret == 0)
- 			ret = ret2;
--		if (ret == 0)
--			ret = dio->page_errors;
- 		if (dio->result) {
- 			loff_t i_size = i_size_read(inode);
+ /*
++ * Determine the final result value for @dio.  If no error occurred,
++ * it's the number of transferred bytes.  Otherwise, -errno.  Error
++ * which occurred earlier has precedence.  If a read request straddles
++ * unaligned EOF, read data may go beyond it.  In such cases,
++ * tranferred nbytes is capped at EOF.
++ */
++static ssize_t dio_determine_result(struct dio *dio, int issue_err)
++{
++	loff_t offset = dio->iocb->ki_pos;
++	ssize_t transferred = dio->result;
++
++	if (issue_err)
++		return issue_err;
++	if (dio->io_error)
++		return dio->io_error;
++
++	if ((dio->rw == READ) && ((offset + transferred) > dio->i_size))
++		transferred = dio->i_size - offset;
++	return transferred;
++}
++
++/*
+  * Called when all DIO BIO I/O has been completed - let the filesystem
+  * know, if it registered an interest earlier via get_block.  Pass the
+  * private field of the map buffer_head so that filesystems can use it
+  * to hold additional state between get_block calls and dio_complete.
+  */
+-static void dio_complete(struct dio *dio, loff_t offset, ssize_t bytes)
++static void dio_complete(struct dio *dio, ssize_t bytes)
+ {
+ 	if (dio->end_io && dio->result)
+-		dio->end_io(dio->iocb, offset, bytes, dio->map_bh.b_private);
++		dio->end_io(dio->iocb, dio->iocb->ki_pos, bytes,
++			    dio->map_bh.b_private);
+ 	if (dio->lock_type == DIO_LOCKING)
+ 		/* lockdep: non-owner release */
+ 		up_read_non_owner(&dio->inode->i_alloc_sem);
+@@ -235,33 +258,19 @@ static void finished_one_bio(struct dio
+ 	spin_lock_irqsave(&dio->bio_lock, flags);
+ 	if (dio->bio_count == 1) {
+ 		if (dio->is_async) {
+-			ssize_t transferred;
+-			loff_t offset;
+-
++			ssize_t ret = dio_determine_result(dio, 0);
+ 			/*
+ 			 * Last reference to the dio is going away.
+ 			 * Drop spinlock and complete the DIO.
+ 			 */
+ 			spin_unlock_irqrestore(&dio->bio_lock, flags);
  
+-			/* Check for short read case */
+-			transferred = dio->result;
+-			offset = dio->iocb->ki_pos;
+-
+-			if ((dio->rw == READ) &&
+-			    ((offset + transferred) > dio->i_size))
+-				transferred = dio->i_size - offset;
+-
+-			/* check for error in completion path */
+-			if (dio->io_error)
+-				transferred = dio->io_error;
+-
+-			dio_complete(dio, offset, transferred);
++			dio_complete(dio, ret);
+ 
+ 			/* Complete AIO later if falling back to buffered i/o */
+ 			if (dio->result == dio->size ||
+ 				((dio->rw == READ) && dio->result)) {
+-				aio_complete(dio->iocb, transferred, 0);
++				aio_complete(dio->iocb, ret, 0);
+ 				kfree(dio);
+ 				return;
+ 			} else {
+@@ -1121,27 +1130,12 @@ direct_io_worker(int rw, struct kiocb *i
+ 			kfree(dio);
+ 		}
+ 	} else {
+-		ssize_t transferred = 0;
+-
+ 		finished_one_bio(dio);
+-		ret2 = dio_await_completion(dio);
+-		if (ret == 0)
+-			ret = ret2;
+-		if (dio->result) {
+-			loff_t i_size = i_size_read(inode);
++		dio_await_completion(dio);
+ 
+-			transferred = dio->result;
+-			/*
+-			 * Adjust the return value if the read crossed a
+-			 * non-block-aligned EOF.
+-			 */
+-			if (rw == READ && (offset + transferred > i_size))
+-				transferred = i_size - offset;
+-		}
+-		if (ret == 0)
+-			ret = transferred;
++		ret = dio_determine_result(dio, ret);
+ 
+-		dio_complete(dio, offset, ret);
++		dio_complete(dio, ret);
+ 
+ 		/* We could have also come here on an AIO file extend */
+ 		if (!is_sync_kiocb(iocb) && (rw & WRITE) &&
 -- 
 1.4.3.3
 

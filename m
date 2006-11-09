@@ -1,102 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161783AbWKITmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423859AbWKITp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161783AbWKITmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 14:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161209AbWKITmy
+	id S1423859AbWKITp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 14:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423860AbWKITp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 14:42:54 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:19692 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1161802AbWKITmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 14:42:52 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 9 Nov 2006 11:42:49 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>,
+	Thu, 9 Nov 2006 14:45:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:53689 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1423859AbWKITp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 14:45:57 -0500
+Subject: Re: [RFC][PATCH 8/8] RSS controller support reclamation
+From: Arjan van de Ven <arjan@infradead.org>
+To: Balbir Singh <balbir@in.ibm.com>
+Cc: Linux MM <linux-mm@kvack.org>, dev@openvz.org,
+       ckrm-tech@lists.sourceforge.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take24 3/6] kevent: poll/select() notifications.
-In-Reply-To: <20061109191036.GA30138@2ka.mipt.ru>
-Message-ID: <Pine.LNX.4.64.0611091137290.25481@alien.or.mcafeemobile.com>
-References: <11630606373650@2ka.mipt.ru> <Pine.LNX.4.64.0611091047120.25481@alien.or.mcafeemobile.com>
- <20061109191036.GA30138@2ka.mipt.ru>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       haveblue@us.ibm.com, rohitseth@google.com
+In-Reply-To: <20061109193636.21437.11778.sendpatchset@balbir.in.ibm.com>
+References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com>
+	 <20061109193636.21437.11778.sendpatchset@balbir.in.ibm.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 09 Nov 2006 20:45:43 +0100
+Message-Id: <1163101543.3138.528.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2006, Evgeniy Polyakov wrote:
-
-> On Thu, Nov 09, 2006 at 10:51:56AM -0800, Davide Libenzi (davidel@xmailserver.org) wrote:
-> > On Thu, 9 Nov 2006, Evgeniy Polyakov wrote:
-> > 
-> > > +static int kevent_poll_callback(struct kevent *k)
-> > > +{
-> > > +	if (k->event.req_flags & KEVENT_REQ_LAST_CHECK) {
-> > > +		return 1;
-> > > +	} else {
-> > > +		struct file *file = k->st->origin;
-> > > +		unsigned int revents = file->f_op->poll(file, NULL);
-> > > +
-> > > +		k->event.ret_data[0] = revents & k->event.event;
-> > > +		
-> > > +		return (revents & k->event.event);
-> > > +	}
-> > > +}
-> > 
-> > You need to be careful that file->f_op->poll is not called inside the 
-> > spin_lock_irqsave/spin_lock_irqrestore pair, since (even this came up 
-> > during epoll developemtn days) file->f_op->poll might do a simple 
-> > spin_lock_irq/spin_unlock_irq. This unfortunate constrain forced epoll to 
-> > have a suboptimal double O(R) loop to handle LT events.
->  
-> It is tricky - users call wake_up() from any context, which in turn ends
-> up calling kevent_storage_ready(), which calls kevent_poll_callback() with
-> KEVENT_REQ_LAST_CHECK bit set, which becomes almost empty call in fast
-> path. Since callback returns 1, kevent will be queued into ready queue,
-> which is processed on behalf of syscalls - in that case kevent will
-> check the flag and since KEVENT_REQ_LAST_CHECK is set, will call
-> callback again to check if kevent is correctly marked, but already
-> without that flag (it happens in syscall context, i.e. process context
-> without any locks held), so callback calls ->poll(), which can sleep,
-> but it is safe. If ->poll() returns 'ready' value, kevent is transfers
-> data into userspace, otherwise it is 'requeued' (just removed from
-> ready queue).
-
-Oh, mine was only a general warn. I hadn't looked at the generic code 
-before. But now that I poke on it, I see:
-
-void kevent_requeue(struct kevent *k)
-{
-       unsigned long flags;
-
-       spin_lock_irqsave(&k->st->lock, flags);
-       __kevent_requeue(k, 0);
-       spin_unlock_irqrestore(&k->st->lock, flags);
-}
-
-and then:
-
-static int __kevent_requeue(struct kevent *k, u32 event)
-{
-       int ret, rem;
-       unsigned long flags;
-
-       ret = k->callbacks.callback(k);
-
-Isn't the k->callbacks.callback() possibly end up calling f_op->poll?
+On Fri, 2006-11-10 at 01:06 +0530, Balbir Singh wrote:
+> 
+> Reclaim memory as we hit the max_shares limit. The code for reclamation
+> is inspired from Dave Hansen's challenged memory controller and from the
+> shrink_all_memory() code
 
 
+Hmm.. I seem to remember that all previous RSS rlimit attempts actually
+fell flat on their face because of the reclaim-on-rss-overflow behavior;
+in the shared page / cached page (equally important!) case, it means
+process A (or container A) suddenly penalizes process B (or container B)
+by making B have pagecache misses because A was using a low RSS limit.
 
-- Davide
+Unmapping the page makes sense, sure, and even moving then to inactive
+lists or whatever that is called in the vm today, but reclaim... that's
+expensive...
 
 

@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754765AbWKITPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754814AbWKITTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754765AbWKITPi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 14:15:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754796AbWKITPi
+	id S1754814AbWKITTp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 14:19:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754821AbWKITTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 14:15:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51101 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1754765AbWKITPh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 14:15:37 -0500
-Date: Thu, 9 Nov 2006 11:12:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Message-Id: <20061109111212.eee33367.akpm@osdl.org>
-In-Reply-To: <1163065920.3138.486.camel@laptopd505.fenrus.org>
-References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com>
-	<1163024531.3138.406.camel@laptopd505.fenrus.org>
-	<20061108145150.80ceebf4.akpm@osdl.org>
-	<1163064401.3138.472.camel@laptopd505.fenrus.org>
-	<20061109013645.7bef848d.akpm@osdl.org>
-	<1163065920.3138.486.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 9 Nov 2006 14:19:45 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:17080 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1754814AbWKITTo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 14:19:44 -0500
+Subject: Re: [PATCH -mm 3/3][AIO] - AIO completion signal notification
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>, Zach Brown <zach.brown@oracle.com>,
+       Dave Jones <davej@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <1163087946.3879.43.camel@frecb000686>
+References: <1163087717.3879.34.camel@frecb000686>
+	 <1163087946.3879.43.camel@frecb000686>
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 09 Nov 2006 11:18:06 -0800
+Message-Id: <1163099886.29807.20.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 09 Nov 2006 10:52:00 +0100
-Arjan van de Ven <arjan@infradead.org> wrote:
+On Thu, 2006-11-09 at 16:59 +0100, Sébastien Dugué wrote:
 
-> Do you have the
-> impression that high quality bug reports on lkml (with this I mean ones
-> where there is sufficient information, which are not a request for
-> support and where the reporter actually answers questions that are asked
-> him) are not getting reasonable attention? 
+> @@ -1549,8 +1657,7 @@ int fastcall io_submit_one(struct kioctx
+>  	ssize_t ret;
+>  
+>  	/* enforce forwards compatibility on users */
+> -	if (unlikely(iocb->aio_reserved1 || iocb->aio_reserved2 ||
+> -		     iocb->aio_reserved3)) {
+> +	if (unlikely(iocb->aio_reserved1)) {
+>  		pr_debug("EINVAL: io_submit: reserve field set\n");
+>  		return -EINVAL;
 
-Yes.
+Is there a reason for not checking "aio_reserved3" ?
+You are still not using it. Right ?
 
-And why does the report quality matter?  If there's insufficient info you
-just ask for more.
-
-But we all know that and nothing's going to happen so there's really not
-much point in discussing it.  I have 270 saved-up-lkml-bug-reports to
-process.
+Thanks,
+Badari
 

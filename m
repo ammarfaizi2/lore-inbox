@@ -1,157 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424250AbWKIXpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424276AbWKIXw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424250AbWKIXpj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 18:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424244AbWKIXog
+	id S1424276AbWKIXw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 18:52:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424285AbWKIXw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 18:44:36 -0500
-Received: from www.osadl.org ([213.239.205.134]:56732 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161829AbWKIXjH (ORCPT
+	Thu, 9 Nov 2006 18:52:29 -0500
+Received: from smtpauth01.prod.mesa1.secureserver.net ([64.202.165.181]:50102
+	"HELO smtpauth01.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1424276AbWKIXw2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 18:39:07 -0500
-Message-Id: <20061109233034.757112000@cruncher.tec.linutronix.de>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de>
-Date: Thu, 09 Nov 2006 23:38:23 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Len Brown <lenb@kernel.org>, John Stultz <johnstul@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 06/19] ACPI: Keep track of timer broadcast
-Content-Disposition: inline; filename=acpi-keep-track-of-timer-broadcast.patch
+	Thu, 9 Nov 2006 18:52:28 -0500
+Message-ID: <4553BF38.60700@seclark.us>
+Date: Thu, 09 Nov 2006 18:52:24 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: Arjan van de Ven <arjan@infradead.org>,
+       =?ISO-8859-1?Q?=22=5C=22J=2EA?=
+	 =?ISO-8859-1?Q?=2E=5C=22_Magall=F3n=22?= <jamagallon@ono.com>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       Mark Lord <lkml@rtr.ca>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Abysmal PATA IDE performance
+References: <455206E7.2050104@seclark.us> <45526D50.5020105@rtr.ca>	 <455277E1.3040803@seclark.us> <20061109020758.GA21537@atjola.homenet>	 <4552A638.4010207@seclark.us>  <20061109094014.1c8b6bed@werewolf-wl>	 <1163062700.3138.467.camel@laptopd505.fenrus.org>	 <45533DB9.4000405@seclark.us> <1163084045.3138.502.camel@laptopd505.fenrus.org> <45536653.50006@seclark.us> <4553B31E.3070407@gmail.com>
+In-Reply-To: <4553B31E.3070407@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+Tejun Heo wrote:
 
-This is a preperatory patch for highres/dyntick:
+>Stephen Clark wrote:
+>[--snip--]
+>  
+>
+>>ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
+>>scsi0 : ata_piix
+>>Synaptics Touchpad, model: 1, fw: 6.1, id: 0xa3a0b3, caps: 0xa04713/0x10008
+>>input: SynPS/2 Synaptics TouchPad as /class/input/input1
+>>ATA: abnormal status 0x7F on port 0x1F7
+>>ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
+>>scsi1 : ata_piix
+>>ata2.00: ATA-6, max UDMA/100, 117210240 sectors: LBA48
+>>ata2.00: ata2: dev 0 multi count 16
+>>usb 2-2: new low speed USB device using uhci_hcd and address 3
+>>ata2.01: ATAPI, max UDMA/33
+>>ata2.00: configured for UDMA/33 <==== why isn't this 66 or 100 ?
+>>    
+>>
+>
+>See below.
+>
+>  
+>
+>>===============****
+>>usb 2-2: configuration #1 chosen from 1 choice
+>>input: Logitech USB-PS/2 Trackball as /class/input/input2
+>>input: USB HID v1.00 Mouse [Logitech USB-PS/2 Trackball] on
+>>usb-0000:00:1d.1-2
+>>ata2.01: configured for UDMA/33 <=========== is this related to the
+>>following 2 lines? ====
+>>    
+>>
+>
+>Nope,
+>
+>  
+>
+>>  Vendor: ATA       Model: HTS721060G9AT00   Rev: MC3O
+>>  Type:   Direct-Access                      ANSI SCSI revision: 05
+>>SCSI device sda: 117210240 512-byte hdwr sectors (60012 MB)
+>>sda: Write Protect is off
+>>sda: Mode Sense: 00 3a 00 00
+>>SCSI device sda: drive cache: write back
+>>SCSI device sda: 117210240 512-byte hdwr sectors (60012 MB)
+>>sda: Write Protect is off
+>>sda: Mode Sense: 00 3a 00 00
+>>SCSI device sda: drive cache: write back
+>> sda: sda1 sda2
+>>sd 1:0:0:0: Attached scsi disk sda
+>>    
+>>
+>
+>The above is for ata2.00.
+>
+>  
+>
+>>  Vendor: HL-DT-ST  Model: DVDRAM GMA-4082N  Rev: HJ02
+>>  Type:   CD-ROM                             ANSI SCSI revision: 05
+>>    
+>>
+>
+>And, this for ata2.01.
+>
+>PATA devices occupying the same channel literally share the cable, and 
+>the driver needs to configure PIO mode of both devices to the slowest of 
+>the two (PIO mode is always configured regardless of actual transfer 
+>mode).  UDMA mode doesn't save such restriction, so devices can be 
+>configured to its own maximum transfer mode.
+>
+>libata, until recently, simply used the slowest max transfer mode for 
+>both PIO and UDMA modes (MWDMA too).  So, that's what's happening to 
+>you.  Your cdrom's max UDMA mode is UDMA/33, so libata is using it for 
+>both devices on the channel.  Recent kernels (2.6.19-rcX) don't have 
+>this restriction.  Give 2.6.19-rc5 a shot.
+>
+>  
+>
+Hi Tejun,
 
-- replace the big #ifdef ARCH_APICTIMER_STOPS_ON_C3 hackery by
-  functions
-- remove the double switch in the power verify function
-  (in the worst case we switched ipi to apic and 20usec later
-   apic to ipi)
-- keep track of the the state which stops local APIC timer
+Thanks for the info, I had started looking at the libata code but hadn't 
+progressed very far.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Steve
 
-diff -puN drivers/acpi/processor_idle.c~acpi-keep-track-of-timer-broadcast drivers/acpi/processor_idle.c
---- a/drivers/acpi/processor_idle.c~acpi-keep-track-of-timer-broadcast
-+++ a/drivers/acpi/processor_idle.c
-@@ -246,6 +246,49 @@ static void acpi_cstate_enter(struct acp
- 	}
- }
- 
-+#ifdef ARCH_APICTIMER_STOPS_ON_C3
-+
-+/*
-+ * Some BIOS implementations switch to C3 in the published C2 state. This seems
-+ * to be a common problem on AMD boxen.
-+ */
-+static void acpi_timer_check_state(int state, struct acpi_processor *pr,
-+				   struct acpi_processor_cx *cx)
-+{
-+	struct acpi_processor_power *pwr = &pr->power;
-+
-+	/*
-+	 * Check, if one of the previous states already marked the lapic
-+	 * unstable
-+	 */
-+	if (pwr->timer_broadcast_on_state < state)
-+		return;
-+
-+	if(cx->type == ACPI_STATE_C3 ||
-+	   boot_cpu_data.x86_vendor == X86_VENDOR_AMD) {
-+		pr->power.timer_broadcast_on_state = state;
-+		return;
-+	}
-+}
-+
-+static void acpi_propagate_timer_broadcast(struct acpi_processor *pr)
-+{
-+	cpumask_t mask = cpumask_of_cpu(pr->id);
-+
-+	if (pr->power.timer_broadcast_on_state < INT_MAX)
-+		on_each_cpu(switch_APIC_timer_to_ipi, &mask, 1, 1);
-+	else
-+		on_each_cpu(switch_ipi_to_APIC_timer, &mask, 1, 1);
-+}
-+
-+#else
-+
-+static void acpi_timer_check_state(int state, struct acpi_processor *pr,
-+				   struct acpi_processor_cx *cstate) { }
-+static void acpi_propagate_timer_broadcast(struct acpi_processor *pr) { }
-+
-+#endif
-+
- static void acpi_processor_idle(void)
- {
- 	struct acpi_processor *pr = NULL;
-@@ -912,11 +955,7 @@ static int acpi_processor_power_verify(s
- 	unsigned int i;
- 	unsigned int working = 0;
- 
--#ifdef ARCH_APICTIMER_STOPS_ON_C3
--	int timer_broadcast = 0;
--	cpumask_t mask = cpumask_of_cpu(pr->id);
--	on_each_cpu(switch_ipi_to_APIC_timer, &mask, 1, 1);
--#endif
-+	pr->power.timer_broadcast_on_state = INT_MAX;
- 
- 	for (i = 1; i < ACPI_PROCESSOR_MAX_POWER; i++) {
- 		struct acpi_processor_cx *cx = &pr->power.states[i];
-@@ -928,21 +967,14 @@ static int acpi_processor_power_verify(s
- 
- 		case ACPI_STATE_C2:
- 			acpi_processor_power_verify_c2(cx);
--#ifdef ARCH_APICTIMER_STOPS_ON_C3
--			/* Some AMD systems fake C3 as C2, but still
--			   have timer troubles */
--			if (cx->valid && 
--				boot_cpu_data.x86_vendor == X86_VENDOR_AMD)
--				timer_broadcast++;
--#endif
-+			if (cx->valid)
-+				acpi_timer_check_state(i, pr, cx);
- 			break;
- 
- 		case ACPI_STATE_C3:
- 			acpi_processor_power_verify_c3(pr, cx);
--#ifdef ARCH_APICTIMER_STOPS_ON_C3
- 			if (cx->valid)
--				timer_broadcast++;
--#endif
-+				acpi_timer_check_state(i, pr, cx);
- 			break;
- 		}
- 
-@@ -950,10 +982,7 @@ static int acpi_processor_power_verify(s
- 			working++;
- 	}
- 
--#ifdef ARCH_APICTIMER_STOPS_ON_C3
--	if (timer_broadcast)
--		on_each_cpu(switch_APIC_timer_to_ipi, &mask, 1, 1);
--#endif
-+	acpi_propagate_timer_broadcast(pr);
- 
- 	return (working);
- }
-diff -puN include/acpi/processor.h~acpi-keep-track-of-timer-broadcast include/acpi/processor.h
---- a/include/acpi/processor.h~acpi-keep-track-of-timer-broadcast
-+++ a/include/acpi/processor.h
-@@ -79,6 +79,7 @@ struct acpi_processor_power {
- 	u32 bm_activity;
- 	int count;
- 	struct acpi_processor_cx states[ACPI_PROCESSOR_MAX_POWER];
-+	int timer_broadcast_on_state;
- };
- 
- /* Performance Management */
-_
+-- 
 
---
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
 

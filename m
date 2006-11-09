@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966049AbWKIRoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424102AbWKIRsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966049AbWKIRoX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 12:44:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966050AbWKIRoX
+	id S1424102AbWKIRsD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 12:48:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424175AbWKIRsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 12:44:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17085 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S966049AbWKIRoX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 12:44:23 -0500
-Message-ID: <455368F4.8080203@sandeen.net>
-Date: Thu, 09 Nov 2006 11:44:20 -0600
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: 1.5.0.7 (X11/20061008)
+	Thu, 9 Nov 2006 12:48:03 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:31911 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1424172AbWKIRsA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 12:48:00 -0500
+Message-ID: <455369C9.7020909@gmail.com>
+Date: Thu, 09 Nov 2006 18:47:53 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: "Igor A. Valcov" <viaprog@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
-References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
-In-Reply-To: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Phillip Susi <psusi@cfl.rr.com>
+CC: Jano <jasieczek@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
+References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com> <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com> <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com> <455360CF.9070600@cfl.rr.com>
+In-Reply-To: <455360CF.9070600@cfl.rr.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Igor A. Valcov wrote:
-> Hello,
+Phillip Susi wrote:
+> Jiri Slaby wrote:
+>> Phillip: please, so not top-post
 > 
-> For one of our projects we have a test program that measures file
-> system performance by writing up to 1000 files simultaneously. After
-> installing kernel v2.6.16 we noticed that XFS performance dropped by a
-> factor of 5 (tests that took around 4 minutes on kernel 2.6.15 now
-> take around 20 minutes to complete). 
+> Please stop discouraging top posting.  There is no reason to have to
+> scroll down through a screen or two of quoted message that you  just
+> read the original of, before getting to the new subject matter.
 
-Ouch.
+Nope.
+http://www.zipworld.com.au/~akpm/linux/patches/stuff/top-posting.txt
 
-> We then checked all kernels
-> starting from 2.6.16 up to 2.6.19-rc5 with the same unpleasant result.
-> The funny thing about all this is that we chose XFS for that
-> particular project specifically because it was about 5 times faster
-> with the tests than the other file systems. Now they all take about
-> the same time.
+> <snip>
+>> There is a proc/mounts here:
+>> http://lkml.org/lkml/2006/11/08/322
+>>
 > 
-> I also noticed that I/O barriers were introduced in v2.6.16 and
-> thought they may be the cause, but mounting the file system with
-> 'nobarrier' doesn't seem to affect the performance in any way.
-> 
-> Any thoughts on the matter are appreciated.
+> I didn't ask for /proc/mounts, I asked for the output of the mount
+> command with no arguments, which prints the contents of /etc/mtab.  I
+> was thinking that /etc/mtab might show the partitions as mounted even
+> though they are not, which could be why mount is complaining.
 
-Can you provide the test?
+Mount(8) calls mount(2) no matter what is in the /etc/mtab.
 
--Eric
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

@@ -1,146 +1,548 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423960AbWKIA6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423977AbWKIA6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423960AbWKIA6x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 19:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423980AbWKIA6x
+	id S1423977AbWKIA6X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 19:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423960AbWKIA6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 19:58:53 -0500
-Received: from gate.crashing.org ([63.228.1.57]:4792 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1423960AbWKIA6w (ORCPT
+	Wed, 8 Nov 2006 19:58:23 -0500
+Received: from gate.crashing.org ([63.228.1.57]:21652 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1423977AbWKIA6W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 19:58:52 -0500
-Subject: [PATCH 2/2] Use dev_sysdata for ACPI and remove firmware_data
+	Wed, 8 Nov 2006 19:58:22 -0500
+Subject: [PATCH 1/2] Add dev_sysdata to struct device
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Linux Kernel list <linux-kernel@vger.kernel.org>
 Cc: Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
        Greg KH <greg@kroah.com>
 Content-Type: text/plain
-Date: Thu, 09 Nov 2006 11:58:36 +1100
-Message-Id: <1163033916.28571.803.camel@localhost.localdomain>
+Date: Thu, 09 Nov 2006 11:58:07 +1100
+Message-Id: <1163033887.28571.801.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes ACPI to use the new dev_sysdata on x86 and x86_64 (is there
-any other arch using ACPI ?) to store it's acpi_handle. It also removes the
-firmware_data field from struct device as this was the only user.
+Adds an arch specific struct dev_sysdata to struct device. This enables
+architecture to add specific fields to every device in the system, like
+DMA operation pointers, NUMA node ID, firmware specific data, etc...
 
 Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Index: linux-cell/drivers/acpi/glue.c
+Index: linux-cell/include/asm-alpha/device.h
 ===================================================================
---- linux-cell.orig/drivers/acpi/glue.c	2006-10-06 13:48:00.000000000 +1000
-+++ linux-cell/drivers/acpi/glue.c	2006-11-09 11:25:30.000000000 +1100
-@@ -267,9 +267,9 @@ static int acpi_bind_one(struct device *
- {
- 	acpi_status status;
- 
--	if (dev->firmware_data) {
-+	if (dev->sysdata.acpi_handle) {
- 		printk(KERN_WARNING PREFIX
--		       "Drivers changed 'firmware_data' for %s\n", dev->bus_id);
-+		       "Drivers changed 'acpi_handle' for %s\n", dev->bus_id);
- 		return -EINVAL;
- 	}
- 	get_device(dev);
-@@ -278,25 +278,26 @@ static int acpi_bind_one(struct device *
- 		put_device(dev);
- 		return -EINVAL;
- 	}
--	dev->firmware_data = handle;
-+	dev->sysdata.acpi_handle = handle;
- 
- 	return 0;
- }
- 
- static int acpi_unbind_one(struct device *dev)
- {
--	if (!dev->firmware_data)
-+	if (!dev->sysdata.acpi_handle)
- 		return 0;
--	if (dev == acpi_get_physical_device(dev->firmware_data)) {
-+	if (dev == acpi_get_physical_device(dev->sysdata.acpi_handle)) {
- 		/* acpi_get_physical_device increase refcnt by one */
- 		put_device(dev);
--		acpi_detach_data(dev->firmware_data, acpi_glue_data_handler);
--		dev->firmware_data = NULL;
-+		acpi_detach_data(dev->sysdata.acpi_handle,
-+				 acpi_glue_data_handler);
-+		dev->sysdata.acpi_handle = NULL;
- 		/* acpi_bind_one increase refcnt by one */
- 		put_device(dev);
- 	} else {
- 		printk(KERN_ERR PREFIX
--		       "Oops, 'firmware_data' corrupt for %s\n", dev->bus_id);
-+		       "Oops, 'acpi_handle' corrupt for %s\n", dev->bus_id);
- 	}
- 	return 0;
- }
-@@ -328,7 +329,8 @@ static int acpi_platform_notify(struct d
- 	if (!ret) {
- 		struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
- 
--		acpi_get_name(dev->firmware_data, ACPI_FULL_PATHNAME, &buffer);
-+		acpi_get_name(dev->sysdata.acpi_handle,
-+			      ACPI_FULL_PATHNAME, &buffer);
- 		DBG("Device %s -> %s\n", dev->bus_id, (char *)buffer.pointer);
- 		kfree(buffer.pointer);
- 	} else
-Index: linux-cell/include/acpi/acpi_bus.h
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-alpha/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-arm/device.h
 ===================================================================
---- linux-cell.orig/include/acpi/acpi_bus.h	2006-10-06 13:48:20.000000000 +1000
-+++ linux-cell/include/acpi/acpi_bus.h	2006-11-09 11:26:11.000000000 +1100
-@@ -357,7 +357,7 @@ struct device *acpi_get_physical_device(
- /* helper */
- acpi_handle acpi_get_child(acpi_handle, acpi_integer);
- acpi_handle acpi_get_pci_rootbridge_handle(unsigned int, unsigned int);
--#define DEVICE_ACPI_HANDLE(dev) ((acpi_handle)((dev)->firmware_data))
-+#define DEVICE_ACPI_HANDLE(dev) ((acpi_handle)((dev)->sysdata.acpi_handle))
- 
- #endif /* CONFIG_ACPI */
- 
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-arm/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-arm26/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-arm26/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-avr32/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-avr32/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-cris/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-cris/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-frv/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-frv/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-generic/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-generic/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-h8300/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-h8300/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
 Index: linux-cell/include/asm-i386/device.h
 ===================================================================
---- linux-cell.orig/include/asm-i386/device.h	2006-11-09 11:20:28.000000000 +1100
-+++ linux-cell/include/asm-i386/device.h	2006-11-09 11:24:28.000000000 +1100
-@@ -9,6 +9,9 @@
- #define _ASM_DEVICE_H
- 
- struct dev_sysdata {
-+#ifdef CONFIG_ACPI
-+	void	*acpi_handle;
-+#endif
- };
- 
- #endif /* _ASM_DEVICE_H */
-Index: linux-cell/include/linux/device.h
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-i386/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-ia64/device.h
 ===================================================================
---- linux-cell.orig/include/linux/device.h	2006-11-09 11:17:36.000000000 +1100
-+++ linux-cell/include/linux/device.h	2006-11-09 11:26:58.000000000 +1100
-@@ -368,8 +368,6 @@ struct device {
- 	void		*driver_data;	/* data private to the driver */
- 	void		*platform_data;	/* Platform specific data, device
- 					   core doesn't touch it */
--	void		*firmware_data; /* Firmware specific data (e.g. ACPI,
--					   BIOS data),reserved for device core*/
- 	struct dev_pm_info	power;
- 
- 	u64		*dma_mask;	/* dma mask (if dma'able device) */
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-ia64/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-m32r/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-m32r/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-m68k/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-m68k/device.h	2006-11-09 11:20:28.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-m68knommu/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-m68knommu/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-mips/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-mips/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-parisc/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-parisc/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-powerpc/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-powerpc/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-ppc/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-ppc/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-s390/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-s390/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-sh/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-sh/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-sh64/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-sh64/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-sparc/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-sparc/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-sparc64/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-sparc64/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-um/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-um/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-v850/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-v850/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
 Index: linux-cell/include/asm-x86_64/device.h
 ===================================================================
---- linux-cell.orig/include/asm-x86_64/device.h	2006-11-09 11:20:29.000000000 +1100
-+++ linux-cell/include/asm-x86_64/device.h	2006-11-09 11:37:19.000000000 +1100
-@@ -9,6 +9,9 @@
- #define _ASM_DEVICE_H
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-x86_64/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/asm-xtensa/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-cell/include/asm-xtensa/device.h	2006-11-09 11:20:29.000000000 +1100
+@@ -0,0 +1,14 @@
++/*
++ * Arch specific extensions to struct device
++ *
++ * This file is released under the GPLv2
++ *
++ * See Documentation/driver-model/ for more information.
++ */
++#ifndef _ASM_DEVICE_H
++#define _ASM_DEVICE_H
++
++struct dev_sysdata {
++};
++
++#endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/linux/device.h
+===================================================================
+--- linux-cell.orig/include/linux/device.h	2006-11-08 15:09:35.000000000 +1100
++++ linux-cell/include/linux/device.h	2006-11-09 11:17:36.000000000 +1100
+@@ -21,6 +21,7 @@
+ #include <linux/pm.h>
+ #include <asm/semaphore.h>
+ #include <asm/atomic.h>
++#include <asm/device.h>
  
- struct dev_sysdata {
-+#ifdef CONFIG_ACPI
-+	void	*acpi_handle;
-+#endif
- };
+ #define DEVICE_NAME_SIZE	50
+ #define DEVICE_NAME_HALF	__stringify(20)	/* Less than half to accommodate slop */
+@@ -382,6 +383,8 @@ struct device {
  
- #endif /* _ASM_DEVICE_H */
+ 	struct dma_coherent_mem	*dma_mem; /* internal for coherent mem
+ 					     override */
++	/* arch specific additions */
++	struct dev_sysdata	sysdata;
+ 
+ 	/* class_device migration path */
+ 	struct list_head	node;
 
 

@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424218AbWKIXMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424245AbWKIXOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424218AbWKIXMG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 18:12:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424241AbWKIXMG
+	id S1424245AbWKIXOM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 18:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424247AbWKIXOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 18:12:06 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3299 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1424218AbWKIXME (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 18:12:04 -0500
-Date: Fri, 10 Nov 2006 00:11:46 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061109231146.GD2616@elf.ucw.cz>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611092218.58970.rjw@sisk.pl> <20061109214159.GB2616@elf.ucw.cz> <200611092321.47728.rjw@sisk.pl>
-MIME-Version: 1.0
+	Thu, 9 Nov 2006 18:14:11 -0500
+Received: from alephnull.demon.nl ([83.160.184.112]:11906 "EHLO
+	xi.wantstofly.org") by vger.kernel.org with ESMTP id S1424245AbWKIXOK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 18:14:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=1148133259;
+	d=wantstofly.org;
+	h=date:from:to:cc:subject:message-id:mime-version:content-type:
+	content-disposition:in-reply-to:user-agent;
+	b=GFNSYt6uVbt2BFj8Q400dm9g2VeYhW7cv5E51o+IQbPexYc0rkU/73CSqwz2d
+	8IpR0wAW5ch4WzLGIVrL1QspQ==
+Date: Fri, 10 Nov 2006 00:14:08 +0100
+From: Lennert Buytenhek <buytenh@wantstofly.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Riku Voipio <riku.voipio@iki.fi>, Martin Michlmayr <tbm@cyrius.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions)]
+Message-ID: <20061109231408.GB6611@xi.wantstofly.org>
+References: <20061107115940.GA23954@unjust.cyrius.com> <20061108203546.GA32247@kos.to> <20061109221338.GA17722@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200611092321.47728.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20061109221338.GA17722@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Nov 09, 2006 at 11:13:38PM +0100, Francois Romieu wrote:
 
-> > > > > This is from a work queue, so in fact from a process context, but from
-> > > > > a process that is running with PF_NOFREEZE.
-> > > > 
-> > > > Why not simply &~ PF_NOFREEZE on that particular process? Filesystems
-> > > > are free to use threads/work queues/whatever, but refrigerator should
-> > > > mean "no writes to filesystem" for them...
-> > > 
-> > > But how we differentiate worker_threads used by filesystems from the
-> > > other ones?
-> > 
-> > I'd expect filesystems to do &~ PF_NOFREEZE by hand.
-> > 
-> > > BTW, I think that worker_threads run with PF_NOFREEZE for a reason,
-> > > but what exactly is it?
-> > 
-> > I do not think we had particulary good reasons...
+> > I took 2.6.19-rc5 as there was no changes in this driver relative to -rc4. 
+> > applied Francois's 0001-r8169-perform-a-PHY-reset.. and finally the
+> > patch in this mail. And networking _does_not_ work on Thecus N2100.
 > 
-> Well, it looks like quite a lot of drivers depend on them, including libata.
+> It sucks.
 > 
-> I think we can add a flag to __create_workqueue() that will indicate if
-> this one is to be running with PF_NOFREEZE and a corresponding macro like
-> create_freezable_workqueue() to be used wherever we want the worker thread
-> to freeze (in which case it should be calling try_to_freeze() somewhere).
-> Then, we can teach filesystems to use this macro instead of
-> create_workqueue().
+> Can you try against 2.6.18-rc4 the patch at:
+> 
+> http://www.fr.zoreil.com/people/francois/misc/20061109-2.6.18-rc4-r8169-test.patch
+> 
+> If it does not work, apply on top of 2.6.18-rc4 the serie available at:
+> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.18-rc4/r8169
+> plus the attached patch.
 
-Works for me.
-
-> Having done that we'd be able to drop the freezing of bdevs patch and forget
-> about the dm-related complexity.
-
-yes.
-
-> [Still I wonder if the sys_sync() in freeze_processes() is actually safe if
-> there's a suspended dm device somewhere in the stack, because in the other
-> case the freezing of bdevs would be no more dangerous than the thing
-> that we're already doing.]
-
-? Not sure if I quite understand, but if dm breaks sync... something
-is teribly wrong with dm. And we do simple sys_sync()... so I do not
-think we have a problem.
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Wouldn't it be easier for all of us if we'd arrange a shell account
+on an n2100 for you?

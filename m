@@ -1,89 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161827AbWKIUJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424122AbWKIUKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161827AbWKIUJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 15:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161825AbWKIUJZ
+	id S1424122AbWKIUKq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 15:10:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161829AbWKIUKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 15:09:25 -0500
-Received: from nz-out-0102.google.com ([64.233.162.206]:7145 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965684AbWKIUJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 15:09:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=eiT+aUtslJ85M3hIG3kTapXGQVyQWM8wS+JAmusyrs8yXlECgliKhS0RHZpNDWDykUbwHGTpxfA5kdAtWmvVxDCyXBVK3z1gFiE5vgpKXqIF5ZTLc0sOeilc7R6+p8enWaOpwrjf4YxCMCZHK6YHTd7YTZu6FwGL3aVljW4GS9g=
-Message-ID: <806dafc20611091209s5864c9eam77a9290194de343d@mail.gmail.com>
-Date: Thu, 9 Nov 2006 15:09:22 -0500
-From: "Monty Montgomery" <monty@xiph.org>
-To: "Tejun Heo" <htejun@gmail.com>
-Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
-Cc: "Brice Goglin" <Brice.Goglin@ens-lyon.org>,
-       "Jens Axboe" <jens.axboe@oracle.com>,
-       "Gregor Jasny" <gjasny@googlemail.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Jeff Garzik" <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       "Douglas Gilbert" <dougg@torque.net>
-In-Reply-To: <45533468.1060400@gmail.com>
+	Thu, 9 Nov 2006 15:10:46 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:22508 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1161828AbWKIUKp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 15:10:45 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 9 Nov 2006 12:10:42 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take24 3/6] kevent: poll/select() notifications.
+In-Reply-To: <Pine.LNX.4.64.0611091137290.25481@alien.or.mcafeemobile.com>
+Message-ID: <Pine.LNX.4.64.0611091207080.25481@alien.or.mcafeemobile.com>
+References: <11630606373650@2ka.mipt.ru> <Pine.LNX.4.64.0611091047120.25481@alien.or.mcafeemobile.com>
+ <20061109191036.GA30138@2ka.mipt.ru> <Pine.LNX.4.64.0611091137290.25481@alien.or.mcafeemobile.com>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com>
-	 <20061030114503.GW4563@kernel.dk>
-	 <9d2cd630610300517q5187043eieb0880047ddd03eb@mail.gmail.com>
-	 <20061030132745.GE4563@kernel.dk> <4552F905.3020109@ens-lyon.org>
-	 <45533468.1060400@gmail.com>
-X-Google-Sender-Auth: 24e0682b2c12ea39
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/9/06, Tejun Heo <htejun@gmail.com> wrote:
+On Thu, 9 Nov 2006, Davide Libenzi wrote:
 
-> drivers/scsi/sg.c interprets SG_DXFER_TO_FROM_DEV as read while
-> block/scsi_ioctl.c interprets it as write.  I guess this is historic
-> thing (scsi/sg.c updated but block/scsi_ioctl.c is forgotten).
+> On Thu, 9 Nov 2006, Evgeniy Polyakov wrote:
+> 
+> > On Thu, Nov 09, 2006 at 10:51:56AM -0800, Davide Libenzi (davidel@xmailserver.org) wrote:
+> > > On Thu, 9 Nov 2006, Evgeniy Polyakov wrote:
+> > > 
+> > > > +static int kevent_poll_callback(struct kevent *k)
+> > > > +{
+> > > > +	if (k->event.req_flags & KEVENT_REQ_LAST_CHECK) {
+> > > > +		return 1;
+> > > > +	} else {
+> > > > +		struct file *file = k->st->origin;
+> > > > +		unsigned int revents = file->f_op->poll(file, NULL);
+> > > > +
+> > > > +		k->event.ret_data[0] = revents & k->event.event;
+> > > > +		
+> > > > +		return (revents & k->event.event);
+> > > > +	}
+> > > > +}
+> > > 
+> > > You need to be careful that file->f_op->poll is not called inside the 
+> > > spin_lock_irqsave/spin_lock_irqrestore pair, since (even this came up 
+> > > during epoll developemtn days) file->f_op->poll might do a simple 
+> > > spin_lock_irq/spin_unlock_irq. This unfortunate constrain forced epoll to 
+> > > have a suboptimal double O(R) loop to handle LT events.
+> >  
+> > It is tricky - users call wake_up() from any context, which in turn ends
+> > up calling kevent_storage_ready(), which calls kevent_poll_callback() with
+> > KEVENT_REQ_LAST_CHECK bit set, which becomes almost empty call in fast
+> > path. Since callback returns 1, kevent will be queued into ready queue,
+> > which is processed on behalf of syscalls - in that case kevent will
+> > check the flag and since KEVENT_REQ_LAST_CHECK is set, will call
+> > callback again to check if kevent is correctly marked, but already
+> > without that flag (it happens in syscall context, i.e. process context
+> > without any locks held), so callback calls ->poll(), which can sleep,
+> > but it is safe. If ->poll() returns 'ready' value, kevent is transfers
+> > data into userspace, otherwise it is 'requeued' (just removed from
+> > ready queue).
+> 
+> Oh, mine was only a general warn. I hadn't looked at the generic code 
+> before. But now that I poke on it, I see:
+> 
+> void kevent_requeue(struct kevent *k)
+> {
+>        unsigned long flags;
+> 
+>        spin_lock_irqsave(&k->st->lock, flags);
+>        __kevent_requeue(k, 0);
+>        spin_unlock_irqrestore(&k->st->lock, flags);
+> }
+> 
+> and then:
+> 
+> static int __kevent_requeue(struct kevent *k, u32 event)
+> {
+>        int ret, rem;
+>        unsigned long flags;
+> 
+>        ret = k->callbacks.callback(k);
+> 
+> Isn't the k->callbacks.callback() possibly end up calling f_op->poll?
 
-Not historic; Jens accidentally implemented it backwards.  No one
-noticed for a long time.  I submitted a patch for this a few months
-ago.
+Ack, there the check for KEVENT_REQ_LAST_CHECK inside the callback.
+The problem with f_op->poll was not that it can sleep (not excluded 
+though) but that some f_op->poll can do a simple spin_lock_irq/spin_unlock_irq.
+But for a quick peek your new code seems fine with that.
 
-> This works for most PATA ATAPI devices.  Most devices detect reversed
-> transfer and terminate the command promptly.
 
-No.  The rejection is *not* in hardware; it is in software.
-block/scsi_ioctl.c, at least up to 2.6.16, rejected the TO_FROM_DEVICE
-request when verifying the command for sanity after setting the
-transfer direction incorrectly.  As far as the *device* can see,
-TO_FROM_DEVICE and FROM_DEVICE are identical.  The difference only
-applies inside the kernel mid-level driver where TO_FROM_DEVICE
-prefills the transfer buffer as a way of working around having no
-other detection path for short DMA transfers.
 
->  But this doesn't seem to
-> be true for SATA device.
+- Davide
 
-Then the driver is broken and needs to be fixed.  And I'll need to
-find a workaround for broken kernels that doesn't cause a boom.
 
-> Jens, I think we need to match block sg's behavior to SCSI's.  Monty,
-> the timeout and hard lock up are due to hardware restrictions.
-
-No., the kernel setting the transfer direction incorrectly.  I don't
-set the transfer direction, the kernel does.
-
-In your case, I pass in "SGIO_TO_FROM_DEVICE" and the kernel says
-"that's a write".  The kernel is wrong.  It is a read.  The original
-description of what TO_FROM_DEVICE is for is explicit on this point.
-
->  Kernel
-> and libata can't do much about it.  So, please find other way to detect
-> interface.
-
-Just to be clear-- it is the kernel at fault here, and the kernel can
-do something about it-- but only if the kernel gets fixed.  Also to be
-clear, given this brokenness, yes I need to find another way.
-
-Dammit, dammit, dammit, one step forward, two steps back :-(
-
-Monty

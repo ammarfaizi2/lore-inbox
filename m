@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966042AbWKIQhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966043AbWKIQiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966042AbWKIQhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 11:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966044AbWKIQhI
+	id S966043AbWKIQiB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 11:38:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966044AbWKIQiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 11:37:08 -0500
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:24733 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S966042AbWKIQhH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 11:37:07 -0500
-Message-ID: <4553593E.3070202@slaphack.com>
-Date: Thu, 09 Nov 2006 10:37:18 -0600
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.8 (Macintosh/20061025)
+	Thu, 9 Nov 2006 11:38:01 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:45293 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S966043AbWKIQiA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 11:38:00 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH] KVM: Avoid using vmx instruction directly
+Date: Thu, 9 Nov 2006 17:37:48 +0100
+User-Agent: KMail/1.9.5
+Cc: kvm-devel@lists.sourceforge.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <20061109110852.A6B712500F7@cleopatra.q> <200611091542.31101.arnd@arndb.de> <455340B8.2080206@qumranet.com>
+In-Reply-To: <455340B8.2080206@qumranet.com>
 MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Suzuki <suzuki@linux.vnet.ibm.com>, reiserfs-list@namesys.com,
-       lkml <linux-kernel@vger.kernel.org>, Jan Kara <jack@suse.cz>
-Subject: Re: Problem with multiple mounts
-References: <45522E67.7050907@linux.vnet.ibm.com> <20061108203323.GA8238@csclub.uwaterloo.ca> <45525C82.5080303@linux.vnet.ibm.com> <20061108230623.GZ6012@schatzie.adilger.int> <20061109151546.GA8236@csclub.uwaterloo.ca>
-In-Reply-To: <20061109151546.GA8236@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200611091737.48801.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> On Wed, Nov 08, 2006 at 04:06:23PM -0700, Andreas Dilger wrote:
->> I would suggest that even while this is not supported, it would be prudent
->> to fix such a bug.  It might be possible to hit a similar problem if there
->> is corruption of the on-disk data in the journal and oopsing the kernel
->> isn't a graceful way to deal with bad data on disk.
+On Thursday 09 November 2006 15:52, Avi Kivity wrote:
+> Wouldn't that make inline assembly useless?  Suppose the contents is 
+> itself a pointer.  What about the pointed-to contents?
 > 
-> On the other hand corrupt data at least doesn't change under you while
-> you are trying to figure out the filesystem.
+> e.g.
+> 
+>     int x = 3;
+>     int *y = &x;
+>     int z;
+> 
+>     asm ("mov %1, %%rax; movl (%%rax), %0" : "=r"(z) : "g"(y) : "rax");
+>     assert(z == 3);
 
-It might.
+Same here, you need to tell gcc what is really accessed, like 
 
-I'd suspect that there can, in fact, be something done about this, 
-assuming good RAM. After all, a corrupt image won't crash a decent web 
-browser.
+asm ("mov %1, %%rax; movl (%%rax), %0" : "=r"(z) : "g"(y), "m"(*y) : "rax");
 
-It might sacrifice a ton of performance, though. I suggest it shouldn't 
-be a priority to try to figure this out, and if it's ever implemented, 
-make it a mount option -- -o paranoid or something. Obviously we don't 
-care if a rescue disc takes forever, but we don't want to be waiting for 
-hours on our FS boot, which is why I have an initrd mount my Reiser4 FS 
-with "-o dont_load_bitmap"
+I know that the s390 kernel developers have hit that problem
+frequently with inline assemblies. It may be that it's harder
+to hit on x86, because there are fewer registers available and
+data therefore tends to spill to the stack.
 
-(Yes, I realize the right way to do this is initramfs now. I'm too lazy 
-to figure out how to make that work.)
+> > Or gcc
+> > might move the assignment of phys_addr to after the inline assembly.
+> >   
+> "asm volatile" prevents that (and I'm not 100% sure it's necessary).
+
+Yes, I think that's right. The 'volatile' should not be necessary though,
+if you get the inputs right.
+
+	Arnd <><

@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424209AbWKIWls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966064AbWKIWmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424209AbWKIWls (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 17:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966062AbWKIWls
+	id S966064AbWKIWmS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 17:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966066AbWKIWmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 17:41:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:58240 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966017AbWKIWls (ORCPT
+	Thu, 9 Nov 2006 17:42:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46506 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S966064AbWKIWmR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 17:41:48 -0500
-Date: Thu, 9 Nov 2006 14:41:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent an oops in vmalloc_user()
-Message-Id: <20061109144143.11fbca6d.akpm@osdl.org>
-In-Reply-To: <4553ABCE.2050006@cosmosbay.com>
-References: <31360.1163109619@lwn.net>
-	<4553ABCE.2050006@cosmosbay.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Nov 2006 17:42:17 -0500
+To: Zach Brown <zach.brown@oracle.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [RFC][PATCH] Fix lock inversion aio_kick_handler()
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
+References: <20060729001032.GA7885@tetsuo.zabbo.net>
+	<20060729013446.GA3387@kvack.org> <44CAC1AF.6010505@oracle.com>
+From: Jeff Moyer <jmoyer@redhat.com>
+Date: Thu, 09 Nov 2006 17:41:47 -0500
+Message-ID: <x49velokztg.fsf@segfault.boston.devel.redhat.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 09 Nov 2006 23:29:34 +0100
-Eric Dumazet <dada1@cosmosbay.com> wrote:
+==> On Fri, 28 Jul 2006 19:02:23 -0700, Zach Brown <zach.brown@oracle.com> said:
 
-> Jonathan Corbet a __crit :
-> > Prevent an oops in vmalloc_user()
-> > 
-> > If an attempt to allocate memory with vmalloc_user() fails, the result
-> > will be an oops when it tries to tweak the flags in the (non-existent)
-> > VMA.  One could argue that __find_vm_area() should not return a random
-> > pointer on failure, but vmalloc_user() requires a check regardless.
-> > 
-> 
-> Yes, I already posted a patch for that, and other problem as well.
-> 
-> http://lkml.org/lkml/2006/10/23/86
-> 
-> Maybe it was lost...
-> 
+Zach> Benjamin LaHaise wrote:
+Zach> > On Fri, Jul 28, 2006 at 05:10:32PM -0700, Zach Brown wrote:
+Zach> >> Fix lock inversion aio_kick_handler()
+Zach> > 
+Zach> > Doh.  Unfortunately, this patch isn't entirely correct as it
+Zach> could race with > __put_ioctx() which sets ioctx->mm = NULL.
 
-It's in -mm but I'd queued it for 2.6.20 because you went and mixed a bunch
-of things into the same patch.
+Zach> Aha, yeah, that's what I was missing.  Thanks.
 
-Whatever - I'll push it for 2.6.19.
+Zach> > Something like the following should do the trick:
+
+Zach> Cool, I'll respin and send it out.
+
+Did you ever resend this patch, Zach?  It doesn't appear to be in
+current kernels.  I'm still running into the lockdep warnings.
+
+-Jeff
+
+--- linux-2.6.19-rc5-mm1/fs/aio.c.orig	2006-11-09 17:28:43.000000000 -0500
++++ linux-2.6.19-rc5-mm1/fs/aio.c	2006-11-09 17:29:29.000000000 -0500
+@@ -864,13 +864,15 @@ static void aio_kick_handler(void *data)
+ 	struct kioctx *ctx = data;
+ 	mm_segment_t oldfs = get_fs();
+ 	int requeue;
++	struct mm_struct *mm;
+ 
+ 	set_fs(USER_DS);
+ 	use_mm(ctx->mm);
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	requeue =__aio_run_iocbs(ctx);
+- 	unuse_mm(ctx->mm);
++	mm = ctx->mm;
+ 	spin_unlock_irq(&ctx->ctx_lock);
++ 	unuse_mm(mm);
+ 	set_fs(oldfs);
+ 	/*
+ 	 * we're in a worker thread already, don't use queue_delayed_work,

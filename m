@@ -1,95 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424171AbWKISA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424177AbWKISBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424171AbWKISA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 13:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424176AbWKISA5
+	id S1424177AbWKISBm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 13:01:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424182AbWKISBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 13:00:57 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:33968 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1424171AbWKISA4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 13:00:56 -0500
-Message-ID: <45536CCF.4020209@gmail.com>
-Date: Thu, 09 Nov 2006 19:00:47 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Jano <jasieczek@gmail.com>
-CC: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
+	Thu, 9 Nov 2006 13:01:42 -0500
+Received: from py-out-1112.google.com ([64.233.166.178]:47576 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1424177AbWKISBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 13:01:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sILBqsSOWvjFOoBbs443jhqwFj5Oe9EWcGUAf3GqmYZk/jtJGXBMX7YsrVexRR8uP7uxl+mgxFETJaa5dhrp77LlNRY6tzTT1nhgGOAEYpCmp3YyBgj5hm7Odd87T38Mnlg2w/CQjWMr9/YFcQRAZHmRB63aa/s17+3cuqjn3i8=
+Message-ID: <d9a083460611091001tfee2abauf4b5bce88eec1110@mail.gmail.com>
+Date: Thu, 9 Nov 2006 19:01:02 +0100
+From: Jano <jasieczek@gmail.com>
+To: "Jiri Slaby" <jirislaby@gmail.com>
 Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
-References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>	 <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com>	 <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com>	 <455360CF.9070600@cfl.rr.com> <d9a083460611090922j75b97cd4u6cc53eeee52b2344@mail.gmail.com>
-In-Reply-To: <d9a083460611090922j75b97cd4u6cc53eeee52b2344@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+Cc: "Phillip Susi" <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+In-Reply-To: <455369C9.7020909@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
+Content-Disposition: inline
+References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>
+	 <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com>
+	 <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com>
+	 <455360CF.9070600@cfl.rr.com> <455369C9.7020909@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jano wrote:
-> 2006/11/9, Jiri Slaby <jirislaby@gmail.com>:
->> Jano wrote:
->> > I've compiled it into the kernel, but it doesn't work.
->>
->> But I guess, you either haven't mkinitrd'ed it or you don't have an
->> initrd line
->> in your loader config (I can't see any difference in dmesgs diff)?
->>
-> 
-> It is quite possible. All I've done was:
-> 
-> # make all
-> # make modules_install
-> # make install
-> 
-> And update of /boot/grub/menu.lst. Additionally I've tried to do it using:
-> 
-> # make-kpkg --initrd kernel_image kernel_headers
-> 
-> And installing the deb package. Please correct me if I've made any
-> mistakes.
+2006/11/9, Jiri Slaby <jirislaby@gmail.com>:
+> Phillip Susi wrote:
+> >
+> > Please stop discouraging top posting.  There is no reason to have to
+> > scroll down through a screen or two of quoted message that you  just
+> > read the original of, before getting to the new subject matter.
+>
+> Nope.
+> http://www.zipworld.com.au/~akpm/linux/patches/stuff/top-posting.txt
+>
 
-Hmm, both should be sufficient, however initrd seems to be not loaded. What does
-your grub config says and could you zcat [initrd] | cpio -t (or whatever it is
-packed by)?
+I'm sorry to interrupt, but could you continue this discussion
+elsewhere? We've begun to bottom-post in this topic, and let's
+continue it this way. Fair enough?
 
-> 2006/11/9, Phillip Susi <psusi@cfl.rr.com>:
->> I didn't ask for /proc/mounts, I asked for the output of the mount
->> command with no arguments, which prints the contents of /etc/mtab.  I
->> was thinking that /etc/mtab might show the partitions as mounted even
->> though they are not, which could be why mount is complaining.
->>
-> 
-> Here you are, this is output of 'mount' while in recovery mode using
-> kernel 2.6.18.1
+>
+> Mount(8) calls mount(2) no matter what is in the /etc/mtab.
+>
 
-If you have your /etc/mtab file on ro mounted partition while in recovery mode,
-it's not being updated by mount...
+So what should I actually post? 'cat /etc/mtab'? If so, here it is:
 
-> $ mount
-> /dev/hda3 on / type ext3 (rw,errors=remount-ro)
-> proc on /proc type proc (rw)
-> /sys on /sys type sysfs (rw)
-> varrun on /var/run type tmpfs (rw)
-> varlock on /var/lock type tmpfs (rw)
-> udev on /dev type tmpfs (rw)
-> devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-> devshm on /dev/shm type tmpfs (rw)
-> /dev/hda1 on /boot type ext3 (rw)
-> /dev/hda5 on /usr type ext3 (rw)
-> 
-> As you can see, no trace of /dev/hdb1.
+# cat /etc/mtab
+/dev/hda3 / ext3 rw,errors=remount-ro 0 0
+proc /proc proc rw 0 0
+/sys /sys sysfs rw 0 0
+varrun /var/run tmpfs rw 0 0
+varlock /var/lock tmpfs rw 0 0
+udev /dev tmpfs rw 0 0
+devpts /dev/pts devpts rw,gid=5,mode=620 0 0
+devshm /dev/shm tmpfs rw 0 0
+/dev/hda1 /boot ext3 rw 0 0
+/dev/hda5 /usr ext3 rw 0 0
 
-Is the real reason EBUSY (as it should be) -- could you strace your mount command?
 
-I'm clueless now, sorry.
-
-regards,
+Best regards,
+Jano
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Mail 	jano at stepien com pl
+Jabber 	jano at jabber aster pl
+GG 	1894343
+Web	http://stepien.com.pl

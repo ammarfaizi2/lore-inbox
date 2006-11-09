@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424164AbWKIRjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424166AbWKIRdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424164AbWKIRjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 12:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966048AbWKIRjQ
+	id S1424166AbWKIRdV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 12:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424167AbWKIRdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 12:39:16 -0500
-Received: from wx-out-0506.google.com ([66.249.82.235]:29101 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S966047AbWKIRjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 12:39:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=aeUAdviV7xWtysSIMYL4soRQlEcQQikKn/DSFVXMb0jo89jrQqPfRHHr+mDu0XjLVMuCG2P7cMpSGzdebhmLSD4CqvKZFWyThhde9ZQJUkyjB/+cyJxrQ23gGBjaP35Eim2CZbCDexiZ1livIW/NGoAuPaR1IwCcfrRWMUJP/2U=
-Message-ID: <eb97335b0611090939x7afbca7fkb5da56a15f0895c0@mail.gmail.com>
-Date: Thu, 9 Nov 2006 09:39:13 -0800
-From: "Zack Weinberg" <zackw@panix.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: Re: RFC PATCH: apply security_syslog() only to the syslog() syscall, not to /proc/kmsg
-Cc: "Chris Wright" <chrisw@sous-sol.org>, "Sergey Vlasov" <vsu@altlinux.ru>,
-       linux-kernel@vger.kernel.org, jmorris@namei.org
-In-Reply-To: <1163090431.12241.358.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Nov 2006 12:33:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:45190 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1424166AbWKIRdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 12:33:18 -0500
+Date: Thu, 9 Nov 2006 17:33:17 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Layton <jlayton@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/3] new_inode_autonum: add per-sb lastino counter and add new_inode_autonum function that guarantees i_ino uniqueness
+Message-ID: <20061109173317.GA11406@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Layton <jlayton@redhat.com>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1163085879.21469.45.camel@dantu.rdu.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <eb97335b0611072016y51e1625hcd6504fddfe9aa6c@mail.gmail.com>
-	 <20061108102037.GA6602@sequoia.sous-sol.org>
-	 <20061108154229.eb6d4626.vsu@altlinux.ru>
-	 <20061109041400.GB6602@sequoia.sous-sol.org>
-	 <1163083837.12241.282.camel@moss-spartans.epoch.ncsc.mil>
-	 <eb97335b0611090808q4738d29ai88da69aab97a84aa@mail.gmail.com>
-	 <1163090431.12241.358.camel@moss-spartans.epoch.ncsc.mil>
-X-Google-Sender-Auth: 259035443ec003d8
+In-Reply-To: <1163085879.21469.45.camel@dantu.rdu.redhat.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/9/06, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> Unless I missed something, your plan above would disable SELinux
-> syslog-related permission checking upon reads of a previously opened
-> file descriptor to /proc/kmsg.  So it would change SELinux behavior in a
-> way that is directly contrary to the notion of mandatory access control.
+On Thu, Nov 09, 2006 at 10:24:39AM -0500, Jeff Layton wrote:
+> +/**
+> + *	new_inode_autonum 	- obtain an inode with a unique i_ino value
+> + *	@sb: superblock
+> + *
+> + *	Allocates a new inode for given superblock. Ensures that i_ino is
+> + *	unique on the filesystem.
+> + */
+> +struct inode *new_inode_autonum(struct super_block *sb)
+> +{
+> +	struct inode *inode;
+> +
+> +	inode = __new_inode(sb);
+> +	inode->i_ino = iunique(sb, 0);
+> +	return inode;
 
-Yes, it would do that; no, I don't see why that change is contrary to
-the notion of mandatory access control.  An open fd on /proc/kmsg
-(with my changes applied) offers strictly fewer privileges than
-SYSTEM__SYSLOG_MOD (no access to opcodes 4 and 5), and with SELinux
-active, you can't get that open fd without having had
-SYSTEM__SYSLOG_MOD at some prior time.  SELinux does not (as far as I
-can tell) do MAC checks for access to normal files at read() time,
-only open().
+Why do we need this wrapper?  The callers could aswell just do the
+iunique call themselves.  It's already exported aswell.
 
-I see this as bringing /proc/kmsg in line with standard Unix file
-permission semantics, overall.
+> +/**
+> + *	new_inode 	- obtain an inode -- i_ino not guaranteed unique
+> + *	@sb: superblock
+> + *
+> + *	Allocates a new inode for given superblock. i_ino is not guaranteed to
+> + *	be unique. Should only be used when i_ino is going to be clobbered.
+> + */
+> +struct inode *new_inode(struct super_block *sb)
+> +{
+> +	struct inode *inode;
+> +
+> +	inode = __new_inode(sb);
+> +	inode->i_ino = 0; /* 0 to try to catch callers that don't reset it */
+> +	return inode;
 
-> Part 4 appears to further expose /proc/kmsg to access by any uid 0
-> process even if it has no capabilities (think privilege shedding or
-> containers).
+And this wrapper is rather pointless as inode_init_once already zeroes the
+whole inode.  Just keep the name new_inode for the basic don't assigned
+inode number thing.
 
-Only in the default privilege model, not in SELinux.  (CAP_SYS_ADMIN
-is a hell of a lot more powerful than SYSTEM__SYSLOG_MOD.)  And I
-could be talked out of part 4.
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -961,6 +961,14 @@ #endif
+>  	/* Granularity of c/m/atime in ns.
+>  	   Cannot be worse than a second */
+>  	u32		   s_time_gran;
+> +
+> +	/* per-sb inode counter for new_inode. Make it a 32-bit counter when
+> +	   we have the possibility of dealing with 32-bit apps */
+> +#ifdef CONFIG_COMPAT
+> +	unsigned int		s_nextino;
+> +#else
+> +	unsigned long		s_nextino;
+> +#endif
 
-> But having a mapping in the core to a much
-> smaller set of permissions would be even better, and help with
-> maintenance; the next time someone added a new code, they would more
-> likely see the mapping table in the core and update it than go digging
-> into the individual security modules.
+This is more thanb ugly.  CONFIG_COMPAT should not modify core kernel
+behaviour.  It's also short sightened as we once again plan to support
+64bit inode numbers on 32bit hosts.
 
-But that mapping is itself a security policy decision, and could
-plausibly need to be done differently in different security modules...
-
-zw

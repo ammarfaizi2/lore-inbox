@@ -1,128 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965463AbWKIOf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966034AbWKIOj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965463AbWKIOf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 09:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966015AbWKIOfz
+	id S966034AbWKIOj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 09:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966035AbWKIOj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 09:35:55 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:15571 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965463AbWKIOfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 09:35:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=U55g1CeXoB7XA59HCrxpM1GWeOLRRpOk1WhDiQ+/ILIW6GvbaLnYS1tgQRMxL3gfyLXtE44KLyZGNT4DYR0e9OHne9Gygc8nr2J5CE/0QewgMmIrz7wKwZ4Vb1C6Mot1N/5bRnnGmK4AGPUq3d9c830tmdRvuq1PXk95kh5QMpQ=
-Message-ID: <3f250c710611090635j530e7f02q7a84d367fa2ab41c@mail.gmail.com>
-Date: Thu, 9 Nov 2006 10:35:53 -0400
-From: "Mauricio Lin" <mauriciolin@gmail.com>
-To: balbir@in.ibm.com
-Subject: Re: Jiffies wraparound is not treated in the schedstats
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4552CAD9.1080603@in.ibm.com>
+	Thu, 9 Nov 2006 09:39:56 -0500
+Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:32460
+	"HELO smtpout04-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S966034AbWKIOjz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 09:39:55 -0500
+Message-ID: <45533DB9.4000405@seclark.us>
+Date: Thu, 09 Nov 2006 09:39:53 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Arjan van de Ven <arjan@infradead.org>
+CC: =?ISO-8859-1?Q?=22=5C=22J=2EA=2E=5C=22_Magall=F3n=22?= 
+	<jamagallon@ono.com>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       Mark Lord <lkml@rtr.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: Abysmal PATA IDE performance
+References: <455206E7.2050104@seclark.us> <45526D50.5020105@rtr.ca>	 <455277E1.3040803@seclark.us> <20061109020758.GA21537@atjola.homenet>	 <4552A638.4010207@seclark.us>  <20061109094014.1c8b6bed@werewolf-wl> <1163062700.3138.467.camel@laptopd505.fenrus.org>
+In-Reply-To: <1163062700.3138.467.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <3f250c710611081005v5fcf3236qfb10b47bab1ada5f@mail.gmail.com>
-	 <4552CAD9.1080603@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Balbir,
+Arjan van de Ven wrote:
 
-I did not know about arithmetic properties of the unsigned types, so
-the misundertanding about jiffies calculation. It was my mistake.
-
-On 11/9/06, Balbir Singh <balbir@in.ibm.com> wrote:
-> Mauricio Lin wrote:
-> > Hi Balbir,
-> >
-> > Do you know why in the sched_info_arrive() and sched_info_depart()
-> > functions the calculation of delta_jiffies does not use the time_after
-> > or time_before macro to prevent  the miscalculation when jiffies
-> > overflow?
-> >
-> > For instance the delta_jiffies variable is simply calculated as:
-> >
-> > delta_jiffies = now - t->sched_info.last_queued;
-> >
-> > Do not you think the more logical way should be
-> >
-> > if (time_after(now, t->sched_info.last_queued))
-> >    delta_jiffies = now - t->sched_info.last_queued;
-> > else
-> >    delta_jiffies = (MAX_JIFFIES - t->sched_info.last_queued) + now
-> >
+>>Probably your drives are renamed.
+>>Before you had (wild guess, look at your boot log messages):
+>>- ata bus -> hdc,hdd
+>>- sata -> sda (if you really have any sata bus...)
+>>
+>>Now all hdX become sdX, and PATA is detected _before_ SATA, so you names
+>>probaly became:
+>>- ata via libata -> sda (HD), sr0 (CDROM)
+>>- sata -> sdb.
+>>    
+>>
 >
-> What's MAX_JIFFIES? Is it MAX_ULONG? jiffies is unsigned long
-> so you'll have to be careful with unsigned long arithmetic.
-
-It is ULONG_MAX. :)
-
+>on fedora this doesn't matter (due to mount-by-label)
 >
-> Consider that now is 5 and t->sched_info.last_queued is 10.
+>the bigger problem I suspect is that the sata modules aren't part of the
+>initrd!
 >
-> On my system
+>you can force the issue by adding
 >
-> perl -e '{printf("%lu\n", -5 + (1<<32) - 1);}'
-> 4294967291
+>alias scsi_hostadapter1 ata_piix
 >
-> perl -e '{printf("%lu\n", -5 );}'
-> 4294967291
+>to the /etc/modprobe.conf file, and then recreating the initrd
+>(see the mkinitrd tool, or just install the kernel rpm)
 >
 >
-> > I have included more variables to measure some issues of schedule in
-> > the kernel (following schedstat idea) and I noticed that jiffies
-> > wraparound has led to wrong values, since the user space tool when
-> > collecting the values is producing negative values.
-> >
 >
-> hmm.. jiffies wrapped around in sched_info_depart()? I've never seen
-> that happen. Could you post the additions and user space tool to look at?
-> What additional features are you planning to measure in the scheduler?
+>
+>  
+>
+Thanks all.
 
-Well, one of the behaviour we would like to check its the time that
-the system remains idle. As the schedstat already provide the
-sched_goidle (number of time the system gets idle), during the
-measurements we would like to know also the time spent in the idle
-state.
+Arjan, using combined_mode=libata and making a new ramdisk increased my 
+xfer rate from 1.xx mb/sec to 28.xx mb/sec.
 
-Checking the results, perhaps such new info is not necessary to be
-included if we want the percentage of use in our measurements. For
-instance if we want the cpu_load calculated as:
+I am curious as to why my friends dell inspiron 8200 with a 1.8ghz p4 
+and the same drive using the same drive with FC6 and the standard ide 
+module gets 44 to 45 mb/sec.
 
-cpu_load = (cpu_time2 - cpu_time1)/sample_period
+Steve
 
-where "cpu_time" corresponds to the rq->rq_sched_info.cpu_time in the
-kernel and "sample period" is the time spent running the use case.
+-- 
 
-So the "cpu_idle_load" can be calculated as (1-cpu_load).
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
 
-If we include in the __sched_info_switch() (kernel) something like:
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
 
-...
-	if (prev != rq->idle)
-		sched_info_depart(prev);
-	else
-		rq->rq_sched_info.idle_time +=
-			jiffies - prev->sched_info.last_arrival;
 
-	if (next != rq->idle)
-		sched_info_arrive(next);
-	else
-		next->sched_info.last_arrival = jiffies;
-...
 
-We can calculated the cpu_idle_load at user space as:
-
-cpu_idle_load = (cpu_idle_time2 - cpu_idle_time1)/sample_period
-
-where cpu_idle_time corresponds to rq->rq_sched_info.idle_time
-
-This info leads to the same result if we just base the calculation on
-the (1-cpu_load) as mentioned previously.
-
-BR,
-
-Mauricio Lin.

@@ -1,92 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423976AbWKIA4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423960AbWKIA6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423976AbWKIA4g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 19:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423979AbWKIA4g
+	id S1423960AbWKIA6x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 19:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423980AbWKIA6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 19:56:36 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:60164 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1423976AbWKIA4f convert rfc822-to-8bit (ORCPT
+	Wed, 8 Nov 2006 19:58:53 -0500
+Received: from gate.crashing.org ([63.228.1.57]:4792 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1423960AbWKIA6w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 19:56:35 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: touch_cache() only touches two thirds
-Date: Wed, 8 Nov 2006 16:56:35 -0800
-Message-ID: <FE74AC4E0A23124DA52B99F17F441597DA118C@PA-EXCH03.vmware.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: touch_cache() only touches two thirds
-Thread-Index: AccDmeen/ZegpeuXR3O2uqmM83KCAg==
-From: "Bela Lubkin" <blubkin@vmware.com>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 8 Nov 2006 19:58:52 -0500
+Subject: [PATCH 2/2] Use dev_sysdata for ACPI and remove firmware_data
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Content-Type: text/plain
+Date: Thu, 09 Nov 2006 11:58:36 +1100
+Message-Id: <1163033916.28571.803.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Submitted as <http://bugzilla.kernel.org/show_bug.cgi?id=7476>:
+This patch changes ACPI to use the new dev_sysdata on x86 and x86_64 (is there
+any other arch using ACPI ?) to store it's acpi_handle. It also removes the
+firmware_data field from struct device as this was the only user.
 
-I noticed this bug while looking at something else.  These comments are based
-purely on source inspection without any runtime observations.  The bug
-remains in the latest sources I could find: 2.6.19-rc5 and rc5-mm1.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Ingo Molnar's patch referred to as "scheduler cache-hot-auto-tune" introduced
-the function kernel/sched.c:touch_cache().  Here is the 2.6.19-rc5-mm1
-version (my "forward / backward" comments):
-
-/*
- * Dirty a big buffer in a hard-to-predict (for the L2 cache) way. This
- * is the operation that is timed, so we try to generate unpredictable
- * cachemisses that still end up filling the L2 cache:
- */
-static void touch_cache(void *__cache, unsigned long __size)
-{
-        unsigned long size = __size / sizeof(long);
-        unsigned long chunk1 = size / 3;
-        unsigned long chunk2 = 2 * size / 3;
-        unsigned long *cache = __cache;
-        int i;
-
-        for (i = 0; i < size / 6; i += 8) {
-                switch (i % 6) {
-                        case 0: cache[i]++;         /* 1st third, forward  */
-                        case 1: cache[size-1-i]++;  /* 3rd third, backward */
-                        case 2: cache[chunk1-i]++;  /* 1st third, backward */
-                        case 3: cache[chunk1+i]++;  /* 2nd third, forward  */
-                        case 4: cache[chunk2-i]++;  /* 2nd third, backward */
-                        case 5: cache[chunk2+i]++;  /* 3rd third, forward  */
-                }
-        }
-}
-
-Notice that the for() loop increments `i' by 8 (earlier versions of the code
-used a stride of 4).  Since all visited values of i are even, `i % 6' can
-never be odd.  The switch cases 1/3/5 will never be hit -- so the 3rd third
-of the test buffer isn't being touched.  Migration costs are actually being
-calculated relative to buffers that are only 2/3 as large as intended.
-
-An easy fix is to make the stride relatively prime to the modulus:
-
---- sched.c.orig        2006-11-08 16:17:37.299500000 -0800
-+++ sched.c     2006-11-08 16:28:21.699750000 -0800
-@@ -5829,5 +5829,5 @@ static void touch_cache(void *__cache, u
-        int i;
+Index: linux-cell/drivers/acpi/glue.c
+===================================================================
+--- linux-cell.orig/drivers/acpi/glue.c	2006-10-06 13:48:00.000000000 +1000
++++ linux-cell/drivers/acpi/glue.c	2006-11-09 11:25:30.000000000 +1100
+@@ -267,9 +267,9 @@ static int acpi_bind_one(struct device *
+ {
+ 	acpi_status status;
  
--       for (i = 0; i < size / 6; i += 8) {
-+       for (i = 0; i < size / 6; i += 7) {
-                switch (i % 6) {
-                        case 0: cache[i]++;
+-	if (dev->firmware_data) {
++	if (dev->sysdata.acpi_handle) {
+ 		printk(KERN_WARNING PREFIX
+-		       "Drivers changed 'firmware_data' for %s\n", dev->bus_id);
++		       "Drivers changed 'acpi_handle' for %s\n", dev->bus_id);
+ 		return -EINVAL;
+ 	}
+ 	get_device(dev);
+@@ -278,25 +278,26 @@ static int acpi_bind_one(struct device *
+ 		put_device(dev);
+ 		return -EINVAL;
+ 	}
+-	dev->firmware_data = handle;
++	dev->sysdata.acpi_handle = handle;
+ 
+ 	return 0;
+ }
+ 
+ static int acpi_unbind_one(struct device *dev)
+ {
+-	if (!dev->firmware_data)
++	if (!dev->sysdata.acpi_handle)
+ 		return 0;
+-	if (dev == acpi_get_physical_device(dev->firmware_data)) {
++	if (dev == acpi_get_physical_device(dev->sysdata.acpi_handle)) {
+ 		/* acpi_get_physical_device increase refcnt by one */
+ 		put_device(dev);
+-		acpi_detach_data(dev->firmware_data, acpi_glue_data_handler);
+-		dev->firmware_data = NULL;
++		acpi_detach_data(dev->sysdata.acpi_handle,
++				 acpi_glue_data_handler);
++		dev->sysdata.acpi_handle = NULL;
+ 		/* acpi_bind_one increase refcnt by one */
+ 		put_device(dev);
+ 	} else {
+ 		printk(KERN_ERR PREFIX
+-		       "Oops, 'firmware_data' corrupt for %s\n", dev->bus_id);
++		       "Oops, 'acpi_handle' corrupt for %s\n", dev->bus_id);
+ 	}
+ 	return 0;
+ }
+@@ -328,7 +329,8 @@ static int acpi_platform_notify(struct d
+ 	if (!ret) {
+ 		struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+ 
+-		acpi_get_name(dev->firmware_data, ACPI_FULL_PATHNAME, &buffer);
++		acpi_get_name(dev->sysdata.acpi_handle,
++			      ACPI_FULL_PATHNAME, &buffer);
+ 		DBG("Device %s -> %s\n", dev->bus_id, (char *)buffer.pointer);
+ 		kfree(buffer.pointer);
+ 	} else
+Index: linux-cell/include/acpi/acpi_bus.h
+===================================================================
+--- linux-cell.orig/include/acpi/acpi_bus.h	2006-10-06 13:48:20.000000000 +1000
++++ linux-cell/include/acpi/acpi_bus.h	2006-11-09 11:26:11.000000000 +1100
+@@ -357,7 +357,7 @@ struct device *acpi_get_physical_device(
+ /* helper */
+ acpi_handle acpi_get_child(acpi_handle, acpi_integer);
+ acpi_handle acpi_get_pci_rootbridge_handle(unsigned int, unsigned int);
+-#define DEVICE_ACPI_HANDLE(dev) ((acpi_handle)((dev)->firmware_data))
++#define DEVICE_ACPI_HANDLE(dev) ((acpi_handle)((dev)->sysdata.acpi_handle))
+ 
+ #endif /* CONFIG_ACPI */
+ 
+Index: linux-cell/include/asm-i386/device.h
+===================================================================
+--- linux-cell.orig/include/asm-i386/device.h	2006-11-09 11:20:28.000000000 +1100
++++ linux-cell/include/asm-i386/device.h	2006-11-09 11:24:28.000000000 +1100
+@@ -9,6 +9,9 @@
+ #define _ASM_DEVICE_H
+ 
+ struct dev_sysdata {
++#ifdef CONFIG_ACPI
++	void	*acpi_handle;
++#endif
+ };
+ 
+ #endif /* _ASM_DEVICE_H */
+Index: linux-cell/include/linux/device.h
+===================================================================
+--- linux-cell.orig/include/linux/device.h	2006-11-09 11:17:36.000000000 +1100
++++ linux-cell/include/linux/device.h	2006-11-09 11:26:58.000000000 +1100
+@@ -368,8 +368,6 @@ struct device {
+ 	void		*driver_data;	/* data private to the driver */
+ 	void		*platform_data;	/* Platform specific data, device
+ 					   core doesn't touch it */
+-	void		*firmware_data; /* Firmware specific data (e.g. ACPI,
+-					   BIOS data),reserved for device core*/
+ 	struct dev_pm_info	power;
+ 
+ 	u64		*dma_mask;	/* dma mask (if dma'able device) */
+Index: linux-cell/include/asm-x86_64/device.h
+===================================================================
+--- linux-cell.orig/include/asm-x86_64/device.h	2006-11-09 11:20:29.000000000 +1100
++++ linux-cell/include/asm-x86_64/device.h	2006-11-09 11:37:19.000000000 +1100
+@@ -9,6 +9,9 @@
+ #define _ASM_DEVICE_H
+ 
+ struct dev_sysdata {
++#ifdef CONFIG_ACPI
++	void	*acpi_handle;
++#endif
+ };
+ 
+ #endif /* _ASM_DEVICE_H */
 
->Bela<
 
-PS: I suspect this at least partially explains Kenneth W Chen's observations
-in "Variation in measure_migration_cost() with
-scheduler-cache-hot-autodetect.patch in -mm",
-<http://lkml.org/lkml/2005/6/21/473>:
-
-> I'm consistently getting a smaller than expected cache migration cost
-> as measured by Ingo's scheduler-cache-hot-autodetect.patch currently
-> in -mm tree.

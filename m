@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424051AbWKIPYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424052AbWKIP27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424051AbWKIPYv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 10:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424050AbWKIPYv
+	id S1424052AbWKIP27 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 10:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424054AbWKIP27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 10:24:51 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:61910 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1424031AbWKIPYu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 10:24:50 -0500
-Subject: [PATCH 0/3] new_inode_autonum: intro -- ensure uniqueness of i_ino
-	and try to prevent st_ino EOVERFLOW in userspace
-From: Jeff Layton <jlayton@redhat.com>
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Content-Type: text/plain
-Date: Thu, 09 Nov 2006 10:24:36 -0500
-Message-Id: <1163085876.21469.43.camel@dantu.rdu.redhat.com>
+	Thu, 9 Nov 2006 10:28:59 -0500
+Received: from justus.rz.uni-saarland.de ([134.96.7.31]:11689 "EHLO
+	justus.rz.uni-saarland.de") by vger.kernel.org with ESMTP
+	id S1424052AbWKIP25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 10:28:57 -0500
+Date: Thu, 9 Nov 2006 16:44:36 +0100
+From: Alexander van Heukelum <heukelum@mailshack.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, sct@redhat.com, ak@suse.de,
+       herbert@gondor.apana.org.au, xen-devel@lists.xensource.com
+Subject: Re: [PATCH] shorten the x86_64 boot setup GDT to what the comment says
+Message-ID: <20061109154436.GA31954@mailshack.com>
+References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com> <1163084072.31014.275411753@webmail.messagingengine.com> <Pine.LNX.4.58.0611091016100.6250@gandalf.stny.rr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0611091016100.6250@gandalf.stny.rr.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.1 (justus.rz.uni-saarland.de [134.96.7.31]); Thu, 09 Nov 2006 16:28:53 +0100 (CET)
+X-AntiVirus: checked by AntiVir Milter (version: 1.1.3-1; AVE: 7.2.0.39; VDF: 6.36.1.10; host: AntiVir1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This started as a rather simple problem. glibc uses fstat64() internally
-when making a stat() call. If the st_ino field returned by this call
-does not fit in the buffer allocated by the program, glibc (rightly)
-generates an EOVERFLOW in userspace. This is generally only a problem
-when the program is compiled without -D_FILE_OFFSET_BITS=64.
+On Thu, Nov 09, 2006 at 10:18:53AM -0500, Steven Rostedt wrote:
+> Hmm, Andi,
+> 
+> Should this be more like what is done in x86? Although this isn't a major
+> bug or anything, would it be cleaner. For example doing:
+> 
+> @@ -836,11 +836,15 @@ gdt:
+>         .word   0x9200                          # data read/write
+>         .word   0x00CF                          # granularity = 4096, 386
+>                                                 #  (+5th nibble of limit)
+> +gdt_end:
+> +       .align  4
+> +
+> +       .word   0                               # alignment byte
+>  idt_48:
+>         .word   0                               # idt limit = 0
+>         .word   0, 0                            # idt base = 0L
+>  gdt_48:
+> -       .word   0x8000                          # gdt limit=2048,
+> +       .word   gdt_end - gdt - 1               # gdt limit=2048,
+>                                                 #  256 GDT entries
+> 
+>         .word   0, 0                            # gdt base (filled in
+> 
+> instead?
 
-The kernel declares ino_t to be an unsigned long which is generally
-32-bits on 32-bit kernels and 64-bits on 64-bit kernels. The new_inode
-function has a static unsigned long counter that it uses to assign out
-i_ino values.
+Hi!
 
-On a 64-bit kernel, the value in this counter eventually becomes too
-large to fit in 32-bits, and glibc starts throwing EOVERFLOW errors to
-programs compiled without large file offsets. This creates a situation
-where such a program will work fine on a 32-bit kernel, but when run on
-a 64-bit kernel it will eventually start falling down.
+Maybe you should consider 16-byte aligning the gdt table too, like
+i386 does? It doesn't hurt, and as per the comment in the i386-file
+"16 byte aligment is recommended by intel."
 
-We can't do much about this on filesystems that have true 64-bit inodes,
-but on filesystems that get "pseudo_inode" values via new_inode or
-iunique, we should attempt to make them fit in a 32-bit value.
+Greetings,
+	Alexander van Heukelum
 
-While fixing this, we discovered that many filesystems seem to blindly
-accept the i_ino value given by new_inode. new_inode makes no actual
-check to see if an i_ino value is unique, so once the counter overflows
-you can end up with more than one inode with the same i_ino value.
-
-The following set of patches should remedy both of these problems. While
-these are arguably security-related, these patches are probably better
-suited to 2.6.20 than anything earlier.
-
--- Jeff
-
-
+> If so, I can send you another patch that does this. Will need to test it
+> first.
+> 
+> -- Steve

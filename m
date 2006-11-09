@@ -1,74 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754798AbWKITWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965257AbWKIT1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754798AbWKITWI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 14:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754832AbWKITWH
+	id S965257AbWKIT1M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 14:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754831AbWKIT1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 14:22:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:26085 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1754798AbWKITWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 14:22:03 -0500
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <20061109111212.eee33367.akpm@osdl.org>
-References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com>
-	 <1163024531.3138.406.camel@laptopd505.fenrus.org>
-	 <20061108145150.80ceebf4.akpm@osdl.org>
-	 <1163064401.3138.472.camel@laptopd505.fenrus.org>
-	 <20061109013645.7bef848d.akpm@osdl.org>
-	 <1163065920.3138.486.camel@laptopd505.fenrus.org>
-	 <20061109111212.eee33367.akpm@osdl.org>
+	Thu, 9 Nov 2006 14:27:12 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:24786 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1754829AbWKIT1L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 14:27:11 -0500
+Subject: Re: [PATCH -mm 3/3][AIO] - AIO completion signal notification
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: S?bastien Dugu? <sebastien.dugue@bull.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>, Zach Brown <zach.brown@oracle.com>,
+       Dave Jones <davej@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <20061109190843.GA20321@infradead.org>
+References: <1163087717.3879.34.camel@frecb000686>
+	 <1163087946.3879.43.camel@frecb000686>
+	 <20061109190843.GA20321@infradead.org>
 Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 09 Nov 2006 20:21:55 +0100
-Message-Id: <1163100115.3138.524.camel@laptopd505.fenrus.org>
+Date: Thu, 09 Nov 2006 11:27:08 -0800
+Message-Id: <1163100428.10295.3.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-09 at 11:12 -0800, Andrew Morton wrote:
-> On Thu, 09 Nov 2006 10:52:00 +0100
-> Arjan van de Ven <arjan@infradead.org> wrote:
+On Thu, 2006-11-09 at 19:08 +0000, Christoph Hellwig wrote:
+
+Looks much better :)
+
 > 
-> > Do you have the
-> > impression that high quality bug reports on lkml (with this I mean ones
-> > where there is sufficient information, which are not a request for
-> > support and where the reporter actually answers questions that are asked
-> > him) are not getting reasonable attention? 
+> static long aio_setup_sigevent(struct kiocb *iocb,
+> 			       struct sigevent __user *user_event)
+> {
+> 	sigevent_t event;
+> 	struct task_struct *target;
+> 	unsigned long flags;
 > 
-> Yes.
+> 	if (copy_from_user(&event, user_event, sizeof (event)))
+> 		return -EFAULT;
 > 
-> And why does the report quality matter?  
+> 	if (event.sigev_notify == SIGEV_NONE)
+> 		return 0;
+> 
+> 	iocb->ki_notify.notify = event.sigev_notify;
 
-because it matters where people spend their time. And if you count
-bugreports that are actually distro support questions and then say "but
-these aren't looked at" it's not fair either.
+Don't we want to verify to make sure that we are accepting only
+SIGEV_SIGNAL or SIGEV_THREAD_ID and return -EINVAL, if some
+one passes invalid event ? Like
 
-> If there's insufficient info you
-> just ask for more.
+	if ((event.sigev_notify != SIGEV_SIGNAL) &&
+		(event.sigev_notify != SIGEV_THREAD_ID)) 
+		return -EINVAL;
 
-and that does happen. And half the time people just remain silent :(
-I know I look at a whole bunch of bugreports in areas that I work on. I
-see a lot of other people doing something similar. That doesn't mean
-nothing slips through. I'm sure stuff does slip through. I would HOPE
-it's really obscure things only; but I fear it's also cases where the
-reporter didn't put the right people on the CC as well ;(
-
-
-> But we all know that and nothing's going to happen so there's really not
-> much point in discussing it.  I have 270 saved-up-lkml-bug-reports to
-> process.
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+> 	iocb->ki_notify.signo = event.sigev_signo;
+> 	iocb->ki_notify.value = event.sigev_value;
+> 
+> 	read_lock(&tasklist_lock);
+> 	target = good_sigevent(&event);
+> 	if (unlikely(!target || (target->flags & PF_EXITING)))
+> 		goto out_unlock;
+> 	iocb->ki_notify.target = target;
+> 
+> 	if (iocb->ki_notify.notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID)) {
+> 		/*
+> 		 * This reference will be dropped when we're done with
+> 		 * the request.
+> 		 */
+> 		get_task_struct(target);
+> 	}
+> 	read_unlock(&tasklist_lock);
+> 
+> 	/*
+> 	 * NOTE: we cannot free the sigqueue in the completion path as
+> 	 * the signal may not have been delivered to the target task.
+> 	 * Therefore it has to be freed in __sigqueue_free() when the
+> 	 * signal is collected if si_code is SI_ASYNCIO.
+> 	 */
+> 	iocb->ki_sigq = sigqueue_alloc();
+> 	if (unlikely(!iocb->ki_sigq)) {
+> 		put_task_struct(target);
+> 		return -EAGAIN;
+> 	}
+> 
+> 	return 0;
+>  out_unlock:
+> 	read_unlock(&tasklist_lock);
+> 	return -EINVAL;
+> }
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 

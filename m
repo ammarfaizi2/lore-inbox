@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752893AbWKIHag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753585AbWKIHfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752893AbWKIHag (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 02:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753619AbWKIHag
+	id S1753585AbWKIHfK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 02:35:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753723AbWKIHfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 02:30:36 -0500
-Received: from colin.muc.de ([193.149.48.1]:23812 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1752891AbWKIHag (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 02:30:36 -0500
-Date: 9 Nov 2006 08:30:34 +0100
-Date: Thu, 9 Nov 2006 08:30:34 +0100
-From: Andi Kleen <ak@muc.de>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH][2.6.19-rc5-mm1] i386: Convert more absolute symbols to section relative
-Message-ID: <20061109073034.GA11760@muc.de>
-References: <20061108221621.GB29705@in.ibm.com>
+	Thu, 9 Nov 2006 02:35:10 -0500
+Received: from za-gw.sanpeople.com ([196.211.225.226]:22285 "EHLO
+	za-gw.sanpeople.com") by vger.kernel.org with ESMTP
+	id S1753585AbWKIHfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 02:35:08 -0500
+Subject: Re: [-mm patch 1/4] GPIO framework for AVR32
+From: Andrew Victor <andrew@sanpeople.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: hskinnemoen@atmel.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20061108180059.845DE1DC95A@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+References: <20061107122507.6f1c6e81@cad-250-152.norway.atmel.com>
+	 <20061107122715.3022da2f@cad-250-152.norway.atmel.com>
+	 <20061107131014.535ab280.akpm@osdl.org>
+	 <20061107223741.62FA21DC801@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+	 <20061108124823.308ae3b4@cad-250-152.norway.atmel.com>
+	 <20061108180059.845DE1DC95A@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+Content-Type: text/plain
+Organization: Multenet Technologies (Pty) Ltd
+Message-Id: <1163057161.14573.180.camel@fuzzie.sanpeople.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061108221621.GB29705@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 09 Nov 2006 09:26:02 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 05:16:21PM -0500, Vivek Goyal wrote:
-> 
-> 
-> o Convert more absolute symbols to section relative to keep the theme in
->   vmlinux.lds.S file and to avoid problem if kernel is relocated.
-> 
-> o Also put a message so that in future people can be aware of it and 
->   avoid introducing absolute symbols.
+hi David,
 
-Added thanks
+> > > 	* int gpio_set_direction(unsigned gpio, int is_in /* or
+> > >           		is_out? */)
+> > >         ... returning 0 or negative errno (for invalid gpio)
+> >
+> > I think set_output_enable makes more sense, but maybe it's just me.
+> 
+> It's just you.  :)
+> 
+> A "set enable" idiom is linguistically redundant too; "set" suffices,
+> or "enable".  Both imply a need for an opposite "clear" or "disable.
+> "Direction" is a more obvious notion; the parameter should likely be
+> a symbol like GPIO_IN or GPIO_OUT.
 
--Andi
+We originally had at91_set_gpio_direction() in the AT91 GPIO layer, and
+that seemed to cause confusion  (eg, do I pass a 1 or 0 to enable output
+mode?)
+
+So I'd personally prefer to keep gpio_set_input() and
+gpio_set_output().  (alternative is "enable" instead of "set").  I think
+it's more readable.
+
+
+Regards,
+  Andrew Victor
+
+

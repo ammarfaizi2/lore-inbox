@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424052AbWKIP27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424029AbWKIPaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424052AbWKIP27 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 10:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424054AbWKIP27
+	id S1424029AbWKIPaL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 10:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424054AbWKIPaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 10:28:59 -0500
-Received: from justus.rz.uni-saarland.de ([134.96.7.31]:11689 "EHLO
-	justus.rz.uni-saarland.de") by vger.kernel.org with ESMTP
-	id S1424052AbWKIP25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 10:28:57 -0500
-Date: Thu, 9 Nov 2006 16:44:36 +0100
-From: Alexander van Heukelum <heukelum@mailshack.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, sct@redhat.com, ak@suse.de,
-       herbert@gondor.apana.org.au, xen-devel@lists.xensource.com
-Subject: Re: [PATCH] shorten the x86_64 boot setup GDT to what the comment says
-Message-ID: <20061109154436.GA31954@mailshack.com>
-References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com> <1163084072.31014.275411753@webmail.messagingengine.com> <Pine.LNX.4.58.0611091016100.6250@gandalf.stny.rr.com>
+	Thu, 9 Nov 2006 10:30:11 -0500
+Received: from gwmail.nue.novell.com ([195.135.221.19]:30171 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1424029AbWKIPaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 10:30:09 -0500
+Message-Id: <455357C9.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Thu, 09 Nov 2006 16:31:05 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Steven Rostedt" <rostedt@goodmis.org>, "Andi Kleen" <ak@suse.de>
+Cc: <herbert@gondor.apana.org.au>, <xen-devel@lists.xensource.com>,
+       "LKML" <linux-kernel@vger.kernel.org>
+Subject: [Xen-devel] Re: [PATCH] shorten the x86_64 boot setup GDT to
+	what the comment says
+References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com>
+ <200611091413.21415.ak@suse.de>
+In-Reply-To: <200611091413.21415.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0611091016100.6250@gandalf.stny.rr.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.1 (justus.rz.uni-saarland.de [134.96.7.31]); Thu, 09 Nov 2006 16:28:53 +0100 (CET)
-X-AntiVirus: checked by AntiVir Milter (version: 1.1.3-1; AVE: 7.2.0.39; VDF: 6.36.1.10; host: AntiVir1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2006 at 10:18:53AM -0500, Steven Rostedt wrote:
-> Hmm, Andi,
-> 
-> Should this be more like what is done in x86? Although this isn't a major
-> bug or anything, would it be cleaner. For example doing:
-> 
-> @@ -836,11 +836,15 @@ gdt:
->         .word   0x9200                          # data read/write
->         .word   0x00CF                          # granularity = 4096, 386
->                                                 #  (+5th nibble of limit)
-> +gdt_end:
-> +       .align  4
-> +
-> +       .word   0                               # alignment byte
->  idt_48:
->         .word   0                               # idt limit = 0
->         .word   0, 0                            # idt base = 0L
->  gdt_48:
-> -       .word   0x8000                          # gdt limit=2048,
-> +       .word   gdt_end - gdt - 1               # gdt limit=2048,
->                                                 #  256 GDT entries
-> 
->         .word   0, 0                            # gdt base (filled in
-> 
-> instead?
+>>> Andi Kleen <ak@suse.de> 09.11.06 14:13 >>>
+>
+>> Stephen Tweedie has written up a patch to fix the Xen side and will be
+>> submitting that to those folks. But that doesn't excuse the GDT limit
+>> being a magnitude too big.
+>
+>Added thanks
 
-Hi!
+Once at this - why not set it to the *correct* value, just like i386 does,
+and update the comment at once? Namely, why would you expect to
+never run into the original problem again if there are still possible
+selectors pointing into invalid, yet within limits parts of the GDT?
 
-Maybe you should consider 16-byte aligning the gdt table too, like
-i386 does? It doesn't hurt, and as per the comment in the i386-file
-"16 byte aligment is recommended by intel."
-
-Greetings,
-	Alexander van Heukelum
-
-> If so, I can send you another patch that does this. Will need to test it
-> first.
-> 
-> -- Steve
+Jan

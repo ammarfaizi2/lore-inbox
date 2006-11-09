@@ -1,87 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754803AbWKIJcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754813AbWKIJeb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754803AbWKIJcp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 04:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754809AbWKIJcp
+	id S1754813AbWKIJeb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 04:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754815AbWKIJeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 04:32:45 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:1739 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1754803AbWKIJco (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 04:32:44 -0500
-Date: Thu, 9 Nov 2006 12:29:45 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take24 3/6] kevent: poll/select() notifications.
-Message-ID: <20061109092945.GA11382@2ka.mipt.ru>
-References: <11630606373650@2ka.mipt.ru> <200611091008.45227.dada1@cosmosbay.com>
+	Thu, 9 Nov 2006 04:34:31 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:35037 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1754813AbWKIJe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 04:34:29 -0500
+Date: Thu, 9 Nov 2006 10:33:49 +0100
+From: Chris Friedhoff <chris@friedhoff.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
+       KaiGai Kohei <kaigai@kaigai.gr.jp>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 1/1] security: introduce fs caps
+Message-Id: <20061109103349.e58e8f51.chris@friedhoff.org>
+In-Reply-To: <20061109061021.GA32696@sergelap.austin.ibm.com>
+References: <20061108222453.GA6408@sergelap.austin.ibm.com>
+	<20061109061021.GA32696@sergelap.austin.ibm.com>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i486-slackware-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200611091008.45227.dada1@cosmosbay.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 09 Nov 2006 12:29:49 +0300 (MSK)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9d7f00276fac4b25ba506f26988c1e36
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2006 at 10:08:44AM +0100, Eric Dumazet (dada1@cosmosbay.com) wrote:
-> Here you test both KEVENT_SOCKET and KEVENT_PIPE
-> 
-> > +#if defined CONFIG_KEVENT_SOCKET || defined CONFIG_KEVENT_PIPE
-> > +		kevent_storage_init(inode, &inode->st);
-> > +#endif
-> >  	}
-> >  	return inode;
-> >  }
-> >
-> >  void destroy_inode(struct inode *inode)
-> >  {
-> 
-> but here you test only KEVENT_SOCKET
-> 
-> > +#if defined CONFIG_KEVENT_SOCKET
-> > +	kevent_storage_fini(&inode->st);
-> > +#endif
+Page http://www.friedhoff.org/fscaps.html updated ...
+Kernel 2.6.18.2 updated ...
+System keeps on humming ...
+Is anyone else using/testing the patch? Please give feedback ...
+Thanks ...
 
-Indeed, it must be 
-#if defined CONFIG_KEVENT_SOCKET || defined CONFIG_KEVENT_PIPE
+Chris
 
-> >  	BUG_ON(inode_has_buffers(inode));
-> >  	security_inode_free(inode);
-> >  	if (inode->i_sb->s_op->destroy_inode)
-> > diff --git a/include/linux/fs.h b/include/linux/fs.h
-> > index 5baf3a1..c529723 100644
-> > --- a/include/linux/fs.h
-> > +++ b/include/linux/fs.h
-> > @@ -276,6 +276,7 @@ #include <linux/prio_tree.h>
-> >  #include <linux/init.h>
-> >  #include <linux/sched.h>
-> >  #include <linux/mutex.h>
-> > +#include <linux/kevent_storage.h>
-> >
-> >  #include <asm/atomic.h>
-> >  #include <asm/semaphore.h>
-> > @@ -586,6 +587,10 @@ #ifdef CONFIG_INOTIFY
-> >  	struct mutex		inotify_mutex;	/* protects the watches list */
-> >  #endif
-> >
+
+On Thu, 9 Nov 2006 00:10:21 -0600
+"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+
+> Sorry, I should have noticed and fixed this much sooner.  This
+> patch is against the latest full fscaps patch which I'm replying
+> to.
 > 
-> Here you include a kevent_storage only if KEVENT_SOCKET
+> From: Serge E. Hallyn <serue@us.ibm.com>
+> Date: Thu, 9 Nov 2006 00:01:49 -0600
+> Subject: security: file caps: fix unused variable warnings
 > 
-> > +#ifdef CONFIG_KEVENT_SOCKET
-> > +	struct kevent_storage	st;
-> > +#endif
-> > +
+> Address warnings of unused variables at cap_bprm_set_security
+> when file capabilities are disabled, and simultaneously clean
+> up the code a little, by pulling the new code into a helper
+> function.
+> 
+> Rename vfs_cap_data_struct to remove redundant '_struct'.
+> 
+> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> ---
+>  security/commoncap.c |   73 ++++++++++++++++++++++++++++----------------------
+>  1 files changed, 41 insertions(+), 32 deletions(-)
+> 
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index 6f5e46c..4b50b4d 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> @@ -109,16 +109,17 @@ void cap_capset_set (struct task_struct 
+>  	target->cap_permitted = *permitted;
+>  }
+>  
+> +#ifdef CONFIG_SECURITY_FS_CAPABILITIES
+>  #define XATTR_CAPS_SUFFIX "capability"
+>  #define XATTR_NAME_CAPS XATTR_SECURITY_PREFIX XATTR_CAPS_SUFFIX
+> -struct vfs_cap_data_struct {
+> +struct vfs_cap_data {
+>  	__u32 version;
+>  	__u32 effective;
+>  	__u32 permitted;
+>  	__u32 inheritable;
+>  };
+>  
+> -static inline void convert_to_le(struct vfs_cap_data_struct *cap)
+> +static inline void convert_to_le(struct vfs_cap_data *cap)
+>  {
+>  	cap->version = le32_to_cpu(cap->version);
+>  	cap->effective = le32_to_cpu(cap->effective);
+> @@ -126,7 +127,7 @@ static inline void convert_to_le(struct 
+>  	cap->inheritable = le32_to_cpu(cap->inheritable);
+>  }
+>  
+> -static int check_cap_sanity(struct vfs_cap_data_struct *cap)
+> +static int check_cap_sanity(struct vfs_cap_data *cap)
+>  {
+>  	int i;
+>  
+> @@ -149,39 +150,14 @@ static int check_cap_sanity(struct vfs_c
+>  	return 0;
+>  }
+>  
+> -int cap_bprm_set_security (struct linux_binprm *bprm)
+> +/* Locate any VFS capabilities: */
+> +static int set_file_caps(struct linux_binprm *bprm)
+>  {
+>  	struct dentry *dentry;
+>  	ssize_t rc;
+> -	struct vfs_cap_data_struct cap_struct;
+> +	struct vfs_cap_data cap_struct;
+>  	struct inode *inode;
+>  
+> -	/* Copied from fs/exec.c:prepare_binprm. */
+> -
+> -	cap_clear (bprm->cap_inheritable);
+> -	cap_clear (bprm->cap_permitted);
+> -	cap_clear (bprm->cap_effective);
+> -
+> -	/*  To support inheritance of root-permissions and suid-root
+> -	 *  executables under compatibility mode, we raise all three
+> -	 *  capability sets for the file.
+> -	 *
+> -	 *  If only the real uid is 0, we only raise the inheritable
+> -	 *  and permitted sets of the executable file.
+> -	 */
+> -
+> -	if (!issecure (SECURE_NOROOT)) {
+> -		if (bprm->e_uid == 0 || current->uid == 0) {
+> -			cap_set_full (bprm->cap_inheritable);
+> -			cap_set_full (bprm->cap_permitted);
+> -		}
+> -		if (bprm->e_uid == 0)
+> -			cap_set_full (bprm->cap_effective);
+> -	}
+> -
+> -#ifdef CONFIG_SECURITY_FS_CAPABILITIES
+> -	/* Locate any VFS capabilities: */
+> -
+>  	dentry = dget(bprm->file->f_dentry);
+>  	inode = dentry->d_inode;
+>  	if (!inode->i_op || !inode->i_op->getxattr) {
+> @@ -216,9 +192,42 @@ #ifdef CONFIG_SECURITY_FS_CAPABILITIES
+>  	bprm->cap_permitted = cap_struct.permitted;
+>  	bprm->cap_inheritable = cap_struct.inheritable;
+>  
+> -#endif
+>  	return 0;
+>  }
+> +#else
+> +static int set_file_caps(struct linux_binprm *bprm)
+> +{
+> +	return 0;
+> +}
+> +#endif
+> +
+> +int cap_bprm_set_security (struct linux_binprm *bprm)
+> +{
+> +	/* Copied from fs/exec.c:prepare_binprm. */
+> +
+> +	cap_clear (bprm->cap_inheritable);
+> +	cap_clear (bprm->cap_permitted);
+> +	cap_clear (bprm->cap_effective);
+> +
+> +	/*  To support inheritance of root-permissions and suid-root
+> +	 *  executables under compatibility mode, we raise all three
+> +	 *  capability sets for the file.
+> +	 *
+> +	 *  If only the real uid is 0, we only raise the inheritable
+> +	 *  and permitted sets of the executable file.
+> +	 */
+> +
+> +	if (!issecure (SECURE_NOROOT)) {
+> +		if (bprm->e_uid == 0 || current->uid == 0) {
+> +			cap_set_full (bprm->cap_inheritable);
+> +			cap_set_full (bprm->cap_permitted);
+> +		}
+> +		if (bprm->e_uid == 0)
+> +			cap_set_full (bprm->cap_effective);
+> +	}
+> +
+> +	return set_file_caps(bprm);
+> +}
+>  
+>  void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+>  {
+> -- 
+> 1.4.1
+> 
 
-It must be 
-#if defined CONFIG_KEVENT_SOCKET || defined CONFIG_KEVENT_PIPE
 
--- 
-	Evgeniy Polyakov
+--------------------
+Chris Friedhoff
+chris@friedhoff.org

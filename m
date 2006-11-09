@@ -1,80 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754754AbWKITDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754750AbWKITBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754754AbWKITDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 14:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754751AbWKITDQ
+	id S1754750AbWKITBf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 14:01:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754363AbWKITBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 14:03:16 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:64644 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1754708AbWKITDP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 14:03:15 -0500
-Message-ID: <45537B67.6050804@gmail.com>
-Date: Thu, 09 Nov 2006 20:03:03 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Thu, 9 Nov 2006 14:01:35 -0500
+Received: from smtpout06-01.prod.mesa1.secureserver.net ([64.202.165.224]:25520
+	"HELO smtpout06-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1754708AbWKITBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 14:01:35 -0500
+Message-ID: <45537B09.6020401@seclark.us>
+Date: Thu, 09 Nov 2006 14:01:29 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jano <jasieczek@gmail.com>
-CC: Jiri Slaby <jirislaby@gmail.com>, Phillip Susi <psusi@cfl.rr.com>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
-References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>	 <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com>	 <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com> <d9a083460611090855w3b3a9eb6w347a24b1e704ca61@mail.gmail.com>
-In-Reply-To: <d9a083460611090855w3b3a9eb6w347a24b1e704ca61@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
+To: Arjan van de Ven <arjan@infradead.org>
+CC: =?ISO-8859-1?Q?=22=5C=22J=2EA=2E=5C=22_Magall=F3n=22?= 
+	<jamagallon@ono.com>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       Mark Lord <lkml@rtr.ca>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: Abysmal PATA IDE performance
+References: <455206E7.2050104@seclark.us> <45526D50.5020105@rtr.ca>	 <455277E1.3040803@seclark.us> <20061109020758.GA21537@atjola.homenet>	 <4552A638.4010207@seclark.us>  <20061109094014.1c8b6bed@werewolf-wl>	 <1163062700.3138.467.camel@laptopd505.fenrus.org>	 <45533DB9.4000405@seclark.us>	 <1163084045.3138.502.camel@laptopd505.fenrus.org>	 <45536653.50006@seclark.us> <1163096630.3138.515.camel@laptopd505.fenrus.org>
+In-Reply-To: <1163096630.3138.515.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jano wrote:
-[...]
-> @@ -607,7 +611,7 @@
-> # Please see Documentation/ide.txt for help/info on IDE drives
-> #
-> # CONFIG_BLK_DEV_IDE_SATA is not set
-> -# CONFIG_BLK_DEV_HD_IDE is not set
-> +CONFIG_BLK_DEV_HD_IDE=y
+Arjan van de Ven wrote:
 
-This was not definitely a good choice. Disable it.
+>>ata2.01: ATAPI, max UDMA/33
+>>ata2.00: configured for UDMA/33 <==== why isn't this 66 or 100 ?
+>>===============****
+>>    
+>>
+>
+>
+>you need a different cable for udma66 than you need for udma33; and a
+>certain capacitor to be able to autodetect which you have...
+>maybe your laptop maker saved himself $0.05 ;)
+>  
+>
+There is no cable the disk plugs directly into the MB.
+How can I force this to udma 66 or higher - the ide driver accepted  
+idex=ata66 to control this.
 
-  │ Symbol: BLK_DEV_HD_IDE [=n]                                             │
-  │ Prompt: Use old disk-only driver on primary interface                   │
-  │   Defined at drivers/ide/Kconfig:118                                    │
-  │   Depends on: IDE && BLK_DEV_IDE && (X86 || SH_MPC1211)                 │
-  │   Location:                                                             │
-  │     -> Device Drivers                                                   │
-  │       -> ATA/ATAPI/MFM/RLL support                                      │
-  │         -> ATA/ATAPI/MFM/RLL support (IDE [=y])                         │
-  │           -> Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support (BLK_D │
-
-> CONFIG_BLK_DEV_IDEDISK=y
-> # CONFIG_IDEDISK_MULTI_MODE is not set
-> CONFIG_BLK_DEV_IDECD=m
-> @@ -618,7 +622,7 @@
-> #
-> # IDE chipset support/bugfixes
-> #
-> -CONFIG_IDE_GENERIC=y
-> +CONFIG_IDE_GENERIC=m
-> # CONFIG_BLK_DEV_CMD640 is not set
-> CONFIG_BLK_DEV_IDEPCI=y
-> CONFIG_IDEPCI_SHARE_IRQ=y
-> @@ -658,7 +662,7 @@
-> CONFIG_BLK_DEV_IDEDMA=y
-> # CONFIG_IDEDMA_IVB is not set
-> CONFIG_IDEDMA_AUTO=y
-> -# CONFIG_BLK_DEV_HD is not set
-> +CONFIG_BLK_DEV_HD=y
-
-And try to turn "VIA82CXXX chipset support" to <*>, i.e. built-in (somebody
-holds regions of ide0 and ide1, let's try via driver to probe first).
-
-regards,
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
+

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753032AbWKIHWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752893AbWKIHag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753032AbWKIHWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 02:22:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753357AbWKIHWZ
+	id S1752893AbWKIHag (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 02:30:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753619AbWKIHag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 02:22:25 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:64464 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1753032AbWKIHWZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 02:22:25 -0500
-Date: Thu, 9 Nov 2006 07:22:16 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: David Miller <davem@davemloft.net>
-Cc: kenneth.w.chen@intel.com, akpm@osdl.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [patch] fix up generic csum_ipv6_magic function prototype
-Message-ID: <20061109072216.GL29920@ftp.linux.org.uk>
-References: <000301c703a3$0eedb340$ff0da8c0@amr.corp.intel.com> <20061108.230059.57444310.davem@davemloft.net>
+	Thu, 9 Nov 2006 02:30:36 -0500
+Received: from colin.muc.de ([193.149.48.1]:23812 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1752891AbWKIHag (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 02:30:36 -0500
+Date: 9 Nov 2006 08:30:34 +0100
+Date: Thu, 9 Nov 2006 08:30:34 +0100
+From: Andi Kleen <ak@muc.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH][2.6.19-rc5-mm1] i386: Convert more absolute symbols to section relative
+Message-ID: <20061109073034.GA11760@muc.de>
+References: <20061108221621.GB29705@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061108.230059.57444310.davem@davemloft.net>
+In-Reply-To: <20061108221621.GB29705@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 11:00:59PM -0800, David Miller wrote:
-> From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-> Date: Wed, 8 Nov 2006 18:02:06 -0800
+On Wed, Nov 08, 2006 at 05:16:21PM -0500, Vivek Goyal wrote:
 > 
-> > The generic version of csum_ipv6_magic has the len argument declared as
-> > __u16, while most arch dependent version declare it as __u32.  After
-> > looking at the call site of this function, I come up to a conclusion
-> > that __u32 is a better match with the actual usage.
-> > 
-> > Hence, patch to change argument type for greater consistency.
-> > 
-> > Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 > 
-> Architecture implementations such as the ones for m32r and parisc have
-> the same problem, so "for consistency" please fix them up as well.
+> o Convert more absolute symbols to section relative to keep the theme in
+>   vmlinux.lds.S file and to avoid problem if kernel is relocated.
 > 
-> Thanks a lot.
+> o Also put a message so that in future people can be aware of it and 
+>   avoid introducing absolute symbols.
 
-Please, hold.  One of the patches in my queue gets sanitized prototypes
-for all that stuff and it'll conflict like crazy.
+Added thanks
 
-I haven't touch that argument yet; if there's an agreement as to what should
-we switch to, I'll do that.  So... does everyone agree that u32 is the way
-to go?
+-Andi

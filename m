@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965326AbWKIUAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161209AbWKIUCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965326AbWKIUAL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 15:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965511AbWKIUAL
+	id S1161209AbWKIUCO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 15:02:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161803AbWKIUCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 15:00:11 -0500
-Received: from mta13.adelphia.net ([68.168.78.44]:36793 "EHLO
-	mta13.adelphia.net") by vger.kernel.org with ESMTP id S965326AbWKIUAJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 15:00:09 -0500
-Date: Thu, 9 Nov 2006 14:02:31 -0600
-From: Corey Minyard <minyard@acm.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Cc: Jean Delvare <khali@linux-fr.org>
-Subject: [PATCH] IPMI: Fix more && typos
-Message-ID: <20061109200231.GA8446@localdomain>
-Reply-To: minyard@acm.org
+	Thu, 9 Nov 2006 15:02:13 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:14506 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1161209AbWKIUCN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 15:02:13 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Date: Thu, 9 Nov 2006 20:59:47 +0100
+User-Agent: KMail/1.9.1
+Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
+       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611091652.34649.rjw@sisk.pl> <20061109160003.GA24156@elf.ucw.cz>
+In-Reply-To: <20061109160003.GA24156@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611092059.48722.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Fix improper use of "&&" when "&" was intended.
+On Thursday, 9 November 2006 17:00, Pavel Machek wrote:
+> Hi!
+> 
+> > > > Well, it looks like the interactions with dm add quite a bit of
+> > > > complexity here.
+> > > 
+> > > What about just fixing xfs (thou shall not write to disk when kernel
+> > > threads are frozen), and getting rid of blockdev freezing?
+> > 
+> > Well, first I must admit you were absolutely right being suspicious with
+> > respect to this stuff.
+> 
+> (OTOH your patch found real bugs in suspend.c, so...)
+> 
+> > OTOH I have no idea _how_ we can tell xfs that the processes have been
+> > frozen.  Should we introduce a global flag for that or something?
+> 
+> I guess XFS should just do all the writes from process context, and
+> refuse any writing when its threads are frozen... I actually still
+> believe it is doing the right thing, because you can't really write to
+> disk from timer.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Corey Minyard <minyard@acm.org>
+This is from a work queue, so in fact from a process context, but from
+a process that is running with PF_NOFREEZE.
 
----
- drivers/char/ipmi/ipmi_msghandler.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+And I don't think we can forbid filesystems to use work queues.  IMO it's
+a legitimate thing to do for an fs.
 
---- linux-2.6.19-rc5.orig/drivers/char/ipmi/ipmi_msghandler.c	2006-11-09 18:43:18.000000000 +0100
-+++ linux-2.6.19-rc5/drivers/char/ipmi/ipmi_msghandler.c	2006-11-09 18:44:01.000000000 +0100
-@@ -1854,7 +1854,7 @@
- 	struct bmc_device *bmc = dev_get_drvdata(dev);
- 
- 	return snprintf(buf, 10, "%u\n",
--			bmc->id.device_revision && 0x80 >> 7);
-+			(bmc->id.device_revision & 0x80) >> 7);
- }
- 
- static ssize_t revision_show(struct device *dev, struct device_attribute *attr,
-@@ -1863,7 +1863,7 @@
- 	struct bmc_device *bmc = dev_get_drvdata(dev);
- 
- 	return snprintf(buf, 20, "%u\n",
--			bmc->id.device_revision && 0x0F);
-+			bmc->id.device_revision & 0x0F);
- }
- 
- static ssize_t firmware_rev_show(struct device *dev,
+_But_.
+
+Alasdair, do I think correctly that if there's a suspended device-mapper
+device below an non-frozen filesystem, then sys_sync() would block just
+as well as freeze_bdev() on this filesystem?
+
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

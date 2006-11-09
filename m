@@ -1,658 +1,1052 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161881AbWKIXjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424280AbWKIXov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161881AbWKIXjc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 18:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161868AbWKIXjJ
+	id S1424280AbWKIXov (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 18:44:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424278AbWKIXom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 18:39:09 -0500
-Received: from www.osadl.org ([213.239.205.134]:52380 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161850AbWKIXjF (ORCPT
+	Thu, 9 Nov 2006 18:44:42 -0500
+Received: from www.osadl.org ([213.239.205.134]:54428 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161863AbWKIXjG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 18:39:05 -0500
-Message-Id: <20061109233034.411013000@cruncher.tec.linutronix.de>
+	Thu, 9 Nov 2006 18:39:06 -0500
+Message-Id: <20061109233034.526217000@cruncher.tec.linutronix.de>
 References: <20061109233030.915859000@cruncher.tec.linutronix.de>
-Date: Thu, 09 Nov 2006 23:38:20 -0000
+Date: Thu, 09 Nov 2006 23:38:21 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Len Brown <lenb@kernel.org>, John Stultz <johnstul@us.ibm.com>,
        Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
        Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 03/19] hrtimers: Move and add documentation 
-Content-Disposition: inline; filename=hrtimers-move-and-add-documentation.patch
+Subject: [patch 04/19] Add a framework to manage clock event devices.
+Content-Disposition: inline; filename=clockevents-core.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-Move the initial hrtimer.txt document to the new directory
-"Documentation/hrtimer"
+We have two types of clock event devices:
+- global events (one device per system)
+- local events (one device per cpu)
 
-Add design notes for the high resolution timer and dynamic tick functionality.
+We assign the various time(r) related interrupts to those devices:
+
+- global tick (advances jiffies)
+- update process times (per cpu)
+- profiling (per cpu)
+- next timer events (per cpu)
+
+Architectures register their clock event devices, with specific capability
+bits set, and the framework code assigns the appropriate event handler to the
+event device.  The functionality is assigned via an event handler to avoid
+runtime evalutation of the assigned function bits.
+
+This allows to control the clock event devices without the architectures
+having to worry about the details of function assignment.  This is also a
+preliminary for high resolution timers and dynamic ticks to allow the core
+code to control the clock functionality without intrusive changes to the
+architecture code.
+
+For x86 based systems the code provides the ability to broadcast timer events.
+This is necessary due to the fact, that the per CPU local APIC timers are
+stopped in power saving states.
+
+When high resolution timers and dynamic ticks are disabled, there is no change
+in the behaviour of the system.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Index: linux-2.6.19-rc5-mm1/Documentation/hrtimer/highres.txt
+Index: linux-2.6.19-rc5-mm1/include/linux/clockchips.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.19-rc5-mm1/Documentation/hrtimer/highres.txt	2006-11-09 21:06:11.000000000 +0100
-@@ -0,0 +1,249 @@
-+High resolution timers and dynamic ticks design notes
-+-----------------------------------------------------
++++ linux-2.6.19-rc5-mm1/include/linux/clockchips.h	2006-11-09 21:06:13.000000000 +0100
+@@ -0,0 +1,143 @@
++/*  linux/include/linux/clockchips.h
++ *
++ *  This file contains the structure definitions for clockchips.
++ *
++ *  If you are not a clockchip, or the time of day code, you should
++ *  not be including this file!
++ */
++#ifndef _LINUX_CLOCKCHIPS_H
++#define _LINUX_CLOCKCHIPS_H
 +
-+Further information can be found in the paper of the OLS 2006 talk "hrtimers
-+and beyond". The paper is part of the OLS 2006 Proceedings Volume 1, which can
-+be found on the OLS website:
-+http://www.linuxsymposium.org/2006/linuxsymposium_procv1.pdf
++#ifdef CONFIG_GENERIC_CLOCKEVENTS
 +
-+The slides to this talk are available from:
-+http://tglx.de/projects/hrtimers/ols2006-hrtimers.pdf
++#include <linux/clocksource.h>
++#include <linux/interrupt.h>
 +
-+The slides contain five figures (pages 2, 15, 18, 20, 22), which illustrate the
-+changes in the time(r) related Linux subsystems. Figure #1 (p. 2) shows the
-+design of the Linux time(r) system before hrtimers and other building blocks
-+got merged into mainline.
++struct clock_event_device;
 +
-+Note: the paper and the slides are talking about "clock event source", while we
-+switched to the name "clock event devices" in meantime.
++/* Clock event mode commands */
++enum clock_event_mode {
++	CLOCK_EVT_PERIODIC,
++	CLOCK_EVT_ONESHOT,
++	CLOCK_EVT_SHUTDOWN,
++};
 +
-+The design contains the following basic building blocks:
++/*
++ * Clock event capability flags:
++ *
++ * CAP_TICK:	The event source should be used for the periodic tick
++ * CAP_UPDATE:	The event source handler should call update_process_times()
++ * CAP_PROFILE: The event source handler should call profile_tick()
++ * CAP_NEXTEVT:	The event source can be reprogrammed in oneshot mode and is
++ *		a per cpu event source.
++ *
++ * The capability flags are used to select the appropriate handler for an event
++ * source. On an i386 UP system the PIT can serve all of the functionalities,
++ * while on a SMP system the PIT is solely used for the periodic tick and the
++ * local APIC timers are used for UPDATE / PROFILE / NEXTEVT. To avoid the run
++ * time query of those flags, the clock events layer assigns the appropriate
++ * event handler function, which contains only the selected calls, to the
++ * event.
++ */
++#define CLOCK_CAP_TICK		0x000001
++#define CLOCK_CAP_UPDATE	0x000002
++#define CLOCK_CAP_PROFILE	0x000004
++#ifdef CONFIG_HIGH_RES_TIMERS
++# define CLOCK_CAP_NEXTEVT	0x000008
++#else
++# define CLOCK_CAP_NEXTEVT	0x000000
++#endif
 +
-+- hrtimer base infrastructure
-+- timeofday and clock source management
-+- clock event management
-+- high resolution timer functionality
-+- dynamic ticks
++#define CLOCK_BASE_CAPS_MASK	(CLOCK_CAP_TICK | CLOCK_CAP_PROFILE | \
++				 CLOCK_CAP_UPDATE)
++#define CLOCK_CAPS_MASK		(CLOCK_BASE_CAPS_MASK | CLOCK_CAP_NEXTEVT)
 +
++/**
++ * struct clock_event_device - clock event descriptor
++ *
++ * @name:		ptr to clock event name
++ * @capabilities:	capabilities of the event chip
++ * @max_delta_ns:	maximum delta value in ns
++ * @min_delta_ns:	minimum delta value in ns
++ * @mult:		nanosecond to cycles multiplier
++ * @shift:		nanoseconds to cycles divisor (power of two)
++ * @set_next_event:	set next event
++ * @set_mode:		set mode function
++ * @suspend:		suspend function (optional)
++ * @resume:		resume function (optional)
++ * @evthandler:		Assigned by the framework to be called by the low
++ *			level handler of the event source
++ */
++struct clock_event_device {
++	const char	*name;
++	unsigned int	capabilities;
++	unsigned long	max_delta_ns;
++	unsigned long	min_delta_ns;
++	unsigned long	mult;
++	int		shift;
++	void		(*set_next_event)(unsigned long evt,
++					  struct clock_event_device *);
++	void		(*set_mode)(enum clock_event_mode mode,
++				    struct clock_event_device *);
++	void		(*event_handler)(struct pt_regs *regs);
++};
 +
-+hrtimer base infrastructure
-+---------------------------
++/*
++ * Calculate a multiplication factor for scaled math, which is used to convert
++ * nanoseconds based values to clock ticks:
++ *
++ * clock_ticks = (nanoseconds * factor) >> shift.
++ *
++ * div_sc is the rearranged equation to calculate a factor from a given clock
++ * ticks / nanoseconds ratio:
++ *
++ * factor = (clock_ticks << shift) / nanoseconds
++ */
++static inline unsigned long div_sc(unsigned long ticks, unsigned long nsec,
++				   int shift)
++{
++	uint64_t tmp = ((uint64_t)ticks) << shift;
 +
-+The hrtimer base infrastructure was merged into the 2.6.16 kernel. Details of
-+the base implementation are covered in Documentation/hrtimer/hrtimer.txt. See
-+also figure #2 (OLS slides p. 15)
++	do_div(tmp, nsec);
++	return (unsigned long) tmp;
++}
 +
-+The main differences to the timer wheel, which holds the armed timer_list type
-+timers are:
-+       - time ordered enqueueing into a rb-tree
-+       - independent of ticks (the processing is based on nanoseconds)
++/* Clock event layer functions */
++extern int register_local_clockevent(struct clock_event_device *);
++extern int register_global_clockevent(struct clock_event_device *);
++extern unsigned long clockevent_delta2ns(unsigned long latch,
++					 struct clock_event_device *evt);
++extern void clockevents_init(void);
 +
++extern int clockevents_init_next_event(void);
++extern int clockevents_set_next_event(ktime_t expires, int force);
++extern int clockevents_next_event_available(void);
++extern void clockevents_resume_events(void);
 +
-+timeofday and clock source management
-+-------------------------------------
++#ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
++extern void clockevents_set_broadcast(struct clock_event_device *evt,
++				      int broadcast);
++extern void clockevents_set_global_broadcast(struct clock_event_device *evt,
++					     int broadcast);
++extern int clockevents_register_broadcast(void (*fun)(cpumask_t *mask));
++#else
++static inline void clockevents_set_broadcast(struct clock_event_device *evt,
++					     int broadcast)
++{
++}
++#endif
 +
-+John Stultz's Generic Time Of Day (GTOD) framework moves a large portion of
-+code out of the architecture-specific areas into a generic management
-+framework, as illustrated in figure #3 (OLS slides p. 18). The architecture
-+specific portion is reduced to the low level hardware details of the clock
-+sources, which are registered in the framework and selected on a quality based
-+decision. The low level code provides hardware setup and readout routines and
-+initializes data structures, which are used by the generic time keeping code to
-+convert the clock ticks to nanosecond based time values. All other time keeping
-+related functionality is moved into the generic code. The GTOD base patch got
-+merged into the 2.6.18 kernel.
++#else
 +
-+Further information about the Generic Time Of Day framework is available in the
-+OLS 2005 Proceedings Volume 1:
-+http://www.linuxsymposium.org/2005/linuxsymposium_procv1.pdf
++# define clockevents_init()		do { } while(0)
++# define clockevents_resume_events()	do { } while(0)
 +
-+The paper "We Are Not Getting Any Younger: A New Approach to Time and
-+Timers" was written by J. Stultz, D.V. Hart, & N. Aravamudan.
++struct clock_event_device;
++static inline void clockevents_set_broadcast(struct clock_event_device *evt,
++					     int broadcast)
++{
++}
 +
-+Figure #3 (OLS slides p.18) illustrates the transformation.
++#endif
 +
++#endif
+Index: linux-2.6.19-rc5-mm1/include/linux/hrtimer.h
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/include/linux/hrtimer.h	2006-11-09 21:06:09.000000000 +0100
++++ linux-2.6.19-rc5-mm1/include/linux/hrtimer.h	2006-11-09 21:06:13.000000000 +0100
+@@ -144,6 +144,9 @@ struct hrtimer_cpu_base {
+  * is expired in the next softirq when the clock was advanced.
+  */
+ #define clock_was_set()		do { } while (0)
++#define hrtimer_clock_notify()	do { } while (0)
++extern ktime_t ktime_get(void);
++extern ktime_t ktime_get_real(void);
+ 
+ /* Exported timer functions: */
+ 
+Index: linux-2.6.19-rc5-mm1/init/main.c
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/init/main.c	2006-11-09 21:05:32.000000000 +0100
++++ linux-2.6.19-rc5-mm1/init/main.c	2006-11-09 21:06:13.000000000 +0100
+@@ -37,6 +37,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/kallsyms.h>
+ #include <linux/writeback.h>
++#include <linux/clockchips.h>
+ #include <linux/cpu.h>
+ #include <linux/cpuset.h>
+ #include <linux/efi.h>
+@@ -532,6 +533,7 @@ asmlinkage void __init start_kernel(void
+ 	rcu_init();
+ 	init_IRQ();
+ 	pidhash_init();
++	clockevents_init();
+ 	init_timers();
+ 	hrtimers_init();
+ 	softirq_init();
+Index: linux-2.6.19-rc5-mm1/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/kernel/hrtimer.c	2006-11-09 21:06:09.000000000 +0100
++++ linux-2.6.19-rc5-mm1/kernel/hrtimer.c	2006-11-09 21:06:13.000000000 +0100
+@@ -31,6 +31,7 @@
+  *  For licencing details see kernel-base/COPYING
+  */
+ 
++#include <linux/clockchips.h>
+ #include <linux/cpu.h>
+ #include <linux/module.h>
+ #include <linux/percpu.h>
+@@ -46,7 +47,7 @@
+  *
+  * returns the time in ktime_t format
+  */
+-static ktime_t ktime_get(void)
++ktime_t ktime_get(void)
+ {
+ 	struct timespec now;
+ 
+@@ -60,7 +61,7 @@ static ktime_t ktime_get(void)
+  *
+  * returns the time in ktime_t format
+  */
+-static ktime_t ktime_get_real(void)
++ktime_t ktime_get_real(void)
+ {
+ 	struct timespec now;
+ 
+@@ -299,6 +300,7 @@ static unsigned long ktime_divns(const k
+  */
+ void hrtimer_notify_resume(void)
+ {
++	clockevents_resume_events();
+ 	clock_was_set();
+ }
+ 
+Index: linux-2.6.19-rc5-mm1/kernel/time/Makefile
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/kernel/time/Makefile	2006-11-09 21:05:32.000000000 +0100
++++ linux-2.6.19-rc5-mm1/kernel/time/Makefile	2006-11-09 21:06:13.000000000 +0100
+@@ -1 +1,3 @@
+ obj-y += ntp.o clocksource.o jiffies.o
 +
-+clock event management
-+----------------------
-+
-+While clock sources provide read access to the monotonically increasing time
-+value, clock event devices are used to schedule the next event
-+interrupt(s). The next event is currently defined to be periodic, with its
-+period defined at compile time. The setup and selection of the event device
-+for various event driven functionalities is hardwired into the architecture
-+dependent code. This results in duplicated code across all architectures and
-+makes it extremely difficult to change the configuration of the system to use
-+event interrupt devices other than those already built into the
-+architecture. Another implication of the current design is that it is necessary
-+to touch all the architecture-specific implementations in order to provide new
-+functionality like high resolution timers or dynamic ticks.
-+
-+The clock events subsystem tries to address this problem by providing a generic
-+solution to manage clock event devices and their usage for the various clock
-+event driven kernel functionalities. The goal of the clock event subsystem is
-+to minimize the clock event related architecture dependent code to the pure
-+hardware related handling and to allow easy addition and utilization of new
-+clock event devices. It also minimizes the duplicated code across the
-+architectures as it provides generic functionality down to the interrupt
-+service handler, which is almost inherently hardware dependent.
-+
-+Clock event devices are registered either by the architecture dependent boot
-+code or at module insertion time. Each clock event device fills a data
-+structure with clock-specific property parameters and callback functions. The
-+clock event management decides, by using the specified property parameters, the
-+set of system functions a clock event device will be used to support. This
-+includes the distinction of per-CPU and per-system global event devices.
-+
-+System-level global event devices are used for the Linux periodic tick. Per-CPU
-+event devices are used to provide local CPU functionality such as process
-+accounting, profiling, and high resolution timers.
-+
-+The management layer assignes one or more of the folliwing functions to a clock
-+event device:
-+      - system global periodic tick (jiffies update)
-+      - cpu local update_process_times
-+      - cpu local profiling
-+      - cpu local next event interrupt (non periodic mode)
-+
-+The clock event device delegates the selection of those timer interrupt related
-+functions completely to the management layer. The clock management layer stores
-+a function pointer in the device description structure, which has to be called
-+from the hardware level handler. This removes a lot of duplicated code from the
-+architecture specific timer interrupt handlers and hands the control over the
-+clock event devices and the assignment of timer interrupt related functionality
-+to the core code.
-+
-+The clock event layer API is rather small. Aside from the clock event device
-+registration interface it provides functions to schedule the next event
-+interrupt, clock event device notification service and support for suspend and
-+resume.
-+
-+The framework adds about 700 lines of code which results in a 2KB increase of
-+the kernel binary size. The conversion of i386 removes about 100 lines of
-+code. The binary size decrease is in the range of 400 byte. We believe that the
-+increase of flexibility and the avoidance of duplicated code across
-+architectures justifies the slight increase of the binary size.
-+
-+The conversion of an architecture has no functional impact, but allows to
-+utilize the high resolution and dynamic tick functionalites without any change
-+to the clock event device and timer interrupt code. After the conversion the
-+enabling of high resolution timers and dynamic ticks is simply provided by
-+adding the kernel/time/Kconfig file to the architecture specific Kconfig and
-+adding the dynamic tick specific calls to the idle routine (a total of 3 lines
-+added to the idle function and the Kconfig file)
-+
-+Figure #4 (OLS slides p.20) illustrates the transformation.
-+
-+
-+high resolution timer functionality
-+-----------------------------------
-+
-+During system boot it is not possible to use the high resolution timer
-+functionality, while making it possible would be difficult and would serve no
-+useful function. The initialization of the clock event device framework, the
-+clock source framework (GTOD) and hrtimers itself has to be done and
-+appropriate clock sources and clock event devices have to be registered before
-+the high resolution functionality can work. Up to the point where hrtimers are
-+initialized, the system works in the usual low resolution periodic mode. The
-+clock source and the clock event device layers provide notification functions
-+which inform hrtimers about availability of new hardware. hrtimers validates
-+the usability of the registered clock sources and clock event devices before
-+switching to high resolution mode. This ensures also that a kernel which is
-+configured for high resolution timers can run on a system which lacks the
-+necessary hardware support.
-+
-+The high resolution timer code does not support SMP machines which have only
-+global clock event devices. The support of such hardware would involve IPI
-+calls when an interrupt happens. The overhead would be much larger than the
-+benefit. This is the reason why we currently disable high resolution and
-+dynamic ticks on i386 SMP systems which stop the local APIC in C3 power
-+state. A workaround is available as an idea, but the problem has not been
-+tackled yet.
-+
-+The time ordered insertion of timers provides all the infrastructure to decide
-+whether the event device has to be reprogrammed when a timer is added. The
-+decision is made per timer base and synchronized across per-cpu timer bases in
-+a support function. The design allows the system to utilize separate per-CPU
-+clock event devices for the per-CPU timer bases, but currently only one
-+reprogrammable clock event device per-CPU is utilized.
-+
-+When the timer interrupt happens, the next event interrupt handler is called
-+from the clock event distribution code and moves expired timers from the
-+red-black tree to a separate double linked list and invokes the softirq
-+handler. An additional mode field in the hrtimer structure allows the system to
-+execute callback functions directly from the next event interrupt handler. This
-+is restricted to code which can safely be executed in the hard interrupt
-+context. This applies, for example, to the common case of a wakeup function as
-+used by nanosleep. The advantage of executing the handler in the interrupt
-+context is the avoidance of up to two context switches - from the interrupted
-+context to the softirq and to the task which is woken up by the expired
-+timer.
-+
-+Once a system has switched to high resolution mode, the periodic tick is
-+switched off. This disables the per system global periodic clock event device -
-+e.g. the PIT on i386 SMP systems.
-+
-+The periodic tick functionality is provided by an per-cpu hrtimer. The callback
-+function is executed in the next event interrupt context and updates jiffies
-+and calls update_process_times and profiling. The implementation of the hrtimer
-+based periodic tick is designed to be extended with dynamic tick functionality.
-+This allows to use a single clock event device to schedule high resolution
-+timer and periodic events (jiffies tick, profiling, process accounting) on UP
-+systems. This has been proved to work with the PIT on i386 and the Incrementer
-+on PPC.
-+
-+The softirq for running the hrtimer queues and executing the callbacks has been
-+separated from the tick bound timer softirq to allow accurate delivery of high
-+resolution timer signals which are used by itimer and POSIX interval
-+timers. The execution of this softirq can still be delayed by other softirqs,
-+but the overall latencies have been significantly improved by this separation.
-+
-+Figure #5 (OLS slides p.22) illustrates the transformation.
-+
-+
-+dynamic ticks
-+-------------
-+
-+Dynamic ticks are the logical consequence of the hrtimer based periodic tick
-+replacement (sched_tick). The functionality of the sched_tick hrtimer is
-+extended by three functions:
-+
-+- hrtimer_stop_sched_tick
-+- hrtimer_restart_sched_tick
-+- hrtimer_update_jiffies
-+
-+hrtimer_stop_sched_tick() is called when a CPU goes into idle state. The code
-+evaluates the next scheduled timer event (from both hrtimers and the timer
-+wheel) and in case that the next event is further away than the next tick it
-+reprograms the sched_tick to this future event, to allow longer idle sleeps
-+without worthless interruption by the periodic tick. The function is also
-+called when an interrupt happens during the idle period, which does not cause a
-+reschedule. The call is necessary as the interrupt handler might have armed a
-+new timer whose expiry time is before the time which was identified as the
-+nearest event in the previous call to hrtimer_stop_sched_tick.
-+
-+hrtimer_restart_sched_tick() is called when the CPU leaves the idle state before
-+it calls schedule(). hrtimer_restart_sched_tick() resumes the periodic tick,
-+which is kept active until the next call to hrtimer_stop_sched_tick().
-+
-+hrtimer_update_jiffies() is called from irq_enter() when an interrupt happens
-+in the idle period to make sure that jiffies are up to date and the interrupt
-+handler has not to deal with an eventually stale jiffy value.
-+
-+The dynamic tick feature provides statistical values which are exported to
-+userspace via /proc/stats and can be made available for enhanced power
-+management control.
-+
-+The implementation leaves room for further development like full tickless
-+systems, where the time slice is controlled by the scheduler, variable
-+frequency profiling, and a complete removal of jiffies in the future.
-+
-+
-+Aside the current initial submission of i386 support, the patchset has been
-+extended to x86_64 and ARM already. Initial (work in progress) support is also
-+available for MIPS and PowerPC.
-+
-+	  Thomas, Ingo
-+
-+
-+
-Index: linux-2.6.19-rc5-mm1/Documentation/hrtimer/hrtimers.txt
++obj-$(CONFIG_GENERIC_CLOCKEVENTS) += clockevents.o
+Index: linux-2.6.19-rc5-mm1/kernel/time/clockevents.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.19-rc5-mm1/Documentation/hrtimer/hrtimers.txt	2006-11-09 21:06:11.000000000 +0100
-@@ -0,0 +1,178 @@
++++ linux-2.6.19-rc5-mm1/kernel/time/clockevents.c	2006-11-09 21:06:13.000000000 +0100
+@@ -0,0 +1,757 @@
++/*
++ * linux/kernel/time/clockevents.c
++ *
++ * This file contains functions which manage clock event drivers.
++ *
++ * Copyright(C) 2005-2006, Thomas Gleixner <tglx@linutronix.de>
++ * Copyright(C) 2005-2006, Red Hat, Inc., Ingo Molnar
++ *
++ * We have two types of clock event devices:
++ * - global events (one device per system)
++ * - local events (one device per cpu)
++ *
++ * We assign the various time(r) related interrupts to those devices
++ *
++ * - global tick
++ * - profiling (per cpu)
++ * - next timer events (per cpu)
++ *
++ * TODO:
++ * - implement variable frequency profiling
++ *
++ * This code is licenced under the GPL version 2. For details see
++ * kernel-base/COPYING.
++ */
 +
-+hrtimers - subsystem for high-resolution kernel timers
-+----------------------------------------------------
++#include <linux/clockchips.h>
++#include <linux/cpu.h>
++#include <linux/err.h>
++#include <linux/irq.h>
++#include <linux/init.h>
++#include <linux/hrtimer.h>
++#include <linux/notifier.h>
++#include <linux/module.h>
++#include <linux/percpu.h>
++#include <linux/profile.h>
++#include <linux/sysdev.h>
 +
-+This patch introduces a new subsystem for high-resolution kernel timers.
++#define MAX_CLOCK_EVENTS	4
++#define GLOBAL_CLOCK_EVENT	MAX_CLOCK_EVENTS
 +
-+One might ask the question: we already have a timer subsystem
-+(kernel/timers.c), why do we need two timer subsystems? After a lot of
-+back and forth trying to integrate high-resolution and high-precision
-+features into the existing timer framework, and after testing various
-+such high-resolution timer implementations in practice, we came to the
-+conclusion that the timer wheel code is fundamentally not suitable for
-+such an approach. We initially didn't believe this ('there must be a way
-+to solve this'), and spent a considerable effort trying to integrate
-+things into the timer wheel, but we failed. In hindsight, there are
-+several reasons why such integration is hard/impossible:
++struct event_descr {
++	struct clock_event_device *event;
++	unsigned int mode;
++	unsigned int real_caps;
++	struct irqaction action;
++};
 +
-+- the forced handling of low-resolution and high-resolution timers in
-+  the same way leads to a lot of compromises, macro magic and #ifdef
-+  mess. The timers.c code is very "tightly coded" around jiffies and
-+  32-bitness assumptions, and has been honed and micro-optimized for a
-+  relatively narrow use case (jiffies in a relatively narrow HZ range)
-+  for many years - and thus even small extensions to it easily break
-+  the wheel concept, leading to even worse compromises. The timer wheel
-+  code is very good and tight code, there's zero problems with it in its
-+  current usage - but it is simply not suitable to be extended for
-+  high-res timers.
++struct local_events {
++	int installed;
++	struct event_descr events[MAX_CLOCK_EVENTS];
++	struct clock_event_device *nextevt;
++	ktime_t	expires_next;
++};
 +
-+- the unpredictable [O(N)] overhead of cascading leads to delays which
-+  necessitate a more complex handling of high resolution timers, which
-+  in turn decreases robustness. Such a design still led to rather large
-+  timing inaccuracies. Cascading is a fundamental property of the timer
-+  wheel concept, it cannot be 'designed out' without unevitably
-+  degrading other portions of the timers.c code in an unacceptable way.
++/* Variables related to the global event device */
++static __read_mostly struct event_descr global_eventdevice;
 +
-+- the implementation of the current posix-timer subsystem on top of
-+  the timer wheel has already introduced a quite complex handling of
-+  the required readjusting of absolute CLOCK_REALTIME timers at
-+  settimeofday or NTP time - further underlying our experience by
-+  example: that the timer wheel data structure is too rigid for high-res
-+  timers.
++/*
++ * Lock to protect the above.
++ *
++ * Only the public management functions have to take this lock. The fast path
++ * of the framework, e.g. reprogramming the next event device is lockless as
++ * it is per cpu.
++ */
++static DEFINE_SPINLOCK(events_lock);
 +
-+- the timer wheel code is most optimal for use cases which can be
-+  identified as "timeouts". Such timeouts are usually set up to cover
-+  error conditions in various I/O paths, such as networking and block
-+  I/O. The vast majority of those timers never expire and are rarely
-+  recascaded because the expected correct event arrives in time so they
-+  can be removed from the timer wheel before any further processing of
-+  them becomes necessary. Thus the users of these timeouts can accept
-+  the granularity and precision tradeoffs of the timer wheel, and
-+  largely expect the timer subsystem to have near-zero overhead.
-+  Accurate timing for them is not a core purpose - in fact most of the
-+  timeout values used are ad-hoc. For them it is at most a necessary
-+  evil to guarantee the processing of actual timeout completions
-+  (because most of the timeouts are deleted before completion), which
-+  should thus be as cheap and unintrusive as possible.
++/* Variables related to the per cpu local event devices */
++static DEFINE_PER_CPU(struct local_events, local_eventdevices);
 +
-+The primary users of precision timers are user-space applications that
-+utilize nanosleep, posix-timers and itimer interfaces. Also, in-kernel
-+users like drivers and subsystems which require precise timed events
-+(e.g. multimedia) can benefit from the availability of a separate
-+high-resolution timer subsystem as well.
++#ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
++static void clockevents_check_broadcast(struct event_descr *descr);
++#else
++static inline void clockevents_check_broadcast(struct event_descr *descr) { }
++#endif
 +
-+While this subsystem does not offer high-resolution clock sources just
-+yet, the hrtimer subsystem can be easily extended with high-resolution
-+clock capabilities, and patches for that exist and are maturing quickly.
-+The increasing demand for realtime and multimedia applications along
-+with other potential users for precise timers gives another reason to
-+separate the "timeout" and "precise timer" subsystems.
++/*
++ * Math helper. Convert a latch value (device ticks) to nanoseconds
++ */
++unsigned long clockevent_delta2ns(unsigned long latch,
++				  struct clock_event_device *evt)
++{
++	u64 clc = ((u64) latch << evt->shift);
 +
-+Another potential benefit is that such a separation allows even more
-+special-purpose optimization of the existing timer wheel for the low
-+resolution and low precision use cases - once the precision-sensitive
-+APIs are separated from the timer wheel and are migrated over to
-+hrtimers. E.g. we could decrease the frequency of the timeout subsystem
-+from 250 Hz to 100 HZ (or even smaller).
++	do_div(clc, evt->mult);
++	if (clc < KTIME_MONOTONIC_RES.tv64)
++		clc = KTIME_MONOTONIC_RES.tv64;
++	if (clc > LONG_MAX)
++		clc = LONG_MAX;
 +
-+hrtimer subsystem implementation details
-+----------------------------------------
++	return (unsigned long) clc;
++}
 +
-+the basic design considerations were:
++/*
++ * Bootup and lowres handler: ticks only
++ */
++static void handle_tick(struct pt_regs *regs)
++{
++	write_seqlock(&xtime_lock);
++	do_timer(1);
++	write_sequnlock(&xtime_lock);
++}
 +
-+- simplicity
++/*
++ * Bootup and lowres handler: ticks and update_process_times
++ */
++static void handle_tick_update(struct pt_regs *regs)
++{
++	write_seqlock(&xtime_lock);
++	do_timer(1);
++	write_sequnlock(&xtime_lock);
 +
-+- data structure not bound to jiffies or any other granularity. All the
-+  kernel logic works at 64-bit nanoseconds resolution - no compromises.
++	update_process_times(user_mode(regs));
++}
 +
-+- simplification of existing, timing related kernel code
++/*
++ * Bootup and lowres handler: ticks and profileing
++ */
++static void handle_tick_profile(struct pt_regs *regs)
++{
++	write_seqlock(&xtime_lock);
++	do_timer(1);
++	write_sequnlock(&xtime_lock);
 +
-+another basic requirement was the immediate enqueueing and ordering of
-+timers at activation time. After looking at several possible solutions
-+such as radix trees and hashes, we chose the red black tree as the basic
-+data structure. Rbtrees are available as a library in the kernel and are
-+used in various performance-critical areas of e.g. memory management and
-+file systems. The rbtree is solely used for time sorted ordering, while
-+a separate list is used to give the expiry code fast access to the
-+queued timers, without having to walk the rbtree.
++	profile_tick(CPU_PROFILING);
++}
 +
-+(This separate list is also useful for later when we'll introduce
-+high-resolution clocks, where we need separate pending and expired
-+queues while keeping the time-order intact.)
++/*
++ * Bootup and lowres handler: ticks, update_process_times and profiling
++ */
++static void handle_tick_update_profile(struct pt_regs *regs)
++{
++	write_seqlock(&xtime_lock);
++	do_timer(1);
++	write_sequnlock(&xtime_lock);
 +
-+Time-ordered enqueueing is not purely for the purposes of
-+high-resolution clocks though, it also simplifies the handling of
-+absolute timers based on a low-resolution CLOCK_REALTIME. The existing
-+implementation needed to keep an extra list of all armed absolute
-+CLOCK_REALTIME timers along with complex locking. In case of
-+settimeofday and NTP, all the timers (!) had to be dequeued, the
-+time-changing code had to fix them up one by one, and all of them had to
-+be enqueued again. The time-ordered enqueueing and the storage of the
-+expiry time in absolute time units removes all this complex and poorly
-+scaling code from the posix-timer implementation - the clock can simply
-+be set without having to touch the rbtree. This also makes the handling
-+of posix-timers simpler in general.
++	update_process_times(user_mode(regs));
++	profile_tick(CPU_PROFILING);
++}
 +
-+The locking and per-CPU behavior of hrtimers was mostly taken from the
-+existing timer wheel code, as it is mature and well suited. Sharing code
-+was not really a win, due to the different data structures. Also, the
-+hrtimer functions now have clearer behavior and clearer names - such as
-+hrtimer_try_to_cancel() and hrtimer_cancel() [which are roughly
-+equivalent to del_timer() and del_timer_sync()] - so there's no direct
-+1:1 mapping between them on the algorithmical level, and thus no real
-+potential for code sharing either.
++/*
++ * Bootup and lowres handler: update_process_times
++ */
++static void handle_update(struct pt_regs *regs)
++{
++	update_process_times(user_mode(regs));
++}
 +
-+Basic data types: every time value, absolute or relative, is in a
-+special nanosecond-resolution type: ktime_t. The kernel-internal
-+representation of ktime_t values and operations is implemented via
-+macros and inline functions, and can be switched between a "hybrid
-+union" type and a plain "scalar" 64bit nanoseconds representation (at
-+compile time). The hybrid union type optimizes time conversions on 32bit
-+CPUs. This build-time-selectable ktime_t storage format was implemented
-+to avoid the performance impact of 64-bit multiplications and divisions
-+on 32bit CPUs. Such operations are frequently necessary to convert
-+between the storage formats provided by kernel and userspace interfaces
-+and the internal time format. (See include/linux/ktime.h for further
-+details.)
++/*
++ * Bootup and lowres handler: update_process_times and profiling
++ */
++static void handle_update_profile(struct pt_regs *regs)
++{
++	update_process_times(user_mode(regs));
++	profile_tick(CPU_PROFILING);
++}
 +
-+hrtimers - rounding of timer values
-+-----------------------------------
++/*
++ * Bootup and lowres handler: profiling
++ */
++static void handle_profile(struct pt_regs *regs)
++{
++	profile_tick(CPU_PROFILING);
++}
 +
-+the hrtimer code will round timer events to lower-resolution clocks
-+because it has to. Otherwise it will do no artificial rounding at all.
++/*
++ * Noop handler when we shut down an event device
++ */
++static void handle_noop(struct pt_regs *regs)
++{
++}
 +
-+one question is, what resolution value should be returned to the user by
-+the clock_getres() interface. This will return whatever real resolution
-+a given clock has - be it low-res, high-res, or artificially-low-res.
++/*
++ * Lookup table for bootup and lowres event assignment
++ *
++ * The event handler is choosen by the capability flags of the clock event
++ * device.
++ */
++static void __read_mostly *event_handlers[] = {
++	handle_noop,			/* 0: No capability selected */
++	handle_tick,			/* 1: Tick only	*/
++	handle_update,			/* 2: Update process times */
++	handle_tick_update,		/* 3: Tick + update process times */
++	handle_profile,			/* 4: Profiling int */
++	handle_tick_profile,		/* 5: Tick + Profiling int */
++	handle_update_profile,		/* 6: Update process times +
++					      profiling */
++	handle_tick_update_profile,	/* 7: Tick + update process times +
++					      profiling */
++#ifdef CONFIG_HIGH_RES_TIMERS
++	hrtimer_interrupt,		/* 8: Reprogrammable event device */
++#endif
++};
 +
-+hrtimers - testing and verification
-+----------------------------------
++/*
++ * Start up an event device
++ */
++static void startup_event(struct clock_event_device *evt, unsigned int caps)
++{
++	int mode;
 +
-+We used the high-resolution clock subsystem ontop of hrtimers to verify
-+the hrtimer implementation details in praxis, and we also ran the posix
-+timer tests in order to ensure specification compliance. We also ran
-+tests on low-resolution clocks.
++	if (caps == CLOCK_CAP_NEXTEVT)
++		mode = CLOCK_EVT_ONESHOT;
++	else
++		mode = CLOCK_EVT_PERIODIC;
 +
-+The hrtimer patch converts the following kernel functionality to use
-+hrtimers:
++	evt->set_mode(mode, evt);
++}
 +
-+ - nanosleep
-+ - itimers
-+ - posix-timers
++/*
++ * Setup an event device. Assign an handler and start it up
++ */
++static void setup_event(struct event_descr *descr,
++			struct clock_event_device *evt, unsigned int caps)
++{
++	void *handler = event_handlers[caps];
 +
-+The conversion of nanosleep and posix-timers enabled the unification of
-+nanosleep and clock_nanosleep.
++	/* Set the event handler */
++	evt->event_handler = handler;
 +
-+The code was successfully compiled for the following platforms:
++	/* Store all relevant information */
++	descr->real_caps = caps;
 +
-+ i386, x86_64, ARM, PPC, PPC64, IA64
++	startup_event(evt, caps);
 +
-+The code was run-tested on the following platforms:
++	printk(KERN_INFO "Clock event device %s configured with caps set: "
++	       "%02x\n", evt->name, descr->real_caps);
++}
 +
-+ i386(UP/SMP), x86_64(UP/SMP), ARM, PPC
++/**
++ * register_global_clockevent - register the device which generates
++ *			     global clock events
++ * @evt:	The device which generates global clock events (ticks)
++ *
++ * This can be a device which is only necessary for bootup. On UP systems this
++ * might be the only event device which is used for everything including
++ * high resolution events.
++ *
++ * When a cpu local event device is installed the global event device is
++ * switched off in the high resolution timer / tickless mode.
++ */
++int __init register_global_clockevent(struct clock_event_device *evt)
++{
++	/* Already installed? */
++	if (global_eventdevice.event) {
++		printk(KERN_ERR "Global clock event device already installed: "
++		       "%s. Ignoring new global eventsoruce %s\n",
++		       global_eventdevice.event->name,
++		       evt->name);
++		return -EBUSY;
++	}
 +
-+hrtimers were also integrated into the -rt tree, along with a
-+hrtimers-based high-resolution clock implementation, so the hrtimers
-+code got a healthy amount of testing and use in practice.
++	/* Preset the handler in any case */
++	evt->event_handler = handle_noop;
 +
-+	Thomas Gleixner, Ingo Molnar
-Index: linux-2.6.19-rc5-mm1/Documentation/hrtimers.txt
-===================================================================
---- linux-2.6.19-rc5-mm1.orig/Documentation/hrtimers.txt	2006-11-09 21:05:32.000000000 +0100
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,178 +0,0 @@
--
--hrtimers - subsystem for high-resolution kernel timers
------------------------------------------------------
--
--This patch introduces a new subsystem for high-resolution kernel timers.
--
--One might ask the question: we already have a timer subsystem
--(kernel/timers.c), why do we need two timer subsystems? After a lot of
--back and forth trying to integrate high-resolution and high-precision
--features into the existing timer framework, and after testing various
--such high-resolution timer implementations in practice, we came to the
--conclusion that the timer wheel code is fundamentally not suitable for
--such an approach. We initially didn't believe this ('there must be a way
--to solve this'), and spent a considerable effort trying to integrate
--things into the timer wheel, but we failed. In hindsight, there are
--several reasons why such integration is hard/impossible:
--
--- the forced handling of low-resolution and high-resolution timers in
--  the same way leads to a lot of compromises, macro magic and #ifdef
--  mess. The timers.c code is very "tightly coded" around jiffies and
--  32-bitness assumptions, and has been honed and micro-optimized for a
--  relatively narrow use case (jiffies in a relatively narrow HZ range)
--  for many years - and thus even small extensions to it easily break
--  the wheel concept, leading to even worse compromises. The timer wheel
--  code is very good and tight code, there's zero problems with it in its
--  current usage - but it is simply not suitable to be extended for
--  high-res timers.
--
--- the unpredictable [O(N)] overhead of cascading leads to delays which
--  necessitate a more complex handling of high resolution timers, which
--  in turn decreases robustness. Such a design still led to rather large
--  timing inaccuracies. Cascading is a fundamental property of the timer
--  wheel concept, it cannot be 'designed out' without unevitably
--  degrading other portions of the timers.c code in an unacceptable way.
--
--- the implementation of the current posix-timer subsystem on top of
--  the timer wheel has already introduced a quite complex handling of
--  the required readjusting of absolute CLOCK_REALTIME timers at
--  settimeofday or NTP time - further underlying our experience by
--  example: that the timer wheel data structure is too rigid for high-res
--  timers.
--
--- the timer wheel code is most optimal for use cases which can be
--  identified as "timeouts". Such timeouts are usually set up to cover
--  error conditions in various I/O paths, such as networking and block
--  I/O. The vast majority of those timers never expire and are rarely
--  recascaded because the expected correct event arrives in time so they
--  can be removed from the timer wheel before any further processing of
--  them becomes necessary. Thus the users of these timeouts can accept
--  the granularity and precision tradeoffs of the timer wheel, and
--  largely expect the timer subsystem to have near-zero overhead.
--  Accurate timing for them is not a core purpose - in fact most of the
--  timeout values used are ad-hoc. For them it is at most a necessary
--  evil to guarantee the processing of actual timeout completions
--  (because most of the timeouts are deleted before completion), which
--  should thus be as cheap and unintrusive as possible.
--
--The primary users of precision timers are user-space applications that
--utilize nanosleep, posix-timers and itimer interfaces. Also, in-kernel
--users like drivers and subsystems which require precise timed events
--(e.g. multimedia) can benefit from the availability of a separate
--high-resolution timer subsystem as well.
--
--While this subsystem does not offer high-resolution clock sources just
--yet, the hrtimer subsystem can be easily extended with high-resolution
--clock capabilities, and patches for that exist and are maturing quickly.
--The increasing demand for realtime and multimedia applications along
--with other potential users for precise timers gives another reason to
--separate the "timeout" and "precise timer" subsystems.
--
--Another potential benefit is that such a separation allows even more
--special-purpose optimization of the existing timer wheel for the low
--resolution and low precision use cases - once the precision-sensitive
--APIs are separated from the timer wheel and are migrated over to
--hrtimers. E.g. we could decrease the frequency of the timeout subsystem
--from 250 Hz to 100 HZ (or even smaller).
--
--hrtimer subsystem implementation details
------------------------------------------
--
--the basic design considerations were:
--
--- simplicity
--
--- data structure not bound to jiffies or any other granularity. All the
--  kernel logic works at 64-bit nanoseconds resolution - no compromises.
--
--- simplification of existing, timing related kernel code
--
--another basic requirement was the immediate enqueueing and ordering of
--timers at activation time. After looking at several possible solutions
--such as radix trees and hashes, we chose the red black tree as the basic
--data structure. Rbtrees are available as a library in the kernel and are
--used in various performance-critical areas of e.g. memory management and
--file systems. The rbtree is solely used for time sorted ordering, while
--a separate list is used to give the expiry code fast access to the
--queued timers, without having to walk the rbtree.
--
--(This separate list is also useful for later when we'll introduce
--high-resolution clocks, where we need separate pending and expired
--queues while keeping the time-order intact.)
--
--Time-ordered enqueueing is not purely for the purposes of
--high-resolution clocks though, it also simplifies the handling of
--absolute timers based on a low-resolution CLOCK_REALTIME. The existing
--implementation needed to keep an extra list of all armed absolute
--CLOCK_REALTIME timers along with complex locking. In case of
--settimeofday and NTP, all the timers (!) had to be dequeued, the
--time-changing code had to fix them up one by one, and all of them had to
--be enqueued again. The time-ordered enqueueing and the storage of the
--expiry time in absolute time units removes all this complex and poorly
--scaling code from the posix-timer implementation - the clock can simply
--be set without having to touch the rbtree. This also makes the handling
--of posix-timers simpler in general.
--
--The locking and per-CPU behavior of hrtimers was mostly taken from the
--existing timer wheel code, as it is mature and well suited. Sharing code
--was not really a win, due to the different data structures. Also, the
--hrtimer functions now have clearer behavior and clearer names - such as
--hrtimer_try_to_cancel() and hrtimer_cancel() [which are roughly
--equivalent to del_timer() and del_timer_sync()] - so there's no direct
--1:1 mapping between them on the algorithmical level, and thus no real
--potential for code sharing either.
--
--Basic data types: every time value, absolute or relative, is in a
--special nanosecond-resolution type: ktime_t. The kernel-internal
--representation of ktime_t values and operations is implemented via
--macros and inline functions, and can be switched between a "hybrid
--union" type and a plain "scalar" 64bit nanoseconds representation (at
--compile time). The hybrid union type optimizes time conversions on 32bit
--CPUs. This build-time-selectable ktime_t storage format was implemented
--to avoid the performance impact of 64-bit multiplications and divisions
--on 32bit CPUs. Such operations are frequently necessary to convert
--between the storage formats provided by kernel and userspace interfaces
--and the internal time format. (See include/linux/ktime.h for further
--details.)
--
--hrtimers - rounding of timer values
-------------------------------------
--
--the hrtimer code will round timer events to lower-resolution clocks
--because it has to. Otherwise it will do no artificial rounding at all.
--
--one question is, what resolution value should be returned to the user by
--the clock_getres() interface. This will return whatever real resolution
--a given clock has - be it low-res, high-res, or artificially-low-res.
--
--hrtimers - testing and verification
------------------------------------
--
--We used the high-resolution clock subsystem ontop of hrtimers to verify
--the hrtimer implementation details in praxis, and we also ran the posix
--timer tests in order to ensure specification compliance. We also ran
--tests on low-resolution clocks.
--
--The hrtimer patch converts the following kernel functionality to use
--hrtimers:
--
-- - nanosleep
-- - itimers
-- - posix-timers
--
--The conversion of nanosleep and posix-timers enabled the unification of
--nanosleep and clock_nanosleep.
--
--The code was successfully compiled for the following platforms:
--
-- i386, x86_64, ARM, PPC, PPC64, IA64
--
--The code was run-tested on the following platforms:
--
-- i386(UP/SMP), x86_64(UP/SMP), ARM, PPC
--
--hrtimers were also integrated into the -rt tree, along with a
--hrtimers-based high-resolution clock implementation, so the hrtimers
--code got a healthy amount of testing and use in practice.
--
--	Thomas Gleixner, Ingo Molnar
++	/*
++	 * Check, whether it is a valid global event device
++	 */
++	if (!(evt->capabilities & CLOCK_BASE_CAPS_MASK)) {
++		printk(KERN_ERR "Unsupported clock event device %s\n",
++		       evt->name);
++		return -EINVAL;
++	}
++
++	/*
++	 * On UP systems the global clock event device can be used as the next
++	 * event device. On SMP this is disabled because the next event device
++	 * must be per CPU.
++	 */
++	if (num_possible_cpus() > 1)
++		evt->capabilities &= ~CLOCK_CAP_NEXTEVT;
++
++
++	/* Mask out high resolution capabilities for now */
++	global_eventdevice.event = evt;
++	setup_event(&global_eventdevice, evt,
++		    evt->capabilities & CLOCK_BASE_CAPS_MASK);
++	return 0;
++}
++
++/*
++ * Mask out the functionality which is covered by the new event device
++ * and assign a new event handler.
++ */
++static void recalc_active_event(struct event_descr *descr,
++				unsigned int newcaps)
++{
++	unsigned int caps;
++
++	if (!descr->real_caps)
++		return;
++
++	/* Mask the overlapping bits */
++	caps = descr->real_caps & ~newcaps;
++
++	/* Assign the new event handler */
++	if (caps) {
++		descr->event->event_handler = event_handlers[caps];
++		printk(KERN_INFO "Clock event device %s new caps set: %02x\n" ,
++		       descr->event->name, caps);
++	} else {
++		descr->event->event_handler = handle_noop;
++
++		if (descr->event->set_mode)
++			descr->event->set_mode(CLOCK_EVT_SHUTDOWN,
++					       descr->event);
++
++		printk(KERN_INFO "Clock event device %s disabled\n" ,
++		       descr->event->name);
++	}
++	descr->real_caps = caps;
++	clockevents_check_broadcast(descr);
++}
++
++/*
++ * Recalc the events and reassign the handlers if necessary
++ *
++ * Called with event_lock held to protect the global event device.
++ */
++static int recalc_events(struct local_events *devices,
++			 struct event_descr *descr,
++			 struct clock_event_device *evt, unsigned int caps)
++{
++	int i;
++
++	if (!descr && devices->installed == MAX_CLOCK_EVENTS)
++		return -ENOSPC;
++
++	/*
++	 * If there is no handler and this is not a next-event capable
++	 * event device, refuse to handle it
++	 */
++	if (!(evt->capabilities & CLOCK_CAP_NEXTEVT) && !event_handlers[caps]) {
++		printk(KERN_ERR "Unsupported clock event device %s\n",
++		       evt->name);
++		return -EINVAL;
++	}
++
++	if (caps) {
++		if (global_eventdevice.event && descr != &global_eventdevice)
++			recalc_active_event(&global_eventdevice, caps);
++
++		for (i = 0; i < devices->installed; i++) {
++			if (&devices->events[i] != descr)
++				recalc_active_event(&devices->events[i], caps);
++		}
++	}
++
++	/* New device ? */
++	if (!descr) {
++		descr = &devices->events[devices->installed++];
++		descr->event = evt;
++	}
++
++	if (caps) {
++		/* Is next_event event device going to be installed? */
++		if (caps & CLOCK_CAP_NEXTEVT)
++			caps = CLOCK_CAP_NEXTEVT;
++
++		setup_event(descr, evt, caps);
++	} else
++		printk(KERN_INFO "Inactive clock event device %s registered\n",
++		       evt->name);
++
++	return 0;
++}
++
++/**
++ * register_local_clockevent - Set up a cpu local clock event device
++ * @evt:	event device to be registered
++ */
++int register_local_clockevent(struct clock_event_device *evt)
++{
++	struct local_events *devices = &__get_cpu_var(local_eventdevices);
++	unsigned long flags;
++	int ret;
++
++	spin_lock_irqsave(&events_lock, flags);
++
++	/* Preset the handler in any case */
++	evt->event_handler = handle_noop;
++
++	/* Recalc event devices and maybe reassign handlers */
++	ret = recalc_events(devices, NULL, evt,
++			    evt->capabilities & CLOCK_BASE_CAPS_MASK);
++
++	spin_unlock_irqrestore(&events_lock, flags);
++
++	/*
++	 * Trigger hrtimers, when the event device is next-event
++	 * capable
++	 */
++	if (!ret && (evt->capabilities & CLOCK_CAP_NEXTEVT))
++		hrtimer_clock_notify();
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(register_local_clockevent);
++
++/*
++ * Find a next-event capable event device
++ *
++ * Called with event_lock held to protect the global event device.
++ */
++static int get_next_event_device(void)
++{
++	struct local_events *devices = &__get_cpu_var(local_eventdevices);
++	int i;
++
++	for (i = 0; i < devices->installed; i++) {
++		struct clock_event_device *evt;
++
++		evt = devices->events[i].event;
++		if (evt->capabilities & CLOCK_CAP_NEXTEVT)
++			return i;
++	}
++
++	if (global_eventdevice.event->capabilities & CLOCK_CAP_NEXTEVT)
++		return GLOBAL_CLOCK_EVENT;
++
++	return -ENODEV;
++}
++
++/**
++ * clockevents_next_event_available - Check for a installed next-event device
++ *
++ * Returns 1, when such a device exists, otherwise 0
++ */
++int clockevents_next_event_available(void)
++{
++	unsigned long flags;
++	int idx;
++
++	spin_lock_irqsave(&events_lock, flags);
++	idx = get_next_event_device();
++	spin_unlock_irqrestore(&events_lock, flags);
++
++	return IS_ERR_VALUE(idx) ? 0 : 1;
++}
++
++/**
++ * clockevents_init_next_event - switch to next event (oneshot) mode
++ *
++ * Switch to one shot mode. On SMP systems the global event (tick) device is
++ * switched off. It is replaced by a hrtimer. On UP systems the global event
++ * device might be the only one and can be used as the next event device too.
++ *
++ * Returns 0 on success, otherwise an error code.
++ */
++int clockevents_init_next_event(void)
++{
++	struct local_events *devices = &__get_cpu_var(local_eventdevices);
++	struct event_descr *nextevt;
++	unsigned long flags;
++	int idx, ret = -ENODEV;
++
++	if (devices->nextevt)
++		return -EBUSY;
++
++	spin_lock_irqsave(&events_lock, flags);
++
++	idx = get_next_event_device();
++	if (IS_ERR_VALUE(idx))
++		goto out_unlock;
++
++	if (idx == GLOBAL_CLOCK_EVENT)
++		nextevt = &global_eventdevice;
++	else
++		nextevt = &devices->events[idx];
++
++	ret = recalc_events(devices, nextevt, nextevt->event, CLOCK_CAPS_MASK);
++	if (!ret)
++		devices->nextevt = nextevt->event;
++ out_unlock:
++	spin_unlock_irqrestore(&events_lock, flags);
++
++	return ret;
++}
++
++/*
++ * Reprogram the clock event device. Internal helper function
++ */
++static void do_clockevents_set_next_event(struct clock_event_device *nextevt,
++					 int64_t delta)
++{
++	unsigned long long clc;
++
++	if (delta > nextevt->max_delta_ns)
++		delta = nextevt->max_delta_ns;
++	if (delta < nextevt->min_delta_ns)
++		delta = nextevt->min_delta_ns;
++
++	clc = delta * nextevt->mult;
++	clc >>= nextevt->shift;
++	nextevt->set_next_event((unsigned long)clc, nextevt);
++}
++
++/**
++ * clockevents_set_next_event - Reprogram the clock event device.
++ * @expires:	absolute expiry time (monotonic clock)
++ * @force:	when set, enforce reprogramming, even if the event is in the
++ *		past
++ *
++ * Returns 0 on success, -ETIME when the event is in the past and force is not
++ * set.
++ * Called with interrupts disabled.
++ */
++int clockevents_set_next_event(ktime_t expires, int force)
++{
++	struct local_events *devices = &__get_cpu_var(local_eventdevices);
++	struct clock_event_device *nextevt = devices->nextevt;
++	int64_t delta = ktime_to_ns(ktime_sub(expires, ktime_get()));
++
++	if (delta <= 0 && !force) {
++		devices->expires_next.tv64 = KTIME_MAX;
++		return -ETIME;
++	}
++
++	devices->expires_next = expires;
++
++	do_clockevents_set_next_event(nextevt, delta);
++
++	return 0;
++}
++
++#ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
++
++static cpumask_t global_event_broadcast;
++static cpumask_t local_event_broadcast;
++static void (*broadcast_function)(cpumask_t *mask);
++static void (*global_event_handler)(struct pt_regs *regs);
++
++/**
++ * clockevents_set_broadcast - switch next event device from/to broadcast mode
++ *
++ * Called, when the PM code enters a state, where the next event device is
++ * switched off or comes back from this state.
++ */
++void clockevents_set_broadcast(struct clock_event_device *evt, int broadcast)
++{
++	struct local_events *devices = &__get_cpu_var(local_eventdevices);
++	struct clock_event_device *glblevt = global_eventdevice.event;
++	int cpu = smp_processor_id();
++	ktime_t expires = { .tv64 = KTIME_MAX };
++	int64_t delta;
++	unsigned long flags;
++
++	if (devices->nextevt != evt)
++		return;
++
++	spin_lock_irqsave(&events_lock, flags);
++
++	if (broadcast) {
++		cpu_set(cpu, local_event_broadcast);
++		evt->set_mode(CLOCK_EVT_SHUTDOWN, evt);
++	} else {
++		cpu_clear(cpu, local_event_broadcast);
++		evt->set_mode(CLOCK_EVT_ONESHOT, evt);
++		if (devices->expires_next.tv64 != KTIME_MAX)
++			clockevents_set_next_event(devices->expires_next, 1);
++	}
++
++	/* Reprogram the broadcast device */
++	for (cpu = first_cpu(local_event_broadcast); cpu != NR_CPUS;
++	     cpu = next_cpu(cpu, local_event_broadcast)) {
++		devices = &per_cpu(local_eventdevices, cpu);
++		if (devices->expires_next.tv64 < expires.tv64)
++			expires = devices->expires_next;
++	}
++
++	if (expires.tv64 != KTIME_MAX) {
++		delta = ktime_to_ns(ktime_sub(expires, ktime_get()));
++		do_clockevents_set_next_event(glblevt, delta);
++	}
++
++	spin_unlock_irqrestore(&events_lock, flags);
++}
++
++/**
++ * clockevents_set_global_broadcast - mark event device for global broadcast
++ *
++ * Switch an event device from / to global broadcasting. This is only relevant
++ * when the system has not switched to high resolution mode.
++ */
++void clockevents_set_global_broadcast(struct clock_event_device *evt,
++				      int broadcast)
++{
++	struct local_events *devices = &__get_cpu_var(local_eventdevices);
++	int cpu = smp_processor_id();
++	unsigned long flags;
++
++	spin_lock_irqsave(&events_lock, flags);
++
++	if (broadcast) {
++		if (!cpu_isset(cpu, global_event_broadcast)) {
++			cpu_set(cpu, global_event_broadcast);
++			if (devices->nextevt != evt)
++				evt->set_mode(CLOCK_EVT_SHUTDOWN, evt);
++		}
++	} else {
++		if (cpu_isset(cpu, global_event_broadcast)) {
++			cpu_clear(cpu, global_event_broadcast);
++			if (devices->nextevt != evt)
++				evt->set_mode(CLOCK_EVT_PERIODIC, evt);
++		}
++	}
++
++	spin_unlock_irqrestore(&events_lock, flags);
++}
++
++/*
++ * Broadcast tick handler:
++ */
++static void handle_tick_broadcast(struct pt_regs *regs)
++{
++	/* Call the original handler global tick handler */
++	global_event_handler(regs);
++	broadcast_function(&global_event_broadcast);
++}
++
++/*
++ * Broadcast next event handler:
++ */
++static void handle_nextevt_broadcast(struct pt_regs *regs)
++{
++	struct local_events *devices;
++	ktime_t now = ktime_get();
++	cpumask_t mask;
++	int cpu;
++
++	spin_lock(&events_lock);
++	/* Find all expired events */
++	for (cpu = first_cpu(local_event_broadcast); cpu != NR_CPUS;
++	     cpu = next_cpu(cpu, local_event_broadcast)) {
++		devices = &per_cpu(local_eventdevices, cpu);
++		if (devices->expires_next.tv64 <= now.tv64) {
++			devices->expires_next.tv64 = KTIME_MAX;
++			cpu_set(cpu, mask);
++		}
++	}
++	spin_unlock(&events_lock);
++	/* Wakeup the cpus which have an expired event */
++	broadcast_function(&mask);
++}
++
++/*
++ * Check, if the reconfigured event device is the global broadcast device.
++ *
++ * Called with interrupts disabled and events_lock held
++ */
++static void clockevents_check_broadcast(struct event_descr *descr)
++{
++	if (descr != &global_eventdevice)
++		return;
++
++	/* The device was disabled. switch it to oneshot mode instead */
++	if (!descr->real_caps) {
++		global_event_handler = NULL;
++		descr->event->set_mode(CLOCK_EVT_ONESHOT, descr->event);
++		descr->event->event_handler = handle_nextevt_broadcast;
++	} else {
++		global_event_handler = descr->event->event_handler;
++		descr->event->event_handler = handle_tick_broadcast;
++	}
++
++}
++
++/*
++ * Install a broadcast function
++ */
++int clockevents_register_broadcast(void (*fun)(cpumask_t *mask))
++{
++	unsigned long flags;
++
++	if (broadcast_function)
++		return -EBUSY;
++
++	spin_lock_irqsave(&events_lock, flags);
++	broadcast_function = fun;
++	clockevents_check_broadcast(&global_eventdevice);
++	spin_unlock_irqrestore(&events_lock, flags);
++
++	return 0;
++}
++
++#endif
++
++/*
++ * Resume the cpu local clock events
++ */
++static void clockevents_resume_local_events(void *arg)
++{
++	struct local_events *devices = &__get_cpu_var(local_eventdevices);
++	int i;
++
++	for (i = 0; i < devices->installed; i++) {
++		if (devices->events[i].real_caps)
++			startup_event(devices->events[i].event,
++				      devices->events[i].real_caps);
++	}
++	touch_softlockup_watchdog();
++}
++
++/**
++ * clockevents_resume_events - resume the active clock devices
++ *
++ * Called after timekeeping is functional again
++ */
++void clockevents_resume_events(void)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++
++	/* Resume global event device */
++	if (global_eventdevice.real_caps)
++		startup_event(global_eventdevice.event,
++			      global_eventdevice.real_caps);
++
++	local_irq_restore(flags);
++
++	/* Restart the CPU local events everywhere */
++	on_each_cpu(clockevents_resume_local_events, NULL, 0, 1);
++}
++
++/*
++ * Functions related to initialization and hotplug
++ */
++static int clockevents_cpu_notify(struct notifier_block *self,
++				  unsigned long action, void *hcpu)
++{
++	switch(action) {
++	case CPU_UP_PREPARE:
++		break;
++#ifdef CONFIG_HOTPLUG_CPU
++	case CPU_DEAD:
++		/*
++		 * Do something sensible here !
++		 * Disable the cpu local clock event devices ???
++		 */
++		break;
++#endif
++	default:
++		break;
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block __devinitdata clockevents_nb = {
++	.notifier_call	= clockevents_cpu_notify,
++};
++
++void __init clockevents_init(void)
++{
++	clockevents_cpu_notify(&clockevents_nb, (unsigned long)CPU_UP_PREPARE,
++				(void *)(long)smp_processor_id());
++	register_cpu_notifier(&clockevents_nb);
++}
 
 --
 

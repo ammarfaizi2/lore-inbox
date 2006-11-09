@@ -1,103 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754568AbWKIDKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754665AbWKIDjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754568AbWKIDKV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 22:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754575AbWKIDKV
+	id S1754665AbWKIDjK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 22:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754703AbWKIDjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 22:10:21 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:666 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1754568AbWKIDKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 22:10:20 -0500
-Date: Wed, 8 Nov 2006 19:09:44 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Reuben Farrelly <reuben-linuxkernel@reub.net>,
-       linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
-Subject: [PATCH] cpufreq: select consistently (Re: 2.6.19-rc5-mm1)
-Message-Id: <20061108190944.6849b8d4.randy.dunlap@oracle.com>
-In-Reply-To: <20061108201539.GB32721@redhat.com>
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
-	<4551BB5E.6090602@reub.net>
-	<20061108120547.78048229.akpm@osdl.org>
-	<20061108201539.GB32721@redhat.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 8 Nov 2006 22:39:10 -0500
+Received: from mga07.intel.com ([143.182.124.22]:52106 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1754665AbWKIDjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 22:39:09 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,402,1157353200"; 
+   d="scan'208"; a="143394293:sNHT24872554"
+Subject: Re: 2.6.19-rc5: known regressions
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1163027494.10806.229.camel@localhost.localdomain>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	 <20061108085235.GT4729@stusta.de>
+	 <m1y7qm425l.fsf@ebiederm.dsl.xmission.com>
+	 <Pine.LNX.4.64.0611080745150.3667@g5.osdl.org>
+	 <20061108162202.GA4729@stusta.de>
+	 <1163027494.10806.229.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel
+Date: Wed, 08 Nov 2006 18:49:41 -0800
+Message-Id: <1163040581.10806.266.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2006 15:15:39 -0500 Dave Jones wrote:
-
-> On Wed, Nov 08, 2006 at 12:05:47PM -0800, Andrew Morton wrote:
+On Wed, 2006-11-08 at 15:11 -0800, Tim Chen wrote:
+> On Wed, 2006-11-08 at 17:22 +0100, Adrian Bunk wrote:
 > 
->  > The problem is that you have 
->  > 
->  > > CONFIG_CPU_FREQ_TABLE=m
->  > > CONFIG_X86_ACPI_CPUFREQ=y
->  > 
->  > but acpi-cpufreq needs the stuff in freq_table.c.
->  > 
->  > This happens again and again and again and again.  I wish people would just
->  > stop using `select'.  It.  Doesn't.  Work.
->  > 
->  > Either we fix select or we stop using the damn thing.
+> > There's perhaps one thing that might help us to see whether it's just a 
+> > benchmark effekt or a real problem:
+> > 
+> > With Tim's CONFIG_NR_CPUS=8, NR_IRQS only increases from 224 in 2.6.18 
+> > to 512 in 2.6.19-rc.
+> > 
+> > With CONFIG_NR_CPUS=255, NR_IRQS increases from 224 in 2.6.18
+> > to 8416 in 2.6.19-rc.
+> > 
+> > @Tim:
+> > Can you try CONFIG_NR_CPUS=255 with both 2.6.18 and 2.6.19-rc5?
+> > 
 > 
-> So, why doesn't select set the symbol it's selecting to the
-> same value as the symbol being configured ?
-> That would solve the issue no?
+> With CONFIG_NR_CPUS increased from 8 to 64:
+> 2.6.18     see no change in fork time measured.
+> 2.6.19-rc5 see a 138% increase in fork time.
+> 
 
-Why does arch/i386/kernel/cpu/cpufreq/Kconfig say:
+Lmbench is broken in its fork time measurement.
+It includes overhead time when it is pinning processes onto
+specific cpu. The actual fork time is not affected by NR_IRQS.
 
-config X86_ACPI_CPUFREQ
-	tristate "ACPI Processor P-States driver"
-	select CPU_FREQ_TABLE
-	depends on ACPI_PROCESSOR
+Lmbench calls the following C library function to determine the 
+number of processors online before it pin the processes: 
+	sysconf(_SC_NPROCESSORS_ONLN);
 
-but arch/x86_64/kernel/cpufreq/Kconfig say:
+This function takes the same order of time to run as
+fork itself.  In addition, runtime of this function 
+increases with NR_IRQS.  This resulted in the change in
+time measured.
 
-config X86_ACPI_CPUFREQ
-	tristate "ACPI Processor P-States driver"
-	depends on ACPI_PROCESSOR
+After hardcoding the number of online processors in lmbench,
+the fork time measured now does not change with CONFIG_NR_CPUS
+for both 2.6.18 and 2.6.19-rc5.  So we can now conclude that
+NR_IRQS does not affect fork.  We can remove this particular
+issue from the known regression.
 
-# NOTE: no "select" on the latter one.  // Randy
-
-
-Let's see.  Does that one-line patch fix anything?  <builds>
-
-make oldconfig
-
-< CONFIG_CPU_FREQ_TABLE=m
-> CONFIG_CPU_FREQ_TABLE=y
-
-Builds cleanly now.
-
----
-From: Randy Dunlap <randy.dunlap@oracle.com>
-
-Make x86_64 ACPI_CPU_FREQ select CPU_FREQ_TABLE like other methods do.
-(although we should still eliminate as much use of 'select' as possible)
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- arch/x86_64/kernel/cpufreq/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
-
---- linux-2.6.19-rc5-mm1.orig/arch/x86_64/kernel/cpufreq/Kconfig
-+++ linux-2.6.19-rc5-mm1/arch/x86_64/kernel/cpufreq/Kconfig
-@@ -49,6 +49,7 @@ config X86_SPEEDSTEP_CENTRINO_ACPI
- 
- config X86_ACPI_CPUFREQ
- 	tristate "ACPI Processor P-States driver"
-+	select CPU_FREQ_TABLE
- 	depends on ACPI_PROCESSOR
- 	help
- 	  This driver adds a CPUFreq driver which utilizes the ACPI
-
+Tim

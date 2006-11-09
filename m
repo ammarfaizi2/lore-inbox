@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753813AbWKIHsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753837AbWKIHr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753813AbWKIHsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 02:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753845AbWKIHsQ
+	id S1753837AbWKIHr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 02:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753845AbWKIHr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 02:48:16 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49313 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1753813AbWKIHsO convert rfc822-to-8bit (ORCPT
+	Thu, 9 Nov 2006 02:47:57 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:43242 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1753837AbWKIHr5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 02:48:14 -0500
-Subject: Re: Abysmal PATA IDE performance
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-Cc: Stephen Clark <Stephen.Clark@seclark.us>, Mark Lord <lkml@rtr.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061109020758.GA21537@atjola.homenet>
-References: <455206E7.2050104@seclark.us> <45526D50.5020105@rtr.ca>
-	 <455277E1.3040803@seclark.us>  <20061109020758.GA21537@atjola.homenet>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Thu, 09 Nov 2006 07:52:35 +0000
-Message-Id: <1163058755.23956.124.camel@localhost.localdomain>
+	Thu, 9 Nov 2006 02:47:57 -0500
+Date: Thu, 9 Nov 2006 10:48:01 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: zhou drangon <drangon.mail@gmail.com>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [take22 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20061109074801.GA23572@2ka.mipt.ru>
+References: <slrnekhpbr.2j1.olecom@flower.upol.cz> <20061101185745.GA12440@2ka.mipt.ru> <5c49b0ed0611011812w8813df3p830e44b6e87f09f4@mail.gmail.com> <aaf959cb0611011829k36deda6ahe61bcb9bf8e612e1@mail.gmail.com> <aaf959cb0611011830j1ca3e469tc4a6af3a2a010fa@mail.gmail.com> <4549A261.9010007@cosmosbay.com> <20061102080122.GA1302@2ka.mipt.ru> <454FA671.7000204@cosmosbay.com> <20061107091842.GA4608@2ka.mipt.ru> <20061107120921.GA4742@2ka.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20061107120921.GA4742@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 09 Nov 2006 10:48:02 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-11-09 am 03:07 +0100, ysgrifennodd Björn Steinbrink:
-> Appears first and that's where the other driver has taken control of the
-> drives. I had the same issue on my thinkpad, getting rid of the whole
-> IDE stuff solved the problem (because the other drivers does no longer
-> grab the drive).
 
-For reference you can also use ide0=noprobe ide1=noprobe and similar to
-control this
+Kevent pipe benchmark kevent_pipe kernel kevent part:
+
+epoll (edge-triggered):   248408 events/sec
+kevent (edge-triggered):  269282 events/sec
+Busy reading loop:        269519 events/sec
+
+Kevent is definitely a winner with extremely small overhead.
+
+I will add kevent_pipe into next kevent release which will be available
+soon.
+
+-- 
+	Evgeniy Polyakov

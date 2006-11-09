@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424155AbWKIR1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424160AbWKIRa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424155AbWKIR1t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 12:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424162AbWKIR1s
+	id S1424160AbWKIRa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 12:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424162AbWKIRa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 12:27:48 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:60856 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1424155AbWKIR1s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 12:27:48 -0500
-Message-ID: <455364E7.80509@zytor.com>
-Date: Thu, 09 Nov 2006 09:27:03 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Thu, 9 Nov 2006 12:30:26 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:17930 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1424160AbWKIRaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 12:30:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Xm8bvHvkKllSVWSkn4Us/RhIrrLbERQKxScxNS/sK3jL7T8WSAGdhThTTDyhjFcVDjnb/zs3tEmQWfVCXnhO7rPQQaylv4kkloVxQDzE8LV1CI2f3mFRPq4tDuDmyQS9vqWQh9FZZ04WJVyPEuvMWxU/Byzi9Cd4PJwEspL1htU=
+Message-ID: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
+Date: Thu, 9 Nov 2006 20:30:23 +0300
+From: "Igor A. Valcov" <viaprog@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: XFS filesystem performance drop in kernels 2.6.16+
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jakub Jelinek <jakub@redhat.com>, Mike Galbraith <efault@gmx.de>,
-       Albert Cahalan <acahalan@gmail.com>,
-       Bill Nottingham <notting@redhat.com>,
-       Marco Roeland <marco.roeland@xs4all.nl>,
-       Michael Kerrisk <mtk-manpages@gmx.net>
-Subject: Re: [PATCH] sysctl: Undeprecate sys_sysctl
-References: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com> <20061108204948.GC20284@devserv.devel.redhat.com>
-In-Reply-To: <20061108204948.GC20284@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Wed, Nov 08, 2006 at 12:00:10PM -0700, Eric W. Biederman wrote:
->> Now that I know there are a few real users the only sane way to
->> proceed with deprecation is to push the time limit out to a year or
->> two work and work with distributions that have big testing pools like
->> fedora core to find these last remaining users.
-> 
-> Some early boot code needs to know the kernel version and
-> it needs to do it before /proc is mounted and potentially in order
-> to run mount. In places it has its role but only in places.
+Hello,
 
-uname() provides the kernel version.
+For one of our projects we have a test program that measures file
+system performance by writing up to 1000 files simultaneously. After
+installing kernel v2.6.16 we noticed that XFS performance dropped by a
+factor of 5 (tests that took around 4 minutes on kernel 2.6.15 now
+take around 20 minutes to complete). We then checked all kernels
+starting from 2.6.16 up to 2.6.19-rc5 with the same unpleasant result.
+The funny thing about all this is that we chose XFS for that
+particular project specifically because it was about 5 times faster
+with the tests than the other file systems. Now they all take about
+the same time.
 
-	-hpa
+I also noticed that I/O barriers were introduced in v2.6.16 and
+thought they may be the cause, but mounting the file system with
+'nobarrier' doesn't seem to affect the performance in any way.
 
+Any thoughts on the matter are appreciated.
 
+Thanks in advance,
+
+-- 
+Igor A. Valcov

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424136AbWKIVRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424140AbWKIVVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424136AbWKIVRl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 16:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424138AbWKIVRl
+	id S1424140AbWKIVVa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 16:21:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424150AbWKIVVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 16:17:41 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52949 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1424136AbWKIVRk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 16:17:40 -0500
-Date: Thu, 9 Nov 2006 22:17:22 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061109211722.GA2616@elf.ucw.cz>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611091652.34649.rjw@sisk.pl> <20061109160003.GA24156@elf.ucw.cz> <200611092059.48722.rjw@sisk.pl>
+	Thu, 9 Nov 2006 16:21:30 -0500
+Received: from retort.sout.netline.net.uk ([213.40.66.77]:37879 "EHLO
+	retort.sout.netline.net.uk") by vger.kernel.org with ESMTP
+	id S1424140AbWKIVV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 16:21:29 -0500
+Message-ID: <45539BD3.10402@supanet.com>
+Date: Thu, 09 Nov 2006 21:21:23 +0000
+From: Andrew Benton <b3nt@supanet.com>
+User-Agent: Thunderbird 3.0a1 (X11/20061109)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611092059.48722.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Ping Cheng <pingc@wacom.com>
+CC: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Typo in drivers/usb/input/wacom_wac.c?
+References: <6753EB6004AFF34FAA275742C104F95201758D@wacom-nt10.wacom.com>
+In-Reply-To: <6753EB6004AFF34FAA275742C104F95201758D@wacom-nt10.wacom.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Supanet-AV-out: Mail Scanned as virus free, although you should still use a local virus scanner.
+X-Supanet: This was sent via a www.supanet.com mail server
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ping Cheng wrote:
+> The two wacom_be16_to_cpu are in wacom_intuos_irq, which has nothing to do with Volito2. Volito2 uses wacom_graphire_irq. I am not exactly sure what Andrew's problem is. 
 
-> > > OTOH I have no idea _how_ we can tell xfs that the processes have been
-> > > frozen.  Should we introduce a global flag for that or something?
-> > 
-> > I guess XFS should just do all the writes from process context, and
-> > refuse any writing when its threads are frozen... I actually still
-> > believe it is doing the right thing, because you can't really write to
-> > disk from timer.
-> 
-> This is from a work queue, so in fact from a process context, but from
-> a process that is running with PF_NOFREEZE.
+The problem is that the wacom kernel driver in the 2.6.19-rc5 kernel 
+doesn't work with my Volito 2 tablet. The cursor stays in the bottom 
+right hand corner of the screen and only responds to me moving the pen 
+by jittering about a bit.
+ From what you said it seems that the kernel wacom driver treats my 
+volito2 as though it's an intuos. The kernel correctly identifies it as 
+a volito 2 in the system log but if I don't apply that sed to the source 
+before I compile the kernel the tablet doesn't work.
 
-Why not simply &~ PF_NOFREEZE on that particular process? Filesystems
-are free to use threads/work queues/whatever, but refrigerator should
-mean "no writes to filesystem" for them...
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Andy

@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965951AbWKIEzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754734AbWKIFLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965951AbWKIEzE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 23:55:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965952AbWKIEzE
+	id S1754734AbWKIFLP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 00:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754735AbWKIFLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 23:55:04 -0500
-Received: from [213.184.169.252] ([213.184.169.252]:19584 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S965951AbWKIEzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 23:55:02 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Date: Thu, 9 Nov 2006 07:57:48 +0300
-User-Agent: KMail/1.5
+	Thu, 9 Nov 2006 00:11:15 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55783 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1754734AbWKIFLO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 00:11:14 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: tim.c.chen@linux.intel.com
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc5: known regressions
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<20061108085235.GT4729@stusta.de>
+	<m1y7qm425l.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0611080745150.3667@g5.osdl.org>
+	<20061108162202.GA4729@stusta.de>
+	<1163027494.10806.229.camel@localhost.localdomain>
+	<1163040581.10806.266.camel@localhost.localdomain>
+Date: Wed, 08 Nov 2006 22:10:33 -0700
+In-Reply-To: <1163040581.10806.266.camel@localhost.localdomain> (Tim Chen's
+	message of "Wed, 08 Nov 2006 18:49:41 -0800")
+Message-ID: <m1u01919yu.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611090757.48744.a1426z@gawab.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Mohr wrote:
-> On Wed, Nov 08, 2006 at 11:40:27PM +0100, Jesper Juhl wrote:
-> > Let me make one very clear statement first: -stabel is a GREAT think
-> > and it is working VERY well.
-> > That being said, many of the fixes I see going into -stable are
-> > regression fixes. Maybe not the majority, but still, regression fixes
-> > going into -stable tells me that the kernel should have seen more
-> > testing/bugfixing before being declared a stable release.
+Tim Chen <tim.c.chen@linux.intel.com> writes:
+
+> On Wed, 2006-11-08 at 15:11 -0800, Tim Chen wrote:
+>> On Wed, 2006-11-08 at 17:22 +0100, Adrian Bunk wrote:
+>> 
+>> With CONFIG_NR_CPUS increased from 8 to 64:
+>> 2.6.18     see no change in fork time measured.
+CONFIG_NR_CPUS has no affect on NR_IRQS in 2.6.18.
+So this test unfortunately told us nothing.
+
+>> 2.6.19-rc5 see a 138% increase in fork time.
+>> 
 >
-> Nice theory, but of course I'm pretty sure that it wouldn't work
-
-Agreed.
-
-> (as has been said numerous time before by other people).
+> Lmbench is broken in its fork time measurement.
+> It includes overhead time when it is pinning processes onto
+> specific cpu. The actual fork time is not affected by NR_IRQS.
 >
-> You cannot do endless testing/bugfixing, it's a psychological issue.
+> Lmbench calls the following C library function to determine the 
+> number of processors online before it pin the processes: 
+> 	sysconf(_SC_NPROCESSORS_ONLN);
+>
+> This function takes the same order of time to run as
+> fork itself.  In addition, runtime of this function 
+> increases with NR_IRQS.  This resulted in the change in
+> time measured.
+>
+> After hardcoding the number of online processors in lmbench,
+> the fork time measured now does not change with CONFIG_NR_CPUS
+> for both 2.6.18 and 2.6.19-rc5.  So we can now conclude that
+> NR_IRQS does not affect fork.  We can remove this particular
+> issue from the known regression.
 
-Agreed.
+Cool.  I'm glad to know it was simply a buggy lmbench.
 
-> If you do that, then you end up with -preXX (or worse, -preXXX)
-> version numbers, which would cause too many people to wait and wait
-> and wait with upgrading until "that next stable" kernel version
-> finally becomes available.
-> IOW, your tester base erodes, awfully, and development progress stalls.
+What is sysconf(_SN_NPROCESSORS_ONLN) doing that it slows down as the
+number of irqs increase?  It is a slow path certainly but possibly
+something we should fix.  My hunch is cat /proc/cpuinfo...
 
-IMHO, the psycho-problem is that you cannot intertwine development and stable 
-in the same cycle.  In that respect, the 2.6 development cycle is a real 
-flop, as it does not allow for focus.  
-
-And focus is needed to achieve stability.  
-
-Think catch22...
-
-
-Thanks!
-
---
-Al
-
+Eric

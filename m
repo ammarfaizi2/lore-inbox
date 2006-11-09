@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423859AbWKITp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424036AbWKITvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423859AbWKITp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 14:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423860AbWKITp6
+	id S1424036AbWKITvf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 14:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424106AbWKITvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 14:45:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:53689 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1423859AbWKITp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 14:45:57 -0500
-Subject: Re: [RFC][PATCH 8/8] RSS controller support reclamation
-From: Arjan van de Ven <arjan@infradead.org>
-To: Balbir Singh <balbir@in.ibm.com>
-Cc: Linux MM <linux-mm@kvack.org>, dev@openvz.org,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       haveblue@us.ibm.com, rohitseth@google.com
-In-Reply-To: <20061109193636.21437.11778.sendpatchset@balbir.in.ibm.com>
-References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com>
-	 <20061109193636.21437.11778.sendpatchset@balbir.in.ibm.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 09 Nov 2006 20:45:43 +0100
-Message-Id: <1163101543.3138.528.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Thu, 9 Nov 2006 14:51:35 -0500
+Received: from dvhart.com ([64.146.134.43]:26557 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1424036AbWKITve (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 14:51:34 -0500
+Message-ID: <455386B6.7000300@mbligh.org>
+Date: Thu, 09 Nov 2006 11:51:18 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.19-rc5-mm1 (compile failure, USB ohci-hcd.c)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-10 at 01:06 +0530, Balbir Singh wrote:
-> 
-> Reclaim memory as we hit the max_shares limit. The code for reclamation
-> is inspired from Dave Hansen's challenged memory controller and from the
-> shrink_all_memory() code
 
 
-Hmm.. I seem to remember that all previous RSS rlimit attempts actually
-fell flat on their face because of the reclaim-on-rss-overflow behavior;
-in the shared page / cached page (equally important!) case, it means
-process A (or container A) suddenly penalizes process B (or container B)
-by making B have pagecache misses because A was using a low RSS limit.
 
-Unmapping the page makes sense, sure, and even moving then to inactive
-lists or whatever that is called in the vm today, but reclaim... that's
-expensive...
+  CC [M]  drivers/usb/host/ohci-hcd.o
+In file included from drivers/usb/host/ohci-hcd.c:949:
+drivers/usb/host/ohci-ppc-of.c: In function `ohci_hcd_ppc_of_init':
+drivers/usb/host/ohci-ppc-of.c:272: warning: int format, different type 
+arg (arg 2)
+drivers/usb/host/ohci-ppc-of.c:272: warning: int format, different type 
+arg (arg 3)
+drivers/usb/host/ohci-ppc-of.c: At top level:
+drivers/usb/host/ohci-ppc-of.c:282: error: redefinition of `__inittest'
+drivers/usb/host/ohci-pci.c:252: error: `__inittest' previously defined here
+drivers/usb/host/ohci-ppc-of.c:282: error: redefinition of `init_module'
+drivers/usb/host/ohci-pci.c:252: error: `init_module' previously defined 
+here
+drivers/usb/host/ohci-ppc-of.c:283: error: redefinition of `__exittest'
+drivers/usb/host/ohci-pci.c:260: error: `__exittest' previously defined here
+drivers/usb/host/ohci-ppc-of.c:283: error: redefinition of `cleanup_module'
+drivers/usb/host/ohci-pci.c:260: error: `cleanup_module' previously 
+defined here
+make[3]: *** [drivers/usb/host/ohci-hcd.o] Error 1
+make[2]: *** [drivers/usb/host] Error 2
+make[1]: *** [drivers/usb] Error 2
+make: *** [drivers] Error 2
+11/09/06-04:11:29 Build the modules. Failed rc = 2
+11/09/06-04:11:29 build: kernel build Failed rc = 1
 
 
+Full log: http://test.kernel.org/abat/60757/debug/test.log.0
+config: http://test.kernel.org/abat/60757/build/dotconfig

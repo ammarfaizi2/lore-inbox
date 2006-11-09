@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161830AbWKIUOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423860AbWKIUXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161830AbWKIUOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 15:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161831AbWKIUOg
+	id S1423860AbWKIUXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 15:23:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965559AbWKIUXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 15:14:36 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:693 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1161830AbWKIUOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 15:14:35 -0500
+	Thu, 9 Nov 2006 15:23:09 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:58309 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965546AbWKIUXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 15:23:08 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=fRqZXQeMmWHfi7BzcXD6K9vwFFwNhbvS9HUcC+iyH5Bj1tIC/+iC6yo7wLlbGIT+SpFd6pubjgDvertNhnNJWZb5AZ8MIWEOinhg/5240AORJwm3NksXUshGP/WVKtGABrC1lkNnsZdXt06zMZUrB0NI/EjMg1itlFb+av/bCkM=
-Message-ID: <806dafc20611091213x2a82c5ccs814ceabbf11e2363@mail.gmail.com>
-Date: Thu, 9 Nov 2006 15:13:19 -0500
-From: "Monty Montgomery" <monty@xiph.org>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
-Cc: "Tejun Heo" <htejun@gmail.com>, "Brice Goglin" <Brice.Goglin@ens-lyon.org>,
-       "Jens Axboe" <jens.axboe@oracle.com>,
-       "Gregor Jasny" <gjasny@googlemail.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, "Douglas Gilbert" <dougg@torque.net>
-In-Reply-To: <455337B8.5000902@pobox.com>
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=ahUbz43mWtOXYzlLAs1gAb+WN3Crw6zxORM9SD5ee48MONdxZUysdF43w9SHTCYhrEfU76XZ0Ox/bZGoiqYcYF3oVnIX9/Ha6u9dJG14LiVHd4AtNfZs48GYnh+mFhZJcQ+v9ylIWnYwDW2vK0bPiY48V0CsTKbs2ihIWX2eZY8=
+Date: Thu, 9 Nov 2006 21:23:19 +0100
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: Stephen Clark <Stephen.Clark@seclark.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Abysmal PATA IDE performance
+Message-ID: <20061109202319.GA13940@dreamland.darkstar.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com>
-	 <20061030114503.GW4563@kernel.dk>
-	 <9d2cd630610300517q5187043eieb0880047ddd03eb@mail.gmail.com>
-	 <20061030132745.GE4563@kernel.dk> <4552F905.3020109@ens-lyon.org>
-	 <45533468.1060400@gmail.com> <455337B8.5000902@pobox.com>
-X-Google-Sender-Auth: 02743234e9729aa3
+In-Reply-To: <45536653.50006@seclark.us>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/9/06, Jeff Garzik <jgarzik@pobox.com> wrote:
+Stephen Clark <Stephen.Clark@seclark.us> ha scritto:
+> Looking at the dmesg output I am a little confused, see comments below:
+> partial dmesg output follows:
+> 
+> SCSI subsystem initialized
+> libata version 2.00 loaded.
+> ata_piix 0000:00:1f.2: version 2.00
+> ata_piix 0000:00:1f.2: MAP [ P0 P2 IDE IDE ]
+> ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 233
+> PCI: Setting latency timer of device 0000:00:1f.2 to 64
+> ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
+> scsi0 : ata_piix
+> Synaptics Touchpad, model: 1, fw: 6.1, id: 0xa3a0b3, caps: 0xa04713/0x10008
+> input: SynPS/2 Synaptics TouchPad as /class/input/input1
+> ATA: abnormal status 0x7F on port 0x1F7
+> ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
+> scsi1 : ata_piix
+> ata2.00: ATA-6, max UDMA/100, 117210240 sectors: LBA48
+> ata2.00: ata2: dev 0 multi count 16
+> usb 2-2: new low speed USB device using uhci_hcd and address 3
+> ata2.01: ATAPI, max UDMA/33
+> ata2.00: configured for UDMA/33 <==== why isn't this 66 or 100 ?
+> ===============****
 
-> Mapping 'bidirectional' is a bit difficult.
+This is your optical (CD/DVD) unit; I doubt that you can saturate that
+link, even if your drive can do a sustained 16x transfer with a DVD it
+will use only 21MBps. Your HD is using UDMA/100.
 
-SGIO_TO_FROM_DEVICE is *not* bdirectional!
+Forcing the interface to a higher speed may lead to CRC errors when
+using the drive.
 
->From the header that defines it:
-
-#define SG_DXFER_TO_FROM_DEV -4 /* treated like SG_DXFER_FROM_DEV with the
-                                   additional property than during indirect
-                                   IO the user buffer is copied into the
-                                   kernel buffers before the transfer */
-
-That's pretty darned clear.  TO_FROM_DEVICE is a straight-up read.
-Why the continuing confusion of what this mode is for?
-
-> Given that there are stupid apps/libs out there in the field with this
-> behavior, even if the apps are fixed I think we are stuck with the
-> stupidities.
-
-*ahem*
-
-Monty
+Luca
+-- 
+Windows NT: Designed for the Internet. The Internet: Designed for Unix.

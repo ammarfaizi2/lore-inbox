@@ -1,144 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbWKILI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWKILUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932747AbWKILI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 06:08:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbWKILI4
+	id S964941AbWKILUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 06:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932809AbWKILUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 06:08:56 -0500
-Received: from il.qumranet.com ([62.219.232.206]:48303 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S932747AbWKILIz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 06:08:55 -0500
-Subject: [PATCH] KVM: Avoid using vmx instruction directly
-From: Avi Kivity <avi@qumranet.com>
-Date: Thu, 09 Nov 2006 11:08:52 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-Id: <20061109110852.A6B712500F7@cleopatra.q>
+	Thu, 9 Nov 2006 06:20:21 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:25445 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932806AbWKILUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 06:20:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PI+/650uZoHS3+eUxwFwbNN8Kf7suNgbNPzTMriyQuj74jKFMJvHUH3rH5rtJ1bGlCf5K+ePDj5Tm+ZAsV+QzH0cXiqdmL4bHMbvyavMitwApAJsyD67L+fqWfPeBGqgpMpdVeAjcUfK7/NL6g2grEDEdcvRDGW8D5haKnnJ584=
+Message-ID: <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com>
+Date: Thu, 9 Nov 2006 12:20:18 +0100
+From: "Jiri Slaby" <jirislaby@gmail.com>
+To: Jano <jasieczek@gmail.com>
+Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some users have an older assembler installed which doesn't grok the
-vmx instructions.
+On 11/8/06, Jano <jasieczek@gmail.com> wrote:
+> On 8 Lis, 22:50, Jiri Slaby <jirislaby@gmail.com> wrote:
+>
+> >
+> > Which ATA do you use (the prod or experimental)? Post a .config.
+> >
+>
+> .config has been attached. I hope it contains an answer to your
+> question, because otherwise I wouldn't know where to search for this
+> information.
 
-Fix by encoding the instruction opcodes directly.
+Aah, sorry for the question, you use 2.6.18.1 and there is no such option yet.
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+Despite you have ide-generic built-in and other drivers have as a
+module and you don't use initrd. If I was you, I'll try to disable
+ide-generic and choose your ide chipset as built-in in
+ATA/ATAPI/MFM/RLL support under Device drivers.
 
-Index: linux-2.6/drivers/kvm/kvm.h
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm.h
-+++ linux-2.6/drivers/kvm/kvm.h
-@@ -377,6 +377,16 @@ static inline struct kvm_mmu_page *page_
- 	return (struct kvm_mmu_page *)page->private;
- }
- 
-+#define ASM_VMX_VMCLEAR_RAX       ".byte 0x66, 0x0f, 0xc7, 0x30"
-+#define ASM_VMX_VMLAUNCH          ".byte 0x0f, 0x01, 0xc2"
-+#define ASM_VMX_VMRESUME          ".byte 0x0f, 0x01, 0xc3"
-+#define ASM_VMX_VMPTRLD_RAX       ".byte 0x0f, 0xc7, 0x30"
-+#define ASM_VMX_VMREAD_RDX_RAX    ".byte 0x0f, 0x78, 0xd0"
-+#define ASM_VMX_VMWRITE_RAX_RDX   ".byte 0x0f, 0x79, 0xd0"
-+#define ASM_VMX_VMWRITE_RSP_RDX   ".byte 0x0f, 0x79, 0xd4"
-+#define ASM_VMX_VMXOFF            ".byte 0x0f, 0x01, 0xc4"
-+#define ASM_VMX_VMXON_RAX         ".byte 0xf3, 0x0f, 0xc7, 0x30"
-+
- #ifdef __x86_64__
- 
- /*
-Index: linux-2.6/drivers/kvm/kvm_main.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm_main.c
-+++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -369,8 +369,8 @@ static void vmcs_clear(struct vmcs *vmcs
- 	u64 phys_addr = __pa(vmcs);
- 	u8 error;
- 
--	asm volatile ("vmclear %1; setna %0"
--		       : "=m"(error) : "m"(phys_addr) : "cc", "memory" );
-+	asm volatile (ASM_VMX_VMCLEAR_RAX "; setna %0"
-+		       : "=g"(error) : "a"(&phys_addr) : "cc", "memory" );
- 	if (error)
- 		printk(KERN_ERR "kvm: vmclear fail: %p/%llx\n",
- 		       vmcs, phys_addr);
-@@ -412,8 +412,8 @@ static struct kvm_vcpu *__vcpu_load(stru
- 		u8 error;
- 
- 		per_cpu(current_vmcs, cpu) = vcpu->vmcs;
--		asm volatile ("vmptrld %1; setna %0"
--			       : "=m"(error) : "m"(phys_addr) : "cc" );
-+		asm volatile (ASM_VMX_VMPTRLD_RAX "; setna %0"
-+			       : "=g"(error) : "a"(&phys_addr) : "cc" );
- 		if (error)
- 			printk(KERN_ERR "kvm: vmptrld %p/%llx fail\n",
- 			       vcpu->vmcs, phys_addr);
-@@ -536,12 +536,12 @@ static __init void kvm_enable(void *garb
- 		/* enable and lock */
- 		wrmsrl(MSR_IA32_FEATURE_CONTROL, old | 5);
- 	write_cr4(read_cr4() | CR4_VMXE); /* FIXME: not cpu hotplug safe */
--	asm volatile ("vmxon %0" : : "m"(phys_addr) : "memory", "cc");
-+	asm volatile (ASM_VMX_VMXON_RAX : : "a"(&phys_addr) : "memory", "cc");
- }
- 
- static void kvm_disable(void *garbage)
- {
--	asm volatile ("vmxoff" : : : "cc");
-+	asm volatile (ASM_VMX_VMXOFF : : : "cc");
- }
- 
- static int kvm_dev_open(struct inode *inode, struct file *filp)
-@@ -633,7 +633,8 @@ unsigned long vmcs_readl(unsigned long f
- {
- 	unsigned long value;
- 
--	asm volatile ("vmread %1, %0" : "=g"(value) : "r"(field) : "cc");
-+	asm volatile (ASM_VMX_VMREAD_RDX_RAX
-+		      : "=a"(value) : "d"(field) : "cc");
- 	return value;
- }
- 
-@@ -641,8 +642,8 @@ void vmcs_writel(unsigned long field, un
- {
- 	u8 error;
- 
--	asm volatile ("vmwrite %1, %2; setna %0"
--		       : "=g"(error) : "r"(value), "r"(field) : "cc" );
-+	asm volatile (ASM_VMX_VMWRITE_RAX_RDX "; setna %0"
-+		       : "=q"(error) : "a"(value), "d"(field) : "cc" );
- 	if (error)
- 		printk(KERN_ERR "vmwrite error: reg %lx value %lx (err %d)\n",
- 		       field, value, vmcs_read32(VM_INSTRUCTION_ERROR));
-@@ -2634,10 +2635,10 @@ again:
- 		"push %%r8;  push %%r9;  push %%r10; push %%r11;"
- 		"push %%r12; push %%r13; push %%r14; push %%r15;"
- 		"push %%rcx \n\t"
--		"vmwrite %%rsp, %2 \n\t"
-+		ASM_VMX_VMWRITE_RSP_RDX "\n\t"
- #else
- 		"pusha; push %%ecx \n\t"
--		"vmwrite %%esp, %2 \n\t"
-+		ASM_VMX_VMWRITE_RSP_RDX "\n\t"
- #endif
- 		/* Check if vmlaunch of vmresume is needed */
- 		"cmp $0, %1 \n\t"
-@@ -2673,9 +2674,9 @@ again:
- #endif
- 		/* Enter guest mode */
- 		"jne launched \n\t"
--		"vmlaunch \n\t"
-+		ASM_VMX_VMLAUNCH "\n\t"
- 		"jmp kvm_vmx_return \n\t"
--		"launched: vmresume \n\t"
-+		"launched: " ASM_VMX_VMRESUME "\n\t"
- 		".globl kvm_vmx_return \n\t"
- 		"kvm_vmx_return: "
- 		/* Save guest registers, load host registers, keep flags */
-@@ -2722,7 +2723,7 @@ again:
- 		"setbe %0 \n\t"
- 		"popf \n\t"
- 	      : "=g" (fail)
--	      : "r"(vcpu->launched), "r"((unsigned long)HOST_RSP),
-+	      : "r"(vcpu->launched), "d"((unsigned long)HOST_RSP),
- 		"c"(vcpu),
- 		[rax]"i"(offsetof(struct kvm_vcpu, regs[VCPU_REGS_RAX])),
- 		[rbx]"i"(offsetof(struct kvm_vcpu, regs[VCPU_REGS_RBX])),
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

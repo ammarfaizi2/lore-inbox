@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754362AbWKIHzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754344AbWKIHzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754362AbWKIHzo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 02:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754365AbWKIHzn
+	id S1754344AbWKIHzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 02:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754360AbWKIHzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 02:55:43 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21169
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1754362AbWKIHzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 02:55:42 -0500
-Date: Wed, 08 Nov 2006 23:55:48 -0800 (PST)
-Message-Id: <20061108.235548.12921799.davem@davemloft.net>
-To: viro@ftp.linux.org.uk
-Cc: kenneth.w.chen@intel.com, akpm@osdl.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [patch] fix up generic csum_ipv6_magic function prototype
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061109072216.GL29920@ftp.linux.org.uk>
-References: <000301c703a3$0eedb340$ff0da8c0@amr.corp.intel.com>
-	<20061108.230059.57444310.davem@davemloft.net>
-	<20061109072216.GL29920@ftp.linux.org.uk>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 9 Nov 2006 02:55:09 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:62601 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1754344AbWKIHzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 02:55:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Kh4zSvZ0P+b+Q7+rUa3F7VAzG5hSCH3Bo7ROlcx4CNeym+goWuiIB/jzC1RVKPHTktSZ8NZA1CUnL454ldg0oJaLgQ+0VElck8N3o9z8dctOmlKjZzwaZEqwO1jRAdFC4g5USj+V/FgC0vFlmsUrtKD8Y3JjRSe7OPegNCWJz5w=
+Message-ID: <86802c440611082355q67c69da2v316062bbe0170a9@mail.gmail.com>
+Date: Wed, 8 Nov 2006 23:55:03 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: 2.6.19-rc5 x86_64 irq 22: nobody cared
+Cc: "Olivier Nicolas" <olivn@trollprod.org>,
+       "Stephen Hemminger" <shemminger@osdl.org>,
+       "Takashi Iwai" <tiwai@suse.de>, "Jaroslav Kysela" <perex@suse.cz>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz, len.brown@intel.com,
+       linux-acpi@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>
+In-Reply-To: <20061109064956.GG4729@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4551D12D.4010304@trollprod.org> <20061109064956.GG4729@stusta.de>
+X-Google-Sender-Auth: 7b665d69c99347a2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Thu, 9 Nov 2006 07:22:16 +0000
+olivier,
 
-> I haven't touch that argument yet; if there's an agreement as to what should
-> we switch to, I'll do that.  So... does everyone agree that u32 is the way
-> to go?
+lspci -vvxxx please.
 
-I definitely do.
+it seems usb and audio share the interrtupts by ioapic.
+
+YH

@@ -1,75 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWKIK76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbWKILI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbWKIK76 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 05:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbWKIK76
+	id S932747AbWKILI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 06:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbWKILI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 05:59:58 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:10410 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932502AbWKIK75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 05:59:57 -0500
-Date: Thu, 9 Nov 2006 02:59:28 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, suresh.b.siddha@intel.com, mbligh@google.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       dino@in.ibm.com, rohitseth@google.com, holt@sgi.com,
-       dipankar@in.ibm.com, Christoph Lameter <clameter@sgi.com>
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-Message-Id: <20061109025928.cd51f505.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0610230901470.27654@schroedinger.engr.sgi.com>
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>
-	<4537527B.5050401@yahoo.com.au>
-	<20061019120358.6d302ae9.pj@sgi.com>
-	<4537D056.9080108@yahoo.com.au>
-	<4537D6E8.8020501@google.com>
-	<20061022035135.2c450147.pj@sgi.com>
-	<20061022222652.B2526@unix-os.sc.intel.com>
-	<20061022225456.6adfd0be.pj@sgi.com>
-	<453C5AF4.8070707@yahoo.com.au>
-	<Pine.LNX.4.64.0610230901470.27654@schroedinger.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Nov 2006 06:08:56 -0500
+Received: from il.qumranet.com ([62.219.232.206]:48303 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S932747AbWKILIz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 06:08:55 -0500
+Subject: [PATCH] KVM: Avoid using vmx instruction directly
+From: Avi Kivity <avi@qumranet.com>
+Date: Thu, 09 Nov 2006 11:08:52 -0000
+To: kvm-devel@lists.sourceforge.net
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Message-Id: <20061109110852.A6B712500F7@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Some users have an older assembler installed which doesn't grok the
+vmx instructions.
 
-This patch is currently residing in your *-mm stack, as:
+Fix by encoding the instruction opcodes directly.
 
-  cpuset-remove-sched-domain-hooks-from-cpusets.patch
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-If it's easy for you to keep track of, I'd like to ask that you don't
-push this to Linus until Dinakar and I (with the consent of various
-mm experts) settle on the replacement mechanism for dealing with
-sched domain partitioning (or whatever that turns in to.)
-
-At the rate Dinakar and I are progressing, this likely means that this
-"... remove ... hooks ..." patch will be sitting in *-mm through the
-2.6.20 work, and go on to Linus for 2.6.21.
-
-There are some folks actually depending on this mechanism, such as
-some real time folks using this to inhibit load balancing on their
-isolated CPUs.  It would be polite not to yank out one mechanism
-before its replacement is available.
-
-If this sounds like a pain, or you'd just rather not baby sit this in
-*-mm that long, then I'd have you drop the patch before I had you send
-it to Linus without an accompanying replacement.
-
-All else equal, I kind of like leaving this patch in *-mm for now, as
-it puts a stake in the ground, indicating that the current connection
-between the per-cpuset "cpu_exclusive" flag and sched domain partitions
-is sitting on death row.
-
-There seems to be a general concensus that death row is a good place for
-that.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Index: linux-2.6/drivers/kvm/kvm.h
+===================================================================
+--- linux-2.6.orig/drivers/kvm/kvm.h
++++ linux-2.6/drivers/kvm/kvm.h
+@@ -377,6 +377,16 @@ static inline struct kvm_mmu_page *page_
+ 	return (struct kvm_mmu_page *)page->private;
+ }
+ 
++#define ASM_VMX_VMCLEAR_RAX       ".byte 0x66, 0x0f, 0xc7, 0x30"
++#define ASM_VMX_VMLAUNCH          ".byte 0x0f, 0x01, 0xc2"
++#define ASM_VMX_VMRESUME          ".byte 0x0f, 0x01, 0xc3"
++#define ASM_VMX_VMPTRLD_RAX       ".byte 0x0f, 0xc7, 0x30"
++#define ASM_VMX_VMREAD_RDX_RAX    ".byte 0x0f, 0x78, 0xd0"
++#define ASM_VMX_VMWRITE_RAX_RDX   ".byte 0x0f, 0x79, 0xd0"
++#define ASM_VMX_VMWRITE_RSP_RDX   ".byte 0x0f, 0x79, 0xd4"
++#define ASM_VMX_VMXOFF            ".byte 0x0f, 0x01, 0xc4"
++#define ASM_VMX_VMXON_RAX         ".byte 0xf3, 0x0f, 0xc7, 0x30"
++
+ #ifdef __x86_64__
+ 
+ /*
+Index: linux-2.6/drivers/kvm/kvm_main.c
+===================================================================
+--- linux-2.6.orig/drivers/kvm/kvm_main.c
++++ linux-2.6/drivers/kvm/kvm_main.c
+@@ -369,8 +369,8 @@ static void vmcs_clear(struct vmcs *vmcs
+ 	u64 phys_addr = __pa(vmcs);
+ 	u8 error;
+ 
+-	asm volatile ("vmclear %1; setna %0"
+-		       : "=m"(error) : "m"(phys_addr) : "cc", "memory" );
++	asm volatile (ASM_VMX_VMCLEAR_RAX "; setna %0"
++		       : "=g"(error) : "a"(&phys_addr) : "cc", "memory" );
+ 	if (error)
+ 		printk(KERN_ERR "kvm: vmclear fail: %p/%llx\n",
+ 		       vmcs, phys_addr);
+@@ -412,8 +412,8 @@ static struct kvm_vcpu *__vcpu_load(stru
+ 		u8 error;
+ 
+ 		per_cpu(current_vmcs, cpu) = vcpu->vmcs;
+-		asm volatile ("vmptrld %1; setna %0"
+-			       : "=m"(error) : "m"(phys_addr) : "cc" );
++		asm volatile (ASM_VMX_VMPTRLD_RAX "; setna %0"
++			       : "=g"(error) : "a"(&phys_addr) : "cc" );
+ 		if (error)
+ 			printk(KERN_ERR "kvm: vmptrld %p/%llx fail\n",
+ 			       vcpu->vmcs, phys_addr);
+@@ -536,12 +536,12 @@ static __init void kvm_enable(void *garb
+ 		/* enable and lock */
+ 		wrmsrl(MSR_IA32_FEATURE_CONTROL, old | 5);
+ 	write_cr4(read_cr4() | CR4_VMXE); /* FIXME: not cpu hotplug safe */
+-	asm volatile ("vmxon %0" : : "m"(phys_addr) : "memory", "cc");
++	asm volatile (ASM_VMX_VMXON_RAX : : "a"(&phys_addr) : "memory", "cc");
+ }
+ 
+ static void kvm_disable(void *garbage)
+ {
+-	asm volatile ("vmxoff" : : : "cc");
++	asm volatile (ASM_VMX_VMXOFF : : : "cc");
+ }
+ 
+ static int kvm_dev_open(struct inode *inode, struct file *filp)
+@@ -633,7 +633,8 @@ unsigned long vmcs_readl(unsigned long f
+ {
+ 	unsigned long value;
+ 
+-	asm volatile ("vmread %1, %0" : "=g"(value) : "r"(field) : "cc");
++	asm volatile (ASM_VMX_VMREAD_RDX_RAX
++		      : "=a"(value) : "d"(field) : "cc");
+ 	return value;
+ }
+ 
+@@ -641,8 +642,8 @@ void vmcs_writel(unsigned long field, un
+ {
+ 	u8 error;
+ 
+-	asm volatile ("vmwrite %1, %2; setna %0"
+-		       : "=g"(error) : "r"(value), "r"(field) : "cc" );
++	asm volatile (ASM_VMX_VMWRITE_RAX_RDX "; setna %0"
++		       : "=q"(error) : "a"(value), "d"(field) : "cc" );
+ 	if (error)
+ 		printk(KERN_ERR "vmwrite error: reg %lx value %lx (err %d)\n",
+ 		       field, value, vmcs_read32(VM_INSTRUCTION_ERROR));
+@@ -2634,10 +2635,10 @@ again:
+ 		"push %%r8;  push %%r9;  push %%r10; push %%r11;"
+ 		"push %%r12; push %%r13; push %%r14; push %%r15;"
+ 		"push %%rcx \n\t"
+-		"vmwrite %%rsp, %2 \n\t"
++		ASM_VMX_VMWRITE_RSP_RDX "\n\t"
+ #else
+ 		"pusha; push %%ecx \n\t"
+-		"vmwrite %%esp, %2 \n\t"
++		ASM_VMX_VMWRITE_RSP_RDX "\n\t"
+ #endif
+ 		/* Check if vmlaunch of vmresume is needed */
+ 		"cmp $0, %1 \n\t"
+@@ -2673,9 +2674,9 @@ again:
+ #endif
+ 		/* Enter guest mode */
+ 		"jne launched \n\t"
+-		"vmlaunch \n\t"
++		ASM_VMX_VMLAUNCH "\n\t"
+ 		"jmp kvm_vmx_return \n\t"
+-		"launched: vmresume \n\t"
++		"launched: " ASM_VMX_VMRESUME "\n\t"
+ 		".globl kvm_vmx_return \n\t"
+ 		"kvm_vmx_return: "
+ 		/* Save guest registers, load host registers, keep flags */
+@@ -2722,7 +2723,7 @@ again:
+ 		"setbe %0 \n\t"
+ 		"popf \n\t"
+ 	      : "=g" (fail)
+-	      : "r"(vcpu->launched), "r"((unsigned long)HOST_RSP),
++	      : "r"(vcpu->launched), "d"((unsigned long)HOST_RSP),
+ 		"c"(vcpu),
+ 		[rax]"i"(offsetof(struct kvm_vcpu, regs[VCPU_REGS_RAX])),
+ 		[rbx]"i"(offsetof(struct kvm_vcpu, regs[VCPU_REGS_RBX])),

@@ -1,533 +1,522 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424258AbWKIXmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424268AbWKIXnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424258AbWKIXmw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 18:42:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424257AbWKIXjq
+	id S1424268AbWKIXnz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 18:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424244AbWKIXjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 18:39:46 -0500
-Received: from www.osadl.org ([213.239.205.134]:3485 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161875AbWKIXjP (ORCPT
+	Thu, 9 Nov 2006 18:39:37 -0500
+Received: from www.osadl.org ([213.239.205.134]:925 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161871AbWKIXjN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 18:39:15 -0500
-Message-Id: <20061109233035.688873000@cruncher.tec.linutronix.de>
+	Thu, 9 Nov 2006 18:39:13 -0500
+Message-Id: <20061109233035.340517000@cruncher.tec.linutronix.de>
 References: <20061109233030.915859000@cruncher.tec.linutronix.de>
-Date: Thu, 09 Nov 2006 23:38:31 -0000
+Date: Thu, 09 Nov 2006 23:38:28 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Len Brown <lenb@kernel.org>, John Stultz <johnstul@us.ibm.com>,
        Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
        Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 14/19] dynticks: core code
-Content-Disposition: inline; filename=dynticks-core.patch
+Subject: [patch 11/19] i386: Rework local APIC calibration
+Content-Disposition: inline; filename=i386-lapic-calibrate-timer.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-dynamic ticks core code.
+The local apic timer calibration has two problem cases:
 
-This is an extension to the per-cpu sched_tick timer of the high resolution
-timer functionality.  The sched_tick timer is reprogrammed to a longer timeout
-before going idle, when no timer events are due in the next tick.  The
-periodic tick is resumed when the CPU leaves the idle state.  If a non-timer
-IRQ hits the idle task jiffies are updated from irq_enter before calling the
-interrupt code, otherwise the interrupt handler would eventually deal with a
-stale jiffy value.
+1. The calibration is based on readout of the PIT/HPET timer to detect 
+the wrap of the periodic tick. It happens that a box gets stuck in the
+calibration loop due to a PIT with a broken readout function.
 
-The per-cpu idle statistics information can be used to optimize power
-management decisions.
+2. CoreDuo boxen show a sporadic PIT runs too slow defect, which results
+in a wrong lapic calibration. The PIT goes back to normal operation once
+the lapic timer is switched to periodic mode.
 
-More detailed information is available in Documentation/hrtimer/highres.txt
+Rework the code to address both problems:
+- Make the calibration interrupt driven. This removes the wait_timer_tick
+  magic hackery from lapic.c and time_hpet.c. The clockevents framework
+  allows easy substitution of the global tick event handler for the
+  calibration. This is more accurate than monitoring jiffies. At this
+  point of the boot process, nothing disturbes the interrupt delivery, so
+  the results are very accurate.
+
+- Verify the calibration against the PM timer, when available by using the
+  early access function. When the measured calibration period is outside
+  of an one percent window, then the lapic timer calibration is adjusted
+  to the pm timer result.
+
+- Verify the calibration by running the lapic timer with the calibration
+  handler. Disable lapic timer in case of deviation.
+
+This also removes the "synchronization" of the local apic timer to the
+global tick. This synchronization never worked, as there is no way to
+synchronize PIT(HPET) and local APIC timer. The synchronization by waiting
+for the tick just alignes the local APIC timer for the first events, but
+later the events drift away due to the different clocks. Removing the
+"sync" is just randomizing the asynchronous behaviour at setup time.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Index: linux-2.6.19-rc5-mm1/include/linux/hardirq.h
+Index: linux-2.6.19-rc5-mm1/arch/i386/kernel/apic.c
 ===================================================================
---- linux-2.6.19-rc5-mm1.orig/include/linux/hardirq.h	2006-11-09 20:14:41.000000000 +0100
-+++ linux-2.6.19-rc5-mm1/include/linux/hardirq.h	2006-11-09 20:16:11.000000000 +0100
-@@ -106,6 +106,16 @@ static inline void account_system_vtime(
-  * always balanced, so the interrupted value of ->hardirq_context
-  * will always be restored.
+--- linux-2.6.19-rc5-mm1.orig/arch/i386/kernel/apic.c	2006-11-09 21:06:17.000000000 +0100
++++ linux-2.6.19-rc5-mm1/arch/i386/kernel/apic.c	2006-11-09 21:06:22.000000000 +0100
+@@ -26,6 +26,7 @@
+ #include <linux/sysdev.h>
+ #include <linux/cpu.h>
+ #include <linux/clockchips.h>
++#include <linux/acpi_pmtmr.h>
+ #include <linux/module.h>
+ 
+ #include <asm/atomic.h>
+@@ -163,64 +164,8 @@ int lapic_get_maxlvt(void)
+  * Local APIC timer
   */
-+#define __irq_enter()					\
-+	do {						\
-+		account_system_vtime(current);		\
-+		add_preempt_count(HARDIRQ_OFFSET);	\
-+		trace_hardirq_enter();			\
-+	} while (0)
+ 
+-/*
+- * This part sets up the APIC 32 bit clock in LVTT1, with HZ interrupts
+- * per second. We assume that the caller has already set up the local
+- * APIC.
+- *
+- * The APIC timer is not exactly sync with the external timer chip, it
+- * closely follows bus clocks.
+- */
+-
+-/*
+- * FIXME: Move this to i8253.h. There is no need to keep the access to
+- * the PIT scattered all around the place -tglx
+- */
+-
+-/*
+- * The timer chip is already set up at HZ interrupts per second here,
+- * but we do not accept timer interrupts yet. We only allow the BP
+- * to calibrate.
+- */
+-static unsigned int __devinit get_8254_timer_count(void)
+-{
+-	unsigned long flags;
+-
+-	unsigned int count;
+-
+-	spin_lock_irqsave(&i8253_lock, flags);
+-
+-	outb_p(0x00, PIT_MODE);
+-	count = inb_p(PIT_CH0);
+-	count |= inb_p(PIT_CH0) << 8;
+-
+-	spin_unlock_irqrestore(&i8253_lock, flags);
+-
+-	return count;
+-}
+-
+-/* next tick in 8254 can be caught by catching timer wraparound */
+-static void __devinit wait_8254_wraparound(void)
+-{
+-	unsigned int curr_count, prev_count;
+-
+-	curr_count = get_8254_timer_count();
+-	do {
+-		prev_count = curr_count;
+-		curr_count = get_8254_timer_count();
+-
+-		/* workaround for broken Mercury/Neptune */
+-		if (prev_count >= curr_count + 0x100)
+-			curr_count = get_8254_timer_count();
+-
+-	} while (prev_count >= curr_count);
+-}
+-
+-/*
+- * Default initialization for 8254 timers. If we use other timers like HPET,
+- * we override this later
+- */
+-void (*wait_timer_tick)(void) __devinitdata = wait_8254_wraparound;
++/* Clock divisor is set to 16 */
++#define APIC_DIVISOR 16
+ 
+ /*
+  * This function sets up the local APIC timer, with a timeout of
+@@ -232,9 +177,6 @@ void (*wait_timer_tick)(void) __devinitd
+  * We do reads before writes even if unnecessary, to get around the
+  * P5 APIC double write bug.
+  */
+-
+-#define APIC_DIVISOR 16
+-
+ static void __setup_APIC_LVTT(unsigned int clocks, int oneshot, int irqen)
+ {
+ 	unsigned int lvtt_value, tmp_value;
+@@ -312,112 +254,244 @@ static void __devinit setup_APIC_timer(v
+ }
+ 
+ /*
+- * In this function we calibrate APIC bus clocks to the external
+- * timer. Unfortunately we cannot use jiffies and the timer irq
+- * to calibrate, since some later bootup code depends on getting
+- * the first irq? Ugh.
++ * In this functions we calibrate APIC bus clocks to the external timer.
++ *
++ * We want to do the calibration only once since we want to have local timer
++ * irqs syncron. CPUs connected by the same APIC bus have the very same bus
++ * frequency.
+  *
+- * TODO: Fix this rather than saying "Ugh" -tglx
++ * This was previously done by reading the PIT/HPET and waiting for a wrap
++ * around to find out, that a tick has elapsed. I have a box, where the PIT
++ * readout is broken, so it never gets out of the wait loop again. This was
++ * also reported by others.
+  *
+- * We want to do the calibration only once since we
+- * want to have local timer irqs syncron. CPUs connected
+- * by the same APIC bus have the very same bus frequency.
+- * And we want to have irqs off anyways, no accidental
+- * APIC irq that way.
++ * Monitoring the jiffies value is inaccurate and the clockevents
++ * infrastructure allows us to do a simple substitution of the interrupt
++ * handler.
++ *
++ * The calibration routine also uses the pm_timer when possible, as the PIT
++ * happens to run way too slow (factor 2.3 on my VAIO CoreDuo, which goes
++ * back to normal later in the boot process).
+  */
+ 
+-static int __init calibrate_APIC_clock(void)
++#define LAPIC_CAL_LOOPS		(HZ/10)
++
++static __initdata volatile int lapic_cal_loops = -1;
++static __initdata long lapic_cal_t1, lapic_cal_t2;
++static __initdata unsigned long long lapic_cal_tsc1, lapic_cal_tsc2;
++static __initdata unsigned long lapic_cal_pm1, lapic_cal_pm2;
++static __initdata unsigned long lapic_cal_j1, lapic_cal_j2;
 +
 +/*
-+ * Enter irq context (on NO_HZ, update jiffies):
++ * Temporary interrupt handler.
 + */
- extern void irq_enter(void);
- 
- /*
-@@ -123,7 +133,7 @@ extern void irq_enter(void);
-  */
- extern void irq_exit(void);
- 
--#define nmi_enter()		do { lockdep_off(); irq_enter(); } while (0)
-+#define nmi_enter()		do { lockdep_off(); __irq_enter(); } while (0)
- #define nmi_exit()		do { __irq_exit(); lockdep_on(); } while (0)
- 
- #endif /* LINUX_HARDIRQ_H */
-Index: linux-2.6.19-rc5-mm1/include/linux/hrtimer.h
-===================================================================
---- linux-2.6.19-rc5-mm1.orig/include/linux/hrtimer.h	2006-11-09 20:16:06.000000000 +0100
-+++ linux-2.6.19-rc5-mm1/include/linux/hrtimer.h	2006-11-09 20:16:11.000000000 +0100
-@@ -22,6 +22,7 @@
- #include <linux/list.h>
- #include <linux/wait.h>
- 
-+struct seq_file;
- struct hrtimer_clock_base;
- struct hrtimer_cpu_base;
- 
-@@ -178,6 +179,17 @@ struct hrtimer_clock_base {
-  *			in the softirq.
-  * @sched_timer:	hrtimer to schedule the periodic tick in high
-  *			resolution mode
-+ * @nr_events:		Total number of timer interrupt events
-+ * @idle_tick:		Store the last idle tick expiry time when the tick
-+ *			timer is modified for idle sleeps. This is necessary
-+ *			to resume the tick timer operation in the timeline
-+ *			when the CPU returns from idle
-+ * @tick_stopped:	Indicator that the idle tick has been stopped
-+ * @idle_jiffies:	jiffies at the entry to idle for idle time accounting
-+ * @idle_calls:		Total number of idle calls
-+ * @idle_sleeps:	Number of idle calls, where the sched tick was stopped
-+ * @idle_entrytime:	Time when the idle call was entered
-+ * @idle_sleeptime:	Sum of the time slept in idle with sched tick stopped
-  */
- struct hrtimer_cpu_base {
- 	spinlock_t			lock;
-@@ -189,6 +201,16 @@ struct hrtimer_cpu_base {
- 	unsigned long			check_clocks;
- 	struct list_head		cb_pending;
- 	struct hrtimer			sched_timer;
-+	unsigned long			nr_events;
-+#endif
-+#ifdef CONFIG_NO_HZ
-+	ktime_t				idle_tick;
-+	int				tick_stopped;
-+	unsigned long			idle_jiffies;
-+	unsigned long			idle_calls;
-+	unsigned long			idle_sleeps;
-+	ktime_t				idle_entrytime;
-+	ktime_t				idle_sleeptime;
- #endif
- };
- 
-@@ -295,6 +317,18 @@ extern void hrtimer_run_queues(void);
- /* Resume notification */
- void hrtimer_notify_resume(void);
- 
-+#ifdef CONFIG_NO_HZ
-+extern void hrtimer_stop_sched_tick(void);
-+extern void hrtimer_restart_sched_tick(void);
-+extern void hrtimer_update_jiffies(void);
-+extern void show_no_hz_stats(struct seq_file *p);
-+#else
-+static inline void hrtimer_stop_sched_tick(void) { }
-+static inline void hrtimer_restart_sched_tick(void) { }
-+static inline void hrtimer_update_jiffies(void) { }
-+static inline void show_no_hz_stats(struct seq_file *p) { }
-+#endif
-+
- /* Bootup initialization: */
- extern void __init hrtimers_init(void);
- 
-Index: linux-2.6.19-rc5-mm1/kernel/hrtimer.c
-===================================================================
---- linux-2.6.19-rc5-mm1.orig/kernel/hrtimer.c	2006-11-09 20:16:06.000000000 +0100
-+++ linux-2.6.19-rc5-mm1/kernel/hrtimer.c	2006-11-09 20:16:11.000000000 +0100
-@@ -44,6 +44,7 @@
- #include <linux/profile.h>
- #include <linux/seq_file.h>
- #include <linux/err.h>
-+#include <linux/kernel_stat.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -482,6 +483,7 @@ static void update_jiffies64(ktime_t now
++static void __init lapic_cal_handler(struct pt_regs *regs)
  {
- 	unsigned long seq;
- 	ktime_t delta;
-+	unsigned long ticks = 0;
+-	unsigned long long t1 = 0, t2 = 0;
+-	long tt1, tt2;
+-	long result;
+-	int i;
+-	const int LOOPS = HZ/10;
++	unsigned long long tsc = 0;
++	long tapic = apic_read(APIC_TMCCT);
++	unsigned long pm = acpi_pm_read_early();
  
- 	/* Preevaluate to avoid lock contention */
- 	do {
-@@ -497,7 +499,6 @@ static void update_jiffies64(ktime_t now
+-	apic_printk(APIC_VERBOSE, "calibrating APIC timer ...\n");
++	if (cpu_has_tsc)
++		rdtscll(tsc);
  
- 	delta = ktime_sub(now, last_jiffies_update);
- 	if (delta.tv64 >= nsec_per_hz.tv64) {
--		unsigned long ticks = 1;
+-	/*
+-	 * Put whatever arbitrary (but long enough) timeout
+-	 * value into the APIC clock, we just want to get the
+-	 * counter running for calibration.
+-	 */
+-	__setup_APIC_LVTT(1000000000, 0, 0);
++	switch (lapic_cal_loops++) {
++	case 0:
++		lapic_cal_t1 = tapic;
++		lapic_cal_tsc1 = tsc;
++		lapic_cal_pm1 = pm;
++		lapic_cal_j1 = jiffies;
++		break;
  
- 		delta = ktime_sub(delta, nsec_per_hz);
- 		last_jiffies_update = ktime_add(last_jiffies_update,
-@@ -511,13 +512,238 @@ static void update_jiffies64(ktime_t now
- 
- 			last_jiffies_update = ktime_add_ns(last_jiffies_update,
- 							   incr * ticks);
--			ticks++;
- 		}
-+		ticks++;
- 		do_timer(ticks);
- 	}
- 	write_sequnlock(&xtime_lock);
- }
- 
-+#ifdef CONFIG_NO_HZ
-+/**
-+ * hrtimer_update_jiffies - update jiffies when idle was interrupted
-+ *
-+ * Called from interrupt entry when the CPU was idle
-+ *
-+ * In case the sched_tick was stopped on this CPU, we have to check if jiffies
-+ * must be updated. Otherwise an interrupt handler could use a stale jiffy
-+ * value.
-+ */
-+void hrtimer_update_jiffies(void)
-+{
-+	struct hrtimer_cpu_base *cpu_base = &__get_cpu_var(hrtimer_bases);
-+	unsigned long flags;
-+	ktime_t now;
-+
-+	if (!cpu_base->tick_stopped || !cpu_base->hres_active)
-+		return;
-+
-+	now = ktime_get();
-+
-+	local_irq_save(flags);
-+	update_jiffies64(now);
-+	local_irq_restore(flags);
+-	/*
+-	 * The timer chip counts down to zero. Let's wait
+-	 * for a wraparound to start exact measurement:
+-	 * (the current tick might have been already half done)
+-	 */
++	case LAPIC_CAL_LOOPS:
++		lapic_cal_t2 = tapic;
++		lapic_cal_tsc2 = tsc;
++		if (pm < lapic_cal_pm1)
++			pm += ACPI_PM_OVRRUN;
++		lapic_cal_pm2 = pm;
++		lapic_cal_j2 = jiffies;
++		break;
++	}
 +}
-+
-+/**
-+ * hrtimer_stop_sched_tick - stop the idle tick from the idle task
+ 
+-	wait_timer_tick();
++/*
++ * Setup the boot APIC
 + *
-+ * When the next event is more than a tick into the future, stop the idle tick
-+ * Called either from the idle loop or from irq_exit() when a idle period was
-+ * just interrupted by a interrupt which did not cause a reschedule.
++ * Calibrate and verify the result.
 + */
-+void hrtimer_stop_sched_tick(void)
++void __init setup_boot_APIC_clock(void)
 +{
-+	struct hrtimer_cpu_base *cpu_base = &__get_cpu_var(hrtimer_bases);
-+	unsigned long seq, last_jiffies, next_jiffies;
-+	ktime_t last_update, expires, now;
-+	unsigned long delta_jiffies;
-+	unsigned long flags;
++	struct clock_event_device *levt = &__get_cpu_var(lapic_events);
++	const long pm_100ms = PMTMR_TICKS_PER_SEC/10;
++	const long pm_thresh = pm_100ms/100;
++	void (*real_handler)(struct pt_regs *regs);
++	unsigned long deltaj;
++	long delta, deltapm;
++	cpumask_t cpumask;
+ 
+-	/*
+-	 * We wrapped around just now. Let's start:
+-	 */
+-	if (cpu_has_tsc)
+-		rdtscll(t1);
+-	tt1 = apic_read(APIC_TMCCT);
++	apic_printk(APIC_VERBOSE, "Using local APIC timer interrupts.\n"
++		    "calibrating APIC timer ...\n");
 +
-+	if (unlikely(!cpu_base->hres_active))
-+		return;
-+
-+	local_irq_save(flags);
-+
-+	now = ktime_get();
-+	/*
-+	 * When called from irq_exit we need to account the idle sleep time
-+	 * correctly.
-+	 */
-+	if (cpu_base->tick_stopped) {
-+		ktime_t delta = ktime_sub(now, cpu_base->idle_entrytime);
-+
-+		cpu_base->idle_sleeptime = ktime_add(cpu_base->idle_sleeptime,
-+						     delta);
-+	}
-+
-+	cpu_base->idle_entrytime = now;
-+	cpu_base->idle_calls++;
-+
-+	/* Read jiffies and the time when jiffies were updated last */
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		last_update = last_jiffies_update;
-+		last_jiffies = jiffies;
-+	} while (read_seqretry(&xtime_lock, seq));
-+
-+	/* Get the next timer wheel timer */
-+	next_jiffies = get_next_timer_interrupt(last_jiffies);
-+	delta_jiffies = next_jiffies - last_jiffies;
-+
-+	if ((long)delta_jiffies >= 1) {
-+		/*
-+		 * hrtimer_stop_sched_tick can be called several times before
-+		 * the hrtimer_restart_sched_tick is called. This happens when
-+		 * interrupts arrive which do not cause a reschedule. In the
-+		 * first call we save the current tick time, so we can restart
-+		 * the scheduler tick in hrtimer_restart_sched_tick.
-+		 */
-+		if (!cpu_base->tick_stopped) {
-+			cpu_base->idle_tick = cpu_base->sched_timer.expires;
-+			cpu_base->tick_stopped = 1;
-+			cpu_base->idle_jiffies = last_jiffies;
-+		}
-+		/* calculate the expiry time for the next timer wheel timer */
-+		expires = ktime_add_ns(last_update,
-+				       nsec_per_hz.tv64 * delta_jiffies);
-+		hrtimer_start(&cpu_base->sched_timer, expires,
-+			      HRTIMER_MODE_ABS);
-+		cpu_base->idle_sleeps++;
-+	} else {
-+		/* Raise the softirq if the timer wheel is behind jiffies */
-+		if ((long) delta_jiffies < 0)
-+			raise_softirq_irqoff(TIMER_SOFTIRQ);
-+	}
-+
-+	local_irq_restore(flags);
-+}
-+
-+/**
-+ * hrtimer_restart_sched_tick - restart the idle tick from the idle task
-+ *
-+ * Restart the idle tick when the CPU is woken up from idle
-+ */
-+void hrtimer_restart_sched_tick(void)
-+{
-+	struct hrtimer_cpu_base *cpu_base = &__get_cpu_var(hrtimer_bases);
-+	unsigned long ticks;
-+	ktime_t now, delta;
-+
-+	if (!cpu_base->hres_active || !cpu_base->tick_stopped)
-+		return;
-+
-+	/* Update jiffies first */
-+	now = ktime_get();
-+
-+	local_irq_disable();
-+	update_jiffies64(now);
-+
-+	/* Account the idle time */
-+	delta = ktime_sub(now, cpu_base->idle_entrytime);
-+	cpu_base->idle_sleeptime = ktime_add(cpu_base->idle_sleeptime, delta);
-+
-+	/*
-+	 * We stopped the tick in idle. Update process times would miss the
-+	 * time we slept as update_process_times does only a 1 tick
-+	 * accounting. Enforce that this is accounted to idle !
-+	 */
-+	ticks = jiffies - cpu_base->idle_jiffies;
-+	/*
-+	 * We might be one off. Do not randomly account a huge number of ticks!
-+	 */
-+	if (ticks && ticks < LONG_MAX) {
-+		add_preempt_count(HARDIRQ_OFFSET);
-+		account_system_time(current, HARDIRQ_OFFSET,
-+				    jiffies_to_cputime(ticks));
-+		sub_preempt_count(HARDIRQ_OFFSET);
-+	}
-+
-+	/*
-+	 * Cancel the scheduled timer and restore the tick
-+	 */
-+	cpu_base->tick_stopped  = 0;
-+	hrtimer_cancel(&cpu_base->sched_timer);
-+	cpu_base->sched_timer.expires = cpu_base->idle_tick;
-+
-+	while (1) {
-+		/* Forward the time to expire in the future */
-+		hrtimer_forward(&cpu_base->sched_timer, now, nsec_per_hz);
-+		hrtimer_start(&cpu_base->sched_timer,
-+			      cpu_base->sched_timer.expires, HRTIMER_MODE_ABS);
-+
-+		/* Check, if the timer was already in the past */
-+		if (hrtimer_active(&cpu_base->sched_timer))
-+			break;
-+		/* Update jiffies and reread time */
-+		update_jiffies64(now);
-+		now = ktime_get();
-+	}
-+	local_irq_enable();
-+}
-+
-+/**
-+ * show_no_hz_stats - print out the no hz statistics
-+ *
-+ * The no_hz statistics are appended at the end of /proc/stats
-+ *
-+ * I: total number of idle calls
-+ * S: number of idle calls which stopped the sched tick
-+ * T: Summed up sleep time in idle with sched tick stopped (unit is seconds)
-+ * A: Average sleep time: T/S (unit is seconds)
-+ * E: Total number of timer interrupt events
-+ */
-+void show_no_hz_stats(struct seq_file *p)
-+{
-+	unsigned long calls = 0, sleeps = 0, events = 0;
-+	struct timeval tsum, tavg;
-+	ktime_t totaltime = { .tv64 = 0 };
-+	int cpu;
-+
-+	for_each_online_cpu(cpu) {
-+		struct hrtimer_cpu_base *base = &per_cpu(hrtimer_bases, cpu);
-+
-+		calls += base->idle_calls;
-+		sleeps += base->idle_sleeps;
-+		totaltime = ktime_add(totaltime, base->idle_sleeptime);
-+		events += base->nr_events;
-+
-+#ifdef CONFIG_SMP
-+		tsum = ktime_to_timeval(base->idle_sleeptime);
-+		if (base->idle_sleeps) {
-+			uint64_t nsec = ktime_to_ns(base->idle_sleeptime);
-+
-+			do_div(nsec, base->idle_sleeps);
-+			tavg = ns_to_timeval(nsec);
-+		} else
-+			tavg.tv_sec = tavg.tv_usec = 0;
-+
-+		seq_printf(p, "nohz cpu%d I:%lu S:%lu T:%d.%06d A:%d.%06d E: %lu\n",
-+			   cpu, base->idle_calls, base->idle_sleeps,
-+			   (int) tsum.tv_sec, (int) tsum.tv_usec,
-+			   (int) tavg.tv_sec, (int) tavg.tv_usec,
-+			   base->nr_events);
-+#endif
-+	}
-+
-+	tsum = ktime_to_timeval(totaltime);
-+	if (sleeps) {
-+		uint64_t nsec = ktime_to_ns(totaltime);
-+
-+			do_div(nsec, sleeps);
-+			tavg = ns_to_timeval(nsec);
-+	} else
-+		tavg.tv_sec = tavg.tv_usec = 0;
-+
-+	seq_printf(p, "nohz total I:%lu S:%lu T:%d.%06d A:%d.%06d E: %lu\n",
-+		   calls, sleeps,
-+		   (int) tsum.tv_sec, (int) tsum.tv_usec,
-+		   (int) tavg.tv_sec, (int) tavg.tv_usec,
-+		   events);
-+}
-+
-+#endif
-+
- /*
-  * We rearm the timer until we get disabled by the idle code
-  * Called with interrupts disabled.
-@@ -527,12 +753,30 @@ static enum hrtimer_restart hrtimer_sche
- 	struct hrtimer_cpu_base *cpu_base =
- 		container_of(timer, struct hrtimer_cpu_base, sched_timer);
-  	struct pt_regs *regs = get_irq_regs();
-+	ktime_t now = ktime_get();
-+
-+	/* Check, if the jiffies need an update */
-+	update_jiffies64(now);
++	/* Register broadcast function */
++	clockevents_register_broadcast(lapic_timer_broadcast);
  
  	/*
- 	 * Do not call, when we are not in irq context and have
- 	 * no valid regs pointer
+-	 * Let's wait LOOPS wraprounds:
++	 * Enable the apic timer next event capability only for
++	 * SMP and on UP, when requested via commandline
  	 */
- 	if (regs) {
-+#ifdef CONFIG_NO_HZ
-+		/*
-+		 * When we are idle and the tick is stopped, we have to touch
-+		 * the watchdog as we might not schedule for a really long
-+		 * time. This happens on complete idle SMP systems while
-+		 * waiting on the login prompt. We also increment the "start of
-+		 * idle" jiffy stamp so the idle accounting adjustment we do
-+		 * when we go busy again does not account too much ticks.
-+		 */
-+		if (cpu_base->tick_stopped) {
-+			touch_softlockup_watchdog();
-+			cpu_base->idle_jiffies++;
+-	for (i = 0; i < LOOPS; i++)
+-		wait_timer_tick();
++	if (num_possible_cpus() > 1 || enable_local_apic_timer)
++		lapic_clockevent.capabilities |= CLOCK_CAP_NEXTEVT;
+ 
+-	tt2 = apic_read(APIC_TMCCT);
+-	if (cpu_has_tsc)
+-		rdtscll(t2);
++	local_irq_disable();
++
++	/* Replace the global interrupt handler */
++	real_handler = global_clock_event->event_handler;
++	global_clock_event->event_handler = lapic_cal_handler;
+ 
+ 	/*
+-	 * The APIC bus clock counter is 32 bits only, it
+-	 * might have overflown, but note that we use signed
+-	 * longs, thus no extra care needed.
+-	 *
+-	 * underflown to be exact, as the timer counts down ;)
++	 * Setup the APIC counter to 1e9. There is no way the lapic
++	 * can underflow in the 100ms detection time frame
+ 	 */
++	__setup_APIC_LVTT(1000000000, 0, 0);
++
++	/* Let the interrupts run */
++	local_irq_enable();
++
++	while(lapic_cal_loops <= LAPIC_CAL_LOOPS);
++
++	local_irq_disable();
++
++	/* Restore the real event handler */
++	global_clock_event->event_handler = real_handler;
++
++	/* Build delta t1-t2 as apic timer counts down */
++	delta = lapic_cal_t1 - lapic_cal_t2;
++	apic_printk(APIC_VERBOSE, "... lapic delta = %ld\n", delta);
++
++	/* Check, if the PM timer is available */
++	deltapm = lapic_cal_pm2 - lapic_cal_pm1;
++	apic_printk(APIC_VERBOSE, "... PM timer delta = %ld\n", deltapm);
+ 
+-	result = (tt1-tt2)*APIC_DIVISOR/LOOPS;
++	if (deltapm) {
++		unsigned long mult;
++		u64 res;
++
++		mult = clocksource_hz2mult(PMTMR_TICKS_PER_SEC, 22);
++
++		if (deltapm > (pm_100ms - pm_thresh) &&
++		    deltapm < (pm_100ms + pm_thresh)) {
++			apic_printk(APIC_VERBOSE, "... PM timer result ok\n");
++		} else {
++			res = (((u64) deltapm) *  mult) >> 22;
++			do_div(res, 1000000);
++			printk(KERN_WARNING "APIC calibration not consistent "
++			       "with PM Timer: %ldms instead of 100ms\n",
++			       (long)res);
++			/* Correct the lapic counter value */
++			res = (((u64) delta ) * pm_100ms);
++			do_div(res, deltapm);
++			printk(KERN_INFO "APIC delta adjusted to PM-Timer: "
++			       "%lu (%ld)\n", (unsigned long) res, delta);
++			delta = (long) res;
 +		}
-+#endif
- 		/*
- 		 * update_process_times() might take tasklist_lock, hence
- 		 * drop the base lock. sched-tick hrtimers are per-CPU and
-@@ -544,7 +788,13 @@ static enum hrtimer_restart hrtimer_sche
- 		spin_lock(&cpu_base->lock);
- 	}
++	}
  
--	hrtimer_forward(timer, hrtimer_cb_get_time(timer), nsec_per_hz);
-+#ifdef CONFIG_NO_HZ
-+	/* Do not restart, when we are in the idle loop */
-+	if (cpu_base->tick_stopped)
-+		return HRTIMER_NORESTART;
-+#endif
+ 	/* Calculate the scaled math multiplication factor */
+-	lapic_clockevent.mult = div_sc(tt1-tt2, TICK_NSEC * LOOPS, 32);
++	lapic_clockevent.mult = div_sc(delta, TICK_NSEC * LAPIC_CAL_LOOPS, 32);
+ 	lapic_clockevent.max_delta_ns =
+ 		clockevent_delta2ns(0x7FFFFF, &lapic_clockevent);
+ 	lapic_clockevent.min_delta_ns =
+ 		clockevent_delta2ns(0xF, &lapic_clockevent);
+ 
+-	apic_printk(APIC_VERBOSE, "..... tt1-tt2 %ld\n", tt1 - tt2);
++	calibration_result = (delta * APIC_DIVISOR) / LAPIC_CAL_LOOPS;
 +
-+	hrtimer_forward(timer, now, nsec_per_hz);
++	apic_printk(APIC_VERBOSE, "..... delta %ld\n", delta);
+ 	apic_printk(APIC_VERBOSE, "..... mult: %ld\n", lapic_clockevent.mult);
+-	apic_printk(APIC_VERBOSE, "..... calibration result: %ld\n", result);
++	apic_printk(APIC_VERBOSE, "..... calibration result: %u\n",
++		    calibration_result);
  
- 	return HRTIMER_RESTART;
- }
-@@ -1106,13 +1356,11 @@ void hrtimer_interrupt(struct pt_regs *r
- 	int i, raise = 0;
+-	if (cpu_has_tsc)
++	if (cpu_has_tsc) {
++		delta = (long)(lapic_cal_tsc2 - lapic_cal_tsc1);
+ 		apic_printk(APIC_VERBOSE, "..... CPU clock speed is "
+-			"%ld.%04ld MHz.\n",
+-			((long)(t2-t1)/LOOPS)/(1000000/HZ),
+-			((long)(t2-t1)/LOOPS)%(1000000/HZ));
++			    "%ld.%04ld MHz.\n",
++			    (delta / LAPIC_CAL_LOOPS) / (1000000 / HZ),
++			    (delta / LAPIC_CAL_LOOPS) % (1000000 / HZ));
++	}
  
- 	BUG_ON(!cpu_base->hres_active);
-+	cpu_base->nr_events++;
+ 	apic_printk(APIC_VERBOSE, "..... host bus clock speed is "
+-		"%ld.%04ld MHz.\n",
+-		result/(1000000/HZ),
+-		result%(1000000/HZ));
++		    "%u.%04u MHz.\n",
++		    calibration_result / (1000000 / HZ),
++		    calibration_result % (1000000 / HZ));
  
-  retry:
- 	now = ktime_get();
+-	return result;
+-}
  
--	/* Check, if the jiffies need an update */
--	update_jiffies64(now);
+-void __init setup_boot_APIC_clock(void)
+-{
+-	unsigned long flags;
+-	apic_printk(APIC_VERBOSE, "Using local APIC timer interrupts.\n");
+-	using_apic_timer = 1;
 -
- 	expires_next.tv64 = KTIME_MAX;
+-	local_irq_save(flags);
++	apic_printk(APIC_VERBOSE, "... verify APIC timer\n");
  
- 	base = cpu_base->clock_base;
-Index: linux-2.6.19-rc5-mm1/kernel/softirq.c
-===================================================================
---- linux-2.6.19-rc5-mm1.orig/kernel/softirq.c	2006-11-09 20:14:41.000000000 +0100
-+++ linux-2.6.19-rc5-mm1/kernel/softirq.c	2006-11-09 20:16:11.000000000 +0100
-@@ -278,9 +278,11 @@ EXPORT_SYMBOL(do_softirq);
-  */
- void irq_enter(void)
- {
--	account_system_vtime(current);
--	add_preempt_count(HARDIRQ_OFFSET);
--	trace_hardirq_enter();
-+	__irq_enter();
-+#ifdef CONFIG_NO_HZ
-+	if (idle_cpu(smp_processor_id()))
-+		hrtimer_update_jiffies();
-+#endif
- }
+-	calibration_result = calibrate_APIC_clock();
+ 	/*
+-	 * Now set up the timer for real.
++	 * Start LAPIC timer and verify that the calculated factor is correct
+ 	 */
+ 	setup_APIC_timer();
  
- #ifdef __ARCH_IRQ_EXIT_IRQS_DISABLED
-@@ -299,6 +301,12 @@ void irq_exit(void)
- 	sub_preempt_count(IRQ_EXIT_OFFSET);
- 	if (!in_interrupt() && local_softirq_pending())
- 		invoke_softirq();
+-	local_irq_restore(flags);
++	/* Replace the lapic interrupt handler */
++	real_handler = levt->event_handler;
++	levt->event_handler = lapic_cal_handler;
++	lapic_cal_loops = -1;
 +
-+#ifdef CONFIG_NO_HZ
-+	/* Make sure that timer wheel updates are propagated */
-+	if (!in_interrupt() && idle_cpu(smp_processor_id()) && !need_resched())
-+		hrtimer_stop_sched_tick();
-+#endif
- 	preempt_enable_no_resched();
++	/* Let the interrupts run */
++	local_irq_enable();
++
++	while(lapic_cal_loops <= LAPIC_CAL_LOOPS);
++
++	local_irq_disable();
++
++	/* Restore the real event handler */
++	levt->event_handler = real_handler;
++
++	local_irq_enable();
++
++	/* Jiffies delta */
++	deltaj = lapic_cal_j2 - lapic_cal_j1;
++	apic_printk(APIC_VERBOSE, "... jiffies delta = %lu\n", deltaj);
++
++	/* Check, if the PM timer is available */
++	deltapm = lapic_cal_pm2 - lapic_cal_pm1;
++	apic_printk(APIC_VERBOSE, "... PM timer delta = %ld\n", deltapm);
++
++	if (deltapm) {
++		if (deltapm > (pm_100ms - pm_thresh) &&
++		    deltapm < (pm_100ms + pm_thresh)) {
++			apic_printk(APIC_VERBOSE, "... PM timer result ok\n");
++			/* Check, if the jiffies result is consistent */
++			if (deltaj < LAPIC_CAL_LOOPS-2 ||
++			    deltaj > LAPIC_CAL_LOOPS+2) {
++				/*
++				 * Not sure, what we can do about this one.
++				 * When high resultion timers are active
++				 * and the lapic timer does not stop in C3
++				 * we are fine. Otherwise more trouble might
++				 * be waiting. -- tglx
++				 */
++				printk(KERN_WARNING "Global event device %s "
++				       "has wrong frequency "
++				       "(%lu ticks instead of %d)\n",
++				       global_clock_event->name, deltaj,
++				       LAPIC_CAL_LOOPS);
++			}
++			return;
++		}
++	} else {
++		/* Check, if the jiffies result is consistent */
++		if (deltaj >= LAPIC_CAL_LOOPS-2 &&
++		    deltaj <= LAPIC_CAL_LOOPS+2) {
++			apic_printk(APIC_VERBOSE, "... jiffies result ok\n");
++			return;
++		}
++	}
++
++	printk(KERN_WARNING
++	       "APIC timer disabled due to verification failure.\n");
++	local_irq_disable();
++	cpumask = cpumask_of_cpu(smp_processor_id());
++	switch_APIC_timer_to_ipi(&cpumask);
++	local_irq_enable();
  }
  
-Index: linux-2.6.19-rc5-mm1/kernel/time/Kconfig
+ void __devinit setup_secondary_APIC_clock(void)
+Index: linux-2.6.19-rc5-mm1/arch/i386/kernel/time_hpet.c
 ===================================================================
---- linux-2.6.19-rc5-mm1.orig/kernel/time/Kconfig	2006-11-09 20:16:06.000000000 +0100
-+++ linux-2.6.19-rc5-mm1/kernel/time/Kconfig	2006-11-09 20:16:33.000000000 +0100
-@@ -9,3 +9,10 @@ config HIGH_RES_TIMERS
- 	  hardware is not capable then this option only increases
- 	  the size of the kernel image.
- 
-+config NO_HZ
-+	bool "Tickless System (Dynamic Ticks)"
-+	depends on HIGH_RES_TIMERS
-+	help
-+	  This option enables a tickless system: timer interrupts will
-+	  only trigger on an as-needed basis both when the system is
-+	  busy and when the system is idle.
-Index: linux-2.6.19-rc5-mm1/kernel/timer.c
-===================================================================
---- linux-2.6.19-rc5-mm1.orig/kernel/timer.c	2006-11-09 20:16:06.000000000 +0100
-+++ linux-2.6.19-rc5-mm1/kernel/timer.c	2006-11-09 20:16:11.000000000 +0100
-@@ -462,7 +462,7 @@ static inline void __run_timers(tvec_bas
- 	spin_unlock_irq(&base->lock);
+--- linux-2.6.19-rc5-mm1.orig/arch/i386/kernel/time_hpet.c	2006-11-09 20:55:35.000000000 +0100
++++ linux-2.6.19-rc5-mm1/arch/i386/kernel/time_hpet.c	2006-11-09 21:06:22.000000000 +0100
+@@ -43,23 +43,6 @@ static void hpet_writel(unsigned long d,
+ 	writel(d, hpet_virt_address + a);
  }
  
--#ifdef CONFIG_NO_IDLE_HZ
-+#if defined(CONFIG_NO_IDLE_HZ) || defined(CONFIG_NO_HZ)
- /*
-  * Find out when the next timer event is due to happen. This
-  * is used on S/390 to stop all activity when a cpus is idle.
+-#ifdef CONFIG_X86_LOCAL_APIC
+-/*
+- * HPET counters dont wrap around on every tick. They just change the
+- * comparator value and continue. Next tick can be caught by checking
+- * for a change in the comparator value. Used in apic.c.
+- */
+-static void __devinit wait_hpet_tick(void)
+-{
+-	unsigned int start_cmp_val, end_cmp_val;
+-
+-	start_cmp_val = hpet_readl(HPET_T0_CMP);
+-	do {
+-		end_cmp_val = hpet_readl(HPET_T0_CMP);
+-	} while (start_cmp_val == end_cmp_val);
+-}
+-#endif
+-
+ static int hpet_timer_stop_set_go(unsigned long tick)
+ {
+ 	unsigned int cfg;
+@@ -213,11 +196,6 @@ int __init hpet_enable(void)
+ 		hpet_alloc(&hd);
+ 	}
+ #endif
+-
+-#ifdef CONFIG_X86_LOCAL_APIC
+-	if (hpet_use_timer)
+-		wait_timer_tick = wait_hpet_tick;
+-#endif
+ 	return 0;
+ }
+ 
+Index: linux-2.6.19-rc5-mm1/include/asm-i386/apic.h
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/include/asm-i386/apic.h	2006-11-09 21:06:17.000000000 +0100
++++ linux-2.6.19-rc5-mm1/include/asm-i386/apic.h	2006-11-09 21:06:22.000000000 +0100
+@@ -93,8 +93,6 @@ static inline void ack_APIC_irq(void)
+ 	apic_write_around(APIC_EOI, 0);
+ }
+ 
+-extern void (*wait_timer_tick)(void);
+-
+ extern int lapic_get_maxlvt(void);
+ extern void clear_local_APIC(void);
+ extern void connect_bsp_APIC (void);
 
 --
 

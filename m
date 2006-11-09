@@ -1,60 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424102AbWKIRsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424163AbWKIR6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424102AbWKIRsD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 12:48:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424175AbWKIRsD
+	id S1424163AbWKIR6c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 12:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966055AbWKIR6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 12:48:03 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:31911 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1424172AbWKIRsA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 12:48:00 -0500
-Message-ID: <455369C9.7020909@gmail.com>
-Date: Thu, 09 Nov 2006 18:47:53 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Phillip Susi <psusi@cfl.rr.com>
-CC: Jano <jasieczek@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
-References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com> <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com> <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com> <455360CF.9070600@cfl.rr.com>
-In-Reply-To: <455360CF.9070600@cfl.rr.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+	Thu, 9 Nov 2006 12:58:32 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49024 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S966053AbWKIR6b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 12:58:31 -0500
+Date: Thu, 9 Nov 2006 09:58:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, fbuihuu@gmail.com, adaplas@pol.net,
+       Andi Kleen <ak@suse.de>, NeilBrown <neilb@suse.de>
+Subject: Re: 2.6.19-rc5-mm1: HPC nx6325 breakage, VESA fb problem, md-raid
+ problem
+Message-Id: <20061109095811.ac654e13.akpm@osdl.org>
+In-Reply-To: <200611091642.01453.rjw@sisk.pl>
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
+	<20061108165540.0d3c4340.akpm@osdl.org>
+	<200611090204.45299.rjw@sisk.pl>
+	<200611091642.01453.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi wrote:
-> Jiri Slaby wrote:
->> Phillip: please, so not top-post
+On Thu, 9 Nov 2006 16:42:00 +0100
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+
+> On Thursday, 9 November 2006 02:04, Rafael J. Wysocki wrote:
+> > On Thursday, 9 November 2006 01:55, Andrew Morton wrote:
+> > > On Thu, 9 Nov 2006 01:44:53 +0100
+> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > 
+> > > > On Thursday, 9 November 2006 01:17, Andrew Morton wrote:
+> > > > > On Thu, 9 Nov 2006 00:31:34 +0100
+> > > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > > > 
+> > > > > > On Wednesday, 8 November 2006 10:54, Andrew Morton wrote:
+> > > > > > > 
+> > > > > > > Temporarily at
+> > > > > > > 
+> > > > > > > http://userweb.kernel.org/~akpm/2.6.19-rc5-mm1/
+> > > > > > > 
+> > > > > > > will turn up at
+> > > > > > > 
+> > > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm1/
+> > > > > > > 
+> > > > > > > when kernel.org mirroring catches up.
+> > > > > > > 
+> > > > > > > 
+> > > > > > > 
+> > > > > > > - Merged the Kernel-based Virtual Machine patches.  See kvm.sf.net for
+> > > > > > >   userspace tools, instructions, etc.
+> > > > > > > 
+> > > > > > >   It needs a recent binutils to build.
+> > > > > > > 
+> > > > > > > - The hrtimer+dynticks code still doesn't work right for machines which halt
+> > > > > > >   their TSC in low-power states.
+> > > > > > 
+> > > > > > On my HPC nx6325 it doesn't even reach the point in which the messages become
+> > > > > > visible on the console, so I'm unable to get any debug info from it.
+> > > > > 
+> > > > > Nice.  You're using earlyprintk?
+> > > > 
+> > > > earlyprintk=vga doesn't show anything (ie. blank screen), so it seems to crash
+> > > > really early.
+> > > 
+> > > OK, so it's definitely bisection time.
+> > 
+> > Well, I've got some data from earlyprintk (forgot I needed to boot with
+> > vga=normal).
+> > 
+> > Unfortunately, I had to rewrite the trace manually:
+> > 
+> > clear_IO_APIC_pin+0x15/0x6a
+> > try_apic_pin+0x7a/0x98
+> > setup_IO_APIC+0x600/0xb7a
+> > smp_prepare_cpus+0x33a/0x371
+> > init+0x60/0x32d
+> > child_rip+0xa/0x12
+> > 
+> > [And then the unwinder said it got stuck.]
+> > 
+> > RIP is reported to be at ioapic_read_entry+0x33/0x61,
 > 
-> Please stop discouraging top posting.  There is no reason to have to
-> scroll down through a screen or two of quoted message that you  just
-> read the original of, before getting to the new subject matter.
+> This is 100% reproducible on the nx6325 (but not on the other boxes) and
+> apparently caused by x86_64-mm-try-multiple-timer-pins.patch (doesn't
+> happen with this patch reverted).
 
-Nope.
-http://www.zipworld.com.au/~akpm/linux/patches/stuff/top-posting.txt
+Thanks, dropped.
 
-> <snip>
->> There is a proc/mounts here:
->> http://lkml.org/lkml/2006/11/08/322
->>
+> > > > but on the other SMP box the framebuffer is broken 
+> > > > (displays all fonts inverted, as in a mirror)
+> > > 
+> > > Which fbdev driver?  (suspect fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit.patch)
+> > 
+> > vga=792
 > 
-> I didn't ask for /proc/mounts, I asked for the output of the mount
-> command with no arguments, which prints the contents of /etc/mtab.  I
-> was thinking that /etc/mtab might show the partitions as mounted even
-> though they are not, which could be why mount is complaining.
+> This indeed is caused by fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit.patch
+> which affects two out of three boxes on which I tested it (both have Radeon cards).
 
-Mount(8) calls mount(2) no matter what is in the /etc/mtab.
+Thanks, dropped.
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+> > > > and the kernel says it cannot mount the root fs (which is on an md-raid).
+> > > 
+> > > hm, there was probably some earlier message which tells us why that
+> > > happened.  Doing a capure-and-compare on the dmesg output would be nice
+> > > (netconsole?)
+> 
+> This happens because of md-change-lifetime-rules-for-md-devices.patch and
+> seems to be a universal breakage.
+
+Thanks, dropped.
+
+> So, in fact there are three different offending patches.
+
+Should now be zero (hah).
+

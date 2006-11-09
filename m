@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424081AbWKIPy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424078AbWKIPza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424081AbWKIPy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 10:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424078AbWKIPy6
+	id S1424078AbWKIPza (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 10:55:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424077AbWKIPz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 10:54:58 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:64423 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1424083AbWKIPy5 (ORCPT
+	Thu, 9 Nov 2006 10:55:29 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:49311 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1424078AbWKIPz2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 10:54:57 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Date: Thu, 9 Nov 2006 16:52:33 +0100
-User-Agent: KMail/1.9.1
-Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611081310.19100.rjw@sisk.pl> <20061108180921.GA7708@ucw.cz>
-In-Reply-To: <20061108180921.GA7708@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611091652.34649.rjw@sisk.pl>
+	Thu, 9 Nov 2006 10:55:28 -0500
+Subject: [PATCH -mm 0/3][AIO] - AIO completion signal notification
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>, Zach Brown <zach.brown@oracle.com>,
+       Dave Jones <davej@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>,
+       "moi @ Bull" <sebastien.dugue@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+Date: Thu, 09 Nov 2006 16:55:17 +0100
+Message-Id: <1163087717.3879.34.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 09/11/2006 17:02:13,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 09/11/2006 17:02:15,
+	Serialize complete at 09/11/2006 17:02:15
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wednesday, 8 November 2006 19:09, Pavel Machek wrote:
-> Hi!
-> 
-> > > swsusp-freeze-filesystems-during-suspend-rev-2.patch
-> > > 
-> > > I think you need to give more thought to device-mapper
-> > > interactions here.  If an underlying device is suspended
-> > > by device-mapper without freezing the filesystem (the
-> > > normal state) and you issue a freeze_bdev on a device
-> > > above it, the freeze_bdev may never return if it attempts
-> > > any synchronous I/O (as it should).
-> > 
-> > Well, it looks like the interactions with dm add quite a bit of
-> > complexity here.
-> 
-> What about just fixing xfs (thou shall not write to disk when kernel
-> threads are frozen), and getting rid of blockdev freezing?
+  Hi
 
-Well, first I must admit you were absolutely right being suspicious with
-respect to this stuff.
+  Here is the latest rework of the AIO completion signal notification patches.
 
-OTOH I have no idea _how_ we can tell xfs that the processes have been
-frozen.  Should we introduce a global flag for that or something?
+  This set consists in 3 patches:
 
-Rafael
+	1. aio-header-fix-includes: fixes the double inclusion of uio.h in aio.h
 
+	2. export-good_sigevent: move good_sigevent into signal.c and export it
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+	3. aio-notify-sig: the AIO completion signal notification
+
+  Description are in the individual patches.
+
+  Comments are welcome as usual.
+
+  Thanks,
+
+  Sébastien.
+

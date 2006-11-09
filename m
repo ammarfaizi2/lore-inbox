@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424045AbWKIEYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423865AbWKIEi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424045AbWKIEYu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 23:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424046AbWKIEYu
+	id S1423865AbWKIEi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 23:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424047AbWKIEi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 23:24:50 -0500
-Received: from 1wt.eu ([62.212.114.60]:6661 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S1424045AbWKIEYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 23:24:49 -0500
-Date: Thu, 9 Nov 2006 05:24:34 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Dave Jones <davej@redhat.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] gx-suspmod: fix "&& 0xff" typo
-Message-ID: <20061109042433.GB589@1wt.eu>
-References: <20061108220435.GA4972@martell.zuzino.mipt.ru> <20061108141007.e0adf333.randy.dunlap@oracle.com> <20061108221626.GH3309@redhat.com> <20061108222046.GE4972@martell.zuzino.mipt.ru> <20061108225007.GI3309@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061108225007.GI3309@redhat.com>
-User-Agent: Mutt/1.5.11
+	Wed, 8 Nov 2006 23:38:57 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:1676 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1423865AbWKIEi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 23:38:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=f8hvgSnGn75WY+/LjV4j/60f7XX51DEc71/gH29HaQHFasjEzFc7JJD9jxPn5oYaT/nifu4ioQ07m9FyNN5opDLA7CTHrCt7wcG5jwxaVJuJ4oJ4ImjorKq6+0BdGrjRIbBkxt2jkulvBSTIq9WAQHGtVqXPxThg7dmY89c7hOg=
+Message-ID: <4552B0D6.5040100@gmail.com>
+Date: Thu, 09 Nov 2006 13:38:46 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.7 (X11/20061014)
+MIME-Version: 1.0
+To: Stephen.Clark@seclark.us
+CC: Stephen Hemminger <shemminger@osdl.org>,
+       Francois Romieu <romieu@fr.zoreil.com>,
+       Jiri Slaby <jirislaby@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, netdev@vger.kernel.org
+Subject: Re: New laptop - problems with linux
+References: <4551EC86.5010600@seclark.us>	<4551F3A6.8040807@gmail.com>	<4551F5B7.1050709@seclark.us>	<20061108182658.GA21154@electric-eye.fr.zoreil.com>	<45523289.2010002@seclark.us> <20061108122649.2f79ec1f@freekitty> <45523F3F.8010806@seclark.us>
+In-Reply-To: <45523F3F.8010806@seclark.us>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 05:50:07PM -0500, Dave Jones wrote:
-> On Thu, Nov 09, 2006 at 01:20:46AM +0300, Alexey Dobriyan wrote:
->  > >  > > -	params->pci_rev = class_rev && 0xff;
->  > >  > > +	params->pci_rev = class_rev & 0xff;
->  > >  >
->  > >  > Hi,
->  > >  > any kind of automated detection on that one?
->  > >
->  > > grep -r "&& 0x" .  seems to be pretty effective modulo
->  > > some false-positives.
->  > 
->  > Obligatory nit-picking:
->  > 
->  > 	grep '&&[ 	]*0[xX][fF]' -r .
-> 
-> That misses some cases. Like..
-> 
-> drivers/char/ipmi/ipmi_msghandler.c:                    bmc->id.device_revision && 0x80 >> 7);
-> drivers/char/ipmi/ipmi_msghandler.c:                    bmc->id.device_revision && 0x0F);
+Stephen Clark wrote:
+> Thanks I have that working - I am now struggling with the disk being
+> slower than molasses ( high priority, 1.xx mb/sec  )
 
-Interesting grep. I found that cmpci, gdth, net1080 and nv_setup are affected
-too in my rather old 2.6.18-rc4 tree. More importantly, I found a few ones in
-2.4 that I will have to address.
+Add 'combined_mode=libata' to kernel parameter and see what happens. 
+This should make libata take care of all ATA ports and your harddisks 
+will appear as /dev/sda and sdb, your cdrom /dev/sr0.  So, you might 
+need to adjust root= parameter too.
 
-Thanks guys for the good idea. Once again, it shows that pure code review
-would considerably help finding such bugs.
-
-Cheers,
-Willy
-
+-- 
+tejun

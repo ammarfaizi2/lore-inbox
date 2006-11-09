@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424089AbWKIQAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424094AbWKIQEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424089AbWKIQAS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 11:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424094AbWKIQAS
+	id S1424094AbWKIQEH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 11:04:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424096AbWKIQEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 11:00:18 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39131 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1424096AbWKIQAQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 11:00:16 -0500
-Date: Thu, 9 Nov 2006 17:00:03 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061109160003.GA24156@elf.ucw.cz>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611081310.19100.rjw@sisk.pl> <20061108180921.GA7708@ucw.cz> <200611091652.34649.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611091652.34649.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 9 Nov 2006 11:04:07 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:9174 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1424094AbWKIQEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 11:04:04 -0500
+Date: Thu, 9 Nov 2006 17:04:35 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Benjamin Herrenschmidt <benh@au1.ibm.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 0/2] Add dev_sysdata and use it for ACPI
+Message-ID: <20061109170435.07d2e0c4@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <1163033121.28571.792.camel@localhost.localdomain>
+References: <1163033121.28571.792.camel@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 09 Nov 2006 11:45:21 +1100,
+Benjamin Herrenschmidt <benh@au1.ibm.com> wrote:
 
-> > > Well, it looks like the interactions with dm add quite a bit of
-> > > complexity here.
-> > 
-> > What about just fixing xfs (thou shall not write to disk when kernel
-> > threads are frozen), and getting rid of blockdev freezing?
-> 
-> Well, first I must admit you were absolutely right being suspicious with
-> respect to this stuff.
+>  - Add a dev_sysdata structure to struct device whose content is arch
+> specific. It will allow architectures like powerpc, arm, i386, ... who
+> need different types of DMA ops for busses and other kind of auxilliary
+> data for devices in general (numa node id, firmware data, etc...) to put
+> them in there, without bloating all architectures. The patch adds an
+> empty definition for the structure to all architectures.
 
-(OTOH your patch found real bugs in suspend.c, so...)
+I like this. If we could move the dma stuff in there, we could get rid
+of it on s390 where it is just bloat we drag around...
 
-> OTOH I have no idea _how_ we can tell xfs that the processes have been
-> frozen.  Should we introduce a global flag for that or something?
+(Maybe dev_archdata would be a better name, since the definition is
+architecture specific?)
 
-I guess XFS should just do all the writes from process context, and
-refuse any writing when its threads are frozen... I actually still
-believe it is doing the right thing, because you can't really write to
-disk from timer.
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

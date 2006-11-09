@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965928AbWKIVLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424136AbWKIVRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965928AbWKIVLN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 16:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966044AbWKIVLN
+	id S1424136AbWKIVRl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 16:17:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424138AbWKIVRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 16:11:13 -0500
-Received: from mail1.key-systems.net ([81.3.43.253]:49108 "HELO
-	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
-	id S965928AbWKIVLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 16:11:12 -0500
-Message-ID: <4553996C.2060605@scientia.net>
-Date: Thu, 09 Nov 2006 22:11:08 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
+	Thu, 9 Nov 2006 16:17:41 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52949 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1424136AbWKIVRk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 16:17:40 -0500
+Date: Thu, 9 Nov 2006 22:17:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
+       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061109211722.GA2616@elf.ucw.cz>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611091652.34649.rjw@sisk.pl> <20061109160003.GA24156@elf.ucw.cz> <200611092059.48722.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Roger Heflin <rheflin@atipa.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange write errors on FAT32 partition (maybe an FAT32 bug?!)
-References: <4550A481.2010408@scientia.net> <87psbzrss2.fsf@duaron.myhome.or.jp> <4553744E.3050007@scientia.net> <45539188.5080607@atipa.com> <45539366.7070809@scientia.net> <45539588.7020504@atipa.com> <45539699.40105@scientia.net> <455397AE.2040207@atipa.com>
-In-Reply-To: <455397AE.2040207@atipa.com>
-Content-Type: multipart/mixed;
- boundary="------------070101060403030305070902"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611092059.48722.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070101060403030305070902
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Roger Heflin wrote:
-> Are both disks of the same type and connected to the same
-> hardware?
->
-> Or do they have different physical connections/drivers to the
-> machine?
+> > > OTOH I have no idea _how_ we can tell xfs that the processes have been
+> > > frozen.  Should we introduce a global flag for that or something?
+> > 
+> > I guess XFS should just do all the writes from process context, and
+> > refuse any writing when its threads are frozen... I actually still
+> > believe it is doing the right thing, because you can't really write to
+> > disk from timer.
+> 
+> This is from a work queue, so in fact from a process context, but from
+> a process that is running with PF_NOFREEZE.
 
-The system has 2 DualCore Opterons 275, on a Tyan S2895 board...
-The disk with the originak data is a PATA disk from IBM.
-The disk where I've copied the stuff to... is a SATA.
+Why not simply &~ PF_NOFREEZE on that particular process? Filesystems
+are free to use threads/work queues/whatever, but refrigerator should
+mean "no writes to filesystem" for them...
 
-I did several diffs the last hours between the two disks and experienced
-what you've described, that sometimes no differences sometimes there are
-differences (in different files).
-
-But note that the same happened already on the SAME disk.
-In the beginning I copied the data to another place on the same disk,
-then diffed and there were the same problems.
-So I still wonder why this never affects the original files. When I
-check sha512sums there I never get an error.
-
-
-Right now I compile a new kernel with that module... and pray to god
-that this is not an hardware error :/
-
---------------070101060403030305070902
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
-
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------070101060403030305070902--
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

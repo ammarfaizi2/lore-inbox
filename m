@@ -1,119 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424201AbWKIXjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161835AbWKIXjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424201AbWKIXjD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 18:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161850AbWKIXjD
+	id S1161835AbWKIXjF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 18:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161826AbWKIXjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 18:39:03 -0500
-Received: from www.osadl.org ([213.239.205.134]:44956 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161826AbWKIXjB (ORCPT
+	Thu, 9 Nov 2006 18:39:05 -0500
+Received: from www.osadl.org ([213.239.205.134]:49820 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161835AbWKIXjC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 18:39:01 -0500
-Message-Id: <20061109233030.915859000@cruncher.tec.linutronix.de>
-Date: Thu, 09 Nov 2006 23:38:16 -0000
+	Thu, 9 Nov 2006 18:39:02 -0500
+Message-Id: <20061109233034.296218000@cruncher.tec.linutronix.de>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+Date: Thu, 09 Nov 2006 23:38:19 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Len Brown <lenb@kernel.org>, John Stultz <johnstul@us.ibm.com>,
        Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
        Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 00/21] Highres / dynticks drop in replacement for
-	2.6.19-rc5-mm1
+Subject: [patch 02/19] hrtimers: clean up callback tracking
+Content-Disposition: inline; filename=hrtimers-clean-up-callback-tracking.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+From: Thomas Gleixner <tglx@linutronix.de>
 
-this is a drop in replacement for the following patches in 2.6.19-rc5-mm1:
+Reintroduce ktimers feature "optimized away" by the ktimers review process:
+remove the curr_timer pointer from the cpu-base and use the hrtimer state.
 
-hrtimers-state-tracking.patch
-up to
-acpi-verify-lapic-timer-fix.patch
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-The patch set is taking all the changes made during the -mm testing into
-account and merged them back at the appropriate places.
+Index: linux-2.6.19-rc5-mm1/include/linux/hrtimer.h
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/include/linux/hrtimer.h	2006-11-09 21:06:07.000000000 +0100
++++ linux-2.6.19-rc5-mm1/include/linux/hrtimer.h	2006-11-09 21:06:09.000000000 +0100
+@@ -136,7 +136,6 @@ struct hrtimer_cpu_base {
+ 	spinlock_t			lock;
+ 	struct lock_class_key		lock_key;
+ 	struct hrtimer_clock_base	clock_base[HRTIMER_MAX_CLOCK_BASES];
+-	struct hrtimer			*curr_timer;
+ };
+ 
+ /*
+Index: linux-2.6.19-rc5-mm1/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig/kernel/hrtimer.c	2006-11-09 21:06:07.000000000 +0100
++++ linux-2.6.19-rc5-mm1/kernel/hrtimer.c	2006-11-09 21:06:09.000000000 +0100
+@@ -150,8 +150,6 @@ static void hrtimer_get_softirq_time(str
+  */
+ #ifdef CONFIG_SMP
+ 
+-#define set_curr_timer(b, t)		do { (b)->curr_timer = (t); } while (0)
+-
+ /*
+  * We are using hashed locking: holding per_cpu(hrtimer_bases)[n].lock
+  * means that all timers which are tied to this base via timer->base are
+@@ -205,7 +203,7 @@ switch_hrtimer_base(struct hrtimer *time
+ 		 * completed. There is no conflict as we hold the lock until
+ 		 * the timer is enqueued.
+ 		 */
+-		if (unlikely(base->cpu_base->curr_timer == timer))
++		if (unlikely(timer->state & HRTIMER_STATE_CALLBACK))
+ 			return base;
+ 
+ 		/* See the comment in lock_timer_base() */
+@@ -219,8 +217,6 @@ switch_hrtimer_base(struct hrtimer *time
+ 
+ #else /* CONFIG_SMP */
+ 
+-#define set_curr_timer(b, t)		do { } while (0)
+-
+ static inline struct hrtimer_clock_base *
+ lock_hrtimer_base(const struct hrtimer *timer, unsigned long *flags)
+ {
+@@ -654,7 +650,6 @@ static inline void run_hrtimer_queue(str
+ 			break;
+ 
+ 		fn = timer->function;
+-		set_curr_timer(cpu_base, timer);
+ 		__remove_hrtimer(timer, base, HRTIMER_STATE_CALLBACK);
+ 		spin_unlock_irq(&cpu_base->lock);
+ 
+@@ -668,7 +663,6 @@ static inline void run_hrtimer_queue(str
+ 			enqueue_hrtimer(timer, base);
+ 		}
+ 	}
+-	set_curr_timer(cpu_base, NULL);
+ 	spin_unlock_irq(&cpu_base->lock);
+ }
+ 
+@@ -855,8 +849,6 @@ static void migrate_hrtimers(int cpu)
+ 	spin_lock(&old_base->lock);
+ 
+ 	for (i = 0; i < HRTIMER_MAX_CLOCK_BASES; i++) {
+-		BUG_ON(old_base->curr_timer);
+-
+ 		migrate_hrtimer_list(&old_base->clock_base[i],
+ 				     &new_base->clock_base[i]);
+ 	}
 
-Changes vs. the initially reviewed patch set:
-
-- Trivial compile / Kconfig fixes
-- command line paramater fixups
-- apic timer / ACPI (C states) broadcasting fixups
-- Disabled apic timer for high res on UP systems due to the unsolvable
-  brokeness of BIOS supplied C state functionality
-- APIC code cleanup in i386
-- reworked APIC timer calibration
-
-Dropped from the rc5-mm1 patch conglomerate:
-
-- the naive attempt to detect the local APIC timer brokeness in C2 state
-  due to circular dependency on interrupts (where the local APIC timer
-  interrupt might be the only active one). The problem is detectable, 
-  but it needs more thought and the gathered information/experience is
-  not lost ! Replaced by brute force for now.
-
-Some annotations for making the review simpler:
-
-hrtimers-state-tracking.patch
-	callback state trivial fix
-
-hrtimers-clean-up-callback-tracking.patch
-	no changes, kept for linearity
-
-hrtimers-move-and-add-documentation.patch
-	no changes, kept for linearity
-
-clockevents-core.patch
-	One off bug fixed
-	inlcude and compile fixes
-	broadcast support
-
-acpi-include-apic-h.patch
-	new
-
-acpi-keep-track-of-timer-broadcast.patch
-	new
-
-acpi-add-hres-dyntick-broadcast-support.patch
-	new
-
-i386-cleanup-apic.patch
-	new, no functional changes
-
-clockevents-drivers-for-i386.patch
-	broadcast fixups
-
-pm-timer-allow-early-access.patch
-	new, no functional changes
-	
-i386-lapic-calibrate-timer.patch
-	new
-
-high-res-timers-core.patch
-	trivial fixups
-
-gtod-mark-tsc-unusable-for-highres-timers.patch
-	no changes, kept for linearity
-
-dynticks-core.patch
-	trivial fixups
-
-dynticks-add-nohz-stats-to-proc-stat.patch
-	no changes, patch fuzz due to prior patches
-
-dynticks-i386-arch-code.patch
-	no changes, patch fuzz due to prior patches
-
-dynticks-i386-nmi-fix.patch
-	new
-
-high-res-timers-dynticks-enable-i386-support.patch
-	no changes, patch fuzz due to prior patches
-
-debugging-feature-timer-stats.patch
-	no changes, patch fuzz due to prior patches
-
-Thanks,
-
-	tglx
 --
 

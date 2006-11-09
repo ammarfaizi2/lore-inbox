@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424043AbWKIELi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424042AbWKIEL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424043AbWKIELi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 23:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424044AbWKIELi
+	id S1424042AbWKIEL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 23:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424043AbWKIEL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 23:11:38 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:53467 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1424043AbWKIELh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 23:11:37 -0500
-Date: Wed, 8 Nov 2006 20:14:00 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Chris Wright <chrisw@sous-sol.org>, Zack Weinberg <zackw@panix.com>,
-       linux-kernel@vger.kernel.org, sds@tycho.nsa.gov, jmorris@namei.org
-Subject: Re: RFC PATCH: apply security_syslog() only to the syslog() syscall, not to /proc/kmsg
-Message-ID: <20061109041400.GB6602@sequoia.sous-sol.org>
-References: <eb97335b0611072016y51e1625hcd6504fddfe9aa6c@mail.gmail.com> <20061108102037.GA6602@sequoia.sous-sol.org> <20061108154229.eb6d4626.vsu@altlinux.ru>
+	Wed, 8 Nov 2006 23:11:27 -0500
+Received: from pool-72-66-197-94.ronkva.east.verizon.net ([72.66.197.94]:12999
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1424042AbWKIEL0 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 23:11:26 -0500
+Message-Id: <200611090411.kA94BL5h006493@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: martin f krafft <madduck@madduck.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: How to interpret MCE messages?
+In-Reply-To: Your message of "Wed, 08 Nov 2006 17:20:22 +0100."
+             <20061108162022.GA4258@piper.madduck.net>
+From: Valdis.Kletnieks@vt.edu
+References: <20061108162022.GA4258@piper.madduck.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061108154229.eb6d4626.vsu@altlinux.ru>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: multipart/signed; boundary="==_Exmh_1163045481_5988P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Nov 2006 23:11:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Sergey Vlasov (vsu@altlinux.ru) wrote:
-> Then what would you think about another solution:
-> 
->  1) When sys_syslog() is called with commands 2 (read) or 9 (get unread
->     count), additionally call security_syslog(1) to check that the
->     process has permissions to open the kernel log.  This change by
->     itself will not make any difference, because all existing
->     implementations of the security_ops->syslog hook treat the operation
->     codes 1, 2 and 9 the same way.
-> 
->  2) Change cap_syslog() and dummy_syslog() to permit commands 2 and 9
->     for unprivileged users, in addition to 3 and 10 which are currently
->     permitted.  This will not really permit access through sys_syslog()
->     due to the added security_syslog(1) check, but if a process somehow
->     got access to an open file descriptor for /proc/kmsg, it would be
->     able to read from it.  Also, because selinux_syslog() is not
->     changed, under SELinux the process will still need to have
->     additional privileges even if it has /proc/kmsg open.
+--==_Exmh_1163045481_5988P
+Content-Type: text/plain; charset=us-ascii
 
-It's a bit clumsy in the extra caveats for sys_syslog and cap_syslog,
-but does achieve what you're after.  We lose default checking on the
-actual read access, but perhaps this is a fair tradeoff.  Stephen,
-James do you have any issues with this for SELinux?
+On Wed, 08 Nov 2006 17:20:22 +0100, martin f krafft said:
 
-thanks,
--chris
+> The RAM modules are *not* ECC modules, nor does the Asus K8V Deluxe
+> motherboard support ECC to my knowledge. I've turned ECC support on
+> and off in the Bios without any effect.
+
+How odd.  Is it considered normal to have a BIOS option to turn
+ECC support on/off on a motherboard that doesn't support ECC?
+
+--==_Exmh_1163045481_5988P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFUqppcC3lWbTT17ARAh/XAJ4q2XAsyRNGXBCQ4eQfVDoR9YE4LwCgyS2x
+KtCharcXK3GotJA4OHBhwBA=
+=aIQc
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1163045481_5988P--

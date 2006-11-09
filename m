@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754461AbWKIIYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754763AbWKIIZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754461AbWKIIYc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 03:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754704AbWKIIYb
+	id S1754763AbWKIIZF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 03:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754760AbWKIIYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 03:24:31 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:24809 "EHLO
+	Thu, 9 Nov 2006 03:24:49 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:28649 "EHLO
 	kano.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S1754461AbWKIIYa convert rfc822-to-8bit (ORCPT
+	id S1754709AbWKIIYe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 03:24:30 -0500
+	Thu, 9 Nov 2006 03:24:34 -0500
 Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
@@ -17,11 +17,11 @@ Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Chase Venters <chase.venters@clientec.com>,
        Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
        Jeff Garzik <jeff@garzik.org>
-Subject: [take24 5/6] kevent: Timer notifications.
-In-Reply-To: <11630606372787@2ka.mipt.ru>
+Subject: [take24 1/6] kevent: Description.
+In-Reply-To: <11630606361046@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 9 Nov 2006 11:23:57 +0300
-Message-Id: <1163060637109@2ka.mipt.ru>
+Date: Thu, 9 Nov 2006 11:23:56 +0300
+Message-Id: <1163060636219@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -32,134 +32,199 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Timer notifications.
+Description.
 
-Timer notifications can be used for fine grained per-process time 
-management, since interval timers are very inconvenient to use, 
-and they are limited.
 
-This subsystem uses high-resolution timers.
-id.raw[0] is used as number of seconds
-id.raw[1] is used as number of nanoseconds
-
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-
-diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
+diff --git a/Documentation/kevent.txt b/Documentation/kevent.txt
 new file mode 100644
-index 0000000..df93049
+index 0000000..ca49e4b
 --- /dev/null
-+++ b/kernel/kevent/kevent_timer.c
-@@ -0,0 +1,112 @@
-+/*
-+ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
++++ b/Documentation/kevent.txt
+@@ -0,0 +1,186 @@
++Description.
 +
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/hrtimer.h>
-+#include <linux/jiffies.h>
-+#include <linux/kevent.h>
++int kevent_ctl(int fd, unsigned int cmd, unsigned int num, struct ukevent *arg);
 +
-+struct kevent_timer
-+{
-+	struct hrtimer		ktimer;
-+	struct kevent_storage	ktimer_storage;
-+	struct kevent		*ktimer_event;
-+};
++fd - is the file descriptor referring to the kevent queue to manipulate. 
++It is created by opening "/dev/kevent" char device, which is created with 
++dynamic minor number and major number assigned for misc devices. 
 +
-+static int kevent_timer_func(struct hrtimer *timer)
-+{
-+	struct kevent_timer *t = container_of(timer, struct kevent_timer, ktimer);
-+	struct kevent *k = t->ktimer_event;
++cmd - is the requested operation. It can be one of the following:
++    KEVENT_CTL_ADD - add event notification 
++    KEVENT_CTL_REMOVE - remove event notification 
++    KEVENT_CTL_MODIFY - modify existing notification 
 +
-+	kevent_storage_ready(&t->ktimer_storage, NULL, KEVENT_MASK_ALL);
-+	hrtimer_forward(timer, timer->base->softirq_time,
-+			ktime_set(k->event.id.raw[0], k->event.id.raw[1]));
-+	return HRTIMER_RESTART;
-+}
++num - number of struct ukevent in the array pointed to by arg 
++arg - array of struct ukevent
 +
-+static struct lock_class_key kevent_timer_key;
++When called, kevent_ctl will carry out the operation specified in the 
++cmd parameter.
++-------------------------------------------------------------------------------
 +
-+static int kevent_timer_enqueue(struct kevent *k)
-+{
-+	int err;
-+	struct kevent_timer *t;
++ int kevent_get_events(int ctl_fd, unsigned int min_nr, unsigned int max_nr, 
++ 			__u64 timeout, struct ukevent *buf, unsigned flags)
 +
-+	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
-+	if (!t)
-+		return -ENOMEM;
++ctl_fd - file descriptor referring to the kevent queue 
++min_nr - minimum number of completed events that kevent_get_events will block 
++	 waiting for 
++max_nr - number of struct ukevent in buf 
++timeout - number of nanoseconds to wait before returning less than min_nr 
++	  events. If this is -1, then wait forever. 
++buf - pointer to an array of struct ukevent. 
++flags - unused 
 +
-+	hrtimer_init(&t->ktimer, CLOCK_MONOTONIC, HRTIMER_REL);
-+	t->ktimer.expires = ktime_set(k->event.id.raw[0], k->event.id.raw[1]);
-+	t->ktimer.function = kevent_timer_func;
-+	t->ktimer_event = k;
++kevent_get_events will wait timeout milliseconds for at least min_nr completed 
++events, copying completed struct ukevents to buf and deleting any 
++KEVENT_REQ_ONESHOT event requests. In nonblocking mode it returns as many 
++events as possible, but not more than max_nr. In blocking mode it waits until 
++timeout or if at least min_nr events are ready.
++-------------------------------------------------------------------------------
 +
-+	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
-+	if (err)
-+		goto err_out_free;
-+	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
++ int kevent_wait(int ctl_fd, unsigned int num, __u64 timeout)
 +
-+	err = kevent_storage_enqueue(&t->ktimer_storage, k);
-+	if (err)
-+		goto err_out_st_fini;
++ctl_fd - file descriptor referring to the kevent queue 
++num - number of processed kevents 
++timeout - this timeout specifies number of nanoseconds to wait until there is 
++		free space in kevent queue 
 +
-+	hrtimer_start(&t->ktimer, t->ktimer.expires, HRTIMER_REL);
++This syscall waits until either timeout expires or at least one event becomes 
++ready. It also copies that num events into special ring buffer and requeues 
++them (or removes depending on flags). 
++-------------------------------------------------------------------------------
 +
-+	return 0;
++ int kevent_ring_init(int ctl_fd, struct kevent_ring *ring, unsigned int num)
 +
-+err_out_st_fini:
-+	kevent_storage_fini(&t->ktimer_storage);
-+err_out_free:
-+	kfree(t);
++ctl_fd - file descriptor referring to the kevent queue 
++num - size of the ring buffer in events 
 +
-+	return err;
-+}
++ struct kevent_ring
++ {
++   unsigned int ring_kidx;
++   struct ukevent event[0];
++ }
 +
-+static int kevent_timer_dequeue(struct kevent *k)
-+{
-+	struct kevent_storage *st = k->st;
-+	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
++ring_kidx - is an index in the ring buffer where kernel will put new events 
++		when kevent_wait() or kevent_get_events() is called 
 +
-+	hrtimer_cancel(&t->ktimer);
-+	kevent_storage_dequeue(st, k);
-+	kfree(t);
++Example userspace code (ring_buffer.c) can be found on project's homepage.
 +
-+	return 0;
-+}
++Each kevent syscall can be so called cancellation point in glibc, i.e. when 
++thread has been cancelled in kevent syscall, thread can be safely removed 
++and no events will be lost, since each syscall (kevent_wait() or 
++kevent_get_events()) will copy event into special ring buffer, accessible 
++from other threads or even processes (if shared memory is used).
 +
-+static int kevent_timer_callback(struct kevent *k)
-+{
-+	k->event.ret_data[0] = jiffies_to_msecs(jiffies);
-+	return 1;
-+}
++When kevent is removed (not dequeued when it is ready, but just removed), 
++even if it was ready, it is not copied into ring buffer, since if it is 
++removed, no one cares about it (otherwise user would wait until it becomes 
++ready and got it through usual way using kevent_get_events() or kevent_wait()) 
++and thus no need to copy it to the ring buffer.
 +
-+static int __init kevent_init_timer(void)
-+{
-+	struct kevent_callbacks tc = {
-+		.callback = &kevent_timer_callback,
-+		.enqueue = &kevent_timer_enqueue,
-+		.dequeue = &kevent_timer_dequeue};
++It is possible with userspace ring buffer, that events in the ring buffer 
++can be replaced without knowledge for the thread currently reading them 
++(when other thread calls kevent_get_events() or kevent_wait()), so appropriate 
++locking between threads or processes, which can simultaneously access the same 
++ring buffer, is required.
++-------------------------------------------------------------------------------
 +
-+	return kevent_add_callbacks(&tc, KEVENT_TIMER);
-+}
-+module_init(kevent_init_timer);
++The bulk of the interface is entirely done through the ukevent struct. 
++It is used to add event requests, modify existing event requests, 
++specify which event requests to remove, and return completed events.
 +
++struct ukevent contains the following members:
++
++struct kevent_id id
++    Id of this request, e.g. socket number, file descriptor and so on 
++__u32 type
++    Event type, e.g. KEVENT_SOCK, KEVENT_INODE, KEVENT_TIMER and so on 
++__u32 event
++    Event itself, e.g. SOCK_ACCEPT, INODE_CREATED, TIMER_FIRED 
++__u32 req_flags
++    Per-event request flags,
++
++    KEVENT_REQ_ONESHOT
++        event will be removed when it is ready 
++
++    KEVENT_REQ_WAKEUP_ONE
++        When several threads wait on the same kevent queue and requested the 
++	same event, for example 'wake me up when new client has connected, 
++	so I could call accept()', then all threads will be awakened when new 
++	client has connected, but only one of them can process the data. This 
++	problem is known as thundering nerd problem. Events which have this 
++	flag set will not be marked as ready (and appropriate threads will 
++	not be awakened) if at least one event has been already marked. 
++
++    KEVENT_REQ_ET
++        Edge Triggered behaviour. It is an optimisation which allows to move 
++	ready and dequeued (i.e. copied to userspace) event to move into set 
++	of interest for given storage (socket, inode and so on) again. It is 
++	very usefull for cases when the same event should be used many times 
++	(like reading from pipe). It is similar to epoll()'s EPOLLET flag. 
++
++    KEVENT_REQ_LAST_CHECK
++        if set allows to perform the last check on kevent (call appropriate 
++	callback) when kevent is marked as ready and has been removed from 
++	ready queue. If it will be confirmed that kevent is ready 
++	(k->callbacks.callback(k) returns true) then kevent will be copied 
++	to userspace, otherwise it will be requeued back to storage. 
++	Second (checking) call is performed with this bit cleared, so callback 
++	can detect when it was called from kevent_storage_ready() - bit is set, 
++	or kevent_dequeue_ready() - bit is cleared. If kevent will be requeued, 
++	bit will be set again.
++
++__u32 ret_flags
++    Per-event return flags
++
++    KEVENT_RET_BROKEN
++        Kevent is broken 
++
++    KEVENT_RET_DONE
++        Kevent processing was finished successfully 
++
++    KEVENT_RET_COPY_FAILED
++        Kevent was not copied into ring buffer due to some error conditions. 
++
++__u32 ret_data
++    Event return data. Event originator fills it with anything it likes 
++    (for example timer notifications put number of milliseconds when timer 
++    has fired 
++union { __u32 user[2]; void *ptr; }
++    User's data. It is not used, just copied to/from user. The whole structure 
++    is aligned to 8 bytes already, so the last union is aligned properly. 
++
++-------------------------------------------------------------------------------
++
++Usage
++
++For KEVENT_CTL_ADD, all fields relevant to the event type must be filled 
++(id, type, possibly event, req_flags). 
++After kevent_ctl(..., KEVENT_CTL_ADD, ...) returns each struct's ret_flags 
++should be checked to see if the event is already broken or done.
++
++For KEVENT_CTL_MODIFY, the id, req_flags, and user and event fields must be 
++set and an existing kevent request must have matching id and user fields. If 
++match is found, req_flags and event are replaced with the newly supplied 
++values and requeueing is started, so modified kevent can be checked and 
++probably marked as ready immediately. If a match can't be found, the 
++passed in ukevent's ret_flags has KEVENT_RET_BROKEN set. KEVENT_RET_DONE is 
++always set.
++
++For KEVENT_CTL_REMOVE, the id and user fields must be set and an existing 
++kevent request must have matching id and user fields. If a match is found, 
++the kevent request is removed. If a match can't be found, the passed in 
++ukevent's ret_flags has KEVENT_RET_BROKEN set. KEVENT_RET_DONE is always set.
++
++For kevent_get_events, the entire structure is returned.
++
++-------------------------------------------------------------------------------
++
++Usage cases
++
++kevent_timer
++struct ukevent should contain following fields:
++    type - KEVENT_TIMER 
++    event - KEVENT_TIMER_FIRED 
++    req_flags - KEVENT_REQ_ONESHOT if you want to fire that timer only once 
++    id.raw[0] - number of seconds after commit when this timer shout expire 
++    id.raw[0] - additional to number of seconds number of nanoseconds 
 

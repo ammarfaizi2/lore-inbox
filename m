@@ -1,121 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966004AbWKIOAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966007AbWKIOCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966004AbWKIOAX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 09:00:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966009AbWKIOAX
+	id S966007AbWKIOCy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 09:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966008AbWKIOCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 09:00:23 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:48823 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S966002AbWKIOAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 09:00:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Mh1bnwjVTMylSb/EaeqRZcU2XhDiBlKAcIkcmChGJrFrTfhX4Z2Yk53oehEf+RdMYSeVIpjlgJjswTMBQfSNxb9JcWGxG0OXhecYozy7UmwMTkGhotLiHa6EH7Pe3loVKaMcaHiRnxK4neQeMlVGDFnQwhM8C1QPY8yUIa7LzhQ=
-Message-ID: <45533468.1060400@gmail.com>
-Date: Thu, 09 Nov 2006 23:00:08 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
+	Thu, 9 Nov 2006 09:02:54 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10374 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S966007AbWKIOCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 09:02:53 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org, Vivek Goyal <vgoyal@in.ibm.com>,
+       Andi Kleen <ak@muc.de>, magnus.damm@gmail.com, fastboot@lists.osdl.org,
+       Horms <horms@verge.net.au>, Dave Anderson <anderson@redhat.com>
+Subject: Re: [PATCH 02/02] Elf: Align elf notes properly
+References: <20061102101942.452.73192.sendpatchset@localhost>
+	<20061102101949.452.23441.sendpatchset@localhost>
+Date: Thu, 09 Nov 2006 07:00:22 -0700
+In-Reply-To: <20061102101949.452.23441.sendpatchset@localhost> (Magnus Damm's
+	message of "Thu, 02 Nov 2006 19:19:49 +0900")
+Message-ID: <m1psbwzpmx.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-CC: Jens Axboe <jens.axboe@oracle.com>, Gregor Jasny <gjasny@googlemail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Douglas Gilbert <dougg@torque.net>, monty@xiph.org
-Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
-References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com> <20061030114503.GW4563@kernel.dk> <9d2cd630610300517q5187043eieb0880047ddd03eb@mail.gmail.com> <20061030132745.GE4563@kernel.dk> <4552F905.3020109@ens-lyon.org>
-In-Reply-To: <4552F905.3020109@ens-lyon.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[CC'ing Monty and Douglas.]
+Magnus Damm <magnus@valinux.co.jp> writes:
 
-Hello, the original thread can be read from the following URL.
+> elf: Align elf notes properly
+>
+> The kernel currently contains several elf note aligment implementations. Most
+> implementations follow the spec on 32-bit platforms, but none current aligns
+> the notes correctly on 64-bit platforms. This patch tries to fix this by
+> interpreting the 64-bit and 32-bit elf specs as the following:
+>
+> offset bytes name
+> 0      4     n_namesz -+                  -+
+> 4      4     n_descsz  | elf note header   |
+> 8      4     n_type   -+                   | elf note entry size - N4
+> 12     N1    name                          |
+> N2     N3    desc                         -+
+>
+> WS = word size in bytes (4 for 32 bit, 8 for 64 bit)
+> N1 = roundup(n_namesz + sizeof(elf note header), WS) - sizeof(elf note header)
+> N2 = sizeof(elf note header) + N1
+> N3 = roundup(n_descsz, WS)
+> N4 = sizeof(elf note header) + N1 + N2
+>
+> The elf note header contains three 32-bit values on 32-bit and 64-bit systems. 
+> The header is followed by name and desc data together with padding. The 
+> alignment and padding varies depending on the word size.
 
-http://thread.gmane.org/gmane.linux.ide/13708/focus=13708
+I see your point and I disagree.  The notes in a kernel generated 
+core dump do not vary in size.  Find me some implementation evidence that
+anyone ever added the extra 4 bytes of alignment to the description and the
+padding fields and I will be ready to consider this.  Currently this
+just appears to be reading a draft spec that doesn't match reality.
 
-Brice Goglin wrote:
-> ens Axboe wrote:
->> On Mon, Oct 30 2006, Gregor Jasny wrote:
->>   
->>> 2006/10/30, Jens Axboe <jens.axboe@oracle.com>:
->>>     
->>>> Can you confirm that 2.6.18 works?
->>>>       
->>> The reporter of [1] states that his SATA Thinkpad freezes with 2.6.17
->>> and 2.6.18, too.
->>>
->>> Gregor
->>>
->>> [1] http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=391901
->>>     
->> Ok, mainly just checking if this was a potential dupe of another bug.
->>
->>   
-> 
-> Jens (or anybody else who has any idea of how to debug this),
-> 
-> Did you have a chance to reproduce the problem? I guess we "only" need a
-> machine with SATA/ata_piix and cdparanoia 3.10. If you want me to debug
-> some stuff, feel free to tell me what. But, since it freezes the machine
-> and sysrq doesn't even work, I don't really know what to try...
-> 
-> I just tried on rc5 and rc5-mm1, both have the problem (as 2.6.16, .17
-> and .18 do, don't know about earlier kernels). I didn't have a audio CD
-> here, so I tried abcde on a DVD on purpose. With cdparanoia 3.10-pre0
-> (from Debian testing), it reports nothing during about 5 seconds and
-> then the machine freezes. With cdparanoia 3a9.8-11 (from Debian stable),
-> it reports an error very quickly, and dmesg gets a couple line like these:
->     sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing
-> data in;
->        program cdparanoia not setting count and/or reply_len properly
-
-Okay, here's the story.
-
-In interface/scan_devices.c::cdda_identify_scsi(), cdparanoia calls 
-scsi_inquiry() to identify the device and determine interface type. 
-This seems to be the first time to actually issue commands to the 
-device.  As interface type isn't completely determined, for sg devices, 
-it first issues the command w/ d->interface set to SGIO_SCSI.  If that 
-fails, it falls back to SGIO_SCSI_BUGGY1.
-
-For to-device request, both SGIO_SCSI and SGIO_SCSI_BUGGY1 set 
-sg_io_hdr.dxfer_direction to SG_DXFER_TO_DEV.  But for from-device 
-request, SGIO_SCSI uses SG_DXFER_TO_FROM_DEV while SGIO_SCSI_BUGGY1 uses 
-SG_DXFER_FROM_DEV.  So, cdparanoia first issues inquiry w/ 
-SG_DXFER_TO_FROM_DEV and if that fails falls back to SG_DXFER_FROM_DEV.
-
-drivers/scsi/sg.c interprets SG_DXFER_TO_FROM_DEV as read while 
-block/scsi_ioctl.c interprets it as write.  I guess this is historic 
-thing (scsi/sg.c updated but block/scsi_ioctl.c is forgotten).  As 
-written above, cdparanoia can handle both cases as long as the kernel 
-promptly fails command issued with the wrong direction.
-
-This works for most PATA ATAPI devices.  Most devices detect reversed 
-transfer and terminate the command promptly.  But this doesn't seem to 
-be true for SATA device.  Many just hang and time out commands with the 
-wrong transfer direction.  If you consider that most early SATA ATAPI 
-devices are actually PATA + bridge, this is sorta inevitable.  The 
-PATA-SATA bridge cannot issue D2H FIS to abort the command by itself. 
-It's just mirroring the status of PATA side and PATA side doesn't know 
-SATA protocol mismatch has occurred.
-
-So, IDENTIFY w/ write-DMA protocol times out after quite some seconds. 
-This is where things go worse from bad.  SATA controllers which have 
-shadow TF registers don't handle timeout conditions very well, 
-especially when they're waiting for data transfer.  They basically hold 
-the PCI bus and hang till the transfer completes (which never happens). 
-  That's where the hard lock up comes from.
-
-Jens, I think we need to match block sg's behavior to SCSI's.  Monty, 
-the timeout and hard lock up are due to hardware restrictions.  Kernel 
-and libata can't do much about it.  So, please find other way to detect 
-interface.
-
-Thanks.
-
--- 
-tejun
+Eric

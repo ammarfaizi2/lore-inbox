@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424108AbWKIQpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423837AbWKIQqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424108AbWKIQpR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 11:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424106AbWKIQpR
+	id S1423837AbWKIQqj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 11:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424074AbWKIQqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 11:45:17 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:36499 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1424108AbWKIQpP (ORCPT
+	Thu, 9 Nov 2006 11:46:39 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:11013 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1423837AbWKIQqi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 11:45:15 -0500
-Message-ID: <45535CFA.5080601@sw.ru>
-Date: Thu, 09 Nov 2006 19:53:14 +0300
+	Thu, 9 Nov 2006 11:46:38 -0500
+Message-ID: <45535D4D.5000501@sw.ru>
+Date: Thu, 09 Nov 2006 19:54:37 +0300
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -20,7 +20,7 @@ CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, xemul@openvz.org, devel@openvz.org,
        oleg@tv-sign.ru, hch@infradead.org, matthltc@us.ibm.com,
        ckrm-tech@lists.sourceforge.net
-Subject: [PATCH 1/13] BC: atomic_dec_and_lock_irqsave() helper
+Subject: [PATCH 2/13] BC: Kconfig and Makefile
 References: <45535C18.4040000@sw.ru>
 In-Reply-To: <45535C18.4040000@sw.ru>
 Content-Type: text/plain; charset=us-ascii
@@ -28,86 +28,74 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov noticed to me that the construction like
-(used in beancounter patches and free_uid()):
+Add kernel/bc/Kconfig file with BC options and
+include it into arch Kconfigs
 
-  local_irq_save(flags);
-  if (atomic_dec_and_lock(&refcnt, &lock))
-	  ...
-
-is not that good for preemtible kernels, since with preemption
-spin_lock() can schedule() to reduce latency. However, it won't schedule
-if interrupts are disabled.
-
-So this patch introduces atomic_dec_and_lock_irqsave() as a logical
-counterpart to atomic_dec_and_lock().
-
-Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+Signed-off-by: Pavel Emelianov <xemul@sw.ru>
+Signed-off-by: Kirill Korotaev <dev@sw.ru>
 
 ---
 
- include/linux/spinlock.h |    6 ++++++
- kernel/user.c            |    5 +----
- lib/dec_and_lock.c       |   19 +++++++++++++++++++
- 3 files changed, 26 insertions(+), 4 deletions(-)
+ init/Kconfig       |    4 ++++
+ kernel/Makefile    |    1 +
+ kernel/bc/Kconfig  |   17 +++++++++++++++++
+ kernel/bc/Makefile |   11 +++++++++++
+ 4 files changed, 33 insertions(+)
 
---- ./include/linux/spinlock.h.bcprep	2006-11-03 17:46:25.000000000 +0300
-+++ ./include/linux/spinlock.h	2006-11-03 17:46:31.000000000 +0300
-@@ -319,6 +319,12 @@ extern int _atomic_dec_and_lock(atomic_t
- #define atomic_dec_and_lock(atomic, lock) \
- 		__cond_lock(lock, _atomic_dec_and_lock(atomic, lock))
+--- ./init/Kconfig.bckconfig	2006-11-09 11:29:12.000000000 +0300
++++ ./init/Kconfig	2006-11-09 11:30:21.000000000 +0300
+@@ -585,6 +585,10 @@ config STOP_MACHINE
+ 	  Need stop_machine() primitive.
+ endmenu
  
-+extern int _atomic_dec_and_lock_irqsave(atomic_t *atomic, spinlock_t *lock,
-+		unsigned long *flagsp);
-+#define atomic_dec_and_lock_irqsave(atomic, lock, flags) \
-+		__cond_lock(lock, \
-+			_atomic_dec_and_lock_irqsave(atomic, lock, &flags))
++menu "Beancounters"
++source "kernel/bc/Kconfig"
++endmenu
 +
- /**
-  * spin_can_lock - would spin_trylock() succeed?
-  * @lock: the spinlock in question.
---- ./kernel/user.c.bcprep	2006-11-03 17:46:25.000000000 +0300
-+++ ./kernel/user.c	2006-11-03 17:46:31.000000000 +0300
-@@ -108,15 +108,12 @@ void free_uid(struct user_struct *up)
- 	if (!up)
- 		return;
+ menu "Block layer"
+ source "block/Kconfig"
+ endmenu
+--- ./kernel/Makefile.bckconfig	2006-11-09 11:29:12.000000000 +0300
++++ ./kernel/Makefile	2006-11-09 11:30:21.000000000 +0300
+@@ -12,6 +12,7 @@ obj-y     = sched.o fork.o exec_domain.o
  
--	local_irq_save(flags);
--	if (atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
-+	if (atomic_dec_and_lock_irqsave(&up->__count, &uidhash_lock, flags)) {
- 		uid_hash_remove(up);
- 		spin_unlock_irqrestore(&uidhash_lock, flags);
- 		key_put(up->uid_keyring);
- 		key_put(up->session_keyring);
- 		kmem_cache_free(uid_cachep, up);
--	} else {
--		local_irq_restore(flags);
- 	}
- }
- 
---- ./lib/dec_and_lock.c.bcprep	2006-11-03 17:46:25.000000000 +0300
-+++ ./lib/dec_and_lock.c	2006-11-03 17:46:31.000000000 +0300
-@@ -33,3 +33,22 @@ int _atomic_dec_and_lock(atomic_t *atomi
- }
- 
- EXPORT_SYMBOL(_atomic_dec_and_lock);
+ obj-$(CONFIG_STACKTRACE) += stacktrace.o
+ obj-y += time/
++obj-$(CONFIG_BEANCOUNTERS) += bc/
+ obj-$(CONFIG_DEBUG_MUTEXES) += mutex-debug.o
+ obj-$(CONFIG_LOCKDEP) += lockdep.o
+ ifeq ($(CONFIG_PROC_FS),y)
+--- /dev/null	2006-07-18 14:52:43.075228448 +0400
++++ ./kernel/bc/Kconfig	2006-11-09 11:30:21.000000000 +0300
+@@ -0,0 +1,17 @@
++config BEANCOUNTERS
++	bool "Enable resource accounting/control"
++	default n
++	depends on CONFIGFS_FS
++	help
++	  When Y this option provides accounting and allows configuring
++	  limits for user's consumption of exhaustible system resources.
++	  The most important resource controlled by this patch is unswappable
++	  memory (either mlock'ed or used by internal kernel structures and
++	  buffers). The main goal of this patch is to protect processes
++	  from running short of important resources because of accidental
++	  misbehavior of processes or malicious activity aiming to ``kill''
++	  the system. It's worth mentioning that resource limits configured
++	  by setrlimit(2) do not give an acceptable level of protection
++	  because they cover only a small fraction of resources and work on a
++	  per-process basis.  Per-process accounting doesn't prevent malicious
++	  users from spawning a lot of resource-consuming processes.
+--- /dev/null	2006-07-18 14:52:43.075228448 +0400
++++ ./kernel/bc/Makefile	2006-11-09 11:31:24.000000000 +0300
+@@ -0,0 +1,11 @@
++#
++# kernel/bc/Makefile
++#
++# Copyright (C) 2006 OpenVZ SWsoft Inc.
++#
 +
-+/*
-+ * the same, but takes the lock with _irqsave
-+ */
-+int _atomic_dec_and_lock_irqsave(atomic_t *atomic, spinlock_t *lock,
-+		unsigned long *flagsp)
-+{
-+#ifdef CONFIG_SMP
-+	if (atomic_add_unless(atomic, -1, 1))
-+		return 0;
-+#endif
-+	spin_lock_irqsave(lock, *flagsp);
-+	if (atomic_dec_and_test(atomic))
-+		return 1;
-+	spin_unlock_irqrestore(lock, *flagsp);
-+	return 0;
-+}
++obj-y = beancounter.o vmpages.o rsspages.o kmem.o misc.o
 +
-+EXPORT_SYMBOL(_atomic_dec_and_lock_irqsave);
++obj-$(CONFIG_CONFIGFS_FS) += bc_if.o
++
++bc_if-objs := configfs.o

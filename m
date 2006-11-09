@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754665AbWKIDjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754656AbWKIDja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754665AbWKIDjK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Nov 2006 22:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754703AbWKIDjK
+	id S1754656AbWKIDja (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Nov 2006 22:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754703AbWKIDja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Nov 2006 22:39:10 -0500
-Received: from mga07.intel.com ([143.182.124.22]:52106 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1754665AbWKIDjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Nov 2006 22:39:09 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,402,1157353200"; 
-   d="scan'208"; a="143394293:sNHT24872554"
-Subject: Re: 2.6.19-rc5: known regressions
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1163027494.10806.229.camel@localhost.localdomain>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
-	 <20061108085235.GT4729@stusta.de>
-	 <m1y7qm425l.fsf@ebiederm.dsl.xmission.com>
-	 <Pine.LNX.4.64.0611080745150.3667@g5.osdl.org>
-	 <20061108162202.GA4729@stusta.de>
-	 <1163027494.10806.229.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel
-Date: Wed, 08 Nov 2006 18:49:41 -0800
-Message-Id: <1163040581.10806.266.camel@localhost.localdomain>
+	Wed, 8 Nov 2006 22:39:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:14742 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1754656AbWKIDj3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Nov 2006 22:39:29 -0500
+Date: Wed, 8 Nov 2006 22:39:09 -0500
+From: Dave Jones <davej@redhat.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Reuben Farrelly <reuben-linuxkernel@reub.net>,
+       linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] cpufreq: select consistently (Re: 2.6.19-rc5-mm1)
+Message-ID: <20061109033909.GA13729@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Randy Dunlap <randy.dunlap@oracle.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Reuben Farrelly <reuben-linuxkernel@reub.net>,
+	linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
+References: <20061108015452.a2bb40d2.akpm@osdl.org> <4551BB5E.6090602@reub.net> <20061108120547.78048229.akpm@osdl.org> <20061108201539.GB32721@redhat.com> <20061108190944.6849b8d4.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061108190944.6849b8d4.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-08 at 15:11 -0800, Tim Chen wrote:
-> On Wed, 2006-11-08 at 17:22 +0100, Adrian Bunk wrote:
-> 
-> > There's perhaps one thing that might help us to see whether it's just a 
-> > benchmark effekt or a real problem:
-> > 
-> > With Tim's CONFIG_NR_CPUS=8, NR_IRQS only increases from 224 in 2.6.18 
-> > to 512 in 2.6.19-rc.
-> > 
-> > With CONFIG_NR_CPUS=255, NR_IRQS increases from 224 in 2.6.18
-> > to 8416 in 2.6.19-rc.
-> > 
-> > @Tim:
-> > Can you try CONFIG_NR_CPUS=255 with both 2.6.18 and 2.6.19-rc5?
-> > 
-> 
-> With CONFIG_NR_CPUS increased from 8 to 64:
-> 2.6.18     see no change in fork time measured.
-> 2.6.19-rc5 see a 138% increase in fork time.
-> 
+On Wed, Nov 08, 2006 at 07:09:44PM -0800, Randy Dunlap wrote:
+ 
+ > Why does arch/i386/kernel/cpu/cpufreq/Kconfig say:
+ > 
+ > config X86_ACPI_CPUFREQ
+ > 	tristate "ACPI Processor P-States driver"
+ > 	select CPU_FREQ_TABLE
+ > 	depends on ACPI_PROCESSOR
+ > 
+ > but arch/x86_64/kernel/cpufreq/Kconfig say:
+ > 
+ > config X86_ACPI_CPUFREQ
+ > 	tristate "ACPI Processor P-States driver"
+ > 	depends on ACPI_PROCESSOR
+ > 
+ > # NOTE: no "select" on the latter one.  // Randy
 
-Lmbench is broken in its fork time measurement.
-It includes overhead time when it is pinning processes onto
-specific cpu. The actual fork time is not affected by NR_IRQS.
+A better question might be why they're two separate Kconfig's.
+x86-64 doesn't make its own copy of the drivers, so why are
+the Kconfig's special ?
 
-Lmbench calls the following C library function to determine the 
-number of processors online before it pin the processes: 
-	sysconf(_SC_NPROCESSORS_ONLN);
+		Dave
 
-This function takes the same order of time to run as
-fork itself.  In addition, runtime of this function 
-increases with NR_IRQS.  This resulted in the change in
-time measured.
-
-After hardcoding the number of online processors in lmbench,
-the fork time measured now does not change with CONFIG_NR_CPUS
-for both 2.6.18 and 2.6.19-rc5.  So we can now conclude that
-NR_IRQS does not affect fork.  We can remove this particular
-issue from the known regression.
-
-Tim
+-- 
+http://www.codemonkey.org.uk

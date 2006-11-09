@@ -1,68 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966064AbWKIWmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424212AbWKIWnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966064AbWKIWmS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 17:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966066AbWKIWmS
+	id S1424212AbWKIWnW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 17:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424213AbWKIWnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 17:42:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46506 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S966064AbWKIWmR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 17:42:17 -0500
-To: Zach Brown <zach.brown@oracle.com>
-Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [RFC][PATCH] Fix lock inversion aio_kick_handler()
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
-References: <20060729001032.GA7885@tetsuo.zabbo.net>
-	<20060729013446.GA3387@kvack.org> <44CAC1AF.6010505@oracle.com>
-From: Jeff Moyer <jmoyer@redhat.com>
-Date: Thu, 09 Nov 2006 17:41:47 -0500
-Message-ID: <x49velokztg.fsf@segfault.boston.devel.redhat.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+	Thu, 9 Nov 2006 17:43:21 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:17716 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1424212AbWKIWnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 17:43:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MouOna5KCM42XqRGbaKCJFqK7+v5bHk/hXNWJCyOFntn3hXNGV/N2dAmwrGfRVMeSDWaf7A45MOF0NCQks/imAL1LeLPjAioEkBA1pEr+3Sp5v0mGU8R73iXMjUuduZRUYDTWrDMdJ3kQ6NmLxlRURaDAvGWN/f6uEl/PwSi19I=
+Message-ID: <68676e00611091443x4eac926fof7b1b403210c9cc8@mail.gmail.com>
+Date: Thu, 9 Nov 2006 23:43:17 +0100
+From: "Luca Tettamanti" <kronos.it@gmail.com>
+To: Stephen.Clark@seclark.us
+Subject: Re: Abysmal PATA IDE performance
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4553A8AC.2090805@seclark.us>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061109202319.GA13940@dreamland.darkstar.lan>
+	 <4553903B.4010908@seclark.us>
+	 <68676e00611091352l16663ff9o86f663a28190c0dc@mail.gmail.com>
+	 <4553A8AC.2090805@seclark.us>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> On Fri, 28 Jul 2006 19:02:23 -0700, Zach Brown <zach.brown@oracle.com> said:
+On 11/9/06, Stephen Clark <Stephen.Clark@seclark.us> wrote:
+> Luca Tettamanti wrote:
+>
+> >On 11/9/06, Stephen Clark <Stephen.Clark@seclark.us> wrote:
+> >
+> >>Luca Tettamanti wrote:
+> >>
+> >>>Stephen Clark <Stephen.Clark@seclark.us> ha scritto:
+> >>>
+> >>>>Looking at the dmesg output I am a little confused, see comments below:
+> >>>>partial dmesg output follows:
+> >>>>
+> >>>>SCSI subsystem initialized
+> >>>>libata version 2.00 loaded.
+> >>>>ata_piix 0000:00:1f.2: version 2.00
+> >>>>ata_piix 0000:00:1f.2: MAP [ P0 P2 IDE IDE ]
+> >>>>ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 233
+> >>>>PCI: Setting latency timer of device 0000:00:1f.2 to 64
+> >>>>ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
+> >>>>scsi0 : ata_piix
+> >>>>Synaptics Touchpad, model: 1, fw: 6.1, id: 0xa3a0b3, caps: 0xa04713/0x10008
+> >>>>input: SynPS/2 Synaptics TouchPad as /class/input/input1
+> >>>>ATA: abnormal status 0x7F on port 0x1F7
+> >>>>ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
+> >>>>scsi1 : ata_piix
+> >>>>ata2.00: ATA-6, max UDMA/100, 117210240 sectors: LBA48
+> >>>>ata2.00: ata2: dev 0 multi count 16
+> >>>>usb 2-2: new low speed USB device using uhci_hcd and address 3
+> >>>>ata2.01: ATAPI, max UDMA/33
+> >>>>ata2.00: configured for UDMA/33 <==== why isn't this 66 or 100 ?
+> >>>>===============****
+> >>>>
+> >>>This is your optical (CD/DVD) unit; I doubt that you can saturate that
+> >>>link, even if your drive can do a sustained 16x transfer with a DVD it
+> >>>will use only 21MBps. Your HD is using UDMA/100.
+> >>>
+> >>aren't the ata2.00: messages referring to my hard drive and the
+> >>ata2.01 messages referring to my optical drive?
+> >>
+> >>ata2.00: ATA-6, max UDMA/100, 117210240 sectors: LBA48
+> >>ata2.00: ata2: dev 0 multi count 16
+> >>
+> >>ata2.01: ATAPI, max UDMA/33
+> >>
+> >>ata2.00: configured for UDMA/33 <==== why isn't this 66 or 100 ?
+> >>
+> >>
+> >
+> >You're right, I misparsed your log. Probably Arjan is right about the wiring.
+> >
+> >Luca
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> The specs for the laptop say it supports ide 100MBps (Ultra DMA 5).
 
-Zach> Benjamin LaHaise wrote:
-Zach> > On Fri, Jul 28, 2006 at 05:10:32PM -0700, Zach Brown wrote:
-Zach> >> Fix lock inversion aio_kick_handler()
-Zach> > 
-Zach> > Doh.  Unfortunately, this patch isn't entirely correct as it
-Zach> could race with > __put_ioctx() which sets ioctx->mm = NULL.
+Well, the controller does support UDMA 5, maybe it's just marketing.
+Or maybe autodetection just doesn't work.
 
-Zach> Aha, yeah, that's what I was missing.  Thanks.
-
-Zach> > Something like the following should do the trick:
-
-Zach> Cool, I'll respin and send it out.
-
-Did you ever resend this patch, Zach?  It doesn't appear to be in
-current kernels.  I'm still running into the lockdep warnings.
-
--Jeff
-
---- linux-2.6.19-rc5-mm1/fs/aio.c.orig	2006-11-09 17:28:43.000000000 -0500
-+++ linux-2.6.19-rc5-mm1/fs/aio.c	2006-11-09 17:29:29.000000000 -0500
-@@ -864,13 +864,15 @@ static void aio_kick_handler(void *data)
- 	struct kioctx *ctx = data;
- 	mm_segment_t oldfs = get_fs();
- 	int requeue;
-+	struct mm_struct *mm;
- 
- 	set_fs(USER_DS);
- 	use_mm(ctx->mm);
- 	spin_lock_irq(&ctx->ctx_lock);
- 	requeue =__aio_run_iocbs(ctx);
-- 	unuse_mm(ctx->mm);
-+	mm = ctx->mm;
- 	spin_unlock_irq(&ctx->ctx_lock);
-+ 	unuse_mm(mm);
- 	set_fs(oldfs);
- 	/*
- 	 * we're in a worker thread already, don't use queue_delayed_work,
+Luca

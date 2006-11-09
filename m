@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161769AbWKIFaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161776AbWKIFk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161769AbWKIFaO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 00:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161739AbWKIFaO
+	id S1161776AbWKIFk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 00:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161801AbWKIFk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 00:30:14 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10374 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161769AbWKIFaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 00:30:12 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH] IB/ipath - program intconfig register using new HT irq hook
-References: <545156d49f883c43af70.1163024486@localhost.localdomain>
-	<20061108144402.0b6a7b23.akpm@osdl.org>
-	<4552636E.3090809@pathscale.com>
-	<20061108151821.5a55fecd.akpm@osdl.org>
-Date: Wed, 08 Nov 2006 22:29:14 -0700
-In-Reply-To: <20061108151821.5a55fecd.akpm@osdl.org> (Andrew Morton's message
-	of "Wed, 8 Nov 2006 15:18:21 -0800")
-Message-ID: <m1mz71193p.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 9 Nov 2006 00:40:28 -0500
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:64194 "EHLO
+	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1161776AbWKIFk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 00:40:27 -0500
+Message-ID: <4552BF18.1060004@in.ibm.com>
+Date: Thu, 09 Nov 2006 11:09:36 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Paul Jackson <pj@sgi.com>
+CC: vatsa@in.ibm.com, dev@openvz.org, sekharan@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com, menage@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+References: <20061031115342.GB9588@in.ibm.com>	<6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com>	<20061101172540.GA8904@in.ibm.com>	<6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com>	<20061106124948.GA3027@in.ibm.com>	<6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>	<20061107104118.f02a1114.pj@sgi.com>	<6599ad830611071107u4226ec17h5facc7ee2ad53174@mail.gmail.com>	<6599ad830611071421s7792bbb1qd9c7b1fc840dfa50@mail.gmail.com>	<20061107191518.c094ce1a.pj@sgi.com>	<20061108051257.GB2964@in.ibm.com> <20061107213627.dc6ba1ce.pj@sgi.com>
+In-Reply-To: <20061107213627.dc6ba1ce.pj@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Paul Jackson wrote:
+> Srivatsa wrote:
+>> As was discussed in a previous thread, having a 'threads' file also will
+>> be good.
+>>
+>> 	http://lkml.org/lkml/2006/11/1/386
+>>
+>> Writing to 'tasks' file will move that single thread to the new
+>> container. Writing to 'threads' file will move all the threads of the
+>> process into the new container.
+> 
+> Yup - agreed.
+> 
 
-> On Wed, 08 Nov 2006 15:08:30 -0800
-> "Bryan O'Sullivan" <bos@pathscale.com> wrote:
->
->> Andrew Morton wrote:
->
->> > considered 2.6.19 material?
->> 
->> Yes, please.  I might be able to simplify the ib-ipath patch (by a 
->> matter of a few lines), but it works fine as it stands.
->> 
->
-> ho hum, OK.
 
-There is only one driver in the kernel that currently uses the htirq
-the infrastructure so the chance of actually breaking something else 
-is exactly 0. :)
+Referring to the discussion at
 
-Thanks for collecting the patches up Andrew.
+	http://lkml.org/lkml/2006/10/31/210
 
-I know of a couple out of tree drivers but I don't think their
-hardware has escaped the lab yet.
+Which lead to
 
-Eric
+	http://lkml.org/lkml/2006/11/1/101
+
+If OpenVZ is ok with the notify_on_release approach, we can close in on
+any further objections to the containers approach of implementing resource
+grouping and be open to ideas for extending and enhancing it :)
+
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

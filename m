@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424331AbWKJBHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424332AbWKJBHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424331AbWKJBHz (ORCPT <rfc822;willy@w.ods.org>);
+	id S1424332AbWKJBHz (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 9 Nov 2006 20:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424324AbWKJBHy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424324AbWKJBHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 20:07:54 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:47009 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S1424331AbWKJBHx (ORCPT
+	Thu, 9 Nov 2006 20:07:55 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:47777 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1424332AbWKJBHx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 9 Nov 2006 20:07:53 -0500
-Date: Fri, 10 Nov 2006 09:47:48 +0900
+Date: Fri, 10 Nov 2006 09:50:52 +0900
 From: Horms <horms@verge.net.au>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: yhlu <yinghailu@gmail.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Kexec with latest kernel fail
-Message-ID: <20061110004747.GA4107@verge.net.au>
-References: <5986589C150B2F49A46483AC44C7BCA49071BF@ssvlexmb2.amd.com> <20061109054805.GA28415@verge.net.au> <2ea3fae10611082204k5316379fsd33a33954c58ab4b@mail.gmail.com> <20061109062124.GB28415@verge.net.au> <86802c440611082336l26ad9c94i49e805097c3a00b4@mail.gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Magnus Damm <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       Vivek Goyal <vgoyal@in.ibm.com>, Andi Kleen <ak@muc.de>,
+       magnus.damm@gmail.com, fastboot@lists.osdl.org,
+       Dave Anderson <anderson@redhat.com>
+Subject: Re: [PATCH 02/02] Elf: Align elf notes properly
+Message-ID: <20061110005051.GB4107@verge.net.au>
+References: <20061102101942.452.73192.sendpatchset@localhost> <20061102101949.452.23441.sendpatchset@localhost> <m1psbwzpmx.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <86802c440611082336l26ad9c94i49e805097c3a00b4@mail.gmail.com>
+In-Reply-To: <m1psbwzpmx.fsf@ebiederm.dsl.xmission.com>
 User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 11:36:16PM -0800, Yinghai Lu wrote:
-> .  ..  AUTHORS  config  configure.ac  COPYING  doc  .git  include
-> kdump  kexec  kexec_test  kexec-tools.spec.in  Makefile
-> Makefile.conf.in  News  purgatory  TODO  util  util_lib
-> yhlunb:/home/yhlu/xxx/xx/kernel/kexec-tools-testing # make
-> Makefile:2: Makefile.conf: No such file or directory
-> util_lib/Makefile:10: /util_lib/compute_ip_checksum.d: No such file or 
-> directory
+On Thu, Nov 09, 2006 at 07:00:22AM -0700, Eric W. Biederman wrote:
+> Magnus Damm <magnus@valinux.co.jp> writes:
+> 
+> > elf: Align elf notes properly
+> >
+> > The kernel currently contains several elf note aligment implementations. Most
+> > implementations follow the spec on 32-bit platforms, but none current aligns
+> > the notes correctly on 64-bit platforms. This patch tries to fix this by
+> > interpreting the 64-bit and 32-bit elf specs as the following:
+> >
+> > offset bytes name
+> > 0      4     n_namesz -+                  -+
+> > 4      4     n_descsz  | elf note header   |
+> > 8      4     n_type   -+                   | elf note entry size - N4
+> > 12     N1    name                          |
+> > N2     N3    desc                         -+
+> >
+> > WS = word size in bytes (4 for 32 bit, 8 for 64 bit)
+> > N1 = roundup(n_namesz + sizeof(elf note header), WS) - sizeof(elf note header)
+> > N2 = sizeof(elf note header) + N1
+> > N3 = roundup(n_descsz, WS)
+> > N4 = sizeof(elf note header) + N1 + N2
+> >
+> > The elf note header contains three 32-bit values on 32-bit and 64-bit systems. 
+> > The header is followed by name and desc data together with padding. The 
+> > alignment and padding varies depending on the word size.
+> 
+> I see your point and I disagree.  The notes in a kernel generated 
+> core dump do not vary in size.  Find me some implementation evidence that
+> anyone ever added the extra 4 bytes of alignment to the description and the
+> padding fields and I will be ready to consider this.  Currently this
+> just appears to be reading a draft spec that doesn't match reality.
 
-You need to run ./configure before you run make,
-I think that will make your problem go away
-
-# ./configure && make
+Or perhaps a spec that hasn't been implemented correctly.
+I guess that the real question is, what padding is correct?
 
 -- 
 Horms

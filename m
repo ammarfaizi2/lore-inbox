@@ -1,95 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946546AbWKJMn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946551AbWKJMq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946546AbWKJMn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 07:43:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946548AbWKJMn0
+	id S1946551AbWKJMq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 07:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946552AbWKJMq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 07:43:26 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:38784 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1946546AbWKJMnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 07:43:25 -0500
-Message-ID: <455473CD.10609@in.ibm.com>
-Date: Fri, 10 Nov 2006 18:12:53 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Fri, 10 Nov 2006 07:46:56 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:43388 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1946551AbWKJMqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 07:46:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hv0/CBSV+86ASiYUntCHW1vvQSpBdWT5ZVMm2clLxSmWKa8CkNBaLpaWuTxrQxTV7hsFkma7pMjggnXuLgtMmrsiqPfy+e2soLGpJAPHp8DJcyN7xRSO8DFRwZesojbhlBuxxTlgzXkk5SQOeNdlgFrlVRudNmgNulXztna/HNI=
+Message-ID: <6e0cfd1d0611100446j77a27b29jc23f76a515451377@mail.gmail.com>
+Date: Fri, 10 Nov 2006 13:46:53 +0100
+From: "Martin Schwidefsky" <schwidefsky@googlemail.com>
+To: "Jeremy Fitzhardinge" <jeremy@goop.org>
+Subject: Re: [kvm-devel] [PATCH] KVM: Avoid using vmx instruction directly
+Cc: "Avi Kivity" <avi@qumranet.com>, "Arnd Bergmann" <arnd@arndb.de>,
+       kvm-devel@lists.sourceforge.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4553BC18.6090207@goop.org>
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-CC: Linux MM <linux-mm@kvack.org>, dev@openvz.org,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       haveblue@us.ibm.com, rohitseth@google.com
-Subject: Re: [RFC][PATCH 8/8] RSS controller support reclamation
-References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com> <20061109193636.21437.11778.sendpatchset@balbir.in.ibm.com> <45543E36.2080600@openvz.org> <45544362.9040805@in.ibm.com> <4554466F.8010602@openvz.org>
-In-Reply-To: <4554466F.8010602@openvz.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061109110852.A6B712500F7@cleopatra.q>
+	 <200611091429.42040.arnd@arndb.de> <45532EE3.4000104@qumranet.com>
+	 <200611091542.31101.arnd@arndb.de> <455340B8.2080206@qumranet.com>
+	 <4553BC18.6090207@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Emelianov wrote:
-> Balbir Singh wrote:
-> 
-> [snip]
-> 
->>> And what about a hard limit - how would you fail in page fault in
->>> case of limit hit? SIGKILL/SEGV is not an option - in this case we
->>> should run synchronous reclamation. This is done in beancounter
->>> patches v6 we've sent recently.
->>>
->> I thought about running synchronous reclamation, but then did not follow
->> that approach, I was not sure if calling the reclaim routines from the
->> page fault context is a good thing to do. It's worth trying out, since
-> 
-> Each page fault potentially calls reclamation by allocating
-> required page with __GFP_IO | __GFP_FS bits set. Synchronous
-> reclamation in page fault is really normal.
+On 11/10/06, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> >> Or gcc
+> >> might move the assignment of phys_addr to after the inline assembly.
+> >>
+> > "asm volatile" prevents that (and I'm not 100% sure it's necessary).
+>
+> No, it won't necessarily.  "asm volatile" simply forces gcc to emit the
+> assembler, even if it thinks its output doesn't get used.  It makes no
+> ordering guarantees with respect to other code (or even other "asm
+> volatiles").   The "memory" clobbers should fix the ordering of the asms
+> though.
 
-True. I don't know what I was thinking, thanks for making me think
-straight.
+The "memory" clobber just tells the compiler that any memory object
+might get access by the inline. This forces the compiler to write back
+values it cached in registers and to reload the values after the
+inline assembly. This does NOT make it generate correct code for local
+objects. We had the case where we created a control block on the stack
+and passed it to a magic instruction. Since we did not tell the
+compiler that the content of the control block is used but only the
+address of it, gcc just passed a local stack address to the inline but
+optimized the initialization of the control block away. So the
+following can break:
 
-> 
-> [snip]
-> 
->>> Please correct me if I'm wrong, but does this reclamation work like
->>> "run over all the zones' lists searching for page whose controller
->>> is sc->container" ?
->>>
->> Yeah, that's correct. The code can also reclaim memory from all over-the-limit
-> 
-> OK. What if I have a container with 100 pages limit in a 4Gb
-> (~ million of pages) machine and this group starts reclaiming
-> its pages. In case this group uses its pages heavily they will
-> be at the beginning of an LRU list and reclamation code would
-> have to scan through all (million) pages before it finds proper
-> ones. This is not optimal!
-> 
+struct control_block {
+        int a, b;
+};
 
-Yes, thats possible. The trade off is between
+void fn(void)
+{
+        struct control_block x;
 
-The cost associated with traversing that list while reclaiming
-and the complexity associated with task migration. If we keep
-a per-container list of pages, during task migration, you'll have
-to migrate pages (of the task) from the list to the new container.
+        x.a = 42;
+        x.b = 0815;
+        asm volatile ("<magic>" : : "a" (&x) : "memory");
+}
 
->> containers (by passing SC_OVERLIMIT_ALL). The idea behind using such a scheme
->> is to ensure that the global LRU list is not broken.
-> 
-> isolate_lru_pages() helps in this. As far as I remember this
-> was introduced to reduce lru lock contention and keep lru
-> lists integrity.
-> 
-> In beancounters patches this is used to shrink BC's pages.
-
-I'll look at isolate_lru_pages() to see if the reclaim can be optimized.
-
-Thanks for your feedback,
-
+You won't find the assignments to x.a and x.b in the compiled code.
 
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+blue skies,
+  Martin

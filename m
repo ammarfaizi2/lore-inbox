@@ -1,82 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946696AbWKJOuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946692AbWKJO5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946696AbWKJOuX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 09:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946697AbWKJOuW
+	id S1946692AbWKJO5a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 09:57:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946699AbWKJO5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 09:50:22 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:61824 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1946696AbWKJOuU (ORCPT
+	Fri, 10 Nov 2006 09:57:30 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:6547 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1946692AbWKJO5a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 09:50:20 -0500
-Date: Fri, 10 Nov 2006 09:49:22 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Magnus Damm <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       Vivek Goyal <vgoyal@in.ibm.com>, Andi Kleen <ak@muc.de>,
-       fastboot@lists.osdl.org, Horms <horms@verge.net.au>,
-       Dave Anderson <anderson@redhat.com>
-Subject: Re: [PATCH 02/02] Elf: Align elf notes properly
-Message-ID: <20061110144922.GA8155@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061102101942.452.73192.sendpatchset@localhost> <20061102101949.452.23441.sendpatchset@localhost> <m1psbwzpmx.fsf@ebiederm.dsl.xmission.com> <aec7e5c30611091952j6cd7988akc1671d269925bba9@mail.gmail.com> <m1irhnnb09.fsf@ebiederm.dsl.xmission.com> <aec7e5c30611092253q6bd15701x1f5da122de5c7075@mail.gmail.com>
+	Fri, 10 Nov 2006 09:57:30 -0500
+Date: Fri, 10 Nov 2006 20:27:15 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: "Paul Menage" <menage@google.com>
+Cc: dev@openvz.org, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       balbir@in.ibm.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       Paul Jackson <pj@sgi.com>, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC] Resource Management - Infrastructure choices
+Message-ID: <20061110145715.GA15306@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20061030042714.fa064218.pj@sgi.com> <6599ad830610300953o7cbf5a6cs95000e11369de427@mail.gmail.com> <20061030123652.d1574176.pj@sgi.com> <6599ad830610301247k179b32f5xa5950d8fc5a3926c@mail.gmail.com> <20061031115342.GB9588@in.ibm.com> <6599ad830610310846m5d718d22p5e1b569d4ef4e63@mail.gmail.com> <20061101172540.GA8904@in.ibm.com> <6599ad830611011537i2de812fck99822d3dd1314992@mail.gmail.com> <20061106124948.GA3027@in.ibm.com> <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aec7e5c30611092253q6bd15701x1f5da122de5c7075@mail.gmail.com>
+In-Reply-To: <6599ad830611061223m77c0ef1ei72bd7729d9284ec6@mail.gmail.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2006 at 03:53:57PM +0900, Magnus Damm wrote:
-[..]
-> >Sure.
+On Mon, Nov 06, 2006 at 12:23:44PM -0800, Paul Menage wrote:
+> > Secondly, regarding how separate grouping per-resource *maybe* usefull,
+> > consider this scenario.
 > >
-> >To verify your claim that 8 byte alignment is correct I checked the
-> >core dump code in fs/binfmt_elf.c in the linux kernel.  That always
-> >uses 4 byte alignment.  Therefore it appears clear that only doing
-> >4 byte alignment is not a local misreading of the spec, and is used in
-> >other implementations.  If you can find an implementation that uses
-> >8 byte alignment I am willing to consider it.
-> 
-> Yes, fs/binfmt_elf.c is one of the files that my patch modifies. There
-> are several elf note implementations in the kernel, all seem to use
-> 4-byte aligment.
-> 
-> Implementations that use 8-byte alignment:
-> 
-> binutils-2.16.1/bfd/elf.c: elf_core_write_note() is using
-> log_file_align which is set to 3 on some 64-bit platforms.  8-byte
-> alignment in some cases.
-> 
-> binutils-2.16.1/binutils/readelf.c: process_corefile_note_segment() is
-> always using 4-byte alignment though.
-> 
-> >The current situation is that the linux kernel generated application
-> >core dumps use 4 byte alignment so I expect that is what existing
-> >applications such as gdb expect.
-> 
-> Most applications probably expect 4-byte aligned data. OTOH, I just
-> came across HP's ELF-64 Object File Format document. It says that
-> 8-byte alignment should be used:
-> 
-> http://devresource.hp.com/drc/STK/docs/refs/elf-64-hp.pdf
-> 
-> So now we have two documents that say 8-byte alignment should be used.
-> 
-> >Therefore we use 4 byte alignment unless it can be shown that the
-> >linux core dumps are a fluke and should be fixed.
-> 
-> Ok. Vivek, Dave, anyone? Comments?
-> 
+> > A large university server has various users - students, professors,
+> > system tasks etc. The resource planning for this server could be on these lines:
+> >
+> >         CPU :           Top cpuset
+> >                         /       \
+> >                 CPUSet1         CPUSet2
+> >                    |              |
+> >                 (Profs)         (Students)
+> >
+> >                 In addition (system tasks) are attached to topcpuset (so
+> >                 that they can run anywhere) with a limit of 20%
+> >
+> >         Memory : Professors (50%), students (30%), system (20%)
+> >
+> >         Disk : Prof (50%), students (30%), system (20%)
+> >
+> >         Network : WWW browsing (20%), Network File System (60%), others (20%)
+> >                                 / \
+> >                         Prof (15%) students (5%)
 
-IMHO, I think we should go by the specs (8byte boundary alignment on 64bit
-platforms) until and unless it can be proven that specs are wrong. This
-probably will mean that we will break things for sometime (until and unless
-it is fixed in tool chain and probably will also break the capability to use
-an older kernel for capturing dump). But that's unavoidable if we want to be
-compliant to specs.
+Lets say that network resource controller supports only one level
+hierarchy, and hence you can only split it as:
 
-Thanks
-Vivek
+        Network : WWW browsing (20%), Network File System (60%), others (20%)
+
+> > Browsers like firefox/lynx go into the WWW network class, while (k)nfsd go
+> > into NFS network class.
+> >
+> > At the same time firefox/lynx will share an appropriate CPU/Memory class
+> > depending on who launched it (prof/student).
+> >
+> > If we had the ability to write pids directly to these resource classes,
+> > then admin can easily setup a script which receives exec notifications
+> > and depending on who is launching the browser he can
+> >
+> >         # echo browser_pid > approp_resource_class
+> >
+> > With your proposal, he now would have to create a separate container for
+> > every browser launched and associate it with approp network and other
+> > resource class. This may lead to proliferation of such containers.
+> 
+> Or create one container per combination (so in this case four,
+> prof/www, prof/other, student/www, student/other) - then processes can
+> be moved between the containers to get the appropriate qos of each
+> type.
+> 
+> So the setup would look something like:
+> 
+> top-level: prof vs student vs system, with new child nodes for cpu,
+> memory and disk, and no  new node for network
+> 
+> second-level, within the prof and student classes: www vs other, with
+> new child nodes for network, and no new child nodes for cpu.
+> 
+> In terms of the commands to set it up, it might look like (from the top-level)
+> 
+> echo network > inherit
+> mkdir prof student system
+> echo disk,cpu,memory > prof/inherit
+> mkdir prof/www prof/other
+> echo disk,cpu,memory > student/inherit
+> mkdir student/www student/other
+
+By these commands, we would forcibly split the WWW bandwidth of 20%
+between prof/www and student/www, when it was actually not needed (as
+per the new requirement above). This forced split may be fine for a renewable 
+resource like network bandwidth, but would be inconvenient for something like 
+RSS, disk quota etc.
+
+(I thought of a scheme where you can avoid this forced split by
+maintaining soft/hard links to resource nodes from the container nodes.
+Essentially each resource can have its own hierarchy of resource nodes.
+Each resource node provides allocation information like min/max shares.
+Container nodes point to one or more such resource nodes, implemented
+as soft/hard links. This will avoid the forced split I mentioned above.
+But I suspect we will run into atomicity issues again when modifying the 
+container hierarchy).
+
+Essentially by restrictly ourselves to a single hierarchy, we loose the 
+flexibility of "viewing" each resource usage differently (network by traffic, 
+cpu by users etc).
+
+Coming to reality, I believe most work load management tools would be
+fine to live with this restriction. AFAIK containers can also use this
+model without much loss of flexibility. But if you are considering long term
+user-interface stability, then this is something I would definitely
+think hard about.
+
+-- 
+Regards,
+vatsa

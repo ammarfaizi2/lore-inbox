@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424410AbWKJUiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966112AbWKJUjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424410AbWKJUiL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 15:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966113AbWKJUiL
+	id S966112AbWKJUjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 15:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966113AbWKJUjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 15:38:11 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:12232 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S966112AbWKJUiK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 15:38:10 -0500
-Message-ID: <4554E2DF.2020102@gmail.com>
-Date: Fri, 10 Nov 2006 21:36:47 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Jano <jasieczek@gmail.com>
-CC: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Problems with mounting filesystems from /dev/hdb (kernel 2.6.18.1)
-References: <d9a083460611081439v2eacb065nef62f129d2d9c9c0@mail.gmail.com>	 <4af2d03a0611090320m5d8316a7l86b42cde888a4fd@mail.gmail.com>	 <45534B31.50008@cfl.rr.com> <45534D2C.6080509@gmail.com>	 <d9a083460611090855w3b3a9eb6w347a24b1e704ca61@mail.gmail.com>	 <45537B67.6050804@gmail.com> <d9a083460611100739v531b0293i5ae5fd8d3ccee800@mail.gmail.com>
-In-Reply-To: <d9a083460611100739v531b0293i5ae5fd8d3ccee800@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+	Fri, 10 Nov 2006 15:39:25 -0500
+Received: from www.osadl.org ([213.239.205.134]:37046 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S966112AbWKJUjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 15:39:24 -0500
+Subject: Re: 2.6.19-rc5-mm1
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Benoit Boissinot <bboissin@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <40f323d00611101220t2b8067d5g4f6b302384e41524@mail.gmail.com>
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
+	 <40f323d00611100829m5fbd32cdt14c307e492df2984@mail.gmail.com>
+	 <1163177952.8335.221.camel@localhost.localdomain>
+	 <40f323d00611100925l45b2415bjcc611df6e4d1f7d4@mail.gmail.com>
+	 <40f323d00611101220t2b8067d5g4f6b302384e41524@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 10 Nov 2006 21:41:44 +0100
+Message-Id: <1163191305.8335.228.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jano wrote:
-> 2006/11/9, Jiri Slaby <jirislaby@gmail.com>:
->>
->> In such cases google is very helpful ;).
->>
+On Fri, 2006-11-10 at 21:20 +0100, Benoit Boissinot wrote:
+> It works fine with the following additional patch.
 > 
-> Sorry, my mistake :D.
+> Thanks,
 > 
->>
->> No, I meant strace(1):
->> strace mount /dev/hdbX /home
->>
-> 
-> # strace mount /dev/hdb1 > file1
-> # strace mount /home > file2
+> Benoit
 
-yeah. Either redirect stderr by 2> file1 (this will contain mount errors too) or
-use strace -o file1
+Doh, this modular build of ACPI again.
 
-[snip]
->> And try to turn "VIA82CXXX chipset support" to <*>, i.e. built-in
->> (somebody
->> holds regions of ide0 and ide1, let's try via driver to probe first).
->>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+
+> Index: linux-mm/arch/i386/kernel/apic.c
+> ===================================================================
+> --- a/arch/i386/kernel/apic.c	2006-11-10 20:42:30.000000000 +0100
+> +++ b/arch/i386/kernel/apic.c	2006-11-10 20:42:41.000000000 +0100
+> @@ -610,6 +610,7 @@
+>  	if (evt->event_handler)
+>  		clockevents_set_broadcast(evt, broadcast);
+>  }
+> +EXPORT_SYMBOL_GPL(lapic_timer_idle_broadcast);
 > 
-> Also done. Haven't changed anything.
-> 
-> Hope that strace output will be helpful. As far as I'll be able to
-> save the results. Any suggestions?
+>  int setup_profiling_timer(unsigned int multiplier)
+>  {
 
-When you boot with init=/bin/bash not to allow system to start scripts, does it
-work? (add init=/bin/bash kernel parameter)
-
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

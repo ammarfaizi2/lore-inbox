@@ -1,71 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945996AbWKJG5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946004AbWKJHCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945996AbWKJG5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 01:57:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945991AbWKJG5Y
+	id S1946004AbWKJHCY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 02:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946006AbWKJHCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 01:57:24 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:32989 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1945998AbWKJG5X (ORCPT
+	Fri, 10 Nov 2006 02:02:24 -0500
+Received: from mx2.go2.pl ([193.17.41.42]:47314 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1946004AbWKJHCY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 01:57:23 -0500
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
-Date: Fri, 10 Nov 2006 07:56:59 +0100
-User-Agent: KMail/1.9.5
-Cc: Adrian Bunk <bunk@stusta.de>, Jeff Chua <jeff.chua.linux@gmail.com>,
-       Matthew Wilcox <matthew@wil.cx>, Aaron Durbin <adurbin@google.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com> <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org> <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Nov 2006 02:02:24 -0500
+Date: Fri, 10 Nov 2006 08:08:18 +0100
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Stephen Clark <Stephen.Clark@seclark.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New laptop - problems with linux
+Message-ID: <20061110070818.GA995@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Stephen Clark <Stephen.Clark@seclark.us>,
+	linux-kernel@vger.kernel.org
+References: <20061109083205.GA976@ff.dom.local> <45533658.7030900@seclark.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611100757.00203.ak@suse.de>
+In-Reply-To: <45533658.7030900@seclark.us>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> What a piece of crap. 
+On Thu, Nov 09, 2006 at 09:08:24AM -0500, Stephen Clark wrote:
+> Jarek Poplawski wrote:
 > 
-> Andi, I'm getting really upset about this kind of thing. You've been very 
-> much not careful about MMCFG in general, and are allowing total crap to go 
-> into the kernel, without any thought. Just "testing" something isn't good 
-> enough, it needs to be thought out.
+> >On 08-11-2006 15:41, Stephen Clark wrote:
+> > 
+> >
+> >>Hi list,
+> >>
+> >>I just purchased a VBI-Asus S96F laptop Intel 945GM &  ICH7, with a Core 
+> >>2 Duo T560,0 2gb pc5400 memory.
+> >>From checking around it appeared all the
+> >>hardware was well supported by linux - but I am having major problems.
+> >>
+> >>
+> >>1. neither the wireless lan Intel pro 3945ABG or built in ethernet 
+> >>RTL-8169C are detected and configured
+> >>2. the disk which is a 7200rpm Hitachi travelmate transfers data at 1.xx 
+> >>mb/sec
+> >>  according to hdparm. This same drive in my old laptop an HP n5430 with a
+> >>  850 duron the rate was 12-14 mb/sec.
+> >>   
+> >>
+> >... 
+> > 
+> >
+> >>Kernel command line: ro root=/dev/VolGroup00/LogVol00 ide1=dma ide1=ata66
+> >>ide_setup: ide1=dma -- OBSOLETE OPTION, WILL BE REMOVED SOON!
+> >>ide_setup: ide1=ata66 -- OBSOLETE OPTION, WILL BE REMOVED SOON!
+> >>   
+> >>
+> >
+> >Could you repeat the reason for this ides in kernel parameters?
+> >Did you try to boot some fresh live-cd distro?
+> >
+> >Jarek P.
+> >
+> > 
+> >
+> Yes, I was trying to get dma turned on for my harddrive.
 
-Sorry, probably should have read the patch more carefully.
+You can do it with hdparm. But in current kernels it
+should be on by default - if not - there is probably
+lack of some driver or it is disabled by parameters like
+this. So try to get rid of them.
 
-I think I agreed with the high level idea but didn't double check
-the details.
+As it was stated in the first reply by Arjan van de Ven
+you definitely should have this disk in sata mode and
+see it as sda, so try check in your kernel config
+Serial ATA... drivers - particulary:
+CONFIG_ATA = y
+CONFIG_ATA_PIIX = y
+and maybe:
+CONFIG_ATA_GENERIC = y
+CONFIG_PATA_MPIIX = y
 
-> 
-> I'm going to revert that totally bogus commit that added that broken 
-> "pci_mmcfg_insert_resources()" function. It could be done right, but doing 
-> it right would require that the function 
+(if they are "= mi", you should have initrd properly generated).
 
-Ok fine by me.
+Probably you can also do CONFIG_IDE = n in ATA/ATAPI
+(it depends on your CD-DVD).
+  
+> I have booted knoppix 5.1 but didn't check harddrive transfer rate.
 
-> We really should stop using MMCONFIG entirely, until we have a 
+If you can see it as sda, transfer should be fine.
 
-Hmm, for .19 at least you mean? 
+Regards,
 
-Entirely stopping it would break the x86 macs minis again I think.
-But we can make it "only use if type 1 doesn't work" 
-
-I'm sure some people will be upset again if we don't use it.
-Perhaps there are really users who want to use the PCI-E error handling
-for example.
-
-> per-southbridge true knowledge of what the real decoding is. The BIOS 
-> tables for this are simply too damn unreliable.
-
-My hopes for that are on Vista. Perhaps use a DMI year test again
-(>= 2007) and only white lists for older boards.
-
--Andi
- 
+Jarek P. 

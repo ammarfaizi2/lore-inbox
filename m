@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946187AbWKJJaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946213AbWKJJcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946187AbWKJJaG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946209AbWKJJaF
+	id S1946213AbWKJJcH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946209AbWKJJcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:30:05 -0500
-Received: from mx1.suse.de ([195.135.220.2]:7140 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1946187AbWKJJaD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:30:03 -0500
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
-Date: Fri, 10 Nov 2006 10:29:59 +0100
-User-Agent: KMail/1.9.5
-Cc: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
-       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Len Brown <lenb@kernel.org>, Arjan van de Ven <arjan@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de> <20061110085728.GA14620@elte.hu> <20061110011336.008840cf.akpm@osdl.org>
-In-Reply-To: <20061110011336.008840cf.akpm@osdl.org>
+	Fri, 10 Nov 2006 04:32:07 -0500
+Received: from smtp4.netcabo.pt ([212.113.174.31]:28770 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1946213AbWKJJcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 04:32:04 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CABLUU0VZmGJA/2dsb2JhbAA
+X-IronPort-AV: i="4.09,408,1157324400"; 
+   d="scan'208"; a="138398945:sNHT17779311"
+Message-ID: <26540.194.65.103.1.1163151084.squirrel@www.rncbc.org>
+In-Reply-To: <1162808795.23683.2.camel@Homer.simpson.net>
+References: <454BC8D1.1020001@rncbc.org> <454BF608.20803@rncbc.org> 
+    <454C714B.8030403@rncbc.org> <454E0976.8030303@rncbc.org> 
+    <454E15B0.2050008@rncbc.org> 
+    <1162742535.2750.23.camel@localhost.localdomain> 
+    <454E2FC1.4040700@rncbc.org>
+    <1162797896.6126.5.camel@Homer.simpson.net> 
+    <20061106093815.GB14388@elte.hu> 
+    <1162807371.13579.4.camel@Homer.simpson.net> 
+    <20061106101117.GA20616@elte.hu>
+    <1162808795.23683.2.camel@Homer.simpson.net>
+Date: Fri, 10 Nov 2006 09:31:24 -0000 (WET)
+Subject: Re: realtime-preempt patch-2.6.18-rt7 oops
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Mike Galbraith" <efault@gmx.de>, "Daniel Walker" <dwalker@mvista.com>,
+       "Karsten Wiese" <fzu@wemgehoertderstaat.de>,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.5.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611101029.59251.ak@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-OriginalArrivalTime: 10 Nov 2006 09:32:02.0166 (UTC) FILETIME=[13CFE960:01C704AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> But that's different.
-> 
-> We're limping along in a semi-OK fashion with the TSC.  But now Thomas is
-> proposing that we effectively kill it off for all x86 because of hrtimers.
+On Mon, November 6, 2006 10:26, Mike Galbraith wrote:
+> On Mon, 2006-11-06 at 11:11 +0100, Ingo Molnar wrote:
+>
+>> * Mike Galbraith <efault@gmx.de> wrote:
+>>
+>>
+>>>> could you try the patch below, does it help? (a quick review seems
+>>>> to suggest that all codepaths protected by kretprobe_lock are
+>>>> atomic)
+>>>
+>>> Ah, so I did do the right thing.  Besides the oops, I was getting a
+>>> pretty frequent non-deadly...
+>>
+>> yeah ...
+>>
+>>> ...so turned it back into a non-sleeping lock.
+>>>
+>>>
+>>> You forgot kprobes.h
+>>>
+>>
+>> so the patch solves this problem for you?
+>
+> Yeah, seems to.  I'll let it run make check in a loop for a while to
+> make sure the fatal oops stays gone too though.  If you don't hear from
+> me, all is peachy (it will be methinks)
+>
 
-I'm totally against that.
- 
-> And afaict the reason for that is that we're using jiffies to determine if
-> the TSC has gone bad, and that test is getting false positives.
+So far so good for this pester ;)
 
-
-The i386 clocksource had always trouble with that. e.g.  I have a box
-where the TSC works perfectly fine on a 64bit kernel, but since the new i386
-clocksource code is in it always insists on disabling it shortly after boot.
-My guess is that some of the checks in there are just broken and need
-to be fixed.
-
-
-
-> 
-> > We should wait until CPU makers get their act together and implement a 
-> > TSC variant that is /architecturally promised/ to have constant 
-> > frequency (system bus frequency or whatever) and which never stops.
-> > 
-> 
-> That'll hurt the big machines rather a lot, won't it?
-
-It's unrealistic and short term it will cause extreme pain in many workloads
-which are gettimeofday intensive (networking, databases etc.) 
-
--Andi
+Thanks.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org

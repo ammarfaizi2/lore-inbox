@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424436AbWKJU54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424434AbWKJVUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424436AbWKJU54 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 15:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424434AbWKJU54
+	id S1424434AbWKJVUv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 16:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424435AbWKJVUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 15:57:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39148 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161909AbWKJU5z (ORCPT
+	Fri, 10 Nov 2006 16:20:51 -0500
+Received: from [212.33.161.175] ([212.33.161.175]:1665 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1424434AbWKJVUu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 15:57:55 -0500
-Message-ID: <4554E7C1.1070705@sandeen.net>
-Date: Fri, 10 Nov 2006 14:57:37 -0600
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Fri, 10 Nov 2006 16:20:50 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+Date: Sat, 11 Nov 2006 00:22:52 +0300
+User-Agent: KMail/1.5
+Cc: Randy Dunlap <rdunlap@xenotime.net>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+References: <200611090757.48744.a1426z@gawab.com> <200611102233.30542.a1426z@gawab.com> <1163188188.3138.736.camel@laptopd505.fenrus.org>
+In-Reply-To: <1163188188.3138.736.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Steve Grubb <sgrubb@redhat.com>
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] handle ext3 directory corruption better
-References: <200610211129.23216.sgrubb@redhat.com> <20061031095742.GA4241@ucw.cz> <200611011029.39295.sgrubb@redhat.com>
-In-Reply-To: <200611011029.39295.sgrubb@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200611110022.52304.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Grubb wrote:
-> On Tuesday 31 October 2006 04:57, Pavel Machek wrote:
->> Nice... can you run the same tool against fsck, too?
-> 
-> I'll see if I can make that work, too. The fuzzer tries to preserve the bad 
-> image so that you can replay the problem for debugging. I think its just a 
-> matter of making another copy and using that one instead.
+Arjan van de Ven wrote:
+> > The problem is not just simple bugs that surface, it's deeper than that.
+> > Deep structural problems is what plagues 2.6.
+> >
+> > Only a focused model may deal with such problems.
+>
+> can you at least provide a list of such structural problems?
+> In fact, why don't you collect them and mail them out (bi)weekly... that
+> may already do wonders.
+> Look at what Adrian is doing with the regressions; although the response
+> isn't 100% people DO pay attention to it.... so maybe if you post a
+> "structural problems list" people will actually start working on
+> things.. (and of course you can help too ;)
 
-I played with this on xfs a little bit in my spare time, found some
-xfs_repair problems.  :)  I'm sure other fs's would have issues as well.
+Ok, things like OOM, scheduling, and block-io.
 
-Ideally it would probably be good for the tool to have a "use" mode (try
-to use the corrupted fs) and a "check" mode (try to fsck the corrupted fs).
+net looks ok, although I would suggest a redesign for 3.0.
 
-In use   mode, it'd be:  mkfs, fuzz, mount, populate (etc), unmount.
-In check mode, it'd be:  mkfs, mount, populate, unmount, fuzz, fsck.
 
--Eric
+Thanks!
+
+--
+Al
+

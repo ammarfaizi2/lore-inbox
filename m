@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161942AbWKJSZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161946AbWKJSdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161942AbWKJSZH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 13:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161944AbWKJSZH
+	id S1161946AbWKJSdj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 13:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161941AbWKJSdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 13:25:07 -0500
-Received: from outbound-ash.frontbridge.com ([206.16.192.249]:60009 "EHLO
-	outbound2-ash-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1161942AbWKJSZE convert rfc822-to-8bit (ORCPT
+	Fri, 10 Nov 2006 13:33:39 -0500
+Received: from www.osadl.org ([213.239.205.134]:8917 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161935AbWKJSdi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 13:25:04 -0500
-X-BigFish: VP
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: 2.6.19-rc5 x86_64 irq 22: nobody cared
-Date: Fri, 10 Nov 2006 10:20:58 -0800
-Message-ID: <5986589C150B2F49A46483AC44C7BCA49071D9@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.19-rc5 x86_64 irq 22: nobody cared
-Thread-Index: AccEroVUW44BdLukSuSTWnsxTIAIOgARK99w
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "Andi Kleen" <ak@suse.de>, "Olivier Nicolas" <olivn@trollprod.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Andrew Morton" <akpm@osdl.org>
-cc: "Adrian Bunk" <bunk@stusta.de>, "Stephen Hemminger" <shemminger@osdl.org>,
-       "Takashi Iwai" <tiwai@suse.de>, "Jaroslav Kysela" <perex@suse.cz>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz, len.brown@intel.com,
-       linux-acpi@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>
-X-OriginalArrivalTime: 10 Nov 2006 18:21:00.0329 (UTC)
- FILETIME=[F93B4190:01C704F4]
-X-WSS-ID: 694A1C861X42312299-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Fri, 10 Nov 2006 13:33:38 -0500
+Message-Id: <20061110182418.134188000@cruncher.tec.linutronix.de>
+Date: Fri, 10 Nov 2006 18:32:29 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: John Stultz <johnstul@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Helmut Duregger <Helmut.Duregger@student.uibk.ac.at>
+Subject: [patch] ktime: Fix signed / unsigned mismatch in ktime_to_ns
+Content-Disposition: inline; filename=ktime-fix-signed-unsigned-mismatch.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The 32 bit implementation of ktime_to_ns returns unsigned value, while the
+64 bit version correctly returns an signed value. There is no current user
+affected by this, but it has to be fixed, as ktime values can be negative.
 
-Andi,
+Pointed-out-by: Helmut Duregger <Helmut.Duregger@student.uibk.ac.at>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+--
 
-The two patches solve the problems that irq nobody care.
+Index: linux-2.6.19-rc5-mm1.orig/include/linux/ktime.h
+===================================================================
+--- linux-2.6.19-rc5-mm1.orig.orig/include/linux/ktime.h	2006-11-09 12:49:34.000000000 +0100
++++ linux-2.6.19-rc5-mm1.orig/include/linux/ktime.h	2006-11-10 19:22:35.000000000 +0100
+@@ -248,9 +248,9 @@ static inline struct timeval ktime_to_ti
+  *
+  * Returns the scalar nanoseconds representation of kt
+  */
+-static inline u64 ktime_to_ns(const ktime_t kt)
++static inline s64 ktime_to_ns(const ktime_t kt)
+ {
+-	return (u64) kt.tv.sec * NSEC_PER_SEC + kt.tv.nsec;
++	return (s64) kt.tv.sec * NSEC_PER_SEC + kt.tv.nsec;
+ }
+ 
+ #endif
 
-They are already in your tree. But first one I wonder if you put correct
-one in your tree.
-
-
-YH
-
-[PATCH] x86_64 irq: reuse vector for __assign_irq_vector 
-http://lkml.org/lkml/2006/10/26/38
-[PATCH] x86_64 irq: reset more to default when clear irq_vector for
-destroy_irq
-http://lkml.org/lkml/2006/10/28/16
-
-
+--
 

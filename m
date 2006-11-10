@@ -1,173 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946097AbWKJJQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946118AbWKJJSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946097AbWKJJQy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:16:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946118AbWKJJQx
+	id S1946118AbWKJJSl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946139AbWKJJSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:16:53 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:29129 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1946097AbWKJJQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:16:51 -0500
-Message-ID: <45544362.9040805@in.ibm.com>
-Date: Fri, 10 Nov 2006 14:46:18 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Fri, 10 Nov 2006 04:18:41 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:2873 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1946118AbWKJJSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 04:18:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=HXV667yxpbrcX6mNjvkM/DH45GgNf2JVpRBoelf6WuFFvrXnvV1xcmHQzCPb7oJRNE9ohhmx5ZZlI8A4Og1w+HbtRljnAoXvMpEfDHFcIqEIneLpl12cjvCT+9SPRK111/FGT0u9HpLH7h5ik9ChOY1H2naJyk4/rXtG/Twia+o=
+Message-ID: <86802c440611100118s39613504q335914f01273fd30@mail.gmail.com>
+Date: Fri, 10 Nov 2006 01:18:37 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@muc.de>, yhlu <yinghailu@gmail.com>
+Subject: Re: [Fastboot] Kexec with latest kernel fail
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Horms <horms@verge.net.au>,
+       "Fastboot mailing list" <fastboot@lists.osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <2ea3fae10611092330q551127e0oad87775964fe7251@mail.gmail.com>
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-CC: Linux MM <linux-mm@kvack.org>, dev@openvz.org,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       haveblue@us.ibm.com, rohitseth@google.com
-Subject: Re: [RFC][PATCH 8/8] RSS controller support reclamation
-References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com> <20061109193636.21437.11778.sendpatchset@balbir.in.ibm.com> <45543E36.2080600@openvz.org>
-In-Reply-To: <45543E36.2080600@openvz.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5986589C150B2F49A46483AC44C7BCA49071D3@ssvlexmb2.amd.com>
+	 <m164dnnaac.fsf@ebiederm.dsl.xmission.com>
+	 <2ea3fae10611092330q551127e0oad87775964fe7251@mail.gmail.com>
+X-Google-Sender-Auth: 1d7773fafe1ca462
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Emelianov wrote:
-> Balbir Singh wrote:
->> Reclaim memory as we hit the max_shares limit. The code for reclamation
->> is inspired from Dave Hansen's challenged memory controller and from the
->> shrink_all_memory() code
->>
->> Reclamation can be triggered from two paths
->>
->> 1. While incrementing the RSS, we hit the limit of the container
->> 2. A container is resized, such that it's new limit is below its current
->>    RSS
->>
->> In (1) reclamation takes place in the background.
-> 
-> Hmm... This is not a hard limit in this case, right? And in case
-> of overloaded system from the moment reclamation thread is woken
-> up till the moment it starts shrinking zones container may touch
-> too many pages...
-> 
-> That's not good.
+Andi,
 
-Yes, please see my comments in the TODO's. Hard limits should be easy
-to implement, it's a question of calling the correct routine based
-on policy.
+On 11/9/06, yhlu <yinghailu@gmail.com> wrote:
+> the /proc/iomem doesn't show RAM above 1M.
+>
+> I have increased linuxbios table at high 0xf0000-0xf0400 to
+> 0xf0000-0x100000. the RAM above 1M show up.
+>
 
-> 
->> TODO's
->>
->> 1. max_shares currently works like a soft limit. The RSS can grow beyond it's
->>    limit. One possible fix is to introduce a soft limit (reclaim when the
->>    container hits the soft limit) and fail when we hit the hard limit
-> 
-> Such soft limit doesn't help also. It just makes effects on
-> low-loaded system smoother.
-> 
-> And what about a hard limit - how would you fail in page fault in
-> case of limit hit? SIGKILL/SEGV is not an option - in this case we
-> should run synchronous reclamation. This is done in beancounter
-> patches v6 we've sent recently.
-> 
+Can you explain more about the patch?
 
-I thought about running synchronous reclamation, but then did not follow
-that approach, I was not sure if calling the reclaim routines from the
-page fault context is a good thing to do. It's worth trying out, since
-it would provide better control over rss.
+I wonder what we suppose to do about [640K, 1M).
+In LinuxBIOS we only set [0xa0000, 0xc0000) and [0xf0000, 0xf0400) to reserved,
+[0xc0000, 0xf0000) and [0xf0400, 4G) as ram..
 
+with your patch, the 1M above range will not show up on /proc/iomem
 
->> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
->> ---
->>
->> --- linux-2.6.19-rc2/mm/vmscan.c~container-memctlr-reclaim	2006-11-09 22:21:11.000000000 +0530
->> +++ linux-2.6.19-rc2-balbir/mm/vmscan.c	2006-11-09 22:21:11.000000000 +0530
->> @@ -36,6 +36,8 @@
->>  #include <linux/rwsem.h>
->>  #include <linux/delay.h>
->>  #include <linux/kthread.h>
->> +#include <linux/container.h>
->> +#include <linux/memctlr.h>
->>  
->>  #include <asm/tlbflush.h>
->>  #include <asm/div64.h>
->> @@ -65,6 +67,9 @@ struct scan_control {
->>  	int swappiness;
->>  
->>  	int all_unreclaimable;
->> +
->> +	int overlimit;
->> +	void *container;	/* Added as void * to avoid #ifdef's */
->>  };
->>  
->>  /*
->> @@ -811,6 +816,10 @@ force_reclaim_mapped:
->>  		cond_resched();
->>  		page = lru_to_page(&l_hold);
->>  		list_del(&page->lru);
->> +		if (!memctlr_page_reclaim(page, sc->container, sc->overlimit)) {
->> +			list_add(&page->lru, &l_active);
->> +			continue;
->> +		}
->>  		if (page_mapped(page)) {
->>  			if (!reclaim_mapped ||
->>  			    (total_swap_pages == 0 && PageAnon(page)) ||
-> 
-> [snip] See comment below.
-> 
->>  
->> +#ifdef CONFIG_RES_GROUPS_MEMORY
->> +/*
->> + * Modelled after shrink_all_memory
->> + */
->> +unsigned long memctlr_shrink_container_memory(unsigned long nr_pages,
->> +						struct container *container,
->> +						int overlimit)
->> +{
->> +	unsigned long lru_pages;
->> +	unsigned long ret = 0;
->> +	int pass;
->> +	struct zone *zone;
->> +	struct scan_control sc = {
->> +		.gfp_mask = GFP_KERNEL,
->> +		.may_swap = 0,
->> +		.swap_cluster_max = nr_pages,
->> +		.may_writepage = 1,
->> +		.swappiness = vm_swappiness,
->> +		.overlimit = overlimit,
->> +		.container = container,
->> +	};
->> +
-> 
-> [snip]
-> 
->> +		for (prio = DEF_PRIORITY; prio >= 0; prio--) {
->> +			unsigned long nr_to_scan = nr_pages - ret;
->> +
->> +			sc.nr_scanned = 0;
->> +			ret += shrink_all_zones(nr_to_scan, prio, pass, &sc);
->> +			if (ret >= nr_pages)
->> +				break;
->> +
->> +			if (sc.nr_scanned && prio < DEF_PRIORITY - 2)
->> +				blk_congestion_wait(WRITE, HZ / 10);
->> +		}
->> +	}
->> +	return ret;
->> +}
->> +#endif
-> 
-> Please correct me if I'm wrong, but does this reclamation work like
-> "run over all the zones' lists searching for page whose controller
-> is sc->container" ?
-> 
+YH
 
-Yeah, that's correct. The code can also reclaim memory from all over-the-limit
-containers (by passing SC_OVERLIMIT_ALL). The idea behind using such a scheme
-is to ensure that the global LRU list is not broken.
+[PATCH] Don't force reserve the 640k-1MB range
+>From i386 x86-64 inherited code to force reserve the 640k-1MB area.
+That was needed on some old systems.
 
+But we generally trust the e820 map to be correct on 64bit systems
+and mark all areas that are not memory correctly.
 
--- 
-	Thanks for the feedback,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+This patch will allow to use the real memory in there.
+
+Or rather the only way to find out if it's still needed is to
+try. So far I'm optimistic.
+
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=dbf9272e863bf4b17ee8e3c66c26682b2061d40d

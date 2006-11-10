@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161869AbWKJP24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161850AbWKJPlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161869AbWKJP24 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 10:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161870AbWKJP24
+	id S1161850AbWKJPlV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 10:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161868AbWKJPlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 10:28:56 -0500
-Received: from justus.rz.uni-saarland.de ([134.96.7.31]:42014 "EHLO
-	justus.rz.uni-saarland.de") by vger.kernel.org with ESMTP
-	id S1161869AbWKJP2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 10:28:55 -0500
-Date: Fri, 10 Nov 2006 16:46:00 +0100
-From: Alexander van Heukelum <heukelum@mailshack.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
-       sct@redhat.com, herbert@gondor.apana.org.au,
-       xen-devel@lists.xensource.com
-Subject: Re: [PATCH] shorten the x86_64 boot setup GDT to what the comment says
-Message-ID: <20061110154600.GA826@mailshack.com>
-References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com> <200611091433.09232.ak@suse.de> <20061109183111.GA32438@mailshack.com> <200611101501.40007.ak@suse.de>
-Mime-Version: 1.0
+	Fri, 10 Nov 2006 10:41:21 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:4481 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1161850AbWKJPlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 10:41:20 -0500
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Michael Holzheu <holzheu@de.ibm.com>,
+       Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com
+Subject: Re: How to document dimension units for virtual files?
+References: <20061108175412.3c2be30c.holzheu@de.ibm.com>
+	<20061109231533.GE2616@elf.ucw.cz> <20061109231533.GE2616@elf.ucw.cz>
+	<6F3F24CD-2893-43E2-A006-F809E35607AE@mac.com>
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Date: 10 Nov 2006 15:41:09 +0000
+In-Reply-To: <6F3F24CD-2893-43E2-A006-F809E35607AE@mac.com>
+Message-ID: <r6mz6znwbu.fsf@skye.ra.phy.cam.ac.uk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611101501.40007.ak@suse.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.1 (justus.rz.uni-saarland.de [134.96.7.31]); Fri, 10 Nov 2006 16:28:53 +0100 (CET)
-X-AntiVirus: checked by AntiVir Milter (version: 1.1.3-1; AVE: 7.2.0.39; VDF: 6.36.1.14; host: AntiVir1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2006 at 03:01:39PM +0100, Andi Kleen wrote:
-> > Hi Andi,
-> > 
-> > (Assuming you mean: "The gdt table already is 16-byte aligned.")
-> > 
-> > Hmm. Not in the most recent version of Linus' tree, not even by
-> > concidence, and none of the patches in your quilt-current/patches touch
-> > x86_64's version of setup.S. Am I missing something?
-> 
-> The main GDT is. The boot GDT isn't, but it doesn't matter because
-> it is only used for a very short time.
+Kyle Moffett <mrmacman_g4@mac.com> writes:
+> Well, IMO you should never have "current:mW" in any form whatsoever
+> anyways.  Electrically it makes no sense; it's like saying
+> "height:grams".  
 
-Aha, thanks for clearing that up. I agree it is not important to have
-the boot GDT aligned, but I think it is preferable to make parts of the
-two versions of setup.S equal if possible.
+Agreed!
 
-Let's see what Steven Rostedt comes up with.
+> Watts are an indication of power emitted or consumed per unit time
+> (as opposed to current/amperage which counts only the number of
+> electrons and not the change in energy), so perhaps "power_flow:mW"
+> or "power_consumption:mW" would make more sense?
 
-I find the relocatable image patches interesting. I wonder if one can
-get such a kernel 'running' using bochs, freedos, and loadlin ;).
+Current is flow of charge, in other words, charge per time.  Flow has
+the notion of "per time" built into it.  So "power flow" contains an
+extra "per time" compared to what you're looking for.  Power, being
+energy per time, is already a flow (it's a flow of energy).
 
-Alexander
+Perhaps because I'm writing a textbook on _The Art of Approximation_
+(and finding formulas using dimensions is a main part of the art), I
+like to distinguish a quantity's dimensions from its units.  The
+dimensions are universal, like energy or length or power; the units
+are their implementation in a particular system of measurement.  In
+the SI system of units (a.k.a. the metric system), energy is measured
+in Joules, time in seconds, and power in Joules/seconds or Watts.
+
+So all of the following make sense:
+
+* "Power:mW"
+* "energy flow: mW" (more verbose but equivalent)
+* "energy flow: mJ/s" (even more verbose but also equivalent)
+
+> I can conceivably see a need for a "current:mJ_per_s" versus
+> "current:mW" depending on the hardware-reported units, but never
+> both at the same time.
+
+I got lost here.  mJ/s is the same as mW, so with either current:mW or
+current:mJ/s you're back in the soup of measuring current using units
+of power.  If the hardware reports current, use "current: mA".  If the
+hardware reports power, use "power: mW".  Then applications can easily
+find out what's being reported and use it accordingly.
+
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

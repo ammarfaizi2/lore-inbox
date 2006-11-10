@@ -1,94 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946690AbWKJOtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946695AbWKJOtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946690AbWKJOtK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 09:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946689AbWKJOtK
+	id S1946695AbWKJOtp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 09:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946694AbWKJOtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 09:49:10 -0500
-Received: from iona.labri.fr ([147.210.8.143]:58497 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S1946690AbWKJOtG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 09:49:06 -0500
-Date: Fri, 10 Nov 2006 15:49:19 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: tori@unhappy.mine.nu, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, sebastien.hinderer@loria.fr
-Subject: Tulip dmfe carrier detection
-Message-ID: <20061110144919.GI3411@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	tori@unhappy.mine.nu, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	sebastien.hinderer@loria.fr
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="oTHb8nViIGeoXxdp"
+	Fri, 10 Nov 2006 09:49:45 -0500
+Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:30364 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S1946695AbWKJOto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 09:49:44 -0500
+Date: Fri, 10 Nov 2006 15:49:40 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: scary messages: HSM violation during boot of 2.6.18/amd64
+Message-ID: <20061110144940.GA14232@lapse.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-OS: Debian GNU/Linux 4.0 kernel 2.6.18-2-686 i686
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+X-Spamtrap: madduck.bogus@madduck.net
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---oTHb8nViIGeoXxdp
+--7JfCtLOvnd9MIVvH
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hi, I just upgraded my workstation to 2.6.18.2. It has four SATA
+drives in a RAID10, connected to the system in pairs on Promise and
+Via on-board controllers.
 
-The dmfe module lacks netif stuff for carrier detection, while the board
-does report carrier status. Here is a patch.
+Now on every boot, I see several messages like this for the drives
+connected to the VIA controller (VT6420):
 
-Note: there are probably a lot more ethtool stuff that could be added,
-but carrier sense is really a must.
+  ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+  ata2.00: tag 0 cmd 0xb0 Emask 0x2 stat 0x50 err 0x0 (HSM violation)
+  ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+  ata1.00: tag 0 cmd 0xb0 Emask 0x2 stat 0x50 err 0x0 (HSM violation)
 
-Samuel
+What do these mean?
 
---oTHb8nViIGeoXxdp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch
+Also, for the first of the two drives on the Promise/FastTrak
+PDC20378 controller, I see messages like this:
 
---- drivers/net/tulip/dmfe-orig.c	2006-10-01 16:09:49.000000000 +0200
-+++ drivers/net/tulip/dmfe.c	2006-11-10 15:20:55.000000000 +0100
-@@ -187,7 +187,7 @@ struct rx_desc {
- struct dmfe_board_info {
- 	u32 chip_id;			/* Chip vendor/Device ID */
- 	u32 chip_revision;		/* Chip revision */
--	struct DEVICE *next_dev;	/* next device */
-+	struct DEVICE *dev;		/* net device */
- 	struct pci_dev *pdev;		/* PCI device */
- 	spinlock_t lock;
- 
-@@ -399,6 +399,8 @@ static int __devinit dmfe_init_one (stru
- 	/* Init system & device */
- 	db = netdev_priv(dev);
- 
-+	db->dev = dev;
-+
- 	/* Allocate Tx/Rx descriptor memory */
- 	db->desc_pool_ptr = pci_alloc_consistent(pdev, sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20, &db->desc_pool_dma_ptr);
- 	db->buf_pool_ptr = pci_alloc_consistent(pdev, TX_BUF_ALLOC * TX_DESC_CNT + 4, &db->buf_pool_dma_ptr);
-@@ -1050,6 +1052,7 @@ static void netdev_get_drvinfo(struct ne
- 
- static struct ethtool_ops netdev_ethtool_ops = {
- 	.get_drvinfo		= netdev_get_drvinfo,
-+	.get_link               = ethtool_op_get_link,
- };
- 
- /*
-@@ -1144,6 +1147,7 @@ static void dmfe_timer(unsigned long dat
- 		/* Link Failed */
- 		DMFE_DBUG(0, "Link Failed", tmp_cr12);
- 		db->link_failed = 1;
-+		netif_carrier_off(db->dev);
- 
- 		/* For Force 10/100M Half/Full mode: Enable Auto-Nego mode */
- 		/* AUTO or force 1M Homerun/Longrun don't need */
-@@ -1166,6 +1170,8 @@ static void dmfe_timer(unsigned long dat
- 			if ( (db->media_mode & DMFE_AUTO) &&
- 				dmfe_sense_speed(db) )
- 				db->link_failed = 1;
-+			else
-+				netif_carrier_on(db->dev);
- 			dmfe_process_mode(db);
- 			/* SHOW_MEDIA_TYPE(db->op_mode); */
- 		}
+  ata3: translated ATA stat/err 0x50/00 to SCSI SK/ASC/ASCQ 0xb/00/00
 
---oTHb8nViIGeoXxdp--
+What about those?
+
+I saw none of that under 2.6.17.x. Should I be worried?
+
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+spamtraps: madduck.bogus@madduck.net
+=20
+the unix philosophy basically involves
+giving you enough rope to hang yourself.
+and then some more, just to be sure.
+
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature (GPG/PGP)
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFVJGEIgvIgzMMSnURAs/8AKCqCqZhnS1SYpKL9CWyu2Vqf+KpgACdFOyX
+EmbUTjxGgirpOSl0RsBgSIQ=
+=6cHv
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--

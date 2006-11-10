@@ -1,79 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161938AbWKJSXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161944AbWKJS2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161938AbWKJSXK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 13:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161937AbWKJSXJ
+	id S1161944AbWKJS2R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 13:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161941AbWKJS2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 13:23:09 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:60938 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S1161938AbWKJSXH (ORCPT
+	Fri, 10 Nov 2006 13:28:17 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:26803 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1161944AbWKJS2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 13:23:07 -0500
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1 (+ide-cd patches) regression: unable to rip cd
-References: <20061110161355.GB15031@kernel.dk>
-Date: Fri, 10 Nov 2006 10:23:03 -0800
-In-Reply-To: <20061110161355.GB15031@kernel.dk> (message from Jens Axboe on
-	Fri, 10 Nov 2006 17:13:55 +0100)
-Message-ID: <87u01717qw.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Nov 2006 13:28:16 -0500
+Subject: Re: [PATCH 2/3] add dev_to_node()
+From: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Christoph Hellwig <hch@lst.de>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.64.0611101015060.25338@schroedinger.engr.sgi.com>
+References: <20061030141501.GC7164@lst.de>
+	 <20061030.143357.130208425.davem@davemloft.net>
+	 <20061104225629.GA31437@lst.de>
+	 <20061108114038.59831f9d.kamezawa.hiroyu@jp.fujitsu.com>
+	 <Pine.LNX.4.64.0611101015060.25338@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: HP/OSLO
+Date: Fri, 10 Nov 2006 13:28:25 -0500
+Message-Id: <1163183306.15159.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <jens.axboe@oracle.com> writes:
+On Fri, 2006-11-10 at 10:16 -0800, Christoph Lameter wrote:
+> On Wed, 8 Nov 2006, KAMEZAWA Hiroyuki wrote:
+> 
+> > I wonder there are no code for creating NODE_DATA() for device-only-node.
+> 
+> On IA64 we remap nodes with no memory / cpus to the nearest node with 
+> memory. I think that is sufficient.
 
-> Can you retest with this? This must be where the wrong write bit comes
-> from.
->
-> diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
-> index 2dc3264..a19338e 100644
-> --- a/block/scsi_ioctl.c
-> +++ b/block/scsi_ioctl.c
-> @@ -246,10 +246,10 @@ static int sg_io(struct file *file, requ
->  		switch (hdr->dxfer_direction) {
->  		default:
->  			return -EINVAL;
-> -		case SG_DXFER_TO_FROM_DEV:
->  		case SG_DXFER_TO_DEV:
->  			writing = 1;
->  			break;
-> +		case SG_DXFER_TO_FROM_DEV:
->  		case SG_DXFER_FROM_DEV:
->  			break;
->  		}
->
+I don't think this happens anymore.  Back in the ~2.6.5 days, when we
+would configure our numa platforms with 100% of memory interleaved [in
+hardware at  cache line granularity], the cpus would move to the
+interleaved "pseudo-node" and the memoryless nodes would be removed.
+numactl --hardware would show something like this:
 
-i think this finally got it to work! when i start cdparanoia now i get
-(all the previous debug patches are still applied):
+# uname -r
+2.6.5-7.244-default
+# numactl --hardware
+available: 1 nodes (0-0)
+node 0 size: 65443 MB
+node 0 free: 64506 MB
 
-kernel: ide-cd: starting INQ da76fee4
-kernel: ide-cd: newpc da76fee4
-kernel: ide-cd: newpc da76fee4
-kernel: ide-cd: newpc end INQ da76fee4
+I started seeing different behavior about the time SPARSEMEM went in.
+Now, with a 2.6.16 base kernel [same platform, hardware interleaved
+memory], I see:
 
-and then when it gets to the parts where the cd might have some
-problems i get a bunch of:
+# uname -r# numactl --hardware
+available: 5 nodes (0-4)
+node 0 size: 0 MB
+node 0 free: 0 MB
+node 1 size: 0 MB
+node 1 free: 0 MB
+node 2 size: 0 MB
+node 2 free: 0 MB
+node 3 size: 0 MB
+node 3 free: 0 MB
+node 4 size: 65439 MB
+node 4 free: 64492 MB
+node distances:
+node   0   1   2   3   4
+  0:  10  17  17  17  14
+  1:  17  10  17  17  14
+  2:  17  17  10  17  14
+  3:  17  17  17  10  14
+  4:  14  14  14  14  10
+2.6.16.21-0.8-default
 
-kernel: hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-kernel: hdc: packet command error: error=0xb4 { AbortedCommand LastFailedSense=0x0b }
-kernel: ide: failed opcode was: unknown
-kernel: ATAPI device hdc:
-kernel:   Error: Aborted command -- (Sense key=0x0b)
-kernel:   (reserved error code) -- (asc=0x11, ascq=0x11)
-kernel:   The failed "Read CD" packet command was: 
-kernel:   "be 00 00 00 51 93 00 00 0d f8 00 00 00 00 00 00 "
+[Aside:  The firmware/SLIT says that the interleaved memory is closer to
+all nodes that other nodes' memory.  This has interesting implications
+for the "overflow" zone lists...]
 
-but cdparanoia continues (albeit more slowly) and eventually finishes.
-thank you!
+Lee
 
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |

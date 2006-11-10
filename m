@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946118AbWKJJSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966100AbWKJJSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946118AbWKJJSl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946139AbWKJJSl
+	id S966100AbWKJJSC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:18:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966099AbWKJJSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:18:41 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:2873 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1946118AbWKJJSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:18:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=HXV667yxpbrcX6mNjvkM/DH45GgNf2JVpRBoelf6WuFFvrXnvV1xcmHQzCPb7oJRNE9ohhmx5ZZlI8A4Og1w+HbtRljnAoXvMpEfDHFcIqEIneLpl12cjvCT+9SPRK111/FGT0u9HpLH7h5ik9ChOY1H2naJyk4/rXtG/Twia+o=
-Message-ID: <86802c440611100118s39613504q335914f01273fd30@mail.gmail.com>
-Date: Fri, 10 Nov 2006 01:18:37 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Andi Kleen" <ak@muc.de>, yhlu <yinghailu@gmail.com>
-Subject: Re: [Fastboot] Kexec with latest kernel fail
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Horms <horms@verge.net.au>,
-       "Fastboot mailing list" <fastboot@lists.osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <2ea3fae10611092330q551127e0oad87775964fe7251@mail.gmail.com>
+	Fri, 10 Nov 2006 04:18:01 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:17560 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S966098AbWKJJR7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 04:17:59 -0500
+Message-ID: <455442B6.30800@openvz.org>
+Date: Fri, 10 Nov 2006 12:13:26 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Balbir Singh <balbir@in.ibm.com>
+CC: Linux MM <linux-mm@kvack.org>, dev@openvz.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
+       rohitseth@google.com
+Subject: Re: [RFC][PATCH 7/8] RSS controller fix resource groups parsing
+References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com> <20061109193627.21437.88058.sendpatchset@balbir.in.ibm.com>
+In-Reply-To: <20061109193627.21437.88058.sendpatchset@balbir.in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <5986589C150B2F49A46483AC44C7BCA49071D3@ssvlexmb2.amd.com>
-	 <m164dnnaac.fsf@ebiederm.dsl.xmission.com>
-	 <2ea3fae10611092330q551127e0oad87775964fe7251@mail.gmail.com>
-X-Google-Sender-Auth: 1d7773fafe1ca462
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+Balbir Singh wrote:
+> echo adds a "\n" to the end of a string. When this string is copied from
+> user space, we need to remove it, so that match_token() can parse
+> the user space string correctly
+> 
+> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+> ---
+> 
+>  kernel/res_group/rgcs.c |    6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff -puN kernel/res_group/rgcs.c~container-res-groups-fix-parsing kernel/res_group/rgcs.c
+> --- linux-2.6.19-rc2/kernel/res_group/rgcs.c~container-res-groups-fix-parsing	2006-11-09 23:08:10.000000000 +0530
+> +++ linux-2.6.19-rc2-balbir/kernel/res_group/rgcs.c	2006-11-09 23:08:10.000000000 +0530
+> @@ -241,6 +241,12 @@ ssize_t res_group_file_write(struct cont
+>  	}
+>  	buf[nbytes] = 0;	/* nul-terminate */
+>  
+> +	/*
+> +	 * Ignore "\n". It might come in from echo(1)
 
-On 11/9/06, yhlu <yinghailu@gmail.com> wrote:
-> the /proc/iomem doesn't show RAM above 1M.
->
-> I have increased linuxbios table at high 0xf0000-0xf0400 to
-> 0xf0000-0x100000. the RAM above 1M show up.
->
+Why not inform user he should call echo -n?
 
-Can you explain more about the patch?
+> +	 */
+> +	if (buf[nbytes - 1] == '\n')
+> +		buf[nbytes - 1] = 0;
+> +
+>  	container_manage_lock();
+>  
+>  	if (container_is_removed(cont)) {
+> _
+> 
 
-I wonder what we suppose to do about [640K, 1M).
-In LinuxBIOS we only set [0xa0000, 0xc0000) and [0xf0000, 0xf0400) to reserved,
-[0xc0000, 0xf0000) and [0xf0400, 4G) as ram..
-
-with your patch, the 1M above range will not show up on /proc/iomem
-
-YH
-
-[PATCH] Don't force reserve the 640k-1MB range
->From i386 x86-64 inherited code to force reserve the 640k-1MB area.
-That was needed on some old systems.
-
-But we generally trust the e820 map to be correct on 64bit systems
-and mark all areas that are not memory correctly.
-
-This patch will allow to use the real memory in there.
-
-Or rather the only way to find out if it's still needed is to
-try. So far I'm optimistic.
-
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=dbf9272e863bf4b17ee8e3c66c26682b2061d40d
+That's the same patch as in [PATCH 1/8] mail. Did you attached
+a wrong one?

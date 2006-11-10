@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946015AbWKJIHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946023AbWKJINs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946015AbWKJIHt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 03:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946019AbWKJIHt
+	id S1946023AbWKJINs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 03:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424379AbWKJINs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 03:07:49 -0500
-Received: from www.osadl.org ([213.239.205.134]:56007 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1946015AbWKJIHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 03:07:48 -0500
-Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andi Kleen <ak@suse.de>
-Cc: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Len Brown <lenb@kernel.org>, Arjan van de Ven <arjan@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <200611100610.13957.ak@suse.de>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de>
-	 <20061109233035.569684000@cruncher.tec.linutronix.de>
-	 <1163121045.836.69.camel@localhost>  <200611100610.13957.ak@suse.de>
-Content-Type: text/plain
-Date: Fri, 10 Nov 2006 09:10:06 +0100
-Message-Id: <1163146206.8335.183.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Nov 2006 03:13:48 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29652 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1424287AbWKJINr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 03:13:47 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysctl: Undeprecate sys_sysctl
+References: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com>
+	<200611092317.26459.s0348365@sms.ed.ac.uk>
+	<m1ejsbnagm.fsf@ebiederm.dsl.xmission.com>
+	<20061110075640.GA15611@flint.arm.linux.org.uk>
+Date: Fri, 10 Nov 2006 01:13:16 -0700
+In-Reply-To: <20061110075640.GA15611@flint.arm.linux.org.uk> (Russell King's
+	message of "Fri, 10 Nov 2006 07:56:40 +0000")
+Message-ID: <m11woblnxf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-10 at 06:10 +0100, Andi Kleen wrote:
-> > >  		verify_tsc_freq_timer.function = verify_tsc_freq;
-> > >  		verify_tsc_freq_timer.expires =
-> > 
-> > 
-> > Hmmm. I wish this patch was unnecessary, but I don't see an easy
-> > solution. 
-> 
-> Very sad. This will make a lot of people unhappy, even to the point
-> where they might prefer disabling noidlehz over super slow gettimeofday. 
-> I assume you at least have a suitable command line option for that, right?
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-Yes it is sad. And the sadest part is that AMD and Intel have been asked
-to fix that more than 5 years ago. They did not get their brain straight
-and now we are the dimwits.
+> On Thu, Nov 09, 2006 at 10:21:13PM -0700, Eric W. Biederman wrote:
+>> Alistair John Strachan <s0348365@sms.ed.ac.uk> writes:
+>> > Eric, do you have a list of the remaining users? It'd be good to know for 
+>> > people using Linux in an embedded environment, where they may want to switch
+>> > off the option, but only if it doesn't break their userspace.
+>> 
+>> They are very very few.  The ones I recall are kudzu, radvd, and
+>> libpthreads (which doesn't care).  
+>
+> Let's not forget that on ARM it's used to get the MMIO region which
+> is used for PIO emulation by glibc.  Without it, glibc can't detect
+> where this region is.
 
-> Can we get a summary on which systems the TSC is considered unstable?
-> Normally we assume if it's stable enough for gettimeofday it should
-> be stable enough for longer delays too.
+Is that on all subarches or just some of them?
 
-TSC is simply a nightmare:
+But given the scarcity of the list this is certainly one of the
+significant known users.
 
-- Frequency changes with CPU clock
-- Unsynced across CPUs
-- Stops in C3, which makes it completely unusable
-
-Once you take away periodic interrupts it is simply broken. AMD and
-Intel can run in circels, it does not get better.
-
-	tglx
-
-
-
-
+Eric

@@ -1,73 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161826AbWKJPUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161829AbWKJPWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161826AbWKJPUl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 10:20:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161829AbWKJPUl
+	id S1161829AbWKJPWo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 10:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161863AbWKJPWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 10:20:41 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:55467 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1161826AbWKJPUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 10:20:40 -0500
-Date: Fri, 10 Nov 2006 16:20:38 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2048 CPUs [was: Re: New filesystem for Linux]
-In-Reply-To: <20061110090303.GB3196@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.64.0611101606090.20654@artax.karlin.mff.cuni.cz>
-References: <787b0d920611041154l69db46abv4c8c467809ada57c@mail.gmail.com>
- <Pine.LNX.4.64.0611042332240.20974@artax.karlin.mff.cuni.cz>
- <20061107212614.GA6730@ucw.cz> <Pine.LNX.4.64.0611072328220.10497@artax.karlin.mff.cuni.cz>
- <20061107231456.GB7796@elf.ucw.cz> <Pine.LNX.4.64.0611081921170.5694@artax.karlin.mff.cuni.cz>
- <20061110090303.GB3196@elf.ucw.cz>
-X-Personality-Disorder: Schizoid
+	Fri, 10 Nov 2006 10:22:44 -0500
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:28172 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1161829AbWKJPWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 10:22:43 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ludovic Drolez <ludovic.drolez@linbox.com>
+Subject: Re: 2.6.18.2: cannot compile with gcc 3.0.4
+Date: Fri, 10 Nov 2006 15:22:39 +0000
+User-Agent: KMail/1.9.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org
+References: <45545C1B.4040204@linbox.com> <9a8748490611100328w75ccf2e8uc1121a80e68242d8@mail.gmail.com> <455468D8.7080609@linbox.com>
+In-Reply-To: <455468D8.7080609@linbox.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611101522.39821.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->>>> If some rogue threads (and it may not even be intetional) call the same
->>>> syscall stressing the one spinlock all the time, other syscalls needing
->>>> the same spinlock may stall.
->>>
->>> Fortunately, they'll unstall with probability of 1... so no, I do not
->>> think this is real problem.
->>
->> You can't tell that CPUs behave exactly probabilistically --- it may
->> happen that one gets out of the wait loop always too late.
+On Friday 10 November 2006 11:56, Ludovic Drolez wrote:
+> Jesper Juhl wrote:
+> > If you had bothered to read Documentation/Changes then you would have
+> > seen that the current minimal required gcc version is 3.2 :
 >
-> Well,  I don't need them to be _exactly_ probabilistical.
->
-> Anyway, if you have 2048 CPUs... you can perhaps get some non-broken
-> ones.
+> Ok sorry, I didn't see the change between 2.6.15 and 2.6.16.
+> Maybe a test should be added in linux/compiler-gcc3.h, to have the same
+> warning as with gcc 2.xx ?
 
-No intel document guarantees you that if more CPUs simultaneously execute 
-locked cmpxchg in a loop that a CPU will see compare success in a finite 
-time. In fact, CPUs can't guarantee this at all, because they don't know 
-that they're executing a spinlock --- for them its just an instruction 
-stream like anything else.
+Untested, but something like this should do it.
 
-Intel only guarantees that cmpxchg (or any other instruction) completes in 
-finite time, but it doesn't say anything about the result of it.
+The kernel doesn't compile with GCC <3.2, do not allow it to succeed if GCC 
+3.0.x or 3.1.x are used.
 
->>> If someone takes semaphore in syscall (we do), same problem may
->>> happen, right...? Without need for 2048 cpus. Maybe semaphores/mutexes
->>> are fair (or mostly fair) these days, but rwlocks may not be or
->>> something.
->>
->> Scheduler increases priority of sleeping process, so starving process
->> should be waken up first. But if there are so many processes, that
->> process
->
-> I do not think this is how Linux scheduler works.
-> 								Pavel
+Signed-off-by: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 
-<= 2.4 scheduler worked exactly like this. 2.6 has it more complicated, 
-but does similar thing. But you are right that starvation on semaphore can 
-happen, if the process has too high nice value, it will never be risen 
-above other processes.
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 538423d..aca6698 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -40,7 +40,7 @@ #if __GNUC__ > 4
+ #error no compiler-gcc.h file for this gcc version
+ #elif __GNUC__ == 4
+ # include <linux/compiler-gcc4.h>
+-#elif __GNUC__ == 3
++#elif __GNUC__ == 3 && __GNUC_MINOR__ >= 2
+ # include <linux/compiler-gcc3.h>
+ #else
+ # error Sorry, your compiler is too old/not recognized.
 
-Mikulas
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946025AbWKJI0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946055AbWKJIfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946025AbWKJI0J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 03:26:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424380AbWKJI0I
+	id S1946055AbWKJIfp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 03:35:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946057AbWKJIfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 03:26:08 -0500
-Received: from mail.suse.de ([195.135.220.2]:55513 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1424379AbWKJI0G (ORCPT
+	Fri, 10 Nov 2006 03:35:45 -0500
+Received: from mx1.suse.de ([195.135.220.2]:16091 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1946055AbWKJIfo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 03:26:06 -0500
-To: "Bela Lubkin" <blubkin@vmware.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: touch_cache() only touches two thirds
-References: <FE74AC4E0A23124DA52B99F17F441597DA118C@PA-EXCH03.vmware.com>
+	Fri, 10 Nov 2006 03:35:44 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HZ: 300Hz support
+References: <1163018557.23956.92.camel@localhost.localdomain>
 From: Andi Kleen <ak@suse.de>
-Date: 10 Nov 2006 09:25:51 +0100
-In-Reply-To: <FE74AC4E0A23124DA52B99F17F441597DA118C@PA-EXCH03.vmware.com>
-Message-ID: <p734pt7k8s0.fsf@bingen.suse.de>
+Date: 10 Nov 2006 09:35:17 +0100
+In-Reply-To: <1163018557.23956.92.camel@localhost.localdomain>
+Message-ID: <p73zmazitru.fsf@bingen.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bela Lubkin" <blubkin@vmware.com> writes:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> Fix two things. Firstly the unit is "Hz" not "HZ". Secondly it is useful
+> to have 300Hz support when doing multimedia work. 250 is fine for us in
+> Europe but the US frame rate is 30fps (29.99 blah for pedants). 300
+> gives us a tick divisible by both 25 and 30, and for interlace work 50
+> and 60. It's also giving similar performance to 250Hz.
 > 
-> /*
->  * Dirty a big buffer in a hard-to-predict (for the L2 cache) way. This
->  * is the operation that is timed, so we try to generate unpredictable
->  * cachemisses that still end up filling the L2 cache:
->  */
+> I'd argue we should remove 250 and add 300, but that might be excess
+> disruption for now.
 
-The comment is misleading anyways. AFAIK several of the modern
-CPUs (at least K8, later P4s, Core2, POWER4+, PPC970) have prefetch 
-predictors advanced enough to follow several streams forward and backwards
-in parallel.
+If we go down that path I would like to have 256.
 
-I hit this while doing NUMA benchmarking for example.
-
-Most likely to be really unpredictable you need to use a
-true RND and somehow make sure still the full cache range 
-is covered.
-
+Why? There are still lots of systems with broken Interrupt 0 routing
+and usually on those the RTC works just fine. But unfortunately RTC
+can be only programmed to power of two frequencies. 256 would fit.
 
 -Andi

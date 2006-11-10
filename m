@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbWKJJpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946096AbWKJJql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbWKJJpL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:45:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbWKJJpL
+	id S1946096AbWKJJql (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946221AbWKJJql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:45:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:49900 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932581AbWKJJpJ (ORCPT
+	Fri, 10 Nov 2006 04:46:41 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:22920 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1946096AbWKJJqk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:45:09 -0500
-Date: Fri, 10 Nov 2006 01:40:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
-       John Stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [patch 01/19] hrtimers: state tracking
-Message-Id: <20061110014053.5208f35e.akpm@osdl.org>
-In-Reply-To: <1163150389.3138.608.camel@laptopd505.fenrus.org>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de>
-	<20061109233034.182462000@cruncher.tec.linutronix.de>
-	<1163150389.3138.608.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Nov 2006 04:46:40 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] x86_64: Make the NUMA hash function nodemap allocation dynamic and remove NODEMAPSIZE
+Date: Fri, 10 Nov 2006 10:46:49 +0100
+User-Agent: KMail/1.9.5
+Cc: Amul Shah <amul.shah@unisys.com>, LKML <linux-kernel@vger.kernel.org>
+References: <1163029076.3553.36.camel@ustr-linux-shaha1.unisys.com> <200611100748.30889.ak@suse.de> <200611101043.14749.dada1@cosmosbay.com>
+In-Reply-To: <200611101043.14749.dada1@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611101046.49806.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2006 10:19:48 +0100
-Arjan van de Ven <arjan@infradead.org> wrote:
+On Friday 10 November 2006 10:43, Eric Dumazet wrote:
+>
+> Therefore I suggest to use a structure like that :
+>
+> struct memnode {
+>  	int shift;
+> 	unsigned int mapsize; /* no need to use 8 bytes here */
+> 	u8 *map;
+> 	u8 embedded_map[64-8]; /* total size = 64 bytes */
+>  } ____cacheline_aligned;
+>
 
-> 
-> > +/*
-> > + * Bit values to track state of the timer
-> > + *
-> > + * Possible states:
-> > + *
-> > + * 0x00		inactive
-> > + * 0x01		enqueued into rbtree
-> > + * 0x02		callback function running
-> > + * 0x03		callback function running and enqueued
-> > + *		(was requeued on another CPU)
-> > + *
-> > + * The "callback function running and enqueued" status is only possible on
-> > + * SMP. It happens for example when a posix timer expired and the callback
-> > + * queued a signal. Between dropping the lock which protects the posix timer
-> > + * and reacquiring the base lock of the hrtimer, another CPU can deliver the
-> > + * signal and rearm the timer. We have to preserve the callback running state,
-> > + * as otherwise the timer could be removed before the softirq code finishes the
-> > + * the handling of the timer.
-> > + *
-> > + * The HRTIMER_STATE_ENQUEUE bit is always or'ed to the current state to
-> > + * preserve the HRTIMER_STATE_CALLBACK bit in the above scenario.
-> > + *
-> > + * All state transitions are protected by cpu_base->lock.
-> > + */
-> > +#define HRTIMER_STATE_INACTIVE	0x00
-> > +#define HRTIMER_STATE_ENQUEUED	0x01
-> > +#define HRTIMER_STATE_CALLBACK	0x02
-> 
-> where is the define for 0x03?
-> 
-> >  
-> > +static inline int hrtimer_is_queued(struct hrtimer *timer)
-> > +{
-> > +	return timer->state != HRTIMER_STATE_INACTIVE &&
-> > +		timer->state != HRTIMER_STATE_CALLBACK;
-> > +}
-> 
-> the state things are either bits or they're not. If they're bits, you
-> probably want to make this a bitcheck instead...
-> >  	rb_insert_color(&timer->node, &base->active);
-> > +	/*
-> > +	 * HRTIMER_STATE_ENQUEUED is or'ed to the current state to preserve the
-> > +	 * state of a possibly running callback.
-> > +	 */
-> > +	timer->state |= HRTIMER_STATE_ENQUEUED;
-> 
-> ok so it IS a bit thing, see comment about hrtimer_is_queued() not being
-> a bit check then...
-> 
+Arg... [64 - 16] sorry
 
-eek.  I exhaustively went over that confusion in my initial (and lengthy)
-review of these patches.
 
-I don't think we ever saw a point-by-point reply.  What got lost?
+> and make memnode.map point to memnode.embedded_map if mapsize <= 56 ?
+
+mapsize <= 48
+
+>
+> This way, most AMD64 dual/quad processors wont waste a full PAGE to store
+> few bytes in it, and should use only one cache line.
+>
+> Thank you
+>
+> Eric
+>

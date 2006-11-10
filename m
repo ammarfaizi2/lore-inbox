@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946748AbWKJXKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424447AbWKJXXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946748AbWKJXKq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 18:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946221AbWKJXKq
+	id S1424447AbWKJXXP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 18:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424467AbWKJXXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 18:10:46 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:60039 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1424455AbWKJXKp (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 18:10:45 -0500
-Message-Id: <200611102310.kAANAgOf019164@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Tomasz Chmielewski <mangoo@wpkg.org>
-Cc: linux-kernel@vger.kernel.org, madduck@madduck.net
-Subject: Re: scary messages: HSM violation during boot of 2.6.18/amd64
-In-Reply-To: Your message of "Fri, 10 Nov 2006 23:54:00 +0100."
-             <45550308.1090408@wpkg.org>
-From: Valdis.Kletnieks@vt.edu
-References: <455496CA.5040405@wpkg.org> <200611102239.kAAMdoYV015817@turing-police.cc.vt.edu>
-            <45550308.1090408@wpkg.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1163200242_4028P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 10 Nov 2006 18:23:15 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:6584 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1424447AbWKJXXO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 18:23:14 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Neil Brown <neilb@suse.de>
+Subject: Re: 2.6.19-rc5-mm1: HPC nx6325 breakage, VESA fb problem, md-raid problem
+Date: Sat, 11 Nov 2006 00:20:44 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fbuihuu@gmail.com, adaplas@pol.net, Andi Kleen <ak@suse.de>
+References: <20061108015452.a2bb40d2.akpm@osdl.org> <200611091642.01453.rjw@sisk.pl> <17748.7163.111098.788069@cse.unsw.edu.au>
+In-Reply-To: <17748.7163.111098.788069@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 10 Nov 2006 18:10:42 -0500
+Content-Disposition: inline
+Message-Id: <200611110020.45408.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1163200242_4028P
-Content-Type: text/plain; charset=us-ascii
-
-On Fri, 10 Nov 2006 23:54:00 +0100, Tomasz Chmielewski said:
-
-> You use old smartmontools :)
+On Friday, 10 November 2006 07:28, Neil Brown wrote:
+> On Thursday November 9, rjw@sisk.pl wrote:
+> > On Thursday, 9 November 2006 02:04, Rafael J. Wysocki wrote:
+> > > > > and the kernel says it cannot mount the root fs (which is on an md-raid).
+> > > > 
+> > > > hm, there was probably some earlier message which tells us why that
+> > > > happened.  Doing a capure-and-compare on the dmesg output would be nice
+> > > > (netconsole?)
+> > 
+> > This happens because of md-change-lifetime-rules-for-md-devices.patch and
+> > seems to be a universal breakage.
 > 
-> -o on / -S on is not supported for sata, unless you use a CVS version of 
-> smartmontools.
+> Thanks for the report.
+> Are you at all interested in confirming that this version of the patch
+> works for you?
 
-OK, thanks - the Fedora RPM from several days ago is still 5.36 based,
-I just pulled the CVS version and it starts up much more nicely.  Only quirk:
+Yes, it does.
 
-Nov 10 18:04:32 turing-police smartd[18988]: Device: /dev/sda, opened 
-Nov 10 18:04:32 turing-police smartd[18988]: Device /dev/sda: SATA disks accessed via libata are supported by Linux kernel versions 2.6.15-rc1 and above. Try adding '-d ata' or '-d sat' to the smartd.conf config file line. 
-
-Well, yeah. I'm on 2.6.19-rc5-mm1 and the config file *has* '-d ata' already. ;)
-I'd file a bug report against that, except it's time for me to leave the office
-and forage for some dinner. :)
-
---==_Exmh_1163200242_4028P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFVQbycC3lWbTT17ARAocgAKDmyLl12TNv8qoy4uDV0DM0p5obmgCeNe8+
-o3Zfd+axCTGXBVqdeJqEqCU=
-=3lXH
------END PGP SIGNATURE-----
-
---==_Exmh_1163200242_4028P--
+Thanks,
+Rafael

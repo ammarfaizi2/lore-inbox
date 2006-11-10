@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966117AbWKJVjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424413AbWKJVmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966117AbWKJVjs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 16:39:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966118AbWKJVjr
+	id S1424413AbWKJVmo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 16:42:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966118AbWKJVmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 16:39:47 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:1226 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S966117AbWKJVjq (ORCPT
+	Fri, 10 Nov 2006 16:42:44 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:23242 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S966116AbWKJVmn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 16:39:46 -0500
-Date: Fri, 10 Nov 2006 22:38:39 +0100
+	Fri, 10 Nov 2006 16:42:43 -0500
+Date: Fri, 10 Nov 2006 22:42:08 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Christoph Lameter <clameter@sgi.com>
 Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
@@ -17,7 +17,7 @@ Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
        mm-commits@vger.kernel.org, nickpiggin@yahoo.com.au,
        linux-kernel@vger.kernel.org
 Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
-Message-ID: <20061110213839.GA21928@elte.hu>
+Message-ID: <20061110214208.GA23456@elte.hu>
 References: <000001c70490$01cea4b0$8bc8180a@amr.corp.intel.com> <Pine.LNX.4.64.0611101027100.25459@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -40,32 +40,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Christoph Lameter <clameter@sgi.com> wrote:
 
-> I have done some testing on NUMA with 8p / 4n and 256 p / 128n which 
-> seems to indicate that this is doing very well. Having a global 
-> tasklet avoids concurrent load balancing from multiple nodes which 
-> smoothes out the load balancing load over all nodes in a NUMA system. 
-> It fixes the issues that we saw with contention during concurrent load 
-> balancing.
+> On a 8p system:
+> 
+> I) Percent of ticks where load balancing was found to be required
+> 
+> II) Percent of ticks where we attempted load balancing
+>    but we found that we need to try again due to load balancing
+>    in progress elsewhere (This increases (I) since we found that
+>    load balancing was required but we decided to defer. Tasklet
+>    was not invoked).
+> 
+>     	I)	II) 
+> Boot:	70%	~1%
+> AIM7:	30%	2%
+> Idle:	50%	 <0.5%
+> 
+> 256p:
+> 	I)	II)
+> Boot:	80%	30%
+> AIM7:	90%	30%
+> Idle: 	95%	30%
 
-ok, that's what i suspected - what made the difference wasnt the fact 
-that it was moved out of irqs-off section, but that it was running 
-globally, instead of in parallel on every cpu. I have no conceptual 
-problem with single-threading the more invasive load-balancing bits. 
-(since it has to touch every runqueue anyway there's probably little 
-parallelism possible) But it's a scary change nevertheless, it 
-materially affects every SMP system's balancing characteristics.
+nice measurements and interesting results.
 
-Also, tasklets are a pretty bad choice for scalable stuff - it's 
-basically a shared resource between all CPUs and the tasklet-running 
-cacheline will bounce between all the CPUs. Also, a tasklet can be 
-'reactivated', which means that a CPU will do more rebalancing albeit 
-it's /another/ CPU that wanted that.
+note that with a tasklet a 'retry' will often be done on the /same/ CPU 
+that was running the tasklet when we tried to schedule it. I.e. such a 
+'collision' will result not only in the 'loss' of the local rebalance 
+event, but also causes /another/ rebalance event on the remote CPU.
 
-So could you try another implementation perhaps, which would match the 
-'single thread of rebalancing' model better? For example, try a global 
-spinlock that is trylocked upon rebalance. If the trylock succeeds then 
-do the rebalance and unlock. If the trylock fails, just skip the 
-rebalance. (this roughly matches the tasklet logic but has lower 
-overhead and doesnt cause false, repeat rebalancing)
+so a better model would be the trylock model i suggested in the previous 
+mail: to just lose the rebalance events upon collision and not cause 
+extra work on the remote CPU. I'd also suggest to keep the rebalancing 
+code under the irqs-off section, like it is currently - only do it 
+conditional on trylock success. Do you think that would work?
 
 	Ingo

@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946549AbWKJNPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946597AbWKJNQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946549AbWKJNPf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 08:15:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946597AbWKJNPf
+	id S1946597AbWKJNQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 08:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946599AbWKJNQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 08:15:35 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14519 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1946549AbWKJNPe (ORCPT
+	Fri, 10 Nov 2006 08:16:09 -0500
+Received: from stingr.net ([212.193.32.15]:4485 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S1946597AbWKJNQH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 08:15:34 -0500
-Date: Fri, 10 Nov 2006 14:14:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, Andi Kleen <ak@suse.de>,
-       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Len Brown <lenb@kernel.org>, Arjan van de Ven <arjan@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
-Message-ID: <20061110131422.GB27251@elte.hu>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de> <20061109233035.569684000@cruncher.tec.linutronix.de> <1163121045.836.69.camel@localhost> <200611100610.13957.ak@suse.de> <1163146206.8335.183.camel@localhost.localdomain> <20061110005020.4538e095.akpm@osdl.org> <20061110085728.GA14620@elte.hu> <20061110111231.GB3291@elf.ucw.cz> <20061110114806.GA6780@elte.hu> <20061110120038.GB3385@elf.ucw.cz>
+	Fri, 10 Nov 2006 08:16:07 -0500
+Date: Fri, 10 Nov 2006 16:15:54 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Paul P Komkoff Jr <i@stingr.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Dumb question] 100k RTC interrupts/sec on SMP system: why?
+Message-ID: <20061110131554.GB18001@stingr.net>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Paul P Komkoff Jr <i@stingr.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20061109100953.GE2226@stingr.net> <20061109204145.56d02153.akpm@osdl.org> <20061110123541.GA18001@stingr.net> <1163163603.3138.700.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20061110120038.GB3385@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <1163163603.3138.700.camel@laptopd505.fenrus.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Replying to Arjan van de Ven:
 
-* Pavel Machek <pavel@ucw.cz> wrote:
+Hi, Arjan!
 
-> > we could, but it would have to be almost empty right now :-) Reason:
+> On Fri, 2006-11-10 at 15:35 +0300, Paul P Komkoff Jr wrote:
+> > ce: <Cronyx Tau-PCI/32-Lite> at 0xfb013000 irq 217
 > 
-> Well, if it would contain at least 50% of the UP machines... that 
-> would be reasonably long list for a start.
+> what kind of device is this? Did the driver come with the kernel?
 
-which 50%? Does it include those where the TSC slows down due a thermal 
-event SMM?
+It's E1 interface card, I use them for telephony.
 
-	Ingo
+I am pretty sure that Tau32 isn't guilty (I did tests with and without
+it installed), see interrupts
+
+[stingray@voipng ~]$ cat /proc/interrupts
+           CPU0       CPU1
+  0:    9833272    9829747    IO-APIC-edge  timer
+  6:          3          2    IO-APIC-edge  floppy
+  7:          1          1    IO-APIC-edge  parport0
+  8: 3673166897 3674697116   IO-APIC-level  rtc
+ 10:          0          0   IO-APIC-level  ohci_hcd:usb1
+177:        586        401   IO-APIC-level  acpi
+185:       9787       6905   IO-APIC-level  aic7xxx
+193:          6          9   IO-APIC-level  aic7xxx
+201:     249751          6   IO-APIC-level  eth0
+217:   78926484   78899594   IO-APIC-level  Cronyx Tau-PCI/32
+NMI:          0          0
+LOC:   19663975   19663974
+ERR:          0
+MIS:          0
+
+This is after 22 hours of uptime.
+
+> Also have you tried acpi=off or the linux firmware test kit (see url in
+> sig) to check the bios?
+
+Didn't acpi=off meant to hose interrupt routing, SMP, and poweroff?
+I'll try it right now.
+And thanks, I didn't know about firmware test kit either ... will
+download it right now and test in a few hours.
+
+-- 
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

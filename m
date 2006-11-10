@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946512AbWKJMAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946517AbWKJMBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946512AbWKJMAw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 07:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946518AbWKJMAw
+	id S1946517AbWKJMBj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 07:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946518AbWKJMBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 07:00:52 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7907 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1946512AbWKJMAv (ORCPT
+	Fri, 10 Nov 2006 07:01:39 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:50081 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1946517AbWKJMBi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 07:00:51 -0500
-Date: Fri, 10 Nov 2006 13:00:38 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, Andi Kleen <ak@suse.de>,
-       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Len Brown <lenb@kernel.org>, Arjan van de Ven <arjan@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
-Message-ID: <20061110120038.GB3385@elf.ucw.cz>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de> <20061109233035.569684000@cruncher.tec.linutronix.de> <1163121045.836.69.camel@localhost> <200611100610.13957.ak@suse.de> <1163146206.8335.183.camel@localhost.localdomain> <20061110005020.4538e095.akpm@osdl.org> <20061110085728.GA14620@elte.hu> <20061110111231.GB3291@elf.ucw.cz> <20061110114806.GA6780@elte.hu>
+	Fri, 10 Nov 2006 07:01:38 -0500
+Date: Fri, 10 Nov 2006 12:59:59 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Eric Sandeen <sandeen@sandeen.net>
+cc: "Igor A. Valcov" <viaprog@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, xfs@oss.sgi.com
+Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
+In-Reply-To: <4553F3C6.2030807@sandeen.net>
+Message-ID: <Pine.LNX.4.61.0611101259490.6068@yvahk01.tjqt.qr>
+References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
+ <4553F3C6.2030807@sandeen.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061110114806.GA6780@elte.hu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>> I also noticed that I/O barriers were introduced in v2.6.16 and
+>> thought they may be the cause, but mounting the file system with
+>> 'nobarrier' doesn't seem to affect the performance in any way.
+>
+>
+> did this happen to be a remount with nobarrier, or a fresh mount?
 
-> > > > If so, could that function use the PIT/pmtimer/etc for working out 
-> > > > if the TSC is bust, rather than directly using jiffies?
-> > > 
-> > > there's no realiable way to figure out the TSC is bust: some CPUs 
-> > > have a slight 'skew' between cores for example. On some systems the 
-> > > TSC might skew between sockets. A CPU might break its TSC only once 
-> > > some
-> > 
-> > But we could still do a whitelist?
-> 
-> we could, but it would have to be almost empty right now :-) Reason: 
+For the barrier stuff, see
+http://lkml.org/lkml/2006/5/19/33
 
-Well, if it would contain at least 50% of the UP machines... that
-would be reasonably long list for a start.
-								Pavel
+
+	-`J'
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

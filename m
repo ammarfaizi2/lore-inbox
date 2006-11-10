@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946601AbWKJNYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946614AbWKJNgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946601AbWKJNYk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 08:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946602AbWKJNYk
+	id S1946614AbWKJNgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 08:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946622AbWKJNgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 08:24:40 -0500
-Received: from systemlinux.org ([83.151.29.59]:57287 "EHLO m18s25.vlinux.de")
-	by vger.kernel.org with ESMTP id S1946601AbWKJNYj (ORCPT
+	Fri, 10 Nov 2006 08:36:25 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:482 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1946614AbWKJNgY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 08:24:39 -0500
-Date: Fri, 10 Nov 2006 14:24:18 +0100
-From: Andre Noll <maan@systemlinux.org>
+	Fri, 10 Nov 2006 08:36:24 -0500
+Date: Fri, 10 Nov 2006 16:35:04 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
 To: Arjan van de Ven <arjan@infradead.org>
-Cc: ak@suse.de, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5: Bad page state in process 'swapper'
-Message-ID: <20061110132418.GD29040@skl-net.de>
-References: <20061110121151.GC29040@skl-net.de> <1163161474.3138.691.camel@laptopd505.fenrus.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Dumb question] 100k RTC interrupts/sec on SMP system: why?
+Message-ID: <20061110133504.GC18001@stingr.net>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20061109100953.GE2226@stingr.net> <20061109204145.56d02153.akpm@osdl.org> <20061110123541.GA18001@stingr.net> <1163163603.3138.700.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <1163161474.3138.691.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1163163603.3138.700.camel@laptopd505.fenrus.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Replying to Arjan van de Ven:
+> Also have you tried acpi=off or the linux firmware test kit (see url in
 
---DIOMP1UsTsWJauNi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+acpi=off fixed this.
+  8:          1          0    IO-APIC-edge  rtc
 
-On 13:24, Arjan van de Ven wrote:
-
-> > just tried to boot 2.6.19-rc5 on a 2-way opteron 250 with 8G Ram:
->=20
->=20
-> doest memtest86 pass?
-
-It did pass some month ago.
-
->  which modules are in use?
-
-no modules as this kernel does not have module support.
-
-> (it looks like something splattered all over your memory)
-
-The same machine is now running 2.6.18.2 + Nick Piggin's rmap-debug
-patch with no problems so far. Prior to my test with 2.6.19-rc5 it was
-running 2.6.18.1 + Nick's patch.
-
-This is a cluster node btw, so it it stressed heavily.
-
-Andre
---=20
-The only person who always got his work done by Friday was Robinson Crusoe
-
---DIOMP1UsTsWJauNi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFVH2CWto1QDEAkw8RAsnHAKCESKsNA4GV7li8GUWx6ZU1rmRFOwCfbVD7
-50gzmZe+Oic6uvQmgEpWJHE=
-=Z9K3
------END PGP SIGNATURE-----
-
---DIOMP1UsTsWJauNi--
+So I got rid of "interrupt storm" but what I've lost (except poweroff)?
+-- 
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

@@ -1,81 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946717AbWKJP5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946720AbWKJQD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946717AbWKJP5x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 10:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946719AbWKJP5x
+	id S1946720AbWKJQD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 11:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946721AbWKJQD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 10:57:53 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:38332 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S1946717AbWKJP5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 10:57:52 -0500
-Date: Fri, 10 Nov 2006 16:57:48 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: scary messages: HSM violation during boot of 2.6.18/amd64
-Message-ID: <20061110155748.GA6081@piper.madduck.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <455496CA.5040405@wpkg.org>
+	Fri, 10 Nov 2006 11:03:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53904 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946720AbWKJQD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 11:03:28 -0500
+Message-ID: <4554A2F9.37B0023E@redhat.com>
+Date: Fri, 10 Nov 2006 11:04:09 -0500
+From: Dave Anderson <anderson@redhat.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-e.57enterprise i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-In-Reply-To: <455496CA.5040405@wpkg.org>
-X-OS: Debian GNU/Linux 4.0 kernel 2.6.17-2-amd64 x86_64
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Magnus Damm <magnus.damm@gmail.com>
+CC: vgoyal@in.ibm.com, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Magnus Damm <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>, fastboot@lists.osdl.org,
+       Horms <horms@verge.net.au>
+Subject: Re: [PATCH 02/02] Elf: Align elf notes properly
+References: <20061102101942.452.73192.sendpatchset@localhost> <20061102101949.452.23441.sendpatchset@localhost> <m1psbwzpmx.fsf@ebiederm.dsl.xmission.com> <aec7e5c30611091952j6cd7988akc1671d269925bba9@mail.gmail.com> <m1irhnnb09.fsf@ebiederm.dsl.xmission.com> <aec7e5c30611092253q6bd15701x1f5da122de5c7075@mail.gmail.com> <20061110144922.GA8155@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+> > >Therefore we use 4 byte alignment unless it can be shown that the
+> > >linux core dumps are a fluke and should be fixed.
+> >
+> > Ok. Vivek, Dave, anyone? Comments?
+> >
+>
+> IMHO, I think we should go by the specs (8byte boundary alignment on 64bit
+> platforms) until and unless it can be proven that specs are wrong. This
+> probably will mean that we will break things for sometime (until and unless
+> it is fixed in tool chain and probably will also break the capability to use
+> an older kernel for capturing dump). But that's unavoidable if we want to be
+> compliant to specs.
+>
+> Thanks
+> Vivek
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+IMHO, why break things if it's not necessary?  As I understand it, you can
+still take the course of least resistance and implement 64-bit xen/kdump
+vmcores with 4-byte alignment -- and everybody's happy, right?
 
-also sprach Tomasz Chmielewski <mangoo@wpkg.org> [2006.11.10.1612 +0100]:
-> I saw similar when using smartctl / smartd with wrong options (without=20
-> -d ata; in short, smartd tried to talk "IDE language" to SATA device...).
+Unlike other tools that could potentially be broken, the crash utility will have
+to maintain backwards compatibility for all the other 4-byte aligned 64-bit
+vmcores out there.  So to me, it's more a PITA than anything else, and
+I'll just adapt it to whatever's out there...
 
-I am using smartd, and you are right: it triggers those messages
-after being started:
+Thanks,
+  Dave
 
-  [smartd start]
-  kernel: ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-  kernel: ata2.00: tag 0 cmd 0xb0 Emask 0x2 stat 0x50 err 0x0 (HSM violatio=
-n)
-  kernel: ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-  kernel: ata2: soft resetting port
-  kernel: ata2.00: configured for UDMA/133
-  kernel: ata2: EH complete
-  [...]
-  kernel: ata3: no sense translation for status: 0x50
-  kernel: ata3: translated ATA stat/err 0x50/00 to SCSI SK/ASC/ASCQ 0xb/00/=
-00
-  kernel: ata3: status=3D0x50 { DriveReady SeekComplete }
 
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-spamtraps: madduck.bogus@madduck.net
-=20
-"it is only the modern that ever becomes old-fashioned."=20
-                                                        -- oscar wilde
 
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature (GPG/PGP)
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFVKF8IgvIgzMMSnURArxTAKDsmd9bt6x8+GnvMyAuWgYujTfSBACeMY+L
-i+mf8MPjDiA9zkZ5nSksxdY=
-=75aJ
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--

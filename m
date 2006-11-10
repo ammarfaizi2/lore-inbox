@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946656AbWKJN7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946660AbWKJOAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946656AbWKJN7c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 08:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946670AbWKJN7c
+	id S1946660AbWKJOAb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 09:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946670AbWKJOAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 08:59:32 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:21675 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1946656AbWKJN7b (ORCPT
+	Fri, 10 Nov 2006 09:00:31 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:27264 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1946660AbWKJOAa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 08:59:31 -0500
-Date: Fri, 10 Nov 2006 14:58:55 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch 0/5] Fix timeout bug in rtmutex in 2.6.18-rt
-Message-ID: <20061110135855.GA6121@elte.hu>
-References: <Pine.LNX.4.64.0610011336040.29459@frodo.shire>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610011336040.29459@frodo.shire>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 10 Nov 2006 09:00:30 -0500
+Message-ID: <455485FC.1040607@garzik.org>
+Date: Fri, 10 Nov 2006 09:00:28 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+MIME-Version: 1.0
+To: "Michael D. Setzer II" <mikes@kuentos.guam.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Failure of sata_via with kernels since 2.6.15.6
+References: <455501B3.13819.421AEC9@mikes.kuentos.guam.net>
+In-Reply-To: <455501B3.13819.421AEC9@mikes.kuentos.guam.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael D. Setzer II wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> I've been working on the g4l since version 0.15 thru 0.21. I've recently found that later kernels 
+> no longer work with some sata controller. Below are the dmesg parts of the dmesg output of 
+> a 2.6.15.6 that works fine with the controller. All later kernels showed results similar to the 
+> 2.6.18.2 kernel. I've even tried using the 2.6.15.6  .config file as a source to build newer 
+> kernels with the same results.  Unfortuntely, this machine is a primary server, so can only do 
+> very limited testing. Have also seen the same problem with latest Knoppix not seeing the 
+> SATA drive either. 
 
-* Esben Nielsen <nielsen.esben@googlemail.com> wrote:
+Can you try 2.6.19-rc5-git2?
 
-> Hi,
->  I finally got around to merge my patches into a newer -rt kernel and 
->  repost them.
+There were very recent sata_via fixes pushed upstream.
 
-ok - your patches look rather clean. I'll try to put them into the 
-2.6.19 based -rt queue that i'm working on and see what happens.
+	Jeff
 
-	Ingo
+
+

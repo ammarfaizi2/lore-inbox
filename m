@@ -1,137 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424326AbWKJOsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946690AbWKJOtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424326AbWKJOsS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 09:48:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424403AbWKJOsS
+	id S1946690AbWKJOtK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 09:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946689AbWKJOtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 09:48:18 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:27567 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1424326AbWKJOsR (ORCPT
+	Fri, 10 Nov 2006 09:49:10 -0500
+Received: from iona.labri.fr ([147.210.8.143]:58497 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S1946690AbWKJOtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 09:48:17 -0500
-Message-ID: <455492F9.7080300@openvz.org>
-Date: Fri, 10 Nov 2006 17:55:53 +0300
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org
-CC: Andrey Savochkin <saw@sw.ru>, sct@redhat.com, adilger@clusterfs.com
-Subject: [PATCH] retries in ext3_prepare_write() violate ordering requirements
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Nov 2006 09:49:06 -0500
+Date: Fri, 10 Nov 2006 15:49:19 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: tori@unhappy.mine.nu, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, sebastien.hinderer@loria.fr
+Subject: Tulip dmfe carrier detection
+Message-ID: <20061110144919.GI3411@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	tori@unhappy.mine.nu, jgarzik@pobox.com,
+	linux-kernel@vger.kernel.org, akpm@osdl.org,
+	sebastien.hinderer@loria.fr
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="oTHb8nViIGeoXxdp"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in journal=ordered or journal=data mode retry in ext3_prepare_write()
-breaks the requirements of journaling of data with respect to metadata.
-The fix is to call commit_write to commit allocated zero blocks before
-retry.
 
-Author: Andrey Savochkin <saw@sw.ru>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+--oTHb8nViIGeoXxdp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---- ./fs/ext3/inode.c.ext3pw	2006-11-08 17:44:14.000000000 +0300
-+++ ./fs/ext3/inode.c	2006-11-08 17:48:59.000000000 +0300
-@@ -1148,37 +1148,89 @@ static int do_journal_get_write_access(h
- 	return ext3_journal_get_write_access(handle, bh);
- }
+Hi,
+
+The dmfe module lacks netif stuff for carrier detection, while the board
+does report carrier status. Here is a patch.
+
+Note: there are probably a lot more ethtool stuff that could be added,
+but carrier sense is really a must.
+
+Samuel
+
+--oTHb8nViIGeoXxdp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch
+
+--- drivers/net/tulip/dmfe-orig.c	2006-10-01 16:09:49.000000000 +0200
++++ drivers/net/tulip/dmfe.c	2006-11-10 15:20:55.000000000 +0100
+@@ -187,7 +187,7 @@ struct rx_desc {
+ struct dmfe_board_info {
+ 	u32 chip_id;			/* Chip vendor/Device ID */
+ 	u32 chip_revision;		/* Chip revision */
+-	struct DEVICE *next_dev;	/* next device */
++	struct DEVICE *dev;		/* net device */
+ 	struct pci_dev *pdev;		/* PCI device */
+ 	spinlock_t lock;
  
-+/*
-+ * The idea of this helper function is following:
-+ * if prepare_write has allocated some blocks, but not all of them, the
-+ * transaction must include the content of the newly allocated blocks.
-+ * This content is expected to be set to zeroes by block_prepare_write().
-+ * 2006/10/14  SAW
-+ */
-+static int ext3_prepare_failure(struct file *file, struct page *page,
-+				unsigned from, unsigned to)
-+{
-+	struct address_space *mapping;
-+	struct buffer_head *bh, *head, *next;
-+	unsigned block_start, block_end;
-+	unsigned blocksize;
-+
-+	mapping = page->mapping;
-+	if (ext3_should_writeback_data(mapping->host)) {
-+		/* optimization: no constraints about data */
-+skip:
-+		ext3_journal_stop(ext3_journal_current_handle());
-+		return 0;
-+	}
-+
-+	head = page_buffers(page);
-+	blocksize = head->b_size;
-+	for (	bh = head, block_start = 0;
-+		bh != head || !block_start;
-+	    	block_start = block_end, bh = next)
-+	{
-+		next = bh->b_this_page;
-+		block_end = block_start + blocksize;
-+		if (block_end <= from)
-+			continue;
-+		if (block_start >= to) {
-+			block_start = to;
-+			break;
-+		}
-+		if (!buffer_mapped(bh))
-+			break;
-+	}
-+	if (block_start <= from)
-+		goto skip;
-+
-+	/* commit allocated and zeroed buffers */
-+	return mapping->a_ops->commit_write(file, page, from, block_start);
-+}
-+
- static int ext3_prepare_write(struct file *file, struct page *page,
- 			      unsigned from, unsigned to)
- {
- 	struct inode *inode = page->mapping->host;
--	int ret, needed_blocks = ext3_writepage_trans_blocks(inode);
-+	int ret, ret2;
-+	int needed_blocks = ext3_writepage_trans_blocks(inode);
- 	handle_t *handle;
- 	int retries = 0;
+@@ -399,6 +399,8 @@ static int __devinit dmfe_init_one (stru
+ 	/* Init system & device */
+ 	db = netdev_priv(dev);
  
- retry:
- 	handle = ext3_journal_start(inode, needed_blocks);
--	if (IS_ERR(handle)) {
--		ret = PTR_ERR(handle);
--		goto out;
--	}
-+	if (IS_ERR(handle))
-+		return PTR_ERR(handle);
- 	if (test_opt(inode->i_sb, NOBH) && ext3_should_writeback_data(inode))
- 		ret = nobh_prepare_write(page, from, to, ext3_get_block);
- 	else
- 		ret = block_prepare_write(page, from, to, ext3_get_block);
- 	if (ret)
--		goto prepare_write_failed;
-+		goto failure;
- 
- 	if (ext3_should_journal_data(inode)) {
- 		ret = walk_page_buffers(handle, page_buffers(page),
- 				from, to, NULL, do_journal_get_write_access);
-+		if (ret)
-+			/* fatal error, just put the handle and return */
-+			journal_stop(handle);
- 	}
--prepare_write_failed:
--	if (ret)
--		ext3_journal_stop(handle);
-+	return ret;
++	db->dev = dev;
 +
-+failure:
-+	ret2 = ext3_prepare_failure(file, page, from, to);
-+	if (ret2 < 0)
-+		return ret2;
- 	if (ret == -ENOSPC && ext3_should_retry_alloc(inode->i_sb, &retries))
- 		goto retry;
--out:
-+	/* retry number exceeded, or other error like -EDQUOT */
- 	return ret;
- }
+ 	/* Allocate Tx/Rx descriptor memory */
+ 	db->desc_pool_ptr = pci_alloc_consistent(pdev, sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20, &db->desc_pool_dma_ptr);
+ 	db->buf_pool_ptr = pci_alloc_consistent(pdev, TX_BUF_ALLOC * TX_DESC_CNT + 4, &db->buf_pool_dma_ptr);
+@@ -1050,6 +1052,7 @@ static void netdev_get_drvinfo(struct ne
  
+ static struct ethtool_ops netdev_ethtool_ops = {
+ 	.get_drvinfo		= netdev_get_drvinfo,
++	.get_link               = ethtool_op_get_link,
+ };
+ 
+ /*
+@@ -1144,6 +1147,7 @@ static void dmfe_timer(unsigned long dat
+ 		/* Link Failed */
+ 		DMFE_DBUG(0, "Link Failed", tmp_cr12);
+ 		db->link_failed = 1;
++		netif_carrier_off(db->dev);
+ 
+ 		/* For Force 10/100M Half/Full mode: Enable Auto-Nego mode */
+ 		/* AUTO or force 1M Homerun/Longrun don't need */
+@@ -1166,6 +1170,8 @@ static void dmfe_timer(unsigned long dat
+ 			if ( (db->media_mode & DMFE_AUTO) &&
+ 				dmfe_sense_speed(db) )
+ 				db->link_failed = 1;
++			else
++				netif_carrier_on(db->dev);
+ 			dmfe_process_mode(db);
+ 			/* SHOW_MEDIA_TYPE(db->op_mode); */
+ 		}
+
+--oTHb8nViIGeoXxdp--

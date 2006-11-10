@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946510AbWKJL4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946511AbWKJL4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946510AbWKJL4L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 06:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424394AbWKJL4L
+	id S1946511AbWKJL4w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 06:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946513AbWKJL4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 06:56:11 -0500
-Received: from adsl02.metz.linbox.com ([62.212.120.90]:6869 "EHLO
-	fbxmetz.linbox.com") by vger.kernel.org with ESMTP id S1424391AbWKJL4K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 06:56:10 -0500
-Message-ID: <455468D8.7080609@linbox.com>
-Date: Fri, 10 Nov 2006 12:56:08 +0100
-From: Ludovic Drolez <ludovic.drolez@linbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20060628 Debian/1.7.8-1sarge7.1
-X-Accept-Language: fr, en-us, en
+	Fri, 10 Nov 2006 06:56:52 -0500
+Received: from mail.suse.de ([195.135.220.2]:58516 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1946512AbWKJL4v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 06:56:51 -0500
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
+Date: Fri, 10 Nov 2006 12:56:35 +0100
+User-Agent: KMail/1.9.5
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, john stultz <johnstul@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>, Len Brown <lenb@kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de> <20061110111231.GB3291@elf.ucw.cz> <20061110114806.GA6780@elte.hu>
+In-Reply-To: <20061110114806.GA6780@elte.hu>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18.2: cannot compile with gcc 3.0.4
-References: <45545C1B.4040204@linbox.com> <9a8748490611100328w75ccf2e8uc1121a80e68242d8@mail.gmail.com>
-In-Reply-To: <9a8748490611100328w75ccf2e8uc1121a80e68242d8@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200611101256.35306.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> If you had bothered to read Documentation/Changes then you would have
-> seen that the current minimal required gcc version is 3.2 :
 
-Ok sorry, I didn't see the change between 2.6.15 and 2.6.16.
-Maybe a test should be added in linux/compiler-gcc3.h, to have the same 
-warning as with gcc 2.xx ?
+> we could, but it would have to be almost empty right now :-) Reason: 
+> even on systems that have (hardware-initialized) 'perfect' TSCs and 
+> which do not support any frequency scaling or power-saving mode, our 
+> current TSC initialization on SMP systems introduces a small (1-2 usecs) 
+> skew.
 
-Cheers,
+On Intel we don't sync the TSC anymore and on most systems users seem
+to be happy at least. And on multicore AMD it is drifting anyways and 
+usually turned off.
 
--- 
-Ludovic DROLEZ                              Linbox / Free&ALter Soft
-www.linbox.com www.linbox.org	              tel: +33 3 87 50 87 90
-152 rue de Grigy - Technopole Metz 2000                   57070 METZ
+-Andi

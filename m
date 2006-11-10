@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946105AbWKJJdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWKJJne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946105AbWKJJdh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946220AbWKJJdh
+	id S932490AbWKJJne (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:43:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWKJJnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:33:37 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:44477 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1946105AbWKJJdf (ORCPT
+	Fri, 10 Nov 2006 04:43:33 -0500
+Received: from www.osadl.org ([213.239.205.134]:16816 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932490AbWKJJnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:33:35 -0500
-Message-ID: <4554466F.8010602@openvz.org>
-Date: Fri, 10 Nov 2006 12:29:19 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Pavel Emelianov <xemul@openvz.org>, Linux MM <linux-mm@kvack.org>,
-       dev@openvz.org, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       haveblue@us.ibm.com, rohitseth@google.com
-Subject: Re: [RFC][PATCH 8/8] RSS controller support reclamation
-References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com> <20061109193636.21437.11778.sendpatchset@balbir.in.ibm.com> <45543E36.2080600@openvz.org> <45544362.9040805@in.ibm.com>
-In-Reply-To: <45544362.9040805@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 10 Nov 2006 04:43:32 -0500
+Subject: Re: [patch 01/19] hrtimers: state tracking
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Len Brown <lenb@kernel.org>, John Stultz <johnstul@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20061110014053.5208f35e.akpm@osdl.org>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+	 <20061109233034.182462000@cruncher.tec.linutronix.de>
+	 <1163150389.3138.608.camel@laptopd505.fenrus.org>
+	 <20061110014053.5208f35e.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 10 Nov 2006 10:45:50 +0100
+Message-Id: <1163151951.8335.192.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-
-[snip]
-
->> And what about a hard limit - how would you fail in page fault in
->> case of limit hit? SIGKILL/SEGV is not an option - in this case we
->> should run synchronous reclamation. This is done in beancounter
->> patches v6 we've sent recently.
->>
+On Fri, 2006-11-10 at 01:40 -0800, Andrew Morton wrote:
+> > 
+> > ok so it IS a bit thing, see comment about hrtimer_is_queued() not being
+> > a bit check then...
+> > 
 > 
-> I thought about running synchronous reclamation, but then did not follow
-> that approach, I was not sure if calling the reclaim routines from the
-> page fault context is a good thing to do. It's worth trying out, since
-
-Each page fault potentially calls reclamation by allocating
-required page with __GFP_IO | __GFP_FS bits set. Synchronous
-reclamation in page fault is really normal.
-
-[snip]
-
->> Please correct me if I'm wrong, but does this reclamation work like
->> "run over all the zones' lists searching for page whose controller
->> is sc->container" ?
->>
+> eek.  I exhaustively went over that confusion in my initial (and lengthy)
+> review of these patches.
 > 
-> Yeah, that's correct. The code can also reclaim memory from all over-the-limit
+> I don't think we ever saw a point-by-point reply.  What got lost?
 
-OK. What if I have a container with 100 pages limit in a 4Gb
-(~ million of pages) machine and this group starts reclaiming
-its pages. In case this group uses its pages heavily they will
-be at the beginning of an LRU list and reclamation code would
-have to scan through all (million) pages before it finds proper
-ones. This is not optimal!
+I added comments in the defines and in the code as you requested.
+Obviously not enough comments.
 
-> containers (by passing SC_OVERLIMIT_ALL). The idea behind using such a scheme
-> is to ensure that the global LRU list is not broken.
+	tglx
 
-isolate_lru_pages() helps in this. As far as I remember this
-was introduced to reduce lru lock contention and keep lru
-lists integrity.
 
-In beancounters patches this is used to shrink BC's pages.

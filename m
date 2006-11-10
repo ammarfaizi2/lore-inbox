@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946155AbWKJJXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946153AbWKJJXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946155AbWKJJXP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946153AbWKJJXP
+	id S1946153AbWKJJXi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946145AbWKJJXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:23:15 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:55232 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1946148AbWKJJXN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:23:13 -0500
-Subject: Re: [PATCH -mm 3/3][AIO] - AIO completion signal notification
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Ulrich Drepper <drepper@redhat.com>, Zach Brown <zach.brown@oracle.com>,
-       Dave Jones <davej@redhat.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <1163099886.29807.20.camel@dyn9047017100.beaverton.ibm.com>
-References: <1163087717.3879.34.camel@frecb000686>
-	 <1163087946.3879.43.camel@frecb000686>
-	 <1163099886.29807.20.camel@dyn9047017100.beaverton.ibm.com>
-Date: Fri, 10 Nov 2006 10:22:10 +0100
-Message-Id: <1163150530.3879.61.camel@frecb000686>
+	Fri, 10 Nov 2006 04:23:38 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:15056 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1946153AbWKJJXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 04:23:36 -0500
+Subject: Patch to fixe Data Acess error in dup_fd
+From: Sharyathi Nagesh <sharyath@in.ibm.com>
+Reply-To: sharyath@in.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: Pavel Emelianov <xemul@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-tSo7IkTnNSkCJQnJ8qtV"
+Organization: IBM
+Date: Fri, 10 Nov 2006 15:02:01 +0530
+Message-Id: <1163151121.3539.15.camel@legolas.in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 10/11/2006 10:29:09,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 10/11/2006 10:29:16,
-	Serialize complete at 10/11/2006 10:29:16
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-09 at 11:18 -0800, Badari Pulavarty wrote:
-> On Thu, 2006-11-09 at 16:59 +0100, Sébastien Dugué wrote:
-> 
-> > @@ -1549,8 +1657,7 @@ int fastcall io_submit_one(struct kioctx
-> >  	ssize_t ret;
-> >  
-> >  	/* enforce forwards compatibility on users */
-> > -	if (unlikely(iocb->aio_reserved1 || iocb->aio_reserved2 ||
-> > -		     iocb->aio_reserved3)) {
-> > +	if (unlikely(iocb->aio_reserved1)) {
-> >  		pr_debug("EINVAL: io_submit: reserve field set\n");
-> >  		return -EINVAL;
-> 
-> Is there a reason for not checking "aio_reserved3" ?
-> You are still not using it. Right ?
-> 
 
-  Yep, forgot this one.
+--=-tSo7IkTnNSkCJQnJ8qtV
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-  Thanks,
+On running the Stress Test on machine for more than 72 hours following
+error message was observed.
 
-  Sébastien.
+0:mon> e
+cpu 0x0: Vector: 300 (Data Access) at [c00000007ce2f7f0]
+    pc: c000000000060d90: .dup_fd+0x240/0x39c
+    lr: c000000000060d6c: .dup_fd+0x21c/0x39c
+    sp: c00000007ce2fa70
+   msr: 800000000000b032
+   dar: ffffffff00000028
+ dsisr: 40000000
+  current = 0xc000000074950980
+  paca    = 0xc000000000454500
+    pid   = 27330, comm = bash
+
+0:mon> t
+[c00000007ce2fa70] c000000000060d28 .dup_fd+0x1d8/0x39c (unreliable)
+[c00000007ce2fb30] c000000000060f48 .copy_files+0x5c/0x88
+[c00000007ce2fbd0] c000000000061f5c .copy_process+0x574/0x1520
+[c00000007ce2fcd0] c000000000062f88 .do_fork+0x80/0x1c4
+[c00000007ce2fdc0] c000000000011790 .sys_clone+0x5c/0x74
+[c00000007ce2fe30] c000000000008950 .ppc_clone+0x8/0xc
+--- Exception: c00 (System Call) at 000000000fee9c60
+SP (fcb2e770) is in userspace
+
+---------------------------
+The problem is because of race window. When if(expand) block is executed in dup_fd 
+unlocking of oldf->file_lock give a window for fdtable in oldf to be
+modified. So actual open_files in oldf may not match with open_files
+variable.
+This is the debug patch to fix the problem
+  Please let me know of your opinion. It is generated on:2.6.19-rc1
+
+--=-tSo7IkTnNSkCJQnJ8qtV
+Content-Disposition: attachment; filename=dup_fd.patch
+Content-Type: text/x-patch; name=dup_fd.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- kernel/fork.c.orig	2006-11-10 14:42:02.000000000 +0530
++++ kernel/fork.c	2006-11-10 14:42:30.000000000 +0530
+@@ -687,6 +687,7 @@ static struct files_struct *dup_fd(struc
+ 		 * the latest pointer.
+ 		 */
+ 		spin_lock(&oldf->file_lock);
++		open_files = count_open_files(old_fdt);
+ 		old_fdt = files_fdtable(oldf);
+ 	}
+ 
+
+--=-tSo7IkTnNSkCJQnJ8qtV--
 

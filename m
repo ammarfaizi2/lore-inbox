@@ -1,92 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946399AbWKJK44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946384AbWKJK4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946399AbWKJK44 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 05:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946410AbWKJK44
+	id S1946384AbWKJK4O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 05:56:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946388AbWKJK4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 05:56:56 -0500
-Received: from mivlgu.ru ([81.18.140.87]:52937 "EHLO mail.mivlgu.ru")
-	by vger.kernel.org with ESMTP id S1946388AbWKJK4z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 05:56:55 -0500
-Date: Fri, 10 Nov 2006 13:56:49 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: unexplainable read errors, copy/diff-issue
-Message-Id: <20061110135649.16cccca0.vsu@altlinux.ru>
-In-Reply-To: <4553DD90.1090604@scientia.net>
-References: <4553DD90.1090604@scientia.net>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.2; i586-alt-linux-gnu)
+	Fri, 10 Nov 2006 05:56:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17051 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1946384AbWKJK4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 05:56:13 -0500
+Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       tglx@linutronix.de, john stultz <johnstul@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>, Len Brown <lenb@kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <200611101147.26081.ak@suse.de>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+	 <20061110011336.008840cf.akpm@osdl.org>
+	 <1163154958.3138.671.camel@laptopd505.fenrus.org>
+	 <200611101147.26081.ak@suse.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 10 Nov 2006 11:55:58 +0100
+Message-Id: <1163156158.3138.677.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__10_Nov_2006_13_56_49_+0300_jL_yIibQwNVtjb9e"
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__10_Nov_2006_13_56_49_+0300_jL_yIibQwNVtjb9e
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
 
-On Fri, 10 Nov 2006 03:01:52 +0100 Christoph Anton Mitterer wrote:
+> 
+> Do we? Where?  AFAIK we just do some resetting after cpu frequency
+> changes, but on C3 TSC is just disabled globally.
+> 
+> That is better than it sounds.
 
-> The original post may be found under:
-> http://marc.theaimsgroup.com/?t=116291314500001&r=1&w=2
->
-> First of all my software/hardware data:
-> CPU: 2x DualCore Opteron 275
-> Mainboard: Tyan Thunder K8WE (S2895)
-> Chipsets: Nvidia nForce professional 2200, Nvidia nForce professional
-> 2050, AMD 8131
-> Memory: Kingston ValueRAM 4x 1GB Registered ECC
-> Harddisks: 1x PATA IBM/Hitachi, 2x SATA IBM/Hitachi
-> Additional Devices/Drives: Plextor PX760A DVD/CD, TerraTec Aureon 7.1
-> Universe soundcard, Hauppage Nova 500T DualDVB-T card.
-> Distribution: Debian sid
-> Kernel: self-compiled 2.6.18.2 (see below for .config) with applied EDAC
-> patches
->
-> The system should be cooled enough so I don't think that this comes from
-> overheating issues. Nothing is overclocked.
->
-> Ok the problem is the following:
-> I copy large amounts of data (>15GB in several files each about 80MB,
-> but it happens even for smaller amounts so size does not seem to be
-> related) from one location to another.
-> Then I diff the two locations.
-> There are differences found!!!
-> When I do diff again I find again differences but mostly in other files
-> (so not always in the same place).
-> Sometimes there are not differences (but this is rare as I'm testing
-> with > 15GB)
+is it?
+> 
+> Most systems don't have C3 right now. And on those that have
+> (laptops) it tends to be not that critical because they normally
+> don't run workload where gettimeofday() is really time critical
+> (and nobody expects them to be particularly fast anyways)
 
-So you have 4GB RAM, and most likely some memory is remapped above the
-4GB address boundary.  Could you show the full dmesg output after boot?
+and that got changed when the blade people decided to start using laptop
+processors ......
 
-Other things you can try:
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
- - Boot with mem=3072M (or some larger value which is still less than
-   the amount of RAM below the 4GB boundary - the exact value could be
-   found from the dmesg output) and check whether you can reproduce the
-   corruption in this configuration.
-
- - Look in the BIOS setup for memory remapping options (Google indicates
-   that it may be called "Hammer Configuration/Memory Hole Mapping" on
-   this board).  Maybe you need to try different values (AFAIR there
-   were some complaints about unstabilities with software remapping;
-   cannot find the exact page now).
-
---Signature=_Fri__10_Nov_2006_13_56_49_+0300_jL_yIibQwNVtjb9e
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFVFr0W82GfkQfsqIRAoCVAJ9YjZeS7y26NH7T891gC9nzhEcx1gCfT/TH
-2UTH5f9OEo7CJ+RYkJFso18=
-=vg3z
------END PGP SIGNATURE-----
-
---Signature=_Fri__10_Nov_2006_13_56_49_+0300_jL_yIibQwNVtjb9e--

@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424285AbWKIXyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424259AbWKJAIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424285AbWKIXyn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 18:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424289AbWKIXyn
+	id S1424259AbWKJAIp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 19:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424291AbWKJAIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 18:54:43 -0500
-Received: from www.osadl.org ([213.239.205.134]:2018 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1424285AbWKIXyl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 18:54:41 -0500
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1163107915.3138.541.camel@laptopd505.fenrus.org>
-References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com>
-	 <1163024531.3138.406.camel@laptopd505.fenrus.org>
-	 <20061108145150.80ceebf4.akpm@osdl.org>
-	 <1163064401.3138.472.camel@laptopd505.fenrus.org>
-	 <20061109013645.7bef848d.akpm@osdl.org>
-	 <1163065920.3138.486.camel@laptopd505.fenrus.org>
-	 <20061109111212.eee33367.akpm@osdl.org>
-	 <1163100115.3138.524.camel@laptopd505.fenrus.org>
-	 <20061109211121.GW4729@stusta.de>
-	 <1163107915.3138.541.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Fri, 10 Nov 2006 00:56:58 +0100
-Message-Id: <1163116618.8335.173.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Nov 2006 19:08:44 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:42149 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1424259AbWKJAIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 19:08:43 -0500
+X-Sasl-enc: lfSX4aQo80isWSg0nDYv3kizAFpEDj02s26QUW9d5ZuV 1163117322
+Date: Thu, 9 Nov 2006 22:08:30 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Richard Purdie <rpurdie@rpsys.net>, benh@kernel.crashing.org,
+       paulus@samba.org, Lennart Poettering <mzxreary@0pointer.de>,
+       Andriy Skulysh <askulysh@image.kiev.ua>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Antonino Daplas <adaplas@pol.net>, Holger Macht <hmacht@suse.de>
+Subject: Re: [PATCH] backlight: do not power off backlight when unregistering
+Message-ID: <20061110000829.GA9021@khazad-dum.debian.net>
+References: <20061105225429.GE14295@khazad-dum.debian.net> <1162773394.5473.18.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1162773394.5473.18.camel@localhost.localdomain>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-09 at 22:31 +0100, Arjan van de Ven wrote:
-> > Since the first list I sent immediately after 2.6.19-rc1 was released, 
-> > kernel Bugzilla #7255 is part of my list of 2.6.19-rc regressions but 
-> > has gotten exactly zero developer responses.
-> 
-> where was the lkml mail for this?
-> 
-> > 
-> > What exactly were the mistakes of the submitter resulting in noone 
-> > caring about Bugzilla #7255?
-> 
-> he didn't post to lkml?
+On Mon, 06 Nov 2006, Richard Purdie wrote:
+> Those commits were designed to standardise several behaviours amongst
+> several drivers and this specific case was added to the core rather than
+> coding it in each of several drivers. We therefore really need to update
+> those other drivers too (locomo at the very least).
 
-That's no excuse, as Adrian pointed it out on LKML since weeks.
+The following in-tree drivers need changes:
+drivers/video/backlight/locomolcd.c
+drivers/video/backlight/hp680_bl.c
+drivers/video/backlight/corgi_bl.c
 
-Also the kernel.org bugzilla has a real flaw:
+I will repost the patch with locomolcd.c and hp680_bl.c included.
 
-There is no way to get informed of new entries automatically and
-filtered by Category and Component. At least I did not find a way and
-bugme-admin@osdl.org seems to be a black hole.
+The following in-tree (latest linux-2.6 git tree) drivers are desktop/laptop
+devices and likely do not want the "dim and power off backlight on
+backlight_device_unregister" behavior:
 
-The result is that you have to go to bugzilla on a regular base instead
-of getting automatic notifications of new entries. I do it once in a
-while, but it is really ineffective.
+drivers/video/aty/*
+drivers/video/riva/fbdev.c
+drivers/video/nvidia/nv_backlight.c
+drivers/misc/msi-laptop.c
 
-	tglx
+The ACPI drivers being converted to backlight sysfs are very unlikely to
+want the "power off backlight on backlight_device_unregister" behavior, so I
+have not hunted after backlight sysfs conversions in the linux-acpi-2.6 git
+tree.  Still, linux-acpi is cc'ed.
 
+I have CC'ed the relevant people (please forgive me any ommissions) for the
+drivers listed above, so they can chime in if their driver should retain the
+"dim and power off backlight on backlight_device_unregister" behaviour.
 
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

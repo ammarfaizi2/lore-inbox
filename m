@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946647AbWKJN5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946656AbWKJN7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946647AbWKJN5c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 08:57:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946656AbWKJN5c
+	id S1946656AbWKJN7c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 08:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946670AbWKJN7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 08:57:32 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:7296 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1946647AbWKJN5b (ORCPT
+	Fri, 10 Nov 2006 08:59:32 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:21675 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1946656AbWKJN7b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 08:57:31 -0500
-Message-ID: <455484F0.3000506@garzik.org>
-Date: Fri, 10 Nov 2006 08:56:00 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Adrian Bunk <bunk@stusta.de>, Jeff Chua <jeff.chua.linux@gmail.com>,
-       Matthew Wilcox <matthew@wil.cx>, Andi Kleen <ak@suse.de>,
-       Aaron Durbin <adurbin@google.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
-References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com> <20061107171143.GU27140@parisc-linux.org> <200611080839.46670.ak@suse.de> <20061108122237.GF27140@parisc-linux.org> <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org> <20061108172650.GC4729@stusta.de> <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org> <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Fri, 10 Nov 2006 08:59:31 -0500
+Date: Fri, 10 Nov 2006 14:58:55 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch 0/5] Fix timeout bug in rtmutex in 2.6.18-rt
+Message-ID: <20061110135855.GA6121@elte.hu>
+References: <Pine.LNX.4.64.0610011336040.29459@frodo.shire>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610011336040.29459@frodo.shire>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> We really should stop using MMCONFIG entirely, until we have a 
-> per-southbridge true knowledge of what the real decoding is. The BIOS 
-> tables for this are simply too damn unreliable.
 
+* Esben Nielsen <nielsen.esben@googlemail.com> wrote:
 
-FWIW:  MMCONFIG is required for PCI domain support (or "PCI segments" as 
-ACPI calls them).  Only a few mass market OEM boxes exist that need this 
--- and they are all pretty new (Opteron multi-core) -- but more are coming.
+> Hi,
+>  I finally got around to merge my patches into a newer -rt kernel and 
+>  repost them.
 
-I have a patch in -mm that works for this.  Without the patch, my 
-sata_mv card and the machine's built-in MPT-Fusion do not appear at all 
-in PCI bus scans (nor do the associated hard drives) on this production 
-HP box.  So far these machines are rare, /usually/ with a BIOS switch to 
-turn off PCI domains.
+ok - your patches look rather clean. I'll try to put them into the 
+2.6.19 based -rt queue that i'm working on and see what happens.
 
-This says nothing about BIOS table reliability, of course.  I agree that 
-MMCONFIG probing is highly unreliable at present.  Whitelisting "<2007" 
-systems like Andi proposed may be the only option in some cases.
-
-	Jeff
-
-
+	Ingo

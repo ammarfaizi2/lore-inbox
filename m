@@ -1,58 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932857AbWKJQi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932859AbWKJQnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932857AbWKJQi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 11:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932858AbWKJQi3
+	id S932859AbWKJQnV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 11:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932860AbWKJQnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 11:38:29 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:50080 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932857AbWKJQi2 (ORCPT
+	Fri, 10 Nov 2006 11:43:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5262 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932859AbWKJQnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 11:38:28 -0500
-Message-ID: <4554ACE6.8030709@sw.ru>
-Date: Fri, 10 Nov 2006 19:46:30 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 10 Nov 2006 11:43:20 -0500
+Message-ID: <4554AC12.6040407@osdl.org>
+Date: Fri, 10 Nov 2006 08:42:58 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-To: Cedric Le Goater <cedric@legoater.org>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, xemul@openvz.org, devel@openvz.org,
-       oleg@tv-sign.ru, hch@infradead.org, matthltc@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [PATCH 1/13] BC: atomic_dec_and_lock_irqsave() helper
-References: <45535C18.4040000@sw.ru> <45535CFA.5080601@sw.ru> <45549889.5000300@legoater.org>
-In-Reply-To: <45549889.5000300@legoater.org>
-Content-Type: text/plain; charset=us-ascii
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+References: <200611090757.48744.a1426z@gawab.com>	 <20061109090502.4d5cd8ef@freekitty>	 <200611101852.14715.a1426z@gawab.com> <9a8748490611100816v573418f4gcd5cbe34d0dd3715@mail.gmail.com>
+In-Reply-To: <9a8748490611100816v573418f4gcd5cbe34d0dd3715@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello Kirill, Hello Pavel,
-> 
-> Kirill Korotaev wrote:
-> 
->>Oleg Nesterov noticed to me that the construction like
->>(used in beancounter patches and free_uid()):
+Jesper Juhl wrote:
+> On 10/11/06, Al Boldi <a1426z@gawab.com> wrote:
+>> Stephen Hemminger wrote:
+> [...]
+>> > There are bugfixes which are too big for stable or -rc releases, 
+>> that are
+>> > queued for 2.6.20. "Bugfix only" is a relative statement. Do you 
+>> include,
+>> > new hardware support, new security api's, performance fixes.  It 
+>> gets to
+>> > be real hard to decide, because these are the changes that often cause
+>> > regressions; often one major bug fix causes two minor bugs.
 >>
->>  local_irq_save(flags);
->>  if (atomic_dec_and_lock(&refcnt, &lock))
->>	  ...
+>> That's exactly the point I'm trying to get across; the 2.6 dev model 
+>> tries to
+>> be two cycles in one, dev and stable, which yields an awkward catch22
+>> situation.
 >>
->>is not that good for preemtible kernels, since with preemption
->>spin_lock() can schedule() to reduce latency. However, it won't schedule
->>if interrupts are disabled.
+>> The only sane way forward in such a situation is to realize the 
+>> mistake and
+>> return to the focused dev-only / stable-only model.
 >>
->>So this patch introduces atomic_dec_and_lock_irqsave() as a logical
->>counterpart to atomic_dec_and_lock().
-> 
-> 
-> You should probably send that one independently from the BC 
-> patchset. 
-Maybe, but BCs are the only user of this so far...
+>> This would probably involve pushing the current 2.6 kernel into 2.8 and
+>> starting 2.9 as a dev-cycle only, once 2.8 has structurally stabilized.
+>>
+>
+> That was not what I was arguing for in the initial mail at all.
+> I think the 2.6 model works very well in general. All I was pushing
+> for was a single cycle focused mainly on bug fixes once in a while.
+>
+I like the current model fine. From a developer point of view:
+  * More branches means having to fix and retest a bug more places.
+     Workload goes up geometrically with number of versions.
+     So most developers end up ignoring fixing more than 2 versions;
+     anything more than -current and -stable are ignored.
+ * Holding off the tide of changes doesn't work. It just leads to
+    massive integration headaches.
+ * Many bugs don't show up until kernel is run on wide range of hardware,
+    but kernel doesn't get exposed to wide range of hardware and
+    applications until after it is declared stable. It is a Catch-22.
+    The current stability range  of
+           -subtree ... -mm ... 2.6.X ... 2.6.X.Y... 2.6.vendor
+     works well for most people. The people it doesn't work for are trying
+     to get something for nothing. They want stability and the latest kernel
+     at the same time.
 
-Thanks,
-Kirill
+There are some things that do need working on:
+  * Old bugs die, the bugzilla database needs a 6mo prune out.
 
+  * Bugzilla.kernel.org is underutilized and is only a small sample of the
+    real problems. Not sure if it is a training, user, behaviour issue or
+    just that bugzilla is crap.
+
+  * Vendor bugs (that could be fixed) aren't forwarded to lkml or bugzilla
+
+  * LKML is an overloaded communication channel, do we need:
+      linux-bugs@vger.kernel.org ?
+
+   * Developers can't get (or afford to buy) the new hardware that causes
+      a lot of the pain. Just look at the number of bug reports due to new
+      flavors of motherboards, chipsets, etc. I spent 3mo on a bug that took
+      one day to fix once I got the hardware.
 

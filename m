@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946057AbWKJIgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424382AbWKJIqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946057AbWKJIgK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 03:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946058AbWKJIgJ
+	id S1424382AbWKJIqR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 03:46:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424383AbWKJIqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 03:36:09 -0500
-Received: from mail.kroah.org ([69.55.234.183]:7073 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1946057AbWKJIgG (ORCPT
+	Fri, 10 Nov 2006 03:46:17 -0500
+Received: from ozlabs.org ([203.10.76.45]:45742 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1424382AbWKJIqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 03:36:06 -0500
-Date: Fri, 10 Nov 2006 15:53:36 +0900
-From: Greg KH <greg@kroah.com>
-To: Michael Holzheu <HOLZHEU@de.ibm.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Ingo Oeser <ioe-lkml@rameria.de>,
-       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com, pavel@ucw.cz
-Subject: Re: How to document dimension units for virtual files?
-Message-ID: <20061110065336.GA13646@kroah.com>
-References: <20061108090454.dba20e01.randy.dunlap@oracle.com> <OF2A3BB933.427A044B-ON41257220.006509CA-41257220.00656F8A@de.ibm.com>
+	Fri, 10 Nov 2006 03:46:17 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF2A3BB933.427A044B-ON41257220.006509CA-41257220.00656F8A@de.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 7bit
+Message-ID: <17748.15442.906060.210242@cargo.ozlabs.ibm.com>
+Date: Fri, 10 Nov 2006 19:46:10 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Christoph Raisch <RAISCH@de.ibm.com>
+Cc: "Roland Dreier" <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, openib-general@openib.org,
+       openib-general-bounces@openib.org
+Subject: Re: [openib-general] [PATCH 2.6.19 2/4] ehca: hcp_phyp.c: correct page
+ mapping in 64k page mode
+In-Reply-To: <OF75FFAC00.E43450CA-ONC1257222.002A402A-C1257222.002AB9BD@de.ibm.com>
+References: <adaodrgb7uq.fsf@cisco.com>
+	<OF75FFAC00.E43450CA-ONC1257222.002A402A-C1257222.002AB9BD@de.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2006 at 07:27:56PM +0100, Michael Holzheu wrote:
-> If you want to export data to userspace via a virtual filesystem
-> like sysfs, the following rules are recommended:
+Christoph Raisch writes:
 
-Um, does this mean you expect us to change all of the currently existing
-sysfs file names?  And people get mad at me when I just move sysfs
-symlinks around...
+> The patch is needed. We've seen it on the real system. We did fix it on the
+> real system.
 
-Look at the hwmon drivers, and the documentation in
-Documentation/hwmon/sysfs-interface for a description of how we have
-been documenting this already.
+I disagree that the ioremap change is needed.
 
-In short, I don't really think we need to encode the units in the file
-name, somehow we have done pretty well without it so far :)
+> ...and it conforms to theory... although theory is a bit confusing here.
+> 
+> let me try to summarize:
+> ioremap checks for 64k boundary (actually page boundary)
 
-thanks,
+Actually, ioremap itself already does the calculations that your patch
+adds - that is, it generates the offset within the page and the
+physical address of the start of the page, does the mapping using the
+latter, then adds on the offset to the virtual address of the page and
+returns that.
 
-greg k-h
+Paul.

@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161870AbWKJPpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946717AbWKJP5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161870AbWKJPpN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 10:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161872AbWKJPpN
+	id S1946717AbWKJP5x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 10:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946719AbWKJP5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 10:45:13 -0500
-Received: from zcars04e.nortel.com ([47.129.242.56]:51391 "EHLO
-	zcars04e.nortel.com") by vger.kernel.org with ESMTP
-	id S1161870AbWKJPpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 10:45:11 -0500
-Message-ID: <45549E0E.6090901@nortel.com>
-Date: Fri, 10 Nov 2006 09:43:10 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
+	Fri, 10 Nov 2006 10:57:53 -0500
+Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:38332 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S1946717AbWKJP5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 10:57:52 -0500
+Date: Fri, 10 Nov 2006 16:57:48 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: scary messages: HSM violation during boot of 2.6.18/amd64
+Message-ID: <20061110155748.GA6081@piper.madduck.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <455496CA.5040405@wpkg.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, Andi Kleen <ak@suse.de>,
-       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Len Brown <lenb@kernel.org>, Arjan van de Ven <arjan@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
-References: <20061109233030.915859000@cruncher.tec.linutronix.de> <20061109233035.569684000@cruncher.tec.linutronix.de> <1163121045.836.69.camel@localhost> <200611100610.13957.ak@suse.de> <1163146206.8335.183.camel@localhost.localdomain> <20061110005020.4538e095.akpm@osdl.org>  <20061110085728.GA14620@elte.hu> <1163153670.7900.16.camel@localhost.localdomain>
-In-Reply-To: <1163153670.7900.16.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Nov 2006 15:43:15.0002 (UTC) FILETIME=[EF74F9A0:01C704DE]
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Content-Disposition: inline
+In-Reply-To: <455496CA.5040405@wpkg.org>
+X-OS: Debian GNU/Linux 4.0 kernel 2.6.17-2-amd64 x86_64
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+X-Spamtrap: madduck.bogus@madduck.net
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Gwe, 2006-11-10 am 09:57 +0100, ysgrifennodd Ingo Molnar:
 
->>We should wait until CPU makers get their act together and implement a 
->>TSC variant that is /architecturally promised/ to have constant 
->>frequency (system bus frequency or whatever) and which never stops.
-> 
-> This will never happen for the really big boxes, light is just too
-> slow... Our current TSC handling is not perfect but the TSC is often
-> quite usable.
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This hypothetical clock wouldn't have to run full speed, would it?  You 
-could have a 1MHz clock distributed across even a large system fairly 
-easily.
+also sprach Tomasz Chmielewski <mangoo@wpkg.org> [2006.11.10.1612 +0100]:
+> I saw similar when using smartctl / smartd with wrong options (without=20
+> -d ata; in short, smartd tried to talk "IDE language" to SATA device...).
 
-Wouldn't that be good enough?
+I am using smartd, and you are right: it triggers those messages
+after being started:
 
-Chris
+  [smartd start]
+  kernel: ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+  kernel: ata2.00: tag 0 cmd 0xb0 Emask 0x2 stat 0x50 err 0x0 (HSM violatio=
+n)
+  kernel: ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+  kernel: ata2: soft resetting port
+  kernel: ata2.00: configured for UDMA/133
+  kernel: ata2: EH complete
+  [...]
+  kernel: ata3: no sense translation for status: 0x50
+  kernel: ata3: translated ATA stat/err 0x50/00 to SCSI SK/ASC/ASCQ 0xb/00/=
+00
+  kernel: ata3: status=3D0x50 { DriveReady SeekComplete }
 
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+spamtraps: madduck.bogus@madduck.net
+=20
+"it is only the modern that ever becomes old-fashioned."=20
+                                                        -- oscar wilde
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature (GPG/PGP)
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFVKF8IgvIgzMMSnURArxTAKDsmd9bt6x8+GnvMyAuWgYujTfSBACeMY+L
+i+mf8MPjDiA9zkZ5nSksxdY=
+=75aJ
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--

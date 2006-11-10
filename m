@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946149AbWKJJVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946144AbWKJJVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946149AbWKJJVi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946145AbWKJJVh
+	id S1946144AbWKJJVF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946145AbWKJJVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:21:37 -0500
-Received: from wx-out-0506.google.com ([66.249.82.230]:48097 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1946149AbWKJJVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:21:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k1J7GVAwMuBgeaE1cCO5QoI8GeAMXfk+IXyHVY8z7OaPWRvtzk5X1xQGRX7UNGvTyQ7VowES988VlqaLrB1NskcHTDA/Iyf/bmIcYFtnSTR9r022rbB1+0VYyBY6FpAeHroDy6NhoHMRrpOF7VAhoi4zDKU+NN1Ss7spiYnVqAY=
-Message-ID: <b6a2187b0611100121k71874475hb082595fb7fbf72a@mail.gmail.com>
-Date: Fri, 10 Nov 2006 17:21:35 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
-Cc: "Adrian Bunk" <bunk@stusta.de>, "Matthew Wilcox" <matthew@wil.cx>,
-       "Andi Kleen" <ak@suse.de>, "Aaron Durbin" <adurbin@google.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20061109224356.729716fe.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 10 Nov 2006 04:21:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:30393 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1946144AbWKJJVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 04:21:01 -0500
+Subject: Re: [patch 02/19] hrtimers: clean up callback tracking
+From: Arjan van de Ven <arjan@infradead.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
+       John Stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20061109233034.296218000@cruncher.tec.linutronix.de>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+	 <20061109233034.296218000@cruncher.tec.linutronix.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 10 Nov 2006 10:20:58 +0100
+Message-Id: <1163150458.3138.610.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com>
-	 <200611080839.46670.ak@suse.de>
-	 <20061108122237.GF27140@parisc-linux.org>
-	 <Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
-	 <20061108172650.GC4729@stusta.de>
-	 <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org>
-	 <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
-	 <Pine.LNX.4.64.0611081010120.3667@g5.osdl.org>
-	 <b6a2187b0611092225m47378626oe62b0466d904abbd@mail.gmail.com>
-	 <20061109224356.729716fe.akpm@osdl.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/10/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Fri, 10 Nov 2006 14:25:30 +0800
-> "Jeff Chua" <jeff.chua.linux@gmail.com> wrote:
->
-> > On 11/9/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> >
-> > > Pushed out. Jeff, can you verify that current git does the right thing.
+On Thu, 2006-11-09 at 23:38 +0000, Thomas Gleixner wrote:
+> plain text document attachment
+> (hrtimers-clean-up-callback-tracking.patch)
+> From: Thomas Gleixner <tglx@linutronix.de>
+> 
+> Reintroduce ktimers feature "optimized away" by the ktimers review process:
+> remove the curr_timer pointer from the cpu-base and use the hrtimer state.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 
+> Index: linux-2.6.19-rc5-mm1/include/linux/hrtimer.h
+> ===================================================================
+> --- linux-2.6.19-rc5-mm1.orig/include/l
+> -		if (unlikely(base->cpu_base->curr_timer == timer))
+> +		if (unlikely(timer->state & HRTIMER_STATE_CALLBACK))
+>  			return base;
 
-Yes, this does it. It's working with MMCONFIG now.
+this also could use the hrtimer_is_running() inline from the [01/19]
+review
 
-Thank you!
 
-Jeff.
+otherwise looks ok:
+
+Acked-by: Arjan van de Ven <arjan@linux.intel.com>
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

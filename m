@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946764AbWKJQVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946766AbWKJQ36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946764AbWKJQVK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 11:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946761AbWKJQVK
+	id S1946766AbWKJQ36 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 11:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932858AbWKJQ36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 11:21:10 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:1806 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1946755AbWKJQVH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 11:21:07 -0500
-Date: Fri, 10 Nov 2006 17:23:30 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Monty Montgomery <monty@xiph.org>, Tejun Heo <htejun@gmail.com>,
-       Gregor Jasny <gjasny@googlemail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Douglas Gilbert <dougg@torque.net>
-Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
-Message-ID: <20061110162330.GE15031@kernel.dk>
-References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com> <20061030114503.GW4563@kernel.dk> <9d2cd630610300517q5187043eieb0880047ddd03eb@mail.gmail.com> <20061030132745.GE4563@kernel.dk> <4552F905.3020109@ens-lyon.org> <45533468.1060400@gmail.com> <806dafc20611091209s5864c9eam77a9290194de343d@mail.gmail.com> <20061110161510.GC15031@kernel.dk> <4554A681.2000502@ens-lyon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Nov 2006 11:29:58 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:15957 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932857AbWKJQ35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 11:29:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Id8S2AdIos63v4ZB8tDAcMX+V0wP/pLo426Xvbdy9BBBUb6lfRsz4jfPGMmffjeFmYw2ehCaGze7Poy0+0kbTXlNGpOc2wbeJDIgT5WB3+6wg8D5lEgpEFWk6yZw8sSIHx5ydWbBIqz1L5ZbWefkxXZgPdm9sYCSfnsjBkf6xes=
+Message-ID: <40f323d00611100829m5fbd32cdt14c307e492df2984@mail.gmail.com>
+Date: Fri, 10 Nov 2006 17:29:54 +0100
+From: "Benoit Boissinot" <bboissin@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.19-rc5-mm1
+Cc: linux-kernel@vger.kernel.org, "Thomas Gleixner" <tglx@linutronix.de>
+In-Reply-To: <20061108015452.a2bb40d2.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4554A681.2000502@ens-lyon.org>
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10 2006, Brice Goglin wrote:
-> Jens Axboe wrote:
-> > On Thu, Nov 09 2006, Monty Montgomery wrote:
-> >   
-> >> On 11/9/06, Tejun Heo <htejun@gmail.com> wrote:
-> >>
-> >>     
-> >>> drivers/scsi/sg.c interprets SG_DXFER_TO_FROM_DEV as read while
-> >>> block/scsi_ioctl.c interprets it as write.  I guess this is historic
-> >>> thing (scsi/sg.c updated but block/scsi_ioctl.c is forgotten).
-> >>>       
-> >> Not historic; Jens accidentally implemented it backwards.  No one
-> >> noticed for a long time.  I submitted a patch for this a few months
-> >> ago.
-> >>     
-> >
-> > Yeah, I wonder why that did not go in, I remember the full breadth of
-> > our discussion and you are fully correct. I'll make sure it gets into
-> > 2.6.19!
-> >   
-> 
-> Note sure this patch was supposed to fix our freeze, but I just tried on
-> top of rc5 and it does not seem to fix it.
+On 11/8/06, Andrew Morton <akpm@osdl.org> wrote:
+> [snip]
+> - The hrtimer+dynticks code still doesn't work right for machines which halt
+>   their TSC in low-power states.
+>
 
-It should fix Alex's issue with wrong data direction being seen, I
-haven't had time to follow this thread today so cannot say.
+With CONFIG_NO_HZ=y, xmoto (xmoto.sf.net, a 3d game) is sluggish, the
+movement is not fluid (it is "bursty").
 
--- 
-Jens Axboe
+.config is at http://perso.ens-lyon.fr/benoit.boissinot/kernel/config-2.6.19-rc5-mm1
+lspci -vv: http://perso.ens-lyon.fr/benoit.boissinot/kernel/docked_lspci
+dmesg: http://perso.ens-lyon.fr/benoit.boissinot/kernel/dmesg-2.6.19-rc5-mm1
 
+I can test any patch or provide any needed information.
+
+regards,
+
+Benoit

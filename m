@@ -1,65 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946724AbWKJQKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946727AbWKJQLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946724AbWKJQKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 11:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946727AbWKJQKc
+	id S1946727AbWKJQLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 11:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946730AbWKJQLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 11:10:32 -0500
-Received: from systemlinux.org ([83.151.29.59]:14032 "EHLO m18s25.vlinux.de")
-	by vger.kernel.org with ESMTP id S1946724AbWKJQKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 11:10:31 -0500
-Date: Fri, 10 Nov 2006 17:10:05 +0100
-From: Andre Noll <maan@systemlinux.org>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5: Bad page state in process 'swapper'
-Message-ID: <20061110161005.GF29040@skl-net.de>
-References: <20061110121151.GC29040@skl-net.de> <200611101340.56161.ak@suse.de> <20061110133633.GE29040@skl-net.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SWTRyWv/ijrBap1m"
-Content-Disposition: inline
-In-Reply-To: <20061110133633.GE29040@skl-net.de>
-User-Agent: Mutt/1.5.9i
+	Fri, 10 Nov 2006 11:11:15 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:26510 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1946727AbWKJQLO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 11:11:14 -0500
+Date: Fri, 10 Nov 2006 11:11:13 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SCSI core: always store >= 36 bytes of INQUIRY data
+Message-ID: <Pine.LNX.4.44L0.0611101104360.2314-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch (as810c) copies a minimum of 36 bytes of INQUIRY data,
+even if the device claims that not all of them are valid.  Often badly
+behaved devices put plausible data in the Vendor, Product, and Revision
+strings but set the Additional Length byte to a small value.  Using
+potentially valid data is certainly better than allocating a short
+buffer and then reading beyond the end of it, which is what we do now.
 
---SWTRyWv/ijrBap1m
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-On 14:36, Andre Noll wrote:
+---
 
-> > Does it help when you apply=20
-> >=20
-> > ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/e820-small-entries=
- ?=20
->=20
-> OK I will try this. Can't promise if I will be able to do so today, as I
-> have to wait until the currently running jobs are finished.
+On Thu, 9 Nov 2006, Andrew Morton wrote:
 
-I could check it already today: Your patch doesn't help unfortunately,
-i.e. I get the same "Bad page state in process 'swapper'" messages also
-with this patch. Again, nothing containing "e820" in the log.
+> So Alan, I think Greg is out of town somewhere.  If you have a final patch
+> you'd like merged, please send her over.
 
-Andre
---=20
-The only person who always got his work done by Friday was Robinson Crusoe
+This is the final version submitted to James Bottomley on Oct. 31.  
+Apparently he hasn't applied it yet, and there hasn't been any word back 
+on whether he intends to.
 
---SWTRyWv/ijrBap1m
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Alan Stern
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFFVKRcWto1QDEAkw8RAtB5AKCIX+NAajAlWZb1a7CiWHhPlaEQuwCgnBRY
-24lKukSlUdwwAvQmfyGGMU0=
-=MNNi
------END PGP SIGNATURE-----
+Index: usb-2.6/drivers/scsi/scsi_scan.c
+===================================================================
+--- usb-2.6.orig/drivers/scsi/scsi_scan.c
++++ usb-2.6/drivers/scsi/scsi_scan.c
+@@ -631,12 +631,22 @@ static int scsi_add_lun(struct scsi_devi
+ 	 * scanning run at their own risk, or supply a user level program
+ 	 * that can correctly scan.
+ 	 */
+-	sdev->inquiry = kmalloc(sdev->inquiry_len, GFP_ATOMIC);
+-	if (sdev->inquiry == NULL) {
++
++	/*
++	 * Copy at least 36 bytes of INQUIRY data, so that we don't
++	 * dereference unallocated memory when accessing the Vendor,
++	 * Product, and Revision strings.  Badly behaved devices may set
++	 * the INQUIRY Additional Length byte to a small value, indicating
++	 * these strings are invalid, but often they contain plausible data
++	 * nonetheless.  It doesn't matter if the device sent < 36 bytes
++	 * total, since scsi_probe_lun() initializes inq_result with 0s.
++	 */
++	sdev->inquiry = kmemdup(inq_result,
++				max_t(size_t, sdev->inquiry_len, 36),
++				GFP_ATOMIC);
++	if (sdev->inquiry == NULL)
+ 		return SCSI_SCAN_NO_RESPONSE;
+-	}
+ 
+-	memcpy(sdev->inquiry, inq_result, sdev->inquiry_len);
+ 	sdev->vendor = (char *) (sdev->inquiry + 8);
+ 	sdev->model = (char *) (sdev->inquiry + 16);
+ 	sdev->rev = (char *) (sdev->inquiry + 32);
 
---SWTRyWv/ijrBap1m--

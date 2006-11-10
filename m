@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966112AbWKJUjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424416AbWKJUrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966112AbWKJUjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 15:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966113AbWKJUjZ
+	id S1424416AbWKJUrK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 15:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424417AbWKJUrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 15:39:25 -0500
-Received: from www.osadl.org ([213.239.205.134]:37046 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S966112AbWKJUjY (ORCPT
+	Fri, 10 Nov 2006 15:47:09 -0500
+Received: from codepoet.org ([166.70.99.138]:23249 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S1424416AbWKJUrI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 15:39:24 -0500
-Subject: Re: 2.6.19-rc5-mm1
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Benoit Boissinot <bboissin@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <40f323d00611101220t2b8067d5g4f6b302384e41524@mail.gmail.com>
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
-	 <40f323d00611100829m5fbd32cdt14c307e492df2984@mail.gmail.com>
-	 <1163177952.8335.221.camel@localhost.localdomain>
-	 <40f323d00611100925l45b2415bjcc611df6e4d1f7d4@mail.gmail.com>
-	 <40f323d00611101220t2b8067d5g4f6b302384e41524@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 10 Nov 2006 21:41:44 +0100
-Message-Id: <1163191305.8335.228.camel@localhost.localdomain>
+	Fri, 10 Nov 2006 15:47:08 -0500
+Date: Fri, 10 Nov 2006 13:47:06 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFT] mv643xxx_eth_start_xmit oops
+Message-ID: <20061110204706.GA14383@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+References: <20061110191745.GA13783@codepoet.org> <20061110115444.07f58e40@freekitty>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061110115444.07f58e40@freekitty>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-10 at 21:20 +0100, Benoit Boissinot wrote:
-> It works fine with the following additional patch.
-> 
-> Thanks,
-> 
-> Benoit
+On Fri Nov 10, 2006 at 11:54:44AM -0800, Stephen Hemminger wrote:
+> The code int mv643xx_eth_start_xmit is not safe on SMP it was
+> checking for space outside of lock.
 
-Doh, this modular build of ACPI again.
+Hmm.  I do not have CONFIG_SMP enabled...  But then I suppose the
+function is not reentrant either, so networking from N apps would
+eventually result in a collision where it would blow up.  That
+seems consistant with what I was seeing.
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+> Does the following (untested) fix it?
 
-> Index: linux-mm/arch/i386/kernel/apic.c
-> ===================================================================
-> --- a/arch/i386/kernel/apic.c	2006-11-10 20:42:30.000000000 +0100
-> +++ b/arch/i386/kernel/apic.c	2006-11-10 20:42:41.000000000 +0100
-> @@ -610,6 +610,7 @@
->  	if (evt->event_handler)
->  		clockevents_set_broadcast(evt, broadcast);
->  }
-> +EXPORT_SYMBOL_GPL(lapic_timer_idle_broadcast);
-> 
->  int setup_profiling_timer(unsigned int multiplier)
->  {
+Thanks!  It at least applies cleanly and compiles...
+Will let you know if it seems fixed.
 
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

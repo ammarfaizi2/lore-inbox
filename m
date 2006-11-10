@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161829AbWKJPWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161869AbWKJP24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161829AbWKJPWo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 10:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161863AbWKJPWo
+	id S1161869AbWKJP24 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 10:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161870AbWKJP24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 10:22:44 -0500
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:28172 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1161829AbWKJPWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 10:22:43 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ludovic Drolez <ludovic.drolez@linbox.com>
-Subject: Re: 2.6.18.2: cannot compile with gcc 3.0.4
-Date: Fri, 10 Nov 2006 15:22:39 +0000
-User-Agent: KMail/1.9.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-References: <45545C1B.4040204@linbox.com> <9a8748490611100328w75ccf2e8uc1121a80e68242d8@mail.gmail.com> <455468D8.7080609@linbox.com>
-In-Reply-To: <455468D8.7080609@linbox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Nov 2006 10:28:56 -0500
+Received: from justus.rz.uni-saarland.de ([134.96.7.31]:42014 "EHLO
+	justus.rz.uni-saarland.de") by vger.kernel.org with ESMTP
+	id S1161869AbWKJP2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 10:28:55 -0500
+Date: Fri, 10 Nov 2006 16:46:00 +0100
+From: Alexander van Heukelum <heukelum@mailshack.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
+       sct@redhat.com, herbert@gondor.apana.org.au,
+       xen-devel@lists.xensource.com
+Subject: Re: [PATCH] shorten the x86_64 boot setup GDT to what the comment says
+Message-ID: <20061110154600.GA826@mailshack.com>
+References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com> <200611091433.09232.ak@suse.de> <20061109183111.GA32438@mailshack.com> <200611101501.40007.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611101522.39821.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200611101501.40007.ak@suse.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.1 (justus.rz.uni-saarland.de [134.96.7.31]); Fri, 10 Nov 2006 16:28:53 +0100 (CET)
+X-AntiVirus: checked by AntiVir Milter (version: 1.1.3-1; AVE: 7.2.0.39; VDF: 6.36.1.14; host: AntiVir1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 November 2006 11:56, Ludovic Drolez wrote:
-> Jesper Juhl wrote:
-> > If you had bothered to read Documentation/Changes then you would have
-> > seen that the current minimal required gcc version is 3.2 :
->
-> Ok sorry, I didn't see the change between 2.6.15 and 2.6.16.
-> Maybe a test should be added in linux/compiler-gcc3.h, to have the same
-> warning as with gcc 2.xx ?
+On Fri, Nov 10, 2006 at 03:01:39PM +0100, Andi Kleen wrote:
+> > Hi Andi,
+> > 
+> > (Assuming you mean: "The gdt table already is 16-byte aligned.")
+> > 
+> > Hmm. Not in the most recent version of Linus' tree, not even by
+> > concidence, and none of the patches in your quilt-current/patches touch
+> > x86_64's version of setup.S. Am I missing something?
+> 
+> The main GDT is. The boot GDT isn't, but it doesn't matter because
+> it is only used for a very short time.
 
-Untested, but something like this should do it.
+Aha, thanks for clearing that up. I agree it is not important to have
+the boot GDT aligned, but I think it is preferable to make parts of the
+two versions of setup.S equal if possible.
 
-The kernel doesn't compile with GCC <3.2, do not allow it to succeed if GCC 
-3.0.x or 3.1.x are used.
+Let's see what Steven Rostedt comes up with.
 
-Signed-off-by: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+I find the relocatable image patches interesting. I wonder if one can
+get such a kernel 'running' using bochs, freedos, and loadlin ;).
 
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 538423d..aca6698 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -40,7 +40,7 @@ #if __GNUC__ > 4
- #error no compiler-gcc.h file for this gcc version
- #elif __GNUC__ == 4
- # include <linux/compiler-gcc4.h>
--#elif __GNUC__ == 3
-+#elif __GNUC__ == 3 && __GNUC_MINOR__ >= 2
- # include <linux/compiler-gcc3.h>
- #else
- # error Sorry, your compiler is too old/not recognized.
-
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Alexander

@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424300AbWKJApV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424321AbWKJAzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424300AbWKJApV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 19:45:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965733AbWKJApV
+	id S1424321AbWKJAzV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 19:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424322AbWKJAzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 19:45:21 -0500
-Received: from mail1.key-systems.net ([81.3.43.253]:3034 "HELO
-	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
-	id S966066AbWKJApS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 19:45:18 -0500
-Message-ID: <4553CB9B.3040901@scientia.net>
-Date: Fri, 10 Nov 2006 01:45:15 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
-MIME-Version: 1.0
-To: Roger Heflin <rheflin@atipa.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange write errors on FAT32 partition (maybe an FAT32 bug?!)
-References: <4550A481.2010408@scientia.net> <87psbzrss2.fsf@duaron.myhome.or.jp> <4553744E.3050007@scientia.net> <45539188.5080607@atipa.com> <45539366.7070809@scientia.net> <45539588.7020504@atipa.com> <45539699.40105@scientia.net> <45539753.7060906@atipa.com> <4553A461.4080002@scientia.net> <4553A57C.5070503@atipa.com> <4553A6C9.4010906@scientia.net> <4553A84B.9050706@atipa.com> <4553AA8A.5080705@scientia.net> <4553AD1F.4050206@atipa.com> <4553ADF5.3070002@scientia.net> <4553AEE8.8080003@atipa.com>
-In-Reply-To: <4553AEE8.8080003@atipa.com>
-Content-Type: multipart/mixed;
- boundary="------------060103030206090609050603"
+	Thu, 9 Nov 2006 19:55:21 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:64225 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1424321AbWKJAzT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 19:55:19 -0500
+Date: Fri, 10 Nov 2006 11:54:36 +1100
+From: David Chinner <dgc@sgi.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alasdair G Kergon <agk@redhat.com>,
+       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Srinivasa DS <srinivasa@in.ibm.com>,
+       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061110005436.GN8394166@melbourne.sgi.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611091652.34649.rjw@sisk.pl> <20061109160003.GA24156@elf.ucw.cz> <200611092059.48722.rjw@sisk.pl> <20061109211722.GA2616@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061109211722.GA2616@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060103030206090609050603
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Thu, Nov 09, 2006 at 10:17:22PM +0100, Pavel Machek wrote:
+> Why not simply &~ PF_NOFREEZE on that particular process? Filesystems
+> are free to use threads/work queues/whatever, but refrigerator should
+> mean "no writes to filesystem" for them...
 
-Roger Heflin wrote:
-> Usually it seemed to be IO related, the sums just happened
-> to show it issue.   It did not seem to be a cpu issue,
-> something unknown outside of the cpu seemed to cause it.
->   
-Ok,.. as this is obviously not FAT32 related (just tested the whole
-stuff on ext3) I'll open a new thread to hopefully attract more people
-for help :-)
+Freezing the filesytem is the way to tell the filesystem "no more
+writes to the filesytem".
 
-btw: right now I'm going to try the whole thing with the edac_mc with
-ECC for K8.
-mcelog did not return anything at all (just silently quitted).
+Cheers,
 
-Thanks so far and regards,
-Chris.
-
---------------060103030206090609050603
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
-
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------060103030206090609050603--
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

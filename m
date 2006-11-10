@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945988AbWKJGrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945990AbWKJGsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945988AbWKJGrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 01:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945989AbWKJGrZ
+	id S1945990AbWKJGsk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 01:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945991AbWKJGsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 01:47:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:11445 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1945988AbWKJGrY (ORCPT
+	Fri, 10 Nov 2006 01:48:40 -0500
+Received: from ns1.suse.de ([195.135.220.2]:6090 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1945990AbWKJGsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 01:47:24 -0500
-Date: Thu, 9 Nov 2006 22:43:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Jeff Chua" <jeff.chua.linux@gmail.com>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Adrian Bunk" <bunk@stusta.de>,
-       "Matthew Wilcox" <matthew@wil.cx>, "Andi Kleen" <ak@suse.de>,
-       "Aaron Durbin" <adurbin@google.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
-Message-Id: <20061109224356.729716fe.akpm@osdl.org>
-In-Reply-To: <b6a2187b0611092225m47378626oe62b0466d904abbd@mail.gmail.com>
-References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com>
-	<20061107171143.GU27140@parisc-linux.org>
-	<200611080839.46670.ak@suse.de>
-	<20061108122237.GF27140@parisc-linux.org>
-	<Pine.LNX.4.64.0611080803280.3667@g5.osdl.org>
-	<20061108172650.GC4729@stusta.de>
-	<Pine.LNX.4.64.0611080932320.3667@g5.osdl.org>
-	<Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
-	<Pine.LNX.4.64.0611081010120.3667@g5.osdl.org>
-	<b6a2187b0611092225m47378626oe62b0466d904abbd@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Nov 2006 01:48:39 -0500
+From: Andi Kleen <ak@suse.de>
+To: Amul Shah <amul.shah@unisys.com>
+Subject: Re: [PATCH] x86_64: Make the NUMA hash function nodemap allocation dynamic and remove NODEMAPSIZE
+Date: Fri, 10 Nov 2006 07:48:30 +0100
+User-Agent: KMail/1.9.5
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <1163029076.3553.36.camel@ustr-linux-shaha1.unisys.com>
+In-Reply-To: <1163029076.3553.36.camel@ustr-linux-shaha1.unisys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611100748.30889.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2006 14:25:30 +0800
-"Jeff Chua" <jeff.chua.linux@gmail.com> wrote:
 
-> On 11/9/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > Pushed out. Jeff, can you verify that current git does the right thing.
-> 
-> Linus,
-> 
-> Can you post those affected patches that I can apply directly to 2.6.19-rc5?
+> diff -uprN linux-2.6.19-rc4/arch/x86_64/kernel/e820.c linux-2.6.19-rc4-az/arch/x86_64/kernel/e820.c
+> --- linux-2.6.19-rc4/arch/x86_64/kernel/e820.c	2006-10-31 17:38:41.000000000 -0500
+> +++ linux-2.6.19-rc4-az/arch/x86_64/kernel/e820.c	2006-11-08 17:55:48.000000000 -0500
+> @@ -83,6 +83,12 @@ static inline int bad_addr(unsigned long
+>  		return 1;
+>  	}
+>  
+> +	/* NUMA memory to node map */
+> +	if (last >= nodemap_addr && addr < nodemap_addr + nodemap_size) {
+> +		*addrp = nodemap_addr + nodemap_size;
+> +		return 1;
+> +	}
 
-http://userweb.kernel.org/~akpm/origin.patch is Linus's tree as of twenty seconds
-ago (against 2.6.19-rc5)
+Using the e820 allocator will now mean it's rounded up to pages.
+That will waste a bit of memory, but i suppose it's ok.
+
+> +	for (i=20; !(bitfield&(1UL << i)) && i<BITS_PER_LONG; i++);
+
+That's find_first_bit() ?  Please use that
+
+>  
+> +	shift = extract_lsb_from_nodes(nodes, numnodes);
+> +	if ( allocate_cachealigned_memnodemap() )
+
+No extra spaces here please (and in some other places)
+
+
+> +	u8 *map;
+> +	u8 zero;
+
+zero?
+
+>  } ____cacheline_aligned;
+>  extern struct memnode memnode;
+>  #define memnode_shift memnode.shift
+>  #define memnodemap memnode.map
+> +#define memnodemapsize memnode.mapsize
+
+Have you checked how much the code .text size changes because
+of the pointer reference? If it's a lot phys_to_nid might need to 
+be out of lined.
+
+-Andi

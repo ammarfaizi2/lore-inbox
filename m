@@ -1,70 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423876AbWKJFKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424353AbWKJFLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423876AbWKJFKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 00:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424309AbWKJFKc
+	id S1424353AbWKJFLc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 00:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424309AbWKJFLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 00:10:32 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:11476 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423876AbWKJFKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 00:10:31 -0500
-From: Andi Kleen <ak@suse.de>
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
-Date: Fri, 10 Nov 2006 06:10:13 +0100
-User-Agent: KMail/1.9.5
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Len Brown <lenb@kernel.org>, Arjan van de Ven <arjan@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de> <20061109233035.569684000@cruncher.tec.linutronix.de> <1163121045.836.69.camel@localhost>
-In-Reply-To: <1163121045.836.69.camel@localhost>
+	Fri, 10 Nov 2006 00:11:32 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18134 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1424353AbWKJFLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 00:11:31 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Magnus Damm" <magnus.damm@gmail.com>
+Cc: "Magnus Damm" <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       "Vivek Goyal" <vgoyal@in.ibm.com>, "Andi Kleen" <ak@muc.de>,
+       fastboot@lists.osdl.org, Horms <horms@verge.net.au>,
+       "Dave Anderson" <anderson@redhat.com>
+Subject: Re: [PATCH 02/02] Elf: Align elf notes properly
+References: <20061102101942.452.73192.sendpatchset@localhost>
+	<20061102101949.452.23441.sendpatchset@localhost>
+	<m1psbwzpmx.fsf@ebiederm.dsl.xmission.com>
+	<aec7e5c30611091952j6cd7988akc1671d269925bba9@mail.gmail.com>
+Date: Thu, 09 Nov 2006 22:09:26 -0700
+In-Reply-To: <aec7e5c30611091952j6cd7988akc1671d269925bba9@mail.gmail.com>
+	(Magnus Damm's message of "Fri, 10 Nov 2006 12:52:40 +0900")
+Message-ID: <m1irhnnb09.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611100610.13957.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	current_tsc_khz = tsc_khz;
-> >  		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
-> >  							clocksource_tsc.shift);
-> > +#ifndef CONFIG_HIGH_RES_TIMERS
-> >  		/* lower the rating if we already know its unstable: */
-> >  		if (check_tsc_unstable())
-> >  			clocksource_tsc.rating = 0;
-> > -
-> > +#else
-> > +		/*
-> > +		 * Mark TSC unsuitable for high resolution timers. TSC has so
-> > +		 * many pitfalls: frequency changes, stop in idle ...  When we
-> > +		 * switch to high resolution mode we can not longer detect a
-> > +		 * firmware caused frequency change, as the emulated tick uses
-> > +		 * TSC as reference. This results in a circular dependency.
-> > +		 * Switch only to high resolution mode, if pm_timer or such
-> > +		 * is available.
-> > +		 */
-> > +		clocksource_tsc.rating = 50;
-> > +		clocksource_tsc.is_continuous = 0;
-> > +#endif
-> >  		init_timer(&verify_tsc_freq_timer);
-> >  		verify_tsc_freq_timer.function = verify_tsc_freq;
-> >  		verify_tsc_freq_timer.expires =
-> 
-> 
-> Hmmm. I wish this patch was unnecessary, but I don't see an easy
-> solution. 
+"Magnus Damm" <magnus.damm@gmail.com> writes:
 
-Very sad. This will make a lot of people unhappy, even to the point
-where they might prefer disabling noidlehz over super slow gettimeofday. 
-I assume you at least have a suitable command line option for that, right?
+> I'm not sure you see all my points. The important parts are the
+> offsets - offset 0 and offset N2 in the description above. The should
+> be aligned somehow. Exactly how to align them depends on if the 64-bit
+> spec is valid or not.
+>
+> My points are:
+>
+> - Some kdump code rounds up the size of "elf note header" today. This
+> is unneccessary for 32 bit alignment and plain wrong for 64 bit
+> alignment. So I think that the code is strange and should be changed
+> regardless if the 64-bit spec is valid or not.
 
-Can we get a summary on which systems the TSC is considered unstable?
-Normally we assume if it's stable enough for gettimeofday it should
-be stable enough for longer delays too.
+Sure that is reasonable, if correct.
 
--Andi
+> - Many implementations incorrectly calculate N2 as: roundup(sizeof(elf
+> note header)) + roundup(n_namesz).
 
+I am not certain that is incorrect.  roundup(sizeof(elf note header), 4) +
+roundup(n_namesize, 4) will yield something that is properly 4 byte aligned.
+I do agree that implementation is not correct for 8 byte alignment.  8 byte
+alignment does not appear to be in widespread use in the wild.
+
+> - You say that the size of the notes do not vary and therefore this is
+> a non-issue. I agree that the size does not vary, but I believe that
+> the aligment _is_ an issue. One example is the N2 calculation above,
+> but more importantly the vmcore code that merges the elf note sections
+> into one. You know, if you have more than one cpu you will end up with
+> more than one crash note. And if you run Xen you will have even more
+> crash notes.
+
+Sure that is clearly an issue.
+
+> - On top of this I think it would be nice if all this code could be
+> unified to avoid code duplication. But we need to straighten out this
+> and agree on how the aligment should work before the code can be
+> merged into one implementation.
+
+Sure.
+
+To verify your claim that 8 byte alignment is correct I checked the
+core dump code in fs/binfmt_elf.c in the linux kernel.  That always
+uses 4 byte alignment.  Therefore it appears clear that only doing
+4 byte alignment is not a local misreading of the spec, and is used in
+other implementations.  If you can find an implementation that uses
+8 byte alignment I am willing to consider it.
+
+The current situation is that the linux kernel generated application
+core dumps use 4 byte alignment so I expect that is what existing
+applications such as gdb expect.
+
+Therefore we use 4 byte alignment unless it can be shown that the
+linux core dumps are a fluke and should be fixed.
+
+
+Eric

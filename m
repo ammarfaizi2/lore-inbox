@@ -1,110 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966101AbWKJURE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966103AbWKJUU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966101AbWKJURE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 15:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966103AbWKJURE
+	id S966103AbWKJUU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 15:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966104AbWKJUU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 15:17:04 -0500
-Received: from outbound-ash.frontbridge.com ([206.16.192.249]:40297 "EHLO
-	outbound1-ash-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S966101AbWKJURB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 15:17:01 -0500
-X-BigFish: VP
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 10 Nov 2006 15:20:29 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:46647 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S966103AbWKJUU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 15:20:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c925Nw1KrpnhiKl2jVoStW6CgxNs+j7uJSjpFkiGyWtrs3yhMkEGEkvFX/XvttNFca57LGNNAj9KzhDkzeOpHSjPCVE3+BL0zYwa3JvzQiysmfkBu/jIgiy0XwvRSK3QEStiqWjlotZ0v91zlP2k1yHlcA2VDTfkg+FRQyzlgw8=
+Message-ID: <40f323d00611101220t2b8067d5g4f6b302384e41524@mail.gmail.com>
+Date: Fri, 10 Nov 2006 21:20:26 +0100
+From: "Benoit Boissinot" <bboissin@gmail.com>
+To: tglx@linutronix.de
+Subject: Re: 2.6.19-rc5-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <40f323d00611100925l45b2415bjcc611df6e4d1f7d4@mail.gmail.com>
 MIME-Version: 1.0
-Subject: RE: 2.6.19-rc5 x86_64 irq 22: nobody cared
-Date: Fri, 10 Nov 2006 12:16:20 -0800
-Message-ID: <5986589C150B2F49A46483AC44C7BCA49071DD@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.19-rc5 x86_64 irq 22: nobody cared
-Thread-Index: AccEroVUW44BdLukSuSTWnsxTIAIOgARK99wAARL5vA=
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "Andi Kleen" <ak@suse.de>, "Olivier Nicolas" <olivn@trollprod.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Andrew Morton" <akpm@osdl.org>
-cc: "Adrian Bunk" <bunk@stusta.de>, "Stephen Hemminger" <shemminger@osdl.org>,
-       "Takashi Iwai" <tiwai@suse.de>, "Jaroslav Kysela" <perex@suse.cz>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz, len.brown@intel.com,
-       linux-acpi@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Lu, Yinghai" <yinghai.lu@amd.com>
-X-OriginalArrivalTime: 10 Nov 2006 20:16:21.0167 (UTC)
- FILETIME=[165F53F0:01C70505]
-X-WSS-ID: 694A019E1X42333334-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
+	 <40f323d00611100829m5fbd32cdt14c307e492df2984@mail.gmail.com>
+	 <1163177952.8335.221.camel@localhost.localdomain>
+	 <40f323d00611100925l45b2415bjcc611df6e4d1f7d4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That didn't fix the bug.
+On 11/10/06, Benoit Boissinot <bboissin@gmail.com> wrote:
+> On 11/10/06, Thomas Gleixner <tglx@linutronix.de> wrote:
+> > On Fri, 2006-11-10 at 17:29 +0100, Benoit Boissinot wrote:
+> > > On 11/8/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > > [snip]
+> > > > - The hrtimer+dynticks code still doesn't work right for machines which halt
+> > > >   their TSC in low-power states.
+> > > >
+> > >
+> > > With CONFIG_NO_HZ=y, xmoto (xmoto.sf.net, a 3d game) is sluggish, the
+> > > movement is not fluid (it is "bursty").
+> > >
+> > > .config is at http://perso.ens-lyon.fr/benoit.boissinot/kernel/config-2.6.19-rc5-mm1
+> > > lspci -vv: http://perso.ens-lyon.fr/benoit.boissinot/kernel/docked_lspci
+> > > dmesg: http://perso.ens-lyon.fr/benoit.boissinot/kernel/dmesg-2.6.19-rc5-mm1
+> >
+> > I'm confused about that one:
+> >
+> > [    8.966364] Disabling NO_HZ and high resolution timers due to timer broadcasting (C3 stops local apic)
+> >
+> > This message is nowhere in rc5-mm1. It was in rc4-mmX, but got removed
+> > in the updates.
+> >
+> I forget to mention I reverted the following patches from -mm:
+> i386-apic-timer-use-clockevents-broadcast.patch
+> acpi-verify-lapic-timer.patch
+> acpi-verify-lapic-timer-exports.patch
+> acpi-verify-lapic-timer-fix.patch
+>
+> since it did not boot with them.
+>
+> > > I can test any patch or provide any needed information.
+> >
+> > http://tglx.de/private/tglx/2.6.19-rc5-mm1-dyntick.diff
+> >
+> > That's the rework I did yesterday.
+> >
+>
+> I'll undo the reverts I did and try it on top of -mm
+>
+It works fine with the following additional patch.
 
+Thanks,
 
+Benoit
 
------Original Message-----
-From: Olivier Nicolas [mailto:olivn@trollprod.org] 
-Sent: Friday, November 10, 2006 12:03 PM
-To: Lu, Yinghai
-Subject: Re: 2.6.19-rc5 x86_64 irq 22: nobody cared
+Index: linux-mm/arch/i386/kernel/apic.c
+===================================================================
+--- a/arch/i386/kernel/apic.c	2006-11-10 20:42:30.000000000 +0100
++++ b/arch/i386/kernel/apic.c	2006-11-10 20:42:41.000000000 +0100
+@@ -610,6 +610,7 @@
+ 	if (evt->event_handler)
+ 		clockevents_set_broadcast(evt, broadcast);
+ }
++EXPORT_SYMBOL_GPL(lapic_timer_idle_broadcast);
 
-Bad day today,
-
-Kernel compiled with the first parch irq_mcp55.diff
-
-and with the disable_msi option removed.
-
-
-
-#options snd-hda-intel disable_msi=1
-
-
-ACPI: PCI Interrupt Link [ASA2] enabled at IRQ 21
-__assign_irq_vector: irq=15, vector=79, domain=000000ff, mask=00000003,
-cpu_online_map=00000003
-ACPI: PCI Interrupt 0000:00:0d.2[C] -> Link [ASA2] -> GSI 21 (level,
-low) -> IRQ 21
-PCI: Setting latency timer of device 0000:00:0d.2 to 64
-ata5: SATA max UDMA/133 cmd 0xC400 ctl 0xC002 bmdma 0xB400 irq 21
-ata6: SATA max UDMA/133 cmd 0xBC00 ctl 0xB802 bmdma 0xB408 irq 21
-
-ACPI: PCI Interrupt Link [AAZA] enabled at IRQ 21
-ACPI: PCI Interrupt 0000:00:0e.1[B] -> Link [AAZA] -> GSI 21 (level,
-low) -> IRQ 21
-__assign_irq_vector: irq=139, vector=91, domain=000000ff, mask=00000003,
-cpu_online_map=00000003
-__assign_irq_vector: irq=139, old_vector=91, domain=000000ff,
-mask=00000003, cpu_online_map=00000003
-PCI: Setting latency timer of device 0000:00:0e.1 to 64
-irq 21: nobody cared (try booting with the "irqpoll" option)
-
-Call Trace:
- <IRQ>  [<ffffffff8025a055>] __report_bad_irq+0x35/0x90
- [<ffffffff8025a2d3>] note_interrupt+0x223/0x280
- [<ffffffff8025ad41>] handle_fasteoi_irq+0xb1/0xf0
- [<ffffffff8020b17c>] call_softirq+0x1c/0x30
- [<ffffffff8020d1ba>] do_IRQ+0x8a/0xe0
- [<ffffffff802092f0>] default_idle+0x0/0x50
- [<ffffffff8020a571>] ret_from_intr+0x0/0xa
- <EOI>  [<ffffffff80209319>] default_idle+0x29/0x50
- [<ffffffff8020939b>] cpu_idle+0x5b/0x80
- [<ffffffff8050039c>] start_secondary+0x50c/0x520
-
-handlers:
-[<ffffffff8807f150>] (nv_generic_interrupt+0x0/0xc0 [sata_nv])
-Disabling IRQ #21
-ALSA sound/pci/hda/hda_intel.c:543: hda_intel: No response from codec,
-disabling MSI...
-
-So kernl assign irq 21 to sata2, and later share irq 21 with audio.
-
-But audio get MSI, and at that time, it may do sth bad to irq21 that it
-is still shared with SATA2.
-
-YH
-
-
-
+ int setup_profiling_timer(unsigned int multiplier)
+ {

@@ -1,38 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161877AbWKJRO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWKJRZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161877AbWKJRO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 12:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161878AbWKJRO3
+	id S1161363AbWKJRZv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 12:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161352AbWKJRZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 12:14:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41180 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161877AbWKJRO2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 12:14:28 -0500
-Message-ID: <4554B36E.9030006@sandeen.net>
-Date: Fri, 10 Nov 2006 11:14:22 -0600
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Fri, 10 Nov 2006 12:25:51 -0500
+Received: from wr-out-0506.google.com ([64.233.184.228]:43191 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161363AbWKJRZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 12:25:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lbISZw6cMUwO7uHaALhrU0U+d7DPB8V2qHRM2c6gsCysymdUN8+/6E3j+72nAiDG6tfdboggmxpmdywDz8OmIcgpzGa6dqX23u2kbYXd4AeoUhNQlHoSsuq2zmkro2l5G/9+yV3k/t83jQhdjHY1617L76F414Zw8VrNpqAZV8s=
+Message-ID: <40f323d00611100925l45b2415bjcc611df6e4d1f7d4@mail.gmail.com>
+Date: Fri, 10 Nov 2006 18:25:26 +0100
+From: "Benoit Boissinot" <bboissin@gmail.com>
+To: tglx@linutronix.de
+Subject: Re: 2.6.19-rc5-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1163177952.8335.221.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: "Igor A. Valcov" <viaprog@gmail.com>
-CC: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
-References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>	 <4553F3C6.2030807@sandeen.net>	 <Pine.LNX.4.61.0611101259490.6068@yvahk01.tjqt.qr> <bde600590611100516u7b8ca1bfs74d3cc8b78eb3520@mail.gmail.com>
-In-Reply-To: <bde600590611100516u7b8ca1bfs74d3cc8b78eb3520@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
+	 <40f323d00611100829m5fbd32cdt14c307e492df2984@mail.gmail.com>
+	 <1163177952.8335.221.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Igor A. Valcov wrote:
-> Below is a simplified version of the test program, and results of
-> testing different kernels/filesystems/mount options. The results are a
-> little different from the ones described in the initial post (this
-> time performance decreased "only" 2 times), but the general tendency
-> is clearly the same.
+On 11/10/06, Thomas Gleixner <tglx@linutronix.de> wrote:
+> On Fri, 2006-11-10 at 17:29 +0100, Benoit Boissinot wrote:
+> > On 11/8/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > [snip]
+> > > - The hrtimer+dynticks code still doesn't work right for machines which halt
+> > >   their TSC in low-power states.
+> > >
+> >
+> > With CONFIG_NO_HZ=y, xmoto (xmoto.sf.net, a 3d game) is sluggish, the
+> > movement is not fluid (it is "bursty").
+> >
+> > .config is at http://perso.ens-lyon.fr/benoit.boissinot/kernel/config-2.6.19-rc5-mm1
+> > lspci -vv: http://perso.ens-lyon.fr/benoit.boissinot/kernel/docked_lspci
+> > dmesg: http://perso.ens-lyon.fr/benoit.boissinot/kernel/dmesg-2.6.19-rc5-mm1
+>
+> I'm confused about that one:
+>
+> [    8.966364] Disabling NO_HZ and high resolution timers due to timer broadcasting (C3 stops local apic)
+>
+> This message is nowhere in rc5-mm1. It was in rc4-mmX, but got removed
+> in the updates.
+>
+I forget to mention I reverted the following patches from -mm:
+i386-apic-timer-use-clockevents-broadcast.patch
+acpi-verify-lapic-timer.patch
+acpi-verify-lapic-timer-exports.patch
+acpi-verify-lapic-timer-fix.patch
 
-I imagine that I know the answer, but to be sure you might put some time
-checks into your test app to see -which- portion of the test is taking
-the bulk of the time.
+since it did not boot with them.
 
--Eric
+> > I can test any patch or provide any needed information.
+>
+> http://tglx.de/private/tglx/2.6.19-rc5-mm1-dyntick.diff
+>
+> That's the rework I did yesterday.
+>
+
+I'll undo the reverts I did and try it on top of -mm
+
+Thanks,
+
+Benoit

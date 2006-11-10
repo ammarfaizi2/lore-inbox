@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946737AbWKJQNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946743AbWKJQMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946737AbWKJQNL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 11:13:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946738AbWKJQNK
+	id S1946743AbWKJQMt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 11:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946737AbWKJQMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 11:13:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12977 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1946737AbWKJQNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 11:13:09 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: vgoyal@in.ibm.com
-Cc: Magnus Damm <magnus.damm@gmail.com>, Magnus Damm <magnus@valinux.co.jp>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       fastboot@lists.osdl.org, Horms <horms@verge.net.au>,
-       Dave Anderson <anderson@redhat.com>
-Subject: Re: [PATCH 02/02] Elf: Align elf notes properly
-References: <20061102101942.452.73192.sendpatchset@localhost>
-	<20061102101949.452.23441.sendpatchset@localhost>
-	<m1psbwzpmx.fsf@ebiederm.dsl.xmission.com>
-	<aec7e5c30611091952j6cd7988akc1671d269925bba9@mail.gmail.com>
-	<m1irhnnb09.fsf@ebiederm.dsl.xmission.com>
-	<aec7e5c30611092253q6bd15701x1f5da122de5c7075@mail.gmail.com>
-	<20061110144922.GA8155@in.ibm.com>
-Date: Fri, 10 Nov 2006 09:10:42 -0700
-In-Reply-To: <20061110144922.GA8155@in.ibm.com> (Vivek Goyal's message of
-	"Fri, 10 Nov 2006 09:49:22 -0500")
-Message-ID: <m1fycrjn99.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 10 Nov 2006 11:12:48 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:17674 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1946729AbWKJQMr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 11:12:47 -0500
+Date: Fri, 10 Nov 2006 17:15:10 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Monty Montgomery <monty@xiph.org>
+Cc: Tejun Heo <htejun@gmail.com>, Brice Goglin <Brice.Goglin@ens-lyon.org>,
+       Gregor Jasny <gjasny@googlemail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       Douglas Gilbert <dougg@torque.net>
+Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
+Message-ID: <20061110161510.GC15031@kernel.dk>
+References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com> <20061030114503.GW4563@kernel.dk> <9d2cd630610300517q5187043eieb0880047ddd03eb@mail.gmail.com> <20061030132745.GE4563@kernel.dk> <4552F905.3020109@ens-lyon.org> <45533468.1060400@gmail.com> <806dafc20611091209s5864c9eam77a9290194de343d@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <806dafc20611091209s5864c9eam77a9290194de343d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
->
-> IMHO, I think we should go by the specs (8byte boundary alignment on 64bit
-> platforms) until and unless it can be proven that specs are wrong. This
-> probably will mean that we will break things for sometime (until and unless
-> it is fixed in tool chain and probably will also break the capability to use
-> an older kernel for capturing dump). But that's unavoidable if we want to be
-> compliant to specs.
+On Thu, Nov 09 2006, Monty Montgomery wrote:
+> On 11/9/06, Tejun Heo <htejun@gmail.com> wrote:
+> 
+> >drivers/scsi/sg.c interprets SG_DXFER_TO_FROM_DEV as read while
+> >block/scsi_ioctl.c interprets it as write.  I guess this is historic
+> >thing (scsi/sg.c updated but block/scsi_ioctl.c is forgotten).
+> 
+> Not historic; Jens accidentally implemented it backwards.  No one
+> noticed for a long time.  I submitted a patch for this a few months
+> ago.
 
-I just looked a little more, and the notes gcc generates on x86_64 are only 4
-byte aligned. (.note.ABI-tag)
+Yeah, I wonder why that did not go in, I remember the full breadth of
+our discussion and you are fully correct. I'll make sure it gets into
+2.6.19!
 
-The linux kernel gcc, gdb.  I think that is enough to say that notes need to
-be 4 byte aligned on Linux.   The core ELF spec also calls out 4 byte alignment
-(although it does not mention ELFCLASS64).
+-- 
+Jens Axboe
 
-I think the evidence is that someone intended to the alignment to go to 8 bytes
-with the move to 64bits but it did not catch on in the real world.
-
-So yes I believe the evidence is quite strong that the spec is wrong. 
-(Not on some rare platforms certainly but in general).
-
-Eric

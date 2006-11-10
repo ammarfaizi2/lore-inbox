@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945991AbWKJG5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945996AbWKJG5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945991AbWKJG5f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 01:57:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946002AbWKJG5f
+	id S1945996AbWKJG5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 01:57:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945991AbWKJG5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 01:57:35 -0500
-Received: from ns1.suse.de ([195.135.220.2]:35787 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1945998AbWKJG5e (ORCPT
+	Fri, 10 Nov 2006 01:57:24 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:32989 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1945998AbWKJG5X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 01:57:34 -0500
+	Fri, 10 Nov 2006 01:57:23 -0500
 From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] sysctl:  Undeprecate sys_sysctl (take 2)
-Date: Fri, 10 Nov 2006 07:50:10 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [discuss] Re: 2.6.19-rc4: known unfixed regressions (v3)
+Date: Fri, 10 Nov 2006 07:56:59 +0100
 User-Agent: KMail/1.9.5
-Cc: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Jesper Juhl" <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       alan@redhat.com, "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Jakub Jelinek" <jakub@redhat.com>, "Mike Galbraith" <efault@gmx.de>,
-       "Albert Cahalan" <acahalan@gmail.com>,
-       "Bill Nottingham" <notting@redhat.com>,
-       "Marco Roeland" <marco.roeland@xs4all.nl>,
-       "Michael Kerrisk" <mtk-manpages@gmx.net>
-References: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com> <9a8748490611081110m4cc62c1bp3a36aba3fc314e56@mail.gmail.com> <m1ejsd3e38.fsf_-_@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1ejsd3e38.fsf_-_@ebiederm.dsl.xmission.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Jeff Chua <jeff.chua.linux@gmail.com>,
+       Matthew Wilcox <matthew@wil.cx>, Aaron Durbin <adurbin@google.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
+References: <Pine.LNX.4.64.0611080056480.12828@silvia.corp.fedex.com> <Pine.LNX.4.64.0611080932320.3667@g5.osdl.org> <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611080951040.3667@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611100750.10990.ak@suse.de>
+Message-Id: <200611100757.00203.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 November 2006 20:58, Eric W. Biederman wrote:
+
+> What a piece of crap. 
 > 
-> The basic issue is that despite have been ``deprecated'' and
-> warned about as a very bad thing in the man pages since it's
-> inception there are a few real users of sys_sysctl. 
+> Andi, I'm getting really upset about this kind of thing. You've been very 
+> much not careful about MMCFG in general, and are allowing total crap to go 
+> into the kernel, without any thought. Just "testing" something isn't good 
+> enough, it needs to be thought out.
 
-But they only seem to use a small number of actually used with
-sysctl(2) sysctls.
-I still think just maintaining a conversion table for 
-those is the right thing to do.
+Sorry, probably should have read the patch more carefully.
 
-The important part really is to get rid of the crufty 
-old infrastructure internally.
+I think I agreed with the high level idea but didn't double check
+the details.
+
+> 
+> I'm going to revert that totally bogus commit that added that broken 
+> "pci_mmcfg_insert_resources()" function. It could be done right, but doing 
+> it right would require that the function 
+
+Ok fine by me.
+
+> We really should stop using MMCONFIG entirely, until we have a 
+
+Hmm, for .19 at least you mean? 
+
+Entirely stopping it would break the x86 macs minis again I think.
+But we can make it "only use if type 1 doesn't work" 
+
+I'm sure some people will be upset again if we don't use it.
+Perhaps there are really users who want to use the PCI-E error handling
+for example.
+
+> per-southbridge true knowledge of what the real decoding is. The BIOS 
+> tables for this are simply too damn unreliable.
+
+My hopes for that are on Vista. Perhaps use a DMI year test again
+(>= 2007) and only white lists for older boards.
 
 -Andi
-
+ 

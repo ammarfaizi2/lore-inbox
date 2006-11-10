@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161223AbWKJPTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161826AbWKJPUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161223AbWKJPTn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 10:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161829AbWKJPTn
+	id S1161826AbWKJPUl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 10:20:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161829AbWKJPUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 10:19:43 -0500
-Received: from smtp3-g19.free.fr ([212.27.42.29]:32471 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1161223AbWKJPTm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 10:19:42 -0500
-Message-ID: <45549889.5000300@legoater.org>
-Date: Fri, 10 Nov 2006 16:19:37 +0100
-From: Cedric Le Goater <cedric@legoater.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+	Fri, 10 Nov 2006 10:20:41 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:55467 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1161826AbWKJPUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 10:20:40 -0500
+Date: Fri, 10 Nov 2006 16:20:38 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2048 CPUs [was: Re: New filesystem for Linux]
+In-Reply-To: <20061110090303.GB3196@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.64.0611101606090.20654@artax.karlin.mff.cuni.cz>
+References: <787b0d920611041154l69db46abv4c8c467809ada57c@mail.gmail.com>
+ <Pine.LNX.4.64.0611042332240.20974@artax.karlin.mff.cuni.cz>
+ <20061107212614.GA6730@ucw.cz> <Pine.LNX.4.64.0611072328220.10497@artax.karlin.mff.cuni.cz>
+ <20061107231456.GB7796@elf.ucw.cz> <Pine.LNX.4.64.0611081921170.5694@artax.karlin.mff.cuni.cz>
+ <20061110090303.GB3196@elf.ucw.cz>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, xemul@openvz.org, devel@openvz.org,
-       oleg@tv-sign.ru, hch@infradead.org, matthltc@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [PATCH 1/13] BC: atomic_dec_and_lock_irqsave() helper
-References: <45535C18.4040000@sw.ru> <45535CFA.5080601@sw.ru>
-In-Reply-To: <45535CFA.5080601@sw.ru>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Kirill, Hello Pavel,
+Hi!
 
-Kirill Korotaev wrote:
-> Oleg Nesterov noticed to me that the construction like
-> (used in beancounter patches and free_uid()):
-> 
->   local_irq_save(flags);
->   if (atomic_dec_and_lock(&refcnt, &lock))
-> 	  ...
-> 
-> is not that good for preemtible kernels, since with preemption
-> spin_lock() can schedule() to reduce latency. However, it won't schedule
-> if interrupts are disabled.
-> 
-> So this patch introduces atomic_dec_and_lock_irqsave() as a logical
-> counterpart to atomic_dec_and_lock().
+>>>> If some rogue threads (and it may not even be intetional) call the same
+>>>> syscall stressing the one spinlock all the time, other syscalls needing
+>>>> the same spinlock may stall.
+>>>
+>>> Fortunately, they'll unstall with probability of 1... so no, I do not
+>>> think this is real problem.
+>>
+>> You can't tell that CPUs behave exactly probabilistically --- it may
+>> happen that one gets out of the wait loop always too late.
+>
+> Well,  I don't need them to be _exactly_ probabilistical.
+>
+> Anyway, if you have 2048 CPUs... you can perhaps get some non-broken
+> ones.
 
-You should probably send that one independently from the BC 
-patchset. 
+No intel document guarantees you that if more CPUs simultaneously execute 
+locked cmpxchg in a loop that a CPU will see compare success in a finite 
+time. In fact, CPUs can't guarantee this at all, because they don't know 
+that they're executing a spinlock --- for them its just an instruction 
+stream like anything else.
 
-C.
+Intel only guarantees that cmpxchg (or any other instruction) completes in 
+finite time, but it doesn't say anything about the result of it.
+
+>>> If someone takes semaphore in syscall (we do), same problem may
+>>> happen, right...? Without need for 2048 cpus. Maybe semaphores/mutexes
+>>> are fair (or mostly fair) these days, but rwlocks may not be or
+>>> something.
+>>
+>> Scheduler increases priority of sleeping process, so starving process
+>> should be waken up first. But if there are so many processes, that
+>> process
+>
+> I do not think this is how Linux scheduler works.
+> 								Pavel
+
+<= 2.4 scheduler worked exactly like this. 2.6 has it more complicated, 
+but does similar thing. But you are right that starvation on semaphore can 
+happen, if the process has too high nice value, it will never be risen 
+above other processes.
+
+Mikulas

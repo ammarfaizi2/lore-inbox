@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946747AbWKJQSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946751AbWKJQSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946747AbWKJQSA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 11:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946752AbWKJQSA
+	id S1946751AbWKJQSp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 11:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946753AbWKJQSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 11:18:00 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:28069 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1946747AbWKJQR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 11:17:59 -0500
-Date: Fri, 10 Nov 2006 17:16:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch 1/5] Fix timeout bug in rtmutex in 2.6.18-rt
-Message-ID: <20061110161657.GA19407@elte.hu>
-References: <20061001112829.630288000@frodo> <Pine.LNX.4.64.0610011336400.29459@frodo.shire> <20061110144916.GA19152@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061110144916.GA19152@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 10 Nov 2006 11:18:45 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:59014 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1946751AbWKJQSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 11:18:44 -0500
+Date: Fri, 10 Nov 2006 11:18:44 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] EHCI: fix memory pool name allocation
+Message-ID: <Pine.LNX.4.44L0.0611101112010.2314-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch (as802) changes the poolname allocation for the shadow
+budget in ehci-mem.c.  The name needs to be allocated dynamically, not
+on the stack, because the memory management system continues to use it
+after registration.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Also included are a couple of minor whitespace fixups (tabs instead of
+spaces).
 
-> 
-> * Esben Nielsen <nielsen.esben@googlemail.com> wrote:
-> 
-> >  include/linux/init_task.h |    1
-> >  include/linux/sched.h     |   62 
-> >  kernel/sched.c            |   29 +++++++++++++++++----
-> 
-> what kernel tree is this supposed to be against? Neither vanilla nor 
-> -rt7 2.6.18 works:
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-ah, whitespace damage ... every line in the patch has an extra space 
-character in front of it.
+---
 
-	Ingo
+Andrew:
+
+This patch has been submitted to Greg, but it's tied in with other changes 
+to ehci-hcd and so it might not get accepted for a while.  However it does 
+fix a real bug in the current -mm kernel; I think you should apply it.
+
+Alan Stern
+
+
+Index: usb-2.6/drivers/usb/host/ehci.h
+===================================================================
+--- usb-2.6.orig/drivers/usb/host/ehci.h
++++ usb-2.6/drivers/usb/host/ehci.h
+@@ -71,8 +71,9 @@ struct ehci_hcd {			/* one per controlle
+ 	int			next_uframe;	/* scan periodic, start here */
+ 	unsigned		periodic_sched;	/* periodic activity count */
+ 
+-        kmem_cache_t            *budget_pool;   /* Pool for shadow budget */
+-        struct ehci_shadow_budget **budget;     /* pointer to the shadow budget
++	char			poolname[20];	/* Shadow budget pool name */
++	kmem_cache_t		*budget_pool;	/* Pool for shadow budget */
++	struct ehci_shadow_budget **budget;	/* pointer to the shadow budget
+ 						   of bandwidth placeholders */
+ 
+ 	struct ehci_fstn        *periodic_restore_fstn;
+Index: usb-2.6/drivers/usb/host/ehci-mem.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/host/ehci-mem.c
++++ usb-2.6/drivers/usb/host/ehci-mem.c
+@@ -293,17 +293,11 @@ static int ehci_mem_init (struct ehci_hc
+ 	        goto fail;
+ 	}
+ 
+-	{
+-		char poolname[20];
+-
+-		snprintf(poolname,20,"ehci_budget_%d",
+-			 ehci_to_hcd(ehci)->self.busnum);
+-
+-		ehci->budget_pool =
+-			kmem_cache_create (poolname,
+-					   sizeof(struct ehci_shadow_budget),
+-					   0,0,NULL,NULL);
+-	}
++	snprintf(ehci->poolname, sizeof(ehci->poolname), "ehci-budget-%d",
++			ehci_to_hcd(ehci)->self.busnum);
++	ehci->budget_pool = kmem_cache_create(ehci->poolname,
++			sizeof(struct ehci_shadow_budget),
++			0, 0, NULL, NULL);
+ 	if (!ehci->budget_pool)
+ 		goto fail;
+ 
+

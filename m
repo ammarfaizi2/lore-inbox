@@ -1,120 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932834AbWKJK23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932836AbWKJKbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932834AbWKJK23 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 05:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932835AbWKJK23
+	id S932836AbWKJKbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 05:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932837AbWKJKbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 05:28:29 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:49297 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S932635AbWKJK21
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 05:28:27 -0500
-Message-ID: <45545429.7080903@in.ibm.com>
-Date: Fri, 10 Nov 2006 15:57:53 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Fri, 10 Nov 2006 05:31:16 -0500
+Received: from ns2.suse.de ([195.135.220.15]:27787 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932836AbWKJKbP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 05:31:15 -0500
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
+Date: Fri, 10 Nov 2006 11:30:51 +0100
+User-Agent: KMail/1.9.5
+Cc: john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de> <200611100610.13957.ak@suse.de> <1163154519.3138.665.camel@laptopd505.fenrus.org>
+In-Reply-To: <1163154519.3138.665.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-CC: dev@openvz.org, ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux MM <linux-mm@kvack.org>, rohitseth@google.com
-Subject: Re: [ckrm-tech] [RFC][PATCH 6/8] RSS controller shares allocation
-References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com>	<20061109193619.21437.84173.sendpatchset@balbir.in.ibm.com> <45544240.80609@openvz.org>
-In-Reply-To: <45544240.80609@openvz.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611101130.51528.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Emelianov wrote:
-> Balbir Singh wrote:
->> Support shares assignment and propagation.
->>
->> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
->> ---
->>
->>  kernel/res_group/memctlr.c |   59 ++++++++++++++++++++++++++++++++++++++++++++-
->>  1 file changed, 58 insertions(+), 1 deletion(-)
+On Friday 10 November 2006 11:28, Arjan van de Ven wrote:
+> On Fri, 2006-11-10 at 06:10 +0100, Andi Kleen wrote:
+> > Very sad. This will make a lot of people unhappy, even to the point
+> > where they might prefer disabling noidlehz over super slow gettimeofday. 
+> > I assume you at least have a suitable command line option for that, right?
+> > 
+> > Can we get a summary on which systems the TSC is considered unstable?
 > 
-> [snip]
-> 
->> +static void recalc_and_propagate(struct memctlr *res, struct memctlr *parres)
->> +{
->> +	struct resource_group *child = NULL;
->> +	int child_divisor;
->> +	u64 numerator;
->> +	struct memctlr *child_res;
->> +
->> +	if (parres) {
->> +		if (res->shares.max_shares == SHARE_DONT_CARE ||
->> +			parres->shares.max_shares == SHARE_DONT_CARE)
->> +			return;
->> +
->> +		child_divisor = parres->shares.child_shares_divisor;
->> +		if (child_divisor == 0)
->> +			return;
->> +
->> +		numerator = (u64)(parres->shares.unused_min_shares *
->> +				res->shares.max_shares);
->> +		do_div(numerator, child_divisor);
->> +		numerator = (u64)(parres->nr_pages * numerator);
->> +		do_div(numerator, SHARE_DEFAULT_DIVISOR);
->> +		res->nr_pages = numerator;
->> +	}
->> +
->> +	for_each_child(child, res->rgroup) {
->> +		child_res = get_memctlr(child);
->> +		BUG_ON(!child_res);
->> +		recalc_and_propagate(child_res, res);
-> 
-> Recursion? Won't it eat all the stack in case of a deep tree?
+> the part where it stops in idle...
 
-The depth of the hierarchy can be controlled. Recursion is needed
-to do a DFS walk
+That is handled by if (intel && C3 available) disable
 
-> 
->> +	}
->> +
->> +}
->> +
->> +static void memctlr_shares_changed(struct res_shares *shares)
->> +{
->> +	struct memctlr *res, *parres;
->> +
->> +	res = get_memctlr_from_shares(shares);
->> +	if (!res)
->> +		return;
->> +
->> +	if (is_res_group_root(res->rgroup))
->> +		parres = NULL;
->> +	else
->> +		parres = get_memctlr((struct container *)res->rgroup->parent);
->> +
->> +	recalc_and_propagate(res, parres);
->> +}
->> +
->>  struct res_controller memctlr_rg = {
->>  	.name = res_ctlr_name,
->>  	.ctlr_id = NO_RES_ID,
->>  	.alloc_shares_struct = memctlr_alloc_instance,
->>  	.free_shares_struct = memctlr_free_instance,
->>  	.move_task = memctlr_move_task,
->> -	.shares_changed = NULL,
->> +	.shares_changed = memctlr_shares_changed,
-> 
-> I didn't find where in this patches this callback is called.
-
-It's a part of the resource groups infrastructure. It's been ported
-on top of Paul Menage's containers patches. The code can be easily
-adapted to work directly with containers instead of resource groups
-if required.
-
-
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+-Andi

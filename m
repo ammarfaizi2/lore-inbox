@@ -1,74 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161850AbWKJPlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946711AbWKJPtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161850AbWKJPlV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 10:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161868AbWKJPlV
+	id S1946711AbWKJPtl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 10:49:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946712AbWKJPtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 10:41:21 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:4481 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1161850AbWKJPlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 10:41:20 -0500
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Michael Holzheu <holzheu@de.ibm.com>,
-       Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       mschwid2@de.ibm.com
-Subject: Re: How to document dimension units for virtual files?
-References: <20061108175412.3c2be30c.holzheu@de.ibm.com>
-	<20061109231533.GE2616@elf.ucw.cz> <20061109231533.GE2616@elf.ucw.cz>
-	<6F3F24CD-2893-43E2-A006-F809E35607AE@mac.com>
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Date: 10 Nov 2006 15:41:09 +0000
-In-Reply-To: <6F3F24CD-2893-43E2-A006-F809E35607AE@mac.com>
-Message-ID: <r6mz6znwbu.fsf@skye.ra.phy.cam.ac.uk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Fri, 10 Nov 2006 10:49:41 -0500
+Received: from [212.33.187.219] ([212.33.187.219]:40832 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1946711AbWKJPtl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 10:49:41 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+Date: Fri, 10 Nov 2006 18:52:14 +0300
+User-Agent: KMail/1.5
+References: <200611090757.48744.a1426z@gawab.com> <20061109090502.4d5cd8ef@freekitty>
+In-Reply-To: <20061109090502.4d5cd8ef@freekitty>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611101852.14715.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> writes:
-> Well, IMO you should never have "current:mW" in any form whatsoever
-> anyways.  Electrically it makes no sense; it's like saying
-> "height:grams".  
+Stephen Hemminger wrote:
+> Al Boldi <a1426z@gawab.com> wrote:
+> > Andreas Mohr wrote:
+> > > On Wed, Nov 08, 2006 at 11:40:27PM +0100, Jesper Juhl wrote:
+> > > > Let me make one very clear statement first: -stabel is a GREAT think
+> > > > and it is working VERY well.
+> > > > That being said, many of the fixes I see going into -stable are
+> > > > regression fixes. Maybe not the majority, but still, regression
+> > > > fixes going into -stable tells me that the kernel should have seen
+> > > > more testing/bugfixing before being declared a stable release.
+> > >
+> > > Nice theory, but of course I'm pretty sure that it wouldn't work
+> >
+> > Agreed.
+> >
+> > > (as has been said numerous time before by other people).
+> > >
+> > > You cannot do endless testing/bugfixing, it's a psychological issue.
+> >
+> > Agreed.
+> >
+> > > If you do that, then you end up with -preXX (or worse, -preXXX)
+> > > version numbers, which would cause too many people to wait and wait
+> > > and wait with upgrading until "that next stable" kernel version
+> > > finally becomes available.
+> > > IOW, your tester base erodes, awfully, and development progress
+> > > stalls.
+> >
+> > IMHO, the psycho-problem is that you cannot intertwine development and
+> > stable in the same cycle.  In that respect, the 2.6 development cycle is
+> > a real flop, as it does not allow for focus.
+> >
+> > And focus is needed to achieve stability.
+> >
+> > Think catch22...
+> >
+> >
+> > Thanks!
+> >
+> > --
+> > Al
+>
+> There are bugfixes which are too big for stable or -rc releases, that are
+> queued for 2.6.20. "Bugfix only" is a relative statement. Do you include,
+> new hardware support, new security api's, performance fixes.  It gets to
+> be real hard to decide, because these are the changes that often cause
+> regressions; often one major bug fix causes two minor bugs.
 
-Agreed!
+That's exactly the point I'm trying to get across; the 2.6 dev model tries to 
+be two cycles in one, dev and stable, which yields an awkward catch22 
+situation.
 
-> Watts are an indication of power emitted or consumed per unit time
-> (as opposed to current/amperage which counts only the number of
-> electrons and not the change in energy), so perhaps "power_flow:mW"
-> or "power_consumption:mW" would make more sense?
+The only sane way forward in such a situation is to realize the mistake and 
+return to the focused dev-only / stable-only model.
 
-Current is flow of charge, in other words, charge per time.  Flow has
-the notion of "per time" built into it.  So "power flow" contains an
-extra "per time" compared to what you're looking for.  Power, being
-energy per time, is already a flow (it's a flow of energy).
+This would probably involve pushing the current 2.6 kernel into 2.8 and 
+starting 2.9 as a dev-cycle only, once 2.8 has structurally stabilized.
 
-Perhaps because I'm writing a textbook on _The Art of Approximation_
-(and finding formulas using dimensions is a main part of the art), I
-like to distinguish a quantity's dimensions from its units.  The
-dimensions are universal, like energy or length or power; the units
-are their implementation in a particular system of measurement.  In
-the SI system of units (a.k.a. the metric system), energy is measured
-in Joules, time in seconds, and power in Joules/seconds or Watts.
 
-So all of the following make sense:
+Thanks!
 
-* "Power:mW"
-* "energy flow: mW" (more verbose but equivalent)
-* "energy flow: mJ/s" (even more verbose but also equivalent)
+--
+Al
 
-> I can conceivably see a need for a "current:mJ_per_s" versus
-> "current:mW" depending on the hardware-reported units, but never
-> both at the same time.
-
-I got lost here.  mJ/s is the same as mW, so with either current:mW or
-current:mJ/s you're back in the soup of measuring current using units
-of power.  If the hardware reports current, use "current: mA".  If the
-hardware reports power, use "power: mW".  Then applications can easily
-find out what's being reported and use it accordingly.
-
--Sanjoy
-
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

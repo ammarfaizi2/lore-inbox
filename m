@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424256AbWKJEvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424294AbWKJFHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424256AbWKJEvi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 23:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424279AbWKJEvh
+	id S1424294AbWKJFHv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 00:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424299AbWKJFHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 23:51:37 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:35026 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1424256AbWKJEvh (ORCPT
+	Fri, 10 Nov 2006 00:07:50 -0500
+Received: from ns1.suse.de ([195.135.220.2]:27838 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1424294AbWKJFHu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 23:51:37 -0500
+	Fri, 10 Nov 2006 00:07:50 -0500
 From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc5-mm1: HPC nx6325 breakage, VESA fb problem, md-raid problem
-Date: Fri, 10 Nov 2006 05:49:08 +0100
+To: Ernie Petrides <petrides@redhat.com>
+Subject: Re: [PATCH] x86_64: fix perms/range of vsyscall vma in /proc/*/maps
+Date: Fri, 10 Nov 2006 06:07:45 +0100
 User-Agent: KMail/1.9.5
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       fbuihuu@gmail.com, adaplas@pol.net, NeilBrown <neilb@suse.de>
-References: <20061108015452.a2bb40d2.akpm@osdl.org> <200611091642.01453.rjw@sisk.pl> <20061109095811.ac654e13.akpm@osdl.org>
-In-Reply-To: <20061109095811.ac654e13.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+References: <200611100121.kAA1L0UN031589@pasta.boston.redhat.com>
+In-Reply-To: <200611100121.kAA1L0UN031589@pasta.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611100549.08239.ak@suse.de>
+Message-Id: <200611100607.45391.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 10 November 2006 02:20, Ernie Petrides wrote:
+> Hi, Andy.  The final line of /proc/<pid>/maps on x86_64 for native 64-bit
+> tasks shows an incorrect ending address and incorrect permissions.  There
+> is only a single page mapped in this vsyscall region, and it is accessible
+> for both read and execute.
 
-> > > 
-> > > Well, I've got some data from earlyprintk (forgot I needed to boot with
-> > > vga=normal).
-> > > 
-> > > Unfortunately, I had to rewrite the trace manually:
-> > > 
-> > > clear_IO_APIC_pin+0x15/0x6a
-> > > try_apic_pin+0x7a/0x98
-> > > setup_IO_APIC+0x600/0xb7a
-> > > smp_prepare_cpus+0x33a/0x371
-> > > init+0x60/0x32d
-> > > child_rip+0xa/0x12
-> > > 
-> > > [And then the unwinder said it got stuck.]
-> > > 
-> > > RIP is reported to be at ioapic_read_entry+0x33/0x61,
-> > 
-> > This is 100% reproducible on the nx6325 (but not on the other boxes) and
-> > apparently caused by x86_64-mm-try-multiple-timer-pins.patch (doesn't
-> > happen with this patch reverted).
-> 
-> Thanks, dropped.
+The range reported is how much address space is reserved, but you're
+right it is less.
 
-can I have details please? 
-
-On what system (CPU, motherboard, BIOS version) does the noidlehz stuff break?
-And what did you drop exactly?
-
+But I don't like hardcoding a page here -- this will likely be extended
+soon. Can you please create a new define VSYSCALL_REAL_LENGTH or similar 
+in vsyscall.h and use that?
 
 Thanks,
-
 -Andi
+

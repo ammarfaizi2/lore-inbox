@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946681AbWKJOB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946684AbWKJONI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946681AbWKJOB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 09:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946670AbWKJOB6
+	id S1946684AbWKJONI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 09:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946685AbWKJONI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 09:01:58 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:41651 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1946673AbWKJOB5 (ORCPT
+	Fri, 10 Nov 2006 09:13:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43395 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946684AbWKJONF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 09:01:57 -0500
-From: Andi Kleen <ak@suse.de>
-To: Alexander van Heukelum <heukelum@mailshack.com>
-Subject: Re: [PATCH] shorten the x86_64 boot setup GDT to what the comment says
-Date: Fri, 10 Nov 2006 15:01:39 +0100
-User-Agent: KMail/1.9.5
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
-       sct@redhat.com, herbert@gondor.apana.org.au,
-       xen-devel@lists.xensource.com
-References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com> <200611091433.09232.ak@suse.de> <20061109183111.GA32438@mailshack.com>
-In-Reply-To: <20061109183111.GA32438@mailshack.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 10 Nov 2006 09:13:05 -0500
+Subject: Re: [RFC] [PATCH] Fix misrouted interrupts deadlocks
+From: Ingo Molnar <mingo@redhat.com>
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@elte.hu,
+       Kirill Korotaev <dev@openvz.org>
+In-Reply-To: <455484E4.1020100@openvz.org>
+References: <455484E4.1020100@openvz.org>
+Content-Type: text/plain
+Date: Fri, 10 Nov 2006 15:12:30 +0100
+Message-Id: <1163167950.1980.4.camel@earth>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611101501.40007.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-11-10 at 16:55 +0300, Pavel Emelianov wrote:
+> -                       int ok = misrouted_irq(irq);
+> +                       int ok;
+> +
+> +                       spin_unlock(&desc->lock);
+> +                       ok = misrouted_irq(irq);
+> +                       spin_lock(&desc->lock); 
 
-> Hi Andi,
-> 
-> (Assuming you mean: "The gdt table already is 16-byte aligned.")
-> 
-> Hmm. Not in the most recent version of Linus' tree, not even by
-> concidence, and none of the patches in your quilt-current/patches touch
-> x86_64's version of setup.S. Am I missing something?
+your fix looks reasonable to me - it's a thinko to call misrouted_irq()
+with the descriptor lock still held. (btw., how did you find it -
+lockdep spinlock debugging or NMI watchdog?)
 
-The main GDT is. The boot GDT isn't, but it doesn't matter because
-it is only used for a very short time.
+Acked-by: Ingo Molnar <mingo@redhat.com>
 
--Andi
+	Ingo
 

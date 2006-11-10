@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932823AbWKJJ6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946235AbWKJKAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932823AbWKJJ6u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932826AbWKJJ6u
+	id S1946235AbWKJKAI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 05:00:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932828AbWKJKAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:58:50 -0500
-Received: from cantor.suse.de ([195.135.220.2]:7657 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932823AbWKJJ6t (ORCPT
+	Fri, 10 Nov 2006 05:00:08 -0500
+Received: from gate.crashing.org ([63.228.1.57]:33976 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932827AbWKJKAG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:58:49 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Aaron Durbin" <adurbin@google.com>
-Subject: Re: [PATCH] x86_64: Fix partial page check to ensure unusable memory is not being marked usable.
-Date: Fri, 10 Nov 2006 10:58:41 +0100
-User-Agent: KMail/1.9.5
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Mel Gorman" <mel@csn.ul.ie>, "Andrew Morton" <akpm@osdl.org>
-References: <8f95bb250611091327j14cc96adwf66c0ed0ecf3b8ba@mail.gmail.com>
-In-Reply-To: <8f95bb250611091327j14cc96adwf66c0ed0ecf3b8ba@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 10 Nov 2006 05:00:06 -0500
+Subject: Re: 2.6.19-rc5-mm1 -- ppc64 ohci-hdc.c compile failure
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       Nicolas DET <nd@bplan-gmbh.de>, Steve Fox <drfickle@us.ibm.com>,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <17748.19234.278295.476881@cargo.ozlabs.ibm.com>
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
+	 <4553436D.30601@shadowen.org>
+	 <1163112227.4982.44.camel@localhost.localdomain>
+	 <17748.19234.278295.476881@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Date: Fri, 10 Nov 2006 20:58:44 +1100
+Message-Id: <1163152724.4982.159.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611101058.41621.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 November 2006 22:27, Aaron Durbin wrote:
-> Fix partial page check in e820_register_active_regions to ensure
-> partial pages are
-> not being marked as active in the memory pool.
+On Fri, 2006-11-10 at 20:49 +1100, Paul Mackerras wrote:
+> Benjamin Herrenschmidt writes:
+> 
+> > > Seems that the patch below has introduced USB_OHCI_HCD_PPC_OF enabled by
+> > > default.  When it and CONFIG_USB_OHCI_HCD_PPC_SOC are enabled which
+> > > occured by default on my config then we end up with two module_init()
+> > > calls, which is illegal.
+> > > 
+> > >   powerpc-add-of_platform-support-for-ohci-bigendian-hc
+> > > 
+> > > I am guessing that we are only meant to be able to have one of these
+> > > defined at a time?  I changed the default to n for this and I could at
+> > > least compile the kernel, but I am sure thats not the right fix.
+> > 
+> > Paul, which patch did you merge ? I rejected the initial one that was
+> > doing 2 drivers/probe routines and Nicolas did a new one.. You may have
+> > taken the wrong one.
+> 
+> I didn't merge either of them.
 
-Added thanks.
+Ah, must be Andrew then. Andrew, can you drop this (along with the other
+Efika/MPC5200) patches from -mm ? They'll get in via the powerpc merge
+and I'll make sure Paulus gets the right versions.
 
-Critical fix for .19 i guess
+Cheers,
+Ben.
 
--Andi
+

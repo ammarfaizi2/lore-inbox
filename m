@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424237AbWKJLUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945985AbWKJLXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424237AbWKJLUL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 06:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424384AbWKJLUL
+	id S1945985AbWKJLXr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 06:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424388AbWKJLXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 06:20:11 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33956 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1424237AbWKJLUJ (ORCPT
+	Fri, 10 Nov 2006 06:23:47 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:11186 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1424384AbWKJLXq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 06:20:09 -0500
-Date: Fri, 10 Nov 2006 12:19:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, Andi Kleen <ak@suse.de>,
-       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Len Brown <lenb@kernel.org>, Arjan van de Ven <arjan@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
-Message-ID: <20061110111902.GC4780@elte.hu>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de> <20061109233035.569684000@cruncher.tec.linutronix.de> <1163121045.836.69.camel@localhost> <200611100610.13957.ak@suse.de> <1163146206.8335.183.camel@localhost.localdomain> <20061110005020.4538e095.akpm@osdl.org> <20061110085728.GA14620@elte.hu> <1163153670.7900.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Nov 2006 06:23:46 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.19-rc5-mm1: HPC nx6325 breakage, VESA fb problem, md-raid problem
+Date: Fri, 10 Nov 2006 12:21:18 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fbuihuu@gmail.com, adaplas@pol.net, NeilBrown <neilb@suse.de>
+References: <20061108015452.a2bb40d2.akpm@osdl.org> <20061109211523.7abfd4ec.akpm@osdl.org> <200611100719.07969.ak@suse.de>
+In-Reply-To: <200611100719.07969.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1163153670.7900.16.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200611101221.19581.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> Ar Gwe, 2006-11-10 am 09:57 +0100, ysgrifennodd Ingo Molnar:
-> > AFAIK Windows doesnt use it, so it's a continuous minefield for new 
-> > hardware to break.
+On Friday, 10 November 2006 07:19, Andi Kleen wrote:
+> On Friday 10 November 2006 06:15, Andrew Morton wrote:
+> > On Fri, 10 Nov 2006 05:49:08 +0100
+> > Andi Kleen <ak@suse.de> wrote:
+> > 
+> > > 
+> > > > > > 
+> > > > > > Well, I've got some data from earlyprintk (forgot I needed to boot with
+> > > > > > vga=normal).
+> > > > > > 
+> > > > > > Unfortunately, I had to rewrite the trace manually:
+> > > > > > 
+> > > > > > clear_IO_APIC_pin+0x15/0x6a
+> > > > > > try_apic_pin+0x7a/0x98
+> > > > > > setup_IO_APIC+0x600/0xb7a
+> > > > > > smp_prepare_cpus+0x33a/0x371
+> > > > > > init+0x60/0x32d
+> > > > > > child_rip+0xa/0x12
+> > > > > > 
+> > > > > > [And then the unwinder said it got stuck.]
+> > > > > > 
+> > > > > > RIP is reported to be at ioapic_read_entry+0x33/0x61,
+> > > > > 
+> > > > > This is 100% reproducible on the nx6325 (but not on the other boxes) and
+> > > > > apparently caused by x86_64-mm-try-multiple-timer-pins.patch (doesn't
+> > > > > happen with this patch reverted).
+> > > > 
+> > > > Thanks, dropped.
+> > > 
+> > > can I have details please? 
+> > 
+> > I think what's in this thread is all you'll get.
 > 
-> Windows uses it extensively especially games. The AMD desync upset a 
-> lot of Windows gamers.
-
-well, i meant the Windows kernel itself, not applications. (maybe the 
-Windows kernel uses it on SMP systems where the TSC /used to be/ pretty 
-stable, i dont know)
-
-> > We should wait until CPU makers get their act together and implement 
-> > a TSC variant that is /architecturally promised/ to have constant 
-> > frequency (system bus frequency or whatever) and which never stops.
+> That's probably not enough then.
 > 
-> This will never happen for the really big boxes, light is just too 
-> slow... [...]
+> 
+> > 
+> > It would be nice to see the access address.  I'd be guessing that it's
+> > trying to read the io-apic before we're ready to read it and io_apic_base()
+> > is returning gunk and boom.
+> 
+> I would like to see the full output from the earlyprintk crash please.
+> .jpg would be ok.
 
-that's not a problem - time goes as fast as light [by definition] :-)
+Full is impossible, because it doesn't fit in the screen.  Also JPG would be
+difficult, because I have no camera here. :-(
 
-> If hrtimer needs and requires we stop TSC support [...]
+Still I can post a dmesg log from a non-failing kernel, the output of lspci
+etc. if that helps.
 
-no, it doesnt, so there's no real friction here. We just observed that 
-in the past 10 years no generally working TSC-based gettimeofday was 
-written (and i wrote the first version of it for the Pentium, so the 
-blame is on me too), and that we might be better off without it. If 
-someone can pull off a working TSC-based gettimeofday() implementation 
-then there's no objection from us.
+Greetings,
+Rafael
 
-	Ingo
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

@@ -1,117 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946552AbWKJMs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946563AbWKJM4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946552AbWKJMs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 07:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946557AbWKJMs1
+	id S1946563AbWKJM4L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 07:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946564AbWKJM4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 07:48:27 -0500
-Received: from palakse.guam.net ([202.128.0.38]:33683 "EHLO palakse.guam.net")
-	by vger.kernel.org with ESMTP id S1946552AbWKJMs0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 07:48:26 -0500
-From: "Michael D. Setzer II" <mikes@kuentos.guam.net>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 10 Nov 2006 22:48:19 +1000
+	Fri, 10 Nov 2006 07:56:10 -0500
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:4602 "EHLO
+	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1946563AbWKJM4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 07:56:09 -0500
+Message-ID: <455476C0.6010204@in.ibm.com>
+Date: Fri, 10 Nov 2006 18:25:28 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Subject: Failure of sata_via with kernels since 2.6.15.6
-Message-ID: <455501B3.13819.421AEC9@mikes.kuentos.guam.net>
-X-PM-Encryptor: QDPGP, 4
-X-mailer: Pegasus Mail for Windows (4.41)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: Pavel Emelianov <xemul@openvz.org>
+CC: dev@openvz.org, ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux MM <linux-mm@kvack.org>, rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC][PATCH 6/8] RSS controller shares allocation
+References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com>	<20061109193619.21437.84173.sendpatchset@balbir.in.ibm.com> <45544240.80609@openvz.org> <45545429.7080903@in.ibm.com> <4554552E.8050300@openvz.org>
+In-Reply-To: <4554552E.8050300@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Pavel Emelianov wrote:
+> [snip]
+> 
+>>>> +	for_each_child(child, res->rgroup) {
+>>>> +		child_res = get_memctlr(child);
+>>>> +		BUG_ON(!child_res);
+>>>> +		recalc_and_propagate(child_res, res);
+>>> Recursion? Won't it eat all the stack in case of a deep tree?
+>> The depth of the hierarchy can be controlled. Recursion is needed
+>> to do a DFS walk
+> 
+> That's another point against recursion - bad root can
+> crash the kernel... If we are about to give container's
+> users ability to make their own subtrees then we *must*
+> avoid recursion. There's an algorithm that allows one
+> to walk the tree like this w/o recursion.
 
-I've been working on the g4l since version 0.15 thru 0.21. I've recently found that later kernels 
-no longer work with some sata controller. Below are the dmesg parts of the dmesg output of 
-a 2.6.15.6 that works fine with the controller. All later kernels showed results similar to the 
-2.6.18.2 kernel. I've even tried using the 2.6.15.6  .config file as a source to build newer 
-kernels with the same results.  Unfortuntely, this machine is a primary server, so can only do 
-very limited testing. Have also seen the same problem with latest Knoppix not seeing the 
-SATA drive either. 
+Bad pointers are always bad, whether they are the root or
+any other pointer. Tree traversal is a generic infrastructure issue
+for any infrastructure that supports a hierarchy.
 
+Are you talking about threaded trees? Yes, they can be traversed
+without recursion. I need to recheck my DS reference to double
+check.
 
-2.6.15.6 kernel dmesg 
+> 
+> [snip]
+> 
+>>> I didn't find where in this patches this callback is called.
+>> It's a part of the resource groups infrastructure. It's been ported
+>> on top of Paul Menage's containers patches. The code can be easily
+>> adapted to work directly with containers instead of resource groups
+>> if required.
+> 
+> 
+> Could you please give me a link to the patch where this
+> is called?
 
-sata_via 0000:00:0f.0: version 1.1
-PCI: Calling quirk c02ab9ca for 0000:00:0f.0
-PCI: Via IRQ fixup for 0000:00:0f.0, from 10 to 2
-sata_via 0000:00:0f.0: routed to hard irq line 2
-ata1: SATA max UDMA/133 cmd 0xEC00 ctl 0xE802 bmdma 0xDC00 irq 18
-ata2: SATA max UDMA/133 cmd 0xE400 ctl 0xE002 bmdma 0xDC08 irq 18
-ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4673 85:7c69 86:3e01 87:4663 88:407f
-ata1: dev 0 ATA-7, max UDMA/133, 490234752 sectors: LBA48
-ata1: slow completion (cmd ef)
-ata1: dev 0 configured for UDMA/133
-scsi2 : sata_via
-ata2: no device found (phy stat 00000000)
-scsi3 : sata_via
-  Vendor: ATA       Model: Maxtor 6L250S0    Rev: BANC
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-st: Version 20050830, fixed bufsize 32768, s/g segs 256
-osst :I: Tape driver with OnStream support version 0.99.3
-osst :I: $Id: osst.c,v 1.73 2005/01/01 21:13:34 wriede Exp $
-SCSI device sda: 490234752 512-byte hdwr sectors (251000 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 490234752 512-byte hdwr sectors (251000 MB)
-SCSI device sda: drive cache: write back
- sda:<3>ata1: command 0x25 timeout, stat 0x50 host_stat 0x4
- sda1
-sd 2:0:0:0: Attached scsi disk sda
-sd 2:0:0:0: Attached scsi generic sg0 type 0
+Please see
 
+http://www.mail-archive.com/ckrm-tech@lists.sourceforge.net/msg03333.html
 
+-- 
 
-=======
-2.6.18.2 kernel dmesg 
-
-ard irq line 10
-ata1: SATA max UDMA/133 cmd 0xEC00 ctl 0xE802 bmdma 0xDC00 irq 145
-ata2: SATA max UDMA/133 cmd 0xE400 ctl 0xE002 bmdma 0xDC08 irq 145
-scsi2 : sata_via
-ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-ata1.00: qc timeout (cmd 0xec)
-ata1.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-ata1.00: qc timeout (cmd 0xec)
-ata1.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-ata1.00: qc timeout (cmd 0xec)
-ata1.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-scsi3 : sata_via
-ata2: SATA link down 1.5 Gbps (SStatus 0 SControl 300)
-ATA: abnormal status 0x7F on port 0xE407
-
-
-+----------------------------------------------------------+
-  Michael D. Setzer II -  Computer Science Instructor      
-  Guam Community College  Computer Center                  
-  mailto:mikes@kuentos.guam.net                            
-  mailto:msetzerii@gmail.com
-  http://www.guam.net/home/mikes
-  Guam - Where America's Day Begins                        
-+----------------------------------------------------------+
-
-http://setiathome.berkeley.edu
-Number of Seti Units Returned:  19,471
-Processing time:  32 years, 290 days, 12 hours, 58 minutes
-(Total Hours: 287,489)
-
-BOINC TOTAL CREDITS SETI@HOME/EINSTEIN@HOME
-Total Credits 2184657.881045 
-Total Credits 245068.701712 
-
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8 -- QDPGP 2.61c
-Comment: http://community.wow.net/grt/qdpgp.html
-
-iQA/AwUBRVPodCzGQcr/2AKZEQJC0QCfRIoXadnkx8wWkwYcRpDtocdqfdMAoNn9
-4QDSM6iAqvaMbs1CXQx5OFju
-=TJrv
------END PGP SIGNATURE-----
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

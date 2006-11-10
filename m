@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424338AbWKJBtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945905AbWKJBwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424338AbWKJBtb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 20:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424342AbWKJBtb
+	id S1945905AbWKJBwg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 20:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945908AbWKJBwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 20:49:31 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:44044 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1424338AbWKJBt3 (ORCPT
+	Thu, 9 Nov 2006 20:52:36 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:33968 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1945905AbWKJBwf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 20:49:29 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-Cc: linux-kernel@vger.kernel.org, Roger Heflin <rheflin@atipa.com>
-Subject: Re: Strange write errors on FAT32 partition (maybe an FAT32 bug?!)
-References: <4550A481.2010408@scientia.net>
-	<87psbzrss2.fsf@duaron.myhome.or.jp> <4553AA5E.7090206@scientia.net>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 10 Nov 2006 10:49:20 +0900
-In-Reply-To: <4553AA5E.7090206@scientia.net> (Christoph Anton Mitterer's message of "Thu\, 09 Nov 2006 23\:23\:26 +0100")
-Message-ID: <87bqngjckf.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
+	Thu, 9 Nov 2006 20:52:35 -0500
+Message-ID: <4553DB5C.8030405@us.ibm.com>
+Date: Thu, 09 Nov 2006 17:52:28 -0800
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: =?ISO-8859-15?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>, Zach Brown <zach.brown@oracle.com>,
+       Dave Jones <davej@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+Subject: Re: [PATCH -mm 3/3][AIO] - AIO completion signal notification
+References: <1163087717.3879.34.camel@frecb000686> <1163087946.3879.43.camel@frecb000686>
+In-Reply-To: <1163087946.3879.43.camel@frecb000686>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Anton Mitterer <calestyo@scientia.net> writes:
+Sébastien Dugué wrote:
+>                       AIO completion signal notification
+>
+>  
+> +
+> +	/* Release task ref */
+> +	if (req->ki_notify.notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
+> +		put_task_struct(req->ki_notify.target);
+> +
+Huh ?? I thought user can set SIGEV_SIGNAL or SIGEV_THREAD_ID.
+Not both. Isn't it ? Shouldn't this be ?
 
-> OGAWA Hirofumi wrote:
->> Christoph Anton Mitterer <calestyo@scientia.net> writes:
->>   
->>> The strange thing is that one time the differences were found directly
->>> after copying (thus one would thing RAM is damaged, because the data was
->>> probalby (I cannot tell this for sure) taken from file cache).
->>> and the other time after restarting with a certainly empty file cache.
->>>
->>> Any ideas? I'm willing to help debugging and so on but I must admit that
->>> I need someone to say me what to do :D
->>>     
->>
->> bit interesting. Could you send the output of diff? I'd like to see
->> how it's breaking.
->>   
-> I have now such a diff,... but where should I send it,.. it's quite big
-> (21266 bytes)
+    if ((req->ki_notify.notify == SIGEV_SIGNAL) || 
+(req->ki_notify.notify == SIGEV_THREAD_ID))
+       ...
 
-I think it's not so big. If you care, please send it to me.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Samething in get_task_struct() also..
+
+Thanks,
+Badari
+

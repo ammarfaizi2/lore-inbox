@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945992AbWKJG41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945991AbWKJG5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945992AbWKJG41 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 01:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945996AbWKJG41
+	id S1945991AbWKJG5f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 01:57:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946002AbWKJG5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 01:56:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14008 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1945992AbWKJG40 (ORCPT
+	Fri, 10 Nov 2006 01:57:35 -0500
+Received: from ns1.suse.de ([195.135.220.2]:35787 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1945998AbWKJG5e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 01:56:26 -0500
-Date: Thu, 9 Nov 2006 22:56:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Mason <chris.mason@oracle.com>
-Cc: linux-kernel@vger.kernel.org, dgc@sgi.com
-Subject: Re: [PATCH] avoid too many boundaries in DIO
-Message-Id: <20061109225618.1bdc634f.akpm@osdl.org>
-In-Reply-To: <20061110014854.GS10889@think.oraclecorp.com>
-References: <20061110014854.GS10889@think.oraclecorp.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Nov 2006 01:57:34 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] sysctl:  Undeprecate sys_sysctl (take 2)
+Date: Fri, 10 Nov 2006 07:50:10 +0100
+User-Agent: KMail/1.9.5
+Cc: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       alan@redhat.com, "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       "Jakub Jelinek" <jakub@redhat.com>, "Mike Galbraith" <efault@gmx.de>,
+       "Albert Cahalan" <acahalan@gmail.com>,
+       "Bill Nottingham" <notting@redhat.com>,
+       "Marco Roeland" <marco.roeland@xs4all.nl>,
+       "Michael Kerrisk" <mtk-manpages@gmx.net>
+References: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com> <9a8748490611081110m4cc62c1bp3a36aba3fc314e56@mail.gmail.com> <m1ejsd3e38.fsf_-_@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1ejsd3e38.fsf_-_@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611100750.10990.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2006 20:48:54 -0500
-Chris Mason <chris.mason@oracle.com> wrote:
-
-> Dave Chinner found a 10% performance regression with ext3 when using DIO
-> to fill holes instead of buffered IO.  On large IOs, the ext3 get_block
-> routine will send more than a page worth of blocks back to DIO via a
-> single buffer_head with a large b_size value.
+On Wednesday 08 November 2006 20:58, Eric W. Biederman wrote:
 > 
-> The DIO code iterates through this massive block and tests for a
-> boundary buffer over and over again.  For every block size unit spanned
-> by the big map_bh, the boundary bit is tested and a bio may be forced
-> down to the block layer.
-> 
-> There are two potential fixes, one is to ignore the boundary bit on
-> large regions returned by the FS.  DIO can't tell which part of the big
-> region was a boundary, and so it may not be a good idea to trust the
-> hint.
-> 
-> This patch just clears the boundary bit after using it once.  It is 10%
-> faster for a streaming DIO write w/blocksize of 512k on my sata drive.
-> 
+> The basic issue is that despite have been ``deprecated'' and
+> warned about as a very bad thing in the man pages since it's
+> inception there are a few real users of sys_sysctl. 
 
-Thanks.
+But they only seem to use a small number of actually used with
+sysctl(2) sysctls.
+I still think just maintaining a conversion table for 
+those is the right thing to do.
 
-But that's two large performance regressions (so far) from the multi-block
-get_block() feature.  And that was allegedly a performance optimisation! 
-Who's testing this stuff?
+The important part really is to get rid of the crufty 
+old infrastructure internally.
 
-> 
-> diff -r 38d08cbe880b fs/direct-io.c
-> --- a/fs/direct-io.c	Thu Nov 09 20:02:08 2006 -0500
-> +++ b/fs/direct-io.c	Thu Nov 09 20:31:12 2006 -0500
-> @@ -959,6 +959,17 @@ do_holes:
->  			BUG_ON(this_chunk_bytes == 0);
->  
->  			dio->boundary = buffer_boundary(map_bh);
-> +
-> +			/*
-> +			 * get_block may return more than one page worth
-> +			 * of blocks.  Only make the first one a boundary.
-> +			 * This is still sub-optimal, it probably only
-> +			 * makes sense to play with boundaries when
-> +			 * get_block returns a single FS block sized
-> +			 * unit.
-> +			 */
-> +			clear_buffer_boundary(map_bh);
-> +
->  			ret = submit_page_section(dio, page, offset_in_page,
->  				this_chunk_bytes, dio->next_block_for_io);
->  			if (ret) {
-
-
-Is that actually correct?  If ->get_block() returned a buffer_boundary()
-buffer then what we want to do is to push down all the thus-far-queued BIOs
-once we've submitted _all_ of the BIOs represented by map_bh.  I think that
-if we require more than one BIO to cover map_bh.b_size then we'll do the
-submission after the first BIO has been sent instead of after the final one
-has been sent?
+-Andi
 

@@ -1,120 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161874AbWKJQxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161354AbWKJQ4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161874AbWKJQxI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 11:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161875AbWKJQxH
+	id S1161354AbWKJQ4w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 11:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161876AbWKJQ4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 11:53:07 -0500
-Received: from xenotime.net ([66.160.160.81]:44779 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161874AbWKJQxE (ORCPT
+	Fri, 10 Nov 2006 11:56:52 -0500
+Received: from www.osadl.org ([213.239.205.134]:11430 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161354AbWKJQ4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 11:53:04 -0500
-Date: Fri, 10 Nov 2006 08:53:11 -0800
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Al Boldi <a1426z@gawab.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Message-Id: <20061110085311.54fd65f2.rdunlap@xenotime.net>
-In-Reply-To: <4554AC12.6040407@osdl.org>
-References: <200611090757.48744.a1426z@gawab.com>
-	<20061109090502.4d5cd8ef@freekitty>
-	<200611101852.14715.a1426z@gawab.com>
-	<9a8748490611100816v573418f4gcd5cbe34d0dd3715@mail.gmail.com>
-	<4554AC12.6040407@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Fri, 10 Nov 2006 11:56:52 -0500
+Subject: Re: 2.6.19-rc5-mm1
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Benoit Boissinot <bboissin@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <40f323d00611100829m5fbd32cdt14c307e492df2984@mail.gmail.com>
+References: <20061108015452.a2bb40d2.akpm@osdl.org>
+	 <40f323d00611100829m5fbd32cdt14c307e492df2984@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 10 Nov 2006 17:59:12 +0100
+Message-Id: <1163177952.8335.221.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2006 08:42:58 -0800 Stephen Hemminger wrote:
-
-> Jesper Juhl wrote:
-> > On 10/11/06, Al Boldi <a1426z@gawab.com> wrote:
-> >> Stephen Hemminger wrote:
-> > [...]
-> >> > There are bugfixes which are too big for stable or -rc releases, 
-> >> that are
-> >> > queued for 2.6.20. "Bugfix only" is a relative statement. Do you 
-> >> include,
-> >> > new hardware support, new security api's, performance fixes.  It 
-> >> gets to
-> >> > be real hard to decide, because these are the changes that often cause
-> >> > regressions; often one major bug fix causes two minor bugs.
-> >>
-> >> That's exactly the point I'm trying to get across; the 2.6 dev model 
-> >> tries to
-> >> be two cycles in one, dev and stable, which yields an awkward catch22
-> >> situation.
-> >>
-> >> The only sane way forward in such a situation is to realize the 
-> >> mistake and
-> >> return to the focused dev-only / stable-only model.
-> >>
-> >> This would probably involve pushing the current 2.6 kernel into 2.8 and
-> >> starting 2.9 as a dev-cycle only, once 2.8 has structurally stabilized.
-> >>
+On Fri, 2006-11-10 at 17:29 +0100, Benoit Boissinot wrote:
+> On 11/8/06, Andrew Morton <akpm@osdl.org> wrote:
+> > [snip]
+> > - The hrtimer+dynticks code still doesn't work right for machines which halt
+> >   their TSC in low-power states.
 > >
-> > That was not what I was arguing for in the initial mail at all.
-> > I think the 2.6 model works very well in general. All I was pushing
-> > for was a single cycle focused mainly on bug fixes once in a while.
-> >
-> I like the current model fine. From a developer point of view:
-
-I don't think that it's great, but having even/odd stable/development
-is even worse.
-
-But I agree with Jesper and Andrew's comments in general, that
-we do have stability problems and we have a lack of people
-who are working on bugs.
-
->   * More branches means having to fix and retest a bug more places.
->      Workload goes up geometrically with number of versions.
->      So most developers end up ignoring fixing more than 2 versions;
->      anything more than -current and -stable are ignored.
->  * Holding off the tide of changes doesn't work. It just leads to
->     massive integration headaches.
->  * Many bugs don't show up until kernel is run on wide range of hardware,
->     but kernel doesn't get exposed to wide range of hardware and
->     applications until after it is declared stable. It is a Catch-22.
->     The current stability range  of
->            -subtree ... -mm ... 2.6.X ... 2.6.X.Y... 2.6.vendor
->      works well for most people. The people it doesn't work for are trying
->      to get something for nothing. They want stability and the latest kernel
->      at the same time.
 > 
-> There are some things that do need working on:
->   * Old bugs die, the bugzilla database needs a 6mo prune out.
+> With CONFIG_NO_HZ=y, xmoto (xmoto.sf.net, a 3d game) is sluggish, the
+> movement is not fluid (it is "bursty").
 > 
->   * Bugzilla.kernel.org is underutilized and is only a small sample of the
->     real problems. Not sure if it is a training, user, behaviour issue or
->     just that bugzilla is crap.
+> .config is at http://perso.ens-lyon.fr/benoit.boissinot/kernel/config-2.6.19-rc5-mm1
+> lspci -vv: http://perso.ens-lyon.fr/benoit.boissinot/kernel/docked_lspci
+> dmesg: http://perso.ens-lyon.fr/benoit.boissinot/kernel/dmesg-2.6.19-rc5-mm1
 
-Behavior, ease of use vs. email.
+I'm confused about that one:
 
->   * Vendor bugs (that could be fixed) aren't forwarded to lkml or bugzilla
+[    8.966364] Disabling NO_HZ and high resolution timers due to timer broadcasting (C3 stops local apic)
 
-ack
+This message is nowhere in rc5-mm1. It was in rc4-mmX, but got removed
+in the updates.
 
->   * LKML is an overloaded communication channel, do we need:
->       linux-bugs@vger.kernel.org ?
+> I can test any patch or provide any needed information.
 
-Either that or lkml is/remains for bug reporting and we move development
-somewhere else.  Or my [repeated] preference:
+http://tglx.de/private/tglx/2.6.19-rc5-mm1-dyntick.diff
 
-do development on specific mailing lists (although there would
-likely need to be a fallback list when it's not clear which mailing
-list should be used)
+That's the rework I did yesterday.
 
->    * Developers can't get (or afford to buy) the new hardware that causes
->       a lot of the pain. Just look at the number of bug reports due to new
->       flavors of motherboards, chipsets, etc. I spent 3mo on a bug that took
->       one day to fix once I got the hardware.
+	tglx
 
-Yep.
 
----
-~Randy

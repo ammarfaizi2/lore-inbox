@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424327AbWKJBG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424331AbWKJBHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424327AbWKJBG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 20:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424330AbWKJBG7
+	id S1424331AbWKJBHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 20:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424324AbWKJBHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 20:06:59 -0500
-Received: from gate.crashing.org ([63.228.1.57]:53121 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1424327AbWKJBG6 (ORCPT
+	Thu, 9 Nov 2006 20:07:54 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:47009 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1424331AbWKJBHx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 20:06:58 -0500
-Subject: Re: DMA APIs gumble grumble
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Miller <davem@davemloft.net>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       paulus@samba.org, anton@samba.org, greg@kroah.com
-In-Reply-To: <20061107.204653.44098205.davem@davemloft.net>
-References: <1162950877.28571.623.camel@localhost.localdomain>
-	 <20061107.204653.44098205.davem@davemloft.net>
-Content-Type: text/plain
-Date: Fri, 10 Nov 2006 12:02:04 +1100
-Message-Id: <1163120524.4982.61.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Nov 2006 20:07:53 -0500
+Date: Fri, 10 Nov 2006 09:47:48 +0900
+From: Horms <horms@verge.net.au>
+To: Yinghai Lu <yinghai.lu@amd.com>
+Cc: yhlu <yinghailu@gmail.com>,
+       Fastboot mailing list <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Kexec with latest kernel fail
+Message-ID: <20061110004747.GA4107@verge.net.au>
+References: <5986589C150B2F49A46483AC44C7BCA49071BF@ssvlexmb2.amd.com> <20061109054805.GA28415@verge.net.au> <2ea3fae10611082204k5316379fsd33a33954c58ab4b@mail.gmail.com> <20061109062124.GB28415@verge.net.au> <86802c440611082336l26ad9c94i49e805097c3a00b4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86802c440611082336l26ad9c94i49e805097c3a00b4@mail.gmail.com>
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 08, 2006 at 11:36:16PM -0800, Yinghai Lu wrote:
+> .  ..  AUTHORS  config  configure.ac  COPYING  doc  .git  include
+> kdump  kexec  kexec_test  kexec-tools.spec.in  Makefile
+> Makefile.conf.in  News  purgatory  TODO  util  util_lib
+> yhlunb:/home/yhlu/xxx/xx/kernel/kexec-tools-testing # make
+> Makefile:2: Makefile.conf: No such file or directory
+> util_lib/Makefile:10: /util_lib/compute_ip_checksum.d: No such file or 
+> directory
 
-> 
-> Please just mirror what I did on sparc64 for sparc32, see changeset
-> 42f142371e48fbc44956d57b4e506bb6ce673cd7, with followup bug fixes
-> in 36321426e320c2c6bc2f8a1587d6f4d695fca84c and
-> 7233589d77fdb593b482a8b7ee867e901f54b593.
+You need to run ./configure before you run make,
+I think that will make your problem go away
 
-Question about sparc. It's implementation of pci_alloc_consistent(),
-unlike the other ones from before we had a GFP mask massed, does
-GFP_KERNEL allocations and not GFP_ATOMIC. Thus it's never expected to
-be called in atomic context. In fact, it does various other things like
-calling allocate_resource which is not something you ever want to be
-called from interrupt context.
+# ./configure && make
 
-I'm splitting it into a pci_do_alloc_consistent that takes a gfp arg,
-and a pair of pci_alloc_consistent & dma_alloc_consistent wrappers.
-
-Do you think I should have the former pass GFP_KERNEL like the current
-implementation does or switch it to GFP_ATOMIC like everybody does ? In
-this case, should I also change the kmalloc done in there to allocate a
-struct resource to use the gfp argument ? (It's currently doing
-GFP_KERNEL).
-
-Cheers,
-Ben.
-
+-- 
+Horms
+  H: http://www.vergenet.net/~horms/
+  W: http://www.valinux.co.jp/en/
 

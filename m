@@ -1,82 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946153AbWKJJXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946170AbWKJJ2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946153AbWKJJXi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:23:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946145AbWKJJXi
+	id S1946170AbWKJJ2V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946203AbWKJJ2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:23:38 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:15056 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1946153AbWKJJXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:23:36 -0500
-Subject: Patch to fixe Data Acess error in dup_fd
-From: Sharyathi Nagesh <sharyath@in.ibm.com>
-Reply-To: sharyath@in.ibm.com
-To: linux-kernel@vger.kernel.org
-Cc: Pavel Emelianov <xemul@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-tSo7IkTnNSkCJQnJ8qtV"
-Organization: IBM
-Date: Fri, 10 Nov 2006 15:02:01 +0530
-Message-Id: <1163151121.3539.15.camel@legolas.in.ibm.com>
+	Fri, 10 Nov 2006 04:28:20 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:31888 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1946170AbWKJJ2S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 04:28:18 -0500
+Date: Fri, 10 Nov 2006 10:27:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jason Baron <jbaron@redhat.com>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org, rdreier@cisco.com
+Subject: Re: locking hierarchy based on lockdep
+Message-ID: <20061110092710.GA20035@elte.hu>
+References: <Pine.LNX.4.64.0611061315380.29750@dhcp83-20.boston.redhat.com> <20061106200529.GA15370@elte.hu> <Pine.LNX.4.64.0611071833450.22572@dhcp83-20.boston.redhat.com> <20061107235342.GA5496@elte.hu> <Pine.LNX.4.64.0611081254150.18340@dhcp83-20.boston.redhat.com> <20061109091554.GB23876@elte.hu> <Pine.LNX.4.64.0611091354060.17915@dhcp83-20.boston.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611091354060.17915@dhcp83-20.boston.redhat.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-tSo7IkTnNSkCJQnJ8qtV
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+* Jason Baron <jbaron@redhat.com> wrote:
 
-On running the Stress Test on machine for more than 72 hours following
-error message was observed.
+> > but ... the locks_after list should really only include locks that 
+> > are taken immediately after. I.e. there should only be 'distance 1' 
+> > locks.
+> 
+> hmmm...that's not how i read the lockdep code...and the little piece 
+> of code that i added to add a distance measurement to links, found 
+> mostly distance 1 links but there were a number of 2 and 3 links as 
+> well (i don't think i saw any greater than 3).
 
-0:mon> e
-cpu 0x0: Vector: 300 (Data Access) at [c00000007ce2f7f0]
-    pc: c000000000060d90: .dup_fd+0x240/0x39c
-    lr: c000000000060d6c: .dup_fd+0x21c/0x39c
-    sp: c00000007ce2fa70
-   msr: 800000000000b032
-   dar: ffffffff00000028
- dsisr: 40000000
-  current = 0xc000000074950980
-  paca    = 0xc000000000454500
-    pid   = 27330, comm = bash
+hm, indeed, the current code does this. In theory we should not need to 
+add every lock to every held lock's dependency, because all the 
+dependency-conflict discovery algorithms can walk the full graph. The 
+"necessary minimum" would be to only add it to the previous non-trylock 
+held lock's dependency list.
 
-0:mon> t
-[c00000007ce2fa70] c000000000060d28 .dup_fd+0x1d8/0x39c (unreliable)
-[c00000007ce2fb30] c000000000060f48 .copy_files+0x5c/0x88
-[c00000007ce2fbd0] c000000000061f5c .copy_process+0x574/0x1520
-[c00000007ce2fcd0] c000000000062f88 .do_fork+0x80/0x1c4
-[c00000007ce2fdc0] c000000000011790 .sys_clone+0x5c/0x74
-[c00000007ce2fe30] c000000000008950 .ppc_clone+0x8/0xc
---- Exception: c00 (System Call) at 000000000fee9c60
-SP (fcb2e770) is in userspace
+ok, i like your latest patch as-is - it's simpler than to complicate the 
+current dependency logic. the 'distance' field is only added to the list 
+entry structure, so while it increases that structure's size, it at 
+least doesnt directly increase lock sizes.
 
----------------------------
-The problem is because of race window. When if(expand) block is executed in dup_fd 
-unlocking of oldf->file_lock give a window for fdtable in oldf to be
-modified. So actual open_files in oldf may not match with open_files
-variable.
-This is the debug patch to fix the problem
-  Please let me know of your opinion. It is generated on:2.6.19-rc1
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
---=-tSo7IkTnNSkCJQnJ8qtV
-Content-Disposition: attachment; filename=dup_fd.patch
-Content-Type: text/x-patch; name=dup_fd.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- kernel/fork.c.orig	2006-11-10 14:42:02.000000000 +0530
-+++ kernel/fork.c	2006-11-10 14:42:30.000000000 +0530
-@@ -687,6 +687,7 @@ static struct files_struct *dup_fd(struc
- 		 * the latest pointer.
- 		 */
- 		spin_lock(&oldf->file_lock);
-+		open_files = count_open_files(old_fdt);
- 		old_fdt = files_fdtable(oldf);
- 	}
- 
-
---=-tSo7IkTnNSkCJQnJ8qtV--
-
+	Ingo

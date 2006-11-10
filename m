@@ -1,31 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946506AbWKJLeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932849AbWKJLvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946506AbWKJLeW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 06:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424391AbWKJLeW
+	id S932849AbWKJLvN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 06:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932848AbWKJLvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 06:34:22 -0500
-Received: from mx1.suse.de ([195.135.220.2]:30093 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1424390AbWKJLeV (ORCPT
+	Fri, 10 Nov 2006 06:51:13 -0500
+Received: from mx2.suse.de ([195.135.220.15]:44954 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932849AbWKJLvN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 06:34:21 -0500
-To: Nicolas Kaiser <nikai@nikai.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][TRIVIAL] arch/i386: double inclusions
-References: <20061107110606.1505e19a@lucky.kitzblitz>
+	Fri, 10 Nov 2006 06:51:13 -0500
 From: Andi Kleen <ak@suse.de>
-Date: 10 Nov 2006 12:33:56 +0100
-In-Reply-To: <20061107110606.1505e19a@lucky.kitzblitz>
-Message-ID: <p73velnili3.fsf@bingen.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.19-rc5-mm1: HPC nx6325 breakage, VESA fb problem, md-raid problem
+Date: Fri, 10 Nov 2006 12:51:08 +0100
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fbuihuu@gmail.com, adaplas@pol.net, NeilBrown <neilb@suse.de>
+References: <20061108015452.a2bb40d2.akpm@osdl.org> <200611100719.07969.ak@suse.de> <200611101221.19581.rjw@sisk.pl>
+In-Reply-To: <200611101221.19581.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611101251.08697.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Kaiser <nikai@nikai.net> writes:
 
-> double inclusions in arch/i386
+> 
+> Still I can post a dmesg log from a non-failing kernel, the output of lspci
+> etc. if that helps.
 
-Added thanks
+No need, I can reproduce it on another test system now.
+
+Will fix.
+
 -Andi

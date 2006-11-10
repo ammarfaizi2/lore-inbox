@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932837AbWKJKjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932838AbWKJKkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932837AbWKJKjG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 05:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932842AbWKJKjG
+	id S932838AbWKJKkG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 05:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932846AbWKJKkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 05:39:06 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20448 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932837AbWKJKjD (ORCPT
+	Fri, 10 Nov 2006 05:40:05 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14720 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932838AbWKJKkD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 05:39:03 -0500
-Date: Fri, 10 Nov 2006 11:38:35 +0100
+	Fri, 10 Nov 2006 05:40:03 -0500
+Date: Fri, 10 Nov 2006 11:39:42 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: David Chinner <dgc@sgi.com>
 Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alasdair G Kergon <agk@redhat.com>,
@@ -18,37 +18,34 @@ Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alasdair G Kergon <agk@redhat.com>,
        Srinivasa DS <srinivasa@in.ibm.com>,
        Nigel Cunningham <nigel@suspend2.net>
 Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061110103835.GF3196@elf.ucw.cz>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611081310.19100.rjw@sisk.pl> <20061108180921.GA7708@ucw.cz> <200611091652.34649.rjw@sisk.pl> <20061109160003.GA24156@elf.ucw.cz> <20061110003332.GM8394166@melbourne.sgi.com>
+Message-ID: <20061110103942.GG3196@elf.ucw.cz>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611092218.58970.rjw@sisk.pl> <20061109214159.GB2616@elf.ucw.cz> <200611092321.47728.rjw@sisk.pl> <20061110005749.GO8394166@melbourne.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061110003332.GM8394166@melbourne.sgi.com>
+In-Reply-To: <20061110005749.GO8394166@melbourne.sgi.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > OTOH I have no idea _how_ we can tell xfs that the processes have been
-> > > frozen.  Should we introduce a global flag for that or something?
-> > 
-> > I guess XFS should just do all the writes from process context, and
-> > refuse any writing when its threads are frozen... I actually still
-> > believe it is doing the right thing, because you can't really write to
-> > disk from timer.
+On Fri 2006-11-10 11:57:49, David Chinner wrote:
+> On Thu, Nov 09, 2006 at 11:21:46PM +0100, Rafael J. Wysocki wrote:
+> > I think we can add a flag to __create_workqueue() that will indicate if
+> > this one is to be running with PF_NOFREEZE and a corresponding macro like
+> > create_freezable_workqueue() to be used wherever we want the worker thread
+> > to freeze (in which case it should be calling try_to_freeze() somewhere).
+> > Then, we can teach filesystems to use this macro instead of
+> > create_workqueue().
 > 
-> As per the recent thread about this, XFS threads suspend correctly
-> and XFS doesn't issue I/O from timers.
-> 
-> The problem appears to be per-cpu workqueues that don't get
-> suspended because suspend does not shut down workqueue threads. You
+> At what point does the workqueue get frozen? i.e. how does this
+> guarantee an unfrozen filesystem will end up in a consistent
+> state?
 
-Workqueues should be easy to handle. current->flags &= ~PF_NONFREEZE,
-and problem should be solved.
-								Pavel
+Snapshot is atomic; workqueue will be unfrozen with everyone else, but
+as there were no writes in the meantime, there should be no problems.
 
+									Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

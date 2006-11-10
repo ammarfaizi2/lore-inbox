@@ -1,112 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965984AbWKJDcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424241AbWKJDue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965984AbWKJDcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 22:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966073AbWKJDcJ
+	id S1424241AbWKJDue (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 22:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966080AbWKJDue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 22:32:09 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39909 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965984AbWKJDcI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 22:32:08 -0500
-Date: Thu, 9 Nov 2006 19:31:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ed Tomlinson <edt@aei.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5-mm1
-Message-Id: <20061109193153.a9709912.akpm@osdl.org>
-In-Reply-To: <200611092221.49238.edt@aei.ca>
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
-	<200611092221.49238.edt@aei.ca>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 9 Nov 2006 22:50:34 -0500
+Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:1427
+	"HELO smtpout04-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S966079AbWKJDue (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Nov 2006 22:50:34 -0500
+Message-ID: <4553F709.30001@seclark.us>
+Date: Thu, 09 Nov 2006 22:50:33 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen.Clark@seclark.us
+CC: Tejun Heo <htejun@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
+       =?ISO-8859-1?Q?=22=5C=22J=2EA=2E=5C=22_Magall=F3n=22?= 
+	<jamagallon@ono.com>,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       Mark Lord <lkml@rtr.ca>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Abysmal PATA IDE performance
+References: <455206E7.2050104@seclark.us> <45526D50.5020105@rtr.ca>	 <455277E1.3040803@seclark.us> <20061109020758.GA21537@atjola.homenet>	 <4552A638.4010207@seclark.us>  <20061109094014.1c8b6bed@werewolf-wl>	 <1163062700.3138.467.camel@laptopd505.fenrus.org>	 <45533DB9.4000405@seclark.us> <1163084045.3138.502.camel@laptopd505.fenrus.org> <45536653.50006@seclark.us> <4553B31E.3070407@gmail.com> <4553BF38.60700@seclark.us>
+In-Reply-To: <4553BF38.60700@seclark.us>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2006 22:21:49 -0500
-Ed Tomlinson <edt@aei.ca> wrote:
+Stephen Clark wrote:
 
-> On Wednesday 08 November 2006 04:54, Andrew Morton wrote:
-> > -radeonfb-support-24bpp-32bpp-minus-alpha.patch
-> > 
-> >  Dropped
-> > 
-> > +various-fbdev-files-mark-structs-fix.patch
-> > 
-> >  Fix various-fbdev-files-mark-structs.patch
-> > 
-> > +fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit.patch
-> > 
-> >  fbdev fix
-> 
-> Strongly suspect that something is not right with these patches.  I have a:
-> 
-> 01:00.0 VGA compatible controller: ATI Technologies Inc RV280 [Radeon 9200] (rev 01) (prog-if 00 [VGA])
->         Subsystem: ATI Technologies Inc Unknown device 2002
->         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->         Latency: 32 (2000ns min), Cache Line Size 08
->         Interrupt: pin A routed to IRQ 16
->         Region 0: Memory at d0000000 (32-bit, prefetchable) [size=128M]
->         Region 1: I/O ports at 8000 [size=256]
->         Region 2: Memory at e9010000 (32-bit, non-prefetchable) [size=64K]
->         [virtual] Expansion ROM at e8000000 [disabled] [size=128K]
->         Capabilities: [58] AGP version 3.0
->                 Status: RQ=256 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW+ AGP3+ Rate=x4,x8
->                 Command: RQ=32 ArqSz=2 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x8
->         Capabilities: [50] Power Management version 2
->                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+>Tejun Heo wrote:
+>
 >  
-> booting with: 
-> 
-> kernel /boot/2.6.19-rc5-mm1 root=/dev/sda3 vga=0x318 video=vesafb:ywrap,mtrr:3 console=tty0 console=ttyS0,38400 nmi_watchdog=1
-> 
-> gives a strangely corrupted screen.  The characters seem reversed...
-> 
+>
+>>Stephen Clark wrote:
+>>[--snip--]
+>> 
+>>
+>>    
+>>
+>>>ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
+>>>scsi0 : ata_piix
+>>>Synaptics Touchpad, model: 1, fw: 6.1, id: 0xa3a0b3, caps: 0xa04713/0x10008
+>>>input: SynPS/2 Synaptics TouchPad as /class/input/input1
+>>>ATA: abnormal status 0x7F on port 0x1F7
+>>>ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
+>>>scsi1 : ata_piix
+>>>ata2.00: ATA-6, max UDMA/100, 117210240 sectors: LBA48
+>>>ata2.00: ata2: dev 0 multi count 16
+>>>usb 2-2: new low speed USB device using uhci_hcd and address 3
+>>>ata2.01: ATAPI, max UDMA/33
+>>>ata2.00: configured for UDMA/33 <==== why isn't this 66 or 100 ?
+>>>   
+>>>
+>>>      
+>>>
+>>See below.
+>>
+>> 
+>>
+>>    
+>>
+>>>===============****
+>>>usb 2-2: configuration #1 chosen from 1 choice
+>>>input: Logitech USB-PS/2 Trackball as /class/input/input2
+>>>input: USB HID v1.00 Mouse [Logitech USB-PS/2 Trackball] on
+>>>usb-0000:00:1d.1-2
+>>>ata2.01: configured for UDMA/33 <=========== is this related to the
+>>>following 2 lines? ====
+>>>   
+>>>
+>>>      
+>>>
+>>Nope,
+>>
+>> 
+>>
+>>    
+>>
+>>> Vendor: ATA       Model: HTS721060G9AT00   Rev: MC3O
+>>> Type:   Direct-Access                      ANSI SCSI revision: 05
+>>>SCSI device sda: 117210240 512-byte hdwr sectors (60012 MB)
+>>>sda: Write Protect is off
+>>>sda: Mode Sense: 00 3a 00 00
+>>>SCSI device sda: drive cache: write back
+>>>SCSI device sda: 117210240 512-byte hdwr sectors (60012 MB)
+>>>sda: Write Protect is off
+>>>sda: Mode Sense: 00 3a 00 00
+>>>SCSI device sda: drive cache: write back
+>>>sda: sda1 sda2
+>>>sd 1:0:0:0: Attached scsi disk sda
+>>>   
+>>>
+>>>      
+>>>
+>>The above is for ata2.00.
+>>
+>> 
+>>
+>>    
+>>
+>>> Vendor: HL-DT-ST  Model: DVDRAM GMA-4082N  Rev: HJ02
+>>> Type:   CD-ROM                             ANSI SCSI revision: 05
+>>>   
+>>>
+>>>      
+>>>
+>>And, this for ata2.01.
+>>
+>>PATA devices occupying the same channel literally share the cable, and 
+>>the driver needs to configure PIO mode of both devices to the slowest of 
+>>the two (PIO mode is always configured regardless of actual transfer 
+>>mode).  UDMA mode doesn't save such restriction, so devices can be 
+>>configured to its own maximum transfer mode.
+>>
+>>libata, until recently, simply used the slowest max transfer mode for 
+>>both PIO and UDMA modes (MWDMA too).  So, that's what's happening to 
+>>you.  Your cdrom's max UDMA mode is UDMA/33, so libata is using it for 
+>>both devices on the channel.  Recent kernels (2.6.19-rcX) don't have 
+>>this restriction.  Give 2.6.19-rc5 a shot.
+>>
+>> 
+>>
+>>    
+>>
+>Hi Tejun,
+>
+>Thanks for the info, I had started looking at the libata code but hadn't 
+>progressed very far.
+>
+>Steve
+>
+>  
+>
+Hi all,
 
-Yup, thanks.  You'll need to revert
-fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit.patch:'
+using 2.6.19-rc5 did give me udma 100 for my harddrive and a xfer rate 
+of 44mbps.
+
+thanks to all who offered advice.
+
+Steve
+
+-- 
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
 
 
-diff -puN drivers/video/cfbimgblt.c~revert-fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit drivers/video/cfbimgblt.c
---- a/drivers/video/cfbimgblt.c~revert-fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit
-+++ a/drivers/video/cfbimgblt.c
-@@ -168,7 +168,7 @@ static inline void slow_imageblit(const 
- 
- 		while (j--) {
- 			l--;
--			color = (*s & (1 << FB_BIT_NR(l))) ? fgcolor : bgcolor;
-+			color = (*s & (1 << l)) ? fgcolor : bgcolor;
- 			val |= FB_SHIFT_HIGH(color, shift);
- 			
- 			/* Did the bitshift spill bits to the next long? */
-@@ -258,7 +258,7 @@ static inline void fast_imageblit(const 
- 		s += spitch;
- 	}
- }	
--
-+	
- void cfb_imageblit(struct fb_info *p, const struct fb_image *image)
- {
- 	u32 fgcolor, bgcolor, start_index, bitstart, pitch_index = 0;
-diff -puN include/linux/fb.h~revert-fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit include/linux/fb.h
---- a/include/linux/fb.h~revert-fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit
-+++ a/include/linux/fb.h
-@@ -854,12 +854,10 @@ struct fb_info {
- #endif
- 
- #if defined (__BIG_ENDIAN)
--#define FB_BIT_NR(b)              (b)
- #define FB_LEFT_POS(bpp)          (32 - bpp)
- #define FB_SHIFT_HIGH(val, bits)  ((val) >> (bits))
- #define FB_SHIFT_LOW(val, bits)   ((val) << (bits))
- #else
--#define FB_BIT_NR(b)              (7 - (b))
- #define FB_LEFT_POS(bpp)          (0)
- #define FB_SHIFT_HIGH(val, bits)  ((val) << (bits))
- #define FB_SHIFT_LOW(val, bits)   ((val) >> (bits))
-_
 

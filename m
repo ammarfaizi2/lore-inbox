@@ -1,77 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946213AbWKJJcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946216AbWKJJcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946213AbWKJJcH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946209AbWKJJcH
+	id S1946216AbWKJJcq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946215AbWKJJcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:32:07 -0500
-Received: from smtp4.netcabo.pt ([212.113.174.31]:28770 "EHLO
-	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1946213AbWKJJcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:32:04 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Ao8CABLUU0VZmGJA/2dsb2JhbAA
-X-IronPort-AV: i="4.09,408,1157324400"; 
-   d="scan'208"; a="138398945:sNHT17779311"
-Message-ID: <26540.194.65.103.1.1163151084.squirrel@www.rncbc.org>
-In-Reply-To: <1162808795.23683.2.camel@Homer.simpson.net>
-References: <454BC8D1.1020001@rncbc.org> <454BF608.20803@rncbc.org> 
-    <454C714B.8030403@rncbc.org> <454E0976.8030303@rncbc.org> 
-    <454E15B0.2050008@rncbc.org> 
-    <1162742535.2750.23.camel@localhost.localdomain> 
-    <454E2FC1.4040700@rncbc.org>
-    <1162797896.6126.5.camel@Homer.simpson.net> 
-    <20061106093815.GB14388@elte.hu> 
-    <1162807371.13579.4.camel@Homer.simpson.net> 
-    <20061106101117.GA20616@elte.hu>
-    <1162808795.23683.2.camel@Homer.simpson.net>
-Date: Fri, 10 Nov 2006 09:31:24 -0000 (WET)
-Subject: Re: realtime-preempt patch-2.6.18-rt7 oops
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: "Mike Galbraith" <efault@gmx.de>, "Daniel Walker" <dwalker@mvista.com>,
-       "Karsten Wiese" <fzu@wemgehoertderstaat.de>,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.5.1
+	Fri, 10 Nov 2006 04:32:45 -0500
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:34284 "EHLO
+	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1946216AbWKJJcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 04:32:45 -0500
+Message-ID: <45544723.4030503@in.ibm.com>
+Date: Fri, 10 Nov 2006 15:02:19 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-OriginalArrivalTime: 10 Nov 2006 09:32:02.0166 (UTC) FILETIME=[13CFE960:01C704AB]
+To: Pavel Emelianov <xemul@openvz.org>
+CC: Linux MM <linux-mm@kvack.org>, dev@openvz.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
+       rohitseth@google.com
+Subject: Re: [RFC][PATCH 7/8] RSS controller fix resource groups parsing
+References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com> <20061109193627.21437.88058.sendpatchset@balbir.in.ibm.com> <455442B6.30800@openvz.org>
+In-Reply-To: <455442B6.30800@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Emelianov wrote:
+> Balbir Singh wrote:
+>> echo adds a "\n" to the end of a string. When this string is copied from
+>> user space, we need to remove it, so that match_token() can parse
+>> the user space string correctly
+>>
+>> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+>> ---
+>>
+>>  kernel/res_group/rgcs.c |    6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> diff -puN kernel/res_group/rgcs.c~container-res-groups-fix-parsing kernel/res_group/rgcs.c
+>> --- linux-2.6.19-rc2/kernel/res_group/rgcs.c~container-res-groups-fix-parsing	2006-11-09 23:08:10.000000000 +0530
+>> +++ linux-2.6.19-rc2-balbir/kernel/res_group/rgcs.c	2006-11-09 23:08:10.000000000 +0530
+>> @@ -241,6 +241,12 @@ ssize_t res_group_file_write(struct cont
+>>  	}
+>>  	buf[nbytes] = 0;	/* nul-terminate */
+>>  
+>> +	/*
+>> +	 * Ignore "\n". It might come in from echo(1)
+> 
+> Why not inform user he should call echo -n?
 
-On Mon, November 6, 2006 10:26, Mike Galbraith wrote:
-> On Mon, 2006-11-06 at 11:11 +0100, Ingo Molnar wrote:
->
->> * Mike Galbraith <efault@gmx.de> wrote:
->>
->>
->>>> could you try the patch below, does it help? (a quick review seems
->>>> to suggest that all codepaths protected by kretprobe_lock are
->>>> atomic)
->>>
->>> Ah, so I did do the right thing.  Besides the oops, I was getting a
->>> pretty frequent non-deadly...
->>
->> yeah ...
->>
->>> ...so turned it back into a non-sleeping lock.
->>>
->>>
->>> You forgot kprobes.h
->>>
->>
->> so the patch solves this problem for you?
->
-> Yeah, seems to.  I'll let it run make check in a loop for a while to
-> make sure the fatal oops stays gone too though.  If you don't hear from
-> me, all is peachy (it will be methinks)
->
+Yes, but what if the user does not use it? We can't afford to do the
+wrong thing. But it's a good point, I'll document and recommend that
+the users use echo -n.
 
-So far so good for this pester ;)
 
-Thanks.
+> 
+>> +	 */
+>> +	if (buf[nbytes - 1] == '\n')
+>> +		buf[nbytes - 1] = 0;
+>> +
+>>  	container_manage_lock();
+>>  
+>>  	if (container_is_removed(cont)) {
+>> _
+>>
+> 
+> That's the same patch as in [PATCH 1/8] mail. Did you attached
+> a wrong one?
+
+Yeah... I moved this patch from #7 to #1 and did not remove it.
+Sorry!
+
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+	Thanks,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

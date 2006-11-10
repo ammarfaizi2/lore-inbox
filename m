@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424416AbWKJUrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424436AbWKJU54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424416AbWKJUrK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 15:47:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424417AbWKJUrJ
+	id S1424436AbWKJU54 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 15:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424434AbWKJU54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 15:47:09 -0500
-Received: from codepoet.org ([166.70.99.138]:23249 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S1424416AbWKJUrI (ORCPT
+	Fri, 10 Nov 2006 15:57:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39148 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161909AbWKJU5z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 15:47:08 -0500
-Date: Fri, 10 Nov 2006 13:47:06 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFT] mv643xxx_eth_start_xmit oops
-Message-ID: <20061110204706.GA14383@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-References: <20061110191745.GA13783@codepoet.org> <20061110115444.07f58e40@freekitty>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061110115444.07f58e40@freekitty>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.9i
+	Fri, 10 Nov 2006 15:57:55 -0500
+Message-ID: <4554E7C1.1070705@sandeen.net>
+Date: Fri, 10 Nov 2006 14:57:37 -0600
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Steve Grubb <sgrubb@redhat.com>
+CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] handle ext3 directory corruption better
+References: <200610211129.23216.sgrubb@redhat.com> <20061031095742.GA4241@ucw.cz> <200611011029.39295.sgrubb@redhat.com>
+In-Reply-To: <200611011029.39295.sgrubb@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Nov 10, 2006 at 11:54:44AM -0800, Stephen Hemminger wrote:
-> The code int mv643xx_eth_start_xmit is not safe on SMP it was
-> checking for space outside of lock.
+Steve Grubb wrote:
+> On Tuesday 31 October 2006 04:57, Pavel Machek wrote:
+>> Nice... can you run the same tool against fsck, too?
+> 
+> I'll see if I can make that work, too. The fuzzer tries to preserve the bad 
+> image so that you can replay the problem for debugging. I think its just a 
+> matter of making another copy and using that one instead.
 
-Hmm.  I do not have CONFIG_SMP enabled...  But then I suppose the
-function is not reentrant either, so networking from N apps would
-eventually result in a collision where it would blow up.  That
-seems consistant with what I was seeing.
+I played with this on xfs a little bit in my spare time, found some
+xfs_repair problems.  :)  I'm sure other fs's would have issues as well.
 
-> Does the following (untested) fix it?
+Ideally it would probably be good for the tool to have a "use" mode (try
+to use the corrupted fs) and a "check" mode (try to fsck the corrupted fs).
 
-Thanks!  It at least applies cleanly and compiles...
-Will let you know if it seems fixed.
+In use   mode, it'd be:  mkfs, fuzz, mount, populate (etc), unmount.
+In check mode, it'd be:  mkfs, mount, populate, unmount, fuzz, fsck.
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-Eric

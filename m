@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932843AbWKJKnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946402AbWKJKp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932843AbWKJKnd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 05:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932814AbWKJKnd
+	id S1946402AbWKJKp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 05:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946399AbWKJKp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 05:43:33 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:40501 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932843AbWKJKnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 05:43:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=j6ptpP+juQJcb3eJKcdXfvgfeiWghSxJAQymfpKf56BnwUnkZ9xF4nKWnobtVaUEVkMEFbZTzA+uH0j/lWc50AFsNugx2rLAfM7RgOSZUiZLVnWVsqiulVPN7n6g1vSdOetTBiAHRkpDqurgxbz8aY1M6OQQa0PqiclhWNfT07s=
-Message-ID: <45545803.1040005@innova-card.com>
-Date: Fri, 10 Nov 2006 11:44:19 +0100
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       adaplas@pol.net
-Subject: Re: 2.6.19-rc5-mm1: HPC nx6325 breakage, VESA fb problem, md-raid
- problem
-References: <20061108015452.a2bb40d2.akpm@osdl.org>	<20061108165540.0d3c4340.akpm@osdl.org>	<200611090204.45299.rjw@sisk.pl>	<200611091642.01453.rjw@sisk.pl> <20061109095811.ac654e13.akpm@osdl.org>
-In-Reply-To: <20061109095811.ac654e13.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 10 Nov 2006 05:45:59 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:35768 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1946390AbWKJKp6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 05:45:58 -0500
+Subject: Re: [PATCH] backlight: do not power off backlight when
+	unregistering (try 2)
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: benh@kernel.crashing.org, paulus@samba.org,
+       Lennart Poettering <mzxreary@0pointer.de>,
+       Andriy Skulysh <askulysh@image.kiev.ua>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, Antonino Daplas <adaplas@pol.net>,
+       Holger Macht <hmacht@suse.de>
+In-Reply-To: <20061110003237.GB9021@khazad-dum.debian.net>
+References: <20061105225429.GE14295@khazad-dum.debian.net>
+	 <1162773394.5473.18.camel@localhost.localdomain>
+	 <20061110000829.GA9021@khazad-dum.debian.net>
+	 <20061110003237.GB9021@khazad-dum.debian.net>
+Content-Type: text/plain
+Date: Fri, 10 Nov 2006 10:44:40 +0000
+Message-Id: <1163155480.5550.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 9 Nov 2006 16:42:00 +0100
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+On Thu, 2006-11-09 at 22:32 -0200, Henrique de Moraes Holschuh wrote:
+> ACPI drivers like ibm-acpi are moving to the backlight sysfs infrastructure.
+> During ibm-acpi testing, I have noticed that backlight_device_unregister()
+> sets the display brightness and power to zero.
 > 
->> This indeed is caused by fbcon-rere-fix-little-endian-bogosity-in-slow_imageblit.patch
->> which affects two out of three boxes on which I tested it (both have Radeon cards).
+> This causes the display to be dimmed on ibm-acpi module removal.  It will
+> affect all other ACPI drivers that are being converted to use the backlight
+> class, as well.  It also affects a number of framebuffer devices that are
+> used on desktops and laptops which might also not want such behaviour.
 > 
-> Thanks, dropped.
+> Since working around this behaviour requires undesireable hacks, Richard
+> Purdie decided that we would be better off reverting the changes in the
+> sysfs class, and adding the code to dim and power off the backlight device
+> to the drivers that want it.  This patch is my attempt to do so.
 > 
+> Patch against latest linux-2.6.git.  Changes untested, as I lack the
+> required hardware.  Still, they are trivial enough that, apart from typos,
+> there is little chance of getting them wrong.
+> 
+> Signed-off-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+> Cc: Richard Purdie <rpurdie@rpsys.net>
+> Cc: Andriy Skulysh <askulysh@image.kiev.ua>
+> Cc: Antonino Daplas <adaplas@pol.net>
+Acked-by: Richard Purdie <rpurdie@rpsys.net>
 
-Well I'm probably missing something but I really don't see what !
-
-For example, let say that the four first bytes of an image are 0x06,
-0xe0, 0x38, 0x00.
-
-If
-	bpp = 1
-	start_index = 0
-	on a little endian platform 
-	this patch is _not_ applied
-
-slow_imageblit() will write into the frame buffer the following
-bytes: 0x60, 0x07, 0x1c, 0x00 instead of the original ones. The bits
-of each bytes have been inversed (bit7->bit0, bit6->bit1, bit5->bit2,
-bit4->bit3, bit3->bit4, ...) and that's the reason why _I_ get all
-fonts inverted.
-
-With this patch applied, the bytes written into the frame buffer will
-be exactly the same as the original ones. Therefore it fixes my
-inverted view but broke Rafael's one.
-
-Now, I'm very not familiar with all frame buffer stuff so I must be
-missing somthing obvious. If anyone could give me some hints there
-that would be nice.
-
-Thanks
-		Franck

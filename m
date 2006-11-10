@@ -1,92 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946711AbWKJPtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161870AbWKJPpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946711AbWKJPtl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 10:49:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946712AbWKJPtl
+	id S1161870AbWKJPpN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 10:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161872AbWKJPpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 10:49:41 -0500
-Received: from [212.33.187.219] ([212.33.187.219]:40832 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1946711AbWKJPtl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 10:49:41 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Date: Fri, 10 Nov 2006 18:52:14 +0300
-User-Agent: KMail/1.5
-References: <200611090757.48744.a1426z@gawab.com> <20061109090502.4d5cd8ef@freekitty>
-In-Reply-To: <20061109090502.4d5cd8ef@freekitty>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 10 Nov 2006 10:45:13 -0500
+Received: from zcars04e.nortel.com ([47.129.242.56]:51391 "EHLO
+	zcars04e.nortel.com") by vger.kernel.org with ESMTP
+	id S1161870AbWKJPpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 10:45:11 -0500
+Message-ID: <45549E0E.6090901@nortel.com>
+Date: Fri, 10 Nov 2006 09:43:10 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, Andi Kleen <ak@suse.de>,
+       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       Len Brown <lenb@kernel.org>, Arjan van de Ven <arjan@infradead.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
+References: <20061109233030.915859000@cruncher.tec.linutronix.de> <20061109233035.569684000@cruncher.tec.linutronix.de> <1163121045.836.69.camel@localhost> <200611100610.13957.ak@suse.de> <1163146206.8335.183.camel@localhost.localdomain> <20061110005020.4538e095.akpm@osdl.org>  <20061110085728.GA14620@elte.hu> <1163153670.7900.16.camel@localhost.localdomain>
+In-Reply-To: <1163153670.7900.16.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611101852.14715.a1426z@gawab.com>
+X-OriginalArrivalTime: 10 Nov 2006 15:43:15.0002 (UTC) FILETIME=[EF74F9A0:01C704DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> Al Boldi <a1426z@gawab.com> wrote:
-> > Andreas Mohr wrote:
-> > > On Wed, Nov 08, 2006 at 11:40:27PM +0100, Jesper Juhl wrote:
-> > > > Let me make one very clear statement first: -stabel is a GREAT think
-> > > > and it is working VERY well.
-> > > > That being said, many of the fixes I see going into -stable are
-> > > > regression fixes. Maybe not the majority, but still, regression
-> > > > fixes going into -stable tells me that the kernel should have seen
-> > > > more testing/bugfixing before being declared a stable release.
-> > >
-> > > Nice theory, but of course I'm pretty sure that it wouldn't work
-> >
-> > Agreed.
-> >
-> > > (as has been said numerous time before by other people).
-> > >
-> > > You cannot do endless testing/bugfixing, it's a psychological issue.
-> >
-> > Agreed.
-> >
-> > > If you do that, then you end up with -preXX (or worse, -preXXX)
-> > > version numbers, which would cause too many people to wait and wait
-> > > and wait with upgrading until "that next stable" kernel version
-> > > finally becomes available.
-> > > IOW, your tester base erodes, awfully, and development progress
-> > > stalls.
-> >
-> > IMHO, the psycho-problem is that you cannot intertwine development and
-> > stable in the same cycle.  In that respect, the 2.6 development cycle is
-> > a real flop, as it does not allow for focus.
-> >
-> > And focus is needed to achieve stability.
-> >
-> > Think catch22...
-> >
-> >
-> > Thanks!
-> >
-> > --
-> > Al
->
-> There are bugfixes which are too big for stable or -rc releases, that are
-> queued for 2.6.20. "Bugfix only" is a relative statement. Do you include,
-> new hardware support, new security api's, performance fixes.  It gets to
-> be real hard to decide, because these are the changes that often cause
-> regressions; often one major bug fix causes two minor bugs.
+Alan Cox wrote:
+> Ar Gwe, 2006-11-10 am 09:57 +0100, ysgrifennodd Ingo Molnar:
 
-That's exactly the point I'm trying to get across; the 2.6 dev model tries to 
-be two cycles in one, dev and stable, which yields an awkward catch22 
-situation.
+>>We should wait until CPU makers get their act together and implement a 
+>>TSC variant that is /architecturally promised/ to have constant 
+>>frequency (system bus frequency or whatever) and which never stops.
+> 
+> This will never happen for the really big boxes, light is just too
+> slow... Our current TSC handling is not perfect but the TSC is often
+> quite usable.
 
-The only sane way forward in such a situation is to realize the mistake and 
-return to the focused dev-only / stable-only model.
+This hypothetical clock wouldn't have to run full speed, would it?  You 
+could have a 1MHz clock distributed across even a large system fairly 
+easily.
 
-This would probably involve pushing the current 2.6 kernel into 2.8 and 
-starting 2.9 as a dev-cycle only, once 2.8 has structurally stabilized.
+Wouldn't that be good enough?
 
-
-Thanks!
-
---
-Al
+Chris
 

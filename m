@@ -1,82 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946695AbWKJOtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946694AbWKJOtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946695AbWKJOtp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 09:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946694AbWKJOtp
+	id S1946694AbWKJOtw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 09:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946696AbWKJOtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 09:49:45 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:30364 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S1946695AbWKJOto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 09:49:44 -0500
-Date: Fri, 10 Nov 2006 15:49:40 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: scary messages: HSM violation during boot of 2.6.18/amd64
-Message-ID: <20061110144940.GA14232@lapse.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+	Fri, 10 Nov 2006 09:49:52 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26551 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1946694AbWKJOtv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 09:49:51 -0500
+Date: Fri, 10 Nov 2006 15:49:16 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch 1/5] Fix timeout bug in rtmutex in 2.6.18-rt
+Message-ID: <20061110144916.GA19152@elte.hu>
+References: <20061001112829.630288000@frodo> <Pine.LNX.4.64.0610011336400.29459@frodo.shire>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-OS: Debian GNU/Linux 4.0 kernel 2.6.18-2-686 i686
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <Pine.LNX.4.64.0610011336400.29459@frodo.shire>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Esben Nielsen <nielsen.esben@googlemail.com> wrote:
 
-Hi, I just upgraded my workstation to 2.6.18.2. It has four SATA
-drives in a RAID10, connected to the system in pairs on Promise and
-Via on-board controllers.
+>  include/linux/init_task.h |    1
+>  include/linux/sched.h     |   62 
+>  kernel/sched.c            |   29 +++++++++++++++++----
 
-Now on every boot, I see several messages like this for the drives
-connected to the VIA controller (VT6420):
+what kernel tree is this supposed to be against? Neither vanilla nor 
+-rt7 2.6.18 works:
 
-  ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-  ata2.00: tag 0 cmd 0xb0 Emask 0x2 stat 0x50 err 0x0 (HSM violation)
-  ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-  ata1.00: tag 0 cmd 0xb0 Emask 0x2 stat 0x50 err 0x0 (HSM violation)
+ Hunk #1 FAILED at 91.
+ 1 out of 1 hunk FAILED -- rejects in file include/linux/init_task.h
+ patching file include/linux/sched.h
+ Hunk #1 FAILED at 928.
+ Hunk #2 FAILED at 1330.
+ 2 out of 2 hunks FAILED -- rejects in file include/linux/sched.h
+ patching file kernel/sched.c
+ Hunk #1 succeeded at 157 with fuzz 2 (offset -7 lines).
+ Hunk #2 FAILED at 700.
+ Hunk #3 FAILED at 774.
+ Hunk #4 FAILED at 792.
+ Hunk #5 FAILED at 1475.
+ 4 out of 5 hunks FAILED -- rejects in file kernel/sched.c
 
-What do these mean?
-
-Also, for the first of the two drives on the Promise/FastTrak
-PDC20378 controller, I see messages like this:
-
-  ata3: translated ATA stat/err 0x50/00 to SCSI SK/ASC/ASCQ 0xb/00/00
-
-What about those?
-
-I saw none of that under 2.6.17.x. Should I be worried?
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-spamtraps: madduck.bogus@madduck.net
-=20
-the unix philosophy basically involves
-giving you enough rope to hang yourself.
-and then some more, just to be sure.
-
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature (GPG/PGP)
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFVJGEIgvIgzMMSnURAs/8AKCqCqZhnS1SYpKL9CWyu2Vqf+KpgACdFOyX
-EmbUTjxGgirpOSl0RsBgSIQ=
-=6cHv
------END PGP SIGNATURE-----
-
---7JfCtLOvnd9MIVvH--
+	Ingo

@@ -1,164 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946773AbWKJQsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161874AbWKJQxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946773AbWKJQsK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 11:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946712AbWKJQsK
+	id S1161874AbWKJQxI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 11:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161875AbWKJQxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 11:48:10 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:56758 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1946773AbWKJQsI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 11:48:08 -0500
-Message-ID: <4554AD45.9080008@us.ibm.com>
-Date: Fri, 10 Nov 2006 10:48:05 -0600
-From: Maynard Johnson <maynardj@us.ibm.com>
-Reply-To: maynardj@us.ibm.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [RFC, PATCH 1/2] OProfile for Cell: Initial profiling support
-Content-Type: multipart/mixed;
- boundary="------------080709090103000306020609"
+	Fri, 10 Nov 2006 11:53:07 -0500
+Received: from xenotime.net ([66.160.160.81]:44779 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161874AbWKJQxE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 11:53:04 -0500
+Date: Fri, 10 Nov 2006 08:53:11 -0800
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+Message-Id: <20061110085311.54fd65f2.rdunlap@xenotime.net>
+In-Reply-To: <4554AC12.6040407@osdl.org>
+References: <200611090757.48744.a1426z@gawab.com>
+	<20061109090502.4d5cd8ef@freekitty>
+	<200611101852.14715.a1426z@gawab.com>
+	<9a8748490611100816v573418f4gcd5cbe34d0dd3715@mail.gmail.com>
+	<4554AC12.6040407@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080709090103000306020609
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 10 Nov 2006 08:42:58 -0800 Stephen Hemminger wrote:
 
+> Jesper Juhl wrote:
+> > On 10/11/06, Al Boldi <a1426z@gawab.com> wrote:
+> >> Stephen Hemminger wrote:
+> > [...]
+> >> > There are bugfixes which are too big for stable or -rc releases, 
+> >> that are
+> >> > queued for 2.6.20. "Bugfix only" is a relative statement. Do you 
+> >> include,
+> >> > new hardware support, new security api's, performance fixes.  It 
+> >> gets to
+> >> > be real hard to decide, because these are the changes that often cause
+> >> > regressions; often one major bug fix causes two minor bugs.
+> >>
+> >> That's exactly the point I'm trying to get across; the 2.6 dev model 
+> >> tries to
+> >> be two cycles in one, dev and stable, which yields an awkward catch22
+> >> situation.
+> >>
+> >> The only sane way forward in such a situation is to realize the 
+> >> mistake and
+> >> return to the focused dev-only / stable-only model.
+> >>
+> >> This would probably involve pushing the current 2.6 kernel into 2.8 and
+> >> starting 2.9 as a dev-cycle only, once 2.8 has structurally stabilized.
+> >>
+> >
+> > That was not what I was arguing for in the initial mail at all.
+> > I think the 2.6 model works very well in general. All I was pushing
+> > for was a single cycle focused mainly on bug fixes once in a while.
+> >
+> I like the current model fine. From a developer point of view:
 
+I don't think that it's great, but having even/odd stable/development
+is even worse.
 
---------------080709090103000306020609
-Content-Type: text/plain;
- name="oprof-cell-header.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="oprof-cell-header.diff"
+But I agree with Jesper and Andrew's comments in general, that
+we do have stability problems and we have a lack of people
+who are working on bugs.
 
-Utility macros, declarations, etc, to support Oprofile for Cell.
+>   * More branches means having to fix and retest a bug more places.
+>      Workload goes up geometrically with number of versions.
+>      So most developers end up ignoring fixing more than 2 versions;
+>      anything more than -current and -stable are ignored.
+>  * Holding off the tide of changes doesn't work. It just leads to
+>     massive integration headaches.
+>  * Many bugs don't show up until kernel is run on wide range of hardware,
+>     but kernel doesn't get exposed to wide range of hardware and
+>     applications until after it is declared stable. It is a Catch-22.
+>     The current stability range  of
+>            -subtree ... -mm ... 2.6.X ... 2.6.X.Y... 2.6.vendor
+>      works well for most people. The people it doesn't work for are trying
+>      to get something for nothing. They want stability and the latest kernel
+>      at the same time.
+> 
+> There are some things that do need working on:
+>   * Old bugs die, the bugzilla database needs a 6mo prune out.
+> 
+>   * Bugzilla.kernel.org is underutilized and is only a small sample of the
+>     real problems. Not sure if it is a training, user, behaviour issue or
+>     just that bugzilla is crap.
 
-Signed-Off-By: Maynard Johnson <mpjohn@us.ibm.com>
+Behavior, ease of use vs. email.
 
-Index: linux-2.6.18/arch/powerpc/oprofile/cell/perf_utils.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18/arch/powerpc/oprofile/cell/perf_utils.h	2006-11-08 21:33:27.178161224 -0600
-@@ -0,0 +1,113 @@
-+/*
-+ * perf_utils.h
-+ *
-+ * This file contains useful macros, declarations, etc. used
-+ * by OProfile for the Cell Broadband Engine.
-+ *
-+ * (C) Copyright IBM Corporation 2006
-+ *
-+ * Authors: Maynard Johnson <maynardj@us.ibm.com>
-+ */
-+
-+#ifndef PERF_UTILS_H
-+#define PERF_UTILS_H
-+
-+#define UNUSED_WORD ~0
-+
-+/* This macro should be used with care as it NR_CPUS is 
-+ * a maximum value that may not be accurate at runtime.
-+ */
-+#define NR_NODES	(NR_CPUS >> 1)
-+
-+/* FIXME:  I don't know if there's a _real_ macro or
-+ * function for determining whether or not SMT is enabled.
-+ */
-+#define is_smt()  1
-+
-+#define PPU_CYCLES_EVENT_NUM 1	/*  event number for PPU_CYCLES */
-+#define CBE_COUNT_ALL_CYCLES 0x42800000	/* PPU cycle event specifier */
-+
-+#define NUM_THREADS 2
-+#define NUM_CNTRS   4
-+#define VIRT_CNTR_SW_TIME_NS 100000000	// 0.5 seconds
-+
-+#define CBE_COUNT_SUPERVISOR_MODE       0
-+#define CBE_COUNT_HYPERVISOR_MODE       1
-+#define CBE_COUNT_PROBLEM_MODE          2
-+#define CBE_COUNT_ALL_MODES             3
-+
-+/* Macros for the pm07_control registers. */
-+#define PM07_CTR_INPUT_MUX(x)                    ((((x) & 1) << 26) & 0x3f)
-+#define PM07_CTR_INPUT_CONTROL(x)                (((x) & 1) << 25)
-+#define PM07_CTR_POLARITY(x)                     (((x) & 1) << 24)
-+#define PM07_CTR_COUNT_CYCLES(x)                 (((x) & 1) << 23)
-+#define PM07_CTR_ENABLE(x)                       (((x) & 1) << 22)
-+
-+
-+struct pmc_cntrl_data {
-+	unsigned long vcntr;
-+	unsigned long evnts;
-+	unsigned long masks;
-+	unsigned long enabled;
-+};
-+
-+/*
-+ * ibm,cbe-perftools rtas parameters
-+ */
-+
-+struct pm_signal {
-+	u16 cpu;		/* Processor to modify */
-+	u16 sub_unit;		/* hw subunit this applies to (if applicable) */
-+	u16 signal_group;	/* Signal Group to Enable/Disable */
-+	u8 bus_word;		/* Enable/Disable on this Trace/Trigger/Event
-+				   Bus Word(s) (bitmask) */
-+	u8 bit;			/* Trigger/Event bit (if applicable) */
-+};
-+
-+/*
-+ * rtas call arguments
-+ */
-+enum {
-+	SUBFUNC_RESET = 1,
-+	SUBFUNC_ACTIVATE = 2,
-+	SUBFUNC_DEACTIVATE = 3,
-+
-+	PASSTHRU_IGNORE = 0,
-+	PASSTHRU_ENABLE = 1,
-+	PASSTHRU_DISABLE = 2,
-+};
-+
-+struct pm_cntrl {
-+	short int enable;
-+	short int stop_at_max;
-+	short int trace_mode;
-+	short int freeze;
-+	short int count_mode;
-+};
-+
-+static struct {
-+	u32 group_control;
-+	u32 debug_bus_control;
-+	struct pm_cntrl pm_cntrl;
-+	u32 pm07_cntrl[OP_MAX_COUNTER];
-+} pm_regs;
-+
-+struct oprofile_umask {
-+	union {
-+		u32 val;
-+		struct {
-+			u32 pad1:16;
-+			u32 sub_unit:4;
-+			u32 pad2:2;
-+			u32 bus_type:2;
-+			u32 bus_word:4;
-+			u32 pad3:1;
-+			u32 input_control:1;
-+			u32 polarity:1;
-+			u32 count_cycles:1;
-+		};
-+	};
-+};
-+
-+
-+#endif // PERF_UTILS_H
+>   * Vendor bugs (that could be fixed) aren't forwarded to lkml or bugzilla
 
---------------080709090103000306020609--
+ack
 
+>   * LKML is an overloaded communication channel, do we need:
+>       linux-bugs@vger.kernel.org ?
+
+Either that or lkml is/remains for bug reporting and we move development
+somewhere else.  Or my [repeated] preference:
+
+do development on specific mailing lists (although there would
+likely need to be a fallback list when it's not clear which mailing
+list should be used)
+
+>    * Developers can't get (or afford to buy) the new hardware that causes
+>       a lot of the pain. Just look at the number of bug reports due to new
+>       flavors of motherboards, chipsets, etc. I spent 3mo on a bug that took
+>       one day to fix once I got the hardware.
+
+Yep.
+
+---
+~Randy

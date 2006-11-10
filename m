@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946384AbWKJK4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946250AbWKJLBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946384AbWKJK4O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 05:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946388AbWKJK4O
+	id S1946250AbWKJLBv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 06:01:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946410AbWKJLBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 05:56:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:17051 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1946384AbWKJK4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 05:56:13 -0500
-Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       tglx@linutronix.de, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>, Len Brown <lenb@kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <200611101147.26081.ak@suse.de>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de>
-	 <20061110011336.008840cf.akpm@osdl.org>
-	 <1163154958.3138.671.camel@laptopd505.fenrus.org>
-	 <200611101147.26081.ak@suse.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 10 Nov 2006 11:55:58 +0100
-Message-Id: <1163156158.3138.677.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Fri, 10 Nov 2006 06:01:51 -0500
+Received: from adsl02.metz.linbox.com ([62.212.120.90]:9169 "EHLO
+	fbxmetz.linbox.com") by vger.kernel.org with ESMTP id S1946250AbWKJLBu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 06:01:50 -0500
+Message-ID: <45545C1B.4040204@linbox.com>
+Date: Fri, 10 Nov 2006 12:01:47 +0100
+From: Ludovic Drolez <ludovic.drolez@linbox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20060628 Debian/1.7.8-1sarge7.1
+X-Accept-Language: fr, en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.18.2: cannot compile with gcc 3.0.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-> 
-> Do we? Where?  AFAIK we just do some resetting after cpu frequency
-> changes, but on C3 TSC is just disabled globally.
-> 
-> That is better than it sounds.
+When I try to compile the latest kernel with 3.0.4, I get a parse error:
 
-is it?
-> 
-> Most systems don't have C3 right now. And on those that have
-> (laptops) it tends to be not that critical because they normally
-> don't run workload where gettimeofday() is really time critical
-> (and nobody expects them to be particularly fast anyways)
+In file included from include/asm/suspend.h:7,
+                  from include/linux/suspend.h:5,
+                  from arch/i386/kernel/asm-offsets.c:11:
+include/asm/i387.h:55: warning: `always_inline' attribute directive ignored
+include/asm/i387.h: In function `__save_init_fpu':
+include/asm/i387.h:58: parse error before '[' token
+include/asm/i387.h:68: parse error before '[' token
+include/asm/i387.h: At top level:
+include/asm/i387.h:96: warning: `always_inline' attribute directive ignored
 
-and that got changed when the blade people decided to start using laptop
-processors ......
+With gcc 2.95.4, I get a "compiler too old" errors, and the same parsing 
+error... so, gcc 3.0.4 (Debian Woody) will be also in the compiler blacklist, 
+or can it be fixed ?
+
+Cheers,
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Ludovic DROLEZ                              Linbox / Free&ALter Soft
+http://lrs.linbox.org       - Free disk imaging and asset management

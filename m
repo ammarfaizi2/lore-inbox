@@ -1,64 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966100AbWKJJSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946126AbWKJJUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966100AbWKJJSC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:18:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966099AbWKJJSB
+	id S1946126AbWKJJUA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:20:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946134AbWKJJUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:18:01 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:17560 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S966098AbWKJJR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:17:59 -0500
-Message-ID: <455442B6.30800@openvz.org>
-Date: Fri, 10 Nov 2006 12:13:26 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Balbir Singh <balbir@in.ibm.com>
-CC: Linux MM <linux-mm@kvack.org>, dev@openvz.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
-       rohitseth@google.com
-Subject: Re: [RFC][PATCH 7/8] RSS controller fix resource groups parsing
-References: <20061109193523.21437.86224.sendpatchset@balbir.in.ibm.com> <20061109193627.21437.88058.sendpatchset@balbir.in.ibm.com>
-In-Reply-To: <20061109193627.21437.88058.sendpatchset@balbir.in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 10 Nov 2006 04:20:00 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:23481 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1946126AbWKJJT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 04:19:59 -0500
+Subject: Re: [patch 01/19] hrtimers: state tracking
+From: Arjan van de Ven <arjan@infradead.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
+       John Stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20061109233034.182462000@cruncher.tec.linutronix.de>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+	 <20061109233034.182462000@cruncher.tec.linutronix.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 10 Nov 2006 10:19:48 +0100
+Message-Id: <1163150389.3138.608.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-> echo adds a "\n" to the end of a string. When this string is copied from
-> user space, we need to remove it, so that match_token() can parse
-> the user space string correctly
-> 
-> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
-> ---
-> 
->  kernel/res_group/rgcs.c |    6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff -puN kernel/res_group/rgcs.c~container-res-groups-fix-parsing kernel/res_group/rgcs.c
-> --- linux-2.6.19-rc2/kernel/res_group/rgcs.c~container-res-groups-fix-parsing	2006-11-09 23:08:10.000000000 +0530
-> +++ linux-2.6.19-rc2-balbir/kernel/res_group/rgcs.c	2006-11-09 23:08:10.000000000 +0530
-> @@ -241,6 +241,12 @@ ssize_t res_group_file_write(struct cont
->  	}
->  	buf[nbytes] = 0;	/* nul-terminate */
+
+> +/*
+> + * Bit values to track state of the timer
+> + *
+> + * Possible states:
+> + *
+> + * 0x00		inactive
+> + * 0x01		enqueued into rbtree
+> + * 0x02		callback function running
+> + * 0x03		callback function running and enqueued
+> + *		(was requeued on another CPU)
+> + *
+> + * The "callback function running and enqueued" status is only possible on
+> + * SMP. It happens for example when a posix timer expired and the callback
+> + * queued a signal. Between dropping the lock which protects the posix timer
+> + * and reacquiring the base lock of the hrtimer, another CPU can deliver the
+> + * signal and rearm the timer. We have to preserve the callback running state,
+> + * as otherwise the timer could be removed before the softirq code finishes the
+> + * the handling of the timer.
+> + *
+> + * The HRTIMER_STATE_ENQUEUE bit is always or'ed to the current state to
+> + * preserve the HRTIMER_STATE_CALLBACK bit in the above scenario.
+> + *
+> + * All state transitions are protected by cpu_base->lock.
+> + */
+> +#define HRTIMER_STATE_INACTIVE	0x00
+> +#define HRTIMER_STATE_ENQUEUED	0x01
+> +#define HRTIMER_STATE_CALLBACK	0x02
+
+where is the define for 0x03?
+
 >  
+> +static inline int hrtimer_is_queued(struct hrtimer *timer)
+> +{
+> +	return timer->state != HRTIMER_STATE_INACTIVE &&
+> +		timer->state != HRTIMER_STATE_CALLBACK;
+> +}
+
+the state things are either bits or they're not. If they're bits, you
+probably want to make this a bitcheck instead...
+>  	rb_insert_color(&timer->node, &base->active);
 > +	/*
-> +	 * Ignore "\n". It might come in from echo(1)
-
-Why not inform user he should call echo -n?
-
+> +	 * HRTIMER_STATE_ENQUEUED is or'ed to the current state to preserve the
+> +	 * state of a possibly running callback.
 > +	 */
-> +	if (buf[nbytes - 1] == '\n')
-> +		buf[nbytes - 1] = 0;
-> +
->  	container_manage_lock();
->  
->  	if (container_is_removed(cont)) {
-> _
-> 
+> +	timer->state |= HRTIMER_STATE_ENQUEUED;
 
-That's the same patch as in [PATCH 1/8] mail. Did you attached
-a wrong one?
+ok so it IS a bit thing, see comment about hrtimer_is_queued() not being
+a bit check then...
+
+
+
+> -	if (base->cpu_base->curr_timer != timer)
+> +	if (!(timer->state & HRTIMER_STATE_CALLBACK))
+>  		ret = remove_hrtimer(timer, base);
+
+if there is a hrtimer_is_queued() inline, might as well make a
+hrtimer_is_running() inline as well
+
+
+otherwise lookes ok; if you fix these few comments:
+Acked-by: Arjan van de Ven <arjan@linux.intel.com>
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

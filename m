@@ -1,52 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWKJJpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbWKJJpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbWKJJpd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 04:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbWKJJpb
+	id S932581AbWKJJpL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 04:45:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbWKJJpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 04:45:31 -0500
-Received: from gate.crashing.org ([63.228.1.57]:19121 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932601AbWKJJpa (ORCPT
+	Fri, 10 Nov 2006 04:45:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49900 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932581AbWKJJpJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 04:45:30 -0500
-Subject: Re: [PATCH 0/2] Add dev_sysdata and use it for ACPI
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20061110054846.GA9137@kroah.com>
-References: <1163033121.28571.792.camel@localhost.localdomain>
-	 <20061109170435.07d2e0c4@gondolin.boeblingen.de.ibm.com>
-	 <1163111737.4982.40.camel@localhost.localdomain>
-	 <20061110054846.GA9137@kroah.com>
-Content-Type: text/plain
-Date: Fri, 10 Nov 2006 20:44:15 +1100
-Message-Id: <1163151855.4982.153.camel@localhost.localdomain>
+	Fri, 10 Nov 2006 04:45:09 -0500
+Date: Fri, 10 Nov 2006 01:40:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
+       John Stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [patch 01/19] hrtimers: state tracking
+Message-Id: <20061110014053.5208f35e.akpm@osdl.org>
+In-Reply-To: <1163150389.3138.608.camel@laptopd505.fenrus.org>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+	<20061109233034.182462000@cruncher.tec.linutronix.de>
+	<1163150389.3138.608.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 10 Nov 2006 10:19:48 +0100
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-> Sorry, I'm in Japan this week, and access to email is limited.
 > 
-> I like this change, but I like the dev_archdata name better.  It lets
-> people know who owns the pointer much better.
+> > +/*
+> > + * Bit values to track state of the timer
+> > + *
+> > + * Possible states:
+> > + *
+> > + * 0x00		inactive
+> > + * 0x01		enqueued into rbtree
+> > + * 0x02		callback function running
+> > + * 0x03		callback function running and enqueued
+> > + *		(was requeued on another CPU)
+> > + *
+> > + * The "callback function running and enqueued" status is only possible on
+> > + * SMP. It happens for example when a posix timer expired and the callback
+> > + * queued a signal. Between dropping the lock which protects the posix timer
+> > + * and reacquiring the base lock of the hrtimer, another CPU can deliver the
+> > + * signal and rearm the timer. We have to preserve the callback running state,
+> > + * as otherwise the timer could be removed before the softirq code finishes the
+> > + * the handling of the timer.
+> > + *
+> > + * The HRTIMER_STATE_ENQUEUE bit is always or'ed to the current state to
+> > + * preserve the HRTIMER_STATE_CALLBACK bit in the above scenario.
+> > + *
+> > + * All state transitions are protected by cpu_base->lock.
+> > + */
+> > +#define HRTIMER_STATE_INACTIVE	0x00
+> > +#define HRTIMER_STATE_ENQUEUED	0x01
+> > +#define HRTIMER_STATE_CALLBACK	0x02
 > 
-> Care to respin these patches with this change?
+> where is the define for 0x03?
+> 
+> >  
+> > +static inline int hrtimer_is_queued(struct hrtimer *timer)
+> > +{
+> > +	return timer->state != HRTIMER_STATE_INACTIVE &&
+> > +		timer->state != HRTIMER_STATE_CALLBACK;
+> > +}
+> 
+> the state things are either bits or they're not. If they're bits, you
+> probably want to make this a bitcheck instead...
+> >  	rb_insert_color(&timer->node, &base->active);
+> > +	/*
+> > +	 * HRTIMER_STATE_ENQUEUED is or'ed to the current state to preserve the
+> > +	 * state of a possibly running callback.
+> > +	 */
+> > +	timer->state |= HRTIMER_STATE_ENQUEUED;
+> 
+> ok so it IS a bit thing, see comment about hrtimer_is_queued() not being
+> a bit check then...
+> 
 
-Ok, changing that should be trivial, I'll send new patches tomorrow.
+eek.  I exhaustively went over that confusion in my initial (and lengthy)
+review of these patches.
 
-> And yes, I don't see a problem with such a change like this for 2.6.20,
-> it's pretty simple.
-
-Excellent, thanks, Hope your trip was good
-
-(I loved the food last time I was in Tokyo :-)
-
-Cheers,
-Ben.
-
-
+I don't think we ever saw a point-by-point reply.  What got lost?

@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946373AbWKJTPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161950AbWKJTRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946373AbWKJTPq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 14:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424402AbWKJTPq
+	id S1161950AbWKJTRr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 14:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161951AbWKJTRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 14:15:46 -0500
-Received: from mail.ss-lan.ru ([62.140.242.9]:60683 "EHLO mail.z-net.ru")
-	by vger.kernel.org with ESMTP id S1424375AbWKJTPp (ORCPT
+	Fri, 10 Nov 2006 14:17:47 -0500
+Received: from codepoet.org ([166.70.99.138]:51095 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S1161950AbWKJTRq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 14:15:45 -0500
-X-Nat-Received: from [10.10.0.7]:33961 [ident-empty]
-	by rt-fiord1.z-net.ru with TPROXY id 1163182539.24322
-	abuse-to abuse@ss-lan.ru
-X-Nat-Received: from [10.10.231.1]:1525 [ident-empty]
-	by rt-cwn.z-net.ru with TPROXY id 1163186143.6474
-	abuse-to abuse@ss-lan.ru
-Date: Fri, 10 Nov 2006 23:17:25 +0300
-From: Anton Vorontsov <cbou@mail.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: =?koi8-r?B?PT9JU08tODg1OS0xP1E/?= C=E9dric?= Augonnet 
-	<cedric.augonnet@gmail.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Benoit Boissinot <bboissin@gmail.com>,
-       Mattia Dongili <malattia@linux.it>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       SCSI development list <linux-scsi@vger.kernel.org>,
-       kernel-discuss@handhelds.org
-Subject: Re: [linux-usb-devel] 2.6.19-rc5-mm1
-Message-ID: <20061110201725.GA7341@localhost>
-Reply-To: cbou@mail.ru
-References: <20061109192658.GA2560@inferi.kami.home> <Pine.LNX.4.44L0.0611091655080.2262-100000@iolanthe.rowland.org> <20061109145100.01d6ec46.akpm@osdl.org> <f56c1ba00611091539n1d1cbe99obdb1c5f608646c96@mail.gmail.com> <20061109161123.f9cea1e7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Fri, 10 Nov 2006 14:17:46 -0500
+Date: Fri, 10 Nov 2006 12:17:45 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Repeatable Oops, mv643xx_eth in 2.6.18.x
+Message-ID: <20061110191745.GA13783@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061109161123.f9cea1e7.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2006 at 04:11:23PM -0800, Andrew Morton wrote:
-> On Fri, 10 Nov 2006 00:39:46 +0100
-> "C__dric Augonnet" <cedric.augonnet@gmail.com> wrote:
-> 
-> > 2006/11/9, Andrew Morton <akpm@osdl.org>:
-> > 
-> > >
-> > > hm.  Maybe it's the disk_sysfs_symlinks() changes.
-> > >
-> > > Could someone who can reproduce this please try this revert, on
-> > > 2.6.19-rc2-mm2 through 2.6.19-rc5-mm1?
-[...]
-> > 
-> > Hi,
-> > 
-> > This patch seems to be working : whereas i had the same oops as Mattia
-> > each time I unplugged my USB external DD drive, now it does not happen
-> > anymore.
-> > Thank you very much for this one !
-> > 
-> 
-> OK, thanks.  I dropped the patch.  So ide-cs will now start deadlocking
-> again.
+I have a Pegasos2 powerpc system acting as my home server.  With
+2.6.16.x it was 100% stable and I had months of uptime, rebooting
+only to periodically apply security updates to the kernel.
 
-No, it will not. I'm really sorry, mainline was already fixed at
-2.6.17-rc5 time by that commit:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=1a2acc9e9214699a99389e323e6686e9e0e2ca67
+With 2.6.17 and 2.6.18, after an uptime of no more than 2 days,
+and usually much less, I get a kernel panic, with nothing in the
+log.  I finally caught it in the act, and took a picture.
+http://codepoet.org/oops.jpg
 
-But for some reason handhelds.org kernel tree's block/genhd.c file was
-unsynchronized with mainline. I've revealed that only after my patch was
-removed and I've started to investigate SCSI oops issue triggered by my
-patch.
+A quick transcription of the Oops in the screenshot follows:
+--------------------------------------------
 
-Resume: mainline do not need my patch, handhelds.org's kernel should be
-synchronized with mainline.
+kernel BUG in eth_alloc_tx_desc_index at drivers/net/mv643xx_eth.c:1070
+Oops: Exception in kernel mode, sig: 5 [#1]
 
--- Anton (irc: bd2)
+Modules linked in: usb_storage uhci_hcd sd_mod scsi_mod tun ide_cd cdrom eepro100 via_rhine
+NIP: C0160894 LR: C01609B8 CTR: C0160AF4
+REGS: ca2b79b0 TRAP: 0700   Not tainted (2.6.18.1-erik)
+MSR: 00021032 <ME,IR,DR>  CR: 82202488 XER: 0000000
+TASK = de0ec7b0[9823] 'dansguardian' THREAD: ca2b6000
+GPR00: <see screenshot>
+GPR08: <see screenshot>
+GPR16: <see screenshot>
+GPR24: <see screenshot>
+NIP [C0160894] eth_alloc_tx_desc_index+0x48/0x50
+LR [C01609B8] eth_tx_submit_descs_for_skb+0x28/0x164
+Call Trace:
+	(unreliable)
+	mv643xx_eth_start_xmit+0xa8/0x170
+	dev_hard_start_xmit+0x8c/0x14c
+	dev_queue_xmit+0x11c/0x2e0
+	ip_output+0x198/0x288
+	ip_queue_xmit+0x3c0/0x470
+	tcp_transmit_skb+x308/0x4c8
+	tcp_push_one+0xfc/0x14c
+	tcp_sendmsg+0x3d0/0xca4
+	inet_sendmsg+0x60/0x7c
+	sock_sendmsg+0xb0/0xe4
+	sys_sendto+0xd4/0x10c
+	sys_socketcall+0x120/0x1d8
+	ret_drom_syscall+0x0/0x38
+--- Exception: x01 at 0xfdb0e5c
+    LR = 0x100120a8
+Instruction dump:
+<see screenshot>
+<see screenshot>
+ <0>Kernel panic - not syncing: Fatal exception in interrupt
+ <0>Rebooting in 180 seconds.._
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

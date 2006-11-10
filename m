@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424322AbWKJBKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424324AbWKJBNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424322AbWKJBKn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 20:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424326AbWKJBKn
+	id S1424324AbWKJBNS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 20:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424326AbWKJBNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 20:10:43 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57314 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1424322AbWKJBKn (ORCPT
+	Thu, 9 Nov 2006 20:13:18 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:32480 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1424324AbWKJBNR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 20:10:43 -0500
-Date: Fri, 10 Nov 2006 12:10:18 +1100
-From: David Chinner <dgc@sgi.com>
-To: Russell Cattelan <cattelan@thebarn.com>
-Cc: "Igor A. Valcov" <viaprog@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, xfs@oss.sgi.com
-Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
-Message-ID: <20061110011018.GP8394166@melbourne.sgi.com>
-References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com> <1163095715.5632.102.camel@xenon.msp.redhat.com>
+	Thu, 9 Nov 2006 20:13:17 -0500
+Subject: Re: [patch 13/19] GTOD: Mark TSC unusable for highres timers
+From: john stultz <johnstul@us.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20061109233035.569684000@cruncher.tec.linutronix.de>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+	 <20061109233035.569684000@cruncher.tec.linutronix.de>
+Content-Type: text/plain
+Date: Thu, 09 Nov 2006 17:10:45 -0800
+Message-Id: <1163121045.836.69.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163095715.5632.102.camel@xenon.msp.redhat.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2006 at 12:08:35PM -0600, Russell Cattelan wrote:
-> On Thu, 2006-11-09 at 20:30 +0300, Igor A. Valcov wrote:
-> > Hello,
-> > 
-> > For one of our projects we have a test program that measures file
-> > system performance by writing up to 1000 files simultaneously. After
-> > installing kernel v2.6.16 we noticed that XFS performance dropped by a
-> > factor of 5 (tests that took around 4 minutes on kernel 2.6.15 now
-> > take around 20 minutes to complete). We then checked all kernels
-> > starting from 2.6.16 up to 2.6.19-rc5 with the same unpleasant result.
-> > The funny thing about all this is that we chose XFS for that
-> > particular project specifically because it was about 5 times faster
-> > with the tests than the other file systems. Now they all take about
-> > the same time.
-> > 
-> > I also noticed that I/O barriers were introduced in v2.6.16 and
-> > thought they may be the cause, but mounting the file system with
-> > 'nobarrier' doesn't seem to affect the performance in any way.
-> > 
-> > Any thoughts on the matter are appreciated.
-> I would try verifying the problem on a non ide disk just
-> to confirm the write barrier theory.
+On Thu, 2006-11-09 at 23:38 +0000, Thomas Gleixner wrote:
+> plain text document attachment
+> (gtod-mark-tsc-unusable-for-highres-timers.patch)
+> From: Thomas Gleixner <tglx@linutronix.de>
 > 
-> Also file a bug.
-> http://oss/sgi.com/bugzilla
-> include test case and hard description if possible.
+> The TSC is too unstable and unreliable to be used with high resolution timers.
+> The automatic detection of TSC unstability fails once we switched to high
+> resolution mode, because the tick emulation would use the TSC as reference. 
+> This results in a circular dependency.  Mark it unusable for high res upfront.
+> 
+> [akpm@osdl.org: updated for i386-time-avoid-pit-smp-lockups.patch]
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 
+> diff -puN arch/i386/kernel/tsc.c~gtod-mark-tsc-unusable-for-highres-timers arch/i386/kernel/tsc.c
+> --- a/arch/i386/kernel/tsc.c~gtod-mark-tsc-unusable-for-highres-timers
+> +++ a/arch/i386/kernel/tsc.c
+> @@ -459,10 +459,23 @@ static int __init init_tsc_clocksource(v
+>  		current_tsc_khz = tsc_khz;
+>  		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
+>  							clocksource_tsc.shift);
+> +#ifndef CONFIG_HIGH_RES_TIMERS
+>  		/* lower the rating if we already know its unstable: */
+>  		if (check_tsc_unstable())
+>  			clocksource_tsc.rating = 0;
+> -
+> +#else
+> +		/*
+> +		 * Mark TSC unsuitable for high resolution timers. TSC has so
+> +		 * many pitfalls: frequency changes, stop in idle ...  When we
+> +		 * switch to high resolution mode we can not longer detect a
+> +		 * firmware caused frequency change, as the emulated tick uses
+> +		 * TSC as reference. This results in a circular dependency.
+> +		 * Switch only to high resolution mode, if pm_timer or such
+> +		 * is available.
+> +		 */
+> +		clocksource_tsc.rating = 50;
+> +		clocksource_tsc.is_continuous = 0;
+> +#endif
+>  		init_timer(&verify_tsc_freq_timer);
+>  		verify_tsc_freq_timer.function = verify_tsc_freq;
+>  		verify_tsc_freq_timer.expires =
 
-and cc xfs@oss.sgi.com on XFS bug reports ;)
 
-Cheers,
+Hmmm. I wish this patch was unnecessary, but I don't see an easy
+solution. 
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+Mind adding a warning so users know why a system that might use the TSC
+normally does not use the TSC w/ highres timers?
+
+Otherwise looks ok.
+
+Acked-by: John Stultz <johnstul@us.ibm.com>
+
+thanks
+-john
+

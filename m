@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932829AbWKJKES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932833AbWKJKFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932829AbWKJKES (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 05:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932830AbWKJKES
+	id S932833AbWKJKFG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 05:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932832AbWKJKFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 05:04:18 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:7308 "EHLO calculon.skynet.ie")
-	by vger.kernel.org with ESMTP id S932829AbWKJKER (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 05:04:17 -0500
-Date: Fri, 10 Nov 2006 10:04:15 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Aaron Durbin <adurbin@google.com>
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] x86_64: Fix partial page check to ensure unusable memory
- is not being marked usable.
-In-Reply-To: <8f95bb250611091327j14cc96adwf66c0ed0ecf3b8ba@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0611101002530.27174@skynet.skynet.ie>
-References: <8f95bb250611091327j14cc96adwf66c0ed0ecf3b8ba@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 10 Nov 2006 05:05:06 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52383 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932833AbWKJKFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 05:05:04 -0500
+Subject: Re: [patch 08/19] i386: cleanup apic code
+From: Arjan van de Ven <arjan@infradead.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
+       John Stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20061109233034.987972000@cruncher.tec.linutronix.de>
+References: <20061109233030.915859000@cruncher.tec.linutronix.de>
+	 <20061109233034.987972000@cruncher.tec.linutronix.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 10 Nov 2006 11:04:59 +0100
+Message-Id: <1163153099.3138.642.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2006, Aaron Durbin wrote:
+>  
+>  /*
+>   * Knob to control our willingness to enable the local APIC.
+> + *
+> + * -1=force-disable, +1=force-enable
 
-> Fix partial page check in e820_register_active_regions to ensure
-> partial pages are
-> not being marked as active in the memory pool.
->
-> Signed-off-by: Aaron Durbin <adurbin@google.com>
->
+mind doing 2 defines for these? Makes things more readable I suspect
 
-Acked-by: Mel Gorman <mel@csn.ul.ie.ie>
+> -	return maxlvt;
+> +	return APIC_INTEGRATED(GET_APIC_VERSION(v)) ? GET_APIC_MAXLVT(v) : 2;
+>  }
 
-This bug is in 2.6.19-rc5 and the patch will be needed for 2.6.19.
+why not use lapic_is_integrated() here?
+> \
+> +	if (cpu_has_tsc)
+> +		apic_printk(APIC_VERBOSE, "..... CPU clock speed is "
 
-Thanks Aaron.
+please put "approximated at" or something here; or people will call
+supportlines if they bought a 3.4Ghz processor and this shows 3.39999Ghz
 
-> ---
-> This was causing a machine to reboot w/ an area in the e820 that was less
-> than the page size because the upper address was being use to mark a hole as
-> active in the memory pool.
->
-> arch/x86_64/kernel/e820.c |    2 +-
-> 1 files changed, 1 insertions(+), 1 deletions(-)
->
-> diff --git a/arch/x86_64/kernel/e820.c b/arch/x86_64/kernel/e820.c
-> index a75c829..855b561 100644
-> --- a/arch/x86_64/kernel/e820.c
-> +++ b/arch/x86_64/kernel/e820.c
-> @@ -278,7 +278,7 @@ e820_register_active_regions(int nid, un
-> 								>> 
-> PAGE_SHIFT;
->
-> 		/* Skip map entries smaller than a page */
-> -		if (ei_startpfn > ei_endpfn)
-> +		if (ei_startpfn >= ei_endpfn)
-> 			continue;
->
-> 		/* Check if end_pfn_map should be updated */
-> -- 
-> 1.4.2.GIT
->
+
+
+> +EXPORT_SYMBOL(switch_APIC_timer_to_ipi);
+
+why is this exported at all? Modules really shouldn't be touching apic
+level details.... 
+
+
+
+this patch is extremely difficult to review because diff has made a mess
+out of it ;(
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

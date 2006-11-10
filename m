@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424334AbWKJBet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424336AbWKJBqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424334AbWKJBet (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Nov 2006 20:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424336AbWKJBet
+	id S1424336AbWKJBqE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Nov 2006 20:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424329AbWKJBqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Nov 2006 20:34:49 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:25250 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S1424334AbWKJBet (ORCPT
+	Thu, 9 Nov 2006 20:46:04 -0500
+Received: from outbound-red.frontbridge.com ([216.148.222.49]:12266 "EHLO
+	outbound2-red-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1424336AbWKJBqC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Nov 2006 20:34:49 -0500
-Date: Fri, 10 Nov 2006 10:27:33 +0900
-From: Horms <horms@verge.net.au>
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-Cc: yhlu <yinghailu@gmail.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Kexec with latest kernel fail
-Message-ID: <20061110012731.GH4107@verge.net.au>
-References: <5986589C150B2F49A46483AC44C7BCA49071D2@ssvlexmb2.amd.com>
+	Thu, 9 Nov 2006 20:46:02 -0500
+X-BigFish: VP
+X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA49071D2@ssvlexmb2.amd.com>
-User-Agent: mutt-ng/devel-r804 (Debian)
+Subject: RE: [Fastboot] Kexec with latest kernel fail
+Date: Thu, 9 Nov 2006 17:41:35 -0800
+Message-ID: <5986589C150B2F49A46483AC44C7BCA49071D3@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Fastboot] Kexec with latest kernel fail
+Thread-Index: AccEaHDBXHnRMvLIRFG7mI2olvVvRAAALjzA
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Horms" <horms@verge.net.au>
+cc: "yhlu" <yinghailu@gmail.com>,
+       "Fastboot mailing list" <fastboot@lists.osdl.org>,
+       ebiederm@xmission.com, "linux-kernel" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 Nov 2006 01:41:37.0150 (UTC)
+ FILETIME=[5C6441E0:01C70469]
+X-WSS-ID: 694D075B1AO1247841-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2006 at 05:12:08PM -0800, Lu, Yinghai wrote:
-> There is no configure in kexec-tools-testing
+Thanks, It compiled
 
-Sorry, you need to generate it from configure.ac by running autoconf
+kexec get the same error "Invalid memory segment 0x100000 - ...."
 
-# autoconf && ./configure && make
+YH
 
--- 
-Horms
-  H: http://www.vergenet.net/~horms/
-  W: http://www.valinux.co.jp/en/
+
 

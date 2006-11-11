@@ -1,60 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945892AbWKKQGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424025AbWKKQKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945892AbWKKQGk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 11:06:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424272AbWKKQGk
+	id S1424025AbWKKQKi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 11:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424255AbWKKQKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 11:06:40 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45072 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1424255AbWKKQGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 11:06:40 -0500
-Date: Sat, 11 Nov 2006 17:06:43 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: greg@kroah.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: drivers/usb/gadget/ether.c: NULL dereference
-Message-ID: <20061111160643.GA8809@stusta.de>
+	Sat, 11 Nov 2006 11:10:38 -0500
+Received: from smtp121.iad.emailsrvr.com ([207.97.245.121]:65421 "EHLO
+	smtp121.iad.emailsrvr.com") by vger.kernel.org with ESMTP
+	id S1424025AbWKKQKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 11:10:38 -0500
+Message-ID: <4555D814.1000608@gentoo.org>
+Date: Sat, 11 Nov 2006 09:03:00 -0500
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Jeff Garzik <jeff@garzik.org>
+CC: "Michael D. Setzer II" <mikes@kuentos.guam.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Failure of sata_via with kernels since 2.6.15.6
+References: <455501B3.13819.421AEC9@mikes.kuentos.guam.net> <455485FC.1040607@garzik.org>
+In-Reply-To: <455485FC.1040607@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted the following NULL dereference of "skb" in 
-drivers/usb/gadget/ether.c:
+Jeff Garzik wrote:
+> Can you try 2.6.19-rc5-git2?
+> 
+> There were very recent sata_via fixes pushed upstream.
 
-<--  snip  -->
+And if that doesn't work, drop this patch in on top:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116300291505638&q=raw
 
-...
-static int
-rx_submit (struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
-{
-        struct sk_buff          *skb;
-        int                     retval = -ENOMEM;
-...
-        if ((skb = alloc_skb (size + NET_IP_ALIGN, gfp_flags)) == 0) {
-                DEBUG (dev, "no rx skb\n");
-                goto enomem;
-        }
-...
-enomem:
-                defer_kevent (dev, WORK_RX_MEMORY);
-        if (retval) {
-                DEBUG (dev, "rx submit --> %d\n", retval);
-                dev_kfree_skb_any (skb);
-...
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Daniel
 

@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424483AbWKKBOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424481AbWKKBU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424483AbWKKBOM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 20:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424482AbWKKBOM
+	id S1424481AbWKKBU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 20:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424484AbWKKBU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 20:14:12 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58844 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1424478AbWKKBOL (ORCPT
+	Fri, 10 Nov 2006 20:20:56 -0500
+Received: from gw.goop.org ([64.81.55.164]:56219 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1424481AbWKKBUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 20:14:11 -0500
-Date: Fri, 10 Nov 2006 17:14:01 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, Ingo Molnar <mingo@elte.hu>,
-       akpm@osdl.org, mm-commits@vger.kernel.org, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
-In-Reply-To: <20061110143214.A25478@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0611101709240.28516@schroedinger.engr.sgi.com>
-References: <000001c70490$01cea4b0$8bc8180a@amr.corp.intel.com>
- <Pine.LNX.4.64.0611101027100.25459@schroedinger.engr.sgi.com>
- <20061110143214.A25478@unix-os.sc.intel.com>
+	Fri, 10 Nov 2006 20:20:55 -0500
+Message-ID: <4555256F.2050006@goop.org>
+Date: Fri, 10 Nov 2006 17:20:47 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Miller <davem@davemloft.net>
+CC: magnus.damm@gmail.com, horms@verge.net.au, ebiederm@xmission.com,
+       magnus@valinux.co.jp, linux-kernel@vger.kernel.org, vgoyal@in.ibm.com,
+       ak@muc.de, fastboot@lists.osdl.org, anderson@redhat.com
+Subject: Re: [PATCH 02/02] Elf: Align elf notes properly
+References: <45550D2F.2070004@goop.org>	<20061110.153930.23011358.davem@davemloft.net>	<455518C6.8000905@goop.org> <20061110.164349.35665774.davem@davemloft.net>
+In-Reply-To: <20061110.164349.35665774.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2006, Siddha, Suresh B wrote:
+David Miller wrote:
+> We should be OK with the elf note header since n_namesz, n_descsz, and
+> n_type are 32-bit types even on Elf64.  But for the contents embedded
+> in the note, I am not convinced that there are no potential issues
 
-> Nick was suggesting another alternative, that we should increase the max
-> interval and probably make it dependent on number of cpus that
-> share the group. Today for NUMA domain, we already set max_interval
-> based on online cpus. Perhaps we need to do that for other domains (SMP, MC)
-> too and increase the max interval on NUMA for big systems?
+PT_NOTE segments are not generally mmaped directly, nor are they
+generally very large.  There should be no problem for a note-using
+program to load/copy the notes into memory with appropriate alignment. 
+I guess a lot of the contents of core elf notes are register dumps and
+so on, so debuggers must be already dealing with this.
 
-I have been trying to run with this patch. We increase the min interval so 
-that we can at least put one tick between each of the load balance actions 
-of each processor. The cpu_offset can be modified to:
-
-/* Don't have all balancing operations going off at once: */
-static inline unsigned long cpu_offset(int cpu)
-{
-	if (NR_CPUS < HZ)
-    		return jiffies + cpu * HZ / NR_CPUS;
-	else
-		return jiffies + cpu;
-}
-
-But exclusion in load balancing would take care of the above.
-
-
-
-
-Index: linux-2.6.19-rc4-mm2/include/linux/topology.h
-===================================================================
---- linux-2.6.19-rc4-mm2.orig/include/linux/topology.h	2006-11-07 16:43:43.084665449 -0600
-+++ linux-2.6.19-rc4-mm2/include/linux/topology.h	2006-11-07 16:55:23.027245226 -0600
-@@ -182,7 +182,7 @@
- 	.parent			= NULL,			\
- 	.child			= NULL,			\
- 	.groups			= NULL,			\
--	.min_interval		= 64,			\
-+	.min_interval		= max(64, jiffies_to_msec(num_online_cpus())),\
- 	.max_interval		= 64*num_online_cpus(),	\
- 	.busy_factor		= 128,			\
- 	.imbalance_pct		= 133,			\
+    J

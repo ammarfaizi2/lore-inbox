@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947099AbWKKEwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946974AbWKKFN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947099AbWKKEwR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 23:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947102AbWKKEwR
+	id S1946974AbWKKFN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 00:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947091AbWKKFN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 23:52:17 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:36914 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1947099AbWKKEwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 23:52:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=JEl7D0oOimBk+P5RfurT0lD9z3ByHVcajOH2k9kD818muTBYgVsyWNNjtg4CRl/NdODmOKUeRW39soUhwVdkEsE/YOn1bNzSugD1sh+NgVV0wGhsbNWhHJiDpvUXlMcqiV4LOTjmn/bZrgnWFHvp7iOweK9GVmHKM1DPfrtX6vs=
-Message-ID: <455556F7.4000802@gmail.com>
-Date: Sat, 11 Nov 2006 13:52:07 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Tomasz Chmielewski <mangoo@wpkg.org>, linux-kernel@vger.kernel.org,
-       madduck@madduck.net
-Subject: Re: scary messages: HSM violation during boot of 2.6.18/amd64
-References: <455496CA.5040405@wpkg.org> <200611102239.kAAMdoYV015817@turing-police.cc.vt.edu>            <45550308.1090408@wpkg.org> <200611102310.kAANAgOf019164@turing-police.cc.vt.edu>
-In-Reply-To: <200611102310.kAANAgOf019164@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 11 Nov 2006 00:13:27 -0500
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:36843 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1946974AbWKKFN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 00:13:26 -0500
+Date: Sat, 11 Nov 2006 00:13:24 -0500
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-kernel@vger.kernel.org, ltt-dev@shafik.org
+Subject: Re: MIPS atomic operations, "sync"
+Message-ID: <20061111051324.GA23930@Krystal>
+References: <20061110184049.GA24977@Krystal> <20061110223303.GA17712@linux-mips.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20061110223303.GA17712@linux-mips.org>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 00:11:20 up 80 days,  2:19,  2 users,  load average: 0.54, 0.41, 0.24
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 10 Nov 2006 23:54:00 +0100, Tomasz Chmielewski said:
+* Ralf Baechle (ralf@linux-mips.org) wrote:
+> On Fri, Nov 10, 2006 at 01:40:49PM -0500, Mathieu Desnoyers wrote:
 > 
->> You use old smartmontools :)
->>
->> -o on / -S on is not supported for sata, unless you use a CVS version of 
->> smartmontools.
+> > I am currently creating a "LOCK" prefix free and memory barrier free version
+> > of atomic.h to fulfill my tracer (LTTng) needs, which is to atomically update
+> > per-cpu data and have a minimal performance loss.
+> > 
+> > I just came across the MIPS atomic.h and system.h implementations in 2.6.18
+> > which brings a question :
+> > 
+> > Why are the primitives in include/asm-mips/atomic.h using the "sync"
+> > instruction even in the UP case ? system.h cmpxchg only uses the sync in the
+> > SMP case.
 > 
-> OK, thanks - the Fedora RPM from several days ago is still 5.36 based,
-> I just pulled the CVS version and it starts up much more nicely.  Only quirk:
+> Why are the standard atomic operations insufficient for your needs?
 > 
-> Nov 10 18:04:32 turing-police smartd[18988]: Device: /dev/sda, opened 
-> Nov 10 18:04:32 turing-police smartd[18988]: Device /dev/sda: SATA disks accessed via libata are supported by Linux kernel versions 2.6.15-rc1 and above. Try adding '-d ata' or '-d sat' to the smartd.conf config file line. 
+> There is an enormous amout of subtilities in those atomic ops for some
+> architectures you probably do yourself a big favor by avoiding new
+> variants.
 > 
-> Well, yeah. I'm on 2.6.19-rc5-mm1 and the config file *has* '-d ata' already. ;)
-> I'd file a bug report against that, except it's time for me to leave the office
-> and forage for some dinner. :)
 
-For detailed info,
+Performance cost.
 
-http://thread.gmane.org/gmane.linux.ide/13222/focus=13235
+I add a memory barrier where needed when the data needs to appear to be written
+sequentially from the other CPUs perspective.
 
--- 
-tejun
+Mathieu
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

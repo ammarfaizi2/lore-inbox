@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947119AbWKKGxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946993AbWKKHPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947119AbWKKGxF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 01:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947120AbWKKGxF
+	id S1946993AbWKKHPu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 02:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947129AbWKKHPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 01:53:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:10392 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1947119AbWKKGxC (ORCPT
+	Sat, 11 Nov 2006 02:15:50 -0500
+Received: from 1wt.eu ([62.212.114.60]:12037 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1946993AbWKKHPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 01:53:02 -0500
-Date: Fri, 10 Nov 2006 22:52:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Igor A. Valcov" <viaprog@gmail.com>
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
-Message-Id: <20061110225257.63f91851.akpm@osdl.org>
-In-Reply-To: <bde600590611100516u7b8ca1bfs74d3cc8b78eb3520@mail.gmail.com>
-References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
-	<4553F3C6.2030807@sandeen.net>
-	<Pine.LNX.4.61.0611101259490.6068@yvahk01.tjqt.qr>
-	<bde600590611100516u7b8ca1bfs74d3cc8b78eb3520@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sat, 11 Nov 2006 02:15:50 -0500
+Date: Sat, 11 Nov 2006 08:15:33 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+Message-ID: <20061111071533.GA577@1wt.eu>
+References: <200611090757.48744.a1426z@gawab.com> <20061109090502.4d5cd8ef@freekitty> <200611101852.14715.a1426z@gawab.com> <9a8748490611100816v573418f4gcd5cbe34d0dd3715@mail.gmail.com> <4554AC12.6040407@osdl.org> <20061110085311.54fd65f2.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061110085311.54fd65f2.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2006 16:16:27 +0300
-"Igor A. Valcov" <viaprog@gmail.com> wrote:
-
-> Below is a simplified version of the test program,
-
-Boy, I hope not.  The results of this test program are of very little interest.
-
->     for (i = 0; i < 262144; i++) {
->         /* Write data to a big file */
->         write (nFiles [0], buf, __BYTES);
+On Fri, Nov 10, 2006 at 08:53:11AM -0800, Randy Dunlap wrote:
+> Either that or lkml is/remains for bug reporting and we move development
+> somewhere else.  Or my [repeated] preference:
 > 
->         /* Write data to small files */
->         for (f = 1; f < __FILES; f++)
->             write (nFiles [f], &f, sizeof (f));
->     }
+> do development on specific mailing lists (although there would
+> likely need to be a fallback list when it's not clear which mailing
+> list should be used)
 
-This sits in a loop doing write(fd, buf, 4).  This is wildly inefficient -
-you'd get a 10x throughput benefit and maybe 100x reduction in CPU cost
-simply by switching to fwrite().
+I've been thinking about this too for a while now. There is something
+like half of the email volume which are (semi-)automated emails
+containing patches moving from a GIT tree to another. I think that
+moving this to some linux-dev or something like this would :
 
-I suspect something went wrong here.
+  1) reduce the noise on LKML so that problem reports are better caught
+  2) reduce the global email volume because instead of sending all these
+     emails to 10-20000 persons(?), only maybe a thousand will be subscribed.
+  3) reduce even more the latency between post and publication due to 2.
+
+I don't know if others would be interested, in which case it would be wise
+to poll on the subject and include Matti and Davem to the discussion.
+
+Regards,
+Willy
+

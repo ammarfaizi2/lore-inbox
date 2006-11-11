@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424375AbWKKQM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424286AbWKKQT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424375AbWKKQM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 11:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424272AbWKKQM6
+	id S1424286AbWKKQT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 11:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424272AbWKKQT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 11:12:58 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:49936 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1424255AbWKKQM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 11:12:57 -0500
-Date: Sat, 11 Nov 2006 17:13:00 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Manuel Francisco Naranjo <naranjo.manuel@gmail.com>
-Cc: gregkh@suse.de, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: drivers/usb/serial/aircable.c: inconsequent NULL checking
-Message-ID: <20061111161300.GB8809@stusta.de>
+	Sat, 11 Nov 2006 11:19:56 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:23000 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1424286AbWKKQTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 11:19:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iu9yoNDrxpFvXOAkHo4MCAjsOVGbKZmnGulu4Ihq0cyUg2Gv/++coJ1erMfPmellt88Pb+qYX8sgVAn6aMIwOnMIie5yzID49RHtZO0wGdlWIWkGtqWX0cXnPKzA7QU7DVc6Rb1JuoU5w2RgcJmcst/WJdC90yjqCQ0B0VP3F9w=
+Message-ID: <4d8e3fd30611110819r7e4dc941od93b9eb1220f2992@mail.gmail.com>
+Date: Sat, 11 Nov 2006 17:19:53 +0100
+From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
+To: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Adrian Bunk" <bunk@stusta.de>
+Subject: [TRIVIAL PATCH] Added information about Technisat Sky2Pc cards - take 3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted the following in 
-drivers/usb/serial/aircable.c:
+Hi all,
+This is the third time I submit the below patch (first sent on the
+29th of October), I'm adding lkml and Adrian since this is really
+trivial.
 
-<--  snip  -->
+We hope it will be applied since it really helps people using Sky2Pc cards.
 
-...
-static void aircable_read(void *params)
-{
-        struct usb_serial_port *port = params;
-        struct aircable_private *priv = usb_get_serial_port_data(port);
-        struct tty_struct *tty;
-        unsigned char *data;
-        int count;
-        if (priv->rx_flags & THROTTLED){
-                if (priv->rx_flags & ACTUALLY_THROTTLED)
-                        schedule_work(&priv->rx_work);
-                return;
-        }
+Thanks in advance.
 
-        /* By now I will flush data to the tty in packages of no more than
-         * 64 bytes, to ensure I do not get throttled.
-         * Ask USB mailing list for better aproach.
-         */
-        tty = port->tty;
+Cheers,
 
-        if (!tty)
-                schedule_work(&priv->rx_work);
+Paolo
 
-        count = min(64, serial_buf_data_avail(priv->rx_buf));
+Signed-off-by: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Acked-by: Daniele Vallini <vallinidaniele@libero.it>
+---
+ Documentation/dvb/cards.txt |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-        if (count <= 0)
-                return; //We have finished sending everything.
-
-        tty_prepare_flip_string(tty, &data, count);
-...
-
-<--  snip  -->
-
-"tty" is first checked for being !NULL, but later it's unconditionally 
-dereferenced.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+diff --git a/Documentation/dvb/cards.txt b/Documentation/dvb/cards.txt
+index ca58e33..cc09187 100644
+--- a/Documentation/dvb/cards.txt
++++ b/Documentation/dvb/cards.txt
+@@ -22,10 +22,10 @@ o Frontends drivers:
+   - ves1x93           : Alps BSRV2 (ves1893 demodulator) and dbox2 (ves1993)
+   - cx24110           : Conexant HM1221/HM1811 (cx24110 or cx24106
+demod, cx24108 PLL)
+   - grundig_29504-491 : Grundig 29504-491 (Philips TDA8083
+demodulator), tsa5522 PLL
+-   - mt312             : Zarlink mt312 or Mitel vp310 demodulator,
+sl1935 or tsa5059 PLL
++   - mt312             : Zarlink mt312 or Mitel vp310 demodulator,
+sl1935 or tsa5059 PLLi, Technisat Sky2Pc with bios Rev. 2.3
+   - stv0299           : Alps BSRU6 (tsa5059 PLL), LG TDQB-S00x (tsa5059 PLL),
+                         LG TDQF-S001F (sl1935 PLL), Philips SU1278
+(tua6100 PLL),
+-                         Philips SU1278SH (tsa5059 PLL), Samsung TBMU24112IMB
++                         Philips SU1278SH (tsa5059 PLL), Samsung
+TBMU24112IMB, Technisat Sky2Pc with bios Rev. 2.6
+  DVB-C:
+   - ves1820           : various (ves1820 demodulator, sp5659c or spXXXX PLL)
+   - at76c651          : Atmel AT76c651(B) with DAT7021 PLL

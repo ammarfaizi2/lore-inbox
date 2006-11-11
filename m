@@ -1,151 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424581AbWKKQZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946642AbWKKQ1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424581AbWKKQZT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 11:25:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424579AbWKKQZS
+	id S1946642AbWKKQ1x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 11:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946699AbWKKQ1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 11:25:18 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:56080 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1424581AbWKKQZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 11:25:16 -0500
-Date: Sat, 11 Nov 2006 17:25:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.32-rc1
-Message-ID: <20061111162520.GA25057@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sat, 11 Nov 2006 11:27:53 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:43215 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1946642AbWKKQ1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 11:27:52 -0500
+Subject: Re: [TRIVIAL PATCH] Added information about Technisat Sky2Pc cards
+	- take 3
+From: Arjan van de Ven <arjan@infradead.org>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <4d8e3fd30611110819r7e4dc941od93b9eb1220f2992@mail.gmail.com>
+References: <4d8e3fd30611110819r7e4dc941od93b9eb1220f2992@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sat, 11 Nov 2006 17:27:45 +0100
+Message-Id: <1163262465.3293.40.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fixes since 2.6.16.31:
-- CVE-2006-4538: ia64/sparc: fix local DoS with corrupted ELFs
+On Sat, 2006-11-11 at 17:19 +0100, Paolo Ciarrocchi wrote:
+> Hi all,
+> This is the third time I submit the below patch (first sent on the
+> 29th of October), I'm adding lkml and Adrian since this is really
+> trivial.
+
+hi
+
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/dvb/cards.txt b/Documentation/dvb/cards.txt
+> index ca58e33..cc09187 100644
+> --- a/Documentation/dvb/cards.txt
+> +++ b/Documentation/dvb/cards.txt
+> @@ -22,10 +22,10 @@ o Frontends drivers:
+>    - ves1x93           : Alps BSRV2 (ves1893 demodulator) and dbox2 (ves1993)
+>    - cx24110           : Conexant HM1221/HM1811 (cx24110 or cx24106
+> demod, cx24108 PLL)
+>    - grundig_29504-491 : Grundig 29504-491 (Philips TDA8083
+> demodulator), tsa5522 PLL
+> -   - mt312             : Zarlink mt312 or Mitel vp310 demodulator,
+
+Hi,
 
 
-Patch location:
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
+your patch has gotten line-wrapped, so it's not possible to apply it
+using the patch command ;(
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+you may need to resend it as an attachment to get it not damaged ;(
 
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
+Greetings,
+   Arjan van de Ven
 
-
-Changes since 2.6.16.31:
-
-Adrian Bunk (5):
-      remove Documentation/feature-removal-schedule.txt
-      drivers/md/md.c: update START_ARRAY printk
-      drivers/telephony/ixj: fix an array overrun
-      [AGPGART] remove unused variable
-      Linux 2.6.16.32-rc1
-
-Antonino Daplas (1):
-      nvidiafb: Add support for Geforce 6100 and related chipsets
-
-Christoph Lameter (1):
-      Fix longstanding load balancing bug in the scheduler
-
-Dave Jones (2):
-      [CPUFREQ] Make powernow-k7 work on SMP kernels.
-      [AGPGART] Suspend/Resume support for nVidia nForce AGP.
-
-Dmitriy Monakhov (1):
-       fix D-cache aliasing issue in cow_user_page
-
-Geert Uytterhoeven (1):
-      fbdev: correct buffer size limit in fbmem_read_proc()
-
-Herbert Xu (3):
-      [NET]: Add missing UFO initialisations
-      [NET]: Set truesize in pskb_copy
-      [NET]: Update frag_list in pskb_trim
-
-Jean Delvare (1):
-      scx200_acb: Fix the block transactions
-
-Jeff Mahoney (1):
-      [DISKLABEL] SUN: Fix signed int usage for sector count
-
-John Heffner (1):
-      [TCP]: Don't use highmem in tcp hash size calculation.
-
-Kirill Korotaev (2):
-      [IPV4]: Limit rt cache size properly.
-      ia64/sparc: fix local DoS with corrupted ELFs (CVE-2006-4538)
-
-Larry Woodman (1):
-      [NET]: __alloc_pages() failures reported due to fragmentation
-
-Marcel Holtmann (1):
-      Don't allow chmod() on the /proc/<pid>/ files
-
-Neil Brown (1):
-      md: Make sure bi_max_vecs is set properly in bio_split
-
-Paul Mackerras (2):
-      [POWERPC] Fix return value from memcpy
-      nvidia fbdev: fix powerpc xmon scribbles
-
-Pavel Roskin (1):
-      drivers/video/nvidia/nvidia.c: Add ID for Quadro NVS280
-
-Randy Dunlap (1):
-      [CPUFREQ] Fix powernow-k8 SMP kernel on UP hardware bug.
-
-Stephen Hemminger (1):
-      [MAINTAINERS]: Add proper entry for TC classifier
-
-Tejun Heo (1):
-      sata_sil24: add a new PCI ID for SiI 3124
-
-Thomas Andrews (1):
-      Fix the scx200_acb state machine:
-
-Thomas Graf (4):
-      PKT_SCHED: Fix error handling while dumping actions
-      PKT_SCHED: Fix illegal memory dereferences when dumping actions
-      PKT_SCHED: Return ENOENT if action module is unavailable
-      [PKT_SCHED]: act_api: Fix module leak while flushing actions
-
-
- Documentation/feature-removal-schedule.txt |  191 ---------------------
- MAINTAINERS                                |    6 
- Makefile                                   |    2 
- arch/i386/kernel/cpu/cpufreq/powernow-k7.c |    5 
- arch/i386/kernel/cpu/cpufreq/powernow-k8.c |    2 
- arch/ia64/kernel/sys_ia64.c                |   28 +--
- arch/powerpc/lib/memcpy_64.S               |   11 -
- arch/sparc/kernel/sys_sparc.c              |   27 +-
- arch/sparc64/kernel/sys_sparc.c            |   30 +--
- drivers/char/agp/nvidia-agp.c              |   27 ++
- drivers/i2c/busses/scx200_acb.c            |   20 +-
- drivers/md/md.c                            |    2 
- drivers/scsi/sata_sil24.c                  |    1 
- drivers/telephony/ixj.h                    |    2 
- drivers/video/fbmem.c                      |    3 
- drivers/video/nvidia/nv_hw.c               |   10 -
- drivers/video/nvidia/nvidia.c              |   13 +
- fs/bio.c                                   |    3 
- fs/partitions/sun.c                        |    2 
- fs/proc/base.c                             |   33 +++
- include/asm-ia64/mman.h                    |    8 
- include/asm-sparc/mman.h                   |    8 
- include/asm-sparc64/mman.h                 |    8 
- include/linux/pci_ids.h                    |    1 
- include/linux/skbuff.h                     |   24 +-
- kernel/sched.c                             |   38 +++-
- mm/memory.c                                |    1 
- mm/mmap.c                                  |   17 +
- net/core/dev.c                             |    1 
- net/core/skbuff.c                          |  109 ++++++++---
- net/core/sock.c                            |    2 
- net/ipv4/route.c                           |    2 
- net/ipv4/tcp.c                             |    4 
- net/sched/act_api.c                        |   22 +-
- 34 files changed, 342 insertions(+), 321 deletions(-)
 

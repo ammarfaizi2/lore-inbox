@@ -1,65 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424433AbWKKQXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424581AbWKKQZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424433AbWKKQXD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 11:23:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424582AbWKKQXB
+	id S1424581AbWKKQZT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 11:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424579AbWKKQZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 11:23:01 -0500
-Received: from ensim03.ffm.m2soft.com ([195.38.20.12]:52444 "EHLO
-	ensim03.ffm.m2soft.com") by vger.kernel.org with ESMTP
-	id S1424433AbWKKQXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 11:23:00 -0500
-X-ClientAddr: 85.127.135.120
-Date: Sat, 11 Nov 2006 17:21:12 +0100
-From: Nicolas Kaiser <nikai@nikai.net>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-ide@vger.kernel.org, trivial@kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][TRIVIAL] drivers/ide: stray bracket
-Message-ID: <20061111172112.7e1aba49@lucky.kitzblitz>
-In-Reply-To: <20061111131612.GA4974@martell.zuzino.mipt.ru>
-References: <20061111014756.3467d7ee@lucky.kitzblitz>
-	<20061111131612.GA4974@martell.zuzino.mipt.ru>
-Organization: -
-X-Face: "fF&[w2"Nws:JNH4'g|:gVhgGKLhj|X}}&w&V?]0=,7n`jy8D6e[Jh=7+ca|4~t5e[ItpL5
- N'y~Mvi-vJm`"1T5fi1^b!&EG]6nW~C!FN},=$G?^U2t~n[3;u\"5-|~H{-5]IQ2
-X-Mailer: Sylpheed-claws (Linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-M2Soft-MailScanner-Information: Please contact the ISP for more information
-X-M2Soft-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-MailScanner-From: nikai@nikai.net
+	Sat, 11 Nov 2006 11:25:18 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:56080 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1424581AbWKKQZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 11:25:16 -0500
+Date: Sat, 11 Nov 2006 17:25:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.32-rc1
+Message-ID: <20061111162520.GA25057@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alexey Dobriyan <adobriyan@gmail.com>:
-> On Sat, Nov 11, 2006 at 01:47:56AM +0100, Nicolas Kaiser wrote:
-> > Stray bracket in debug code.
+Security fixes since 2.6.16.31:
+- CVE-2006-4538: ia64/sparc: fix local DoS with corrupted ELFs
 
-> Just remove whole printk. It was broken for a looong time.
 
-If you prefer it that way, here we go:
-Remove debug code that was broken for long time.
+Patch location:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
 
-Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
----
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
- drivers/ide/legacy/hd.c |    5 -----
- 1 file changed, 5 deletions(-)
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
 
-diff -uprN a/drivers/ide/legacy/hd.c b/drivers/ide/legacy/hd.c
---- a/drivers/ide/legacy/hd.c	2006-09-20 05:42:06.000000000 +0200
-+++ b/drivers/ide/legacy/hd.c	2006-11-11 17:11:28.000000000 +0100
-@@ -456,11 +456,6 @@ ok_to_read:
- 	req->errors = 0;
- 	i = --req->nr_sectors;
- 	--req->current_nr_sectors;
--#ifdef DEBUG
--	printk("%s: read: sector %ld, remaining = %ld, buffer=%p\n",
--		req->rq_disk->disk_name, req->sector, req->nr_sectors,
--		req->buffer+512));
--#endif
- 	if (req->current_nr_sectors <= 0)
- 		end_request(req, 1);
- 	if (i > 0) {
+
+Changes since 2.6.16.31:
+
+Adrian Bunk (5):
+      remove Documentation/feature-removal-schedule.txt
+      drivers/md/md.c: update START_ARRAY printk
+      drivers/telephony/ixj: fix an array overrun
+      [AGPGART] remove unused variable
+      Linux 2.6.16.32-rc1
+
+Antonino Daplas (1):
+      nvidiafb: Add support for Geforce 6100 and related chipsets
+
+Christoph Lameter (1):
+      Fix longstanding load balancing bug in the scheduler
+
+Dave Jones (2):
+      [CPUFREQ] Make powernow-k7 work on SMP kernels.
+      [AGPGART] Suspend/Resume support for nVidia nForce AGP.
+
+Dmitriy Monakhov (1):
+       fix D-cache aliasing issue in cow_user_page
+
+Geert Uytterhoeven (1):
+      fbdev: correct buffer size limit in fbmem_read_proc()
+
+Herbert Xu (3):
+      [NET]: Add missing UFO initialisations
+      [NET]: Set truesize in pskb_copy
+      [NET]: Update frag_list in pskb_trim
+
+Jean Delvare (1):
+      scx200_acb: Fix the block transactions
+
+Jeff Mahoney (1):
+      [DISKLABEL] SUN: Fix signed int usage for sector count
+
+John Heffner (1):
+      [TCP]: Don't use highmem in tcp hash size calculation.
+
+Kirill Korotaev (2):
+      [IPV4]: Limit rt cache size properly.
+      ia64/sparc: fix local DoS with corrupted ELFs (CVE-2006-4538)
+
+Larry Woodman (1):
+      [NET]: __alloc_pages() failures reported due to fragmentation
+
+Marcel Holtmann (1):
+      Don't allow chmod() on the /proc/<pid>/ files
+
+Neil Brown (1):
+      md: Make sure bi_max_vecs is set properly in bio_split
+
+Paul Mackerras (2):
+      [POWERPC] Fix return value from memcpy
+      nvidia fbdev: fix powerpc xmon scribbles
+
+Pavel Roskin (1):
+      drivers/video/nvidia/nvidia.c: Add ID for Quadro NVS280
+
+Randy Dunlap (1):
+      [CPUFREQ] Fix powernow-k8 SMP kernel on UP hardware bug.
+
+Stephen Hemminger (1):
+      [MAINTAINERS]: Add proper entry for TC classifier
+
+Tejun Heo (1):
+      sata_sil24: add a new PCI ID for SiI 3124
+
+Thomas Andrews (1):
+      Fix the scx200_acb state machine:
+
+Thomas Graf (4):
+      PKT_SCHED: Fix error handling while dumping actions
+      PKT_SCHED: Fix illegal memory dereferences when dumping actions
+      PKT_SCHED: Return ENOENT if action module is unavailable
+      [PKT_SCHED]: act_api: Fix module leak while flushing actions
+
+
+ Documentation/feature-removal-schedule.txt |  191 ---------------------
+ MAINTAINERS                                |    6 
+ Makefile                                   |    2 
+ arch/i386/kernel/cpu/cpufreq/powernow-k7.c |    5 
+ arch/i386/kernel/cpu/cpufreq/powernow-k8.c |    2 
+ arch/ia64/kernel/sys_ia64.c                |   28 +--
+ arch/powerpc/lib/memcpy_64.S               |   11 -
+ arch/sparc/kernel/sys_sparc.c              |   27 +-
+ arch/sparc64/kernel/sys_sparc.c            |   30 +--
+ drivers/char/agp/nvidia-agp.c              |   27 ++
+ drivers/i2c/busses/scx200_acb.c            |   20 +-
+ drivers/md/md.c                            |    2 
+ drivers/scsi/sata_sil24.c                  |    1 
+ drivers/telephony/ixj.h                    |    2 
+ drivers/video/fbmem.c                      |    3 
+ drivers/video/nvidia/nv_hw.c               |   10 -
+ drivers/video/nvidia/nvidia.c              |   13 +
+ fs/bio.c                                   |    3 
+ fs/partitions/sun.c                        |    2 
+ fs/proc/base.c                             |   33 +++
+ include/asm-ia64/mman.h                    |    8 
+ include/asm-sparc/mman.h                   |    8 
+ include/asm-sparc64/mman.h                 |    8 
+ include/linux/pci_ids.h                    |    1 
+ include/linux/skbuff.h                     |   24 +-
+ kernel/sched.c                             |   38 +++-
+ mm/memory.c                                |    1 
+ mm/mmap.c                                  |   17 +
+ net/core/dev.c                             |    1 
+ net/core/skbuff.c                          |  109 ++++++++---
+ net/core/sock.c                            |    2 
+ net/ipv4/route.c                           |    2 
+ net/ipv4/tcp.c                             |    4 
+ net/sched/act_api.c                        |   22 +-
+ 34 files changed, 342 insertions(+), 321 deletions(-)
+

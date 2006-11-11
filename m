@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWKKSxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424593AbWKKTEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWKKSxq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 13:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754861AbWKKSxq
+	id S1424593AbWKKTEV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 14:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424595AbWKKTEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 13:53:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52753 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751452AbWKKSxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 13:53:45 -0500
-Date: Sat, 11 Nov 2006 19:53:49 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM in 2.6.19-rc*
-Message-ID: <20061111185349.GD25057@stusta.de>
-References: <Pine.LNX.4.64.0611111318230.1247@sheep.housecafe.de> <20061111181937.GC25057@stusta.de> <Pine.LNX.4.64.0611111832180.1247@sheep.housecafe.de>
+	Sat, 11 Nov 2006 14:04:21 -0500
+Received: from smtp-vbr1.xs4all.nl ([194.109.24.21]:58379 "EHLO
+	smtp-vbr1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1424593AbWKKTEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 14:04:21 -0500
+Date: Sat, 11 Nov 2006 20:04:09 +0100
+From: thunder7@xs4all.nl
+To: jurriaan <thunder7@xs4all.nl>
+Cc: neilb@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: trouble with mounting a 1.5 TB raid6 volume in 2.6.19-rc5-mm1
+Message-ID: <20061111190409.GA5950@amd64.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20061111183835.GA3801@amd64.of.nowhere>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611111832180.1247@sheep.housecafe.de>
+In-Reply-To: <20061111183835.GA3801@amd64.of.nowhere>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2006 at 06:38:05PM +0000, Christian Kujau wrote:
-> On Sat, 11 Nov 2006, Adrian Bunk wrote:
-> >Can you test whether an older kernel (preferably the one that worked
-> >before) shows the same problem?
-> 
-> I could try 2.6.17...but currently I don't know how to reproduce the OOM 
-> condition - so I'd have to wait 24h until *something* happens and the 
-> OOM killer kicks in.
+From: jurriaan <thunder7@xs4all.nl>
+Date: Sat, Nov 11, 2006 at 07:38:35PM +0100
+> I have a 8 disk 1.5 TB raid6 volume that won't mount in 2.6.19-rc5-mm1.
 
-If you want to know what caused your provlem, this is the logical first 
-step.
+This is 2.6.19-rc5-mm1 with 
 
-> >This way you might know whether it's a kernel problem or a distribution
-> >problem.
-> 
-> I think I'm more interested as to why the OOM killer seems to kill 
-> innocent apps at random. I can imagine that it's not easy for the kernel 
-> to tell which userland-application is using up too much memory. Hm, 
-> egrep -r "OOM|ut of memory" Documentation/    does not reveal much :(
+md-change-lifetime-rules-for-md-devices.patch
 
-mm/oom_kill.c is well documented.
+reverted, of course, otherwise it won't boot.
 
-> Thanks,
-> Christian.
-
-cu
-Adrian
-
+Jurriaan
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+I never think, sir. Didn't get a degree.
+	Chief Inspector Morse
+Debian (Unstable) GNU/Linux 2.6.19-rc5-mm1 2x4826 bogomips load 2.59

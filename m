@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424015AbWKKPaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424023AbWKKPka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424015AbWKKPaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 10:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424016AbWKKPaQ
+	id S1424023AbWKKPka (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 10:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424024AbWKKPka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 10:30:16 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:22033 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1424015AbWKKPaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 10:30:14 -0500
-Date: Sat, 11 Nov 2006 15:30:05 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Marc Haber <mh+linux-kernel@zugschlus.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ttyS0 not working any more, LSR safety check engaged
-Message-ID: <20061111153005.GA28277@flint.arm.linux.org.uk>
-Mail-Followup-To: Marc Haber <mh+linux-kernel@zugschlus.de>,
-	linux-kernel@vger.kernel.org
-References: <20061111114352.GA9206@torres.l21.ma.zugschlus.de> <20061111115016.GA24112@flint.arm.linux.org.uk> <20061111123455.GB9206@torres.l21.ma.zugschlus.de>
+	Sat, 11 Nov 2006 10:40:30 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:50848 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1424023AbWKKPk3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 10:40:29 -0500
+Date: Sat, 11 Nov 2006 16:39:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ashok.raj@intel.com
+Subject: Re: [patch] genapic: optimize & fix APIC mode setup
+Message-ID: <20061111153948.GA5546@elte.hu>
+References: <20061111151414.GA32507@elte.hu> <200611111620.24551.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061111123455.GB9206@torres.l21.ma.zugschlus.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200611111620.24551.ak@suse.de>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2006 at 01:34:55PM +0100, Marc Haber wrote:
-> On Sat, Nov 11, 2006 at 11:50:16AM +0000, Russell King wrote:
-> > Maybe something to do with PNP?  Maybe ACPI?  Both of those I know
-> > nothing about, but I suggest that if you have PNP enabled, you
-> > build and use the 8250_pnp module, even if your port is detected
-> > by the legacy detection methods in 8250.
-> 
-> How do I configure that?
-> 
-> I have:
->   ? ?<*> 8250/16550 and compatible serial support                         ? ?
->   ? ?[*]   Console on 8250/16550 and compatible serial port               ? ?
->   ? ?<*>   8250/16550 PCI device support                                  ? ?
->   ? ?<*>   8250/16550 PNP device support                                  ? ?
 
-That's fine.
+* Andi Kleen <ak@suse.de> wrote:
 
-> $ grep -i 'nov 11.*\(8250\|serial\|ttyS\|pnp\)' /var/log/syslog/syslog
-> pnp: PnP ACPI init
-> pnp: PnP ACPI: found 15 devices
-> PnPBIOS: Disabled by ACPI PNP
-> pnp: 00:0d: ioport range 0x4d0-0x4d1 has been reserved
-> pnp: 00:0d: ioport range 0x1000-0x107f could not be reserved
-> pnp: 00:0d: ioport range 0x1100-0x113f has been reserved
-> pnp: 00:0d: ioport range 0x1200-0x121f has been reserved
-> isapnp: Scanning for PnP cards...
-> isapnp: No Plug & Play device found
-> Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
-> serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> This will open a race on CPU hotunplug unfortunately
+> (common for multi core suspend) 
 
-ttyS0 detected via legacy ISA probes.
+how can i reproduce this btw, any instructions/pointers for that?
 
-> serial8250: ttyS2 at I/O 0x3e8 (irq = 4) is a 16550A
-
-ttyS2 detected via legacy ISA probes.
-
-> 00:02: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-
-ttyS0 detected via PNP device 00:02.
-
-> ttyS0: LSR safety check engaged!
-> ttyS2: LSR safety check engaged!
-
-and then it mysteriously disappears on us.
-
-It's certainly a mystery.  Suggest you git bisect to find the offending
-change - I doubt it'll be serial/8250 itself.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+	Ingo

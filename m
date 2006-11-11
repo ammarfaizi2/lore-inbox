@@ -1,91 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947316AbWKKVtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947319AbWKKWCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947316AbWKKVtB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 16:49:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947311AbWKKVtB
+	id S1947319AbWKKWCh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 17:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947320AbWKKWCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 16:49:01 -0500
-Received: from cacti2.profiwh.com ([85.93.165.64]:4522 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1947313AbWKKVsv (ORCPT
+	Sat, 11 Nov 2006 17:02:37 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:11792 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S1947319AbWKKWCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 16:48:51 -0500
-Message-id: <129784351190324394@wsc.cz>
-In-reply-to: <196416110522272@wsc.cz>
-Subject: [PATCH 4/5] Char: istallion, dynamic tty device
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Sat, 11 Nov 2006 22:49:02 +0100 (CET)
+	Sat, 11 Nov 2006 17:02:36 -0500
+Subject: Re: [PATCH] Apple Motion Sensor driver
+From: Stelian Pop <stelian@popies.net>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: Andrew Morton <akpm@osdl.org>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
+       Johannes Berg <johannes@sipsolutions.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>, Robert Love <rml@novell.com>,
+       Jean Delvare <khali@linux-fr.org>,
+       Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nicolas@boichat.ch
+In-Reply-To: <20061111214143.GA25609@hansmi.ch>
+References: <1163280972.32084.13.camel@localhost.localdomain>
+	 <20061111214143.GA25609@hansmi.ch>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sat, 11 Nov 2006 23:00:17 +0100
+Message-Id: <1163282417.32084.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-istallion, dynamic tty device
+Le samedi 11 novembre 2006 à 22:41 +0100, Michael Hanselmann a écrit :
+> On Sat, Nov 11, 2006 at 10:36:11PM +0100, Stelian Pop wrote:
+> > This driver adds support for the Apple Motion Sensor (AMS) as found in 2005
+> > revisions of Apple PowerBooks and iBooks.  It implements both the PMU and
+> > I²C variants.
+> 
+> I've modified my driver to use an accelerometer class. 
 
-register tty device dynamically according to the count of board ports.
+Hmmm, I didn't know such a thing existed.
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> Do you want the code?
 
----
-commit 010cb3032661418012dd0949ff3566927ed430cd
-tree 3da0c21735d8a6e32c59dde2ec2979c9dc9680c7
-parent 92452a22c4ada362e991cbf0de84c8914525672a
-author Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 02:29:24 +0100
-committer Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 22:23:36 +0100
+Just make sure it gets submitted upstream so it gets no lost.
 
- drivers/char/istallion.c |   15 ++++++++++++++-
- 1 files changed, 14 insertions(+), 1 deletions(-)
+I don't have a particular use for the accelerometer myself, I was just
+digging thru the pile of my local patches and I noticed that all the
+work (mine, yours and others) on the ams device seemed on its way to be
+lost, since nobody picked up the patch.
 
-diff --git a/drivers/char/istallion.c b/drivers/char/istallion.c
-index bf58938..cbbc3cd 100644
---- a/drivers/char/istallion.c
-+++ b/drivers/char/istallion.c
-@@ -3846,6 +3846,10 @@ static int stli_findeisabrds(void)
- 
- 		stli_brds[brdp->brdnr] = brdp;
- 		found++;
-+
-+		for (i = 0; i < brdp->nrports; i++)
-+			tty_register_device(stli_serial,
-+					brdp->brdnr * STL_MAXPORTS + i, NULL);
- 	}
- 
- 	return found;
-@@ -3872,6 +3876,7 @@ static int __devinit stli_pciprobe(struc
- 		const struct pci_device_id *ent)
- {
- 	struct stlibrd *brdp;
-+	unsigned int i;
- 	int brdnr, retval = -EIO;
- 
- 	retval = pci_enable_device(pdev);
-@@ -3912,6 +3917,10 @@ static int __devinit stli_pciprobe(struc
- 	brdp->enable = NULL;
- 	brdp->disable = NULL;
- 
-+	for (i = 0; i < brdp->nrports; i++)
-+		tty_register_device(stli_serial, brdp->brdnr * STL_MAXPORTS + i,
-+				&pdev->dev);
-+
- 	return 0;
- err_null:
- 	stli_brds[brdp->brdnr] = NULL;
-@@ -3992,6 +4001,10 @@ static int stli_initbrds(void)
- 		}
- 		stli_brds[brdp->brdnr] = brdp;
- 		found++;
-+
-+		for (i = 0; i < brdp->nrports; i++)
-+			tty_register_device(stli_serial,
-+					brdp->brdnr * STL_MAXPORTS + i, NULL);
- 	}
- 
- 	retval = stli_findeisabrds();
-@@ -4596,7 +4609,7 @@ static int __init istallion_module_init(
- 	stli_serial->type = TTY_DRIVER_TYPE_SERIAL;
- 	stli_serial->subtype = SERIAL_TYPE_NORMAL;
- 	stli_serial->init_termios = stli_deftermios;
--	stli_serial->flags = TTY_DRIVER_REAL_RAW;
-+	stli_serial->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	tty_set_operations(stli_serial, &stli_ops);
- 
- 	retval = tty_register_driver(stli_serial);
+But if you're still actively working on it and plan to submit it later,
+that's perfectly ok with me.
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>
+

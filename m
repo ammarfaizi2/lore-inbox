@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754874AbWKKVsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947317AbWKKVtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754874AbWKKVsV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 16:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754878AbWKKVsV
+	id S1947317AbWKKVtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 16:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947311AbWKKVtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 16:48:21 -0500
-Received: from cacti2.profiwh.com ([85.93.165.64]:2474 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1754874AbWKKVsV (ORCPT
+	Sat, 11 Nov 2006 16:49:08 -0500
+Received: from cacti2.profiwh.com ([85.93.165.64]:5290 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1947313AbWKKVtB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 16:48:21 -0500
-Message-id: <196416110522272@wsc.cz>
-Subject: [PATCH 1/5] Char: istallion, fix enabling
+	Sat, 11 Nov 2006 16:49:01 -0500
+Message-id: <15630210681376711290@wsc.cz>
+In-reply-to: <196416110522272@wsc.cz>
+Subject: [PATCH 5/5] Char: istallion, use mod_timer
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Sat, 11 Nov 2006 22:48:31 +0100 (CET)
+Date: Sat, 11 Nov 2006 22:49:12 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-istallion, fix enabling
+istallion, use mod_timer
 
-Enable ISA cards before pci_register_driver and then, enable each PCI card
-in probe function.
+do not set expires by hand, use kernel helper, which also calls add_timer.
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit 2f1c6f8998c724f6b323dfc913a650f26cc02efa
-tree b03b4c776ba221373f755c5970a8dd41e8796ce7
-parent d58848fe07c13a82e9d429d481f9677857e73019
-author Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 01:38:17 +0100
-committer Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 22:23:16 +0100
+commit fc0e3ad83dbfac6d4b245319faff5f726974a3cf
+tree 00cda6f05eb6e27a5e5043b0ce7e4fb512ea7287
+parent 010cb3032661418012dd0949ff3566927ed430cd
+author Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 02:32:18 +0100
+committer Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 22:23:37 +0100
 
- drivers/char/istallion.c |   18 +++++++++++-------
- 1 files changed, 11 insertions(+), 7 deletions(-)
+ drivers/char/istallion.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/char/istallion.c b/drivers/char/istallion.c
-index 3733a83..e835258 100644
+index cbbc3cd..7f5b8d8 100644
 --- a/drivers/char/istallion.c
 +++ b/drivers/char/istallion.c
-@@ -3968,6 +3968,10 @@ static int __devinit stli_pciprobe(struc
- 	brdp->state |= BST_PROBED;
- 	pci_set_drvdata(pdev, brdp);
+@@ -2545,8 +2545,7 @@ static void stli_poll(unsigned long arg)
+ 	struct stlibrd *brdp;
+ 	unsigned int brdnr;
  
-+	EBRDENABLE(brdp);
-+	brdp->enable = NULL;
-+	brdp->disable = NULL;
-+
- 	return 0;
- err_null:
- 	stli_brds[brdp->brdnr] = NULL;
-@@ -4054,13 +4058,6 @@ static int stli_initbrds(void)
- 	if (retval > 0)
- 		found += retval;
+-	stli_timerlist.expires = STLI_TIMEOUT;
+-	add_timer(&stli_timerlist);
++	mod_timer(&stli_timerlist, STLI_TIMEOUT);
  
--	retval = pci_register_driver(&stli_pcidriver);
--	if (retval && found == 0) {
--		printk(KERN_ERR "Neither isa nor eisa cards found nor pci "
--				"driver can be registered!\n");
--		goto err;
--	}
--
  /*
-  *	All found boards are initialized. Now for a little optimization, if
-  *	no boards are sharing the "shared memory" regions then we can just
-@@ -4099,6 +4096,13 @@ static int stli_initbrds(void)
- 		}
+  *	Check each board and do any servicing required.
+@@ -3610,8 +3609,7 @@ stli_donestartup:
+ 
+ 	if (! stli_timeron) {
+ 		stli_timeron++;
+-		stli_timerlist.expires = STLI_TIMEOUT;
+-		add_timer(&stli_timerlist);
++		mod_timer(&stli_timerlist, STLI_TIMEOUT);
  	}
  
-+	retval = pci_register_driver(&stli_pcidriver);
-+	if (retval && found == 0) {
-+		printk(KERN_ERR "Neither isa nor eisa cards found nor pci "
-+				"driver can be registered!\n");
-+		goto err;
-+	}
-+
- 	return 0;
- err:
- 	return retval;
+ 	return rc;

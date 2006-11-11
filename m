@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424569AbWKKMSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424577AbWKKM2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424569AbWKKMSV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 07:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424571AbWKKMSV
+	id S1424577AbWKKM2x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 07:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424578AbWKKM2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 07:18:21 -0500
-Received: from mx3.mail.ru ([194.67.23.149]:18450 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S1424569AbWKKMSU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 07:18:20 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Adrian Bunk <bunk@stusta.de>
+	Sat, 11 Nov 2006 07:28:53 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:19 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1424577AbWKKM2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 07:28:52 -0500
+Date: Sat, 11 Nov 2006 12:28:41 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.19-rc5: where can I select INPUT?
-Date: Sat, 11 Nov 2006 15:18:41 +0300
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <200611111325.02749.arvidjaar@mail.ru> <20061111112528.GY4729@stusta.de>
-In-Reply-To: <20061111112528.GY4729@stusta.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20061111122841.GB24112@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrey Borzenkov <arvidjaar@mail.ru>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <200611111325.02749.arvidjaar@mail.ru> <20061111112528.GY4729@stusta.de> <200611111518.42238.arvidjaar@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611111518.42238.arvidjaar@mail.ru>
+In-Reply-To: <200611111518.42238.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Nov 11, 2006 at 03:18:41PM +0300, Andrey Borzenkov wrote:
+> On Saturday 11 November 2006 14:25, Adrian Bunk wrote:
+> > The rationale is that it usually doesn't make sense for users to disable
+> > INPUT, and allowing it tends to cause some confusion.
+> 
+> I do not want to disable it. I want to make it module (OK it has the same 
+> rationale - if you need it anyway why you do want to make it module etc). 
+> This should be possible according to help text. It does not work. Direct 
+> editing of .config silently reverts it back to y instead of m.
 
-On Saturday 11 November 2006 14:25, Adrian Bunk wrote:
-> On Sat, Nov 11, 2006 at 01:24:58PM +0300, Andrey Borzenkov wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Neither in menuconfig nor in xconfig do I see any place to actually
-> > select INPUT. Help text suggests that it is a) selectable b) it can be
-> > made modules. I do not have either option. Here what I see in menuconfig
-> > if I go into Input device support:
-> >
-> >     --- Generic input layer (needed for keyboard, mouse, ...)
-> >     < >   Support for memoryless force-feedback devices
-> >     ---   Userland interfaces
-> >
-> > as you see there is no check box for INPUT itself.
-> >
-> > I already had similar issue something else (I believe it was something
-> > related to serio). In menuconfig item was no selectable, but I could
-> > directly edit .config to change y to m.
-> >...
->
-> INPUT can only be unset if you set CONFIG_EMBEDDED=y.
->
+Welcome to the wonderful world of the 'select' kconfig statement.
 
-{pts/1}% grep EMB /boot/config
-CONFIG_EMBEDDED=y
+config VT
+        bool "Virtual terminal" if EMBEDDED
+        select INPUT
+        default y if !VIOCONS
 
-> The rationale is that it usually doesn't make sense for users to disable
-> INPUT, and allowing it tends to cause some confusion.
->
+This means if VT is selected, INPUT has to be 'y'.
 
-I do not want to disable it. I want to make it module (OK it has the same 
-rationale - if you need it anyway why you do want to make it module etc). 
-This should be possible according to help text. It does not work. Direct 
-editing of .config silently reverts it back to y instead of m.
-
-TIA
-
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFVb+iR6LMutpd94wRAtq+AJ0aMam9gJKSCN4PEbVKTEX7aijibgCfbB4/
-7yVO9PFy9mQgpU4v2yieaUc=
-=WNXy
------END PGP SIGNATURE-----
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,95 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946111AbWKKTPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947271AbWKKTQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946111AbWKKTPS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 14:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946270AbWKKTPR
+	id S1947271AbWKKTQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 14:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946270AbWKKTQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 14:15:17 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60689 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1946111AbWKKTPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 14:15:16 -0500
-Date: Sat, 11 Nov 2006 20:15:19 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+	Sat, 11 Nov 2006 14:16:56 -0500
+Received: from khc.piap.pl ([195.187.100.11]:35043 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1947271AbWKKTQz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 14:16:55 -0500
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Message-ID: <20061111191519.GE25057@stusta.de>
-References: <200611090757.48744.a1426z@gawab.com> <20061109090502.4d5cd8ef@freekitty> <200611101852.14715.a1426z@gawab.com> <9a8748490611100816v573418f4gcd5cbe34d0dd3715@mail.gmail.com> <4554AC12.6040407@osdl.org>
+References: <200611090757.48744.a1426z@gawab.com>
+	<20061109090502.4d5cd8ef@freekitty>
+	<200611101852.14715.a1426z@gawab.com>
+	<9a8748490611100816v573418f4gcd5cbe34d0dd3715@mail.gmail.com>
+	<4554AC12.6040407@osdl.org>
+	<20061110085311.54fd65f2.rdunlap@xenotime.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 11 Nov 2006 20:16:53 +0100
+In-Reply-To: <20061110085311.54fd65f2.rdunlap@xenotime.net> (Randy Dunlap's message of "Fri, 10 Nov 2006 08:53:11 -0800")
+Message-ID: <m3odrdiyje.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4554AC12.6040407@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2006 at 08:42:58AM -0800, Stephen Hemminger wrote:
->...
->  * Old bugs die, the bugzilla database needs a 6mo prune out.
+Randy Dunlap <rdunlap@xenotime.net> writes:
 
-That's not that much of a problem.
+>>   * LKML is an overloaded communication channel, do we need:
+>>       linux-bugs@vger.kernel.org ?
 
-There is me and there are some other people who sometimes go through 
-older bugs asking submitters whether the issue is still present in a 
-recent kernel.
+Not sure if LKML is overloaded - subject filtering etc. And people
+expect they will be Ccopied if they are, for example, maintainers.
 
-And if it is not or the submitter doesn't answer the bug gets closed a 
-few weeks later.
+It's not the list for everybody, though.
 
-The problem with this approach is what to do when the bug is still 
-present - it's quite unfair to ask a submitter whether a bug is still 
-present, but having no way to help the submitter if he confirms it's 
-still present.
+> Either that or lkml is/remains for bug reporting and we move development
+> somewhere else.  Or my [repeated] preference:
+>
+> do development on specific mailing lists (although there would
+> likely need to be a fallback list when it's not clear which mailing
+> list should be used)
 
-A positive example is e.g. sparc: davem doesn't use Bugzilla, but when I 
-forward bugs to him from Bugzilla I know that there will be an answer.
+I don't like this idea as implemented now - it's probably fine for
+subsystem maintainers but it's prohibitive for an occasional submitter.
 
-But for other subsystems like e.g. ext3 I don't know about anyone who 
-will answer every time I forward a bug that is still present in the 
-latest kernel.
 
->  * Bugzilla.kernel.org is underutilized and is only a small sample of the
->    real problems. Not sure if it is a training, user, behaviour issue or
->    just that bugzilla is crap.
+But... specific lists would make sense if - and only if:
+- they are always mirrored to something like LKML so one doesn't need
+  to subscribe to every possible list (as they appear).
+- they are open as LKML is (no specific subscription required to post)
 
-At least one positive thing about Bugzilla is that it shows how bad our 
-bug handling is - bug reports noone took care of are visible...
+This way one could discuss things with/on a specific list (subscribed
+by subsystem maintainers and other interested people) and everyone
+reading the general list (or more general?) would see it too.
 
->  * Vendor bugs (that could be fixed) aren't forwarded to lkml or bugzilla
+We could have a hierarchy:
+- specific lists like lmkl-usb-ohci
+- more general lkml-usb
+- lkml, seeing all mail
 
-We do already get more bug reports than we can handle.
+This way every mail sent to lkml-usb-ohci would be sent to lkml-usb,
+and lkml-usb would be copied to lkml as well (I imagine some duplicate
+elimination would be a plus).
 
-As an example, until recently people were spreading the fairy tale noone 
-would test -rc kernels. So I started a list of reported regressions by 
-people who did test the -rc kernels, and this shows that we are even far 
-away from handling recent regressions within one or two weeks - and the 
-situation with other bugs looks much worse.
+Anyone could discuss ohci writing to lkml-usb-ohci, discuss general
+USB writing to lkml-usb etc. Anyone subscribed to any of the above
+lists would see the traffic they are interested in, without a need
+for constant subscribing.
 
->  * LKML is an overloaded communication channel, do we need:
->      linux-bugs@vger.kernel.org ?
+I assume the lists would be hosted on one domain to make it easy
+to post and perhaps to enable it to work at all.
 
-The problem is not how to communicate bugs - the problem is who will 
-look after the bugs.
+If some form of sender address verification/scoring was in use I think
+it would be smart to recognize all people subscribed to more general
+lists to be "known" for this purpose (i.e., people subscribed to
+lkml would be considered "subscribed" while posting to lkml-usb-ohci).
 
-As an example, Andrew is already doing a great job in forwarding bugs 
-from Bugzilla and linux-kernel to maintainers. It's not that maintainers 
-miss bugs because they don't see them.
 
->   * Developers can't get (or afford to buy) the new hardware that causes
->      a lot of the pain. Just look at the number of bug reports due to new
->      flavors of motherboards, chipsets, etc. I spent 3mo on a bug that took
->      one day to fix once I got the hardware.
-
-If only this was the only problem...
-
-cu
-Adrian
-
+Having written all of the above I now like the idea so be prepared to
+fight me hard if you don't :-)
+Perhaps I could even help implementing it in some unspecified so
+called "free time".
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Krzysztof Halasa

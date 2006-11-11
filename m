@@ -1,91 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947190AbWKKMe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947201AbWKKMjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947190AbWKKMe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 07:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947198AbWKKMe6
+	id S1947201AbWKKMjh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 07:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947204AbWKKMjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 07:34:58 -0500
-Received: from torres.zugschlus.de ([85.10.211.154]:2177 "EHLO
-	torres.zugschlus.de") by vger.kernel.org with ESMTP
-	id S1947190AbWKKMe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 07:34:57 -0500
-Date: Sat, 11 Nov 2006 13:34:55 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ttyS0 not working any more, LSR safety check engaged
-Message-ID: <20061111123455.GB9206@torres.l21.ma.zugschlus.de>
-References: <20061111114352.GA9206@torres.l21.ma.zugschlus.de> <20061111115016.GA24112@flint.arm.linux.org.uk>
+	Sat, 11 Nov 2006 07:39:37 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:43153 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1947201AbWKKMjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 07:39:36 -0500
+Subject: Re: Userspace process may be able to DoS kernel
+From: Arjan van de Ven <arjan@infradead.org>
+To: jplatte@naasa.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200611111329.17206.lists@naasa.net>
+References: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com>
+	 <200611100803.03958.lists@naasa.net>
+	 <20061109231958.f18cd1ef.akpm@osdl.org>
+	 <200611111329.17206.lists@naasa.net>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sat, 11 Nov 2006 13:39:33 +0100
+Message-Id: <1163248773.3293.20.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061111115016.GA24112@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2006 at 11:50:16AM +0000, Russell King wrote:
-> Maybe something to do with PNP?  Maybe ACPI?  Both of those I know
-> nothing about, but I suggest that if you have PNP enabled, you
-> build and use the 8250_pnp module, even if your port is detected
-> by the legacy detection methods in 8250.
-
-How do I configure that?
-
-I have:
-  ? ?<*> 8250/16550 and compatible serial support                         ? ?
-  ? ?[*]   Console on 8250/16550 and compatible serial port               ? ?
-  ? ?<*>   8250/16550 PCI device support                                  ? ?
-  ? ?<*>   8250/16550 PNP device support                                  ? ?
-  ? ?< >   8250/16550 PCMCIA device support                               ? ?
-  ? ?(4)   Maximum number of 8250/16550 serial ports                      ? ?
-  ? ?(4)   Number of 8250/16550 serial ports to register at runtime       ? ?
-  ? ?[*]   Extended 8250/16550 serial driver options                      ? ?
-  ? ?[ ]     Support more than 4 legacy serial ports (NEW)                ? ?
-  ? ?[ ]     Support for sharing serial interrupts (NEW)                  ? ?
-  ? ?[ ]     Autodetect IRQ on standard ports (unsafe) (NEW)              ? ?
-  ? ?[ ]     Support RSA serial ports (NEW)                               
-
-(drivers compiled in since I want to use the serial console without
-initrd).
-
-$ grep -i 'nov 11.*\(8250\|serial\|ttyS\|pnp\)' /var/log/syslog/syslog
-Nov 11 09:27:41 scyw00225 kernel: pnp: PnP ACPI init
-Nov 11 09:27:41 scyw00225 kernel: pnp: PnP ACPI: found 15 devices
-Nov 11 09:27:41 scyw00225 kernel: PnPBIOS: Disabled by ACPI PNP
-Nov 11 09:27:41 scyw00225 kernel: pnp: 00:0d: ioport range 0x4d0-0x4d1 has been reserved
-Nov 11 09:27:41 scyw00225 kernel: pnp: 00:0d: ioport range 0x1000-0x107f could not be reserved
-Nov 11 09:27:41 scyw00225 kernel: pnp: 00:0d: ioport range 0x1100-0x113f has been reserved
-Nov 11 09:27:41 scyw00225 kernel: pnp: 00:0d: ioport range 0x1200-0x121f has been reserved
-Nov 11 09:27:41 scyw00225 kernel: isapnp: Scanning for PnP cards...
-Nov 11 09:27:41 scyw00225 kernel: isapnp: No Plug & Play device found
-Nov 11 09:27:41 scyw00225 kernel: Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
-Nov 11 09:27:41 scyw00225 kernel: serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Nov 11 09:27:41 scyw00225 kernel: serial8250: ttyS2 at I/O 0x3e8 (irq = 4) is a 16550A
-Nov 11 09:27:41 scyw00225 kernel: 00:02: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Nov 11 09:27:41 scyw00225 kernel: PNP: PS/2 Controller [PNP0303:C192,PNP0f13:C193] at 0x60,0x64 irq 1,12
-Nov 11 09:27:41 scyw00225 kernel: usb usb1: new device strings: Mfr=3, Product=2, SerialNumber=1
-Nov 11 09:27:41 scyw00225 kernel: usb usb1: SerialNumber: 0000:00:1d.0
-Nov 11 09:27:41 scyw00225 kernel: parport: PnPBIOS parport detected.
-Nov 11 09:27:41 scyw00225 kernel: usb usb2: new device strings: Mfr=3, Product=2, SerialNumber=1
-Nov 11 09:27:41 scyw00225 kernel: usb usb2: SerialNumber: 0000:00:1d.1
-Nov 11 09:27:41 scyw00225 kernel: usb usb3: new device strings: Mfr=3, Product=2, SerialNumber=1
-Nov 11 09:27:41 scyw00225 kernel: usb usb3: SerialNumber: 0000:00:1d.2
-Nov 11 09:27:41 scyw00225 kernel: usb usb4: new device strings: Mfr=3, Product=2, SerialNumber=1
-Nov 11 09:27:41 scyw00225 kernel: usb usb4: SerialNumber: 0000:00:1d.7
-Nov 11 09:27:41 scyw00225 kernel: usb 3-1: new device strings: Mfr=1, Product=2, SerialNumber=0
-Nov 11 09:27:41 scyw00225 kernel: ieee1394: sbp2: Driver forced to serialize I/O (serialize_io=1)
-Nov 11 09:27:41 scyw00225 kernel: ieee1394: sbp2: Try serialize_io=0 for better performance
-Nov 11 09:27:47 scyw00225 kernel: ttyS0: LSR safety check engaged!
-Nov 11 09:27:48 scyw00225 kernel: ttyS2: LSR safety check engaged!
+On Sat, 2006-11-11 at 13:29 +0100, Joerg Platte wrote:
+> Am Freitag, 10. November 2006 08:19 schrieb Andrew Morton:
+> 
+> > OK, thanks.
+> >
+> > It'd be useful if you could grab a kernel profile when the system load is
+> > high:
+> 
+> > Or, if oprofile is working:
+> >
+> >
+> > #!/bin/sh
+> > sudo opcontrol --stop
+> > sudo opcontrol --shutdown
+> > sudo rm -rf /var/lib/oprofile
+> > sudo opcontrol --vmlinux=/boot/vmlinux-$(uname -r)
+> > sudo opcontrol --start-daemon
+> > sudo opcontrol --start
+> > sleep 10
+> > sudo opcontrol --stop
+> > sudo opcontrol --shutdown
+> > sudo opreport -l /boot/vmlinux-$(uname -r) | head -50
+> 
+> Here is the oprofile log. Seems to be acpi related?
+> 
+> CPU: CPU with timer interrupt, speed 0 MHz (estimated)
+> Profiling through timer interrupt
+> samples  %        symbol name
+> 709      44.2848  acpi_pm_read
 
 
-The port in question is ttyS0.
 
-Greetings
-Marc
+this isn't per se acpi related: This is reading the PM timer from your
+chipset. The PMTimer is a clock on your chipset that the kernel can use
+to read a stable incrementing clock to find out what time it is right
+now, usually as part of userspace asking the kernel what time it is via
+the gettimeofday() system call. ACPI is just the component that does the
+actual (slow) hardware access... eg the messenger.
 
+Normally systems have better/faster clocks than the pmtimer, but there
+are circumstances where those can't be used.
+
+1) HPET. The HPET is a lot faster than pmtimer, and very reliable. Most
+of the systems sold in the last 3 years have an hpet, but unfortunately,
+many bioses turn this off by default. If your BOOS has a "Multimedia
+timer" setting, make sure it's set to "On". 
+2) TSC. This is a super fast method of finding how much time has passed,
+since it's inside the CPU. However there are many reasons why this
+method may be unreliable, for example certain powermanagement features
+on laptops cause this clock to stop when idle (not useful), or to vary
+in frequency (also not useful if you want to find out what time it is).
+Also on AMD Opteron SMP systems or extreme Intel big honking NUMA
+systems, this timer is not synchronized between the various processors
+and that breaks the current time keeping in Linux, and so Linux doesn't
+use it in that case.
+
+So my advice is
+1) Check the bios to see if you have the HPET enabled. If not, enable
+it.
+2) Check the kernel config to see if you have HPET enabled there, if not
+enable it.
+3) Check dmesg to see if there's a reason the kernel doesn't use TSC;
+there is probably nothing you can do but at least you know why :)
+
+ 
 -- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947306AbWKKVBa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753805AbWKKVHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947306AbWKKVBa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 16:01:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754869AbWKKVBa
+	id S1753805AbWKKVHO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 16:07:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754869AbWKKVHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 16:01:30 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33216 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1754868AbWKKVB3 (ORCPT
+	Sat, 11 Nov 2006 16:07:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:36752 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1753805AbWKKVHM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 16:01:29 -0500
-Date: Sat, 11 Nov 2006 22:00:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Joe Ordnung <joeordnung@yahoo.de>
-Cc: Olen Humphrey <dlistonupdb@premmag.com>, linux-kernel@vger.kernel.org
-Subject: attetion ******* spam fighters [was Re: sexxually expliciit:Grouup delicate teeens hardcoree!]
-Message-ID: <20061111210018.GA9989@elf.ucw.cz>
-References: <522603508065.868540284654@premmag.com> <4555E502.8030405@yahoo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4555E502.8030405@yahoo.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 11 Nov 2006 16:07:12 -0500
+Date: Sat, 11 Nov 2006 13:06:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Marc Haber <mh+linux-kernel@zugschlus.de>, linux-kernel@vger.kernel.org
+Subject: Re: ttyS0 not working any more, LSR safety check engaged
+Message-Id: <20061111130656.c9bae39f.akpm@osdl.org>
+In-Reply-To: <20061111153005.GA28277@flint.arm.linux.org.uk>
+References: <20061111114352.GA9206@torres.l21.ma.zugschlus.de>
+	<20061111115016.GA24112@flint.arm.linux.org.uk>
+	<20061111123455.GB9206@torres.l21.ma.zugschlus.de>
+	<20061111153005.GA28277@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 2006-11-11 15:58:10, Joe Ordnung wrote:
-> Spam!
+On Sat, 11 Nov 2006 15:30:05 +0000
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-Now, you are spamming mailing list with 1000+ people. Stop it.
-
-Yes, someone spammed the list, and yes, it hit your inbox, no, it is
-not good idea to amplify it twice. Stop responding on the mailing
-list (to spam anyway).
-
-								Pavel
-
-> Olen Humphrey schrieb:
-> >fuckinng russiian congenial Hussies!
-> >
-> >http://vhopbbkdianap828.com
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >  
+> On Sat, Nov 11, 2006 at 01:34:55PM +0100, Marc Haber wrote:
+> > On Sat, Nov 11, 2006 at 11:50:16AM +0000, Russell King wrote:
+> > > Maybe something to do with PNP?  Maybe ACPI?  Both of those I know
+> > > nothing about, but I suggest that if you have PNP enabled, you
+> > > build and use the 8250_pnp module, even if your port is detected
+> > > by the legacy detection methods in 8250.
+> > 
+> > How do I configure that?
+> > 
+> > I have:
+> >   ? ?<*> 8250/16550 and compatible serial support                         ? ?
+> >   ? ?[*]   Console on 8250/16550 and compatible serial port               ? ?
+> >   ? ?<*>   8250/16550 PCI device support                                  ? ?
+> >   ? ?<*>   8250/16550 PNP device support                                  ? ?
 > 
+> That's fine.
 > 
-> 		
-> ___________________________________________________________ 
-> Telefonate ohne weitere Kosten vom PC zum PC: http://messenger.yahoo.de
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > $ grep -i 'nov 11.*\(8250\|serial\|ttyS\|pnp\)' /var/log/syslog/syslog
+> > pnp: PnP ACPI init
+> > pnp: PnP ACPI: found 15 devices
+> > PnPBIOS: Disabled by ACPI PNP
+> > pnp: 00:0d: ioport range 0x4d0-0x4d1 has been reserved
+> > pnp: 00:0d: ioport range 0x1000-0x107f could not be reserved
+> > pnp: 00:0d: ioport range 0x1100-0x113f has been reserved
+> > pnp: 00:0d: ioport range 0x1200-0x121f has been reserved
+> > isapnp: Scanning for PnP cards...
+> > isapnp: No Plug & Play device found
+> > Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+> > serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> 
+> ttyS0 detected via legacy ISA probes.
+> 
+> > serial8250: ttyS2 at I/O 0x3e8 (irq = 4) is a 16550A
+> 
+> ttyS2 detected via legacy ISA probes.
+> 
+> > 00:02: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> 
+> ttyS0 detected via PNP device 00:02.
+> 
+> > ttyS0: LSR safety check engaged!
+> > ttyS2: LSR safety check engaged!
+> 
+> and then it mysteriously disappears on us.
+> 
+> It's certainly a mystery.  Suggest you git bisect to find the offending
+> change - I doubt it'll be serial/8250 itself.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+/proc/ioports and /proc/iomem might contain hints - can we see those please?

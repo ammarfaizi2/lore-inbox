@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946974AbWKKFN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946950AbWKKFJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946974AbWKKFN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 00:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947091AbWKKFN1
+	id S1946950AbWKKFJc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 00:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946974AbWKKFJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 00:13:27 -0500
-Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:36843 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1946974AbWKKFN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 00:13:26 -0500
-Date: Sat, 11 Nov 2006 00:13:24 -0500
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-kernel@vger.kernel.org, ltt-dev@shafik.org
-Subject: Re: MIPS atomic operations, "sync"
-Message-ID: <20061111051324.GA23930@Krystal>
-References: <20061110184049.GA24977@Krystal> <20061110223303.GA17712@linux-mips.org>
+	Sat, 11 Nov 2006 00:09:32 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:22661 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946950AbWKKFJc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 00:09:32 -0500
+Date: Fri, 10 Nov 2006 21:09:17 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Al Boldi <a1426z@gawab.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+Message-ID: <20061110210917.2bd568ab@localhost.localdomain>
+In-Reply-To: <200611110715.49343.a1426z@gawab.com>
+References: <200611090757.48744.a1426z@gawab.com>
+	<200611110022.52304.a1426z@gawab.com>
+	<20061110133101.4e6cddd3@freekitty>
+	<200611110715.49343.a1426z@gawab.com>
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20061110223303.GA17712@linux-mips.org>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 00:11:20 up 80 days,  2:19,  2 users,  load average: 0.54, 0.41, 0.24
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ralf Baechle (ralf@linux-mips.org) wrote:
-> On Fri, Nov 10, 2006 at 01:40:49PM -0500, Mathieu Desnoyers wrote:
+On Sat, 11 Nov 2006 07:15:49 +0300
+Al Boldi <a1426z@gawab.com> wrote:
+
+> Stephen Hemminger wrote:
+> > Al Boldi <a1426z@gawab.com> wrote:
+> > > Arjan van de Ven wrote:
+> > > > > The problem is not just simple bugs that surface, it's deeper than
+> > > > > that. Deep structural problems is what plagues 2.6.
+> > > > >
+> > > > > Only a focused model may deal with such problems.
+> > > >
+> > > > can you at least provide a list of such structural problems?
+> > > > In fact, why don't you collect them and mail them out (bi)weekly...
+> > > > that may already do wonders.
+> > > > Look at what Adrian is doing with the regressions; although the
+> > > > response isn't 100% people DO pay attention to it.... so maybe if you
+> > > > post a "structural problems list" people will actually start working
+> > > > on things.. (and of course you can help too ;)
+> > >
+> > > Ok, things like OOM, scheduling, and block-io.
+> >
+> > If you want stability don't change these.  But if you think you
+> > have better heuristics propose them for discussion.
 > 
-> > I am currently creating a "LOCK" prefix free and memory barrier free version
-> > of atomic.h to fulfill my tracer (LTTng) needs, which is to atomically update
-> > per-cpu data and have a minimal performance loss.
-> > 
-> > I just came across the MIPS atomic.h and system.h implementations in 2.6.18
-> > which brings a question :
-> > 
-> > Why are the primitives in include/asm-mips/atomic.h using the "sync"
-> > instruction even in the UP case ? system.h cmpxchg only uses the sync in the
-> > SMP case.
+> I don't think there is a lack of heuristics, nor is there a lack of 
+> discussion.  What is needed, is a realization of the problem.
 > 
-> Why are the standard atomic operations insufficient for your needs?
+> IOW, respective tree-owners need to come to a realization of the state of 
+> their trees, problem or not.  If it has a problem, that problem needs to be 
+> fixed or backed out of stable and moved into dev.
 > 
-> There is an enormous amout of subtilities in those atomic ops for some
-> architectures you probably do yourself a big favor by avoiding new
-> variants.
+> > > net looks ok, although I would suggest a redesign for 3.0.
+> >
+> > Facts, no vague pronouncements please.
 > 
+> I meant structural OSI compliance.
 
-Performance cost.
-
-I add a memory barrier where needed when the data needs to appear to be written
-sequentially from the other CPUs perspective.
-
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Read the book "Network Algorithmics"; it has a clear discussion
+of why building your stack like the protocol specification
+is a bad idea.
+> 

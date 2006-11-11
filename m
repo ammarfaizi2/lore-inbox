@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947317AbWKKVtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947316AbWKKVtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947317AbWKKVtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 16:49:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947311AbWKKVtI
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 16:49:08 -0500
-Received: from cacti2.profiwh.com ([85.93.165.64]:5290 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1947313AbWKKVtB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1947316AbWKKVtB (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 11 Nov 2006 16:49:01 -0500
-Message-id: <15630210681376711290@wsc.cz>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947311AbWKKVtB
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 11 Nov 2006 16:49:01 -0500
+Received: from cacti2.profiwh.com ([85.93.165.64]:4522 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1947313AbWKKVsv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 16:48:51 -0500
+Message-id: <129784351190324394@wsc.cz>
 In-reply-to: <196416110522272@wsc.cz>
-Subject: [PATCH 5/5] Char: istallion, use mod_timer
+Subject: [PATCH 4/5] Char: istallion, dynamic tty device
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Sat, 11 Nov 2006 22:49:12 +0100 (CET)
+Date: Sat, 11 Nov 2006 22:49:02 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-istallion, use mod_timer
+istallion, dynamic tty device
 
-do not set expires by hand, use kernel helper, which also calls add_timer.
+register tty device dynamically according to the count of board ports.
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit fc0e3ad83dbfac6d4b245319faff5f726974a3cf
-tree 00cda6f05eb6e27a5e5043b0ce7e4fb512ea7287
-parent 010cb3032661418012dd0949ff3566927ed430cd
-author Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 02:32:18 +0100
-committer Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 22:23:37 +0100
+commit 010cb3032661418012dd0949ff3566927ed430cd
+tree 3da0c21735d8a6e32c59dde2ec2979c9dc9680c7
+parent 92452a22c4ada362e991cbf0de84c8914525672a
+author Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 02:29:24 +0100
+committer Jiri Slaby <jirislaby@gmail.com> Sat, 11 Nov 2006 22:23:36 +0100
 
- drivers/char/istallion.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/char/istallion.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/char/istallion.c b/drivers/char/istallion.c
-index cbbc3cd..7f5b8d8 100644
+index bf58938..cbbc3cd 100644
 --- a/drivers/char/istallion.c
 +++ b/drivers/char/istallion.c
-@@ -2545,8 +2545,7 @@ static void stli_poll(unsigned long arg)
- 	struct stlibrd *brdp;
- 	unsigned int brdnr;
+@@ -3846,6 +3846,10 @@ static int stli_findeisabrds(void)
  
--	stli_timerlist.expires = STLI_TIMEOUT;
--	add_timer(&stli_timerlist);
-+	mod_timer(&stli_timerlist, STLI_TIMEOUT);
- 
- /*
-  *	Check each board and do any servicing required.
-@@ -3610,8 +3609,7 @@ stli_donestartup:
- 
- 	if (! stli_timeron) {
- 		stli_timeron++;
--		stli_timerlist.expires = STLI_TIMEOUT;
--		add_timer(&stli_timerlist);
-+		mod_timer(&stli_timerlist, STLI_TIMEOUT);
+ 		stli_brds[brdp->brdnr] = brdp;
+ 		found++;
++
++		for (i = 0; i < brdp->nrports; i++)
++			tty_register_device(stli_serial,
++					brdp->brdnr * STL_MAXPORTS + i, NULL);
  	}
  
- 	return rc;
+ 	return found;
+@@ -3872,6 +3876,7 @@ static int __devinit stli_pciprobe(struc
+ 		const struct pci_device_id *ent)
+ {
+ 	struct stlibrd *brdp;
++	unsigned int i;
+ 	int brdnr, retval = -EIO;
+ 
+ 	retval = pci_enable_device(pdev);
+@@ -3912,6 +3917,10 @@ static int __devinit stli_pciprobe(struc
+ 	brdp->enable = NULL;
+ 	brdp->disable = NULL;
+ 
++	for (i = 0; i < brdp->nrports; i++)
++		tty_register_device(stli_serial, brdp->brdnr * STL_MAXPORTS + i,
++				&pdev->dev);
++
+ 	return 0;
+ err_null:
+ 	stli_brds[brdp->brdnr] = NULL;
+@@ -3992,6 +4001,10 @@ static int stli_initbrds(void)
+ 		}
+ 		stli_brds[brdp->brdnr] = brdp;
+ 		found++;
++
++		for (i = 0; i < brdp->nrports; i++)
++			tty_register_device(stli_serial,
++					brdp->brdnr * STL_MAXPORTS + i, NULL);
+ 	}
+ 
+ 	retval = stli_findeisabrds();
+@@ -4596,7 +4609,7 @@ static int __init istallion_module_init(
+ 	stli_serial->type = TTY_DRIVER_TYPE_SERIAL;
+ 	stli_serial->subtype = SERIAL_TYPE_NORMAL;
+ 	stli_serial->init_termios = stli_deftermios;
+-	stli_serial->flags = TTY_DRIVER_REAL_RAW;
++	stli_serial->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	tty_set_operations(stli_serial, &stli_ops);
+ 
+ 	retval = tty_register_driver(stli_serial);

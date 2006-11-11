@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424596AbWKKSLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754856AbWKKSUS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424596AbWKKSLn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 13:11:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754861AbWKKSLn
+	id S1754856AbWKKSUS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 13:20:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754860AbWKKSUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 13:11:43 -0500
-Received: from web27415.mail.ukl.yahoo.com ([217.146.177.191]:1684 "HELO
-	web27415.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1754860AbWKKSLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 13:11:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.uk;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=BIoItPRWLeT8vaU+M3aD10o6+Ze1U3+ajbjYuxcrpy8WmaUPLMVYsIrDTygBa85hnPFr+Tu4t8O+vkaJheo0dKUO8no09nAy6MF2CJrfTbEA9B05Pc7GmyMSqSv9oGfDFGTNZeovKde7ck0UoNUttXYf3IdFVjaAPrg2v7UMSbw=  ;
-Message-ID: <20061111181141.86824.qmail@web27415.mail.ukl.yahoo.com>
-Date: Sat, 11 Nov 2006 18:11:41 +0000 (GMT)
-From: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
-Subject: printk in user mode program
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sat, 11 Nov 2006 13:20:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3034 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1754856AbWKKSUR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 13:20:17 -0500
+Date: Sat, 11 Nov 2006 10:19:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: David Howells <dhowells@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
+Message-Id: <20061111101942.5f3f2537.akpm@osdl.org>
+In-Reply-To: <1163268603.3293.45.camel@laptopd505.fenrus.org>
+References: <200611111129.kABBTWgp014081@fire-2.osdl.org>
+	<20061111100038.6277efd4.akpm@osdl.org>
+	<1163268603.3293.45.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sat, 11 Nov 2006 19:10:03 +0100
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-I got compilation errors when I compiled the below
-program by the command "gcc 1.c". 
+> > > Kernel started with noapic option, cause it hands on load without this option.
+> > 
+> > Him and a million other people.  I know we broke APIC.  Around 2.6.9, I
+> > think.
+> 
+> 
+> is that when the "enable apic even on UP so that distro kernels can
+> install on the ibm x44*" patches went in?
+> 
 
-Note: I inluded printk instead of printf because I
-have to call the executable code, produced by
-compiling the below code, in a kernel module using
-call_usermodehelper().
+I don't know.  In fact I forget how I worked out that it worsened in
+2.6.early.
 
- Please help me.
-Thanks in advance.
+google(noapic) gets 232,000 hits.
 
----------------------------------------------
-#include<stdio.h>
-#include<linux/module.h>
-#include<linux/kernel.h>
-int main(int argc,char **argvp,char **envp)
-{
-int a,b,c,d;
-for(a=0;a<99999;a++)
-for(d=0;d<9;d++)
-//for(b=0;b<9999;b++)
-c++;
-printk(KERN_INFO "USER PROGRAM \n");
+I don't think it really matters when or why it happened.  If we take the
+approach of fixing one machine at a time, we'll only need to fix a few
+individual machines to improve the situation for a lot of people.
 
-return 0;
-
-}
--------------------------------------------------
-compilation errors:
-
-1.c: In function `main':
-1.c:11: error: `KERN_INFO' undeclared (first use in
-this function)
-1.c:11: error: (Each undeclared identifier is reported
-only once
-1.c:11: error: for each function it appears in.)
-1.c:11: error: syntax error before string constant
-
-
-Send instant messages to your online friends http://uk.messenger.yahoo.com 

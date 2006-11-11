@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424593AbWKKTEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424609AbWKKTJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424593AbWKKTEV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 14:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424595AbWKKTEV
+	id S1424609AbWKKTJh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 14:09:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424608AbWKKTJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 14:04:21 -0500
-Received: from smtp-vbr1.xs4all.nl ([194.109.24.21]:58379 "EHLO
-	smtp-vbr1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1424593AbWKKTEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 14:04:21 -0500
-Date: Sat, 11 Nov 2006 20:04:09 +0100
-From: thunder7@xs4all.nl
-To: jurriaan <thunder7@xs4all.nl>
-Cc: neilb@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: trouble with mounting a 1.5 TB raid6 volume in 2.6.19-rc5-mm1
-Message-ID: <20061111190409.GA5950@amd64.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20061111183835.GA3801@amd64.of.nowhere>
+	Sat, 11 Nov 2006 14:09:37 -0500
+Received: from web31813.mail.mud.yahoo.com ([68.142.207.76]:23664 "HELO
+	web31813.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1424607AbWKKTJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 14:09:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=f4OS21t3rujI0nEQKH0xbtPxrJEq4D6obFJD0wx4CGO1iuMlm4cxufTkVRMOFnEFPc2f2Z7V+LM1493EbPC7M3OVitBbpmMScH7tkBeXJHGOIHRVZu1OAY20mnVN7nBljGvVCZ7beVaCCu2kpdhnQdl1qhctYYuE/6HpQPos1sc=  ;
+X-YMail-OSG: P2MJaqQVM1mmsw1GHOrhf9rDcYPojx5Rabywa_PNhS6kAmJktSRFv4HtRzy3csxeyDHe.rlesdWwBYbeuEuLas17Abmyleprku80LG04Jj_i0oO_YZZ3hD3KMu1JiuuxIAfAixR9sIc-
+Date: Sat, 11 Nov 2006 11:09:33 -0800 (PST)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
+To: Christoph Hellwig <hch@infradead.org>
+Cc: dougg@torque.net, Tejun Heo <htejun@gmail.com>,
+       Brice Goglin <Brice.Goglin@ens-lyon.org>,
+       Jens Axboe <jens.axboe@oracle.com>,
+       Gregor Jasny <gjasny@googlemail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       monty@xiph.org, linux-scsi@vger.kernel.org
+In-Reply-To: <20061111104642.GA3356@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061111183835.GA3801@amd64.of.nowhere>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <589461.23187.qm@web31813.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: jurriaan <thunder7@xs4all.nl>
-Date: Sat, Nov 11, 2006 at 07:38:35PM +0100
-> I have a 8 disk 1.5 TB raid6 volume that won't mount in 2.6.19-rc5-mm1.
+--- Christoph Hellwig <hch@infradead.org> wrote:
+> On Fri, Nov 10, 2006 at 12:08:15PM -0800, Luben Tuikov wrote:
+> > P.S. I'd love to see SG_DXFER_TO_FROM_DEV completely ripped out
+> > of sg.c, for obvious reasons.  Can you not duplicate the resid "fix"
+> > it provides into "FROM_DEV" -- do apps really rely on it?
+> 
+> At the beginning of this thread it was mentioned cdparanio uses it.
+> But in general we can't just rip out userland interfaces, we pretend
+> to have a stable userspace abi (and except for the big sysfs mess that
+> actually comes very close to the truth).
 
-This is 2.6.19-rc5-mm1 with 
+The more reason to think things thorougly when introducing
+new code and architecture into a kernel.
 
-md-change-lifetime-rules-for-md-devices.patch
+     Luben
 
-reverted, of course, otherwise it won't boot.
+> What we should do is to document very well what SG_DXFER_TO_FROM_DEV
+> is doing and that odd name that's been chosen for it.  I'll prepare
+> a patch for that.
 
-Jurriaan
--- 
-I never think, sir. Didn't get a degree.
-	Chief Inspector Morse
-Debian (Unstable) GNU/Linux 2.6.19-rc5-mm1 2x4826 bogomips load 2.59
+

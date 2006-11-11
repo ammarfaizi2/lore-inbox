@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754360AbWKKKYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754363AbWKKK0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754360AbWKKKYr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 05:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754355AbWKKKYr
+	id S1754363AbWKKK0d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 05:26:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424511AbWKKK0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 05:24:47 -0500
-Received: from mx27.mail.ru ([194.67.23.64]:8456 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S1753167AbWKKKYq (ORCPT
+	Sat, 11 Nov 2006 05:26:32 -0500
+Received: from wshld2.trema.com ([194.103.215.196]:48089 "HELO
+	webshieldout.corp.trema.com") by vger.kernel.org with SMTP
+	id S1754355AbWKKK0c convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 05:24:46 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc5: where can I select INPUT?
-Date: Sat, 11 Nov 2006 13:24:58 +0300
-User-Agent: KMail/1.9.5
+	Sat, 11 Nov 2006 05:26:32 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611111325.02749.arvidjaar@mail.ru>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
+Date: Sat, 11 Nov 2006 11:17:03 +0100
+Message-ID: <D0233BCDB5857443B48E64A79E24B8CE6B5437@labex2.corp.trema.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
+Thread-Index: AccFMxh6NDFZ8XBgT0GCmA2AfWdVUwARzt6A
+From: "Christian Hoffmann" <Christian.Hoffmann@wallstreetsystems.com>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: <linux-fbdev-devel@lists.sourceforge.net>,
+       "LKML" <linux-kernel@vger.kernel.org>, <Christian@ogre.sisk.pl>,
+       <Hoffmann@albercik.sisk.pl>
+X-NAIMIME-Disclaimer: 1
+X-NAIMIME-Modified: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Neither in menuconfig nor in xconfig do I see any place to actually select 
-INPUT. Help text suggests that it is a) selectable b) it can be made modules. 
-I do not have either option. Here what I see in menuconfig if I go into Input 
-device support:
+>There are many possible reasons for that. The most likely is that the
+>BIOS isn't bringing the chip back on resume, causing radeonfb to
+>crash when trying to access it.
 
-    --- Generic input layer (needed for keyboard, mouse, ...)
-    < >   Support for memoryless force-feedback devices
-    ---   Userland interfaces
+>Ben.
+Is there any possible workaround for this, or some tracing possible so
+we can prove the hypothesis?
 
-as you see there is no check box for INPUT itself.
+Chris
 
-I already had similar issue something else (I believe it was something related 
-to serio). In menuconfig item was no selectable, but I could directly 
-edit .config to change y to m.
 
-This may be related to
 
-  Symbol: INPUT [=y]
-  Prompt: Generic input layer (needed for keyboard, mouse, ...)
-    Defined at drivers/input/Kconfig:7
-    Depends on: EMBEDDED
-    Location:
-      -> Device Drivers
-        -> Input device support
-    Selected by: VT
+Privileged or confidential information may be contained in this message.  If you are not the addressee of this message please notify the sender by return and thereafter delete the message, and you may not use, copy, disclose or rely on the information contained in it. Internet e-mail may be susceptible to data corruption, interception and unauthorised amendment for which Wall Street Systems does not accept liability. Whilst we have taken reasonable precautions to ensure that this e-mail and any attachments have been swept for viruses, Wall Street Systems does not accept liability for any damage sustained as a result of viruses.  Statements in this message or attachments that do not relate to the business of  Wall Street Systems are neither given nor endorsed by the company or its Directors.
 
-and CONFIG_VT is indeed y (I do not think this even can ever be m). Still even 
-then this is way too confusing.
-.config can be provided on request
-
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFVaT+R6LMutpd94wRAlwlAJ9RduOcCi3u00p/BsY/GoP2Xs4IgACfV6lp
-YqEaBKJ1DY5OK5TIEsH2iP4=
-=kBNh
------END PGP SIGNATURE-----

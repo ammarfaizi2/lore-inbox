@@ -1,70 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947110AbWKKGbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947114AbWKKGna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947110AbWKKGbs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 01:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947109AbWKKGbr
+	id S1947114AbWKKGna (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 01:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947115AbWKKGna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 01:31:47 -0500
-Received: from pool-72-66-197-94.ronkva.east.verizon.net ([72.66.197.94]:21443
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1947110AbWKKGbr (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 01:31:47 -0500
-Message-Id: <200611110631.kAB6V12n011990@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Al Boldi <a1426z@gawab.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-In-Reply-To: Your message of "Sat, 11 Nov 2006 07:15:49 +0300."
-             <200611110715.49343.a1426z@gawab.com>
-From: Valdis.Kletnieks@vt.edu
-References: <200611090757.48744.a1426z@gawab.com> <200611110022.52304.a1426z@gawab.com> <20061110133101.4e6cddd3@freekitty>
-            <200611110715.49343.a1426z@gawab.com>
+	Sat, 11 Nov 2006 01:43:30 -0500
+Received: from mail.gmx.net ([213.165.64.20]:36581 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1947114AbWKKGn3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 01:43:29 -0500
+X-Authenticated: #14349625
+Subject: [patch] [trivial] Re: 2.6.19-rc5 breaks klogd 1.4.1
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: John Wendel <jwendel10@comcast.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1163085926.6087.17.camel@Homer.simpson.net>
+References: <4552BB55.9090400@comcast.net>
+	 <20061108224153.4ed2e581.akpm@osdl.org> <4552D4B4.5020505@comcast.net>
+	 <20061108233517.7cc1db12.akpm@osdl.org>
+	 <1163067064.6145.4.camel@Homer.simpson.net>
+	 <1163085926.6087.17.camel@Homer.simpson.net>
+Content-Type: text/plain
+Date: Sat, 11 Nov 2006 07:44:20 +0100
+Message-Id: <1163227460.6226.26.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1163226660_6400P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Date: Sat, 11 Nov 2006 01:31:00 -0500
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1163226660_6400P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 2006-11-09 at 16:25 +0100, Mike Galbraith wrote:
 
-On Sat, 11 Nov 2006 07:15:49 +0300, Al Boldi said:
-> I don't think there is a lack of heuristics, nor is there a lack of 
-> discussion.  What is needed, is a realization of the problem.
-> 
-> IOW, respective tree-owners need to come to a realization of the state of 
-> their trees, problem or not.  If it has a problem, that problem needs to be 
-> fixed or backed out of stable and moved into dev.
+> The correct answer seems to be "fix klogd, or don't disable printk".
 
-I keep trying to parse this, and it keeps coming up as "content-free".
+I don't like that answer one bit.  I think it's much better to remove
+the syslog interface when printk is disabled rather than leave it in
+place for userland to trip over.
 
-For starters, you don't even have a useful definition of "has a problem".
-There's a whole *range* of definitions for that, and even skilled and
-respected members of the Linux kernel community can disagree about whether
-something is "a problem".  For example, see the thread about a week ago
-about "Remove hotplug cpu crap from cpufreq".
+Signed-off-by: Mike Galbraith <efault@gmx.de>
 
-If, given a *specific* feature with high wart quotient, we can't agree on
-whether it needs to be fixed or backed out, we're doomed to fail if we
-start handwaving about problems "in general".  As a group, we suck at
-anything that isn't specific, like "Algorithm A is better than B for
-case XYZ".
+--- linux-2.6.19-rc5/fs/proc/Makefile.org	2006-11-09 13:08:17.000000000 +0100
++++ linux-2.6.19-rc5/fs/proc/Makefile	2006-11-09 13:09:06.000000000 +0100
+@@ -8,8 +8,9 @@ proc-y			:= nommu.o task_nommu.o
+ proc-$(CONFIG_MMU)	:= mmu.o task_mmu.o
+ 
+ proc-y       += inode.o root.o base.o generic.o array.o \
+-		kmsg.o proc_tty.o proc_misc.o
++		proc_tty.o proc_misc.o
+ 
+ proc-$(CONFIG_PROC_KCORE)	+= kcore.o
+ proc-$(CONFIG_PROC_VMCORE)	+= vmcore.o
+ proc-$(CONFIG_PROC_DEVICETREE)	+= proc_devtree.o
++proc-$(CONFIG_PRINTK)	+= kmsg.o
+--- linux-2.6.19-rc5/fs/proc/proc_misc.c.org	2006-11-09 13:04:50.000000000 +0100
++++ linux-2.6.19-rc5/fs/proc/proc_misc.c	2006-11-09 13:06:29.000000000 +0100
+@@ -696,9 +696,11 @@ void __init proc_misc_init(void)
+ 	proc_symlink("mounts", NULL, "self/mounts");
+ 
+ 	/* And now for trickier ones */
++#ifdef CONFIG_PRINTK
+ 	entry = create_proc_entry("kmsg", S_IRUSR, &proc_root);
+ 	if (entry)
+ 		entry->proc_fops = &proc_kmsg_operations;
++#endif
+ 	create_seq_entry("devices", 0, &proc_devinfo_operations);
+ 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
+ #ifdef CONFIG_BLOCK
+--- linux-2.6.19-rc5/kernel/printk.c.org	2006-11-08 07:44:27.000000000 +0100
++++ linux-2.6.19-rc5/kernel/printk.c	2006-11-11 06:44:59.000000000 +0100
+@@ -631,12 +631,7 @@ EXPORT_SYMBOL(vprintk);
+ 
+ asmlinkage long sys_syslog(int type, char __user *buf, int len)
+ {
+-	return 0;
+-}
+-
+-int do_syslog(int type, char __user *buf, int len)
+-{
+-	return 0;
++	return -ENOSYS;
+ }
+ 
+ static void call_console_drivers(unsigned long start, unsigned long end)
 
---==_Exmh_1163226660_6400P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFVW4kcC3lWbTT17ARAvI+AJ9hTL7KOGHfj128ppvfvVwqhhftggCgizzu
-/wAX53bwSMPRBL1N3THdesY=
-=DGmc
------END PGP SIGNATURE-----
-
---==_Exmh_1163226660_6400P--

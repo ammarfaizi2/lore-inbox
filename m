@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947111AbWKKGnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947118AbWKKGrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947111AbWKKGnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 01:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947114AbWKKGnQ
+	id S1947118AbWKKGrd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 01:47:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947117AbWKKGrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 01:43:16 -0500
-Received: from mx1.suse.de ([195.135.220.2]:40339 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1947111AbWKKGnQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 01:43:16 -0500
-From: Andi Kleen <ak@suse.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] make x86_64 boot gdt size exact (like x86).
-Date: Sat, 11 Nov 2006 07:42:53 +0100
-User-Agent: KMail/1.9.5
-Cc: Alexander van Heukelum <heukelum@mailshack.com>,
-       LKML <linux-kernel@vger.kernel.org>, sct@redhat.com,
-       herbert@gondor.apana.org.au, xen-devel@lists.xensource.com
-References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com> <200611101501.40007.ak@suse.de> <Pine.LNX.4.58.0611110010330.5626@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0611110010330.5626@gandalf.stny.rr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Nov 2006 01:47:33 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11785 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1947118AbWKKGrc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 01:47:32 -0500
+Date: Sat, 11 Nov 2006 05:50:50 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, xemul@openvz.org, devel@openvz.org,
+       oleg@tv-sign.ru, hch@infradead.org, matthltc@us.ibm.com,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [PATCH 6/13] BC: kmemsize accounting (core)
+Message-ID: <20061111055049.GA4063@ucw.cz>
+References: <45535C18.4040000@sw.ru> <45535EA3.10300@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611110742.53632.ak@suse.de>
+In-Reply-To: <45535EA3.10300@sw.ru>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 November 2006 06:17, Steven Rostedt wrote:
-> 
-> Andi,
-> 
-> Here's another patch that is basically a copy from x86's boot/setup.S.
-> It makes the GDT limit the exact size that is needed.  I tested this with
-> the same Xen test that broke the original 0x8000 size, and it booted just
-> fine.
+Hi!
 
-I had already changed the previous patch to be like that
+> --- /dev/null	2006-07-18 14:52:43.075228448 +0400
+> +++ ./include/bc/kmem.h	2006-11-03 15:48:26.000000000 +0300
+> @@ -0,0 +1,48 @@
+> +/*
+> + * include/bc/kmem.h
+> + *
+> + * Copyright (C) 2006 OpenVZ SWsoft Inc
+> + *
+> + */
 
-(except for the - 1)
+GPL would be nice, as would be email address of someone who worked on
+this file.
 
--Andi
+
+> --- /dev/null	2006-07-18 14:52:43.075228448 +0400
+> +++ ./kernel/bc/kmem.c	2006-11-03 15:48:26.000000000 +0300
+> @@ -0,0 +1,112 @@
+> +/*
+> + * kernel/bc/kmem.c
+> + *
+> + * Copyright (C) 2006 OpenVZ SWsoft Inc
+> + *
+> + */
+
+Same here.
+
+> +void bc_slab_uncharge(kmem_cache_t *cachep, void *objp)
+> +{
+> +	unsigned int size;
+> +	struct beancounter *bc, **slab_bcp;
+> +
+> +	slab_bcp = kmem_cache_bcp(cachep, objp);
+> +	if (*slab_bcp == NULL)
+> +		return;
+> +
+> +	bc = *slab_bcp;
+
+You can do this before if() and spare a dereference.
+
+						Pavel
+-- 
+Thanks for all the (sleeping) penguins.

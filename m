@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751859AbWKKK5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965515AbWKKLBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751859AbWKKK5k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 05:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753187AbWKKK5k
+	id S965515AbWKKLBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 06:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965973AbWKKLBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 05:57:40 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:50922 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751859AbWKKK5j (ORCPT
+	Sat, 11 Nov 2006 06:01:16 -0500
+Received: from dvhart.com ([64.146.134.43]:44749 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S965515AbWKKLBP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 05:57:39 -0500
-Date: Sat, 11 Nov 2006 11:55:53 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: "Igor A. Valcov" <viaprog@gmail.com>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
-In-Reply-To: <20061110225257.63f91851.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0611111153150.21326@yvahk01.tjqt.qr>
-References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
- <4553F3C6.2030807@sandeen.net> <Pine.LNX.4.61.0611101259490.6068@yvahk01.tjqt.qr>
- <bde600590611100516u7b8ca1bfs74d3cc8b78eb3520@mail.gmail.com>
- <20061110225257.63f91851.akpm@osdl.org>
+	Sat, 11 Nov 2006 06:01:15 -0500
+Message-ID: <4555AD39.8020803@mbligh.org>
+Date: Sat, 11 Nov 2006 03:00:09 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: tglx@linutronix.de
+Cc: Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+References: <9a8748490611081409x6b4cc4b4lc52b91c7b7b237a6@mail.gmail.com>	 <1163024531.3138.406.camel@laptopd505.fenrus.org>	 <20061108145150.80ceebf4.akpm@osdl.org>	 <1163064401.3138.472.camel@laptopd505.fenrus.org>	 <20061109013645.7bef848d.akpm@osdl.org>	 <1163065920.3138.486.camel@laptopd505.fenrus.org>	 <20061109111212.eee33367.akpm@osdl.org>	 <1163100115.3138.524.camel@laptopd505.fenrus.org>	 <20061109211121.GW4729@stusta.de>	 <1163107915.3138.541.camel@laptopd505.fenrus.org> <1163116618.8335.173.camel@localhost.localdomain>
+In-Reply-To: <1163116618.8335.173.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->>     for (i = 0; i < 262144; i++) {
->>         /* Write data to a big file */
->>         write (nFiles [0], buf, __BYTES);
->> 
->>         /* Write data to small files */
->>         for (f = 1; f < __FILES; f++)
->>             write (nFiles [f], &f, sizeof (f));
->>     }
->
->This sits in a loop doing write(fd, buf, 4).  This is wildly inefficient -
->you'd get a 10x throughput benefit and maybe 100x reduction in CPU cost
->simply by switching to fwrite().
+> That's no excuse, as Adrian pointed it out on LKML since weeks.
+> 
+> Also the kernel.org bugzilla has a real flaw:
+> 
+> There is no way to get informed of new entries automatically and
+> filtered by Category and Component. At least I did not find a way and
+> bugme-admin@osdl.org seems to be a black hole.
 
-Well yes and no. The problem here is the syscall overhead. fwrite 
-buffers things, so needless syscalls are avoided.
-The same could be done by changing the program logic and increasing the 
-size argument to read/write.
+There is one list, bugme-new, that gets a copy of all bugs. The category
+and component are broken out in headers simply so that you can filter it
+yourself in whatever way you like.
 
->I suspect something went wrong here.
+Other than that, we can make each category owned by a "virtual user",
+(many are already), and then multiple people can do an email watch on
+that user.
 
-Design error. :)
+bugme-admin alias should not be a black hole ... I get a copy of all
+emails, as do a few other people. I don't recall seeing email from you
+recently, but possibly a problem with spam filtering or something. If
+you're having trouble, please send email directly to me if stuck.
 
-
-	-`J'
--- 
+M.

@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946721AbWKKAJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946857AbWKKANI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946721AbWKKAJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Nov 2006 19:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946813AbWKKAJZ
+	id S1946857AbWKKANI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Nov 2006 19:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946813AbWKKANH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Nov 2006 19:09:25 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:40125 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1946721AbWKKAJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Nov 2006 19:09:24 -0500
-Date: Sat, 11 Nov 2006 09:08:51 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
-Cc: clameter@sgi.com, hch@lst.de, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, linux-mm@kvack.org
-Subject: Re: [PATCH 2/3] add dev_to_node()
-Message-Id: <20061111090851.73d4d3b6.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <1163183306.15159.6.camel@localhost>
-References: <20061030141501.GC7164@lst.de>
-	<20061030.143357.130208425.davem@davemloft.net>
-	<20061104225629.GA31437@lst.de>
-	<20061108114038.59831f9d.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0611101015060.25338@schroedinger.engr.sgi.com>
-	<1163183306.15159.6.camel@localhost>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
+	Fri, 10 Nov 2006 19:13:07 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:54491 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1946857AbWKKANE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Nov 2006 19:13:04 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: touch_cache() only touches two thirds
+Date: Fri, 10 Nov 2006 16:12:19 -0800
+Message-ID: <FE74AC4E0A23124DA52B99F17F44159701DBBFE7@PA-EXCH03.vmware.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: touch_cache() only touches two thirds
+Thread-Index: AccEoeggPGuYib7PR1ObQZqbfZqbogAhCT8/
+References: <FE74AC4E0A23124DA52B99F17F441597DA118C@PA-EXCH03.vmware.com> <p734pt7k8s0.fsf@bingen.suse.de>
+From: "Bela Lubkin" <blubkin@vmware.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <mingo@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2006 13:28:25 -0500
-Lee Schermerhorn <Lee.Schermerhorn@hp.com> wrote:
+Andi Kleen wrote:
 
-> On Fri, 2006-11-10 at 10:16 -0800, Christoph Lameter wrote:
-> > On Wed, 8 Nov 2006, KAMEZAWA Hiroyuki wrote:
+> "Bela Lubkin" <blubkin@vmware.com> writes:
 > > 
-> > > I wonder there are no code for creating NODE_DATA() for device-only-node.
-> > 
-> > On IA64 we remap nodes with no memory / cpus to the nearest node with 
-> > memory. I think that is sufficient.
-> 
-> I don't think this happens anymore.  
+> > /*
+> >  * Dirty a big buffer in a hard-to-predict (for the L2 cache) way. This
+> >  * is the operation that is timed, so we try to generate unpredictable
+> >  * cachemisses that still end up filling the L2 cache:
+> >  */
+>
+> The comment is misleading anyways. AFAIK several of the modern
+> CPUs (at least K8, later P4s, Core2, POWER4+, PPC970) have prefetch 
+> predictors advanced enough to follow several streams forward and backwards
+> in parallel.
+>
+> I hit this while doing NUMA benchmarking for example.
+>
+> Most likely to be really unpredictable you need to use a
+> true RND and somehow make sure still the full cache range 
+> is covered.
 
-In my understanding , from drivers/acpi/numa.c, 
-a node is created by a pxm found in SRAT table at boot time.
+The corrected code in <http://bugzilla.kernel.org/show_bug.cgi?id=7476#c4>
+covers the full cache range.  Granted that modern CPUs may be able to track
+multiple simultaneous cache access streams: how many such streams are they
+likely to be able to follow at once?  It seems like going from 1 to 2 would
+be a big win, 2 to 3 a small win, beyond that it wouldn't likely make much
+incremental difference.  So what do the actual implementations in the field
+support?
 
-the node-number for the pxm which was not found in SRAT at boot time is "-1".
-please check how acpi_map_pxm_to_node() is used.
+The code (original and corrected) uses 6 simultaneous streams.
 
-If pci's node-id is based on pxm, checking return vaule of pxm_to_node() 
-will be good.
+I have a modified version that takes a `ways' parameter to use an arbitrary
+number of streams.  I'll post that onto bugzilla.kernel.org.
 
--Kame
-
+>Bela<

@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947319AbWKKWCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947321AbWKKWEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947319AbWKKWCh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 17:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947320AbWKKWCh
+	id S1947321AbWKKWEu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 17:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947322AbWKKWEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 17:02:37 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:11792 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1947319AbWKKWCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 17:02:36 -0500
-Subject: Re: [PATCH] Apple Motion Sensor driver
-From: Stelian Pop <stelian@popies.net>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: Andrew Morton <akpm@osdl.org>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Robert Love <rml@novell.com>,
-       Jean Delvare <khali@linux-fr.org>,
-       Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       nicolas@boichat.ch
-In-Reply-To: <20061111214143.GA25609@hansmi.ch>
-References: <1163280972.32084.13.camel@localhost.localdomain>
-	 <20061111214143.GA25609@hansmi.ch>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sat, 11 Nov 2006 23:00:17 +0100
-Message-Id: <1163282417.32084.18.camel@localhost.localdomain>
+	Sat, 11 Nov 2006 17:04:50 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:54029 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1947321AbWKKWEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 17:04:49 -0500
+Date: Sat, 11 Nov 2006 22:04:43 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Marc Haber <mh+linux-kernel@zugschlus.de>, linux-kernel@vger.kernel.org
+Subject: Re: ttyS0 not working any more, LSR safety check engaged
+Message-ID: <20061111220442.GD28277@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Marc Haber <mh+linux-kernel@zugschlus.de>,
+	linux-kernel@vger.kernel.org
+References: <20061111114352.GA9206@torres.l21.ma.zugschlus.de> <20061111115016.GA24112@flint.arm.linux.org.uk> <20061111123455.GB9206@torres.l21.ma.zugschlus.de> <20061111153005.GA28277@flint.arm.linux.org.uk> <20061111130656.c9bae39f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061111130656.c9bae39f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le samedi 11 novembre 2006 à 22:41 +0100, Michael Hanselmann a écrit :
-> On Sat, Nov 11, 2006 at 10:36:11PM +0100, Stelian Pop wrote:
-> > This driver adds support for the Apple Motion Sensor (AMS) as found in 2005
-> > revisions of Apple PowerBooks and iBooks.  It implements both the PMU and
-> > I²C variants.
-> 
-> I've modified my driver to use an accelerometer class. 
+On Sat, Nov 11, 2006 at 01:06:56PM -0800, Andrew Morton wrote:
+> /proc/ioports and /proc/iomem might contain hints - can we see those please?
 
-Hmmm, I didn't know such a thing existed.
+Only if someone is diddling with the resource system by using
+insert_resource().  Serial keeps the port claimed as busy all the
+time the port is registered with it.
 
-> Do you want the code?
-
-Just make sure it gets submitted upstream so it gets no lost.
-
-I don't have a particular use for the accelerometer myself, I was just
-digging thru the pile of my local patches and I noticed that all the
-work (mine, yours and others) on the ams device seemed on its way to be
-lost, since nobody picked up the patch.
-
-But if you're still actively working on it and plan to submit it later,
-that's perfectly ok with me.
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947101AbWKKF2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947110AbWKKGbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947101AbWKKF2V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 00:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947102AbWKKF2V
+	id S1947110AbWKKGbs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 01:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947109AbWKKGbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 00:28:21 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:436 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1947101AbWKKF2U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 00:28:20 -0500
-Message-ID: <45555F4F.8060600@zytor.com>
-Date: Fri, 10 Nov 2006 21:27:43 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel@vger.kernel.org, alan@redhat.com,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jakub Jelinek <jakub@redhat.com>, Mike Galbraith <efault@gmx.de>,
-       Albert Cahalan <acahalan@gmail.com>,
-       Bill Nottingham <notting@redhat.com>,
-       Marco Roeland <marco.roeland@xs4all.nl>,
-       Michael Kerrisk <mtk-manpages@gmx.net>
-Subject: Re: [PATCH] sysctl:  Undeprecate sys_sysctl (take 2)
-References: <m1zmb13gsl.fsf@ebiederm.dsl.xmission.com>	<9a8748490611081110m4cc62c1bp3a36aba3fc314e56@mail.gmail.com>	<m1ejsd3e38.fsf_-_@ebiederm.dsl.xmission.com>	<200611100750.10990.ak@suse.de> <m1u017lpzd.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1u017lpzd.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 11 Nov 2006 01:31:47 -0500
+Received: from pool-72-66-197-94.ronkva.east.verizon.net ([72.66.197.94]:21443
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1947110AbWKKGbr (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 01:31:47 -0500
+Message-Id: <200611110631.kAB6V12n011990@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Al Boldi <a1426z@gawab.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: A proposal; making 2.6.20 a bugfix only version.
+In-Reply-To: Your message of "Sat, 11 Nov 2006 07:15:49 +0300."
+             <200611110715.49343.a1426z@gawab.com>
+From: Valdis.Kletnieks@vt.edu
+References: <200611090757.48744.a1426z@gawab.com> <200611110022.52304.a1426z@gawab.com> <20061110133101.4e6cddd3@freekitty>
+            <200611110715.49343.a1426z@gawab.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1163226660_6400P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sat, 11 Nov 2006 01:31:00 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Andi Kleen <ak@suse.de> writes:
+--==_Exmh_1163226660_6400P
+Content-Type: text/plain; charset=us-ascii
+
+On Sat, 11 Nov 2006 07:15:49 +0300, Al Boldi said:
+> I don't think there is a lack of heuristics, nor is there a lack of 
+> discussion.  What is needed, is a realization of the problem.
 > 
->> On Wednesday 08 November 2006 20:58, Eric W. Biederman wrote:
->>> The basic issue is that despite have been ``deprecated'' and
->>> warned about as a very bad thing in the man pages since it's
->>> inception there are a few real users of sys_sysctl. 
->> But they only seem to use a small number of actually used with
->> sysctl(2) sysctls.
->> I still think just maintaining a conversion table for 
->> those is the right thing to do.
-> 
-> I don't know.  Every distinct user of the binary sysctl interface
-> used a different entry.  So the fact that there are a small number of
-> programs and thus a small number of sysctls used I agree with.  I do
-> not agree with the conclusion that we can predict the set of binary
-> sysctl that are in use.  We do not get good enough feedback from
-> the user community.
-> 
-> I don't have a problem with the principle of a conversion table
-> if it meant that we would never add any additional binary sysctls.
->
+> IOW, respective tree-owners need to come to a realization of the state of 
+> their trees, problem or not.  If it has a problem, that problem needs to be 
+> fixed or backed out of stable and moved into dev.
 
-Okay, my opinion now...
+I keep trying to parse this, and it keeps coming up as "content-free".
 
-I think we should change the sysctl system so most sysctls simply aren't 
-accessible through the binary interface.  The rest of them should be 
-documented in one place, preferrably machine-readable.
+For starters, you don't even have a useful definition of "has a problem".
+There's a whole *range* of definitions for that, and even skilled and
+respected members of the Linux kernel community can disagree about whether
+something is "a problem".  For example, see the thread about a week ago
+about "Remove hotplug cpu crap from cpufreq".
 
-However, I think having the binary sysctls available as a limited last 
-resort is better than adding ad hoc system calls all over the place, 
-like sys_mips.
+If, given a *specific* feature with high wart quotient, we can't agree on
+whether it needs to be fixed or backed out, we're doomed to fail if we
+start handwaving about problems "in general".  As a group, we suck at
+anything that isn't specific, like "Algorithm A is better than B for
+case XYZ".
 
-	-hpa
+--==_Exmh_1163226660_6400P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFVW4kcC3lWbTT17ARAvI+AJ9hTL7KOGHfj128ppvfvVwqhhftggCgizzu
+/wAX53bwSMPRBL1N3THdesY=
+=DGmc
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1163226660_6400P--

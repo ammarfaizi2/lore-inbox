@@ -1,84 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947215AbWKKNPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947223AbWKKNm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947215AbWKKNPj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 08:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947218AbWKKNPj
+	id S1947223AbWKKNm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 08:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947226AbWKKNm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 08:15:39 -0500
-Received: from rosi.naasa.net ([212.8.0.13]:8900 "EHLO rosi.naasa.net")
-	by vger.kernel.org with ESMTP id S1947215AbWKKNPi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 08:15:38 -0500
-From: Joerg Platte <jplatte@naasa.net>
-Reply-To: jplatte@naasa.net
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Userspace process may be able to DoS kernel
-Date: Sat, 11 Nov 2006 14:15:31 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com> <200611111329.17206.lists@naasa.net> <1163248773.3293.20.camel@laptopd505.fenrus.org>
-In-Reply-To: <1163248773.3293.20.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
+	Sat, 11 Nov 2006 08:42:59 -0500
+Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:39315 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S1947223AbWKKNm6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 08:42:58 -0500
+Date: Sat, 11 Nov 2006 08:45:51 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Christian.Hoffmann@wallstreetsystems.com,
+       LKML <linux-kernel@vger.kernel.org>, Christian@ogre.sisk.pl,
+       Hoffmann@albercik.sisk.pl
+Subject: Re: [Linux-fbdev-devel] Fwd: [Suspend-devel] resume not working on acer ferrari 4005	with radeonfb enabled
+Message-ID: <20061111134551.GA9947@shaftnet.org>
+Mail-Followup-To: linux-fbdev-devel@lists.sourceforge.net,
+	"Rafael J. Wysocki" <rjw@sisk.pl>,
+	Christian.Hoffmann@wallstreetsystems.com,
+	LKML <linux-kernel@vger.kernel.org>, Christian@ogre.sisk.pl,
+	Hoffmann@albercik.sisk.pl
+References: <200611110031.16173.rjw@sisk.pl> <1163209746.4982.203.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
 Content-Disposition: inline
-Message-Id: <200611111415.32459.jplatte@naasa.net>
+In-Reply-To: <1163209746.4982.203.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Sat, 11 Nov 2006 08:45:51 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 11. November 2006 13:39 schrieb Arjan van de Ven:
 
-> this isn't per se acpi related: This is reading the PM timer from your
-> chipset. The PMTimer is a clock on your chipset that the kernel can use
-> to read a stable incrementing clock to find out what time it is right
-> now, usually as part of userspace asking the kernel what time it is via
-> the gettimeofday() system call. ACPI is just the component that does the
-> actual (slow) hardware access... eg the messenger.
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK.
+On Sat, Nov 11, 2006 at 12:49:06PM +1100, Benjamin Herrenschmidt wrote:
+> There are many possible reasons for that. The most likely is that the
+> BIOS isn't bringing the chip back on resume, causing radeonfb to
+> crash when trying to access it.
 
-> Normally systems have better/faster clocks than the pmtimer, but there
-> are circumstances where those can't be used.
->
-> 1) HPET. The HPET is a lot faster than pmtimer, and very reliable. Most
-> of the systems sold in the last 3 years have an hpet, but unfortunately,
-> many bioses turn this off by default. If your BOOS has a "Multimedia
-> timer" setting, make sure it's set to "On".
+I have the same laptop, and it also crashes for me on resume when=20
+radeonfb is loaded.  However, it also crashes on a resume when radeonfb=20
+*isn't* loaded, so I hardly considered that a regression.  :)
 
-My computer is 3,5 years old (one of the first centrino notebooks). Maybe it 
-does not have a HPET timer. I can't find HPET somewhere in the kernel.log 
-file and no option in the BIOS. But it is enabled in my kernel config.
+> On Thu, Nov 09, 2006 at 07:50:17PM +0100, Christian Hoffmann wrote:
+> > when I have radeonfb enabled, my laptop (X700 ati mobility) doesnt resu=
+me
+> > anymore. Screen stays black and nothing works anymore, no capslock ligh=
+t, no
+> > ctrl alt sysreq b etc. I tried all kind of things vbetool, passing
+> > acpi_sleep=3Ds3_bios,s3_mode to the kernel. Nothing seems to work.
 
-> 2) TSC. This is a super fast method of finding how much time has passed,
-> since it's inside the CPU. However there are many reasons why this
-> method may be unreliable, for example certain powermanagement features
-> on laptops cause this clock to stop when idle (not useful), or to vary
-> in frequency (also not useful if you want to find out what time it is).
-> Also on AMD Opteron SMP systems or extreme Intel big honking NUMA
-> systems, this timer is not synchronized between the various processors
-> and that breaks the current time keeping in Linux, and so Linux doesn't
-> use it in that case.
+=2E..but it used to work?  Now that's interesting; this is the first=20
+report I've heard of a suspend-to-RAM (and subsequent resumes) working=20
+on that machine.
 
-I'm using frequency scaling. Maybe that's a reason for not using TSC in each 
-case.
+> > You can see dmesg output and lspci -vv output here=20
+> >  http://christianhoffmann.de/temp/radeon.log
+> >  http://christianhoffmann.de/temp/lspci.log
 
-> So my advice is
-> 1) Check the bios to see if you have the HPET enabled. If not, enable
-> it.
-> 2) Check the kernel config to see if you have HPET enabled there, if not
-> enable it.
-> 3) Check dmesg to see if there's a reason the kernel doesn't use TSC;
-> there is probably nothing you can do but at least you know why :)
+Can you send the *full* bootup log, including the command lines you=20
+used?
 
-The kernel semm to use TSC. I can't find another message stating that TSC has 
-been disabled.
+I noticed that you have the 'radeon' drm module loading too; that may be=20
+causing problems.  Are you running X when you try to suspend/resume?
 
-localhost kernel: Time: tsc clocksource has been installed.
+Also, since you're using a Ferarri 4000, are you using the stock 3A23=20
+BIOS/DSDT, or are you using the patched DSDT from http://acpi.sf.net?
 
-There seem to be some clock drift. Each time when starting skype everything 
-works perfect for a couple of hours. Then, skype behaves strange by causing 
-this high system load. 
+ - Solomon
+--=20
+Solomon Peachy        		       pizza at shaftnet dot org	=20
+Melbourne, FL                          ^^ (mail/jabber/gtalk) ^^
+Quidquid latine dictum sit, altum viditur.          ICQ: 1318344
 
-regards,
-Jörg
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQFFVdQPPuLgii2759ARAuQsAJ9uiN4Nv2eumng9JGfioAk10jqYeACfTlNg
+78KNbDJlL+aVriUynUKBLqg=
+=Efxv
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--

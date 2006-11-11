@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947276AbWKKQk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947273AbWKKQjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947276AbWKKQk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 11:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947277AbWKKQk1
+	id S1947273AbWKKQjy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 11:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947272AbWKKQjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 11:40:27 -0500
-Received: from ns2.g-housing.de ([81.169.133.75]:13232 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S1947276AbWKKQkY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 11:40:24 -0500
-Date: Sat, 11 Nov 2006 16:40:17 +0000 (GMT)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: evil@sheep.housecafe.de
-To: linux-kernel@vger.kernel.org
-Subject: OOM in 2.6.19-rc*
-Message-ID: <Pine.LNX.4.64.0611111318230.1247@sheep.housecafe.de>
+	Sat, 11 Nov 2006 11:39:53 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47497 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1947271AbWKKQjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 11:39:52 -0500
+Message-ID: <4555FCD0.7030505@torque.net>
+Date: Sat, 11 Nov 2006 11:39:44 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       Tejun Heo <htejun@gmail.com>, Brice Goglin <Brice.Goglin@ens-lyon.org>,
+       Jens Axboe <jens.axboe@oracle.com>,
+       Gregor Jasny <gjasny@googlemail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       monty@xiph.org, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
+References: <4554777B.7050708@torque.net> <508312.85189.qm@web31812.mail.mud.yahoo.com> <20061111104642.GA3356@infradead.org>
+In-Reply-To: <20061111104642.GA3356@infradead.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Christoph Hellwig wrote:
+> On Fri, Nov 10, 2006 at 12:08:15PM -0800, Luben Tuikov wrote:
+>> P.S. I'd love to see SG_DXFER_TO_FROM_DEV completely ripped out
+>> of sg.c, for obvious reasons.  Can you not duplicate the resid "fix"
+>> it provides into "FROM_DEV" -- do apps really rely on it?
+> 
+> At the beginning of this thread it was mentioned cdparanio uses it.
+> But in general we can't just rip out userland interfaces, we pretend
+> to have a stable userspace abi (and except for the big sysfs mess that
+> actually comes very close to the truth).
+> 
+> What we should do is to document very well what SG_DXFER_TO_FROM_DEV
+> is doing and that odd name that's been chosen for it.  I'll prepare
+> a patch for that.
 
-a few days ago I upgraded my desktop machine (x86_64) to ubuntu/edgy 
-thus completely changing the userland. Since I'm using kernel.org 
-kernels I upgraded to a current kernel as well (2.6.19-rc4-git from Nov 
-4 and 2.6.19-rc4-mm2). Now, while working under X11, probably reading 
-email, all of a sudden the machine was not responsible any more and the 
-disk was spinning like wild. The desktop applet showed all swap being 
-used up then the display froze too and ~5 min later the machine came 
-back with the gnome-login screen: it had not rebooted but ran OOM and 
-several apps got killed.
+Christoph,
+It is documented and has been from day one. See scsi/sg.h
+and http://sg.torque.net/sg/p/sg_v3_ho.html
 
-OK, must be some application leaking memory, I thought, that's what 
-happens to new userland version. Looking at the syslog, "nautilus" 
-(gnome filemanager) invoked the oom killer. OK, but the scenario 
-repeated the next day, early in the morning when I was not even on the
-box, saying it was nautilus again.
-In the last days other applications seem to invoke the OOM killer as
-well and I wonder if each one of them is really to blame for leaking 
-memory or something else would be responsible for the killings. Here's 
-log output, each listing the first appliction triggering the OOM killer:
+Naming it is a challenge and at the time there
+were no bidirectional transfers to/from a device
+to worry about.
 
-# for i in /var/log/messages*; do (zgrep "invoked" "$i" | head -1 ); done
-Nov 11 08:04:16 prinz64 kernel: [104237.902269] firefox-bin invoked oom-killer: gfp_mask=0x201d2, order=0, oomkilladj=0
-Nov 10 07:59:34 prinz64 kernel: [64627.382818] Xorg invoked oom-killer: gfp_mask=0x201d2, order=0, oomkilladj=0
-Nov  9 07:59:22 prinz64 kernel: [25047.487534] rpc.idmapd invoked oom-killer: gfp_mask=0x201d2, order=0, oomkilladj=-17
-Nov  8 17:33:59 prinz64 kernel: [  919.954547] beep-media-play invoked oom-killer: gfp_mask=0x201d2, order=0, oomkilladj=0
-Nov  7 18:55:23 prinz64 kernel: [  842.590646] firefox-bin invoked oom-killer: gfp_mask=0x201d2, order=0, oomkilladj=0
-Nov  5 07:55:34 prinz64 kernel: [18128.545690] nautilus invoked oom-killer: gfp_mask=0x201d2, order=0, oomkilladj=0
-Nov  4 17:31:23 prinz64 kernel: [  688.904652] nautilus invoked oom-killer: gfp_mask=0x201d2, order=0, oomkilladj=0
+A more appropriate but impractical name might be:
+SG_DXFER_TO_KERNEL_BUFFER_THEN_READ_FROM_DEV_VIA_KERNEL_BUFFER
 
-The kernels running when these were happening:
-Nov  4 - 2.6.19-rc2
-Nov  5 - 2.6.19-rc2
-Nov  7 - 2.6.19-rc4-mm2
-Nov  8 - 2.6.19-rc4
-Nov  9 - 2.6.19-rc4
-Nov 10 - 2.6.19-rc4
-Nov 11 - 2.6.19-rc4
 
-Because killing these application does not seem to free up memory, 
-plenty of other applications got killed shortly after this. Full logs
-and .config can be found here: http://nerdbynature.de/bits/2.6.19-rc4/
+Doug Gilbert
 
-I do notice anacron running just before the killings - but: even *if* 
-anacron runs a mem-leaking program: should the OOM killer just kill that 
-app and not the (probably) innocent ones in the first place?
-
-Thanks for your thoughts,
-Christian.
--- 
-BOFH excuse #194:
-
-We only support a 1200 bps connection.

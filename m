@@ -1,86 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947148AbWKKIG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947171AbWKKIwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947148AbWKKIG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 03:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947149AbWKKIG4
+	id S1947171AbWKKIwY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 03:52:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947172AbWKKIwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 03:06:56 -0500
-Received: from py-out-1112.google.com ([64.233.166.181]:23909 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1947147AbWKKIGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 03:06:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=c8zkq7L9Ve860kWWa5BR6YWMM1H4sdgbajYst608ooYwS1iw7KFU8aLir2H+zWGbmdliXzKWCIcBOeMJ8GfDtvlfl7E7xaBth/X5eH8lHeQo0MNAdM/Tc/Bq0Obn2D/DevY72MNr3BvoosoP5XMuwf5ZW1rsuKBav57lc13ALpo=
-Message-ID: <e5bfff550611110006p44494ed4h2979232bfc8e957c@mail.gmail.com>
-Date: Sat, 11 Nov 2006 09:06:20 +0100
-From: "Marco Costalba" <mcostalba@gmail.com>
-To: "Git Mailing List" <git@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] qgit-1.5.3
+	Sat, 11 Nov 2006 03:52:24 -0500
+Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:36873 "EHLO
+	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1947171AbWKKIwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 03:52:23 -0500
+Date: Sat, 11 Nov 2006 09:52:00 +0100
+From: jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: wanted: more informative message if root device can't be found/mounted
+Message-ID: <20061111085200.GA4167@amd64.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-qgit it's a graphical git repositories viewer built on Qt libraries.
+I'm experimenting with turning off the PATA drivers and use SATA only,
+since all my devices are now found by the SATA drivers in
+2.6.19-rc5-mm1.
 
-This is mostly a bug fix release.
+There is one area in which the kernel could, I think, do better. When
+booting, there's no way for me to know where /dev/hda is going to end
+up.
 
-Several issues has been fixed, also some crash bugs, so an update is
-strongly suggested.
+When the kernel mentions it can't mount the root device, all information
+about the 12 harddisks in this system has long scrolled off the screen.
 
-To note is the new possibility to set the font used by patch and file
-content viewers.
+It would be really nice to see something like this:
 
-Thanks to Pavel Roskin and Josef Weidendorfer for their help and patches.
+kernel panic - unable to mount root device 09:02
+Possible devices:
 
+scsi 0:0:0:0: Direct-Access     ATA      ST3250823AS      3.03 PQ: 0 ANSI: 5
+SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+ sda: sda1
+scsi 1:0:0:0: Direct-Access     ATA      ST3250823AS      3.03 PQ: 0 ANSI: 5
+SCSI device sdb: 488397168 512-byte hdwr sectors (250059 MB)
+ sdb: sdb1
+scsi 2:0:0:0: Direct-Access     ATA      ST3250823AS      3.03 PQ: 0 ANSI: 5
+SCSI device sdc: 488397168 512-byte hdwr sectors (250059 MB)
+ sdc: sdc1
+scsi 3:0:0:0: Direct-Access     ATA      ST3250823AS      3.02 PQ: 0 ANSI: 5
+SCSI device sdd: 488397168 512-byte hdwr sectors (250059 MB)
+ sdd: sdd1
+scsi 4:0:0:0: Direct-Access     ATA      ST3300622AS      3.AA PQ: 0 ANSI: 5
+SCSI device sde: 586072368 512-byte hdwr sectors (300069 MB)
+ sde: sde1 sde2
+scsi 5:0:0:0: Direct-Access     ATA      ST3250823AS      3.03 PQ: 0 ANSI: 5
+SCSI device sdf: 488397168 512-byte hdwr sectors (250059 MB)
+ sdf: sdf1
+scsi 6:0:0:0: Direct-Access     ATA      ST3300622AS      3.AA PQ: 0 ANSI: 5
+SCSI device sdg: 586072368 512-byte hdwr sectors (300069 MB)
+ sdg: sdg1 sdg2
+scsi 7:0:0:0: Direct-Access     ATA      ST3250823AS      3.03 PQ: 0 ANSI: 5
+SCSI device sdh: 488397168 512-byte hdwr sectors (250059 MB)
+ sdh: sdh1
+scsi 8:0:0:0: Direct-Access     ATA      WDC WD2000JB-32E 15.0 PQ: 0 ANSI: 5
+SCSI device sdi: 390721968 512-byte hdwr sectors (200050 MB)
+ sdi: sdi1 sdi2 < sdi5 sdi6 sdi7 sdi8 sdi9 >
+scsi 9:0:0:0: Direct-Access     ATA      WDC WD2000JB-00F 15.0 PQ: 0 ANSI: 5
+SCSI device sdj: 390721968 512-byte hdwr sectors (200050 MB)
+ sdj: sdj1 sdj2 < sdj5 sdj6 sdj7 sdj8 sdj9 >
+scsi 10:0:0:0: Direct-Access     ATA      WDC WD2500JB-00F 15.0 PQ: 0 ANSI: 5
+SCSI device sdk: 488397168 512-byte hdwr sectors (250059 MB)
+ sdk: sdk1
+scsi 12:0:0:0: Direct-Access     ATA      ST3300831A       3.01 PQ: 0 ANSI: 5
+SCSI device sdl: 586072368 512-byte hdwr sectors (300069 MB)
+ sdl: sdl1
 
-Download tarball from http://www.sourceforge.net/projects/qgit
-or directly from git public repository
-git://git.kernel.org/pub/scm/qgit/qgit.git
+Or, even shorter:
 
-Please refer to http://digilander.libero.it/mcostalba/ for additional
-information.
+kernel panic - unable to mount root device 09:02
+Available devices/partitions:
+scsi 0:0:0:0 ST3250823AS 3.03 (2500059 MB) sda: 1
+scsi 1:0:0:0 ST3250823AS 3.03 (2500059 MB) sdb: 1
+scsi 2:0:0:0 ST3250823AS 3.03 (2500059 MB) sdc: 1
+scsi 3:0:0:0 ST3250823AS 3.02 (2500059 MB) sdd: 1
+scsi 4:0:0:0 ST3300622AS 3.AA (3000069 MB) sde: 1 2
+scsi 5:0:0:0 ST3250823AS 3.03 (2500059 MB) sdf: 1
+scsi 6:0:0:0 ST3300622AS 3.AA (3000069 MB) sdg: 1 2
+scsi 7:0:0:0 ST3250823AS 3.03 (2500059 MB) sdh: 1
+scsi 8:0:0:0 WDC WD2000JB-32E 15.0 (200050 MB) sdi: 1 2 <5 6 7 8 9>
+scsi 9:0:0:0 WDC WD2000JB-00F 15.0 (200050 MB) sdj: 1 2 <5 6 7 8 9>
+scsi 10:0:0:0 WDC WD2500JB-00F 15.0 (250059 MB) sdk: 1
+scsi 12:0:0:0 ST3300831A 3.01 (300069 MB) sdl: 1
 
-	Marco
+which at least gives some information on what harddisk has gone where. I
+know there's more possibilities, like udev, netconsole, etc., but this
+seems rather straight-forward. Even on a 80x25 screen, I'd say most
+peoples devices should fit.
 
+I'd appreciate hints or pseudo-code on how to walk through the various
+lists need to get this information on the screen!
 
-ChangeLog from 1.5.2
-
-- use a smaller tab close button and a smaller icon (Pavel Roskin)
-
-- fix a crash in case of repo change while in filtered view
-
-- fix a crash due to evil static pointers
-
-- clear all the panes if search from the toolbar doesn't find anything
-
-- silence a Qt warning when closing a tab
-
-- let the user to set the typewriter (fixed width) font used
-  with patch and file content viewers
-
-- fix broken StGit 'pop' command interface
-
-- do not use "--keep" option of git-am as default
-
-- fix issues with tag marks when changing graph size
-
-- fix filenames cache data saving in case of bare repositories
-
-- rewrite and simplify graph drawing code (Josef Weidendorfer)
-
-- fix issues with file names with spaces
-
-- adjust columns width when changing window size
-
-- fetch file history from all trees instead of only current
-
-- early exit update cycle when a new request arrives
-
-- correctly order tags in start-up input range dialog
-
-- fix patch numbering order in format patch
+Kind regards,
+Jurriaan
+-- 
+Corrupt, corrupt from the bottom to the top
+And you tell me it's the law
+        The Levellers
+Debian (Unstable) GNU/Linux 2.6.18-mm3 2x4826 bogomips load 0.24

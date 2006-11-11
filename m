@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424513AbWKKKcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947194AbWKKKq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424513AbWKKKcj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 05:32:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424515AbWKKKcj
+	id S1947194AbWKKKq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 05:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947192AbWKKKq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 05:32:39 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:36502 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1424513AbWKKKci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 05:32:38 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Sat, 11 Nov 2006 05:30:13 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5: where can I select INPUT?
-In-Reply-To: <200611111325.02749.arvidjaar@mail.ru>
-Message-ID: <Pine.LNX.4.64.0611110528350.2872@localhost.localdomain>
-References: <200611111325.02749.arvidjaar@mail.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Sat, 11 Nov 2006 05:46:57 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:19916 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1947190AbWKKKqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 05:46:55 -0500
+Date: Sat, 11 Nov 2006 10:46:42 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Luben Tuikov <ltuikov@yahoo.com>
+Cc: dougg@torque.net, Tejun Heo <htejun@gmail.com>,
+       Brice Goglin <Brice.Goglin@ens-lyon.org>,
+       Jens Axboe <jens.axboe@oracle.com>,
+       Gregor Jasny <gjasny@googlemail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       monty@xiph.org, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
+Message-ID: <20061111104642.GA3356@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Luben Tuikov <ltuikov@yahoo.com>, dougg@torque.net,
+	Tejun Heo <htejun@gmail.com>,
+	Brice Goglin <Brice.Goglin@ens-lyon.org>,
+	Jens Axboe <jens.axboe@oracle.com>,
+	Gregor Jasny <gjasny@googlemail.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+	monty@xiph.org, linux-scsi@vger.kernel.org
+References: <4554777B.7050708@torque.net> <508312.85189.qm@web31812.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <508312.85189.qm@web31812.mail.mud.yahoo.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Nov 2006, Andrey Borzenkov wrote:
+On Fri, Nov 10, 2006 at 12:08:15PM -0800, Luben Tuikov wrote:
+> P.S. I'd love to see SG_DXFER_TO_FROM_DEV completely ripped out
+> of sg.c, for obvious reasons.  Can you not duplicate the resid "fix"
+> it provides into "FROM_DEV" -- do apps really rely on it?
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Neither in menuconfig nor in xconfig do I see any place to actually select
-> INPUT. Help text suggests that it is a) selectable b) it can be made modules.
-> I do not have either option. Here what I see in menuconfig if I go into Input
-> device support:
->
->     --- Generic input layer (needed for keyboard, mouse, ...)
->     < >   Support for memoryless force-feedback devices
->     ---   Userland interfaces
->
-> as you see there is no check box for INPUT itself.
+At the beginning of this thread it was mentioned cdparanio uses it.
+But in general we can't just rip out userland interfaces, we pretend
+to have a stable userspace abi (and except for the big sysfs mess that
+actually comes very close to the truth).
 
-... snip ...
+What we should do is to document very well what SG_DXFER_TO_FROM_DEV
+is doing and that odd name that's been chosen for it.  I'll prepare
+a patch for that.
 
-somewhat off-topic, but when one has questions about oddities in the
-configuration process, is it more appropriate to ask on *this* list,
-or on the kbuild-devel list?
-
-only two minutes ago, i posted this kind of question to kbuild-devel,
-but now i'm wondering if i sent it to the wrong place.  thoughts?
-
-rday

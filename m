@@ -1,134 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947187AbWKKKDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424501AbWKKKOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947187AbWKKKDx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 05:03:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947188AbWKKKDx
+	id S1424501AbWKKKOI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 05:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424508AbWKKKOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 05:03:53 -0500
-Received: from wx-out-0506.google.com ([66.249.82.231]:62875 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1947187AbWKKKDw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 05:03:52 -0500
+	Sat, 11 Nov 2006 05:14:08 -0500
+Received: from web26909.mail.ukl.yahoo.com ([217.146.176.98]:60319 "HELO
+	web26909.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1424501AbWKKKOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 05:14:05 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KS1nXY8y7UpFwr4Zm58mq5qGaFmuTyYsQcEUqDpNIBkmSKSyG/+ULYNFM5eJJpvn4IqUVD2Do/PaEPiFVde18A1fO4+mHr9GBlFu4PjcerWrG3njaRiJVsLkZ/Ci7X24HxE6CLqcc8Kbgbze6xbcohzl50f3sobLDl9s3ANDzLI=
-Message-ID: <653402b90611110203y6ea7356re77c6de6fb868807@mail.gmail.com>
-Date: Sat, 11 Nov 2006 11:03:51 +0100
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: davem@davemloft.net
-Subject: [PATCH davem] drivers: add LCD support
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061108204908.8def2283.maxextreme@gmail.com>
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=IWMB1erTKV2JSeanYYdBhya3ngW8CuChGBMnoxlZLJgBDR9XEuWgqkRbnwIGsjp8MohMMBeK/ntZTE2Jptc/277c53DvHkdJ05ifLmK6J79IkJN0MQKVgTnz+nv8Fwb0+MFckx49DbSUwYdcoNKvuVuqeT7P6XkRADsoFO1P5Hc=  ;
+Message-ID: <20061111101404.35322.qmail@web26909.mail.ukl.yahoo.com>
+Date: Sat, 11 Nov 2006 11:14:04 +0100 (CET)
+From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Subject: [ANNOUNCE] Gujin PC graphic bootloader version 1.6
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <20061108204908.8def2283.maxextreme@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David, as akpm suggested, may this patch will solve the dcache aliasing problem?
+  Hello,
 
-I will give you a introduction:
+ A new version of the Gujin bootloader is out, still using the 32 bits entry
+point of the kernel. It has improved quite a bit, but not all improvement are
+related to booting Linux (improvements in booting CD/DVDroms, floppy or full
+disk images on HD/CDROM, mixed USB-FDD/USB-HDD boot mode, execution of
+standalone *.kgz...).
+ Still, you can now use Gujin to boot a kernel and an initramfs, that is an
+initrd that shall not be uncompressed (and so no validity check can be
+done) because this file is (may be) a collection of GZIP files. This kind of
+file shall have a name beginning with "initra", maybe followed by "mfs" and
+maybe followed by ".img" like "initrd" - It is treated the same way as initrd,
+associated to kernels depending of their position on the disk (same disk,
+partition, and directory as the considered kernel) and depending of the end
+of the filename (usually the version part).
+ Also, the Linux parameter line can be now easily edited with arrow keys, in
+the setup screen of Gujin, at boot time. This command line is saved in between
+reboots only if Gujin is allowed to write to disks (another checkbox).
 
-The user mmaped page (got by __get_free_page()) is cfag12864b_buffer.
+ To install, you should read at least the top of install.txt, mostly if
+you have SATA drives (you may have to force EBIOS mode because your chipset
+may not be ATA compatible - unlike what the SATA specification says).
+ To upgrade, cold boot the PC into Gujin, uninstall with the setup menu,
+boot your Linux distribution and re-install Gujin.
 
-The kernel only access it for reading at the same function 1 or 2 times:
+ Home page and screenshoots of Gujin at:
+http://gujin.org
 
-  1º memcmp() it against the cache, so we can tell if we must update the screen
-  2º if true, memcpy() the buffer to the cache buffer
+ More information for Gujin on Wikipedia:
+http://en.wikipedia.org/wiki/Gujin
 
-So, if we want the kernel to know the last state of the data, we should call
-flush_dcache_page() just once before we access it, right?
+ Downloads at Sourceforge:
+http://sourceforge.net/projects/gujin
 
-The relevant code:
+ FAQ/HOWTO at sourceforge:
+http://sourceforge.net/docman/display_doc.php?docid=1989&group_id=15465
 
-        flush_dcache_page(virt_to_page(cfag12864b_buffer));
-        if (memcmp(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE)) {
-                memcpy(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE);
-
-                /***... update using cfag12864b_cache ...***/
-        }
-
-You know, I can't test this stuff ;) so please review and check if it is right.
-
-Thanks you.
----
-
- - remove the "depends on x86" as it is portable again
-
- - memcpy() buffer to cache, then update from cache, not buffer,
-   This way we only read the mmapped buffer 2 times.
-
- - add a flush_dcache_page() to flush the user mmaped page so
-   the kernel has the last written data before accessing it.
-
- drivers/auxdisplay/Kconfig      |    1 -
- drivers/auxdisplay/cfag12864b.c |    9 +++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
-
-drivers-add-lcd-support-dcache.patch
-Signed-off-by: Miguel Ojeda Sandonis <maxextreme@gmail.com>
----
-diff --git a/drivers/auxdisplay/Kconfig b/drivers/auxdisplay/Kconfig
-index 8d41f72..ee30c48 100644
---- a/drivers/auxdisplay/Kconfig
-+++ b/drivers/auxdisplay/Kconfig
-@@ -64,7 +64,6 @@ config KS0108_DELAY
-
- config CFAG12864B
-        tristate "CFAG12864B LCD"
--       depends on X86
-        depends on KS0108
-        default n
-        ---help---
-diff --git a/drivers/auxdisplay/cfag12864b.c b/drivers/auxdisplay/cfag12864b.c
-index 7b3c9ab..a654d54 100644
---- a/drivers/auxdisplay/cfag12864b.c
-+++ b/drivers/auxdisplay/cfag12864b.c
-@@ -37,7 +37,7 @@
- #include <linux/workqueue.h>
- #include <linux/ks0108.h>
- #include <linux/cfag12864b.h>
--
-+#include <asm/cacheflush.h>
-
- #define CFAG12864B_NAME "cfag12864b"
-
-@@ -272,7 +272,10 @@ static void cfag12864b_update(void *arg)
-        unsigned char c;
-        unsigned short i, j, k, b;
-
-+       flush_dcache_page(virt_to_page(cfag12864b_buffer));
-        if (memcmp(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE)) {
-+               memcpy(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE);
-+
-                for (i = 0; i < CFAG12864B_CONTROLLERS; i++) {
-                        cfag12864b_controller(i);
-                        cfag12864b_nop();
-@@ -283,7 +286,7 @@ static void cfag12864b_update(void *arg)
-                                cfag12864b_nop();
-                                for (k = 0; k < CFAG12864B_ADDRESSES; k++) {
-                                        for (c = 0, b = 0; b < 8; b++)
--                                               if (cfag12864b_buffer
-+                                               if (cfag12864b_cache
-                                                        [i *
-CFAG12864B_ADDRESSES / 8
-                                                        + k / 8 + (j * 8 + b) *
-                                                        CFAG12864B_WIDTH / 8]
-@@ -293,8 +296,6 @@ static void cfag12864b_update(void *arg)
-                                }
-                        }
-                }
--
--               memcpy(cfag12864b_cache, cfag12864b_buffer, CFAG12864B_SIZE);
-        }
-
-        if (cfag12864b_updating)
+  Have fun,
+  Etienne.
 
 
--- 
-Miguel Ojeda
-http://maxextreme.googlepages.com/index.htm
+	
+
+	
+		
+___________________________________________________________________________ 
+Découvrez une nouvelle façon d'obtenir des réponses à toutes vos questions ! 
+Profitez des connaissances, des opinions et des expériences des internautes sur Yahoo! Questions/Réponses 
+http://fr.answers.yahoo.com

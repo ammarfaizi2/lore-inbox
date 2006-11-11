@@ -1,77 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752771AbWKKUYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754864AbWKKUiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752771AbWKKUYz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 15:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753369AbWKKUYz
+	id S1754864AbWKKUiH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 15:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754865AbWKKUiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 15:24:55 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:34450 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S1752771AbWKKUYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 15:24:54 -0500
-Date: Sat, 11 Nov 2006 21:24:45 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: scary messages: HSM violation during boot of 2.6.18/amd64
-Message-ID: <20061111202445.GA29555@piper.madduck.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <45550308.1090408@wpkg.org> <200611102310.kAANAgOf019164@turing-police.cc.vt.edu> <455556F7.4000802@gmail.com> <455496CA.5040405@wpkg.org> <200611102239.kAAMdoYV015817@turing-police.cc.vt.edu> <45550308.1090408@wpkg.org> <200611102310.kAANAgOf019164@turing-police.cc.vt.edu> <455496CA.5040405@wpkg.org> <200611102239.kAAMdoYV015817@turing-police.cc.vt.edu> <45550308.1090408@wpkg.org>
+	Sat, 11 Nov 2006 15:38:07 -0500
+Received: from [139.30.44.16] ([139.30.44.16]:52234 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S1754864AbWKKUiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 15:38:06 -0500
+Date: Sat, 11 Nov 2006 21:38:05 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Christian Kujau <evil@g-house.de>
+cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: OOM in 2.6.19-rc*
+In-Reply-To: <Pine.LNX.4.64.0611111832180.1247@sheep.housecafe.de>
+Message-ID: <Pine.LNX.4.63.0611112127490.28908@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.64.0611111318230.1247@sheep.housecafe.de>
+ <20061111181937.GC25057@stusta.de> <Pine.LNX.4.64.0611111832180.1247@sheep.housecafe.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
-Content-Disposition: inline
-In-Reply-To: <455556F7.4000802@gmail.com> <200611102310.kAANAgOf019164@turing-police.cc.vt.edu> <45550308.1090408@wpkg.org>
-X-OS: Debian GNU/Linux 4.0 kernel 2.6.18-2-amd64 x86_64
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 11 Nov 2006, Christian Kujau wrote:
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I think I'm more interested as to why the OOM killer seems to kill innocent
+> apps at random. I can imagine that it's not easy for the kernel to tell which
+> userland-application is using up too much memory. Hm, egrep -r "OOM|ut of
+> memory" Documentation/    does not reveal much :(
 
-also sprach Tomasz Chmielewski <mangoo@wpkg.org> [2006.11.10.2354 +0100]:
-> You use old smartmontools :)
+A look at /proc/*/oom_score might shed some light on the "at random" part.
+I.e., doing
+  for job in /proc/[0-9]* ; do \
+    echo -e "`cat $job/oom_score` \t $job \t `head -c50 $job/cmdline`"; \
+  done | sort -n
+the last process listed is considered the biggest memory hog of the 
+moment (Of course, this still does not tell _why_).
 
-I just tried a CVS snapshot of smartmontools from today because you
-said:
-
-> -o on / -S on is not supported for sata, unless you use a CVS version of=
-=20
-> smartmontools.
-
-However, the messages are still there (and neither -o nor -S worked,
-smartd said it failed for both).
-
-> For more info, check smartmontools-support mailing list.
-
-I'll turn there. Thanks.
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-spamtraps: madduck.bogus@madduck.net
-=20
-warning at the gates of bill:
-abandon hope, all ye who press <enter> here...
-
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature (GPG/PGP)
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFVjGNIgvIgzMMSnURAloqAJ9on6PWkMT5ascjW04XJ+y1iCCcvQCgoTSZ
-XJ8aparIJD7+bOg8wBJ5xDk=
-=eO0q
------END PGP SIGNATURE-----
-
---3MwIy2ne0vdjdPXF--
+Tim

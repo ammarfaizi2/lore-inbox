@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424254AbWKKLZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424365AbWKKL3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424254AbWKKLZd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 06:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424347AbWKKLZd
+	id S1424365AbWKKL3f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 06:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424549AbWKKL3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 06:25:33 -0500
-Received: from [212.70.37.113] ([212.70.37.113]:7809 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1424254AbWKKLZc (ORCPT
+	Sat, 11 Nov 2006 06:29:35 -0500
+Received: from mx3.mail.ru ([194.67.23.149]:11549 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id S1424365AbWKKL3e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 06:25:32 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: A proposal; making 2.6.20 a bugfix only version.
-Date: Sat, 11 Nov 2006 14:15:51 +0300
-User-Agent: KMail/1.5
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-References: <200611090757.48744.a1426z@gawab.com> <200611110715.49343.a1426z@gawab.com> <200611110631.kAB6V12n011990@turing-police.cc.vt.edu>
-In-Reply-To: <200611110631.kAB6V12n011990@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Disposition: inline
+	Sat, 11 Nov 2006 06:29:34 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: David Brownell <david-b@pacbell.net>
+Subject: 2.6.19-rc5 regression: can't disable OHCI wakeup via sysfs
+Date: Sat, 11 Nov 2006 14:29:55 +0300
+User-Agent: KMail/1.9.5
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200606181919.51126.arvidjaar@mail.ru> <200606192239.06208.arvidjaar@mail.ru> <200606191312.07063.david-b@pacbell.net>
+In-Reply-To: <200606191312.07063.david-b@pacbell.net>
 Content-Type: text/plain;
-  charset="windows-1256"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611111415.51324.a1426z@gawab.com>
+Content-Disposition: inline
+Message-Id: <200611111429.56345.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Sat, 11 Nov 2006 07:15:49 +0300, Al Boldi said:
-> > I don't think there is a lack of heuristics, nor is there a lack of
-> > discussion.  What is needed, is a realization of the problem.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Tuesday 20 June 2006 00:12, David Brownell wrote:
+> > > > > An alternative (but post-boot) workaround _should_ be
+> > > > >
+> > > > >     echo disabled > /sys/bus/pci/devices/0000:00:02.0/power/wakeup
+> > >
+> > > Did that work?
 > >
-> > IOW, respective tree-owners need to come to a realization of the state
-> > of their trees, problem or not.  If it has a problem, that problem needs
-> > to be fixed or backed out of stable and moved into dev.
+> > No. But
+> >
+> > 	echo -n disabled >
+> > /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup
 >
-> I keep trying to parse this, and it keeps coming up as "content-free".
+> That's what I meant ... thanks, and sorry for the confusion.
 
-Think denial.
+this does not work anymore in current rc5. After writing 
+cat /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup shows "disabled" 
+but messages continue to be logged.
 
-> For starters, you don't even have a useful definition of "has a problem".
-> There's a whole *range* of definitions for that, and even skilled and
-> respected members of the Linux kernel community can disagree about whether
-> something is "a problem".  For example, see the thread about a week ago
-> about "Remove hotplug cpu crap from cpufreq".
->
-> If, given a *specific* feature with high wart quotient, we can't agree on
-> whether it needs to be fixed or backed out, we're doomed to fail if we
-> start handwaving about problems "in general".  As a group, we suck at
-> anything that isn't specific, like "Algorithm A is better than B for
-> case XYZ".
+Anything I can do to help narrow it down?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-We don't need to agree whether A is better than B, the mere fact that we 
-acknowledge the problem is the first step in finding a solution.
-
-So, either fix it, or back out.
-
-OTOH, if there is no problem, then I guess we have blue skies...
-
-
-Thanks!
-
---
-Al
-
+iD8DBQFFVbQ0R6LMutpd94wRApCwAKCDLKVxGWlE8vyf8sH42wU2RBVxHQCgl0rl
+4vRC3bgKflRGboCrzF8YnJY=
+=nuLl
+-----END PGP SIGNATURE-----

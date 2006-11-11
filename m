@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424272AbWKKQWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424433AbWKKQXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424272AbWKKQWG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 11:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946017AbWKKQWG
+	id S1424433AbWKKQXD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 11:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424582AbWKKQXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 11:22:06 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54800 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1424396AbWKKQWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 11:22:05 -0500
-Date: Sat, 11 Nov 2006 17:22:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: gregkh@suse.de
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: drivers/usb/serial/mos7720.c: inconsequent NULL checking
-Message-ID: <20061111162208.GC8809@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sat, 11 Nov 2006 11:23:01 -0500
+Received: from ensim03.ffm.m2soft.com ([195.38.20.12]:52444 "EHLO
+	ensim03.ffm.m2soft.com") by vger.kernel.org with ESMTP
+	id S1424433AbWKKQXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 11:23:00 -0500
+X-ClientAddr: 85.127.135.120
+Date: Sat, 11 Nov 2006 17:21:12 +0100
+From: Nicolas Kaiser <nikai@nikai.net>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-ide@vger.kernel.org, trivial@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][TRIVIAL] drivers/ide: stray bracket
+Message-ID: <20061111172112.7e1aba49@lucky.kitzblitz>
+In-Reply-To: <20061111131612.GA4974@martell.zuzino.mipt.ru>
+References: <20061111014756.3467d7ee@lucky.kitzblitz>
+	<20061111131612.GA4974@martell.zuzino.mipt.ru>
+Organization: -
+X-Face: "fF&[w2"Nws:JNH4'g|:gVhgGKLhj|X}}&w&V?]0=,7n`jy8D6e[Jh=7+ca|4~t5e[ItpL5
+ N'y~Mvi-vJm`"1T5fi1^b!&EG]6nW~C!FN},=$G?^U2t~n[3;u\"5-|~H{-5]IQ2
+X-Mailer: Sylpheed-claws (Linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-M2Soft-MailScanner-Information: Please contact the ISP for more information
+X-M2Soft-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-MailScanner-From: nikai@nikai.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker noted the following inconsequent NULL checking in 
-drivers/usb/serial/mos7720.c:
+* Alexey Dobriyan <adobriyan@gmail.com>:
+> On Sat, Nov 11, 2006 at 01:47:56AM +0100, Nicolas Kaiser wrote:
+> > Stray bracket in debug code.
 
-<--  snip  -->
+> Just remove whole printk. It was broken for a looong time.
 
-...
-static void mos7720_close(struct usb_serial_port *port, struct file *filp)
-{
-...
+If you prefer it that way, here we go:
+Remove debug code that was broken for long time.
 
-        /* While closing port, shutdown all bulk read, write  *
-         * and interrupt read if they exists                  */
-        if (serial->dev) {
-                dbg("Shutdown bulk write");
-                usb_kill_urb(port->write_urb);
-                dbg("Shutdown bulk read");
-                usb_kill_urb(port->read_urb);
-        }
+Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
+---
 
-        data = 0x00;
-        send_mos_cmd(serial, MOS_WRITE, port->number - port->serial->minor,
-                     0x04, &data);
-...
+ drivers/ide/legacy/hd.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
-<--  snip  -->
-
-Note that "send_mos_cmd(serial,...)" dereferences "serial->dev".
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+diff -uprN a/drivers/ide/legacy/hd.c b/drivers/ide/legacy/hd.c
+--- a/drivers/ide/legacy/hd.c	2006-09-20 05:42:06.000000000 +0200
++++ b/drivers/ide/legacy/hd.c	2006-11-11 17:11:28.000000000 +0100
+@@ -456,11 +456,6 @@ ok_to_read:
+ 	req->errors = 0;
+ 	i = --req->nr_sectors;
+ 	--req->current_nr_sectors;
+-#ifdef DEBUG
+-	printk("%s: read: sector %ld, remaining = %ld, buffer=%p\n",
+-		req->rq_disk->disk_name, req->sector, req->nr_sectors,
+-		req->buffer+512));
+-#endif
+ 	if (req->current_nr_sectors <= 0)
+ 		end_request(req, 1);
+ 	if (i > 0) {

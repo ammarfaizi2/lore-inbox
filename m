@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947118AbWKKGrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947119AbWKKGxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947118AbWKKGrd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 01:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947117AbWKKGrd
+	id S1947119AbWKKGxF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 01:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947120AbWKKGxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 01:47:33 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11785 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1947118AbWKKGrc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 01:47:32 -0500
-Date: Sat, 11 Nov 2006 05:50:50 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, xemul@openvz.org, devel@openvz.org,
-       oleg@tv-sign.ru, hch@infradead.org, matthltc@us.ibm.com,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [PATCH 6/13] BC: kmemsize accounting (core)
-Message-ID: <20061111055049.GA4063@ucw.cz>
-References: <45535C18.4040000@sw.ru> <45535EA3.10300@sw.ru>
+	Sat, 11 Nov 2006 01:53:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:10392 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1947119AbWKKGxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 01:53:02 -0500
+Date: Fri, 10 Nov 2006 22:52:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Igor A. Valcov" <viaprog@gmail.com>
+Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
+Message-Id: <20061110225257.63f91851.akpm@osdl.org>
+In-Reply-To: <bde600590611100516u7b8ca1bfs74d3cc8b78eb3520@mail.gmail.com>
+References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
+	<4553F3C6.2030807@sandeen.net>
+	<Pine.LNX.4.61.0611101259490.6068@yvahk01.tjqt.qr>
+	<bde600590611100516u7b8ca1bfs74d3cc8b78eb3520@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45535EA3.10300@sw.ru>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 10 Nov 2006 16:16:27 +0300
+"Igor A. Valcov" <viaprog@gmail.com> wrote:
 
-> --- /dev/null	2006-07-18 14:52:43.075228448 +0400
-> +++ ./include/bc/kmem.h	2006-11-03 15:48:26.000000000 +0300
-> @@ -0,0 +1,48 @@
-> +/*
-> + * include/bc/kmem.h
-> + *
-> + * Copyright (C) 2006 OpenVZ SWsoft Inc
-> + *
-> + */
+> Below is a simplified version of the test program,
 
-GPL would be nice, as would be email address of someone who worked on
-this file.
+Boy, I hope not.  The results of this test program are of very little interest.
 
+>     for (i = 0; i < 262144; i++) {
+>         /* Write data to a big file */
+>         write (nFiles [0], buf, __BYTES);
+> 
+>         /* Write data to small files */
+>         for (f = 1; f < __FILES; f++)
+>             write (nFiles [f], &f, sizeof (f));
+>     }
 
-> --- /dev/null	2006-07-18 14:52:43.075228448 +0400
-> +++ ./kernel/bc/kmem.c	2006-11-03 15:48:26.000000000 +0300
-> @@ -0,0 +1,112 @@
-> +/*
-> + * kernel/bc/kmem.c
-> + *
-> + * Copyright (C) 2006 OpenVZ SWsoft Inc
-> + *
-> + */
+This sits in a loop doing write(fd, buf, 4).  This is wildly inefficient -
+you'd get a 10x throughput benefit and maybe 100x reduction in CPU cost
+simply by switching to fwrite().
 
-Same here.
-
-> +void bc_slab_uncharge(kmem_cache_t *cachep, void *objp)
-> +{
-> +	unsigned int size;
-> +	struct beancounter *bc, **slab_bcp;
-> +
-> +	slab_bcp = kmem_cache_bcp(cachep, objp);
-> +	if (*slab_bcp == NULL)
-> +		return;
-> +
-> +	bc = *slab_bcp;
-
-You can do this before if() and spare a dereference.
-
-						Pavel
--- 
-Thanks for all the (sleeping) penguins.
+I suspect something went wrong here.

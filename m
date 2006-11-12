@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932929AbWKLPR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932933AbWKLPVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932929AbWKLPR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 10:17:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932930AbWKLPR4
+	id S932933AbWKLPVv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 10:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932935AbWKLPVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 10:17:56 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:53105 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932929AbWKLPRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 10:17:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=uWm1utgX62P0X3j9oSMcwMshJPp5MbZGxDxhXIuUfc6W9tpVHIbQ2Jqi9G3qDthFrfHI8VKZ4dXpyWGuqXDCbg6Z/88LPd0hqA4h9vvS/4/E7Vcn75LsP+fiuLuTXUB/YiebcmQH8vDN1qcA7UpSXtlqfGUAK7G7B3pwBQ9cNZA=
-To: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [RFC PATCH] RFkill - Add support for input key to control wireless radio
-Date: Sun, 12 Nov 2006 16:17:38 +0100
-User-Agent: KMail/1.9.5
-Cc: Dmitry Torokhov <dtor@insightbb.com>, linux-kernel@vger.kernel.org
-References: <200611121548.56908.IvDoorn@gmail.com> <200611121613.46286.oliver@neukum.org>
-In-Reply-To: <200611121613.46286.oliver@neukum.org>
+	Sun, 12 Nov 2006 10:21:50 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41736 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932933AbWKLPVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 10:21:49 -0500
+Date: Sun, 12 Nov 2006 16:21:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
+Message-ID: <20061112152154.GA3382@stusta.de>
+References: <20061111100038.6277efd4.akpm@osdl.org> <1163268603.3293.45.camel@laptopd505.fenrus.org> <20061111101942.5f3f2537.akpm@osdl.org> <1163332237.3293.100.camel@laptopd505.fenrus.org> <20061112125357.GH25057@stusta.de> <1163337376.3293.120.camel@laptopd505.fenrus.org> <20061112133759.GK25057@stusta.de> <1163339868.3293.126.camel@laptopd505.fenrus.org> <20061112141016.GA5297@stusta.de> <1163340998.3293.131.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611121617.38430.IvDoorn@gmail.com>
-From: Ivo van Doorn <ivdoorn@gmail.com>
+In-Reply-To: <1163340998.3293.131.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 November 2006 16:13, Oliver Neukum wrote:
-> Am Sonntag, 12. November 2006 15:48 schrieb Ivo van Doorn:
-> > If the input device has been opened, rfkill will send the signal to
-> > userspace and do nothing further. The user is in charge of controlling
-> > the radio.
+On Sun, Nov 12, 2006 at 03:16:38PM +0100, Arjan van de Ven wrote:
 > 
-> As turning off the radio is relevant to safety eg. in aircraft, hospitals,
-> etc., potentially ignoring the button is questionable.
+> > > We KNOW it can't work on a sizable amount of machines.  This is why it
+> > > is a config option; you can enable it if YOUR machine is KNOWN to work,
+> > > and you get some gains. But it's also understood that it often it won't
+> > > work. So any sensible distro (since they have to aim for a wide
+> > > audience) disables this option ...
+> > 
+> > Nowadays, many distributions only ship CONFIG_SMP=y kernels...
+> 
+> that's a calculated risk on their side (and they know that); they're
+> balancing not functioning on a set of machines off against needing more
+> kernels.
 
-True, that is why the default behavior is to listen to the button and change
-the radio status. Only when the input device is opened the button is ignored.
-But changing the radio status, and then reporting it to the user might also
-not be what the user wants, he might want to execute some commands while
-the radio is still enabled before disabling the radio.
+This might soon affect the majority of Linux users, so it's a case that 
+has to be handled...
 
-Ivo
+> > You miss my point.
+> > 
+> > You said you'd suspect it to be turned off automatic most of the time, 
+> > and that's the point I think you might be wrong at.
+> 
+> it won't be turned off on machines that support dual core processors
+> etc, since those DO get validated and designed for APIC use.. even if
+> you only stick a single core processor in. So yes you're right, that
+> nowadays is a pretty large group. But it's the safe group I guess:)
+
+But if APIC is even used on my more than 1 year old 40 Euro Socket A 
+board (AFAIK there have never been dual core Socket A processors, there 
+were no Socket A hyperthreading CPUs, it's not an SMP board, and the
+VIA KT600 is not an SMP chipset) it's not in what you call "safe group",
+and I don't see any reason why my board should behave different in this 
+respect from all of the millions of other UP Socket A boards.
+
+Googling show that it could be that your claim "APIC on true UP (no 
+Hyperthreading/Dualcore) is a thing no hardware vendor tests (Microsoft 
+doesn't use it)" earlier in this thread was wrong. Looking at e.g. [1], 
+it seems Windows does use the APIC even on UP.
+
+cu
+Adrian
+
+[1] http://www.microsoft.com/whdc/system/sysperf/IO-APIC.mspx
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

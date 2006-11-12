@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753309AbWKLWEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753335AbWKLWIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753309AbWKLWEm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 17:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753333AbWKLWEl
+	id S1753335AbWKLWIX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 17:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753334AbWKLWIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 17:04:41 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36276 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1753309AbWKLWEl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 17:04:41 -0500
-Date: Sun, 12 Nov 2006 23:03:18 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mikael Pettersson <mikpe@it.uu.se>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] floppy: suspend/resume fix
-Message-ID: <20061112220318.GA3387@elte.hu>
-References: <200611122047.kACKl8KP004895@harpo.it.uu.se> <20061112212941.GA31624@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 12 Nov 2006 17:08:23 -0500
+Received: from wx-out-0506.google.com ([66.249.82.239]:42458 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1753335AbWKLWIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 17:08:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DlnuvhgNf49fICB2R/Uf0WM6F/L7CRNXsiNKS7KLG6aW2xRJA0ZvGz4YqphURDhQcjwmCb7YIQ4Jnel+Ys5hDx/uEIuAvZR6ORDcHBnkAGwL69k8iGGBy0/2ywsaakZDtOYLbXpa22dvR3VjayrDngVMYDJfQQXX1ajBzEZsggs=
+Message-ID: <5a4c581d0611121408y5dee562bmc44dcffaf2040747@mail.gmail.com>
+Date: Sun, 12 Nov 2006 23:08:21 +0100
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Shawn Starr" <shawn.starr@rogers.com>
+Subject: Re: ieee80211 & ipw2200 (ipw2100) issues
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200611121213.20582.shawn.starr@rogers.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061112212941.GA31624@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5003]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <200611121213.20582.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/12/06, Shawn Starr <shawn.starr@rogers.com> wrote:
+> I would like to know when the Intel people working on the ipw2200 will merge
+> 1.2.0 into vanilla? If it's not in vanilla is this present in akpm's -mm
+> tree?
+>
+> The version in vanilla right now doesn't work with WPA and doesn't work with
+> the newst firmware.
 
-* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+I'm writing this email on a VPN link over a WPA-enabled
+ connection on my ipw2200 wifi card, FC6-uptodate
+ with 2.6.19-rc5-git2:
 
-> In which case isn't the real regression that it does IO?
-> 
-> Nevertheless, I give you two options:
-> 
-> 1. Abort all IO do inserted floppy disk after resume.
-> 2. Corrupt replaced floppy disk after resume.
-> 
-> You have to pick one and exactly one.  Which is inherently less risky 
-> to the end user?
+[asuardi@sandman ~]$ dmesg | grep -i ipw
+ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, 1.1.4kmpr
+ipw2200: Copyright(c) 2003-2006 Intel Corporation
+ipw2200: Detected Intel PRO/Wireless 2200BG Network Connection
+ipw2200: Detected geography ZZD (13 802.11bg channels, 0 802.11a channels)
+[asuardi@sandman ~]$ ps ax| grep wpa
+ 2852 ?        Ss     0:00 wpa_supplicant -B -Dwext -ieth1 -c
+/etc/wpa_supplicant/wpa_supplicant.conf
+ 4816 pts/2    S+     0:00 grep wpa
+[asuardi@sandman ~]$ rpm -q wpa_supplicant
+wpa_supplicant-0.4.9-1.fc6
+[asuardi@sandman ~]$ uname -a
+Linux sandman 2.6.19-rc5-git2 #2 Thu Nov 9 20:05:41 CET 2006 i686 i686
+i386 GNU/Linux
 
-this isnt about in-flight IO (suspend doesnt succeed if IO is in flight 
-anyway). The bug is this:
+What combo isn't working for you ?
 
-  1) you use the floppy and then stop using it
-  2) 1 hour passes. Nothing uses the floppy.
-  3) you suspend and later resume
-  4) another hour passes. Nothing uses the floppy.
-  5) you try to use the floppy: you get a bunch of IO errors!
-  6) you try to use the floppy again: this time it works
+> Are there plans to change the ipw cards to use the new softmac subsystem?
 
-that's the regression. For some reason suspend/resume puts the floppy 
-hardware into a state that confuses the floppy driver.
+--alessandro
 
-my patch adds all the right suspend/resume hooks for this, without 
-reintroducing the bug that was noticed by lockdep and which was fixed by 
-my patch that introduced this regression - we just have to figure out 
-what to do upon resume to get the floppy driver and the hardware match 
-up each other, without passing spurious IO errors to the user.
+"...when I get it, I _get_ it"
 
-	Ingo
+     (Lara Eidemiller)

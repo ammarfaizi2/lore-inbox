@@ -1,55 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753196AbWKLVVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753226AbWKLV3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753196AbWKLVVm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 16:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753201AbWKLVVm
+	id S1753226AbWKLV3t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 16:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753242AbWKLV3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 16:21:42 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.155]:8947 "EHLO
-	imap.sh.mvista.com") by vger.kernel.org with ESMTP id S1753196AbWKLVVl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 16:21:41 -0500
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-To: mingo@elte.hu
-Subject: [PATCH] 2.6.18-rt7: fix more issues with 32-bit cycles_t in latency_trace.c
-Date: Mon, 13 Nov 2006 00:23:12 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@linux-mips.org,
-       dwalker@mvista.com, khilman@mvista.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Nov 2006 16:29:49 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3852 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1753226AbWKLV3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 16:29:49 -0500
+Date: Sun, 12 Nov 2006 21:29:41 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: mingo@elte.hu, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] floppy: suspend/resume fix
+Message-ID: <20061112212941.GA31624@flint.arm.linux.org.uk>
+Mail-Followup-To: Mikael Pettersson <mikpe@it.uu.se>, mingo@elte.hu,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200611122047.kACKl8KP004895@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611130023.12126.sshtylyov@ru.mvista.com>
+In-Reply-To: <200611122047.kACKl8KP004895@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In addition to clock wrap check being falsely triggered with 32-bit cycles_t,
-as noticed to Kevin Hilman, there's another issue: using %Lx format to print
-32-bit values warrants erroneous values on 32-bit machines like ARM and PPC32.
+On Sun, Nov 12, 2006 at 09:47:08PM +0100, Mikael Pettersson wrote:
+> On Sun, 12 Nov 2006 19:40:01 +0000, Russell King wrote:
+> > On Sun, Nov 12, 2006 at 07:09:53PM +0100, Ingo Molnar wrote:
+> > > 
+> > > * Mikael Pettersson <mikpe@it.uu.se> wrote:
+> > > 
+> > > > Sorry, no joy. The first access post-resume still fails and generates:
+> > > 
+> > > ok, then someone who knows the floppy driver better than me should put 
+> > > the right stuff into the suspend/resume hooks :-)
+> > 
+> > At a guess, what's probably happening is that the floppy drive, when
+> > powered on after resume, reports "disk changed" because it doesn't
+> > know any better.
+> > 
+> > We interpret "disk changed" to mean the disk has been removed and
+> > possibly changed (which _is_ correct) and thereby abort any further
+> > IO (irrespective of resume.)
+> > 
+> > Now, consider the following two scenarios:
+> > 
+> > 1. You suspend and then resume, leaving the disk in the floppy drive.
+> > 
+> > 2. You suspend, remove the floppy disk, insert a totally different disk
+> >    in the same drive, and then resume.
+> > 
+> > What should you do?  (Hint: without reading the disk and comparing it
+> > with what you have cached you don't know if the disk has been changed
+> > or not.)
+> > 
+> > If you argue that in case (1) you should continue to allow IO, then
+> > you potentially end up scribbling over a disk when someone does (2).
+> > 
+> > So I'd argue that the behaviour being seen by Mikael is the _safest_
+> > behaviour, and the most correct behaviour given the limitations of
+> > the hardware.
+> 
+> Note that my usage scenario consists of separate I/O commands:
+> 
+> 1. boot
+> 2. tar cf /dev/fd0 somefile
+> 3. tar tvf /dev/fd0
+> 4. suspend (close lid) and later resume (open lid) 
+> 5. tar tvf /dev/fd0 (this one fails since 2.6.18-rc1)
+> 
+> Ages and ages ago the floppy driver would cache data so that
+> after e.g. one "tar tvf /dev/fd0" command, a new "tar tvf /dev/fd0"
+> wouldn't actually do any I/O. But nowadays, at least in all 2.6
+> kernels, that's not done and both "tar tvf /dev/fd0" commands
+> will read the media.
+> 
+> Thus I don't see any excuse for the kernel failing step 5 above.
 
-Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+In which case isn't the real regression that it does IO?
 
----
-PPC32 actually has 64-bit timebase counter, so could provide for 64-bit
-cycles_t -- maybe it's worth to rewrite get_cycles() to read both lower and
-upper registers?
+Nevertheless, I give you two options:
 
-Index: linux-2.6/kernel/latency_trace.c
-===================================================================
---- linux-2.6.orig/kernel/latency_trace.c
-+++ linux-2.6/kernel/latency_trace.c
-@@ -1623,8 +1623,8 @@ check_critical_timing(int cpu, struct cp
- #ifndef CONFIG_CRITICAL_LATENCY_HIST
- 	if (!preempt_thresh && preempt_max_latency > delta) {
- 		printk("bug: updating %016Lx > %016Lx?\n",
--			preempt_max_latency, delta);
--		printk("  [%016Lx %016Lx %016Lx]\n", T0, T1, T2);
-+			(u64)preempt_max_latency, (u64)delta);
-+		printk("  [%016Lx %016Lx %016Lx]\n", (u64)T0, (u64)T1, (u64)T2);
- 	}
- #endif
- 
+1. Abort all IO do inserted floppy disk after resume.
+2. Corrupt replaced floppy disk after resume.
 
+You have to pick one and exactly one.  Which is inherently less risky to
+the end user?
+
+(I'm not saying that I can change the behaviour; I'm merely trying to
+point out that you're arguing for an inherently dangerous behaviour.)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

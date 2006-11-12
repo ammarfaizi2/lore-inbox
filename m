@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755065AbWKLLuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755076AbWKLMLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755065AbWKLLuu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 06:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755060AbWKLLuu
+	id S1755076AbWKLMLP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 07:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755079AbWKLMLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 06:50:50 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:13189 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1754189AbWKLLut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 06:50:49 -0500
-Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "bugme-daemon@kernel-bugs.osdl.org" 
-	<bugme-daemon@bugzilla.kernel.org>,
-       linux-kernel@vger.kernel.org, alex@hausnet.ru
-In-Reply-To: <20061111101942.5f3f2537.akpm@osdl.org>
-References: <200611111129.kABBTWgp014081@fire-2.osdl.org>
-	 <20061111100038.6277efd4.akpm@osdl.org>
-	 <1163268603.3293.45.camel@laptopd505.fenrus.org>
-	 <20061111101942.5f3f2537.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 12 Nov 2006 12:50:37 +0100
-Message-Id: <1163332237.3293.100.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 12 Nov 2006 07:11:15 -0500
+Received: from mail.gmx.de ([213.165.64.20]:59111 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1755060AbWKLMLP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 07:11:15 -0500
+X-Authenticated: #24128601
+Date: Sun, 12 Nov 2006 13:07:36 +0100
+From: Sebastian Kemper <sebastian_ml@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: idecd: attempt to access beyond end of device
+Message-ID: <20061112120736.GA4062@section_eight>
+Mail-Followup-To: Sebastian Kemper <sebastian_ml@gmx.net>,
+	linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello list,
 
-> I don't know.  In fact I forget how I worked out that it worsened in
-> 2.6.early.
-> 
-> google(noapic) gets 232,000 hits.
+I'm getting these errors trying to mount a burned DVD-R:
 
-is there a way to ask google "only stuff in the last year"?
-Asking because "noapic" in 2.4 was the standard "try this" answer when
-people had a bios that had busted MPS (but good ACPI)...
+Nov  8 12:39:08 section_eight attempt to access beyond end of device
+Nov  8 12:39:08 section_eight hdc: rw=0, want=68, limit=4
+Nov  8 12:39:08 section_eight isofs_fill_super: bread failed, dev=hdc,
+iso_blknum=16, block=1
 
+The drive is a NEC ND-4550A ATAPI. I use idecd and kernel 2.6.18.2.
 
-> I don't think it really matters when or why it happened. 
+DVD+R discs mount just fine. There were no errors while burning the
+DVD-R. I tried k3b(-0.12.17),
+cdrecord(-2.01.01_alpha10/-2.01.01_alpha20) and growisofs-6.1/-7.0. The
+drive is flashed with the latest firmware and the manufacturer claims my
+16x DVD-R media is supported.
 
-well to some degree it does; if it's one patch causing it narrowing it
-down at least somewhat in time would help ;)
+I can actually mount the burned DVD-R in my other DVD-ROM drive (it's a
+read-only device, LITE-ON DVD SOHD-16P9SV).
 
->  If we take the
-> approach of fixing one machine at a time, we'll only need to fix a few
-> individual machines to improve the situation for a lot of people.
+I'm a bit lost because I can't figure out the proper place to report
+this bug. I already posted to k3b-user but got no response. If you could
+direct me to the proper person to talk to I'd be happy.
 
-alternative is that more new machines showed up that need it somehow, eg
-not really a regression just something else. Different approach is
-needed for hunting that down. But to be realistic we need to narrow
-things down a bit, which means
+./ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
-1) Only care about SMP machines. APIC on true UP (no
-Hyperthreading/Dualcore) is a thing no hardware vendor tests (Microsoft
-doesn't use it) and is just too likely to trip up SMM and other bad BIOS
-stuff. 
- * exception is probably people who don't WANT to use apic but where it
-somehow gets used anyway; if that happens we probably have the magic
-bullet that causes the regression :)
-2) Only care about ACPI using kernels. Non-ACPI uses MPS tables for
-this, but most vendors hardly maintain those anymore at all and they are
-generally just /dev/random nowadays
-3) Ignore overclocking; if you overclock using the FSB the apic busses
-run out of spec as well; can be a huge timewaster in debug time.
+Linux section_eight 2.6.18.2 #1 Mon Nov 6 12:06:35 CET 2006 i686 AMD
+Sempron(tm)   2400+ AuthenticAMD GNU/Linux
 
+Gnu C                  4.1.1
+Gnu make               3.81
+binutils               2.16.1
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.2.2
+e2fsprogs              1.39
+Linux C Library        > libc.2.4
+Dynamic linker (ldd)   2.4
+Procps                 3.2.6
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               6.4
+udev                   087
+Modules Loaded         rt61 snd_seq_midi snd_seq_midi_event snd_seq
+snd_ice1712 snd_ice17xx_ak4xxx snd_ak4xxx_adda snd_cs8427 snd_ac97_codec
+snd_pcm snd_timer snd_page_alloc snd_ac97_bus snd_i2c snd_mpu401_uart
+snd_rawmidi snd_seq_device snd lirc_serial lirc_dev
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Thanks
+Sebastian

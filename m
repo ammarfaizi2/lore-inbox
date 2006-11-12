@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947390AbWKLB3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947399AbWKLByX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947390AbWKLB3z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 20:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947392AbWKLB3z
+	id S1947399AbWKLByX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Nov 2006 20:54:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947400AbWKLByX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 20:29:55 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:62667 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1947390AbWKLB3y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 20:29:54 -0500
-Message-ID: <45567868.8020405@zytor.com>
-Date: Sat, 11 Nov 2006 17:27:04 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Sat, 11 Nov 2006 20:54:23 -0500
+Received: from soloth.lewis.org ([69.28.69.2]:49318 "EHLO soloth.lewis.org")
+	by vger.kernel.org with ESMTP id S1947399AbWKLByX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Nov 2006 20:54:23 -0500
+Date: Sat, 11 Nov 2006 20:54:19 -0500 (EST)
+From: Jon Lewis <jlewis@lewis.org>
+To: linux-kernel@vger.kernel.org
+Subject: spin_trylock/spin_unlock panic in 2.6.9-42.0.3.EL
+Message-ID: <Pine.LNX.4.61.0611112029100.2498@soloth.lewis.org>
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
-Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
-References: <200611111541.34699.david-b@pacbell.net>
-In-Reply-To: <200611111541.34699.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-milter-ns-Report: lewis.org; NS 13706 ns1.atlantic.net. [209.208.0.7]; NS 13706 ns2.atlantic.net. [209.208.42.140]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
-> 
->   - Only intended for use with "real" GPIOs that work from IRQ context;
->     e.g. pins on a SOC that are controlled by chip register access.
-> 
->   - Doesn't handle I2C or SPI based GPIOs.  I think we actually need
->     a different API for those "message based" GPIOs, where synchronous
->     get/set requires sleeping (and is thus unusable from IRQ context).
->     That API could be used for "real" GPIOs; the converse is not true.
-> 
->   - No IORESOURCE_GPIO resource type (could be added though).
-> 
->   - Can be trivially implemented today, on many systems (see partial
->     list above) ... no "provider" or gpiochip API necessary.
-> 
->   - Provided in the form of a working patch, with sample implementation;
->     known to be viable on multiple architectures and platforms.
-> 
->   - Includes Documentation/gpio.txt
-> 
-> Comments?
-> 
+I have a system running CentOS 4.4 (kernel 2.6.9-42.0.3.EL) which crashed 
+several times in just over an hour a couple nights ago.  Each time, the 
+last messages / only indication of trouble was:
 
-If this is done, I think it's essential that a "high-level" API (one 
-that supports message-based GPIO) is provided at the same time.  The 
-"high-level" API should be able to address the GPIOs addressed by the 
-low-level API.  What we do *not* want is a bunch of stuff using the 
-low-level API when the high-level API would work.
+net/ipv4/icmp.c:239: spin_trylock(net/core/sock.c:f7c27a60) already locked
+by net/ipv4/icmp.c/239
+kernel panic - not syncing:
+net/ipv4/icmp.c:251:spin_unlock(net/core/sock.c:f7c27a60) not locked
 
-	-hpa
+In irc, someone suggested this might be caused by bad hardware, but I have 
+time believing that hardware going bad could cause the kernel to lose 
+track of spinlocks, especially in exactly the same way repeatedly.
+
+The system is an old Tyan Tiger 200, single PIII-933, 1GB RAM, acting as 
+both a mail/web server and a NAT router using the two built in Intel 
+825579 FE interfaces.
+
+This system has been in use and stable for several months prior to these 
+crashes.
+
+----------------------------------------------------------------------
+  Jon Lewis                   |  I route
+  Senior Network Engineer     |  therefore you are
+  Atlantic Net                |
+_________ http://www.lewis.org/~jlewis/pgp for PGP public key_________

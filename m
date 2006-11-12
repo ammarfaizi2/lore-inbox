@@ -1,80 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753497AbWKLXdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753472AbWKLXbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753497AbWKLXdA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 18:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753501AbWKLXdA
+	id S1753472AbWKLXbj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 18:31:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753497AbWKLXbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 18:33:00 -0500
-Received: from mail1.key-systems.net ([81.3.43.253]:58861 "HELO
-	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
-	id S1753497AbWKLXc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 18:32:59 -0500
-Message-ID: <4557AF26.8030007@scientia.net>
-Date: Mon, 13 Nov 2006 00:32:54 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: unexplainable read errors, copy/diff-issue
-References: <4553DD90.1090604@scientia.net> <20061110135649.16cccca0.vsu@altlinux.ru>
-In-Reply-To: <20061110135649.16cccca0.vsu@altlinux.ru>
-Content-Type: multipart/mixed;
- boundary="------------020102020905070507060704"
+	Sun, 12 Nov 2006 18:31:39 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:45006 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1753472AbWKLXbi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 18:31:38 -0500
+Date: Mon, 13 Nov 2006 10:30:54 +1100
+From: David Chinner <dgc@sgi.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alasdair G Kergon <agk@redhat.com>,
+       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Srinivasa DS <srinivasa@in.ibm.com>,
+       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061112233054.GI11034@melbourne.sgi.com>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061109232438.GS30653@agk.surrey.redhat.com> <20061109233258.GH2616@elf.ucw.cz> <200611101303.33685.rjw@sisk.pl> <20061112184310.GC5081@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061112184310.GC5081@ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020102020905070507060704
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Sun, Nov 12, 2006 at 06:43:10PM +0000, Pavel Machek wrote:
+> Hi!
+> 
+> > > Okay, so you claim that sys_sync can stall, waiting for administator?
+> > > 
+> > > In such case we can simply do one sys_sync() before we start freezing
+> > > userspace... or just more the only sys_sync() there. That way, admin
+> > > has chance to unlock his system.
+> > 
+> > Well, this is a different story.
+> > 
+> > My point is that if we call sys_sync() _anyway_ before calling
+> > freeze_filesystems(), then freeze_filesystems() is _safe_ (either the
+> > sys_sync() blocks, or it doesn't in which case freeze_filesystems() won't
+> > block either).
+> > 
+> > This means, however, that we can leave the patch as is (well, with the minor
+> > fix I have already posted), for now, because it doesn't make things worse a
+> > bit, but:
+> > (a) it prevents xfs from being corrupted and
+> 
+> I'd really prefer it to be fixed by 'freezeable workqueues'.
 
-Some additional notes:
-1)
-I just have had an PCI parity error (exactly on),.. but I don't think
-that this is really an error or a damage.
-It (the error) happens exactly when I activate PCI parity checking (echo
-1 > /sys/devices/system/edac/pci/check_pci_parity).
-(I've tested this several times, so this is fully reproducable.)
-This is the message:
-EDAC PCI: Bridge Detected Parity Error on 0000:00:09.0
+I'd prefer that you just freeze the filesystem and let the
+filesystem do things correctly.
 
-lscpi says:
-00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
+> Can you
+> point me into sources -- which xfs workqueues are problematic?
 
-Note that the following still applys: When doing the diffs and errors
-occur,.. NO PCI parity error or memory errors are logged. And mcelog
-still prints (really) nothing.
+AFAIK, its the I/O completion workqueues that are causing problems.
+(fs/xfs/linux-2.6/xfs_buf.c) However, thinking about it, I'm not
+sure that the work queues being left unfrozen is the real problem.
 
-I should perhaps inform the authors of edac about that issue.
+i.e. after a sync there's still I/O outstanding (e.g. metadata in
+the log but not on disk), and because the kernel threads are frozen
+some time after the sync, we could have issued this delayed write
+metadata to disk after the sync. With XFS, we can have a of queue of
+thousands of metadata buffers for delwri, and they are all issued
+async and can take many seconds for the I/O to complete.
 
+The I/O completion workqueues will continue to run until all I/O
+stops, and metadata I/O completion will change the state of the
+filesystem in memory.
 
-2)
-I just tried the whole procedure from Knoppix 4.0 (which has a kernel
-2.6.12).
-It seems that it does not recognize most of my hardware (i.e. chipset
-drivers for IDE and so on)...
-So at first the diff runned for quite a time in non-DMA mode (which I
-found out when I wondered why it took so long).
-I then did a echo using_dma:1 > /proc/ide.../settings,... which
-apperently worked,.. and nearly immediately after this,.. a difference
-was found.
-(But perhaps this was only by fortune). I aborted the test any do the
-whole thing (with dma off) under my normal system.
+However, even if you stop the workqueue processing, you're still
+going to have to wait for all I/O completion to occur before
+snapshotting memory because having any I/O complete changes memory
+state.  Hence I fail to see how freezing the workqueues really helps
+at all here....
 
-Can anybody imagine that DMA could cause my problems? And if so,.. is it
-likely that this would come from a hardware error or maybe from software?
+Given that the only way to track and block on these delwri metadata
+buffers is to issue a sync flush rather than a async flush, suspend
+has to do something different to guarantee that we block until all
+those I/Os have completed. i.e. freeze the filesystem.
 
-Regards,
-Chris.
+So the problem, IMO, is suspend is not telling the filesystem
+to stop doing stuff and so we are getting caught out by doing
+stuff that suspend assumes won't happen but does nothing
+to prevent.
 
---------------020102020905070507060704
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
+> > (b) it prevents journaling filesystems in general from replaying journals
+> > after a failing resume.
 
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------020102020905070507060704--
+This is incorrect.  Freezing an XFS filesystem _ensures_ that log
+replay occurs on thaw or a failed resume.  XFS specifically dirties
+the log after a freeze down to a consistent state so that the
+unlinked inode lists get processed by recovery on thaw/next mount.
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

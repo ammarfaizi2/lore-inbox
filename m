@@ -1,88 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755111AbWKLN2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755113AbWKLN3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755111AbWKLN2q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 08:28:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755112AbWKLN2q
+	id S1755113AbWKLN3z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 08:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755114AbWKLN3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 08:28:46 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:29182 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1755110AbWKLN2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 08:28:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=f+iTOSSxmsyBc6RpAZtz3hCYfiuObVZzHVcXarpudOz9jnWPFEK4PM15boxMRsokn9L5RU8RoH8UGgM8hOs1sorQghN0ivQA2JqUmYW7nU2oTB3TPgp4BfPLuqTDgR9Rjnz0Rc1l2u4NSBKUdcPOvinWz4+9ymlkkNPMLhsGRBA=
-Message-ID: <4d8e3fd30611120528j7d6641d0u80b3e5e116e2d0d8@mail.gmail.com>
-Date: Sun, 12 Nov 2006 14:28:43 +0100
-From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [TRIVIAL PATCH] Added information about Technisat Sky2Pc cards - take 3
-Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Adrian Bunk" <bunk@stusta.de>
-In-Reply-To: <4d8e3fd30611110831q6b597ec4gd505b33abd1c3244@mail.gmail.com>
+	Sun, 12 Nov 2006 08:29:55 -0500
+Received: from 87-194-8-8.bethere.co.uk ([87.194.8.8]:24049 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1755112AbWKLN3y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 08:29:54 -0500
+Date: Sun, 12 Nov 2006 13:28:49 +0000
+From: Ben Dooks <ben-linux@fluff.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Amol Lad <amol@verismonetworks.com>,
+       linux kernel <linux-kernel@vger.kernel.org>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>
+Subject: Re: [PATCH 5/5] ioremap balanced with iounmap for drivers/char/watchdog/s3c2410_wdt.c
+Message-ID: <20061112132849.GA29674@home.fluff.org>
+References: <1160110627.19143.88.camel@amol.verismonetworks.com> <20061006134020.96edb3ff.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_2374_6198044.1163338123614"
-References: <4d8e3fd30611110819r7e4dc941od93b9eb1220f2992@mail.gmail.com>
-	 <1163262465.3293.40.camel@laptopd505.fenrus.org>
-	 <4d8e3fd30611110831q6b597ec4gd505b33abd1c3244@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061006134020.96edb3ff.akpm@osdl.org>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_2374_6198044.1163338123614
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, Oct 06, 2006 at 01:40:20PM -0700, Andrew Morton wrote:
+> On Fri, 06 Oct 2006 10:27:07 +0530
+> Amol Lad <amol@verismonetworks.com> wrote:
+> 
+> > Signed-off-by: Amol Lad <amol@verismonetworks.com>
+> > ---
+> >  s3c2410_wdt.c |    5 +++++
+> >  1 files changed, 5 insertions(+)
+> > ---
+> > diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/drivers/char/watchdog/s3c2410_wdt.c linux-2.6.19-rc1/drivers/char/watchdog/s3c2410_wdt.c
+> > --- linux-2.6.19-rc1-orig/drivers/char/watchdog/s3c2410_wdt.c	2006-10-05 14:00:43.000000000 +0530
+> > +++ linux-2.6.19-rc1/drivers/char/watchdog/s3c2410_wdt.c	2006-10-05 14:50:00.000000000 +0530
+> > @@ -381,18 +381,21 @@ static int s3c2410wdt_probe(struct platf
+> >  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> >  	if (res == NULL) {
+> >  		printk(KERN_INFO PFX "failed to get irq resource\n");
+> > +		iounmap(wdt_base);
+> >  		return -ENOENT;
+> >  	}
+> >  
+> >  	ret = request_irq(res->start, s3c2410wdt_irq, 0, pdev->name, pdev);
+> >  	if (ret != 0) {
+> >  		printk(KERN_INFO PFX "failed to install irq (%d)\n", ret);
+> > +		iounmap(wdt_base);
+> >  		return ret;
+> >  	}
+> >  
+> >  	wdt_clock = clk_get(&pdev->dev, "watchdog");
+> >  	if (wdt_clock == NULL) {
+> >  		printk(KERN_INFO PFX "failed to find watchdog clock source\n");
+> > +		iounmap(wdt_base);
+> >  		return -ENOENT;
+> >  	}
+> >  
+> > @@ -416,6 +419,7 @@ static int s3c2410wdt_probe(struct platf
+> >  	if (ret) {
+> >  		printk (KERN_ERR PFX "cannot register miscdev on minor=%d (%d)\n",
+> >  			WATCHDOG_MINOR, ret);
+> > +		iounmap(wdt_base);
+> >  		return ret;
+> >  	}
+> >  
+> 
+> barf.  That function has to set the record for the
+> number-of-return-statements-per-line.  There are good reasons why we prefer
+> to have a single return point at which to handle all the error unwinding,
+> and the above patch illustrates one of them.
 
-[...]
-> Sure, will do that as soon as I can access to the box running linux and git.
->
+I'll try and sort this out once 2.6.19 is out.
 
-Patch attached.
-Again, kudos to the BiLug (www.bilug.it) for working on this patch.
-
-Cheers,
 -- 
-Paolo
-http://docs.google.com/View?docid=dhbdhs7d_4hsxqc8
-http://www.linkedin.com/pub/0/132/9a3
+Ben (ben@fluff.org, http://www.fluff.org/)
 
-------=_Part_2374_6198044.1163338123614
-Content-Type: text/plain; 
-	name=0001-Added-information-about-Technisat-Sky2Pc-cards.txt; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eufhg70s
-Content-Disposition: attachment; filename="0001-Added-information-about-Technisat-Sky2Pc-cards.txt"
-
-RnJvbSBmMThmYjk0ZjA2MzgxYjUxNzMxNGJmZjMwZGZmNmQ5NmE5ODAyMmI0IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBQYW9sbyBDaWFycm9jY2hpIDxwYW9sby5jaWFycm9jY2hpQGdt
-YWlsLmNvbT4KRGF0ZTogVGh1LCAxOSBPY3QgMjAwNiAyMDozMzowMyArMDIwMApTdWJqZWN0OiBB
-ZGRlZCBpbmZvcm1hdGlvbiBhYm91dCBUZWNobmlzYXQgU2t5MlBjIGNhcmRzCgoKU2lnbmVkLW9m
-Zi1ieTogUGFvbG8gQ2lhcnJvY2NoaSA8cGFvbG8uY2lhcnJvY2NoaUBnbWFpbC5jb20+CkFja2Vk
-LWJ5OiBEYW5pZWxlIFZhbGxpbmkgPHZhbGxpbmlkYW5pZWxlQGxpYmVyby5pdD4KLS0tCiBEb2N1
-bWVudGF0aW9uL2R2Yi9jYXJkcy50eHQgfCAgICA0ICsrLS0KIDEgZmlsZXMgY2hhbmdlZCwgMiBp
-bnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24v
-ZHZiL2NhcmRzLnR4dCBiL0RvY3VtZW50YXRpb24vZHZiL2NhcmRzLnR4dAppbmRleCBjYTU4ZTMz
-Li5jYzA5MTg3IDEwMDY0NAotLS0gYS9Eb2N1bWVudGF0aW9uL2R2Yi9jYXJkcy50eHQKKysrIGIv
-RG9jdW1lbnRhdGlvbi9kdmIvY2FyZHMudHh0CkBAIC0yMiwxMCArMjIsMTAgQEAgbyBGcm9udGVu
-ZHMgZHJpdmVyczoKICAgIC0gdmVzMXg5MwkJOiBBbHBzIEJTUlYyICh2ZXMxODkzIGRlbW9kdWxh
-dG9yKSBhbmQgZGJveDIgKHZlczE5OTMpCiAgICAtIGN4MjQxMTAJCTogQ29uZXhhbnQgSE0xMjIx
-L0hNMTgxMSAoY3gyNDExMCBvciBjeDI0MTA2IGRlbW9kLCBjeDI0MTA4IFBMTCkKICAgIC0gZ3J1
-bmRpZ18yOTUwNC00OTEJOiBHcnVuZGlnIDI5NTA0LTQ5MSAoUGhpbGlwcyBUREE4MDgzIGRlbW9k
-dWxhdG9yKSwgdHNhNTUyMiBQTEwKLSAgIC0gbXQzMTIJCTogWmFybGluayBtdDMxMiBvciBNaXRl
-bCB2cDMxMCBkZW1vZHVsYXRvciwgc2wxOTM1IG9yIHRzYTUwNTkgUExMCisgICAtIG10MzEyCQk6
-IFphcmxpbmsgbXQzMTIgb3IgTWl0ZWwgdnAzMTAgZGVtb2R1bGF0b3IsIHNsMTkzNSBvciB0c2E1
-MDU5IFBMTGksIFRlY2huaXNhdCBTa3kyUGMgd2l0aCBiaW9zIFJldi4gMi4zCiAgICAtIHN0djAy
-OTkJCTogQWxwcyBCU1JVNiAodHNhNTA1OSBQTEwpLCBMRyBURFFCLVMwMHggKHRzYTUwNTkgUExM
-KSwKIAkJCSAgTEcgVERRRi1TMDAxRiAoc2wxOTM1IFBMTCksIFBoaWxpcHMgU1UxMjc4ICh0dWE2
-MTAwIFBMTCksCi0JCQkgIFBoaWxpcHMgU1UxMjc4U0ggKHRzYTUwNTkgUExMKSwgU2Ftc3VuZyBU
-Qk1VMjQxMTJJTUIKKwkJCSAgUGhpbGlwcyBTVTEyNzhTSCAodHNhNTA1OSBQTEwpLCBTYW1zdW5n
-IFRCTVUyNDExMklNQiwgVGVjaG5pc2F0IFNreTJQYyB3aXRoIGJpb3MgUmV2LiAyLjYKICAgRFZC
-LUM6CiAgICAtIHZlczE4MjAJCTogdmFyaW91cyAodmVzMTgyMCBkZW1vZHVsYXRvciwgc3A1NjU5
-YyBvciBzcFhYWFggUExMKQogICAgLSBhdDc2YzY1MQkJOiBBdG1lbCBBVDc2YzY1MShCKSB3aXRo
-IERBVDcwMjEgUExMCi0tIAoxLjQuNC5yYzEuZzgzZWU5Cgo=
-------=_Part_2374_6198044.1163338123614--
+  'a smiley only costs 4 bytes'

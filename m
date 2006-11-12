@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755063AbWKLLlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755065AbWKLLuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755063AbWKLLlU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 06:41:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755064AbWKLLlU
+	id S1755065AbWKLLuu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 06:50:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755060AbWKLLuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 06:41:20 -0500
-Received: from mx5.mail.ru ([194.67.23.25]:7497 "EHLO mx5.mail.ru")
-	by vger.kernel.org with ESMTP id S1755060AbWKLLlT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 06:41:19 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.19-rc5: where can I select INPUT?
-Date: Sun, 12 Nov 2006 14:41:16 +0300
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <200611111325.02749.arvidjaar@mail.ru> <200611111518.42238.arvidjaar@mail.ru> <20061111123033.GZ4729@stusta.de>
-In-Reply-To: <20061111123033.GZ4729@stusta.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 12 Nov 2006 06:50:50 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:13189 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1754189AbWKLLut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 06:50:49 -0500
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru
+In-Reply-To: <20061111101942.5f3f2537.akpm@osdl.org>
+References: <200611111129.kABBTWgp014081@fire-2.osdl.org>
+	 <20061111100038.6277efd4.akpm@osdl.org>
+	 <1163268603.3293.45.camel@laptopd505.fenrus.org>
+	 <20061111101942.5f3f2537.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 12 Nov 2006 12:50:37 +0100
+Message-Id: <1163332237.3293.100.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611121441.16790.arvidjaar@mail.ru>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Saturday 11 November 2006 15:30, Adrian Bunk wrote:
-> On Sat, Nov 11, 2006 at 03:18:41PM +0300, Andrey Borzenkov wrote:
-> > On Saturday 11 November 2006 14:25, Adrian Bunk wrote:
-> > > On Sat, Nov 11, 2006 at 01:24:58PM +0300, Andrey Borzenkov wrote:
-> > > > Neither in menuconfig nor in xconfig do I see any place to actually
-> > > > select INPUT. Help text suggests that it is a) selectable b) it can
-> > > > be made modules. I do not have either option. Here what I see in
-> > > > menuconfig if I go into Input device support:
-> > > >
-> > > >     --- Generic input layer (needed for keyboard, mouse, ...)
-> > > >     < >   Support for memoryless force-feedback devices
-> > > >     ---   Userland interfaces
-> > > >
-> > > > as you see there is no check box for INPUT itself.
-> > > >
-> > > > I already had similar issue something else (I believe it was
-> > > > something related to serio). In menuconfig item was no selectable,
-> > > > but I could directly edit .config to change y to m.
-> > > >...
-> > >
-> > > INPUT can only be unset if you set CONFIG_EMBEDDED=y.
-> >
-> > {pts/1}% grep EMB /boot/config
-> > CONFIG_EMBEDDED=y
-> >
-> > > The rationale is that it usually doesn't make sense for users to
-> > > disable INPUT, and allowing it tends to cause some confusion.
-> >
-> > I do not want to disable it. I want to make it module (OK it has the same
-> > rationale - if you need it anyway why you do want to make it module etc).
-> > This should be possible according to help text. It does not work. Direct
-> > editing of .config silently reverts it back to y instead of m.
->
-> What you want seems to require some non-trivial changes.
->
-> Are you trying this "just because it should work" or is there a strong
-> technical reason why you need it?
->
+> I don't know.  In fact I forget how I worked out that it worsened in
+> 2.6.early.
+> 
+> google(noapic) gets 232,000 hits.
 
-No, I do not have any compelling technical reason; I was just going via more 
-or less permanent .config cleanup round and was surprised why it did not work 
-because it did work before (but it was really long ago, I guess in late 2.5 
-times). When I tried it last time I was mostly driven by attempt to minimize 
-kernel size so it fitted for floppy boot. Since then it became less 
-interesting (it is probably won't fit anymore and distribution I use dropped 
-floppy boot support anyway).
+is there a way to ask google "only stuff in the last year"?
+Asking because "noapic" in 2.4 was the standard "try this" answer when
+people had a bios that had busted MPS (but good ACPI)...
 
-Thank you (and Russel) for explanation and sorry if it was too trivial 
-question.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQFFVwhcR6LMutpd94wRAkddAJ0aJls5N7/LXnCPBt34EOlXiDXaVgCgiSx7
-RNd079+8bvlJ/UdXN5DiDw0=
-=mEtn
------END PGP SIGNATURE-----
+> I don't think it really matters when or why it happened. 
+
+well to some degree it does; if it's one patch causing it narrowing it
+down at least somewhat in time would help ;)
+
+>  If we take the
+> approach of fixing one machine at a time, we'll only need to fix a few
+> individual machines to improve the situation for a lot of people.
+
+alternative is that more new machines showed up that need it somehow, eg
+not really a regression just something else. Different approach is
+needed for hunting that down. But to be realistic we need to narrow
+things down a bit, which means
+
+1) Only care about SMP machines. APIC on true UP (no
+Hyperthreading/Dualcore) is a thing no hardware vendor tests (Microsoft
+doesn't use it) and is just too likely to trip up SMM and other bad BIOS
+stuff. 
+ * exception is probably people who don't WANT to use apic but where it
+somehow gets used anyway; if that happens we probably have the magic
+bullet that causes the regression :)
+2) Only care about ACPI using kernels. Non-ACPI uses MPS tables for
+this, but most vendors hardly maintain those anymore at all and they are
+generally just /dev/random nowadays
+3) Ignore overclocking; if you overclock using the FSB the apic busses
+run out of spec as well; can be a huge timewaster in debug time.
+
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

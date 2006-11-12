@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752809AbWKLTOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752807AbWKLTTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752809AbWKLTOL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 14:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752768AbWKLTOL
+	id S1752807AbWKLTTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 14:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752863AbWKLTTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 14:14:11 -0500
-Received: from mx27.mail.ru ([194.67.23.64]:55326 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S1752809AbWKLTOK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 14:14:10 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.19-rc5: grub is much slower resuming from suspend-to-disk than in 2.6.18
-Date: Sun, 12 Nov 2006 22:13:58 +0300
+	Sun, 12 Nov 2006 14:19:16 -0500
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:22505 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1752807AbWKLTTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 14:19:15 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
+Date: Sun, 12 Nov 2006 20:18:51 +0100
 User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <200611121436.46436.arvidjaar@mail.ru> <200611121546.46013.arvidjaar@mail.ru> <200611121434.28421.rjw@sisk.pl>
-In-Reply-To: <200611121434.28421.rjw@sisk.pl>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       David Howells <dhowells@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com
+References: <200611111129.kABBTWgp014081@fire-2.osdl.org> <20061112125357.GH25057@stusta.de> <1163337376.3293.120.camel@laptopd505.fenrus.org>
+In-Reply-To: <1163337376.3293.120.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart13544006.s0FrCKJM9O";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611122213.59709.arvidjaar@mail.ru>
+Message-Id: <200611122019.09851.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--nextPart13544006.s0FrCKJM9O
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Sunday 12 November 2006 16:34, Rafael J. Wysocki wrote:
-> On Sunday, 12 November 2006 13:46, Andrey Borzenkov wrote:
-> > On Sunday 12 November 2006 15:26, Rafael J. Wysocki wrote:
-> > > Hi,
-> > >
-> > > On Sunday, 12 November 2006 12:36, Andrey Borzenkov wrote:
-> > > > This is rather funny; in 2.6.19-rc5 grub is *really* slow loading
-> > > > kernel when I switch on the system after suspend to disk. Actually,
-> > > > after kernel has been loaded, the whole resuming (up to the point I
-> > > > have usable desktop again) takes about three time less than the
-> > > > process of loading kernel + initrd. During loading disk LED is
-> > > > constantly lit. This almost looks like kernel leaves HDD in some
-> > > > strange state, although I always assumed HDD/IDE is completely
-> > > > reinitialized in this case.
-> > >
-> > > Can you please see what's in the /sys/power/disk file?
-> >
-> > {pts/0}% cat /sys/power/disk
-> > shutdown
->
-> Can you please write "platform" to this file before the suspend and see if
-> anything changes?
->
+Hi there,
 
-No, nothing changes.
+On Sunday, 12. November 2006 14:16, Arjan van de Ven wrote:
+> If this isn't UP this could be the first real case of "noapic" in your
+> entire list...... which isn't too useful.=20
+> Maybe we need to get more/any people who see "need noapic on SMP" to
+> file a bug (and provide a reasonable amount of info)
 
-I tested a bit more; I currently have 2.6.18.1, 2.6.18.2 and 2.6.19-rc5 
-installed. Booting after "poweroff" is OK from within all versions - there is 
-no delay. Resuming after suspend under 2.6.18.x is mostly OK, at least it is 
-much less obvious (I had some feeling it may have been "a bit slower" under 
-2.6.18.2 but may be it is just illusion). Resuming after suspend under 
-2.6.19-rc5 results in noticeable delay and constantly busy HDD LED during 
-grub phase.
+I need noapic since ever (5 years!) to get my USB controller running.
+Without noapic it doesn't get any interrupts for some reason.
 
-Yes, it is notebook. I will test Pavel's suggestion later.
+If now is the time to fix those bugs, I would be happy to try a new kernel
+and get you the dmesg + result of plugging in an usb mass storage device
+and reading from it on a DAILY basis.
 
-regards
+If you need anything else to resolve the issue, I would be happy to help=20
+out here.
 
-- -andrey
+Maybe a pattern can be detected, which could help others.
+If you like to blacklist this machine by DMI, that would also
+help me.
+
+Many Thanks!
+
+Best Regards
+
+Ingo Oeser
+
+--nextPart13544006.s0FrCKJM9O
+Content-Type: application/pgp-signature
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-iD8DBQFFV3J3R6LMutpd94wRAjBoAJ9UBc0KXM4/8ANCwUn17gbHrhTKawCgiJjg
-qdsJw+JV4LLL4mP5hz+NYVI=
-=Y1of
+iD8DBQBFV3OtU56oYWuOrkARAi2zAKCbeMtyw5pPNFADJG9FkncXH00gowCfXvxV
+yF6tumjeg6Q77yN29Bgk8GQ=
+=5jfe
 -----END PGP SIGNATURE-----
+
+--nextPart13544006.s0FrCKJM9O--

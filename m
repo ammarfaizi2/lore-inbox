@@ -1,76 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWKLSA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWKLSFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWKLSA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 13:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWKLSA0
+	id S1750732AbWKLSFu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 13:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWKLSFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 13:00:26 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:48975 "HELO
-	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750939AbWKLSA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 13:00:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:Received:Date:From:To:Subject:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=4vDmP4M+8cFr/2fzaT72gu+NICbHWFdAO1VcoaxEZ7o7ieP4VSEQjiFLKUXsgG675TwJ2Eh2nMIu5CVv9RZABKHv1fyoZGiPR87B+R8iKi2uKHxNA8v0rPiQj38kmt2wHngIlcHxdWNW8vA8QxfdcTyn2CMk84Vtc7uKsipZ7jY=  ;
-X-YMail-OSG: gFRh.wwVM1mfZp7zkqmysB3tq.5bk6LPr5LEzxYtroo5oQQeNzhY53Yo6vkvoysFRW3mGfjsR2Y1mfojdPt36jGmXnMsFAKsBVEBB_dEMttfJofX6_VAjgX_CCoRlf9BTqsLMc6hV5TUfQAj0stBNNM353H.9AvZk7A-
-Date: Sun, 12 Nov 2006 10:00:21 -0800
-From: David Brownell <david-b@pacbell.net>
-To: stern@rowland.harvard.edu, arvidjaar@mail.ru
-Subject: Re: [linux-usb-devel] 2.6.19-rc5 regression: can't disable OHCI 
- wakeup via sysfs
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0611121120110.6353-100000@netrider.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0611121120110.6353-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 12 Nov 2006 13:05:50 -0500
+Received: from pool-72-66-199-5.ronkva.east.verizon.net ([72.66.199.5]:26307
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750732AbWKLSFt (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 13:05:49 -0500
+Message-Id: <200611121805.kACI5e25031765@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Take 2 - 2.6.19-rc5-mm1 - ver_linux additions
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1163354739_6400P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20061112180021.60DE11C6042@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+Date: Sun, 12 Nov 2006 13:05:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > 	echo -n disabled >
-> > > > /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup
-> > >
-> > > That's what I meant ... thanks, and sorry for the confusion.
-> > 
-> > this does not work anymore in current rc5. After writing 
-> > cat /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup shows "disabled" 
-> > but messages continue to be logged.
-> > 
-> > Anything I can do to help narrow it down?
->
-> Undoubtedly this change in behavior is caused by the "autostop" code I 
-> added to ohci-hcd.  It doesn't check the "wakeup" attribute.
+--==_Exmh_1163354739_6400P
+Content-Type: text/plain; charset=us-ascii
 
-That's the basic bug ... it needs to do that, like it does in a 2.6.18
-kernel I happen to still have sitting around.
+(resend - failed to cc: lkml first time)
+
+scripts/ver_linux needed some minor clean-ups, as follows:
+1) Add reporting of actual oprofile release
+2) Add reporting of actual wireless-tools release
+3) Add reporting of actual pcmciautils release 
+
+Signed-Off-By: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+---
+--- linux-2.6.19-rc5-mm1/scripts/ver_linux.dist	2006-09-19 23:42:06.000000000 -0400
++++ linux-2.6.19-rc5-mm1/scripts/ver_linux	2006-11-12 12:29:28.000000000 -0500
+@@ -48,6 +48,8 @@
+ xfs_db -V 2>&1 | grep version | awk \
+ 'NR==1{print "xfsprogs              ", $3}'
+ 
++pccardctl -V 2>&1| grep pcmciautils | awk '{print "pcmciautils           ", $2}'
++
+ cardmgr -V 2>&1| grep version | awk \
+ 'NR==1{print "pcmcia-cs             ", $3}'
+ 
+@@ -87,10 +89,16 @@
+ loadkeys -V 2>&1 | awk \
+ '(NR==1 && ($2 ~ /console-tools/)) {print "Console-tools         ", $3}'
+ 
++oprofiled --version 2>&1 | awk \
++'(NR==1 && ($2 == "oprofile")) {print "oprofile              ", $3}'
++
+ expr --v 2>&1 | awk 'NR==1{print "Sh-utils              ", $NF}'
+ 
+ udevinfo -V 2>&1 | grep version | awk '{print "udev                  ", $3}'
+ 
++iwconfig --version 2>&1 | awk \
++'(NR==1 && ($3 == "version")) {print "wireless-tools        ",$4}'
++
+ if [ -e /proc/modules ]; then
+     X=`cat /proc/modules | sed -e "s/ .*$//"`
+     echo "Modules Loaded         "$X
 
 
-> Dave, is there any clue about exactly what triggers the immediate wakeup?  
-> If you could tell me what to test for, I could try writing a patch to fix 
-> it.  Perhaps the driver needs a "resume_detect_is_broken" quirk.
 
-It's an implementation bug in some silicon, or in some case some boards.
+--==_Exmh_1163354739_6400P
+Content-Type: application/pgp-signature
 
-That's why the original OHCI autosuspend code initialized the "can this
-root hub autosuspend" by testing the root hub wakeup flag:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-        can_suspend = device_may_wakeup(&hcd->self.root_hub->dev);
+iD8DBQFFV2JzcC3lWbTT17ARAl6oAKDhdT1b0bf+6/NAiVHNLGWSu0kCMwCgz4+H
+j7POZuOl3GQ2nRbwrlcs9Ts=
+=E8ac
+-----END PGP SIGNATURE-----
 
-and then cleared it if any enabled port wasn't suspended, any schedule
-was active, or any deletions were pending.  A quick glance at your new
-"autostop" code shows that it only checks whether ports are enabled;
-those other important constraints have been removed.
-
-Knowing this is a regression probably explains why that one patch adding
-the "broken suspend" board-specific quirk for the Tohsiba Portege 4000
-didn't work:  the mechanism it relied on (root hub marked as "can't wakeup")
-is broken.
-
-I expect the AMD756 erratum 10 workaround is also broken, since that makes
-a point of initializing the root hub so that device_may_wakeup() prevents
-the autosuspend mechanism from kicking in.
-
-- Dave
-
+--==_Exmh_1163354739_6400P--

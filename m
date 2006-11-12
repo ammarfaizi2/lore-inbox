@@ -1,79 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752807AbWKLTTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752893AbWKLTau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752807AbWKLTTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 14:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752863AbWKLTTQ
+	id S1752893AbWKLTau (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 14:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752894AbWKLTau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 14:19:16 -0500
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:22505 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1752807AbWKLTTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 14:19:15 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
-Date: Sun, 12 Nov 2006 20:18:51 +0100
-User-Agent: KMail/1.9.5
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "bugme-daemon@kernel-bugs.osdl.org" 
-	<bugme-daemon@bugzilla.kernel.org>,
-       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com
-References: <200611111129.kABBTWgp014081@fire-2.osdl.org> <20061112125357.GH25057@stusta.de> <1163337376.3293.120.camel@laptopd505.fenrus.org>
-In-Reply-To: <1163337376.3293.120.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart13544006.s0FrCKJM9O";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sun, 12 Nov 2006 14:30:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11206 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752892AbWKLTat (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 14:30:49 -0500
+Date: Sun, 12 Nov 2006 11:30:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] floppy: suspend/resume fix
+Message-Id: <20061112113018.f95f40a6.akpm@osdl.org>
+In-Reply-To: <20061112180953.GA3266@elte.hu>
+References: <200611121753.kACHrDDi004283@harpo.it.uu.se>
+	<20061112180953.GA3266@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611122019.09851.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart13544006.s0FrCKJM9O
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, 12 Nov 2006 19:09:53 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Hi there,
+> 
+> * Mikael Pettersson <mikpe@it.uu.se> wrote:
+> 
+> > Sorry, no joy. The first access post-resume still fails and generates:
+> 
+> ok, then someone who knows the floppy driver better than me should put 
+> the right stuff into the suspend/resume hooks :-)
 
-On Sunday, 12. November 2006 14:16, Arjan van de Ven wrote:
-> If this isn't UP this could be the first real case of "noapic" in your
-> entire list...... which isn't too useful.=20
-> Maybe we need to get more/any people who see "need noapic on SMP" to
-> file a bug (and provide a reasonable amount of info)
+I don't think anyone understands the floppy driver.
 
-I need noapic since ever (5 years!) to get my USB controller running.
-Without noapic it doesn't get any interrupts for some reason.
-
-If now is the time to fix those bugs, I would be happy to try a new kernel
-and get you the dmesg + result of plugging in an usb mass storage device
-and reading from it on a DAILY basis.
-
-If you need anything else to resolve the issue, I would be happy to help=20
-out here.
-
-Maybe a pattern can be detected, which could help others.
-If you like to blacklist this machine by DMI, that would also
-help me.
-
-Many Thanks!
-
-Best Regards
-
-Ingo Oeser
-
---nextPart13544006.s0FrCKJM9O
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBFV3OtU56oYWuOrkARAi2zAKCbeMtyw5pPNFADJG9FkncXH00gowCfXvxV
-yF6tumjeg6Q77yN29Bgk8GQ=
-=5jfe
------END PGP SIGNATURE-----
-
---nextPart13544006.s0FrCKJM9O--
+How about we just revert the lockdep change?

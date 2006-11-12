@@ -1,395 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932924AbWKLOzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932923AbWKLPGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932924AbWKLOzt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 09:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932923AbWKLOzt
+	id S932923AbWKLPGq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 10:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932925AbWKLPGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 09:55:49 -0500
-Received: from il.qumranet.com ([62.219.232.206]:49041 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S932921AbWKLOzs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 09:55:48 -0500
-Subject: [PATCH] KVM: Segment access cleanup
-From: Avi Kivity <avi@qumranet.com>
-Date: Sun, 12 Nov 2006 14:55:44 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-Id: <20061112145545.2497FA0001@cleopatra.q>
+	Sun, 12 Nov 2006 10:06:46 -0500
+Received: from mailgw1.uni-kl.de ([131.246.120.220]:31107 "EHLO
+	mailgw1.uni-kl.de") by vger.kernel.org with ESMTP id S932923AbWKLPGp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 10:06:45 -0500
+Date: Sun, 12 Nov 2006 16:06:42 +0100
+From: Eduard Bloch <edi@gmx.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.19-rc5, USB/scsi, scsi_execute_async -> invalid opcode: 0000
+Message-ID: <20061112150642.GA5664@rotes76.wohnheim.uni-kl.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Instead of using pasting macros, put the vmx segment field indices into
-an array and use the array to access the fields indirectly. Cleaner code
-as well as ~200 bytes saved.
+#include <hallo.h>
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+I try to burn audio CDs with wodim (modified cdrecord) or cdrskin
+(libburn frontend), via a USB- or a IDE-attached drive. With wodim, it
+does work with 2.6.18.x and 2.6.19-rc5 with both drives. With cdrskin,
+weird things happen: First, it works with the IDE drive. With SCSI, it
+looks like it writtes the data to the drive very quickly but nothing
+is put onto the disk. The resulting CD is reported as written but the
+first audio track seems to be finished after few seconds and the CD
+index looks weird (incomplete).
 
-Index: linux-2.6/drivers/kvm/kvm.h
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm.h
-+++ linux-2.6/drivers/kvm/kvm.h
-@@ -195,10 +195,10 @@ struct kvm_vcpu {
- 	unsigned char mmio_data[8];
- 	gpa_t mmio_phys_addr;
- 
--	struct{
-+	struct {
- 		int active;
- 		u8 save_iopl;
--		struct {
-+		struct kvm_save_segment {
- 			u16 selector;
- 			unsigned long base;
- 			u32 limit;
-Index: linux-2.6/drivers/kvm/kvm_main.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm_main.c
-+++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -62,6 +62,41 @@ static struct kvm_stats_debugfs_item {
- 
- static struct dentry *debugfs_dir;
- 
-+enum {
-+	VCPU_SREG_CS,
-+	VCPU_SREG_DS,
-+	VCPU_SREG_ES,
-+	VCPU_SREG_FS,
-+	VCPU_SREG_GS,
-+	VCPU_SREG_SS,
-+	VCPU_SREG_TR,
-+	VCPU_SREG_LDTR,
-+};
-+
-+#define VMX_SEGMENT_FIELD(seg)					\
-+	[VCPU_SREG_##seg] {                                     \
-+		GUEST_##seg##_SELECTOR,				\
-+		GUEST_##seg##_BASE,			   	\
-+		GUEST_##seg##_LIMIT,			   	\
-+		GUEST_##seg##_AR_BYTES,			   	\
-+	}
-+
-+static struct kvm_vmx_segment_field {
-+	unsigned selector;
-+	unsigned base;
-+	unsigned limit;
-+	unsigned ar_bytes;
-+} kvm_vmx_segment_fields[] = {
-+	VMX_SEGMENT_FIELD(CS),
-+	VMX_SEGMENT_FIELD(DS),
-+	VMX_SEGMENT_FIELD(ES),
-+	VMX_SEGMENT_FIELD(FS),
-+	VMX_SEGMENT_FIELD(GS),
-+	VMX_SEGMENT_FIELD(SS),
-+	VMX_SEGMENT_FIELD(TR),
-+	VMX_SEGMENT_FIELD(LDTR),
-+};
-+
- static const u32 vmx_msr_index[] = {
- #ifdef __x86_64__
- 	MSR_SYSCALL_MASK, MSR_LSTAR, MSR_CSTAR, MSR_KERNEL_GS_BASE,
-@@ -689,6 +724,22 @@ static void update_exception_bitmap(stru
- 		vmcs_write32(EXCEPTION_BITMAP, 1 << PF_VECTOR);
- }
- 
-+static void fix_pmode_dataseg(int seg, struct kvm_save_segment *save)
-+{
-+	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
-+
-+	if (vmcs_readl(sf->base) == save->base) {
-+		vmcs_write16(sf->selector, save->selector);
-+		vmcs_writel(sf->base, save->base);
-+		vmcs_write32(sf->limit, save->limit);
-+		vmcs_write32(sf->ar_bytes, save->ar);
-+	} else {
-+		u32 dpl = (vmcs_read16(sf->selector) & SELECTOR_RPL_MASK)
-+			<< AR_DPL_SHIFT;
-+		vmcs_write32(sf->ar_bytes, 0x93 | dpl);
-+	}
-+}
-+
- static void enter_pmode(struct kvm_vcpu *vcpu)
- {
- 	unsigned long flags;
-@@ -709,24 +760,10 @@ static void enter_pmode(struct kvm_vcpu 
- 
- 	update_exception_bitmap(vcpu);
- 
--	#define FIX_PMODE_DATASEG(seg, save) {				\
--		if (vmcs_readl(GUEST_##seg##_BASE) == save.base) { \
--			vmcs_write16(GUEST_##seg##_SELECTOR, save.selector); \
--			vmcs_writel(GUEST_##seg##_BASE, save.base); \
--			vmcs_write32(GUEST_##seg##_LIMIT, save.limit); \
--			vmcs_write32(GUEST_##seg##_AR_BYTES, save.ar); \
--		} else { \
--			u32 dpl = (vmcs_read16(GUEST_##seg##_SELECTOR) & \
--				   SELECTOR_RPL_MASK) << AR_DPL_SHIFT; \
--			vmcs_write32(GUEST_##seg##_AR_BYTES, 0x93 | dpl); \
--		} \
--	}
--
--	FIX_PMODE_DATASEG(ES, vcpu->rmode.es);
--	FIX_PMODE_DATASEG(DS, vcpu->rmode.ds);
--	FIX_PMODE_DATASEG(GS, vcpu->rmode.gs);
--	FIX_PMODE_DATASEG(FS, vcpu->rmode.fs);
--
-+	fix_pmode_dataseg(VCPU_SREG_ES, &vcpu->rmode.es);
-+	fix_pmode_dataseg(VCPU_SREG_DS, &vcpu->rmode.ds);
-+	fix_pmode_dataseg(VCPU_SREG_GS, &vcpu->rmode.gs);
-+	fix_pmode_dataseg(VCPU_SREG_FS, &vcpu->rmode.fs);
- 
- 	vmcs_write16(GUEST_SS_SELECTOR, 0);
- 	vmcs_write32(GUEST_SS_AR_BYTES, 0x93);
-@@ -742,6 +779,19 @@ static int rmode_tss_base(struct kvm* kv
- 	return base_gfn << PAGE_SHIFT;
- }
- 
-+static void fix_rmode_seg(int seg, struct kvm_save_segment *save)
-+{
-+	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
-+
-+	save->selector = vmcs_read16(sf->selector);
-+	save->base = vmcs_readl(sf->base);
-+	save->limit = vmcs_read32(sf->limit);
-+	save->ar = vmcs_read32(sf->ar_bytes);
-+	vmcs_write16(sf->selector, vmcs_readl(sf->base) >> 4);
-+	vmcs_write32(sf->limit, 0xffff);
-+	vmcs_write32(sf->ar_bytes, 0xf3);
-+}
-+
- static void enter_rmode(struct kvm_vcpu *vcpu)
- {
- 	unsigned long flags;
-@@ -766,17 +816,6 @@ static void enter_rmode(struct kvm_vcpu 
- 	vmcs_writel(GUEST_CR4, vmcs_readl(GUEST_CR4) | CR4_VME_MASK);
- 	update_exception_bitmap(vcpu);
- 
--	#define FIX_RMODE_SEG(seg, save) { \
--		save.selector = vmcs_read16(GUEST_##seg##_SELECTOR); \
--		save.base = vmcs_readl(GUEST_##seg##_BASE); \
--		save.limit = vmcs_read32(GUEST_##seg##_LIMIT); \
--		save.ar = vmcs_read32(GUEST_##seg##_AR_BYTES); \
--		vmcs_write16(GUEST_##seg##_SELECTOR, 			   \
--					vmcs_readl(GUEST_##seg##_BASE) >> 4); \
--		vmcs_write32(GUEST_##seg##_LIMIT, 0xffff);		   \
--		vmcs_write32(GUEST_##seg##_AR_BYTES, 0xf3);		   \
--	}
--
- 	vmcs_write16(GUEST_SS_SELECTOR, vmcs_readl(GUEST_SS_BASE) >> 4);
- 	vmcs_write32(GUEST_SS_LIMIT, 0xffff);
- 	vmcs_write32(GUEST_SS_AR_BYTES, 0xf3);
-@@ -784,10 +823,10 @@ static void enter_rmode(struct kvm_vcpu 
- 	vmcs_write32(GUEST_CS_AR_BYTES, 0xf3);
- 	vmcs_write16(GUEST_CS_SELECTOR, vmcs_readl(GUEST_CS_BASE) >> 4);
- 
--	FIX_RMODE_SEG(ES, vcpu->rmode.es);
--	FIX_RMODE_SEG(DS, vcpu->rmode.ds);
--	FIX_RMODE_SEG(GS, vcpu->rmode.gs);
--	FIX_RMODE_SEG(FS, vcpu->rmode.fs);
-+	fix_rmode_seg(VCPU_SREG_ES, &vcpu->rmode.es);
-+	fix_rmode_seg(VCPU_SREG_DS, &vcpu->rmode.ds);
-+	fix_rmode_seg(VCPU_SREG_GS, &vcpu->rmode.gs);
-+	fix_rmode_seg(VCPU_SREG_FS, &vcpu->rmode.fs);
- }
- 
- static int init_rmode_tss(struct kvm* kvm)
-@@ -1116,6 +1155,16 @@ static void vmcs_write32_fixedbits(u32 m
- 	vmcs_write32(vmcs_field, val);
- }
- 
-+static void seg_setup(int seg)
-+{
-+	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
-+
-+	vmcs_write16(sf->selector, 0);
-+	vmcs_writel(sf->base, 0);
-+	vmcs_write32(sf->limit, 0xffff);
-+	vmcs_write32(sf->ar_bytes, 0x93);
-+}
-+
- /*
-  * Sets up the vmcs for emulated real mode.
-  */
-@@ -1146,13 +1195,6 @@ static int kvm_vcpu_setup(struct kvm_vcp
- 
- 	fx_init(vcpu);
- 
--#define SEG_SETUP(seg) do {					\
--		vmcs_write16(GUEST_##seg##_SELECTOR, 0);	\
--		vmcs_writel(GUEST_##seg##_BASE, 0);		\
--		vmcs_write32(GUEST_##seg##_LIMIT, 0xffff);	\
--		vmcs_write32(GUEST_##seg##_AR_BYTES, 0x93); 	\
--	} while (0)
--
- 	/*
- 	 * GUEST_CS_BASE should really be 0xffff0000, but VT vm86 mode
- 	 * insists on having GUEST_CS_BASE == GUEST_CS_SELECTOR << 4.  Sigh.
-@@ -1162,11 +1204,11 @@ static int kvm_vcpu_setup(struct kvm_vcp
- 	vmcs_write32(GUEST_CS_LIMIT, 0xffff);
- 	vmcs_write32(GUEST_CS_AR_BYTES, 0x9b);
- 
--	SEG_SETUP(DS);
--	SEG_SETUP(ES);
--	SEG_SETUP(FS);
--	SEG_SETUP(GS);
--	SEG_SETUP(SS);
-+	seg_setup(VCPU_SREG_DS);
-+	seg_setup(VCPU_SREG_ES);
-+	seg_setup(VCPU_SREG_FS);
-+	seg_setup(VCPU_SREG_GS);
-+	seg_setup(VCPU_SREG_SS);
- 
- 	vmcs_write16(GUEST_TR_SELECTOR, 0);
- 	vmcs_writel(GUEST_TR_BASE, 0);
-@@ -2900,6 +2942,28 @@ static int kvm_dev_ioctl_set_regs(struct
- 	return 0;
- }
- 
-+static void get_segment(struct kvm_segment *var, int seg)
-+{
-+	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
-+	u32 ar;
-+
-+	var->base = vmcs_readl(sf->base);
-+	var->limit = vmcs_read32(sf->limit);
-+	var->selector = vmcs_read16(sf->selector);
-+	ar = vmcs_read32(sf->ar_bytes);
-+	if (ar & AR_UNUSABLE_MASK)
-+		ar = 0;
-+	var->type = ar & 15;
-+	var->s = (ar >> 4) & 1;
-+	var->dpl = (ar >> 5) & 3;
-+	var->present = (ar >> 7) & 1;
-+	var->avl = (ar >> 12) & 1;
-+	var->l = (ar >> 13) & 1;
-+	var->db = (ar >> 14) & 1;
-+	var->g = (ar >> 15) & 1;
-+	var->unusable = (ar >> 16) & 1;
-+}
-+
- static int kvm_dev_ioctl_get_sregs(struct kvm *kvm, struct kvm_sregs *sregs)
- {
- 	struct kvm_vcpu *vcpu;
-@@ -2910,36 +2974,15 @@ static int kvm_dev_ioctl_get_sregs(struc
- 	if (!vcpu)
- 		return -ENOENT;
- 
--#define get_segment(var, seg) \
--	do { \
--		u32 ar; \
--		\
--		sregs->var.base = vmcs_readl(GUEST_##seg##_BASE); \
--		sregs->var.limit = vmcs_read32(GUEST_##seg##_LIMIT); \
--		sregs->var.selector = vmcs_read16(GUEST_##seg##_SELECTOR); \
--		ar = vmcs_read32(GUEST_##seg##_AR_BYTES); \
--		if (ar & AR_UNUSABLE_MASK) ar = 0; \
--		sregs->var.type = ar & 15; \
--		sregs->var.s = (ar >> 4) & 1; \
--		sregs->var.dpl = (ar >> 5) & 3; \
--		sregs->var.present = (ar >> 7) & 1; \
--		sregs->var.avl = (ar >> 12) & 1; \
--		sregs->var.l = (ar >> 13) & 1; \
--		sregs->var.db = (ar >> 14) & 1; \
--		sregs->var.g = (ar >> 15) & 1; \
--		sregs->var.unusable = (ar >> 16) & 1; \
--	} while (0);
--
--	get_segment(cs, CS);
--	get_segment(ds, DS);
--	get_segment(es, ES);
--	get_segment(fs, FS);
--	get_segment(gs, GS);
--	get_segment(ss, SS);
--
--	get_segment(tr, TR);
--	get_segment(ldt, LDTR);
--#undef get_segment
-+	get_segment(&sregs->cs, VCPU_SREG_CS);
-+	get_segment(&sregs->ds, VCPU_SREG_DS);
-+	get_segment(&sregs->es, VCPU_SREG_ES);
-+	get_segment(&sregs->fs, VCPU_SREG_FS);
-+	get_segment(&sregs->gs, VCPU_SREG_GS);
-+	get_segment(&sregs->ss, VCPU_SREG_SS);
-+
-+	get_segment(&sregs->tr, VCPU_SREG_TR);
-+	get_segment(&sregs->ldt, VCPU_SREG_LDTR);
- 
- #define get_dtable(var, table) \
- 	sregs->var.limit = vmcs_read32(GUEST_##table##_LIMIT), \
-@@ -2964,6 +3007,29 @@ static int kvm_dev_ioctl_get_sregs(struc
- 	return 0;
- }
- 
-+static void set_segment(struct kvm_segment *var, int seg)
-+{
-+	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
-+	u32 ar;
-+
-+	vmcs_writel(sf->base, var->base);
-+	vmcs_write32(sf->limit, var->limit);
-+	vmcs_write16(sf->selector, var->selector);
-+	if (var->unusable)
-+		ar = 1 << 16;
-+	else {
-+		ar = var->type & 15;
-+		ar |= (var->s & 1) << 4;
-+		ar |= (var->dpl & 3) << 5;
-+		ar |= (var->present & 1) << 7;
-+		ar |= (var->avl & 1) << 12;
-+		ar |= (var->l & 1) << 13;
-+		ar |= (var->db & 1) << 14;
-+		ar |= (var->g & 1) << 15;
-+	}
-+	vmcs_write32(sf->ar_bytes, ar);
-+}
-+
- static int kvm_dev_ioctl_set_sregs(struct kvm *kvm, struct kvm_sregs *sregs)
- {
- 	struct kvm_vcpu *vcpu;
-@@ -2975,39 +3041,15 @@ static int kvm_dev_ioctl_set_sregs(struc
- 	if (!vcpu)
- 		return -ENOENT;
- 
--#define set_segment(var, seg) \
--	do { \
--		u32 ar; \
--		\
--		vmcs_writel(GUEST_##seg##_BASE, sregs->var.base);  \
--		vmcs_write32(GUEST_##seg##_LIMIT, sregs->var.limit); \
--		vmcs_write16(GUEST_##seg##_SELECTOR, sregs->var.selector); \
--		if (sregs->var.unusable) { \
--			ar = (1 << 16); \
--		} else { \
--			ar = (sregs->var.type & 15); \
--			ar |= (sregs->var.s & 1) << 4; \
--			ar |= (sregs->var.dpl & 3) << 5; \
--			ar |= (sregs->var.present & 1) << 7; \
--			ar |= (sregs->var.avl & 1) << 12; \
--			ar |= (sregs->var.l & 1) << 13; \
--			ar |= (sregs->var.db & 1) << 14; \
--			ar |= (sregs->var.g & 1) << 15; \
--		} \
--		vmcs_write32(GUEST_##seg##_AR_BYTES, ar); \
--	} while (0);
--
--	set_segment(cs, CS);
--	set_segment(ds, DS);
--	set_segment(es, ES);
--	set_segment(fs, FS);
--	set_segment(gs, GS);
--	set_segment(ss, SS);
--
--	set_segment(tr, TR);
-+	set_segment(&sregs->cs, VCPU_SREG_CS);
-+	set_segment(&sregs->ds, VCPU_SREG_DS);
-+	set_segment(&sregs->es, VCPU_SREG_ES);
-+	set_segment(&sregs->fs, VCPU_SREG_FS);
-+	set_segment(&sregs->gs, VCPU_SREG_GS);
-+	set_segment(&sregs->ss, VCPU_SREG_SS);
- 
--	set_segment(ldt, LDTR);
--#undef set_segment
-+	set_segment(&sregs->tr, VCPU_SREG_TR);
-+	set_segment(&sregs->ldt, VCPU_SREG_LDTR);
- 
- #define set_dtable(var, table) \
- 	vmcs_write32(GUEST_##table##_LIMIT, sregs->var.limit), \
+With 2.6.19-rc5, it looks a bit better. The recording with cdrskin seems
+to work, but at the end of the second track, I get a kernel exception. I
+have no idea how to continue now, cdrskin (symlinked as cdrecord) is
+frozen, but not in D-state.
+
+------------[ cut here ]------------
+kernel BUG at mm/slab.c:594!
+invalid opcode: 0000 [#1]
+Modules linked in: binfmt_misc ppdev lp thermal fan button processor ac battery autofs4 sg sr_mod snd_via82xx sk98lin nls_iso8859_1 nls_cp437 vfat fat snd_mixer_oss tsdev usbhid tuner usb_storage saa7134 snd_emu10k1 snd_mpu401 snd_mpu401_uart i2c_viapro snd_via82xx_modem video_buf compat_ioctl32 ir_kbd_i2c ir_common psmouse snd_rawmidi snd_ac97_codec snd_ac97_bus snd_seq_device snd_util_mem analog ehci_hcd 3c59x mii sky2 i2c_core snd_pcm snd_timer snd_page_alloc evdev videodev v4l1_compat v4l2_common serio_raw snd_hwdep snd parport_pc parport emu10k1_gp gameport uhci_hcd sata_via k8temp pcspkr usbcore soundcore 8250_pnp 8250 serial_core rtc
+CPU:    0
+EIP:    0060:[<c015ac86>]    Not tainted VLI
+EFLAGS: 00210246   (2.6.19-rc5 #2)
+EIP is at kmem_cache_free+0x76/0x80
+eax: 80080000   ebx: c2104fc0   ecx: c2163ec0   edx: c1800000
+esi: c21041e0   edi: 00000000   ebp: 00001000   esp: f7139df8
+ds: 007b   es: 007b   ss: 0068
+Process cdrecord (pid: 4097, ti=f7138000 task=c2119a70 task.ti=f7138000)
+Stack: c2104fc0 c21041e0 ffffffea c0144bba 00001000 f7233ac0 c21041e0 c0180295 
+       c21e9298 00000000 c01800d1 c0294990 00001000 00000000 0000000a f7139f0c 
+       f71f70b0 00000000 00000001 f7233ac0 c16e49e0 00008000 00000000 f7d8002c 
+Call Trace:
+ [<c0144bba>] mempool_free+0x2a/0x70
+ [<c0180295>] bio_free+0x25/0x50
+ [<c01800d1>] bio_put+0x21/0x30
+ [<c0294990>] scsi_execute_async+0x310/0x390
+ [<f915a20f>] sg_common_write+0x32f/0x810 [sg]
+ [<f915b7e0>] sg_cmd_done+0x0/0x2d0 [sg]
+ [<c015e2c5>] do_sync_read+0xd5/0x120
+ [<f915a872>] sg_new_write+0x182/0x250 [sg]
+ [<f915ce50>] sg_ioctl+0x810/0xa40 [sg]
+ [<f8dcf7b2>] ehci_irq+0xf2/0x160 [ehci_hcd]
+ [<f915c640>] sg_ioctl+0x0/0xa40 [sg]
+ [<c01699f9>] do_ioctl+0x69/0x70
+ [<c0169a5c>] vfs_ioctl+0x5c/0x270
+ [<c015e1f0>] do_sync_read+0x0/0x120
+ [<c0169ce2>] sys_ioctl+0x72/0x90
+ [<c0102ec7>] syscall_call+0x7/0xb
+ =======================
+Code: 8b 1c 24 8b 74 24 04 8b 7c 24 08 83 c4 0c c3 8b 52 0c eb cc 89 c8 89 da e8 68 fe ff ff 8b 03 eb d6 0f 0b cd 0d c7 a3 34 c0 eb c0 <0f> 0b 52 02 c7 a3 34 c0 eb b1 83 ec 08 89 74 24 04 89 1c 24 89 
+EIP: [<c015ac86>] kmem_cache_free+0x76/0x80 SS:ESP 0068:f7139df8
+
+
+-- 
+Niemand heilt durch Jammern seinen Harm.
+		-- William Shakespeare

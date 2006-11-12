@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752344AbWKLSjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752593AbWKLSnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752344AbWKLSjk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 13:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752503AbWKLSjj
+	id S1752593AbWKLSnc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 13:43:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752622AbWKLSnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 13:39:39 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61197 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1752344AbWKLSjj
+	Sun, 12 Nov 2006 13:43:32 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49414 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1752593AbWKLSnb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 13:39:39 -0500
-Date: Sun, 12 Nov 2006 18:39:27 +0000
+	Sun, 12 Nov 2006 13:43:31 -0500
+Date: Sun, 12 Nov 2006 18:43:10 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Tejun Heo <htejun@gmail.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: SATA powersave patches
-Message-ID: <20061112183927.GB5081@ucw.cz>
-References: <20060908110346.GC920@elf.ucw.cz> <45015767.1090002@gmail.com> <20060908123537.GB17640@elf.ucw.cz> <4501655F.5000103@gmail.com> <20060910224815.GC1691@elf.ucw.cz> <4505394F.6060806@gmail.com> <20060918100548.GJ3746@elf.ucw.cz> <450E771E.1070207@gmail.com> <20061106135751.GA13517@elf.ucw.cz> <454F747A.9050209@gmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
+       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061112184310.GC5081@ucw.cz>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061109232438.GS30653@agk.surrey.redhat.com> <20061109233258.GH2616@elf.ucw.cz> <200611101303.33685.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <454F747A.9050209@gmail.com>
+In-Reply-To: <200611101303.33685.rjw@sisk.pl>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >and I do not see powersave tunable:
-> >
-> >root@amd:/sys/module# ls libata/parameters/
-> >ata_probe_timeout         atapi_enabled 
-> >hotplug_polling_interval
-> >atapi_dmadir              fua
-> >
-> >...how do I pull working version?
+> > Okay, so you claim that sys_sync can stall, waiting for administator?
+> > 
+> > In such case we can simply do one sys_sync() before we start freezing
+> > userspace... or just more the only sys_sync() there. That way, admin
+> > has chance to unlock his system.
 > 
-> I haven't updated link powersave patch yet.  Core 
-> implementation was agreed on but interface hasn't been 
-> decided yet.  Maybe it's about time to add 
-> /sys/class/ata_{host|device}/.  So, the patchset is 
-> pushed back for the time being.
-
-/sys/class/ata* would probably be ok.
-
-> >Well... things are pretty quiet in that area just 
-> >now... So yes.
+> Well, this is a different story.
 > 
-> If I understood correctly, the high power consumption of 
-> ahci controller can be solved by dynamically turning off 
-> command processing while the controller is idle, which 
-> fits nicely into link powersaving, right?  So, I think 
-> full-fledged leveled dynamic PM would be an overkill for 
-> this particular problem, but then again, maybe the 
+> My point is that if we call sys_sync() _anyway_ before calling
+> freeze_filesystems(), then freeze_filesystems() is _safe_ (either the
+> sys_sync() blocks, or it doesn't in which case freeze_filesystems() won't
+> block either).
+> 
+> This means, however, that we can leave the patch as is (well, with the minor
+> fix I have already posted), for now, because it doesn't make things worse a
+> bit, but:
+> (a) it prevents xfs from being corrupted and
 
-It is single bit, and it should not even need a timeout, AFAICT, so
-perhaps we should just fix it (no need for dynamic PM layers). It
-probably does not even need to be configurable...
+I'd really prefer it to be fixed by 'freezeable workqueues'. Can you
+point me into sources -- which xfs workqueues are problematic?
+
+(It would be nice to fix that for 2.6.19, and full bdev freezing looks
+intrusive to me).
+
+> (b) it prevents journaling filesystems in general from replaying journals
+> after a failing resume.
+
+I do not see b) as an useful goal.
+							Pavel
 
 -- 
 Thanks for all the (sleeping) penguins.

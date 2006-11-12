@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWKLQHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932951AbWKLQb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932688AbWKLQHU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 11:07:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932943AbWKLQHU
+	id S932951AbWKLQb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 11:31:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932952AbWKLQb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 11:07:20 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51381 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932688AbWKLQHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 11:07:19 -0500
-Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Patrick McFarland <diablod3@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "bugme-daemon@kernel-bugs.osdl.org" 
-	<bugme-daemon@bugzilla.kernel.org>,
-       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com
-In-Reply-To: <200611121059.55454.diablod3@gmail.com>
-References: <20061111100038.6277efd4.akpm@osdl.org>
-	 <1163340998.3293.131.camel@laptopd505.fenrus.org>
-	 <20061112152154.GA3382@stusta.de>  <200611121059.55454.diablod3@gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 12 Nov 2006 17:07:02 +0100
-Message-Id: <1163347622.15249.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 12 Nov 2006 11:31:26 -0500
+Received: from mx2.rowland.org ([192.131.102.7]:6926 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S932951AbWKLQb0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 11:31:26 -0500
+Date: Sun, 12 Nov 2006 11:31:24 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+cc: David Brownell <david-b@pacbell.net>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] 2.6.19-rc5 regression: can't disable OHCI
+ wakeup via sysfs
+In-Reply-To: <200611111429.56345.arvidjaar@mail.ru>
+Message-ID: <Pine.LNX.4.44L0.0611121120110.6353-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-12 at 10:59 -0500, Patrick McFarland wrote:
-> On Sunday 12 November 2006 10:21, Adrian Bunk wrote:
-> > On Sun, Nov 12, 2006 at 03:16:38PM +0100, Arjan van de Ven wrote:
-> > > > > We KNOW it can't work on a sizable amount of machines.  This is why
-> > > > > it is a config option; you can enable it if YOUR machine is KNOWN to
-> > > > > work, and you get some gains. But it's also understood that it often
-> > > > > it won't work. So any sensible distro (since they have to aim for a
-> > > > > wide audience) disables this option ...
+On Sat, 11 Nov 2006, Andrey Borzenkov wrote:
+
+> On Tuesday 20 June 2006 00:12, David Brownell wrote:
+> > > > > > An alternative (but post-boot) workaround _should_ be
+> > > > > >
+> > > > > >     echo disabled > /sys/bus/pci/devices/0000:00:02.0/power/wakeup
 > > > >
-> > > > Nowadays, many distributions only ship CONFIG_SMP=y kernels...
+> > > > Did that work?
 > > >
-> > > that's a calculated risk on their side (and they know that); they're
-> > > balancing not functioning on a set of machines off against needing more
-> > > kernels.
+> > > No. But
+> > >
+> > > 	echo -n disabled >
+> > > /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup
 > >
-> > This might soon affect the majority of Linux users, so it's a case that
-> > has to be handled...
+> > That's what I meant ... thanks, and sorry for the confusion.
 > 
-> I actually agree here. Linux needs to be easier for people to use, not harder. 
-> Isn't there a way for bootloaders or the kernel early on figure out if the 
-> machine supports SMP, and if it doesnt, load a uniproc kernel instead?
+> this does not work anymore in current rc5. After writing 
+> cat /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup shows "disabled" 
+> but messages continue to be logged.
+> 
+> Anything I can do to help narrow it down?
 
-this is what OS installers have been doing for a decade or so.
+Undoubtedly this change in behavior is caused by the "autostop" code I 
+added to ohci-hcd.  It doesn't check the "wakeup" attribute.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Dave, is there any clue about exactly what triggers the immediate wakeup?  
+If you could tell me what to test for, I could try writing a patch to fix 
+it.  Perhaps the driver needs a "resume_detect_is_broken" quirk.
+
+Andrey, if you aren't using USB at all (you mentioned that no devices were 
+plugged in), you can simply do "rmmod ohci-hcd" to stop all those log 
+messages.
+
+Alan Stern
 

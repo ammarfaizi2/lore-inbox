@@ -1,81 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932889AbWKLNzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932905AbWKLN5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932889AbWKLNzU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 08:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932904AbWKLNzU
+	id S932905AbWKLN5z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 08:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932906AbWKLN5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 08:55:20 -0500
-Received: from il.qumranet.com ([62.219.232.206]:50606 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S932889AbWKLNzT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 08:55:19 -0500
-Message-ID: <455727C5.9070400@qumranet.com>
-Date: Sun, 12 Nov 2006 15:55:17 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.19-rc5-mm1 fails to compile with gcc 4.2
-References: <200611112334.28889.bero@arklinux.org> <200611121436.15492.bero@arklinux.org> <455724FD.7070600@qumranet.com> <200611121450.24859.bero@arklinux.org>
-In-Reply-To: <200611121450.24859.bero@arklinux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 12 Nov 2006 08:57:55 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47048 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932905AbWKLN5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 08:57:54 -0500
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com
+In-Reply-To: <20061112133759.GK25057@stusta.de>
+References: <200611111129.kABBTWgp014081@fire-2.osdl.org>
+	 <20061111100038.6277efd4.akpm@osdl.org>
+	 <1163268603.3293.45.camel@laptopd505.fenrus.org>
+	 <20061111101942.5f3f2537.akpm@osdl.org>
+	 <1163332237.3293.100.camel@laptopd505.fenrus.org>
+	 <20061112125357.GH25057@stusta.de>
+	 <1163337376.3293.120.camel@laptopd505.fenrus.org>
+	 <20061112133759.GK25057@stusta.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 12 Nov 2006 14:57:48 +0100
+Message-Id: <1163339868.3293.126.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernhard Rosenkraenzer wrote:
-> On Sunday, 12. November 2006 14:43, Avi Kivity wrote:
->   
->> 'sel' is a variable, so gcc can't provide it as an immediate operand.
->> Specifying it as "rm" instead of "g" would have been better, but can't
->> have any real influence.
->>     
->
-> Specifying it as "rm" instead of "g" does fix it -- patch attached.
->
->   
->> Well, for the code you posted in in the gcc bug, it probaby generated
->> something like
->>
->>     mov $0, %fs
->>
->> which is indeed invalid assembly.  But the kvm miscompile is something
->> else (running out of registers or something like that).
->>     
->
-> What am I overlooking? The code is the exact same (except I replaced "u16" 
-> with "unsigned short" to avoid the #include), and produces the exact same 
-> error message, and the fix is the same ("g" -> "rm").
->   
+On Sun, 2006-11-12 at 14:37 +0100, Adrian Bunk wrote:
+> On Sun, Nov 12, 2006 at 02:16:16PM +0100, Arjan van de Ven wrote:
+> > 
+> > > Some APIC-related bugs in the kernel Bugzilla that have been reported or 
+> > > confirmed during the last 12 months (I only looked at "apic" in the 
+> > > subject, there might be more related bugs in the Bugzilla):
+> > > 
+> > > #5038 Fast running system clock with IO-APIC enabled
+> > 
+> > This is a UP machine. NotInteresting(tm) wrt APIC.
+> >... 
+> 
+> Currently it's a supported configuration.
 
-Well, since it works, I guess I'm overlooking something.  Maybe it's 
-just a bad error message from gcc.
+define "supported"; we have code to try it and it's great if it works.
+But if it doesn't... you're out of luck.
 
-I'll apply this.  Thanks!
+We KNOW it can't work on a sizable amount of machines.  This is why it
+is a config option; you can enable it if YOUR machine is KNOWN to work,
+and you get some gains. But it's also understood that it often it won't
+work. So any sensible distro (since they have to aim for a wide
+audience) disables this option ...
 
-> ------------------------------------------------------------------------
->
-> --- linux-2.6.18/drivers/kvm/kvm_main.c.ark	2006-11-12 14:40:09.000000000 +0100
-> +++ linux-2.6.18/drivers/kvm/kvm_main.c	2006-11-12 14:44:57.000000000 +0100
-> @@ -150,12 +150,12 @@
->  
->  static void load_fs(u16 sel)
->  {
-> -	asm ("mov %0, %%fs" : : "g"(sel));
-> +	asm ("mov %0, %%fs" : : "rm"(sel));
->  }
->  
->  static void load_gs(u16 sel)
->  {
-> -	asm ("mov %0, %%gs" : : "g"(sel));
-> +	asm ("mov %0, %%gs" : : "rm"(sel));
->  }
->  
->  #ifndef load_ldt
->   
+> 
+> We must either handle such cases or explicitely disable the APIC on all 
+> UP machines 
+
+that'd be the same as setting the config option off...
+> > I think that's a mistake. But oh well, I suspect in practice ACPI/BIOS
+> > cause it to be turned off automatic most of the time.
+> 
+> I'd doubt the latter. Even on my cheap Asus board running an i386
+> AMD Athlon XP with 1.8 GHz the APIC is both used and working without any
+> problems.
+
+"it works on my one machine so it works for everyone". That's simply not
+true. We KNOW it can't work everywhere on UP, especially on i386. SMM
+assumptions; people gluing the apic pins to the reset line, we've seen
+it all. 
+That it works for you is great. But that doesn't mean it automatically
+works for everyone.
+
 
 
 -- 
-error compiling committee.c: too many arguments to function
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

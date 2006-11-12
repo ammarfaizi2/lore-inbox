@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752255AbWKLSQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752153AbWKLSQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752255AbWKLSQo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 13:16:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752250AbWKLSQn
+	id S1752153AbWKLSQt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 13:16:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752250AbWKLSQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 13:16:43 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62988 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1752129AbWKLSQn
+	Sun, 12 Nov 2006 13:16:48 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63244 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1752153AbWKLSQr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 13:16:43 -0500
-Date: Sun, 12 Nov 2006 14:28:13 +0000
+	Sun, 12 Nov 2006 13:16:47 -0500
+Date: Sun, 12 Nov 2006 14:49:40 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2048 CPUs [was: Re: New filesystem for Linux]
-Message-ID: <20061112142813.GA4371@ucw.cz>
-References: <787b0d920611041154l69db46abv4c8c467809ada57c@mail.gmail.com> <Pine.LNX.4.64.0611042332240.20974@artax.karlin.mff.cuni.cz> <20061107212614.GA6730@ucw.cz> <Pine.LNX.4.64.0611072328220.10497@artax.karlin.mff.cuni.cz> <20061107231456.GB7796@elf.ucw.cz> <Pine.LNX.4.64.0611081921170.5694@artax.karlin.mff.cuni.cz> <20061110090303.GB3196@elf.ucw.cz> <Pine.LNX.4.64.0611101606090.20654@artax.karlin.mff.cuni.cz>
+To: Trifon Trifonov <triffon@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mmc0 power consumption
+Message-ID: <20061112144939.GB4371@ucw.cz>
+References: <45551135.7000201@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611101606090.20654@artax.karlin.mff.cuni.cz>
+In-Reply-To: <45551135.7000201@gmail.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >>You can't tell that CPUs behave exactly 
-> >>probabilistically --- it may
-> >>happen that one gets out of the wait loop always too 
-> >>late.
-> >
-> >Well,  I don't need them to be _exactly_ 
-> >probabilistical.
-> >
-> >Anyway, if you have 2048 CPUs... you can perhaps get 
-> >some non-broken
-> >ones.
-> 
-> No intel document guarantees you that if more CPUs 
-> simultaneously execute locked cmpxchg in a loop that a 
+>  I would like to report an issue with my O2Micro 4-in-1 
+>  Card reader. I am using kernel 2.6.17-10. Actually, the 
+> device works properly (although it wasn't like that with 
+> 2.6.15). I am just troubled by getting messages in the 
+> syslog about the mmc0 device consuming too much power 
+> after issuing ACPI suspend to RAM. I also don't have 
 
-If we are talking 2048 cpus, we are talking ia64.
+mmc controller is probably confused. Try unloading its driver before
+suspend. reloading it after resume to see if it *really* eats more
+power.
 
-> CPU will see compare success in a finite time. In fact, 
-> CPUs can't guarantee this at all, because they don't 
-> know that they're executing a spinlock --- for them its 
-> just an instruction stream like anything else.
+> obvious problems with suspending, except that after the 
+> first suspend it will no longer suspend by closing the 
+> lid, so I have to do this manually. Also, after the 
 
-...even i386 has monitor/mwait these days.
-							Pavel
+Either usb problem or acpi broken after resume. Verify that
+/proc/acpi/events work after resume, report to bugzilla.kernel.org if
+not.
+
+> first suspend, statistics show that battery consumption 
+> of my laptop seems to rise. So I suspect that something 
+> isn't right with the suspend.
+
+Well, on my x60 power consumption goes *down* after suspend,
+suggesting something is wrong there, too... but finding what went
+wrong is almost impossible.
+
+Ouch, check with top for runaway threads.
+
+						Pavel
 -- 
 Thanks for all the (sleeping) penguins.

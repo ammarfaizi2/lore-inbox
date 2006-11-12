@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752893AbWKLTau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752913AbWKLTgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752893AbWKLTau (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 14:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752894AbWKLTau
+	id S1752913AbWKLTgO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 14:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752902AbWKLTgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 14:30:50 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:11206 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752892AbWKLTat (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 14:30:49 -0500
-Date: Sun, 12 Nov 2006 11:30:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] floppy: suspend/resume fix
-Message-Id: <20061112113018.f95f40a6.akpm@osdl.org>
-In-Reply-To: <20061112180953.GA3266@elte.hu>
-References: <200611121753.kACHrDDi004283@harpo.it.uu.se>
-	<20061112180953.GA3266@elte.hu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 12 Nov 2006 14:36:14 -0500
+Received: from bay0-omc2-s11.bay0.hotmail.com ([65.54.246.147]:22932 "EHLO
+	bay0-omc2-s11.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1752913AbWKLTgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 14:36:13 -0500
+Message-ID: <BAY20-F24A945741EAE00E4980CEAD8F50@phx.gbl>
+X-Originating-IP: [80.178.43.168]
+X-Originating-Email: [yan_952@hotmail.com]
+In-Reply-To: <20061112173103.GA14005@flint.arm.linux.org.uk>
+From: "Burman Yan" <yan_952@hotmail.com>
+To: rmk+lkml@arm.linux.org.uk
+Cc: trivial@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATH] Replace kmalloc+memset with kzalloc 1/17
+Date: Sun, 12 Nov 2006 21:36:12 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 12 Nov 2006 19:36:13.0697 (UTC) FILETIME=[D03C0F10:01C70691]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Nov 2006 19:09:53 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
 
-> 
-> * Mikael Pettersson <mikpe@it.uu.se> wrote:
-> 
-> > Sorry, no joy. The first access post-resume still fails and generates:
-> 
-> ok, then someone who knows the floppy driver better than me should put 
-> the right stuff into the suspend/resume hooks :-)
+OK.
+Sorry.
 
-I don't think anyone understands the floppy driver.
+I had to attach the patch, since hotmail does line wrapping, but I will note 
+the part regarding
+the more descriptive subject.
 
-How about we just revert the lockdep change?
+Also, some of the patches are one line per file, so I joined them together 
+in one single patch.
+I thought that splitting that into many tiny patches will actually be more 
+annoying than
+a single bigger patch.
+
+Does that mean I should send those patches again?
+
+>From: Russell King <rmk+lkml@arm.linux.org.uk>
+>To: Burman Yan <yan_952@hotmail.com>
+>CC: trivial@kernel.org, linux-kernel@vger.kernel.org
+>Subject: Re: [PATH] Replace kmalloc+memset with kzalloc 1/17
+>Date: Sun, 12 Nov 2006 17:31:03 +0000
+>
+>On Sun, Nov 12, 2006 at 07:20:53PM +0200, Burman Yan wrote:
+> > This is the first part of the patches I made that do trivial change of
+> > replacing
+> > kmalloc and memset with kzalloc
+>
+>Please follow the guidelines in SubmittingPatches in the kernel source
+>when sending patches out.  You must not expect everyone here to read
+>each of the attachments in your messages in detail to work out whether
+>they need to do something with it or not.
+>
+>--
+>Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 Serial core
+
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
+

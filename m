@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932898AbWKLNrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWKLNuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932898AbWKLNrr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 08:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932889AbWKLNrr
+	id S932610AbWKLNuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 08:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932889AbWKLNuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 08:47:47 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:40424 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932898AbWKLNrq convert rfc822-to-8bit (ORCPT
+	Sun, 12 Nov 2006 08:50:18 -0500
+Received: from il.qumranet.com ([62.219.232.206]:23783 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S932610AbWKLNuR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 08:47:46 -0500
-Message-Id: <1163339265.29537.275608001@webmail.messagingengine.com>
-X-Sasl-Enc: seTO0waaf0g6CmwaS49OS8Ogu/BcoE2NvD/RsdKAgsl6 1163339265
-From: "Alexander van Heukelum" <heukelum@fastmail.fm>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Vivek Goyal" <vgoyal@in.ibm.com>
-Cc: "Alexander van Heukelum" <heukelum@mailshack.com>,
-       "Steven Rostedt" <rostedt@goodmis.org>, "Andi Kleen" <ak@suse.de>,
-       "LKML" <linux-kernel@vger.kernel.org>, sct@redhat.com,
-       herbert@gondor.apana.org.au, xen-devel@lists.xensource.com
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="ISO-8859-1"
+	Sun, 12 Nov 2006 08:50:17 -0500
+Message-ID: <45572697.7040909@qumranet.com>
+Date: Sun, 12 Nov 2006 15:50:15 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com>
-   <200611091433.09232.ak@suse.de>
-   <20061109183111.GA32438@mailshack.com>
-   <200611101501.40007.ak@suse.de> <20061110154600.GA826@mailshack.com>
-Subject: Re: [PATCH] shorten the x86_64 boot setup GDT to what the comment says
-In-Reply-To: <20061110154600.GA826@mailshack.com>
-Date: Sun, 12 Nov 2006 14:47:45 +0100
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6.19-rc5-mm1 fails to compile with gcc 4.2
+References: <200611112334.28889.bero@arklinux.org> <4556D9C0.3050103@qumranet.com> <200611121443.52887.bero@arklinux.org>
+In-Reply-To: <200611121443.52887.bero@arklinux.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bernhard Rosenkraenzer wrote:
+> The attached patch makes it compile (but I'm not 100% sure it's the right 
+> thing to do, I'm not very experienced with gcc-style asm).
+>   
+> ------------------------------------------------------------------------
+>
+> --- linux-2.6.18/drivers/kvm/kvm_main.c.ark	2006-11-12 14:40:09.000000000 +0100
+> +++ linux-2.6.18/drivers/kvm/kvm_main.c	2006-11-12 14:38:51.000000000 +0100
+> @@ -150,12 +150,12 @@
+>  
+>  static void load_fs(u16 sel)
+>  {
+> -	asm ("mov %0, %%fs" : : "g"(sel));
+> +	asm ("mov %0, %%fs" : : "m"(sel));
+>  }
+>  
+>  static void load_gs(u16 sel)
+>  {
+> -	asm ("mov %0, %%gs" : : "g"(sel));
+> +	asm ("mov %0, %%gs" : : "m"(sel));
+>  }
+>  
+>  #ifndef load_ldt
+>   
 
-On Fri, 10 Nov 2006 16:46:00 +0100, "Alexander van Heukelum"
-<heukelum@mailshack.com> said:
-> On Fri, Nov 10, 2006 at 03:01:39PM +0100, Andi Kleen wrote:
-> > > Hi Andi,
-> > > 
-> > > (Assuming you mean: "The gdt table already is 16-byte aligned.")
-> > > 
-> > > Hmm. Not in the most recent version of Linus' tree, not even by
-> > > concidence, and none of the patches in your quilt-current/patches touch
-> > > x86_64's version of setup.S. Am I missing something?
-> > 
-> > The main GDT is. The boot GDT isn't, but it doesn't matter because
-> > it is only used for a very short time.
-> 
-> Aha, thanks for clearing that up. I agree it is not important to have
-> the boot GDT aligned, but I think it is preferable to make parts of the
-> two versions of setup.S equal if possible.
-> 
-> Let's see what Steven Rostedt comes up with.
-> 
-> I find the relocatable image patches interesting. I wonder if one can
-> get such a kernel 'running' using bochs, freedos, and loadlin ;).
+Does "rm" instead of "m" work as well?
 
-Was it clear that I was sceptical about this still working? Oh well,
-I tried it, and it did not break. Freedos' versions of himem and emm386 
-loaded, DOS=HIGH,UMB.
-
-Alexander
--- 
-  Alexander van Heukelum
-  heukelum@fastmail.fm
 
 -- 
-http://www.fastmail.fm - Same, same, but different…
+error compiling committee.c: too many arguments to function
 

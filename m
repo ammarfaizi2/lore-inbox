@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752153AbWKLSQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752261AbWKLSUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752153AbWKLSQt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 13:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752250AbWKLSQs
+	id S1752261AbWKLSUG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 13:20:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752285AbWKLSUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 13:16:48 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63244 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1752153AbWKLSQr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 13:16:47 -0500
-Date: Sun, 12 Nov 2006 14:49:40 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Trifon Trifonov <triffon@gmail.com>
+	Sun, 12 Nov 2006 13:20:06 -0500
+Received: from pool-72-66-199-5.ronkva.east.verizon.net ([72.66.199.5]:31939
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1752280AbWKLSUE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 13:20:04 -0500
+Message-Id: <200611121818.kACIIlGZ032051@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Adrian Bunk <bunk@stusta.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: mmc0 power consumption
-Message-ID: <20061112144939.GB4371@ucw.cz>
-References: <45551135.7000201@gmail.com>
+Subject: Re: RFC - 2.6.19-rc5-mm1 Documentation/Changes cleanup
+In-Reply-To: Your message of "Sun, 12 Nov 2006 19:06:40 +0100."
+             <20061112180640.GF3382@stusta.de>
+From: Valdis.Kletnieks@vt.edu
+References: <200611121735.kACHZ9SX030881@turing-police.cc.vt.edu>
+            <20061112180640.GF3382@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45551135.7000201@gmail.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed; boundary="==_Exmh_1163355526_6400P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Nov 2006 13:18:46 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--==_Exmh_1163355526_6400P
+Content-Type: text/plain; charset=us-ascii
 
->  I would like to report an issue with my O2Micro 4-in-1 
->  Card reader. I am using kernel 2.6.17-10. Actually, the 
-> device works properly (although it wasn't like that with 
-> 2.6.15). I am just troubled by getting messages in the 
-> syslog about the mmc0 device consuming too much power 
-> after issuing ACPI suspend to RAM. I also don't have 
+On Sun, 12 Nov 2006 19:06:40 +0100, Adrian Bunk said:
 
-mmc controller is probably confused. Try unloading its driver before
-suspend. reloading it after resume to see if it *really* eats more
-power.
+> >  o  util-linux             2.10o                   # fdformat --version
+> > +o  mount                  ???                     # mount --version
+> 
+> mount is part of util-linux.
 
-> obvious problems with suspending, except that after the 
-> first suspend it will no longer suspend by closing the 
-> lid, so I have to do this manually. Also, after the 
+Yeah, I know, but ver_linux reports both for some reason.
 
-Either usb problem or acpi broken after resume. Verify that
-/proc/acpi/events work after resume, report to bugzilla.kernel.org if
-not.
+> >  o  pcmciautils            004                     # pccardctl -V
+> > +o  pcmcia-cs              ???                     # cardmgr -V
+> 
+> This was just removed - pcmcia-cs support was scheduled to be removed 
+> in November 2005 (sic), and I hope it won't take too long until it will 
+> finally be removed.
 
-> first suspend, statistics show that battery consumption 
-> of my laptop seems to rise. So I suspect that something 
-> isn't right with the suspend.
+And I *just* submitted a patch to actually report pcmciautils version. :)
+If ver_linux was only reporting pcmcia-cs version, it probably should be
+mentioned here.  Once we actually nuke it, we can certainly remove this
+line and the related check in ver_linux.
 
-Well, on my x60 power consumption goes *down* after suspend,
-suggesting something is wrong there, too... but finding what went
-wrong is almost impossible.
+> > +o  Linuc C Library        ???                     # ldd /bin/sh
+> > +o  Dynamic linker (ldd)   ???                     # ldd -v or ldd --version
+> > +o  Linux C++ Library      ???                     # ls -l /usr/lib/libstd++.so
+> >...
+> 
+> I don't think these make much sense.
 
-Ouch, check with top for runaway threads.
+I was particularly mystified by the C++ reference in ver_linux.  But apparently
+somebody felt it was important enough to report, and I was basically just trying
+to get the two things in sync.  Probably a good place for a 'N/A' or such.
 
-						Pavel
--- 
-Thanks for all the (sleeping) penguins.
+--==_Exmh_1163355526_6400P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFV2WGcC3lWbTT17ARAijEAKDTO77h18m4zWUwC8fPhxr9gYJHOgCgzdOW
+OU5CUzG59emQqpwWSN9+6UM=
+=o17C
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1163355526_6400P--

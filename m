@@ -1,134 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932936AbWKLPsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932938AbWKLPuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932936AbWKLPsF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 10:48:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932937AbWKLPsF
+	id S932938AbWKLPuP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 10:50:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932939AbWKLPuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 10:48:05 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:53443 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932936AbWKLPsC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 10:48:02 -0500
-Date: Sun, 12 Nov 2006 16:47:12 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [patch] floppy: suspend/resume fix
-Message-ID: <20061112154711.GA14543@elte.hu>
-References: <200611112048.kABKmg2u002509@harpo.it.uu.se>
+	Sun, 12 Nov 2006 10:50:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:19919 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932938AbWKLPuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 10:50:13 -0500
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com
+In-Reply-To: <20061112152154.GA3382@stusta.de>
+References: <20061111100038.6277efd4.akpm@osdl.org>
+	 <1163268603.3293.45.camel@laptopd505.fenrus.org>
+	 <20061111101942.5f3f2537.akpm@osdl.org>
+	 <1163332237.3293.100.camel@laptopd505.fenrus.org>
+	 <20061112125357.GH25057@stusta.de>
+	 <1163337376.3293.120.camel@laptopd505.fenrus.org>
+	 <20061112133759.GK25057@stusta.de>
+	 <1163339868.3293.126.camel@laptopd505.fenrus.org>
+	 <20061112141016.GA5297@stusta.de>
+	 <1163340998.3293.131.camel@laptopd505.fenrus.org>
+	 <20061112152154.GA3382@stusta.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 12 Nov 2006 16:50:03 +0100
+Message-Id: <1163346604.15249.8.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611112048.kABKmg2u002509@harpo.it.uu.se>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Mikael Pettersson <mikpe@it.uu.se> wrote:
+> But if APIC is even used on my more than 1 year old 40 Euro Socket A 
 
-> On my old Dell Latitude laptop, the first access to the floppy after 
-> having resumed from APM suspend fails miserably and generates these 
-> kernel messages (from 2.6.19-rc5):
-[...]
+once sparrow does not a summer make.
 
-> It's only the first post-resume access that triggers this failure, 
-> subsequent accesses do work.
-> 
-> I've traced the cause to Ingo's lockdep patch in 2.6.18-rc1 (see 
-> below): reverting it makes the floppy work after resume again.
 
-could you check the patch below? I had to add a platform driver to 
-floppy.c to get suspend/resume callbacks, but otherwise it's relatively 
-straightforward.
+now can we get constructive again. If you find a real case where noapic
+is needed on an SMP machine, preferably one where it wasn't needed
+before earlier in 2.6, let us know; it's worthwhile to chase those down
+since we know it's a decent use case and it's not flaky hardware.
 
-	Ingo
 
------------------------>
-Subject: [patch] floppy: suspend/resume fix
-From: Ingo Molnar <mingo@elte.hu>
-
-introduce a floppy platform-driver and suspend/resume ops to
-stop/start the floppy driver. Bug reported by Mikael Pettersson.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- drivers/block/floppy.c |   31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
-
-Index: linux/drivers/block/floppy.c
-===================================================================
---- linux.orig/drivers/block/floppy.c
-+++ linux/drivers/block/floppy.c
-@@ -4157,6 +4157,28 @@ static void floppy_device_release(struct
- 	complete(&device_release);
- }
- 
-+static int floppy_suspend(struct platform_device *dev, pm_message_t state)
-+{
-+	floppy_release_irq_and_dma();
-+
-+	return 0;
-+}
-+
-+static int floppy_resume(struct platform_device *dev)
-+{
-+	floppy_grab_irq_and_dma();
-+
-+	return 0;
-+}
-+
-+static struct platform_driver floppy_driver = {
-+	.suspend	= floppy_suspend,
-+	.resume		= floppy_resume,
-+	.driver		= {
-+		.name	= "floppy",
-+	},
-+};
-+
- static struct platform_device floppy_device[N_DRIVE];
- 
- static struct kobject *floppy_find(dev_t dev, int *part, void *data)
-@@ -4205,10 +4227,14 @@ static int __init floppy_init(void)
- 	if (err)
- 		goto out_put_disk;
- 
-+	err = platform_driver_register(&floppy_driver);
-+	if (err)
-+		goto out_unreg_blkdev;
-+
- 	floppy_queue = blk_init_queue(do_fd_request, &floppy_lock);
- 	if (!floppy_queue) {
- 		err = -ENOMEM;
--		goto out_unreg_blkdev;
-+		goto out_unreg_driver;
- 	}
- 	blk_queue_max_sectors(floppy_queue, 64);
- 
-@@ -4352,6 +4378,8 @@ out_flush_work:
- out_unreg_region:
- 	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
- 	blk_cleanup_queue(floppy_queue);
-+out_unreg_driver:
-+	platform_driver_unregister(&floppy_driver);
- out_unreg_blkdev:
- 	unregister_blkdev(FLOPPY_MAJOR, "fd");
- out_put_disk:
-@@ -4543,6 +4571,7 @@ void cleanup_module(void)
- 	init_completion(&device_release);
- 	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
- 	unregister_blkdev(FLOPPY_MAJOR, "fd");
-+	platform_driver_unregister(&floppy_driver);
- 
- 	for (drive = 0; drive < N_DRIVE; drive++) {
- 		del_timer_sync(&motor_off_timer[drive]);

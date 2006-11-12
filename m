@@ -1,1131 +1,395 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWKLOtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932924AbWKLOzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbWKLOtW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 09:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbWKLOtW
+	id S932924AbWKLOzt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 09:55:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932923AbWKLOzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 09:49:22 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:20243 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932637AbWKLOtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 09:49:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=G3ucJsyofyoGSRscSaOrseHBHmffEFMRuAuAUmQ3zbcNp8d6ItmP/v+/b4OHGwcoozMapkKk/WGlXwL6ROOARHu2w5TtVjGUelAq0Xg+UCwp3JS6i9JfR7M8+P8IzknoQOoRvcE/bhTOQd66/3yGJS/JHuDC15FJAxZTeuI/8qU=
-To: Dmitry Torokhov <dtor@insightbb.com>
-Subject: [RFC PATCH] RFkill - Add support for input key to control wireless radio
-Date: Sun, 12 Nov 2006 15:48:56 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611121548.56908.IvDoorn@gmail.com>
-From: Ivo van Doorn <ivdoorn@gmail.com>
+	Sun, 12 Nov 2006 09:55:49 -0500
+Received: from il.qumranet.com ([62.219.232.206]:49041 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S932921AbWKLOzs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 09:55:48 -0500
+Subject: [PATCH] KVM: Segment access cleanup
+From: Avi Kivity <avi@qumranet.com>
+Date: Sun, 12 Nov 2006 14:55:44 -0000
+To: kvm-devel@lists.sourceforge.net
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Message-Id: <20061112145545.2497FA0001@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Instead of using pasting macros, put the vmx segment field indices into
+an array and use the array to access the fields indirectly. Cleaner code
+as well as ~200 bytes saved.
 
-This patch has been send some months ago to this list as well,
-based on comments made then, I have improved the rfkill
-handling.
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Besides the rt2x00 drivers (rt2400, rt2500, rt2570, rt61 and rt73 chipsets)
-Lennart Poettering has also shown interest in rfkill for his MSI laptop driver.
-If this rfkill version is approved, the real patch submission will have
-seperate patches to make those drivers use rfkill.
-
-But before I will send the patch for submission, I first would like to
-hear if rfkill has changed enough and is now generic enough to make
-it acceptable for inclusion in the main kernel tree.
-
-The rfkill works as follows, when the user presses the hardware key
-to control the wireless (wifi, bluetooth or irda) radio a signal will
-go to rfkill. This happens by the hardware driver sending a signal
-to rfkill, or rfkill polling for the button status.
-The key signal will then be processed by rfkill, each key will have
-its own input device, if this input device has not been openened
-by the user, rfkill will keep the signal and either turn the radio
-on or off based on the key status.
-If the input device has been opened, rfkill will send the signal to
-userspace and do nothing further. The user is in charge of controlling
-the radio.
-
-sysfs entries have been added for the user to read the button status,
-and to set the radio status. This allows the user to turn on or off the radio
-in a similar way as rfkill would do (using the callback functions the hardware
-driver has provided).
-
-Signed-off-by Ivo van Doorn <IvDoorn@gmail.com>
-
-----
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index ba0e88c..6986d59 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -79,4 +79,19 @@ config HP_SDC_RTC
- 	  Say Y here if you want to support the built-in real time clock
- 	  of the HP SDC controller.
+Index: linux-2.6/drivers/kvm/kvm.h
+===================================================================
+--- linux-2.6.orig/drivers/kvm/kvm.h
++++ linux-2.6/drivers/kvm/kvm.h
+@@ -195,10 +195,10 @@ struct kvm_vcpu {
+ 	unsigned char mmio_data[8];
+ 	gpa_t mmio_phys_addr;
  
-+config RFKILL
-+	tristate "RF button support"
-+	help
-+	  If you say yes here, the rfkill driver will be build
-+	  which allowed network devices to register their hardware
-+	  RF button which controls the radio state. This driver
-+	  will then create an input device for it.
-+
-+	  When the input device is not used, the rfkill driver
-+	  will make sure that when the RF button is pressed the radio
-+	  is enabled or disabled accordingly. When the input device
-+	  has been opened by the user this radio control will be left
-+	  to the user, and rfkill will only send the RF button status
-+	  change to userspace.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 415c491..e788a1b 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -11,3 +11,4 @@ obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
- obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
- obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
-+obj-$(CONFIG_RFKILL)			+= rfkill.o
-diff --git a/drivers/input/misc/rfkill.c b/drivers/input/misc/rfkill.c
-new file mode 100644
-index 0000000..2a896db
---- /dev/null
-+++ b/drivers/input/misc/rfkill.c
-@@ -0,0 +1,880 @@
-+/*
-+	Copyright (C) 2006 Ivo van Doorn
-+
-+	This program is free software; you can redistribute it and/or modify
-+	it under the terms of the GNU General Public License as published by
-+	the Free Software Foundation; either version 2 of the License, or
-+	(at your option) any later version.
-+
-+	This program is distributed in the hope that it will be useful,
-+	but WITHOUT ANY WARRANTY; without even the implied warranty of
-+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+	GNU General Public License for more details.
-+
-+	You should have received a copy of the GNU General Public License
-+	along with this program; if not, write to the
-+	Free Software Foundation, Inc.,
-+	59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/workqueue.h>
-+#include <linux/list.h>
-+#include <linux/input.h>
-+#include <linux/rfkill.h>
-+
-+#include <asm/semaphore.h>
-+
-+MODULE_AUTHOR("Ivo van Doorn <IvDoorn@gmail.com>");
-+MODULE_VERSION("1.0");
-+MODULE_DESCRIPTION("RF key support");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * rfkill key structure.
-+ */
-+struct rfkill_key {
-+	/*
-+	 * For sysfs representation.
-+	 */
-+	struct class_device *cdev;
-+
-+	/*
-+	 * Pointer to rfkill structure
-+	 * that was filled in by key driver.
-+	 */
-+	struct rfkill *rfkill;
-+
-+	/*
-+	 * Pointer to type structure that this key belongs to.
-+	 */
-+	struct rfkill_type *type;
-+
-+	/*
-+	 * Once key status change has been detected, the toggled
-+	 * field should be set to indicate a notification to
-+	 * user or driver should be performed.
-+	 */
-+	int toggled;
-+
-+	/*
-+	 * Current state of the device radio, this state will
-+	 * change after the radio has actually been toggled since
-+	 * receiving the radio key event.
-+	 */
-+	int radio_status;
-+
-+	/*
-+	 * Current status of the key which controls the radio,
-+	 * this value will change after the key state has changed
-+	 * after polling, or the key driver has send the new state
-+	 * manually.
-+	 */
-+	int key_status;
-+
-+	/*
-+	 * Input device for this key,
-+	 * we also keep track of the number of
-+	 * times this input device is open. This
-+	 * is important for determining to whom we
-+	 * should report key events.
-+	 */
-+	struct input_dev *input;
-+	unsigned int open_count;
-+
-+	/*
-+	 * Key index number.
-+	 */
-+	unsigned int key_index;
-+
-+	/*
-+	 * List head structure to be used
-+	 * to add this structure to the list.
-+	 */
-+	struct list_head entry;
+-	struct{
++	struct {
+ 		int active;
+ 		u8 save_iopl;
+-		struct {
++		struct kvm_save_segment {
+ 			u16 selector;
+ 			unsigned long base;
+ 			u32 limit;
+Index: linux-2.6/drivers/kvm/kvm_main.c
+===================================================================
+--- linux-2.6.orig/drivers/kvm/kvm_main.c
++++ linux-2.6/drivers/kvm/kvm_main.c
+@@ -62,6 +62,41 @@ static struct kvm_stats_debugfs_item {
+ 
+ static struct dentry *debugfs_dir;
+ 
++enum {
++	VCPU_SREG_CS,
++	VCPU_SREG_DS,
++	VCPU_SREG_ES,
++	VCPU_SREG_FS,
++	VCPU_SREG_GS,
++	VCPU_SREG_SS,
++	VCPU_SREG_TR,
++	VCPU_SREG_LDTR,
 +};
 +
-+/*
-+ * rfkill key type structure.
-+ */
-+struct rfkill_type {
-+	/*
-+	 * For sysfs representation.
-+	 */
-+	struct class_device *cdev;
++#define VMX_SEGMENT_FIELD(seg)					\
++	[VCPU_SREG_##seg] {                                     \
++		GUEST_##seg##_SELECTOR,				\
++		GUEST_##seg##_BASE,			   	\
++		GUEST_##seg##_LIMIT,			   	\
++		GUEST_##seg##_AR_BYTES,			   	\
++	}
 +
-+	/*
-+	 * Name of this radio type.
-+	 */
-+	char *name;
-+
-+	/*
-+	 * Key type identification. Value must be any
-+	 * in the key_type enum.
-+	 */
-+	unsigned int key_type;
-+
-+	/*
-+	 * Number of registered keys of this type.
-+	 */
-+	unsigned int key_count;
++static struct kvm_vmx_segment_field {
++	unsigned selector;
++	unsigned base;
++	unsigned limit;
++	unsigned ar_bytes;
++} kvm_vmx_segment_fields[] = {
++	VMX_SEGMENT_FIELD(CS),
++	VMX_SEGMENT_FIELD(DS),
++	VMX_SEGMENT_FIELD(ES),
++	VMX_SEGMENT_FIELD(FS),
++	VMX_SEGMENT_FIELD(GS),
++	VMX_SEGMENT_FIELD(SS),
++	VMX_SEGMENT_FIELD(TR),
++	VMX_SEGMENT_FIELD(LDTR),
 +};
 +
-+/*
-+ * rfkill master structure.
-+ */
-+struct rfkill_master {
-+	/*
-+	 * For sysfs representation.
-+	 */
-+	struct class *class;
-+
-+	/*
-+	 * All access to the master structure
-+	 * and its children (the keys) are protected
-+	 * by this key lock.
-+	 */
-+	struct semaphore key_sem;
-+
-+	/*
-+	 * List of available key types.
-+	 */
-+	struct rfkill_type type[KEY_TYPE_MAX];
-+
-+	/*
-+	 * Total number of registered keys.
-+	 */
-+	unsigned int key_count;
-+
-+	/*
-+	 * Number of keys that require polling
-+	 */
-+	unsigned int poll_required;
-+
-+	/*
-+	 * List of rfkill_key structures.
-+	 */
-+	struct list_head key_list;
-+
-+	/*
-+	 * Work structures for periodic polling,
-+	 * as well as the scheduled radio toggling.
-+	 */
-+	struct work_struct toggle_work;
-+	struct work_struct poll_work;
-+};
-+
-+/*
-+ * We only need 1 single master interface,
-+ * make this a global variable since we always need it.
-+ */
-+static struct rfkill_master *master;
-+
-+/*
-+ * Send toggle event to key driver.
-+ */
-+static void rfkill_toggle_radio_driver(struct rfkill_key *key)
+ static const u32 vmx_msr_index[] = {
+ #ifdef __x86_64__
+ 	MSR_SYSCALL_MASK, MSR_LSTAR, MSR_CSTAR, MSR_KERNEL_GS_BASE,
+@@ -689,6 +724,22 @@ static void update_exception_bitmap(stru
+ 		vmcs_write32(EXCEPTION_BITMAP, 1 << PF_VECTOR);
+ }
+ 
++static void fix_pmode_dataseg(int seg, struct kvm_save_segment *save)
 +{
-+	struct rfkill *rfkill = key->rfkill;
-+
-+	/*
-+	 * check what the current radio status is, and perform
-+	 * the correct action to toggle the radio. This will make
-+	 * sure the correct event happens when either the key driver
-+	 * of the user has requested to toggle this radio.
-+	 */
-+	if (!key->radio_status && rfkill->enable_radio)
-+		rfkill->enable_radio(rfkill->data);
-+	else if (key->radio_status && rfkill->disable_radio)
-+		rfkill->disable_radio(rfkill->data);
-+
-+	/*
-+	 * Independent of the presence of the enable_radio and
-+	 * disable_radio handler update the radio_status field.
-+	 * Note that this is valid, since if the key driver did
-+	 * not provide the 2 radio handlers, the driver is in
-+	 * charge of correctly setting the radio. This is usually
-+	 * done because the hardware will toggle the radio itself.
-+	 */
-+	key->radio_status = key->key_status;
-+}
-+
-+/*
-+ * Send toggle event to userspace through the input device.
-+ */
-+static void rfkill_toggle_radio_input(struct rfkill_key *key)
-+{
-+	input_report_key(key->input, KEY_RFKILL, key->key_status);
-+	input_sync(key->input);
-+}
-+
-+/*
-+ * Loop through the list of registered keys and
-+ * check if key if it has been toggled.
-+ */
-+static void rfkill_toggle_radio(void *data)
-+{
-+	struct rfkill_key *key;
-+
-+	down(&master->key_sem);
-+
-+	list_for_each_entry(key, &master->key_list, entry) {
-+
-+		/*
-+		 * If this key hasn't been toggled by either
-+		 * the key driver or the user we can skip this key.
-+		 */
-+		if (!key->toggled)
-+			continue;
-+
-+		/*
-+		 * If the input device has been opened, all events
-+		 * should be send to userspace otherwise the key driver
-+		 * is supposed to handle the event.
-+		 */
-+		if (key->open_count)
-+			rfkill_toggle_radio_input(key);
-+		else
-+			rfkill_toggle_radio_driver(key);
-+
-+		/*
-+		 * Reset the toggled field to allow new toggle events.
-+		 */
-+		key->toggled = 0;
-+	}
-+
-+	up(&master->key_sem);
-+}
-+
-+/*
-+ * Check the new status of the key, and determine if the key has been toggled.
-+ * This function can be called upon request by the device driver or userspace.
-+ */
-+static int rfkill_check_status(struct rfkill_key *key, int status)
-+{
-+	/*
-+	 * A key should be toggled if the current radio status does not
-+	 * match the requested status. This check is required instead of
-+	 * comparing it to the current key status since this function can
-+	 * be called on request of the user as well. The user is able to
-+	 * request a radio toggle to make sure the radio status will match
-+	 * the key status if the new key status has been reported to
-+	 * userspace only.
-+	 * As a safety measure, we won't toggle a key twice.
-+	 */
-+	if (key->radio_status != !!status && !key->toggled) {
-+		key->toggled = 1;
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Wrapper around the rfkill_check_status function, this may only
-+ * be called from the device driver status events. Besides calling
-+ * rfkill_check_status it will also update the key_status field.
-+ */
-+static int rfkill_check_key(struct rfkill_key *key, int status)
-+{
-+	/*
-+	 * Store the new key status value.
-+	 */
-+	key->key_status = !!status;
-+
-+	/*
-+	 * The rest of the work should be done by rfkill_check_status.
-+	 */
-+	return rfkill_check_status(key->rfkill->key, status);
-+}
-+
-+/*
-+ * Handler that is run frequently to determine the current status
-+ * of all registered keys that require polling.
-+ */
-+static void rfkill_list_poll(void *data)
-+{
-+	struct rfkill_key *key;
-+	struct rfkill *rfkill;
-+	int status = 0;
-+
-+	down(&master->key_sem);
-+
-+	list_for_each_entry(key, &master->key_list, entry) {
-+		rfkill = key->rfkill;
-+
-+		/*
-+		 * If the poll handler has not been given
-+		 * the key driver should report events,
-+		 * so we can ignore this key now.
-+		 */
-+		if (!rfkill->poll)
-+			continue;
-+
-+		/*
-+		 * Poll radio state and check if a radio toggle
-+		 * has been requested by the key.
-+		 */
-+		if (rfkill_check_key(key, rfkill->poll(rfkill->data)))
-+			status = 1;
-+	}
-+
-+	up(&master->key_sem);
-+
-+	/*
-+	 * A radio toggle has been requested, schedule the toggle work thread.
-+	 */
-+	if (status)
-+		schedule_work(&master->toggle_work);
-+
-+	/*
-+	 * Check if we need to rearm ourselves.
-+	 */
-+	if (master->poll_required)
-+		schedule_delayed_work(&master->poll_work, RFKILL_POLL_DELAY);
-+}
-+
-+/*
-+ * Function called by the key driver to report the new status
-+ * of the key.
-+ */
-+void rfkill_report_event(struct rfkill *rfkill, int new_status)
-+{
-+	down(&master->key_sem);
-+
-+	if (rfkill_check_key(rfkill->key, new_status))
-+		schedule_work(&master->toggle_work);
-+
-+	up(&master->key_sem);
-+}
-+EXPORT_SYMBOL_GPL(rfkill_report_event);
-+
-+/*
-+ * Sysfs handler to release the data when sysfs is cleaning
-+ * up all the garbage. This is done in a late state since the
-+ * user could still be reading some of the files at the moment
-+ * this key was removed.
-+ * This method is being used for both rfkill_key as rfkill_type
-+ * class devices. So be careful not to do anything structure
-+ * specific.
-+ */
-+static void rfkill_class_device_release(struct class_device *cdev)
-+{
-+	kfree(class_get_devdata(cdev));
-+}
-+
-+/*
-+ * rfkill master sysfs creation.
-+ */
-+static int rfkill_master_sysfs_create(struct rfkill_master *master)
-+{
-+	master->class = class_create(THIS_MODULE, "rfkill");
-+	if (unlikely(!master->class || IS_ERR(master->class)))
-+		return PTR_ERR(master->class);
-+
-+	master->class->release = rfkill_class_device_release;
-+
-+	return 0;
-+}
-+
-+/*
-+ * rfkill master sysfs destroy.
-+ */
-+static void rfkill_master_sysfs_release(struct rfkill_master *master)
-+{
-+	class_destroy(master->class);
-+}
-+
-+/*
-+ * rfkill type sysfs creation.
-+ */
-+static int rfkill_type_sysfs_create(struct rfkill_master *master,
-+				    struct rfkill_type *type)
-+{
-+	type->cdev = class_device_create(master->class, NULL, type->key_type,
-+					 NULL, type->name);
-+	if (unlikely(!type->cdev || IS_ERR(type->cdev)))
-+		return PTR_ERR(type->cdev);
-+
-+	return 0;
-+}
-+
-+static void rfkill_type_sysfs_release(struct rfkill_type *type)
-+{
-+	class_device_destroy(type->cdev->class, type->key_type);
-+}
-+
-+/*
-+ * rfkill key attribute to display the current key status.
-+ */
-+static ssize_t rfkill_key_status_show(struct class_device *cdev, char *buf)
-+{
-+	struct rfkill_key *key = class_get_devdata(cdev);
-+
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	return sprintf(buf, "%d", key->key_status);
-+}
-+
-+/*
-+ * rfkill key attribute to change the current radio status.
-+ */
-+static ssize_t rfkill_key_status_store(struct class_device *cdev,
-+				      const char *buf, size_t count)
-+{
-+	struct rfkill_key *key = class_get_devdata(cdev);
-+	int status = simple_strtoul(buf, NULL, 0);
-+
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	down(&master->key_sem);
-+
-+	/*
-+	 * Check if this new status implies that the radio
-+	 * should be toggled to the correct state.
-+	 */
-+	if (rfkill_check_status(key, status))
-+		schedule_work(&master->toggle_work);
-+
-+	up(&master->key_sem);
-+
-+	return count;
-+}
-+
-+static struct class_device_attribute cdev_attr_key_status =
-+	__ATTR(status, S_IRUGO | S_IWUGO,
-+	       rfkill_key_status_show, rfkill_key_status_store);
-+
-+/*
-+ * rfkill key sysfs creation.
-+ */
-+static int rfkill_key_sysfs_create(struct rfkill_master *master,
-+				    struct rfkill_key *key)
-+{
-+	int status;
-+
-+	key->cdev = class_device_create(master->class, key->type->cdev,
-+					KEY_TYPE_MAX + key->key_index,
-+					key->rfkill->dev,
-+					"key%d", key->key_index);
-+	if (unlikely(!key->cdev || IS_ERR(key->cdev)))
-+		return PTR_ERR(key->cdev);
-+
-+	/*
-+	 * Create the sysfs files.
-+	 */
-+	status = class_device_create_file(key->cdev, &cdev_attr_key_status);
-+	if (unlikely(status))
-+		goto exit;
-+
-+	/*
-+	 * The key belongs to the device structure the key driver
-+	 * has given us a reference to. But besides that device
-+	 * this key also belongs to the input device that has been
-+	 * created. We should create the link to that entry manually.
-+	 */
-+	status = sysfs_create_link(&key->cdev->kobj, &key->input->cdev.kobj,
-+				   "idev");
-+	if (unlikely(status))
-+		goto exit_file;
-+
-+	return 0;
-+
-+exit_file:
-+	class_device_remove_file(key->cdev, &cdev_attr_key_status);
-+
-+exit:
-+	class_device_destroy(master->class, KEY_TYPE_MAX + key->key_index);
-+
-+	return status;
-+}
-+
-+static void rfkill_key_sysfs_release(struct rfkill_key *key)
-+{
-+	sysfs_remove_link(&key->cdev->kobj, "idev");
-+	class_device_remove_file(key->cdev, &cdev_attr_key_status);
-+	class_device_destroy(master->class, KEY_TYPE_MAX + key->key_index);
-+}
-+
-+/*
-+ * Handlers to enable or close the input device.
-+ * These handlers only have to increase or decrease the open_count,
-+ * this counter will automatically make sure key events will be
-+ * send to the correct location (userspace or key driver).
-+ */
-+static int rfkill_open(struct input_dev *dev)
-+{
-+	((struct rfkill_key*)(dev->private))->open_count++;
-+	return 0;
-+}
-+	
-+static void rfkill_close(struct input_dev *dev)
-+{
-+	((struct rfkill_key*)(dev->private))->open_count--;
-+}
-+
-+/*
-+ * Input device initialization handler.
-+ */
-+static struct input_dev* rfkill_register_input(struct rfkill_key *key)
-+{
-+	struct input_dev *input;
-+	int status;
-+	char *name;
-+	char *phys;
-+
-+	input = input_allocate_device();
-+	if (unlikely(!input))
-+		return NULL;
-+
-+	/*
-+	 * Link the private data to rfkill structure.
-+	 */
-+	input->private = key;
-+
-+	/*
-+	 * Allocate the strings for the input device names.
-+	 */
-+	name = kasprintf(GFP_KERNEL, "rfkill key%d: %s",
-+			 key->key_index, key->rfkill->dev_name);
-+	phys = kasprintf(GFP_KERNEL, "rfkill/%s/key%d",
-+			 key->type->name, key->key_index);
-+
-+	if (!name || !phys)
-+		goto exit;
-+
-+	input->name = name;
-+	input->phys = phys;
-+
-+	/*
-+	 * Initialize the input_id structure.
-+	 */
-+	input->id.bustype = BUS_HOST;
-+	input->id.vendor = 0x0001;
-+	input->id.product = 0x0001;
-+	input->id.version = 0x0001;
-+
-+	input->evbit[0] = BIT(EV_KEY);
-+	set_bit(KEY_RFKILL, input->keybit);
-+
-+	input->open = rfkill_open;
-+	input->close = rfkill_close;
-+
-+	status = input_register_device(input);
-+	if (status)
-+		goto exit;
-+
-+	return input;
-+
-+exit:
-+	input_free_device(input);
-+
-+	kfree(name);
-+	kfree(phys);
-+
-+	return NULL;
-+}
-+
-+/*
-+ * Input device deinitialization handler.
-+ */
-+static void rfkill_deregister_input(struct rfkill_key *key)
-+{
-+	const char *name;
-+	const char *phys;
-+
-+	/*
-+	 * The name and phys fields have been allocated
-+	 * using kasprintf, this means they have to be
-+	 * freed seperately.
-+	 */
-+	name = key->input->name;
-+	phys = key->input->phys;
-+
-+	input_unregister_device(key->input);
-+	kfree(name);
-+	kfree(phys);
-+}
-+
-+/*
-+ * Rfkill key initialization/deinitialization.
-+ * These methods should only be called with the key_sem held.
-+ */
-+static struct rfkill_key* rfkill_key_init(struct rfkill *rfkill, int status)
-+{
-+	struct rfkill_key *key;
-+
-+	key = kzalloc(sizeof(struct rfkill_key), GFP_KERNEL);
-+	if (unlikely(!key))
-+		return NULL;
-+
-+	/*
-+	 * Initialize all variables.
-+	 */
-+	key->rfkill = rfkill;
-+	rfkill->key = key;
-+	key->type = &master->type[rfkill->key_type];
-+	key->toggled = 0;
-+	key->radio_status = status;
-+	key->key_status = status;
-+	key->key_index = master->key_count++;
-+	INIT_LIST_HEAD(&key->entry);
-+
-+	/*
-+	 * Create input device.
-+	 */
-+	key->input = rfkill_register_input(key);
-+	if (!key->input)
-+		goto exit;
-+
-+	/*
-+	 * Create sysfs entry.
-+	 */
-+	if (rfkill_key_sysfs_create(master, key))
-+		goto exit;
-+
-+	return key;
-+
-+exit:
-+	rfkill_deregister_input(key);
-+	rfkill->key = NULL;
-+	kfree(key);
-+	return NULL;
-+}
-+
-+static void rfkill_key_deinit(struct rfkill_key *key)
-+{
-+	if (key) {
-+		rfkill_key_sysfs_release(key);
-+		rfkill_deregister_input(key);
++	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
++
++	if (vmcs_readl(sf->base) == save->base) {
++		vmcs_write16(sf->selector, save->selector);
++		vmcs_writel(sf->base, save->base);
++		vmcs_write32(sf->limit, save->limit);
++		vmcs_write32(sf->ar_bytes, save->ar);
++	} else {
++		u32 dpl = (vmcs_read16(sf->selector) & SELECTOR_RPL_MASK)
++			<< AR_DPL_SHIFT;
++		vmcs_write32(sf->ar_bytes, 0x93 | dpl);
 +	}
 +}
 +
-+/*
-+ * Rfkill type handler to check if the sysfs entries should
-+ * be created or removed based on the number of registered keys.
-+ */
-+static int rfkill_add_type_key(struct rfkill_type *type)
+ static void enter_pmode(struct kvm_vcpu *vcpu)
+ {
+ 	unsigned long flags;
+@@ -709,24 +760,10 @@ static void enter_pmode(struct kvm_vcpu 
+ 
+ 	update_exception_bitmap(vcpu);
+ 
+-	#define FIX_PMODE_DATASEG(seg, save) {				\
+-		if (vmcs_readl(GUEST_##seg##_BASE) == save.base) { \
+-			vmcs_write16(GUEST_##seg##_SELECTOR, save.selector); \
+-			vmcs_writel(GUEST_##seg##_BASE, save.base); \
+-			vmcs_write32(GUEST_##seg##_LIMIT, save.limit); \
+-			vmcs_write32(GUEST_##seg##_AR_BYTES, save.ar); \
+-		} else { \
+-			u32 dpl = (vmcs_read16(GUEST_##seg##_SELECTOR) & \
+-				   SELECTOR_RPL_MASK) << AR_DPL_SHIFT; \
+-			vmcs_write32(GUEST_##seg##_AR_BYTES, 0x93 | dpl); \
+-		} \
+-	}
+-
+-	FIX_PMODE_DATASEG(ES, vcpu->rmode.es);
+-	FIX_PMODE_DATASEG(DS, vcpu->rmode.ds);
+-	FIX_PMODE_DATASEG(GS, vcpu->rmode.gs);
+-	FIX_PMODE_DATASEG(FS, vcpu->rmode.fs);
+-
++	fix_pmode_dataseg(VCPU_SREG_ES, &vcpu->rmode.es);
++	fix_pmode_dataseg(VCPU_SREG_DS, &vcpu->rmode.ds);
++	fix_pmode_dataseg(VCPU_SREG_GS, &vcpu->rmode.gs);
++	fix_pmode_dataseg(VCPU_SREG_FS, &vcpu->rmode.fs);
+ 
+ 	vmcs_write16(GUEST_SS_SELECTOR, 0);
+ 	vmcs_write32(GUEST_SS_AR_BYTES, 0x93);
+@@ -742,6 +779,19 @@ static int rmode_tss_base(struct kvm* kv
+ 	return base_gfn << PAGE_SHIFT;
+ }
+ 
++static void fix_rmode_seg(int seg, struct kvm_save_segment *save)
 +{
-+	int status;
++	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
 +
-+	if (type->key_count) {
-+		type->key_count++;
-+		return 0;
++	save->selector = vmcs_read16(sf->selector);
++	save->base = vmcs_readl(sf->base);
++	save->limit = vmcs_read32(sf->limit);
++	save->ar = vmcs_read32(sf->ar_bytes);
++	vmcs_write16(sf->selector, vmcs_readl(sf->base) >> 4);
++	vmcs_write32(sf->limit, 0xffff);
++	vmcs_write32(sf->ar_bytes, 0xf3);
++}
++
+ static void enter_rmode(struct kvm_vcpu *vcpu)
+ {
+ 	unsigned long flags;
+@@ -766,17 +816,6 @@ static void enter_rmode(struct kvm_vcpu 
+ 	vmcs_writel(GUEST_CR4, vmcs_readl(GUEST_CR4) | CR4_VME_MASK);
+ 	update_exception_bitmap(vcpu);
+ 
+-	#define FIX_RMODE_SEG(seg, save) { \
+-		save.selector = vmcs_read16(GUEST_##seg##_SELECTOR); \
+-		save.base = vmcs_readl(GUEST_##seg##_BASE); \
+-		save.limit = vmcs_read32(GUEST_##seg##_LIMIT); \
+-		save.ar = vmcs_read32(GUEST_##seg##_AR_BYTES); \
+-		vmcs_write16(GUEST_##seg##_SELECTOR, 			   \
+-					vmcs_readl(GUEST_##seg##_BASE) >> 4); \
+-		vmcs_write32(GUEST_##seg##_LIMIT, 0xffff);		   \
+-		vmcs_write32(GUEST_##seg##_AR_BYTES, 0xf3);		   \
+-	}
+-
+ 	vmcs_write16(GUEST_SS_SELECTOR, vmcs_readl(GUEST_SS_BASE) >> 4);
+ 	vmcs_write32(GUEST_SS_LIMIT, 0xffff);
+ 	vmcs_write32(GUEST_SS_AR_BYTES, 0xf3);
+@@ -784,10 +823,10 @@ static void enter_rmode(struct kvm_vcpu 
+ 	vmcs_write32(GUEST_CS_AR_BYTES, 0xf3);
+ 	vmcs_write16(GUEST_CS_SELECTOR, vmcs_readl(GUEST_CS_BASE) >> 4);
+ 
+-	FIX_RMODE_SEG(ES, vcpu->rmode.es);
+-	FIX_RMODE_SEG(DS, vcpu->rmode.ds);
+-	FIX_RMODE_SEG(GS, vcpu->rmode.gs);
+-	FIX_RMODE_SEG(FS, vcpu->rmode.fs);
++	fix_rmode_seg(VCPU_SREG_ES, &vcpu->rmode.es);
++	fix_rmode_seg(VCPU_SREG_DS, &vcpu->rmode.ds);
++	fix_rmode_seg(VCPU_SREG_GS, &vcpu->rmode.gs);
++	fix_rmode_seg(VCPU_SREG_FS, &vcpu->rmode.fs);
+ }
+ 
+ static int init_rmode_tss(struct kvm* kvm)
+@@ -1116,6 +1155,16 @@ static void vmcs_write32_fixedbits(u32 m
+ 	vmcs_write32(vmcs_field, val);
+ }
+ 
++static void seg_setup(int seg)
++{
++	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
++
++	vmcs_write16(sf->selector, 0);
++	vmcs_writel(sf->base, 0);
++	vmcs_write32(sf->limit, 0xffff);
++	vmcs_write32(sf->ar_bytes, 0x93);
++}
++
+ /*
+  * Sets up the vmcs for emulated real mode.
+  */
+@@ -1146,13 +1195,6 @@ static int kvm_vcpu_setup(struct kvm_vcp
+ 
+ 	fx_init(vcpu);
+ 
+-#define SEG_SETUP(seg) do {					\
+-		vmcs_write16(GUEST_##seg##_SELECTOR, 0);	\
+-		vmcs_writel(GUEST_##seg##_BASE, 0);		\
+-		vmcs_write32(GUEST_##seg##_LIMIT, 0xffff);	\
+-		vmcs_write32(GUEST_##seg##_AR_BYTES, 0x93); 	\
+-	} while (0)
+-
+ 	/*
+ 	 * GUEST_CS_BASE should really be 0xffff0000, but VT vm86 mode
+ 	 * insists on having GUEST_CS_BASE == GUEST_CS_SELECTOR << 4.  Sigh.
+@@ -1162,11 +1204,11 @@ static int kvm_vcpu_setup(struct kvm_vcp
+ 	vmcs_write32(GUEST_CS_LIMIT, 0xffff);
+ 	vmcs_write32(GUEST_CS_AR_BYTES, 0x9b);
+ 
+-	SEG_SETUP(DS);
+-	SEG_SETUP(ES);
+-	SEG_SETUP(FS);
+-	SEG_SETUP(GS);
+-	SEG_SETUP(SS);
++	seg_setup(VCPU_SREG_DS);
++	seg_setup(VCPU_SREG_ES);
++	seg_setup(VCPU_SREG_FS);
++	seg_setup(VCPU_SREG_GS);
++	seg_setup(VCPU_SREG_SS);
+ 
+ 	vmcs_write16(GUEST_TR_SELECTOR, 0);
+ 	vmcs_writel(GUEST_TR_BASE, 0);
+@@ -2900,6 +2942,28 @@ static int kvm_dev_ioctl_set_regs(struct
+ 	return 0;
+ }
+ 
++static void get_segment(struct kvm_segment *var, int seg)
++{
++	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
++	u32 ar;
++
++	var->base = vmcs_readl(sf->base);
++	var->limit = vmcs_read32(sf->limit);
++	var->selector = vmcs_read16(sf->selector);
++	ar = vmcs_read32(sf->ar_bytes);
++	if (ar & AR_UNUSABLE_MASK)
++		ar = 0;
++	var->type = ar & 15;
++	var->s = (ar >> 4) & 1;
++	var->dpl = (ar >> 5) & 3;
++	var->present = (ar >> 7) & 1;
++	var->avl = (ar >> 12) & 1;
++	var->l = (ar >> 13) & 1;
++	var->db = (ar >> 14) & 1;
++	var->g = (ar >> 15) & 1;
++	var->unusable = (ar >> 16) & 1;
++}
++
+ static int kvm_dev_ioctl_get_sregs(struct kvm *kvm, struct kvm_sregs *sregs)
+ {
+ 	struct kvm_vcpu *vcpu;
+@@ -2910,36 +2974,15 @@ static int kvm_dev_ioctl_get_sregs(struc
+ 	if (!vcpu)
+ 		return -ENOENT;
+ 
+-#define get_segment(var, seg) \
+-	do { \
+-		u32 ar; \
+-		\
+-		sregs->var.base = vmcs_readl(GUEST_##seg##_BASE); \
+-		sregs->var.limit = vmcs_read32(GUEST_##seg##_LIMIT); \
+-		sregs->var.selector = vmcs_read16(GUEST_##seg##_SELECTOR); \
+-		ar = vmcs_read32(GUEST_##seg##_AR_BYTES); \
+-		if (ar & AR_UNUSABLE_MASK) ar = 0; \
+-		sregs->var.type = ar & 15; \
+-		sregs->var.s = (ar >> 4) & 1; \
+-		sregs->var.dpl = (ar >> 5) & 3; \
+-		sregs->var.present = (ar >> 7) & 1; \
+-		sregs->var.avl = (ar >> 12) & 1; \
+-		sregs->var.l = (ar >> 13) & 1; \
+-		sregs->var.db = (ar >> 14) & 1; \
+-		sregs->var.g = (ar >> 15) & 1; \
+-		sregs->var.unusable = (ar >> 16) & 1; \
+-	} while (0);
+-
+-	get_segment(cs, CS);
+-	get_segment(ds, DS);
+-	get_segment(es, ES);
+-	get_segment(fs, FS);
+-	get_segment(gs, GS);
+-	get_segment(ss, SS);
+-
+-	get_segment(tr, TR);
+-	get_segment(ldt, LDTR);
+-#undef get_segment
++	get_segment(&sregs->cs, VCPU_SREG_CS);
++	get_segment(&sregs->ds, VCPU_SREG_DS);
++	get_segment(&sregs->es, VCPU_SREG_ES);
++	get_segment(&sregs->fs, VCPU_SREG_FS);
++	get_segment(&sregs->gs, VCPU_SREG_GS);
++	get_segment(&sregs->ss, VCPU_SREG_SS);
++
++	get_segment(&sregs->tr, VCPU_SREG_TR);
++	get_segment(&sregs->ldt, VCPU_SREG_LDTR);
+ 
+ #define get_dtable(var, table) \
+ 	sregs->var.limit = vmcs_read32(GUEST_##table##_LIMIT), \
+@@ -2964,6 +3007,29 @@ static int kvm_dev_ioctl_get_sregs(struc
+ 	return 0;
+ }
+ 
++static void set_segment(struct kvm_segment *var, int seg)
++{
++	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
++	u32 ar;
++
++	vmcs_writel(sf->base, var->base);
++	vmcs_write32(sf->limit, var->limit);
++	vmcs_write16(sf->selector, var->selector);
++	if (var->unusable)
++		ar = 1 << 16;
++	else {
++		ar = var->type & 15;
++		ar |= (var->s & 1) << 4;
++		ar |= (var->dpl & 3) << 5;
++		ar |= (var->present & 1) << 7;
++		ar |= (var->avl & 1) << 12;
++		ar |= (var->l & 1) << 13;
++		ar |= (var->db & 1) << 14;
++		ar |= (var->g & 1) << 15;
 +	}
-+
-+	status = rfkill_type_sysfs_create(master, type);
-+	if (status)
-+		return status;
-+
-+	type->key_count = 1;
-+	return 0;
++	vmcs_write32(sf->ar_bytes, ar);
 +}
 +
-+static void rfkill_del_type_key(struct rfkill_type *type)
-+{
-+	if (!--type->key_count)
-+		rfkill_type_sysfs_release(type);
-+}
-+
-+/*
-+ * Function called by the key driver when the rfkill structure
-+ * needs to be registered.
-+ */
-+int rfkill_register_key(struct rfkill *rfkill, int init_status)
-+{
-+	struct rfkill_type *type = &master->type[rfkill->key_type];
-+	struct rfkill_key *key;
-+	int status;
-+
-+	if (!rfkill)
-+		return -EINVAL;	
-+
-+	if (rfkill->key_type >= KEY_TYPE_MAX)
-+		return -EINVAL;
-+
-+	/*
-+	 * Increase module use count to prevent this
-+	 * module to be unloaded while there are still
-+	 * registered keys.
-+	 */
-+	if (!try_module_get(THIS_MODULE))
-+		return -EBUSY;
-+
-+	down(&master->key_sem);
-+
-+	/*
-+	 * Initialize key, and if required the type.
-+	 */
-+	status = rfkill_add_type_key(type);
-+	if (status)
-+		goto exit;
-+
-+	key = rfkill_key_init(rfkill, init_status);
-+	if (!key) {
-+		status = -ENOMEM;
-+		goto exit_type;
-+	}
-+
-+	/*
-+	 * Add key to our list.
-+	 */
-+	list_add(&key->entry, &master->key_list);
-+
-+	/*
-+	 * Check if we need polling, and if we do
-+	 * increase the poll required counter and check
-+	 * if we weren't polling yet.
-+	 */
-+	if (rfkill->poll && !master->poll_required++)
-+		schedule_delayed_work(&master->poll_work, RFKILL_POLL_DELAY);
-+
-+	up(&master->key_sem);
-+
-+	return 0;
-+
-+exit_type:
-+	rfkill_del_type_key(type);
-+
-+exit:
-+	up(&master->key_sem);
-+	module_put(THIS_MODULE);
-+
-+	return status;
-+}
-+EXPORT_SYMBOL_GPL(rfkill_register_key);
-+
-+/*
-+ * Function called by the key driver when the rfkill structure
-+ * needs to be deregistered.
-+ */
-+int rfkill_deregister_key(struct rfkill *rfkill)
-+{
-+	struct rfkill_type *type;
-+
-+	if (!rfkill || !rfkill->key)
-+		return -EINVAL;
-+
-+	down(&master->key_sem);
-+
-+	/*
-+	 * Cancel delayed work if this is the last key
-+	 * that requires polling. It is not bad if
-+	 * if the workqueue is still running,
-+	 * the workqueue won't rearm itself since the
-+	 * poll_required variable has been set.
-+	 * and we have protected the list with a semaphore.
-+	 */
-+	if (rfkill->poll && !--master->poll_required)
-+		cancel_delayed_work(&master->poll_work);
-+
-+	/*
-+	 * Delete the rfkill structure to the list.
-+	 */
-+	list_del(&rfkill->key->entry);
-+
-+	/*
-+	 * Deinitialize key.
-+	 */
-+	type = rfkill->key->type;
-+	rfkill_key_deinit(rfkill->key);
-+	rfkill_del_type_key(type);
-+
-+	up(&master->key_sem);
-+
-+	/*
-+	 * rfkill entry has been removed,
-+	 * decrease module use count.
-+	 */
-+	module_put(THIS_MODULE);
-+	
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(rfkill_deregister_key);
-+
-+/*
-+ * Rfkill type initialization.
-+ */
-+static void rfkill_type_init(unsigned int key_type, char *name)
-+{
-+	struct rfkill_type *type = &master->type[key_type];
-+
-+	/*
-+	 * Initialize all variables.
-+	 */
-+	type->name = name;
-+	type->key_type = key_type;
-+	type->key_count = 0;
-+}
-+
-+/*
-+ * Rfkill master initialization/deinitialization.
-+ */
-+static int rfkill_master_init(void)
-+{
-+	int status;
-+
-+	master = kzalloc(sizeof(struct rfkill_master), GFP_KERNEL);
-+	if (unlikely(!master))
-+		return -ENOMEM;
-+
-+	/*
-+	 * Initialize all variables.
-+	 */
-+	init_MUTEX(&master->key_sem);
-+	INIT_LIST_HEAD(&master->key_list);
-+	INIT_WORK(&master->toggle_work, &rfkill_toggle_radio, NULL);
-+	INIT_WORK(&master->poll_work, &rfkill_list_poll, NULL);
-+
-+	/*
-+	 * Initialize all type structures.
-+	 */
-+	rfkill_type_init(KEY_TYPE_WIFI, "wifi");
-+	rfkill_type_init(KEY_TYPE_BlUETOOTH, "bluetooth");
-+	rfkill_type_init(KEY_TYPE_IRDA, "irda");
-+
-+	/*
-+	 * Create sysfs entry.
-+	 */
-+	status = rfkill_master_sysfs_create(master);
-+	if (status) {
-+		kfree(master);
-+		master = NULL;
-+		return status;
-+	}
-+
-+	return 0;
-+}
-+
-+static void rfkill_master_deinit(void)
-+{
-+	if (master) {
-+		rfkill_master_sysfs_release(master);
-+		kfree(master);
-+		master = NULL;
-+	}
-+}
-+
-+/*
-+ * Module initialization/deinitialization.
-+ */
-+static int __init rfkill_init(void)
-+{
-+	printk(KERN_INFO "Loading rfkill driver.\n");
-+
-+	return rfkill_master_init();
-+}
-+
-+static void __exit rfkill_exit(void)
-+{
-+	rfkill_master_deinit();
-+
-+	printk(KERN_INFO "Unloading rfkill driver.\n");
-+}
-+
-+module_init(rfkill_init);
-+module_exit(rfkill_exit);
-diff --git a/include/linux/rfkill.h b/include/linux/rfkill.h
-new file mode 100644
-index 0000000..a455548
---- /dev/null
-+++ b/include/linux/rfkill.h
-@@ -0,0 +1,140 @@
-+/*
-+	Copyright (C) 2006 Ivo van Doorn
-+
-+	This program is free software; you can redistribute it and/or modify
-+	it under the terms of the GNU General Public License as published by
-+	the Free Software Foundation; either version 2 of the License, or
-+	(at your option) any later version.
-+
-+	This program is distributed in the hope that it will be useful,
-+	but WITHOUT ANY WARRANTY; without even the implied warranty of
-+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+	GNU General Public License for more details.
-+
-+	You should have received a copy of the GNU General Public License
-+	along with this program; if not, write to the
-+	Free Software Foundation, Inc.,
-+	59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ */
-+
-+/*
-+	RF button support
-+	Laptops are quite often equiped with a RF key to enable or
-+	disable the radio of the wireless device attached to that key.
-+	This wireless device usually is an integrated wireless network device,
-+	infrared or bluetooth device.
-+	Some of these devices will disable the radio automatically when the
-+	RF key has been pressed, while other devices need to be polled
-+	for the RF key status, and leave the action to be taken up to the
-+	driver for that particular device.
-+	But in all cases the only interface that will have its radio disabled
-+	will be the device that has the RF key attached to it. It could however
-+	be desired that userspace performs this disabling of the radios in case
-+	more things than just disabling a single radio is desired.
-+
-+	The rfkill driver will contain a list of all devices with a RF button,
-+	and hardware drivers need to register their hardware to the rfkill
-+	interface. Rfkill will then take care of everything. If the RF key
-+	requires polling to obtain the status this will be handled by rfkill.
-+	If the RF key does not require polling but sends for example interrupts,
-+	the hardware driver can report the change of status to rfkill, without
-+	having to do any other action.
-+	Once the status of the key has changed and the hardware does not
-+	automatically enable or disable the radio rfkill provides the
-+	interface to do this correctly.
-+
-+	For each registered hardware button an input device will be created.
-+	If this input device has been opened by the user, rfkill will send a
-+	signal to userspace instead of the hardware about the new button
-+	status. This will allow userpace to perform the correct steps
-+	in order to bring down all interfaces.
-+ */
-+
-+#ifndef RFKILL_H
-+#define RFKILL_H
-+
-+#include <linux/device.h>
-+
-+#define RFKILL_POLL_DELAY	( HZ / 10 )
-+
-+enum key_type {
-+	KEY_TYPE_WIFI = 0,
-+	KEY_TYPE_BlUETOOTH = 1,
-+	KEY_TYPE_IRDA = 2,
-+	KEY_TYPE_MAX = 3,
-+};
-+
-+/**
-+ * struct rfkill - rfkill button control structure.
-+ *
-+ * @dev_name: Name of the interface. This will become the name
-+ * 	of the input device which will be created for this button.
-+ * @dev: Pointer to the device structure to which this button belongs to.
-+ * @data: Pointer to the RF button drivers private data which will be
-+ * 	passed along with the radio and polling handlers.
-+ * @poll(void *data): Optional handler which will frequently be
-+ * 	called to determine the current status of the RF button.
-+ * @enable_radio(void *data): Optional handler to enable the radio
-+ * 	once the RF button has been pressed and the hardware does enable
-+ * 	the radio automaticly.
-+ * @disable_radio(void *data): Optional handler to disable the radio
-+ * 	once the RF button has been pressed and the hardware does disable
-+ * 	the radio automaticly.
-+ * @key_type: Radio type which the button controls, the value stored
-+ * 	here should be a value from enum key_type.
-+ * @key: Internal pointer that should not be touched by key driver.
-+ *
-+ * This structure can be used by a key driver to register the key
-+ * to the rfkill driver in order to take control of the reporting
-+ * to userspace or handling of radio status.
-+ */
-+struct rfkill {
-+	const char *dev_name;
-+
-+	struct device *dev;
-+
-+	void *data;
-+	int (*poll)(void *data);
-+	void (*enable_radio)(void *data);
-+	void (*disable_radio)(void *data);
-+
-+	unsigned int key_type;
-+
-+	struct rfkill_key *key;
-+};
-+
-+/**
-+ * rfkill_register_key - Deregister a previously registered rfkill structre.
-+ * @rfkill: rfkill structure to be deregistered
-+ * @init_status: initial status of the key at the time this function is called
-+ *
-+ * This function should be called by the key driver when the rfkill structure
-+ * needs to be registered. Immediately from registration the key driver
-+ * should be able to receive calls through the poll, enable_radio and
-+ * disable_radio handlers if those were registered.
-+ */
-+int rfkill_register_key(struct rfkill *rfkill, int init_status);
-+
-+/**
-+ * rfkill_deregister_key - Deregister a previously registered rfkill structre.
-+ * @rfkill: rfkill structure to be deregistered
-+ *
-+ * This function should be called by the key driver when the rfkill structure
-+ * needs to be deregistered. This function may only be called if it was
-+ * previously registered with rfkill_register_key.
-+ */
-+int rfkill_deregister_key(struct rfkill *rfkill);
-+
-+/**
-+ * rfkill_report_event - Report change in key status to rfkill handler.
-+ * @rfkill: rfkill structure registered by key driver
-+ * @new_status: new key status
-+ *
-+ * This function should be called by the key driver if it has not provided
-+ * a poll handler with rfkill. As soon as the key driver has determined
-+ * the status of the key has changed it should report the new status
-+ * through this function.
-+ */
-+void rfkill_report_event(struct rfkill *rfkill, int new_status);
-+
-+#endif /* RFKILL_H */
+ static int kvm_dev_ioctl_set_sregs(struct kvm *kvm, struct kvm_sregs *sregs)
+ {
+ 	struct kvm_vcpu *vcpu;
+@@ -2975,39 +3041,15 @@ static int kvm_dev_ioctl_set_sregs(struc
+ 	if (!vcpu)
+ 		return -ENOENT;
+ 
+-#define set_segment(var, seg) \
+-	do { \
+-		u32 ar; \
+-		\
+-		vmcs_writel(GUEST_##seg##_BASE, sregs->var.base);  \
+-		vmcs_write32(GUEST_##seg##_LIMIT, sregs->var.limit); \
+-		vmcs_write16(GUEST_##seg##_SELECTOR, sregs->var.selector); \
+-		if (sregs->var.unusable) { \
+-			ar = (1 << 16); \
+-		} else { \
+-			ar = (sregs->var.type & 15); \
+-			ar |= (sregs->var.s & 1) << 4; \
+-			ar |= (sregs->var.dpl & 3) << 5; \
+-			ar |= (sregs->var.present & 1) << 7; \
+-			ar |= (sregs->var.avl & 1) << 12; \
+-			ar |= (sregs->var.l & 1) << 13; \
+-			ar |= (sregs->var.db & 1) << 14; \
+-			ar |= (sregs->var.g & 1) << 15; \
+-		} \
+-		vmcs_write32(GUEST_##seg##_AR_BYTES, ar); \
+-	} while (0);
+-
+-	set_segment(cs, CS);
+-	set_segment(ds, DS);
+-	set_segment(es, ES);
+-	set_segment(fs, FS);
+-	set_segment(gs, GS);
+-	set_segment(ss, SS);
+-
+-	set_segment(tr, TR);
++	set_segment(&sregs->cs, VCPU_SREG_CS);
++	set_segment(&sregs->ds, VCPU_SREG_DS);
++	set_segment(&sregs->es, VCPU_SREG_ES);
++	set_segment(&sregs->fs, VCPU_SREG_FS);
++	set_segment(&sregs->gs, VCPU_SREG_GS);
++	set_segment(&sregs->ss, VCPU_SREG_SS);
+ 
+-	set_segment(ldt, LDTR);
+-#undef set_segment
++	set_segment(&sregs->tr, VCPU_SREG_TR);
++	set_segment(&sregs->ldt, VCPU_SREG_LDTR);
+ 
+ #define set_dtable(var, table) \
+ 	vmcs_write32(GUEST_##table##_LIMIT, sregs->var.limit), \

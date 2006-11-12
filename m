@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755115AbWKLNa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755122AbWKLNhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755115AbWKLNa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 08:30:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755116AbWKLNa6
+	id S1755122AbWKLNhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 08:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755126AbWKLNhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 08:30:58 -0500
-Received: from 87-194-8-8.bethere.co.uk ([87.194.8.8]:26865 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1755114AbWKLNa5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 08:30:57 -0500
-Date: Sun, 12 Nov 2006 13:30:46 +0000
-From: Ben Dooks <ben-linux@fluff.org>
-To: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+	Sun, 12 Nov 2006 08:37:16 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:60869 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1755122AbWKLNhO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 08:37:14 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: 2.6.19-rc5: grub is much slower resuming from suspend-to-disk than in 2.6.18
+Date: Sun, 12 Nov 2006 14:34:28 +0100
+User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: arm920t s3c24xx
-Message-ID: <20061112133046.GB29674@home.fluff.org>
-References: <45424CEF.7010808@gandalf.sssup.it>
+References: <200611121436.46436.arvidjaar@mail.ru> <200611121326.12309.rjw@sisk.pl> <200611121546.46013.arvidjaar@mail.ru>
+In-Reply-To: <200611121546.46013.arvidjaar@mail.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45424CEF.7010808@gandalf.sssup.it>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611121434.28421.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2006 at 08:16:15PM +0200, Michael Trimarchi wrote:
-> Hi,
-> I'm working on an s3c2410 and I notice that in the kernel there is not a
-> function to read the bus mode of the arm920t. The kernel may fail to
-> report the correct frequencies of the core to the user level. It can
-> read the cp15 register to show the core frequency that can be taken from
-> the amba bus or the flck.
+On Sunday, 12 November 2006 13:46, Andrey Borzenkov wrote:
+> On Sunday 12 November 2006 15:26, Rafael J. Wysocki wrote:
+> > Hi,
+> >
+> > On Sunday, 12 November 2006 12:36, Andrey Borzenkov wrote:
+> > > This is rather funny; in 2.6.19-rc5 grub is *really* slow loading kernel
+> > > when I switch on the system after suspend to disk. Actually, after kernel
+> > > has been loaded, the whole resuming (up to the point I have usable
+> > > desktop again) takes about three time less than the process of loading
+> > > kernel + initrd. During loading disk LED is constantly lit. This almost
+> > > looks like kernel leaves HDD in some strange state, although I always
+> > > assumed HDD/IDE is completely reinitialized in this case.
+> >
+> > Can you please see what's in the /sys/power/disk file?
+> >
+> 
+> {pts/0}% cat /sys/power/disk
+> shutdown
 
-All the frequencies are reported correctly, as there is no
-current reporting of the actual ARM frequency, only the system
-clocks, F, H and P.
+Can you please write "platform" to this file before the suspend and see if
+anything changes?
+
+Rafael
+
 
 -- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

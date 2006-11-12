@@ -1,77 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753250AbWKLVoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753251AbWKLVr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753250AbWKLVoq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 16:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753255AbWKLVoq
+	id S1753251AbWKLVr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 16:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753255AbWKLVrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 16:44:46 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:63437 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1753250AbWKLVop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 16:44:45 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: [patch] floppy: suspend/resume fix
-To: Ingo Molnar <mingo@elte.hu>, Mikael Pettersson <mikpe@it.uu.se>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sun, 12 Nov 2006 22:44:28 +0100
-References: <7grMO-2YO-55@gated-at.bofh.it> <7gs69-46A-37@gated-at.bofh.it> <7gtvd-7xg-23@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1GjN7s-00024n-VV@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert%gmx.de-bounce@7eggert.dyndns.org
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+	Sun, 12 Nov 2006 16:47:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4739 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1753251AbWKLVrY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 16:47:24 -0500
+Date: Sun, 12 Nov 2006 16:45:40 -0500
+From: Dave Jones <davej@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       David Howells <dhowells@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com,
+       ak@suse.de
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
+Message-ID: <20061112214540.GB31649@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	David Howells <dhowells@redhat.com>,
+	Neil Brown <neilb@cse.unsw.edu.au>,
+	"bugme-daemon@kernel-bugs.osdl.org" <bugme-daemon@bugzilla.kernel.org>,
+	linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com,
+	ak@suse.de
+References: <20061111100038.6277efd4.akpm@osdl.org> <1163268603.3293.45.camel@laptopd505.fenrus.org> <20061111101942.5f3f2537.akpm@osdl.org> <1163332237.3293.100.camel@laptopd505.fenrus.org> <20061112125357.GH25057@stusta.de> <1163337376.3293.120.camel@laptopd505.fenrus.org> <20061112133759.GK25057@stusta.de> <1163339868.3293.126.camel@laptopd505.fenrus.org> <20061112141016.GA5297@stusta.de> <1163340998.3293.131.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1163340998.3293.131.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Sun, Nov 12, 2006 at 03:16:38PM +0100, Arjan van de Ven wrote:
+ > 
+ > > > We KNOW it can't work on a sizable amount of machines.  This is why it
+ > > > is a config option; you can enable it if YOUR machine is KNOWN to work,
+ > > > and you get some gains. But it's also understood that it often it won't
+ > > > work. So any sensible distro (since they have to aim for a wide
+ > > > audience) disables this option ...
+ > > 
+ > > Nowadays, many distributions only ship CONFIG_SMP=y kernels...
+ > 
+ > that's a calculated risk on their side (and they know that); they're
+ > balancing not functioning on a set of machines off against needing more
+ > kernels.
 
-> At a guess, what's probably happening is that the floppy drive, when
-> powered on after resume, reports "disk changed" because it doesn't
-> know any better.
-> 
-> We interpret "disk changed" to mean the disk has been removed and
-> possibly changed (which _is_ correct) and thereby abort any further
-> IO (irrespective of resume.)
-> 
-> Now, consider the following two scenarios:
-> 
-> 1. You suspend and then resume, leaving the disk in the floppy drive.
-> 
-> 2. You suspend, remove the floppy disk, insert a totally different disk
->    in the same drive, and then resume.
-> 
-> What should you do?  (Hint: without reading the disk and comparing it
-> with what you have cached you don't know if the disk has been changed
-> or not.)
-> 
-> If you argue that in case (1) you should continue to allow IO, then
-> you potentially end up scribbling over a disk when someone does (2).
-> 
-> So I'd argue that the behaviour being seen by Mikael is the _safest_
-> behaviour, and the most correct behaviour given the limitations of
-> the hardware.
+Andi has a nice patch in the suse kernel which adds heuristics to disable
+apic on systems where it isn't likely to work.  It DTRT in at least
+one problem case that I know of.   The actual fall-out from enabling
+'run SMP kernels on UP i686' for FC6 has mostly been a non-event.
+Literally a handful of cases, that will likely all get caught and worked
+around by Andi's patch or similar.
 
-- If a user suspends with a floppy in the drive, it will mostly be an error,
-  and he'll unsuspend in order to correct it.
-- If it is no error, putting a different/modified floppy into the drive
-  before resume is unlikely
-- Even if somebody does this, you can mostly detect the different disk
-  by comparing the first sector or just the FAT "serial number".
+		Dave
 
-Therefore you can implement a relatively safe resume that will mostly DTRT
-but destroy data in some unlikely cases, while doing the "safe thing" would
-mostly cause a harmless (unless not noticed) kind of data loss and sometimes
-safe you from real data loss.
-
-I think you should let the user choose which foot to shoot.
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html
+http://www.codemonkey.org.uk

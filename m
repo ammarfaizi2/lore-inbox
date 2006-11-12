@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932951AbWKLQb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWKLQtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932951AbWKLQb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 11:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932952AbWKLQb0
+	id S932487AbWKLQtI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 11:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755117AbWKLQtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 11:31:26 -0500
-Received: from mx2.rowland.org ([192.131.102.7]:6926 "HELO mx2.rowland.org")
-	by vger.kernel.org with SMTP id S932951AbWKLQb0 (ORCPT
+	Sun, 12 Nov 2006 11:49:07 -0500
+Received: from mail.gmx.net ([213.165.64.20]:456 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1755099AbWKLQtF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 11:31:26 -0500
-Date: Sun, 12 Nov 2006 11:31:24 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-cc: David Brownell <david-b@pacbell.net>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6.19-rc5 regression: can't disable OHCI
- wakeup via sysfs
-In-Reply-To: <200611111429.56345.arvidjaar@mail.ru>
-Message-ID: <Pine.LNX.4.44L0.0611121120110.6353-100000@netrider.rowland.org>
+	Sun, 12 Nov 2006 11:49:05 -0500
+X-Authenticated: #24128601
+Date: Sun, 12 Nov 2006 17:45:26 +0100
+From: Sebastian Kemper <sebastian_ml@gmx.net>
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: Re: idecd: attempt to access beyond end of device
+Message-ID: <20061112164526.GA5546@section_eight>
+Mail-Followup-To: Sebastian Kemper <sebastian_ml@gmx.net>,
+	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+References: <20061112120736.GA4062@section_eight> <20061112155125.799ff7c6@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061112155125.799ff7c6@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Nov 2006, Andrey Borzenkov wrote:
-
-> On Tuesday 20 June 2006 00:12, David Brownell wrote:
-> > > > > > An alternative (but post-boot) workaround _should_ be
-> > > > > >
-> > > > > >     echo disabled > /sys/bus/pci/devices/0000:00:02.0/power/wakeup
-> > > >
-> > > > Did that work?
-> > >
-> > > No. But
-> > >
-> > > 	echo -n disabled >
-> > > /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup
-> >
-> > That's what I meant ... thanks, and sorry for the confusion.
+On Sun, Nov 12, 2006 at 03:51:25PM +0000, Alan wrote:
+> On Sun, 12 Nov 2006 13:07:36 +0100
+> Sebastian Kemper <sebastian_ml@gmx.net> wrote:
 > 
-> this does not work anymore in current rc5. After writing 
-> cat /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup shows "disabled" 
-> but messages continue to be logged.
+> > Hello list,
+> > 
+> > I'm getting these errors trying to mount a burned DVD-R:
+> > 
+> > Nov  8 12:39:08 section_eight attempt to access beyond end of device
+> > Nov  8 12:39:08 section_eight hdc: rw=0, want=68, limit=4
+> > Nov  8 12:39:08 section_eight isofs_fill_super: bread failed, dev=hdc,
+> > iso_blknum=16, block=1
+> > 
+> > The drive is a NEC ND-4550A ATAPI. I use idecd and kernel 2.6.18.2.
 > 
-> Anything I can do to help narrow it down?
+> Does this occur with ide-scsi as well ?
+> 
 
-Undoubtedly this change in behavior is caused by the "autostop" code I 
-added to ohci-hcd.  It doesn't check the "wakeup" attribute.
+Hi Alan,
 
-Dave, is there any clue about exactly what triggers the immediate wakeup?  
-If you could tell me what to test for, I could try writing a patch to fix 
-it.  Perhaps the driver needs a "resume_detect_is_broken" quirk.
+yes, the same happens with ide-scsi:
 
-Andrey, if you aren't using USB at all (you mentioned that no devices were 
-plugged in), you can simply do "rmmod ohci-hcd" to stop all those log 
-messages.
+mount dvdrw/
+mount: wrong fs type, bad option, bad superblock on /dev/sr0,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
 
-Alan Stern
+syslog:
 
+Nov 12 17:41:59 section_eight attempt to access beyond end of device
+Nov 12 17:41:59 section_eight sr0: rw=0, want=68, limit=4
+Nov 12 17:41:59 section_eight isofs_fill_super: bread failed, dev=sr0,
+iso_blknum=16, block=16
+
+Regards
+Sebastian

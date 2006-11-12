@@ -1,117 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932935AbWKLPpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932936AbWKLPsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932935AbWKLPpd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 10:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932936AbWKLPpd
+	id S932936AbWKLPsF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 10:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932937AbWKLPsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 10:45:33 -0500
-Received: from mga03.intel.com ([143.182.124.21]:38749 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S932935AbWKLPpc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 10:45:32 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,414,1157353200"; 
-   d="scan'208"; a="144998649:sNHT26783953"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH 2.6.18.2] EFI: mapping memory region of runtime services when using memmap kernel parameter
-Date: Sun, 12 Nov 2006 17:45:26 +0200
-Message-ID: <C1467C8B168BCF40ACEC2324C1A2B074016C5DE9@hasmsx411.ger.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.18.2] EFI: mapping memory region of runtime services when using memmap kernel parameter
-thread-index: AccGcZK/LK2WA67/QtKDjoY/2v3DnA==
-From: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
-To: <davej@codemonkey.org.uk>, <hpa@zytor.com>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Narayanan, Chandramouli" <chandramouli.narayanan@intel.com>,
-       "Jiossy, Rami" <rami.jiossy@intel.com>,
-       "Satt, Shai" <shai.satt@intel.com>
-X-OriginalArrivalTime: 12 Nov 2006 15:45:27.0586 (UTC) FILETIME=[934F3020:01C70671]
+	Sun, 12 Nov 2006 10:48:05 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53443 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932936AbWKLPsC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 10:48:02 -0500
+Date: Sun, 12 Nov 2006 16:47:12 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [patch] floppy: suspend/resume fix
+Message-ID: <20061112154711.GA14543@elte.hu>
+References: <200611112048.kABKmg2u002509@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611112048.kABKmg2u002509@harpo.it.uu.se>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
- 
-When using memmap kernel parameter in EFI boot we should also map memory
-regions of runtime services to enable their mapping later.
+* Mikael Pettersson <mikpe@it.uu.se> wrote:
 
-Signed-off-by: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
+> On my old Dell Latitude laptop, the first access to the floppy after 
+> having resumed from APM suspend fails miserably and generates these 
+> kernel messages (from 2.6.19-rc5):
+[...]
+
+> It's only the first post-resume access that triggers this failure, 
+> subsequent accesses do work.
+> 
+> I've traced the cause to Ingo's lockdep patch in 2.6.18-rc1 (see 
+> below): reverting it makes the floppy work after resume again.
+
+could you check the patch below? I had to add a platform driver to 
+floppy.c to get suspend/resume callbacks, but otherwise it's relatively 
+straightforward.
+
+	Ingo
+
+----------------------->
+Subject: [patch] floppy: suspend/resume fix
+From: Ingo Molnar <mingo@elte.hu>
+
+introduce a floppy platform-driver and suspend/resume ops to
+stop/start the floppy driver. Bug reported by Mikael Pettersson.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
+ drivers/block/floppy.c |   31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
-diff -uprN linux-2.6.18.2.orig/arch/i386/kernel/setup.c
-linux-2.6.18.2/arch/i386/kernel/setup.c
---- linux-2.6.18.2.orig/arch/i386/kernel/setup.c	2006-11-12
-11:22:22.000000000 +0200
-+++ linux-2.6.18.2/arch/i386/kernel/setup.c	2006-11-12
-16:31:32.000000000 +0200
-@@ -364,28 +364,44 @@ static void __init probe_roms(void)
- 	}
+Index: linux/drivers/block/floppy.c
+===================================================================
+--- linux.orig/drivers/block/floppy.c
++++ linux/drivers/block/floppy.c
+@@ -4157,6 +4157,28 @@ static void floppy_device_release(struct
+ 	complete(&device_release);
  }
  
-+extern int is_available_memory(efi_memory_desc_t * md);
++static int floppy_suspend(struct platform_device *dev, pm_message_t state)
++{
++	floppy_release_irq_and_dma();
 +
- static void __init limit_regions(unsigned long long size)
- {
- 	unsigned long long current_addr = 0;
--	int i;
-+	int i , j;
++	return 0;
++}
++
++static int floppy_resume(struct platform_device *dev)
++{
++	floppy_grab_irq_and_dma();
++
++	return 0;
++}
++
++static struct platform_driver floppy_driver = {
++	.suspend	= floppy_suspend,
++	.resume		= floppy_resume,
++	.driver		= {
++		.name	= "floppy",
++	},
++};
++
+ static struct platform_device floppy_device[N_DRIVE];
  
--	if (efi_enabled) {
--		efi_memory_desc_t *md;
--		void *p;
-+	if (efi_enabled) {		
-+		efi_memory_desc_t *md, *next_md = 0;
-+		void *p, *p1;
+ static struct kobject *floppy_find(dev_t dev, int *part, void *data)
+@@ -4205,10 +4227,14 @@ static int __init floppy_init(void)
+ 	if (err)
+ 		goto out_put_disk;
  
--		for (p = memmap.map, i = 0; p < memmap.map_end;
-+		for (p = memmap.map, i = 0,j = 0, p1 = memmap.map; p <
-memmap.map_end;
- 			p += memmap.desc_size, i++) {
- 			md = p;
-+			next_md = p1;
- 			current_addr = md->phys_addr + (md->num_pages <<
-12);
--			if (md->type == EFI_CONVENTIONAL_MEMORY) {
--				if (current_addr >= size) {
--					md->num_pages -=
--						(((current_addr-size) +
-PAGE_SIZE-1) >> PAGE_SHIFT);
--					memmap.nr_map = i + 1;
--					return;
-+			if (is_available_memory(md)) {
-+				if (md->phys_addr >= size) continue;
-+				memcpy(next_md, md, memmap.desc_size);
-
-+                                if (current_addr >= size) {
-+					next_md->num_pages -=
-(((current_addr-size) + PAGE_SIZE-1) >> PAGE_SHIFT);
- 				}
-+				p1 += memmap.desc_size;
-+				next_md = p1;
-+				j++;
- 			}
--		}
-+			else if ((md->attribute & EFI_MEMORY_RUNTIME) ==
-EFI_MEMORY_RUNTIME) {
-+				/* In order to make runtime services
-available we have to include runtime 
-+				 * memory regions in memory map */
-+				memcpy(next_md, md, memmap.desc_size);
-+				p1 += memmap.desc_size;
-+				next_md = p1;
-+				j++;
-+			}		
-+		}
-+		memmap.nr_map = j;
-+		memmap.map_end = memmap.map + (memmap.nr_map *
-memmap.desc_size);
-+                return;
++	err = platform_driver_register(&floppy_driver);
++	if (err)
++		goto out_unreg_blkdev;
++
+ 	floppy_queue = blk_init_queue(do_fd_request, &floppy_lock);
+ 	if (!floppy_queue) {
+ 		err = -ENOMEM;
+-		goto out_unreg_blkdev;
++		goto out_unreg_driver;
  	}
- 	for (i = 0; i < e820.nr_map; i++) {
- 		current_addr = e820.map[i].addr + e820.map[i].size;
+ 	blk_queue_max_sectors(floppy_queue, 64);
+ 
+@@ -4352,6 +4378,8 @@ out_flush_work:
+ out_unreg_region:
+ 	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
+ 	blk_cleanup_queue(floppy_queue);
++out_unreg_driver:
++	platform_driver_unregister(&floppy_driver);
+ out_unreg_blkdev:
+ 	unregister_blkdev(FLOPPY_MAJOR, "fd");
+ out_put_disk:
+@@ -4543,6 +4571,7 @@ void cleanup_module(void)
+ 	init_completion(&device_release);
+ 	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
+ 	unregister_blkdev(FLOPPY_MAJOR, "fd");
++	platform_driver_unregister(&floppy_driver);
+ 
+ 	for (drive = 0; drive < N_DRIVE; drive++) {
+ 		del_timer_sync(&motor_off_timer[drive]);

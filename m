@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754939AbWKLDdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753980AbWKLFJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754939AbWKLDdA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Nov 2006 22:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754940AbWKLDdA
+	id S1753980AbWKLFJM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 00:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754962AbWKLFJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Nov 2006 22:33:00 -0500
-Received: from mail.suse.de ([195.135.220.2]:4244 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1754938AbWKLDc7 (ORCPT
+	Sun, 12 Nov 2006 00:09:12 -0500
+Received: from rtr.ca ([64.26.128.89]:58116 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1753980AbWKLFJL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Nov 2006 22:32:59 -0500
-From: Andi Kleen <ak@suse.de>
-To: caglar@pardus.org.tr
-Subject: Re: [Opps] Invalid opcode
-Date: Sun, 12 Nov 2006 04:32:46 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Zachary Amsden <zach@vmware.com>,
-       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
-References: <200611051507.37196.caglar@pardus.org.tr> <200611051740.47191.ak@suse.de> <200611120439.56199.caglar@pardus.org.tr>
-In-Reply-To: <200611120439.56199.caglar@pardus.org.tr>
+	Sun, 12 Nov 2006 00:09:11 -0500
+Message-ID: <4556AC74.3010000@rtr.ca>
+Date: Sun, 12 Nov 2006 00:09:08 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200611120432.47105.ak@suse.de>
+To: Alberto Alonso <alberto@ggsys.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: qstor driver -> irq 193: nobody cared
+References: <1162576973.3967.10.camel@w100>  <454CDE6E.5000507@rtr.ca> <1163180185.28843.13.camel@w100>
+In-Reply-To: <1163180185.28843.13.camel@w100>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 November 2006 03:39, S.Çağlar Onur wrote:
-> 05 Kas 2006 Paz 18:40 tarihinde, Andi Kleen şunları yazmıştı: 
-> > And does it still happen in 2.6.19-rc4?
-> 
-> Sorry for delayed test result, i cannot reproduce this panic with 2.6.19-rc5
+Alberto Alonso wrote:
+> The saga continues. It happened again this morning even with the
+> patch:
+..
+>> Mmm.. We could apply a bit of fuzzy tolerance for the odd glitch.
+>> Try this patch (attached) and report back.
 
-It's probably still there, just hopefully it won't be release critical
-for .19 then.
+Did you add the printk() to the patch, as suggested?
+If so, did it log anything ?
 
-At some point it has to be fixed properly by converting i386 to the 
-new hotplug architecture i suppose.
-
--Andi
-
+Thanks

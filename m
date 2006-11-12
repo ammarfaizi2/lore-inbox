@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932897AbWKLNn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932899AbWKLNoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932897AbWKLNn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 08:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932898AbWKLNn2
+	id S932899AbWKLNoh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 08:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932900AbWKLNoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 08:43:28 -0500
-Received: from il.qumranet.com ([62.219.232.206]:10644 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S932897AbWKLNn2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 08:43:28 -0500
-Message-ID: <455724FD.7070600@qumranet.com>
-Date: Sun, 12 Nov 2006 15:43:25 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+	Sun, 12 Nov 2006 08:44:37 -0500
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:35202 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S932899AbWKLNog
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 08:44:36 -0500
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: Avi Kivity <avi@qumranet.com>
 Subject: Re: 2.6.19-rc5-mm1 fails to compile with gcc 4.2
-References: <200611112334.28889.bero@arklinux.org> <200611121005.58939.bero@arklinux.org> <4556E860.700@qumranet.com> <200611121436.15492.bero@arklinux.org>
-In-Reply-To: <200611121436.15492.bero@arklinux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Nov 2006 14:43:52 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <200611112334.28889.bero@arklinux.org> <4556D9C0.3050103@qumranet.com>
+In-Reply-To: <4556D9C0.3050103@qumranet.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_YUyVFvPL1zgJI5j"
+Message-Id: <200611121443.52887.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernhard Rosenkraenzer wrote:
-> On Sunday, 12. November 2006 10:24, Avi Kivity wrote:
->   
->>>> Or better yet, preprocessed source and full gcc command line (as seen on
->>>> 'make V=1').
->>>>         
->
-> gcc -m32 -Wp,-MD,drivers/kvm/.kvm_main.o.d  -nostdinc -isystem /usr/lib/gcc/i586-ark-linux/4.2.0/include -D__KERNEL__ -Iinclude  -include 
-> include/linux/autoconf.h -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -O2 -pipe -msoft-float -mpreferred-stack-boundary=2  -march=i686 -mtune=pentium3 -maccumulate-outgoing-args -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -Iinclude/asm-i386/mach-default -fomit-frame-pointer  -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign   -DMODULE -D"KBUILD_STR(s)=#s" -D"KBUILD_BASENAME=KBUILD_STR(kvm_main)"  -D"KBUILD_MODNAME=KBUILD_STR(kvm)" -c -o 
-> drivers/kvm/.tmp_kvm_main.o drivers/kvm/kvm_main.c
-> drivers/kvm/kvm_main.c: In function 'kvm_dev_ioctl_run':
-> drivers/kvm/kvm_main.c:153: error: 'asm' operand has impossible constraints
-> drivers/kvm/kvm_main.c:158: error: 'asm' operand has impossible constraints
->
->   
->>> It does look like a gcc bug -- -O0 makes it go away.
->>> Details at http://gcc.gnu.org/bugzilla/show_bug.cgi?id=29808
->>>       
->> That's a different bug, gcc generates code that the assembler can't
->> handle.  Might be an assembler bug.
->>     
->
-> It's the same thing, the code is taken from kvm_main.c:
->
-> static void load_fs(u16 sel)
-> {
->         asm ("mov %0, %%fs" : : "g"(sel));	<--- line 153
-> }
->
-> static void load_gs(u16 sel)
-> {
->         asm ("mov %0, %%gs" : : "g"(sel));	<--- line 158
-> }
->
->   
+--Boundary-00=_YUyVFvPL1zgJI5j
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-'sel' is a variable, so gcc can't provide it as an immediate operand.  
-Specifying it as "rm" instead of "g" would have been better, but can't 
-have any real influence.
+On Sunday, 12. November 2006 09:22, Avi Kivity wrote:
+> Bernhard Rosenkraenzer wrote:
+> > drivers/kvm/kvm_main.c: In function 'kvm_dev_ioctl_run':
+> > drivers/kvm/kvm_main.c:153: error: 'asm' operand has impossible
+> > constraints drivers/kvm/kvm_main.c:158: error: 'asm' operand has
+> > impossible constraints
 
->   
->> Can you compile it with -S and post the generated assembly?
->>     
->
-> It can't generate assembly with asm() constructs it perceives as invalid -- -S 
-> produces the same error.
->   
+The attached patch makes it compile (but I'm not 100% sure it's the right 
+thing to do, I'm not very experienced with gcc-style asm).
 
-Well, for the code you posted in in the gcc bug, it probaby generated 
-something like
+--Boundary-00=_YUyVFvPL1zgJI5j
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="kvm_main-compilefix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="kvm_main-compilefix.patch"
 
-    mov $0, %fs
+--- linux-2.6.18/drivers/kvm/kvm_main.c.ark	2006-11-12 14:40:09.000000000 +0100
++++ linux-2.6.18/drivers/kvm/kvm_main.c	2006-11-12 14:38:51.000000000 +0100
+@@ -150,12 +150,12 @@
+ 
+ static void load_fs(u16 sel)
+ {
+-	asm ("mov %0, %%fs" : : "g"(sel));
++	asm ("mov %0, %%fs" : : "m"(sel));
+ }
+ 
+ static void load_gs(u16 sel)
+ {
+-	asm ("mov %0, %%gs" : : "g"(sel));
++	asm ("mov %0, %%gs" : : "m"(sel));
+ }
+ 
+ #ifndef load_ldt
 
-which is indeed invalid assembly.  But the kvm miscompile is something 
-else (running out of registers or something like that).
-
-
--- 
-error compiling committee.c: too many arguments to function
-
+--Boundary-00=_YUyVFvPL1zgJI5j--

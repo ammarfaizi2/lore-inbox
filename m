@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755136AbWKLRBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932969AbWKLRNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755136AbWKLRBE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 12:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755137AbWKLRBE
+	id S932969AbWKLRNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 12:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932970AbWKLRNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 12:01:04 -0500
-Received: from smtpout07-01.prod.mesa1.secureserver.net ([64.202.165.230]:49640
-	"HELO smtpout07-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1755136AbWKLRBD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 12:01:03 -0500
-Message-ID: <4557534E.9040205@seclark.us>
-Date: Sun, 12 Nov 2006 12:01:02 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Sun, 12 Nov 2006 12:13:25 -0500
+Received: from smtp106.rog.mail.re2.yahoo.com ([68.142.225.204]:40790 "HELO
+	smtp106.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932969AbWKLRNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 12:13:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:X-YMail-OSG:From:Organization:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=tj6Ak25s6+fT74MWQXUwgvqPouNNl/YuPR3m4l7fLUEZON+nQUKvJHViIg9PGDU9IghKMbOSLjleZAO3PCLfLo7oX6oDAkOGc73SiVBK8ZB6OYoDvmEGP6x2T1nLHgT+SSw1xTgLfBpH88sz8MZHsB53z19peib4lQXXGGECJUM=  ;
+X-YMail-OSG: AFsdFrwVM1ko0dnv.fyTW0vjh1MeMRVTu2tP7xLTs4s3n2iJrx5gHeoFIbOgPr6ULYG4XTG_GKmWyBl.lTIoQ.rH6xwu_okpo5W4IvFdjtBHx.hD9CPDkvGYbiSeaVSOylAqdvmVvWrAZS9i_xpBi_QZvAmubD1V6Eo-
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: ieee80211 & ipw2200 (ipw2100) issues
+Date: Sun, 12 Nov 2006 12:13:20 -0500
+User-Agent: KMail/1.9.5
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: What processor type?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611121213.20582.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello List,
+I would like to know when the Intel people working on the ipw2200 will merge 
+1.2.0 into vanilla? If it's not in vanilla is this present in akpm's -mm 
+tree?
 
-Could someone tell me what processor type I should select during kernel 
-config for
-an Intel Core 2 Duo T5600 chip.
+The version in vanilla right now doesn't work with WPA and doesn't work with 
+the newst firmware.  
+
+Are there plans to change the ipw cards to use the new softmac subsystem? 
 
 Thanks,
-Steve
-
--- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+Shawn.

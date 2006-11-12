@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWKLQtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754103AbWKLQrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbWKLQtI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 11:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755117AbWKLQtH
+	id S1754103AbWKLQrN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 11:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754164AbWKLQrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 11:49:07 -0500
-Received: from mail.gmx.net ([213.165.64.20]:456 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1755099AbWKLQtF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 11:49:05 -0500
-X-Authenticated: #24128601
-Date: Sun, 12 Nov 2006 17:45:26 +0100
-From: Sebastian Kemper <sebastian_ml@gmx.net>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: Re: idecd: attempt to access beyond end of device
-Message-ID: <20061112164526.GA5546@section_eight>
-Mail-Followup-To: Sebastian Kemper <sebastian_ml@gmx.net>,
-	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-References: <20061112120736.GA4062@section_eight> <20061112155125.799ff7c6@localhost.localdomain>
+	Sun, 12 Nov 2006 11:47:13 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40713 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1754103AbWKLQrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 11:47:12 -0500
+Date: Sun, 12 Nov 2006 17:47:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       David Howells <dhowells@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
+Message-ID: <20061112164716.GB3382@stusta.de>
+References: <20061111100038.6277efd4.akpm@osdl.org> <1163340998.3293.131.camel@laptopd505.fenrus.org> <20061112152154.GA3382@stusta.de> <200611121059.55454.diablod3@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061112155125.799ff7c6@localhost.localdomain>
+In-Reply-To: <200611121059.55454.diablod3@gmail.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 12, 2006 at 03:51:25PM +0000, Alan wrote:
-> On Sun, 12 Nov 2006 13:07:36 +0100
-> Sebastian Kemper <sebastian_ml@gmx.net> wrote:
-> 
-> > Hello list,
-> > 
-> > I'm getting these errors trying to mount a burned DVD-R:
-> > 
-> > Nov  8 12:39:08 section_eight attempt to access beyond end of device
-> > Nov  8 12:39:08 section_eight hdc: rw=0, want=68, limit=4
-> > Nov  8 12:39:08 section_eight isofs_fill_super: bread failed, dev=hdc,
-> > iso_blknum=16, block=1
-> > 
-> > The drive is a NEC ND-4550A ATAPI. I use idecd and kernel 2.6.18.2.
-> 
-> Does this occur with ide-scsi as well ?
-> 
+On Sun, Nov 12, 2006 at 10:59:55AM -0500, Patrick McFarland wrote:
+>...
+> Socket A CPUs are also ungodly common. They're as common as slot 1/socket 370 
+> Pentium 3s, and, at least with my old P3 board, trying to use APIC on UP 
+> caused lockups. My Duron 1ghz laptop also does the same thing. (Booting 
+> either with noapic fixes it).
+>...
 
-Hi Alan,
+It might depend on the age of your computer.
 
-yes, the same happens with ide-scsi:
+Microsoft mandates the presence of an APIC implemented per MADT and all 
+hardware interrupts connected to an IOAPIC for all servers and desktops 
+with a "Designed for Windows XP" sticker.
 
-mount dvdrw/
-mount: wrong fs type, bad option, bad superblock on /dev/sr0,
-       missing codepage or other error
-       In some cases useful info is found in syslog - try
-       dmesg | tail  or so
+This implies more or less that a working APIC is present in all
+non-laptop x86 UP systems manufactured during the last 5 years.
 
-syslog:
+cu
+Adrian
 
-Nov 12 17:41:59 section_eight attempt to access beyond end of device
-Nov 12 17:41:59 section_eight sr0: rw=0, want=68, limit=4
-Nov 12 17:41:59 section_eight isofs_fill_super: bread failed, dev=sr0,
-iso_blknum=16, block=16
+-- 
 
-Regards
-Sebastian
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

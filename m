@@ -1,70 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932873AbWKLKdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755050AbWKLLM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932873AbWKLKdy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 05:33:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932874AbWKLKdy
+	id S1755050AbWKLLM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 06:12:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755051AbWKLLM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 05:33:54 -0500
-Received: from frigate.technologeek.org ([62.4.21.148]:20451 "EHLO
-	frigate.technologeek.org") by vger.kernel.org with ESMTP
-	id S932873AbWKLKdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 05:33:53 -0500
-From: Julien BLACHE <jb@jblache.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: jgarzik@pobox.com
-Subject: Intel RNG: firmware hub changes in 2.6.19 break 82802 detection on Core2 Duo MacBook Pro
-Date: Sun, 12 Nov 2006 11:33:52 +0100
-Message-ID: <87u015osxb.fsf@frigate.technologeek.org>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
+	Sun, 12 Nov 2006 06:12:29 -0500
+Received: from maya.ngi.it ([88.149.128.3]:31388 "EHLO maya.ngi.it")
+	by vger.kernel.org with ESMTP id S1755050AbWKLLM2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 06:12:28 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: SATA ICH5 not detected at boot, mm-kernels
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>
+References: <200611051536.35333.cova@ferrara.linux.it> <20061105161725.1a326135.akpm@osdl.org> <454F2E0F.3010804@gmail.com>
+In-Reply-To: <454F2E0F.3010804@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Sun, 12 Nov 2006 12:09:28 +0100
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200611121209.31502.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+It seems that my message hasn't yet shown up on lkml, so I suppose to have 
+some mail problem :(
 
-On a new Core2 Duo MacBook Pro, 2.6.19-rc5 fails to detect the 82802
-RNG with this message:
-
- intel_rng: FWH not detected
-
-Though it worked in 2.6.18:
-
- Intel 82802 RNG detected
+To see if this helps, I've removed attachments, replacing it with urls.
 
 
-This is an x86_64 kernel booted via good old lilo, so using the
-BootCamp BIOS emulation provided by Apple.
+Alle 13:43, lunedì 6 novembre 2006, Tejun Heo ha scritto:
+> Hello,
+>
+> Andrew Morton wrote:
+> > On Sun, 5 Nov 2006 15:36:33 +0100
+> >
+> > Fabio Coatti <cova@ferrara.linux.it> wrote:
+> >> Hi all; It seems that problems like this has been already reported, but
+> >> not exactly the same, so maybe thsi can add some infos. Otherwise, sorry
+> >> for the noise.
+> >>
+> >> Starting from 2.6.19-rc1-mm1 and up to rc4-mm2, at boot the kernel is
+> >> unable to detect two sata disks, connected to a ICH5 controller. Latest
+> >> mm working kernel seems to be 2.6.18-mm3; 2.6.19-rc4 works just fine.
+> >>
 
-Tell me what kind of info you need to address this issue, here's the
-lspci output for a start:
+I've collected more data; Here you can find .config for all three cases:
 
-00:00.0 Host bridge [0600]: Intel Corporation Mobile 945GM/PM/GMS/940GML and 945GT Express Memory Controller Hub [8086:27a0] (rev 03)
-00:01.0 PCI bridge [0604]: Intel Corporation Mobile 945GM/PM/GMS/940GML and 945GT Express PCI Express Root Port [8086:27a1] (rev 03)
-00:07.0 Performance counters [1101]: Intel Corporation Unknown device [8086:27a3] (rev 03)
-00:1b.0 Audio device [0403]: Intel Corporation 82801G (ICH7 Family) High Definition Audio Controller [8086:27d8] (rev 02)
-00:1c.0 PCI bridge [0604]: Intel Corporation 82801G (ICH7 Family) PCI Express Port 1 [8086:27d0] (rev 02)
-00:1c.1 PCI bridge [0604]: Intel Corporation 82801G (ICH7 Family) PCI Express Port 2 [8086:27d2] (rev 02)
-00:1c.2 PCI bridge [0604]: Intel Corporation 82801G (ICH7 Family) PCI Express Port 3 [8086:27d4] (rev 02)
-00:1d.0 USB Controller [0c03]: Intel Corporation 82801G (ICH7 Family) USB UHCI #1 [8086:27c8] (rev 02)
-00:1d.1 USB Controller [0c03]: Intel Corporation 82801G (ICH7 Family) USB UHCI #2 [8086:27c9] (rev 02)
-00:1d.2 USB Controller [0c03]: Intel Corporation 82801G (ICH7 Family) USB UHCI #3 [8086:27ca] (rev 02)
-00:1d.3 USB Controller [0c03]: Intel Corporation 82801G (ICH7 Family) USB UHCI #4 [8086:27cb] (rev 02)
-00:1d.7 USB Controller [0c03]: Intel Corporation 82801G (ICH7 Family) USB2 EHCI Controller [8086:27cc] (rev 02)
-00:1e.0 PCI bridge [0604]: Intel Corporation 82801 Mobile PCI Bridge [8086:2448] (rev e2)
-00:1f.0 ISA bridge [0601]: Intel Corporation 82801GBM (ICH7-M) LPC Interface Bridge [8086:27b9] (rev 02)
-00:1f.1 IDE interface [0101]: Intel Corporation 82801G (ICH7 Family) IDE Controller [8086:27df] (rev 02)
-00:1f.2 IDE interface [0101]: Intel Corporation 82801GBM/GHM (ICH7 Family) Serial ATA Storage Controller IDE [8086:27c4] (rev 02)
-00:1f.3 SMBus [0c05]: Intel Corporation 82801G (ICH7 Family) SMBus Controller [8086:27da] (rev 02)
-01:00.0 VGA compatible controller [0300]: ATI Technologies Inc M56P [Radeon Mobility X1600] [1002:71c5]
-02:00.0 Ethernet controller [0200]: Marvell Technology Group Ltd. 88E8053 PCI-E Gigabit Ethernet Controller [11ab:4362] (rev 22)
-03:00.0 Network controller [0280]: Atheros Communications, Inc. Unknown device [168c:0024] (rev 01)
-0c:03.0 FireWire (IEEE 1394) [0c00]: Texas Instruments TSB82AA2 IEEE-1394b Link Layer Controller [104c:8025] (rev 01)
+2.6.18-mm3 (working) http://members.ferrara.linux.it/cova/config-2.6.18-mm3
+2.6.19-rc5 (working) http://members.ferrara.linux.it/cova/config-2.6.19-rc5
+2.6.19-rc5-mm1 (not working) 
+http://members.ferrara.linux.it/cova/config-2.6.19-rc5-mm1
 
-Thanks,
+and dmesg for 2.6.18-mm3 and 2.6.19-rc5. I've seen that I've saved the dmesg 
+with nvidia driver inserted; I can't, right now, recreate the files without 
+nvidia driver loaded, but as the issue happens before the driver is loaded 
+maybe the information can be useful anyway. I'll made a non tainted dmesg as 
+soon as possible, if needed.
 
-JB.
+http://members.ferrara.linux.it/cova/dmesg-2.6.18-mm3
+http://members.ferrara.linux.it/cova/dmesg-2.6.19-rc5
+
+I'm trying to get the dmesg for 2.6.19-rc-mm1 (the non-working one), but I've 
+to find a serial cable :)
+
+Anyway, I've seen this message on dmesg, that seems interesting (copied by 
+hand, please forgive any mistake):
+
+PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
+ata_piix: probe of 0000:00:1f.2 failed with error -16
+
+Of course, lspci for that device gives:
+
+00:1f.2 IDE interface: Intel Corporation 82801EB (ICH5) SATA Controller (rev 
+02) (prog-if 8a [Master SecP PriP])
+        Subsystem: ABIT Computer Corp. Unknown device 1014
+        Flags: bus master, 66MHz, medium devsel, latency 0, IRQ 17
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at f000 [size=16]
+
+
+HTH
 
 -- 
-Julien BLACHE                                   <http://www.jblache.org> 
-<jb@jblache.org>                                  GPG KeyID 0xF5D65169
+Fabio Coatti       http://members.ferrara.linux.it/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

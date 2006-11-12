@@ -1,134 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932903AbWKLNxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932900AbWKLNvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932903AbWKLNxF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 08:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932889AbWKLNxF
+	id S932900AbWKLNvN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 08:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932901AbWKLNvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 08:53:05 -0500
-Received: from il.qumranet.com ([62.219.232.206]:49326 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S932903AbWKLNxC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 08:53:02 -0500
-Subject: [PATCH] KVM: Fix segment state changes across processor mode switches
-From: Avi Kivity <avi@qumranet.com>
-Date: Sun, 12 Nov 2006 13:53:00 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, simon.kagstrom@bth.se
-Message-Id: <20061112135300.CAE51A0001@cleopatra.q>
+	Sun, 12 Nov 2006 08:51:12 -0500
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:50115 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S932900AbWKLNvL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 08:51:11 -0500
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: 2.6.19-rc5-mm1 fails to compile with gcc 4.2
+Date: Sun, 12 Nov 2006 14:50:24 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <200611112334.28889.bero@arklinux.org> <200611121436.15492.bero@arklinux.org> <455724FD.7070600@qumranet.com>
+In-Reply-To: <455724FD.7070600@qumranet.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_gayVFyBdloZ4tLP"
+Message-Id: <200611121450.24859.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Yaniv Kamay <yaniv@qumranet.com>
+--Boundary-00=_gayVFyBdloZ4tLP
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-A problem with Intel VT is that it performs very strict segment checks on
-entry to vm86 mode.  These checks are much stricter than what the cpu
-actually allows for real mode, which is a problem since we use vm86 mode to
-virtualize real mode.
+On Sunday, 12. November 2006 14:43, Avi Kivity wrote:
+> 'sel' is a variable, so gcc can't provide it as an immediate operand.
+> Specifying it as "rm" instead of "g" would have been better, but can't
+> have any real influence.
 
-The problem scenario is something like:
+Specifying it as "rm" instead of "g" does fix it -- patch attached.
 
-- switch to real mode
-  - here kvm mangles the segments to something that VT will like
-- do something uninteresting
-- switch to protected mode
-- touch mangled segments
-- blow up at unexpected values
+> Well, for the code you posted in in the gcc bug, it probaby generated
+> something like
+>
+>     mov $0, %fs
+>
+> which is indeed invalid assembly.  But the kvm miscompile is something
+> else (running out of registers or something like that).
 
-Fix is as follows:
+What am I overlooking? The code is the exact same (except I replaced "u16" 
+with "unsigned short" to avoid the #include), and produces the exact same 
+error message, and the fix is the same ("g" -> "rm").
 
-- switch to real mode
-  - mangle segments, but save original values somethere
-- do something uninteresting
-- switch to protected mode
-  - if segment selectors have not been changed, restore from saved values
-- touch restored segments
-- live happily ever after
+--Boundary-00=_gayVFyBdloZ4tLP
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="kvm_main-compilefix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="kvm_main-compilefix.patch"
 
-Reported by: Simon Kagstrom <simon.kagstrom@bth.se>
-
-Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
-Signed-off-by: Avi Kivity <avi@qumranet.com>
-
-Index: linux-2.6/drivers/kvm/kvm.h
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm.h
-+++ linux-2.6/drivers/kvm/kvm.h
-@@ -199,10 +199,11 @@ struct kvm_vcpu {
- 		int active;
- 		u8 save_iopl;
- 		struct {
-+			u16 selector;
- 			unsigned long base;
- 			u32 limit;
- 			u32 ar;
--		} tr;
-+		} tr, es, ds, fs, gs;
- 	} rmode;
- };
+--- linux-2.6.18/drivers/kvm/kvm_main.c.ark	2006-11-12 14:40:09.000000000 +0100
++++ linux-2.6.18/drivers/kvm/kvm_main.c	2006-11-12 14:44:57.000000000 +0100
+@@ -150,12 +150,12 @@
  
-Index: linux-2.6/drivers/kvm/kvm_main.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm_main.c
-+++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -710,18 +710,27 @@ static void enter_pmode(struct kvm_vcpu 
- 	update_exception_bitmap(vcpu);
- 
- 	#define FIX_PMODE_DATASEG(seg, save) {				\
--			vmcs_write16(GUEST_##seg##_SELECTOR, 0); 	\
--			vmcs_writel(GUEST_##seg##_BASE, 0); 		\
--			vmcs_write32(GUEST_##seg##_LIMIT, 0xffff);	\
--			vmcs_write32(GUEST_##seg##_AR_BYTES, 0x93);	\
-+		if (vmcs_readl(GUEST_##seg##_BASE) == save.base) { \
-+			vmcs_write16(GUEST_##seg##_SELECTOR, save.selector); \
-+			vmcs_writel(GUEST_##seg##_BASE, save.base); \
-+			vmcs_write32(GUEST_##seg##_LIMIT, save.limit); \
-+			vmcs_write32(GUEST_##seg##_AR_BYTES, save.ar); \
-+		} else { \
-+			u32 dpl = (vmcs_read16(GUEST_##seg##_SELECTOR) & \
-+				   SELECTOR_RPL_MASK) << AR_DPL_SHIFT; \
-+			vmcs_write32(GUEST_##seg##_AR_BYTES, 0x93 | dpl); \
-+		} \
- 	}
- 
--	FIX_PMODE_DATASEG(SS, vcpu->rmode.ss);
- 	FIX_PMODE_DATASEG(ES, vcpu->rmode.es);
- 	FIX_PMODE_DATASEG(DS, vcpu->rmode.ds);
- 	FIX_PMODE_DATASEG(GS, vcpu->rmode.gs);
- 	FIX_PMODE_DATASEG(FS, vcpu->rmode.fs);
- 
-+
-+	vmcs_write16(GUEST_SS_SELECTOR, 0);
-+	vmcs_write32(GUEST_SS_AR_BYTES, 0x93);
-+
- 	vmcs_write16(GUEST_CS_SELECTOR,
- 		     vmcs_read16(GUEST_CS_SELECTOR) & ~SELECTOR_RPL_MASK);
- 	vmcs_write32(GUEST_CS_AR_BYTES, 0x9b);
-@@ -757,19 +766,26 @@ static void enter_rmode(struct kvm_vcpu 
- 	vmcs_writel(GUEST_CR4, vmcs_readl(GUEST_CR4) | CR4_VME_MASK);
- 	update_exception_bitmap(vcpu);
- 
--	#define FIX_RMODE_SEG(seg, save) {				   \
-+	#define FIX_RMODE_SEG(seg, save) { \
-+		save.selector = vmcs_read16(GUEST_##seg##_SELECTOR); \
-+		save.base = vmcs_readl(GUEST_##seg##_BASE); \
-+		save.limit = vmcs_read32(GUEST_##seg##_LIMIT); \
-+		save.ar = vmcs_read32(GUEST_##seg##_AR_BYTES); \
- 		vmcs_write16(GUEST_##seg##_SELECTOR, 			   \
- 					vmcs_readl(GUEST_##seg##_BASE) >> 4); \
- 		vmcs_write32(GUEST_##seg##_LIMIT, 0xffff);		   \
- 		vmcs_write32(GUEST_##seg##_AR_BYTES, 0xf3);		   \
- 	}
- 
-+	vmcs_write16(GUEST_SS_SELECTOR, vmcs_readl(GUEST_SS_BASE) >> 4);
-+	vmcs_write32(GUEST_SS_LIMIT, 0xffff);
-+	vmcs_write32(GUEST_SS_AR_BYTES, 0xf3);
-+
- 	vmcs_write32(GUEST_CS_AR_BYTES, 0xf3);
- 	vmcs_write16(GUEST_CS_SELECTOR, vmcs_readl(GUEST_CS_BASE) >> 4);
- 
- 	FIX_RMODE_SEG(ES, vcpu->rmode.es);
- 	FIX_RMODE_SEG(DS, vcpu->rmode.ds);
--	FIX_RMODE_SEG(SS, vcpu->rmode.ss);
- 	FIX_RMODE_SEG(GS, vcpu->rmode.gs);
- 	FIX_RMODE_SEG(FS, vcpu->rmode.fs);
+ static void load_fs(u16 sel)
+ {
+-	asm ("mov %0, %%fs" : : "g"(sel));
++	asm ("mov %0, %%fs" : : "rm"(sel));
  }
+ 
+ static void load_gs(u16 sel)
+ {
+-	asm ("mov %0, %%gs" : : "g"(sel));
++	asm ("mov %0, %%gs" : : "rm"(sel));
+ }
+ 
+ #ifndef load_ldt
+
+--Boundary-00=_gayVFyBdloZ4tLP--

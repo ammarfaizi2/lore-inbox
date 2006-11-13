@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755253AbWKMUcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755264AbWKMUel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755253AbWKMUcs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 15:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755272AbWKMUcs
+	id S1755264AbWKMUel (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 15:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755279AbWKMUel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 15:32:48 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:45937 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1755253AbWKMUcr (ORCPT
+	Mon, 13 Nov 2006 15:34:41 -0500
+Received: from nsm.pl ([195.34.211.229]:37573 "EHLO nsm.pl")
+	by vger.kernel.org with ESMTP id S1755264AbWKMUek (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 15:32:47 -0500
-Date: Mon, 13 Nov 2006 21:35:23 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Alex Romosan <romosan@sycorax.lbl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1 (+ide-cd patches) regression: unable to rip cd
-Message-ID: <20061113203523.GE15031@kernel.dk>
-References: <20061110161355.GB15031@kernel.dk> <87u01717qw.fsf@sycorax.lbl.gov> <20061113200256.GC15031@kernel.dk> <87lkmfcdci.fsf@sycorax.lbl.gov>
+	Mon, 13 Nov 2006 15:34:40 -0500
+Date: Mon, 13 Nov 2006 21:34:21 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: kvm-devel@lists.sourceforge.net
+Subject: overriding BIOS (was: Re: [ANNOUNCE] kvm howto)
+Message-ID: <20061113203421.GA5363@irc.pl>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
+	kvm-devel@lists.sourceforge.net
+References: <20061105171424.GA7045@irc.pl> <64F9B87B6B770947A9F8391472E0321608EBF537@ehost011-8.exch011.intermedia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
 Content-Disposition: inline
-In-Reply-To: <87lkmfcdci.fsf@sycorax.lbl.gov>
+In-Reply-To: <64F9B87B6B770947A9F8391472E0321608EBF537@ehost011-8.exch011.intermedia.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13 2006, Alex Romosan wrote:
-> Jens Axboe <jens.axboe@oracle.com> writes:
-> 
-> > Great, problem fixed then, patch is already merged upstream so
-> > 2.6.19 and next -rc (if any :-) should work. Thanks for your
-> > persistent testing.
-> 
-> i've played with this a little bit more over the weekend. sometimes
-> cdparanoia gets stuck trying to read some sector. with your patches i
-> can now stop the process and restart it, and without touching the cd
-> at all this next time cdparanoia finishes just fine. usually this
-> happens after i try to rip a series of tracks so i wonder if some
-> error counters don't get reset or something like that. maybe this is
-> the expected behaviour, but i don't think i saw cdparanoia get stuck
-> on the first track ever, usually it happens after some time.
 
-There is a second error handling patch merged with the first patch as
-well, perhaps it'll help you out. Attached here as well.
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
-index bddfebd..8821494 100644
---- a/drivers/ide/ide-cd.c
-+++ b/drivers/ide/ide-cd.c
-@@ -724,7 +724,7 @@ static int cdrom_decode_status(ide_drive
- 		 * if we have an error, pass back CHECK_CONDITION as the
- 		 * scsi status byte
- 		 */
--		if (!rq->errors)
-+		if (blk_pc_request(rq) && !rq->errors)
- 			rq->errors = SAM_STAT_CHECK_CONDITION;
- 
- 		/* Check for tray open. */
+On Mon, Nov 06, 2006 at 12:15:02AM -0800, Dor Laor wrote:
+> The BIOS check is a must, it checks bit #0 of MSR_IA32_FEATURE_CONTROL,
+> if it set this means that software cannot write to the MSR. If bit #2 is
+> clear too then when executing vmxon you'll get #GP.
+>=20
+> So the check should better be there...
 
--- 
-Jens Axboe
+  You were right, just writing to this MSR (via kvm_enable) halts my laptop.
+ Which is kinda strange, as this solution works on Intel Mac Minis.
 
+  Anyway, complaint to Lenovo sent and got ignored.
+
+--=20
+Tomasz Torcz       ,,(...) today's high-end is tomorrow's embedded processo=
+r.''
+zdzichu@irc.-nie.spam-.pl                      -- Mitchell Blank on LKML
+
+
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
+
+iD8DBQFFWNbN10UJr+75NrkRAiRpAJ9ty7lPXEGB2fozU0guHnYjlUWLJwCgj5X4
+or3+JkxSDoLaACGrV6ale3k=
+=U77b
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--

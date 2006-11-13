@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754634AbWKMNcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754617AbWKMNlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754634AbWKMNcq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 08:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754635AbWKMNcq
+	id S1754617AbWKMNlf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 08:41:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754618AbWKMNlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 08:32:46 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:49851 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1754634AbWKMNcp (ORCPT
+	Mon, 13 Nov 2006 08:41:35 -0500
+Received: from [212.33.165.172] ([212.33.165.172]:62082 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1754617AbWKMNlf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 08:32:45 -0500
-Date: Mon, 13 Nov 2006 14:32:43 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Ivan Ukhov <uvsoft@gmail.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: /dev before the root filesystem is mounted
-Message-ID: <20061113133242.GA4019@harddisk-recovery.com>
-References: <a5de567c0611130252m52de5071vc25589bfd89b9c27@mail.gmail.com> <Pine.LNX.4.61.0611131234140.28210@yvahk01.tjqt.qr> <a5de567c0611130415t6cbe97efr8e60a3d3e091d04d@mail.gmail.com>
+	Mon, 13 Nov 2006 08:41:35 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Intel OS Forum talk slides: Monolithic OSes, Microkernels, Hypervisors
+Date: Mon, 13 Nov 2006 16:42:35 +0300
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a5de567c0611130415t6cbe97efr8e60a3d3e091d04d@mail.gmail.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200611131642.35100.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 03:15:26PM +0300, Ivan Ukhov wrote:
-> i dont use initrd. the kernel understands argument 'root=/dev/...', so
-> /dev should exist, mb not in a real filesystem, but just in ram or
-> something. i just want to know what devices are available for being
-> the root filesystem for the kernel (displaying all available devices
-> will be enough for me).
+Christoph Lameter wrote:
+>
+> I was asked for the slides of the talk that I gave last Thursday at the
+> Intel OS Forum in Hillsboro.
+>
+> A PDF file can be found at:
+> http://ftp.kernel.org/pub/linux/kernel/people/christoph/intel/intel-os-for
+>um.pdf
+>
+> Paul also asked about prior NUMA papers / presentations:
+>
+> "Effective Synchronization"
+> http://ftp.kernel.org/pub/linux/kernel/people/christoph/gelato/
+>
+> "Local and Remote Memory"
+> http://ftp.kernel.org/pub/linux/kernel/people/christoph/ols2006/ols2006.pd
+>f
+>
+> Slides of Kernel Summit talk 2006:
+> http://ftp.kernel.org/pub/linux/kernel/people/christoph/summit/highcpucoun
+>ts.pdf
 
-/dev does not exist because there is no root filesystem mounted. Please
-read http://kernelnewbies.org/RootFileSystem .
+Thanks for links, and thanks to who asked for them!
+
+Is there a way to drive NUMA over EtherNET, akin to AOE?
 
 
-Erik
+Thanks!
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+--
+Al
+

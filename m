@@ -1,92 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755254AbWKMUQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755251AbWKMUPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755254AbWKMUQj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 15:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755255AbWKMUQj
+	id S1755251AbWKMUPp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 15:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755253AbWKMUPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 15:16:39 -0500
-Received: from smtp.ocgnet.org ([64.20.243.3]:8391 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S1755254AbWKMUQh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 15:16:37 -0500
-Date: Tue, 14 Nov 2006 05:15:35 +0900
-From: Paul Mundt <lethal@linux-sh.org>
+	Mon, 13 Nov 2006 15:15:45 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:57273 "HELO
+	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1755251AbWKMUPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 15:15:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=IAuJOLiz9P35RrA6IAUwIiwgpom1zj5Iu2tNbJ4vtFc+jKMbH74eRokc6z83XuHPABY3hIX797UpCuqtZk67Wy43PYmJLk+j0A2H2/fE5XH0MTHKdqB0b7L/u7q8ZtSfg+hEkoRryljCsUDVW1ZOP+DQb7qeQ5rRi44YDzVxuO8=  ;
+X-YMail-OSG: QKP4Z.sVM1kBBAo6HiJyv5yW7PfIHbR3Wb4sN_3Pfgq.E4FmQkrAAULAxLEp3.hhHsTWV_QKBrw0Ft3CnpJJJkyjEWaX6yDPmrO6Y3lQPYPOJhZoqqBR1HrvNIS_dacIzxTvXvmB.hVaeKgeI4lSeRtZ7yvQjAYt88I-
+From: David Brownell <david-b@pacbell.net>
 To: Bill Gatliff <bgat@billgatliff.com>
-Cc: David Brownell <david-b@pacbell.net>,
+Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
+Date: Mon, 13 Nov 2006 12:15:39 -0800
+User-Agent: KMail/1.7.1
+Cc: Paul Mundt <lethal@linux-sh.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
        Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
        Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
        Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
-Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
-Message-ID: <20061113201535.GA20388@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Bill Gatliff <bgat@billgatliff.com>,
-	David Brownell <david-b@pacbell.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-	Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-	Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Tony Lindgren <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <20061113173800.GA19553@linux-sh.org> <4558B71F.9020502@billgatliff.com> <20061113183811.GA19979@linux-sh.org> <4558C794.90602@billgatliff.com>
+References: <200611111541.34699.david-b@pacbell.net> <200611131121.23944.david-b@pacbell.net> <4558CAE4.1020202@billgatliff.com>
+In-Reply-To: <4558CAE4.1020202@billgatliff.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4558C794.90602@billgatliff.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611131215.39888.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 01:29:24PM -0600, Bill Gatliff wrote:
-> Paul Mundt wrote:
-> >They're something that has to be accounted for in any sort of API, or we
-> >just end up throwing it all out and starting over again. I was thinking
-> >more of the SuperIO or mfd device scope, where this _is_ a requirement.
+On Monday 13 November 2006 11:43 am, Bill Gatliff wrote:
+> >
+> >This API absolutely allows for multiple GPIO controllers ... all it does
+> >is say "here are the numbers, handle them".  The platform's implementation
+> >of the API is allowed to map to the relevant controller.
 > 
-> Right.  I don't know anything about SuperIO/SH, but the mfd stuff I've 
-> worked with to date (UCB1400, SM501) all provide for the various 
-> functions by mapping them into existing APIs like i2c, ALSA, etc. which 
-> aren't disturbed by Dave's proposal.  They still have their limitations, 
-> i.e. you wouldn't want to put an IDE controller out on one of the GPIO 
-> lines of a UCB1400, a problem that Dave isn't trying to address.
+> I think what Paul is saying here is that because your reference 
+> implementation was "arch-omap" instead of "board-<something>", if I add 
+> a PLD with some MMIO GPIO lines then I have to hack global OMAP code.  
+
+Well, "example" implementation.
+
+Linux doesn't handle PLDs as well as it might.  One example in the current
+kernel is the original PXA reference platform, Intel's "Lubbock".  It's got
+an FPGA with essential IRQs.  Look at the mess involved in coupling those
+IRQs into the system ... not just adding a new irq_chip (easy!), but the
+way the global PXA IRQ headers need to know about it.
+
+Part of this is just that NR_IRQs is a global constant, and it's not
+possible to allocate new IRQ banks after a kernel is built.  Like by
+plugging in a few I2C chips with IRQ-capable GPIOs ...
+
+Now, I think the way OMAP handles GPIOs could handle "add an FPGA" pretty
+cleanly.  That is admittedly a platform-specific implementation issue ...
+but then, so is "add an FPGA".  And in any case, It should be very clear
+that such implementation issues don't need to affect the API, and that
+right now only the API is being proposed.
+
+
+> Maybe we should codify an approach for that now, i.e. add to the 
+> reference implementation some code that hands off out-of-range GPIO 
+> lines to a function in the machine descriptor:
 > 
-Yes, that wasn't my point, my point was that the mfd case itself is
-already an example of where we have a real need for multiple GPIO
-controllers, today.
-
-> What the driver needs is an enumeration that it can hand to the GPIO 
-> layer that says, "set this high" or "set this low", or "what is the 
-> state on this line?".  The platform_device structure is a great place to 
-> pass it the enumerations that, deep in the bowels of the platform/system 
-> code, map into actual GPIO lines.  I don't think that's close to static 
-> pin assignment any more than using the platform_device structure to pass 
-> IRQ line enumerations is now.
-
-The "static" configuration is not the GPIO number cookie so much as the
-pre-configured state handled at the board-level. This will continue to be
-an issue so long as the muxing is decoupled from the rest of the API.
-
-Pin muxing is somewhat of a decoupled issue, but it's quite related when
-"GPIO" is just another pin state depending on the mux. The primary
-concern here is where we end up doing the refcounting for the pins, so we
-don't run in to a situation where a pin is toggled out from an existing
-user with regards to drivers contending for pin functions. On the other
-hand, I'm not opposed to layering rather than trying to accomodate it all
-in the same API.
-
-I have some code for this already, but I suppose I'll have to plug it in
-alongside David's API to see whether this will be workable for the use
-cases in question.
-
-> Think: today, most drivers don't know or care if an IRQ line is
-> edge-triggered or level-triggered.  That code is in the domain of the
-> IRQ subsystem.  What David is proposing is the same sort of thing for
-> GPIO.
 > 
-I would suggest that it's exactly the opposite, other than the blatantly
-obvious cases (edge-triggered NMI, controllers with fixed detection
-logic, etc.) it's _specifically_ up to the drivers to indicate where to
-do the detection, as to allow the IRQ controller to adjust the sense
-selection for that particular IRQ. Grepping drivers/ for IRQF_TRIGGER is
-a pretty good indicator of this.
+> +static inline int gpio_direction_input(unsigned gpio)
+> +	{ if (gpio < OMAP_MAX_ARCH_GPIO) return __gpio_set_direction(gpio, 1);
+> +	  else if(mdesc->platform_gpio_set_direction) platform_gpio_set_direction(gpio, 1); }
+> 
+> 
+> ... conveniently neglecting the way you find mdesc.  :)
+
+Nah; look at arch/arm/plat-omap/gpio.c and ignore the mess, but observe
+that what you see there is essentially a bunch of "gpio controller"
+classes using the ugly "switch(type)" dispatch scheme instead of the
+prettier "type->op()" dispatch scheme.  All that stuff needs to be
+cleaner, but for now it'd suffice to add a new FPGA typecode.
+
+
+> I do have a question now.  Is there any reason to consider shared GPIO 
+> lines?  If so, then the request_gpio() would need a flag GPIO_SHARED or 
+> something.
+
+If two drivers agree to share a line -- how, why? -- they can come to a
+private agreement.  We lack even a good example of why drivers would
+want to share, much less knowledge that it's a general problem!
+
+- Dave
+

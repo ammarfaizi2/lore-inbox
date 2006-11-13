@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753808AbWKMCIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753814AbWKMCNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753808AbWKMCIX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 21:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753810AbWKMCIX
+	id S1753814AbWKMCNw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 21:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753818AbWKMCNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 21:08:23 -0500
-Received: from mx1.suse.de ([195.135.220.2]:22206 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1753808AbWKMCIW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 21:08:22 -0500
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
-Date: Mon, 13 Nov 2006 03:07:56 +0100
-User-Agent: KMail/1.9.5
-Cc: Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       "bugme-daemon@kernel-bugs.osdl.org" 
-	<bugme-daemon@bugzilla.kernel.org>,
-       linux-kernel@vger.kernel.org, alex@hausnet.ru, mingo@redhat.com
-References: <20061111100038.6277efd4.akpm@osdl.org> <1163340998.3293.131.camel@laptopd505.fenrus.org> <20061112214540.GB31649@redhat.com>
-In-Reply-To: <20061112214540.GB31649@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Nov 2006 21:13:52 -0500
+Received: from mga06.intel.com ([134.134.136.21]:38819 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1753814AbWKMCNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 21:13:51 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,415,1157353200"; 
+   d="scan'208"; a="160351384:sNHT18901995"
+Date: Sun, 12 Nov 2006 17:50:51 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ashok.raj@intel.com
+Subject: Re: [patch] genapic: optimize & fix APIC mode setup
+Message-ID: <20061112175050.A17720@unix-os.sc.intel.com>
+References: <20061111151414.GA32507@elte.hu> <200611111620.24551.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611130307.57110.ak@suse.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200611111620.24551.ak@suse.de>; from ak@suse.de on Sat, Nov 11, 2006 at 04:20:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 11, 2006 at 04:20:24PM +0100, Andi Kleen wrote:
+> On Saturday 11 November 2006 16:14, Ingo Molnar wrote:
+> > 
+> >  - removed the CPU hotplug hacks, switching the default for small
+> >    systems back from phys-flat to logical-flat. The switching to logical 
+> >    flat mode on small systems fixed sporadic ethernet driver timeouts i 
+> >    was getting on a dual-core Athlon64 system:
+> 
+> That will break CPU hotplug on some Intel systems (Ashok can give details) 
 
-> Andi has a nice patch in the suse kernel which adds heuristics to disable
-> apic on systems where it isn't likely to work.  It DTRT in at least
-> one problem case that I know of.   The actual fall-out from enabling
-> 'run SMP kernels on UP i686' for FC6 has mostly been a non-event.
-> Literally a handful of cases, that will likely all get caught and worked
-> around by Andi's patch or similar.
+There is an issue of using clustered mode along with cpu hotplug. More details
+are at the below link.
 
-I haven't pushed that recently because i was busy with other things, but
-needs to be revisited yes.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113261865814107&w=2
 
-One broken case that still happens is that the patch assumes working
-SMBIOS. When there is no year in SMBIOS it will turn off APIC because
-it assumes it is a very old system. But sometimes new systems who would
-like APIC have illegal or broken SMBIOS year. On very new systems it isn't
-a problem again because those tend to have multiple cores.
-
-That could be probably a bit more clever. It's always difficult to
-navigate around all kinds of BIOS bugs.
-
--Andi
+thanks,
+suresh

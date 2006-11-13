@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755355AbWKMVyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755356AbWKMVyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755355AbWKMVyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 16:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755357AbWKMVyE
+	id S1755356AbWKMVyy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 16:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755357AbWKMVyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 16:54:04 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:22925 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1755355AbWKMVyC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 16:54:02 -0500
-Date: Mon, 13 Nov 2006 15:57:06 -0600
-From: "Bill O'Donnell" <billodo@sgi.com>
-To: Chris Friedhoff <chris@friedhoff.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
-       KaiGai Kohei <kaigai@kaigai.gr.jp>,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH 1/1] security: introduce fs caps
-Message-ID: <20061113215706.GA9658@sgi.com>
-References: <20061108222453.GA6408@sergelap.austin.ibm.com> <20061109061021.GA32696@sergelap.austin.ibm.com> <20061109103349.e58e8f51.chris@friedhoff.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061109103349.e58e8f51.chris@friedhoff.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 13 Nov 2006 16:54:54 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:11505 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1755356AbWKMVyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 16:54:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=YIrwapF04WE07Vl6eQU8mKn8L0WRe/FsmZLRHoMqkZmSRDQJlqEBRRta+b/TIELwaiK5rXa734Y4eYf+Hoy7hu1Lah6fEc+q5MCm3cX7Wou/7zti8GWocwLGESYTWzOZn6Sf+SBHEo/3+0aODxCkUbxhyxfD262i68N/5tt0v7A=
+Subject: Re: pcmcia: patch to fix pccard_store_cis
+From: Romano Giannetti <romano.giannetti@gmail.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-pcmcia@lists.infradead.org, fabrice@bellet.info,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <602211f80611130212u2a00f9ayd722e170372212fc@mail.gmail.com>
+References: <20061001122107.9260aa5d.zaitcev@redhat.com>
+	 <20061002003138.GB16938@isilmar.linta.de>
+	 <1159794094.8246.2.camel@localhost>
+	 <20061103160247.GB11160@dominikbrodowski.de>
+	 <602211f80611130212u2a00f9ayd722e170372212fc@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 13 Nov 2006 22:54:44 +0100
+Message-Id: <1163454885.13234.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2006 at 10:33:49AM +0100, Chris Friedhoff wrote:
-| Page http://www.friedhoff.org/fscaps.html updated ...
-| Kernel 2.6.18.2 updated ...
-| System keeps on humming ...
-| Is anyone else using/testing the patch? Please give feedback ...
+On Mon, 2006-11-13 at 11:12 +0100, Romano Giannetti wrote:
+>                 I tried your patch on top of the kernel 2.6.17.13 that
+> came with ubuntu
+>         edgy (and had sufficient trouble with it, I do not know if I'll be able
+>         to try with a recent kernel.). This message is in copy to akpm which
+>         asked me a report on the same problem.
 
-Most likely a cockpit error, but I'm having trouble when I give the 
-capability to ping (using the userexample from your fscaps page):
+I tried again, applying your patch after applying Linus' one (commit 
+933cd864a5c95c296844493b65d868b7cf7548aa in Linus git). Nothing. Only
+the first function of the card is discovered. 
 
-$ uname -a
-Linux certify 2.6.19-rc3 #3 SMP PREEMPT Mon Nov 13 14:40:54 CST 2006 ia64
+I was trying to read the code, and I cannot find where the code in
+socket_sysfs.c is supposed to loop over the various functions of the
+card. Maybe there could be some problem there?
 
-$ sudo chmod 711 /bin/ping
-$ ping -c 1 localhost
-ping: icmp open socket: Operation not permitted
+I would really like to help on this. My modem is dead from 1.6.13...
 
-$ sudo setfcaps cap_net_raw=ep /bin/ping           
-/bin/ping: Function not implemented (errno=38)
+Romano
 
-Any help is appreciated.
 
-Bill
 
----
-Bill O'Donnell
-SGI
-651.683.3079
-billodo@sgi.com
+

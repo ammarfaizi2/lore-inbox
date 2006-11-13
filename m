@@ -1,139 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754569AbWKMMYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754588AbWKMM0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754569AbWKMMYt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 07:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754570AbWKMMYL
+	id S1754588AbWKMM0W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 07:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754564AbWKMM0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 07:24:11 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:49615 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1754540AbWKMMYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 07:24:00 -0500
-Message-ID: <45586EB5.40409@in.ibm.com>
-Date: Mon, 13 Nov 2006 18:40:13 +0530
-From: Srinivasa Ds <srinivasa@in.ibm.com>
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Mon, 13 Nov 2006 07:26:22 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:57273 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1754570AbWKMM0V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 07:26:21 -0500
+Date: Mon, 13 Nov 2006 13:26:02 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Ivan Ukhov <uvsoft@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: /dev before the root filesystem is mounted
+In-Reply-To: <a5de567c0611130415t6cbe97efr8e60a3d3e091d04d@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0611131320590.30156@yvahk01.tjqt.qr>
+References: <a5de567c0611130252m52de5071vc25589bfd89b9c27@mail.gmail.com> 
+ <Pine.LNX.4.61.0611131234140.28210@yvahk01.tjqt.qr>
+ <a5de567c0611130415t6cbe97efr8e60a3d3e091d04d@mail.gmail.com>
 MIME-Version: 1.0
-To: anton@au1.ibm.com, paulus@samba.org
-CC: linux-kernel@vger.kernel.org
-Subject: [RFC] [PATCH] cpu_hotplug on IBM JS20 system
-Content-Type: multipart/mixed;
- boundary="------------010003070309090909070800"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010003070309090909070800
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi
-when I tried to hot plug a cpu on IBM bladecentre JS20 system,it dropped 
-in to xmon. On analyzing the problem,I found out that "self-stop" token  
-is not exported
-to the OS through rtas(Could be verified by looking in to 
-/proc/device-tree/rtas file).
+On Nov 13 2006 15:15, Ivan Ukhov wrote:
+> i dont use initrd. the kernel understands argument 'root=/dev/...', so
+> /dev should exist, mb not in a real filesystem, but just in ram or
+> something. i just want to know what devices are available for being
+> the root filesystem for the kernel (displaying all available devices
+> will be enough for me).
 
-1:mon> e
-cpu 0x1: Vector: 700 (Program Check) at [c00000000ff1bab0]
-   pc: c00000000001b144: .rtas_stop_self+0x34/0x70
-   lr: c0000000000439c0: .pSeries_mach_cpu_die+0x34/0x40
-   sp: c00000000ff1bd30
-  msr: 8000000000021032
- current = 0xc00000000ff050b0
- paca    = 0xc0000000005ec500
-   pid   = 0, comm = swapper
-kernel BUG in rtas_stop_self at arch/powerpc/kernel/rtas.c:829!
-===========================================
-void rtas_stop_self(void)
-{
-       struct rtas_args *rtas_args = &rtas_stop_self_args;
+/dev does not exist. How should it? The root filesystem / is empty, other
+people can verify that, or you can verify it yourself with an
+initramfs (which, unlike an initrd, is copied to / instead of being
+mounted).
 
-       local_irq_disable();
+Yes, the kernel understands root=/dev/ but that's a hack, a strstr(s,
+"/dev/"). Should you want to use, say, root=/devices/hda instead,
+that would only succeed when using an initrd/initramfs.
 
-       BUG_ON(rtas_args->token == RTAS_UNKNOWN_SERVICE);
-===================================================
-#ifdef CONFIG_HOTPLUG_CPU
-       rtas_stop_self_args.token = rtas_token("stop-self");
-#endif /* CONFIG_HOTPLUG_CPU */
-#ifdef CONFIG_RTAS_ERROR_LOGGING
-       rtas_last_error_token = rtas_token("rtas-last-error");
-===================================================
+To display the accepted block devices (this is most likely what you
+really wanted), check out
 
-Since we are not supported by hardware for cpu hotplug. I have developed 
-the patch which will disable cpu hotplug on IBM bladecentre JS20. Please 
-let me know your comments on this please.
-
-Signed-off-by: Srinivasa DS <srinivasa@in.ibm.com>
+ftp://ftp-1.gwdg.de/pub/linux/misc/suser-jengelh/kernel/linux-2.6.18-jen35/show_partitions.diff
 
 
+Please (a) don't top post (b) don't strip Cc:s.
 
+>
+> 2006/11/13, Jan Engelhardt <jengelh@linux01.gwdg.de>:
+>> 
+>> > I want the kernel (2.4) to display (just using printk) all available
+>> > devices with full path (/dev/...) before the root filesystem is
+>> > mounted.
+>> 
+>> Case 1: You do not use an initrd/initramfs:
+>> / is empty, /dev does not exist.
+>> 
+>> Case 2: You do use an initrd/initramfs
+>> You populated /dev during creation of the initrd/initramfs image OR
+>> your init script inside the initrd/initramfs mknods the nodes when run.
+>> 
+>> 
+>>        -`J'
+>> --
+>> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-Thanks
-Srinivasa DS
-
-
-
---------------010003070309090909070800
-Content-Type: text/plain;
- name="cpu_hotplug.fix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpu_hotplug.fix"
-
- arch/powerpc/kernel/rtas.c |    9 +++++++++
- kernel/cpu.c               |    4 ++--
- 2 files changed, 11 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.19-rc5/arch/powerpc/kernel/rtas.c
-===================================================================
---- linux-2.6.19-rc5.orig/arch/powerpc/kernel/rtas.c	2006-11-08 07:54:20.000000000 +0530
-+++ linux-2.6.19-rc5/arch/powerpc/kernel/rtas.c	2006-11-13 17:39:10.000000000 +0530
-@@ -53,6 +53,9 @@
- 
- unsigned long rtas_rmo_buf;
- 
-+extern  int cpu_hotplug_disabled;
-+extern  struct mutex cpu_add_remove_lock;
-+
- /*
-  * If non-NULL, this gets called when the kernel terminates.
-  * This is done like this so rtas_flash can be a module.
-@@ -881,6 +884,12 @@
- 
- #ifdef CONFIG_HOTPLUG_CPU
- 	rtas_stop_self_args.token = rtas_token("stop-self");
-+	if(rtas_stop_self_args.token == RTAS_UNKNOWN_SERVICE) {
-+		mutex_lock(&cpu_add_remove_lock);
-+		cpu_hotplug_disabled = 1;
-+		mutex_unlock(&cpu_add_remove_lock);
-+	}
-+
- #endif /* CONFIG_HOTPLUG_CPU */
- #ifdef CONFIG_RTAS_ERROR_LOGGING
- 	rtas_last_error_token = rtas_token("rtas-last-error");
-Index: linux-2.6.19-rc5/kernel/cpu.c
-===================================================================
---- linux-2.6.19-rc5.orig/kernel/cpu.c	2006-11-08 07:54:20.000000000 +0530
-+++ linux-2.6.19-rc5/kernel/cpu.c	2006-11-13 17:36:22.000000000 +0530
-@@ -16,7 +16,7 @@
- #include <linux/mutex.h>
- 
- /* This protects CPUs going up and down... */
--static DEFINE_MUTEX(cpu_add_remove_lock);
-+DEFINE_MUTEX(cpu_add_remove_lock);
- static DEFINE_MUTEX(cpu_bitmask_lock);
- 
- static __cpuinitdata RAW_NOTIFIER_HEAD(cpu_chain);
-@@ -24,7 +24,7 @@
- /* If set, cpu_up and cpu_down will return -EBUSY and do nothing.
-  * Should always be manipulated under cpu_add_remove_lock
-  */
--static int cpu_hotplug_disabled;
-+int cpu_hotplug_disabled;
- 
- #ifdef CONFIG_HOTPLUG_CPU
- 
-
---------------010003070309090909070800--
+	-`J'
+-- 

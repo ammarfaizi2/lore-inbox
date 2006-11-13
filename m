@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbWKMS1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932711AbWKMScJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932679AbWKMS1u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 13:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755319AbWKMS1u
+	id S932711AbWKMScJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 13:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWKMScJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 13:27:50 -0500
-Received: from wr-out-0506.google.com ([64.233.184.224]:48967 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1755318AbWKMS1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 13:27:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Xg+CrkJxQxS8DwiYlpd3A941zJ9VOvK0m4FZ1eaLa3XpFJi1VTRlEHyQNI2wKG4bBaSIC3mTx9ERVgAHX+8bGBjBncWPkzaYYo/3xGf74HA3xPaYMyRTkMUN2h+Jce/LBDMH2aHrzpyuzllZz78Iw/tcLiTXvN7dnt5zApzulMo=
-Message-ID: <cda58cb80611131027h5052bf80va06003c23b844fe@mail.gmail.com>
-Date: Mon, 13 Nov 2006 19:27:46 +0100
-From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-To: "James Simmons" <jsimmons@infradead.org>
-Subject: Re: [Linux-fbdev-devel] fbmem: is bootup logo broken for monochrome LCD ?
-Cc: "Linux Fbdev development list" 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0611131415270.25397@pentafluge.infradead.org>
+	Mon, 13 Nov 2006 13:32:09 -0500
+Received: from h155.mvista.com ([63.81.120.155]:53008 "EHLO imap.sh.mvista.com")
+	by vger.kernel.org with ESMTP id S932685AbWKMScH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 13:32:07 -0500
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+To: mingo@elte.hu
+Subject: [PATCH] 2.6.18-rt7: fix more issues with 32-bit cycles_t in latency_trace.c (take 2)
+Date: Mon, 13 Nov 2006 21:33:40 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, dwalker@mvista.com,
+       khilman@mvista.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <45535C08.5020607@innova-card.com>
-	 <Pine.LNX.4.64.0611122138030.9472@pentafluge.infradead.org>
-	 <cda58cb80611130153n60579de0w2ebb59b050595b3b@mail.gmail.com>
-	 <Pine.LNX.4.64.0611131415270.25397@pentafluge.infradead.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200611132133.40091.sshtylyov@ru.mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/13/06, James Simmons <jsimmons@infradead.org> wrote:
->
-> >> There are quite a few bugs in the code. I have a patch I have been working
-> >> on for some time. The patch does the following:
-> >>
-> >
-> > I'd like to give your patch a try but have some trouble to apply it
-> > cleanly. Care to resend it ?
->
-> Which tree are you working off ?> The patch is against linus git tree.
->
+In addition to the clock jump-back check being falsely triggered by clock wrap
+with 32-bit cycles_t, as noticed by Kevin Hilman, there's another issue: using
+%Lx format to print 32-bit values warrants erroneous values on 32-bit machines
+like ARM and PPC32...
 
-It seems that you use "format=flowed" with your mailer. Can you try to
-disable it ?
+Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 
-Even if I save the message to a file, the patch is still corrupted...
+---
+PPC32 actually has 64-bit timebase counter, so could provide for 64-bit
+cycles_t -- maybe it's worth to rewrite get_cycles() to read both lower and
+upper registers?
 
-Thanks
--- 
-               Franck
+ kernel/latency_trace.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+Index: linux-2.6/kernel/latency_trace.c
+===================================================================
+--- linux-2.6.orig/kernel/latency_trace.c
++++ linux-2.6/kernel/latency_trace.c
+@@ -1623,8 +1623,8 @@ check_critical_timing(int cpu, struct cp
+ #ifndef CONFIG_CRITICAL_LATENCY_HIST
+ 	if (!preempt_thresh && preempt_max_latency > delta) {
+ 		printk("bug: updating %016Lx > %016Lx?\n",
+-			preempt_max_latency, delta);
+-		printk("  [%016Lx %016Lx %016Lx]\n", T0, T1, T2);
++			(u64)preempt_max_latency, (u64)delta);
++		printk("  [%016Lx %016Lx %016Lx]\n", (u64)T0, (u64)T1, (u64)T2);
+ 	}
+ #endif
+ 
+@@ -2006,7 +2006,7 @@ check_wakeup_timing(struct cpu_trace *tr
+ 	____trace(smp_processor_id(), TRACE_FN, tr, CALLER_ADDR0, parent_eip, 0, 0, 0, *flags);
+ 	T2 = get_cycles();
+ 	if (T2 < T1)
+-		printk("bug2: %016Lx < %016Lx!\n", T2, T1);
++		printk("bug2: %016Lx < %016Lx!\n", (u64)T2, (u64)T1);
+ 	delta = T2-T0;
+ 
+ 	latency = cycles_to_usecs(delta);
+@@ -2023,8 +2023,8 @@ check_wakeup_timing(struct cpu_trace *tr
+ #ifndef CONFIG_WAKEUP_LATENCY_HIST
+ 	if (!preempt_thresh && preempt_max_latency > delta) {
+ 		printk("bug2: updating %016Lx > %016Lx?\n",
+-			preempt_max_latency, delta);
+-		printk("  [%016Lx %016Lx %016Lx]\n", T0, T1, T2);
++			(u64)preempt_max_latency, (u64)delta);
++		printk("  [%016Lx %016Lx %016Lx]\n", (u64)T0, (u64)T1, (u64)T2);
+ 	}
+ #endif
+ 
+

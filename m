@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754817AbWKMPEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754625AbWKMPEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754817AbWKMPEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 10:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754879AbWKMPEo
+	id S1754625AbWKMPEk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 10:04:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754879AbWKMPEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 10:04:44 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18562 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1754817AbWKMPEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 10:04:43 -0500
-Date: Mon, 13 Nov 2006 15:22:19 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: John Fremlin <not@just.any.name>
-Cc: kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
-       jim.kardach@intel.com, ak@suse.de
-Subject: AHCI power saving (was Re: Ten hours on X60s)
-Message-ID: <20061113142219.GA2703@elf.ucw.cz>
-References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061009215221.GC30702@elf.ucw.cz> <87ods6loe8.fsf-genuine-vii@john.fremlin.org> <20061025070920.GG5851@elf.ucw.cz> <87y7r3xlif.fsf-genuine-vii@john.fremlin.org> <20061026204655.GA1767@elf.ucw.cz> <87slgv6ccz.fsf-genuine-vii@john.fremlin.org> <20061112183614.GA5081@ucw.cz> <87hcx3adcd.fsf-genuine-vii@john.fremlin.org>
+	Mon, 13 Nov 2006 10:04:40 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:1251 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1754625AbWKMPEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 10:04:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XY6njGpePEQ48pD9gSAUA8QGhekF3jEiuDdIlwPHNwjpSHgBGkGh5Zss17rtb82+scUx6SqcmlHzD8fJOj+wCsUu2f/W4RkRzdlnobiG7mdBXDYlBOQAM5uy45OQAXQQSSfVGKY9l0AyS3TnIqhh0g+4vvMhw1JF+cWwloB9xUc=
+Message-ID: <d120d5000611130704r258c8946p3994c5ba1e0187e9@mail.gmail.com>
+Date: Mon, 13 Nov 2006 10:04:37 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Stelian Pop" <stelian@popies.net>
+Subject: Re: [PATCH] Apple Motion Sensor driver
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Michael Hanselmann" <linux-kernel@hansmi.ch>,
+       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
+       "Johannes Berg" <johannes@sipsolutions.net>,
+       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Paul Mackerras" <paulus@samba.org>, "Robert Love" <rml@novell.com>,
+       "Jean Delvare" <khali@linux-fr.org>,
+       "Rene Nussbaumer" <linux-kernel@killerfox.forkbomb.ch>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1163280972.32084.13.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <87hcx3adcd.fsf-genuine-vii@john.fremlin.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <1163280972.32084.13.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Stelian,
 
-> There are a couple of bits for turning on the hardware's
-> power-saving. It makes me think it might save me about a watt, but the
-> effect could be entirely psychological.
+On 11/11/06, Stelian Pop <stelian@popies.net> wrote:
 
-No, I did not mean _those_ bits. This made little or difference for
-me... (100mW or so, definitely not watt).
+ +
+> +       if (input_register_device(ams_info.idev)) {
+> +               input_free_device(ams_info.idev);
+> +               ams_info.idev = NULL;
+> +               return;
+> +       }
+> +
+> +       ams_info.kthread = kthread_run(ams_mouse_kthread, NULL, "kams");
+> +       if (IS_ERR(ams_info.kthread)) {
+> +               input_unregister_device(ams_info.idev);
+> +               ams_info.idev = NULL;
+> +               return;
+> +       }
+> +}
 
-doing ahci_pci_device_{suspend,resume} should definitely do the trick,
-and ahci_{start,stop}_engine might be enough.
-
-> Here is the patch. It is not correct and ready for general use,
-> because you are supposed to check whether the AHCI chipset supports
-> the feature.
-
-> So there is no example code for sending the AHCI chipset to S3 and
-> bringing it back? I thought you said there was before, but I can't
-> find it!
-
-ahci_pci_device_{suspend,resume} seems to be the code...
-
-Here's the port of your patch to recent -git.
-								Pavel
-
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index cef2e70..82a8a44 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -148,6 +148,8 @@ enum {
- 				  PORT_IRQ_PIOS_FIS | PORT_IRQ_D2H_REG_FIS,
- 
- 	/* PORT_CMD bits */
-+	PORT_CMD_ALPE		= (1 << 27), /* Aggressive Link Power Management Enable */
-+	PORT_CMD_ASP		= (1 << 26), /* Aggressive entrance to Slumber or Partial power management states */
- 	PORT_CMD_ATAPI		= (1 << 24), /* Device is ATAPI */
- 	PORT_CMD_LIST_ON	= (1 << 15), /* cmd list DMA engine running */
- 	PORT_CMD_FIS_ON		= (1 << 14), /* FIS DMA engine running */
-@@ -486,7 +488,7 @@ static void ahci_power_up(void __iomem *
- 	}
- 
- 	/* wake up link */
--	writel(cmd | PORT_CMD_ICC_ACTIVE, port_mmio + PORT_CMD);
-+	writel(cmd | PORT_CMD_ICC_ACTIVE | PORT_CMD_ALPE | PORT_CMD_ASP, port_mmio + PORT_CMD);
- }
- 
- static void ahci_power_down(void __iomem *port_mmio, u32 cap)
+Please consider implementing ams_mouse_start() and ams_mouse_stop()
+methods for input_dev and start/stop polling thread there - there is
+no reason to report input events when noone listens to them.
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Dmitry

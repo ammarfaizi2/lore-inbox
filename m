@@ -1,74 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754768AbWKMO36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754760AbWKMO3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754768AbWKMO36 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 09:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754772AbWKMO36
+	id S1754760AbWKMO3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 09:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754761AbWKMO3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 09:29:58 -0500
-Received: from cantor.suse.de ([195.135.220.2]:24291 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1754768AbWKMO35 (ORCPT
+	Mon, 13 Nov 2006 09:29:09 -0500
+Received: from rtr.ca ([64.26.128.89]:43269 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1754760AbWKMO3I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 09:29:57 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] genapic: optimize & fix APIC mode setup
-Date: Mon, 13 Nov 2006 15:29:46 +0100
-User-Agent: KMail/1.9.5
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com
-References: <20061111151414.GA32507@elte.hu> <200611131008.37810.ak@suse.de> <20061113140520.GA8111@elte.hu>
-In-Reply-To: <20061113140520.GA8111@elte.hu>
+	Mon, 13 Nov 2006 09:29:08 -0500
+Message-ID: <45588132.9090200@rtr.ca>
+Date: Mon, 13 Nov 2006 09:29:06 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611131529.46464.ak@suse.de>
+To: Alberto Alonso <alberto@ggsys.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: qstor driver -> irq 193: nobody cared
+References: <1162576973.3967.10.camel@w100>  <454CDE6E.5000507@rtr.ca>	 <1163180185.28843.13.camel@w100>  <4556AC74.3010000@rtr.ca> <1163363479.3423.8.camel@w100>
+In-Reply-To: <1163363479.3423.8.camel@w100>
+Content-Type: multipart/mixed;
+ boundary="------------040203050109070307000408"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040203050109070307000408
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Alberto Alonso wrote:
+> OK, after adding the printk line I can start seeing
+> results.
 > 
-> Secondly, in the physical case, /all/ IPI sending goes through this 
-> code:
-> 
->         for_each_cpu_mask(query_cpu, mask) {
-> 
-> yes, even the single-IPI calls which give the overwhelming majority of 
-> the use of IPIs. Even on systems that have only 2 CPUs to begin with. 
-> This should be measurable.
+> I guess it has been close to 10 on quite a few
+> occasions.
+..
+> # grep qstor /var/log/messages
+> Nov 12 07:00:53 w100 kernel: sata_qstor: spurious=0
+> Nov 12 07:00:53 w100 kernel: sata_qstor: spurious=1
+> Nov 12 07:00:53 w100 kernel: sata_qstor: spurious=0
+> Nov 12 07:00:56 w100 kernel: sata_qstor: spurious=1
+> Nov 12 07:00:56 w100 kernel: sata_qstor: spurious=2
+..
+> On Sun, 2006-11-12 at 00:09 -0500, Mark Lord wrote:
+>> Alberto Alonso wrote:
+>>> The saga continues. It happened again this morning even with the
+>>> patch:
+>> ..
+>>>> Mmm.. We could apply a bit of fuzzy tolerance for the odd glitch.
+>>>> Try this patch (attached) and report back.
+>> Did you add the printk() to the patch, as suggested?
+..
 
-I thought so too originally, but it wasn't. My original thinking
-was that logical must be faster because it can in theory send less messages
-on large systems.
+Excellent!
 
-On the two CPU case it is basically always the same anyways because
-the loop is very cheap compared to the IPIs (IPIs tend to be thousands
-of cycles). for_each_cpu_mask is essentially just BSF with some glue.
+So, either we have a very noisy bit of hardware in there,
+or something is wrong with sata_qstor.c.
 
-For the > 2 CPU case it is not that obvious -- in theory the hardware
-could optimize it to be more efficient, but it doesn't seem to. Or at least
-not in a good enough way to show significant differences.
+The device has two methods for dealing with commands.
+Regular R/W uses the driver's host queue "packet" interface,
+and all other commands pass through the legacy MMIO mechanism.
 
-> you are still not getting it i think. The IO-APIC is still in logical 
-> delivery mode on small systems, 
+I'm betting on some bug/interaction with the latter.
 
-The IO-APIC delivery mode that is configured comes from genapic, and should be 
-physical for physflat unless I'm totally confused about the code.
+Try this patch and see what happens, on top of the printk patch.
 
-> the right solution is to use pure physical mode (both local APIC and 
-> IO-APIC) only on large systems, and to use pure logical mode on small 
-> systems - maybe with the combination of clustered mode as well.
+Thanks
 
-I disagree.  I think we should just use physical mode everywhere,
-except on the old i386 systems.
+
+
+
+--------------040203050109070307000408
+Content-Type: text/x-patch;
+ name="qstor_check_status.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="qstor_check_status.patch"
+
+--- linux/drivers/scsi/sata_qstor.c.printk	2006-11-06 09:50:02.000000000 -0500
++++ linux/drivers/scsi/sata_qstor.c	2006-11-13 09:25:49.000000000 -0500
+@@ -431,6 +431,7 @@
+ 		if (ap &&
+ 		    !(ap->flags & ATA_FLAG_DISABLED)) {
+ 			struct ata_queued_cmd *qc;
++			u8 status = ata_check_status(ap);
+ 			struct qs_port_priv *pp = ap->private_data;
+ 			if (!pp || pp->state != qs_state_mmio)
+ 				continue;
+@@ -438,7 +439,7 @@
+ 			if (qc && (!(qc->tf.flags & ATA_TFLAG_POLLING))) {
  
-> as i said it before, what you are suggesting is not a 'fix', it's a 
-> workaround for a design flaw in the hotplug code which flaw is hitting 
-> us in other places and architectures anyway, and which workaround makes 
-> us use an inferior IRQ delivery method on small systems ...
+ 				/* check main status, clearing INTRQ */
+-				u8 status = ata_check_status(ap);
++				//u8 status = ata_check_status(ap);
+ 				if ((status & ATA_BUSY))
+ 					continue;
+ 				DPRINTK("ata%u: protocol %d (dev_stat 0x%X)\n",
 
-It isn't inferior as far as I know.
-
--Andi
+--------------040203050109070307000408--

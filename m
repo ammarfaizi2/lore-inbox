@@ -1,72 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754084AbWKMGmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754096AbWKMGk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754084AbWKMGmr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 01:42:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754092AbWKMGmr
+	id S1754096AbWKMGk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 01:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754084AbWKMGk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 01:42:47 -0500
-Received: from ns2.suse.de ([195.135.220.15]:60884 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1754084AbWKMGmq (ORCPT
+	Mon, 13 Nov 2006 01:40:59 -0500
+Received: from mga02.intel.com ([134.134.136.20]:14897 "EHLO mga02.intel.com")
+	by vger.kernel.org with ESMTP id S1754096AbWKMGk6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 01:42:46 -0500
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 13 Nov 2006 17:42:38 +1100
+	Mon, 13 Nov 2006 01:40:58 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,416,1157353200"; 
+   d="scan'208"; a="160427065:sNHT18017097"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Christoph Lameter'" <clameter@sgi.com>
+Cc: "Ingo Molnar" <mingo@elte.hu>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>, <akpm@osdl.org>,
+       <mm-commits@vger.kernel.org>, <nickpiggin@yahoo.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
+Date: Sun, 12 Nov 2006 22:40:51 -0800
+Message-ID: <000201c706ee$a9992e80$a081030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17752.5086.510190.316725@cse.unsw.edu.au>
-Cc: David Howells <dhowells@redhat.com>,
-       "bugme-daemon@kernel-bugs.osdl.org" 
-	<bugme-daemon@bugzilla.kernel.org>,
-       linux-kernel@vger.kernel.org, alex@hausnet.ru
-Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs.
-In-Reply-To: message from Andrew Morton on Saturday November 11
-References: <200611111129.kABBTWgp014081@fire-2.osdl.org>
-	<20061111100038.6277efd4.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccG5vEjPDulipmpSCK8U0CBs3B4nQABDvdg
+In-Reply-To: <Pine.LNX.4.64.0611122137190.2708@schroedinger.engr.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday November 11, akpm@osdl.org wrote:
-> On Sat, 11 Nov 2006 03:29:32 -0800
-> bugme-daemon@bugzilla.kernel.org wrote:
+Christoph Lameter wrote on Sunday, November 12, 2006 9:45 PM
+> > (2) we should initiate load balance within a domain only from least
+> >     loaded group.
 > 
-> > http://bugzilla.kernel.org/show_bug.cgi?id=7495
-> > 
-> >            Summary: Kernel periodically hangs.
-> >     Kernel Version: Linux version 2.6.18.2 (root@pub) (gcc version 3.4.6)
-> >                     #13 SMP Fr
-> >             Status: NEW
-> >           Severity: blocking
-> >              Owner: other_other@kernel-bugs.osdl.org
-> >          Submitter: alex@hausnet.ru
+> This would mean we would have to determine the least loaded group first.
 
-So getting back to the main issue in this bug report.....
+Well, find_busiest_group() scans every single bloody CPU in the system at
+the highest sched_domain level.  In fact, this function is capable to find
+busiest group within a domain, it should be capable to determine least
+loaded group for free because it already scanned every groups within a domain.
 
 
-> > 
-> > 
-> > [42587.676000] BUG: unable to handle kernel NULL pointer dereference at 
-> > virtual address 0000003c
+> > Part of all this problem probably stemmed from "load balance" is incapable
+> > of performing l-d between arbitrary pair of CPUs, and tightly tied load scan
+> > and actual l-d action.  And on top of that l-d is really a pull operation
+> > to current running CPU. All these limitations dictate that every CPU somehow
+> > has to scan and pull.  It is extremely inefficient on large system.
+> 
+> Right. However, if we follow this line of thought then we will be 
+> redesigning the load balancing logic.
 
-it would appear that in:
-	if (inode->i_sb && inode->i_sb->s_op->clear_inode)
-		inode->i_sb->s_op->clear_inode(inode);
+It won't be a bad idea to redesign it ;-)
 
-inode->i_sb->s_op is NULL.  This is unfortunate :-)
-alloc_super initialises s_op to '&default_op' and it isn't cleared on
-unmount, so the implication seems to be that i_sb has been freed and
-the memory has been reused.  This tends to suggest that
-generic_shutdown_super isn't releasing all inodes before the
-superblock gets destroyed.
+There are number of other oddity beside what was identified in it's design:
 
-I cannot see how this could be happening yet, but it might be helpful
-to compile with CONFIG_DEBUG_SLAB and maybe even
-CONFIG_DEBUG_PAGEALLOC.
-That might make the problem trigger earlier and so be easier to track.
+(1) several sched_groups are statically declared and they will reside in
+    boot node. I would expect cross node memory access to be expansive.
+    Every cpu will access these data structure repeatedly.
 
-NeilBrown
+    static struct sched_group sched_group_cpus[NR_CPUS];
+    static struct sched_group sched_group_core[NR_CPUS];
+    static struct sched_group sched_group_phys[NR_CPUS];
+
+(2) load balance staggering. Number of people pointed out that it is overly
+    done.
+
+(3) The for_each_domain() loop in rebalance_tick() looks different from
+    idle_balance() where it will traverse entire sched domains even if lower
+    level domain succeeded in moving some tasks.  I would expect we either
+    break out of the for loop like idle_balance(), or somehow update load
+    for current CPU so it gets accurate load value when doing l-d in the
+    next level. Currently, It is doing neither.

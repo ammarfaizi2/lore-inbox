@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754642AbWKMNqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754648AbWKMNwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754642AbWKMNqh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 08:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754645AbWKMNqg
+	id S1754648AbWKMNwR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 08:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754654AbWKMNwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 08:46:36 -0500
-Received: from smtpout07-01.prod.mesa1.secureserver.net ([64.202.165.230]:10724
-	"HELO smtpout07-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1754642AbWKMNqg (ORCPT
+	Mon, 13 Nov 2006 08:52:17 -0500
+Received: from cadalboia.ferrara.linux.it ([195.110.122.101]:24800 "EHLO
+	cadalboia.ferrara.linux.it") by vger.kernel.org with ESMTP
+	id S1754648AbWKMNwR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 08:46:36 -0500
-Message-ID: <4558773A.4040803@seclark.us>
-Date: Mon, 13 Nov 2006 08:46:34 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Mon, 13 Nov 2006 08:52:17 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Remi <remi.colinet@free.fr>
+Subject: Re: 2.6.19-rc5-mm1 : probe of 0000:00:1f.2 failed with error -16
+Date: Mon, 13 Nov 2006 14:52:11 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+References: <1163425477.455876c5637f6@imp4-g19.free.fr>
+In-Reply-To: <1163425477.455876c5637f6@imp4-g19.free.fr>
 MIME-Version: 1.0
-To: Shaun Q <shaun@c-think.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Dual cores on Core2Duo not detected?
-References: <Pine.BSO.4.64.0611122322060.30536@ref.nmedia.net>
-In-Reply-To: <Pine.BSO.4.64.0611122322060.30536@ref.nmedia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200611131452.13234.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Shaun,
+Alle 14:44, lunedì 13 novembre 2006, Remi ha scritto:
+> Hello,
+>
+> Since after 2.6.18-mm3, I'm unable to boot mm trees getting the following
+> message:
+>
+> ata_piix: probe of 0000:00:1f.2 failed with error -16
+> Kernel panic - not syncing: Attempted to kill init!
+>
+> I disabled most options in my .config file just keeping ata_piix enabled.
+> 2.6.19-rc5 still boots fine but 2.6.19-rc-mm1 gives the same previous
+> message.
 
-Someone mentioned some bioses have an entry to enable the second core.
 
-HTH,
-Steve
+It seems exactly the same problem that is hitting me:
 
-Shaun Q wrote:
+http://lkml.org/lkml/2006/11/13/37
 
->Hi there everyone --
->
->I'm trying to build a custom kernel for using both cores of my new 
->Core2Duo E6600 processor...
->
->I thought this was simply a matter of enabling the SMP support in the 
->kernel .config and recompiling, but when the kernel comes back up, still 
->only one core is detected.
->
->With the default vanilla text-based SuSE 10.1 install, it does find both 
->cores...
->
->Anyone have any pointers for me on what I might be missing?
->
->Thanks!
->Shaun
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+If some patch comes out, I'll be willing to try it asap ;)
+
 
 
 -- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+Fabio "Cova" Coatti    http://members.ferrara.linux.it/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

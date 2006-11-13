@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933042AbWKMTdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933038AbWKMTfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933042AbWKMTdX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 14:33:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933041AbWKMTdX
+	id S933038AbWKMTfY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 14:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933039AbWKMTfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 14:33:23 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:14465 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932862AbWKMTdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 14:33:22 -0500
-Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
-From: Arjan van de Ven <arjan@infradead.org>
-To: Mathieu Fluhr <mfluhr@nero.com>
-Cc: Phillip Susi <psusi@cfl.rr.com>, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>
-References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>
-	 <4558BE57.4020700@cfl.rr.com>
-	 <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 13 Nov 2006 20:32:52 +0100
-Message-Id: <1163446372.15249.190.camel@laptopd505.fenrus.org>
+	Mon, 13 Nov 2006 14:35:23 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:35821 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S933038AbWKMTfW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 14:35:22 -0500
+Date: Mon, 13 Nov 2006 14:34:47 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andi Kleen <ak@suse.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org,
+       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com, pavel@suse.cz, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
+Message-ID: <20061113193447.GB13832@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061113162135.GA17429@in.ibm.com> <200611131822.44034.ak@suse.de> <20061113175947.GA13832@in.ibm.com> <200611131913.32073.ak@suse.de> <m14pt3qhjy.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m14pt3qhjy.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-13 at 19:56 +0100, Mathieu Fluhr wrote:
-> On Mon, 2006-11-13 at 13:49 -0500, Phillip Susi wrote:
-> > Mathieu Fluhr wrote:
-> > > Hello,
-> > > 
-> > > I recently tried to burn some datas on CDs and DVD using a SATA burner
-> > > and the latest 2.6.18.2 kernel... using NeroLINUX. (It is controlling
-> > > the device by sending SCSI commands over the 'sg' driver)
-> > > 
-> > 
-> > Please note that the sg interface is depreciated.  It is now recommended 
-> > that you send the CCBs directly to the normal device, i.e. /dev/hdc.
+On Mon, Nov 13, 2006 at 12:21:05PM -0700, Eric W. Biederman wrote:
+> Andi Kleen <ak@suse.de> writes:
 > 
-> Of course for native IDE devices, we are using the /dev/hdXX device, but
-> for SATA devices controlled by the libata, this is not possible ;)
+> >> This code (verify_cpu) is called while we are still in real mode. So it has
+> >> to be present in low 1MB. Now in trampoline has been designed to switch to
+> >> 64bit mode and then jump to the kernel hence kernel can be loaded anywhere
+> >> even beyond (4G). So if we move this code into say arch/x86_64/kernel/head.S
+> >> then we can't even call it.
+> >
+> > I didn't mean to call it. Just #include it from a common file
+> 
+> I believe the duplication winds up happening in setup.S
+> 
 
-for those there is /dev/scd0 etc...
+Yes. So boot cpu code in setup.S is also doing these checks. So one 
+of the options is that I create a new file says verify_cpu.S and this
+code can be shared by setup.S, trampoline.S and wakeup.S.
 
-(usually nicely symlinked to /dev/cdrom)
+Or, I can simply drop the verify_cpu bit from trampoline.S and wakeup.S.
+This looks like a non-essential bit and in the past we did not perform
+these checks in trampoline.S and wakeup.S
 
+At this point of time, I will prefer to go with second option of dropping
+extended checks in trampoline.S and wakeup.S to keep things simple.
 
+Does that make sense?
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Thanks
+Vivek
 

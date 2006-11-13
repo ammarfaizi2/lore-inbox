@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754976AbWKMQ4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755217AbWKMQ5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754976AbWKMQ4n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:56:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755220AbWKMQyr
+	id S1755217AbWKMQ5f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:57:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755211AbWKMQyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:54:47 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:5522 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1755210AbWKMQyk (ORCPT
+	Mon, 13 Nov 2006 11:54:15 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:2986 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1755212AbWKMQyE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:54:40 -0500
-Date: Mon, 13 Nov 2006 11:51:15 -0500
+	Mon, 13 Nov 2006 11:54:04 -0500
+Date: Mon, 13 Nov 2006 11:44:28 -0500
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com
-Subject: [RFC] [PATCH 16/16] x86_64: Extend bzImage protocol for relocatable bzImage
-Message-ID: <20061113165115.GQ17429@in.ibm.com>
+Subject: [RFC] [PATCH 11/16] x86_64: Modify discover_ebda to use virtual address
+Message-ID: <20061113164428.GL17429@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061113162135.GA17429@in.ibm.com>
 Mime-Version: 1.0
@@ -29,44 +29,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-
-o Extend the bzImage protocol (same as i386) to allow bzImage loaders to
-  load the protected mode kernel at non-1MB address. Now protected mode
-  component is relocatable and can be loaded at non-1MB addresses.
-
-o As of today kdump uses it to run a second kernel from a reserved memory
-  area.
-
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/x86_64/boot/setup.S |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/x86_64/kernel/setup.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff -puN arch/x86_64/boot/setup.S~x86_64-extend-bzImage-protocol-for-relocatable-bzImage arch/x86_64/boot/setup.S
---- linux-2.6.19-rc5-reloc/arch/x86_64/boot/setup.S~x86_64-extend-bzImage-protocol-for-relocatable-bzImage	2006-11-09 23:07:08.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/arch/x86_64/boot/setup.S	2006-11-09 23:07:08.000000000 -0500
-@@ -80,7 +80,7 @@ start:
- # This is the setup header, and it must start at %cs:2 (old 0x9020:2)
+diff -puN arch/x86_64/kernel/setup.c~x86_64-Modify-discover_ebda-to-use-virtual-addresses arch/x86_64/kernel/setup.c
+--- linux-2.6.19-rc5-reloc/arch/x86_64/kernel/setup.c~x86_64-Modify-discover_ebda-to-use-virtual-addresses	2006-11-09 23:02:24.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/arch/x86_64/kernel/setup.c	2006-11-09 23:02:24.000000000 -0500
+@@ -327,10 +327,10 @@ static void discover_ebda(void)
+ 	 * there is a real-mode segmented pointer pointing to the 
+ 	 * 4K EBDA area at 0x40E
+ 	 */
+-	ebda_addr = *(unsigned short *)EBDA_ADDR_POINTER;
++	ebda_addr = *(unsigned short *)__va(EBDA_ADDR_POINTER);
+ 	ebda_addr <<= 4;
  
- 		.ascii	"HdrS"		# header signature
--		.word	0x0204		# header version number (>= 0x0105)
-+		.word	0x0205		# header version number (>= 0x0105)
- 					# or else old loadlin-1.5 will fail)
- realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
- start_sys_seg:	.word	SYSSEG
-@@ -155,7 +155,12 @@ cmd_line_ptr:	.long 0			# (Header versio
- 					# low memory 0x10000 or higher.
+-	ebda_size = *(unsigned short *)(unsigned long)ebda_addr;
++	ebda_size = *(unsigned short *)__va(ebda_addr);
  
- ramdisk_max:	.long 0xffffffff
--	
-+kernel_alignment:  .long 0x200000       # physical addr alignment required for
-+					# protected mode relocatable kernel
-+relocatable_kernel:    .byte 1
-+pad2:                  .byte 0
-+pad3:                  .word 0
-+
- trampoline:	call	start_of_setup
- 		.align 16
- 					# The offset at this point is 0x240
+ 	/* Round EBDA up to pages */
+ 	if (ebda_size == 0)
 _

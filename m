@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933037AbWKMTao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933042AbWKMTdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933037AbWKMTao (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 14:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932960AbWKMTan
+	id S933042AbWKMTdX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 14:33:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933041AbWKMTdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 14:30:43 -0500
-Received: from holoclan.de ([62.75.158.126]:932 "EHLO mail.holoclan.de")
-	by vger.kernel.org with ESMTP id S933037AbWKMTam (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 14:30:42 -0500
-Date: Mon, 13 Nov 2006 20:27:38 +0100
-From: Martin Lorenz <martin@lorenz.eu.org>
-To: linux-thinkpad@linux-thinkpad.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ltp] Re: paging request BUG in 2.6.19-rc5 on resume - X60s
-Message-ID: <20061113192738.GE7942@gimli>
-Mail-Followup-To: linux-thinkpad@linux-thinkpad.org,
-	linux-kernel@vger.kernel.org
-References: <20061113081147.GB5289@gimli> <200611131537.01626.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611131537.01626.rjw@sisk.pl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Mon, Nov 13, 2006 at 03:37:01PM +0100, Rafael J.
-	Wysocki wrote: > On Monday, 13 November 2006 09:11, Martin Lorenz wrote:
-	> > Hallo again, > > > > here is another one: > > > > I reported a black
-	screen on resume with my latest kernel build earlyer. But > > this was
-	not reproducible. Only occured once. > > Is this a resume from disk? If
-	so, which kernel are you using? > [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+	Mon, 13 Nov 2006 14:33:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:14465 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932862AbWKMTdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 14:33:22 -0500
+Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mathieu Fluhr <mfluhr@nero.com>
+Cc: Phillip Susi <psusi@cfl.rr.com>, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>
+References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>
+	 <4558BE57.4020700@cfl.rr.com>
+	 <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 13 Nov 2006 20:32:52 +0100
+Message-Id: <1163446372.15249.190.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 03:37:01PM +0100, Rafael J. Wysocki wrote:
-> On Monday, 13 November 2006 09:11, Martin Lorenz wrote:
-> > Hallo again,
+On Mon, 2006-11-13 at 19:56 +0100, Mathieu Fluhr wrote:
+> On Mon, 2006-11-13 at 13:49 -0500, Phillip Susi wrote:
+> > Mathieu Fluhr wrote:
+> > > Hello,
+> > > 
+> > > I recently tried to burn some datas on CDs and DVD using a SATA burner
+> > > and the latest 2.6.18.2 kernel... using NeroLINUX. (It is controlling
+> > > the device by sending SCSI commands over the 'sg' driver)
+> > > 
 > > 
-> > here is another one:
-> > 
-> > I reported a black screen on resume with my latest kernel build earlyer. But
-> > this was not reproducible. Only occured once.
+> > Please note that the sg interface is depreciated.  It is now recommended 
+> > that you send the CCBs directly to the normal device, i.e. /dev/hdc.
 > 
-> Is this a resume from disk?  If so, which kernel are you using?
-> 
+> Of course for native IDE devices, we are using the /dev/hdXX device, but
+> for SATA devices controlled by the libata, this is not possible ;)
 
-no from suspend to ram
+for those there is /dev/scd0 etc...
 
-Linux gimli 2.6.19-rc5+ieee80211+e1000-45.3+1909-g6a4abeae-dirty #1 SMP Wed
-Nov 8 20:14:31 CET 2006 i686 GNU/Linux
+(usually nicely symlinked to /dev/cdrom)
 
 
-gruss
-  mlo
---
-Dipl.-Ing. Martin Lorenz
 
-            They that can give up essential liberty 
-	    to obtain a little temporary safety 
-	    deserve neither liberty nor safety.
-                                   Benjamin Franklin
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-please encrypt your mail to me
-GnuPG key-ID: F1AAD37D
-get it here:
-http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
-
-ICQ UIN: 33588107

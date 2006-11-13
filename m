@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755179AbWKMRWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755226AbWKMRXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755179AbWKMRWW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 12:22:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755224AbWKMRWV
+	id S1755226AbWKMRXi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 12:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755297AbWKMRXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 12:22:21 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32460 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1755179AbWKMRWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 12:22:20 -0500
-Subject: Re: [patch 2/4] permission mapping for sys_syslog operations
-From: Arjan van de Ven <arjan@infradead.org>
-To: Zack Weinberg <zackw@panix.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-       jmorris@namei.org, linux-kernel@vger.kernel.org
-In-Reply-To: <eb97335b0611130917j18191c0ej3220b10c090d686f@mail.gmail.com>
-References: <20061113064043.264211000@panix.com>
-	 <20061113064058.779558000@panix.com>
-	 <1163409918.15249.111.camel@laptopd505.fenrus.org>
-	 <eb97335b0611130129r7cdb8c8cuc8f2360e1f17f8f3@mail.gmail.com>
-	 <1163411238.15249.114.camel@laptopd505.fenrus.org>
-	 <eb97335b0611130917j18191c0ej3220b10c090d686f@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 13 Nov 2006 18:22:04 +0100
-Message-Id: <1163438525.15249.181.camel@laptopd505.fenrus.org>
+	Mon, 13 Nov 2006 12:23:38 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:52181 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1755226AbWKMRXg (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 12:23:36 -0500
+Message-Id: <200611131722.kADHMkDq007954@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Stephen Hemminger <shemminger@osdl.org>, Jan Pieter <pptp@jp.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The return of the ITeX PCI ADSL card for 2.6 kernels
+In-Reply-To: Your message of "Mon, 13 Nov 2006 09:10:17 PST."
+             <20061113091017.66e58a9b@freekitty>
+From: Valdis.Kletnieks@vt.edu
+References: <200611110116.29320.pptp@jp.dhs.org>
+            <20061113091017.66e58a9b@freekitty>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Type: multipart/signed; boundary="==_Exmh_1163438565_3121P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Mon, 13 Nov 2006 12:22:45 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-13 at 09:17 -0800, Zack Weinberg wrote:
-> On 11/13/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > On Mon, 2006-11-13 at 01:29 -0800, Zack Weinberg wrote:
-> > > I thought the point of the "unifdef" thing was that it made a version
-> > > of the header with the __KERNEL__ section ripped out, for copying into
-> > > /usr/include, so you didn't have to do that ...
-> >
-> > yes it is, however it's mostly for existing stuff/seamless transition.
-> > It's a hack :)
-> > If you can avoid it lets do so; you already have the nice clean header,
-> > so lets not go backwards... you HAVE the clean separation.
+--==_Exmh_1163438565_3121P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 13 Nov 2006 09:10:17 PST, Stephen Hemminger said:
+> On Sat, 11 Nov 2006 01:16:29 +0100 Jan Pieter <pptp@jp.dhs.org> wrote:
+> > ITeX stopped support for their PCI ADSL Apollo3 chipset because
+> > they gone bankrupt. The latest Linux drivers for their chipset are
+> > for kernel 2.4.15. They are binary-only.
 > 
-> ok, but I gotta ask that you tell me what to name the internal header,
-> I can't think of anything that isn't ugly.
+> Wrong list. We don't do binary drivers.... 
 
-klog.h vs klogd.h ? or klog_api.h for the user one ?
+On the other hand, if we can track down whoever got the wreckage of the
+bankrupt company, they might be persuaded to cough up enough documentation
+to allow writing an open driver....
 
-(and yes I suck at names even more than you do ;)
+Anybody know how many Apollo3-based cards were sold?  Enough to make it
+worth pursuing, or did ITeX go under because only 45 people bought the card,
+and 43 of them have since disposed of the hardware?
 
-> 
-> zw
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+--==_Exmh_1163438565_3121P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFWKnlcC3lWbTT17ARAqo4AJ9S9CZk/U9Te5ghZFUJ6+O5E7/OYgCcDahg
+jb8a4fQko7nQnj1vpo6TZ+w=
+=/9vH
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1163438565_3121P--

@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755281AbWKMUnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755320AbWKMUqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755281AbWKMUnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 15:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755333AbWKMUnr
+	id S1755320AbWKMUqp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 15:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755334AbWKMUqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 15:43:47 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:46801 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1755281AbWKMUnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 15:43:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=QnVWvQSHSSPnCwBcMmJeLGjA2wLNybMCokDLWL+6VWXrO28gXc2eMMQPk4W6XHl5UDvdOCryZhucO301Zzp01rbPrEGkMTce9wrB8LEl06S1zr//FThaNZMl8hQS/GkiUqh//K0226caJERObViA01mgiTMGTJn8MMPLX808aJI=
-Date: Mon, 13 Nov 2006 21:43:40 +0100
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] atkbd: disable spurious ACK/NAK warning on panic
-Message-ID: <20061113204340.GA25557@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 13 Nov 2006 15:46:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24758 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1755320AbWKMUqo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 15:46:44 -0500
+Subject: Re: 2.6.19-rc5: known regressions :SMP kernel can not generate ISA
+	irq
+From: Ingo Molnar <mingo@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Komuro <komurojun-mbn@nifty.com>,
+       tglx@linutronix.de, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m13b8ns24j.fsf@ebiederm.dsl.xmission.com>
+References: <Pine.LNX.4.64.0611080749090.3667@g5.osdl.org>
+	 <1162985578.8335.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	 <20061108085235.GT4729@stusta.de>
+	 <7813413.118221162987983254.komurojun-mbn@nifty.com>
+	 <11940937.327381163162570124.komurojun-mbn@nifty.com>
+	 <Pine.LNX.4.64.0611130742440.22714@g5.osdl.org>
+	 <m13b8ns24j.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Mon, 13 Nov 2006 21:44:37 +0100
+Message-Id: <1163450677.7473.86.camel@earth>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After the panic() message has been printed kernel may blink keyboard
-leds to signal the abnormal condition.
-atkbd warns that "Some program might be trying access hardware directly"
-at every blink, scrolling the useful text out of the screen.
-Avoid printing the warning when oops_in_progress is set in order to
-preserve the panic message.
+On Mon, 2006-11-13 at 10:11 -0700, Eric W. Biederman wrote:
+> > So when you "mask" an edge-triggered IRQ, you can't really mask it
+> at all, 
+> > because if you did that, you'd lose it forever if the IRQ comes in
+> while 
+> > you masked it. Instead, we're supposed to leave it active, and set a
+> flag, 
+> > and IF the IRQ comes in, we just remember it, and mask it at that
+> point 
+> > instead, and then on unmasking, we have to replay it by sending a 
+> > self-IPI.
+> >
+> > Maybe that part got broken by some of the IRQ changes by Eric. 
+> 
+> Hmm.  The other possibility is that this is a genirq migration issue.
+> 
+> Yep.  That looks like it.   In the genirq migration the edge and
+> level triggered cases got merged and previously disable_edge_ioapic
+> was a noop.  Ouch.
 
-Signed-Off-By: Luca Tettamanti <kronos.it@gmail.com>
+hm, that should be solved by the generic edge-triggered flow handler as
+well: we never mask an IRQ first time around, we only mask it if
+we /already/ have the 'soft' IRQ_PENDING flag set. (in that case the
+lost edge is not an issue because we have the information already - and
+the masking will prevent a screaming edge source)
 
----
- Patch against current GIT tree.
+but maybe this concept has not been pushed through to the disable/enable
+irq logic itself? (it's only present in the flow handler) Thomas, do you
+concur?
 
- drivers/input/keyboard/atkbd.c |    2 ++
- 1 file changed, 2 insertions(+)
+	Ingo
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index cbb9366..81d2701 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -412,6 +412,8 @@ static irqreturn_t atkbd_interrupt(struc
- 			goto out;
- 		case ATKBD_RET_ACK:
- 		case ATKBD_RET_NAK:
-+			if (oops_in_progress)
-+				goto out;
- 			printk(KERN_WARNING "atkbd.c: Spurious %s on %s. "
- 			       "Some program might be trying access hardware directly.\n",
- 			       data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
-
-
-Luca
--- 
-"In linea di principio sarei indifferente al natale, se solo il natale
- ricambiasse la cortesia e mi lasciasse in pace." -- Marco d'Itri

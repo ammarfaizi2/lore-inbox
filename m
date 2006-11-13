@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754410AbWKMQyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755218AbWKMQyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754410AbWKMQyI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:54:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755218AbWKMQyI
+	id S1755218AbWKMQyK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:54:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755216AbWKMQyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:54:08 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:64654 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1755210AbWKMQxy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:53:54 -0500
-Date: Mon, 13 Nov 2006 11:48:34 -0500
+	Mon, 13 Nov 2006 11:54:09 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:47008 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1755213AbWKMQyE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 11:54:04 -0500
+Date: Mon, 13 Nov 2006 11:31:41 -0500
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com
-Subject: [RFC] [PATCH 14/16] x86_64: Remove CONFIG_PHYSICAL_START
-Message-ID: <20061113164834.GO17429@in.ibm.com>
+Subject: [RFC] [PATCH 4/16] x86_64: Clean up the early boot page table
+Message-ID: <20061113163141.GE17429@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061113162135.GA17429@in.ibm.com>
 Mime-Version: 1.0
@@ -29,154 +29,154 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-I am about to add relocatable kernel support which has essentially
-no cost so there is no point in retaining CONFIG_PHYSICAL_START
-and retaining CONFIG_PHYSICAL_START makes implementation of and
-testing of a relocatable kernel more difficult.
+- Merge physmem_pgt and ident_pgt, removing physmem_pgt.  The merge
+  is broken as soon as mm/init.c:init_memory_mapping is run.
+- As physmem_pgt is gone don't export it in pgtable.h.
+- Use defines from pgtable.h for page permissions.
+- Fix the physical memory identity mapping so it is at the correct
+  address.
+- Remove the physical memory mapping from wakeup_level4_pgt it
+  is at the wrong address so we can't possibly be usinging it.
+- Simply NEXT_PAGE the work to calculate the phys_ alias
+  of the labels was very cool.  Unfortuantely it was a brittle
+  special purpose hack that makes maitenance more difficult.
+  Instead just use label - __START_KERNEL_map like we do
+  everywhere else in assembly.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/x86_64/Kconfig                |   19 -------------------
- arch/x86_64/boot/compressed/head.S |    6 +++---
- arch/x86_64/boot/compressed/misc.c |    6 +++---
- arch/x86_64/defconfig              |    1 -
- arch/x86_64/kernel/vmlinux.lds.S   |    2 +-
- arch/x86_64/mm/fault.c             |    4 ++--
- include/asm-x86_64/page.h          |    2 --
- 7 files changed, 9 insertions(+), 31 deletions(-)
+ arch/x86_64/kernel/head.S    |   61 +++++++++++++++++++------------------------
+ include/asm-x86_64/pgtable.h |    1 
+ 2 files changed, 28 insertions(+), 34 deletions(-)
 
-diff -puN arch/x86_64/boot/compressed/head.S~x86_64-Remove-CONFIG_PHYSICAL_START arch/x86_64/boot/compressed/head.S
---- linux-2.6.19-rc5-reloc/arch/x86_64/boot/compressed/head.S~x86_64-Remove-CONFIG_PHYSICAL_START	2006-11-09 23:05:52.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/arch/x86_64/boot/compressed/head.S	2006-11-09 23:05:52.000000000 -0500
-@@ -76,7 +76,7 @@ startup_32:
- 	jnz  3f
- 	addl $8,%esp
- 	xorl %ebx,%ebx
--	ljmp $(__KERNEL_CS), $__PHYSICAL_START
-+	ljmp $(__KERNEL_CS), $0x200000
+diff -puN arch/x86_64/kernel/head.S~x86_64-Cleanup-the-early-boot-page-table arch/x86_64/kernel/head.S
+--- linux-2.6.19-rc5-reloc/arch/x86_64/kernel/head.S~x86_64-Cleanup-the-early-boot-page-table	2006-11-09 22:55:39.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/arch/x86_64/kernel/head.S	2006-11-09 22:55:39.000000000 -0500
+@@ -13,6 +13,7 @@
+ #include <linux/init.h>
+ #include <asm/desc.h>
+ #include <asm/segment.h>
++#include <asm/pgtable.h>
+ #include <asm/page.h>
+ #include <asm/msr.h>
+ #include <asm/cache.h>
+@@ -252,52 +253,48 @@ ljumpvector:
+ ENTRY(stext)
+ ENTRY(_stext)
  
- /*
-  * We come here, if we were loaded high.
-@@ -102,7 +102,7 @@ startup_32:
- 	popl %ecx	# lcount
- 	popl %edx	# high_buffer_start
- 	popl %eax	# hcount
--	movl $__PHYSICAL_START,%edi
-+	movl $0x200000,%edi
- 	cli		# make sure we don't get interrupted
- 	ljmp $(__KERNEL_CS), $0x1000 # and jump to the move routine
+-	$page = 0
+ #define NEXT_PAGE(name) \
+-	$page = $page + 1; \
+-	.org $page * 0x1000; \
+-	phys_/**/name = $page * 0x1000 + __PHYSICAL_START; \
++	.balign	PAGE_SIZE; \
+ ENTRY(name)
  
-@@ -127,7 +127,7 @@ move_routine_start:
- 	movsl
- 	movl %ebx,%esi	# Restore setup pointer
- 	xorl %ebx,%ebx
--	ljmp $(__KERNEL_CS), $__PHYSICAL_START
-+	ljmp $(__KERNEL_CS), $0x200000
- move_routine_end:
++/* Automate the creation of 1 to 1 mapping pmd entries */
++#define PMDS(START, PERM, COUNT)		\
++	i = 0 ;					\
++	.rept (COUNT) ;				\
++	.quad	(START) + (i << 21) + (PERM) ;	\
++	i = i + 1 ;				\
++	.endr
++
+ NEXT_PAGE(init_level4_pgt)
+ 	/* This gets initialized in x86_64_start_kernel */
+ 	.fill	512,8,0
  
+ NEXT_PAGE(level3_ident_pgt)
+-	.quad	phys_level2_ident_pgt | 0x007
++	.quad	level2_ident_pgt - __START_KERNEL_map + _KERNPG_TABLE
+ 	.fill	511,8,0
  
-diff -puN arch/x86_64/boot/compressed/misc.c~x86_64-Remove-CONFIG_PHYSICAL_START arch/x86_64/boot/compressed/misc.c
---- linux-2.6.19-rc5-reloc/arch/x86_64/boot/compressed/misc.c~x86_64-Remove-CONFIG_PHYSICAL_START	2006-11-09 23:05:52.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/arch/x86_64/boot/compressed/misc.c	2006-11-09 23:05:52.000000000 -0500
-@@ -288,7 +288,7 @@ static void setup_normal_output_buffer(v
- #else
- 	if ((RM_ALT_MEM_K > RM_EXT_MEM_K ? RM_ALT_MEM_K : RM_EXT_MEM_K) < 1024) error("Less than 2MB of memory");
+ NEXT_PAGE(level3_kernel_pgt)
+ 	.fill	510,8,0
+ 	/* (2^48-(2*1024*1024*1024)-((2^39)*511))/(2^30) = 510 */
+-	.quad	phys_level2_kernel_pgt | 0x007
++	.quad	level2_kernel_pgt - __START_KERNEL_map + _KERNPG_TABLE
+ 	.fill	1,8,0
+ 
+ NEXT_PAGE(level2_ident_pgt)
+-	/* 40MB for bootup. 	*/
+-	i = 0
+-	.rept 20
+-	.quad	i << 21 | 0x083
+-	i = i + 1
+-	.endr
+-	.fill	492,8,0
++	/* Since I easily can, map the first 1G.
++	 * Don't set NX because code runs from these pages.
++	 */
++	PMDS(0x0000000000000000, __PAGE_KERNEL_LARGE_EXEC, PTRS_PER_PMD)
+ 	
+ NEXT_PAGE(level2_kernel_pgt)
+ 	/* 40MB kernel mapping. The kernel code cannot be bigger than that.
+ 	   When you change this change KERNEL_TEXT_SIZE in page.h too. */
+ 	/* (2^48-(2*1024*1024*1024)-((2^39)*511)-((2^30)*510)) = 0 */
+-	i = 0
+-	.rept 20
+-	.quad	i << 21 | 0x183
+-	i = i + 1
+-	.endr
++	PMDS(0x0000000000000000, __PAGE_KERNEL_LARGE_EXEC|_PAGE_GLOBAL,
++		KERNEL_TEXT_SIZE/PMD_SIZE)
+ 	/* Module mapping starts here */
+-	.fill	492,8,0
+-
+-NEXT_PAGE(level3_physmem_pgt)
+-	.quad	phys_level2_kernel_pgt | 0x007	/* so that __va works even before pagetable_init */
+-	.fill	511,8,0
++	.fill	(PTRS_PER_PMD - (KERNEL_TEXT_SIZE/PMD_SIZE)),8,0
+ 
++#undef PMDS
+ #undef NEXT_PAGE
+ 
+ 	.data
+@@ -305,12 +302,10 @@ NEXT_PAGE(level3_physmem_pgt)
+ #ifdef CONFIG_ACPI_SLEEP
+ 	.align PAGE_SIZE
+ ENTRY(wakeup_level4_pgt)
+-	.quad	phys_level3_ident_pgt | 0x007
+-	.fill	255,8,0
+-	.quad	phys_level3_physmem_pgt | 0x007
+-	.fill	254,8,0
++	.quad	level3_ident_pgt - __START_KERNEL_map + _KERNPG_TABLE
++	.fill	510,8,0
+ 	/* (2^48-(2*1024*1024*1024))/(2^39) = 511 */
+-	.quad	phys_level3_kernel_pgt | 0x007
++	.quad	level3_kernel_pgt - __START_KERNEL_map + _KERNPG_TABLE
  #endif
--	output_data = (unsigned char *)__PHYSICAL_START; /* Normally Points to 1M */
-+	output_data = (unsigned char *)0x200000;
- 	free_mem_end_ptr = (long)real_mode;
- }
  
-@@ -311,8 +311,8 @@ static void setup_output_buffer_if_we_ru
- 	low_buffer_size = low_buffer_end - LOW_BUFFER_START;
- 	high_loaded = 1;
- 	free_mem_end_ptr = (long)high_buffer_start;
--	if ( (__PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
--		high_buffer_start = (uch *)(__PHYSICAL_START + low_buffer_size);
-+	if ( (0x200000 + low_buffer_size) > ((ulg)high_buffer_start)) {
-+		high_buffer_start = (uch *)(0x200000 + low_buffer_size);
- 		mv->hcount = 0; /* say: we need not to move high_buffer */
- 	}
- 	else mv->hcount = -1;
-diff -puN arch/x86_64/defconfig~x86_64-Remove-CONFIG_PHYSICAL_START arch/x86_64/defconfig
---- linux-2.6.19-rc5-reloc/arch/x86_64/defconfig~x86_64-Remove-CONFIG_PHYSICAL_START	2006-11-09 23:05:52.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/arch/x86_64/defconfig	2006-11-09 23:05:52.000000000 -0500
-@@ -165,7 +165,6 @@ CONFIG_X86_MCE_INTEL=y
- CONFIG_X86_MCE_AMD=y
- # CONFIG_KEXEC is not set
- # CONFIG_CRASH_DUMP is not set
--CONFIG_PHYSICAL_START=0x200000
- CONFIG_SECCOMP=y
- # CONFIG_CC_STACKPROTECTOR is not set
- # CONFIG_HZ_100 is not set
-diff -puN arch/x86_64/Kconfig~x86_64-Remove-CONFIG_PHYSICAL_START arch/x86_64/Kconfig
---- linux-2.6.19-rc5-reloc/arch/x86_64/Kconfig~x86_64-Remove-CONFIG_PHYSICAL_START	2006-11-09 23:05:52.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/arch/x86_64/Kconfig	2006-11-09 23:05:52.000000000 -0500
-@@ -513,25 +513,6 @@ config CRASH_DUMP
- 	  PHYSICAL_START.
-           For more details see Documentation/kdump/kdump.txt
+ #ifndef CONFIG_HOTPLUG_CPU
+@@ -324,12 +319,12 @@ ENTRY(wakeup_level4_pgt)
+ 	 */
+ 	.align PAGE_SIZE
+ ENTRY(boot_level4_pgt)
+-	.quad	phys_level3_ident_pgt | 0x007
+-	.fill	255,8,0
+-	.quad	phys_level3_physmem_pgt | 0x007
+-	.fill	254,8,0
++	.quad	level3_ident_pgt - __START_KERNEL_map + _KERNPG_TABLE
++	.fill	257,8,0
++	.quad	level3_ident_pgt - __START_KERNEL_map + _KERNPG_TABLE
++	.fill	252,8,0
+ 	/* (2^48-(2*1024*1024*1024))/(2^39) = 511 */
+-	.quad	phys_level3_kernel_pgt | 0x007
++	.quad	level3_kernel_pgt - __START_KERNEL_map + _PAGE_TABLE
  
--config PHYSICAL_START
--	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)
--	default "0x1000000" if CRASH_DUMP
--	default "0x200000"
--	help
--	  This gives the physical address where the kernel is loaded. Normally
--	  for regular kernels this value is 0x200000 (2MB). But in the case
--	  of kexec on panic the fail safe kernel needs to run at a different
--	  address than the panic-ed kernel. This option is used to set the load
--	  address for kernels used to capture crash dump on being kexec'ed
--	  after panic. The default value for crash dump kernels is
--	  0x1000000 (16MB). This can also be set based on the "X" value as
--	  specified in the "crashkernel=YM@XM" command line boot parameter
--	  passed to the panic-ed kernel. Typically this parameter is set as
--	  crashkernel=64M@16M. Please take a look at
--	  Documentation/kdump/kdump.txt for more details about crash dumps.
--
--	  Don't change this unless you know what you are doing.
--
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
-diff -puN arch/x86_64/kernel/vmlinux.lds.S~x86_64-Remove-CONFIG_PHYSICAL_START arch/x86_64/kernel/vmlinux.lds.S
---- linux-2.6.19-rc5-reloc/arch/x86_64/kernel/vmlinux.lds.S~x86_64-Remove-CONFIG_PHYSICAL_START	2006-11-09 23:05:52.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/arch/x86_64/kernel/vmlinux.lds.S	2006-11-09 23:05:52.000000000 -0500
-@@ -22,7 +22,7 @@ PHDRS {
- }
- SECTIONS
- {
--  . = __START_KERNEL;
-+  . = __START_KERNEL_map + 0x200000;
-   phys_startup_64 = startup_64 - LOAD_OFFSET;
-   _text = .;			/* Text and read-only data */
-   .text :  AT(ADDR(.text) - LOAD_OFFSET) {
-diff -puN arch/x86_64/mm/fault.c~x86_64-Remove-CONFIG_PHYSICAL_START arch/x86_64/mm/fault.c
---- linux-2.6.19-rc5-reloc/arch/x86_64/mm/fault.c~x86_64-Remove-CONFIG_PHYSICAL_START	2006-11-09 23:05:52.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/arch/x86_64/mm/fault.c	2006-11-09 23:05:52.000000000 -0500
-@@ -644,9 +644,9 @@ void vmalloc_sync_all(void)
- 			start = address + PGDIR_SIZE;
- 	}
- 	/* Check that there is no need to do the same for the modules area. */
--	BUILD_BUG_ON(!(MODULES_VADDR > __START_KERNEL));
-+	BUILD_BUG_ON(!(MODULES_VADDR > __START_KERNEL_map));
- 	BUILD_BUG_ON(!(((MODULES_END - 1) & PGDIR_MASK) == 
--				(__START_KERNEL & PGDIR_MASK)));
-+				(__START_KERNEL_map & PGDIR_MASK)));
- }
+ 	.data
  
- static int __init enable_pagefaulttrace(char *str)
-diff -puN include/asm-x86_64/page.h~x86_64-Remove-CONFIG_PHYSICAL_START include/asm-x86_64/page.h
---- linux-2.6.19-rc5-reloc/include/asm-x86_64/page.h~x86_64-Remove-CONFIG_PHYSICAL_START	2006-11-09 23:05:52.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/include/asm-x86_64/page.h	2006-11-09 23:05:52.000000000 -0500
-@@ -75,8 +75,6 @@ typedef struct { unsigned long pgprot; }
+diff -puN include/asm-x86_64/pgtable.h~x86_64-Cleanup-the-early-boot-page-table include/asm-x86_64/pgtable.h
+--- linux-2.6.19-rc5-reloc/include/asm-x86_64/pgtable.h~x86_64-Cleanup-the-early-boot-page-table	2006-11-09 22:55:39.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/include/asm-x86_64/pgtable.h	2006-11-09 22:55:39.000000000 -0500
+@@ -15,7 +15,6 @@
+ #include <asm/pda.h>
  
- #endif /* !__ASSEMBLY__ */
- 
--#define __PHYSICAL_START	_AC(CONFIG_PHYSICAL_START,UL)
--#define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
- #define __START_KERNEL_map	_AC(0xffffffff80000000,UL)
- #define __PAGE_OFFSET           _AC(0xffff810000000000,UL)
- 
+ extern pud_t level3_kernel_pgt[512];
+-extern pud_t level3_physmem_pgt[512];
+ extern pud_t level3_ident_pgt[512];
+ extern pmd_t level2_kernel_pgt[512];
+ extern pgd_t init_level4_pgt[];
 _

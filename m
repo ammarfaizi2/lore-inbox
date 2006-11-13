@@ -1,38 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754146AbWKMHQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754173AbWKMHYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754146AbWKMHQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 02:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754156AbWKMHQ6
+	id S1754173AbWKMHYk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 02:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754174AbWKMHYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 02:16:58 -0500
-Received: from rwcrmhc15.comcast.net ([216.148.227.155]:17806 "EHLO
-	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S1754146AbWKMHQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 02:16:57 -0500
-Message-ID: <45582C30.2050700@wolfmountaingroup.com>
-Date: Mon, 13 Nov 2006 01:26:24 -0700
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
+	Mon, 13 Nov 2006 02:24:40 -0500
+Received: from poczta1.linux.webserwer.pl ([193.178.241.18]:16587 "EHLO
+	poczta1.linux.webserwer.pl") by vger.kernel.org with ESMTP
+	id S1754173AbWKMHYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 02:24:40 -0500
+Message-ID: <45581DB0.6030609@limcore.pl>
+Date: Mon, 13 Nov 2006 08:24:32 +0100
+From: "lkml-2006i-ticket@limcore.pl" <lkml-2006i-ticket@limcore.pl>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.18 and above performance improvements
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Problems with file systems created on 2.6.18.x
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Much better performance on desktop and X network apps over 2.6.14 with 
-2.6.18 and above kernels.  I have not done extensive
-tests yet, but looks a lot better with the desktop stuff.  
+Hello, on two different boxes with 2.6.18.x kernels I created two file
+systems (ReiserFS and JFS). Both failed totally after about 1-2 days of
+using them.
 
-The hashing for 16 protocols works great.   So I take it VLAN support is 
-relegated to low level drivers in this archtiecture now?
+Dmesg reported corruption errors/warnings. When I unmounted and tried to
+remount - mound was unable to find superblocks.
 
-Jeff
+Fsck for JFS was hopeless.
 
+Fsck for ReiserFS had to recreate superblocks, journal and rebuild tree
+(I am doing that now).
 
+So both FS where very badly corrupted.
 
+On both boxes I have other HDs with multiple filesystems (including JFS
+and reiserfs) and all is working fine for over year (including long time
+for 2.6.18 line).
+
+Before both failures I was playing with swap (swapoff -a swapon -a), I
+use encripted swap.
+
+The "old" partitions seem to be 100% ok all the time. It probably is not
+ a hardware problem (I runned some low-level tests).
+
+So, perhaps there is a bug connected to some of the following aspects:
+- using newly or recently created file system (bug in code that is used
+to grow a short, "young" tree)
+- problems with swap / encrypted swap
+
+I saved image of 100 mb of the beginning of reiserfs partition after it
+failed,  I can sent it (or part of it) if anyone wants to investigate.
+
+Since I use grsecurity patch -
+http://forums.grsecurity.net/viewtopic.php?p=6355#6355
+
+-- 
+LimCore    C++ Software Architect / Team Lead
+---> oo    Linux programs
+limcore
+software
 
 

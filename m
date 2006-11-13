@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754476AbWKMLVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754482AbWKMLZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754476AbWKMLVG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 06:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754477AbWKMLVG
+	id S1754482AbWKMLZH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 06:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754489AbWKMLZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 06:21:06 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:44195 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1754476AbWKMLVC (ORCPT
+	Mon, 13 Nov 2006 06:25:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10454 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1754484AbWKMLZE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 06:21:02 -0500
-Date: Mon, 13 Nov 2006 14:16:47 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-Message-ID: <20061113111647.GB8182@2ka.mipt.ru>
-References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20061113105458.GA8182@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 13 Nov 2006 14:16:53 +0300 (MSK)
+	Mon, 13 Nov 2006 06:25:04 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <17752.5086.510190.316725@cse.unsw.edu.au> 
+References: <17752.5086.510190.316725@cse.unsw.edu.au>  <200611111129.kABBTWgp014081@fire-2.osdl.org> <20061111100038.6277efd4.akpm@osdl.org> 
+To: Neil Brown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@bugzilla.kernel.org>,
+       linux-kernel@vger.kernel.org, alex@hausnet.ru
+Subject: Re: [Bugme-new] [Bug 7495] New: Kernel periodically hangs. 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 13 Nov 2006 11:22:19 +0000
+Message-ID: <1584.1163416939@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 01:54:58PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> > ===================
-> > 
-> > - there is really no reason to invent yet another timer implementation.
-> >   We have the POSIX timers which are feature rich and nicely
-> >   implemented.  All that is needed is to implement SIGEV_KEVENT as a
-> >   notification mechanism.  The timer is registered as part of the
-> >   timer_create() syscalls.
+Neil Brown <neilb@suse.de> wrote:
+
+> it would appear that in:
+> 	if (inode->i_sb && inode->i_sb->s_op->clear_inode)
+> 		inode->i_sb->s_op->clear_inode(inode);
 > 
-> Feel free to add any interface you like - it is as simple as call for
-> kevent_user_add_ukevent() in userspace.
+> inode->i_sb->s_op is NULL.
 
-... in kernelspace I mean.
+Agreed.
 
--- 
-	Evgeniy Polyakov
+> This tends to suggest that generic_shutdown_super isn't releasing all inodes
+> before the superblock gets destroyed.
+> 
+> I cannot see how this could be happening
+
+Perhaps sb->s_root == NULL?  That would permit most of generic_shutdown_super()
+to be bypassed, including the check that all the inodes have been consumed.
+
+David

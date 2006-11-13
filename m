@@ -1,118 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753748AbWKMAtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753568AbWKMA4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753748AbWKMAtp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 19:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753753AbWKMAtp
+	id S1753568AbWKMA4e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 19:56:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753744AbWKMA4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 19:49:45 -0500
-Received: from alnrmhc13.comcast.net ([206.18.177.53]:21728 "EHLO
-	alnrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1753744AbWKMAto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 19:49:44 -0500
-Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
-From: Nicholas Miell <nmiell@comcast.net>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1163374762.5178.285.camel@gullible>
-References: <1163374762.5178.285.camel@gullible>
-Content-Type: text/plain
-Date: Sun, 12 Nov 2006 16:49:41 -0800
-Message-Id: <1163378981.2801.3.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Nov 2006 19:56:34 -0500
+Received: from ns2.g-housing.de ([81.169.133.75]:64969 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S1753568AbWKMA4d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 19:56:33 -0500
+Date: Mon, 13 Nov 2006 00:56:24 +0000 (GMT)
+From: Christian Kujau <evil@g-house.de>
+X-X-Sender: evil@sheep.housecafe.de
+To: Arjan van de Ven <arjan@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: OOM in 2.6.19-rc*
+In-Reply-To: <1163322915.3293.83.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0611130052350.17658@sheep.housecafe.de>
+References: <Pine.LNX.4.64.0611111318230.1247@sheep.housecafe.de>
+ <1163322915.3293.83.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-12 at 15:39 -0800, Ben Collins wrote:
-> This email brought to you by Sunday afternoon coding frustration.
-> 
-> As I move forward with Ubuntu's next release, I keep running into very
-> familiar problems, more and more often. The issues stem from userspace
-> not having enough control over what the kernel decides to do with a
-> device, and possible drivers to bind it with.
-> 
-> Here's a common case I'm trying to address:
-> 
-> Driver foo supports devices a, b
-> Driver bar supports devices    b, c
-> 
-> For devices 'a' and 'c', the answer is simple. The correct driver always
-> gets loaded. However, the answer is not always simple for device 'b'. At
-> first glance, you could assume that either driver would be correct, but
-> that's wrong.
-> 
-> There's two main reasons why foo and bar may not be interchangeable for
-> device 'b'.
-> 
-> First, foo may not work correctly with all variations of device 'b', and
-> the same for driver bar. Since driver loading and binding only works
-> based on the identity 'b', there's no more information to base the
-> decision on, other than the user deciding it for us.
-> 
-> Secondly, foo and bar may be different ways of handling the same device.
-> An example that comes to mind is a bt878 chipset where the audio portion
-> can be handled by a media driver or a sound driver. The user has to
-> decide which driver they want handling that device based on how they use
-> it.
-> 
-> So this then becomes a decision that the kernel cannot make. As a
-> distro, we have to provide both drivers, but the endless support for
-> people who have broken systems because driver foo doesn't work with
-> their device, or because driver foo doesn't use their device in the way
-> they want, are having to be told to blacklist foo so bar will be used.
-> 
-> I don't think blacklisting is very ideal. For example let's say they
-> have device 'a' and 'b'. Since 'a' needs foo, we then need to tell them
-> how to make sure bar gets loaded first (usually by force loading rather
-> than the tidy udev handling) so that their 'b' device binds with it
-> first.
-> 
-> If this is a hot-pluggable device, they're just fucked. If both drivers
-> are already loaded into the kernel, userspace has no control over which
-> one the kernel decides to bind with, and the kernel doesn't have all the
-> info needed.
-> 
-> Either way, we've butchered their system to work around a lack of
-> functionality. Upgrades are likely going to be broken, or become
-> difficult, etc.
-> 
-> So my ultimate goal is to somehow move this decision making to udev. My
-> plan is something along these lines:
-> 
-> - udev is started, and if it supports this new model, somehow tells the
-> driver core to disable its internal binding of drivers.
-> 
-> - udev gets notification of new device
-> 
-> - udev loads all drivers capable of handling device (if it doesn't
-> support this new model, then it works like it used to, and the next step
-> is skipped).
-> 
-> - udev checks it's rules, if a specific driver is requested for a
-> device, emit a sysfs write to bind with it. If no driver specific
-> request is made, then emit an "any" bind, to let the kernel do whatever
-> it wants.
-> 
-> Internally in the kernel, binding would still be enforced by driver core
-> matching/probing. The above setup would also intermix well with udev
-> rules that forced binding (e.g. new_id for PCI drivers/devices).
-> 
-> What I haven't done is figure out what this interface between udev and
-> driver core will look like.
-> 
-> Comments welcome. And if there's already a clean way to do this that I
-> just don't know about, please kick me toward it.
-> 
+Oh dear, Murphy hits again....or was it Heisenberg? Since I posted to 
+lkml the daily OOM killings went away. I'm running 2.6.19-rc5-mm1 right 
+now and no OOM situation today..phew.
 
-What's wrong with making udev or whatever unbind driver A and then bind
-driver B if the driver bound by the kernel ends up being the wrong
-choice? (Besides the inelegance of the kernel choosing one and then
-userspace immediately choosing the other, of course.)
+On Sun, 12 Nov 2006, Arjan van de Ven wrote:
+> which modules/drivers do you use? Maybe there's a less commonly used on
+> in there that we could look at.
 
-I'd argue that having multiple drivers for the same hardware is a bit
-strange to begin with, but that's another issue entirely.
+Thanks for your reply (all your replies!), FWIW:
 
+# lsmod
+Module                  Size  Used by
+dm_crypt               12304  0
+dm_mod                 55280  1 dm_crypt
+powernow_k8            10584  0
+freq_table              4168  1 powernow_k8
+w83627hf               28944  0
+hwmon_vid               3648  1 w83627hf
+eeprom                  6992  0
+i2c_dev                 7368  0
+i2c_isa                 5184  1 w83627hf
+ide_cd                 39520  0
+cdrom                  37160  1 ide_cd
+ide_disk               14272  0
+ata_generic             6468  0
+libata                106920  1 ata_generic
+qla2xxx               154668  0
+firmware_class          9216  1 qla2xxx
+snd_intel8x0           32872  2
+snd_ac97_codec        108440  1 snd_intel8x0
+snd_ac97_bus            2816  1 snd_ac97_codec
+ohci1394               33032  0
+ieee1394               93168  1 ohci1394
+snd_pcm_oss            41440  0
+snd_mixer_oss          16512  1 snd_pcm_oss
+snd_pcm                74828  3 snd_intel8x0,snd_ac97_codec,snd_pcm_oss
+snd_timer              22536  1 snd_pcm
+k8temp                  5440  0
+scsi_transport_fc      39492  1 qla2xxx
+i2c_nforce2             5696  0
+i2c_core               20056  5 w83627hf,eeprom,i2c_dev,i2c_isa,i2c_nforce2
+amd74xx                15344  0 [permanent]
+ide_core              130300  3 ide_cd,ide_disk,amd74xx
+snd                    56680  10 snd_intel8x0,snd_ac97_codec,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer
+soundcore               7648  1 snd
+hwmon                   3168  2 w83627hf,k8temp
+snd_page_alloc          8464  2 snd_intel8x0,snd_pcm
+
+# uname -a
+Linux prinz64 2.6.19-rc5-mm1 #4 PREEMPT Sat Nov 11 16:02:25 GMT 2006 x86_64 GNU/Linux
+
+
+Christian.
 -- 
-Nicholas Miell <nmiell@comcast.net>
+BOFH excuse #21:
 
+POSIX compliance problem

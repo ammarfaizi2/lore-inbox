@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754588AbWKMM0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754577AbWKMMYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754588AbWKMM0W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 07:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754564AbWKMM0W
+	id S1754577AbWKMMYs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 07:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754571AbWKMMYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 07:26:22 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:57273 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1754570AbWKMM0V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 07:26:21 -0500
-Date: Mon, 13 Nov 2006 13:26:02 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Ivan Ukhov <uvsoft@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: /dev before the root filesystem is mounted
-In-Reply-To: <a5de567c0611130415t6cbe97efr8e60a3d3e091d04d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0611131320590.30156@yvahk01.tjqt.qr>
-References: <a5de567c0611130252m52de5071vc25589bfd89b9c27@mail.gmail.com> 
- <Pine.LNX.4.61.0611131234140.28210@yvahk01.tjqt.qr>
- <a5de567c0611130415t6cbe97efr8e60a3d3e091d04d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 13 Nov 2006 07:24:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:22225 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1754560AbWKMMXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 07:23:48 -0500
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org, "pasky@ucw.cz" <pasky@ucw.cz>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 6/8] V4L/DVB (4816): Change tuner type for Avermedia A16AR
+Date: Mon, 13 Nov 2006 10:18:44 -0200
+Message-id: <20061113121844.PS3412290006@infradead.org>
+In-Reply-To: <20061113121504.PS7687690000@infradead.org>
+References: <20061113121504.PS7687690000@infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Nov 13 2006 15:15, Ivan Ukhov wrote:
-> i dont use initrd. the kernel understands argument 'root=/dev/...', so
-> /dev should exist, mb not in a real filesystem, but just in ram or
-> something. i just want to know what devices are available for being
-> the root filesystem for the kernel (displaying all available devices
-> will be enough for me).
+From: pasky@ucw.cz <pasky@ucw.cz>
 
-/dev does not exist. How should it? The root filesystem / is empty, other
-people can verify that, or you can verify it yourself with an
-initramfs (which, unlike an initrd, is copied to / instead of being
-mounted).
+This changes it from TDA8290 which is allegedly very unlikely to TD1316 which
+is allegedly very likely. I didn't get it to work with either, but expected
+that this got applied when Mauro sent it to me, so here it goes again; feel
+free to drop it to the floor. :-)
 
-Yes, the kernel understands root=/dev/ but that's a hack, a strstr(s,
-"/dev/"). Should you want to use, say, root=/devices/hda instead,
-that would only succeed when using an initrd/initramfs.
+Signed-off-by: Petr Baudis <pasky@ucw.cz>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
 
-To display the accepted block devices (this is most likely what you
-really wanted), check out
+ drivers/media/video/saa7134/saa7134-cards.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-ftp://ftp-1.gwdg.de/pub/linux/misc/suser-jengelh/kernel/linux-2.6.18-jen35/show_partitions.diff
+diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
+index 1a402e4..51f0cfd 100644
+--- a/drivers/media/video/saa7134/saa7134-cards.c
++++ b/drivers/media/video/saa7134/saa7134-cards.c
+@@ -2969,7 +2969,7 @@ struct saa7134_board saa7134_boards[] = 
+ 		/* Petr Baudis <pasky@ucw.cz> */
+ 		.name           = "AVerMedia TV Hybrid A16AR",
+ 		.audio_clock    = 0x187de7,
+-		.tuner_type     = TUNER_PHILIPS_TDA8290, /* untested */
++		.tuner_type     = TUNER_PHILIPS_TD1316, /* untested */
+ 		.radio_type     = TUNER_TEA5767, /* untested */
+ 		.tuner_addr     = ADDR_UNSET,
+ 		.radio_addr     = ADDR_UNSET,
 
-
-Please (a) don't top post (b) don't strip Cc:s.
-
->
-> 2006/11/13, Jan Engelhardt <jengelh@linux01.gwdg.de>:
->> 
->> > I want the kernel (2.4) to display (just using printk) all available
->> > devices with full path (/dev/...) before the root filesystem is
->> > mounted.
->> 
->> Case 1: You do not use an initrd/initramfs:
->> / is empty, /dev does not exist.
->> 
->> Case 2: You do use an initrd/initramfs
->> You populated /dev during creation of the initrd/initramfs image OR
->> your init script inside the initrd/initramfs mknods the nodes when run.
->> 
->> 
->>        -`J'
->> --
->> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
-
-	-`J'
--- 

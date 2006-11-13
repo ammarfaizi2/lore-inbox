@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754365AbWKMJpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754351AbWKMJrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754365AbWKMJpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 04:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754368AbWKMJpZ
+	id S1754351AbWKMJrc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 04:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754366AbWKMJrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 04:45:25 -0500
-Received: from mx03.stofanet.dk ([212.10.10.13]:41403 "EHLO mx03.stofanet.dk")
-	by vger.kernel.org with ESMTP id S1754365AbWKMJpY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 04:45:24 -0500
-Date: Mon, 13 Nov 2006 10:43:48 +0100 (CET)
-From: Esben Nielsen <nielsen.esben@googlemail.com>
-X-X-Sender: simlo@frodo.shire
-To: Ingo Molnar <mingo@elte.hu>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch 1/5] Fix timeout bug in rtmutex in 2.6.18-rt
-In-Reply-To: <20061110144916.GA19152@elte.hu>
-Message-ID: <Pine.LNX.4.64.0611131042510.13569@frodo.shire>
-References: <20061001112829.630288000@frodo> <Pine.LNX.4.64.0610011336400.29459@frodo.shire>
- <20061110144916.GA19152@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 13 Nov 2006 04:47:32 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39827 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1754351AbWKMJrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 04:47:31 -0500
+Subject: Re: [patch 2/4] permission mapping for sys_syslog operations
+From: Arjan van de Ven <arjan@infradead.org>
+To: Zack Weinberg <zackw@panix.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       jmorris@namei.org, linux-kernel@vger.kernel.org
+In-Reply-To: <eb97335b0611130129r7cdb8c8cuc8f2360e1f17f8f3@mail.gmail.com>
+References: <20061113064043.264211000@panix.com>
+	 <20061113064058.779558000@panix.com>
+	 <1163409918.15249.111.camel@laptopd505.fenrus.org>
+	 <eb97335b0611130129r7cdb8c8cuc8f2360e1f17f8f3@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 13 Nov 2006 10:47:17 +0100
+Message-Id: <1163411238.15249.114.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-11-13 at 01:29 -0800, Zack Weinberg wrote:
+> On 11/13/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> > you had such a nice userspace/kernel shared header.. and now you mix it
+> > with kernel privates again... can you consider making this a second
+> > header?
+> 
+> I thought the point of the "unifdef" thing was that it made a version
+> of the header with the __KERNEL__ section ripped out, for copying into
+> /usr/include, so you didn't have to do that ...
 
+yes it is, however it's mostly for existing stuff/seamless transition.
+It's a hack :)
+If you can avoid it lets do so; you already have the nice clean header,
+so lets not go backwards... you HAVE the clean separation. 
 
-On Fri, 10 Nov 2006, Ingo Molnar wrote:
+> 
+> zw
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
->
-> * Esben Nielsen <nielsen.esben@googlemail.com> wrote:
->
->>  include/linux/init_task.h |    1
->>  include/linux/sched.h     |   62
->>  kernel/sched.c            |   29 +++++++++++++++++----
->
-> what kernel tree is this supposed to be against? Neither vanilla nor
-> -rt7 2.6.18 works:
-
-Sorry, I missed the exact number. I believe it was 2.6.18-rt5 or 
-2.6.18-rt6. I know it wasn't -rt7 because Thomas changed the locking..
-
-Esben
-
->
-> Hunk #1 FAILED at 91.
-> 1 out of 1 hunk FAILED -- rejects in file include/linux/init_task.h
-> patching file include/linux/sched.h
-> Hunk #1 FAILED at 928.
-> Hunk #2 FAILED at 1330.
-> 2 out of 2 hunks FAILED -- rejects in file include/linux/sched.h
-> patching file kernel/sched.c
-> Hunk #1 succeeded at 157 with fuzz 2 (offset -7 lines).
-> Hunk #2 FAILED at 700.
-> Hunk #3 FAILED at 774.
-> Hunk #4 FAILED at 792.
-> Hunk #5 FAILED at 1475.
-> 4 out of 5 hunks FAILED -- rejects in file kernel/sched.c
->
-> 	Ingo
->

@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933169AbWKMXla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752646AbWKMXoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933169AbWKMXla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 18:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755206AbWKMXla
+	id S1752646AbWKMXoz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 18:44:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755206AbWKMXoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 18:41:30 -0500
-Received: from mxout.hispeed.ch ([62.2.95.247]:51154 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S1752646AbWKMXl3 (ORCPT
+	Mon, 13 Nov 2006 18:44:55 -0500
+Received: from mail.kroah.org ([69.55.234.183]:47027 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1752646AbWKMXoz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 18:41:29 -0500
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-To: Romano Giannetti <romano.giannetti@gmail.com>
-Subject: Re: pcmcia: patch to fix pccard_store_cis
-Date: Tue, 14 Nov 2006 00:40:00 +0100
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
+	Mon, 13 Nov 2006 18:44:55 -0500
+Date: Mon, 13 Nov 2006 15:03:00 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: eric@buddington.net, Eric Buddington <ebuddington@verizon.net>,
+       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@novell.com>,
+       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: Re: 2.6.19-rc4-mm2: BUG modprobeing sound driver
+Message-ID: <20061113230300.GA16571@kroah.com>
+References: <20061109142208.GA4291@pool-70-109-251-157.wma.east.verizon.net> <20061109220515.7a127070.akpm@osdl.org> <20061109222829.fe9de523.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611140040.02079.daniel.ritz-ml@swissonline.ch>
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-01.tornado.cablecom.ch 1378;
-	Body=4 Fuz1=4 Fuz2=4
+In-Reply-To: <20061109222829.fe9de523.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-please also try this patch on top:
-	http://zeus2.kernel.org/git/?p=linux/kernel/git/brodo/pcmcia-fixes-2.6.git;a=commitdiff;h=e6248ff596dd15bce0be4d780c60f173389b11c3
+On Thu, Nov 09, 2006 at 10:28:29PM -0800, Andrew Morton wrote:
+> On Thu, 9 Nov 2006 22:05:15 -0800
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > Yup, trivial to reproduce: modprobe snd_serial_u16550 -> splat.
+> > 
+> > Bisection indicates that this oops is triggered by
+> > gregkh-driver-sound-device.patch.
+> > 
+> > snd_serial_probe() never got to call snd_card_register(), so card->dev is
+> > NULL.
+> > 
+> > snd_serial_probe() calls snd_card_free(card) on the error path and
+> > snd_card_do_free() does device_del(card->dev) which oopses over the null
+> > pointer it got.  
+> 
+> I suppose doing this is legit:
+> 
+> diff -puN sound/core/init.c~fix-gregkh-driver-sound-device sound/core/init.c
+> --- a/sound/core/init.c~fix-gregkh-driver-sound-device
+> +++ a/sound/core/init.c
+> @@ -361,7 +361,8 @@ static int snd_card_do_free(struct snd_c
+>  		snd_printk(KERN_WARNING "unable to free card info\n");
+>  		/* Not fatal error */
+>  	}
+> -	device_unregister(card->dev);
+> +	if (card->dev)
+> +		device_unregister(card->dev);
+>  	kfree(card);
+>  	return 0;
+>  }
 
-(after you have "[PATCH] pcmcia: start over after CIS override"
-	http://zeus2.kernel.org/git/?p=linux/kernel/git/brodo/pcmcia-fixes-2.6.git;a=commitdiff;h=f755c48254ce743a3d4c1fd6b136366c018ee5b2
- applied)
+Good idea, I've made that change now to the sound code.
 
-if that doesn't work, i'll have a look at it on the weekend.
+thanks,
 
-rgds
--daniel
+greg k-h

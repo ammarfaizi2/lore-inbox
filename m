@@ -1,55 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755183AbWKMQTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755202AbWKMQVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755183AbWKMQTl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755186AbWKMQTl
+	id S1755202AbWKMQVI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:21:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755209AbWKMQVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:19:41 -0500
-Received: from crystal.sipsolutions.net ([195.210.38.204]:31894 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S1755183AbWKMQTk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:19:40 -0500
-Subject: Re: [PATCH] Apple Motion Sensor driver
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Stelian Pop <stelian@popies.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>,
-       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Robert Love <rml@novell.com>,
-       Jean Delvare <khali@linux-fr.org>,
-       Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1163434455.23444.14.camel@localhost.localdomain>
-References: <1163280972.32084.13.camel@localhost.localdomain>
-	 <d120d5000611130704r258c8946p3994c5ba1e0187e9@mail.gmail.com>
-	 <1163431758.23444.8.camel@localhost.localdomain>
-	 <d120d5000611130753p172c2a69n260482052f623a46@mail.gmail.com>
-	 <1163434455.23444.14.camel@localhost.localdomain>
+	Mon, 13 Nov 2006 11:21:07 -0500
+Received: from s1.mailresponder.info ([193.24.237.10]:15375 "EHLO
+	s1.mailresponder.info") by vger.kernel.org with ESMTP
+	id S1755202AbWKMQVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 11:21:06 -0500
+Subject: READ SCSI cmd seems to fail on SATA optical devices...
+From: Mathieu Fluhr <mfluhr@nero.com>
+To: jgarzik@pobox.com
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 13 Nov 2006 17:20:26 +0100
-Message-Id: <1163434826.2805.2.camel@ux156>
+Organization: Nero AG
+Date: Mon, 13 Nov 2006 17:19:36 +0100
+Message-Id: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-sips-origin: local
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-13 at 17:14 +0100, Stelian Pop wrote:
-> 
-> +               input_report_abs(ams_info.idev, ABS_X, x - ams_info.xcalib);
-> +               input_report_abs(ams_info.idev, ABS_Y, y - ams_info.ycalib);
-> +               input_report_abs(ams_info.idev, ABS_Z, z - ams_info.zcalib); 
+Hello,
 
-Sorry about chiming in so late. When I tried to use this with neverball,
-ams_info.xcalib - x (and similar for the others) was more useful because
-of the way things are oriented. If I tilt my powerbook to the left then
-with this original code the mouse cursor moves to the right which is
-contrary to what neverball expects.
+I recently tried to burn some datas on CDs and DVD using a SATA burner
+and the latest 2.6.18.2 kernel... using NeroLINUX. (It is controlling
+the device by sending SCSI commands over the 'sg' driver)
 
-Not sure if we want to change this or not, it sort of boils down to a
-userspace issue and we could just patch neverball to have a direction
-inversion :)
+The burn process works like a charm, no problems at all. But it seems
+that there are some slight problems with the READ scsi cmd:
+Inside our software, we have a verification routine that will make a
+sector-by-sector verification to check that everything that has been
+written is OK.
 
-johannes
+The problem is that, on SATA devices controlled by libata, on some big
+files (like for example a 600 MB file) the READ command seems to fail
+and outputs garbage (not 1 or 2 bytes diff, but the whole buffer).
+ -> This problem does not come out everytime, and each time on    
+    different sectors.
+
+Please note that:
+- it is not chipset dependant (tested on nforce4 and sii3114)
+- it is not medium or device dependant
+
+
+I debugged a little bit and found out the following:
+
+- Our software tries to guess the bus type for each device by using
+INQUIRY SCSI cmds. For SATA devices, it always returns SCSI. 
+(which according to the source code is normal -> libata-scsi.c:2396)
+
+- When I force the bus type to be IDE, our software will then send ATA
+commands. In this case, everything works like a charm. No errors at all.
+ 
+
+I tried to debug a little bit more inside the source code of the Linux
+kernel, but I must admit that I am really not so familiar with the
+code... but it would be no problem to help anyone on this issue. :)
+
+Best Regards,
+Mathieu
+
+
+-- 
+*********************************************************
+Mathieu Fluhr
+Linux Software Engineer
+
+Nero AG
+Im Stoeckmaedle 18
+76307 Karlsbad
+Germany
+
+E-mail: mfluhr@nero.com
+
+NERO - BECAUSE TECHNOLOGY COUNTS
+www.nero.com
+
+*********************************************************
+This e-mail may contain confidential and/or
+privileged information. If you are not the intended
+recipient (or have received this e-mail in error)
+please notify the sender immediately and destroy
+this e-mail. Any unauthorised copying, disclosure
+or distribution of the material in this e-mail is
+strictly forbidden.
+********************************************************* 
+

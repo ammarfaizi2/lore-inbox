@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755376AbWKMWTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWKMWYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755376AbWKMWTc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 17:19:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755379AbWKMWTc
+	id S932479AbWKMWYd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 17:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932825AbWKMWYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 17:19:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62687 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1755376AbWKMWTb (ORCPT
+	Mon, 13 Nov 2006 17:24:33 -0500
+Received: from dxa01.wellsfargo.com ([151.151.65.117]:31183 "EHLO
+	dxa01.wellsfargo.com") by vger.kernel.org with ESMTP
+	id S932479AbWKMWYc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 17:19:31 -0500
-Date: Mon, 13 Nov 2006 14:19:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5-mm1
-Message-Id: <20061113141921.a5c59a61.akpm@osdl.org>
-In-Reply-To: <200611131658.06036.m.kozlowski@tuxland.pl>
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
-	<200611131658.06036.m.kozlowski@tuxland.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Nov 2006 17:24:32 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Subject: [PATCH 1/1] drivers/block/Kconfig text update.
+Date: Mon, 13 Nov 2006 16:24:22 -0600
+Message-ID: <E8C008223DD5F64485DFBDF6D4B7F71D022358D6@msgswbmnmsp25.wellsfargo.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/1] drivers/block/Kconfig text update.
+Thread-Index: AccHcnLbcyYv4+eRS9ma0spAOF+Ppg==
+From: <Greg.Chandler@wellsfargo.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <torvalds@osdl.org>
+X-OriginalArrivalTime: 13 Nov 2006 22:24:22.0715 (UTC) FILETIME=[782BC8B0:01C70772]
+X-WFMX: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006 16:58:05 +0100
-Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
 
-> 	I tried to compile 2.6.19-rc5-mm1 on x86_64 box and it failed.
-> Looking at the Documentation/Changes the box tools are a bit old but
-> the kernel should compile. This was 'allmodconfig' with CONFIG_KVM=n
-> because binutils are too old for that. So either this is a bug or
-> Documentation/Changes should be updated soon.
-> 
->   LD      .tmp_vmlinux1
-> arch/x86_64/kernel/built-in.o(.init.text+0x31b7): In function `alternative_instructions':
-> arch/i386/kernel/alternative.c:437: undefined reference to `__stop_parainstructions'
-> arch/x86_64/kernel/built-in.o(.init.text+0x31be):arch/i386/kernel/alternative.c:437: undefined reference to `__start_parainstructions'
-> make: *** [.tmp_vmlinux1] Error 1
+The second line of the drivers/block/cciss.c file says:
 
-Thanks.  Please send me the .config and I'll see if it's still happening.
+" *    Disk Array driver for HP SA 5xxx and 6xxx Controllers"
+
+I couldn't find the 6 series anywhere in the menu, and I ended up
+finding it in the code...
+
+
+
+
+
+--- drivers/block/Kconfig.old   2006-11-13 14:20:12.000000000 -0800
++++ drivers/block/Kconfig       2006-11-13 14:20:32.000000000 -0800
+@@ -155,10 +155,10 @@
+          this driver.
+
+ config BLK_CPQ_CISS_DA
+-       tristate "Compaq Smart Array 5xxx support"
++       tristate "Compaq Smart Array 5xxx/6xxx support"
+        depends on PCI
+        help
+-         This is the driver for Compaq Smart Array 5xxx controllers.
++         This is the driver for Compaq Smart Array 5xxx/6xxx
+controllers.
+          Everyone using these boards should say Y here.
+          See <file:Documentation/cciss.txt> for the current list of
+          boards supported by this driver, and for further information

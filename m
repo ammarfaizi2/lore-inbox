@@ -1,63 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754625AbWKMPEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754899AbWKMPPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754625AbWKMPEk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 10:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754879AbWKMPEk
+	id S1754899AbWKMPPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 10:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755046AbWKMPPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 10:04:40 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:1251 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1754625AbWKMPEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 10:04:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XY6njGpePEQ48pD9gSAUA8QGhekF3jEiuDdIlwPHNwjpSHgBGkGh5Zss17rtb82+scUx6SqcmlHzD8fJOj+wCsUu2f/W4RkRzdlnobiG7mdBXDYlBOQAM5uy45OQAXQQSSfVGKY9l0AyS3TnIqhh0g+4vvMhw1JF+cWwloB9xUc=
-Message-ID: <d120d5000611130704r258c8946p3994c5ba1e0187e9@mail.gmail.com>
-Date: Mon, 13 Nov 2006 10:04:37 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Stelian Pop" <stelian@popies.net>
-Subject: Re: [PATCH] Apple Motion Sensor driver
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Michael Hanselmann" <linux-kernel@hansmi.ch>,
-       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
-       "Johannes Berg" <johannes@sipsolutions.net>,
-       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Paul Mackerras" <paulus@samba.org>, "Robert Love" <rml@novell.com>,
-       "Jean Delvare" <khali@linux-fr.org>,
-       "Rene Nussbaumer" <linux-kernel@killerfox.forkbomb.ch>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1163280972.32084.13.camel@localhost.localdomain>
+	Mon, 13 Nov 2006 10:15:08 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:63112 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1754899AbWKMPPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 10:15:05 -0500
+Message-ID: <45588BF0.3000100@garzik.org>
+Date: Mon, 13 Nov 2006 10:14:56 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
+To: Paul Fulghum <paulkf@microgate.com>
+CC: =?ISO-8859-1?Q?Toralf_F=F6rster?= <toralf.foerster@gmx.de>, khc@pm.waw.pl,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Re: linux-2.6.19-rc5-g088406bc build #120 failed
+References: <200611130943.42463.toralf.foerster@gmx.de> <4558860B.8090908@garzik.org> <45588895.7010501@microgate.com>
+In-Reply-To: <45588895.7010501@microgate.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1163280972.32084.13.camel@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stelian,
+Paul Fulghum wrote:
+> Jeff Garzik wrote:
+>> Toralf Förster wrote:
+>>
+>>> Hello,
+>>>
+>>> the build with the attached .config failed, make ends with:
+>>> ... UPD     include/linux/compile.h
+>>>   CC      init/version.o
+>>>   LD      init/built-in.o
+>>>   LD      .tmp_vmlinux1
+>>> drivers/built-in.o: In function `hdlcdev_open':
+>>> synclink.c:(.text+0x650d5): undefined reference to `hdlc_open'
+>>> synclink.c:(.text+0x6510d): undefined reference to `hdlc_open'
+>>> ...
+>>> synclink_cs.c:(.text+0x7aece): undefined reference to `hdlc_ioctl'
+>>> drivers/built-in.o: In function `hdlcdev_init':
+>>> synclink_cs.c:(.text+0x7b336): undefined reference to `alloc_hdlcdev'
+>>> drivers/built-in.o: In function `hdlcdev_exit':
+>>> synclink_cs.c:(.text+0x7b434): undefined reference to 
+>>> `unregister_hdlc_device'
+>>> make: *** [.tmp_vmlinux1] Error 1
+>>
+>>
+>> Does this patch work for you?
+>>
+>>     Jeff
+> 
+> No, this patch is not acceptable.
+> 
+> This has been beaten to death in previous threads.
+> The problem is a mismatch in your kernel config between
+> generic hdlc (M) and synclink (Y).
+> 
+> synclink drivers can *optionally* support generic hdlc.
+> You *must* be able to build synclink driver without generic hdlc.
+> Because of this you *can't* just put in the generic hdlc dependency.
+> 
+> Several alternative patches were posted (3 or 4 months) ago.
+> No particular patch won the approval of all kernel developers,
+> so nothing was done.
 
-On 11/11/06, Stelian Pop <stelian@popies.net> wrote:
 
- +
-> +       if (input_register_device(ams_info.idev)) {
-> +               input_free_device(ams_info.idev);
-> +               ams_info.idev = NULL;
-> +               return;
-> +       }
-> +
-> +       ams_info.kthread = kthread_run(ams_mouse_kthread, NULL, "kams");
-> +       if (IS_ERR(ams_info.kthread)) {
-> +               input_unregister_device(ams_info.idev);
-> +               ams_info.idev = NULL;
-> +               return;
-> +       }
-> +}
+The existing build breakage is unacceptable too.  It's this bogosity
 
-Please consider implementing ams_mouse_start() and ams_mouse_stop()
-methods for input_dev and start/stop polling thread there - there is
-no reason to report input events when noone listens to them.
+	#ifdef CONFIG_HDLC_MODULE
+	#define CONFIG_HDLC 1
+	#endif
 
--- 
-Dmitry
+which directly causes the build breakage.
+
+Unless someone fixes it The Right Way, my patch seems like the best we 
+can do.  People who complain "you must be able to build without hdlc" 
+should step up and make it so.  Currently, it is not so.
+
+	Jeff
+
+

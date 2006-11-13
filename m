@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWKMR5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753511AbWKMR6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWKMR5z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 12:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753511AbWKMR5z
+	id S1753511AbWKMR6P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 12:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753379AbWKMR6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 12:57:55 -0500
-Received: from mga05.intel.com ([192.55.52.89]:63813 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1753379AbWKMR5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 12:57:54 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,418,1157353200"; 
-   d="scan'208"; a="15227549:sNHT32821290"
-Date: Mon, 13 Nov 2006 09:34:47 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com
-Subject: Re: [patch] genapic: optimize & fix APIC mode setup
-Message-ID: <20061113093447.B17720@unix-os.sc.intel.com>
-References: <20061111151414.GA32507@elte.hu> <200611111620.24551.ak@suse.de> <20061112175050.A17720@unix-os.sc.intel.com> <20061113084315.GB25604@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061113084315.GB25604@elte.hu>; from mingo@elte.hu on Mon, Nov 13, 2006 at 09:43:16AM +0100
+	Mon, 13 Nov 2006 12:58:15 -0500
+Received: from rtr.ca ([64.26.128.89]:29711 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1753511AbWKMR6N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 12:58:13 -0500
+Message-ID: <4558B232.8080600@rtr.ca>
+Date: Mon, 13 Nov 2006 12:58:10 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andi Kleen <ak@suse.de>, Pavel Machek <pavel@ucw.cz>,
+       John Fremlin <not@just.any.name>,
+       kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
+       jim.kardach@intel.com
+Subject: Re: AHCI power saving (was Re: Ten hours on X60s)
+References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061113142219.GA2703@elf.ucw.cz> <45589008.1080001@garzik.org> <200611131637.56737.ak@suse.de> <455893E5.4010001@garzik.org>
+In-Reply-To: <455893E5.4010001@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 09:43:16AM +0100, Ingo Molnar wrote:
+Jeff Garzik wrote:
+> Andi Kleen wrote:
+>
+>> How does it shorten its life?
 > 
-> * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
-> 
-> > There is an issue of using clustered mode along with cpu hotplug. More 
-> > details are at the below link.
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=113261865814107&w=2
-> 
-> ok, to make sure i understand this right: it is not safe to switch any 
-> local APIC in the system into clustered APIC mode on the E850x chipset 
-> /at all/, because if one of the CPUs gets an INIT/startup IPI message 
-> its local APIC will default to logical flat mode and might confuse the 
-> chipset?
+> Parks your hard drive heads many thousands of times more often than it 
+> does without the aggressive PM features.
 
-"at all" is not quite correct. We are fine as long as all the cpus are up
-in clustered APIC mode before the IO-APIC RTE's are programmed.
+Spinning-down would definitely shorten the drive lifespan.  Does it do that?
 
-Once the IO-APIC subsystem is up and running and later if the cpu comes online
-then we have a window between the INIT/startup IPI message and the place
-where we program the DFR and LDR, with in which the IO-APIC will interpret
-the logical mode in RTE as 'logical flat' and will probably result in missing
-the interrupt.
+Parking heads is more like just doing some extra (long) seeks.
+Is this documented somewhere as being a life-shortening action?
 
-thanks,
-suresh
-> 
-> on large systems that have their APIC IDs set up to group CPUs amongst 
-> different clusters and hence triggered cluster mode, the chipset does 
-> not get confused by this, correct?
-> 
-> 	Ingo
+Cheers

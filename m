@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWKMSOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWKMSSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWKMSOr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 13:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWKMSOr
+	id S932638AbWKMSSL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 13:18:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932645AbWKMSSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 13:14:47 -0500
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:24585 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932508AbWKMSOq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 13:14:46 -0500
-Date: Mon, 13 Nov 2006 19:14:44 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Stelian Pop <stelian@popies.net>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>,
-       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Robert Love <rml@novell.com>,
-       Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 13 Nov 2006 13:18:10 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:53881 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932638AbWKMSSJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 13:18:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JukDNDydXjt2aG1Kib9r4s6t36d1wLSH8HlqD8jGarQVhZhafZZPsNhPG5x8RtBOUWdR1WzLngNnHQJ+Txao4Adhb7N6bAJ4JapU2xsPwcrlo3Z6/NN9K/ZRUN+34x3lJ7Pa5PIG49u8rVPrhDPJXJjwct2sL5bc+tAYMimJwdg=
+Message-ID: <d120d5000611131018x5d018d4as22eff4fac409b0c5@mail.gmail.com>
+Date: Mon, 13 Nov 2006 13:18:07 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Jean Delvare" <khali@linux-fr.org>
 Subject: Re: [PATCH] Apple Motion Sensor driver
-Message-Id: <20061113191444.1519bdb9.khali@linux-fr.org>
-In-Reply-To: <1163434826.2805.2.camel@ux156>
+Cc: "Stelian Pop" <stelian@popies.net>,
+       "Michael Hanselmann" <linux-kernel@hansmi.ch>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
+       "Johannes Berg" <johannes@sipsolutions.net>,
+       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Paul Mackerras" <paulus@samba.org>, "Robert Love" <rml@novell.com>,
+       "Rene Nussbaumer" <linux-kernel@killerfox.forkbomb.ch>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       nicolas@boichat.ch
+In-Reply-To: <20061113191115.fa5c5d6f.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 References: <1163280972.32084.13.camel@localhost.localdomain>
-	<d120d5000611130704r258c8946p3994c5ba1e0187e9@mail.gmail.com>
-	<1163431758.23444.8.camel@localhost.localdomain>
-	<d120d5000611130753p172c2a69n260482052f623a46@mail.gmail.com>
-	<1163434455.23444.14.camel@localhost.localdomain>
-	<1163434826.2805.2.camel@ux156>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	 <20061111214143.GA25609@hansmi.ch>
+	 <1163282417.32084.18.camel@localhost.localdomain>
+	 <20061112083705.GB25609@hansmi.ch>
+	 <1163367528.21258.2.camel@localhost.localdomain>
+	 <20061113191115.fa5c5d6f.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006 17:20:26 +0100, Johannes Berg wrote:
-> On Mon, 2006-11-13 at 17:14 +0100, Stelian Pop wrote:
-> > 
-> > +               input_report_abs(ams_info.idev, ABS_X, x - ams_info.xcalib);
-> > +               input_report_abs(ams_info.idev, ABS_Y, y - ams_info.ycalib);
-> > +               input_report_abs(ams_info.idev, ABS_Z, z - ams_info.zcalib); 
-> 
-> Sorry about chiming in so late. When I tried to use this with neverball,
-> ams_info.xcalib - x (and similar for the others) was more useful because
-> of the way things are oriented. If I tilt my powerbook to the left then
-> with this original code the mouse cursor moves to the right which is
-> contrary to what neverball expects.
-> 
-> Not sure if we want to change this or not, it sort of boils down to a
-> userspace issue and we could just patch neverball to have a direction
-> inversion :)
+On 11/13/06, Jean Delvare <khali@linux-fr.org> wrote:
+> Stelian,
+>
+> On Sun, 12 Nov 2006 22:38:47 +0100, Stelian Pop wrote:
+> > Le dimanche 12 novembre 2006 à 09:37 +0100, Michael Hanselmann a écrit :
+> > [...]
+> >
+> > > But since Nicolas is really busy since months, I'd say the submitted
+> > > code can go in. I'll then make a patch which adds the class.
+> >
+> > Ok, cool, let's get it in then.
+> >
+> > Who picks it up ? Jean ? Andrew ?
+>
+> Depends to the answer to my question elsewhere in this thread. If we
+> decide that the accelerometer class and drivers belong to hwmon, I'll
+> take the patch (well it'll need to be submitted and reviewed first
+> anyway.) But if we decide that they belong to the input subsystem, I'd
+> rather let Dmitry handle it.
+>
 
-For what it's worth, the hdaps driver offers a parameter to invert the
-axes at the driver level. It sounds sane to me, as ideally we should be
-able to detect it from the hardware, and user-space should not need to
-care about hardware specific details.
+I think you should pick it up. I consider presence of an input device
+there as secondary to its main purpose of monitoring box state. It's
+like DVB and video drivers - I don't insist on moving them into
+drivers/input just because some of them have remote controls ;)
 
 -- 
-Jean Delvare
+Dmitry

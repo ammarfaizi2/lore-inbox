@@ -1,113 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755262AbWKMQ7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755228AbWKMRCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755262AbWKMQ7V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755264AbWKMQ7V
+	id S1755228AbWKMRCN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 12:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755276AbWKMRCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:59:21 -0500
-Received: from xenotime.net ([66.160.160.81]:25761 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1755262AbWKMQ7T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:59:19 -0500
-Date: Mon, 13 Nov 2006 08:59:22 -0800
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
-Cc: davej@codemonkey.org.uk, hpa@zytor.com, linux-kernel@vger.kernel.org,
-       shai.satt@intel.com
-Subject: Re: [PATCH 2.6.19-rc5-git2]  EFI: mapping memory region of runtime
- services when using memmap kernel parameter
-Message-Id: <20061113085922.42ac2a73.rdunlap@xenotime.net>
-In-Reply-To: <C1467C8B168BCF40ACEC2324C1A2B074A6A69C@hasmsx411.ger.corp.intel.com>
-References: <C1467C8B168BCF40ACEC2324C1A2B074A6A69C@hasmsx411.ger.corp.intel.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Nov 2006 12:02:13 -0500
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:10403 "EHLO
+	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1755228AbWKMRCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 12:02:10 -0500
+Date: Mon, 13 Nov 2006 12:02:07 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+       Chad Sellers <csellers@tresys.com>
+Subject: [PATCH 1/4] SELinux: remove current object class and permission
+ validation mechanism
+In-Reply-To: <XMMS.LNX.4.64.0611131158490.6437@d.namei>
+Message-ID: <XMMS.LNX.4.64.0611131201230.6437@d.namei>
+References: <XMMS.LNX.4.64.0611131158490.6437@d.namei>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006 13:08:50 +0200 Myaskouvskey, Artiom wrote:
+Removes the current SELinux object class and permission validation code,
+as the current code makes it impossible to change or remove object classes
+and permissions on a running system. Additionally, the current code does
+not actually validate that the classes and permissions are correct, but
+instead merely validates that they do not change between policy reloads.
 
-> From: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
->  
-> When using memmap kernel parameter in EFI boot we should also add to memory map 
-> memory regions of runtime services to enable their mapping later.
-> 
-> Signed-off-by: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
-> ---
-
-Much better (no line wrap), but still has problems with
-a.  extern not in a header file
-b.  lines > 80 columns
-c.  trailing whitespace (in both EFI patches)
-
-
-(sorry if you receive duplicates, my original was dropped or blocked;
-oh, the email address strings were odd)
-(third/final attempt)
-
-> diff -uprN linux-2.6.19-rc5-git2.orig/arch/i386/kernel/setup.c linux-2.6.19-rc5-git2/arch/i386/kernel/setup.c
-> --- linux-2.6.19-rc5-git2.orig/arch/i386/kernel/setup.c	2006-11-13 11:15:17.000000000 +0200
-> +++ linux-2.6.19-rc5-git2/arch/i386/kernel/setup.c	2006-11-13 11:15:42.000000000 +0200
-> @@ -346,28 +346,44 @@ static void __init probe_roms(void)
->  	}
->  }
->  
-> +extern int is_available_memory(efi_memory_desc_t * md);
-> +
->  static void __init limit_regions(unsigned long long size)
->  {
->  	unsigned long long current_addr = 0;
-> -	int i;
-> +	int i , j;
->  
-> -	if (efi_enabled) {
-> -		efi_memory_desc_t *md;
-> -		void *p;
-> +	if (efi_enabled) {		
-> +		efi_memory_desc_t *md, *next_md = 0;
-> +		void *p, *p1;
->  
-> -		for (p = memmap.map, i = 0; p < memmap.map_end;
-> +		for (p = memmap.map, i = 0,j = 0, p1 = memmap.map; p < memmap.map_end;
->  			p += memmap.desc_size, i++) {
->  			md = p;
-> +			next_md = p1;
->  			current_addr = md->phys_addr + (md->num_pages << 12);
-> -			if (md->type == EFI_CONVENTIONAL_MEMORY) {
-> -				if (current_addr >= size) {
-> -					md->num_pages -=
-> -						(((current_addr-size) + PAGE_SIZE-1) >> PAGE_SHIFT);
-> -					memmap.nr_map = i + 1;
-> -					return;
-> +			if (is_available_memory(md)) {
-> +				if (md->phys_addr >= size) continue;
-> +				memcpy(next_md, md, memmap.desc_size);				
-> +                                if (current_addr >= size) {
-> +					next_md->num_pages -= (((current_addr-size) + PAGE_SIZE-1) >> PAGE_SHIFT);
->  				}
-> +				p1 += memmap.desc_size;
-> +				next_md = p1;
-> +				j++;
->  			}
-> -		}
-> +			else if ((md->attribute & EFI_MEMORY_RUNTIME) == EFI_MEMORY_RUNTIME) {
-> +				/* In order to make runtime services available we have to include runtime 
-> +				 * memory regions in memory map */
-> +				memcpy(next_md, md, memmap.desc_size);
-> +				p1 += memmap.desc_size;
-> +				next_md = p1;
-> +				j++;
-> +			}		
-> +		}
-> +		memmap.nr_map = j;
-> +		memmap.map_end = memmap.map + (memmap.nr_map * memmap.desc_size);
-> +                return;
->  	}
->  	for (i = 0; i < e820.nr_map; i++) {
->  		current_addr = e820.map[i].addr + e820.map[i].size;
-> -
-
+Signed-off-by: Chad Sellers <csellers@tresys.com>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: James Morris <jmorris@namei.org>
 ---
-~Randy
+ security/selinux/ss/services.c |   91 ----------------------------------------
+ 1 files changed, 0 insertions(+), 91 deletions(-)
+
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index bfe1227..33ae102 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1018,89 +1018,6 @@ int security_change_sid(u32 ssid,
+ 	return security_compute_sid(ssid, tsid, tclass, AVTAB_CHANGE, out_sid);
+ }
+ 
+-/*
+- * Verify that each permission that is defined under the
+- * existing policy is still defined with the same value
+- * in the new policy.
+- */
+-static int validate_perm(void *key, void *datum, void *p)
+-{
+-	struct hashtab *h;
+-	struct perm_datum *perdatum, *perdatum2;
+-	int rc = 0;
+-
+-
+-	h = p;
+-	perdatum = datum;
+-
+-	perdatum2 = hashtab_search(h, key);
+-	if (!perdatum2) {
+-		printk(KERN_ERR "security:  permission %s disappeared",
+-		       (char *)key);
+-		rc = -ENOENT;
+-		goto out;
+-	}
+-	if (perdatum->value != perdatum2->value) {
+-		printk(KERN_ERR "security:  the value of permission %s changed",
+-		       (char *)key);
+-		rc = -EINVAL;
+-	}
+-out:
+-	return rc;
+-}
+-
+-/*
+- * Verify that each class that is defined under the
+- * existing policy is still defined with the same
+- * attributes in the new policy.
+- */
+-static int validate_class(void *key, void *datum, void *p)
+-{
+-	struct policydb *newp;
+-	struct class_datum *cladatum, *cladatum2;
+-	int rc;
+-
+-	newp = p;
+-	cladatum = datum;
+-
+-	cladatum2 = hashtab_search(newp->p_classes.table, key);
+-	if (!cladatum2) {
+-		printk(KERN_ERR "security:  class %s disappeared\n",
+-		       (char *)key);
+-		rc = -ENOENT;
+-		goto out;
+-	}
+-	if (cladatum->value != cladatum2->value) {
+-		printk(KERN_ERR "security:  the value of class %s changed\n",
+-		       (char *)key);
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	if ((cladatum->comdatum && !cladatum2->comdatum) ||
+-	    (!cladatum->comdatum && cladatum2->comdatum)) {
+-		printk(KERN_ERR "security:  the inherits clause for the access "
+-		       "vector definition for class %s changed\n", (char *)key);
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	if (cladatum->comdatum) {
+-		rc = hashtab_map(cladatum->comdatum->permissions.table, validate_perm,
+-		                 cladatum2->comdatum->permissions.table);
+-		if (rc) {
+-			printk(" in the access vector definition for class "
+-			       "%s\n", (char *)key);
+-			goto out;
+-		}
+-	}
+-	rc = hashtab_map(cladatum->permissions.table, validate_perm,
+-	                 cladatum2->permissions.table);
+-	if (rc)
+-		printk(" in access vector definition for class %s\n",
+-		       (char *)key);
+-out:
+-	return rc;
+-}
+-
+ /* Clone the SID into the new SID table. */
+ static int clone_sid(u32 sid,
+ 		     struct context *context,
+@@ -1265,14 +1182,6 @@ #endif
+ 
+ 	sidtab_init(&newsidtab);
+ 
+-	/* Verify that the existing classes did not change. */
+-	if (hashtab_map(policydb.p_classes.table, validate_class, &newpolicydb)) {
+-		printk(KERN_ERR "security:  the definition of an existing "
+-		       "class changed\n");
+-		rc = -EINVAL;
+-		goto err;
+-	}
+-
+ 	/* Clone the SID table. */
+ 	sidtab_shutdown(&sidtab);
+ 	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
+-- 
+1.4.2.1
+

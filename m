@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754972AbWKMQyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755193AbWKMQxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754972AbWKMQyq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754637AbWKMQyp
+	id S1755193AbWKMQxm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755206AbWKMQxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:54:45 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:8594 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1755208AbWKMQyl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:54:41 -0500
-Date: Mon, 13 Nov 2006 11:34:39 -0500
+	Mon, 13 Nov 2006 11:53:42 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:28329 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1755193AbWKMQxl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 11:53:41 -0500
+Date: Mon, 13 Nov 2006 11:35:42 -0500
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com
-Subject: [RFC] [PATCH 6/16] x86_64: Modify copy_bootdata to to use virtual address
-Message-ID: <20061113163439.GG17429@in.ibm.com>
+Subject: [RFC] [PATCH 7/16] x86_64: cleanup segments
+Message-ID: <20061113163542.GH17429@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061113162135.GA17429@in.ibm.com>
 Mime-Version: 1.0
@@ -29,65 +29,57 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Use virtual addresses instead of physical addresses
-in copy bootdata.  In addition fix the implementation
-of the old bootloader convention.  Everything is
-at real_mode_data always.  It is just that sometimes
-real_mode_data was relocated by setup.S to not sit at
-0x90000.
+Move __KERNEL32_CS up into the unused gdt entry.  __KERNEL32_CS is
+used when entering the kernel so putting it first is useful when
+trying to keep boot gdt sizes to a minimum.
+
+Set the accessed bit on all gdt entries.  We don't care
+so there is no need for the cpu to burn the extra cycles,
+and it potentially allows the pages to be immutable.  Plus
+it is confusing when debugging and your gdt entries mysteriously
+change.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/x86_64/kernel/head64.c |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ arch/x86_64/kernel/head.S    |   12 ++++++------
+ include/asm-x86_64/segment.h |    2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff -puN arch/x86_64/kernel/head64.c~x86_64-modify-copy_bootdata-to-use-virtual-addresses arch/x86_64/kernel/head64.c
---- linux-2.6.19-rc5-reloc/arch/x86_64/kernel/head64.c~x86_64-modify-copy_bootdata-to-use-virtual-addresses	2006-11-09 22:57:55.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/arch/x86_64/kernel/head64.c	2006-11-09 22:57:55.000000000 -0500
-@@ -29,27 +29,26 @@ static void __init clear_bss(void)
- }
+diff -puN arch/x86_64/kernel/head.S~x86_64-cleanup-segments arch/x86_64/kernel/head.S
+--- linux-2.6.19-rc5-reloc/arch/x86_64/kernel/head.S~x86_64-cleanup-segments	2006-11-09 22:58:28.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/arch/x86_64/kernel/head.S	2006-11-09 22:58:28.000000000 -0500
+@@ -354,13 +354,13 @@ gdt:
+ 	
+ ENTRY(cpu_gdt_table)
+ 	.quad	0x0000000000000000	/* NULL descriptor */
++	.quad	0x00cf9b000000ffff	/* __KERNEL32_CS */
++	.quad	0x00af9b000000ffff	/* __KERNEL_CS */
++	.quad	0x00cf93000000ffff	/* __KERNEL_DS */
++	.quad	0x00cffb000000ffff	/* __USER32_CS */
++	.quad	0x00cff3000000ffff	/* __USER_DS, __USER32_DS  */
++	.quad	0x00affb000000ffff	/* __USER_CS */
+ 	.quad	0x0			/* unused */
+-	.quad	0x00af9a000000ffff	/* __KERNEL_CS */
+-	.quad	0x00cf92000000ffff	/* __KERNEL_DS */
+-	.quad	0x00cffa000000ffff	/* __USER32_CS */
+-	.quad	0x00cff2000000ffff	/* __USER_DS, __USER32_DS  */		
+-	.quad	0x00affa000000ffff	/* __USER_CS */
+-	.quad	0x00cf9a000000ffff	/* __KERNEL32_CS */
+ 	.quad	0,0			/* TSS */
+ 	.quad	0,0			/* LDT */
+ 	.quad   0,0,0			/* three TLS descriptors */ 
+diff -puN include/asm-x86_64/segment.h~x86_64-cleanup-segments include/asm-x86_64/segment.h
+--- linux-2.6.19-rc5-reloc/include/asm-x86_64/segment.h~x86_64-cleanup-segments	2006-11-09 22:58:28.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/include/asm-x86_64/segment.h	2006-11-09 22:58:28.000000000 -0500
+@@ -6,7 +6,7 @@
+ #define __KERNEL_CS	0x10
+ #define __KERNEL_DS	0x18
  
- #define NEW_CL_POINTER		0x228	/* Relative to real mode data */
--#define OLD_CL_MAGIC_ADDR	0x90020
-+#define OLD_CL_MAGIC_ADDR	0x20
- #define OLD_CL_MAGIC            0xA33F
--#define OLD_CL_BASE_ADDR        0x90000
--#define OLD_CL_OFFSET           0x90022
-+#define OLD_CL_OFFSET           0x22
+-#define __KERNEL32_CS   0x38
++#define __KERNEL32_CS   0x08
  
- extern char saved_command_line[];
- 
- static void __init copy_bootdata(char *real_mode_data)
- {
--	int new_data;
-+	unsigned long new_data;
- 	char * command_line;
- 
- 	memcpy(x86_boot_params, real_mode_data, BOOT_PARAM_SIZE);
--	new_data = *(int *) (x86_boot_params + NEW_CL_POINTER);
-+	new_data = *(u32 *) (x86_boot_params + NEW_CL_POINTER);
- 	if (!new_data) {
--		if (OLD_CL_MAGIC != * (u16 *) OLD_CL_MAGIC_ADDR) {
-+		if (OLD_CL_MAGIC != *(u16 *)(real_mode_data + OLD_CL_MAGIC_ADDR)) {
- 			return;
- 		}
--		new_data = OLD_CL_BASE_ADDR + * (u16 *) OLD_CL_OFFSET;
-+		new_data = __pa(real_mode_data) + *(u16 *)(real_mode_data + OLD_CL_OFFSET);
- 	}
--	command_line = (char *) ((u64)(new_data));
-+	command_line = __va(new_data);
- 	memcpy(saved_command_line, command_line, COMMAND_LINE_SIZE);
- }
- 
-@@ -74,7 +73,7 @@ void __init x86_64_start_kernel(char * r
-  		cpu_pda(i) = &boot_cpu_pda[i];
- 
- 	pda_init(0);
--	copy_bootdata(real_mode_data);
-+	copy_bootdata(__va(real_mode_data));
- #ifdef CONFIG_SMP
- 	cpu_set(0, cpu_online_map);
- #endif
+ /* 
+  * we cannot use the same code segment descriptor for user and kernel
 _

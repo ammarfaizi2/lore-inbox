@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754456AbWKMLJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754476AbWKMLVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754456AbWKMLJY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 06:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754458AbWKMLJY
+	id S1754476AbWKMLVG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 06:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754477AbWKMLVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 06:09:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14281 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1754459AbWKMLJX (ORCPT
+	Mon, 13 Nov 2006 06:21:06 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:44195 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1754476AbWKMLVC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 06:09:23 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0611121732010.2724@raven.themaw.net> 
-References: <Pine.LNX.4.64.0611121732010.2724@raven.themaw.net> 
-To: Ian Kent <raven@themaw.net>
-Cc: Andrew Morton <akpm@osdl.org>, "bibo,mao" <bibo.mao@intel.com>,
-       David Howells <dhowells@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] autofs4 - panic after mount fail 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 13 Nov 2006 11:07:13 +0000
-Message-ID: <1292.1163416033@redhat.com>
+	Mon, 13 Nov 2006 06:21:02 -0500
+Date: Mon, 13 Nov 2006 14:16:47 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-ID: <20061113111647.GB8182@2ka.mipt.ru>
+References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20061113105458.GA8182@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 13 Nov 2006 14:16:53 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent <raven@themaw.net> wrote:
+On Mon, Nov 13, 2006 at 01:54:58PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> > ===================
+> > 
+> > - there is really no reason to invent yet another timer implementation.
+> >   We have the POSIX timers which are feature rich and nicely
+> >   implemented.  All that is needed is to implement SIGEV_KEVENT as a
+> >   notification mechanism.  The timer is registered as part of the
+> >   timer_create() syscalls.
+> 
+> Feel free to add any interface you like - it is as simple as call for
+> kevent_user_add_ukevent() in userspace.
 
-> -	if (sbi->pipe) {
-> -		fput(sbi->pipe);	/* Close the pipe */
-> -		sbi->pipe = NULL;
-> -	}
-> +	fput(sbi->pipe);	/* Close the pipe */
-> +	sbi->pipe = NULL;
+... in kernelspace I mean.
 
-Ummm...  Is that right?  fput() doesn't check its argument for a NULL pointer,
-so the original code shouldn't hurt and should give you an extra bit of
-defense.
-
-Other than that, it looks reasonable.
-
-David
+-- 
+	Evgeniy Polyakov

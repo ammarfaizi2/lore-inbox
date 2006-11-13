@@ -1,107 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755182AbWKMQZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755189AbWKMQ1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755182AbWKMQZt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755189AbWKMQZt
+	id S1755189AbWKMQ1M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755196AbWKMQ1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:25:49 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:1236 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1755182AbWKMQZr (ORCPT
+	Mon, 13 Nov 2006 11:27:12 -0500
+Received: from smtp1-g19.free.fr ([212.27.42.27]:55489 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1755189AbWKMQ1L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:25:47 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: David Chinner <dgc@sgi.com>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Date: Mon, 13 Nov 2006 17:22:54 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Alasdair G Kergon <agk@redhat.com>,
-       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611122343.06625.rjw@sisk.pl> <20061113054340.GP11034@melbourne.sgi.com>
-In-Reply-To: <20061113054340.GP11034@melbourne.sgi.com>
+	Mon, 13 Nov 2006 11:27:11 -0500
+Message-ID: <1163435230.45589cde18e04@imp4-g19.free.fr>
+Date: Mon, 13 Nov 2006 17:27:10 +0100
+From: Remi <remi.colinet@free.fr>
+To: Fabio Coatti <cova@ferrara.linux.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc5-mm1 : probe of 0000:00:1f.2 failed with error -16
+References: <1163425477.455876c5637f6@imp4-g19.free.fr> <200611131452.13234.cova@ferrara.linux.it> <1163431218.45588d325eddf@imp4-g19.free.fr> <200611131654.27187.cova@ferrara.linux.it>
+In-Reply-To: <200611131654.27187.cova@ferrara.linux.it>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611131722.55446.rjw@sisk.pl>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+X-Originating-IP: 81.255.27.251
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 13 November 2006 06:43, David Chinner wrote:
-> On Sun, Nov 12, 2006 at 11:43:05PM +0100, Rafael J. Wysocki wrote:
-> > On Sunday, 12 November 2006 23:30, David Chinner wrote:
-> > > On Fri, Nov 10, 2006 at 11:39:42AM +0100, Pavel Machek wrote:
-> > > > On Fri 2006-11-10 11:57:49, David Chinner wrote:
-> > > > > On Thu, Nov 09, 2006 at 11:21:46PM +0100, Rafael J. Wysocki wrote:
-> > > > > > I think we can add a flag to __create_workqueue() that will indicate if
-> > > > > > this one is to be running with PF_NOFREEZE and a corresponding macro like
-> > > > > > create_freezable_workqueue() to be used wherever we want the worker thread
-> > > > > > to freeze (in which case it should be calling try_to_freeze() somewhere).
-> > > > > > Then, we can teach filesystems to use this macro instead of
-> > > > > > create_workqueue().
-> > > > > 
-> > > > > At what point does the workqueue get frozen? i.e. how does this
-> > > > > guarantee an unfrozen filesystem will end up in a consistent
-> > > > > state?
-> > > > 
-> > > > Snapshot is atomic; workqueue will be unfrozen with everyone else, but
-> > > > as there were no writes in the meantime, there should be no problems.
-> > > 
-> > > That doesn't answer my question - when in the sequence of freezing
-> > > do you propose diasbling the workqueues? before the kernel threads,
-> > > after the kernel threads, before you sync the filesystem?
-> > 
-> > After the sync, along with the freezing of kernel threads.
-> 
-> Before or after freezing of the kthreads? Order _could_ be
-> important, and different filesystems might require different
-> orders. What then?
+Selon Fabio Coatti <cova@ferrara.linux.it>:
 
-Well, I don't really think the order is important.  If the freezing of work
-queues is done by the freezing of their respective worker threads, the
-other threads won't even know they have been frozen.
+> Alle 16:20, lunedì 13 novembre 2006, Remi ha scritto:
+> > Selon Fabio Coatti <cova@ferrara.linux.it>:
+> > > > ata_piix: probe of 0000:00:1f.2 failed with error -16
+> > > > Kernel panic - not syncing: Attempted to kill init!
+> > > >
+> > > > I disabled most options in my .config file just keeping ata_piix
+> > > > enabled. 2.6.19-rc5 still boots fine but 2.6.19-rc-mm1 gives the same
+> > > > previous message.
+> > >
+> > > It seems exactly the same problem that is hitting me:
+> > >
+> > > http://lkml.org/lkml/2006/11/13/37
+> > >
+> > > If some patch comes out, I'll be willing to try it asap ;)
+> >
+> > You are getting the same message
+> >
+> > ata_piix 0000:00:1f.2: MAP [ P0 P1 IDE IDE ]
+> > ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 17
+> > PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
+> > ata_piix: probe of 0000:00:1f.2 failed with error -16
+> >
+> > But, your drives are driven by the sata_sil driver, which seems to be ok.
+> > See your partition tables displayed below.
+>
+> Not exactly: my fault to not including previous mails, but basically I've two
+> different devices: one driven by sata_sil, the other by piix.
+> cfr: http://lkml.org/lkml/2006/11/12/20
+> In this dmesg, the kernel finds only the second device, and assigns the
+> name "sda"; of course the right drive (the real "sda" on my system) is not
+> detected so the kernel is searching the "/" filesystem where it cannot be
+> found.
+>
+> here the relevant part of lspci output:
+>
+> 00:1f.2 IDE interface: Intel Corporation 82801EB (ICH5) SATA Controller (rev
+> 02) (prog-if 8a [Master SecP PriP])
+>         Subsystem: ABIT Computer Corp. Unknown device 1014
+>         Flags: bus master, 66MHz, medium devsel, latency 0, IRQ 17
+>         I/O ports at <unassigned>
+>         I/O ports at <unassigned>
+>         I/O ports at <unassigned>
+>         I/O ports at <unassigned>
+>         I/O ports at f000 [size=16]
 
-> > > And how does freezing them at that point in time guarantee consistent
-> > > filesystem state?
-> > 
-> > If the work queues are frozen, there won't be any fs-related activity _after_
-> > we create the suspend image.
-> 
-> What about if there is still I/O in progress (i.e. kthread wins race and
-> issues async I/O after the sync but before it's frozen) - freezing the
-> workqueues does not prevent this activity and memory state will continue to
-> change as long as there is I/O completing...
-> 
-> > The sync is done after the userland has been
-> > frozen, so if the resume is unsuccessful, we'll be able to recover the state
-> > of the fs right before the sync,
-> 
-> Yes, in most cases.
-> 
-> > and if the resume is successful, we'll be
-> > able to continue (the state of memory will be the same as before the creation
-> > of the suspend image and the state of the disk will be the same as before the
-> > creation of the suspend image).
-> 
-> Assuming that you actually suspended an idle filesystem, which sync does not
-> guarantee you.
+ok,
 
-Even if it's not idle, we are safe as long as the I/O activity doesn't
-continue after the suspend image has been created.
+Could you try the following patch which solved the problemn on my laptop?
 
-> Rather than assuming the filesystem is idle, why not guarantee 
-> that it is idle by freezing it?
+--- linux-2.6.19-rc5-mm1/drivers/ata/libata-sff.c	2006-11-12 13:08:19.000000000
++0100
++++ w1/drivers/ata/libata-sff.c	2006-11-13 18:32:18.000000000 +0100
+@@ -1021,13 +1021,13 @@
+ #endif
+ 	}
 
-Well, _I_ personally think that the freezing of filesystems is the right thing
-to do, although it may lead to some complications down the road.
-
-Greetings,
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+-	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc) {
+-		disable_dev_on_err = 0;
+-		goto err_out;
+-	}
+-
+-	if (legacy_mode) {
++	if (!legacy_mode) {
++		rc = pci_request_regions(pdev, DRV_NAME);
++		if (rc) {
++			disable_dev_on_err = 0;
++			goto err_out;
++		}
++	} else {
+ 		if (!request_region(ATA_PRIMARY_CMD, 8, "libata")) {
+ 			struct resource *conflict, res;
+ 			res.start = ATA_PRIMARY_CMD;
+Remi

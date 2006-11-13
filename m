@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753418AbWKMJIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753381AbWKMJMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753418AbWKMJIp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 04:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753482AbWKMJIp
+	id S1753381AbWKMJMr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 04:12:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753482AbWKMJMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 04:08:45 -0500
-Received: from ns1.suse.de ([195.135.220.2]:4246 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1753418AbWKMJIn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 04:08:43 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] genapic: optimize & fix APIC mode setup
-Date: Mon, 13 Nov 2006 10:08:37 +0100
-User-Agent: KMail/1.9.5
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com
-References: <20061111151414.GA32507@elte.hu> <200611130332.07569.ak@suse.de> <20061113081616.GA25604@elte.hu>
-In-Reply-To: <20061113081616.GA25604@elte.hu>
-MIME-Version: 1.0
+	Mon, 13 Nov 2006 04:12:47 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2066 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1753381AbWKMJMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 04:12:46 -0500
+Date: Mon, 13 Nov 2006 09:12:22 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: David Miller <davem@davemloft.net>, kenneth.w.chen@intel.com,
+       akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [patch] fix up generic csum_ipv6_magic function prototype
+Message-ID: <20061113091222.GA26628@flint.arm.linux.org.uk>
+Mail-Followup-To: Al Viro <viro@ftp.linux.org.uk>,
+	David Miller <davem@davemloft.net>, kenneth.w.chen@intel.com,
+	akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+References: <000301c703a3$0eedb340$ff0da8c0@amr.corp.intel.com> <20061108.230059.57444310.davem@davemloft.net> <20061109072216.GL29920@ftp.linux.org.uk> <20061108.235548.12921799.davem@davemloft.net> <20061113085223.GR29920@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611131008.37810.ak@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20061113085223.GR29920@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 November 2006 09:16, Ingo Molnar wrote:
+On Mon, Nov 13, 2006 at 08:52:23AM +0000, Al Viro wrote:
+> After doing the above we have the following:
 > 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > Now if it causes device driver issues that's different of course. I 
-> > wasn't aware of this before.
-> 
-> lets try my patch in -mm for a while.
+> Platform-dependent:
+> __wsum csum_tcpudp_nofold(__be32, __be32, T1, T2, __wsum);
+> On arm/arm26: T1 = unsigned short, T2 = unsigned int.
+> __sum16 csum_tcpudp_magic(__be32, __be32, unsigned short, T, __wsum);
+> On arm/arm26 T is unsigned int, elsewhere it's unsigned short.
 
-I don't think that's a good idea.
+Could both become unsigned short or unsigned int.  Would prefer
+unsigned int on ARM, since otherwise the compiler generate code to
+truncate any variable "int"s to an unsigned short.
 
-> 
-> Had i ever noticed this hack in the first place i would have NAK-ed it. 
-> There is a fundamental design friction of a high-level feature like 
-> HOTPLUG_CPU /requiring/ a fundamental change to the lowlevel IRQ 
-> delivery mode! 
-
-Well to be honest masked mode isn't that useful anyways. It's only
-theoretical advantage would be a bit more performance for multicast IPIs, 
-but Ashok did benchmarks and it didn't make any significant difference. With that
-I prefer to use always the same mode for small and large systems.
-Ok should probably drop the ifdef and just always use physical mode.
-
-
-> Such a requirement is broken and just serves to hide a  
-> flaw in the hotplug design - which flaw would trigger on i386 /anyway/, 
-> because i386 still uses logical delivery mode for APIC IPIs. 
-
-i386 cpu hotplug is somewhat broken anyways, but it should be fixed
-there too eventually. But some very old chipsets don't seem to support
-physical properly so it wasn't changed there.
-
-> Also, i'd  
-> like to have a description of how to reproduce those CPU hotplug 
-> problems, so that i can try to fix it.
-
-iirc they just did stress tests. Plug/unplug cpus in a tight loop and 
-do some workloads and see what happens.
-
--Andi
- 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

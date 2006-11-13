@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933168AbWKMXhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933169AbWKMXla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933168AbWKMXhz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 18:37:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933169AbWKMXhy
+	id S933169AbWKMXla (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 18:41:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755206AbWKMXla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 18:37:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52109 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933168AbWKMXhy (ORCPT
+	Mon, 13 Nov 2006 18:41:30 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:51154 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S1752646AbWKMXl3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 18:37:54 -0500
-Date: Mon, 13 Nov 2006 15:37:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5-mm1
-Message-Id: <20061113153746.49a31e1b.akpm@osdl.org>
-In-Reply-To: <200611132326.36002.m.kozlowski@tuxland.pl>
-References: <20061108015452.a2bb40d2.akpm@osdl.org>
-	<200611131658.06036.m.kozlowski@tuxland.pl>
-	<20061113141921.a5c59a61.akpm@osdl.org>
-	<200611132326.36002.m.kozlowski@tuxland.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Nov 2006 18:41:29 -0500
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Romano Giannetti <romano.giannetti@gmail.com>
+Subject: Re: pcmcia: patch to fix pccard_store_cis
+Date: Tue, 14 Nov 2006 00:40:00 +0100
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611140040.02079.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-01.tornado.cablecom.ch 1378;
+	Body=4 Fuz1=4 Fuz2=4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006 23:26:35 +0100
-Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
+please also try this patch on top:
+	http://zeus2.kernel.org/git/?p=linux/kernel/git/brodo/pcmcia-fixes-2.6.git;a=commitdiff;h=e6248ff596dd15bce0be4d780c60f173389b11c3
 
-> > >   LD      .tmp_vmlinux1
-> > > arch/x86_64/kernel/built-in.o(.init.text+0x31b7): In function
-> > > `alternative_instructions': arch/i386/kernel/alternative.c:437: undefined
-> > > reference to `__stop_parainstructions'
-> > > arch/x86_64/kernel/built-in.o(.init.text+0x31be):arch/i386/kernel/alterna
-> > >tive.c:437: undefined reference to `__start_parainstructions' make: ***
-> > > [.tmp_vmlinux1] Error 1
-> >
-> > Thanks.  Please send me the .config and I'll see if it's still happening.
-> 
-> Please find .config attached.
+(after you have "[PATCH] pcmcia: start over after CIS override"
+	http://zeus2.kernel.org/git/?p=linux/kernel/git/brodo/pcmcia-fixes-2.6.git;a=commitdiff;h=f755c48254ce743a3d4c1fd6b136366c018ee5b2
+ applied)
 
-Thanks.  The paravirt patches have churned a bit recently and we appear to
-have fixed this one.
+if that doesn't work, i'll have a look at it on the weekend.
 
+rgds
+-daniel

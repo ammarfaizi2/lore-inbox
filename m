@@ -1,58 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754577AbWKMMYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754534AbWKMMbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754577AbWKMMYs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 07:24:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754571AbWKMMYP
+	id S1754534AbWKMMbq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 07:31:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754564AbWKMMbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 07:24:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:22225 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1754560AbWKMMXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 07:23:48 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, "pasky@ucw.cz" <pasky@ucw.cz>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 6/8] V4L/DVB (4816): Change tuner type for Avermedia A16AR
-Date: Mon, 13 Nov 2006 10:18:44 -0200
-Message-id: <20061113121844.PS3412290006@infradead.org>
-In-Reply-To: <20061113121504.PS7687690000@infradead.org>
-References: <20061113121504.PS7687690000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
+	Mon, 13 Nov 2006 07:31:45 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:26980 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1754534AbWKMMbp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 07:31:45 -0500
+Message-ID: <4558679E.5010507@sw.ru>
+Date: Mon, 13 Nov 2006 15:39:58 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Kirill Korotaev <dev@openvz.org>, ext4-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org, Andrey Savochkin <saw@sw.ru>, sct@redhat.com,
+       adilger@clusterfs.com, Monakhov Dmitriy <dmonakhov@sw.ru>
+Subject: Re: [PATCH] retries in ext3_prepare_write() violate ordering requirements
+References: <455492F9.7080300@openvz.org> <20061110104724.27c30c53.akpm@osdl.org>
+In-Reply-To: <20061110104724.27c30c53.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew,
 
-From: pasky@ucw.cz <pasky@ucw.cz>
+>>in journal=ordered or journal=data mode retry in ext3_prepare_write()
+>>breaks the requirements of journaling of data with respect to metadata.
+>>The fix is to call commit_write to commit allocated zero blocks before
+>>retry.
+>>
+> 
+> 
+> How was this problem detected? (ie: why was block_prepare_write() failing?)
+purely theoretically while hunting for other bugs related to ext3 and quota.
+block_prepare_write() can fail e.g. if quota returns -EDQUOT in ext3_alloc_blocks().
 
-This changes it from TDA8290 which is allegedly very unlikely to TD1316 which
-is allegedly very likely. I didn't get it to work with either, but expected
-that this got applied when Mauro sent it to me, so here it goes again; feel
-free to drop it to the floor. :-)
+> How was the patch tested?
+1. it was tested as part of OpenVZ kernel
+2. there were ext3 stress test done with lots of disk activity by Dmitry Monakhov.
 
-Signed-off-by: Petr Baudis <pasky@ucw.cz>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+> Was nobh-mode also tested?
+I will ask to perform some more tests 100% triggering ext3_prepare_failure()
+and with NOBH mode.
 
- drivers/media/video/saa7134/saa7134-cards.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Thanks,
+Kirill
 
-diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
-index 1a402e4..51f0cfd 100644
---- a/drivers/media/video/saa7134/saa7134-cards.c
-+++ b/drivers/media/video/saa7134/saa7134-cards.c
-@@ -2969,7 +2969,7 @@ struct saa7134_board saa7134_boards[] = 
- 		/* Petr Baudis <pasky@ucw.cz> */
- 		.name           = "AVerMedia TV Hybrid A16AR",
- 		.audio_clock    = 0x187de7,
--		.tuner_type     = TUNER_PHILIPS_TDA8290, /* untested */
-+		.tuner_type     = TUNER_PHILIPS_TD1316, /* untested */
- 		.radio_type     = TUNER_TEA5767, /* untested */
- 		.tuner_addr     = ADDR_UNSET,
- 		.radio_addr     = ADDR_UNSET,
+
+>>--- ./fs/ext3/inode.c.ext3pw	2006-11-08 17:44:14.000000000 +0300
+>>+++ ./fs/ext3/inode.c	2006-11-08 17:48:59.000000000 +0300
+>>@@ -1148,37 +1148,89 @@ static int do_journal_get_write_access(h
+>> 	return ext3_journal_get_write_access(handle, bh);
+>> }
+>> 
+>>+/*
+>>+ * The idea of this helper function is following:
+>>+ * if prepare_write has allocated some blocks, but not all of them, the
+>>+ * transaction must include the content of the newly allocated blocks.
+>>+ * This content is expected to be set to zeroes by block_prepare_write().
+>>+ * 2006/10/14  SAW
+>>+ */
+>>+static int ext3_prepare_failure(struct file *file, struct page *page,
+>>+				unsigned from, unsigned to)
+>>+{
+>>+	struct address_space *mapping;
+>>+	struct buffer_head *bh, *head, *next;
+>>+	unsigned block_start, block_end;
+>>+	unsigned blocksize;
+>>+
+>>+	mapping = page->mapping;
+>>+	if (ext3_should_writeback_data(mapping->host)) {
+>>+		/* optimization: no constraints about data */
+>>+skip:
+>>+		ext3_journal_stop(ext3_journal_current_handle());
+>>+		return 0;
+> 
+> 
+> Should this be `return ext3_journal_stop(...);'?
+> 
+> 
+>>+	}
+>>+
+>>+	head = page_buffers(page);
+>>+	blocksize = head->b_size;
+>>+	for (	bh = head, block_start = 0;
+>>+		bh != head || !block_start;
+>>+	    	block_start = block_end, bh = next)
+>>+	{
+>>+		next = bh->b_this_page;
+>>+		block_end = block_start + blocksize;
+>>+		if (block_end <= from)
+>>+			continue;
+>>+		if (block_start >= to) {
+>>+			block_start = to;
+>>+			break;
+>>+		}
+>>+		if (!buffer_mapped(bh))
+>>+			break;
+> 
+> 
+> What is the significance of buffer_mapped() here?  Outside EOF or into a
+> hole?  If so, then block_start >= to, and we can't get here??
+> 
+> 
+>>+	}
+>>+	if (block_start <= from)
+>>+		goto skip;
+>>+
+>>+	/* commit allocated and zeroed buffers */
+>>+	return mapping->a_ops->commit_write(file, page, from, block_start);
+>>+}
+>>+
+>> static int ext3_prepare_write(struct file *file, struct page *page,
+>> 			      unsigned from, unsigned to)
+>> {
+>> 	struct inode *inode = page->mapping->host;
+>>-	int ret, needed_blocks = ext3_writepage_trans_blocks(inode);
+>>+	int ret, ret2;
+>>+	int needed_blocks = ext3_writepage_trans_blocks(inode);
+>> 	handle_t *handle;
+>> 	int retries = 0;
+>> 
+>> retry:
+>> 	handle = ext3_journal_start(inode, needed_blocks);
+>>-	if (IS_ERR(handle)) {
+>>-		ret = PTR_ERR(handle);
+>>-		goto out;
+>>-	}
+>>+	if (IS_ERR(handle))
+>>+		return PTR_ERR(handle);
+>> 	if (test_opt(inode->i_sb, NOBH) && ext3_should_writeback_data(inode))
+>> 		ret = nobh_prepare_write(page, from, to, ext3_get_block);
+>> 	else
+>> 		ret = block_prepare_write(page, from, to, ext3_get_block);
+>> 	if (ret)
+>>-		goto prepare_write_failed;
+>>+		goto failure;
+>> 
+>> 	if (ext3_should_journal_data(inode)) {
+>> 		ret = walk_page_buffers(handle, page_buffers(page),
+>> 				from, to, NULL, do_journal_get_write_access);
+>>+		if (ret)
+>>+			/* fatal error, just put the handle and return */
+>>+			journal_stop(handle);
+>> 	}
+>>-prepare_write_failed:
+>>-	if (ret)
+>>-		ext3_journal_stop(handle);
+>>+	return ret;
+>>+
+>>+failure:
+>>+	ret2 = ext3_prepare_failure(file, page, from, to);
+>>+	if (ret2 < 0)
+>>+		return ret2;
+>> 	if (ret == -ENOSPC && ext3_should_retry_alloc(inode->i_sb, &retries))
+>> 		goto retry;
+>>-out:
+>>+	/* retry number exceeded, or other error like -EDQUOT */
+>> 	return ret;
+>> }
+>> 
+> 
+> 
 

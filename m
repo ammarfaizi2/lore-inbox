@@ -1,152 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755228AbWKMRCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754976AbWKMQ4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755228AbWKMRCN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 12:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755276AbWKMRCN
+	id S1754976AbWKMQ4n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755220AbWKMQyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 12:02:13 -0500
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:10403 "EHLO
-	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1755228AbWKMRCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 12:02:10 -0500
-Date: Mon, 13 Nov 2006 12:02:07 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-       Chad Sellers <csellers@tresys.com>
-Subject: [PATCH 1/4] SELinux: remove current object class and permission
- validation mechanism
-In-Reply-To: <XMMS.LNX.4.64.0611131158490.6437@d.namei>
-Message-ID: <XMMS.LNX.4.64.0611131201230.6437@d.namei>
-References: <XMMS.LNX.4.64.0611131158490.6437@d.namei>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Nov 2006 11:54:47 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:5522 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1755210AbWKMQyk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 11:54:40 -0500
+Date: Mon, 13 Nov 2006 11:51:15 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com
+Subject: [RFC] [PATCH 16/16] x86_64: Extend bzImage protocol for relocatable bzImage
+Message-ID: <20061113165115.GQ17429@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061113162135.GA17429@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061113162135.GA17429@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removes the current SELinux object class and permission validation code,
-as the current code makes it impossible to change or remove object classes
-and permissions on a running system. Additionally, the current code does
-not actually validate that the classes and permissions are correct, but
-instead merely validates that they do not change between policy reloads.
 
-Signed-off-by: Chad Sellers <csellers@tresys.com>
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: James Morris <jmorris@namei.org>
+
+
+o Extend the bzImage protocol (same as i386) to allow bzImage loaders to
+  load the protected mode kernel at non-1MB address. Now protected mode
+  component is relocatable and can be loaded at non-1MB addresses.
+
+o As of today kdump uses it to run a second kernel from a reserved memory
+  area.
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
- security/selinux/ss/services.c |   91 ----------------------------------------
- 1 files changed, 0 insertions(+), 91 deletions(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index bfe1227..33ae102 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1018,89 +1018,6 @@ int security_change_sid(u32 ssid,
- 	return security_compute_sid(ssid, tsid, tclass, AVTAB_CHANGE, out_sid);
- }
- 
--/*
-- * Verify that each permission that is defined under the
-- * existing policy is still defined with the same value
-- * in the new policy.
-- */
--static int validate_perm(void *key, void *datum, void *p)
--{
--	struct hashtab *h;
--	struct perm_datum *perdatum, *perdatum2;
--	int rc = 0;
--
--
--	h = p;
--	perdatum = datum;
--
--	perdatum2 = hashtab_search(h, key);
--	if (!perdatum2) {
--		printk(KERN_ERR "security:  permission %s disappeared",
--		       (char *)key);
--		rc = -ENOENT;
--		goto out;
--	}
--	if (perdatum->value != perdatum2->value) {
--		printk(KERN_ERR "security:  the value of permission %s changed",
--		       (char *)key);
--		rc = -EINVAL;
--	}
--out:
--	return rc;
--}
--
--/*
-- * Verify that each class that is defined under the
-- * existing policy is still defined with the same
-- * attributes in the new policy.
-- */
--static int validate_class(void *key, void *datum, void *p)
--{
--	struct policydb *newp;
--	struct class_datum *cladatum, *cladatum2;
--	int rc;
--
--	newp = p;
--	cladatum = datum;
--
--	cladatum2 = hashtab_search(newp->p_classes.table, key);
--	if (!cladatum2) {
--		printk(KERN_ERR "security:  class %s disappeared\n",
--		       (char *)key);
--		rc = -ENOENT;
--		goto out;
--	}
--	if (cladatum->value != cladatum2->value) {
--		printk(KERN_ERR "security:  the value of class %s changed\n",
--		       (char *)key);
--		rc = -EINVAL;
--		goto out;
--	}
--	if ((cladatum->comdatum && !cladatum2->comdatum) ||
--	    (!cladatum->comdatum && cladatum2->comdatum)) {
--		printk(KERN_ERR "security:  the inherits clause for the access "
--		       "vector definition for class %s changed\n", (char *)key);
--		rc = -EINVAL;
--		goto out;
--	}
--	if (cladatum->comdatum) {
--		rc = hashtab_map(cladatum->comdatum->permissions.table, validate_perm,
--		                 cladatum2->comdatum->permissions.table);
--		if (rc) {
--			printk(" in the access vector definition for class "
--			       "%s\n", (char *)key);
--			goto out;
--		}
--	}
--	rc = hashtab_map(cladatum->permissions.table, validate_perm,
--	                 cladatum2->permissions.table);
--	if (rc)
--		printk(" in access vector definition for class %s\n",
--		       (char *)key);
--out:
--	return rc;
--}
--
- /* Clone the SID into the new SID table. */
- static int clone_sid(u32 sid,
- 		     struct context *context,
-@@ -1265,14 +1182,6 @@ #endif
- 
- 	sidtab_init(&newsidtab);
- 
--	/* Verify that the existing classes did not change. */
--	if (hashtab_map(policydb.p_classes.table, validate_class, &newpolicydb)) {
--		printk(KERN_ERR "security:  the definition of an existing "
--		       "class changed\n");
--		rc = -EINVAL;
--		goto err;
--	}
--
- 	/* Clone the SID table. */
- 	sidtab_shutdown(&sidtab);
- 	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
--- 
-1.4.2.1
+ arch/x86_64/boot/setup.S |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
+diff -puN arch/x86_64/boot/setup.S~x86_64-extend-bzImage-protocol-for-relocatable-bzImage arch/x86_64/boot/setup.S
+--- linux-2.6.19-rc5-reloc/arch/x86_64/boot/setup.S~x86_64-extend-bzImage-protocol-for-relocatable-bzImage	2006-11-09 23:07:08.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/arch/x86_64/boot/setup.S	2006-11-09 23:07:08.000000000 -0500
+@@ -80,7 +80,7 @@ start:
+ # This is the setup header, and it must start at %cs:2 (old 0x9020:2)
+ 
+ 		.ascii	"HdrS"		# header signature
+-		.word	0x0204		# header version number (>= 0x0105)
++		.word	0x0205		# header version number (>= 0x0105)
+ 					# or else old loadlin-1.5 will fail)
+ realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
+ start_sys_seg:	.word	SYSSEG
+@@ -155,7 +155,12 @@ cmd_line_ptr:	.long 0			# (Header versio
+ 					# low memory 0x10000 or higher.
+ 
+ ramdisk_max:	.long 0xffffffff
+-	
++kernel_alignment:  .long 0x200000       # physical addr alignment required for
++					# protected mode relocatable kernel
++relocatable_kernel:    .byte 1
++pad2:                  .byte 0
++pad3:                  .word 0
++
+ trampoline:	call	start_of_setup
+ 		.align 16
+ 					# The offset at this point is 0x240
+_

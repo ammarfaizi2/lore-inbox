@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933066AbWKMV2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933065AbWKMVaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933066AbWKMV2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 16:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933067AbWKMV2t
+	id S933065AbWKMVaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 16:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933060AbWKMVaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 16:28:49 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:48840 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S933066AbWKMV2t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 16:28:49 -0500
-Message-ID: <4558E385.5080909@gmail.com>
-Date: Mon, 13 Nov 2006 22:28:37 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Eric Fox <efox@einsteinindustries.com>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: ISICOM Drivers
-References: <1163450990-AWEPOTQSGNKRVE3@www.vabmail.com>
-In-Reply-To: <1163450990-AWEPOTQSGNKRVE3@www.vabmail.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+	Mon, 13 Nov 2006 16:30:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52683 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933065AbWKMVaN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 16:30:13 -0500
+Date: Mon, 13 Nov 2006 13:29:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Fabio Coatti <cova@ferrara.linux.it>
+Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: SATA ICH5 not detected at boot, mm-kernels
+Message-Id: <20061113132904.52e6fde7.akpm@osdl.org>
+In-Reply-To: <200611131017.51676.cova@ferrara.linux.it>
+References: <200611051536.35333.cova@ferrara.linux.it>
+	<454F2E0F.3010804@gmail.com>
+	<200611061418.07470.cova@ferrara.linux.it>
+	<200611131017.51676.cova@ferrara.linux.it>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cc: lkml
+On Mon, 13 Nov 2006 10:17:38 +0100
+Fabio Coatti <cova@ferrara.linux.it> wrote:
 
-Eric Fox wrote:
-> Hi Jiri,
-
-Hi.
-
-> I was informed that you are currently working on cleaning up the Linux
-
-Correct.
-
-> isicom drivers. I have been working on setting up my MultiTech ISI5643 on a
-> Linux 2.6.18.2 system and have been having problems with kernel oops.
+> Alle 14:18, luned__ 6 novembre 2006, Fabio Coatti ha scritto:
+> > Alle 13:43, luned__ 6 novembre 2006, Tejun Heo ha scritto:
+> > > >> (320073 MB)
+> > > >> Nov  5 13:26:37 kefk sdc: Write Protect is off
+> > > >
+> > > > And why doesn't -mm report the same conflict?  I assume the .config is
+> > > > the same?
+> > >
+> > > Also, please post full dmesg of both kernels.
 > 
-> Do you care to see these errors? Or, is the development of the isicom
-> driver a thing of the past? If you are interested in seeing the error and
-> wish to address the problems please let me know. Otherwise I will start
-> looking for a different hardware solution.
+> I've finally saved the dmesg from 2.6.19-rc5-mm1, the one that hangs at boot, 
+> not detecting two sata disks:
 
-Sure, post the dmesg.
+Thanks.
 
-thanks,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+In an earlier email, Tejun said:
+
+> >> Nov  5 13:26:37 kefk ata: 0x170 IDE port busy
+> >> Nov  5 13:26:37 kefk ata: conflict with ide1
+> > 
+> > hm.  What does that mean?
+> 
+> It means that IDE layer claimed the port.  It can be overridden by 
+> combined_mode kernel parameter.
+> 
+
+Did you try that?

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753818AbWKMNKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754634AbWKMNcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753818AbWKMNKT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 08:10:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754591AbWKMNKT
+	id S1754634AbWKMNcq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 08:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754635AbWKMNcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 08:10:19 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:33655 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1753818AbWKMNKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 08:10:18 -0500
-Date: Mon, 13 Nov 2006 14:09:26 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Srinivasa Ds <srinivasa@in.ibm.com>
-Cc: anton@au1.ibm.com, paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] cpu_hotplug on IBM JS20 system
-Message-ID: <20061113130926.GD7085@osiris.boeblingen.de.ibm.com>
-References: <45586EB5.40409@in.ibm.com>
+	Mon, 13 Nov 2006 08:32:46 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:49851 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1754634AbWKMNcp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 08:32:45 -0500
+Date: Mon, 13 Nov 2006 14:32:43 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Ivan Ukhov <uvsoft@gmail.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: /dev before the root filesystem is mounted
+Message-ID: <20061113133242.GA4019@harddisk-recovery.com>
+References: <a5de567c0611130252m52de5071vc25589bfd89b9c27@mail.gmail.com> <Pine.LNX.4.61.0611131234140.28210@yvahk01.tjqt.qr> <a5de567c0611130415t6cbe97efr8e60a3d3e091d04d@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45586EB5.40409@in.ibm.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <a5de567c0611130415t6cbe97efr8e60a3d3e091d04d@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since we are not supported by hardware for cpu hotplug. I have developed
-> the patch which will disable cpu hotplug on IBM bladecentre JS20. Please
-> let me know your comments on this please.
+On Mon, Nov 13, 2006 at 03:15:26PM +0300, Ivan Ukhov wrote:
+> i dont use initrd. the kernel understands argument 'root=/dev/...', so
+> /dev should exist, mb not in a real filesystem, but just in ram or
+> something. i just want to know what devices are available for being
+> the root filesystem for the kernel (displaying all available devices
+> will be enough for me).
 
-> +extern  int cpu_hotplug_disabled;
-> +extern  struct mutex cpu_add_remove_lock;
-[...]
-> +	if(rtas_stop_self_args.token == RTAS_UNKNOWN_SERVICE) {
-> +		mutex_lock(&cpu_add_remove_lock);
-> +		cpu_hotplug_disabled = 1;
-> +		mutex_unlock(&cpu_add_remove_lock);
-> +	}
-> +
->  #endif /* CONFIG_HOTPLUG_CPU */
->  #ifdef CONFIG_RTAS_ERROR_LOGGING
->  	rtas_last_error_token = rtas_token("rtas-last-error");
+/dev does not exist because there is no root filesystem mounted. Please
+read http://kernelnewbies.org/RootFileSystem .
 
-You should add a function to kernel/cpu.c which you can call in order to
-disable cpu hotplug instead of exporting its private data structures.
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

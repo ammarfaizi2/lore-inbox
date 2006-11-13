@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755157AbWKMQ1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755198AbWKMQkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755157AbWKMQ1f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755196AbWKMQ1f
+	id S1755198AbWKMQkG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755194AbWKMQkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:27:35 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:13029 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1755157AbWKMQ1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:27:34 -0500
-Subject: Re: Dual cores on Core2Duo not detected?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Shaun Q <shaun@c-think.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Stephen Clark <Stephen.Clark@seclark.us>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.BSO.4.64.0611130804011.21533@ref.nmedia.net>
-References: <Pine.BSO.4.64.0611122322060.30536@ref.nmedia.net>
-	 <4558773A.4040803@seclark.us>
-	 <Pine.BSO.4.64.0611130752270.21533@ref.nmedia.net>
-	 <9a8748490611130803o4dbd05a5w6d271136db5e4378@mail.gmail.com>
-	 <Pine.BSO.4.64.0611130804011.21533@ref.nmedia.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 13 Nov 2006 17:27:28 +0100
-Message-Id: <1163435248.15249.179.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 13 Nov 2006 11:40:05 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:56219 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1755198AbWKMQkB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 11:40:01 -0500
+X-IronPort-AV: i="4.09,418,1157353200"; 
+   d="scan'208"; a="2088509:sNHT5818718970"
+To: Paul Mackerras <paulus@samba.org>
+Cc: Christoph Raisch <RAISCH@de.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, openib-general@openib.org,
+       openib-general-bounces@openib.org
+Subject: Re: [openib-general] [PATCH 2.6.19 2/4] ehca: hcp_phyp.c: correct page mapping in 64k page mode
+X-Message-Flag: Warning: May contain useful information
+References: <adaodrgb7uq.fsf@cisco.com>
+	<OF75FFAC00.E43450CA-ONC1257222.002A402A-C1257222.002AB9BD@de.ibm.com>
+	<17748.15442.906060.210242@cargo.ozlabs.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 13 Nov 2006 08:39:58 -0800
+In-Reply-To: <17748.15442.906060.210242@cargo.ozlabs.ibm.com> (Paul Mackerras's message of "Fri, 10 Nov 2006 19:46:10 +1100")
+Message-ID: <adahcx35mht.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 13 Nov 2006 16:39:58.0581 (UTC) FILETIME=[5B632A50:01C70742]
+Authentication-Results: sj-dkim-1; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim1002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Processor #0 6:15 APIC version 20
-> Setting APIC routing to physical flat
-> BIOS bug, no explicit IRQ entries, using default mptable. (tell your hw 
-> vendor)
+ > > The patch is needed. We've seen it on the real system. We did fix it on the
+ > > real system.
+ > 
+ > I disagree that the ioremap change is needed.
 
-hmmm smells like a disabled ACPI, since normally this info comes from
-ACPI nowadays, not the mptable
+Hmm... Paul, what you say makes sense and is what I would have
+thought, but Christoph says that the unpatched code really fails on a
+real system.  So I'm still confused.
 
+I think I'll merge this with a fat comment, with the hope that we can
+drop it ASAP once everyone agrees on what's going on.
 
-
-
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+ - R.

@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755305AbWKMSLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755307AbWKMSNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755305AbWKMSLR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 13:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755306AbWKMSLR
+	id S1755307AbWKMSNy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 13:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755310AbWKMSNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 13:11:17 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:37129 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1755305AbWKMSLQ convert rfc822-to-8bit
+	Mon, 13 Nov 2006 13:13:54 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:25609 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1755307AbWKMSNx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 13:11:16 -0500
-Date: Mon, 13 Nov 2006 19:11:15 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Stelian Pop <stelian@popies.net>
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, Andrew Morton <akpm@osdl.org>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Robert Love <rml@novell.com>,
-       Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       nicolas@boichat.ch
-Subject: Re: [PATCH] Apple Motion Sensor driver
-Message-Id: <20061113191115.fa5c5d6f.khali@linux-fr.org>
-In-Reply-To: <1163367528.21258.2.camel@localhost.localdomain>
-References: <1163280972.32084.13.camel@localhost.localdomain>
-	<20061111214143.GA25609@hansmi.ch>
-	<1163282417.32084.18.camel@localhost.localdomain>
-	<20061112083705.GB25609@hansmi.ch>
-	<1163367528.21258.2.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 13 Nov 2006 13:13:53 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Organization: tuxland
+To: linux-kernel@vger.kernel.org
+Subject: proposal: remove unused macros
+Date: Mon, 13 Nov 2006 19:13:21 +0100
+User-Agent: KMail/1.9.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611131913.22872.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian,
+Hello,
 
-On Sun, 12 Nov 2006 22:38:47 +0100, Stelian Pop wrote:
-> Le dimanche 12 novembre 2006 à 09:37 +0100, Michael Hanselmann a écrit :
-> [...]
-> 
-> > But since Nicolas is really busy since months, I'd say the submitted
-> > code can go in. I'll then make a patch which adds the class.
-> 
-> Ok, cool, let's get it in then.
-> 
-> Who picks it up ? Jean ? Andrew ?
+	Recently someone send a patch that fixed some old '#ifdef'ed code with syntax 
+error (stray brackets). The broken code was there for a long time and nobody 
+saw that. I digged some more and wrote a simple program that counted '(' 
+and ')' in the kernel code that emits apropriate text if for a given file 
+both numbers differ. That is probably dumb idea but it worked :-) Quite fast 
+I found a dozen of broken macros with syntax errors etc. All of those macros 
+are unused. I digged a bit deeper and used '-Wunused-macros' flag which with 
+causes 8340 new warnings to be emited for 2.6.19-rc5-mm1 with 'allmodconfig'. 
+For sure there are false positives (see gcc man page) but even if i.e. 50% of 
+them are fp then we still have around 4k of unused macros scattered around 
+the tree.
 
-Depends to the answer to my question elsewhere in this thread. If we
-decide that the accelerometer class and drivers belong to hwmon, I'll
-take the patch (well it'll need to be submitted and reviewed first
-anyway.) But if we decide that they belong to the input subsystem, I'd
-rather let Dmitry handle it.
-
-Thanks,
+To me this is a dead code. I can review the code causing these warnings and 
+prepare patches 'per subsystem' or whatever to address this issue. That is if 
+nobody opposes.
 -- 
-Jean Delvare
+Regards,
+
+	Mariusz Kozlowski

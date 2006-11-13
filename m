@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933071AbWKMVgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933073AbWKMVjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933071AbWKMVgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 16:36:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933076AbWKMVgX
+	id S933073AbWKMVjP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 16:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933074AbWKMVjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 16:36:23 -0500
-Received: from mail.gmx.de ([213.165.64.20]:4760 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S933071AbWKMVgW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 16:36:22 -0500
-X-Authenticated: #5108953
-From: Toralf =?iso-8859-1?q?F=F6rster?= <toralf.foerster@gmx.de>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Re: linux-2.6.19-rc5-g088406bc build #120 failed
-Date: Mon, 13 Nov 2006 22:36:15 +0100
-User-Agent: KMail/1.9.5
-Cc: paulkf@microgate.com, khc@pm.waw.pl, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <200611130943.42463.toralf.foerster@gmx.de> <4558860B.8090908@garzik.org>
-In-Reply-To: <4558860B.8090908@garzik.org>
+	Mon, 13 Nov 2006 16:39:15 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:32750 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S933073AbWKMVjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 16:39:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jJdYQpQL41rgLf/2OjTFpXnHE19QGFekHTomfOBcbzDR0NrzMIbQNf2cCaWFWpCTbL1J+R9Hliyr1vwss1tzik1K/+x415aRU4clLGiD9HN967rlCoSy8Rl20HbTGNoVnozi52ac/U1TpSm1VKHMP9CPTBZmbz4wfCQVJWxlIgU=
+Message-ID: <68676e00611131339l5b0dc9a2rc8e0b590aca6c162@mail.gmail.com>
+Date: Mon, 13 Nov 2006 22:39:12 +0100
+From: "Luca Tettamanti" <kronos.it@gmail.com>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] atkbd: disable spurious ACK/NAK warning on panic
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <d120d5000611131324q3c124ae9h969adc18e35ee350@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2125983.FRtDt0WzrY";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611132236.18521.toralf.foerster@gmx.de>
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+References: <20061113204340.GA25557@dreamland.darkstar.lan>
+	 <d120d5000611131324q3c124ae9h969adc18e35ee350@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2125983.FRtDt0WzrY
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 11/13/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hi,
 
-Am Monday 13 November 2006 15:49 schrieb Jeff Garzik:
-> Toralf F=F6rster wrote:
-> > Hello,
-> >=20
-> > the build with the attached .config failed, make ends with:
-> > ...=20
-> > UPD     include/linux/compile.h
-> >   CC      init/version.o
-> >   LD      init/built-in.o
-> >   LD      .tmp_vmlinux1
-> > drivers/built-in.o: In function `hdlcdev_open':
-> > synclink.c:(.text+0x650d5): undefined reference to `hdlc_open'
-> > synclink.c:(.text+0x6510d): undefined reference to `hdlc_open'
-> > ...
-> > synclink_cs.c:(.text+0x7aece): undefined reference to `hdlc_ioctl'
-> > drivers/built-in.o: In function `hdlcdev_init':
-> > synclink_cs.c:(.text+0x7b336): undefined reference to `alloc_hdlcdev'
-> > drivers/built-in.o: In function `hdlcdev_exit':
-> > synclink_cs.c:(.text+0x7b434): undefined reference to `unregister_hdlc_=
-device'
-> > make: *** [.tmp_vmlinux1] Error 1
->=20
-> Does this patch work for you?
->=20
-> 	Jeff
->=20
->=20
->=20
-No, only the generated .config changed, but make failes again:
+> On 11/13/06, Luca Tettamanti <kronos.it@gmail.com> wrote:
+> > After the panic() message has been printed kernel may blink keyboard
+> > leds to signal the abnormal condition.
+> > atkbd warns that "Some program might be trying access hardware directly"
+> > at every blink, scrolling the useful text out of the screen.
+> > Avoid printing the warning when oops_in_progress is set in order to
+> > preserve the panic message.
+>
+> Current input git tree already has code in i8042 suppressing extra ACKs
+> caused by panic blinks; as soon as Linus pulls from me you should not
+> see these messages anymore.
 
+Great, thanks.
 
-tfoerste@n22 ~/devel/linux-2.6 $ diff .config ../results/config.rnd.119
-4c4
-< # Mon Nov 13 17:45:00 2006
-=2D--
-> # Fri Nov 10 13:26:43 2006
-514a515
-> CONFIG_SYNCLINK_CS=3Dy
-
-=2D-=20
-MfG/Sincerely
-
-Toralf F=F6rster
-
---nextPart2125983.FRtDt0WzrY
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFWOVShyrlCH22naMRAgvgAKCR5zGrt+VN11O7wF8elopi2N5APgCfXg/L
-UrpX/OfIrE4ZLo8KYabifF0=
-=f7Sj
------END PGP SIGNATURE-----
-
---nextPart2125983.FRtDt0WzrY--
+Luca

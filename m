@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753511AbWKMR6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755300AbWKMSAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753511AbWKMR6P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 12:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753379AbWKMR6P
+	id S1755300AbWKMSAi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 13:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755301AbWKMSAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 12:58:15 -0500
-Received: from rtr.ca ([64.26.128.89]:29711 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1753511AbWKMR6N (ORCPT
+	Mon, 13 Nov 2006 13:00:38 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:50570 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1755300AbWKMSAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 12:58:13 -0500
-Message-ID: <4558B232.8080600@rtr.ca>
-Date: Mon, 13 Nov 2006 12:58:10 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andi Kleen <ak@suse.de>, Pavel Machek <pavel@ucw.cz>,
-       John Fremlin <not@just.any.name>,
-       kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
-       jim.kardach@intel.com
-Subject: Re: AHCI power saving (was Re: Ten hours on X60s)
-References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061113142219.GA2703@elf.ucw.cz> <45589008.1080001@garzik.org> <200611131637.56737.ak@suse.de> <455893E5.4010001@garzik.org>
-In-Reply-To: <455893E5.4010001@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Nov 2006 13:00:37 -0500
+Date: Mon, 13 Nov 2006 12:59:47 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com, pavel@suse.cz, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
+Message-ID: <20061113175947.GA13832@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <200611131822.44034.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611131822.44034.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Andi Kleen wrote:
->
->> How does it shorten its life?
+On Mon, Nov 13, 2006 at 06:22:43PM +0100, Andi Kleen wrote:
+[..]
 > 
-> Parks your hard drive heads many thousands of times more often than it 
-> does without the aggressive PM features.
+> > +verify_cpu:
+> > +	pushl	$0			# Kill any dangerous flags
+> > +	popfl
+> > +
+> > +	/* minimum CPUID flags for x86-64 */
+> > +	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
+> > +#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
+> > +			   (1<<13)|(1<<15)|(1<<24)|(1<<25)|(1<<26))
+> > +#define REQUIRED_MASK2 (1<<29)
+> 
+> It would be much better if this least this CPUID code was in a common shared 
+> file with head.S
 
-Spinning-down would definitely shorten the drive lifespan.  Does it do that?
+Hi Andi,
 
-Parking heads is more like just doing some extra (long) seeks.
-Is this documented somewhere as being a life-shortening action?
+This code (verify_cpu) is called while we are still in real mode. So it has
+to be present in low 1MB. Now in trampoline has been designed to switch to
+64bit mode and then jump to the kernel hence kernel can be loaded anywhere
+even beyond (4G). So if we move this code into say arch/x86_64/kernel/head.S
+then we can't even call it.
 
-Cheers
+So I think we got to leave it in trampoline only.
+
+Thanks
+Vivek

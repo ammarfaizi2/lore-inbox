@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753568AbWKMA4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753771AbWKMBYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753568AbWKMA4e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 19:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753744AbWKMA4e
+	id S1753771AbWKMBYo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 20:24:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753782AbWKMBYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 19:56:34 -0500
-Received: from ns2.g-housing.de ([81.169.133.75]:64969 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S1753568AbWKMA4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 19:56:33 -0500
-Date: Mon, 13 Nov 2006 00:56:24 +0000 (GMT)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: evil@sheep.housecafe.de
-To: Arjan van de Ven <arjan@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM in 2.6.19-rc*
-In-Reply-To: <1163322915.3293.83.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0611130052350.17658@sheep.housecafe.de>
-References: <Pine.LNX.4.64.0611111318230.1247@sheep.housecafe.de>
- <1163322915.3293.83.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 12 Nov 2006 20:24:44 -0500
+Received: from adelie.ubuntu.com ([82.211.81.139]:14263 "EHLO
+	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S1753771AbWKMBYo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 20:24:44 -0500
+Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Nicholas Miell <nmiell@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1163378981.2801.3.camel@entropy>
+References: <1163374762.5178.285.camel@gullible>
+	 <1163378981.2801.3.camel@entropy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Nov 2006 17:24:27 -0800
+Message-Id: <1163381067.5178.301.camel@gullible>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh dear, Murphy hits again....or was it Heisenberg? Since I posted to 
-lkml the daily OOM killings went away. I'm running 2.6.19-rc5-mm1 right 
-now and no OOM situation today..phew.
+On Sun, 2006-11-12 at 16:49 -0800, Nicholas Miell wrote:
+> On Sun, 2006-11-12 at 15:39 -0800, Ben Collins wrote:
+> 
+> What's wrong with making udev or whatever unbind driver A and then bind
+> driver B if the driver bound by the kernel ends up being the wrong
+> choice? (Besides the inelegance of the kernel choosing one and then
+> userspace immediately choosing the other, of course.)
+> 
+> I'd argue that having multiple drivers for the same hardware is a bit
+> strange to begin with, but that's another issue entirely.
 
-On Sun, 12 Nov 2006, Arjan van de Ven wrote:
-> which modules/drivers do you use? Maybe there's a less commonly used on
-> in there that we could look at.
+If two drivers are loaded for the same device, there's no way for udev
+to tell the kernel which driver to use for a device, that I know of.
 
-Thanks for your reply (all your replies!), FWIW:
-
-# lsmod
-Module                  Size  Used by
-dm_crypt               12304  0
-dm_mod                 55280  1 dm_crypt
-powernow_k8            10584  0
-freq_table              4168  1 powernow_k8
-w83627hf               28944  0
-hwmon_vid               3648  1 w83627hf
-eeprom                  6992  0
-i2c_dev                 7368  0
-i2c_isa                 5184  1 w83627hf
-ide_cd                 39520  0
-cdrom                  37160  1 ide_cd
-ide_disk               14272  0
-ata_generic             6468  0
-libata                106920  1 ata_generic
-qla2xxx               154668  0
-firmware_class          9216  1 qla2xxx
-snd_intel8x0           32872  2
-snd_ac97_codec        108440  1 snd_intel8x0
-snd_ac97_bus            2816  1 snd_ac97_codec
-ohci1394               33032  0
-ieee1394               93168  1 ohci1394
-snd_pcm_oss            41440  0
-snd_mixer_oss          16512  1 snd_pcm_oss
-snd_pcm                74828  3 snd_intel8x0,snd_ac97_codec,snd_pcm_oss
-snd_timer              22536  1 snd_pcm
-k8temp                  5440  0
-scsi_transport_fc      39492  1 qla2xxx
-i2c_nforce2             5696  0
-i2c_core               20056  5 w83627hf,eeprom,i2c_dev,i2c_isa,i2c_nforce2
-amd74xx                15344  0 [permanent]
-ide_core              130300  3 ide_cd,ide_disk,amd74xx
-snd                    56680  10 snd_intel8x0,snd_ac97_codec,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer
-soundcore               7648  1 snd
-hwmon                   3168  2 w83627hf,k8temp
-snd_page_alloc          8464  2 snd_intel8x0,snd_pcm
-
-# uname -a
-Linux prinz64 2.6.19-rc5-mm1 #4 PREEMPT Sat Nov 11 16:02:25 GMT 2006 x86_64 GNU/Linux
-
-
-Christian.
--- 
-BOFH excuse #21:
-
-POSIX compliance problem
+Also, that just sounds very horrible to do. If you have udev/dbus events
+flying around for "device present", "device gone", "device present",
+then it could make for a very ugly user experience (think of programs to
+handle devices being started because of these events).

@@ -1,67 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933142AbWKMXKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933144AbWKMXLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933142AbWKMXKC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 18:10:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933144AbWKMXKB
+	id S933144AbWKMXLm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 18:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933118AbWKMXLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 18:10:01 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:17542 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S933142AbWKMXKA (ORCPT
+	Mon, 13 Nov 2006 18:11:42 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:8920 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S933144AbWKMXLk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 18:10:00 -0500
-Date: Mon, 13 Nov 2006 18:09:23 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andi Kleen <ak@suse.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-Message-ID: <20061113230923.GD13832@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <200611131822.44034.ak@suse.de> <20061113230156.GF1701@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Nov 2006 18:11:40 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Christian Hoffmann" <Christian.Hoffmann@wallstreetsystems.com>
+Subject: Re: Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
+Date: Tue, 14 Nov 2006 00:08:54 +0100
+User-Agent: KMail/1.9.1
+Cc: "Pavel Machek" <pavel@ucw.cz>,
+       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Solomon Peachy" <pizza@shaftnet.org>,
+       linux-fbdev-devel@lists.sourceforge.net,
+       "LKML" <linux-kernel@vger.kernel.org>
+References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com>
+In-Reply-To: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061113230156.GF1701@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611140008.55059.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2006 at 12:01:56AM +0100, Pavel Machek wrote:
-> Hi!
+On Monday, 13 November 2006 23:08, Christian Hoffmann wrote:
 > 
-> > > - Killed lots of dead code
-> > > - Improve the cpu sanity checks to verify long mode
-> > >   is enabled when we wake up.
-> > > - Removed the need for modifying any existing kernel page table.
-> > > - Moved wakeup_level4_pgt into the wakeup routine so we can
-> > >   run the kernel above 4G.
-> > > - Increased the size of the wakeup routine to 8K.
-> > > - Renamed the variables to use the 64bit register names.
-> > > - Lots of misc cleanups to match trampoline.S
-> > > 
-> > > I don't have a configuration I can test this but it compiles cleanly
-> > > and it should work, the code is very similar to the SMP trampoline,
-> > > which I have tested.  At least now the comments about still running in
-> > > low memory are actually correct.
-> > > 
-> > > Vivek has tested this patch for suspend to memory and it works fine.
+> > -----Original Message-----
+> > From: Rafael J. Wysocki [mailto:rjw@sisk.pl] 
+> > Sent: Monday, November 13, 2006 3:06 PM
+> > To: Christian Hoffmann
+> > Cc: Pavel Machek; Benjamin Herrenschmidt; Andrew Morton; 
+> > Solomon Peachy; linux-fbdev-devel@lists.sourceforge.net; LKML
+> > Subject: Re: Fwd: [Suspend-devel] resume not working on acer 
+> > ferrari 4005 with radeonfb enabled
 > > 
-> > Suspend is unfortunately quite fragile.
+> > On Monday, 13 November 2006 11:51, Christian Hoffmann wrote:
+> > > 
+> > > > -----Original Message-----
+> > > > From: Pavel Machek [mailto:pavel@ucw.cz]
+> > > > Sent: Sunday, November 12, 2006 1:14 PM
+> > > > To: Benjamin Herrenschmidt
+> > > > Cc: Christian Hoffmann; Andrew Morton; Solomon Peachy; Rafael J. 
+> > > > Wysocki; linux-fbdev-devel@lists.sourceforge.net; LKML; 
+> > > > Christian@ogre.sisk.pl; Hoffmann@albercik.sisk.pl
+> > > > Subject: Re: Fwd: [Suspend-devel] resume not working on 
+> > acer ferrari 
+> > > > 4005 with radeonfb enabled
+> > > > 
+> > > > Hi!
+> > > > 
+> > > > > > Then the radeonfb doesn't kick in at all (guess some 
+> > pci ids are 
+> > > > > > added in that patch).
+> > > > > > 
+> > > > > > BTW: resume/suspend works ok if I have the vesa fb enabled.
+> > > > > 
+> > > > > In that case (vesafb), when does the screen come back
+> > > > precisely ? Do
+> > > > > you get console mode back and then X ? Or it only comes 
+> > back when 
+> > > > > going back to X ? Do you have some userland-type vbetool
+> > > > thingy that
+> > > > > bring it back ?
+> > > > 
+> > > > He's using s3_bios+s3_mode, so kernel does some BIOS 
+> > calls to reinit 
+> > > > the video. It should come out in text mode, too.
+> > > > 
+> > > > Christian, can you unload radeonfb before suspend/reload it after 
+> > > > resume?
+> > > 
+> > > Will it work if radeonfb is compiled as module? I think I 
+> > had problems 
+> > > with that, but I'll try again.
+> > > 
+> > > > 
+> > > > Next possibility is setting up serial console and adding some 
+> > > > printks to radeon...
+> > > 
+> > > Unfortunatly, the laptop doesn't have serial port. I tried to get a 
+> > > USB device (pocketpc) read the USB serial, but I only partially 
+> > > succeeded. I can pass console=ttyUSB0 to the kernel and 
+> > load the ipaq 
+> > > serial console driver as it oopses. I am able to echo strings to 
+> > > /dev/ttyUSB0  and read them on the ipaq, but I am not able to 
+> > > "deviate" the kernel messages to that port. Any hints on how to do 
+> > > that would be very appreciated, I didn't find anything 
+> > usefull on the 
+> > > web. (I tried with setconsole /dev/ttyUSB0 but it gives error msg 
+> > > about device busy or something)
 > > 
-> > pavel, rafael can you please test and review this patch? 
+> > Would it be practicable to use netconsole on your box?  If 
+> > so, it should work.
+> > 
+> I tried netconsole, and it somehow works, but when suspending it says in
+> an "infinite" loop:
 > 
-> > (full patch is on l-k)
-> 
-> Based on comments, it looks like there'll be new version of patch,
-> anyway? Vivek, would you cc me?
-> 								Pavel
+> unregister_netdevice: waiting for eth2 to become free. Usage count = 1
 
-Hi Pavel,
+Hm.  Is your kernel compiled with CONFIG_DISABLE_CONSOLE_SUSPEND set?
 
-Sure I will.
+Rafael
 
-Thanks
-Vivek 
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

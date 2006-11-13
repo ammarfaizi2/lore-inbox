@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753872AbWKMEUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753869AbWKMEeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753872AbWKMEUY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Nov 2006 23:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753877AbWKMEUY
+	id S1753869AbWKMEeq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Nov 2006 23:34:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753877AbWKMEep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Nov 2006 23:20:24 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:57746 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1753872AbWKMEUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Nov 2006 23:20:23 -0500
-Message-ID: <4557F287.7050807@vmware.com>
-Date: Sun, 12 Nov 2006 20:20:23 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: caglar@pardus.org.tr
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
-Subject: Re: [Opps] Invalid opcode
-References: <200611051507.37196.caglar@pardus.org.tr> <200611051740.47191.ak@suse.de> <200611120439.56199.caglar@pardus.org.tr>
-In-Reply-To: <200611120439.56199.caglar@pardus.org.tr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 12 Nov 2006 23:34:45 -0500
+Received: from smtpout.mac.com ([17.250.248.178]:6350 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1753869AbWKMEep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Nov 2006 23:34:45 -0500
+In-Reply-To: <r6mz6znwbu.fsf@skye.ra.phy.cam.ac.uk>
+References: <20061108175412.3c2be30c.holzheu@de.ibm.com> <20061109231533.GE2616@elf.ucw.cz> <20061109231533.GE2616@elf.ucw.cz> <6F3F24CD-2893-43E2-A006-F809E35607AE@mac.com> <r6mz6znwbu.fsf@skye.ra.phy.cam.ac.uk>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0DFC5218-DA70-42BA-9CCA-C9CA761F8B72@mac.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Michael Holzheu <holzheu@de.ibm.com>,
+       Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: How to document dimension units for virtual files?
+Date: Sun, 12 Nov 2006 23:33:52 -0500
+To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAA==
+X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-S.Çağlar Onur wrote:
-> 05 Kas 2006 Paz 18:40 tarihinde, Andi Kleen şunları yazmıştı: 
->   
->> And does it still happen in 2.6.19-rc4?
->>     
+On Nov 10, 2006, at 10:41:09, Sanjoy Mahajan wrote:
+>> Watts are an indication of power emitted or consumed per unit time  
+>> (as opposed to current/amperage which counts only the number of  
+>> electrons and not the change in energy), so perhaps  
+>> "power_flow:mW" or "power_consumption:mW" would make more sense?
 >
-> Sorry for delayed test result, i cannot reproduce this panic with 2.6.19-rc5
->   
+> So all of the following make sense:
+>
+> * "Power:mW"
+> * "energy flow: mW" (more verbose but equivalent)
+> * "energy flow: mJ/s" (even more verbose but also equivalent)
 
-I would like to find the exact cause of the problem; I suspect, as does 
-Andi, that it could just be dormant. You had problems still with 
-2.6.18.latest, correct? If I can find the cause, I would like to get a 
-fix into 2.6.18-stable if possible. I think you already sent me the 
-reproducing kernel config, but I seem to have misplaced it. Could you 
-resend? I should have some time to look at this early this week.
+In this case the name is a sysfs file to indicate the load on the  
+battery; so spaces are frowned upon and "load:mW" would probably work  
+the best.
 
-Thanks,
+>> I can conceivably see a need for a "current:mJ_per_s" versus  
+>> "current:mW" depending on the hardware-reported units, but never  
+>> both at the same time.
+>
+> I got lost here.  mJ/s is the same as mW, so with either current:mW  
+> or current:mJ/s you're back in the soup of measuring current using  
+> units of power
 
-Zach
+Whoops; sorry, I was writing this too early in the morning without my  
+caffeine and got myself turned around.  What I _meant_ to say was this:
+
+"I conceivably see a need for a "load:mC_s" versus "load:mW",  
+depending on the hardware-reported units, but never both at the same  
+time."
+
+Essentially if the hardware reports units of milli-watts or milli- 
+Calories-per-second or whatever, then we should report that directly  
+and let userspace convert as appropriate; keeping the floating-point  
+out of the kernel.
+
+Cheers,
+Kyle Moffett
+

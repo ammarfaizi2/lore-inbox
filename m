@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754362AbWKMJvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754372AbWKMJxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754362AbWKMJvg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 04:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754368AbWKMJvg
+	id S1754372AbWKMJxP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 04:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754373AbWKMJxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 04:51:36 -0500
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:37786 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1754362AbWKMJvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 04:51:35 -0500
-Subject: Re: [PATCH 2.6.19-rc5-git2] EFI: calling efi_get_time during
-	suspend
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
-Cc: davej@codemonkey.org.uk, hpa@zytor.com, linux-kernel@vger.kernel.org,
-       "Satt, Shai" <shai.satt@intel.com>
-In-Reply-To: <C1467C8B168BCF40ACEC2324C1A2B07401704459@hasmsx411.ger.corp.intel.com>
-References: <C1467C8B168BCF40ACEC2324C1A2B07401704459@hasmsx411.ger.corp.intel.com>
-Content-Type: text/plain
+	Mon, 13 Nov 2006 04:53:15 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:43758 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1754368AbWKMJxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 04:53:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HXMzZirj/Zt3Sd+DIa3Rl4EnZtXxzwpTbqlyrOYSm9wBnmOfUOsVkSMu4P7+ono0ixzg70RB0BjFyvBfV92vj/Mce3eWzRDXCniAm9Oy+gjZupq0kfo3o+p/Kdl/mZyHP40zcHh+OqH6/bCXITGcaFwGO1vrPnc5aR9t+rPyKl0=
+Message-ID: <cda58cb80611130153n60579de0w2ebb59b050595b3b@mail.gmail.com>
+Date: Mon, 13 Nov 2006 10:53:12 +0100
+From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+To: "James Simmons" <jsimmons@infradead.org>
+Subject: Re: [Linux-fbdev-devel] fbmem: is bootup logo broken for monochrome LCD ?
+Cc: "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0611122138030.9472@pentafluge.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 13 Nov 2006 10:51:27 +0100
-Message-Id: <1163411487.15249.116.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Disposition: inline
+References: <45535C08.5020607@innova-card.com>
+	 <Pine.LNX.4.64.0611122138030.9472@pentafluge.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-13 at 11:43 +0200, Myaskouvskey, Artiom wrote:
-> From: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
+On 11/12/06, James Simmons <jsimmons@infradead.org> wrote:
+>
+> > I'm trying to display the bootup logo on a monochrome LCD (1 bit per
+> > pixel). I had to hack fbmem.c in a couple of place to make it
+> > works. I'm wondering now if these changes are correct since I'm not
+> > familiar with this code. Could anybody take a look and tell me ?
+>
+> There are quite a few bugs in the code. I have a patch I have been working
+> on for some time. The patch does the following:
+>
 
-Hi,
+I'd like to give your patch a try but have some trouble to apply it
+cleanly. Care to resend it ?
 
-> - * This should only be used during kernel init and before runtime
-> - * services have been remapped, therefore, we'll need to call in
-> physical
-> - * mode.  Note, this call isn't used later, so mark it __init.
+> I.
+>         Merge slow_imageblit and color_imageblit into one function.
+> II.
+>         The same code works on both big endian and little endian machines
 
+Does this suppose to fix this issue I encountered:
 
-unfortunately your patch is word wrapped; please try using an email
-program that does not wrap emails (or worst case, try using attachments
-instead, but those are horrible in terms of patch review)
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116315548626875&w=2
 
-Greetings,
-   Arjan van de Ven
+Thanks
+-- 
+               Franck

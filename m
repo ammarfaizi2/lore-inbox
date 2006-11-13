@@ -1,47 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933064AbWKMVYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWKMV0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933064AbWKMVYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 16:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933060AbWKMVYo
+	id S932306AbWKMV0F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 16:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933065AbWKMV0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 16:24:44 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:3707 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S933065AbWKMVYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 16:24:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=q0wLCmIyuPGB+mfXi55b2ZtfYUZlhXKxO17tPlgjYXOkCws1ytK2x0iIzrdiZ3qLJc1M1fk/jaY9hH35d1mHoCDRPHq3/nJHaANndv9wq1Q4foRoqEpR7X3p2B8jUwU5mZsEcq6EXNyd/xtkoNEwLRhVqaEhpJonP6fLvarFpK8=
-Message-ID: <d120d5000611131324q3c124ae9h969adc18e35ee350@mail.gmail.com>
-Date: Mon, 13 Nov 2006 16:24:41 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Luca Tettamanti" <kronos.it@gmail.com>
-Subject: Re: [PATCH] atkbd: disable spurious ACK/NAK warning on panic
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061113204340.GA25557@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061113204340.GA25557@dreamland.darkstar.lan>
+	Mon, 13 Nov 2006 16:26:05 -0500
+Received: from crystal.sipsolutions.net ([195.210.38.204]:45245 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S932306AbWKMV0C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 16:26:02 -0500
+Subject: Re: [PATCH] Apple Motion Sensor driver
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Stelian Pop <stelian@popies.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>,
+       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>, Robert Love <rml@novell.com>,
+       Jean Delvare <khali@linux-fr.org>,
+       Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1163451174.23807.18.camel@localhost.localdomain>
+References: <1163280972.32084.13.camel@localhost.localdomain>
+	 <d120d5000611130704r258c8946p3994c5ba1e0187e9@mail.gmail.com>
+	 <1163431758.23444.8.camel@localhost.localdomain>
+	 <d120d5000611130753p172c2a69n260482052f623a46@mail.gmail.com>
+	 <1163434455.23444.14.camel@localhost.localdomain>
+	 <d120d5000611131020y69bdada1hfe694583312f9b61@mail.gmail.com>
+	 <1163451174.23807.18.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9sH/b6fd1c5GAsM1ooWc"
+Date: Mon, 13 Nov 2006 22:23:59 +0100
+Message-Id: <1163453039.5399.19.camel@johannes.berg>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+X-sips-origin: submit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/13/06, Luca Tettamanti <kronos.it@gmail.com> wrote:
-> After the panic() message has been printed kernel may blink keyboard
-> leds to signal the abnormal condition.
-> atkbd warns that "Some program might be trying access hardware directly"
-> at every blink, scrolling the useful text out of the screen.
-> Avoid printing the warning when oops_in_progress is set in order to
-> preserve the panic message.
->
 
-Hi Luca,
+--=-9sH/b6fd1c5GAsM1ooWc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Current input git tree already has code in i8042 supressing extra ACKs
-caused by palic blinks; as soon as Linus pulls from me you should not
-see these messages anymore.
 
--- 
-Dmitry
+> The fact that the accelerometer offers a (low res) joystick emulation is
+> only a nice hack and I'm not even sure somebody (except Johannes) will
+> find an use for it.
+
+Heh. Well I think it's fun once a while :)
+
+On Mon, 2006-11-13 at 21:52 +0100, Stelian Pop wrote:
+>=20
+> +               x -=3D ams_info.xcalib;
+> +               y -=3D ams_info.ycalib;
+> +               z -=3D ams_info.zcalib;
+> +
+> +               input_report_abs(ams_info.idev, ABS_X, invert ? -x : x);
+> +               input_report_abs(ams_info.idev, ABS_Y, invert ? -y : y);
+> +               input_report_abs(ams_info.idev, ABS_Z, z - ams_info.zcali=
+b);=20
+
+You're double-calibrating z now, which is surely not what was intended.
+
+johannes
+
+--=-9sH/b6fd1c5GAsM1ooWc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIVAwUARVjibqVg1VMiehFYAQKegw/9Fxtdli5rBOmgaLWNzfLsElkdJvCeyxq0
+0l5fEBBtNegCBAOXwxltqc5CwM6MYhPG3X8L0rYbNOxStbzwoeMcddllLmF8n12i
+kWaP9vDHYS+5VB6yRudG0v5Qc7KjYzoLoa/5OqHcgRjJxST0h1MeGksUxGaEuNBN
+ulMNqqwNLjfaCqaFU8PAluPjNMD2AxvhSOrAVYUeI1M0UJ8IX5zRpvgCztoQ5G/I
+Oml9gmAy0vUm/b56DJI/igDRqgwg/cSNl+q0+D8txgz+6arnYgulDrDkvQVnhAi2
+QLmxX31n6M9hw/EdR5p+SZ7uG6MhEqxx6p9rrAMazW7M+Z1W4ikEM7B9qUcLqdwT
+lCTmlV9L1lLcPrD8kLNed0uGB1c2K2PWJRTWtSKbXAJyr0f7o1yek+h5KDbb4bbg
+Q5gfqWwGunAg1WtohxxZIZPklqIc8uHW6y+tbQe5m5vqQgthLsGJhqxaO93dZ88g
+2gaiOx1HylCN4EJh94dEDoZzEOobtBVAxeg1PvIB6JZqfa7eD3Hwgx4CHUUKIcJd
+sWFeCiyULMKZsVHQPdbCWqZUNFYekx2VJRBLsA+Rp/MU4T1ywVjFZ2FxZrRZ2OWL
+N3ZO6eYqNErJsIi2lAbTCdo/ODu+Jvfm/moGD8fST9O9Tt20Y0mJNVncPyjVIGjj
+iqCTYfwF+bc=
+=Ll25
+-----END PGP SIGNATURE-----
+
+--=-9sH/b6fd1c5GAsM1ooWc--
+

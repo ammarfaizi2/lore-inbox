@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754174AbWKMHZB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754228AbWKMHjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754174AbWKMHZB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 02:25:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754176AbWKMHZA
+	id S1754228AbWKMHjN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 02:39:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754230AbWKMHjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 02:25:00 -0500
-Received: from ref.nmedia.net ([66.39.177.2]:24654 "EHLO ref.nmedia.net")
-	by vger.kernel.org with ESMTP id S1754174AbWKMHZA (ORCPT
+	Mon, 13 Nov 2006 02:39:13 -0500
+Received: from ns1.suse.de ([195.135.220.2]:2950 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1754226AbWKMHjN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 02:25:00 -0500
-Date: Sun, 12 Nov 2006 23:24:58 -0800 (PST)
-From: Shaun Q <shaun@c-think.com>
-X-X-Sender: shaun@ref.nmedia.net
-To: linux-kernel@vger.kernel.org
-Subject: Dual cores on Core2Duo not detected?
-Message-ID: <Pine.BSO.4.64.0611122322060.30536@ref.nmedia.net>
+	Mon, 13 Nov 2006 02:39:13 -0500
+Date: Mon, 13 Nov 2006 08:35:33 +0100
+From: Stefan Seyfried <seife@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
+       Nigel Cunningham <nigel@suspend2.net>, David Chinner <dgc@sgi.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061113073533.GA18022@suse.de>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061109232438.GS30653@agk.surrey.redhat.com> <20061109233258.GH2616@elf.ucw.cz> <200611101303.33685.rjw@sisk.pl> <20061112184310.GC5081@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061112184310.GC5081@ucw.cz>
+X-Operating-System: openSUSE 10.2 (i586) Beta2, Kernel 2.6.18.2-4-default
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there everyone --
+On Sun, Nov 12, 2006 at 06:43:10PM +0000, Pavel Machek wrote:
+> Hi!
+ 
+> > (b) it prevents journaling filesystems in general from replaying journals
+> > after a failing resume.
+> 
+> I do not see b) as an useful goal.
 
-I'm trying to build a custom kernel for using both cores of my new 
-Core2Duo E6600 processor...
+I'm not sure, but i guess it also solves "GRUB takes a minute to load kernel
+and initrd from /boot on suspended reiserfs"-problem, which i see as a _very_
+useful goal.
 
-I thought this was simply a matter of enabling the SMP support in the 
-kernel .config and recompiling, but when the kernel comes back up, still 
-only one core is detected.
-
-With the default vanilla text-based SuSE 10.1 install, it does find both 
-cores...
-
-Anyone have any pointers for me on what I might be missing?
-
-Thanks!
-Shaun
+Often, most of the time needed for resume is spent by GRUB loading the
+kernel/initrd from a journaled FS.
+-- 
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 

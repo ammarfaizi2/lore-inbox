@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755176AbWKMQdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755158AbWKMQk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755176AbWKMQdh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755192AbWKMQdg
+	id S1755158AbWKMQk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755200AbWKMQk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:33:36 -0500
-Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:19426
-	"HELO smtpout04-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1755176AbWKMQdg (ORCPT
+	Mon, 13 Nov 2006 11:40:28 -0500
+Received: from web88002.mail.re2.yahoo.com ([206.190.37.189]:64371 "HELO
+	web88002.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1755158AbWKMQk0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:33:36 -0500
-Message-ID: <45589E54.3000603@seclark.us>
-Date: Mon, 13 Nov 2006 11:33:24 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Mon, 13 Nov 2006 11:40:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=aqqo/0G+usS/+Lzc4ftFx1LAIopGe97qiwv1dJwF+hStOHLT+XJPjTG0JJf6iKbIImy4OxsK630WfrLayf7tI538Kdw7FB6ojVtX0uhybBOqtZUmRUl4Q7fN8Mg7YP3pTCmGt/UBGIq49i0m7ZDisonjuRrQjWAgqaBMvhwCKtg=  ;
+Message-ID: <20061113164025.78522.qmail@web88002.mail.re2.yahoo.com>
+Date: Mon, 13 Nov 2006 08:40:25 -0800 (PST)
+From: Shawn Starr <shawn.starr@rogers.com>
+Subject: Re: ieee80211 & ipw2200 (ipw2100) issues
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Shaun Q <shaun@c-think.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Dual cores on Core2Duo not detected?
-References: <Pine.BSO.4.64.0611122322060.30536@ref.nmedia.net>	 <4558773A.4040803@seclark.us>	 <Pine.BSO.4.64.0611130752270.21533@ref.nmedia.net>	 <9a8748490611130803o4dbd05a5w6d271136db5e4378@mail.gmail.com>	 <Pine.BSO.4.64.0611130804011.21533@ref.nmedia.net> <1163435248.15249.179.camel@laptopd505.fenrus.org>
-In-Reply-To: <1163435248.15249.179.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+With WPA2? I have to confirm if things are still broken with ipw2200 1.1.4. I wish this was sorted out. Really, the developers seem to have vanished afaik.
 
->>Processor #0 6:15 APIC version 20
->>Setting APIC routing to physical flat
->>BIOS bug, no explicit IRQ entries, using default mptable. (tell your hw 
->>vendor)
->>    
->>
->
->hmmm smells like a disabled ACPI, since normally this info comes from
->ACPI nowadays, not the mptable
->
->
->
->
->if you want to mail me at work (you don't), use arjan (at) linux.intel.com
->Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
->
->
->  
->
- From Shaun's previous E-Mail
+----- Original Message ----
+From: Alessandro Suardi 
+To: Shawn Starr 
+Cc: linux-kernel
+Sent: Sunday, November 12, 2006 5:08:21 PM
+Subject: Re: ieee80211 & ipw2200 (ipw2100) issues
 
-Bootdata ok (command line is root=/dev/sda2 vga=0x31a acpi=off 
+On 11/12/06, Shawn Starr <shawn.starr@rogers.com> wrote:
+> I would like to know when the Intel people working on the ipw2200 will merge
+> 1.2.0 into vanilla? If it's not in vanilla is this present in akpm's -mm
+> tree?
+>
+> The version in vanilla right now doesn't work with WPA and doesn't work with
+> the newst firmware.
 
-                                                                                                             
-^^^^^^
+I'm writing this email on a VPN link over a WPA-enabled
+ connection on my ipw2200 wifi card, FC6-uptodate
+ with 2.6.19-rc5-git2:
 
--- 
+[asuardi@sandman ~]$ dmesg | grep -i ipw
+ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, 1.1.4kmpr
+ipw2200: Copyright(c) 2003-2006 Intel Corporation
+ipw2200: Detected Intel PRO/Wireless 2200BG Network Connection
+ipw2200: Detected geography ZZD (13 802.11bg channels, 0 802.11a channels)
+[asuardi@sandman ~]$ ps ax| grep wpa
+ 2852 ?        Ss     0:00 wpa_supplicant -B -Dwext -ieth1 -c
+/etc/wpa_supplicant/wpa_supplicant.conf
+ 4816 pts/2    S+     0:00 grep wpa
+[asuardi@sandman ~]$ rpm -q wpa_supplicant
+wpa_supplicant-0.4.9-1.fc6
+[asuardi@sandman ~]$ uname -a
+Linux sandman 2.6.19-rc5-git2 #2 Thu Nov 9 20:05:41 CET 2006 i686 i686
+i386 GNU/Linux
 
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
+What combo isn't working for you ?
 
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
+> Are there plans to change the ipw cards to use the new softmac subsystem?
+
+--alessandro
+
+"...when I get it, I _get_ it"
+
+     (Lara Eidemiller)
 
 
 

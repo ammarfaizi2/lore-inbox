@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933162AbWKMXYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933167AbWKMXeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933162AbWKMXYM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 18:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933168AbWKMXYM
+	id S933167AbWKMXeF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 18:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933168AbWKMXeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 18:24:12 -0500
-Received: from hummeroutlaws.com ([12.161.0.3]:10246 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S933162AbWKMXYK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 18:24:10 -0500
-Date: Mon, 13 Nov 2006 18:22:41 -0500
-From: Jim Crilly <jim@why.dont.jablowme.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
-Message-ID: <20061113232241.GH4824@voodoo.jdc.home>
-Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org
-References: <1163374762.5178.285.camel@gullible> <1163404727.15249.99.camel@laptopd505.fenrus.org> <1163443887.5313.27.camel@mindpipe> <1163449139.15249.197.camel@laptopd505.fenrus.org> <20061113221611.GG4824@voodoo.jdc.home> <1163458748.5313.74.camel@mindpipe>
+	Mon, 13 Nov 2006 18:34:05 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:14465 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S933167AbWKMXeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 18:34:03 -0500
+Message-ID: <455900EC.4010107@oracle.com>
+Date: Mon, 13 Nov 2006 15:34:04 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163458748.5313.74.camel@mindpipe>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Greg.Chandler@wellsfargo.com
+CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 1/1] drivers/block/Kconfig text update.  Try #2
+References: <E8C008223DD5F64485DFBDF6D4B7F71D02235904@msgswbmnmsp25.wellsfargo.com>
+In-Reply-To: <E8C008223DD5F64485DFBDF6D4B7F71D02235904@msgswbmnmsp25.wellsfargo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/13/06 05:59:08PM -0500, Lee Revell wrote:
-> On Mon, 2006-11-13 at 17:16 -0500, Jim Crilly wrote:
-> > I know that Debian ships both because I have to switch back to the OSS
-> > driver whenever I want to play one of those closed source games that
-> > mmap /dev/dsp because the ALSA OSS emulation can't seem to handle
-> > having the device opened via ALSA and /dev/dsp at the same time and
-> > the aoss wrapper doesn't work for apps that use mmap on /dev/dsp.
-> > 
+Greg.Chandler@wellsfargo.com wrote:
+>  
+> Sorry...
+> I've attached the new one.
+
+OK, thanks.
+
+>> The second line of the drivers/block/cciss.c file says:
+>>
+>> " *    Disk Array driver for HP SA 5xxx and 6xxx Controllers"
+>>
+>> I couldn't find the 6 series anywhere in the menu, and I ended up 
+>> finding it in the code...
 > 
-> This should work with the ALSA /dev/dsp emulation, if you kill all other
-> sound using apps before launching the game (which the OSS driver also
-> requires).
+> Please read/observe Documentation/SubmittingPatches:
+> the --- & +++ lines should begin with linux/drivers/... or a/drivers/...
+> so that the patch can be applied with "patch -p1".
 > 
+>> --- drivers/block/Kconfig.old   2006-11-13 14:20:12.000000000 -0800
+>> +++ drivers/block/Kconfig       2006-11-13 14:20:32.000000000 -0800
+>> @@ -155,10 +155,10 @@
+>>           this driver.
+>>
+>>  config BLK_CPQ_CISS_DA
+>> -       tristate "Compaq Smart Array 5xxx support"
+>> +       tristate "Compaq Smart Array 5xxx/6xxx support"
+>>         depends on PCI
+>>         help
+>> -         This is the driver for Compaq Smart Array 5xxx controllers.
+>> +         This is the driver for Compaq Smart Array 5xxx/6xxx
+>> controllers.
+> 
+> Patch is line-wrapped on the line above.
+> 
+>>           Everyone using these boards should say Y here.
+>>           See <file:Documentation/cciss.txt> for the current list of
+>>           boards supported by this driver, and for further information
+> 
+> ---
 
-Well it doesn't and the only error I get from the game is:
-
-/dev/dsp: Input/output error
-Could not mmap /dev/dsp
-
-If it makes a difference, lspci lists the card as:
-
-00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio
-Controller (rev a2)
-
-
-Jim.
+-- 
+~Randy

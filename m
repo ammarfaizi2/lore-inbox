@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754351AbWKMJrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754362AbWKMJvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754351AbWKMJrc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 04:47:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754366AbWKMJrc
+	id S1754362AbWKMJvg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 04:51:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754368AbWKMJvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 04:47:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39827 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1754351AbWKMJrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 04:47:31 -0500
-Subject: Re: [patch 2/4] permission mapping for sys_syslog operations
-From: Arjan van de Ven <arjan@infradead.org>
-To: Zack Weinberg <zackw@panix.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-       jmorris@namei.org, linux-kernel@vger.kernel.org
-In-Reply-To: <eb97335b0611130129r7cdb8c8cuc8f2360e1f17f8f3@mail.gmail.com>
-References: <20061113064043.264211000@panix.com>
-	 <20061113064058.779558000@panix.com>
-	 <1163409918.15249.111.camel@laptopd505.fenrus.org>
-	 <eb97335b0611130129r7cdb8c8cuc8f2360e1f17f8f3@mail.gmail.com>
+	Mon, 13 Nov 2006 04:51:36 -0500
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:37786 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1754362AbWKMJvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 04:51:35 -0500
+Subject: Re: [PATCH 2.6.19-rc5-git2] EFI: calling efi_get_time during
+	suspend
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
+Cc: davej@codemonkey.org.uk, hpa@zytor.com, linux-kernel@vger.kernel.org,
+       "Satt, Shai" <shai.satt@intel.com>
+In-Reply-To: <C1467C8B168BCF40ACEC2324C1A2B07401704459@hasmsx411.ger.corp.intel.com>
+References: <C1467C8B168BCF40ACEC2324C1A2B07401704459@hasmsx411.ger.corp.intel.com>
 Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 13 Nov 2006 10:47:17 +0100
-Message-Id: <1163411238.15249.114.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Nov 2006 10:51:27 +0100
+Message-Id: <1163411487.15249.116.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-13 at 01:29 -0800, Zack Weinberg wrote:
-> On 11/13/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > you had such a nice userspace/kernel shared header.. and now you mix it
-> > with kernel privates again... can you consider making this a second
-> > header?
-> 
-> I thought the point of the "unifdef" thing was that it made a version
-> of the header with the __KERNEL__ section ripped out, for copying into
-> /usr/include, so you didn't have to do that ...
+On Mon, 2006-11-13 at 11:43 +0200, Myaskouvskey, Artiom wrote:
+> From: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
 
-yes it is, however it's mostly for existing stuff/seamless transition.
-It's a hack :)
-If you can avoid it lets do so; you already have the nice clean header,
-so lets not go backwards... you HAVE the clean separation. 
+Hi,
 
-> 
-> zw
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+> - * This should only be used during kernel init and before runtime
+> - * services have been remapped, therefore, we'll need to call in
+> physical
+> - * mode.  Note, this call isn't used later, so mark it __init.
 
+
+unfortunately your patch is word wrapped; please try using an email
+program that does not wrap emails (or worst case, try using attachments
+instead, but those are horrible in terms of patch review)
+
+Greetings,
+   Arjan van de Ven

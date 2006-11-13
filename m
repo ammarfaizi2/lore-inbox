@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933046AbWKMT6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933056AbWKMUFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933046AbWKMT6S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 14:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933050AbWKMT6S
+	id S933056AbWKMUFr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 15:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933058AbWKMUFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 14:58:18 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:21467 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S933046AbWKMT6R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 14:58:17 -0500
-Date: Mon, 13 Nov 2006 14:58:15 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: arvidjaar@mail.ru
-cc: David Brownell <david-b@pacbell.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6.19-rc5 regression: can't disable OHCI
- wakeup via sysfs
-In-Reply-To: <200611130839.11459.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0611131457050.2390-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Nov 2006 15:05:47 -0500
+Received: from sccrmhc11.comcast.net ([204.127.200.81]:8370 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S933056AbWKMUFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 15:05:46 -0500
+Date: Mon, 13 Nov 2006 15:05:16 -0500
+From: Tom Vier <tmv@comcast.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: XFS filesystem performance drop in kernels 2.6.16+
+Message-ID: <20061113200516.GE32304@zero>
+Reply-To: Tom Vier <tmv@comcast.net>
+References: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bde600590611090930g3ab97aq3c76d7bca4ec267f@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey:
+On Thu, Nov 09, 2006 at 08:30:23PM +0300, Igor A. Valcov wrote:
+> I also noticed that I/O barriers were introduced in v2.6.16 and
+> thought they may be the cause, but mounting the file system with
+> 'nobarrier' doesn't seem to affect the performance in any way.
 
-Try this patch for 2.6.19-rc5.  Although it doesn't make all the changes 
-Dave and I have discussed, it ought to fix your problem.
+I don't know if it's related, but i played with a few fs'es a few months ago
+and both xfs and reiser4 were very slow. iirc, they both took about 45min
+longer than reiserfs and jfs to copy 70 or 80gigs of files from another
+drive.
 
-Alan Stern
+I suspected delayed allocation was the culprit (both r4 and xfs use DA).
+Never really looked into it much, however.
 
-
-Index: 2.6.19-rc5/drivers/usb/host/ohci-hub.c
-===================================================================
---- 2.6.19-rc5.orig/drivers/usb/host/ohci-hub.c
-+++ 2.6.19-rc5/drivers/usb/host/ohci-hub.c
-@@ -422,7 +422,8 @@ ohci_hub_status_data (struct usb_hcd *hc
- 				ohci->autostop = 0;
- 				ohci->next_statechange = jiffies +
- 						STATECHANGE_DELAY;
--			} else if (time_after_eq (jiffies,
-+			} else if (device_may_wakeup(&hcd->self.root_hub->dev)
-+					&& time_after_eq(jiffies,
- 						ohci->next_statechange)
- 					&& !ohci->ed_rm_list
- 					&& !(ohci->hc_control &
-
+-- 
+Tom Vier <tmv@comcast.net>
+DSA Key ID 0x15741ECE

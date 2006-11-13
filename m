@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755206AbWKMXpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933172AbWKMXrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755206AbWKMXpk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 18:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755373AbWKMXpk
+	id S933172AbWKMXrg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 18:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933173AbWKMXrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 18:45:40 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:37542 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1755206AbWKMXpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 18:45:39 -0500
-Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jim Crilly <jim@why.dont.jablowme.net>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061113232241.GH4824@voodoo.jdc.home>
-References: <1163374762.5178.285.camel@gullible>
-	 <1163404727.15249.99.camel@laptopd505.fenrus.org>
-	 <1163443887.5313.27.camel@mindpipe>
-	 <1163449139.15249.197.camel@laptopd505.fenrus.org>
-	 <20061113221611.GG4824@voodoo.jdc.home> <1163458748.5313.74.camel@mindpipe>
-	 <20061113232241.GH4824@voodoo.jdc.home>
-Content-Type: text/plain
-Date: Mon, 13 Nov 2006 18:45:01 -0500
-Message-Id: <1163461501.8780.2.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 13 Nov 2006 18:47:36 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:35502 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S933172AbWKMXrf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 18:47:35 -0500
+Message-ID: <455903F5.2060109@gmail.com>
+Date: Tue, 14 Nov 2006 00:47:01 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Greg.Chandler@wellsfargo.com
+CC: randy.dunlap@oracle.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 1/1] drivers/block/Kconfig text update.  Try #2
+References: <E8C008223DD5F64485DFBDF6D4B7F71D02235904@msgswbmnmsp25.wellsfargo.com>
+In-Reply-To: <E8C008223DD5F64485DFBDF6D4B7F71D02235904@msgswbmnmsp25.wellsfargo.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-13 at 18:22 -0500, Jim Crilly wrote:
-> Well it doesn't and the only error I get from the game is:
-> 
-> /dev/dsp: Input/output error
-> Could not mmap /dev/dsp
-> 
-> If it makes a difference, lspci lists the card as:
-> 
-> 00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97
-> Audio Controller (rev a2) 
+Greg.Chandler@wellsfargo.com wrote:
+>  
+> Sorry...
+> I've attached the new one.
 
-Please see http://www.alsa-project.org/~iwai/OSS-Emulation.html.
+Content-Type: application/octet-stream
 
-You need something like:
+Not so good idea.
 
-$ echo "quake 0 0 direct" > /proc/asound/card0/pcm0p/oss
-
-Lee
-
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

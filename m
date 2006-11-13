@@ -1,53 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932785AbWKMSyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932790AbWKMSyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932785AbWKMSyA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 13:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755323AbWKMSx7
+	id S932790AbWKMSyr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 13:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbWKMSyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 13:53:59 -0500
-Received: from mga05.intel.com ([192.55.52.89]:21388 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1755321AbWKMSx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 13:53:59 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,418,1157353200"; 
-   d="scan'208"; a="15250190:sNHT19845594"
-Date: Mon, 13 Nov 2006 10:30:51 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com
-Subject: Re: [patch] genapic: optimize & fix APIC mode setup
-Message-ID: <20061113103051.D17720@unix-os.sc.intel.com>
-References: <20061111151414.GA32507@elte.hu> <200611131529.46464.ak@suse.de> <20061113150415.GA20321@elte.hu> <200611131710.13285.ak@suse.de> <20061113163216.GA3480@elte.hu> <20061113100352.C17720@unix-os.sc.intel.com> <20061113184255.GA25528@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Nov 2006 13:54:47 -0500
+Received: from mx27.mail.ru ([194.67.23.64]:2638 "EHLO mx27.mail.ru")
+	by vger.kernel.org with ESMTP id S932790AbWKMSyq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 13:54:46 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Stefan Seyfried <seife@suse.de>
+Subject: Re: 2.6.19-rc5: grub is much slower resuming from suspend-to-disk than in 2.6.18
+Date: Mon, 13 Nov 2006 21:54:38 +0300
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+References: <200611121436.46436.arvidjaar@mail.ru> <200611130642.18990.arvidjaar@mail.ru> <20061113081528.GB18022@suse.de>
+In-Reply-To: <20061113081528.GB18022@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061113184255.GA25528@elte.hu>; from mingo@elte.hu on Mon, Nov 13, 2006 at 07:42:56PM +0100
+Message-Id: <200611132154.38644.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 07:42:56PM +0100, Ingo Molnar wrote:
-> * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
-> > Not really. That chipset belongs to a MP platform and with your 
-> > proposed patch, we will endup using clustered APIC mode and will hit 
-> > the issue(in the presence of cpu hotplug) mentioned in that URL.
-> 
-> hm, why does it end up in clustered mode? Cluster mode should only 
-> trigger if the APIC IDs go beyond 16.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-go beyond '8' not 16. With Dual-core+HT these MP platforms will have 16 logical
-cpus.
+On Monday 13 November 2006 11:15, Stefan Seyfried wrote:
+> Hi,
+>
+> On Mon, Nov 13, 2006 at 06:42:15AM +0300, Andrey Borzenkov wrote:
+> > On Sunday 12 November 2006 17:55, Pavel Machek wrote:
+> > > On Sun 12-11-06 14:36:41, Andrey Borzenkov wrote:
+> > > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > > Hash: SHA1
+> > > >
+> > > > This is rather funny; in 2.6.19-rc5 grub is *really* slow loading
+> > > > kernel when I switch on the system after suspend to disk. Actually,
+> > > > after kernel has been loaded, the whole resuming (up to the point I
+> > > > have usable
+>
+> The most important question:
+> What filesystem is your /boot on? I'd bet quite some money that it is
+> reiser or some other journaling FS (not ext3).
+>
 
-> 
-> but i'd be fine with never going into cluster mode, instead always using 
-> physical flat mode when having more than 8 APICs (independent of the 
-> presence of CPU hotplug). On small systems, logical flat mode is what is 
-> the best-tested variant (it's also slightly faster).
+there is no /boot, I use single / which is reiser.
 
-Ok.
+> > > > desktop again) takes about three time less than the process of
+> > > > loading kernel + initrd. During loading disk LED is constantly lit.
+> > > > This almost looks like kernel leaves HDD in some strange state,
+> > > > although I always assumed HDD/IDE is completely reinitialized in this
+> > > > case.
+> > >
+> > > Seems like broken hw, really. No state should survive machine
+> > > poweroff.
+>
+> No. Broken FS / crappy GRUB.
+>
+> > To recap - this never happens upon simple power off; I do not remember
+> > this to
+>
+> I am pretty sure that it will also happen if you do "updatedb &", wait a
+> minute and then do a _HARD_ power off.
+>
+> I am pretty sure that it has nothing to do with the kernel version, just
+> with the layout of your /boot partition (which of course changes with every
+> kernel update). In other words: until now, you just have been lucky.
 
-thanks,
-suresh
+The idea is nice; unfortunately it fails to explain the difference 
+between 'poweroff' and 'suspend disk' cases. I doubt disk layout is changed 
+between them.
+
+regards
+
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFWL9uR6LMutpd94wRAh0NAJ4o2hU4E/BsMOJXPxqX8OSH8OR/nwCfdLPz
+DWHM1gAFYTvc9WtyNv+qq08=
+=EaDe
+-----END PGP SIGNATURE-----

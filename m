@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755185AbWKMQJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755191AbWKMQKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755185AbWKMQJW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755189AbWKMQJW
+	id S1755191AbWKMQKL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755190AbWKMQKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:09:22 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64182 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1755185AbWKMQJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:09:22 -0500
-Date: Mon, 13 Nov 2006 16:11:30 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
+	Mon, 13 Nov 2006 11:10:11 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:3308 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1755191AbWKMQKJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 11:10:09 -0500
+Message-Id: <200611131608.kADG8DIM004032@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
 To: Jeff Garzik <jeff@garzik.org>
-Cc: Pavel Machek <pavel@ucw.cz>, John Fremlin <not@just.any.name>,
+Cc: Andi Kleen <ak@suse.de>, Pavel Machek <pavel@ucw.cz>,
+       John Fremlin <not@just.any.name>,
        kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
-       jim.kardach@intel.com, ak@suse.de
+       jim.kardach@intel.com
 Subject: Re: AHCI power saving (was Re: Ten hours on X60s)
-Message-ID: <20061113161130.02ba0c74@localhost.localdomain>
-In-Reply-To: <45589008.1080001@garzik.org>
-References: <87k639u55l.fsf-genuine-vii@john.fremlin.org>
-	<20061009215221.GC30702@elf.ucw.cz>
-	<87ods6loe8.fsf-genuine-vii@john.fremlin.org>
-	<20061025070920.GG5851@elf.ucw.cz>
-	<87y7r3xlif.fsf-genuine-vii@john.fremlin.org>
-	<20061026204655.GA1767@elf.ucw.cz>
-	<87slgv6ccz.fsf-genuine-vii@john.fremlin.org>
-	<20061112183614.GA5081@ucw.cz>
-	<87hcx3adcd.fsf-genuine-vii@john.fremlin.org>
-	<20061113142219.GA2703@elf.ucw.cz>
-	<45589008.1080001@garzik.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+In-Reply-To: Your message of "Mon, 13 Nov 2006 10:48:53 EST."
+             <455893E5.4010001@garzik.org>
+From: Valdis.Kletnieks@vt.edu
+References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061113142219.GA2703@elf.ucw.cz> <45589008.1080001@garzik.org> <200611131637.56737.ak@suse.de>
+            <455893E5.4010001@garzik.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1163434093_3121P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Nov 2006 11:08:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006 10:32:24 -0500
-Jeff Garzik <jeff@garzik.org> wrote:
+--==_Exmh_1163434093_3121P
+Content-Type: text/plain; charset=us-ascii
 
-> Therein lies a key problem.  Turning on all of AHCI's aggressive power 
-> management features DOES save a lot of power.  But at the same time, it 
-> shortens the life of your hard drive, particularly hard drives that are 
-> really PATA, but have a PATA<->SATA bridge glued on the drive to enable 
-> connection to SATA controllers.
+On Mon, 13 Nov 2006 10:48:53 EST, Jeff Garzik said:
+> Andi Kleen wrote:
+> >> Therein lies a key problem.  Turning on all of AHCI's aggressive power 
+> >> management features DOES save a lot of power.  But at the same time, it 
+> >> shortens the life of your hard drive, particularly hard drives that are 
+> >> really PATA, but have a PATA<->SATA bridge glued on the drive to enable 
+> >> connection to SATA controllers.
+> > 
+> > How does it shorten its life?
+> 
+> Parks your hard drive heads many thousands of times more often than it 
+> does without the aggressive PM features.
 
-We already detect PATA over SATA so we can trivially address that (the
-knobble check). Similarly we can turn ALPME on using a timer so it kicks
-in after long idle periods only, or tie it to laptop mode.
+I've heard tell that the controller chip chews almost as much power as
+the drive motor does - is there an option that says "Controller take a
+snooze till we wake you up, but leave the drive spinning"?
 
-For a laptop type environment with SATA not bridged PATA turning it on is
-clearly the right thing to do.
+--==_Exmh_1163434093_3121P
+Content-Type: application/pgp-signature
 
-Alan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFFWJhtcC3lWbTT17ARAkckAKCG0ZmcHcbmsE6+RGxchyYqfkME1gCdEBXi
+jZKuc/B+vXx7SpZW7XyQeMQ=
+=ggi2
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1163434093_3121P--

@@ -1,95 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754137AbWKMHKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754145AbWKMHQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754137AbWKMHKz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 02:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754142AbWKMHKz
+	id S1754145AbWKMHQj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 02:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754146AbWKMHQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 02:10:55 -0500
-Received: from adelie.ubuntu.com ([82.211.81.139]:30346 "EHLO
-	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S1754137AbWKMHKy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 02:10:54 -0500
-Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
-From: Ben Collins <ben.collins@ubuntu.com>
-To: Nicholas Miell <nmiell@comcast.net>
+	Mon, 13 Nov 2006 02:16:39 -0500
+Received: from mta05.mail.t-online.hu ([195.228.240.88]:54976 "EHLO
+	mta05.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S1754145AbWKMHQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 02:16:38 -0500
+Subject: Re: Intel OS Forum talk slides: Monolithic OSes, Microkernels,
+	Hypervisors and Scalability
+From: Gabor MICSKO <gmicsko@szintezis.hu>
+To: Christoph Lameter <clameter@sgi.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1163400313.2801.11.camel@entropy>
-References: <1163374762.5178.285.camel@gullible>
-	 <1163378981.2801.3.camel@entropy>  <1163381067.5178.301.camel@gullible>
-	 <1163382425.2801.6.camel@entropy>  <1163395364.5178.327.camel@gullible>
-	 <1163400313.2801.11.camel@entropy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 12 Nov 2006 23:10:45 -0800
-Message-Id: <1163401845.5178.335.camel@gullible>
+In-Reply-To: <Pine.LNX.4.64.0611122244180.2890@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611122244180.2890@schroedinger.engr.sgi.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bdFJ6mQuaosK9M7PELO3"
+Date: Mon, 13 Nov 2006 08:16:35 +0100
+Message-Id: <1163402195.5072.1.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-12 at 22:45 -0800, Nicholas Miell wrote:
-> On Sun, 2006-11-12 at 21:22 -0800, Ben Collins wrote:
-> > On Sun, 2006-11-12 at 17:47 -0800, Nicholas Miell wrote:
-> > > On Sun, 2006-11-12 at 17:24 -0800, Ben Collins wrote:
-> > > > On Sun, 2006-11-12 at 16:49 -0800, Nicholas Miell wrote:
-> > > > > On Sun, 2006-11-12 at 15:39 -0800, Ben Collins wrote:
-> > > > > 
-> > > > > What's wrong with making udev or whatever unbind driver A and then bind
-> > > > > driver B if the driver bound by the kernel ends up being the wrong
-> > > > > choice? (Besides the inelegance of the kernel choosing one and then
-> > > > > userspace immediately choosing the other, of course.)
-> > > > > 
-> > > > > I'd argue that having multiple drivers for the same hardware is a bit
-> > > > > strange to begin with, but that's another issue entirely.
-> > > > 
-> > > > If two drivers are loaded for the same device, there's no way for udev
-> > > > to tell the kernel which driver to use for a device, that I know of.
-> > > 
-> > > /sys/bus/*/drivers/*/{bind,unbind}
-> > 
-> > "bind" does not tell the driver core to "bind this device with this
-> > driver", it tells it to "bind this driver to whatever devices we match
-> > that aren't already bound".
-> > 
-> > That doesn't solve my use case.
-> 
-> I don't have any hardware with multiple drivers lying around, but I'm
-> fairly certain you can write the bus ID of a device into driver A's
-> unbind file and then follow that with a write of that bus ID into driver
-> B's bind file and get the effect that you want.
 
-Certainly, that's the case. However, it should be possible to do this
-without letting the kernel bind a device to one driver, just to go back
-and unbind it, and bind to another driver.
+--=-bdFJ6mQuaosK9M7PELO3
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> > 
-> > > > Also, that just sounds very horrible to do. If you have udev/dbus events
-> > > > flying around for "device present", "device gone", "device present",
-> > > > then it could make for a very ugly user experience (think of programs to
-> > > > handle devices being started because of these events).
-> > > 
-> > > So don't fire the events until after the final binding.
-> > 
-> > It's still not a correct solution. If we want a specific driver to be
-> > bound to a specific device, userspace shouldn't have to jump through
-> > hoops to do it. It should be simple and clean.
-> > 
-> > The suggestions you are giving require userspace to work around a
-> > deficiency in the kernel, by guessing the ordering requirements to
-> > satisfy what the user wants. In cases of hotplugging, it is also
-> > sometimes impossible to satisfy these requirements using the current
-> > scheme.
-> 
-> Well, the kernel's deficiency is that there's multiple drivers for the
-> same hardware, not that userspace doesn't get first say in how hardware
-> is bound to drivers.
+On Sun, 2006-11-12 at 22:59 -0800, Christoph Lameter wrote:
+> I was asked for the slides of the talk that I gave last Thursday at the=20
+> Intel OS Forum in Hillsboro.
+>=20
+> A PDF file can be found at:=20
+> http://ftp.kernel.org/pub/linux/kernel/people/christoph/intel/intel-os-fo=
+rum.pdf
 
-No, in a lot of cases, it's not a deficiency. Take the entire
-drivers/ata/pata_*.ko list. All of them match an IDE driver, however the
-pata driver most times does not support all the same PCI id's for the
-matching ide driver.
+FYI:
 
-Also the other case I gave where there is an alsa driver and a media
-driver for the same chipset, is by design. It can't be helped. There
-actually is a case for wanting one driver or the other in the case of
-the exact same hardware, depending on the users desire.
+"Not Found
+
+The requested
+URL /pub/linux/kernel/people/christoph/intel/intel-os-forum.pdf was not
+found on this server."
+
+Cheers,
+
+--=20
+Micsk=C3=B3 G=C3=A1bor
+HP APS, AIS, ASE
+Szint=C3=A9zis ZRt.
+H-9023 Gy=C5=91r, Tihanyi =C3=81. u. 2.
+Tel: +36 96 502 216
+Fax: +36 96 318 658
+E-mail: gmicsko@szintezis.hu
+
+--=-bdFJ6mQuaosK9M7PELO3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBFWBvTo75Oas+VX1ARAukkAKC28NmpcnfUajPOi1of1lCdgqJ3tQCfS9oh
+TgCAtHX2f8IuBdGLhAVe29I=
+=zOgc
+-----END PGP SIGNATURE-----
+
+--=-bdFJ6mQuaosK9M7PELO3--
+

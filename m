@@ -1,97 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755292AbWKMRPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755313AbWKMRRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755292AbWKMRPz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 12:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755295AbWKMRPz
+	id S1755313AbWKMRRH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 12:17:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755311AbWKMRRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 12:15:55 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:16030 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1755292AbWKMRPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 12:15:54 -0500
-Date: Mon, 13 Nov 2006 12:15:53 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: arvidjaar@mail.ru, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6.19-rc5 regression: can't disable OHCI
- wakeup via sysfs
-In-Reply-To: <200611130839.11459.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0611131202290.2390-100000@iolanthe.rowland.org>
+	Mon, 13 Nov 2006 12:17:07 -0500
+Received: from wx-out-0506.google.com ([66.249.82.229]:40569 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1755316AbWKMRRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 12:17:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Oird7dXik0GjjtlAt25I8FaQTUebhWv4eWqXDSHOgAzn7mWGHtInaFInaRVlnLcbrIJ8msQvkKFtH0vrWByarExQPFj2jWv61L97rUX4AYLjZhSOOw+RSvp3TbO5q12JUcdM0M4wmnXK4ik6qMzauv//jTcetuBxz8ZYl2ZxHVo=
+Message-ID: <eb97335b0611130917j18191c0ej3220b10c090d686f@mail.gmail.com>
+Date: Mon, 13 Nov 2006 09:17:02 -0800
+From: "Zack Weinberg" <zackw@panix.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [patch 2/4] permission mapping for sys_syslog operations
+Cc: "Chris Wright" <chrisw@sous-sol.org>,
+       "Stephen Smalley" <sds@tycho.nsa.gov>, jmorris@namei.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1163411238.15249.114.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061113064043.264211000@panix.com>
+	 <20061113064058.779558000@panix.com>
+	 <1163409918.15249.111.camel@laptopd505.fenrus.org>
+	 <eb97335b0611130129r7cdb8c8cuc8f2360e1f17f8f3@mail.gmail.com>
+	 <1163411238.15249.114.camel@laptopd505.fenrus.org>
+X-Google-Sender-Auth: 6d338f0e2667bc1a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006, David Brownell wrote:
+On 11/13/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Mon, 2006-11-13 at 01:29 -0800, Zack Weinberg wrote:
+> > I thought the point of the "unifdef" thing was that it made a version
+> > of the header with the __KERNEL__ section ripped out, for copying into
+> > /usr/include, so you didn't have to do that ...
+>
+> yes it is, however it's mostly for existing stuff/seamless transition.
+> It's a hack :)
+> If you can avoid it lets do so; you already have the nice clean header,
+> so lets not go backwards... you HAVE the clean separation.
 
-> > Well, I would argue that part of the problem has to do with the use of 
-> > device_may_wakeup.  It is tied to a sysfs API 
-> 
-> It's a *driver model* API, which is also accessible from sysfs ... to support
-> per-device policies, for example the (a) workaround.  The mechanism exists
-> even on kernels that don't include sysfs ... although on such systems, there
-> is no way for users to do things like say "ignore the fact that this mouse
-> claims to issue wakeup events, its descriptors lie".
+ok, but I gotta ask that you tell me what to name the internal header,
+I can't think of anything that isn't ugly.
 
-Yes, it is separate from sysfs -- but it is _tied_ to the sysfs API.
-
-> > and therefore administrative  
-> > in nature, but now you say it's also being used to record hardware quirks.
-> 
-> No; I'm saying the driver model is used to record that the hardware mechanism
-> isn't available.   The fact that it's because of an implementation artifact
-> (bad silicon, or board layout, etc) versus a design artifact (silicon designed
-> without that feature) is immaterial ... in either case, the system can't use
-> the mechanism.
-
-But the information is being recorded in the wrong spot.  The correct test
-should use device_can_wakeup, not device_may_wakeup.  The can_wakeup flag
-is the one which records whether or not the hardware mechanism is actually
-available.
-
-
-> > > > If you think autostop should also check for device_may_wakeup(), I'll make 
-> > > > it do so.  Remember though that autostop is intended to work even when 
-> > > > CONFIG_PM is off.
-> > > 
-> > > The original autosuspend logic would never kick in without PM; after all,
-> > > it's purely a power saving mechanism!  And testing device_may_wakeup() will
-> > > be restoring that behavior, since without PM that's always false.
-> > 
-> > It would restore that behavior, and it would be silly way of doing so.  
-> > There are better ways to prevent autostop without PM, such as making
-> > ohci_rh_suspend() and ohci_rh_resume() depend on CONFIG_PM!
-> 
-> ISTR they do that too.  :)
-
-They used to, but I changed it when I added autostop.  Looks like I need 
-to change it back.
-
-> > However it was always my intention that autostop should operate without
-> > PM.  It's not only about saving power, it also is about reducing load on
-> > system resources -- primarily DMA, although this may be a lot less severe
-> > with OHCI than with UHCI.  Does OHCI do any DMA at all when no devices are
-> > plugged in and the schedule is empty?
-> 
-> That's not an issue at all with OHCI; it only DMAs when the relevant
-> schedule is enabled.  Which it isn't, unless it has work to do.
-> 
->  
-> > My quick impression from the spec is that it does not, in which case 
-> > there is no point in keeping autostop when CONFIG_PM is off.
-> 
-> Exactly.  That's why I said it's purely a power saving mechanism.
-
-Okay.  I'll write a patch to eliminate autostop and those routines when
-CONFIG_PM is off.
-
-But that doesn't answer the question above: Should autostop check 
-device_can_wakeup rather than device_may_wakeup?
-
-Also: Does the quirk/bug detection logic clear can_wakeup, as it should?  
-Or does it only affect may_wakeup?
-
-Alan Stern
-
+zw

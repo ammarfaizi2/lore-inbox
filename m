@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755297AbWKMR4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755294AbWKMRyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755297AbWKMR4K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 12:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753511AbWKMR4K
+	id S1755294AbWKMRyd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 12:54:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755297AbWKMRyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 12:56:10 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:37486 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1755297AbWKMR4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 12:56:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UaPHG1BWGlKZKN3Es6WceXQ3xnc8yYYh1O+XC3PGX9TZME0kRPVqnz2e7HCWTUv5Gb4zI+Nyz9MobqM/9lFB15s91OkhGcEWc7aqmt+1rpSVfrOHrbiEVoTl6SnhVva164QHVPiTr8ntpWKkEw5LoWM+Vw9c593WvCRR2gIE3v4=
-Message-ID: <82ecf08e0611130956m9f30bf0t2a7b62307d5f70ca@mail.gmail.com>
-Date: Mon, 13 Nov 2006 13:56:04 -0400
-From: "Thiago Galesi" <thiagogalesi@gmail.com>
-To: "Paul Mundt" <lethal@linux-sh.org>, "David Brownell" <david-b@pacbell.net>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Andrew Victor" <andrew@sanpeople.com>,
-       "Bill Gatliff" <bgat@billgatliff.com>,
-       "Haavard Skinnemoen" <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       "Kevin Hilman" <khilman@mvista.com>, "Nicolas Pitre" <nico@cam.org>,
-       "Russell King" <rmk@arm.linux.org.uk>,
-       "Tony Lindgren" <tony@atomide.com>
-Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
-In-Reply-To: <20061113173800.GA19553@linux-sh.org>
+	Mon, 13 Nov 2006 12:54:33 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32391 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1755294AbWKMRyc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 12:54:32 -0500
+Date: Mon, 13 Nov 2006 09:16:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com, pavel@ucw.cz,
+       Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: How to document dimension units for virtual files?
+Message-ID: <20061113171612.GA14976@kroah.com>
+References: <20061110065336.GA13646@kroah.com> <OF6928B06C.594331CB-ON41257222.0035C1AB-41257222.003747B5@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200611111541.34699.david-b@pacbell.net>
-	 <20061113173800.GA19553@linux-sh.org>
+In-Reply-To: <OF6928B06C.594331CB-ON41257222.0035C1AB-41257222.003747B5@de.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, some ideas:
+On Fri, Nov 10, 2006 at 11:03:48AM +0100, Michael Holzheu wrote:
+> At least for our s390_hypfs I would like to use the suggested naming
+> scheme. It is new and therefore not burdened with other naming
+> conventions. Ok?
+> 
+> So, no "Documentation/filesystems/ExportData" patch?
 
-> I'm not convinced that exposing the pin number to drivers is the way to
-> go. The pin numbers themselves are rarely portable across "similar" CPUs
-> with identical peripherals, while the pin function itself may be
-> portable (or simply unecessary).
+For now, I would not think so.  Just document the file units in the
+Documentation/ABI/ directory and you should be fine.
 
-I guess that a kind of "name addressing" would be the way to go, we
-need to get to it by "location" (I'm thinking PortA 20, PortB 5 rather
-than pin number or some other arbitrary convention; we need a way to
-not need to look up what 'Port X pin B' should be called.
+thanks,
 
-> Pin muxing also needs to be handled in a
-> much more transparent and intelligent fashion, which is something else
-> that is fairly easy to do when looking at a symbolic name for the pin
-> function rather than the pin # itself.
-
-Seconded
-
-> Any API also needs to allow for multiple GPIO controllers, as it's rarely
-> just the CPU that has these or needs to manipulate them.
-
-Agreed, but maybe 'not now'
-
-Another thing that may be considered is the ability to get 'pointers'
-for GPIOs. And, of course, protecting GPIOs from concurrent accesses
-
--- 
--
-Thiago Galesi
+greg k-h

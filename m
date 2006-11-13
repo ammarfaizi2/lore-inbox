@@ -1,81 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754731AbWKMPg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755144AbWKMPiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754731AbWKMPg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 10:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755139AbWKMPg7
+	id S1755144AbWKMPiT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 10:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755145AbWKMPiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 10:36:59 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:15315 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1754731AbWKMPg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 10:36:59 -0500
-Date: Mon, 13 Nov 2006 21:07:08 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Srinivasa Ds <srinivasa@in.ibm.com>, anton@au1.ibm.com, paulus@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] cpu_hotplug on IBM JS20 system
-Message-ID: <20061113153708.GA27695@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <45586EB5.40409@in.ibm.com> <20061113130926.GD7085@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061113130926.GD7085@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.5.10i
+	Mon, 13 Nov 2006 10:38:19 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:55466 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1755144AbWKMPiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 10:38:18 -0500
+Date: Mon, 13 Nov 2006 10:37:52 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Andi Kleen <ak@suse.de>
+cc: Alexander van Heukelum <heukelum@mailshack.com>,
+       LKML <linux-kernel@vger.kernel.org>, sct@redhat.com,
+       herbert@gondor.apana.org.au, xen-devel@lists.xensource.com
+Subject: Re: [PATCH] make x86_64 boot gdt size exact (like x86).
+In-Reply-To: <200611110742.53632.ak@suse.de>
+Message-ID: <Pine.LNX.4.58.0611131037050.17168@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0611082144410.17812@gandalf.stny.rr.com>
+ <200611101501.40007.ak@suse.de> <Pine.LNX.4.58.0611110010330.5626@gandalf.stny.rr.com>
+ <200611110742.53632.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 02:09:26PM +0100, Heiko Carstens wrote:
-> > Since we are not supported by hardware for cpu hotplug. I have developed
-> > the patch which will disable cpu hotplug on IBM bladecentre JS20. Please
-> > let me know your comments on this please.
-> 
-> > +extern  int cpu_hotplug_disabled;
-> > +extern  struct mutex cpu_add_remove_lock;
-> [...]
-> > +	if(rtas_stop_self_args.token == RTAS_UNKNOWN_SERVICE) {
-> > +		mutex_lock(&cpu_add_remove_lock);
-> > +		cpu_hotplug_disabled = 1;
-> > +		mutex_unlock(&cpu_add_remove_lock);
-> > +	}
-> > +
-> >  #endif /* CONFIG_HOTPLUG_CPU */
-> >  #ifdef CONFIG_RTAS_ERROR_LOGGING
-> >  	rtas_last_error_token = rtas_token("rtas-last-error");
-> 
-> You should add a function to kernel/cpu.c which you can call in order to
-> disable cpu hotplug instead of exporting its private data structures.
 
-Yup. Also, considering the fact that enable_nonboot_cpus() can reset
-the cpu_hotplug_disabled flag, I would suggest the following:
+On Sat, 11 Nov 2006, Andi Kleen wrote:
 
-a) create one additional state for cpu_hotplug_disabled, something
-like
+> On Saturday 11 November 2006 06:17, Steven Rostedt wrote:
+> >
+> > Andi,
+> >
+> > Here's another patch that is basically a copy from x86's boot/setup.S.
+> > It makes the GDT limit the exact size that is needed.  I tested this with
+> > the same Xen test that broke the original 0x8000 size, and it booted just
+> > fine.
+>
+> I had already changed the previous patch to be like that
+>
+> (except for the - 1)
+>
 
-#define PERMANENTLY_DISABLED -1 
+Andi,
 
-b) Define a function kernel/cpu.c
+Do you have the exact patch that you applied somewhere public?  A git repo
+or something. I'd like to match what will be going upstream exactly.
 
-void disable_cpu_hotplug_perm()
-{
-	cpu_hotplug_disabled = PERMANENTLY_DISABLED;
-}
+Thanks.
 
-and call it in rtas.c
+-- Steve
 
-c) Check for status of cpu_hotplug_disabled in functions cpu_up, 
-   cpu_down, enable_nonboot_cpus and disable_nonboot_cpus and 
-   if cpu_hotplug_disabled == PERMANENTLY_DISABLED, 
-   return bypassing further code.
-
-Thoughts?
-
-Regards,
-gautham.
--- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"

@@ -1,85 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932960AbWKMTfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755235AbWKMTnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932960AbWKMTfY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 14:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933039AbWKMTfY
+	id S1755235AbWKMTnd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 14:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755237AbWKMTnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 14:35:24 -0500
-Received: from holoclan.de ([62.75.158.126]:18854 "EHLO mail.holoclan.de")
-	by vger.kernel.org with ESMTP id S932960AbWKMTfX (ORCPT
+	Mon, 13 Nov 2006 14:43:33 -0500
+Received: from smtp1.mtco.com ([207.179.226.202]:34279 "EHLO smtp1.mtco.com")
+	by vger.kernel.org with ESMTP id S1755235AbWKMTnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 14:35:23 -0500
-Date: Mon, 13 Nov 2006 20:34:43 +0100
-From: Martin Lorenz <martin@lorenz.eu.org>
-To: linux-thinkpad@linux-thinkpad.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ltp] Re: paging request BUG in 2.6.19-rc5 on resume - X60s
-Message-ID: <20061113193443.GF7942@gimli>
-Mail-Followup-To: linux-thinkpad@linux-thinkpad.org,
-	linux-kernel@vger.kernel.org
-References: <20061113081147.GB5289@gimli> <1163426119.5871.26.camel@Homer.simpson.net>
+	Mon, 13 Nov 2006 14:43:32 -0500
+Message-ID: <4558CAE4.1020202@billgatliff.com>
+Date: Mon, 13 Nov 2006 13:43:32 -0600
+From: Bill Gatliff <bgat@billgatliff.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20060926)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163426119.5871.26.camel@Homer.simpson.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Mon, Nov 13, 2006 at 02:55:18PM +0100, Mike Galbraith
-	wrote: > > Per ksymoops, that code is: > 0: ba 03 00 00 00 mov $0x3,%edx
-	> 5: e9 ee fc fb ff jmp fffbfcf8 <_EIP+0xfffbfcf8> > a: 83 a0 2c 01 00
-	00 b7 andl $0xffffffb7,0x12c(%eax) > 11: e9 00 00 00 00 jmp 16
-	<_EIP+0x16> > > There is no such andl with an offset of 0x12c and that
-	mask (I_LOCK| > I_NEW?) anywhere in my kernel or modules. How about
-	yours? [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+To: David Brownell <david-b@pacbell.net>
+CC: Paul Mundt <lethal@linux-sh.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
+       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
+       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
+Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
+References: <200611111541.34699.david-b@pacbell.net> <20061113173800.GA19553@linux-sh.org> <200611131121.23944.david-b@pacbell.net>
+In-Reply-To: <200611131121.23944.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 02:55:18PM +0100, Mike Galbraith wrote:
-> 
-> Per ksymoops, that code is:
->    0:   ba 03 00 00 00            mov    $0x3,%edx
->    5:   e9 ee fc fb ff            jmp    fffbfcf8 <_EIP+0xfffbfcf8>
->    a:   83 a0 2c 01 00 00 b7      andl   $0xffffffb7,0x12c(%eax)
->   11:   e9 00 00 00 00            jmp    16 <_EIP+0x16>
-> 
-> There is no such andl with an offset of 0x12c and that mask (I_LOCK|
-> I_NEW?) anywhere in my kernel or modules.  How about yours?
+David Brownell wrote:
 
-$ objdump -D vmlinux | grep -5 'andl   $0xffffffb7,0x12c'
-c016ff87:       05 2c 01 00 00          add    $0x12c,%eax
-c016ff8c:       ba 03 00 00 00          mov    $0x3,%edx
-c016ff91:       e9 ee fc fb ff          jmp    c012fc84 <wake_up_bit>
+>On Monday 13 November 2006 9:38 am, Paul Mundt wrote:
+>
+>  
+>
+>>>Comments?
+>>>      
+>>>
+>>I'm not convinced that exposing the pin number to drivers is the way to
+>>go. The pin numbers themselves are rarely portable across "similar" CPUs
+>>with identical peripherals, 
+>>    
+>>
+>
+>Pin numbers are NOT exposed ... GPIO numbers are.  Drivers just get
+>a number and pass it around.  They're cookies with the same kinds of
+>portability attributes as IRQ numbers and register addresses.  (None of
+>which have particular portability problems when used properly.)
+>
+>And all those existing ARM GPIO calls work just fine with numbers
+>for GPIOs.  The numbers are platform-specific, sometimes with board
+>specific additions (like FPGA outputs) ... but they're just numbers.
+>
+>
+>(And FWIW, I'm more familiar with "balls" like AA12 or J15 being relevant,
+>than pins like 1 or 332.  Of course one could assign numbers to balls,
+>but the mappings for a BGA-256 would be different from ones on a BGA-193
+>or a BGA-289.  And yet the same logical GPIO -- accessed through the same
+>software registers -- might be available with all of those packages!
+>Sometimes on more than one pin.  Such issues are associated with pin
+>mux/config, not GPIO numbering.)
+>
+>  
+>
 
-c016ff96 <unlock_new_inode>:
-c016ff96:       83 a0 2c 01 00 00 b7    andl   $0xffffffb7,0x12c(%eax)
-c016ff9d:       e9 e0 ff ff ff          jmp    c016ff82 <wake_up_inode>
+Honestly, I'm forced to go to this mentality more every day as well.  
+The AT91RM9200 is available in at least two packages, not all of which 
+have the same GPIO mapping (or even available lines!).  And don't get me 
+started on PPC...
 
-c016ffa2 <inode_wait>:
-c016ffa2:       e8 d1 3e 17 00          call   c02e3e78 <schedule>
-c016ffa7:       31 c0                   xor    %eax,%eax
 
-gruss
-  mlo
---
-Dipl.-Ing. Martin Lorenz
+>>Any API also needs to allow for multiple GPIO controllers, as it's rarely
+>>just the CPU that has these or needs to manipulate them.
+>>    
+>>
+>
+>This API absolutely allows for multiple GPIO controllers ... all it does
+>is say "here are the numbers, handle them".  The platform's implementation
+>of the API is allowed to map to the relevant controller.
+>  
+>
 
-            They that can give up essential liberty 
-	    to obtain a little temporary safety 
-	    deserve neither liberty nor safety.
-                                   Benjamin Franklin
+I think what Paul is saying here is that because your reference 
+implementation was "arch-omap" instead of "board-<something>", if I add 
+a PLD with some MMIO GPIO lines then I have to hack global OMAP code.  
+Maybe we should codify an approach for that now, i.e. add to the 
+reference implementation some code that hands off out-of-range GPIO 
+lines to a function in the machine descriptor:
 
-please encrypt your mail to me
-GnuPG key-ID: F1AAD37D
-get it here:
-http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
 
-ICQ UIN: 33588107
++static inline int gpio_direction_input(unsigned gpio)
++	{ if (gpio < OMAP_MAX_ARCH_GPIO) return __gpio_set_direction(gpio, 1);
++	  else if(mdesc->platform_gpio_set_direction) platform_gpio_set_direction(gpio, 1); }
+
+
+... conveniently neglecting the way you find mdesc.  :)
+
+
+I do have a question now.  Is there any reason to consider shared GPIO 
+lines?  If so, then the request_gpio() would need a flag GPIO_SHARED or 
+something.
+
+
+
+b.g.
+
+-- 
+Bill Gatliff
+bgat@billgatliff.com
+

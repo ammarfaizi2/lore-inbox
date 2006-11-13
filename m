@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932800AbWKMTWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932799AbWKMTVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932800AbWKMTWx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 14:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932818AbWKMTWx
+	id S932799AbWKMTVi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 14:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932812AbWKMTVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 14:22:53 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54971 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932812AbWKMTWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 14:22:52 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org,
-       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, pavel@suse.cz, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-References: <20061113162135.GA17429@in.ibm.com>
-	<200611131822.44034.ak@suse.de> <20061113175947.GA13832@in.ibm.com>
-	<200611131913.32073.ak@suse.de>
-Date: Mon, 13 Nov 2006 12:21:05 -0700
-In-Reply-To: <200611131913.32073.ak@suse.de> (Andi Kleen's message of "Mon, 13
-	Nov 2006 19:13:31 +0100")
-Message-ID: <m14pt3qhjy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 13 Nov 2006 14:21:38 -0500
+Received: from mga05.intel.com ([192.55.52.89]:34996 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932799AbWKMTVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 14:21:37 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,418,1157353200"; 
+   d="scan'208"; a="15260681:sNHT19557792"
+Date: Mon, 13 Nov 2006 10:58:19 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ashok.raj@intel.com
+Subject: Re: [patch] genapic: optimize & fix APIC mode setup
+Message-ID: <20061113105819.E17720@unix-os.sc.intel.com>
+References: <20061111151414.GA32507@elte.hu> <200611131529.46464.ak@suse.de> <20061113150415.GA20321@elte.hu> <200611131710.13285.ak@suse.de> <20061113163216.GA3480@elte.hu> <20061113100352.C17720@unix-os.sc.intel.com> <20061113184255.GA25528@elte.hu> <20061113103051.D17720@unix-os.sc.intel.com> <20061113190452.GA29109@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061113190452.GA29109@elte.hu>; from mingo@elte.hu on Mon, Nov 13, 2006 at 08:04:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Mon, Nov 13, 2006 at 08:04:52PM +0100, Ingo Molnar wrote:
+> * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
+> > On Mon, Nov 13, 2006 at 07:42:56PM +0100, Ingo Molnar wrote:
+> > > but i'd be fine with never going into cluster mode, instead always 
+> > > using physical flat mode when having more than 8 APICs (independent 
+> > > of the presence of CPU hotplug). On small systems, logical flat mode 
+> > > is what is the best-tested variant (it's also slightly faster).
+> > 
+> > Ok.
+> 
+> ok, that's really good. Is there any 'weird' platform that you are aware 
+> of that absolutely needs clustered APIC mode (because it has no physical 
+> delivery mode or something)?
 
->> This code (verify_cpu) is called while we are still in real mode. So it has
->> to be present in low 1MB. Now in trampoline has been designed to switch to
->> 64bit mode and then jump to the kernel hence kernel can be loaded anywhere
->> even beyond (4G). So if we move this code into say arch/x86_64/kernel/head.S
->> then we can't even call it.
->
-> I didn't mean to call it. Just #include it from a common file
-
-I believe the duplication winds up happening in setup.S
-
-Eric
+None that I am aware of, atleast in the x86_64 world.

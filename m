@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWKMVNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWKMVOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbWKMVNt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 16:13:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWKMVNt
+	id S932476AbWKMVOh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 16:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933049AbWKMVOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 16:13:49 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:33626 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932488AbWKMVNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 16:13:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=bsTNPKG+0OyyccaXGmFYEYp0FiSePMLj2g0vI/RPNzfVWDSYAGWGgR5u1g/eVUkL4ddXE5TA7Bg1ALajVCsHD75klOh29jNL+MtFksaFUK3Qr7eM8qZaxnfnFNWo/ChZkmrLp5Yh3t1JzmRHjVWdSEFnJmpxm2NO8G9IiJl4t9A=
-Date: Tue, 14 Nov 2006 00:13:35 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Zack Weinberg <zackw@panix.com>, Chris Wright <chrisw@sous-sol.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/4] permission mapping for sys_syslog operations
-Message-ID: <20061113211335.GE4971@martell.zuzino.mipt.ru>
-References: <20061113064043.264211000@panix.com> <20061113064058.779558000@panix.com> <1163409918.15249.111.camel@laptopd505.fenrus.org> <eb97335b0611130129r7cdb8c8cuc8f2360e1f17f8f3@mail.gmail.com> <1163411238.15249.114.camel@laptopd505.fenrus.org> <eb97335b0611130917j18191c0ej3220b10c090d686f@mail.gmail.com> <1163438525.15249.181.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163438525.15249.181.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+	Mon, 13 Nov 2006 16:14:37 -0500
+Received: from kurby.webscope.com ([204.141.84.54]:54213 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S932476AbWKMVOg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 16:14:36 -0500
+Message-ID: <4558DF23.5080207@linuxtv.org>
+Date: Mon, 13 Nov 2006 16:09:55 -0500
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: =?ISO-8859-1?Q?Jos=E9_Su=E1rez?= <j.suarez.agapito@gmail.com>,
+       linux-dvb@linuxtv.org, Mauro Carvalho Chehab <mchehab@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "pasky@ucw.cz" <pasky@ucw.cz>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+Subject: Re: [linux-dvb] Avermedia 777 misbehaves after remote hack merged
+ into v4l-dvb tree
+References: <200611131711.46626.j.suarez.agapito@gmail.com> <45589E2E.7070304@linuxtv.org> <Pine.LNX.4.64.0611130842010.22714@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611130842010.22714@g5.osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 06:22:04PM +0100, Arjan van de Ven wrote:
-> On Mon, 2006-11-13 at 09:17 -0800, Zack Weinberg wrote:
-> > On 11/13/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > > On Mon, 2006-11-13 at 01:29 -0800, Zack Weinberg wrote:
-> > > > I thought the point of the "unifdef" thing was that it made a version
-> > > > of the header with the __KERNEL__ section ripped out, for copying into
-> > > > /usr/include, so you didn't have to do that ...
-> > >
-> > > yes it is, however it's mostly for existing stuff/seamless transition.
-> > > It's a hack :)
-> > > If you can avoid it lets do so; you already have the nice clean header,
-> > > so lets not go backwards... you HAVE the clean separation.
-> >
-> > ok, but I gotta ask that you tell me what to name the internal header,
-> > I can't think of anything that isn't ugly.
->
-> klog.h vs klogd.h ? or klog_api.h for the user one ?
->
-> (and yes I suck at names even more than you do ;)
+Linus Torvalds wrote:
+> 
+> On Mon, 13 Nov 2006, Michael Krufky wrote:
+>> Mauro -- that patch needs fixing / more testing before it goes to mainstream...
+>>
+>> Could you please remove that changeset from your git tree before Linus pulls it?
+> 
+> Too late. Already pulled and pushed out.
+> 
+> Looking at the patch, one obvious bug stands out: the new case statement 
+> for SAA7134_BOARD_AVERMEDIA_777 doesn't have a "break" at the end.
+> 
+> José, can you test this trivial patch and see if it fixes things?
+> 
+> 		Linus
+> 
+> ---
+> diff --git a/drivers/media/video/saa7134/saa7134-input.c b/drivers/media/video/saa7134/saa7134-input.c
+> index 7f62403..dee8355 100644
+> --- a/drivers/media/video/saa7134/saa7134-input.c
+> +++ b/drivers/media/video/saa7134/saa7134-input.c
+> @@ -202,6 +202,7 @@ int saa7134_input_init1(struct saa7134_d
+>  		/* Without this we won't receive key up events */
+>  		saa_setb(SAA7134_GPIO_GPMODE1, 0x1);
+>  		saa_setb(SAA7134_GPIO_GPSTATUS1, 0x1);
+> +		break;
+>  	case SAA7134_BOARD_KWORLD_TERMINATOR:
+>  		ir_codes     = ir_codes_pixelview;
+>  		mask_keycode = 0x00001f;
 
-What about security.h, so SELinux folks won't feel lonely there?
-:)
+
+Thanks for the fix, Linus... I see that you've already pushed this into git, so
+I've added it to my v4l-dvb hg development tree.
+
+Jose, you can use this tree for testing, if you don't want to apply the patch by hand.
+
+Mauro, please pull from:
+
+http://linuxtv.org/hg/~mkrufky/v4l-dvb
+
+for the following:
+
+- saa7134: Fix missing 'break' for avermedia card case
+
+ saa7134-input.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+Cheers,
+
+Michael Krufky
 

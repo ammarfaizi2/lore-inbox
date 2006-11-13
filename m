@@ -1,76 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754096AbWKMGk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754092AbWKMGpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754096AbWKMGk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 01:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754084AbWKMGk7
+	id S1754092AbWKMGpT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 01:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754104AbWKMGpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 01:40:59 -0500
-Received: from mga02.intel.com ([134.134.136.20]:14897 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1754096AbWKMGk6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 01:40:58 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,416,1157353200"; 
-   d="scan'208"; a="160427065:sNHT18017097"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Christoph Lameter'" <clameter@sgi.com>
-Cc: "Ingo Molnar" <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>, <akpm@osdl.org>,
-       <mm-commits@vger.kernel.org>, <nickpiggin@yahoo.com.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: + sched-use-tasklet-to-call-balancing.patch added to -mm tree
-Date: Sun, 12 Nov 2006 22:40:51 -0800
-Message-ID: <000201c706ee$a9992e80$a081030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Mon, 13 Nov 2006 01:45:19 -0500
+Received: from sccrmhc15.comcast.net ([204.127.200.85]:15002 "EHLO
+	sccrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1754092AbWKMGpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 01:45:17 -0500
+Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
+From: Nicholas Miell <nmiell@comcast.net>
+To: Ben Collins <ben.collins@ubuntu.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1163395364.5178.327.camel@gullible>
+References: <1163374762.5178.285.camel@gullible>
+	 <1163378981.2801.3.camel@entropy>  <1163381067.5178.301.camel@gullible>
+	 <1163382425.2801.6.camel@entropy>  <1163395364.5178.327.camel@gullible>
+Content-Type: text/plain
+Date: Sun, 12 Nov 2006 22:45:13 -0800
+Message-Id: <1163400313.2801.11.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.0.njm.1) 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccG5vEjPDulipmpSCK8U0CBs3B4nQABDvdg
-In-Reply-To: <Pine.LNX.4.64.0611122137190.2708@schroedinger.engr.sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote on Sunday, November 12, 2006 9:45 PM
-> > (2) we should initiate load balance within a domain only from least
-> >     loaded group.
+On Sun, 2006-11-12 at 21:22 -0800, Ben Collins wrote:
+> On Sun, 2006-11-12 at 17:47 -0800, Nicholas Miell wrote:
+> > On Sun, 2006-11-12 at 17:24 -0800, Ben Collins wrote:
+> > > On Sun, 2006-11-12 at 16:49 -0800, Nicholas Miell wrote:
+> > > > On Sun, 2006-11-12 at 15:39 -0800, Ben Collins wrote:
+> > > > 
+> > > > What's wrong with making udev or whatever unbind driver A and then bind
+> > > > driver B if the driver bound by the kernel ends up being the wrong
+> > > > choice? (Besides the inelegance of the kernel choosing one and then
+> > > > userspace immediately choosing the other, of course.)
+> > > > 
+> > > > I'd argue that having multiple drivers for the same hardware is a bit
+> > > > strange to begin with, but that's another issue entirely.
+> > > 
+> > > If two drivers are loaded for the same device, there's no way for udev
+> > > to tell the kernel which driver to use for a device, that I know of.
+> > 
+> > /sys/bus/*/drivers/*/{bind,unbind}
 > 
-> This would mean we would have to determine the least loaded group first.
-
-Well, find_busiest_group() scans every single bloody CPU in the system at
-the highest sched_domain level.  In fact, this function is capable to find
-busiest group within a domain, it should be capable to determine least
-loaded group for free because it already scanned every groups within a domain.
-
-
-> > Part of all this problem probably stemmed from "load balance" is incapable
-> > of performing l-d between arbitrary pair of CPUs, and tightly tied load scan
-> > and actual l-d action.  And on top of that l-d is really a pull operation
-> > to current running CPU. All these limitations dictate that every CPU somehow
-> > has to scan and pull.  It is extremely inefficient on large system.
+> "bind" does not tell the driver core to "bind this device with this
+> driver", it tells it to "bind this driver to whatever devices we match
+> that aren't already bound".
 > 
-> Right. However, if we follow this line of thought then we will be 
-> redesigning the load balancing logic.
+> That doesn't solve my use case.
 
-It won't be a bad idea to redesign it ;-)
+I don't have any hardware with multiple drivers lying around, but I'm
+fairly certain you can write the bus ID of a device into driver A's
+unbind file and then follow that with a write of that bus ID into driver
+B's bind file and get the effect that you want.
 
-There are number of other oddity beside what was identified in it's design:
+> 
+> > > Also, that just sounds very horrible to do. If you have udev/dbus events
+> > > flying around for "device present", "device gone", "device present",
+> > > then it could make for a very ugly user experience (think of programs to
+> > > handle devices being started because of these events).
+> > 
+> > So don't fire the events until after the final binding.
+> 
+> It's still not a correct solution. If we want a specific driver to be
+> bound to a specific device, userspace shouldn't have to jump through
+> hoops to do it. It should be simple and clean.
+> 
+> The suggestions you are giving require userspace to work around a
+> deficiency in the kernel, by guessing the ordering requirements to
+> satisfy what the user wants. In cases of hotplugging, it is also
+> sometimes impossible to satisfy these requirements using the current
+> scheme.
 
-(1) several sched_groups are statically declared and they will reside in
-    boot node. I would expect cross node memory access to be expansive.
-    Every cpu will access these data structure repeatedly.
+Well, the kernel's deficiency is that there's multiple drivers for the
+same hardware, not that userspace doesn't get first say in how hardware
+is bound to drivers.
 
-    static struct sched_group sched_group_cpus[NR_CPUS];
-    static struct sched_group sched_group_core[NR_CPUS];
-    static struct sched_group sched_group_phys[NR_CPUS];
+-- 
+Nicholas Miell <nmiell@comcast.net>
 
-(2) load balance staggering. Number of people pointed out that it is overly
-    done.
-
-(3) The for_each_domain() loop in rebalance_tick() looks different from
-    idle_balance() where it will traverse entire sched domains even if lower
-    level domain succeeded in moving some tasks.  I would expect we either
-    break out of the for loop like idle_balance(), or somehow update load
-    for current CPU so it gets accurate load value when doing l-d in the
-    next level. Currently, It is doing neither.

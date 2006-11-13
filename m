@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755223AbWKMQ4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755210AbWKMQ4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755223AbWKMQ4J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755210AbWKMQyw
+	id S1755210AbWKMQ4K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 11:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755219AbWKMQyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:54:52 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:32912 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1754976AbWKMQyd (ORCPT
+	Mon, 13 Nov 2006 11:54:49 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:57258 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1755139AbWKMQyj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:54:33 -0500
-Date: Mon, 13 Nov 2006 11:28:27 -0500
+	Mon, 13 Nov 2006 11:54:39 -0500
+Date: Mon, 13 Nov 2006 11:42:01 -0500
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com
-Subject: [RFC] [PATCH 2/16] x86_64: Assembly safe page.h and pgtable.h
-Message-ID: <20061113162827.GC17429@in.ibm.com>
+Subject: [RFC] [PATCH 9/16] x86_64: 64bit PIC SMP trampoline
+Message-ID: <20061113164201.GJ17429@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061113162135.GA17429@in.ibm.com>
 Mime-Version: 1.0
@@ -28,234 +28,277 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch makes pgtable.h and page.h safe to include
-in assembly files like head.S.  Allowing us to use
-symbolic constants instead of hard coded numbers when
-refering to the page tables.
 
-This patch copies asm-sparc64/const.h to asm-x86_64 to
-get a definition of _AC() a very convinient macro that
-allows us to force the type when we are compiling the
-code in C and to drop all of the type information when
-we are using the constant in assembly.  Previously this
-was done with multiple definition of the same constant.
-const.h was modified slightly so that it works when given
-CONFIG options as arguments.
+This modifies the SMP trampoline and all of the associated code so
+it can jump to a 64bit kernel loaded at an arbitrary address.
 
-This patch adds #ifndef __ASSEMBLY__ ... #endif
-and _AC(1,UL) where appropriate so the assembler won't
-choke on the header files.  Otherwise nothing
-should have changed.
+The dependencies on having an idenetity mapped page in the kernel
+page tables for SMP bootup have all been removed.
+
+In addition the trampoline has been modified to verify
+that long mode is supported.  Asking if long mode is implemented is
+down right silly but we have traditionally had some of these checks,
+and they can't hurt anything.  So when the totally ludicrous happens
+we just might handle it correctly.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- include/asm-x86_64/const.h   |   20 ++++++++++++++++++++
- include/asm-x86_64/page.h    |   34 +++++++++++++---------------------
- include/asm-x86_64/pgtable.h |   33 +++++++++++++++++++++------------
- 3 files changed, 54 insertions(+), 33 deletions(-)
+ arch/x86_64/kernel/head.S       |    1 
+ arch/x86_64/kernel/setup.c      |    9 --
+ arch/x86_64/kernel/trampoline.S |  168 ++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 156 insertions(+), 22 deletions(-)
 
-diff -puN /dev/null include/asm-x86_64/const.h
---- /dev/null	2006-11-09 22:37:03.200734626 -0500
-+++ linux-2.6.19-rc5-reloc-root/include/asm-x86_64/const.h	2006-11-09 22:31:04.000000000 -0500
-@@ -0,0 +1,20 @@
-+/* const.h: Macros for dealing with constants.  */
-+
-+#ifndef _X86_64_CONST_H
-+#define _X86_64_CONST_H
-+
-+/* Some constant macros are used in both assembler and
-+ * C code.  Therefore we cannot annotate them always with
-+ * 'UL' and other type specificers unilaterally.  We
-+ * use the following macros to deal with this.
-+ */
-+
-+#ifdef __ASSEMBLY__
-+#define _AC(X,Y)	X
-+#else
-+#define __AC(X,Y)	(X##Y)
-+#define _AC(X,Y)	__AC(X,Y)
-+#endif
-+
-+
-+#endif /* !(_X86_64_CONST_H) */
-diff -puN include/asm-x86_64/page.h~x86_64-Assembly-safe-page.h-and-pgtable.h include/asm-x86_64/page.h
---- linux-2.6.19-rc5-reloc/include/asm-x86_64/page.h~x86_64-Assembly-safe-page.h-and-pgtable.h	2006-11-09 22:31:04.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/include/asm-x86_64/page.h	2006-11-09 22:53:16.000000000 -0500
-@@ -1,14 +1,11 @@
- #ifndef _X86_64_PAGE_H
- #define _X86_64_PAGE_H
+diff -puN arch/x86_64/kernel/head.S~x86_64-64bit-PIC-SMP-trampoline arch/x86_64/kernel/head.S
+--- linux-2.6.19-rc5-reloc/arch/x86_64/kernel/head.S~x86_64-64bit-PIC-SMP-trampoline	2006-11-09 22:59:13.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/arch/x86_64/kernel/head.S	2006-11-09 22:59:13.000000000 -0500
+@@ -101,6 +101,7 @@ startup_32:
+ 	.org 0x100	
+ 	.globl startup_64
+ startup_64:
++ENTRY(secondary_startup_64)
+ 	/* We come here either from startup_32
+ 	 * or directly from a 64bit bootloader.
+ 	 * Since we may have come directly from a bootloader we
+diff -puN arch/x86_64/kernel/setup.c~x86_64-64bit-PIC-SMP-trampoline arch/x86_64/kernel/setup.c
+--- linux-2.6.19-rc5-reloc/arch/x86_64/kernel/setup.c~x86_64-64bit-PIC-SMP-trampoline	2006-11-09 22:59:13.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/arch/x86_64/kernel/setup.c	2006-11-09 22:59:13.000000000 -0500
+@@ -446,15 +446,8 @@ void __init setup_arch(char **cmdline_p)
+ 		reserve_bootmem_generic(ebda_addr, ebda_size);
  
-+#include <asm/const.h>
- 
- /* PAGE_SHIFT determines the page size */
- #define PAGE_SHIFT	12
--#ifdef __ASSEMBLY__
--#define PAGE_SIZE	(0x1 << PAGE_SHIFT)
--#else
--#define PAGE_SIZE	(1UL << PAGE_SHIFT)
--#endif
-+#define PAGE_SIZE	(_AC(1,UL) << PAGE_SHIFT)
- #define PAGE_MASK	(~(PAGE_SIZE-1))
- #define PHYSICAL_PAGE_MASK	(~(PAGE_SIZE-1) & __PHYSICAL_MASK)
- 
-@@ -33,10 +30,10 @@
- #define N_EXCEPTION_STACKS 5  /* hw limit: 7 */
- 
- #define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
--#define LARGE_PAGE_SIZE (1UL << PMD_SHIFT)
-+#define LARGE_PAGE_SIZE (_AC(1,UL) << PMD_SHIFT)
- 
- #define HPAGE_SHIFT PMD_SHIFT
--#define HPAGE_SIZE	((1UL) << HPAGE_SHIFT)
-+#define HPAGE_SIZE	(_AC(1,UL) << HPAGE_SHIFT)
- #define HPAGE_MASK	(~(HPAGE_SIZE - 1))
- #define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)
- 
-@@ -76,29 +73,24 @@ typedef struct { unsigned long pgprot; }
- #define __pgd(x) ((pgd_t) { (x) } )
- #define __pgprot(x)	((pgprot_t) { (x) } )
- 
--#define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
--#define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
--#define __START_KERNEL_map	0xffffffff80000000UL
--#define __PAGE_OFFSET           0xffff810000000000UL
-+#endif /* !__ASSEMBLY__ */
- 
--#else
--#define __PHYSICAL_START	CONFIG_PHYSICAL_START
-+#define __PHYSICAL_START	_AC(CONFIG_PHYSICAL_START,UL)
- #define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
--#define __START_KERNEL_map	0xffffffff80000000
--#define __PAGE_OFFSET           0xffff810000000000
--#endif /* !__ASSEMBLY__ */
-+#define __START_KERNEL_map	_AC(0xffffffff80000000,UL)
-+#define __PAGE_OFFSET           _AC(0xffff810000000000,UL)
- 
- /* to align the pointer to the (next) page boundary */
- #define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
- 
- /* See Documentation/x86_64/mm.txt for a description of the memory map. */
- #define __PHYSICAL_MASK_SHIFT	46
--#define __PHYSICAL_MASK		((1UL << __PHYSICAL_MASK_SHIFT) - 1)
-+#define __PHYSICAL_MASK		((_AC(1,UL) << __PHYSICAL_MASK_SHIFT) - 1)
- #define __VIRTUAL_MASK_SHIFT	48
--#define __VIRTUAL_MASK		((1UL << __VIRTUAL_MASK_SHIFT) - 1)
-+#define __VIRTUAL_MASK		((_AC(1,UL) << __VIRTUAL_MASK_SHIFT) - 1)
- 
--#define KERNEL_TEXT_SIZE  (40UL*1024*1024)
--#define KERNEL_TEXT_START 0xffffffff80000000UL 
-+#define KERNEL_TEXT_SIZE  (_AC(40,UL)*1024*1024)
-+#define KERNEL_TEXT_START _AC(0xffffffff80000000,UL)
- 
- #ifndef __ASSEMBLY__
- 
-@@ -106,7 +98,7 @@ typedef struct { unsigned long pgprot; }
- 
- #endif /* __ASSEMBLY__ */
- 
--#define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
-+#define PAGE_OFFSET		__PAGE_OFFSET
- 
- /* Note: __pa(&symbol_visible_to_c) should be always replaced with __pa_symbol.
-    Otherwise you risk miscompilation. */ 
-diff -puN include/asm-x86_64/pgtable.h~x86_64-Assembly-safe-page.h-and-pgtable.h include/asm-x86_64/pgtable.h
---- linux-2.6.19-rc5-reloc/include/asm-x86_64/pgtable.h~x86_64-Assembly-safe-page.h-and-pgtable.h	2006-11-09 22:31:04.000000000 -0500
-+++ linux-2.6.19-rc5-reloc-root/include/asm-x86_64/pgtable.h	2006-11-09 22:53:16.000000000 -0500
-@@ -1,6 +1,9 @@
- #ifndef _X86_64_PGTABLE_H
- #define _X86_64_PGTABLE_H
- 
-+#include <asm/const.h>
-+#ifndef __ASSEMBLY__
-+
- /*
-  * This file contains the functions and defines necessary to modify and use
-  * the x86-64 page table tree.
-@@ -31,6 +34,8 @@ extern void clear_kernel_mapping(unsigne
- extern unsigned long empty_zero_page[PAGE_SIZE/sizeof(unsigned long)];
- #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
- 
-+#endif /* !__ASSEMBLY__ */
-+
- /*
-  * PGDIR_SHIFT determines what a top-level page table entry can map
-  */
-@@ -55,6 +60,8 @@ extern unsigned long empty_zero_page[PAG
-  */
- #define PTRS_PER_PTE	512
- 
-+#ifndef __ASSEMBLY__
-+
- #define pte_ERROR(e) \
- 	printk("%s:%d: bad pte %p(%016lx).\n", __FILE__, __LINE__, &(e), pte_val(e))
- #define pmd_ERROR(e) \
-@@ -118,22 +125,23 @@ static inline pte_t ptep_get_and_clear_f
- 
- #define pte_pgprot(a)	(__pgprot((a).pte & ~PHYSICAL_PAGE_MASK))
- 
--#define PMD_SIZE	(1UL << PMD_SHIFT)
-+#endif /* !__ASSEMBLY__ */
-+
-+#define PMD_SIZE	(_AC(1,UL) << PMD_SHIFT)
- #define PMD_MASK	(~(PMD_SIZE-1))
--#define PUD_SIZE	(1UL << PUD_SHIFT)
-+#define PUD_SIZE	(_AC(1,UL) << PUD_SHIFT)
- #define PUD_MASK	(~(PUD_SIZE-1))
--#define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
-+#define PGDIR_SIZE	(_AC(1,UL) << PGDIR_SHIFT)
- #define PGDIR_MASK	(~(PGDIR_SIZE-1))
- 
- #define USER_PTRS_PER_PGD	((TASK_SIZE-1)/PGDIR_SIZE+1)
- #define FIRST_USER_ADDRESS	0
- 
--#ifndef __ASSEMBLY__
--#define MAXMEM		 0x3fffffffffffUL
--#define VMALLOC_START    0xffffc20000000000UL
--#define VMALLOC_END      0xffffe1ffffffffffUL
--#define MODULES_VADDR    0xffffffff88000000UL
--#define MODULES_END      0xfffffffffff00000UL
-+#define MAXMEM		 _AC(0x3fffffffffff,UL)
-+#define VMALLOC_START    _AC(0xffffc20000000000,UL)
-+#define VMALLOC_END      _AC(0xffffe1ffffffffff,UL)
-+#define MODULES_VADDR    _AC(0xffffffff88000000,UL)
-+#define MODULES_END      _AC(0xfffffffffff00000,UL)
- #define MODULES_LEN   (MODULES_END - MODULES_VADDR)
- 
- #define _PAGE_BIT_PRESENT	0
-@@ -159,7 +167,7 @@ static inline pte_t ptep_get_and_clear_f
- #define _PAGE_GLOBAL	0x100	/* Global TLB entry */
- 
- #define _PAGE_PROTNONE	0x080	/* If not present */
--#define _PAGE_NX        (1UL<<_PAGE_BIT_NX)
-+#define _PAGE_NX        (_AC(1,UL)<<_PAGE_BIT_NX)
- 
- #define _PAGE_TABLE	(_PAGE_PRESENT | _PAGE_RW | _PAGE_USER | _PAGE_ACCESSED | _PAGE_DIRTY)
- #define _KERNPG_TABLE	(_PAGE_PRESENT | _PAGE_RW | _PAGE_ACCESSED | _PAGE_DIRTY)
-@@ -221,6 +229,8 @@ static inline pte_t ptep_get_and_clear_f
- #define __S110	PAGE_SHARED_EXEC
- #define __S111	PAGE_SHARED_EXEC
- 
-+#ifndef __ASSEMBLY__
-+
- static inline unsigned long pgd_bad(pgd_t pgd) 
- { 
-        unsigned long val = pgd_val(pgd);
-@@ -417,8 +427,6 @@ extern spinlock_t pgd_lock;
- extern struct page *pgd_list;
- void vmalloc_sync_all(void);
- 
--#endif /* !__ASSEMBLY__ */
+ #ifdef CONFIG_SMP
+-	/*
+-	 * But first pinch a few for the stack/trampoline stuff
+-	 * FIXME: Don't need the extra page at 4K, but need to fix
+-	 * trampoline before removing it. (see the GDT stuff)
+-	 */
+-	reserve_bootmem_generic(PAGE_SIZE, PAGE_SIZE);
 -
- extern int kern_addr_valid(unsigned long addr); 
+ 	/* Reserve SMP trampoline */
+-	reserve_bootmem_generic(SMP_TRAMPOLINE_BASE, PAGE_SIZE);
++	reserve_bootmem_generic(SMP_TRAMPOLINE_BASE, 2*PAGE_SIZE);
+ #endif
  
- #define io_remap_pfn_range(vma, vaddr, pfn, size, prot)		\
-@@ -448,5 +456,6 @@ extern int kern_addr_valid(unsigned long
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
- #define __HAVE_ARCH_PTE_SAME
- #include <asm-generic/pgtable.h>
-+#endif /* !__ASSEMBLY__ */
+ #ifdef CONFIG_ACPI_SLEEP
+diff -puN arch/x86_64/kernel/trampoline.S~x86_64-64bit-PIC-SMP-trampoline arch/x86_64/kernel/trampoline.S
+--- linux-2.6.19-rc5-reloc/arch/x86_64/kernel/trampoline.S~x86_64-64bit-PIC-SMP-trampoline	2006-11-09 22:59:13.000000000 -0500
++++ linux-2.6.19-rc5-reloc-root/arch/x86_64/kernel/trampoline.S	2006-11-09 22:59:13.000000000 -0500
+@@ -3,6 +3,7 @@
+  *	Trampoline.S	Derived from Setup.S by Linus Torvalds
+  *
+  *	4 Jan 1997 Michael Chastain: changed to gnu as.
++ *	15 Sept 2005 Eric Biederman: 64bit PIC support
+  *
+  *	Entry: CS:IP point to the start of our code, we are 
+  *	in real mode with no stack, but the rest of the 
+@@ -17,15 +18,20 @@
+  *	and IP is zero.  Thus, data addresses need to be absolute
+  *	(no relocation) and are taken with regard to r_base.
+  *
++ *	With the addition of trampoline_level4_pgt this code can
++ *	now enter a 64bit kernel that lives at arbitrary 64bit
++ *	physical addresses.
++ *
+  *	If you work on this file, check the object module with objdump
+  *	--full-contents --reloc to make sure there are no relocation
+- *	entries. For the GDT entry we do hand relocation in smpboot.c
+- *	because of 64bit linker limitations.
++ *	entries.
+  */
  
- #endif /* _X86_64_PGTABLE_H */
+ #include <linux/linkage.h>
+-#include <asm/segment.h>
++#include <asm/pgtable.h>
+ #include <asm/page.h>
++#include <asm/msr.h>
++#include <asm/segment.h>
+ 
+ .data
+ 
+@@ -33,15 +39,31 @@
+ 
+ ENTRY(trampoline_data)
+ r_base = .
++	cli			# We should be safe anyway
+ 	wbinvd	
+ 	mov	%cs, %ax	# Code and data in the same place
+ 	mov	%ax, %ds
++	mov	%ax, %es
++	mov	%ax, %ss
+ 
+-	cli			# We should be safe anyway
+ 
+ 	movl	$0xA5A5A5A5, trampoline_data - r_base
+ 				# write marker for master knows we're running
+ 
++					# Setup stack
++	movw	$(trampoline_stack_end - r_base), %sp
++
++	call	verify_cpu		# Verify the cpu supports long mode
++
++	mov	%cs, %ax
++	movzx	%ax, %esi		# Find the 32bit trampoline location
++	shll	$4, %esi
++
++					# Fixup the vectors
++	addl	%esi, startup_32_vector - r_base
++	addl	%esi, startup_64_vector - r_base
++	addl	%esi, tgdt + 2 - r_base	# Fixup the gdt pointer
++
+ 	/*
+ 	 * GDT tables in non default location kernel can be beyond 16MB and
+ 	 * lgdt will not be able to load the address as in real mode default
+@@ -49,23 +71,141 @@ r_base = .
+ 	 * to 32 bit.
+ 	 */
+ 
+-	lidtl	idt_48 - r_base	# load idt with 0, 0
+-	lgdtl	gdt_48 - r_base	# load gdt with whatever is appropriate
++	lidtl	tidt - r_base	# load idt with 0, 0
++	lgdtl	tgdt - r_base	# load gdt with whatever is appropriate
+ 
+ 	xor	%ax, %ax
+ 	inc	%ax		# protected mode (PE) bit
+ 	lmsw	%ax		# into protected mode
+-	# flaush prefetch and jump to startup_32 in arch/x86_64/kernel/head.S
+-	ljmpl	$__KERNEL32_CS, $(startup_32-__START_KERNEL_map)
++
++	# flush prefetch and jump to startup_32
++	ljmpl	*(startup_32_vector - r_base)
++
++	.code32
++	.balign 4
++startup_32:
++	movl	$__KERNEL_DS, %eax	# Initialize the %ds segment register
++	movl	%eax, %ds
++
++	xorl	%eax, %eax
++	btsl	$5, %eax		# Enable PAE mode
++	movl	%eax, %cr4
++
++					# Setup trampoline 4 level pagetables
++	leal	(trampoline_level4_pgt - r_base)(%esi), %eax
++	movl	%eax, %cr3
++
++	movl	$MSR_EFER, %ecx
++	movl	$(1 << _EFER_LME), %eax	# Enable Long Mode
++	xorl	%edx, %edx
++	wrmsr
++
++	xorl	%eax, %eax
++	btsl	$31, %eax		# Enable paging and in turn activate Long Mode
++	btsl	$0, %eax		# Enable protected mode
++	movl	%eax, %cr0
++
++	/*
++	 * At this point we're in long mode but in 32bit compatibility mode
++	 * with EFER.LME = 1, CS.L = 0, CS.D = 1 (and in turn
++	 * EFER.LMA = 1). Now we want to jump in 64bit mode, to do that we use
++	 * the new gdt/idt that has __KERNEL_CS with CS.L = 1.
++	 */
++	ljmp	*(startup_64_vector - r_base)(%esi)
++
++	.code64
++	.balign 4
++startup_64:
++	# Now jump into the kernel using virtual addresses
++	movq	$secondary_startup_64, %rax
++	jmp	*%rax
++
++	.code16
++verify_cpu:
++	pushl	$0			# Kill any dangerous flags
++	popfl
++
++	/* minimum CPUID flags for x86-64 */
++	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
++#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
++			   (1<<13)|(1<<15)|(1<<24)|(1<<25)|(1<<26))
++#define REQUIRED_MASK2 (1<<29)
++
++	pushfl				# check for cpuid
++	popl	%eax
++	movl	%eax, %ebx
++	xorl	$0x200000,%eax
++	pushl	%eax
++	popfl
++	pushfl
++	popl	%eax
++	pushl	%ebx
++	popfl
++	cmpl	%eax, %ebx
++	jz	no_longmode
++
++	xorl	%eax, %eax		# See if cpuid 1 is implemented
++	cpuid
++	cmpl	$0x1, %eax
++	jb	no_longmode
++
++	movl	$0x01, %eax		# Does the cpu have what it takes?
++	cpuid
++	andl	$REQUIRED_MASK1, %edx
++	xorl	$REQUIRED_MASK1, %edx
++	jnz	no_longmode
++
++	movl	$0x80000000, %eax	# See if extended cpuid is implemented
++	cpuid
++	cmpl	$0x80000001, %eax
++	jb	no_longmode
++
++	movl	$0x80000001, %eax	# Does the cpu have what it takes?
++	cpuid
++	andl	$REQUIRED_MASK2, %edx
++	xorl	$REQUIRED_MASK2, %edx
++	jnz	no_longmode
++
++	ret				# The cpu supports long mode
++
++no_longmode:
++	hlt
++	jmp no_longmode
++
+ 
+ 	# Careful these need to be in the same 64K segment as the above;
+-idt_48:
++tidt:
+ 	.word	0			# idt limit = 0
+ 	.word	0, 0			# idt base = 0L
+ 
+-gdt_48:
+-	.short	GDT_ENTRIES*8 - 1	# gdt limit
+-	.long	cpu_gdt_table-__START_KERNEL_map
++	# Duplicate the global descriptor table
++	# so the kernel can live anywhere
++	.balign 4
++tgdt:
++	.short	tgdt_end - tgdt		# gdt limit
++	.long	tgdt - r_base
++	.short 0
++	.quad	0x00cf9b000000ffff	# __KERNEL32_CS
++	.quad	0x00af9b000000ffff	# __KERNEL_CS
++	.quad	0x00cf93000000ffff	# __KERNEL_DS
++tgdt_end:
++
++	.balign 4
++startup_32_vector:
++	.long	startup_32 - r_base
++	.word	__KERNEL32_CS, 0
++
++	.balign 4
++startup_64_vector:
++	.long	startup_64 - r_base
++	.word	__KERNEL_CS, 0
++
++trampoline_stack:
++	.org 0x1000
++trampoline_stack_end:
++ENTRY(trampoline_level4_pgt)
++	.quad	level3_ident_pgt - __START_KERNEL_map + _KERNPG_TABLE
++	.fill	510,8,0
++	.quad	level3_kernel_pgt - __START_KERNEL_map + _KERNPG_TABLE
+ 
+-.globl trampoline_end
+-trampoline_end:	
++ENTRY(trampoline_end)
 _

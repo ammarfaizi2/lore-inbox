@@ -1,115 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933144AbWKMXLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933147AbWKMXMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933144AbWKMXLm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 18:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933118AbWKMXLm
+	id S933147AbWKMXMT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 18:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933148AbWKMXMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 18:11:42 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:8920 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S933144AbWKMXLk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 18:11:40 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Christian Hoffmann" <Christian.Hoffmann@wallstreetsystems.com>
-Subject: Re: Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
-Date: Tue, 14 Nov 2006 00:08:54 +0100
-User-Agent: KMail/1.9.1
-Cc: "Pavel Machek" <pavel@ucw.cz>,
-       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Solomon Peachy" <pizza@shaftnet.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       "LKML" <linux-kernel@vger.kernel.org>
-References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com>
-In-Reply-To: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com>
+	Mon, 13 Nov 2006 18:12:18 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:63667
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S933147AbWKMXMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 18:12:16 -0500
+Message-ID: <4558FB51.8090303@microgate.com>
+Date: Mon, 13 Nov 2006 17:10:09 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: Jeff Garzik <jeff@garzik.org>,
+       =?ISO-8859-1?Q?Toralf_F=F6rster?= <toralf.foerster@gmx.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Re: linux-2.6.19-rc5-g088406bc build #120 failed
+References: <200611130943.42463.toralf.foerster@gmx.de>	<4558860B.8090908@garzik.org> <45588895.7010501@microgate.com>	<m3ejs78adt.fsf@defiant.localdomain> <4558BF72.2030408@microgate.com>	<m3ac2v6phw.fsf@defiant.localdomain> <4558E652.1080905@microgate.com> <m3psbr54nb.fsf@defiant.localdomain>
+In-Reply-To: <m3psbr54nb.fsf@defiant.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611140008.55059.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 13 November 2006 23:08, Christian Hoffmann wrote:
+Krzysztof Halasa wrote:
+> That's not exactly how I remember it.
 > 
-> > -----Original Message-----
-> > From: Rafael J. Wysocki [mailto:rjw@sisk.pl] 
-> > Sent: Monday, November 13, 2006 3:06 PM
-> > To: Christian Hoffmann
-> > Cc: Pavel Machek; Benjamin Herrenschmidt; Andrew Morton; 
-> > Solomon Peachy; linux-fbdev-devel@lists.sourceforge.net; LKML
-> > Subject: Re: Fwd: [Suspend-devel] resume not working on acer 
-> > ferrari 4005 with radeonfb enabled
-> > 
-> > On Monday, 13 November 2006 11:51, Christian Hoffmann wrote:
-> > > 
-> > > > -----Original Message-----
-> > > > From: Pavel Machek [mailto:pavel@ucw.cz]
-> > > > Sent: Sunday, November 12, 2006 1:14 PM
-> > > > To: Benjamin Herrenschmidt
-> > > > Cc: Christian Hoffmann; Andrew Morton; Solomon Peachy; Rafael J. 
-> > > > Wysocki; linux-fbdev-devel@lists.sourceforge.net; LKML; 
-> > > > Christian@ogre.sisk.pl; Hoffmann@albercik.sisk.pl
-> > > > Subject: Re: Fwd: [Suspend-devel] resume not working on 
-> > acer ferrari 
-> > > > 4005 with radeonfb enabled
-> > > > 
-> > > > Hi!
-> > > > 
-> > > > > > Then the radeonfb doesn't kick in at all (guess some 
-> > pci ids are 
-> > > > > > added in that patch).
-> > > > > > 
-> > > > > > BTW: resume/suspend works ok if I have the vesa fb enabled.
-> > > > > 
-> > > > > In that case (vesafb), when does the screen come back
-> > > > precisely ? Do
-> > > > > you get console mode back and then X ? Or it only comes 
-> > back when 
-> > > > > going back to X ? Do you have some userland-type vbetool
-> > > > thingy that
-> > > > > bring it back ?
-> > > > 
-> > > > He's using s3_bios+s3_mode, so kernel does some BIOS 
-> > calls to reinit 
-> > > > the video. It should come out in text mode, too.
-> > > > 
-> > > > Christian, can you unload radeonfb before suspend/reload it after 
-> > > > resume?
-> > > 
-> > > Will it work if radeonfb is compiled as module? I think I 
-> > had problems 
-> > > with that, but I'll try again.
-> > > 
-> > > > 
-> > > > Next possibility is setting up serial console and adding some 
-> > > > printks to radeon...
-> > > 
-> > > Unfortunatly, the laptop doesn't have serial port. I tried to get a 
-> > > USB device (pocketpc) read the USB serial, but I only partially 
-> > > succeeded. I can pass console=ttyUSB0 to the kernel and 
-> > load the ipaq 
-> > > serial console driver as it oopses. I am able to echo strings to 
-> > > /dev/ttyUSB0  and read them on the ipaq, but I am not able to 
-> > > "deviate" the kernel messages to that port. Any hints on how to do 
-> > > that would be very appreciated, I didn't find anything 
-> > usefull on the 
-> > > web. (I tried with setconsole /dev/ttyUSB0 but it gives error msg 
-> > > about device busy or something)
-> > 
-> > Would it be practicable to use netconsole on your box?  If 
-> > so, it should work.
-> > 
-> I tried netconsole, and it somehow works, but when suspending it says in
-> an "infinite" loop:
-> 
-> unregister_netdevice: waiting for eth2 to become free. Usage count = 1
+> See Andrew's mail http://lkml.org/lkml/2006/6/7/257. For me, your
+> response(s) meant the problem was solved (so it wans't a dream :-) ).
 
-Hm.  Is your kernel compiled with CONFIG_DISABLE_CONSOLE_SUSPEND set?
+Wrong
 
-Rafael
+I submitted that patch and more people started
+saying that patch was unacceptable (for new reasons).
+(It was submitted as a different thread)
 
+It's at that point I gave up.
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+--
+Paul
+

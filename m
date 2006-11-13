@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755317AbWKMS1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbWKMS1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755317AbWKMS1O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 13:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755318AbWKMS1N
+	id S932679AbWKMS1u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 13:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755319AbWKMS1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 13:27:13 -0500
-Received: from mga07.intel.com ([143.182.124.22]:27690 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1755317AbWKMS1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 13:27:13 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,418,1157353200"; 
-   d="scan'208"; a="145524636:sNHT529171580"
-Date: Mon, 13 Nov 2006 10:03:52 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com
-Subject: Re: [patch] genapic: optimize & fix APIC mode setup
-Message-ID: <20061113100352.C17720@unix-os.sc.intel.com>
-References: <20061111151414.GA32507@elte.hu> <200611131529.46464.ak@suse.de> <20061113150415.GA20321@elte.hu> <200611131710.13285.ak@suse.de> <20061113163216.GA3480@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Nov 2006 13:27:50 -0500
+Received: from wr-out-0506.google.com ([64.233.184.224]:48967 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1755318AbWKMS1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 13:27:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Xg+CrkJxQxS8DwiYlpd3A941zJ9VOvK0m4FZ1eaLa3XpFJi1VTRlEHyQNI2wKG4bBaSIC3mTx9ERVgAHX+8bGBjBncWPkzaYYo/3xGf74HA3xPaYMyRTkMUN2h+Jce/LBDMH2aHrzpyuzllZz78Iw/tcLiTXvN7dnt5zApzulMo=
+Message-ID: <cda58cb80611131027h5052bf80va06003c23b844fe@mail.gmail.com>
+Date: Mon, 13 Nov 2006 19:27:46 +0100
+From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+To: "James Simmons" <jsimmons@infradead.org>
+Subject: Re: [Linux-fbdev-devel] fbmem: is bootup logo broken for monochrome LCD ?
+Cc: "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0611131415270.25397@pentafluge.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061113163216.GA3480@elte.hu>; from mingo@elte.hu on Mon, Nov 13, 2006 at 05:32:16PM +0100
+References: <45535C08.5020607@innova-card.com>
+	 <Pine.LNX.4.64.0611122138030.9472@pentafluge.infradead.org>
+	 <cda58cb80611130153n60579de0w2ebb59b050595b3b@mail.gmail.com>
+	 <Pine.LNX.4.64.0611131415270.25397@pentafluge.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 05:32:16PM +0100, Ingo Molnar wrote:
-> * Andi Kleen <ak@suse.de> wrote:
-> > Ok assuming temporarily it's a bug, how would you want to fix it?
-> 
-> for that i'd have to know the bug, and this is the third time i'm asking 
-> about specifics :-) (The URL that was given in the thread was about a 
-> chipset bug regarding incompatibility with clustered-APIC mode - my 
-> patch in fact - because it switches small systems to use logical flat 
-> mode always - solves that kind of regression too.)
+On 11/13/06, James Simmons <jsimmons@infradead.org> wrote:
+>
+> >> There are quite a few bugs in the code. I have a patch I have been working
+> >> on for some time. The patch does the following:
+> >>
+> >
+> > I'd like to give your patch a try but have some trouble to apply it
+> > cleanly. Care to resend it ?
+>
+> Which tree are you working off ?> The patch is against linus git tree.
+>
 
-Not really. That chipset belongs to a MP platform and with your proposed patch,
-we will endup using clustered APIC mode and will hit the issue(in the presence
-of cpu hotplug) mentioned in that URL.
+It seems that you use "format=flowed" with your mailer. Can you try to
+disable it ?
 
-We will find out if this behavior is specific to this single chipset and getback
-to you.
+Even if I save the message to a file, the patch is still corrupted...
 
-thanks,
-suresh
+Thanks
+-- 
+               Franck

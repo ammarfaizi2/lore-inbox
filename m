@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933132AbWKMXCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933135AbWKMXFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933132AbWKMXCU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 18:02:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933135AbWKMXCU
+	id S933135AbWKMXFb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 18:05:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933137AbWKMXFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 18:02:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3750 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S933132AbWKMXCT (ORCPT
+	Mon, 13 Nov 2006 18:05:31 -0500
+Received: from khc.piap.pl ([195.187.100.11]:2733 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S933135AbWKMXFa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 18:02:19 -0500
-Date: Tue, 14 Nov 2006 00:01:56 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-Message-ID: <20061113230156.GF1701@elf.ucw.cz>
-References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <200611131822.44034.ak@suse.de>
+	Mon, 13 Nov 2006 18:05:30 -0500
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Jeff Garzik <jeff@garzik.org>,
+       Toralf =?iso-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Re: linux-2.6.19-rc5-g088406bc build #120 failed
+References: <200611130943.42463.toralf.foerster@gmx.de>
+	<4558860B.8090908@garzik.org> <45588895.7010501@microgate.com>
+	<m3ejs78adt.fsf@defiant.localdomain> <4558BF72.2030408@microgate.com>
+	<m3ac2v6phw.fsf@defiant.localdomain> <4558E652.1080905@microgate.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 14 Nov 2006 00:05:28 +0100
+In-Reply-To: <4558E652.1080905@microgate.com> (Paul Fulghum's message of "Mon, 13 Nov 2006 15:40:34 -0600")
+Message-ID: <m3psbr54nb.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611131822.44034.ak@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Paul Fulghum <paulkf@microgate.com> writes:
 
-> > - Killed lots of dead code
-> > - Improve the cpu sanity checks to verify long mode
-> >   is enabled when we wake up.
-> > - Removed the need for modifying any existing kernel page table.
-> > - Moved wakeup_level4_pgt into the wakeup routine so we can
-> >   run the kernel above 4G.
-> > - Increased the size of the wakeup routine to 8K.
-> > - Renamed the variables to use the 64bit register names.
-> > - Lots of misc cleanups to match trampoline.S
-> > 
-> > I don't have a configuration I can test this but it compiles cleanly
-> > and it should work, the code is very similar to the SMP trampoline,
-> > which I have tested.  At least now the comments about still running in
-> > low memory are actually correct.
-> > 
-> > Vivek has tested this patch for suspend to memory and it works fine.
-> 
-> Suspend is unfortunately quite fragile.
-> 
-> pavel, rafael can you please test and review this patch? 
+> To be more precise, that is many distinct
+> criticisms from distinct people, some of which
+> contradict each other.
 
-> (full patch is on l-k)
+That's not exactly how I remember it.
 
-Based on comments, it looks like there'll be new version of patch,
-anyway? Vivek, would you cc me?
-								Pavel
+See Andrew's mail http://lkml.org/lkml/2006/6/7/257. For me, your
+response(s) meant the problem was solved (so it wans't a dream :-) ).
 
+For reference, the original patch which was almost accepted was
+http://lkml.org/lkml/2006/6/7/111.
+
+Kconfig patches were clearly a dead end, Randy hadn't realized HDLC
+is optional for the synclink drivers.
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Krzysztof Halasa

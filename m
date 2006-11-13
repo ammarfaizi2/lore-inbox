@@ -1,99 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754665AbWKMOGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754709AbWKMOIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754665AbWKMOGw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 09:06:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754705AbWKMOGv
+	id S1754709AbWKMOIs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 09:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754732AbWKMOIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 09:06:51 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37776 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1754665AbWKMOGv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 09:06:51 -0500
-Date: Mon, 13 Nov 2006 15:05:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com
-Subject: Re: [patch] genapic: optimize & fix APIC mode setup
-Message-ID: <20061113140520.GA8111@elte.hu>
-References: <20061111151414.GA32507@elte.hu> <200611130332.07569.ak@suse.de> <20061113081616.GA25604@elte.hu> <200611131008.37810.ak@suse.de>
+	Mon, 13 Nov 2006 09:08:48 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52899 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1754709AbWKMOIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 09:08:47 -0500
+Date: Mon, 13 Nov 2006 14:14:00 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Remi <remi.colinet@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc5-mm1 : probe of 0000:00:1f.2 failed with error -16
+Message-ID: <20061113141400.12ff22be@localhost.localdomain>
+In-Reply-To: <1163425477.455876c5637f6@imp4-g19.free.fr>
+References: <1163425477.455876c5637f6@imp4-g19.free.fr>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611131008.37810.ak@suse.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 13 Nov 2006 14:44:37 +0100
+Remi <remi.colinet@free.fr> wrote:
 
-* Andi Kleen <ak@suse.de> wrote:
+> => Step 1 : with the patch applied, the resource of the pci device
+> dev->resource[x] are initialized to claim legacy I/O ports from 0x01f0 up to
+> 0x01f7 with the flag IORESOURCE_IO (drivers/pci/probe.c).
 
-> > Had i ever noticed this hack in the first place i would have NAK-ed 
-> > it. There is a fundamental design friction of a high-level feature 
-> > like HOTPLUG_CPU /requiring/ a fundamental change to the lowlevel 
-> > IRQ delivery mode!
+This is correct behaviour. The resource addresses are implied resources.
+
+> => Step 2 : then, these resources are allocated from the I/O port resources, by
+> pcibios_allocate_resources (arch/i386/pci/i386.c).
+
+That is correct, the implied resources end up in the tree as they should
+so we now have a correct map of the PCI resources
+
+> which requests the same resources but with the IORESOURCE_BUSY flag. I/O ports
+> resources are then :
 > 
-> Well to be honest masked mode isn't that useful anyways. It's only 
-> theoretical advantage would be a bit more performance for multicast 
-> IPIs, but Ashok did benchmarks and it didn't make any significant 
-> difference. [...]
+> 01f0-01f7 : 0000:00:1f.2
+>     01f0-01f7 : libata
 
-this argument is false for at least two reasons. Firstly, i can show you 
-a 1000 small changes that wont be measurable individually but that as a 
-summary effect can degrade the kernel substantially.
-
-Secondly, in the physical case, /all/ IPI sending goes through this 
-code:
-
-        for_each_cpu_mask(query_cpu, mask) {
-
-yes, even the single-IPI calls which give the overwhelming majority of 
-the use of IPIs. Even on systems that have only 2 CPUs to begin with. 
-This should be measurable.
-
-> [...] With that I prefer to use always the same mode for small and 
-> large systems. Ok should probably drop the ifdef and just always use 
-> physical mode.
-
-you are still not getting it i think. The IO-APIC is still in logical 
-delivery mode on small systems, and we very much make use of this fact 
-by using LowestPrio messages (that current CPUs started to support 
-again). The switching to physical mode is dangerous because it creates 
-'mixed' APIC messages (physical and logical targeted messages as well) - 
-which 'mixed mode' is notorious for erratas both in the CPU and in the 
-chipset. (I strongly suspect that my eth timeouts are due to that.) 
-
-Combine this with the fact that /normally/ we default to logical mode, 
-the basis of your position is quite puzzling to me.
-
-the right solution is to use pure physical mode (both local APIC and 
-IO-APIC) only on large systems, and to use pure logical mode on small 
-systems - maybe with the combination of clustered mode as well.
-
-and that's precisely what my patch achieves ...
-
-> > Such a requirement is broken and just serves to hide a flaw in the 
-> > hotplug design - which flaw would trigger on i386 /anyway/, because 
-> > i386 still uses logical delivery mode for APIC IPIs.
+This is an ugly hack that is done by the libata code to deal with old v
+new IDE handling. All is still correct however
 > 
-> i386 cpu hotplug is somewhat broken anyways, but it should be fixed 
-> there too eventually. But some very old chipsets don't seem to support 
-> physical properly so it wasn't changed there.
+> => Step 4 : then the libata tries to allocate once more the same ressources and
+> fails.
+> 
+> [<f00e3eed>] ata_pci_init_one+0xad/0x423 [libata]
+>  [<f001f9c1>] piix_init_one+0x4b7/0x4d4 [ata_piix]
 
-as i said it before, what you are suggesting is not a 'fix', it's a 
-workaround for a design flaw in the hotplug code which flaw is hitting 
-us in other places and architectures anyway, and which workaround makes 
-us use an inferior IRQ delivery method on small systems ...
+ata_pci_init_one should have followed the legacy_mode path at this point,
+and the legacy mode path should not be trying to request the legacy
+regions the quirk code already reserved.
 
-	Ingo
+I suspect the code should only do the pci_request_regions() call if the
+device on if (!legacy_mode), and the legacy code should
+pci_request_region(pdev, 4, ...);
+
+
+

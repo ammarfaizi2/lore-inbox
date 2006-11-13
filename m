@@ -1,72 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755139AbWKMQ6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755220AbWKMRCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755139AbWKMQ6N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 11:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755206AbWKMQyL
+	id S1755220AbWKMRCm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 12:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755280AbWKMRCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 11:54:11 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:5802 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1755214AbWKMQyF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 11:54:05 -0500
-Date: Mon, 13 Nov 2006 11:21:35 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com
-Subject: [RFC] [PATCH 0/16] x86_64: Relocatable bzImage Support (V2)
-Message-ID: <20061113162135.GA17429@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Mon, 13 Nov 2006 12:02:41 -0500
+Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:14758 "EHLO
+	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1755220AbWKMRCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 12:02:40 -0500
+Date: Mon, 13 Nov 2006 12:02:38 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+       Chad Sellers <csellers@tresys.com>
+Subject: Subject: [PATCH 2/4] SELinux: export object class and permission
+ definitions
+In-Reply-To: <XMMS.LNX.4.64.0611131158490.6437@d.namei>
+Message-ID: <XMMS.LNX.4.64.0611131202160.6437@d.namei>
+References: <XMMS.LNX.4.64.0611131158490.6437@d.namei>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+From: Chad Sellers <csellers@tresys.com>
 
-Eric Biederman implemented the relocatable bzImage for x86_64 and posted
-patches for comments quite some time back.
+Moves the definition of the 3 structs containing object class and
+permission definitions from avc.c to avc_ss.h so that the security
+server can access them for validation on policy load. This also adds
+a new struct type, defined_classes_perms_t, suitable for allowing the
+security server to access these data structures from the avc.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115443019026302&w=2
+Signed-off-by: Chad Sellers <csellers@tresys.com>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: James Morris <jmorris@namei.org>
+---
+ security/selinux/avc.c            |   23 +++++++++++------------
+ security/selinux/include/avc_ss.h |   24 ++++++++++++++++++++++++
+ 2 files changed, 35 insertions(+), 12 deletions(-)
 
-We have been testing the patches in RHEL kernels since then and things are
-looking up. I think this is the time that patches can be included in -mm
-and get more testing done and get rest of the issues sorted out.
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index a300702..74c0319 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -32,12 +32,7 @@ #include <net/ipv6.h>
+ #include "avc.h"
+ #include "avc_ss.h"
+ 
+-static const struct av_perm_to_string
+-{
+-  u16 tclass;
+-  u32 value;
+-  const char *name;
+-} av_perm_to_string[] = {
++static const struct av_perm_to_string av_perm_to_string[] = {
+ #define S_(c, v, s) { c, v, s },
+ #include "av_perm_to_string.h"
+ #undef S_
+@@ -57,17 +52,21 @@ #undef TB_
+ #undef TE_
+ #undef S_
+ 
+-static const struct av_inherit
+-{
+-    u16 tclass;
+-    const char **common_pts;
+-    u32 common_base;
+-} av_inherit[] = {
++static const struct av_inherit av_inherit[] = {
+ #define S_(c, i, b) { c, common_##i##_perm_to_string, b },
+ #include "av_inherit.h"
+ #undef S_
+ };
+ 
++const struct selinux_class_perm selinux_class_perm = {
++	av_perm_to_string,
++	ARRAY_SIZE(av_perm_to_string),
++	class_to_string,
++	ARRAY_SIZE(class_to_string),
++	av_inherit,
++	ARRAY_SIZE(av_inherit)
++};
++
+ #define AVC_CACHE_SLOTS			512
+ #define AVC_DEF_CACHE_THRESHOLD		512
+ #define AVC_CACHE_RECLAIM		16
+diff --git a/security/selinux/include/avc_ss.h b/security/selinux/include/avc_ss.h
+index 450a283..ff869e8 100644
+--- a/security/selinux/include/avc_ss.h
++++ b/security/selinux/include/avc_ss.h
+@@ -10,5 +10,29 @@ #include "flask.h"
+ 
+ int avc_ss_reset(u32 seqno);
+ 
++struct av_perm_to_string
++{
++	u16 tclass;
++	u32 value;
++	const char *name;
++};
++
++struct av_inherit
++{
++	u16 tclass;
++	const char **common_pts;
++	u32 common_base;
++};
++
++struct selinux_class_perm
++{
++	const struct av_perm_to_string *av_perm_to_string;
++	u32 av_pts_len;
++	const char **class_to_string;
++	u32 cts_len;
++	const struct av_inherit *av_inherit;
++	u32 av_inherit_len;
++};
++
+ #endif /* _SELINUX_AVC_SS_H_ */
+ 
+-- 
+1.4.2.1
 
-Eric is currently held up with other things, so I have taken his patches
-and forward ported to 2.6.19-rc5-git2. Did few cleanups and fixed few
-bugs as faced in our testing. I have also accomodated the review comments
-received last time.
-
-These changes make a bzImage and vmlinux relocatable hence kernel can be
-loaded at and run from a non-1MB location. These changes are especially
-useful for kdump where a single kernel can be used both as production 
-kernel and dump capture kernel hence making the life easier both for
-distros and developers.
-
-Following is a brief account of changes I have done since patches were
-posted last time.
-
-- Forward ported the changes to latest kernel.
-- Extended bzImage protocol to handle relocatable kernel
-- Dropped support for elf bzImage
-- Dropped support for the serial debugging in decompressor code.
-- Fixed a bug related to memory hotplug.
-- Fixed a bug related to setting NX bit  (Thanks to larry woodman)
-- Fixed a bug regarding jumping to secondary_startup_64 instead of
-  assuming that align fills empty space with "nop".
-- Fixed a bug regarding phys_base being put in initdata section.
-- Fixed a but where bss was not being zeroed properly
-- Reverted the change back to cotinue to compile the kernel for 2MB so
-  that loaders loading vmlinux directly are not broken.
-- Aligned data segment to 4K boundary to make kexec using vmlinux work.
-- Tested to patch for making sure suspend/resume to/from memory is working.
-  (Required due to ACPI wake up code changes)
-
-Your comments/suggestions are welcome.
-
-Thanks
-Vivek

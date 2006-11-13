@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754372AbWKMJxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754322AbWKMKOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754372AbWKMJxP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 04:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754373AbWKMJxP
+	id S1754322AbWKMKOA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 05:14:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754378AbWKMKOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 04:53:15 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:43758 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1754368AbWKMJxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 04:53:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HXMzZirj/Zt3Sd+DIa3Rl4EnZtXxzwpTbqlyrOYSm9wBnmOfUOsVkSMu4P7+ono0ixzg70RB0BjFyvBfV92vj/Mce3eWzRDXCniAm9Oy+gjZupq0kfo3o+p/Kdl/mZyHP40zcHh+OqH6/bCXITGcaFwGO1vrPnc5aR9t+rPyKl0=
-Message-ID: <cda58cb80611130153n60579de0w2ebb59b050595b3b@mail.gmail.com>
-Date: Mon, 13 Nov 2006 10:53:12 +0100
-From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-To: "James Simmons" <jsimmons@infradead.org>
-Subject: Re: [Linux-fbdev-devel] fbmem: is bootup logo broken for monochrome LCD ?
-Cc: "Linux Fbdev development list" 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0611122138030.9472@pentafluge.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 13 Nov 2006 05:14:00 -0500
+Received: from smtp4.orange.fr ([193.252.22.27]:39772 "EHLO
+	smtp-msa-out04.orange.fr") by vger.kernel.org with ESMTP
+	id S1754322AbWKMKN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 05:13:59 -0500
+X-ME-UUID: 20061113101358599.926AC1C00209@mwinf0404.orange.fr
+Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Ben Collins <ben.collins@ubuntu.com>
+Cc: Nicholas Miell <nmiell@comcast.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1163401845.5178.335.camel@gullible>
+References: <1163374762.5178.285.camel@gullible>
+	 <1163378981.2801.3.camel@entropy>  <1163381067.5178.301.camel@gullible>
+	 <1163382425.2801.6.camel@entropy>  <1163395364.5178.327.camel@gullible>
+	 <1163400313.2801.11.camel@entropy>  <1163401845.5178.335.camel@gullible>
+Content-Type: text/plain
+Date: Mon, 13 Nov 2006 11:13:52 +0100
+Message-Id: <1163412832.24542.3.camel@frg-rhel40-em64t-03>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <45535C08.5020607@innova-card.com>
-	 <Pine.LNX.4.64.0611122138030.9472@pentafluge.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/12/06, James Simmons <jsimmons@infradead.org> wrote:
->
-> > I'm trying to display the bootup logo on a monochrome LCD (1 bit per
-> > pixel). I had to hack fbmem.c in a couple of place to make it
-> > works. I'm wondering now if these changes are correct since I'm not
-> > familiar with this code. Could anybody take a look and tell me ?
->
-> There are quite a few bugs in the code. I have a patch I have been working
-> on for some time. The patch does the following:
->
+On Sun, 2006-11-12 at 23:10 -0800, Ben Collins wrote:
+> Also the other case I gave where there is an alsa driver and a media
+> driver for the same chipset, is by design. It can't be helped. There
+> actually is a case for wanting one driver or the other in the case of
+> the exact same hardware, depending on the users desire.
 
-I'd like to give your patch a try but have some trouble to apply it
-cleanly. Care to resend it ?
+That one looks ugly. Probably the same driver should have a media
+interface as well as an alsa interface (like alsa device are also oss
+devices, no need to play evil rmmod/insmod tricks anymore).
 
-> I.
->         Merge slow_imageblit and color_imageblit into one function.
-> II.
->         The same code works on both big endian and little endian machines
+	Xav
 
-Does this suppose to fix this issue I encountered:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116315548626875&w=2
-
-Thanks
--- 
-               Franck

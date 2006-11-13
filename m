@@ -1,84 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754705AbWKMO7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754825AbWKMPDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754705AbWKMO7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 09:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754817AbWKMO7O
+	id S1754825AbWKMPDV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 10:03:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754879AbWKMPDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 09:59:14 -0500
-Received: from smtp3-g19.free.fr ([212.27.42.29]:37863 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1754705AbWKMO7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 09:59:13 -0500
-Message-ID: <1163429952.455888400b260@imp4-g19.free.fr>
-Date: Mon, 13 Nov 2006 15:59:12 +0100
-From: Remi <remi.colinet@free.fr>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc5-mm1 : probe of 0000:00:1f.2 failed with error -16
-References: <1163425477.455876c5637f6@imp4-g19.free.fr> <20061113141400.12ff22be@localhost.localdomain>
-In-Reply-To: <20061113141400.12ff22be@localhost.localdomain>
+	Mon, 13 Nov 2006 10:03:21 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:31412
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1754825AbWKMPDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 10:03:20 -0500
+Message-ID: <45588895.7010501@microgate.com>
+Date: Mon, 13 Nov 2006 09:00:37 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 81.255.27.251
+To: Jeff Garzik <jeff@garzik.org>
+CC: =?ISO-8859-1?Q?Toralf_F=F6rster?= <toralf.foerster@gmx.de>, khc@pm.waw.pl,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Re: linux-2.6.19-rc5-g088406bc build #120 failed
+References: <200611130943.42463.toralf.foerster@gmx.de> <4558860B.8090908@garzik.org>
+In-Reply-To: <4558860B.8090908@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan <alan@lxorguk.ukuu.org.uk> wrote:
+Jeff Garzik wrote:
+> Toralf Förster wrote:
+> 
+>> Hello,
+>>
+>> the build with the attached .config failed, make ends with:
+>> ... UPD     include/linux/compile.h
+>>   CC      init/version.o
+>>   LD      init/built-in.o
+>>   LD      .tmp_vmlinux1
+>> drivers/built-in.o: In function `hdlcdev_open':
+>> synclink.c:(.text+0x650d5): undefined reference to `hdlc_open'
+>> synclink.c:(.text+0x6510d): undefined reference to `hdlc_open'
+>> ...
+>> synclink_cs.c:(.text+0x7aece): undefined reference to `hdlc_ioctl'
+>> drivers/built-in.o: In function `hdlcdev_init':
+>> synclink_cs.c:(.text+0x7b336): undefined reference to `alloc_hdlcdev'
+>> drivers/built-in.o: In function `hdlcdev_exit':
+>> synclink_cs.c:(.text+0x7b434): undefined reference to 
+>> `unregister_hdlc_device'
+>> make: *** [.tmp_vmlinux1] Error 1
+> 
+> 
+> Does this patch work for you?
+> 
+>     Jeff
 
-> On Mon, 13 Nov 2006 14:44:37 +0100
-> Remi <remi.colinet@free.fr> wrote:
->
-> >
-> > => Step 4 : then the libata tries to allocate once more the same ressources
-> and
-> > fails.
-> >
-> > [<f00e3eed>] ata_pci_init_one+0xad/0x423 [libata]
-> >  [<f001f9c1>] piix_init_one+0x4b7/0x4d4 [ata_piix]
->
-> ata_pci_init_one should have followed the legacy_mode path at this point,
+No, this patch is not acceptable.
 
-So, doing the following change in drivers/ata/libata-sff.c, function
-ata_pci_init_one should fix the problem.
+This has been beaten to death in previous threads.
+The problem is a mismatch in your kernel config between
+generic hdlc (M) and synclink (Y).
 
--	rc = pci_request_regions(pdev, DRV_NAME);
--	if (rc) {
--		disable_dev_on_err = 0;
--		goto err_out;
--	}
--
--	if (legacy_mode) {
--		if (!request_region(ATA_PRIMARY_CMD, 8, "libata")) {
+synclink drivers can *optionally* support generic hdlc.
+You *must* be able to build synclink driver without generic hdlc.
+Because of this you *can't* just put in the generic hdlc dependency.
 
+Several alternative patches were posted (3 or 4 months) ago.
+No particular patch won the approval of all kernel developers,
+so nothing was done.
 
-+	if (!legacy_mode) {
-+		rc = pci_request_regions(pdev, DRV_NAME);
-+		if (rc) {
-+			disable_dev_on_err = 0;
-+			goto err_out;
-+		}
-+	else {
-+		if (!request_region(ATA_PRIMARY_CMD, 8, "libata")) {
-
-Going to try it.
-But the ioport map is going stay a little bit ugly.
-
-> and the legacy mode path should not be trying to request the legacy
-> regions the quirk code already reserved.
->
-> I suspect the code should only do the pci_request_regions() call if the
-> device on if (!legacy_mode), and the legacy code should
-> pci_request_region(pdev, 4, ...);
->
-
-Actually, it seems to be exactly what the code does in the legacy mode.
-
-Thanks,
-Remi
-
-
-
-
-
+-- 
+Paul Fulghum
+Microgate Systems, Ltd.

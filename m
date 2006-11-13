@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933135AbWKMXFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933141AbWKMXHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933135AbWKMXFb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 18:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933137AbWKMXFb
+	id S933141AbWKMXHu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 18:07:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933139AbWKMXHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 18:05:31 -0500
-Received: from khc.piap.pl ([195.187.100.11]:2733 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S933135AbWKMXFa (ORCPT
+	Mon, 13 Nov 2006 18:07:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56452 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933141AbWKMXHt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 18:05:30 -0500
+	Mon, 13 Nov 2006 18:07:49 -0500
+Date: Mon, 13 Nov 2006 15:06:16 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Paul Fulghum <paulkf@microgate.com>
-Cc: Jeff Garzik <jeff@garzik.org>,
-       Toralf =?iso-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jeff Garzik <jeff@garzik.org>,
+       Toralf =?ISO-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Re: linux-2.6.19-rc5-g088406bc build #120 failed
+Message-Id: <20061113150616.5bd122ae.akpm@osdl.org>
+In-Reply-To: <4558E652.1080905@microgate.com>
 References: <200611130943.42463.toralf.foerster@gmx.de>
-	<4558860B.8090908@garzik.org> <45588895.7010501@microgate.com>
-	<m3ejs78adt.fsf@defiant.localdomain> <4558BF72.2030408@microgate.com>
-	<m3ac2v6phw.fsf@defiant.localdomain> <4558E652.1080905@microgate.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 14 Nov 2006 00:05:28 +0100
-In-Reply-To: <4558E652.1080905@microgate.com> (Paul Fulghum's message of "Mon, 13 Nov 2006 15:40:34 -0600")
-Message-ID: <m3psbr54nb.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	<4558860B.8090908@garzik.org>
+	<45588895.7010501@microgate.com>
+	<m3ejs78adt.fsf@defiant.localdomain>
+	<4558BF72.2030408@microgate.com>
+	<m3ac2v6phw.fsf@defiant.localdomain>
+	<4558E652.1080905@microgate.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum <paulkf@microgate.com> writes:
+On Mon, 13 Nov 2006 15:40:34 -0600
+Paul Fulghum <paulkf@microgate.com> wrote:
 
-> To be more precise, that is many distinct
-> criticisms from distinct people, some of which
-> contradict each other.
+> I know code is open to criticism,
+> but after several weeks of submitting patches
+> and getting no closer to acceptance I gave up.
+> We were going around in circles where one person
+> wanted some thing that conflicted with what
+> another person wanted.
 
-That's not exactly how I remember it.
+That happens sometimes.
 
-See Andrew's mail http://lkml.org/lkml/2006/6/7/257. For me, your
-response(s) meant the problem was solved (so it wans't a dream :-) ).
+I'd suggest that you send what you believe to be the correct change and see
+if you can preempt the usual objections via the changelog.
 
-For reference, the original patch which was almost accepted was
-http://lkml.org/lkml/2006/6/7/111.
+I wouldn't say it's a high-priority thing, btw.  There are surely plenty of
+won't-link config settings and few people are hurting from this one.
 
-Kconfig patches were clearly a dead end, Randy hadn't realized HDLC
-is optional for the synclink drivers.
--- 
-Krzysztof Halasa

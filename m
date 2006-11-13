@@ -1,51 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932793AbWKMTJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932795AbWKMTN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932793AbWKMTJx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 14:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755338AbWKMTJx
+	id S932795AbWKMTN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 14:13:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932797AbWKMTN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 14:09:53 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2475 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1755333AbWKMTJw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 14:09:52 -0500
-Date: Mon, 13 Nov 2006 20:08:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com
-Subject: Re: [patch] genapic: optimize & fix APIC mode setup
-Message-ID: <20061113190857.GA29904@elte.hu>
-References: <20061111151414.GA32507@elte.hu> <200611131529.46464.ak@suse.de> <20061113150415.GA20321@elte.hu> <200611131710.13285.ak@suse.de> <20061113163216.GA3480@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Nov 2006 14:13:56 -0500
+Received: from ms-smtp-05.ohiordc.rr.com ([65.24.5.139]:16325 "EHLO
+	ms-smtp-05.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S932795AbWKMTNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 14:13:55 -0500
+Date: Mon, 13 Nov 2006 14:12:05 -0500
+To: Julien BLACHE <jb@jblache.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: Intel RNG: firmware hub changes in 2.6.19 break 82802 detection on Core2 Duo MacBook Pro
+Message-ID: <20061113191205.GA15349@nineveh.rivenstone.net>
+Mail-Followup-To: Julien BLACHE <jb@jblache.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+References: <87u015osxb.fsf@frigate.technologeek.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
 Content-Disposition: inline
-In-Reply-To: <20061113163216.GA3480@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <87u015osxb.fsf@frigate.technologeek.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: jhf@columbus.rr.com (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> [...] If something is cheap then other costs added to (such as 
-> cpu-mask scanning, and passing around the cpumask) definitely do 
-> matter.
+On Sun, Nov 12, 2006 at 11:33:52AM +0100, Julien BLACHE wrote:
+> Hi,
+>
+> On a new Core2 Duo MacBook Pro, 2.6.19-rc5 fails to detect the 82802
+> RNG with this message:
+>
+>  intel_rng: FWH not detected
+>
+> Though it worked in 2.6.18:
+>
+>  Intel 82802 RNG detected
+>
+>
+> This is an x86_64 kernel booted via good old lilo, so using the
+> BootCamp BIOS emulation provided by Apple.
 
-btw., i dont claim this is a big issue - we could solve this for the 
-common case even in physical delivery mode by adding a 'single IPI 
-delivery' callback to the genapic methods. That could be used by the 
-reschedule IPI for example.
+    The intel_rng driver recently changed the way it detected the RNG,
+because it got a lot of false positives.
 
-	Ingo
+    I have the older Core Duo MacBook, and there is no RNG here,
+though it used to be detected.  rngd would disable it immediately when
+I tried to use it.
+
+--
+Joseph Fannin
+jfannin@gmail.com || jhf@columbus.rr.com
+
+
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFFWMOE1/BPLCVlRuARAm/FAKCBkEx9f6I87P+vha32jxvVZvPWggCgxVn0
+pJ+EYphI+Ui3w+HpoMoW+Ic=
+=K+/P
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--

@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWKMV0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933066AbWKMV2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWKMV0F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 16:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933065AbWKMV0F
+	id S933066AbWKMV2t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 16:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933067AbWKMV2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 16:26:05 -0500
-Received: from crystal.sipsolutions.net ([195.210.38.204]:45245 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S932306AbWKMV0C
+	Mon, 13 Nov 2006 16:28:49 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:48840 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S933066AbWKMV2t
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 16:26:02 -0500
-Subject: Re: [PATCH] Apple Motion Sensor driver
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Stelian Pop <stelian@popies.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>,
-       "Aristeu S. Rozanski F." <aris@cathedrallabs.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Robert Love <rml@novell.com>,
-       Jean Delvare <khali@linux-fr.org>,
-       Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1163451174.23807.18.camel@localhost.localdomain>
-References: <1163280972.32084.13.camel@localhost.localdomain>
-	 <d120d5000611130704r258c8946p3994c5ba1e0187e9@mail.gmail.com>
-	 <1163431758.23444.8.camel@localhost.localdomain>
-	 <d120d5000611130753p172c2a69n260482052f623a46@mail.gmail.com>
-	 <1163434455.23444.14.camel@localhost.localdomain>
-	 <d120d5000611131020y69bdada1hfe694583312f9b61@mail.gmail.com>
-	 <1163451174.23807.18.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9sH/b6fd1c5GAsM1ooWc"
-Date: Mon, 13 Nov 2006 22:23:59 +0100
-Message-Id: <1163453039.5399.19.camel@johannes.berg>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-X-sips-origin: submit
+	Mon, 13 Nov 2006 16:28:49 -0500
+Message-ID: <4558E385.5080909@gmail.com>
+Date: Mon, 13 Nov 2006 22:28:37 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Eric Fox <efox@einsteinindustries.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: ISICOM Drivers
+References: <1163450990-AWEPOTQSGNKRVE3@www.vabmail.com>
+In-Reply-To: <1163450990-AWEPOTQSGNKRVE3@www.vabmail.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Cc: lkml
 
---=-9sH/b6fd1c5GAsM1ooWc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Eric Fox wrote:
+> Hi Jiri,
 
+Hi.
 
-> The fact that the accelerometer offers a (low res) joystick emulation is
-> only a nice hack and I'm not even sure somebody (except Johannes) will
-> find an use for it.
+> I was informed that you are currently working on cleaning up the Linux
 
-Heh. Well I think it's fun once a while :)
+Correct.
 
-On Mon, 2006-11-13 at 21:52 +0100, Stelian Pop wrote:
->=20
-> +               x -=3D ams_info.xcalib;
-> +               y -=3D ams_info.ycalib;
-> +               z -=3D ams_info.zcalib;
-> +
-> +               input_report_abs(ams_info.idev, ABS_X, invert ? -x : x);
-> +               input_report_abs(ams_info.idev, ABS_Y, invert ? -y : y);
-> +               input_report_abs(ams_info.idev, ABS_Z, z - ams_info.zcali=
-b);=20
+> isicom drivers. I have been working on setting up my MultiTech ISI5643 on a
+> Linux 2.6.18.2 system and have been having problems with kernel oops.
+> 
+> Do you care to see these errors? Or, is the development of the isicom
+> driver a thing of the past? If you are interested in seeing the error and
+> wish to address the problems please let me know. Otherwise I will start
+> looking for a different hardware solution.
 
-You're double-calibrating z now, which is surely not what was intended.
+Sure, post the dmesg.
 
-johannes
-
---=-9sH/b6fd1c5GAsM1ooWc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iQIVAwUARVjibqVg1VMiehFYAQKegw/9Fxtdli5rBOmgaLWNzfLsElkdJvCeyxq0
-0l5fEBBtNegCBAOXwxltqc5CwM6MYhPG3X8L0rYbNOxStbzwoeMcddllLmF8n12i
-kWaP9vDHYS+5VB6yRudG0v5Qc7KjYzoLoa/5OqHcgRjJxST0h1MeGksUxGaEuNBN
-ulMNqqwNLjfaCqaFU8PAluPjNMD2AxvhSOrAVYUeI1M0UJ8IX5zRpvgCztoQ5G/I
-Oml9gmAy0vUm/b56DJI/igDRqgwg/cSNl+q0+D8txgz+6arnYgulDrDkvQVnhAi2
-QLmxX31n6M9hw/EdR5p+SZ7uG6MhEqxx6p9rrAMazW7M+Z1W4ikEM7B9qUcLqdwT
-lCTmlV9L1lLcPrD8kLNed0uGB1c2K2PWJRTWtSKbXAJyr0f7o1yek+h5KDbb4bbg
-Q5gfqWwGunAg1WtohxxZIZPklqIc8uHW6y+tbQe5m5vqQgthLsGJhqxaO93dZ88g
-2gaiOx1HylCN4EJh94dEDoZzEOobtBVAxeg1PvIB6JZqfa7eD3Hwgx4CHUUKIcJd
-sWFeCiyULMKZsVHQPdbCWqZUNFYekx2VJRBLsA+Rp/MU4T1ywVjFZ2FxZrRZ2OWL
-N3ZO6eYqNErJsIi2lAbTCdo/ODu+Jvfm/moGD8fST9O9Tt20Y0mJNVncPyjVIGjj
-iqCTYfwF+bc=
-=Ll25
------END PGP SIGNATURE-----
-
---=-9sH/b6fd1c5GAsM1ooWc--
-
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

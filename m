@@ -1,127 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966306AbWKNUKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966259AbWKNUIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966306AbWKNUKB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 15:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966324AbWKNUJq
+	id S966259AbWKNUIw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 15:08:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966305AbWKNUIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 15:09:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:25257 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S966305AbWKNUJC (ORCPT
+	Tue, 14 Nov 2006 15:08:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:425 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S966259AbWKNUIv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 15:09:02 -0500
+	Tue, 14 Nov 2006 15:08:51 -0500
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 14/19] CacheFiles: Permit an inode's security ID to be obtained
-Date: Tue, 14 Nov 2006 20:06:52 +0000
+Subject: [PATCH 00/19] Permit filesystem local caching and NFS superblock sharing 
+Date: Tue, 14 Nov 2006 20:06:21 +0000
 To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
        trond.myklebust@fys.uio.no
 Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
        aviro@redhat.com, steved@redhat.com
-Message-Id: <20061114200651.12943.12111.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Permit an inode's security ID to be obtained by the CacheFiles module.  This is
-then used as the SID with which files and directories will be created in the
-cache.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
+
+These patches add local caching for network filesystems such as NFS and AFS.
+
+I've addressed all but one of Christoph's objections.  The one objection I
+haven't yet dealt with is the addition of a new operation for writing a page of
+the file, but that's controversial, and I'd like feedback on what I've done so
+far.
+
+The main thing that I've dealt with is the security issue in CacheFiles:
+
+CacheFiles now calls the VFS wrappers for invoking filesystem operations, such
+as vfs_mkdir().  It does not call any of the inode operations directly anymore.
+
+This means, however, that it has to deal with SELinux, especially when in
+enforcing mode.
+
+The cachefilesd RPM installs a policy for labelling and accessing the files in
+the cache, and for providing a security ID for the cachefilesd daemon to run
+as.  It _also_ provides a security ID for the cachefiles module to act as when
+it is accessing the filesystem on behalf of the process.
+
+The way this is done is that one of the patches:
+
+	CacheFiles: Add an act-as SID override in task_security_struct
+
+permits the module to temporarily change the security ID as which a process
+_acts_.  It does _not_ change the process's actual security ID, and so does not
+interfere with signals, ptraces, /proc/pid/ accesses aimed at that process.
+
+Furthermore, following consultations with Stephen Smalley and others of the
+SELinux project, it was deemed correct to override fsuid and fsgid of the host
+process whilst accessing the cache, so these are also modified temporarily by
+the module during such accesses.
+
+Finally, the file creation SID is also temporarily overridden whilst the module
+accesses the cache.
+
+All this permits the ownership and accessibility of files in the cache to
+preclude ordinary access by all processes running on the system, with the
+exception of cachefilesd.  When SELinux is in enforcing mode, the daemon may
+not read or write the files in the cache according to the policy.
+
+Thanks to Dan Walsh and Karl MacMillan for helping me get the SELinux policy
+working.  There is documentation on this in the patches and in the cachefilesd
+SRPM/tarball.
+
+
+Additionally, sysctls are no longer used.  Some parameters are modifiable via
+sysfs.  CacheFiles parameters pertaining to the cache are still only modifiable
+by sending commands to the module over its control interface, though the
+control interface is now a character device (following GregKH's suggestion).
+
 ---
+The kernel patches are committed to a GIT tree based on Linus's:
 
- include/linux/security.h |   13 +++++++++++++
- security/dummy.c         |    6 ++++++
- security/selinux/hooks.c |    8 ++++++++
- 3 files changed, 27 insertions(+), 0 deletions(-)
+	git://git.infradead.org/users/dhowells/fscache-2.6.git
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 63617e4..5913ae7 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1259,6 +1259,7 @@ struct security_operations {
-   	int (*inode_getsecurity)(const struct inode *inode, const char *name, void *buffer, size_t size, int err);
-   	int (*inode_setsecurity)(struct inode *inode, const char *name, const void *value, size_t size, int flags);
-   	int (*inode_listsecurity)(struct inode *inode, char *buffer, size_t buffer_size);
-+	u32 (*inode_get_secid)(struct inode *inode);
- 
- 	int (*file_permission) (struct file * file, int mask);
- 	int (*file_alloc_security) (struct file * file);
-@@ -1821,6 +1822,13 @@ static inline int security_inode_listsec
- 	return security_ops->inode_listsecurity(inode, buffer, buffer_size);
- }
- 
-+static inline u32 security_inode_get_secid(struct inode *inode)
-+{
-+	if (unlikely(IS_PRIVATE(inode)))
-+		return 0;
-+	return security_ops->inode_get_secid(inode);
-+}
-+
- static inline int security_file_permission (struct file *file, int mask)
- {
- 	return security_ops->file_permission (file, mask);
-@@ -2518,6 +2526,11 @@ static inline int security_inode_listsec
- 	return 0;
- }
- 
-+static inline u32 security_inode_get_secid(struct inode *inode)
-+{
-+	return 0;
-+}
-+
- static inline int security_file_permission (struct file *file, int mask)
- {
- 	return 0;
-diff --git a/security/dummy.c b/security/dummy.c
-index f7b47a9..3401ea3 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -392,6 +392,11 @@ static int dummy_inode_listsecurity(stru
- 	return 0;
- }
- 
-+static u32 dummy_inode_get_secid(struct inode *inode)
-+{
-+	return 0;
-+}
-+
- static const char *dummy_inode_xattr_getsuffix(void)
- {
- 	return NULL;
-@@ -1039,6 +1044,7 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, inode_getsecurity);
- 	set_to_dummy_if_null(ops, inode_setsecurity);
- 	set_to_dummy_if_null(ops, inode_listsecurity);
-+	set_to_dummy_if_null(ops, inode_get_secid);
- 	set_to_dummy_if_null(ops, file_permission);
- 	set_to_dummy_if_null(ops, file_alloc_security);
- 	set_to_dummy_if_null(ops, file_free_security);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 09def09..ddac1bc 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2415,6 +2415,13 @@ static int selinux_inode_listsecurity(st
- 	return len;
- }
- 
-+static u32 selinux_inode_get_secid(struct inode *inode)
-+{
-+	struct inode_security_struct *isec = inode->i_security;
-+
-+	return isec->sid;
-+}
-+
- /* file security operations */
- 
- static int selinux_file_permission(struct file *file, int mask)
-@@ -4690,6 +4697,7 @@ static struct security_operations selinu
- 	.inode_getsecurity =            selinux_inode_getsecurity,
- 	.inode_setsecurity =            selinux_inode_setsecurity,
- 	.inode_listsecurity =           selinux_inode_listsecurity,
-+	.inode_get_secid =		selinux_inode_get_secid,
- 
- 	.file_permission =		selinux_file_permission,
- 	.file_alloc_security =		selinux_file_alloc_security,
+Which can be viewed through:
+
+	http://git.infradead.org/?p=users/dhowells/fscache-2.6.git;a=summary
+
+A tarball of patches is available at:
+
+	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-19.tar.bz2
+
+
+To use this version of CacheFiles, the cachefilesd-0.8 is also required.  It
+is available as an SRPM:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.8-15.fc7.src.rpm
+
+Or as individual bits:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.8.tar.bz2
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
+
+David

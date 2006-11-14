@@ -1,39 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966364AbWKNVSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966361AbWKNVSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966364AbWKNVSk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965997AbWKNVSk
+	id S966361AbWKNVSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:18:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966364AbWKNVSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:18:40 -0500
-Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:35758 "EHLO
-	rhlx01.hs-esslingen.de") by vger.kernel.org with ESMTP
-	id S966364AbWKNVSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:18:39 -0500
-Date: Tue, 14 Nov 2006 22:18:37 +0100
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Len Brown <lenb@kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>
-Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
-Message-ID: <20061114211837.GC15440@rhlx01.hs-esslingen.de>
-References: <EB12A50964762B4D8111D55B764A8454E0DC9D@scsmsx413.amr.corp.intel.com> <20061114203016.GA15440@rhlx01.hs-esslingen.de> <20061114210049.GB15440@rhlx01.hs-esslingen.de>
-Mime-Version: 1.0
+	Tue, 14 Nov 2006 16:18:25 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:22632 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S966361AbWKNVSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 16:18:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=uUbZPC7y8WJuTRlSc39e7x5csG5bI+9WhEqZqcuc8HeOdkial6eY8bfnJs1PSI9pmh74b3NAJysdmejZLsGj/wIk8layF0ZCRyJQ0i8LlCFz2pSdMFiK4Ro9JycG33iC2ZDL6/2iXCEBgY8TW7hpqO1J1y+eo2pEVWUjfRs5+gc=
+Date: Wed, 15 Nov 2006 06:18:23 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Abhay Salunke <abhay_salunke@dell.com>
+Subject: [PATCH] dell_rbu: fix error check
+Message-ID: <20061114211823.GC20524@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Abhay Salunke <abhay_salunke@dell.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061114210049.GB15440@rhlx01.hs-esslingen.de>
-User-Agent: Mutt/1.4.2.2i
-X-Priority: none
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+platform_device_register_simple() returns error code as pointer
+when it fails. The return value should be checked by IS_ERR().
 
-On Tue, Nov 14, 2006 at 10:00:49PM +0100, Andreas Mohr wrote:
-> OK, offset 0x8C Host Bus Power Management Control has
+Cc: Abhay Salunke <abhay_salunke@dell.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-Ick, make the actual sub register 0x8D.  Sorry for the noise.
-And yes, VT8235 and VT8237 seem identical in this byte.
+ drivers/firmware/dell_rbu.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-Andreas Mohr
+Index: work-fault-inject/drivers/firmware/dell_rbu.c
+===================================================================
+--- work-fault-inject.orig/drivers/firmware/dell_rbu.c
++++ work-fault-inject/drivers/firmware/dell_rbu.c
+@@ -705,17 +705,16 @@ static struct bin_attribute rbu_packet_s
+ 
+ static int __init dcdrbu_init(void)
+ {
+-	int rc = 0;
++	int rc;
+ 	spin_lock_init(&rbu_data.lock);
+ 
+ 	init_packet_head();
+-	rbu_device =
+-		platform_device_register_simple("dell_rbu", -1, NULL, 0);
+-	if (!rbu_device) {
++	rbu_device = platform_device_register_simple("dell_rbu", -1, NULL, 0);
++	if (IS_ERR(rbu_device)) {
+ 		printk(KERN_ERR
+ 			"dell_rbu:%s:platform_device_register_simple "
+ 			"failed\n", __FUNCTION__);
+-		return -EIO;
++		return PTR_ERR(rbu_device);
+ 	}
+ 
+ 	rc = sysfs_create_bin_file(&rbu_device->dev.kobj, &rbu_data_attr);

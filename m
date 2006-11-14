@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966486AbWKNXmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966487AbWKNXnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966486AbWKNXmk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 18:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966487AbWKNXmj
+	id S966487AbWKNXnw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 18:43:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966489AbWKNXnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 18:42:39 -0500
-Received: from nessie.weebeastie.net ([220.233.7.36]:11531 "EHLO
-	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S966486AbWKNXmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 18:42:38 -0500
-Date: Wed, 15 Nov 2006 10:29:00 +1100
-From: CaT <cat@zip.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Dennis J.A. Bijwaard" <dennis@h8922032063.dsl.speedlinq.nl>,
-       bijwaard@gmail.com, sct@redhat.com, adilger@clusterfs.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: BUG: soft lockup detected on CPU#0! in sys_close and ext3
-Message-ID: <20061114232900.GD3155@zip.com.au>
-References: <20061015175640.GA3673@jumbo.lan> <20061015121202.378bdd41.akpm@osdl.org> <20061015215854.GA12890@jumbo.lan> <20061114095818.GA2541@zip.com.au> <20061114020125.636c9006.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 14 Nov 2006 18:43:52 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26540 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S966487AbWKNXnv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 18:43:51 -0500
+Date: Wed, 15 Nov 2006 00:43:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org, ak@suse.de,
+       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com
+Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
+Message-ID: <20061114234334.GB3394@elf.ucw.cz>
+References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <20061114163002.GB4445@ucw.cz> <m1fyclk8ws.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061114020125.636c9006.akpm@osdl.org>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <m1fyclk8ws.fsf@ebiederm.dsl.xmission.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2006 at 02:01:25AM -0800, Andrew Morton wrote:
-> > It did for me in all cases. Should it be taking long enough to trigger
-> > the softlock timeout to do this? The size of the device is approx 280gig.
+Hi!
+
+> >> I don't have a configuration I can test this but it compiles cleanly
+> >
+> > Ugh, now that's a big patch.. and untested, too :-(.
 > 
-> It's a bit of a worry if it's taking all that time to shoot down 4g of
-> pagecache.  The 280G will affect things - the radix-tree will be sparse and
-> the invalidate has firther to walk.  But still...
+> It was very carefully code reviewed at least the first time,
+> and the code was put in sync with code that was tested.
 
-Yeah. I would've thought that legitimate usage would not trigger such
-things, which is why I have it on whilst I'm building this box up.
+So we had two very different versions of "switch to 64-bit" and now we
+have two mostly similar versions. Not a big improvement...
 
-> I assume that a fsck does the same thing?
+> > Why is PGE no longer required, for example?
+> 
+> PGE is never required.  Especially on a temporary page table.
+> PGE is an optimization, to make context switches faster.
 
-Just did an e2fsck and it did the same thing.
+HPA tells me it is.
 
+> > Can we get it piece-by-piece?
+
+Please?
+
+> >> Vivek has tested this patch for suspend to memory and it works fine.
+> >
+> > Ok, so it was tested on one config. Given that the patch deals with
+> > detecting CPU oddities... :-(
+> 
+> Read the code.  Given your scorn and the state of that mess when I
+> started I'm not certain a productive conversation can be had.
+> 
+> Do you understand the code as it is currently written?
+
+Mostly. I've written it at some point.
+
+It may be a mess, but patch below is wholesale rewrite, mixing
+cleanups (ebx->rbx) with serious changes (PGE). And then you tell me
+it was tested on one machine. It is hard/impossible to rewrite, and
+changelog is not helpful, either.
+
+Please split it up.
+									Pavel
 -- 
-    "To the extent that we overreact, we proffer the terrorists the
-    greatest tribute."
-    	- High Court Judge Michael Kirby
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

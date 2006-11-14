@@ -1,87 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754305AbWKNEW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755257AbWKNE24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754305AbWKNEW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 23:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755237AbWKNEW0
+	id S1755257AbWKNE24 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 23:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755348AbWKNE24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 23:22:26 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:9954 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1754305AbWKNEWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 23:22:25 -0500
-Date: Mon, 13 Nov 2006 20:22:25 -0800 (PST)
-From: dean gaudet <dean@arctic.org>
-To: Andi Kleen <ak@suse.de>
-cc: Suleiman Souhlal <ssouhlal@freebsd.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
-       Jiri Bohac <jbohac@suse.cz>
-Subject: Re: [PATCH 1/2] Make the TSC safe to be used by gettimeofday().
-In-Reply-To: <Pine.LNX.4.64.0611131908060.28562@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.64.0611132015240.28562@twinlark.arctic.org>
-References: <455916A5.2030402@FreeBSD.org> <200611140305.00383.ak@suse.de>
- <45592929.2000606@FreeBSD.org> <200611140344.00407.ak@suse.de>
- <Pine.LNX.4.64.0611131908060.28562@twinlark.arctic.org>
+	Mon, 13 Nov 2006 23:28:56 -0500
+Received: from w241.dkm.cz ([62.24.88.241]:63390 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S1755257AbWKNE2z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 23:28:55 -0500
+Date: Tue, 14 Nov 2006 05:28:53 +0100
+From: Petr Baudis <pasky@suse.cz>
+To: =?iso-8859-1?Q?Jos=E9_Su=E1rez?= <j.suarez.agapito@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>,
+       Michael Krufky <mkrufky@linuxtv.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-dvb@linuxtv.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+Subject: Re: [linux-dvb] Avermedia 777 misbehaves after remote hack merged into v4l-dvb tree
+Message-ID: <20061114042853.GF18879@pasky.or.cz>
+References: <200611131711.46626.j.suarez.agapito@gmail.com> <4558DF23.5080207@linuxtv.org> <1163453015.26319.29.camel@201-2-70-92.bsace705.w.brasiltelecom.net.br> <200611140445.30269.j.suarez.agapito@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200611140445.30269.j.suarez.agapito@gmail.com>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006, dean gaudet wrote:
+On Tue, Nov 14, 2006 at 04:45:29AM CET, José Suárez wrote:
+> At the moment I can't give the remote control a try because lirc doesn't 
+> compile against version 2.6.18 of the kernel. If that lirc issue gets solved, 
+> I will try to use it as soon as I can.
 
-> next an implementation which relies on the kernel restarting the computation when
-> necessary.  this would be achieved by testing to see when the task to be restarted
-> is on the vsyscall page and backtracking the task to the vsyscall entry point.
-> 
-> this is challenging when the vsyscall is implemented in C -- because of potential
-> stack usage.  there are ways to get this to work though, even without resorting to
-> assembly.  i'm presenting this only as a best case scenario should such an effort
-> be undertaken.  (i have a crazy idea involving the direction flag which i need to
-> mock up.)
+  Note that in lircd, you should use the input device driver
+("devinput"). The saa7134 driver will create a random input event device
+for the events; I use this udev rule to create a /dev/remote symlink
+pointing at the right device:
 
-nevermind the crazy idea using DF... i was hoping to use DF as a generic 
-"restart a vsyscall" indicator -- switch_to() would note the task is on 
-the vsyscall page and unilaterally clear DF before restoring eflags.
+	KERNEL="event*", SYSFS{name}="saa7134 IR*", NAME="input/%k", SYMLINK="remote"
 
-then a vsyscall critical section could be surrounded like so:
+  Furthermore, especially if you have problems with lircd, having the
+full-blown daemon for the event interface may not be worth it. There is
+a standalone inputlircd package containing a much simpler daemon which
+is compatible with lirc client applications but takes the events just
+from the input devices. You can run it e.g. like:
 
-	unsigned long tmp;
-	do {
-		asm volatile("std");
+	/usr/sbin/inputlircd /dev/remote -g -m 0
 
-		critical section
+  You can find an example mplayer lirc configuration at:
 
-		asm volatile(
-			"\n	pushf"
-			"\n	pop %0"
-			"\n	cld"
-			: "=r" (tmp));
-	} while ((tmp & 0x400) == 0);
+	http://pasky.or.cz/~pasky/dev/v4l/lircrc
 
-it works great on k8 ... but DF manipulation hurts way too much on core2 and p4.
-
-i even tried reading DF using a string instruction:
-
-	long tmp;
-	do {
-		asm volatile("std");
-
-		critical section
-
-		asm volatile(
-			"\n	mov %%rsp,%%rsi"
-			"\n	lodsl"
-			"\n	sub %%rsp,%%rsi"
-			"\n	cld"
-			: "=S" (tmp));
-	} while (tmp > 0);
-
-it's no better.
-
-i've also tried similar tricks setting the EFLAGS.ID bit... but the popf
-hurts in that case.
-
-i think a general vsyscall restart mechanism would be useful (for more
-than just the time functions), but still haven't found one which is
-cheap enough.
-
--dean
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+#!/bin/perl -sp0777i<X+d*lMLa^*lN%0]dsXx++lMlN/dsM0<j]dsj
+$/=unpack('H*',$_);$_=`echo 16dio\U$k"SK$/SM$n\EsN0p[lN*1
+lK[d2%Sa2/d0$^Ixp"|dc`;s/\W//g;$_=pack('H*',/((..)*)$/)

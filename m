@@ -1,77 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966388AbWKNVmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966393AbWKNVrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966388AbWKNVmk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966389AbWKNVmk
+	id S966393AbWKNVrT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966392AbWKNVrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:42:40 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:20667 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S966388AbWKNVmj
+	Tue, 14 Nov 2006 16:47:18 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:41397 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S966391AbWKNVrP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:42:39 -0500
-Date: Tue, 14 Nov 2006 16:42:37 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: arvidjaar@mail.ru, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6.19-rc5 regression: can't disable OHCI
- wakeup via sysfs
-In-Reply-To: <200611141318.11080.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0611141628150.6666-100000@iolanthe.rowland.org>
+	Tue, 14 Nov 2006 16:47:15 -0500
+Message-ID: <455A3960.9070207@us.ibm.com>
+Date: Tue, 14 Nov 2006 13:47:12 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>
+Subject: [PATCH] sas_ata: Fix sas_ata_qc_issue to return AC_ERR_*
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006, David Brownell wrote:
+I mistakenly wrote sas_ata_qc_issue to return error codes such as
+ENOMEM.  Since libata OR's qc->err_mask with the return value, I believe
+that it is necessary to make my code return one of the AC_ERR_ codes.
+For now I'm using AC_ERR_SYSTEM because an error here means that the
+command couldn't be sent to the controller.  Patch is against jejb's
+aic94xx-sas tree.
 
-> On Monday 13 November 2006 9:15 am, Alan Stern wrote:
-> > On Mon, 13 Nov 2006, David Brownell wrote:
-> > 
-> > > It's a *driver model* API, which is also accessible from sysfs ... to support
-> > > per-device policies, for example the (a) workaround.  The mechanism exists
-> > > even on kernels that don't include sysfs ... although on such systems, there
-> > > is no way for users to do things like say "ignore the fact that this mouse
-> > > claims to issue wakeup events, its descriptors lie".
-> > 
-> > Yes, it is separate from sysfs -- but it is _tied_ to the sysfs API.
-> 
-> I can't agree.  If you deconfigure sysfs, it still works.
-> Since it's independent like that, there's no way it's "tied".
+If anybody has a suggestion for a better AC_ERR_ code to use, please
+suggest it.
 
-We could carry on this argument indefinitely.  Yes, the device_may_wakeup
-stuff does work without sysfs.  But it doesn't do anything significant; it
-amounts to no more than device_can_wakeup().  AFAIK there's no way to
-change the setting of the may_wakeup flag other than via sysfs.  That's
-what I meant by "tied".
+--
 
-> > > No; I'm saying the driver model is used to record that the hardware mechanism
-> > > isn't available.   The fact that it's because of an implementation artifact
-> > > (bad silicon, or board layout, etc) versus a design artifact (silicon designed
-> > > without that feature) is immaterial ... in either case, the system can't use
-> > > the mechanism.
-> > 
-> > But the information is being recorded in the wrong spot.  The correct test
-> > should use device_can_wakeup, not device_may_wakeup.  The can_wakeup flag
-> > is the one which records whether or not the hardware mechanism is actually
-> > available.
-> 
-> Go look again.  "may" implies (i) can , and (ii) should.  So if there's a
-> hardware quirk registered, (i) always fails.  And in the not-uncommon case
-> where the device misbehavior isn't known to the kernel, userspace has the
-> option of making (ii) kick in (the workaround mentioned above).  This is a
-> generic approach, it works on all wakeup-capable devices.
-> 
-> So "may" is correct, and "can" is insufficient.
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 
-Things work differently in uhci-hcd.  I still haven't submitted the patch 
-to add device_may_wakeup support (although it was written quite a while 
-ago and may have been posted to linux-usb-devel; I can't remember).
-
-However even when it is added and may_wakeup is off, autostop will still 
-function.  It won't rely on interrupts or other wakeup events, though -- 
-instead the root-hub status polling mechanism will be used.
-
-Alan Stern
-
+diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
+index 47fb274..9208b8b 100644
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -123,7 +123,7 @@ static void sas_ata_task_done(struct sas
+ 
+ static unsigned int sas_ata_qc_issue(struct ata_queued_cmd *qc)
+ {
+-	int res = -ENOMEM;
++	int res;
+ 	struct sas_task *task;
+ 	struct domain_device *dev = qc->ap->private_data;
+ 	struct sas_ha_struct *sas_ha = dev->port->ha;
+@@ -135,7 +135,7 @@ static unsigned int sas_ata_qc_issue(str
+ 
+ 	task = sas_alloc_task(GFP_ATOMIC);
+ 	if (!task)
+-		goto out;
++		return AC_ERR_SYSTEM;
+ 	task->dev = dev;
+ 	task->task_proto = SAS_PROTOCOL_STP;
+ 	task->task_done = sas_ata_task_done;
+@@ -187,12 +187,10 @@ static unsigned int sas_ata_qc_issue(str
+ 		SAS_DPRINTK("lldd_execute_task returned: %d\n", res);
+ 
+ 		sas_free_task(task);
+-		if (res == -SAS_QUEUE_FULL)
+-			return -ENOMEM;
++		return AC_ERR_SYSTEM;
+ 	}
+ 
+-out:
+-	return res;
++	return 0;
+ }
+ 
+ static u8 sas_ata_check_status(struct ata_port *ap)

@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933388AbWKNKde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933385AbWKNKsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933388AbWKNKde (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 05:33:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933385AbWKNKde
+	id S933385AbWKNKsx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 05:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933398AbWKNKsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 05:33:34 -0500
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:62173 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S933391AbWKNKdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 05:33:33 -0500
-Message-ID: <45599B0E.8050505@uni-hd.de>
-Date: Tue, 14 Nov 2006 11:31:42 +0100
-From: Martin Braun <mbraun@uni-hd.de>
-Reply-To: mbraun@uni-hd.de
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Oleg Verych <olecom@flower.upol.cz>
-CC: David Chinner <dgc@sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-Subject: Re: xfs kernel BUG again in 2.6.17.11
-References: <44E1D9CA.30805@uni-hd.de> <20060816101122.E2740551@wobbly.melbourne.sgi.com> <44EB228F.6020903@uni-hd.de> <20060823134211.E2968256@wobbly.melbourne.sgi.com> <45583ABE.6080909@uni-hd.de> <20061114040053.GD8394166@melbourne.sgi.com> <45598B07.6080401@uni-hd.de> <slrnelj5k3.7lr.olecom@flower.upol.cz>
-In-Reply-To: <slrnelj5k3.7lr.olecom@flower.upol.cz>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Nov 2006 05:48:52 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:27404 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S933385AbWKNKsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 05:48:52 -0500
+Date: Tue, 14 Nov 2006 10:48:44 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Jens Axboe <jens.axboe@oracle.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to cleanly shut down a block device
+Message-ID: <20061114104844.GA15340@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	Jens Axboe <jens.axboe@oracle.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <455969F2.80401@drzeus.cx> <20061114075648.GK15031@kernel.dk> <45597B0A.3060409@drzeus.cx> <20061114084519.GL15031@kernel.dk> <45598462.80605@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45598462.80605@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Oleg,
-
-thanks for your response.
-> You can find fixes in .17 stable git tree.
-Yes it is a 2.6.17.11 stable kernel. - By the way: we tried to setup
-kernel 2.6.18.2 on that machine but we got a weired time error, ntpdate
-shows two times: first run correct time, second run time is half an hour
-in the future - so we switched back to 2.6.17.11
-
-> If it was really just sparse annotations, they were obviously
-> fixed, i think. If not, meybe there are some new bugs.
-> +
->> It seems that xfs_repair (2.8.10), did not find all of the errors of the FS.
->> Is there a way to be sure that the FS is clean?
+On Tue, Nov 14, 2006 at 09:54:58AM +0100, Pierre Ossman wrote:
+> I've had another look at it, and I believe I have a solution. There is
+> one assumption I need to verify though.
 > 
-> As in faq:
-> |   Update: a fixed xfs_repair is now available; version 2.8.10 or later
-> |   of the xfsprogs package contains the fixed version.
-> .....      
-> |   The xfs_check tool, or xfs_repair -n, should be able to detect any
-> |   directory corruption.
+> After del_gendisk() and after I've flushed out any remaining requests,
+> is it ok to kill off the queue? Someone might still have the disk open,
+> so that would mean the queue is gone by the time gendisk's release
+> function is called.
 
-However the two Kernel BUGS were _after_ xfs_repair (version 2.8.10).
+Just arrange for the mmc_queue_thread() to empty the queue when
+MMC_QUEUE_EXIT is set, and then exit.  I thought this was something
+that the block layer looked after (Jens must have missed this in his
+original review of the MMC code.)
 
->> Normally  the Kernel freezes/hangs completely, but I found two new
-> 
-> Do you mean panic or oops here, or just freeze?
+The handling of userspace keeping the device open despite the hardware
+having been removed is already in place.
 
-In detail:  a Kernel BUG in /var/log/messages is written and after that
-the cpu load average is climbing up to 20-30, any tries to shutdown the
-system, kill processes umounts etc. are in vain. Than the system freezes
-completely: no keyboard, nothing.
-
- cheers,
-martin
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

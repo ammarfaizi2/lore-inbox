@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWKNFZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754902AbWKNF33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbWKNFZh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 00:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755421AbWKNFZh
+	id S1754902AbWKNF33 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 00:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754991AbWKNF33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 00:25:37 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:41124 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1755422AbWKNFZg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 00:25:36 -0500
-Date: Mon, 13 Nov 2006 23:25:31 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Bill O'Donnell" <billodo@sgi.com>
-Cc: Chris Friedhoff <chris@friedhoff.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
-       KaiGai Kohei <kaigai@kaigai.gr.jp>,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH 1/1] security: introduce fs caps
-Message-ID: <20061114052531.GA20915@sergelap.austin.ibm.com>
-References: <20061108222453.GA6408@sergelap.austin.ibm.com> <20061109061021.GA32696@sergelap.austin.ibm.com> <20061109103349.e58e8f51.chris@friedhoff.org> <20061113215706.GA9658@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061113215706.GA9658@sgi.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 14 Nov 2006 00:29:29 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:6737 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1754902AbWKNF33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 00:29:29 -0500
+Date: Mon, 13 Nov 2006 21:29:17 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Subject: Re: proposal: remove unused macros
+Message-Id: <20061113212917.3c5b8317.randy.dunlap@oracle.com>
+In-Reply-To: <200611132119.17858.gene.heskett@verizon.net>
+References: <200611131913.22872.m.kozlowski@tuxland.pl>
+	<200611132119.17858.gene.heskett@verizon.net>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Bill O'Donnell (billodo@sgi.com):
-> On Thu, Nov 09, 2006 at 10:33:49AM +0100, Chris Friedhoff wrote:
-> | Page http://www.friedhoff.org/fscaps.html updated ...
-> | Kernel 2.6.18.2 updated ...
-> | System keeps on humming ...
-> | Is anyone else using/testing the patch? Please give feedback ...
+On Mon, 13 Nov 2006 21:19:17 -0500 Gene Heskett wrote:
+
+> On Monday 13 November 2006 13:13, Mariusz Kozlowski wrote:
+> >Hello,
+> >
+> >	Recently someone send a patch that fixed some old '#ifdef'ed code with
+> > syntax error (stray brackets). The broken code was there for a long
+> > time and nobody saw that. I digged some more and wrote a simple program
+> > that counted '(' and ')' in the kernel code that emits apropriate text
+> > if for a given file both numbers differ. That is probably dumb idea but
+> > it worked :-) Quite fast I found a dozen of broken macros with syntax
+> > errors etc. All of those macros are unused. I digged a bit deeper and
+> > used '-Wunused-macros' flag which with causes 8340 new warnings to be
+> > emited for 2.6.19-rc5-mm1 with 'allmodconfig'. For sure there are false
+> > positives (see gcc man page) but even if i.e. 50% of them are fp then
+> > we still have around 4k of unused macros scattered around the tree.
+> >
+> >To me this is a dead code. I can review the code causing these warnings
+> > and prepare patches 'per subsystem' or whatever to address this issue.
+> > That is if nobody opposes.
 > 
-> Most likely a cockpit error, but I'm having trouble when I give the 
-> capability to ping (using the userexample from your fscaps page):
+> With regard to your parens checking code, I re-wrote from a broken 
+> version, about 20 years ago, a utility to check all that.  I used it on 
+> the coco/os9 systems at the time, then built it for the amiga, and 
+> rebuilt it for linux a few years back.  It checks brackets, quotes in " 
+> style and ' style and ;, etc stuff.  I called mine cntx, and I've used it 
+> occasionally here, but haven't had the need/urge to test any kernel code 
+> with it so far.
 > 
-> $ uname -a
-> Linux certify 2.6.19-rc3 #3 SMP PREEMPT Mon Nov 13 14:40:54 CST 2006 ia64
-> 
-> $ sudo chmod 711 /bin/ping
-> $ ping -c 1 localhost
-> ping: icmp open socket: Operation not permitted
-> 
-> $ sudo setfcaps cap_net_raw=ep /bin/ping           
-> /bin/ping: Function not implemented (errno=38)
-> 
-> Any help is appreciated.
+> If anyone is interested, and the list will take attachments of that 
+> nature, I'd be honored to share it.  What say you all?
 
-Hmm, two things which come to mind are (a) do you have extended
-attributes compiled into your kernel and (b) is sudo properly set
-up.
+I'm interested.
 
-But for (a) to be the case, you should be getting EOPNOTZSPUP (98),
-not ENOSYS (38).
-
-Could you send me a copy of your .config, tell me which filesystem
-you are using, and send the /tmp/straceout after doing
-
-	strace -o/tmp/straceout -f setfcaps cap_net_raw=ep /bin/ping
-
-as root?
-
-thanks,
--serge
+Thanks,
+---
+~Randy

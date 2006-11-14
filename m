@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965928AbWKNVT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966365AbWKNVTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965928AbWKNVT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965997AbWKNVT6
+	id S966365AbWKNVTv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966044AbWKNVTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:19:58 -0500
-Received: from dvhart.com ([64.146.134.43]:16263 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S965928AbWKNVT5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:19:57 -0500
-Message-ID: <455A32FC.4000409@mbligh.org>
-Date: Tue, 14 Nov 2006 13:19:56 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Tue, 14 Nov 2006 16:19:51 -0500
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:49389 "EHLO
+	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S965997AbWKNVTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 16:19:50 -0500
+Date: Tue, 14 Nov 2006 16:19:48 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, trond.myklebust@fys.uio.no,
+       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
+       steved@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+ overridden
+In-Reply-To: <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
+Message-ID: <XMMS.LNX.4.64.0611141618300.25022@d.namei>
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+ <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Boot failure with ext2 and initrds
-References: <20061114014125.dd315fff.akpm@osdl.org> <20061114184919.GA16020@skynet.ie> <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com> <20061114113120.d4c22b02.akpm@osdl.org> <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Tue, 14 Nov 2006, Andrew Morton wrote:
->> The below might help.
-> 
-> Indeed it does (with Martin's E2FSBLK warning fix),
-> seems to be running well on all machines now.
-> 
-> (Of course, my ext2_fsblk_t ext2_new_blocks() notion did not pan out,
-> for same reason as the original: that ret_block was expected signed.)
+On Tue, 14 Nov 2006, David Howells wrote:
 
-Whilst I've got all the smart people looking at this ...
+> +static u32 selinux_set_fscreate_secid(u32 secid)
+> +{
+> +	struct task_security_struct *tsec = current->security;
+> +	u32 oldsid = tsec->create_sid;
+> +
+> +	tsec->create_sid = secid;
+> +	return oldsid;
+> +}
 
-/*max window size: 1024(direct blocks) + 3([t,d]indirect blocks) */
-#define EXT2_MAX_RESERVE_BLOCKS         1027
+The ability to set this needs to be mediated via MAC policy.
 
-Is that wrong? If it's meaning one triple, one double, and one single
-indirect block, surely it can span a boundary, so we need (potentially)
-two of each?
+See selinux_setprocattr()
 
-M.
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

@@ -1,80 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755392AbWKNEv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755348AbWKNEvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755392AbWKNEv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 23:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755399AbWKNEv2
+	id S1755348AbWKNEvD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 23:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755392AbWKNEvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 23:51:28 -0500
-Received: from cantor.suse.de ([195.135.220.2]:51914 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1755392AbWKNEv1 (ORCPT
+	Mon, 13 Nov 2006 23:51:03 -0500
+Received: from mail.ggsys.net ([69.26.161.131]:21399 "EHLO mail.ggsys.net")
+	by vger.kernel.org with ESMTP id S1755348AbWKNEvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 23:51:27 -0500
-From: Neil Brown <neilb@suse.de>
-To: Kirill Korotaev <dev@sw.ru>
-Date: Tue, 14 Nov 2006 15:51:08 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Nov 2006 23:51:01 -0500
+Subject: Re: qstor driver -> irq 193: nobody cared
+From: Alberto Alonso <alberto@ggsys.net>
+To: Mark Lord <lkml@rtr.ca>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45588132.9090200@rtr.ca>
+References: <1162576973.3967.10.camel@w100>  <454CDE6E.5000507@rtr.ca>
+	 <1163180185.28843.13.camel@w100>  <4556AC74.3010000@rtr.ca>
+	 <1163363479.3423.8.camel@w100>  <45588132.9090200@rtr.ca>
+Content-Type: text/plain
+Organization: Global Gate Systems LLC.
+Date: Mon, 13 Nov 2006 22:50:51 -0600
+Message-Id: <1163479852.3340.9.camel@w100>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17753.19260.9836.716649@cse.unsw.edu.au>
-Cc: devel@openvz.org, Vasily Averin <vvs@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Howells <dhowells@redhat.com>, Olaf Hering <olh@suse.de>,
-       Jan Blunck <jblunck@suse.de>
-Subject: Re: [Devel] Re: [PATCH 2.6.19-rc3] VFS: per-sb dentry lru list
-In-Reply-To: message from Kirill Korotaev on Wednesday November 1
-References: <4541BDE2.6050703@sw.ru>
-	<45409DD5.7050306@sw.ru>
-	<453F6D90.4060106@sw.ru>
-	<453F58FB.4050407@sw.ru>
-	<20792.1161784264@redhat.com>
-	<21393.1161786209@redhat.com>
-	<19898.1161869129@redhat.com>
-	<22562.1161945769@redhat.com>
-	<24249.1161951081@redhat.com>
-	<4542123E.4030309@sw.ru>
-	<20061030042419.GW8394166@melbourne.sgi.com>
-	<45459B92.400@sw.ru>
-	<17734.54114.192151.271984@cse.unsw.edu.au>
-	<45487D2C.4000205@sw.ru>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday November 1, dev@sw.ru wrote:
-> <<<< AFAICS, doing so you introduced a leak of anonymous dentries.
+Things are improving, after the latest patch I can still
+see spurious messages, but the count stays at 0.
+
+Sorry for including all the lines, but I think it may help
+to see if a time pattern is visible. Here is the output:
+
+Nov 13 14:01:08 w100 kernel: scsi0 : sata_qstor
+Nov 13 14:01:08 w100 kernel: scsi1 : sata_qstor
+Nov 13 14:01:08 w100 kernel: scsi2 : sata_qstor
+Nov 13 14:01:08 w100 kernel: scsi3 : sata_qstor
+Nov 13 14:05:15 w100 kernel: sata_qstor: spurious=0
+Nov 13 14:08:29 w100 kernel: sata_qstor: spurious=0
+Nov 13 14:11:01 w100 kernel: sata_qstor: spurious=0
+Nov 13 14:11:06 w100 kernel: sata_qstor: spurious=0
+Nov 13 14:15:03 w100 kernel: sata_qstor: spurious=0
+Nov 13 14:20:28 w100 kernel: sata_qstor: spurious=0
+Nov 13 14:28:44 w100 kernel: sata_qstor: spurious=0
+Nov 13 14:40:40 w100 kernel: sata_qstor: spurious=0
+Nov 13 14:46:53 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:00:15 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:01:52 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:13:18 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:18:25 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:19:57 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:24:56 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:32:52 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:32:53 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:37:47 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:42:30 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:42:33 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:45:50 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:54:53 w100 kernel: sata_qstor: spurious=0
+Nov 13 15:59:32 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:04:07 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:06:01 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:07:24 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:19:54 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:19:55 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:27:34 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:33:21 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:39:57 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:42:38 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:43:40 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:50:36 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:52:11 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:53:41 w100 kernel: sata_qstor: spurious=0
+Nov 13 16:58:30 w100 kernel: sata_qstor: spurious=0
+Nov 13 17:18:40 w100 kernel: sata_qstor: spurious=0
+Nov 13 17:20:21 w100 kernel: sata_qstor: spurious=0
+Nov 13 17:20:46 w100 kernel: sata_qstor: spurious=0
+Nov 13 17:24:02 w100 kernel: sata_qstor: spurious=0
+Nov 13 17:27:26 w100 kernel: sata_qstor: spurious=0
+Nov 13 17:35:40 w100 kernel: sata_qstor: spurious=0
+Nov 13 17:39:01 w100 kernel: sata_qstor: spurious=0
+Nov 13 17:40:23 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:03:57 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:08:16 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:11:20 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:16:32 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:16:32 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:21:28 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:22:57 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:26:36 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:29:21 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:32:34 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:34:39 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:36:17 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:38:07 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:42:58 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:45:19 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:47:14 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:49:42 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:52:22 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:55:28 w100 kernel: sata_qstor: spurious=0
+Nov 13 18:55:42 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:00:12 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:04:15 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:10:41 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:12:11 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:15:51 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:20:12 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:24:27 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:26:40 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:30:41 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:38:02 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:41:07 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:42:42 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:48:06 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:55:05 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:55:07 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:58:00 w100 kernel: sata_qstor: spurious=0
+Nov 13 19:58:07 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:05:51 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:08:32 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:09:39 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:11:54 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:17:19 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:17:57 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:23:48 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:25:14 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:25:16 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:28:56 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:29:00 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:32:39 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:35:06 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:38:20 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:41:30 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:41:33 w100 kernel: sata_qstor: spurious=0
+Nov 13 20:45:00 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:08:22 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:10:28 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:13:26 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:15:22 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:23:32 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:24:11 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:26:40 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:33:14 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:45:55 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:45:57 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:56:52 w100 kernel: sata_qstor: spurious=0
+Nov 13 21:56:56 w100 kernel: sata_qstor: spurious=0
+Nov 13 22:01:53 w100 kernel: sata_qstor: spurious=0
+Nov 13 22:22:46 w100 kernel: sata_qstor: spurious=0
+Nov 13 22:30:44 w100 kernel: sata_qstor: spurious=0
+Nov 13 22:38:52 w100 kernel: sata_qstor: spurious=0
+Nov 13 22:41:48 w100 kernel: sata_qstor: spurious=0
+Nov 13 22:43:20 w100 kernel: sata_qstor: spurious=0
+Nov 13 22:44:58 w100 kernel: sata_qstor: spurious=0
+
+
+Thanks,
+
+Alberto
+
+On Mon, 2006-11-13 at 09:29 -0500, Mark Lord wrote:
+> Alberto Alonso wrote:
+> > OK, after adding the printk line I can start seeing
+> > results.
+> > 
+> > I guess it has been close to 10 on quite a few
+> > occasions.
+> ..
+> > # grep qstor /var/log/messages
+> > Nov 12 07:00:53 w100 kernel: sata_qstor: spurious=0
+> > Nov 12 07:00:53 w100 kernel: sata_qstor: spurious=1
+> > Nov 12 07:00:53 w100 kernel: sata_qstor: spurious=0
+> > Nov 12 07:00:56 w100 kernel: sata_qstor: spurious=1
+> > Nov 12 07:00:56 w100 kernel: sata_qstor: spurious=2
+> ..
+> > On Sun, 2006-11-12 at 00:09 -0500, Mark Lord wrote:
+> >> Alberto Alonso wrote:
+> >>> The saga continues. It happened again this morning even with the
+> >>> patch:
+> >> ..
+> >>>> Mmm.. We could apply a bit of fuzzy tolerance for the odd glitch.
+> >>>> Try this patch (attached) and report back.
+> >> Did you add the printk() to the patch, as suggested?
+> ..
 > 
-> d_alloc_anon() calls d_alloc() with parent == NULL, i.e. dentries have no parent
-> and are not linked to the sb->s_root...
-
-Yep, thanks.
-
-> BTW, looking at it, I found that s_anon field on super block is not
-> used any more. 
-
-I don't know what you mean by that.  It is still used...
-
-> we can add BUG_ON(!hlist_empty(&sb->s_anon)) in generic_shutdown_super to avoid such issues like this.
+> Excellent!
 > 
-> maybe we can fix it adding something like:
-> while (!list_empty(&sb->s_anon)))
->     prune_dcache(MAX_INT, &sb->s_anon);
+> So, either we have a very noisy bit of hardware in there,
+> or something is wrong with sata_qstor.c.
+> 
+> The device has two methods for dealing with commands.
+> Regular R/W uses the driver's host queue "packet" interface,
+> and all other commands pass through the legacy MMIO mechanism.
+> 
+> I'm betting on some bug/interaction with the latter.
+> 
+> Try this patch and see what happens, on top of the printk patch.
+> 
+> Thanks
+> 
+> 
+> 
+-- 
+Alberto Alonso                        Global Gate Systems LLC.
+(512) 351-7233                        http://www.ggsys.net
+Hardware, consulting, sysadmin, monitoring and remote backups
 
-It seems that anon dentries can now have children (I think someone
-explained that too me - shrink_dcache_for_umount certainly suggests
-it).
-Also, in this context we cannot be sure that all dentries can be
-freed.  This is being called a remount time remember, and some stuff
-might still be in use.
-
-We probably need to move the s_anon list to a temporary list and
-repeatedly:
-  move the top entry back to s_anon and call shrink_dcache_parent
- on it.
-
-Needs more thought.
-	
-NeilBrown

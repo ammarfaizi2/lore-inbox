@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965997AbWKNVUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965928AbWKNVT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965997AbWKNVUY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966366AbWKNVUX
+	id S965928AbWKNVT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965997AbWKNVT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:20:23 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:25487 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S965997AbWKNVT7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:19:59 -0500
-Date: Tue, 14 Nov 2006 21:19:57 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Andrew Morton <akpm@osdl.org>
-Cc: Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Boot failure with ext2 and initrds
-In-Reply-To: <20061114113120.d4c22b02.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0611142119370.17440@skynet.skynet.ie>
-References: <20061114014125.dd315fff.akpm@osdl.org> <20061114184919.GA16020@skynet.ie>
- <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
- <20061114113120.d4c22b02.akpm@osdl.org>
+	Tue, 14 Nov 2006 16:19:58 -0500
+Received: from dvhart.com ([64.146.134.43]:16263 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S965928AbWKNVT5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 16:19:57 -0500
+Message-ID: <455A32FC.4000409@mbligh.org>
+Date: Tue, 14 Nov 2006 13:19:56 -0800
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Boot failure with ext2 and initrds
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061114184919.GA16020@skynet.ie> <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com> <20061114113120.d4c22b02.akpm@osdl.org> <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006, Andrew Morton wrote:
+Hugh Dickins wrote:
+> On Tue, 14 Nov 2006, Andrew Morton wrote:
+>> The below might help.
+> 
+> Indeed it does (with Martin's E2FSBLK warning fix),
+> seems to be running well on all machines now.
+> 
+> (Of course, my ext2_fsblk_t ext2_new_blocks() notion did not pan out,
+> for same reason as the original: that ret_block was expected signed.)
 
-> On Tue, 14 Nov 2006 19:11:22 +0000 (GMT)
-> Hugh Dickins <hugh@veritas.com> wrote:
->
->> On Tue, 14 Nov 2006, Mel Gorman wrote:
->>> 2.6.19-rc5-mm2
->>>
->>> Am seeing errors with systems using ext2. First machine is a plan old x86
->>> using initramfs. Console output looks like;
->>> ...
->>> Configuring network interfaces...BUG: soft lockup detected on CPU#3!
->>> ...
->>>  [<c01b3b80>] ext2_try_to_allocate+0xdb/0x152
->>>  [<c01b3e72>] ext2_try_to_allocate_with_rsv+0x4b/0x1b2
->>>
->>> I've not investigated yet what patches might be at fault.
->>
->> I expect you'll find it's
->> ext2-reservations-bring-ext2-reservations-code-in-line-with-latest-ext3.patch
->> which gets stuck in a loop there for me too: back it out and all seems fine.
->>
->> It's not obvious which part of the patch is to blame: mostly it's
->> cleanup, but a few variables do change size: I'm currently narrowing
->> down to where a fix is needed.
->>
->
-> Doing s/-Wall/-W/ tends to shake out bugs in this stuff.
->
-> The below might help.
->
+Whilst I've got all the smart people looking at this ...
 
-It worked for me on the two problem machines. Thanks
+/*max window size: 1024(direct blocks) + 3([t,d]indirect blocks) */
+#define EXT2_MAX_RESERVE_BLOCKS         1027
+
+Is that wrong? If it's meaning one triple, one double, and one single
+indirect block, surely it can span a boundary, so we need (potentially)
+two of each?
+
+M.

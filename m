@@ -1,56 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933272AbWKNAka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933279AbWKNAql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933272AbWKNAka (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 19:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933273AbWKNAka
+	id S933279AbWKNAql (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 19:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933281AbWKNAql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 19:40:30 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:41153 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S933272AbWKNAk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 19:40:29 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: akpm@osdl.org
-Subject: Re: + fix-compat-space-msg-size-limit-for-msgsnd-msgrcv.patch added to -mm tree
-Date: Tue, 14 Nov 2006 01:38:18 +0100
-User-Agent: KMail/1.9.5
-Cc: suzuki@linux.vnet.ibm.com, davem@davemloft.net, suzuki@in.ibm.com,
-       linux-kernel@vger.kernel.org
-References: <200611132358.kADNwF0V012270@shell0.pdx.osdl.net>
-In-Reply-To: <200611132358.kADNwF0V012270@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Mon, 13 Nov 2006 19:46:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48802 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933279AbWKNAqk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 19:46:40 -0500
+Date: Mon, 13 Nov 2006 16:42:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] arch/i386/kernel/io_apic.c: handle a negative
+ return value
+Message-Id: <20061113164256.805a7497.akpm@osdl.org>
+In-Reply-To: <20061112174826.GC3382@stusta.de>
+References: <20061112174826.GC3382@stusta.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611140138.19111.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 November 2006 00:58, akpm@osdl.org wrote:
+On Sun, 12 Nov 2006 18:48:26 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-> Subject: Fix compat space msg size limit for msgsnd/msgrcv
-> From: suzuki <suzuki@linux.vnet.ibm.com>
+> The Coverity checker noted that bad things might happen if 
+> find_isa_irq_apic() returned -1.
 > 
-> Currently we allocate 64k space on the user stack and use it the msgbuf for
-> sys_{msgrcv,msgsnd} for compat and the results are later copied in user [by
-> copy_in_user].
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 > 
-> This patch introduces helper routines for sys_{msgrcv,msgsnd} which would
-> accept the pointer to msgbuf along with the msgp->mtext.  This avoids the
-> need to allocate the msgsize on the userspace (thus removing the size
-> limit) and the overhead of an extra copy_in_user().
-> 
-> Signed-off-by: Suzuki K P <suzuki@in.ibm.com>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> --- linux-2.6/arch/i386/kernel/io_apic.c.old	2006-11-12 18:41:24.000000000 +0100
+> +++ linux-2.6/arch/i386/kernel/io_apic.c	2006-11-12 18:42:00.000000000 +0100
+> @@ -2160,7 +2160,8 @@ static inline void unlock_ExtINT_logic(v
+>  
+>  	pin  = find_isa_irq_pin(8, mp_INT);
+>  	apic = find_isa_irq_apic(8, mp_INT);
+> -	if (pin == -1)
+> +
+> +	if ((pin == -1) || (apic == -1))
+>  		return;
+>  
 
-This patch is definitely a big step in the right direction here, but why 
-not go all the way and pass msgp->mtype to do_msgsnd/do_msgrcv as kernel
-data instead of a user space pointer? This way you can get rid of the
-compat_alloc_userspace entirely and save avoid doing an extra 
-put_user/get_user pair in the compat_ function.
+I dunno about this.  For some reason I don't trust the apic code much.  At
+present if find_isa_irq_apic() fails we at least have a chance of
+blundering into a nnice oops or something.  By adding correct
+error-checking we increase the chance of things just silently not working.
 
-	Arnd <><
+So let's see what this does...
+
+
+
+
+From: Adrian Bunk <bunk@stusta.de>
+
+The Coverity checker noted that bad things might happen if
+find_isa_irq_apic() returned -1.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Cc: Andi Kleen <ak@suse.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ arch/i386/kernel/io_apic.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletion(-)
+
+diff -puN arch/i386/kernel/io_apic.c~arch-i386-kernel-io_apicc-handle-a-negative-return-value arch/i386/kernel/io_apic.c
+--- a/arch/i386/kernel/io_apic.c~arch-i386-kernel-io_apicc-handle-a-negative-return-value
++++ a/arch/i386/kernel/io_apic.c
+@@ -2166,9 +2166,17 @@ static inline void unlock_ExtINT_logic(v
+ 	unsigned char save_control, save_freq_select;
+ 
+ 	pin  = find_isa_irq_pin(8, mp_INT);
++	if (pin == -1) {
++		printk(KERN_ERR "unlock_ExtINT_logic: find_isa_irq_pin()
++				"failed\n");
++		return;
++	}
+ 	apic = find_isa_irq_apic(8, mp_INT);
+-	if (pin == -1)
++	if (apic == -1) {
++		printk(KERN_ERR "unlock_ExtINT_logic: find_isa_irq_apic()
++				"failed\n");
+ 		return;
++	}
+ 
+ 	entry0 = ioapic_read_entry(apic, pin);
+ 	clear_IO_APIC_pin(apic, pin);
+_
+
+
+

@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966348AbWKNUsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966295AbWKNUsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966348AbWKNUsj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 15:48:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966349AbWKNUsj
+	id S966295AbWKNUsd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 15:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966345AbWKNUsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 15:48:39 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:8342 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S966348AbWKNUsi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 15:48:38 -0500
-Message-ID: <455A2BAF.6010200@drzeus.cx>
-Date: Tue, 14 Nov 2006 21:48:47 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Jens Axboe <jens.axboe@oracle.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to cleanly shut down a block device
-References: <455969F2.80401@drzeus.cx> <20061114075648.GK15031@kernel.dk> <45597B0A.3060409@drzeus.cx> <20061114084519.GL15031@kernel.dk> <45598462.80605@drzeus.cx> <20061114104844.GA15340@flint.arm.linux.org.uk> <4559A99B.6070207@drzeus.cx> <20061114114120.GC22178@kernel.dk> <4559D3F1.1010400@drzeus.cx>
-In-Reply-To: <4559D3F1.1010400@drzeus.cx>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 14 Nov 2006 15:48:33 -0500
+Received: from mx27.mail.ru ([194.67.23.64]:63339 "EHLO mx27.mail.ru")
+	by vger.kernel.org with ESMTP id S966295AbWKNUsc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 15:48:32 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.19-rc5 regression: can't disable OHCI wakeup via sysfs
+Date: Tue, 14 Nov 2006 23:48:29 +0300
+User-Agent: KMail/1.9.5
+Cc: David Brownell <david-b@pacbell.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0611131457050.2390-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0611131457050.2390-100000@iolanthe.rowland.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611142348.30082.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> How about this patch? It is basically the same as the previous, but it
-> also sets queuedata to NULL and tests for that. It does not address if
-> someone still has dependencies on the queue but hasn't gotten itself a
-> reference (as I haven't gotten any word on if that is a problem):
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ok, I've done some more digging through the block layer. A lot of voodoo
-in there, but gendisk seems to make sure it has its own reference to the
-queue.
+On Monday 13 November 2006 22:58, Alan Stern wrote:
+> Andrey:
+>
+> Try this patch for 2.6.19-rc5.  Although it doesn't make all the changes
+> Dave and I have discussed, it ought to fix your problem.
+>
 
-As gendisk drops it reference to the queue in del_gendisk(), I have to
-assume that is would be invalid for any part of kernel to look at
-disk->queue at this point (since it might now have been released).
+It did. Thank you
 
-So I think this patch should cover all bases. It cleanly kills of our
-extra thread and also handles any requests that might be left behind.
+- -andrey
 
-I hope you can look at this soon as I'm eager to get rid of this oops.
+> Alan Stern
+>
+>
+> Index: 2.6.19-rc5/drivers/usb/host/ohci-hub.c
+> ===================================================================
+> --- 2.6.19-rc5.orig/drivers/usb/host/ohci-hub.c
+> +++ 2.6.19-rc5/drivers/usb/host/ohci-hub.c
+> @@ -422,7 +422,8 @@ ohci_hub_status_data (struct usb_hcd *hc
+>  				ohci->autostop = 0;
+>  				ohci->next_statechange = jiffies +
+>  						STATECHANGE_DELAY;
+> -			} else if (time_after_eq (jiffies,
+> +			} else if (device_may_wakeup(&hcd->self.root_hub->dev)
+> +					&& time_after_eq(jiffies,
+>  						ohci->next_statechange)
+>  					&& !ohci->ed_rm_list
+>  					&& !(ohci->hc_control &
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-Rgds
-
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+iD8DBQFFWiueR6LMutpd94wRAu9JAKC/IXuGi+NvXx+O9zwDwaJI3AXqXQCfTF/I
+jzkfD8gsU+JgYlqWkzQ2Pis=
+=ckCE
+-----END PGP SIGNATURE-----

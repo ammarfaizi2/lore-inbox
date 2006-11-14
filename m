@@ -1,80 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966485AbWKNXl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966486AbWKNXmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966485AbWKNXl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 18:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966486AbWKNXl6
+	id S966486AbWKNXmk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 18:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966487AbWKNXmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 18:41:58 -0500
-Received: from mga01.intel.com ([192.55.52.88]:2446 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S966485AbWKNXl5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 18:41:57 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,422,1157353200"; 
-   d="scan'208"; a="163916500:sNHT31709853"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <nickpiggin@yahoo.com.au>, "Ingo Molnar" <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] sched: optimize activate_task for RT task
-Date: Tue, 14 Nov 2006 15:41:54 -0800
-Message-ID: <000301c70846$786c87e0$d834030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccIRnb8zoPSUTNxSF+p8JyryR1LKg==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 14 Nov 2006 18:42:39 -0500
+Received: from nessie.weebeastie.net ([220.233.7.36]:11531 "EHLO
+	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S966486AbWKNXmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 18:42:38 -0500
+Date: Wed, 15 Nov 2006 10:29:00 +1100
+From: CaT <cat@zip.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Dennis J.A. Bijwaard" <dennis@h8922032063.dsl.speedlinq.nl>,
+       bijwaard@gmail.com, sct@redhat.com, adilger@clusterfs.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: BUG: soft lockup detected on CPU#0! in sys_close and ext3
+Message-ID: <20061114232900.GD3155@zip.com.au>
+References: <20061015175640.GA3673@jumbo.lan> <20061015121202.378bdd41.akpm@osdl.org> <20061015215854.GA12890@jumbo.lan> <20061114095818.GA2541@zip.com.au> <20061114020125.636c9006.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061114020125.636c9006.akpm@osdl.org>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RT task does not participate in interactiveness priority and thus
-shouldn't be bothered with timestamp when task is being put on run
-queue. We should push all of the time calculation inside already
-existed if (!rt_task) block.
+On Tue, Nov 14, 2006 at 02:01:25AM -0800, Andrew Morton wrote:
+> > It did for me in all cases. Should it be taking long enough to trigger
+> > the softlock timeout to do this? The size of the device is approx 280gig.
+> 
+> It's a bit of a worry if it's taking all that time to shoot down 4g of
+> pagecache.  The 280G will affect things - the radix-tree will be sparse and
+> the invalidate has firther to walk.  But still...
 
+Yeah. I would've thought that legitimate usage would not trigger such
+things, which is why I have it on whilst I'm building this box up.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+> I assume that a fsck does the same thing?
 
---- ./kernel/sched.c.orig	2006-11-14 13:29:37.000000000 -0800
-+++ ./kernel/sched.c	2006-11-14 13:52:02.000000000 -0800
-@@ -936,20 +936,19 @@ static int recalc_task_prio(struct task_
-  */
- static void activate_task(struct task_struct *p, struct rq *rq, int local)
- {
--	unsigned long long now;
--
--	now = sched_clock();
-+	if (!rt_task(p)) {
-+		unsigned long long now = sched_clock();
- #ifdef CONFIG_SMP
--	if (!local) {
--		/* Compensate for drifting sched_clock */
--		struct rq *this_rq = this_rq();
--		now = (now - this_rq->timestamp_last_tick)
--			+ rq->timestamp_last_tick;
--	}
-+		if (!local) {
-+			/* Compensate for drifting sched_clock */
-+			struct rq *this_rq = this_rq();
-+			now = (now - this_rq->timestamp_last_tick)
-+				+ rq->timestamp_last_tick;
-+		}
- #endif
--
--	if (!rt_task(p))
- 		p->prio = recalc_task_prio(p, now);
-+		p->timestamp = now;
-+	}
- 
- 	/*
- 	 * This checks to make sure it's not an uninterruptible task
-@@ -973,7 +972,6 @@ static void activate_task(struct task_st
- 			p->sleep_type = SLEEP_INTERACTIVE;
- 		}
- 	}
--	p->timestamp = now;
- 
- 	__activate_task(p, rq);
- }
+Just did an e2fsck and it did the same thing.
+
+-- 
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

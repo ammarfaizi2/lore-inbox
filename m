@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933385AbWKNKsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933407AbWKNK5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933385AbWKNKsx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 05:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933398AbWKNKsw
+	id S933407AbWKNK5S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 05:57:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933408AbWKNK5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 05:48:52 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:27404 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S933385AbWKNKsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 05:48:52 -0500
-Date: Tue, 14 Nov 2006 10:48:44 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Jens Axboe <jens.axboe@oracle.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to cleanly shut down a block device
-Message-ID: <20061114104844.GA15340@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	Jens Axboe <jens.axboe@oracle.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <455969F2.80401@drzeus.cx> <20061114075648.GK15031@kernel.dk> <45597B0A.3060409@drzeus.cx> <20061114084519.GL15031@kernel.dk> <45598462.80605@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45598462.80605@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+	Tue, 14 Nov 2006 05:57:18 -0500
+Received: from iona.labri.fr ([147.210.8.143]:39374 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S933407AbWKNK5R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 05:57:17 -0500
+X-Amavis-Alert: BAD HEADER Improper folded header field made up entirely of
+	whitespace (char 20 hex): Subject: ...ocess.c:328: error: 'PAGE_SHIFT'
+	undeclared\n \n
+Message-ID: <4559A0D7.6050808@labri.fr>
+Date: Tue, 14 Nov 2006 11:56:23 +0100
+From: Emmanuel Fleury <fleury@labri.fr>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: jdike@addtoit.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [UML] arch/um/os-Linux/skas/process.c:328: error: 'PAGE_SHIFT' undeclared 
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2006 at 09:54:58AM +0100, Pierre Ossman wrote:
-> I've had another look at it, and I believe I have a solution. There is
-> one assumption I need to verify though.
-> 
-> After del_gendisk() and after I've flushed out any remaining requests,
-> is it ok to kill off the queue? Someone might still have the disk open,
-> so that would mean the queue is gone by the time gendisk's release
-> function is called.
+Hi,
 
-Just arrange for the mmc_queue_thread() to empty the queue when
-MMC_QUEUE_EXIT is set, and then exit.  I thought this was something
-that the block layer looked after (Jens must have missed this in his
-original review of the MMC code.)
+Some problems in 2.6.18.2 with UML:
 
-The handling of userspace keeping the device open despite the hardware
-having been removed is already in place.
+arch/um/os-Linux/skas/process.c: In function 'copy_context_skas0':
+arch/um/os-Linux/skas/process.c:328: error: 'PAGE_SHIFT' undeclared
+(first use in this function)
+arch/um/os-Linux/skas/process.c:328: error: (Each undeclared identifier
+is reported only once
+arch/um/os-Linux/skas/process.c:328: error: for each function it appears
+in.)
+arch/um/os-Linux/skas/process.c:560:2: warning: #warning need cpu pid in
+switch_mm_skas
+make[2]: *** [arch/um/os-Linux/skas/process.o] Error 1
+make[1]: *** [arch/um/os-Linux/skas] Error 2
+make[1]: *** Waiting for unfinished jobs....
 
+Solved with the following patch (probably already solved but just in
+case you didn't...):
+
+--- arch/um/include/sysdep-i386/stub.h.orig 2006-11-04
+02:33:58.000000000 +0100
++++ arch/um/include/sysdep-i386/stub.h      2006-11-14
+11:23:20.000000000 +0100
+@@ -12,6 +12,7 @@
+ #include "stub-data.h"
+ #include "kern_constants.h"
+ #include "uml-config.h"
++#include "asm/page.h"
+
+ extern void stub_segv_handler(int sig);
+ extern void stub_clone_handler(void);
+
+Regards
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Emmanuel Fleury              | Office: 261
+Associate Professor,         | Phone: +33 (0)5 40 00 69 34
+LaBRI, Domaine Universitaire | Fax:   +33 (0)5 40 00 66 69
+351, Cours de la Libération  | email: emmanuel.fleury@labri.fr
+33405 Talence Cedex, France  | URL: http://www.labri.fr/~fleury

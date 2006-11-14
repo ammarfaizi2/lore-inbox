@@ -1,47 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966362AbWKNV1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966369AbWKNV2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966362AbWKNV1H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966366AbWKNV1H
+	id S966369AbWKNV2o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966367AbWKNV2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:27:07 -0500
-Received: from mail5.sea5.speakeasy.net ([69.17.117.7]:34712 "EHLO
-	mail5.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S966362AbWKNV1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:27:04 -0500
-Date: Tue, 14 Nov 2006 16:27:01 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: David Howells <dhowells@redhat.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, trond.myklebust@fys.uio.no,
-       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
-       steved@redhat.com
-Subject: Re: [PATCH 16/19] CacheFiles: Deal with LSM when accessing the cache
-In-Reply-To: <20061114200656.12943.98985.stgit@warthog.cambridge.redhat.com>
-Message-ID: <XMMS.LNX.4.64.0611141625090.25022@d.namei>
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
- <20061114200656.12943.98985.stgit@warthog.cambridge.redhat.com>
+	Tue, 14 Nov 2006 16:28:44 -0500
+Received: from smtp-5.smtp.ucla.edu ([169.232.47.137]:52419 "EHLO
+	smtp-5.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S966369AbWKNV2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 16:28:42 -0500
+Date: Tue, 14 Nov 2006 13:28:38 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: linux-kernel@vger.kernel.org
+Subject: driver support for Chelsio T210 10Gb ethernet in 2.6.x
+Message-ID: <Pine.LNX.4.64.0611131408010.32659@potato.cts.ucla.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006, David Howells wrote:
+The in-kernel Chelsio cxgb driver in 2.6.19-rc5 is version 2.1.1 and only 
+supports the N110 and N210 10Gb ethernet boards.  The current driver 
+available from Chelsio[1] is 2.1.4a and supports the T110 and T210 series 
+boards, but is only available against 2.6.16.  Any chance of an update to 
+the in-kernel driver for 2.6.20 to support the T* series cards?
 
-> @@ -80,6 +81,8 @@ struct cachefiles_cache {
->  	struct rb_root			active_nodes;	/* active nodes (can't be culled) */
->  	rwlock_t			active_lock;	/* lock for active_nodes */
->  	atomic_t			gravecounter;	/* graveyard uniquifier */
-> +	u32				access_sid;	/* cache access SID */
-> +	u32				cache_sid;	/* cache fs object SID */
+-Chris
 
-Please uniformly name these security IDs 'secids' in the main kernel, to 
-avoid confusion with session IDs.
-
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+1. http://service.chelsio.com/drivers/linux/n210/cxgb-2.1.4a.tar.gz

@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966449AbWKNXSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966448AbWKNXTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966449AbWKNXSW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 18:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966448AbWKNXSW
+	id S966448AbWKNXTW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 18:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966453AbWKNXTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 18:18:22 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:46043 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S966460AbWKNXSV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 18:18:21 -0500
-Date: Tue, 14 Nov 2006 18:17:42 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com
-Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-Message-ID: <20061114231742.GE7030@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <20061114163002.GB4445@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061114163002.GB4445@ucw.cz>
-User-Agent: Mutt/1.5.11
+	Tue, 14 Nov 2006 18:19:22 -0500
+Received: from mga09.intel.com ([134.134.136.24]:5564 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S966448AbWKNXTV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 18:19:21 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,422,1157353200"; 
+   d="scan'208"; a="161556520:sNHT24361736"
+Message-ID: <455A4EF8.5030004@foo-projects.org>
+Date: Tue, 14 Nov 2006 15:19:20 -0800
+From: Auke Kok <sofar@foo-projects.org>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: nightly 2.6 LXR run?
+References: <1163530480.16381.23.camel@jcm.boston.redhat.com> <slrnelkj1s.7lr.olecom@flower.upol.cz>
+In-Reply-To: <slrnelkj1s.7lr.olecom@flower.upol.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Nov 2006 23:19:20.0881 (UTC) FILETIME=[5071BA10:01C70843]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2006 at 04:30:03PM +0000, Pavel Machek wrote:
-> Hi!
+Oleg Verych wrote:
+> Hallo.
+> On 2006-11-14, Jon Masters wrote:
+>> Hi folks,
+>>
+>> So I'm curious (before I do it) whether anyone is currently running an
+>> automated nightly LXR against Linus' git kernel tree?
 > 
-> > - Killed lots of dead code
-> > - Improve the cpu sanity checks to verify long mode
-> >   is enabled when we wake up.
-> > - Removed the need for modifying any existing kernel page table.
-> > - Moved wakeup_level4_pgt into the wakeup routine so we can
-> >   run the kernel above 4G.
-> > - Increased the size of the wakeup routine to 8K.
-> > - Renamed the variables to use the 64bit register names.
-> > - Lots of misc cleanups to match trampoline.S
-> > 
-> > I don't have a configuration I can test this but it compiles cleanly
+> I don't think so. Also, i don't think, it's useful for development.
+> There are TAGS/tags make targets for it, and they're more productive, i think.
 > 
-> Ugh, now that's a big patch.. and untested, too :-(.
-> 
-> Why is PGE no longer required, for example?
-> 
-> Can we get it piece-by-piece?
-> 
-> > Vivek has tested this patch for suspend to memory and it works fine.
-> 
-> Ok, so it was tested on one config. Given that the patch deals with
-> detecting CPU oddities... :-(
+> But what really will be helpful (well, for me), is another git-web public 
+> service on Linus' git tree. kernel.org is very heavy loaded with many
+> things, so normally i get "The load average on the server is too high",
+> when trying to trace some code history and reading logs. There were
+> some lkml posts, even from Linus, stating, that kernel.org is very
+> loaded and slow.
 
-Hi Pavel,
+try to use `git2.kernel.org` instead of `git.kernel.org`. The second server somehow only 
+has an average load of ~4 instead of ~250.
 
-This code has been lying in RHEL kernels for close to 3 months now.
-Have not heard of suspend/resume complaints. So hoping it got
-tested on wide variety of hardware too apart from testing on my machine.
+Cheers,
 
-Thanks
-Vivek
+Auke

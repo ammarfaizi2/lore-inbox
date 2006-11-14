@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966347AbWKNXM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966442AbWKNXNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966347AbWKNXM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 18:12:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966442AbWKNXM2
+	id S966442AbWKNXNO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 18:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966457AbWKNXNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 18:12:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62111 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966347AbWKNXM1 (ORCPT
+	Tue, 14 Nov 2006 18:13:14 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32401 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S966442AbWKNXNN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 18:12:27 -0500
-Date: Tue, 14 Nov 2006 15:09:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
-Subject: Re: 2.6.19-rc5-mm2: warnings in MODPOST and later
-Message-Id: <20061114150902.f772c75c.akpm@osdl.org>
-In-Reply-To: <20061114225622.GO22565@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-	<20061114225622.GO22565@stusta.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Nov 2006 18:13:13 -0500
+Date: Wed, 15 Nov 2006 00:12:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Christian Hoffmann <chrmhoffmann@gmail.com>,
+       linux-fbdev-devel@lists.sourceforge.net,
+       Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Solomon Peachy <pizza@shaftnet.org>
+Subject: Re: [Linux-fbdev-devel] Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
+Message-ID: <20061114231256.GC2676@elf.ucw.cz>
+References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com> <200611142247.55137.chrmhoffmann@gmail.com> <20061114225629.GA2676@elf.ucw.cz> <200611142358.00616.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611142358.00616.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006 23:56:22 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
 
-> Since people were recently complaining about too many warnings:
-> Here is a list of the warnings I'm getting in MODPOST and later.
+On Tue 2006-11-14 23:57:59, Rafael J. Wysocki wrote:
+> On Tuesday, 14 November 2006 23:56, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > > I tried netconsole, and it somehow works, but when suspending it says in
+> > > > > an "infinite" loop:
+> > > > >
+> > > > > unregister_netdevice: waiting for eth2 to become free. Usage count = 1
+> > > >
+> > > > Hm.  Is your kernel compiled with CONFIG_DISABLE_CONSOLE_SUSPEND set?
+> > > >
+> > > > Rafael
+> > > 
+> > > I tried that patch, but the last message I see over netconsole (using tg3) is:
+> > > Suspending console(s)
+> > > and then nothing. Nothing on resume at all :(
+> > > 
+> > > Adding some printks in the radeonfb_pci_suspend and radeonfb_pci_resume 
+> > > (radeon_pm.c) didn't help: I don't see them. But I am not a kernel programmer 
+> > > at all, so I might do something wrong or in the wrong place.
+> > 
+> > Linus has crazy "write some info to CMOS" hack... which should be
+> > usable here.
 > 
-> Since the warnings by far exceed the 100kB limit of linux-kernel (sic), 
-> I had to attach them compressed.
-> 
-> With the exception of the "drivers/ide/pci/atiixp:FFFF05", none of these 
-> warnings is present in Linus' tree.
+> No, it's i386-only.
 
-yes, lots of new section mismatch warnings.
+Ok, so you could debug it on i386 kernel :-). Actually trying if s2ram
+works in 32-bit mode _would_ be interesting.
 
-A large number of them are due to the paravirt patches:
-
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .parainstructions between '__start_parainstructions' (at offset 0xc0458470) and '__stop_parainstructions'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .parainstructions between '__start_parainstructions' (at offset 0xc0458478) and '__stop_parainstructions'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .parainstructions between '__start_parainstructions' (at offset 0xc0458480) and '__stop_parainstructions'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .parainstructions between '__start_parainstructions' (at offset 0xc0458488) and '__stop_parainstructions'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .parainstructions between '__start_parainstructions' (at offset 0xc0458490) and '__stop_parainstructions'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .parainstructions between '__start_parainstructions' (at offset 0xc0458498) and '__stop_parainstructions'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .parainstructions between '__start_parainstructions' (at offset 0xc04584a0) and '__stop_parainstructions'
-WARNING: Can't handle masks in drivers/ata/ahci:FFFF05
-WARNING: drivers/ata/pata_legacy.o - Section mismatch: reference to .init.text: from .parainstructions after '' (at offset 0x18)
-WARNING: drivers/ata/pata_legacy.o - Section mismatch: reference to .init.text: from .parainstructions after '' (at offset 0x20)
-WARNING: drivers/ata/pata_legacy.o - Section mismatch: reference to .init.text: from .parainstructions after '' (at offset 0x28)
-WARNING: drivers/ata/pata_qdi.o - Section mismatch: reference to .init.text: from .parainstructions after '' (at offset 0x0)
-WARNING: drivers/ata/pata_qdi.o - Section mismatch: reference to .init.text: from .parainstructions after '' (at offset 0x8)
-
-but there are others too.
-
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

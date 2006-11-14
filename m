@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966108AbWKNQ03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966190AbWKNQcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966108AbWKNQ03 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 11:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755443AbWKNQ03
+	id S966190AbWKNQcx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 11:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966189AbWKNQcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 11:26:29 -0500
-Received: from sardaukar.technologeek.org ([213.41.134.240]:17087 "EHLO
-	frigate.technologeek.org") by vger.kernel.org with ESMTP
-	id S1755430AbWKNQ03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 11:26:29 -0500
-From: Julien BLACHE <jb@jblache.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: jgarzik@pobox.com, jhf@columbus.rr.com
-Subject: Re: Intel RNG: firmware hub changes in 2.6.19 break 82802 detection on Core2 Duo MacBook Pro
-References: <87u015osxb.fsf@frigate.technologeek.org>
-	<20061113191205.GA15349@nineveh.rivenstone.net>
-Date: Tue, 14 Nov 2006 17:26:29 +0100
-In-Reply-To: <20061113191205.GA15349@nineveh.rivenstone.net> (Joseph Fannin's
-	message of "Mon, 13 Nov 2006 14:12:05 -0500")
-Message-ID: <87d57qq9je.fsf@frigate.technologeek.org>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
+	Tue, 14 Nov 2006 11:32:53 -0500
+Received: from rtr.ca ([64.26.128.89]:52485 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S966187AbWKNQcw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 11:32:52 -0500
+Message-ID: <4559EFB2.1000809@rtr.ca>
+Date: Tue, 14 Nov 2006 11:32:50 -0500
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] libata fixes
+References: <20061114150454.GA11900@havoc.gtf.org>
+In-Reply-To: <20061114150454.GA11900@havoc.gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jhf@columbus.rr.com (Joseph Fannin) wrote:
+diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
+index 7af2a4b..5c1fc46 100644
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -1612,9 +1612,9 @@ early_finish:
+ 
+ err_did:
+ 	ata_qc_free(qc);
+-err_mem:
+ 	cmd->result = (DID_ERROR << 16);
+ 	done(cmd);
++err_mem:
+ 	DPRINTK("EXIT - internal\n");
+ 	return 0;
 
-Hi,
+This doesn't look correct to me, but I did miss out on the original discussion(?).
 
->     I have the older Core Duo MacBook, and there is no RNG here,
-> though it used to be detected.  rngd would disable it immediately when
-> I tried to use it.
+Any time we return 0 from queuecommand, the SCSI mid-layer expects us
+to also take care of invoking the done() function.  Where does this now
+happen for this case (err_mem) ???
 
-That's what happens here too.
-
-Thanks for the input, looks like there isn't a hardware RNG in there.
-
-JB.
-
--- 
-Julien BLACHE                                   <http://www.jblache.org> 
-<jb@jblache.org>                                  GPG KeyID 0xF5D65169
+Cheers

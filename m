@@ -1,159 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933455AbWKNQJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966148AbWKNQJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933455AbWKNQJV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 11:09:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933456AbWKNQJU
+	id S966148AbWKNQJw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 11:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966146AbWKNQJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 11:09:20 -0500
-Received: from cantor.suse.de ([195.135.220.2]:14479 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S933455AbWKNQJG (ORCPT
+	Tue, 14 Nov 2006 11:09:32 -0500
+Received: from ns1.suse.de ([195.135.220.2]:11151 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S933448AbWKNQI7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 11:09:06 -0500
+	Tue, 14 Nov 2006 11:08:59 -0500
 From: Andi Kleen <ak@suse.de>
 References: <20061114508.445749000@suse.de>
 In-Reply-To: <20061114508.445749000@suse.de>
-To: len.brown@intel.com, patches@x86-64.org, linux-kernel@vger.kernel.org
-Subject: [PATCH for 2.6.19] [7/9] x86: Add acpi_user_timer_override option for Asus boards
-Message-Id: <20061114160857.DD78313DE0@wotan.suse.de>
-Date: Tue, 14 Nov 2006 17:08:57 +0100 (CET)
+To: "Aaron Durbin" <adurbin@google.com>, patches@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH for 2.6.19] [6/9] x86_64: Update MMCONFIG resource insertion to check against e820 map.
+Message-Id: <20061114160856.D02D113C69@wotan.suse.de>
+Date: Tue, 14 Nov 2006 17:08:56 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Timer overrides are normally disabled on Nvidia board because
-they are commonly wrong, except on new ones with HPET support.
-Unfortunately there are quite some Asus boards around that
-don't have HPET, but need a timer override.
-
-We don't know yet how to handle this transparently,
-but at least add a command line option to force the timer override
-and let them boot.
-
-Cc: len.brown@intel.com
+From: "Aaron Durbin" <adurbin@google.com>
+Check to see if MMCONFIG region is marked as reserved in the e820 map before
+inserting the MMCONFIG region into the resource map. If the region is not
+entirely marked as reserved in the e820 map attempt to find a region that is.
+Only insert the MMCONFIG region into the resource map if there was a region
+found marked as reserved in the e820 map.  This should fix a known regression
+in 2.6.19 by not reserving all of the I/O space on misconfigured systems.
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- Documentation/kernel-parameters.txt |    4 ++++
- arch/i386/kernel/acpi/boot.c        |    8 ++++++++
- arch/i386/kernel/acpi/earlyquirk.c  |    8 +++++++-
- arch/x86_64/kernel/early-quirks.c   |    8 ++++++++
- include/asm-i386/acpi.h             |    1 +
- include/asm-x86_64/acpi.h           |    1 +
- 6 files changed, 29 insertions(+), 1 deletion(-)
 
-Index: linux/arch/i386/kernel/acpi/boot.c
+This patch is against 2.6.19-rc4.
+
+ arch/x86_64/pci/mmconfig.c |   76 ++++++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 65 insertions(+), 11 deletions(-)
+
+Index: linux/arch/x86_64/pci/mmconfig.c
 ===================================================================
---- linux.orig/arch/i386/kernel/acpi/boot.c
-+++ linux/arch/i386/kernel/acpi/boot.c
-@@ -82,6 +82,7 @@ EXPORT_SYMBOL(acpi_strict);
- acpi_interrupt_flags acpi_sci_flags __initdata;
- int acpi_sci_override_gsi __initdata;
- int acpi_skip_timer_override __initdata;
-+int acpi_use_timer_override __initdata;
- 
- #ifdef CONFIG_X86_LOCAL_APIC
- static u64 acpi_lapic_addr __initdata = APIC_DEFAULT_PHYS_BASE;
-@@ -1300,6 +1301,13 @@ static int __init parse_acpi_skip_timer_
- 	return 0;
- }
- early_param("acpi_skip_timer_override", parse_acpi_skip_timer_override);
-+
-+static int __init parse_acpi_use_timer_override(char *arg)
-+{
-+	acpi_use_timer_override = 1;
-+	return 0;
-+}
-+early_param("acpi_use_timer_override", parse_acpi_use_timer_override);
- #endif /* CONFIG_X86_IO_APIC */
- 
- static int __init setup_acpi_sci(char *s)
-Index: linux/arch/i386/kernel/acpi/earlyquirk.c
-===================================================================
---- linux.orig/arch/i386/kernel/acpi/earlyquirk.c
-+++ linux/arch/i386/kernel/acpi/earlyquirk.c
-@@ -27,11 +27,17 @@ static int __init check_bridge(int vendo
- #ifdef CONFIG_ACPI
- 	/* According to Nvidia all timer overrides are bogus unless HPET
- 	   is enabled. */
--	if (vendor == PCI_VENDOR_ID_NVIDIA) {
-+	if (!acpi_use_timer_override && vendor == PCI_VENDOR_ID_NVIDIA) {
- 		nvidia_hpet_detected = 0;
- 		acpi_table_parse(ACPI_HPET, nvidia_hpet_check);
- 		if (nvidia_hpet_detected == 0) {
- 			acpi_skip_timer_override = 1;
-+			  printk(KERN_INFO "Nvidia board "
-+                       "detected. Ignoring ACPI "
-+                       "timer override.\n");
-+                printk(KERN_INFO "If you got timer trouble "
-+			 	 "try acpi_use_timer_override\n");
-+
- 		}
+--- linux.orig/arch/x86_64/pci/mmconfig.c
++++ linux/arch/x86_64/pci/mmconfig.c
+@@ -163,33 +163,87 @@ static __init void unreachable_devices(v
  	}
- #endif
-Index: linux/arch/x86_64/kernel/early-quirks.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/early-quirks.c
-+++ linux/arch/x86_64/kernel/early-quirks.c
-@@ -45,7 +45,13 @@ static void nvidia_bugs(void)
- 	/*
- 	 * All timer overrides on Nvidia are
- 	 * wrong unless HPET is enabled.
-+	 * Unfortunately that's not true on many Asus boards.
-+	 * We don't know yet how to detect this automatically, but
-+	 * at least allow a command line override.
- 	 */
-+	if (acpi_use_timer_override)
+ }
+ 
++#define PCI_MMCFG_RESOURCE_NAME_LEN 19
++/* Check the given mcfg_entry to see if its reported address range is marked
++ * as reserved in the e820 map. If it is not entirely marked as reserved it
++ * attempts to find a given bus range that is marked as reserved. If no range
++ * is determined, do not insert the MCFG resource into the resource map. */
++static __init void pci_mmcfg_check_and_insert_resource(int mcfg_entry,
++						      struct resource *res)
++{
++	struct acpi_table_mcfg_config *mcfg;
++	unsigned start_bus_num, end_bus_num;
++	unsigned num_buses;
++
++	mcfg = &pci_mmcfg_config[mcfg_entry];
++
++	start_bus_num = mcfg->start_bus_number;
++	end_bus_num = mcfg->end_bus_number;
++
++	if (end_bus_num < start_bus_num) {
++		printk(KERN_ERR "PCI: BIOS Bug: MCFG region %u has "
++				"misconfigured bus entries [%u,%u].\n",
++				mcfg_entry, mcfg->start_bus_number,
++				mcfg->end_bus_number);
++		return;
++	}
++
++	while (end_bus_num >= start_bus_num) {
++		num_buses = end_bus_num - start_bus_num + 1;
++		if (e820_all_mapped(mcfg->base_address,
++				mcfg->base_address + (num_buses << 20) -1,
++				E820_RESERVED))
++			break;
++		end_bus_num--;
++	}
++
++	if (mcfg->end_bus_number != end_bus_num) {
++		unsigned long end_addr;
++		unsigned long start_addr;
++		start_addr = mcfg->base_address;
++		num_buses = mcfg->end_bus_number - mcfg->start_bus_number + 1;
++		end_addr =  mcfg->base_address + (num_buses << 20) - 1;
++		printk(KERN_ERR "PCI: BIOS Bug: MCFG region %u not entirely "
++				"marked as e280-reserved (%016lx-%016lx).\n",
++			mcfg_entry, start_addr, end_addr);
++	}
++
++	/* If we could not find a region reserved in the e820 then we should
++	 * not reserve the resource. We will hope for the best that there
++	 * are no collisions. */
++	if (end_bus_num < start_bus_num)
 +		return;
 +
- 	nvidia_hpet_detected = 0;
- 	acpi_table_parse(ACPI_HPET, nvidia_hpet_check);
- 	if (nvidia_hpet_detected == 0) {
-@@ -53,6 +59,8 @@ static void nvidia_bugs(void)
- 		printk(KERN_INFO "Nvidia board "
- 		       "detected. Ignoring ACPI "
- 		       "timer override.\n");
-+		printk(KERN_INFO "If you got timer trouble "
-+			"try acpi_use_timer_override\n");
++	/* Fixup the resource limits for allocation without affecting the
++	 * reported bus number limits in the MCFG table. */
++	num_buses = end_bus_num - start_bus_num + 1;
++	res->start = mcfg->base_address;
++	res->end = res->start + (num_buses << 20) - 1;
++
++	snprintf((char *)res->name, PCI_MMCFG_RESOURCE_NAME_LEN,
++		 "PCI MMCONFIG %u", mcfg->pci_segment_group_number);
++	res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
++	insert_resource(&iomem_resource, res);
++}
++
+ static __init void pci_mmcfg_insert_resources(void)
+ {
+-#define PCI_MMCFG_RESOURCE_NAME_LEN 19
+ 	int i;
+ 	struct resource *res;
+ 	char *names;
+-	unsigned num_buses;
+ 
+ 	res = kcalloc(PCI_MMCFG_RESOURCE_NAME_LEN + sizeof(*res),
+ 			pci_mmcfg_config_num, GFP_KERNEL);
+ 
+ 	if (!res) {
+-		printk(KERN_ERR "PCI: Unable to allocate MMCONFIG resources\n");
++		printk(KERN_ERR "PCI: Unable to allocate MMCONFIG resources.\n");
+ 		return;
  	}
- #endif
- 	/* RED-PEN skip them on mptables too? */
-Index: linux/include/asm-i386/acpi.h
-===================================================================
---- linux.orig/include/asm-i386/acpi.h
-+++ linux/include/asm-i386/acpi.h
-@@ -132,6 +132,7 @@ extern int acpi_gsi_to_irq(u32 gsi, unsi
  
- #ifdef CONFIG_X86_IO_APIC
- extern int acpi_skip_timer_override;
-+extern int acpi_use_timer_override;
- #endif
- 
- static inline void acpi_noirq_set(void) { acpi_noirq = 1; }
-Index: linux/include/asm-x86_64/acpi.h
-===================================================================
---- linux.orig/include/asm-x86_64/acpi.h
-+++ linux/include/asm-x86_64/acpi.h
-@@ -163,6 +163,7 @@ extern u8 x86_acpiid_to_apicid[];
- #define ARCH_HAS_POWER_INIT 1
- 
- extern int acpi_skip_timer_override;
-+extern int acpi_use_timer_override;
- 
- #endif /*__KERNEL__*/
- 
-Index: linux/Documentation/kernel-parameters.txt
-===================================================================
---- linux.orig/Documentation/kernel-parameters.txt
-+++ linux/Documentation/kernel-parameters.txt
-@@ -164,6 +164,10 @@ and is between 256 and 4096 characters. 
- 	acpi_skip_timer_override [HW,ACPI]
- 			Recognize and ignore IRQ0/pin2 Interrupt Override.
- 			For broken nForce2 BIOS resulting in XT-PIC timer.
-+	acpi_use_timer_override [HW,ACPI}
-+			Use timer override. For some broken Nvidia NF5 boards
-+			that require a timer override, but don't have
-+			HPET
- 
- 	acpi_dbg_layer=	[HW,ACPI]
- 			Format: <int>
+ 	names = (void *)&res[pci_mmcfg_config_num];
+ 	for (i = 0; i < pci_mmcfg_config_num; i++, res++) {
+-		num_buses = pci_mmcfg_config[i].end_bus_number -
+-		    pci_mmcfg_config[i].start_bus_number + 1;
+ 		res->name = names;
+-		snprintf(names, PCI_MMCFG_RESOURCE_NAME_LEN, "PCI MMCONFIG %u",
+-			pci_mmcfg_config[i].pci_segment_group_number);
+-		res->start = pci_mmcfg_config[i].base_address;
+-		res->end = res->start + (num_buses << 20) - 1;
+-		res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
+-		insert_resource(&iomem_resource, res);
++		pci_mmcfg_check_and_insert_resource(i, res);
+ 		names += PCI_MMCFG_RESOURCE_NAME_LEN;
+ 	}
+ }

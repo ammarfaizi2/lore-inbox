@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966453AbWKNXVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966471AbWKNXX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966453AbWKNXVt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 18:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966461AbWKNXVt
+	id S966471AbWKNXX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 18:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966469AbWKNXX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 18:21:49 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:50453 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S966453AbWKNXVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 18:21:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=uUFWhh7Ld67y2q0O0twgR603L1+PI0FB0m+QysJNMOfKVUx9CuT1UG+G59IFbU0Ikip0lj/T96yqBe5CFc3ndP4UrQcm5orDZ3IgDFVzQe4wz56sReVrkqEt6wYoXeWZdJRZ7AY1c9MKbOKENFnvPU4vSnpyJX1DGsDtZ/RWTXs=
-Message-ID: <a44ae5cd0611141521pd342109jaae9e27aca3d2200@mail.gmail.com>
-Date: Tue, 14 Nov 2006 15:21:46 -0800
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Larry.Finger@lwfinger.net
-Subject: 2.6.19-rc5-mm2 -- bcm43xx busted (backing out the bcm43xx patches fixes it)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Nov 2006 18:23:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:34723 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S966467AbWKNXX5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 18:23:57 -0500
+Date: Tue, 14 Nov 2006 15:23:41 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: eli@dev.mellanox.co.il
+Cc: eli@dev.mellanox.co.il, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: UDP packets loss
+Message-ID: <20061114152341.24861967@freekitty>
+In-Reply-To: <38090.194.90.237.34.1163545721.squirrel@dev.mellanox.co.il>
+References: <60157.89.139.64.58.1163542547.squirrel@dev.mellanox.co.il>
+	<20061114143531.2ee7eae0@freekitty>
+	<38090.194.90.237.34.1163545721.squirrel@dev.mellanox.co.il>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 15 Nov 2006 01:08:41 +0200 (IST)
+eli@dev.mellanox.co.il wrote:
 
-The last three MM kernels have fail to give me a working bcm43xx driver.
-The odd thing is that dmesg output seems to indicate that the driver
-is working okay.  NetworkManager doesn't see the driver, though.
-"iwlist scan" fails to find any access points, too.  iwconfig shows
-"Access Point: invalid".
+> Thanks for the commets.
+> I actually use UDP because I am seeking for ways to improve the
+> performance of IPOIB and I wanted to avoid TCP's flow control. I am really
+> up to making anaysis. Can you tell me more about irqbalnced?
 
-I tried backing out the following patches, and it fixes the problem:
+Look for info on irqbalance (depends which linux distribution you
+are using). You might not be running it at all, and it is completely
+optional. There is also a kernel level IRQ balancer that may or
+may not be configured.
 
-drivers/net/wireless/bcm43xx/bcm43xx.h
-drivers/net/wireless/bcm43xx/bcm43xx_main.c
-drivers/net/wireless/bcm43xx/bcm43xx_power.c
-drivers/net/wireless/bcm43xx/bcm43xx_wx.c
-drivers/net/wireless/bcm43xx/bcm43xx_xmit.c
+> Where can I
+> find more info how to control it? 
 
-After backing out the patches, dmesg shows:
+man irqbalance
 
-bcm43xx driver
-bcm43xx: Chip ID 0x4306, rev 0x3
-bcm43xx: Number of cores: 5
-bcm43xx: Core 0: ID 0x800, rev 0x4, vendor 0x4243, enabled
-bcm43xx: Core 1: ID 0x812, rev 0x5, vendor 0x4243, disabled
-bcm43xx: Core 2: ID 0x80d, rev 0x2, vendor 0x4243, enabled
-bcm43xx: Core 3: ID 0x807, rev 0x2, vendor 0x4243, disabled
-bcm43xx: Core 4: ID 0x804, rev 0x9, vendor 0x4243, enabled
-bcm43xx: PHY connected
-bcm43xx: Detected PHY: Version: 2, Type 2, Revision 2
-bcm43xx: Detected Radio: ID: 2205017f (Manuf: 17f Ver: 2050 Rev: 2)
-bcm43xx: Radio turned off
-bcm43xx: Radio turned off
-bcm43xx: PHY connected
-bcm43xx: Microcode rev 0x127, pl 0xe (2005-04-18  02:36:27)
-bcm43xx: Radio turned on
-bcm43xx: Chip initialized
-bcm43xx: 30-bit DMA initialized
-bcm43xx: Keys cleared
-bcm43xx: Selected 802.11 core (phytype 2)
+Note: irqbalance has heuristics about device names and driver names,
+it might be worthwhile to either update the source and teach it about
+infiniband, or work with existing heuristics (ie. call your interrupt "eth0", "eth1",...)
 
-Also, iwconfig shows:
-eth2      IEEE 802.11b/g  ESSID:"loftywifi"  Nickname:"Broadcom 4306"
-          Mode:Managed  Frequency=2.412 GHz  Access Point: 00:06:25:54:A2:0C
-          Bit Rate=11 Mb/s   Tx-Power=19 dBm
-          RTS thr:off   Fragment thr:off
-          Encryption key:23F8-49CF-201A-4334-1210-7C3E-0A   Security mode:open
-          Link Quality=76/100  Signal level=-53 dBm  Noise level=-72 dBm
-          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
-          Tx excessive retries:0  Invalid misc:0   Missed beacon:0
 
-Thanks,
-          Miles
+>I would like my interrupts serviced by
+> all CPUs in a somehow equal manner. I mentioned MSIX - the driver already
+> make use of MSIX and I thought this is relevant to interrupts affinity.
+
+MSIX is not directly related to affinity. But with MSIX you can have multiple
+CPU's all working at once. The device needs to return some info, and the driver
+has to register multiple times.
+
+Regular round-robin of network IRQ's is cache hostile, and that is why
+irqbalance tries to keep them on the same processor.

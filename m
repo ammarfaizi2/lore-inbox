@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755452AbWKNG5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755442AbWKNHCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755452AbWKNG5W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 01:57:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755450AbWKNG5V
+	id S1755442AbWKNHCD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 02:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755447AbWKNHCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 01:57:21 -0500
-Received: from hera.kernel.org ([140.211.167.34]:54481 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1755449AbWKNG5U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 01:57:20 -0500
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: earny@net4u.de
-Subject: Re: 2.6.19-rc[1-4]: boot fail with (lapic && on_battery)
-Date: Tue, 14 Nov 2006 01:59:59 -0500
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <200610312227.54617.list-lkml@net4u.de>
-In-Reply-To: <200610312227.54617.list-lkml@net4u.de>
+	Tue, 14 Nov 2006 02:02:03 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:53141 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1755442AbWKNHCB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 02:02:01 -0500
+Message-ID: <455969F2.80401@drzeus.cx>
+Date: Tue, 14 Nov 2006 08:02:10 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jens Axboe <axboe@kernel.dk>, LKML <linux-kernel@vger.kernel.org>
+Subject: How to cleanly shut down a block device
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611140159.59926.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 October 2006 16:27, Ernst Herzberg wrote:
+Hi Jens,
 
-> With 2.6.18.x everything works fine.
-> 
-> But 2.16.19-rc does not boot if the laptop runs on battery _and_ lapic is 
-> defined as boot parameter.
+I've been trying to sort out some bugs in the MMC layer's block driver,
+but my knowledge about the block layer is severely lacking. So I was
+hoping you could educate me a bit. :)
 
-> Local APIC disabled by BIOS -- you can enable it with "lapic"
+Upon creation, the following happens:
 
-The BIOS is advising you here that it is a bad idea to enable the LAPIC on this system.
-So why are you using the "lapic" boot parameter?
+alloc_disk()
+spin_lock_init()
+blk_init_queue()
+blk_queue_*() (Set up limits)
+disk->* = * (assign members)
+blk_queue_hardsect_size()
+set_capacity()
+add_disk()
 
-If you are running an CONFIG_SMP kernel with LAPIC enabled and deep C-states
-(such as are available on Thinkpads when on battery mode), you will
-run into the following bug:
+And on a clean removal, where there are no users of a card when it is
+removed:
 
-http://bugzilla.kernel.org/show_bug.cgi?id=7376
+del_gendisk()
+put_disk()
+blk_cleanup_queue()
 
-As this is not new, the mystery is really why you see no problems in 2.6.18.
-Perhaps you can forward the contents of /proc/interrupts for 2.6.18 with "lapic"
-and we can see if the timer and the LOC are in sync or not when on battery?
-/proc/acpi/processor/*/power will also tell us about the C-states --
-dump it for both AC and battery mode.
+So far everything seems nice and peachy. The question is what to do when
+a card is removed when the device is open.
 
-thanks,
--Len
+In that case, del_gendisk() will be called, which seems to be documented
+as blocking any new requests to be added to the queue. But there will be
+a lot of outstanding requests in the queue.
+
+Is it up to each block device to iterate and fail these or can I tell
+the kernel "I'm broken, go away!"?
+
+When the queue eventually drains (without too many oopses) and the user
+calls close(), then put_disk() and blk_cleanup_queue() will be called.
+
+Rgds
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

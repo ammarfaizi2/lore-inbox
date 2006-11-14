@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966065AbWKNW66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966435AbWKNW4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966065AbWKNW66 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 17:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965992AbWKNW66
+	id S966435AbWKNW4t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 17:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966434AbWKNW4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 17:58:58 -0500
-Received: from mga07.intel.com ([143.182.124.22]:8636 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S966442AbWKNW65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 17:58:57 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,422,1157353200"; 
-   d="scan'208"; a="146249784:sNHT18432246"
-Date: Tue, 14 Nov 2006 14:35:42 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: mingo@elte.hu, nickpiggin@yahoo.com.au, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, clameter@sgi.com, kenneth.w.chen@intel.com
-Subject: [patch] sched domain: increase the SMT busy rebalance interval
-Message-ID: <20061114143542.A30786@unix-os.sc.intel.com>
-Mime-Version: 1.0
+	Tue, 14 Nov 2006 17:56:49 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65465 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S966435AbWKNW4r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 17:56:47 -0500
+Date: Tue, 14 Nov 2006 23:56:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Christian Hoffmann <chrmhoffmann@gmail.com>
+Cc: linux-fbdev-devel@lists.sourceforge.net, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Solomon Peachy <pizza@shaftnet.org>
+Subject: Re: [Linux-fbdev-devel] Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
+Message-ID: <20061114225629.GA2676@elf.ucw.cz>
+References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com> <200611140008.55059.rjw@sisk.pl> <200611142247.55137.chrmhoffmann@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200611142247.55137.chrmhoffmann@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With SMT, if the logical processor is busy, load balance happens for every
-8msec(min)-16msec(max). There is no need to do this often, as this is
-just for fairness(to maintain uniform runqueue lengths) and default time slice
-anyhow is 100msec.
+Hi!
 
-Appended patch increases this interval to 64msec(min)-128msec(max) when the
-logical processor is busy.
+> > > I tried netconsole, and it somehow works, but when suspending it says in
+> > > an "infinite" loop:
+> > >
+> > > unregister_netdevice: waiting for eth2 to become free. Usage count = 1
+> >
+> > Hm.  Is your kernel compiled with CONFIG_DISABLE_CONSOLE_SUSPEND set?
+> >
+> > Rafael
+> 
+> I tried that patch, but the last message I see over netconsole (using tg3) is:
+> Suspending console(s)
+> and then nothing. Nothing on resume at all :(
+> 
+> Adding some printks in the radeonfb_pci_suspend and radeonfb_pci_resume 
+> (radeon_pm.c) didn't help: I don't see them. But I am not a kernel programmer 
+> at all, so I might do something wrong or in the wrong place.
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
----
-
-diff --git a/include/linux/topology.h b/include/linux/topology.h
-index da508d1..b93bb6c 100644
---- a/include/linux/topology.h
-+++ b/include/linux/topology.h
-@@ -93,7 +93,7 @@ #define SD_SIBLING_INIT (struct sched_do
- 	.groups			= NULL,			\
- 	.min_interval		= 1,			\
- 	.max_interval		= 2,			\
--	.busy_factor		= 8,			\
-+	.busy_factor		= 64,			\
- 	.imbalance_pct		= 110,			\
- 	.cache_nice_tries	= 0,			\
- 	.per_cpu_gain		= 25,			\
+Linus has crazy "write some info to CMOS" hack... which should be
+usable here.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

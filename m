@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966387AbWKNVk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966384AbWKNVkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966387AbWKNVk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966385AbWKNVk4
+	id S966384AbWKNVkN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966385AbWKNVkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:40:56 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:58248 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S966386AbWKNVkz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:40:55 -0500
-Message-ID: <455A37B6.2020409@zytor.com>
-Date: Tue, 14 Nov 2006 13:40:06 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Tue, 14 Nov 2006 16:40:13 -0500
+Received: from smtp-7.smtp.ucla.edu ([169.232.46.138]:56766 "EHLO
+	smtp-7.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S966384AbWKNVkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 16:40:11 -0500
+Date: Tue, 14 Nov 2006 13:39:58 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: driver support for Chelsio T210 10Gb ethernet in 2.6.x
+In-Reply-To: <20061114133304.36a01d0e@freekitty>
+Message-ID: <Pine.LNX.4.64.0611141335280.3416@potato.cts.ucla.edu>
+References: <Pine.LNX.4.64.0611131408010.32659@potato.cts.ucla.edu>
+ <20061114133304.36a01d0e@freekitty>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Pavel Machek <pavel@suse.cz>, Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org, ak@suse.de,
-       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com
-Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-References: <20061113162135.GA17429@in.ibm.com>	<20061113164314.GK17429@in.ibm.com> <20061114163002.GB4445@ucw.cz> <m1fyclk8ws.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1fyclk8ws.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> 
->> Why is PGE no longer required, for example?
-> 
-> PGE is never required.  Especially on a temporary page table.
-> PGE is an optimization, to make context switches faster.
-> 
+On Tue, 14 Nov 2006, Stephen Hemminger wrote:
+> On Tue, 14 Nov 2006 13:28:38 -0800 (PST) Chris Stromsoe 
+> <cbs@cts.ucla.edu> wrote:
+>
+>> The in-kernel Chelsio cxgb driver in 2.6.19-rc5 is version 2.1.1 and 
+>> only supports the N110 and N210 10Gb ethernet boards.  The current 
+>> driver available from Chelsio[1] is 2.1.4a and supports the T110 and 
+>> T210 series boards, but is only available against 2.6.16.  Any chance 
+>> of an update to the in-kernel driver for 2.6.20 to support the T* 
+>> series cards?
+>
+> Only if they don't try to put TOE support in.
 
-You cannot, however, set the Global bit unless PGE is supported by the 
-CPU (you'll trap.)
+To be honest, I haven't looked at the differences between the two drivers, 
+other than note that 2.1.4a only builds against 2.6.16 and supports the T* 
+cards.  The support download page (http://service.chelsio.com/drivers/) 
+lists 2.1.4a as supporting the T* cards in "NIC mode" and has a separate 
+driver (2.2.0) with TOE support.
 
-	-hpa
+
+-Chris

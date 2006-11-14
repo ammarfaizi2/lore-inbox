@@ -1,62 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755257AbWKNE24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755392AbWKNEv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755257AbWKNE24 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 23:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755348AbWKNE24
+	id S1755392AbWKNEv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 23:51:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755399AbWKNEv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 23:28:56 -0500
-Received: from w241.dkm.cz ([62.24.88.241]:63390 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1755257AbWKNE2z (ORCPT
+	Mon, 13 Nov 2006 23:51:28 -0500
+Received: from cantor.suse.de ([195.135.220.2]:51914 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1755392AbWKNEv1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 23:28:55 -0500
-Date: Tue, 14 Nov 2006 05:28:53 +0100
-From: Petr Baudis <pasky@suse.cz>
-To: =?iso-8859-1?Q?Jos=E9_Su=E1rez?= <j.suarez.agapito@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@infradead.org>,
-       Michael Krufky <mkrufky@linuxtv.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-dvb@linuxtv.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
-Subject: Re: [linux-dvb] Avermedia 777 misbehaves after remote hack merged into v4l-dvb tree
-Message-ID: <20061114042853.GF18879@pasky.or.cz>
-References: <200611131711.46626.j.suarez.agapito@gmail.com> <4558DF23.5080207@linuxtv.org> <1163453015.26319.29.camel@201-2-70-92.bsace705.w.brasiltelecom.net.br> <200611140445.30269.j.suarez.agapito@gmail.com>
+	Mon, 13 Nov 2006 23:51:27 -0500
+From: Neil Brown <neilb@suse.de>
+To: Kirill Korotaev <dev@sw.ru>
+Date: Tue, 14 Nov 2006 15:51:08 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200611140445.30269.j.suarez.agapito@gmail.com>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17753.19260.9836.716649@cse.unsw.edu.au>
+Cc: devel@openvz.org, Vasily Averin <vvs@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Howells <dhowells@redhat.com>, Olaf Hering <olh@suse.de>,
+       Jan Blunck <jblunck@suse.de>
+Subject: Re: [Devel] Re: [PATCH 2.6.19-rc3] VFS: per-sb dentry lru list
+In-Reply-To: message from Kirill Korotaev on Wednesday November 1
+References: <4541BDE2.6050703@sw.ru>
+	<45409DD5.7050306@sw.ru>
+	<453F6D90.4060106@sw.ru>
+	<453F58FB.4050407@sw.ru>
+	<20792.1161784264@redhat.com>
+	<21393.1161786209@redhat.com>
+	<19898.1161869129@redhat.com>
+	<22562.1161945769@redhat.com>
+	<24249.1161951081@redhat.com>
+	<4542123E.4030309@sw.ru>
+	<20061030042419.GW8394166@melbourne.sgi.com>
+	<45459B92.400@sw.ru>
+	<17734.54114.192151.271984@cse.unsw.edu.au>
+	<45487D2C.4000205@sw.ru>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2006 at 04:45:29AM CET, José Suárez wrote:
-> At the moment I can't give the remote control a try because lirc doesn't 
-> compile against version 2.6.18 of the kernel. If that lirc issue gets solved, 
-> I will try to use it as soon as I can.
+On Wednesday November 1, dev@sw.ru wrote:
+> <<<< AFAICS, doing so you introduced a leak of anonymous dentries.
+> 
+> d_alloc_anon() calls d_alloc() with parent == NULL, i.e. dentries have no parent
+> and are not linked to the sb->s_root...
 
-  Note that in lircd, you should use the input device driver
-("devinput"). The saa7134 driver will create a random input event device
-for the events; I use this udev rule to create a /dev/remote symlink
-pointing at the right device:
+Yep, thanks.
 
-	KERNEL="event*", SYSFS{name}="saa7134 IR*", NAME="input/%k", SYMLINK="remote"
+> BTW, looking at it, I found that s_anon field on super block is not
+> used any more. 
 
-  Furthermore, especially if you have problems with lircd, having the
-full-blown daemon for the event interface may not be worth it. There is
-a standalone inputlircd package containing a much simpler daemon which
-is compatible with lirc client applications but takes the events just
-from the input devices. You can run it e.g. like:
+I don't know what you mean by that.  It is still used...
 
-	/usr/sbin/inputlircd /dev/remote -g -m 0
+> we can add BUG_ON(!hlist_empty(&sb->s_anon)) in generic_shutdown_super to avoid such issues like this.
+> 
+> maybe we can fix it adding something like:
+> while (!list_empty(&sb->s_anon)))
+>     prune_dcache(MAX_INT, &sb->s_anon);
 
-  You can find an example mplayer lirc configuration at:
+It seems that anon dentries can now have children (I think someone
+explained that too me - shrink_dcache_for_umount certainly suggests
+it).
+Also, in this context we cannot be sure that all dentries can be
+freed.  This is being called a remount time remember, and some stuff
+might still be in use.
 
-	http://pasky.or.cz/~pasky/dev/v4l/lircrc
+We probably need to move the s_anon list to a temporary list and
+repeatedly:
+  move the top entry back to s_anon and call shrink_dcache_parent
+ on it.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-#!/bin/perl -sp0777i<X+d*lMLa^*lN%0]dsXx++lMlN/dsM0<j]dsj
-$/=unpack('H*',$_);$_=`echo 16dio\U$k"SK$/SM$n\EsN0p[lN*1
-lK[d2%Sa2/d0$^Ixp"|dc`;s/\W//g;$_=pack('H*',/((..)*)$/)
+Needs more thought.
+	
+NeilBrown

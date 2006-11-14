@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933343AbWKNCgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753524AbWKNCmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933343AbWKNCgN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 21:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933342AbWKNCgN
+	id S1753524AbWKNCmT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 21:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755394AbWKNCmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 21:36:13 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:31910 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S933336AbWKNCgM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 21:36:12 -0500
-Message-ID: <45592B8E.1020600@pobox.com>
-Date: Mon, 13 Nov 2006 21:35:58 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Mon, 13 Nov 2006 21:42:19 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15034 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1753524AbWKNCmT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 21:42:19 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org,
+       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com
+Subject: Re: [RFC] [PATCH 2/16] x86_64: Assembly safe page.h and pgtable.h
+References: <20061113162135.GA17429@in.ibm.com>
+	<200611131817.01066.ak@suse.de> <20061113211636.GC13832@in.ibm.com>
+	<200611140246.28433.ak@suse.de>
+Date: Mon, 13 Nov 2006 19:41:17 -0700
+In-Reply-To: <200611140246.28433.ak@suse.de> (Andi Kleen's message of "Tue, 14
+	Nov 2006 02:46:28 +0100")
+Message-ID: <m1velin41e.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Brian King <brking@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, linux-ide@vger.kernel.org
-Subject: Re: 2.6.19-rc5: known regressions with patches
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061113221446.GJ22565@stusta.de> <4558F833.4090204@us.ibm.com> <Pine.LNX.4.64.0611131514190.22714@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611131514190.22714@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 13 Nov 2006, Brian King wrote:
-> 
->> Adrian Bunk wrote:
->>> Subject    : libata must be initialized earlier
->>> References : http://ozlabs.org/pipermail/linuxppc-dev/2006-November/027945.html
->>> Submitter  : Paul Mackerras <paulus@samba.org>
->>> Handled-By : Brian King <brking@us.ibm.com>
->>> Patch      : http://marc.theaimsgroup.com/?l=linux-ide&m=116169938407596&w=2
->>> Status     : patch available
->> I just resubmitted this patch a few minutes ago.
-> 
-> I definitely want an ACK on this from Jeff - I'll take a few broken ppc64 
-> machines any day over the worry that there might be problems elsewhere. 
-> 
-> Jeff? Ack, Nack, or "I'll push it to you through my git tree", please..
+Andi Kleen <ak@suse.de> writes:
 
-Reluctant ACK.  But this whole subsys_init() mess is highly fragile, and 
-this is going to change again once a new dependency arises :/
+>> 
+>> I think we need these UL suffixes. Otherwise in some cases overflow
+>> can take place and compiler emits warning.
+>> 
+>> For ex. in following definition I got rid of UL.
+>> 
+>> #define PGDIR_SIZE      (1 << PGDIR_SHIFT) 
+>
+> Yes for the shifts it is needed, but not for the unshifted constants.
+> I think. At least when they're hex the compiler should chose the right
+> type on its own.
 
-	Jeff
+Only if the high bit is set.  But it should chose a big enough type.
+However there is no reason to play games and possibly out smart ourselves.
+That is the point of the _AC() macro.  It adds the suffix only for
+C code, and drops it for assembly.
 
-
-
+Eric

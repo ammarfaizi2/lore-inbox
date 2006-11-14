@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932966AbWKNHjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933049AbWKNHmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932966AbWKNHjv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 02:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWKNHjv
+	id S933049AbWKNHmk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 02:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933050AbWKNHmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 02:39:51 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:54933 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932966AbWKNHjv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 02:39:51 -0500
-Message-ID: <455972D0.1030407@drzeus.cx>
-Date: Tue, 14 Nov 2006 08:40:00 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: device_del() and references
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 14 Nov 2006 02:42:40 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:27305 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S933049AbWKNHmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 02:42:39 -0500
+Subject: Re: [PATCH 0/2] Make the TSC safe to be used by gettimeofday().
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Suleiman Souhlal <ssouhlal@freebsd.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       Jiri Bohac <jbohac@suse.cz>
+In-Reply-To: <200611140250.57160.ak@suse.de>
+References: <455916A5.2030402@FreeBSD.org>  <200611140250.57160.ak@suse.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 14 Nov 2006 08:42:33 +0100
+Message-Id: <1163490154.15249.235.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+On Tue, 2006-11-14 at 02:50 +0100, Andi Kleen wrote:
+> On Tuesday 14 November 2006 02:06, Suleiman Souhlal wrote:
+> > I've had a proof-of-concept for this since August, and finally got around to
+> > somewhat cleaning it up.
+> 
+> Thanks. 
+> 
+> I got a competing implementation for this unfortunately now from Vojtech & Jiri
 
-I'm trying to wrap my head around the dependencies in the MMC layer and
-there are some gaps I am suspicious about. Since you've been looking at
-this a lot longer than I have, I thought you could have some valuable
-insight.
 
-When a card driver has obtained a reference to a card, what makes sure
-we do not destroy that card from under its feet? The reference count on
-the device structure in the card only makes sure the structure itself is
-in memory, not that the data is valid. E.g. the host might be removed
-leaving the host pointer invalid.
+where is this posted?
+Since last weeks discussion on tickless several people started
+implementing alternatives since nothing existed in public ...
 
-I suspect that device_del() doesn't return until remove() has been
-called and that our requirement is that the card driver must have
-released all references to the card before its remove routine exits.
 
-If so, then there is the risk of a race in mmc_block. What guarantees
-that the request handler isn't running in parallel with the remove
-function? Again, I suspect that del_gendisk() might grab the queue lock,
-but as there might be stuff left in the queue, this seems insufficient.
-
-Perhaps there is a is_gendisk_valid() we can stick at the top of the
-request handler?
-
-Rgds
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org

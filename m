@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966424AbWKNWwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966428AbWKNWyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966424AbWKNWwK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 17:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966429AbWKNWwK
+	id S966428AbWKNWyi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 17:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966431AbWKNWyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 17:52:10 -0500
-Received: from py-out-1112.google.com ([64.233.166.176]:25633 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S966418AbWKNWwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 17:52:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=UsOqSbeASR6JvflJ+qUB+ywqJm0fQk3sicoSt5Q8s2X4ojkHN4p4pKFoABlstOKGX8WqRySVzEfEPj5XIE/MLSGWOG4EfM0rb+QphMGtzfDA/e3HH5vBgVIOnQePQ96R42Q1Gr0eLBKSpvvONUVrP4gqTeJJmQsOsX4Lrek0jSw=
-Message-ID: <806dafc20611141452y7262df80g6fb7d3c0581f7b7f@mail.gmail.com>
-Date: Tue, 14 Nov 2006 17:52:04 -0500
-From: "Monty Montgomery" <monty@xiph.org>
-To: ltuikov@yahoo.com
-Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
-Cc: "Christoph Hellwig" <hch@infradead.org>, dougg@torque.net,
-       "Tejun Heo" <htejun@gmail.com>,
-       "Brice Goglin" <Brice.Goglin@ens-lyon.org>,
-       "Jens Axboe" <jens.axboe@oracle.com>,
-       "Gregor Jasny" <gjasny@googlemail.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Jeff Garzik" <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <589461.23187.qm@web31813.mail.mud.yahoo.com>
+	Tue, 14 Nov 2006 17:54:38 -0500
+Received: from smtp07.dc2.safesecureweb.com ([65.36.255.231]:7145 "EHLO
+	smtp07.dc2.safesecureweb.com") by vger.kernel.org with ESMTP
+	id S966428AbWKNWyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 17:54:37 -0500
+Message-ID: <026801c7083f$cc80e670$0732700a@djlaptop>
+From: "Richard B. Johnson" <jmodem@AbominableFirebug.com>
+To: <eli@dev.mellanox.co.il>, <linux-kernel@vger.kernel.org>,
+       <linux-net@vger.kernel.org>
+References: <60157.89.139.64.58.1163542547.squirrel@dev.mellanox.co.il>
+Subject: Re: UDP packets loss
+Date: Tue, 14 Nov 2006 17:54:10 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061111104642.GA3356@infradead.org>
-	 <589461.23187.qm@web31813.mail.mud.yahoo.com>
-X-Google-Sender-Auth: 3449ceb7044e89e6
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/11/06, Luben Tuikov <ltuikov@yahoo.com> wrote:
-> --- Christoph Hellwig <hch@infradead.org> wrote:
-> > On Fri, Nov 10, 2006 at 12:08:15PM -0800, Luben Tuikov wrote:
-> > > P.S. I'd love to see SG_DXFER_TO_FROM_DEV completely ripped out
-> > > of sg.c, for obvious reasons.  Can you not duplicate the resid "fix"
-> > > it provides into "FROM_DEV" -- do apps really rely on it?
-> >
-> > At the beginning of this thread it was mentioned cdparanio uses it.
-> > But in general we can't just rip out userland interfaces, we pretend
-> > to have a stable userspace abi (and except for the big sysfs mess that
-> > actually comes very close to the truth).
+----- Original Message ----- 
+From: <eli@dev.mellanox.co.il>
+To: <linux-kernel@vger.kernel.org>; <linux-net@vger.kernel.org>
+Sent: Tuesday, November 14, 2006 5:15 PM
+Subject: UDP packets loss
+
+
+> Hi,
+> I am running a client/server test app over IPOIB in which the client sends
+> a certain amount of data to the server. When the transmittion ends, the
+> server prints the bandwidth and how much data it received. I can see that
+> the server reports it received about 60% that the client sent. However,
+> when I look at the server's interface counters before and after the
+> transmittion, I see that it actually received all the data that the client
+> sent. This leads me to suspect that the networking layer somehow dropped
+> some of the data. One thing to not - the CPU is 100% busy at the receiver.
+> Could this be the reason (the machine I am using is 2 dual cores - 4
+> CPUs).
 >
-> The more reason to think things thorougly when introducing
-> new code and architecture into a kernel.
+> The secod question is how do I make the interrupts be srviced by all CPUs?
+> I tried through the procfs as described by IRQ-affinity.txt but I can set
+> the mask to 0F bu then I read back and see it is indeed 0f but after a few
+> seconds I see it back to 02 (which means only CPU1).
+>
+> One more thing - the device I am using is capable of generating MSIX
+> interrupts.
+>
+> Thanks from advance
+> Eli
+>
+> -
 
-It was introduced for a good reason, and that reason is still relevant
-today.  Cdparanoia is not using it gratuitously.  The only problem is
-that the implementation had a bug (well, at least two bugs) and only
-sg ever implemented it correctly.  Had block and sata implemente dit
-correctly, we'd not be having this discussion.
+Yes. The packet counters tell that the data was received by the interface. 
+However, the interface may be faster than the application that ultimately 
+receives the data so that the kernel eventually runs out of buffers used to 
+store the temporary data. When this happens, the kernel just drops them. 
+Since UDP is not "reliable", it can't ask the sender to send them again when 
+it has resources available. If you need all the data, use a TCP/IP stream 
+protocol, in other words, a connection. That way, you will get all the data, 
+even if you are writing it to a slow disk.
 
-Or you can blame a lower level layer for having no way to inform
-mid-level drivers that DMA only completed a partial transfer.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 (somewhere). IT removed email  for 
+engineers!
+New Book: http://www.AbominableFirebug.com
 
-"but anyway"...
 
-This lockup was happening using SATA through the block layer, or does
-SATA implement its own version of the ioctl?  Back when I was testing
-my probing code, the buggy kernel would reject the request, not lock
-up-- did a change make it inot 2.6.18 or later that causes a lockup
-instead?
-
-(I never tested with SATA cdroms, as I don't have any.  I tested with
-IDE and SCSI and saw correct or detectable behavior)
-
-Monty

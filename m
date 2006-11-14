@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933271AbWKNImn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933275AbWKNIs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933271AbWKNImn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 03:42:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933275AbWKNImm
+	id S933275AbWKNIs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 03:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933280AbWKNIs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 03:42:42 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:38933 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S933271AbWKNImm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 03:42:42 -0500
-Date: Tue, 14 Nov 2006 09:45:19 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to cleanly shut down a block device
-Message-ID: <20061114084519.GL15031@kernel.dk>
-References: <455969F2.80401@drzeus.cx> <20061114075648.GK15031@kernel.dk> <45597B0A.3060409@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45597B0A.3060409@drzeus.cx>
+	Tue, 14 Nov 2006 03:48:58 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:17888 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S933275AbWKNIs5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 03:48:57 -0500
+In-Reply-To: <20061113174621.GA17406@khazad-dum.debian.net>
+Subject: Re: How to document dimension units for virtual files?
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Greg KH <greg@kroah.com>, Ingo Oeser <ioe-lkml@rameria.de>,
+       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
+       Pavel Machek <pavel@ucw.cz>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Arnd Bergmann <ARNDB@de.ibm.com>
+X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
+Message-ID: <OF6F233616.CC7685E3-ON41257226.00303CBA-41257226.0030872B@de.ibm.com>
+From: Michael Holzheu <HOLZHEU@de.ibm.com>
+Date: Tue, 14 Nov 2006 09:50:03 +0100
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
+ 14/11/2006 09:52:08
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14 2006, Pierre Ossman wrote:
-> Jens Axboe wrote:
-> >
-> > There is no helper to kill already queued requests when a device is
-> > removed, if you look at SCSI you'll see that it handles this "manually"
-> > as well in the request_fn handler. So you'll need a "device dead or
-> > gone" check in your request_fn handler, and do it from there.
-> >
-> >   
-> 
-> Is there some part of the current infrastructure I can use to determine
-> this. If del_gendisk() grabs the queue lock (and hence is "safe" wrt the
-> request handler), then perhaps there is a test that can be done to test
-> if the disk has been deleted?
+Henrique de Moraes Holschuh <hmh@hmh.eng.br> wrote on 11/13/2006 06:46:21
+PM:
+> and it does look better.  But unless Greg changes his mind, it looks like
+we
+> shall do without units in the filenames, which will also work just fine,
+if
+> small enough units are choosen...
+>
 
-SCSI just sets ->queuedata to NULL, if you store your device there you
-may do just that. Or just mark your device structure appropriately,
-there are no special places in the queue for that.
+As Arnd already said, at least for memory sizes this will work perfectly.
+There is no
+smaller unit than a byte :-)
 
--- 
-Jens Axboe
+Michael
 

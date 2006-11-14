@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933179AbWKNHKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933245AbWKNHW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933179AbWKNHKV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 02:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933199AbWKNHKV
+	id S933245AbWKNHW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 02:22:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933239AbWKNHW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 02:10:21 -0500
-Received: from mail.gmx.de ([213.165.64.20]:54401 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S933179AbWKNHKU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 02:10:20 -0500
-X-Authenticated: #14349625
-Subject: Re: [ltp] Re: paging request BUG in 2.6.19-rc5 on resume - X60s
-From: Mike Galbraith <efault@gmx.de>
-To: Martin Lorenz <martin@lorenz.eu.org>
-Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061113192738.GE7942@gimli>
-References: <20061113081147.GB5289@gimli> <200611131537.01626.rjw@sisk.pl>
-	 <20061113192738.GE7942@gimli>
+	Tue, 14 Nov 2006 02:22:27 -0500
+Received: from mga05.intel.com ([192.55.52.89]:36661 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S933199AbWKNHW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 02:22:26 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,420,1157353200"; 
+   d="scan'208"; a="15498174:sNHT17847864"
+Subject: [PATCH] Incorrect MSI interrupt type name
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>
 Content-Type: text/plain
-Date: Tue, 14 Nov 2006 08:11:23 +0100
-Message-Id: <1163488283.16079.18.camel@Homer.simpson.net>
+Message-Id: <1163488977.4311.52.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Tue, 14 Nov 2006 15:22:57 +0800
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-13 at 20:27 +0100, Martin Lorenz wrote:
-> On Mon, Nov 13, 2006 at 03:37:01PM +0100, Rafael J. Wysocki wrote:
-> > On Monday, 13 November 2006 09:11, Martin Lorenz wrote:
-> > > Hallo again,
-> > > 
-> > > here is another one:
-> > > 
-> > > I reported a black screen on resume with my latest kernel build earlyer. But
-> > > this was not reproducible. Only occured once.
-> > 
-> > Is this a resume from disk?  If so, which kernel are you using?
-> > 
-> 
-> no from suspend to ram
+/proc/interrupts shows "<NULL>" for MSI interrupt type name on
+my ia64 machine.
 
-Interesting.  See http://lkml.org/lkml/2006/10/3/19
+Below patch against 2.6.19-rc5-mm1 fixes it.
 
-	-Mike
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
 
+---
+
+--- linux-2.6.19-rc5-mm1/arch/ia64/kernel/msi_ia64.c	2006-11-14 14:16:12.000000000 +0800
++++ linux-2.6.19-rc5-mm1_fix/arch/ia64/kernel/msi_ia64.c	2006-11-14 15:08:37.000000000 +0800
+@@ -115,7 +115,7 @@ static int ia64_msi_retrigger_irq(unsign
+  * Generic ops used on most IA64 platforms.
+  */
+ static struct irq_chip ia64_msi_chip = {
+-	.name		= "PCI-MSI",
++	.typename	= "PCI-MSI",
+ 	.mask		= mask_msi_irq,
+ 	.unmask		= unmask_msi_irq,
+ 	.ack		= ia64_ack_msi_irq,

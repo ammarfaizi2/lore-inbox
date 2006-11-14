@@ -1,78 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933246AbWKNAXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933263AbWKNAbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933246AbWKNAXS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 19:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933245AbWKNAWw
+	id S933263AbWKNAbb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 19:31:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933264AbWKNAbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 19:22:52 -0500
-Received: from ns2.suse.de ([195.135.220.15]:44486 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S933243AbWKNAWl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 19:22:41 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 14 Nov 2006 11:22:36 +1100
-Message-Id: <1061114002236.31168@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 002 of 4] md: Fix newly introduced read-corruption with raid6.
-References: <20061114111600.31061.patches@notabene>
+	Mon, 13 Nov 2006 19:31:31 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:32948
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S933263AbWKNAba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 19:31:30 -0500
+Date: Mon, 13 Nov 2006 16:31:38 -0800 (PST)
+Message-Id: <20061113.163138.98554015.davem@davemloft.net>
+To: benh@kernel.crashing.org
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, anton@samba.org,
+       airlied@gmail.com, idr@us.ibm.com, paulus@samba.org
+Subject: Re: [PATCH/RFC] powerpc: Fix mmap of PCI resource with hack for X
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1163405790.4982.289.camel@localhost.localdomain>
+References: <1163405790.4982.289.camel@localhost.localdomain>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Date: Mon, 13 Nov 2006 19:16:30 +1100
 
-chunk_aligned_read and retry_aligned_read assume that
-    data_disks == raid_disks - 1
-which is not true for raid6.
-So when an aligned read request bypasses the cache, we can get the wrong data.
+> The powerpc version of pci_resource_to_user() and associated hooks
+> used by /proc/bus/pci and /sys/bus/pci mmap have been broken for some
+> time on machines that don't have a 1:1 mapping of devices (basically
+> on non-PowerMacs) and have PCI devices above 32 bits.
+> 
+> This attempts to fix it as well as possible. 
+> 
+> The rule is supposed to be that pci_resource_to_user() always converts
+> the resources back into a BAR values since that's what the /proc
+> interface was supposed to deal with. However, for X to work on platforms
+> where PCI MMIO is not mapped 1:1, it became a habit of platforms like
+> sparc or powerpc to pass "fixed up" values there sinve X expects to
+> be able to use values from /proc/bus/pci/devices as offsets to mmap
+> of /dev/mem...
 
-Also change the calculate of raid_disks in compute_blocknr to make it
-more obviously correct.
+Not on Sparc.  /dev/mem mmap()'s are basically verbotten on Sparc,
+period.
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+That's the whole reason I created /proc/bus/pci mmap().  So that
+X could simply read a BAR, open /proc/bus/pci/${DEVICE} and
+mmap() with some range within the BAR as the offset/size tuple.
 
-### Diffstat output
- ./drivers/md/raid5.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+If an application wants all of I/O space (to poke at VGA addresses for
+a domain, for example), it finds the root bridge for that domain and
+you can mmap()'s it's I/O space that way on platforms the implement
+I/O space via memory accesses.
 
-diff .prev/drivers/md/raid5.c ./drivers/md/raid5.c
---- .prev/drivers/md/raid5.c	2006-11-14 10:33:41.000000000 +1100
-+++ ./drivers/md/raid5.c	2006-11-14 10:34:17.000000000 +1100
-@@ -823,7 +823,8 @@ static sector_t raid5_compute_sector(sec
- static sector_t compute_blocknr(struct stripe_head *sh, int i)
- {
- 	raid5_conf_t *conf = sh->raid_conf;
--	int raid_disks = sh->disks, data_disks = raid_disks - 1;
-+	int raid_disks = sh->disks;
-+	int data_disks = raid_disks - conf->max_degraded;
- 	sector_t new_sector = sh->sector, check;
- 	int sectors_per_chunk = conf->chunk_size >> 9;
- 	sector_t stripe;
-@@ -859,7 +860,6 @@ static sector_t compute_blocknr(struct s
- 		}
- 		break;
- 	case 6:
--		data_disks = raid_disks - 2;
- 		if (i == raid6_next_disk(sh->pd_idx, raid_disks))
- 			return 0; /* It is the Q disk */
- 		switch (conf->algorithm) {
-@@ -2725,7 +2725,7 @@ static int chunk_aligned_read(request_qu
- 	mddev_t *mddev = q->queuedata;
- 	raid5_conf_t *conf = mddev_to_conf(mddev);
- 	const unsigned int raid_disks = conf->raid_disks;
--	const unsigned int data_disks = raid_disks - 1;
-+	const unsigned int data_disks = raid_disks - conf->max_degraded;
- 	unsigned int dd_idx, pd_idx;
- 	struct bio* align_bi;
- 	mdk_rdev_t *rdev;
-@@ -3145,7 +3145,7 @@ static int  retry_aligned_read(raid5_con
- 	logical_sector = raid_bio->bi_sector & ~((sector_t)STRIPE_SECTORS-1);
- 	sector = raid5_compute_sector(	logical_sector,
- 					conf->raid_disks,
--					conf->raid_disks-1,
-+					conf->raid_disks - conf->max_degraded,
- 					&dd_idx,
- 					&pd_idx,
- 					conf);
+The only thing X was (unfortunately) still using the "devices" file
+for is device existence, and this is obviously broken because there is
+zero domain information in that procfs file so it's impossible to use
+correctly. :-)
+
+> X is still broken when built 32 bits on machines where PCI MMIO can be
+> above 32 bits space unfortunately. It looks like somebody (DaveM ?)
+> hacked a fix in X to handle long long resources and had the good idea
+> to wrap it in #ifdef __sparc__ :-(
+
+Sorry, it was the only 32/64 platform at the time that old X code was
+written and the X maintainers at the time were unbelievably anal :-/
+
+So the gist of your change is that X isn't obtaining BAR values
+in the correct context on powerpc, and so you're going to hack up
+the "devices" files output to "help" X out.
+
+This doesn't sound sane to me.
+
+What sounds better to me is that X does the right thing, which is
+obtain the BAR from the PCI config space to determine what values to
+pass in to /proc/bus/pci mmap() calls.  And if it wants raw addresses
+to pass in to /dev/mem mmap()'s on platforms where that works (ie. not
+Sparc, to begin with) it should obtain those values from the "devices"
+file which must be values suitable as /dev/mem offsets.
+
+I strongly look forward to Ian's new X code, that is for sure :-)

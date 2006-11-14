@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933287AbWKNCSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933320AbWKNCTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933287AbWKNCSi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 21:18:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933304AbWKNCSi
+	id S933320AbWKNCTk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 21:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933318AbWKNCTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 21:18:38 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:28055 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S933287AbWKNCSh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 21:18:37 -0500
-Message-ID: <455926C0.9080906@us.ibm.com>
-Date: Mon, 13 Nov 2006 18:15:28 -0800
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: benh@kernel.crashing.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, anton@samba.org, airlied@gmail.com,
-       paulus@samba.org
-Subject: Re: [PATCH/RFC] powerpc: Fix mmap of PCI resource with hack for X
-References: <1163405790.4982.289.camel@localhost.localdomain> <20061113.163138.98554015.davem@davemloft.net>
-In-Reply-To: <20061113.163138.98554015.davem@davemloft.net>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=AC84030F
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Nov 2006 21:19:40 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:12589 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S933124AbWKNCTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 21:19:39 -0500
+Date: Mon, 13 Nov 2006 21:19:17 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: proposal: remove unused macros
+In-reply-to: <200611131913.22872.m.kozlowski@tuxland.pl>
+To: linux-kernel@vger.kernel.org
+Cc: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Message-id: <200611132119.17858.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200611131913.22872.m.kozlowski@tuxland.pl>
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 13 November 2006 13:13, Mariusz Kozlowski wrote:
+>Hello,
+>
+>	Recently someone send a patch that fixed some old '#ifdef'ed code with
+> syntax error (stray brackets). The broken code was there for a long
+> time and nobody saw that. I digged some more and wrote a simple program
+> that counted '(' and ')' in the kernel code that emits apropriate text
+> if for a given file both numbers differ. That is probably dumb idea but
+> it worked :-) Quite fast I found a dozen of broken macros with syntax
+> errors etc. All of those macros are unused. I digged a bit deeper and
+> used '-Wunused-macros' flag which with causes 8340 new warnings to be
+> emited for 2.6.19-rc5-mm1 with 'allmodconfig'. For sure there are false
+> positives (see gcc man page) but even if i.e. 50% of them are fp then
+> we still have around 4k of unused macros scattered around the tree.
+>
+>To me this is a dead code. I can review the code causing these warnings
+> and prepare patches 'per subsystem' or whatever to address this issue.
+> That is if nobody opposes.
 
-David Miller wrote:
-> From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Date: Mon, 13 Nov 2006 19:16:30 +1100
-> 
->> X is still broken when built 32 bits on machines where PCI MMIO can be
->> above 32 bits space unfortunately. It looks like somebody (DaveM ?)
->> hacked a fix in X to handle long long resources and had the good idea
->> to wrap it in #ifdef __sparc__ :-(
-> 
-> Sorry, it was the only 32/64 platform at the time that old X code was
-> written and the X maintainers at the time were unbelievably anal :-/
-> 
-> So the gist of your change is that X isn't obtaining BAR values
-> in the correct context on powerpc, and so you're going to hack up
-> the "devices" files output to "help" X out.
-> 
-> This doesn't sound sane to me.
+With regard to your parens checking code, I re-wrote from a broken 
+version, about 20 years ago, a utility to check all that.  I used it on 
+the coco/os9 systems at the time, then built it for the amiga, and 
+rebuilt it for linux a few years back.  It checks brackets, quotes in " 
+style and ' style and ;, etc stuff.  I called mine cntx, and I've used it 
+occasionally here, but haven't had the need/urge to test any kernel code 
+with it so far.
 
-It doesn't sound terribly sane to me.  What's wrong with just opening
-/sys/bus/pci/devices/*/resource[0-5]?  It seems like that solves all the
-problems.
+If anyone is interested, and the list will take attachments of that 
+nature, I'd be honored to share it.  What say you all?
 
-> What sounds better to me is that X does the right thing, which is
-> obtain the BAR from the PCI config space to determine what values to
-> pass in to /proc/bus/pci mmap() calls.  And if it wants raw addresses
-> to pass in to /dev/mem mmap()'s on platforms where that works (ie. not
-> Sparc, to begin with) it should obtain those values from the "devices"
-> file which must be values suitable as /dev/mem offsets.
-> 
-> I strongly look forward to Ian's new X code, that is for sure :-)
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFWSbAX1gOwKyEAw8RAtceAKCc2PrYJNg8v2LcClLwTfEmo1aGzwCfRR7o
-TkJnY+7IMpmWUQt/7FAW6A4=
-=tDJc
------END PGP SIGNATURE-----
+-- 
+Cheers, Gene

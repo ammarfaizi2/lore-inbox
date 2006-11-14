@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966189AbWKNQe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966198AbWKNQly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966189AbWKNQe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 11:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966191AbWKNQe6
+	id S966198AbWKNQly (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 11:41:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966200AbWKNQly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 11:34:58 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:12687 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S966189AbWKNQe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 11:34:57 -0500
-Subject: Re: [patch] floppy: suspend/resume fix
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Ingo Molnar <mingo@elte.hu>, Mikael Pettersson <mikpe@it.uu.se>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061114110958.GB2242@elf.ucw.cz>
-References: <200611122047.kACKl8KP004895@harpo.it.uu.se>
-	 <20061112212941.GA31624@flint.arm.linux.org.uk>
-	 <20061112220318.GA3387@elte.hu>
-	 <20061112235410.GB31624@flint.arm.linux.org.uk>
-	 <20061114110958.GB2242@elf.ucw.cz>
-Content-Type: text/plain
-Date: Tue, 14 Nov 2006 11:34:21 -0500
-Message-Id: <1163522062.14674.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 14 Nov 2006 11:41:54 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:7363 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S966198AbWKNQlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 11:41:53 -0500
+Message-ID: <4559F1CE.9040805@garzik.org>
+Date: Tue, 14 Nov 2006 11:41:50 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Mark Lord <liml@rtr.ca>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] libata fixes
+References: <20061114150454.GA11900@havoc.gtf.org> <4559EFB2.1000809@rtr.ca>
+In-Reply-To: <4559EFB2.1000809@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-14 at 12:09 +0100, Pavel Machek wrote:
-> Suspending with mounted floppy is a user error.
+Mark Lord wrote:
+> Any time we return 0 from queuecommand, the SCSI mid-layer expects us
+> to also take care of invoking the done() function.  Where does this now
+> happen for this case (err_mem) ???
 
-Huh?  How so?
+It _already_ happened in the error path of ata_scsi_qc_new(), which is 
+why this is a double-completion bug fix.
 
-Lee
+	Jeff
+
 

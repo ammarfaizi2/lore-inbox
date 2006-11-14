@@ -1,90 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966359AbWKNVND@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966354AbWKNVPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966359AbWKNVND (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:13:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966361AbWKNVND
+	id S966354AbWKNVPN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966360AbWKNVPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:13:03 -0500
-Received: from mx27.mail.ru ([194.67.23.64]:54820 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S966359AbWKNVNA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:13:00 -0500
-X-Nat-Received: from [10.10.231.1]:2526 [ident-empty]
-	by rt-fiord1.z-net.ru with TPROXY id 1163535220.2644
-	abuse-to abuse@ss-lan.ru
-Date: Wed, 15 Nov 2006 01:15:51 +0300
-From: Anton Vorontsov <cbou@mail.ru>
-To: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       rpurdie@rpsys.net
-Subject: Re: [ARM] Corrupted .got section with 2.6.18 and JFFS2 (solved)
-Message-ID: <20061114221551.GA17042@localhost>
-Reply-To: cbou@mail.ru
-References: <ly1wozcr1d.fsf@ensc-pc.intern.sigma-chemnitz.de> <ly64dyt7de.fsf@ensc-pc.intern.sigma-chemnitz.de> <1162497112.12781.51.camel@localhost.localdomain> <lywt6cc04g.fsf_-_@ensc-pc.intern.sigma-chemnitz.de>
+	Tue, 14 Nov 2006 16:15:12 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:9815 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S966354AbWKNVPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 16:15:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=NfFlB3Mi7lgNoGucsFCS8nKVMIqQU/9QGKSNavejYX01WGbc14YW5g8NPhEslIjwU6e6cYNWBLw92mjhA/9YvhDTr7ycfvUuMFNTI5Lr2F6b+/hnJu8Ev4axyv51pOec2FYH5q/wp9kH/aD6MhoA0Ag6Ks7yNxp/epvPZytzkto=
+Date: Wed, 15 Nov 2006 06:15:09 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Don Mullis <dwm@meer.net>
+Subject: [PATCH -mm] failslab: remove __GFP_HIGHMEM filtering
+Message-ID: <20061114211509.GB20524@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Don Mullis <dwm@meer.net>
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061114200249.GM22565@stusta.de> <20061114211259.GA20524@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <lywt6cc04g.fsf_-_@ensc-pc.intern.sigma-chemnitz.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061114211259.GA20524@localhost>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Filtering __GFP_HIGHMEM flag for slab allocations is useless.
+Because no one sets __GFP_HIGHMEM for slab allocator, unlike
+for page allocator.
 
-On Fri, Nov 03, 2006 at 11:09:35AM +0100, Enrico Scholz wrote:
-> [CC lkml; original issue at
->  http://article.gmane.org/gmane.linux.ports.arm.kernel/28068]
-> 
-> rpurdie@rpsys.net (Richard Purdie) writes:
-> 
-> >> > I have a problem with JFFS2 filesystem and kernel 2.6.18. When
-> >> > starting a program which uses a certain library (libutil.so.1 in
-> >> > my case), the .got section of the library can be initialized
-> >> > wrongly when the used memory is uninitialized.
-> >> 
-> >> Problem seems to be caused by
-> >> 
-> >> | [PATCH] zlib_inflate: Upgrade library code to a recent version
-> >> 
-> >> (4f3865fb57a04db7cca068fed1c15badc064a302)
-> >> 
-> >> After reverting this (and related patches), things seem to work.
-> >> 
-> >> I don't have an idea yet, which changes in this complex patch are
-> >> really responsible....
-> >
-> > I'm the author of the above change. I just ran your test program
-> > on a device (ARM PXA255 with 2.6.19-rc4 kernel, 2.3.5ish glibc,
-> > gcc 3.4.4, libraries on jffs2) and I can't reproduce the
-> > problem.
-> 
-> I can reproduce it 100% with:
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-As I told before (but it's not delivered to the arm-linux-kernel), I
-can reproduce it too, using glibc-2.4 or glibc-2.5. I can't reproduce
-it using glibc-2.3.5.
+ Documentation/fault-injection/fault-injection.txt |    2 --
+ mm/slab.c                                         |   17 ++---------------
+ 2 files changed, 2 insertions(+), 17 deletions(-)
 
-My further investigations shows that reading libutil.so.1
-(cat /lib/libutil.so.1 > /dev/null) prior using it eliminates
-segfault. That, I suppose, means that glibc can easily operate on 
-cached file, but refuses to initially ""read"" it from disk properly.
-
-Quoting Richard Purdie:
-
-"The file is read ok from the disk when copying and when read with
-md5sum. I therefore wonder if the dynamic linker is doing something it
-shouldn't."
-
-Though, it may be either glibc or JFFS2 issue. As for glibc, it's not
-using read() call as do cat, cp or md5sum, glibc using readonly
-mmap call (which is supported by JFFS2 if I understood code correctly)
-on libraries ld-linux wants to load.
-
-
-I hope these itinerary of mine will bring some light on that issue, and
-someone will guess where real bug is. ;-)
-
-> 
-> Enrico
-
--- Anton (irc: bd2)
+Index: work-fault-inject/mm/slab.c
+===================================================================
+--- work-fault-inject.orig/mm/slab.c
++++ work-fault-inject/mm/slab.c
+@@ -3105,15 +3105,10 @@ static struct failslab_attr {
+ 
+ 	struct fault_attr attr;
+ 
+-	u32 ignore_gfp_highmem;
+ 	u32 ignore_gfp_wait;
+-
+ #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
+-
+-	struct dentry *ignore_gfp_highmem_file;
+ 	struct dentry *ignore_gfp_wait_file;
+-
+-#endif /* CONFIG_FAULT_INJECTION_DEBUG_FS */
++#endif
+ 
+ } failslab = {
+ 	.attr = FAULT_ATTR_INITIALIZER,
+@@ -3131,8 +3126,6 @@ static int should_failslab(struct kmem_c
+ 		return 0;
+ 	if (flags & __GFP_NOFAIL)
+ 		return 0;
+-	if (failslab.ignore_gfp_highmem && (flags & __GFP_HIGHMEM))
+-		return 0;
+ 	if (failslab.ignore_gfp_wait && (flags & __GFP_WAIT))
+ 		return 0;
+ 
+@@ -3156,15 +3149,9 @@ static int __init failslab_debugfs(void)
+ 		debugfs_create_bool("ignore-gfp-wait", mode, dir,
+ 				      &failslab.ignore_gfp_wait);
+ 
+-	failslab.ignore_gfp_highmem_file =
+-		debugfs_create_bool("ignore-gfp-highmem", mode, dir,
+-				      &failslab.ignore_gfp_highmem);
+-
+-	if (!failslab.ignore_gfp_wait_file ||
+-			!failslab.ignore_gfp_highmem_file) {
++	if (!failslab.ignore_gfp_wait_file) {
+ 		err = -ENOMEM;
+ 		debugfs_remove(failslab.ignore_gfp_wait_file);
+-		debugfs_remove(failslab.ignore_gfp_highmem_file);
+ 		cleanup_fault_attr_dentries(&failslab.attr);
+ 	}
+ 
+Index: work-fault-inject/Documentation/fault-injection/fault-injection.txt
+===================================================================
+--- work-fault-inject.orig/Documentation/fault-injection/fault-injection.txt
++++ work-fault-inject/Documentation/fault-injection/fault-injection.txt
+@@ -86,7 +86,6 @@ configuration of fault-injection capabil
+ 	specifies the maximum stacktrace depth walked during search
+ 	for a caller within [address-start,address-end).
+ 
+-- /debug/failslab/ignore-gfp-highmem:
+ - /debug/fail_page_alloc/ignore-gfp-highmem:
+ 
+ 	Format: { 0 | 1 }
+@@ -167,7 +166,6 @@ echo 10 > /debug/$FAILNAME/probability
+ echo 100 > /debug/$FAILNAME/interval
+ echo -1 > /debug/$FAILNAME/times
+ echo 2 > /debug/$FAILNAME/verbose
+-echo 1 > /debug/$FAILNAME/ignore-gfp-highmem
+ echo 1 > /debug/$FAILNAME/ignore-gfp-wait
+ 
+ blacklist()

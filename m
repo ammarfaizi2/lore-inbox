@@ -1,39 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933358AbWKNJtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933359AbWKNJ5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933358AbWKNJtw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 04:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933359AbWKNJtw
+	id S933359AbWKNJ5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 04:57:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933360AbWKNJ5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 04:49:52 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:30199 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S933358AbWKNJtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 04:49:51 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: suzuki <suzuki@linux.vnet.ibm.com>
-Subject: Re: + fix-compat-space-msg-size-limit-for-msgsnd-msgrcv.patch added to -mm tree
-Date: Tue, 14 Nov 2006 10:49:35 +0100
-User-Agent: KMail/1.9.5
-Cc: akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org
-References: <200611132358.kADNwF0V012270@shell0.pdx.osdl.net> <200611140138.19111.arnd@arndb.de> <45591BD1.9070600@linux.vnet.ibm.com>
-In-Reply-To: <45591BD1.9070600@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Nov 2006 04:57:25 -0500
+Received: from nessie.weebeastie.net ([220.233.7.36]:33553 "EHLO
+	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S933359AbWKNJ5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 04:57:24 -0500
+Date: Tue, 14 Nov 2006 20:58:18 +1100
+From: CaT <cat@zip.com.au>
+To: "Dennis J.A. Bijwaard" <dennis@h8922032063.dsl.speedlinq.nl>
+Cc: Andrew Morton <akpm@osdl.org>, bijwaard@gmail.com, sct@redhat.com,
+       adilger@clusterfs.com, linux-kernel@vger.kernel.org
+Subject: Re: BUG: soft lockup detected on CPU#0! in sys_close and ext3
+Message-ID: <20061114095818.GA2541@zip.com.au>
+References: <20061015175640.GA3673@jumbo.lan> <20061015121202.378bdd41.akpm@osdl.org> <20061015215854.GA12890@jumbo.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611141049.36145.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <20061015215854.GA12890@jumbo.lan>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 November 2006 02:28, suzuki wrote:
+On Sun, Oct 15, 2006 at 11:58:55PM +0200, Dennis J.A. Bijwaard wrote:
+> Hi Andrew,
 > 
-> I left it as such, inorder to avoid the future changes that may come in 
-> the struct msgbuf -if at all-, which would make us to pass every single 
-> field as a parameter to do_msgrcv/do_msgsnd.
+> Thanks for your reply. The machine has 512MB and some more swap:
+> 
+> Mem:    510960k total,   504876k used,     6084k free,     1868k buffers
+> Swap:   674640k total,     2652k used,   671988k free,   354832k cached
+> 
+> Machine may be slow for current standards, it has 2 * 500Mhz
 
-struct msgbuf is part of the kernel ABI and will never change, so that's
-no problem at all.
+This looks like what I have come across yesterda, except my machine is
+far from slow. It's a dual core woodcrest 5130 cpu (2Ghz) with 4gb of
+ram. My call trace looks very similar and occurs when sda1 (for eg) is 
+involved or md0 (raid0 in this case) is. It happens multiple times in 
+each case (from memory).
 
-	Arnd <><
+Nov 13 09:46:04 localhost kernel: Call Trace:
+Nov 13 09:46:04 localhost kernel:  [show_trace+185/628] show_trace+0xb9/0x274
+Nov 13 09:46:04 localhost kernel:  [dump_stack+21/26] dump_stack+0x15/0x1a
+Nov 13 09:46:04 localhost kernel:  [softlockup_tick+231/264] softlockup_tick+0xe7/0x108
+Nov 13 09:46:04 localhost kernel:  [run_local_timers+19/21] run_local_timers+0x13/0x15
+Nov 13 09:46:04 localhost kernel:  [update_process_times+83/137] update_process_times+0x53/0x89
+Nov 13 09:46:04 localhost kernel:  [smp_local_timer_interrupt+46/89] smp_local_timer_interrupt+0x2e/0x59
+Nov 13 09:46:04 localhost kernel:  [smp_apic_timer_interrupt+92/106] smp_apic_timer_interrupt+0x5c/0x6a
+Nov 13 09:46:04 localhost kernel:  [apic_timer_interrupt+107/112] apic_timer_interrupt+0x6b/0x70
+Nov 13 09:46:04 localhost kernel:  [_write_unlock_irqrestore+81/95] _write_unlock_irqrestore+0x51/0x5f
+Nov 13 09:46:04 localhost kernel:  [test_clear_page_dirty+189/224] test_clear_page_dirty+0xbd/0xe0
+Nov 13 09:46:04 localhost kernel:  [try_to_free_buffers+123/174] try_to_free_buffers+0x7b/0xae
+Nov 13 09:46:04 localhost kernel:  [try_to_release_page+68/74] try_to_release_page+0x44/0x4a
+Nov 13 09:46:04 localhost kernel:  [invalidate_complete_page+54/191] invalidate_complete_page+0x36/0xbf
+Nov 13 09:46:04 localhost kernel:  [invalidate_mapping_pages+157/280] invalidate_mapping_pages+0x9d/0x118
+Nov 13 09:46:04 localhost kernel:  [invalidate_inode_pages+18/20] invalidate_inode_pages+0x12/0x14
+Nov 13 09:46:04 localhost kernel:  [invalidate_bdev+47/56] invalidate_bdev+0x2f/0x38
+Nov 13 09:46:04 localhost kernel:  [kill_bdev+25/52] kill_bdev+0x19/0x34
+Nov 13 09:46:04 localhost kernel:  [__blkdev_put+88/314] __blkdev_put+0x58/0x13a
+Nov 13 09:46:04 localhost kernel:  [blkdev_put+11/13] blkdev_put+0xb/0xd
+Nov 13 09:46:04 localhost kernel:  [blkdev_close+52/61] blkdev_close+0x34/0x3d
+Nov 13 09:46:04 localhost kernel:  [__fput+170/306] __fput+0xaa/0x132
+Nov 13 09:46:04 localhost kernel:  [fput+21/23] fput+0x15/0x17
+Nov 13 09:46:04 localhost kernel:  [filp_close+109/129] filp_close+0x6d/0x81
+Nov 13 09:46:04 localhost kernel:  [sys_close+140/168] sys_close+0x8c/0xa8
+Nov 13 09:46:04 localhost kernel:  [system_call+126/131] system_call+0x7e/0x83
+Nov 13 09:46:04 localhost kernel:  [phys_startup_64+-1072859838/2147483392]
+
+> > So the kernel was doing a lot of work, on a slow CPU.  Perhaps that simply
+> > exceeded the softlockup timeout.  If that's true then the machine should
+> > have recovered.  Once it did, and once it didn't.  I don't know why it
+> > didn't.
+
+It did for me in all cases. Should it be taking long enough to trigger
+the softlock timeout to do this? The size of the device is approx 280gig.
+
+-- 
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755237AbWKNLYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755259AbWKNLYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755237AbWKNLYr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 06:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755430AbWKNLYr
+	id S1755259AbWKNLYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 06:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755430AbWKNLYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 06:24:47 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:19507 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1755237AbWKNLYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 06:24:46 -0500
-Date: Tue, 14 Nov 2006 12:23:51 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: dm: possible recursive locking detected
-Message-ID: <20061114112351.GD7091@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
+	Tue, 14 Nov 2006 06:24:16 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:43026 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1755259AbWKNLYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 06:24:15 -0500
+Date: Tue, 14 Nov 2006 11:24:09 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: device_del() and references
+Message-ID: <20061114112409.GB15340@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <455972D0.1030407@drzeus.cx>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <455972D0.1030407@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the git tree as of today I get the following:
+On Tue, Nov 14, 2006 at 08:40:00AM +0100, Pierre Ossman wrote:
+> When a card driver has obtained a reference to a card, what makes sure
+> we do not destroy that card from under its feet?
 
-=============================================
-[ INFO: possible recursive locking detected ]
-2.6.19-rc5-g0579e303-dirty #22
----------------------------------------------
-kpartx/933 is trying to acquire lock:
- (&md->io_lock){----}, at: [<000000000023167e>] dm_request+0x52/0x25c
+Essentially, the driver model.  (see the answer to your paragraph below.)
 
-but task is already holding lock:
- (&md->io_lock){----}, at: [<000000000023167e>] dm_request+0x52/0x25c
+> I suspect that device_del() doesn't return until remove() has been
+> called and that our requirement is that the card driver must have
+> released all references to the card before its remove routine exits.
 
-other info that might help us debug this:
-1 lock held by kpartx/933:
- #0:  (&md->io_lock){----}, at: [<000000000023167e>] dm_request+0x52/0x25c
+Your sentence is confusing - which "remove()" are you talking about
+here?  If you're talking about mmc_blk_remove() then that's correct.
 
-stack backtrace:
-0000000000000000 0000000000000000 0000000000000000 0000000000000000 
-       0000000000000000 00000000003e2a42 00000000003e2a42 0000000000016272 
-       040000000d437280 000000000071f408 0000000000000000 00000000004bd620 
-       0000000000000000 000000000000000d 000000000d437380 000000000d4373f8 
-       00000000003ab450 0000000000016272 000000000d437380 000000000d4373d0 
-Call Trace:
-([<00000000000161d8>] show_trace+0xc0/0xdc)
- [<0000000000016294>] show_stack+0xa0/0xd0
- [<00000000000162f2>] dump_stack+0x2e/0x3c
- [<000000000006326c>] __lock_acquire+0xa80/0xeac
- [<0000000000063c38>] lock_acquire+0x90/0xc0
- [<000000000005d568>] down_read+0x54/0x9c
- [<000000000023167e>] dm_request+0x52/0x25c
- [<00000000001b0364>] generic_make_request+0x174/0x1fc
- [<0000000000230fb2>] __map_bio+0x7e/0xec
- [<0000000000231608>] __split_bio+0x510/0x534
- [<0000000000231830>] dm_request+0x204/0x25c
- [<00000000001b0364>] generic_make_request+0x174/0x1fc
- [<00000000001b04ae>] submit_bio+0xc2/0x18c
- [<00000000000d72b4>] submit_bh+0x13c/0x1d8
- [<00000000000da210>] block_read_full_page+0x3f0/0x470
- [<00000000000dcb94>] blkdev_readpage+0x30/0x40
- [<000000000008320c>] __do_page_cache_readahead+0x190/0x300
- [<000000000008354a>] blockable_page_cache_readahead+0x7a/0x104
- [<0000000000083988>] page_cache_readahead+0x29c/0x328
- [<000000000007ad20>] do_generic_mapping_read+0x428/0x51c
- [<000000000007d4d0>] generic_file_aio_read+0x160/0x244
- [<00000000000a9560>] do_sync_read+0xd8/0x130
- [<00000000000a9660>] vfs_read+0xa8/0x188
- [<00000000000a9a4e>] sys_read+0x56/0x88
- [<0000000000020d40>] sysc_noemu+0x10/0x16
- [<000002000011fd18>] 0x2000011fd18
+> If so, then there is the risk of a race in mmc_block. What guarantees
+> that the request handler isn't running in parallel with the remove
+> function? Again, I suspect that del_gendisk() might grab the queue lock,
+> but as there might be stuff left in the queue, this seems insufficient.
 
-It probably just misses some annotation, but would be good to have this fixed
-before 2.6.19.
+Hmm, not sure here.  I think you might be right, but the block layer is
+*extremely* finaky when it comes to removing stuff.
 
-Btw.: seeing these recursive calls again makes me remember that there is
-still md-dm-reduce-stack-usage-with-stacked-block-devices.patch in the
--mm tree.
-Any chance that that one will ever move to Linus' repository?
+In short, I don't know - I've forgotten quite a bit about the low level
+block interface with MMC since it's something I did once and only once.
+
+Maybe Jens has some ideas?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

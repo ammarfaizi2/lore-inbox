@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933299AbWKNBJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933298AbWKNBPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933299AbWKNBJs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 20:09:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933302AbWKNBJs
+	id S933298AbWKNBPa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 20:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933300AbWKNBPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 20:09:48 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:7556
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S933299AbWKNBJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 20:09:47 -0500
-Message-ID: <45591715.6030406@microgate.com>
-Date: Mon, 13 Nov 2006 19:08:37 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Mon, 13 Nov 2006 20:15:30 -0500
+Received: from hummeroutlaws.com ([12.161.0.3]:39428 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S933298AbWKNBP3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 20:15:29 -0500
+Date: Mon, 13 Nov 2006 20:14:19 -0500
+From: Jim Crilly <jim@why.dont.jablowme.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
+Message-ID: <20061114011419.GI4824@voodoo.jdc.home>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org
+References: <1163374762.5178.285.camel@gullible> <1163404727.15249.99.camel@laptopd505.fenrus.org> <1163443887.5313.27.camel@mindpipe> <1163449139.15249.197.camel@laptopd505.fenrus.org> <20061113221611.GG4824@voodoo.jdc.home> <1163458748.5313.74.camel@mindpipe> <20061113232241.GH4824@voodoo.jdc.home> <1163461501.8780.2.camel@mindpipe>
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Jeff Garzik <jeff@garzik.org>,
-       =?ISO-8859-1?Q?Toralf_F=F6rster?= <toralf.foerster@gmx.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Re: linux-2.6.19-rc5-g088406bc build #120 failed
-References: <200611130943.42463.toralf.foerster@gmx.de>	<4558860B.8090908@garzik.org> <45588895.7010501@microgate.com>	<m3ejs78adt.fsf@defiant.localdomain> <4558BF72.2030408@microgate.com>	<m3ac2v6phw.fsf@defiant.localdomain> <4558E652.1080905@microgate.com>	<m3psbr54nb.fsf@defiant.localdomain> <4558FB51.8090303@microgate.com> <m3d57q6gbk.fsf@defiant.localdomain>
-In-Reply-To: <m3d57q6gbk.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1163461501.8780.2.camel@mindpipe>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> I must have missed the new thread then. Do you have a copy of that
-> mail (or some other pointer)? I can't find it in the archives without
-> some hint and I'm really interested in what people found to be
-> unacceptable.
+On 11/13/06 06:45:01PM -0500, Lee Revell wrote:
+> On Mon, 2006-11-13 at 18:22 -0500, Jim Crilly wrote:
+> > Well it doesn't and the only error I get from the game is:
+> > 
+> > /dev/dsp: Input/output error
+> > Could not mmap /dev/dsp
+> > 
+> > If it makes a difference, lspci lists the card as:
+> > 
+> > 00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97
+> > Audio Controller (rev a2) 
+> 
+> Please see http://www.alsa-project.org/~iwai/OSS-Emulation.html.
+> 
+> You need something like:
+> 
+> $ echo "quake 0 0 direct" > /proc/asound/card0/pcm0p/oss
+> 
 
-Looking back over the archives, the 'other' thread I was thinking
-about was the preceding thread to the one you quoted:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0606.0/1608.html
+Yea, I've read that FAQ and I vaguely remember trying that although that
+might have been for something different because it appears to be working
+now. I can't actually verify the sound is working though since I'm not
+physically at the box.
 
-The thread you point to was the final thread, but you
-were missing the follow ups where other changes were
-requested even after Andrew's post:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0606.1/0489.html
+Sorry for the noise.
 
-I think at that point (it has been a while), having just heard
-'do this and your OK' from Andrew, but other people still wanting
-something else I got frustrated, said 'no more' and stopped.
-
-In hind sight, I should have ignored the posts that followed
-and posted what Andrew suggested. When I look at this again,
-I will take that approach.
-
---
-Paul
+Jim.

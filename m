@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966236AbWKNTA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966261AbWKNTBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966236AbWKNTA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 14:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966261AbWKNTA5
+	id S966261AbWKNTBr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 14:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966259AbWKNTBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 14:00:57 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:62221
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S966236AbWKNTA4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 14:00:56 -0500
-Date: Tue, 14 Nov 2006 11:00:56 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: Oleg Verych <olecom@flower.upol.cz>, sam@ravnborg.org
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: make menuconfig regression in 2.6.19-rc
-Message-ID: <20061114190056.GA22951@linuxace.com>
-References: <20061114003752.GA15295@linuxace.com> <E1GjtT7-0002to-LO@flower>
+	Tue, 14 Nov 2006 14:01:46 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:65100 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S966249AbWKNTBq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 14:01:46 -0500
+Date: Tue, 14 Nov 2006 20:04:25 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Alex Romosan <romosan@sycorax.lbl.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1 (+ide-cd patches) regression: unable to rip cd
+Message-ID: <20061114190425.GE23770@kernel.dk>
+References: <20061110161355.GB15031@kernel.dk> <87u01717qw.fsf@sycorax.lbl.gov> <20061113200256.GC15031@kernel.dk> <87lkmfcdci.fsf@sycorax.lbl.gov> <20061113203523.GE15031@kernel.dk> <87ejs5dib1.fsf@sycorax.lbl.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1GjtT7-0002to-LO@flower>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <87ejs5dib1.fsf@sycorax.lbl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2006 at 08:16:33AM +0000, Oleg Verych wrote:
-> Phil Oester wrote:
-> > In commit 350b5b76384e77bcc58217f00455fdbec5cac594, the default menuconfig
-> > color scheme was changed to bluetitle.  This breaks the highlighting
-> > of the selected item for me with TERM=vt100.  The only way I can see
-> > which item is selected is via:
+On Tue, Nov 14 2006, Alex Romosan wrote:
+> Jens Axboe <jens.axboe@oracle.com> writes:
+> 
+> > There is a second error handling patch merged with the first patch as
+> > well, perhaps it'll help you out. Attached here as well.
 > >
-> >     make MENUCONFIG_COLOR=mono menuconfig
+> > diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+> > index bddfebd..8821494 100644
+> > --- a/drivers/ide/ide-cd.c
+> > +++ b/drivers/ide/ide-cd.c
+> > @@ -724,7 +724,7 @@ static int cdrom_decode_status(ide_drive
+> >  		 * if we have an error, pass back CHECK_CONDITION as the
+> >  		 * scsi status byte
+> >  		 */
+> > -		if (!rq->errors)
+> > +		if (blk_pc_request(rq) && !rq->errors)
+> >  			rq->errors = SAM_STAT_CHECK_CONDITION;
+> >  
+> >  		/* Check for tray open. */
 > >
-> > Which restores the pre-2.6.19 white on black highlighting.  
 > 
-> Classic theme also doesn't work, and this commit doesn't look like
-> changing anything in it.
-> 
-> Thus, i think, just export variable with working theme (mono) on your
-> exotic setup.
+> tried it again with this patch (on top of all the other patches).
+> overall things are much better than they've been in a long time
+> (thanks!), but... when cdparanoia gets stuck, if i abort the process
+> and restart it the ripping proceeds very slowly (~5x before, ~1.5x
+> after). if i eject/insert the cd and then restart cdparanoia the speed
+> is as before (~5x). something doesn't get reset until the cd is
+> ejected, don't know if it's the kernel's fault though. same thing
+> happens if i get an error reading a sector but then cdparanoia manages
+> to recover. from that point on the speed is very slow (again until i
+> eject/insert the cd; a new instance of cdparanoia is just as slow).
 
-Hmm...vt100 is exotic?  If only you'd told me that 20 years ago ;-)
+When cdparanoia gets stuck, how is it stuck? Can you give me a backtrace
+of that? If you can abort it, sounds like it isn't stuck in the kernel.
 
-> > Sam?
-> 
-> If you want answer from busy developers, try to add their e-mail next
-> time.
+-- 
+Jens Axboe
 
-Thanks for the tip.
-
-Phil

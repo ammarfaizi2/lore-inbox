@@ -1,87 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933158AbWKNHnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWKNHyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933158AbWKNHnY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 02:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933089AbWKNHnY
+	id S932126AbWKNHyM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 02:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933212AbWKNHyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 02:43:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59578 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933050AbWKNHnW (ORCPT
+	Tue, 14 Nov 2006 02:54:12 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:12385 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S932126AbWKNHyL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 02:43:22 -0500
-Date: Mon, 13 Nov 2006 23:43:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>
-Subject: Re: [PATCH] Incorrect MSI interrupt type name
-Message-Id: <20061113234315.767f7516.akpm@osdl.org>
-In-Reply-To: <1163488977.4311.52.camel@ymzhang-perf.sh.intel.com>
-References: <1163488977.4311.52.camel@ymzhang-perf.sh.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 14 Nov 2006 02:54:11 -0500
+Date: Tue, 14 Nov 2006 08:56:49 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to cleanly shut down a block device
+Message-ID: <20061114075648.GK15031@kernel.dk>
+References: <455969F2.80401@drzeus.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <455969F2.80401@drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006 15:22:57 +0800
-"Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
-
-> /proc/interrupts shows "<NULL>" for MSI interrupt type name on
-> my ia64 machine.
+On Tue, Nov 14 2006, Pierre Ossman wrote:
+> Hi Jens,
 > 
-> Below patch against 2.6.19-rc5-mm1 fixes it.
+> I've been trying to sort out some bugs in the MMC layer's block driver,
+> but my knowledge about the block layer is severely lacking. So I was
+> hoping you could educate me a bit. :)
 > 
-> Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+> Upon creation, the following happens:
 > 
-> ---
+> alloc_disk()
+> spin_lock_init()
+> blk_init_queue()
+> blk_queue_*() (Set up limits)
+> disk->* = * (assign members)
+> blk_queue_hardsect_size()
+> set_capacity()
+> add_disk()
 > 
-> --- linux-2.6.19-rc5-mm1/arch/ia64/kernel/msi_ia64.c	2006-11-14 14:16:12.000000000 +0800
-> +++ linux-2.6.19-rc5-mm1_fix/arch/ia64/kernel/msi_ia64.c	2006-11-14 15:08:37.000000000 +0800
-> @@ -115,7 +115,7 @@ static int ia64_msi_retrigger_irq(unsign
->   * Generic ops used on most IA64 platforms.
->   */
->  static struct irq_chip ia64_msi_chip = {
-> -	.name		= "PCI-MSI",
-> +	.typename	= "PCI-MSI",
->  	.mask		= mask_msi_irq,
->  	.unmask		= unmask_msi_irq,
->  	.ack		= ia64_ack_msi_irq,
+> And on a clean removal, where there are no users of a card when it is
+> removed:
+> 
+> del_gendisk()
+> put_disk()
+> blk_cleanup_queue()
+> 
+> So far everything seems nice and peachy. The question is what to do when
+> a card is removed when the device is open.
+> 
+> In that case, del_gendisk() will be called, which seems to be documented
+> as blocking any new requests to be added to the queue. But there will be
+> a lot of outstanding requests in the queue.
+> 
+> Is it up to each block device to iterate and fail these or can I tell
+> the kernel "I'm broken, go away!"?
+> 
+> When the queue eventually drains (without too many oopses) and the user
+> calls close(), then put_disk() and blk_cleanup_queue() will be called.
 
-I think the bug is that ia64 is printing ->typename, whereas it should be
-printing ->name:
+There is no helper to kill already queued requests when a device is
+removed, if you look at SCSI you'll see that it handles this "manually"
+as well in the request_fn handler. So you'll need a "device dead or
+gone" check in your request_fn handler, and do it from there.
 
-
- arch/ia64/kernel/iosapic.c |    2 +-
- arch/ia64/kernel/irq.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN arch/ia64/kernel/iosapic.c~ia64-irqs-use-name-not-typename arch/ia64/kernel/iosapic.c
---- a/arch/ia64/kernel/iosapic.c~ia64-irqs-use-name-not-typename
-+++ a/arch/ia64/kernel/iosapic.c
-@@ -664,7 +664,7 @@ register_intr (unsigned int gsi, int vec
- 			printk(KERN_WARNING
- 			       "%s: changing vector %d from %s to %s\n",
- 			       __FUNCTION__, vector,
--			       idesc->chip->typename, irq_type->typename);
-+			       idesc->chip->name, irq_type->name);
- 		idesc->chip = irq_type;
- 	}
- 	return 0;
-diff -puN arch/ia64/kernel/irq.c~ia64-irqs-use-name-not-typename arch/ia64/kernel/irq.c
---- a/arch/ia64/kernel/irq.c~ia64-irqs-use-name-not-typename
-+++ a/arch/ia64/kernel/irq.c
-@@ -76,7 +76,7 @@ int show_interrupts(struct seq_file *p, 
- 			seq_printf(p, "%10u ", kstat_cpu(j).irqs[i]);
- 		}
- #endif
--		seq_printf(p, " %14s", irq_desc[i].chip->typename);
-+		seq_printf(p, " %14s", irq_desc[i].chip->name);
- 		seq_printf(p, "  %s", action->name);
- 
- 		for (action=action->next; action; action = action->next)
-_
+-- 
+Jens Axboe
 

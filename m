@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966030AbWKNPnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966043AbWKNPqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966030AbWKNPnx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 10:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966042AbWKNPnx
+	id S966043AbWKNPqu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 10:46:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966130AbWKNPqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 10:43:53 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:57536 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S966030AbWKNPnw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 10:43:52 -0500
-Message-ID: <4559E432.9070401@pobox.com>
-Date: Tue, 14 Nov 2006 10:43:46 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-CC: netdev@vger.kernel.org, Andrew Victor <andrew@sanpeople.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH take 2] Atmel MACB ethernet driver
-References: <20061109145117.577e3c61@cad-250-152.norway.atmel.com>
-In-Reply-To: <20061109145117.577e3c61@cad-250-152.norway.atmel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Nov 2006 10:46:49 -0500
+Received: from s1.mailresponder.info ([193.24.237.10]:59400 "EHLO
+	s1.mailresponder.info") by vger.kernel.org with ESMTP
+	id S966043AbWKNPqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 10:46:48 -0500
+Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
+From: Mathieu Fluhr <mfluhr@nero.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Phillip Susi <psusi@cfl.rr.com>, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1163446372.15249.190.camel@laptopd505.fenrus.org>
+References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>
+	 <4558BE57.4020700@cfl.rr.com>
+	 <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>
+	 <1163446372.15249.190.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: Nero AG
+Date: Tue, 14 Nov 2006 16:45:25 +0100
+Message-Id: <1163519125.2998.8.camel@de-c-l-110.nero-de.internal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haavard Skinnemoen wrote:
-> Driver for the Atmel MACB on-chip ethernet module.
+On Mon, 2006-11-13 at 20:32 +0100, Arjan van de Ven wrote:
+> On Mon, 2006-11-13 at 19:56 +0100, Mathieu Fluhr wrote:
+> > On Mon, 2006-11-13 at 13:49 -0500, Phillip Susi wrote:
+> > > Mathieu Fluhr wrote:
+> > > > Hello,
+> > > > 
+> > > > I recently tried to burn some datas on CDs and DVD using a SATA burner
+> > > > and the latest 2.6.18.2 kernel... using NeroLINUX. (It is controlling
+> > > > the device by sending SCSI commands over the 'sg' driver)
+> > > > 
+> > > 
+> > > Please note that the sg interface is depreciated.  It is now recommended 
+> > > that you send the CCBs directly to the normal device, i.e. /dev/hdc.
+> > 
+> > Of course for native IDE devices, we are using the /dev/hdXX device, but
+> > for SATA devices controlled by the libata, this is not possible ;)
 > 
-> Tested on AVR32/AT32AP7000/ATSTK1000. I've heard rumours that it works
-> with AT91SAM9260 as well, and it may be possible to share some code with
-> the at91_ether driver for AT91RM9200.
+> for those there is /dev/scd0 etc...
+> (usually nicely symlinked to /dev/cdrom)
+
+Hummm as we are _writing_ to devices, I think that using /dev/sgXX with
+SG_IO is better no?
+
+... and the problem is not in accessing the device itself (this is
+working like a charm) but understanding why a SCSI READ(10) cmd
+sometimes fails as a ATA-padded READ(10) cmd - as discribed in the Annex
+A of the MMC-5 spec - ALWAYS works.
+-> I would suspect somehow a synchronisation problem somehow in the
+translation of SCSI to ATA command...
+
+Another point: When I say that a READ(10) fails, it does NOT mean that
+the command execution itself fails. Everything works as if the command
+exectution succeeds, but the resulting buffer contains garbage (i.e. not
+only 1 or 2 bytes differs)
+
+
 > 
-> Hardware documentation can be found in the AT32AP7000 data sheet,
-> which can be downloaded from
 > 
-> http://www.atmel.com/dyn/products/datasheets.asp?family_id=682
-> 
-> Changes since previous version:
->   * Probe for PHY ID instead of depending on it being provided through
->     platform_data.
->   * Grab initial ethernet address from the MACB registers instead
->     of depending on platform_data.
->   * Set MII/RMII mode correctly.
-> 
-> These changes are mostly about making the driver more compatible with
-> the at91 infrastructure.
-> 
-> Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
-
-applied.
-
-Thanks for submitting a nice, clean driver that was so painless to apply 
-to the latest kernel.
-
-I wish all vendors were as effective and efficient.
-
-	Jeff
-
-
 

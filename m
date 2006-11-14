@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966203AbWKNQql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966193AbWKNQsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966203AbWKNQql (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 11:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966202AbWKNQql
+	id S966193AbWKNQsx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 11:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966205AbWKNQsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 11:46:41 -0500
-Received: from rtr.ca ([64.26.128.89]:26632 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S966203AbWKNQqk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 11:46:40 -0500
-Message-ID: <4559F2EE.7080309@rtr.ca>
-Date: Tue, 14 Nov 2006 11:46:38 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Alberto Alonso <alberto@ggsys.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: qstor driver -> irq 193: nobody cared
-References: <1162576973.3967.10.camel@w100>  <454CDE6E.5000507@rtr.ca>	 <1163180185.28843.13.camel@w100>  <4556AC74.3010000@rtr.ca>	 <1163363479.3423.8.camel@w100>  <45588132.9090200@rtr.ca> <1163479852.3340.9.camel@w100>
-In-Reply-To: <1163479852.3340.9.camel@w100>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Nov 2006 11:48:53 -0500
+Received: from aa012msr.fastwebnet.it ([85.18.95.72]:46979 "EHLO
+	aa012msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S966193AbWKNQsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 11:48:52 -0500
+Date: Tue, 14 Nov 2006 17:44:51 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Adrian Bunk <bunk@stusta.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [discuss] 2.6.19-rc5: known regressions (v2)
+Message-ID: <20061114174451.4afc9b6a@localhost>
+In-Reply-To: <20061111132929.56c4539e@localhost>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<200611111008.37986.rjw@sisk.pl>
+	<20061111102506.5f98688c@localhost>
+	<200611111149.27370.rjw@sisk.pl>
+	<20061111132929.56c4539e@localhost>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.19; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alberto Alonso wrote:
-> Things are improving, after the latest patch I can still
-> see spurious messages, but the count stays at 0.
+On Sat, 11 Nov 2006 13:29:29 +0100
+Paolo Ornati <ornati@fastwebnet.it> wrote:
 
-Mmm.. Okay, so we have a kludge fix (just get rid of the printk's we added).
+> > Okay, please let us know if it survives the next several cycles.
+> > 
+> > OTOH, the problem may be hiding.
+> 
+> Ok, and if it survives againg and again I can do a partial bisection...
 
-But I would like to find out more about what is going on.
-We seem to be getting lots of "leftover interrupts".
-I'll look through my full qstor block driver (the high-performance
-queuing driver, out-of-tree), and see if we missed an IRQ-mask bit
-someplace in the simple sata_qstor.c re-implementation.
+"-rc5" is still alive: 6 days of uptime using suspend/resume many times
+every day...
 
-Cheers
+so if the problem is there it's hiding very well.
+
+
+Now I'll slowly go back with older kernels and see what happens...
+
+-- 
+	Paolo Ornati
+	Linux 2.6.19-rc5 on x86_64

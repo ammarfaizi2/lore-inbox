@@ -1,155 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966379AbWKNVgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966382AbWKNVix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966379AbWKNVgH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:36:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966380AbWKNVgH
+	id S966382AbWKNVix (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:38:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966383AbWKNVix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:36:07 -0500
-Received: from mail.impinj.com ([206.169.229.170]:19470 "EHLO earth.impinj.com")
-	by vger.kernel.org with ESMTP id S966379AbWKNVgE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:36:04 -0500
-Subject: Re: Patch to fixe Data Acess error in dup_fd
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: sharyath@in.ibm.com, Pavel Emelianov <xemul@sw.ru>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061114204236.GA10840@procyon.home>
-References: <1163151121.3539.15.camel@legolas.in.ibm.com>
-	 <20061114181656.6328e51a.vsu@altlinux.ru>
-	 <1163530154.4871.14.camel@impinj-lt-0046>
-	 <20061114204236.GA10840@procyon.home>
-Content-Type: text/plain
-Date: Tue, 14 Nov 2006 13:35:56 -0800
-Message-Id: <1163540156.5412.9.camel@impinj-lt-0046>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Nov 2006 16:38:53 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27820 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S966382AbWKNViw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 16:38:52 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Pavel Machek <pavel@suse.cz>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org, ak@suse.de,
+       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com
+Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
+References: <20061113162135.GA17429@in.ibm.com>
+	<20061113164314.GK17429@in.ibm.com> <20061114163002.GB4445@ucw.cz>
+Date: Tue, 14 Nov 2006 14:36:35 -0700
+In-Reply-To: <20061114163002.GB4445@ucw.cz> (Pavel Machek's message of "Tue,
+	14 Nov 2006 16:30:03 +0000")
+Message-ID: <m1fyclk8ws.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-14 at 23:42 +0300, Sergey Vlasov wrote:
-> Yes, very interesting (although if the problem appeared only after 72
-> hours of testing, it is hard to be sure that the bug is really fixed).
+Pavel Machek <pavel@suse.cz> writes:
 
-Yep. Could be random memory corruption from some other piece of the
-code.
+> Hi!
+>
+>> - Killed lots of dead code
+>> - Improve the cpu sanity checks to verify long mode
+>>   is enabled when we wake up.
+>> - Removed the need for modifying any existing kernel page table.
+>> - Moved wakeup_level4_pgt into the wakeup routine so we can
+>>   run the kernel above 4G.
+>> - Increased the size of the wakeup routine to 8K.
+>> - Renamed the variables to use the 64bit register names.
+>> - Lots of misc cleanups to match trampoline.S
+>> 
+>> I don't have a configuration I can test this but it compiles cleanly
+>
+> Ugh, now that's a big patch.. and untested, too :-(.
 
-> > [...] The open_files value that
-> > count_open_files() returns will always be a multiple of BITS_PER_LONG,
-> > so no extraneous bits will ever be copied. It's a tad confusing since
-> > count_open_files() does something a bit different than what its name
-> > suggests.
-> 
-> Yes, then the logic looks fine.  (The comment in count_open_files()
-> says "Find the last open fd", which is _almost_ what it does.)
+It was very carefully code reviewed at least the first time,
+and the code was put in sync with code that was tested.
 
-It's always the details that getcha. :) There's other implicit tricks
-that the code pulls, such as implicit requirements for minimum size
-granularity of certain data structures. It basically comes down to
-trying to read and understand all the surrounding code.
+But things happens so the lack of testing was noted.
 
-> There is also some unused code and slightly incorrect comment in
-> dup_fd():
-> 
-> 	size = old_fdt->max_fdset;
-> 
-> ... here "size" is not used ....
-> 
-> 	/* if the old fdset gets grown now, we'll only copy up to "size" fds */
-> 
-> ... here "size" is not used either ....
-> 
-> 	size = (new_fdt->max_fds - open_files) * sizeof(struct file *);
-> 
-> The result of the first assignment to "size" is not used anywhere,
-> even if it is mentioned in the comment.  However, the intent to keep
-> the old size of fdset is noted again.
+> Why is PGE no longer required, for example?
 
-I read that comment in my mind like this: s/"size"/"open_files"/g. The
-wording can definitely be improved, though. Any takers?
+PGE is never required.  Especially on a temporary page table.
+PGE is an optimization, to make context switches faster.
 
-I also already sent a patch to Andrew a while ago to clean up that
-unused assignment to "size", as part of a bigger fdtable-rework
-patchset. This code is currently getting its testing in -mm for the time
-being.
-
-> > 0:mon> e
-> > cpu 0x0: Vector: 300 (Data Access) at [c00000007ce2f7f0]
-> >     pc: c000000000060d90: .dup_fd+0x240/0x39c
-> >     lr: c000000000060d6c: .dup_fd+0x21c/0x39c
-> >     sp: c00000007ce2fa70
-> >    msr: 800000000000b032
-> >    dar: ffffffff00000028
-> >  dsisr: 40000000
-> >   current = 0xc000000074950980
-> >   paca    = 0xc000000000454500
-> >     pid   = 27330, comm = bash
-> > 
-> > 0:mon> t
-> > [c00000007ce2fa70] c000000000060d28 .dup_fd+0x1d8/0x39c (unreliable)
-> > [c00000007ce2fb30] c000000000060f48 .copy_files+0x5c/0x88
-> > [c00000007ce2fbd0] c000000000061f5c .copy_process+0x574/0x1520
-> > [c00000007ce2fcd0] c000000000062f88 .do_fork+0x80/0x1c4
-> > [c00000007ce2fdc0] c000000000011790 .sys_clone+0x5c/0x74
-> > [c00000007ce2fe30] c000000000008950 .ppc_clone+0x8/0xc
-> > 
-> > The PC translates to:
-> >         for (i = open_files; i != 0; i--) {
-> >                 struct file *f = *old_fds++;
-> >                 if (f) {
-> >                         get_file(f);       <-- Data access error
-> 
-> So we probably got a bogus "struct file" pointer...
-> 
-> >                 } else {
-> > 
-> > And more info still:
-> >         0:mon> r
-> > R00 = ffffffff00000028   R16 = 00000000100e0000
-> > R01 = c00000007ce2fa70   R17 = 000000000fff1d38
-> > R02 = c00000000056cd20   R18 = 0000000000000000
-> > R03 = c000000029f40a58   R19 = 0000000001200011
-> > R04 = c000000029f442d8   R20 = c0000000a544a2a0
-> > R05 = 0000000000000001   R21 = 0000000000000000
-> > R06 = 0000000000000024   R22 = 0000000000000100
-> > R07 = 0000001000000000   R23 = c00000008635f5e8
-> > R08 = 0000000000000000   R24 = c0000000919c5448
-> > R09 = 0000000000000024   R25 = 0000000000000100
-> > R10 = 00000000000000dc   R26 = c000000086359c30
-> > R11 = ffffffff00000000   R27 = c000000089e5e230
-> > R12 = 0000000006bbd9e9   R28 = c00000000c8d3d80
-> > R13 = c000000000454500   R29 = 0000000000000020
-> > R14 = c00000007ce2fea0   R30 = c000000000491fc8
-> > R15 = 00000000fcb2e770   R31 = c0000000b8369b08
-> > pc  = c000000000060d90 .dup_fd+0x240/0x39c
-> > lr  = c000000000060d6c .dup_fd+0x21c/0x39c
-> > msr = 800000000000b032   cr  = 24242428
-> > ctr = 0000000000000000   xer = 0000000000000000   trap =  300
-> > dar = ffffffff00000028   dsisr = 40000000
-> > -----------------------
-> > 0:mon> di c000000000060d90 <==PC
-> > c000000000060d90  7d200028      lwarx   r9,r0,r0
-> > c000000000060d94  31290001      addic   r9,r9,1
-> > c000000000060d98  7d20012d      stwcx.  r9,r0,r0
-> > c000000000060d9c  40a2fff4      bne     c000000000060d90        # .dup_fd+0x240/0x39c
-> 
->  From what little I know about PowerPC, this looks like an atomic
-> increment of the memory word pointed to by r0, which contains
-> 0xffffffff00000028 - definitely looks like a bogus address.  The
-> offset of file->f_count should be 0x28 on a 64-bit architecture, so
-> apparently we got f == 0xffffffff00000000 from *old_fds.  Something
-> scribbled over that memory?
-
-Looks very likely. It would be ironic if the fdsets somehow scribbled
-there -- a series of all ones in the open_fds. :)
-
-I sent a request asking which version of the kernel did this. 2.6.19-mm1
-without hotfixes could crash like this, due to a bug in the new fdtable
-code. Aside from that, and if noone can recognize some sort of magical
-constant value in those registers above, it might be bisection time.
-
--- Vadim Lobanov
+> Can we get it piece-by-piece?
 
 
+>> Vivek has tested this patch for suspend to memory and it works fine.
+>
+> Ok, so it was tested on one config. Given that the patch deals with
+> detecting CPU oddities... :-(
+
+Read the code.  Given your scorn and the state of that mess when I
+started I'm not certain a productive conversation can be had.
+
+Do you understand the code as it is currently written?
+
+Eric

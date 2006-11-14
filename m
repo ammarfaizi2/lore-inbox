@@ -1,98 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965335AbWKNMY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965382AbWKNMYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965335AbWKNMY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 07:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965368AbWKNMYZ
+	id S965382AbWKNMYm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 07:24:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965368AbWKNMYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 07:24:25 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:10972 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S965335AbWKNMYY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 07:24:24 -0500
-Date: Tue, 14 Nov 2006 17:54:38 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Gautham R Shenoy <ego@in.ibm.com>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       vatsa@in.ibm.com, dipankar@in.ibm.com, davej@redhat.com, mingo@elte.hu,
-       kiran@scalex86.org
-Subject: [PATCH 4/4] Handle CPU_LOCK_ACQUIRE and CPU_LOCK_RELEASE in workqueue_cpu_callback.
-Message-ID: <20061114122438.GE31787@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20061114121832.GA31787@in.ibm.com> <20061114122050.GB31787@in.ibm.com> <20061114122214.GC31787@in.ibm.com> <20061114122325.GD31787@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061114122325.GD31787@in.ibm.com>
-User-Agent: Mutt/1.5.10i
+	Tue, 14 Nov 2006 07:24:40 -0500
+Received: from iona.labri.fr ([147.210.8.143]:37078 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S965359AbWKNMYi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 07:24:38 -0500
+Message-ID: <4559B580.3070201@ens-lyon.org>
+Date: Tue, 14 Nov 2006 13:24:32 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Monty Montgomery <monty@xiph.org>, Tejun Heo <htejun@gmail.com>,
+       Gregor Jasny <gjasny@googlemail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       Douglas Gilbert <dougg@torque.net>
+Subject: Re: 2.6.19-rc3 system freezes when ripping with cdparanoia at ioctl(SG_IO)
+References: <9d2cd630610291120l3f1b8053i5337cf3a97ba6ff0@mail.gmail.com> <20061030114503.GW4563@kernel.dk> <9d2cd630610300517q5187043eieb0880047ddd03eb@mail.gmail.com> <20061030132745.GE4563@kernel.dk> <4552F905.3020109@ens-lyon.org> <45533468.1060400@gmail.com> <806dafc20611091209s5864c9eam77a9290194de343d@mail.gmail.com> <20061110161510.GC15031@kernel.dk> <4554A681.2000502@ens-lyon.org> <20061110162330.GE15031@kernel.dk>
+In-Reply-To: <20061110162330.GE15031@kernel.dk>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In hot-cpu callback function workqueue_cpu_callback, lock the workqueue_mutex 
-under CPU_LOCK_ACQUIRE and release it under CPU_LOCK_RELEASE.
+I just tried commit 616e8a091a035c0bd9b871695f4af191df123caa on top of
+rc5 just in case. This commit fixes
+http://lkml.org/lkml/2006/10/13/100, which looks related. And it
+actually appears to fix our freeze too. Does this speak to you guys ?
 
-This eliminates handling of redundant events namely CPU_DOWN_PREPARE and
-CPU_DOWN_FAILED.
+Brice
 
-Signed-off-by: Gautham R Shenoy <ego@in.ibm.com>
-
---
- kernel/workqueue.c |   18 +++++++-----------
- 1 files changed, 7 insertions(+), 11 deletions(-)
-
-Index: hotplug/kernel/workqueue.c
-===================================================================
---- hotplug.orig/kernel/workqueue.c
-+++ hotplug/kernel/workqueue.c
-@@ -638,8 +638,11 @@ static int __devinit workqueue_cpu_callb
- 	struct workqueue_struct *wq;
- 
- 	switch (action) {
--	case CPU_UP_PREPARE:
-+	case CPU_LOCK_ACQUIRE:
- 		mutex_lock(&workqueue_mutex);
-+		break;
-+
-+	case CPU_UP_PREPARE:
- 		/* Create a new workqueue thread for it. */
- 		list_for_each_entry(wq, &workqueues, list) {
- 			if (!create_workqueue_thread(wq, hotcpu)) {
-@@ -658,7 +661,6 @@ static int __devinit workqueue_cpu_callb
- 			kthread_bind(cwq->thread, hotcpu);
- 			wake_up_process(cwq->thread);
- 		}
--		mutex_unlock(&workqueue_mutex);
- 		break;
- 
- 	case CPU_UP_CANCELED:
-@@ -670,15 +672,6 @@ static int __devinit workqueue_cpu_callb
- 				     any_online_cpu(cpu_online_map));
- 			cleanup_workqueue_thread(wq, hotcpu);
- 		}
--		mutex_unlock(&workqueue_mutex);
--		break;
--
--	case CPU_DOWN_PREPARE:
--		mutex_lock(&workqueue_mutex);
--		break;
--
--	case CPU_DOWN_FAILED:
--		mutex_unlock(&workqueue_mutex);
- 		break;
- 
- 	case CPU_DEAD:
-@@ -686,6 +679,9 @@ static int __devinit workqueue_cpu_callb
- 			cleanup_workqueue_thread(wq, hotcpu);
- 		list_for_each_entry(wq, &workqueues, list)
- 			take_over_work(wq, hotcpu);
-+		break;
-+
-+	case CPU_LOCK_RELEASE:
- 		mutex_unlock(&workqueue_mutex);
- 		break;
- 	}
--- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"

@@ -1,140 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933186AbWKNDVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933196AbWKNDfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933186AbWKNDVo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 22:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933188AbWKNDVn
+	id S933196AbWKNDfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 22:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933197AbWKNDfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 22:21:43 -0500
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:25004 "HELO
-	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S933186AbWKNDVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 22:21:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=E9cr0KOvWooOV/0f9JM7gGXBicKVxsFG58xhAVZnZ/QDmmgJIsDO7DguUuxO32nOv+KUI4BwFUJ/Uf5rY+dSETH38qwbbJUP9Eu9JxDAIenN0wKoG/ckKhRJGQb18e+iT0pbcS1VfnrtfplEWGm/UWIQKCnreCIJon5c+oP7qGc=  ;
-X-YMail-OSG: xWpNl.AVM1n6AnceFwtQ0reHsyA744qH_2eSTlk0GOeMj_M3cgOdQBLyAd9tHwgBxtsWWnWvChqic9S8VTNvZBvKg5TUGOAA9T2elrMMnlqqihfpUBYDu60GELSKDU9wmpMHk7XkLpkzJa2dHlL5mMeA5cVNCmXC.wY-
-From: David Brownell <david-b@pacbell.net>
-To: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
-Date: Mon, 13 Nov 2006 19:21:37 -0800
-User-Agent: KMail/1.7.1
-Cc: Bill Gatliff <bgat@billgatliff.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <200611131200.02032.david-b@pacbell.net> <20061113213011.GA20507@linux-sh.org>
-In-Reply-To: <20061113213011.GA20507@linux-sh.org>
+	Mon, 13 Nov 2006 22:35:13 -0500
+Received: from twinlark.arctic.org ([207.7.145.18]:29061 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S933196AbWKNDfM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 22:35:12 -0500
+Date: Mon, 13 Nov 2006 19:35:11 -0800 (PST)
+From: dean gaudet <dean@arctic.org>
+To: Andi Kleen <ak@suse.de>
+cc: Suleiman Souhlal <ssouhlal@freebsd.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       Jiri Bohac <jbohac@suse.cz>
+Subject: Re: [PATCH 1/2] Make the TSC safe to be used by gettimeofday().
+In-Reply-To: <200611140344.00407.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0611131908060.28562@twinlark.arctic.org>
+References: <455916A5.2030402@FreeBSD.org> <200611140305.00383.ak@suse.de>
+ <45592929.2000606@FreeBSD.org> <200611140344.00407.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611131921.37737.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 November 2006 1:30 pm, Paul Mundt wrote:
-> I think we're talking past each other but effectively in agreement. Bill
-> was suggesting that multiple controllers were out of scope for the
-> proposal, which is what I was objecting to. If the API is handling a GPIO
-> cookie and allows for multiple controllers, I have no objections.
+On Tue, 14 Nov 2006, Andi Kleen wrote:
 
-It's out of scope in the sense that it doesn't say "here's how to do it".
-
-But it's in-scope in that what it _does_ say makes sure it can be done;
-the example implementation does it.
-
-
-> > ... pin mux is 100% out of scope for managing/using GPIOs, since pin
-> > mux kicks in for pins that aren't even GPIO-capable ...
+> > A cow-orker suggested that we use SIDT and encode the CPU number in the 
+> > limit of the IDT, which should be even faster than LSL.
 > 
-> I disagree. Pin muxing kicks in for pins that aren't GPIO-capable, but
-> for many cases GPIO-capable is just another pin state that can be handled
-> via muxing.
+> Possible yes. Did you time it?
+> 
+> But then we would make the IDT variable length in memory? While
+> the CPUs probably won't care some Hypervisors seem to be picky
+> about these limits. LSL still seems somewhat safer.
 
-So?  You're still confusing GPIOs with pins/balls.  They're quite distinct,
-in the general case, though maybe not on SH?
+i'm one of the coworkers suleiman is referring to... below is the README 
+from <http://arctic.org/~dean/vtime64.tar.gz>.  see the tarball if you 
+want to peruse the code.
 
-Some balls can be used for multiple GPIOs, some GPIOs can be mapped to one
-of several balls... there's no general way to infer mux data from knowing
-what GPIOs are needed.
+the nomenclature in this benchmark doesn't line up with the patch suleiman
+posted, but the concept is similar.
+
+in this code i mock-up an implementation of a "uint64_t vtime64(void)"
+vsyscall which return 64-bit ns since the epoch.  i think this is a
+much more useful syscall than gettimeofday() because it doesn't require
+extra multiply/divide to break the data into two pieces (which most
+folks then recombine back into a uint64_t).  the concepts are the same
+for a vgettimeofday.
+
+note that fundamentally the same code as vtime64() can be used to
+provide clock_gettime(CLOCK_MONOTONIC) (akin to gethrtime() on slowaris).
+it just needs a different epoch (one which causes the values to remain
+monotonic across adjtime()).
+
+i mock up three new methods of implementing vgetcpu() suggested by Nathan
+Laredo -- using sidt/sgdt/sldt, and present a comparison vs. the existing
+kernel lsl code.
+
+the s*dt instructions have varying degrees of complexity in their use
+in a vgetcpu() implementation.  sldt is clearly the fastest but has
+conflicts with code such as wine.  note that the sidt limit is essentially
+"infinity" if it's >= 0xfff (64-bit) or 0x7ff (32-bit) ... because there
+are only 256 software interrupts.
+
+the s*dt instructions are faster than lsl everywhere simply because lsl is
+microcoded, involves protection tests, and extra memory references.
+
+note that i don't present the data, but sidt is faster than rdtscp on
+rev F opteron especially if all you want is the cpuid.
+
+first -- an implementation where the userland code handles restarting
+the vsyscall.
+
+guide to the table:
+
+ff = family
+mm = model
+ss = stepping
+lm = long mode or not
+     (note the 32-bit code was timed on 64-bit boxes in long mode... it might
+     be different if the kernel itself was also in 32-bit mode)
+
+vendor name  ffmmss lm  |----------- timings all in cycles ----------|  note
+
+GenuineIntel 060f05 32  sgdt 112.0  sidt 111.1  sldt 107.1  lsl 196.1  core2
+GenuineIntel 060f05 64  sgdt 102.1  sidt 104.1  sldt  96.2  lsl 178.1  core2
+
+AuthenticAMD 0f4102 32  sgdt  80.1  sidt  80.1  sldt  58.1  lsl 156.0  revF opteron
+AuthenticAMD 0f4102 64  sgdt  67.1  sidt  65.1  sldt  41.0  lsl 136.0  revF opteron
+
+AuthenticAMD 0f2102 32  sgdt  77.0  sidt  77.7  sldt  56.0  lsl 154.3  revE opteron
+AuthenticAMD 0f2102 64  sgdt  65.0  sidt  63.1  sldt  40.0  lsl 137.6  revE opteron
+
+GenuineIntel 0f0401 32  sgdt 231.7  sidt 225.9  sldt 218.0  lsl 421.5  nocona
+GenuineIntel 0f0401 64  sgdt 212.3  sidt 210.0  sldt 200.7  lsl 449.9  nocona
+
+GenuineIntel 0f0403 32  sgdt 232.1  sidt 244.1  sldt 221.4  lsl 420.1  p4 desktop
+GenuineIntel 0f0403 64  sgdt 216.1  sidt 216.8  sldt 204.1  lsl 396.1  p4 desktop
+
+GenuineIntel 0f0209 32  sgdt 240.1  sidt 232.1  sldt 224.4  lsl 384.1  xeon
 
 
-> Pin refcounting is obviously not within the scope of your 
-> proposed API (nor should it be), but we do need to allow for pin muxing
-> to be reconfigured in the GPIO case if nothing else is using the pin in
-> question that the GPIO maps to. Most of this will be platform specific
-> and layered, though.
+next an implementation which relies on the kernel restarting the computation when
+necessary.  this would be achieved by testing to see when the task to be restarted
+is on the vsyscall page and backtracking the task to the vsyscall entry point.
 
-Well, especially since it will be platform-specific, it can't really
-be part of the GPIO framework.  I'll repeat the example of OMAP1,
-which lets some GPIOs come out on multiple pins ... pin configuration
-and GPIOs really **must** be orthogonal.  There is just no way to
-infer the right mux setup even given a complete list of GPIOS that
-will be used.  Ditto pullup/pulldown config, multi-drive options,
-and so forth.
+this is challenging when the vsyscall is implemented in C -- because of potential
+stack usage.  there are ways to get this to work though, even without resorting to
+assembly.  i'm presenting this only as a best case scenario should such an effort
+be undertaken.  (i have a crazy idea involving the direction flag which i need to
+mock up.)
 
-But it's straightforward to talk about "use <this GPIO> as an input",
-and "set <this output GPIO> to high".  That doesn't require any
-knowledge of how the pins are configured, and is a model that works
-with every GPIO controller ever built.
+vendor name  ffmmss lm  |----------- timings all in cycles ----------|  note
 
+GenuineIntel 060f05 32  sgdt  90.0  sidt  91.0  sldt  86.0  lsl 128.0  core2
+GenuineIntel 060f05 64  sgdt  76.0  sidt  78.1  sldt  76.5  lsl 113.0  core2
 
-> > >	 since it's ultimately up to the system and driver 
-> > > inserted at the time to grab and configure the pin as necessary, the
-> > > board or CPU code is not going to have any notion of the "preferred" pin
-> > > state, especially in the heavily muxed case.
-> > 
-> > I don't see this either.
-> > 
-> > In the primary "production board" use case, there is absolutely a "preferred"
-> > pin mux config state:  each pin is connected to one peripheral in one way.
-> > And typically its configuration is never changed; if it is, that's something
-> > the pin mux API would need to handle.  (One example:  using a UART's RXD
-> > pin as a wakeup GPIO while the system sleeps.  Presumably there are others.)
->
-> Your definition of "typical" seems to vary considerably from mine.
+AuthenticAMD 0f4102 32  sgdt  43.0  sidt  43.1  sldt  28.0  lsl  82.0  revF opteron
+AuthenticAMD 0f4102 64  sgdt  29.0  sidt  28.6  sldt  16.0  lsl  72.0  revF opteron
 
-Maybe.  I'm looking at the type of clearly defined system for which
-Linux has good support:  one board, or a standard board stack; or
-sometimes there's PCI-ish autoconfiguration on an expansion bus.
+AuthenticAMD 0f2102 32  sgdt  44.0  sidt  42.8  sldt  28.0  lsl  82.6  revE opteron
+AuthenticAMD 0f2102 64  sgdt  27.0  sidt  25.6  sldt  14.5  lsl  72.0  revE opteron
 
+GenuineIntel 0f0401 32  sgdt 111.9  sidt 120.1  sldt 108.6  lsl 225.0  nocona
+GenuineIntel 0f0401 64  sgdt 100.9  sidt 100.0  sldt 100.0  lsl 158.0  nocona
 
-> The 
-> typical case more and more is having multiple functions per pin, where a
-> GPIO state is just another function.
+GenuineIntel 0f0403 32  sgdt 129.5  sidt 116.1  sldt 112.0  lsl 228.0  p4 desktop
+GenuineIntel 0f0403 64  sgdt 104.9  sidt 102.2  sldt 100.0  lsl 138.0  p4 desktop
 
-Sure, but that's exactly what I've been saying and isn't in conflict with it.
+GenuineIntel 0f0209 32  sgdt 136.0  sidt 136.1  sldt 132.5  lsl 200.0  xeon
 
+-dean
 
-> If muxing happens within the board 
-> setup code, then we've already effectively locked out the other
-> functions. This is also not something that can be resolved at build time.
-
-See above; if the system is clearly defined, it _can_ be resolved then.
-Or at worst, by some platform-specific autoconfiguration scheme.
-
- 
-> For example, I happen to have a UART RX and an MMC DMA request on the
-> same pin (GPIO-configured for certain implementations). Both of these can
-> be provided as modules for a "production" board where the pin can then be
-> grabbed and toggled depending on which module is inserted, doing any sort
-> of pin setup on the board side will not help in this case, it's something
-> that needs to happen higher up.
-
-You're bringing in a new problem though:  autoconfiguring a board stack.
-
-The classic approach is to formalize the module bus and teach that bus how
-to enumerate according to the "hotplug" model (like PCI, PNP, etc) ... for
-example, consulting an I2C EEPROM with board IDs, with the EEPROM address
-depending on which slot it's plugged in to.  At the moment you know what
-boards are connected, surely you know how to mux those pins ... and what
-devices to register, etc.
-
-That's another set of problems that's nicely distinct from GPIOs.  :)
-
-- Dave
-
+p.s. i work at google, and google paid for this experiment.

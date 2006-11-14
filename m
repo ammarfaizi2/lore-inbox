@@ -1,76 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933370AbWKNKIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933377AbWKNKYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933370AbWKNKIx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 05:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933373AbWKNKIx
+	id S933377AbWKNKYP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 05:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933379AbWKNKYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 05:08:53 -0500
-Received: from s1.mailresponder.info ([193.24.237.10]:62472 "EHLO
-	s1.mailresponder.info") by vger.kernel.org with ESMTP
-	id S933370AbWKNKIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 05:08:52 -0500
-Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
-From: Mathieu Fluhr <mfluhr@nero.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <455923B5.3030608@gmail.com>
-References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>
-	 <455923B5.3030608@gmail.com>
-Content-Type: text/plain
-Organization: Nero AG
-Date: Tue, 14 Nov 2006 11:08:11 +0100
-Message-Id: <1163498891.3005.11.camel@de-c-l-110.nero-de.internal>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Tue, 14 Nov 2006 05:24:14 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:3714 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S933377AbWKNKYN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 05:24:13 -0500
+Message-ID: <45599B31.1080802@openvz.org>
+Date: Tue, 14 Nov 2006 13:32:17 +0300
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, rml@tech9.net, devel@openvz.org
+Subject: [PATCH] move_task_off_dead_cpu() should be called with disabled ints
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-14 at 11:02 +0900, Tejun Heo wrote:
-> Hello, Mattieu Fluhr.
-> 
-> Mathieu Fluhr wrote:
-> > The problem is that, on SATA devices controlled by libata, on some big
-> > files (like for example a 600 MB file) the READ command seems to fail
-> > and outputs garbage (not 1 or 2 bytes diff, but the whole buffer).
-> >  -> This problem does not come out everytime, and each time on    
-> >     different sectors.
-> > 
-> > Please note that:
-> > - it is not chipset dependant (tested on nforce4 and sii3114)
-> > - it is not medium or device dependant
-> 
-> Hmmm... Interesting.  So, you're reading the media by directly issuing 
-> commands through the sg interface, right?  Can you please try the 
-> followings?
-> 
-> * Try using /dev/srX or /dev/scdX device instead of /dev/sgX.  You can 
-> use the command SG_IO but the code path is different, so it will help us 
-> rule out sg bug.
-> 
-> * Perform rounds of read-verify test using standard block interface (ie. 
-> simply opening /dev/srX and reading it).
-I will try this and report the results.
+move_task_off_dead_cpu() requires interrupts to be disabled,
+while migrate_dead() calls it with enabled interrupts.
+Added appropriate comments to functions and added
+BUG_ON(!irqs_disabled()) into double_rq_lock() and
+double_lock_balance() which are the origin sources of such bugs.
 
-> 
-> [--snip--]
-> > - When I force the bus type to be IDE, our software will then send ATA
-> > commands. In this case, everything works like a charm. No errors at all.
-> 
-> What do you mean by 'sending ATA commands'?  libata exports all devices 
-> as SCSI devices.  For ATA devices, you can use ATA passthrough but you 
-> send CDBs to ATAPI devices anyway.
-Inside our code, we first guess which the bus type of every device using
-an INQUIRY cmd (0x12). 
-- If the device appears to be a SCSI one, then we send "pure" SCSI CDBs
-- For an IDE device, we do, as described in the Annex A of the MMC-5
-spec, and pad each CDBs to 12 bytes.
-
-So in the case of a READ CDB, we send 10 bytes if the device is a SCSI
-one and 12 for IDE one.
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
 
 
-> 
-> Thanks.
-> 
-
+--- ./kernel/sched.c.schedx	2006-11-08 17:44:15.000000000 +0300
++++ ./kernel/sched.c	2006-11-14 11:32:24.000000000 +0300
+@@ -1942,6 +1942,7 @@ static void double_rq_lock(struct rq *rq
+ 	__acquires(rq1->lock)
+ 	__acquires(rq2->lock)
+ {
++	BUG_ON(!irqs_disabled());
+ 	if (rq1 == rq2) {
+ 		spin_lock(&rq1->lock);
+ 		__acquire(rq2->lock);	/* Fake it out ;) */
+@@ -1981,6 +1982,11 @@ static void double_lock_balance(struct r
+ 	__acquires(busiest->lock)
+ 	__acquires(this_rq->lock)
+ {
++	if (unlikely(!irqs_disabled())) {
++		/* printk() doesn't work good under rq->lock */
++		spin_unlock(&this_rq->lock);
++		BUG_ON(1);
++	}
+ 	if (unlikely(!spin_trylock(&busiest->lock))) {
+ 		if (busiest < this_rq) {
+ 			spin_unlock(&this_rq->lock);
+@@ -5056,7 +5062,10 @@ wait_to_die:
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+-/* Figure out where task on dead CPU should go, use force if neccessary. */
++/*
++ * Figure out where task on dead CPU should go, use force if neccessary.
++ * NOTE: interrupts should be disabled by the caller
++ */
+ static void move_task_off_dead_cpu(int dead_cpu, struct task_struct *p)
+ {
+ 	unsigned long flags;
+@@ -5176,6 +5185,7 @@ void idle_task_exit(void)
+ 	mmdrop(mm);
+ }
+ 
++/* called under rq->lock with disabled interrupts */
+ static void migrate_dead(unsigned int dead_cpu, struct task_struct *p)
+ {
+ 	struct rq *rq = cpu_rq(dead_cpu);
+@@ -5192,10 +5202,11 @@ static void migrate_dead(unsigned int de
+ 	 * Drop lock around migration; if someone else moves it,
+ 	 * that's OK.  No task can be added to this CPU, so iteration is
+ 	 * fine.
++	 * NOTE: interrupts should be left disabled  --dev@
+ 	 */
+-	spin_unlock_irq(&rq->lock);
++	spin_unlock(&rq->lock);
+ 	move_task_off_dead_cpu(dead_cpu, p);
+-	spin_lock_irq(&rq->lock);
++	spin_lock(&rq->lock);
+ 
+ 	put_task_struct(p);
+ }

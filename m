@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966343AbWKNUrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966348AbWKNUsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966343AbWKNUrd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 15:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966345AbWKNUrd
+	id S966348AbWKNUsj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 15:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966349AbWKNUsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 15:47:33 -0500
-Received: from mx5.mail.ru ([194.67.23.25]:59657 "EHLO mx5.mail.ru")
-	by vger.kernel.org with ESMTP id S966343AbWKNUrc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 15:47:32 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.6.19-rc5: grub is much slower resuming from suspend-to-disk than in 2.6.18
-Date: Tue, 14 Nov 2006 23:47:27 +0300
-User-Agent: KMail/1.9.5
-Cc: Stefan Seyfried <seife@suse.de>, Zan Lynx <zlynx@acm.org>,
-       linux-kernel@vger.kernel.org
-References: <200611121436.46436.arvidjaar@mail.ru> <200611140707.17935.arvidjaar@mail.ru> <20061114142353.GB2340@elf.ucw.cz>
-In-Reply-To: <20061114142353.GB2340@elf.ucw.cz>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 14 Nov 2006 15:48:39 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:8342 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S966348AbWKNUsi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 15:48:38 -0500
+Message-ID: <455A2BAF.6010200@drzeus.cx>
+Date: Tue, 14 Nov 2006 21:48:47 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to cleanly shut down a block device
+References: <455969F2.80401@drzeus.cx> <20061114075648.GK15031@kernel.dk> <45597B0A.3060409@drzeus.cx> <20061114084519.GL15031@kernel.dk> <45598462.80605@drzeus.cx> <20061114104844.GA15340@flint.arm.linux.org.uk> <4559A99B.6070207@drzeus.cx> <20061114114120.GC22178@kernel.dk> <4559D3F1.1010400@drzeus.cx>
+In-Reply-To: <4559D3F1.1010400@drzeus.cx>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611142347.28571.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Pierre Ossman wrote:
+> How about this patch? It is basically the same as the previous, but it
+> also sets queuedata to NULL and tests for that. It does not address if
+> someone still has dependencies on the queue but hasn't gotten itself a
+> reference (as I haven't gotten any word on if that is a problem):
 
-On Tuesday 14 November 2006 17:23, Pavel Machek wrote:
-> Hi!
->
-> > > > Maybe its a journal size thing, you could try "sync" before suspend
-> > > > and see if it helps.
-> > >
-> > > We already sync inside the kernel, it does not help here, though.
-> > > Blockdev freezing might help.
-> >
-> > is there patch applicable to vanilla kernel? After repairing reiser
-> > several times (due to hard lockups during suspend-to-RAM) that sounds
-> > even more interesting.
->
-> Could you do the test Stefan asked? I do not think you'll kill
-> reiserfs by single forced powerdown.
-> 
+Ok, I've done some more digging through the block layer. A lot of voodoo
+in there, but gendisk seems to make sure it has its own reference to the
+queue.
 
-well, I did it accidentally :) (forgot to plug in power and after 2 hours on 
-battery notebook simply switched off) and yes, there was some noticeable 
-delay loading grub. I also tried fs freezer without any visible effect. The 
-patches from mm I applied to vanilla kernel:
+As gendisk drops it reference to the queue in del_gendisk(), I have to
+assume that is would be invalid for any part of kernel to look at
+disk->queue at this point (since it might now have been released).
 
-add-include-linux-freezerh-and-move-definitions-from.patch
-swsusp-cleanup-whitespace-in-freezer-output.patch
-swsusp-freeze-filesystems-during-suspend-rev-2.patch
-swsusp-thaw-userspace-and-kernel-space-separately.patch
+So I think this patch should cover all bases. It cleanly kills of our
+extra thread and also handles any requests that might be left behind.
 
-Do I need some more patches for this to work?
+I hope you can look at this soon as I'm eager to get rid of this oops.
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Rgds
 
-iD8DBQFFWitgR6LMutpd94wRAjh4AKCnGvpzxHuTEj+xKvEP7YhmESkD1wCffCm3
-z0ZM59BV8FZUTy/onowVyW8=
-=Vt7w
------END PGP SIGNATURE-----
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

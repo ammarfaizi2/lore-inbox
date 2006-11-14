@@ -1,159 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965918AbWKNPMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965913AbWKNPRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965918AbWKNPMc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 10:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965920AbWKNPMc
+	id S965913AbWKNPRI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 10:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965920AbWKNPRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 10:12:32 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:62546 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S965918AbWKNPMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 10:12:31 -0500
-Date: Tue, 14 Nov 2006 10:12:11 -0500
-From: Eric Buddington <ebuddington@verizon.net>
-Subject: 2.6.19-rc5-mm1: failure to start raid0
-To: linux-kernel@vger.kernel.org
-Reply-to: eric@buddington.net
-Message-id: <20061114151211.GA3824@pool-70-109-247-63.wma.east.verizon.net>
-Organization: ECS Labs
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Eric-conspiracy: there is no conspiracy
+	Tue, 14 Nov 2006 10:17:08 -0500
+Received: from mivlgu.ru ([81.18.140.87]:1951 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S965913AbWKNPRE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 10:17:04 -0500
+Date: Tue, 14 Nov 2006 18:16:56 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: sharyath@in.ibm.com
+Cc: Pavel Emelianov <xemul@sw.ru>, Vadim Lobanov <vlobanov@speakeasy.net>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch to fixe Data Acess error in dup_fd
+Message-Id: <20061114181656.6328e51a.vsu@altlinux.ru>
+In-Reply-To: <1163151121.3539.15.camel@legolas.in.ibm.com>
+References: <1163151121.3539.15.camel@legolas.in.ibm.com>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.2; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__14_Nov_2006_18_16_56_+0300_7wOtApbWUV0J5VlX"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under 2.6.19-rc5-mm1, I can't start my raid0 array. I have no such
-problem under 2.6.18-mm1.  It seems to be detecting the disks fine
-(see dmesg below), but the md device doesn't show up. My 1-disk raid1
-array starts fine.
+--Signature=_Tue__14_Nov_2006_18_16_56_+0300_7wOtApbWUV0J5VlX
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-When I try 'mdadm --assemble /dev/md1 /dev/hda1 /dev/hdc1', I am
-surprised by the error:
+On Fri, 10 Nov 2006 15:02:01 +0530 Sharyathi Nagesh wrote:
 
-mdadm: cannot open device /dev/hda1: Device or resource busy
-mdadm: /dev/hda1 has no superblock - assembly aborted
+> On running the Stress Test on machine for more than 72 hours following
+> error message was observed.
 
-This happens even after booting with 'init=/bin/bash', so I know
-there's nothing else using the drive.
+Was your stress test using threads (or other nonstandard clone() calls)?
 
-dmesg:
---------------------------------------------------
-[   72.559233] SIS5513: chipset revision 0
-[   72.559275] SIS5513: not 100% native mode: will probe irqs later
-[   72.559332] SIS5513: SiS 962/963 MuTIOL IDE UDMA133 controller
-[   72.559392]     ide0: BM-DMA at 0x4000-0x4007, BIOS settings: hda:DMA, hdb:DMA
-[   72.559515]     ide1: BM-DMA at 0x4008-0x400f, BIOS settings: hdc:DMA, hdd:DMA
-[   72.559635] Probing IDE interface ide0...
-[   72.845775] hda: Maxtor 7L300R0, ATA DISK drive
-[   73.125617] hdb: Maxtor 5T040H4, ATA DISK drive
-[   73.183213] ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-[   73.183394] Probing IDE interface ide1...
-[   73.469425] hdc: Maxtor 6L300R0, ATA DISK drive
-[   73.749268] hdd: WDC WD204BB, ATA DISK drive
-[   73.807646] ide1 at 0x170-0x177,0x376 on irq 15
-[   73.808878] pnp: the driver 'ide' has been registered
-[   73.808988] hda: max request size: 512KiB
-[   73.830742] hda: 586114704 sectors (300090 MB) w/16384KiB Cache, CHS=36483/255/63, UDMA(133)
-[   73.832460] hda: cache flushes supported
-[   73.832547]  hda: hda1
-[   73.839034] hdb: max request size: 128KiB
-[   73.840922] hdb: 80043264 sectors (40982 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
-[   73.841095] hdb: cache flushes not supported
-[   73.841156]  hdb: hdb1
-[   73.847861] hdc: max request size: 512KiB
-[   73.869336] hdc: 586114704 sectors (300090 MB) w/16384KiB Cache, CHS=36483/255/63, UDMA(133)
-[   73.871032] hdc: cache flushes supported
-[   73.871101]  hdc: hdc1
-[   73.874723] hdd: max request size: 128KiB
-[   73.893301] hdd: 39876480 sectors (20416 MB) w/2048KiB Cache, CHS=39560/16/63, UDMA(100)
-[   73.893469] hdd: cache flushes not supported
-[   73.893528]  hdd: hdd1
-[   73.902434] libata version 2.00 loaded.
-[   73.903436] pnp: the driver 'pata_isapnp' has been registered
-[   73.904246] pnp: the driver 'i8042 kbd' has been registered
-[   73.904288] pnp: match found with the PnP device '00:0c' and the driver 'i8042 kbd'
-[   73.904296] pnp: the driver 'i8042 aux' has been registered
-[   73.904346] pnp: match found with the PnP device '00:0b' and the driver 'i8042 aux'
-[   73.904356] PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
-[   73.904630] serio: i8042 KBD port at 0x60,0x64 irq 1
-[   73.904709] serio: i8042 AUX port at 0x60,0x64 irq 12
-[   73.904927] mice: PS/2 mouse device common for all mice
-[   73.904986] md: linear personality registered for level -1
-[   73.905056] md: raid0 personality registered for level 0
-[   73.905101] md: raid1 personality registered for level 1
-[   73.905147] md: raid10 personality registered for level 10
-[   73.973067] raid6: int32x1    562 MB/s
-[   74.040940] raid6: int32x2    631 MB/s
-[   74.109002] raid6: int32x4    565 MB/s
-[   74.176917] raid6: int32x8    423 MB/s
-[   74.244867] raid6: mmxx1     1321 MB/s
-[   74.312788] raid6: mmxx2     1698 MB/s
-[   74.380777] raid6: sse1x1    1258 MB/s
-[   74.448746] raid6: sse1x2    1512 MB/s
-[   74.448789] raid6: using algorithm sse1x2 (1512 MB/s)
-[   74.448834] md: raid6 personality registered for level 6
-[   74.448879] md: raid5 personality registered for level 5
-[   74.448924] md: raid4 personality registered for level 4
-[   74.448971] raid5: automatically using best checksumming function: pIII_sse
-[   74.468695]    pIII_sse  :  3723.000 MB/sec
-[   74.468738] raid5: using function: pIII_sse (3723.000 MB/sec)
-[   74.468937] device-mapper: ioctl: 4.10.0-ioctl (2006-09-14) initialised: dm-devel@redhat.com
-[   74.469221] EISA: Probing bus 0 at eisa.0
-[   74.469408] NET: Registered protocol family 1
-[   74.469459] NET: Registered protocol family 17
-[   74.469571] NET: Registered protocol family 8
-[   74.469615] NET: Registered protocol family 20
-[   74.469754] Using IPI Shortcut mode
-[   74.469878] ACPI: (supports S0 S3 S4 S5)
-[   74.472696] Time: acpi_pm clocksource has been installed.
-[   74.472766] Clock event device pit disabled
-[   74.472823] Clock event device lapic configured with caps set: 08
-[   74.472874] Switched to high resolution mode on CPU 0
-[   74.491123] input: AT Translated Set 2 keyboard as /class/input/input0
-[   74.572823] md: Autodetecting RAID arrays.
-[   74.657609] md: invalid raid superblock magic on hdd1
-[   74.657655] md: hdd1 has invalid sb, not importing!
-[   74.657711] md: autorun ...
-[   74.657752] md: considering hdc1 ...
-[   74.657810] md:  adding hdc1 ...
-[   74.657853] md: hdb1 has different UUID to hdc1
-[   74.657899] md:  adding hda1 ...
-[   74.657988] md: created md1
-[   74.658030] md: bind<hda1>
-[   74.658079] md: bind<hdc1>
-[   74.658136] md: running: <hdc1><hda1>
-[   74.658275] md1: setting max_sectors to 16384, segment boundary to 4194303
-[   74.658324] raid0: looking at hdc1
-[   74.658365] raid0:   comparing hdc1(293044224) with hdc1(293044224)
-[   74.658439] raid0:   END
-[   74.658478] raid0:   ==> UNIQUE
-[   74.658518] raid0: 1 zones
-[   74.658559] raid0: looking at hda1
-[   74.658600] raid0:   comparing hda1(293044224) with hdc1(293044224)
-[   74.658674] raid0:   EQUAL
-[   74.658713] raid0: FINAL 1 zones
-[   74.658756] raid0: done.
-[   74.658796] raid0 : md_size is 586088448 blocks.
-[   74.658839] raid0 : conf->hash_spacing is 586088448 blocks.
-[   74.658884] raid0 : nb_zone is 1.
-[   74.658924] raid0 : Allocating 4 bytes for hash.
-[   74.659001] md: considering hdb1 ...
-[   74.659047] md:  adding hdb1 ...
-[   74.659135] md: created md2
-[   74.659176] md: bind<hdb1>
-[   74.659224] md: running: <hdb1>
-[   74.659433] raid1: raid set md2 active with 1 out of 1 mirrors
-[   74.675896] md2: bitmap initialized from disk: read 10/10 pages, set 79 bits, status: 0
-[   74.675956] created bitmap (153 pages) for device md2
-[   74.676296] md: ... autorun DONE.
-[   74.677038] ReiserFS: md2: found reiserfs format "3.6" with standard journal
-[   74.677100] ReiserFS: md2: using ordered data mode
-[   74.705180] ReiserFS: md2: journal params: device md2, size 8192, journal first block 18, max trans len 1024, max batch 90
-0, max commit age 30, max trans age 30
-[   74.707376] ReiserFS: md2: checking transaction log (md2)
-[   85.954868] ReiserFS: md2: replayed 268 transactions in 11 seconds
-[   85.962564] ReiserFS: md2: Using r5 hash to sort names
-[   85.962777] VFS: Mounted root (reiserfs filesystem) readonly.
-[   85.963358] Freeing unused kernel memory: 276k freed
+> 0:mon> e
+> cpu 0x0: Vector: 300 (Data Access) at [c00000007ce2f7f0]
+>     pc: c000000000060d90: .dup_fd+0x240/0x39c
+>     lr: c000000000060d6c: .dup_fd+0x21c/0x39c
+>     sp: c00000007ce2fa70
+>    msr: 800000000000b032
+>    dar: ffffffff00000028
+>  dsisr: 40000000
+>   current = 0xc000000074950980
+>   paca    = 0xc000000000454500
+>     pid   = 27330, comm = bash
+>
+> 0:mon> t
+> [c00000007ce2fa70] c000000000060d28 .dup_fd+0x1d8/0x39c (unreliable)
+> [c00000007ce2fb30] c000000000060f48 .copy_files+0x5c/0x88
+> [c00000007ce2fbd0] c000000000061f5c .copy_process+0x574/0x1520
+> [c00000007ce2fcd0] c000000000062f88 .do_fork+0x80/0x1c4
+> [c00000007ce2fdc0] c000000000011790 .sys_clone+0x5c/0x74
+> [c00000007ce2fe30] c000000000008950 .ppc_clone+0x8/0xc
+> --- Exception: c00 (System Call) at 000000000fee9c60
+> SP (fcb2e770) is in userspace
+
+Did you find the exact instruction which faulted, and the place in
+dup_fd() C code which it corresponds to?  Was the oops due to a NULL
+dereference or an invalid pointer?
+
+> The problem is because of race window. When if(expand) block is executed in dup_fd
+> unlocking of oldf->file_lock give a window for fdtable in oldf to be
+> modified. So actual open_files in oldf may not match with open_files
+> variable.
+> This is the debug patch to fix the problem
+
+> --- kernel/fork.c.orig	2006-11-10 14:42:02.000000000 +0530
+> +++ kernel/fork.c	2006-11-10 14:42:30.000000000 +0530
+> @@ -687,6 +687,7 @@ static struct files_struct *dup_fd(struc
+>  		 * the latest pointer.
+>  		 */
+>  		spin_lock(&oldf->file_lock);
+> +		open_files = count_open_files(old_fdt);
+>  		old_fdt = files_fdtable(oldf);
+>  	}
+
+I don't see immediately how the wrong open_files value could cause an
+oops in this function.  If the stale open_files value was too big (some
+files were closed while we dropped the lock), it should still be safe
+(AFAIK file tables can only grow, but never shrink, so access to entries
+which were valid before should not access invalid memory).  If the stale
+open_files value was too small (some more files were opened), the copy
+would miss some files, which should be OK (except that memcpy() calls
+which copy fd_sets will copy bits for some of that missed files which
+happened to be in the last word - this would cause some fd's to be
+permanently busy, and potentially could cause problems later, but an
+oops in dup_fd() due to this problem does not look likely).  Seeing the
+exact place in the code which oopsed would be interesting.
+
+However, the new code does not look safe in all cases.  If some other
+task has opened more files while dup_fd() released oldf->file_lock, the
+new code will update open_files to the new larger value.  But newf was
+allocated with the old smaller value of open_files, therefore subsequent
+accesses to newf may try to write into unallocated memory.
+
+Hmm, and actually the patch seems to be wrong for yet another reason -
+the old_fdt pointer which you pass to count_open_files() may be stale
+(the comment above even warns about that, and the following line updates
+old_fdt).  The count_open_files() call must be after the "old_fdt =
+files_fdtable(oldf)" line.
+
+--Signature=_Tue__14_Nov_2006_18_16_56_+0300_7wOtApbWUV0J5VlX
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFWd3oW82GfkQfsqIRAvpMAJ9HgsHIJ22e+Ta1e6gjBicp9HWHqwCdEfK0
+b5ueAVYlJ+jjrQFkbRNCo4A=
+=RH+y
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__14_Nov_2006_18_16_56_+0300_7wOtApbWUV0J5VlX--

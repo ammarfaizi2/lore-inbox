@@ -1,137 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933196AbWKNDfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933195AbWKNDoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933196AbWKNDfN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 22:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933197AbWKNDfN
+	id S933195AbWKNDoF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 22:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933179AbWKNDoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 22:35:13 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:29061 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S933196AbWKNDfM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 22:35:12 -0500
-Date: Mon, 13 Nov 2006 19:35:11 -0800 (PST)
-From: dean gaudet <dean@arctic.org>
-To: Andi Kleen <ak@suse.de>
-cc: Suleiman Souhlal <ssouhlal@freebsd.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
-       Jiri Bohac <jbohac@suse.cz>
-Subject: Re: [PATCH 1/2] Make the TSC safe to be used by gettimeofday().
-In-Reply-To: <200611140344.00407.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0611131908060.28562@twinlark.arctic.org>
-References: <455916A5.2030402@FreeBSD.org> <200611140305.00383.ak@suse.de>
- <45592929.2000606@FreeBSD.org> <200611140344.00407.ak@suse.de>
+	Mon, 13 Nov 2006 22:44:05 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:49889 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S933195AbWKNDoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 22:44:02 -0500
+X-Sasl-enc: wRJdumkdnyAsFfuD2r4a2f47/O5ZhOsr7fCz6TUz97V3 1163475842
+Date: Tue, 14 Nov 2006 01:43:55 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
+       Andi Kleen <ak@suse.de>, John Fremlin <not@just.any.name>,
+       kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
+       jim.kardach@intel.com
+Subject: HD head unloads (was: Re: AHCI power saving)
+Message-ID: <20061114034355.GB5810@khazad-dum.debian.net>
+References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061113142219.GA2703@elf.ucw.cz> <45589008.1080001@garzik.org> <200611131637.56737.ak@suse.de> <455893E5.4010001@garzik.org> <4558B232.8080600@rtr.ca> <20061113220127.GA1704@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061113220127.GA1704@elf.ucw.cz>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006, Andi Kleen wrote:
-
-> > A cow-orker suggested that we use SIDT and encode the CPU number in the 
-> > limit of the IDT, which should be even faster than LSL.
+On Mon, 13 Nov 2006, Pavel Machek wrote:
+> On Mon 2006-11-13 12:58:10, Mark Lord wrote:
+> > Jeff Garzik wrote:
+> > >Andi Kleen wrote:
+> > >
+> > >>How does it shorten its life?
+> > >
+> > >Parks your hard drive heads many thousands of times more often than it 
+> > >does without the aggressive PM features.
+> > 
+> > Spinning-down would definitely shorten the drive lifespan.  Does it do that?
 > 
-> Possible yes. Did you time it?
-> 
-> But then we would make the IDT variable length in memory? While
-> the CPUs probably won't care some Hypervisors seem to be picky
-> about these limits. LSL still seems somewhat safer.
+> Not on my machine.
 
-i'm one of the coworkers suleiman is referring to... below is the README 
-from <http://arctic.org/~dean/vtime64.tar.gz>.  see the tarball if you 
-want to peruse the code.
+Heck, given just how much a ThinkPad T43 BIOS will attempt to do it for you,
+consider yourself lucky if the X60 behaves differently.  When I thought of
+monitoring the head unload counter through SMART on mine, my HD was already
+beyond 14k unloads... and the notebook had been powered up less than 100
+times :p
 
-the nomenclature in this benchmark doesn't line up with the patch suleiman
-posted, but the concept is similar.
+The BIOS likes to set the drive APM mode to something other than "off", and
+in many drives (well, Hitachi ones at least), that means the drive will be
+happy to unload heads every chance it gets, so as to be able to power off
+the head assembly motion drive.
 
-in this code i mock-up an implementation of a "uint64_t vtime64(void)"
-vsyscall which return 64-bit ns since the epoch.  i think this is a
-much more useful syscall than gettimeofday() because it doesn't require
-extra multiply/divide to break the data into two pieces (which most
-folks then recombine back into a uint64_t).  the concepts are the same
-for a vgettimeofday.
+> > Parking heads is more like just doing some extra (long) seeks.
 
-note that fundamentally the same code as vtime64() can be used to
-provide clock_gettime(CLOCK_MONOTONIC) (akin to gethrtime() on slowaris).
-it just needs a different epoch (one which causes the values to remain
-monotonic across adjtime()).
+Long seeks don't lift the head assembly off the plates, head unloads do.
+And head unloads will also power down some stuff in laptop HDs, seeks don't
+do that either.
 
-i mock up three new methods of implementing vgetcpu() suggested by Nathan
-Laredo -- using sidt/sgdt/sldt, and present a comparison vs. the existing
-kernel lsl code.
+And even old-style parking places the heads on a different surface than the
+data area.  That's a lot different from seeks no matter how one looks at it.
 
-the s*dt instructions have varying degrees of complexity in their use
-in a vgetcpu() implementation.  sldt is clearly the fastest but has
-conflicts with code such as wine.  note that the sidt limit is essentially
-"infinity" if it's >= 0xfff (64-bit) or 0x7ff (32-bit) ... because there
-are only 256 software interrupts.
+> > Is this documented somewhere as being a life-shortening action?
 
-the s*dt instructions are faster than lsl everywhere simply because lsl is
-microcoded, involves protection tests, and extra memory references.
+Yes, although not often with that many words.
 
-note that i don't present the data, but sidt is faster than rdtscp on
-rev F opteron especially if all you want is the cpuid.
+For example, a Hitachi Travelstar 5k100 is rated for 600k load/unload
+cycles, and 20k emergency load/unload cycles (each emergency unload counts
+as 30 normal unloads, but the tech docs say it is about 100 times more
+stressfull to the drive).  It is in the public drive datasheet, along with
+other important information, such as that the drive needs to spin down often
+(no less than once every 48h) or its lifespan will be shortened.
 
-first -- an implementation where the userland code handles restarting
-the vsyscall.
+A typical desktop HD can probably survive a lot less head load/unload
+cycles and spin up/down cycles than that.
 
-guide to the table:
-
-ff = family
-mm = model
-ss = stepping
-lm = long mode or not
-     (note the 32-bit code was timed on 64-bit boxes in long mode... it might
-     be different if the kernel itself was also in 32-bit mode)
-
-vendor name  ffmmss lm  |----------- timings all in cycles ----------|  note
-
-GenuineIntel 060f05 32  sgdt 112.0  sidt 111.1  sldt 107.1  lsl 196.1  core2
-GenuineIntel 060f05 64  sgdt 102.1  sidt 104.1  sldt  96.2  lsl 178.1  core2
-
-AuthenticAMD 0f4102 32  sgdt  80.1  sidt  80.1  sldt  58.1  lsl 156.0  revF opteron
-AuthenticAMD 0f4102 64  sgdt  67.1  sidt  65.1  sldt  41.0  lsl 136.0  revF opteron
-
-AuthenticAMD 0f2102 32  sgdt  77.0  sidt  77.7  sldt  56.0  lsl 154.3  revE opteron
-AuthenticAMD 0f2102 64  sgdt  65.0  sidt  63.1  sldt  40.0  lsl 137.6  revE opteron
-
-GenuineIntel 0f0401 32  sgdt 231.7  sidt 225.9  sldt 218.0  lsl 421.5  nocona
-GenuineIntel 0f0401 64  sgdt 212.3  sidt 210.0  sldt 200.7  lsl 449.9  nocona
-
-GenuineIntel 0f0403 32  sgdt 232.1  sidt 244.1  sldt 221.4  lsl 420.1  p4 desktop
-GenuineIntel 0f0403 64  sgdt 216.1  sidt 216.8  sldt 204.1  lsl 396.1  p4 desktop
-
-GenuineIntel 0f0209 32  sgdt 240.1  sidt 232.1  sldt 224.4  lsl 384.1  xeon
-
-
-next an implementation which relies on the kernel restarting the computation when
-necessary.  this would be achieved by testing to see when the task to be restarted
-is on the vsyscall page and backtracking the task to the vsyscall entry point.
-
-this is challenging when the vsyscall is implemented in C -- because of potential
-stack usage.  there are ways to get this to work though, even without resorting to
-assembly.  i'm presenting this only as a best case scenario should such an effort
-be undertaken.  (i have a crazy idea involving the direction flag which i need to
-mock up.)
-
-vendor name  ffmmss lm  |----------- timings all in cycles ----------|  note
-
-GenuineIntel 060f05 32  sgdt  90.0  sidt  91.0  sldt  86.0  lsl 128.0  core2
-GenuineIntel 060f05 64  sgdt  76.0  sidt  78.1  sldt  76.5  lsl 113.0  core2
-
-AuthenticAMD 0f4102 32  sgdt  43.0  sidt  43.1  sldt  28.0  lsl  82.0  revF opteron
-AuthenticAMD 0f4102 64  sgdt  29.0  sidt  28.6  sldt  16.0  lsl  72.0  revF opteron
-
-AuthenticAMD 0f2102 32  sgdt  44.0  sidt  42.8  sldt  28.0  lsl  82.6  revE opteron
-AuthenticAMD 0f2102 64  sgdt  27.0  sidt  25.6  sldt  14.5  lsl  72.0  revE opteron
-
-GenuineIntel 0f0401 32  sgdt 111.9  sidt 120.1  sldt 108.6  lsl 225.0  nocona
-GenuineIntel 0f0401 64  sgdt 100.9  sidt 100.0  sldt 100.0  lsl 158.0  nocona
-
-GenuineIntel 0f0403 32  sgdt 129.5  sidt 116.1  sldt 112.0  lsl 228.0  p4 desktop
-GenuineIntel 0f0403 64  sgdt 104.9  sidt 102.2  sldt 100.0  lsl 138.0  p4 desktop
-
-GenuineIntel 0f0209 32  sgdt 136.0  sidt 136.1  sldt 132.5  lsl 200.0  xeon
-
--dean
-
-p.s. i work at google, and google paid for this experiment.
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

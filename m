@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965660AbWKNNdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965767AbWKNNkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965660AbWKNNdt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 08:33:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965663AbWKNNdt
+	id S965767AbWKNNkx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 08:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965757AbWKNNkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 08:33:49 -0500
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:32441 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S965660AbWKNNds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 08:33:48 -0500
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       htejun@gmail.com, jim.kardach@intel.com, ak@suse.de
-Subject: Re: AHCI power saving
-X-Home-Page: http://john.fremlin.org
-From: John Fremlin <not@just.any.name>
-In-Reply-To: <45589008.1080001@garzik.org> (Jeff Garzik's message of "Mon, 13 Nov 2006 10:32:24 -0500")
-References: <87k639u55l.fsf-genuine-vii@john.fremlin.org>
-	<20061009215221.GC30702@elf.ucw.cz>
-	<87ods6loe8.fsf-genuine-vii@john.fremlin.org>
-	<20061025070920.GG5851@elf.ucw.cz>
-	<87y7r3xlif.fsf-genuine-vii@john.fremlin.org>
-	<20061026204655.GA1767@elf.ucw.cz>
-	<87slgv6ccz.fsf-genuine-vii@john.fremlin.org>
-	<20061112183614.GA5081@ucw.cz>
-	<87hcx3adcd.fsf-genuine-vii@john.fremlin.org>
-	<20061113142219.GA2703@elf.ucw.cz> <45589008.1080001@garzik.org>
-X-Hashcash: 1:18:061114:jeff@garzik.org::iounanu+896QSduy:001CGC
-X-Hashcash: 1:18:061114:pavel@ucw.cz::kDrKrvE1TPA28hUH:000001PAB
-X-Hashcash: 1:18:061114:linux-kernel@vger.kernel.org::D4cMAPEcw2VyygTQ:0000000000000000000000000000000003PRQ
-X-Hashcash: 1:18:061114:htejun@gmail.com::31JRqzdcUAzrKncL:00KYY
-X-Hashcash: 1:18:061114:jim.kardach@intel.com::ehOjNwGO7FS+AFea:00000000000000000000000000000000000000002adS
-X-Hashcash: 1:18:061114:ak@suse.de::7xJxQSPF2FA33gv/:00000000BDo
-Date: Tue, 14 Nov 2006 13:33:14 +0000
-Message-ID: <87slgmrw4l.fsf-genuine-vii@john.fremlin.org>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Tue, 14 Nov 2006 08:40:53 -0500
+Received: from smtp1-g19.free.fr ([212.27.42.27]:51367 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S965767AbWKNNkw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 08:40:52 -0500
+From: Arnaud Giersch <arnaud.giersch@free.fr>
+To: philb@gnu.org, tim@cyberelk.net, andrea@suse.de
+Cc: linux-parport@lists.infradead.org, trivial@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] parport: fix compilation failure
+Date: Tue, 14 Nov 2006 14:40:48 +0100
+Message-ID: <87k61y9me7.fsf@groumpf.homeip.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jeff@garzik.org> writes:
+Fix compilation failure.
 
-> Pavel Machek wrote:
->> --- a/drivers/ata/ahci.c
->> +++ b/drivers/ata/ahci.c
->> @@ -148,6 +148,8 @@ enum {
->>  				  PORT_IRQ_PIOS_FIS | PORT_IRQ_D2H_REG_FIS,
->>   	/* PORT_CMD bits */
->> +	PORT_CMD_ALPE		= (1 << 27), /* Aggressive Link Power Management Enable */
->> +	PORT_CMD_ASP		= (1 << 26), /* Aggressive entrance to Slumber or Partial power management states */
->>  	PORT_CMD_ATAPI		= (1 << 24), /* Device is ATAPI */
->>  	PORT_CMD_LIST_ON	= (1 << 15), /* cmd list DMA engine running */
->>  	PORT_CMD_FIS_ON		= (1 << 14), /* FIS DMA engine running */
->> @@ -486,7 +488,7 @@ static void ahci_power_up(void __iomem *
->>  	}
->>   	/* wake up link */
->> -	writel(cmd | PORT_CMD_ICC_ACTIVE, port_mmio + PORT_CMD);
->> +	writel(cmd | PORT_CMD_ICC_ACTIVE | PORT_CMD_ALPE | PORT_CMD_ASP, port_mmio + PORT_CMD);
->
->
-> Therein lies a key problem.  Turning on all of AHCI's aggressive
-> power management features DOES save a lot of power.  But at the same
-> time, it shortens the life of your hard drive, particularly hard
-> drives that are really PATA, but have a PATA<->SATA bridge glued on
-> the drive to enable connection to SATA controllers.
+Signed-off-by: Arnaud Giersch <arnaud.giersch@free.fr>
 
-Are you sure? I thought that these bits will only affect the SATA
-communication between the chipset on the motherboard and the chipset
-on the drive and are not related to the drive's spinning at all.
+---
 
-Please note that the patch is incorrect because not all AHCI chipsets
-support these PM features. It would probably be best to make it
-optional: it might slow down drive access, but does certainly save the
-environment a little.
+ drivers/parport/parport_ip32.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/parport/parport_ip32.c b/drivers/parport/parport_ip32.c
+index e3e1927..ec44efd 100644
+--- a/drivers/parport/parport_ip32.c
++++ b/drivers/parport/parport_ip32.c
+@@ -780,7 +780,7 @@ static irqreturn_t parport_ip32_interrup
+ 	enum parport_ip32_irq_mode irq_mode = priv->irq_mode;
+ 	switch (irq_mode) {
+ 	case PARPORT_IP32_IRQ_FWD:
+-		parport_generic_irq(irq, p, regs);
++		parport_generic_irq(irq, p);
+ 		break;
+ 	case PARPORT_IP32_IRQ_HERE:
+ 		parport_ip32_wakeup(p);

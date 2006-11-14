@@ -1,48 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933416AbWKNLin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933426AbWKNLtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933416AbWKNLin (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 06:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933419AbWKNLin
+	id S933426AbWKNLtH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 06:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933427AbWKNLtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 06:38:43 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:56858 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S933416AbWKNLim (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 06:38:42 -0500
-Date: Tue, 14 Nov 2006 12:41:20 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
+	Tue, 14 Nov 2006 06:49:06 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:8970 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S933426AbWKNLtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 06:49:05 -0500
+Date: Tue, 14 Nov 2006 11:48:57 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Cc: Jens Axboe <jens.axboe@oracle.com>, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: How to cleanly shut down a block device
-Message-ID: <20061114114120.GC22178@kernel.dk>
+Message-ID: <20061114114857.GC15340@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	Jens Axboe <jens.axboe@oracle.com>,
+	LKML <linux-kernel@vger.kernel.org>
 References: <455969F2.80401@drzeus.cx> <20061114075648.GK15031@kernel.dk> <45597B0A.3060409@drzeus.cx> <20061114084519.GL15031@kernel.dk> <45598462.80605@drzeus.cx> <20061114104844.GA15340@flint.arm.linux.org.uk> <4559A99B.6070207@drzeus.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <4559A99B.6070207@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14 2006, Pierre Ossman wrote:
-> Russell King wrote:
-> > Just arrange for the mmc_queue_thread() to empty the queue when
-> > MMC_QUEUE_EXIT is set, and then exit.  I thought this was something
-> > that the block layer looked after (Jens must have missed this in his
-> > original review of the MMC code.)
-> >   
-> 
-> mmc_queue_thread() will empty the thread when MMC_QUEUE_EXIT is set. The
-> problem is that we do not set that bit until the last person closes the
-> device. In order to avoid problems we need to empty the queue before
-> mmc_blk_remove() exits (after which the card structure is no longer valid).
-> 
-> > The handling of userspace keeping the device open despite the hardware
-> > having been removed is already in place.
-> >
-> >   
-> 
-> Ok, that's one less problem for me to worry about. :)
-> 
+On Tue, Nov 14, 2006 at 12:33:47PM +0100, Pierre Ossman wrote:
 > Jens Axboe wrote:
 > > What do you mean by "killing off the queue"? As long as the queue can be
 > > gotten at, it needs to remain valid. That is what the references are
@@ -54,27 +39,53 @@ On Tue, Nov 14 2006, Pierre Ossman wrote:
 > del_gendisk();
 > (wait for queue to become empty, i.e. elv_next_request() == NULL)
 > blk_cleanup_queue();
-
-elv_next_request() returning NULL means nothing wrt the queue being
-empty.
-
+> 
 > and then assume that the request function will no longer be called for
 > this queue.
 > 
 > Suggested patch:
+> 
+> diff --git a/drivers/mmc/mmc_block.c b/drivers/mmc/mmc_block.c
+> index f9027c8..5025abe 100644
+> --- a/drivers/mmc/mmc_block.c
+> +++ b/drivers/mmc/mmc_block.c
+> @@ -83,7 +83,6 @@ static void mmc_blk_put(struct mmc_blk_d
+>         md->usage--;
+>         if (md->usage == 0) {
+>                 put_disk(md->disk);
+> -               mmc_cleanup_queue(&md->queue);
+>                 kfree(md);
+>         }
+>         mutex_unlock(&open_lock);
+> @@ -553,12 +552,11 @@ static void mmc_blk_remove(struct mmc_ca
+>         if (md) {
+>                 int devidx;
+>  
+> +               /* Stop new requests from getting into the queue */
+>                 del_gendisk(md->disk);
+>  
+> -               /*
+> -                * I think this is needed.
+> -                */
+> -               md->disk->queue = NULL;
+> +               /* Then flush out any already in there */
+> +               mmc_cleanup_queue(&md->queue);
+>  
+>                 devidx = md->disk->first_minor >> MMC_SHIFT;
+>                 __clear_bit(devidx, dev_use);
 
-I think you are making this way too complicated, it's actually pretty
-simple: you call blk_put_queue() or blk_cleanup_queue() (same thing)
-when _you_ drop your reference to the queue. That's just normal cleanup.
-When a device goes away, you make sure that you know about this. I said
-that SCSI clears q->queuedata, so it knows that when ->request_fn is
-invoked with a NULL q->queuedata (where it stores the device pointer),
-the device is not there and the request should just be flushed to
-heaven.
+You now have a disk which may be in use (and a block device) for which
+there is no queue.  I couldn't see any locking what so ever in del_gendisk
+so it's quite possible that the queue could still be referenced while
+the disk is still open.
 
-Don't make any assumptions about when request_fn will be called or not.
-That's bound to be racy anyway.
+I also don't think del_gendisk() is sufficient to ensure that no new
+requests appear in the queue, which is why I'm setting md->disk->queue
+to NULL there.
+
+But shug, I don't know the block layer.  Jens is your best bet.
 
 -- 
-Jens Axboe
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

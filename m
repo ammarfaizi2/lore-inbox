@@ -1,108 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965834AbWKNRZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965939AbWKNRYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965834AbWKNRZe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 12:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965873AbWKNRZe
+	id S965939AbWKNRYt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 12:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965873AbWKNRYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 12:25:34 -0500
-Received: from sardaukar.technologeek.org ([213.41.134.240]:673 "EHLO
-	frigate.technologeek.org") by vger.kernel.org with ESMTP
-	id S965834AbWKNRZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 12:25:33 -0500
-From: Julien BLACHE <jb@jblache.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: dmitry.torokhov@gmail.com, stelian@popies.net
-Subject: =?iso-8859-1?Q?=5BPATCH=5D=A0appletouch=3A?= add Geyser IV support
-Date: Tue, 14 Nov 2006 18:25:34 +0100
-Message-ID: <87wt5yos8h.fsf@frigate.technologeek.org>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
+	Tue, 14 Nov 2006 12:24:49 -0500
+Received: from nz-out-0102.google.com ([64.233.162.198]:42133 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S933462AbWKNRYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 12:24:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
+        b=RvZBSurKdycF57FRzPzyFSri+VeVBvgv102QSwlXgpBzBsrwg3tHA62aU61rRBTc8sCiCo/vqEcSnzP6QfkffWblmmLN7xCup7hKzWJeHGSBsuCCu5b/Jmg0wPnKWP/38pqKzfSMGpZVf2i8wElM2NHOA/Sy7Mr0p1wy0+T+/UQ=
+Message-ID: <4559FBCF.9050203@gmail.com>
+Date: Wed, 15 Nov 2006 02:24:31 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.7 (X11/20061014)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+To: Mathieu Fluhr <mfluhr@nero.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Phillip Susi <psusi@cfl.rr.com>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
+References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>	 <4558BE57.4020700@cfl.rr.com>	 <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>	 <1163446372.15249.190.camel@laptopd505.fenrus.org> <1163519125.2998.8.camel@de-c-l-110.nero-de.internal>
+In-Reply-To: <1163519125.2998.8.camel@de-c-l-110.nero-de.internal>
+Content-Type: multipart/mixed;
+ boundary="------------060503030804010707040602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+This is a multi-part message in MIME format.
+--------------060503030804010707040602
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi,
+Mathieu Fluhr wrote:
+> On Mon, 2006-11-13 at 20:32 +0100, Arjan van de Ven wrote:
+>> On Mon, 2006-11-13 at 19:56 +0100, Mathieu Fluhr wrote:
+>>> On Mon, 2006-11-13 at 13:49 -0500, Phillip Susi wrote:
+>>>> Mathieu Fluhr wrote:
+>>>>> Hello,
+>>>>>
+>>>>> I recently tried to burn some datas on CDs and DVD using a SATA burner
+>>>>> and the latest 2.6.18.2 kernel... using NeroLINUX. (It is controlling
+>>>>> the device by sending SCSI commands over the 'sg' driver)
+>>>>>
+>>>> Please note that the sg interface is depreciated.  It is now recommended 
+>>>> that you send the CCBs directly to the normal device, i.e. /dev/hdc.
+>>> Of course for native IDE devices, we are using the /dev/hdXX device, but
+>>> for SATA devices controlled by the libata, this is not possible ;)
+>> for those there is /dev/scd0 etc...
+>> (usually nicely symlinked to /dev/cdrom)
+> 
+> Hummm as we are _writing_ to devices, I think that using /dev/sgXX with
+> SG_IO is better no?
 
-The new Core2 Duo MacBook Pro has a new keyboard+trackpad named
-"Geyser IV".
+The recommended way is using SG_IO to /dev/srX (or /dev/scdX).
 
-According to the Info.plist in the OS X kext, it looks like the Geyser
-IV trackpad is identical to the Geyser III trackpad: same IOClass
-(AppleUSBGrIIITrackpad), same acceleration tables.
+> ... and the problem is not in accessing the device itself (this is
+> working like a charm) but understanding why a SCSI READ(10) cmd
+> sometimes fails as a ATA-padded READ(10) cmd - as discribed in the Annex
+> A of the MMC-5 spec - ALWAYS works.
+> -> I would suspect somehow a synchronisation problem somehow in the
+> translation of SCSI to ATA command...
 
-Signed-off-by: Julien BLACHE <jb@jblache.org>
-
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline; filename=appletouch-geyser4-support.patch
-Content-Description: appletouch: add Geyser IV support
-
---- appletouch.c.orig	2006-11-14 18:19:07.319174145 +0100
-+++ appletouch.c	2006-11-14 18:19:12.939494428 +0100
-@@ -54,6 +54,14 @@
- #define GEYSER3_ISO_PRODUCT_ID		0x0218
- #define GEYSER3_JIS_PRODUCT_ID		0x0219
- 
-+/* 
-+ * Geyser IV: same as Geyser III according to Info.plist in AppleUSBTrackpad.kext
-+ * -> same IOClass (AppleUSBGrIIITrackpad), same acceleration tables
-+ */
-+#define GEYSER4_ANSI_PRODUCT_ID	0x021A
-+#define GEYSER4_ISO_PRODUCT_ID	0x021B
-+#define GEYSER4_JIS_PRODUCT_ID	0x021C
-+
- #define ATP_DEVICE(prod)					\
- 	.match_flags = USB_DEVICE_ID_MATCH_DEVICE |		\
- 		       USB_DEVICE_ID_MATCH_INT_CLASS |		\
-@@ -75,10 +83,16 @@
- 	{ ATP_DEVICE(GEYSER_ISO_PRODUCT_ID) },
- 	{ ATP_DEVICE(GEYSER_JIS_PRODUCT_ID) },
- 
-+	/* Core Duo MacBook & MacBook Pro */
- 	{ ATP_DEVICE(GEYSER3_ANSI_PRODUCT_ID) },
- 	{ ATP_DEVICE(GEYSER3_ISO_PRODUCT_ID) },
- 	{ ATP_DEVICE(GEYSER3_JIS_PRODUCT_ID) },
- 
-+	/* Core2 Duo MacBook & MacBook Pro */
-+	{ ATP_DEVICE(GEYSER4_ANSI_PRODUCT_ID) },
-+	{ ATP_DEVICE(GEYSER4_ISO_PRODUCT_ID) },
-+	{ ATP_DEVICE(GEYSER4_JIS_PRODUCT_ID) },
-+
- 	/* Terminating entry */
- 	{ }
- };
-@@ -115,7 +129,7 @@
-  */
- #define ATP_THRESHOLD	 5
- 
--/* MacBook Pro (Geyser 3) initialization constants */
-+/* MacBook Pro (Geyser 3 & 4) initialization constants */
- #define ATP_GEYSER3_MODE_READ_REQUEST_ID 1
- #define ATP_GEYSER3_MODE_WRITE_REQUEST_ID 9
- #define ATP_GEYSER3_MODE_REQUEST_VALUE 0x300
-@@ -181,7 +195,10 @@
- 
- 	return (productId == GEYSER3_ANSI_PRODUCT_ID) ||
- 		(productId == GEYSER3_ISO_PRODUCT_ID) ||
--		(productId == GEYSER3_JIS_PRODUCT_ID);
-+		(productId == GEYSER3_JIS_PRODUCT_ID) ||
-+		(productId == GEYSER4_ANSI_PRODUCT_ID) ||
-+		(productId == GEYSER4_ISO_PRODUCT_ID) ||
-+		(productId == GEYSER4_JIS_PRODUCT_ID);
- }
- 
- static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
-
---=-=-=
-
-
-JB.
+Can you try the attached patch and see if anything changes?
 
 -- 
-Julien BLACHE                                   <http://www.jblache.org> 
-<jb@jblache.org>                                  GPG KeyID 0xF5D65169
+tejun
 
---=-=-=--
+--------------060503030804010707040602
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
+index 2dc3264..fa82151 100644
+--- a/block/scsi_ioctl.c
++++ b/block/scsi_ioctl.c
+@@ -286,6 +286,7 @@ static int sg_io(struct file *file, requ
+ 	 * fill in request structure
+ 	 */
+ 	rq->cmd_len = hdr->cmd_len;
++	memset(rq->cmd, 0, BLK_MAX_CDB);
+ 	memcpy(rq->cmd, cmd, hdr->cmd_len);
+ 	if (sizeof(rq->cmd) != hdr->cmd_len)
+ 		memset(rq->cmd + hdr->cmd_len, 0, sizeof(rq->cmd) - hdr->cmd_len);
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index d2c02df..080c2ed 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -410,6 +410,7 @@ int scsi_execute_async(struct scsi_devic
+ 		goto free_req;
+ 
+ 	req->cmd_len = cmd_len;
++	memset(req->cmd, 0, BLK_MAX_CDB);
+ 	memcpy(req->cmd, cmd, req->cmd_len);
+ 	req->sense = sioc->sense;
+ 	req->sense_len = 0;
+
+--------------060503030804010707040602--

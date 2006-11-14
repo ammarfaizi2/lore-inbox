@@ -1,176 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933441AbWKNN15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965660AbWKNNdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933441AbWKNN15 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 08:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933442AbWKNN14
+	id S965660AbWKNNdt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 08:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965663AbWKNNdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 08:27:56 -0500
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:14813 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP id S933441AbWKNN14
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 08:27:56 -0500
-Message-ID: <4559CF39.8090908@in.ibm.com>
-Date: Tue, 14 Nov 2006 19:44:17 +0530
-From: Srinivasa Ds <srinivasa@in.ibm.com>
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Tue, 14 Nov 2006 08:33:49 -0500
+Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:32441 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S965660AbWKNNds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 08:33:48 -0500
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       htejun@gmail.com, jim.kardach@intel.com, ak@suse.de
+Subject: Re: AHCI power saving
+X-Home-Page: http://john.fremlin.org
+From: John Fremlin <not@just.any.name>
+In-Reply-To: <45589008.1080001@garzik.org> (Jeff Garzik's message of "Mon, 13 Nov 2006 10:32:24 -0500")
+References: <87k639u55l.fsf-genuine-vii@john.fremlin.org>
+	<20061009215221.GC30702@elf.ucw.cz>
+	<87ods6loe8.fsf-genuine-vii@john.fremlin.org>
+	<20061025070920.GG5851@elf.ucw.cz>
+	<87y7r3xlif.fsf-genuine-vii@john.fremlin.org>
+	<20061026204655.GA1767@elf.ucw.cz>
+	<87slgv6ccz.fsf-genuine-vii@john.fremlin.org>
+	<20061112183614.GA5081@ucw.cz>
+	<87hcx3adcd.fsf-genuine-vii@john.fremlin.org>
+	<20061113142219.GA2703@elf.ucw.cz> <45589008.1080001@garzik.org>
+X-Hashcash: 1:18:061114:jeff@garzik.org::iounanu+896QSduy:001CGC
+X-Hashcash: 1:18:061114:pavel@ucw.cz::kDrKrvE1TPA28hUH:000001PAB
+X-Hashcash: 1:18:061114:linux-kernel@vger.kernel.org::D4cMAPEcw2VyygTQ:0000000000000000000000000000000003PRQ
+X-Hashcash: 1:18:061114:htejun@gmail.com::31JRqzdcUAzrKncL:00KYY
+X-Hashcash: 1:18:061114:jim.kardach@intel.com::ehOjNwGO7FS+AFea:00000000000000000000000000000000000000002adS
+X-Hashcash: 1:18:061114:ak@suse.de::7xJxQSPF2FA33gv/:00000000BDo
+Date: Tue, 14 Nov 2006 13:33:14 +0000
+Message-ID: <87slgmrw4l.fsf-genuine-vii@john.fremlin.org>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-To: Srinivasa Ds <srinivasa@in.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, anton@au1.ibm.com,
-       paulus@samba.org, linuxppc-dev@ozlabs.org, ego@in.ibm.com,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] cpu_hotplug on IBM JS20 system
-References: <45586EB5.40409@in.ibm.com> <1163453995.5940.11.camel@localhost.localdomain> <4559C6A9.4070204@in.ibm.com>
-In-Reply-To: <4559C6A9.4070204@in.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------050203040909020402000004"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050203040909020402000004
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Jeff Garzik <jeff@garzik.org> writes:
 
-Srinivasa Ds wrote:
+> Pavel Machek wrote:
+>> --- a/drivers/ata/ahci.c
+>> +++ b/drivers/ata/ahci.c
+>> @@ -148,6 +148,8 @@ enum {
+>>  				  PORT_IRQ_PIOS_FIS | PORT_IRQ_D2H_REG_FIS,
+>>   	/* PORT_CMD bits */
+>> +	PORT_CMD_ALPE		= (1 << 27), /* Aggressive Link Power Management Enable */
+>> +	PORT_CMD_ASP		= (1 << 26), /* Aggressive entrance to Slumber or Partial power management states */
+>>  	PORT_CMD_ATAPI		= (1 << 24), /* Device is ATAPI */
+>>  	PORT_CMD_LIST_ON	= (1 << 15), /* cmd list DMA engine running */
+>>  	PORT_CMD_FIS_ON		= (1 << 14), /* FIS DMA engine running */
+>> @@ -486,7 +488,7 @@ static void ahci_power_up(void __iomem *
+>>  	}
+>>   	/* wake up link */
+>> -	writel(cmd | PORT_CMD_ICC_ACTIVE, port_mmio + PORT_CMD);
+>> +	writel(cmd | PORT_CMD_ICC_ACTIVE | PORT_CMD_ALPE | PORT_CMD_ASP, port_mmio + PORT_CMD);
 >
-> Since we are not supported by hardware for cpu hotplug. I have 
-> developed the patch which will disable cpu hotplug on IBM bladecentre 
-> JS20.  Please let me know your comments on this please.
 >
-  Iam sorry, Just resending the patch after formatting it again.
- 
-    Signed-off-by: Srinivasa DS <srinivasa@in.ibm.com>
+> Therein lies a key problem.  Turning on all of AHCI's aggressive
+> power management features DOES save a lot of power.  But at the same
+> time, it shortens the life of your hard drive, particularly hard
+> drives that are really PATA, but have a PATA<->SATA bridge glued on
+> the drive to enable connection to SATA controllers.
 
+Are you sure? I thought that these bits will only affect the SATA
+communication between the chipset on the motherboard and the chipset
+on the drive and are not related to the drive's spinning at all.
 
+Please note that the patch is incorrect because not all AHCI chipsets
+support these PM features. It would probably be best to make it
+optional: it might slow down drive access, but does certainly save the
+environment a little.
 
---------------050203040909020402000004
-Content-Type: text/plain;
- name="cpu_hotplug.fix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpu_hotplug.fix"
-
- arch/powerpc/kernel/rtas.c |    3 +++
- include/linux/cpu.h        |    4 ++++
- kernel/cpu.c               |   24 ++++++++++++++++++++++--
- 3 files changed, 29 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.19-rc5/arch/powerpc/kernel/rtas.c
-===================================================================
---- linux-2.6.19-rc5.orig/arch/powerpc/kernel/rtas.c
-+++ linux-2.6.19-rc5/arch/powerpc/kernel/rtas.c
-@@ -19,6 +19,7 @@
- #include <linux/init.h>
- #include <linux/capability.h>
- #include <linux/delay.h>
-+#include <linux/cpu.h>
- 
- #include <asm/prom.h>
- #include <asm/rtas.h>
-@@ -881,6 +882,8 @@ void __init rtas_initialize(void)
- 
- #ifdef CONFIG_HOTPLUG_CPU
- 	rtas_stop_self_args.token = rtas_token("stop-self");
-+	if(rtas_stop_self_args.token == RTAS_UNKNOWN_SERVICE)
-+		disable_cpu_hotplug_perm();
- #endif /* CONFIG_HOTPLUG_CPU */
- #ifdef CONFIG_RTAS_ERROR_LOGGING
- 	rtas_last_error_token = rtas_token("rtas-last-error");
-Index: linux-2.6.19-rc5/kernel/cpu.c
-===================================================================
---- linux-2.6.19-rc5.orig/kernel/cpu.c
-+++ linux-2.6.19-rc5/kernel/cpu.c
-@@ -63,8 +63,20 @@ void unlock_cpu_hotplug(void)
- }
- EXPORT_SYMBOL_GPL(unlock_cpu_hotplug);
- 
-+void disable_cpu_hotplug_perm(void)
-+{
-+	mutex_lock(&cpu_add_remove_lock);
-+	cpu_hotplug_disabled = PERM_DISABLED_CPU_HOTPLUG;
-+	mutex_unlock(&cpu_add_remove_lock);
-+}
-+
- #endif	/* CONFIG_HOTPLUG_CPU */
- 
-+static int is_cpu_hotplug_perm_disabled()
-+{
-+	return cpu_hotplug_disabled == PERM_DISABLED_CPU_HOTPLUG;
-+}
-+
- /* Need to know about CPUs going up/down? */
- int __cpuinit register_cpu_notifier(struct notifier_block *nb)
- {
-@@ -193,7 +205,7 @@ int cpu_down(unsigned int cpu)
- 	int err = 0;
- 
- 	mutex_lock(&cpu_add_remove_lock);
--	if (cpu_hotplug_disabled)
-+	if (cpu_hotplug_disabled || is_cpu_hotplug_perm_disabled())
- 		err = -EBUSY;
- 	else
- 		err = _cpu_down(cpu);
-@@ -244,7 +256,7 @@ int __devinit cpu_up(unsigned int cpu)
- 	int err = 0;
- 
- 	mutex_lock(&cpu_add_remove_lock);
--	if (cpu_hotplug_disabled)
-+	if (cpu_hotplug_disabled || is_cpu_hotplug_perm_disabled())
- 		err = -EBUSY;
- 	else
- 		err = _cpu_up(cpu);
-@@ -261,6 +273,10 @@ int disable_nonboot_cpus(void)
- 	int cpu, first_cpu, error;
- 
- 	mutex_lock(&cpu_add_remove_lock);
-+	if(is_cpu_hotplug_perm_disabled()) {
-+		error = -EBUSY;
-+		goto out;
-+	}
- 	first_cpu = first_cpu(cpu_present_map);
- 	if (!cpu_online(first_cpu)) {
- 		error = _cpu_up(first_cpu);
-@@ -311,6 +327,10 @@ void enable_nonboot_cpus(void)
- 
- 	/* Allow everyone to use the CPU hotplug again */
- 	mutex_lock(&cpu_add_remove_lock);
-+	if(is_cpu_hotplug_perm_disabled()) {
-+		mutex_unlock(&cpu_add_remove_lock);
-+		return;
-+	}
- 	cpu_hotplug_disabled = 0;
- 	mutex_unlock(&cpu_add_remove_lock);
- 
-Index: linux-2.6.19-rc5/include/linux/cpu.h
-===================================================================
---- linux-2.6.19-rc5.orig/include/linux/cpu.h
-+++ linux-2.6.19-rc5/include/linux/cpu.h
-@@ -31,6 +31,8 @@ struct cpu {
- 	struct sys_device sysdev;
- };
- 
-+#define  PERM_DISABLED_CPU_HOTPLUG -1
-+
- extern int register_cpu(struct cpu *cpu, int num);
- extern struct sys_device *get_cpu_sysdev(unsigned cpu);
- #ifdef CONFIG_HOTPLUG_CPU
-@@ -68,6 +70,7 @@ extern struct sysdev_class cpu_sysdev_cl
- /* Stop CPUs going up and down. */
- extern void lock_cpu_hotplug(void);
- extern void unlock_cpu_hotplug(void);
-+extern void disable_cpu_hotplug_perm(void);
- #define hotcpu_notifier(fn, pri) {				\
- 	static struct notifier_block fn##_nb =			\
- 		{ .notifier_call = fn, .priority = pri };	\
-@@ -80,6 +83,7 @@ int cpu_down(unsigned int cpu);
- #else
- #define lock_cpu_hotplug()	do { } while (0)
- #define unlock_cpu_hotplug()	do { } while (0)
-+#define disable_cpu_hotplug_perm()     do { } while (0)
- #define lock_cpu_hotplug_interruptible() 0
- #define hotcpu_notifier(fn, pri)	do { } while (0)
- #define register_hotcpu_notifier(nb)	do { } while (0)
-
---------------050203040909020402000004--

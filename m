@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933368AbWKNKV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933379AbWKNK3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933368AbWKNKV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 05:21:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933374AbWKNKV0
+	id S933379AbWKNK3b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 05:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933378AbWKNK3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 05:21:26 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:29778 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S933368AbWKNKVZ (ORCPT
+	Tue, 14 Nov 2006 05:29:31 -0500
+Received: from ic0245.upco.es ([130.206.70.245]:40101 "EHLO
+	antispam.upcomillas.es") by vger.kernel.org with ESMTP
+	id S933380AbWKNK3a convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 05:21:25 -0500
-Date: Tue, 14 Nov 2006 11:24:03 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to cleanly shut down a block device
-Message-ID: <20061114102403.GM15031@kernel.dk>
-References: <455969F2.80401@drzeus.cx> <20061114075648.GK15031@kernel.dk> <45597B0A.3060409@drzeus.cx> <20061114084519.GL15031@kernel.dk> <45598462.80605@drzeus.cx>
+	Tue, 14 Nov 2006 05:29:30 -0500
+Subject: Re: pcmcia: patch to fix pccard_store_cis
+From: Romano Giannetti <romanol@upcomillas.es>
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1163496810.2798.1.camel@localhost>
+References: <200611140040.02079.daniel.ritz-ml@swissonline.ch> 
+	<1163496810.2798.1.camel@localhost>
+Content-Type: text/plain;
+	charset=utf-8
+Date: Tue, 14 Nov 2006 11:29:28 +0100
+Message-Id: <1163500168.2798.8.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45598462.80605@drzeus.cx>
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14 2006, Pierre Ossman wrote:
-> Jens Axboe wrote:
-> > SCSI just sets ->queuedata to NULL, if you store your device there you
-> > may do just that. Or just mark your device structure appropriately,
-> > there are no special places in the queue for that.
+On Tue, 2006-11-14 at 10:33 +0100, Romano Giannetti wrote:
+> On Tue, 2006-11-14 at 00:40 +0100, Daniel Ritz wrote:
+> > please also try this patch on top:
+> > 	http://zeus2.kernel.org/git/?p=linux/kernel/git/brodo/pcmcia-fixes-2.6.git;a=commitdiff;h=e6248ff596dd15bce0be4d780c60f173389b11c3
 > >
-> >   
-> 
-> I've had another look at it, and I believe I have a solution. There is
-> one assumption I need to verify though.
-> 
-> After del_gendisk() and after I've flushed out any remaining requests,
-> is it ok to kill off the queue? Someone might still have the disk open,
-> so that would mean the queue is gone by the time gendisk's release
-> function is called.
+> > (after you have "[PATCH] pcmcia: start over after CIS override"
+> > 	http://zeus2.kernel.org/git/?p=linux/kernel/git/brodo/pcmcia-fixes-2.6.git;a=commitdiff;h=f755c48254ce743a3d4c1fd6b136366c018ee5b2
+> >  applied)
+>
+> Applied, with just a bit of offset on 2.6.17.13. Compiling now. I'll be
+> back to you as soon as possible.
+>
 
-What do you mean by "killing off the queue"? As long as the queue can be
-gotten at, it needs to remain valid. That is what the references are
-for.
+Mr. Ritz,
 
--- 
-Jens Axboe
+	IT WORKS. Really. The two functions are recognized  and the modem
+answers to minicom and kppp. I color myself happy. I will summarize the
+patch and send it to the ubuntu mailing list.
+
+	Thanks again,
+		Romano Giannetti
+
+--
+Romano Giannetti --- romano.giannetti@gmail.com
+Sorry for the following disclaimer, it's attached by our otugoing server
+and I cannot shut it up.
+
+
+
+--
+La presente comunicación tiene carácter confidencial y es para el exclusivo uso del destinatario indicado en la misma. Si Ud. no es el destinatario indicado, le informamos que cualquier forma de distribución, reproducción o uso de esta comunicación y/o de la información contenida en la misma están estrictamente prohibidos por la ley. Si Ud. ha recibido esta comunicación por error, por favor, notifíquelo inmediatamente al remitente contestando a este mensaje y proceda a continuación a destruirlo. Gracias por su colaboración.
+
+This communication contains confidential information. It is for the exclusive use of the intended addressee. If you are not the intended addressee, please note that any form of distribution, copying or use of this communication or the information in it is strictly prohibited by law. If you have received this communication in error, please immediately notify the sender by reply e-mail and destroy this message. Thank you for your cooperation.
 

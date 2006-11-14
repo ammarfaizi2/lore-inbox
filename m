@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933297AbWKNCGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933287AbWKNCSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933297AbWKNCGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 21:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933287AbWKNCGZ
+	id S933287AbWKNCSi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 21:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933304AbWKNCSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 21:06:25 -0500
-Received: from elvis.mu.org ([192.203.228.196]:62930 "EHLO elvis.mu.org")
-	by vger.kernel.org with ESMTP id S933297AbWKNCGY (ORCPT
+	Mon, 13 Nov 2006 21:18:38 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:28055 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S933287AbWKNCSh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 21:06:24 -0500
-Message-ID: <45592497.1080109@FreeBSD.org>
-Date: Mon, 13 Nov 2006 18:06:15 -0800
-From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
-X-Accept-Language: en-us, en
+	Mon, 13 Nov 2006 21:18:37 -0500
+Message-ID: <455926C0.9080906@us.ibm.com>
+Date: Mon, 13 Nov 2006 18:15:28 -0800
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
-       Jiri Bohac <jbohac@suse.cz>
-Subject: Re: [PATCH 0/2] Make the TSC safe to be used by gettimeofday().
-References: <455916A5.2030402@FreeBSD.org> <200611140250.57160.ak@suse.de>
-In-Reply-To: <200611140250.57160.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: David Miller <davem@davemloft.net>
+CC: benh@kernel.crashing.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, anton@samba.org, airlied@gmail.com,
+       paulus@samba.org
+Subject: Re: [PATCH/RFC] powerpc: Fix mmap of PCI resource with hack for X
+References: <1163405790.4982.289.camel@localhost.localdomain> <20061113.163138.98554015.davem@davemloft.net>
+In-Reply-To: <20061113.163138.98554015.davem@davemloft.net>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=AC84030F
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Tuesday 14 November 2006 02:06, Suleiman Souhlal wrote:
-> 
->>I've had a proof-of-concept for this since August, and finally got around to
->>somewhat cleaning it up.
-> 
-> 
-> Thanks. 
-> 
-> I got a competing implementation for this unfortunately now from Vojtech & Jiri
-> 
-> Yours is simpler, but I'm not sure as complete. What are your assurances
-> against non monoticity for example?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I believe that the results returned will always be monotonic, as long as 
-the frequency of the TSC does not change from under us (that is, without 
-the kernel knowing). This is because we "synchronize" each CPU's vxtime 
-with a global time source (HPET) every time we know the TSC rate changes.
-
->>It can certainly still be improved, namely by using vgetcpu() instead of CPUID
->>to find the cpu number (but I couldn't get it to work, when I tried).
+David Miller wrote:
+> From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Date: Mon, 13 Nov 2006 19:16:30 +1100
 > 
+>> X is still broken when built 32 bits on machines where PCI MMIO can be
+>> above 32 bits space unfortunately. It looks like somebody (DaveM ?)
+>> hacked a fix in X to handle long long resources and had the good idea
+>> to wrap it in #ifdef __sparc__ :-(
 > 
-> What did not work?
-
-I was not able to make vgettimeofday use vgetcpu(). It seemed like vgetcpu()
-was not returning the same value as smp_processor_id() would, so the 
-values I'd get with vgettimeofday() did not completely agree with the 
-ones from gettimeofday(2). I didn't have the chance to investigate more.
-
->>Another possible improvement would be to use RDTSCP when available.
->>There's also a small race in do_gettimeofday(), vgettimeofday() and
->>vmonotonic_clock() but I've never seen it happen.
+> Sorry, it was the only 32/64 platform at the time that old X code was
+> written and the X maintainers at the time were unbelievably anal :-/
 > 
+> So the gist of your change is that X isn't obtaining BAR values
+> in the correct context on powerpc, and so you're going to hack up
+> the "devices" files output to "help" X out.
 > 
-> I did a vposix_getclock with monotonic clock support on my own already, was about to 
-> be merged with the vDSO. It still used global synchronized TSC though.
+> This doesn't sound sane to me.
 
--- Suleiman
+It doesn't sound terribly sane to me.  What's wrong with just opening
+/sys/bus/pci/devices/*/resource[0-5]?  It seems like that solves all the
+problems.
 
+> What sounds better to me is that X does the right thing, which is
+> obtain the BAR from the PCI config space to determine what values to
+> pass in to /proc/bus/pci mmap() calls.  And if it wants raw addresses
+> to pass in to /dev/mem mmap()'s on platforms where that works (ie. not
+> Sparc, to begin with) it should obtain those values from the "devices"
+> file which must be values suitable as /dev/mem offsets.
+> 
+> I strongly look forward to Ian's new X code, that is for sure :-)
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFWSbAX1gOwKyEAw8RAtceAKCc2PrYJNg8v2LcClLwTfEmo1aGzwCfRR7o
+TkJnY+7IMpmWUQt/7FAW6A4=
+=tDJc
+-----END PGP SIGNATURE-----

@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966258AbWKNVAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966353AbWKNVM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966258AbWKNVAv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966351AbWKNVAv
+	id S966353AbWKNVM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966359AbWKNVM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:00:51 -0500
-Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:50629 "EHLO
-	rhlx01.hs-esslingen.de") by vger.kernel.org with ESMTP
-	id S966258AbWKNVAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:00:51 -0500
-Date: Tue, 14 Nov 2006 22:00:49 +0100
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Len Brown <lenb@kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>
-Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
-Message-ID: <20061114210049.GB15440@rhlx01.hs-esslingen.de>
-References: <EB12A50964762B4D8111D55B764A8454E0DC9D@scsmsx413.amr.corp.intel.com> <20061114203016.GA15440@rhlx01.hs-esslingen.de>
-Mime-Version: 1.0
+	Tue, 14 Nov 2006 16:12:57 -0500
+Received: from wr-out-0506.google.com ([64.233.184.229]:21401 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S966353AbWKNVM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 16:12:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=GVyhYt1a5jpo886VuKYT8gDqb/MGzIhS2e4XQ0dDAGSvZXUd+pYHqQCWM1OMgapTxH7j+7Qe2hFZVLTImJxR7MsE0+MOtqPpwQ6uN1wdnYz/oCzKMf3yERARQ9Wy/Xo9hv2T+9jxzRvCN6y4eAr/8xIJ8+pFBfK6q9B9310rodo=
+Date: Wed, 15 Nov 2006 06:12:59 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Don Mullis <dwm@meer.net>
+Subject: [PATCH -mm] CONFIG_FAULT_INJECTION help text
+Message-ID: <20061114211259.GA20524@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Don Mullis <dwm@meer.net>
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061114200249.GM22565@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061114203016.GA15440@rhlx01.hs-esslingen.de>
-User-Agent: Mutt/1.4.2.2i
-X-Priority: none
+In-Reply-To: <20061114200249.GM22565@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Nov 14, 2006 at 09:02:49PM +0100, Adrian Bunk wrote:
+> The FAULT_INJECTION option lacks a help text.
 
-On Tue, Nov 14, 2006 at 09:30:17PM +0100, Andreas Mohr wrote:
-> There's also some register description about APIC timer,
-> maybe I'll gather something about my C2 headaches from there.
+Thank you for pointing that out.
 
-OK, offset 0x8C Host Bus Power Management Control has
-(VT8235, but 8237 is same I think):
-bit 0 Internal Clock Stop During Suspend (default 0)
-bit 1 Internal Clock Stop During C3 (default 0) [internal PCI clock]
-bit 2 Internal Clock Stop for PCI Idle (default 0)
-[stop PCI clock when PCKRUN# high]
+Subject: [PATCH -mm] CONFIG_FAULT_INJECTION help text
 
-This wouldn't have anything whatsoever to do with my ACPI ""C2""
-BIOS headaches, I assume??
+This patch add a help text for CONFIG_FAULT_INJECTION
 
-Probably my BIOS has some of those bits tweaked to 1,
-need to fiddle with pciutils a bit...
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-Somehow I'm getting the impression that we should have been
-rewarding the BIOS with indifference all the time already in Linux,
-given how *very useful* those chipset registers are...
-Argh.
+ lib/Kconfig.debug |    3 +++
+ 1 file changed, 3 insertions(+)
 
-Burn ACPI, EFI, Real Mode, ..., let's go back to basics. :-P
-
-Andreas Mohr
+Index: work-fault-inject/lib/Kconfig.debug
+===================================================================
+--- work-fault-inject.orig/lib/Kconfig.debug
++++ work-fault-inject/lib/Kconfig.debug
+@@ -477,6 +477,9 @@ config FAULT_INJECTION
+ 	depends on DEBUG_KERNEL
+ 	depends on STACKTRACE
+ 	select FRAME_POINTER
++	help
++	  Provide fault-injection framework.
++	  For more details, see Documentation/fault-injection/.
+ 
+ config FAILSLAB
+ 	bool "Fault-injection capability for kmalloc"

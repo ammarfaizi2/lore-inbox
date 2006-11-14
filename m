@@ -1,95 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933382AbWKNKbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933388AbWKNKde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933382AbWKNKbd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 05:31:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933383AbWKNKbd
+	id S933388AbWKNKde (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 05:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933385AbWKNKde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 05:31:33 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:21031 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S933382AbWKNKbc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 05:31:32 -0500
-Date: Tue, 14 Nov 2006 11:32:06 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Greg K-H <greg@kroah.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [Patch -mm 1/5] driver core: Introduce device_find_child().
-Message-ID: <20061114113206.50708129@gondolin.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 14 Nov 2006 05:33:34 -0500
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:62173 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S933391AbWKNKdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 05:33:33 -0500
+Message-ID: <45599B0E.8050505@uni-hd.de>
+Date: Tue, 14 Nov 2006 11:31:42 +0100
+From: Martin Braun <mbraun@uni-hd.de>
+Reply-To: mbraun@uni-hd.de
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Oleg Verych <olecom@flower.upol.cz>
+CC: David Chinner <dgc@sgi.com>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+Subject: Re: xfs kernel BUG again in 2.6.17.11
+References: <44E1D9CA.30805@uni-hd.de> <20060816101122.E2740551@wobbly.melbourne.sgi.com> <44EB228F.6020903@uni-hd.de> <20060823134211.E2968256@wobbly.melbourne.sgi.com> <45583ABE.6080909@uni-hd.de> <20061114040053.GD8394166@melbourne.sgi.com> <45598B07.6080401@uni-hd.de> <slrnelj5k3.7lr.olecom@flower.upol.cz>
+In-Reply-To: <slrnelj5k3.7lr.olecom@flower.upol.cz>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Hi Oleg,
 
-Introduce device_find_child() to match device_for_each_child().
+thanks for your response.
+> You can find fixes in .17 stable git tree.
+Yes it is a 2.6.17.11 stable kernel. - By the way: we tried to setup
+kernel 2.6.18.2 on that machine but we got a weired time error, ntpdate
+shows two times: first run correct time, second run time is half an hour
+in the future - so we switched back to 2.6.17.11
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> If it was really just sparse annotations, they were obviously
+> fixed, i think. If not, meybe there are some new bugs.
+> +
+>> It seems that xfs_repair (2.8.10), did not find all of the errors of the FS.
+>> Is there a way to be sure that the FS is clean?
+> 
+> As in faq:
+> |   Update: a fixed xfs_repair is now available; version 2.8.10 or later
+> |   of the xfsprogs package contains the fixed version.
+> .....      
+> |   The xfs_check tool, or xfs_repair -n, should be able to detect any
+> |   directory corruption.
 
----
- drivers/base/core.c    |   33 +++++++++++++++++++++++++++++++++
- include/linux/device.h |    2 ++
- 2 files changed, 35 insertions(+)
+However the two Kernel BUGS were _after_ xfs_repair (version 2.8.10).
 
---- linux-2.6-CH.orig/drivers/base/core.c
-+++ linux-2.6-CH/drivers/base/core.c
-@@ -750,12 +750,45 @@ int device_for_each_child(struct device 
- 	return error;
- }
- 
-+/**
-+ * device_find_child - device iterator for locating a particular device.
-+ * @parent: parent struct device
-+ * @data: Data to pass to match function
-+ * @match: Callback function to check device
-+ *
-+ * This is similar to the device_for_each_child() function above, but it
-+ * returns a reference to a device that is 'found' for later use, as
-+ * determined by the @match callback.
-+ *
-+ * The callback should return 0 if the device doesn't match and non-zero
-+ * if it does.  If the callback returns non-zero and a reference to the
-+ * current device can be obtained, this function will return to the caller
-+ * and not iterate over any more devices.
-+ */
-+struct device * device_find_child(struct device *parent, void *data,
-+				  int (*match)(struct device *, void *))
-+{
-+	struct klist_iter i;
-+	struct device *child;
-+
-+	if (!parent)
-+		return NULL;
-+
-+	klist_iter_init(&parent->klist_children, &i);
-+	while ((child = next_device(&i)))
-+		if (match(child, data) && get_device(child))
-+			break;
-+	klist_iter_exit(&i);
-+	return child;
-+}
-+
- int __init devices_init(void)
- {
- 	return subsystem_register(&devices_subsys);
- }
- 
- EXPORT_SYMBOL_GPL(device_for_each_child);
-+EXPORT_SYMBOL_GPL(device_find_child);
- 
- EXPORT_SYMBOL_GPL(device_initialize);
- EXPORT_SYMBOL_GPL(device_add);
---- linux-2.6-CH.orig/include/linux/device.h
-+++ linux-2.6-CH/include/linux/device.h
-@@ -420,6 +420,8 @@ extern int __must_check device_add(struc
- extern void device_del(struct device * dev);
- extern int device_for_each_child(struct device *, void *,
- 		     int (*fn)(struct device *, void *));
-+extern struct device *device_find_child(struct device *, void *data,
-+					int (*match)(struct device *, void *));
- extern int device_rename(struct device *dev, char *new_name);
- 
- /*
+>> Normally  the Kernel freezes/hangs completely, but I found two new
+> 
+> Do you mean panic or oops here, or just freeze?
+
+In detail:  a Kernel BUG in /var/log/messages is written and after that
+the cpu load average is climbing up to 20-30, any tries to shutdown the
+system, kill processes umounts etc. are in vain. Than the system freezes
+completely: no keyboard, nothing.
+
+ cheers,
+martin
+

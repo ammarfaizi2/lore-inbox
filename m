@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965843AbWKNOZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965869AbWKNOaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965843AbWKNOZk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 09:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965844AbWKNOZk
+	id S965869AbWKNOaA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 09:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965875AbWKNOaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 09:25:40 -0500
-Received: from khc.piap.pl ([195.187.100.11]:57235 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S965843AbWKNOZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 09:25:39 -0500
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Jeff Garzik <jeff@garzik.org>,
-       Toralf =?iso-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Re: linux-2.6.19-rc5-g088406bc build #120 failed
-References: <200611130943.42463.toralf.foerster@gmx.de>
-	<4558860B.8090908@garzik.org> <45588895.7010501@microgate.com>
-	<m3ejs78adt.fsf@defiant.localdomain> <4558BF72.2030408@microgate.com>
-	<m3ac2v6phw.fsf@defiant.localdomain> <4558E652.1080905@microgate.com>
-	<m3psbr54nb.fsf@defiant.localdomain> <4558FB51.8090303@microgate.com>
-	<m3d57q6gbk.fsf@defiant.localdomain> <45591715.6030406@microgate.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 14 Nov 2006 15:25:37 +0100
-In-Reply-To: <45591715.6030406@microgate.com> (Paul Fulghum's message of "Mon, 13 Nov 2006 19:08:37 -0600")
-Message-ID: <m3wt5yds0u.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Nov 2006 09:30:00 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:25311 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S965869AbWKNO37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 09:29:59 -0500
+Date: Tue, 14 Nov 2006 09:29:36 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: proposal: remove unused macros
+In-reply-to: <200611141118.kAEBIvTE003342@laptop13.inf.utfsm.cl>
+To: linux-kernel@vger.kernel.org
+Cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Message-id: <200611140929.36613.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200611141118.kAEBIvTE003342@laptop13.inf.utfsm.cl>
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum <paulkf@microgate.com> writes:
+On Tuesday 14 November 2006 06:18, Horst H. von Brand wrote:
+>Gene Heskett <gene.heskett@verizon.net> wrote:
+>
+>[...]
+>
+>> With regard to your parens checking code, I re-wrote from a broken
+>> version, about 20 years ago, a utility to check all that.  I used it
+>> on the coco/os9 systems at the time, then built it for the amiga, and
+>> rebuilt it for linux a few years back.  It checks brackets, quotes in
+>> " style and ' style and ;, etc stuff.  I called mine cntx, and I've
+>> used it occasionally here, but haven't had the need/urge to test any
+>> kernel code with it so far.
+>>
+>> If anyone is interested, and the list will take attachments of that
+>> nature, I'd be honored to share it.  What say you all?
+>
+>I'd be interested. Licensing terms? GPLv2, BSD, ...?
 
-> In hind sight, I should have ignored the posts that followed
-> and posted what Andrew suggested. When I look at this again,
-> I will take that approach.
+Generally PD, I didn't change that.  I'll send a copy to your address.
 
-Great, thanks.
 -- 
-Krzysztof Halasa
+Cheers, Gene

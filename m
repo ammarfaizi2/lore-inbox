@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755416AbWKNFQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWKNFZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755416AbWKNFQn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 00:16:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755417AbWKNFQn
+	id S932502AbWKNFZh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 00:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755421AbWKNFZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 00:16:43 -0500
-Received: from gate.crashing.org ([63.228.1.57]:13220 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1755416AbWKNFQm (ORCPT
+	Tue, 14 Nov 2006 00:25:37 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:41124 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1755422AbWKNFZg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 00:16:42 -0500
-Subject: Re: [PATCH/RFC] powerpc: Fix mmap of PCI resource with hack for X
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Miller <davem@davemloft.net>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, anton@samba.org,
-       airlied@gmail.com, idr@us.ibm.com, paulus@samba.org
-In-Reply-To: <20061113.210750.66175955.davem@davemloft.net>
-References: <1163405790.4982.289.camel@localhost.localdomain>
-	 <20061113.163138.98554015.davem@davemloft.net>
-	 <1163469594.5940.42.camel@localhost.localdomain>
-	 <20061113.210750.66175955.davem@davemloft.net>
-Content-Type: text/plain
-Date: Tue, 14 Nov 2006 16:16:26 +1100
-Message-Id: <1163481386.5940.103.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Nov 2006 00:25:36 -0500
+Date: Mon, 13 Nov 2006 23:25:31 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Bill O'Donnell" <billodo@sgi.com>
+Cc: Chris Friedhoff <chris@friedhoff.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
+       KaiGai Kohei <kaigai@kaigai.gr.jp>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 1/1] security: introduce fs caps
+Message-ID: <20061114052531.GA20915@sergelap.austin.ibm.com>
+References: <20061108222453.GA6408@sergelap.austin.ibm.com> <20061109061021.GA32696@sergelap.austin.ibm.com> <20061109103349.e58e8f51.chris@friedhoff.org> <20061113215706.GA9658@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061113215706.GA9658@sgi.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-13 at 21:07 -0800, David Miller wrote:
-> From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Date: Tue, 14 Nov 2006 12:59:54 +1100
+Quoting Bill O'Donnell (billodo@sgi.com):
+> On Thu, Nov 09, 2006 at 10:33:49AM +0100, Chris Friedhoff wrote:
+> | Page http://www.friedhoff.org/fscaps.html updated ...
+> | Kernel 2.6.18.2 updated ...
+> | System keeps on humming ...
+> | Is anyone else using/testing the patch? Please give feedback ...
 > 
-> > If I "fix" the kernel to do the right thing, that is pass BAR values in
-> > devices and expect BAR values in mmap, then I will break existing X
-> > setups on machines where PCI is not mapped 1:1 (that is mostly CHRP
-> > machines).
-> > 
-> > The problem I'm fixing in this patch is that while we were providing the
-> > hacked up value in "devices", we were expecting the BAR value in mmap,
-> > and there are apps expecting us to be consistent between the two, thus
-> > the breakage.
+> Most likely a cockpit error, but I'm having trouble when I give the 
+> capability to ping (using the userexample from your fscaps page):
 > 
-> Ok, I don't see much alternatives for you then.  I have no real
-> objections to your patch.
+> $ uname -a
+> Linux certify 2.6.19-rc3 #3 SMP PREEMPT Mon Nov 13 14:40:54 CST 2006 ia64
+> 
+> $ sudo chmod 711 /bin/ping
+> $ ping -c 1 localhost
+> ping: icmp open socket: Operation not permitted
+> 
+> $ sudo setfcaps cap_net_raw=ep /bin/ping           
+> /bin/ping: Function not implemented (errno=38)
+> 
+> Any help is appreciated.
 
-Thanks. Fortunately, it's all going away soon :-)
+Hmm, two things which come to mind are (a) do you have extended
+attributes compiled into your kernel and (b) is sudo properly set
+up.
 
-Ben.
+But for (a) to be the case, you should be getting EOPNOTZSPUP (98),
+not ENOSYS (38).
 
+Could you send me a copy of your .config, tell me which filesystem
+you are using, and send the /tmp/straceout after doing
 
+	strace -o/tmp/straceout -f setfcaps cap_net_raw=ep /bin/ping
+
+as root?
+
+thanks,
+-serge

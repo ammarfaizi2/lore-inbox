@@ -1,180 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933481AbWKNTIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965906AbWKNTPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933481AbWKNTIo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 14:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933482AbWKNTIo
+	id S965906AbWKNTPf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 14:15:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965940AbWKNTPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 14:08:44 -0500
-Received: from dvhart.com ([64.146.134.43]:23685 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S933481AbWKNTIn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 14:08:43 -0500
-Message-ID: <455A143A.50202@mbligh.org>
-Date: Tue, 14 Nov 2006 11:08:42 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Tue, 14 Nov 2006 14:15:34 -0500
+Received: from sardaukar.technologeek.org ([213.41.134.240]:28605 "EHLO
+	frigate.technologeek.org") by vger.kernel.org with ESMTP
+	id S965906AbWKNTPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 14:15:34 -0500
+From: Julien BLACHE <jb@jblache.org>
+To: Stelian Pop <stelian@popies.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com
+Subject: [PATCH] hid-core: canonical defines for Apple USB device IDs
+References: <871wo6q6y1.fsf@frigate.technologeek.org>
+	<1163526312.28910.14.camel@deep-space-9.dsnet>
+Date: Tue, 14 Nov 2006 20:15:34 +0100
+In-Reply-To: <1163526312.28910.14.camel@deep-space-9.dsnet> (Stelian Pop's
+	message of "Tue, 14 Nov 2006 18:45:12 +0100")
+Message-ID: <87k61xq1pl.fsf_-_@frigate.technologeek.org>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-To: Mel Gorman <mel@skynet.ie>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       val_henson@linux.intel.com, cmm@us.ibm.com
-Subject: Re: Boot failure with ext2 and initrds
-References: <20061114014125.dd315fff.akpm@osdl.org> <20061114184919.GA16020@skynet.ie>
-In-Reply-To: <20061114184919.GA16020@skynet.ie>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:
-> On (14/11/06 01:41), Andrew Morton didst pronounce:
->> Presently at
->>
->> http://userweb.kernel.org/~akpm/2.6.19-rc5-mm2/
->>
->> and will appear later at
->>
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/
->>
-> 
-> Am seeing errors with systems using ext2. First machine is a plan old x86
-> using initramfs. Console output looks like;
+Stelian Pop <stelian@popies.net> wrote:
 
-Probably from the ext2 reservations stuff. Any chance you could back out:
+Hi,
 
-ext2-reservations.patch
-ext2-reservations-fix.patch
-ext2-reservations-sequential-read-regression-fix.patch
-ext2-reservations-filesystem-bogus-ENOSPC-with-reservation-fix.patch
-ext2-reservations-ext3_clear_inode-avoid-kfree-null.patch
-ext2-reservations-multile-block-allocate-little-endian-fixes.patch
-ext2-reservations-mark-group-descriptors-dirty-during-allocation.patch
-ext2-reservations-nuke-noisy-printk.patch
-ext2-reservations-bring-ext2-reservations-code-in-line-with-latest-ext3.patch
+>> Small readability improvement for appletouch: use canonical names
+>> instead of raw USB IDs for some of the devices.
+>
+> While you're at it, please update hid-core.c too for the FN_KEY quirks.
+>
+> The same comments applies to your other patch which adds the new Geyser
+> IV ids. Those needs to be added to hid-core.c too.
 
-and see if it goes away?
+Here it is.
 
-Else I shall pray that Val or Mingming is smarter than I am and can
-see what went wrong ;-)
+Use canonical defines for the Apple USB device IDs.
+Also add the Geyser IV devices missing in my previous patch.
 
-Thanks,
+Signed-off-by: Julien BLACHE <jb@jblache.org>
 
-M.
+--- linux-2.6.19-rc5/drivers/usb/input/hid-core.c.orig	2006-11-14 20:06:54.523719128 +0100
++++ linux-2.6.19-rc5/drivers/usb/input/hid-core.c	2006-11-14 19:43:18.050998948 +0100
+@@ -1627,6 +1627,19 @@
+ 
+ #define USB_VENDOR_ID_APPLE		0x05ac
+ #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
++#define USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI	0x020e
++#define USB_DEVICE_ID_APPLE_FOUNTAIN_ISO	0x020f
++#define USB_DEVICE_ID_APPLE_GEYSER_ANSI	0x0214
++#define USB_DEVICE_ID_APPLE_GEYSER_ISO	0x0215
++#define USB_DEVICE_ID_APPLE_GEYSER_JIS	0x0216
++#define USB_DEVICE_ID_APPLE_GEYSER3_ANSI	0x0217
++#define USB_DEVICE_ID_APPLE_GEYSER3_ISO	0x0218
++#define USB_DEVICE_ID_APPLE_GEYSER3_JIS	0x0219
++#define USB_DEVICE_ID_APPLE_GEYSER4_ANSI	0x021a
++#define USB_DEVICE_ID_APPLE_GEYSER4_ISO	0x021b
++#define USB_DEVICE_ID_APPLE_GEYSER4_JIS	0x021c
++#define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
++#define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+ 
+ #define USB_VENDOR_ID_CHERRY		0x046a
+ #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
+@@ -1794,17 +1807,19 @@
+ 
+ 	{ USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION, HID_QUIRK_CYMOTION },
+ 
+-	{ USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x0215, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x0216, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x0217, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x0218, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x0219, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x021B, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x030A, HID_QUIRK_POWERBOOK_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, 0x030B, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK_POWERBOOK_HAS_FN },
+ 
+ 	{ USB_VENDOR_ID_PANJIT, 0x0001, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_PANJIT, 0x0002, HID_QUIRK_IGNORE },
 
-> RAMDISK: Compressed image found at block 0
-> VFS: Mounted root (ext2 filesystem).
-> Starting udev
-> Creating devices
-> EXT2-fs error (device ram0): ext2_new_blocks: Allocating block in system zone - blocks from 0, length 0
-> EXT2-fs error (device ram0): ext2_new_blocks: block(0) >= blocks count(5164) - block_group = 0, es == dff00400 
-> EXT2-fs error (device ram0): ext2_new_blocks: Allocating block in system zone - blocks from 0, length 0
-> EXT2-fs error (device ram0): ext2_new_blocks: block(0) >= blocks count(5164) - block_group = 0, es == dff00400 
-> EXT2-fs error (device ram0): ext2_new_blocks: Allocating block in system zone - blocks from 0, length 0
-> EXT2-fs error (device ram0): ext2_new_blocks: block(0) >= blocks count(5164) - block_group = 0, es == dff00400 
-> EXT2-fs error (device ram0): ext2_new_blocks: Allocating block in system zone - blocks from 0, length 0
-> EXT2-fs error (device ram0): ext2_new_blocks: block(0) >= blocks count(5164) - block_group = 0, es == dff00400 
-> EXT2-fs error (device ram0): ext2_new_blocks: Allocating block in system zone - blocks from 0, length 0
-> EXT2-fs error (device ram0): ext2_new_blocks: block(0) >= blocks count(5164) - block_group = 0, es == dff00400 
-> 
-> Second machine is a numaq with an ext2 root filesystem
-> 
-> hecking root file system...
-> fsck 1.37 (21-Mar-2005)
-> e2fsck 1.37 (21-Mar-2005)
-> /dev/sda1: clean, 310908/2240224 files, 2189096/4480119 blocks (check in
-> 3 mounts)
-> System time was Tue Nov 14 17:06:21 UTC 2006.
-> Setting the System Clock using the Hardware Clock as reference...
-> System Clock set. System local time is now Tue Nov 14 17:06:23 UTC 2006.
-> Cleaning up ifupdown...done.
-> Calculating module dependencies... done.
-> Loading modules...
-> All modules loaded.
-> Creating device-mapper devices...done.
-> Checking all file systems...
-> fsck 1.37 (21-Mar-2005)
-> Setting kernel variables ...
-> ... done.
-> Mounting local filesystems...
-> Unable to find swap-space signature
-> Cleaning /tmp /var/run /var/lock.
-> Running 0dns-down to make sure resolv.conf is ok...done.
-> Setting up networking...done.
-> Setting up IP spoofing protection: rp_filter.
-> Configuring network interfaces...BUG: soft lockup detected on CPU#3!
->  [<c0139233>] softlockup_tick+0x9e/0xac
->  [<c0124a16>] update_process_times+0x4b/0x77
->  [<c0132438>] handle_update_profile+0x1c/0x2a
->  [<c010d45a>] local_apic_timer_interrupt+0x43/0x48
->  [<c010d486>] smp_apic_timer_interrupt+0x27/0x36
->  [<c0103598>] apic_timer_interrupt+0x28/0x30
->  [<c01b3b80>] ext2_try_to_allocate+0xdb/0x152
->  [<c01b3e72>] ext2_try_to_allocate_with_rsv+0x4b/0x1b2
->  [<c01b42c6>] ext2_new_blocks+0x28d/0x4b3
->  [<c01b667a>] ext2_alloc_blocks+0x4b/0xcd
->  [<c01b674a>] ext2_alloc_branch+0x4e/0x1ae
->  [<c01b36a8>] ext2_init_block_alloc_info+0x26/0x6d
->  [<c01b6b9b>] ext2_get_blocks+0x23c/0x31d
->  [<c0181c89>] alloc_buffer_head+0x38/0x3e
->  [<c017f2ef>] alloc_page_buffers+0x6f/0xb2
->  [<c01b6cb9>] ext2_get_block+0x3d/0x51
->  [<c0180162>] __block_prepare_write+0x186/0x41b
->  [<c0180c3c>] block_prepare_write+0x31/0x3f
->  [<c01b6c7c>] ext2_get_block+0x0/0x51
->  [<c013d470>] generic_file_buffered_write+0x227/0x62a
->  [<c01b6c7c>] ext2_get_block+0x0/0x51
->  [<c0173936>] file_update_time+0x3e/0xbc
->  [<c013e08e>] __generic_file_aio_write_nolock+0x538/0x563
->  [<c013b957>] find_get_page+0x22/0x43
->  [<c013e1d2>] generic_file_aio_write+0x69/0xd1
->  [<c01616a9>] do_sync_write+0xda/0x117
->  [<c012e45d>] autoremove_wake_function+0x0/0x4b
->  [<c011201c>] do_page_fault+0x394/0x6c8
->  [<c0161787>] vfs_write+0xa1/0x167
->  [<c0161909>] sys_write+0x4b/0x71
->  [<c0102b40>] syscall_call+0x7/0xb
->  [<c0330033>] __mutex_lock_interruptible_slowpath+0x7f/0x94
->  =======================
-> BUG: soft lockup detected on CPU#3!
->  [<c0139233>] softlockup_tick+0x9e/0xac
->  [<c0124a16>] update_process_times+0x4b/0x77
->  [<c0132438>] handle_update_profile+0x1c/0x2a
->  [<c010d45a>] local_apic_timer_interrupt+0x43/0x48
->  [<c010d486>] smp_apic_timer_interrupt+0x27/0x36
->  [<c0103598>] apic_timer_interrupt+0x28/0x30
->  [<c01b3b79>] ext2_try_to_allocate+0xd4/0x152
->  [<c01b3e72>] ext2_try_to_allocate_with_rsv+0x4b/0x1b2
->  [<c01b42c6>] ext2_new_blocks+0x28d/0x4b3
->  [<c01b667a>] ext2_alloc_blocks+0x4b/0xcd
->  [<c01b674a>] ext2_alloc_branch+0x4e/0x1ae
->  [<c01b36a8>] ext2_init_block_alloc_info+0x26/0x6d
->  [<c01b6b9b>] ext2_get_blocks+0x23c/0x31d
->  [<c0181c89>] alloc_buffer_head+0x38/0x3e
->  [<c017f2ef>] alloc_page_buffers+0x6f/0xb2
->  [<c01b6cb9>] ext2_get_block+0x3d/0x51
->  [<c0180162>] __block_prepare_write+0x186/0x41b
->  [<c0180c3c>] block_prepare_write+0x31/0x3f
->  [<c01b6c7c>] ext2_get_block+0x0/0x51
->  [<c013d470>] generic_file_buffered_write+0x227/0x62a
->  [<c01b6c7c>] ext2_get_block+0x0/0x51
->  [<c0173936>] file_update_time+0x3e/0xbc
->  [<c013e08e>] __generic_file_aio_write_nolock+0x538/0x563
->  [<c013b957>] find_get_page+0x22/0x43
->  [<c013e1d2>] generic_file_aio_write+0x69/0xd1
->  [<c01616a9>] do_sync_write+0xda/0x117
->  [<c012e45d>] autoremove_wake_function+0x0/0x4b
->  [<c011201c>] do_page_fault+0x394/0x6c8
->  [<c0161787>] vfs_write+0xa1/0x167
->  [<c0161909>] sys_write+0x4b/0x71
->  [<c0102b40>] syscall_call+0x7/0xb
->  [<c0330033>] __mutex_lock_interruptible_slowpath+0x7f/0x94
-> (message repeats a lot)
-> 
-> I've not investigated yet what patches might be at fault.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
 
+> Oh, and put your patch in the mail inline, it's easier to quote if
+> needed.
+
+MIME-inline obviously isn't good enough :/ Sorry for that.
+
+JB.
+
+-- 
+Julien BLACHE                                   <http://www.jblache.org> 
+<jb@jblache.org>                                  GPG KeyID 0xF5D65169

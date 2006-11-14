@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933407AbWKNK5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754770AbWKNLFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933407AbWKNK5S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 05:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933408AbWKNK5S
+	id S1754770AbWKNLFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 06:05:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754774AbWKNLFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 05:57:18 -0500
-Received: from iona.labri.fr ([147.210.8.143]:39374 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S933407AbWKNK5R (ORCPT
+	Tue, 14 Nov 2006 06:05:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47849 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1754770AbWKNLFy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 05:57:17 -0500
-X-Amavis-Alert: BAD HEADER Improper folded header field made up entirely of
-	whitespace (char 20 hex): Subject: ...ocess.c:328: error: 'PAGE_SHIFT'
-	undeclared\n \n
-Message-ID: <4559A0D7.6050808@labri.fr>
-Date: Tue, 14 Nov 2006 11:56:23 +0100
-From: Emmanuel Fleury <fleury@labri.fr>
-User-Agent: Icedove 1.5.0.7 (X11/20061013)
+	Tue, 14 Nov 2006 06:05:54 -0500
+Date: Tue, 14 Nov 2006 12:05:42 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Mikael Pettersson <mikpe@it.uu.se>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] floppy: suspend/resume fix
+Message-ID: <20061114110542.GA2242@elf.ucw.cz>
+References: <7grMO-2YO-55@gated-at.bofh.it> <7gs69-46A-37@gated-at.bofh.it> <7gtvd-7xg-23@gated-at.bofh.it> <E1GjN7s-00024n-VV@be1.lrz>
 MIME-Version: 1.0
-To: jdike@addtoit.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [UML] arch/um/os-Linux/skas/process.c:328: error: 'PAGE_SHIFT' undeclared 
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1GjN7s-00024n-VV@be1.lrz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-Some problems in 2.6.18.2 with UML:
+> - Even if somebody does this, you can mostly detect the different disk
+>   by comparing the first sector or just the FAT "serial number".
 
-arch/um/os-Linux/skas/process.c: In function 'copy_context_skas0':
-arch/um/os-Linux/skas/process.c:328: error: 'PAGE_SHIFT' undeclared
-(first use in this function)
-arch/um/os-Linux/skas/process.c:328: error: (Each undeclared identifier
-is reported only once
-arch/um/os-Linux/skas/process.c:328: error: for each function it appears
-in.)
-arch/um/os-Linux/skas/process.c:560:2: warning: #warning need cpu pid in
-switch_mm_skas
-make[2]: *** [arch/um/os-Linux/skas/process.o] Error 1
-make[1]: *** [arch/um/os-Linux/skas] Error 2
-make[1]: *** Waiting for unfinished jobs....
+Feel free to send a patch; it would be useful, but it would probably
+also mean an ugly layering violation.
 
-Solved with the following patch (probably already solved but just in
-case you didn't...):
+> I think you should let the user choose which foot to shoot.
 
---- arch/um/include/sysdep-i386/stub.h.orig 2006-11-04
-02:33:58.000000000 +0100
-+++ arch/um/include/sysdep-i386/stub.h      2006-11-14
-11:23:20.000000000 +0100
-@@ -12,6 +12,7 @@
- #include "stub-data.h"
- #include "kern_constants.h"
- #include "uml-config.h"
-+#include "asm/page.h"
-
- extern void stub_segv_handler(int sig);
- extern void stub_clone_handler(void);
-
-Regards
+-ENOPATCH.
+								Pavel
 -- 
-Emmanuel Fleury              | Office: 261
-Associate Professor,         | Phone: +33 (0)5 40 00 69 34
-LaBRI, Domaine Universitaire | Fax:   +33 (0)5 40 00 66 69
-351, Cours de la Libération  | email: emmanuel.fleury@labri.fr
-33405 Talence Cedex, France  | URL: http://www.labri.fr/~fleury
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

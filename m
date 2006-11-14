@@ -1,82 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933231AbWKNEHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754305AbWKNEW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933231AbWKNEHW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 23:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933294AbWKNEHW
+	id S1754305AbWKNEW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 23:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755237AbWKNEW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 23:07:22 -0500
-Received: from mx27.mail.ru ([194.67.23.64]:3899 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S933231AbWKNEHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 23:07:20 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Stefan Seyfried <seife@suse.de>
-Subject: Re: 2.6.19-rc5: grub is much slower resuming from suspend-to-disk than in 2.6.18
-Date: Tue, 14 Nov 2006 07:07:13 +0300
-User-Agent: KMail/1.9.5
-Cc: Zan Lynx <zlynx@acm.org>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-References: <200611121436.46436.arvidjaar@mail.ru> <1163455396.9482.38.camel@localhost> <20061113225818.GG2760@suse.de>
-In-Reply-To: <20061113225818.GG2760@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611140707.17935.arvidjaar@mail.ru>
+	Mon, 13 Nov 2006 23:22:26 -0500
+Received: from twinlark.arctic.org ([207.7.145.18]:9954 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id S1754305AbWKNEWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 23:22:25 -0500
+Date: Mon, 13 Nov 2006 20:22:25 -0800 (PST)
+From: dean gaudet <dean@arctic.org>
+To: Andi Kleen <ak@suse.de>
+cc: Suleiman Souhlal <ssouhlal@freebsd.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       Jiri Bohac <jbohac@suse.cz>
+Subject: Re: [PATCH 1/2] Make the TSC safe to be used by gettimeofday().
+In-Reply-To: <Pine.LNX.4.64.0611131908060.28562@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.64.0611132015240.28562@twinlark.arctic.org>
+References: <455916A5.2030402@FreeBSD.org> <200611140305.00383.ak@suse.de>
+ <45592929.2000606@FreeBSD.org> <200611140344.00407.ak@suse.de>
+ <Pine.LNX.4.64.0611131908060.28562@twinlark.arctic.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 13 Nov 2006, dean gaudet wrote:
 
-On Tuesday 14 November 2006 01:58, Stefan Seyfried wrote:
-> On Mon, Nov 13, 2006 at 03:03:16PM -0700, Zan Lynx wrote:
-> > I have not checked if this is true, but it is a possible explanation:
-> >
-> > Perhaps the filesystem is not properly unmounted during a suspend?  That
->
-> Of course not.
->
-> > would mean GRUB is reading from a incoherent filesystem on resume.
->
-> Exactly.
->
-> > GRUB's filesystem drivers are not very fancy.  It could be it does
-> > something silly like check the journal before returning each block.
->
-> GRUB must not write to the fs, so it probably plays back the journal in
-> memory only and it does this for every file it reads (at least that's how
-> it feels :-)
->
+> next an implementation which relies on the kernel restarting the computation when
+> necessary.  this would be achieved by testing to see when the task to be restarted
+> is on the vsyscall page and backtracking the task to the vsyscall entry point.
+> 
+> this is challenging when the vsyscall is implemented in C -- because of potential
+> stack usage.  there are ways to get this to work though, even without resorting to
+> assembly.  i'm presenting this only as a best case scenario should such an effort
+> be undertaken.  (i have a crazy idea involving the direction flag which i need to
+> mock up.)
 
-Ah, OK, that makes sense. I did not expect GRUB to be *that* sophisticated :)
+nevermind the crazy idea using DF... i was hoping to use DF as a generic 
+"restart a vsyscall" indicator -- switch_to() would note the task is on 
+the vsyscall page and unilaterally clear DF before restoring eflags.
 
-> > Maybe its a journal size thing, you could try "sync" before suspend and
-> > see if it helps.
->
-> We already sync inside the kernel, it does not help here, though.
-> Blockdev freezing might help.
->
+then a vsyscall critical section could be surrounded like so:
 
-is there patch applicable to vanilla kernel? After repairing reiser several 
-times (due to hard lockups during suspend-to-RAM) that sounds even more 
-interesting.
+	unsigned long tmp;
+	do {
+		asm volatile("std");
 
-> > Another thing would be to create /boot as a separate partition.
->
-> Yes, that's what i always advise: /boot on separate ext2 partition. Then
-> GRUB resumes fast.
+		critical section
 
-well, this is small system, using yet another partition looked like useless 
-waste :)
+		asm volatile(
+			"\n	pushf"
+			"\n	pop %0"
+			"\n	cld"
+			: "=r" (tmp));
+	} while ((tmp & 0x400) == 0);
 
-thank you for explanation
+it works great on k8 ... but DF manipulation hurts way too much on core2 and p4.
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+i even tried reading DF using a string instruction:
 
-iD8DBQFFWUD1R6LMutpd94wRAtWFAJ92STsDVby88UUWmNVK1q41X96RXgCeN6o4
-ilUTLBdKZPsWPkWi5LOKsbg=
-=U1xV
------END PGP SIGNATURE-----
+	long tmp;
+	do {
+		asm volatile("std");
+
+		critical section
+
+		asm volatile(
+			"\n	mov %%rsp,%%rsi"
+			"\n	lodsl"
+			"\n	sub %%rsp,%%rsi"
+			"\n	cld"
+			: "=S" (tmp));
+	} while (tmp > 0);
+
+it's no better.
+
+i've also tried similar tricks setting the EFLAGS.ID bit... but the popf
+hurts in that case.
+
+i think a general vsyscall restart mechanism would be useful (for more
+than just the time functions), but still haven't found one which is
+cheap enough.
+
+-dean

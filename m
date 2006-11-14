@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966471AbWKNXX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966469AbWKNXYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966471AbWKNXX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 18:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966469AbWKNXX6
+	id S966469AbWKNXYs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 18:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966470AbWKNXYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 18:23:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:34723 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966467AbWKNXX5 (ORCPT
+	Tue, 14 Nov 2006 18:24:48 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:1265 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S966469AbWKNXYr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 18:23:57 -0500
-Date: Tue, 14 Nov 2006 15:23:41 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: eli@dev.mellanox.co.il
-Cc: eli@dev.mellanox.co.il, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: UDP packets loss
-Message-ID: <20061114152341.24861967@freekitty>
-In-Reply-To: <38090.194.90.237.34.1163545721.squirrel@dev.mellanox.co.il>
-References: <60157.89.139.64.58.1163542547.squirrel@dev.mellanox.co.il>
-	<20061114143531.2ee7eae0@freekitty>
-	<38090.194.90.237.34.1163545721.squirrel@dev.mellanox.co.il>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Nov 2006 18:24:47 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: suzuki <suzuki@linux.vnet.ibm.com>
+Subject: Re: + fix-compat-space-msg-size-limit-for-msgsnd-msgrcv.patch added to -mm tree
+Date: Wed, 15 Nov 2006 00:24:24 +0100
+User-Agent: KMail/1.9.5
+Cc: akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org
+References: <200611132358.kADNwF0V012270@shell0.pdx.osdl.net> <200611141049.36145.arnd@arndb.de> <455A3392.6040501@linux.vnet.ibm.com>
+In-Reply-To: <455A3392.6040501@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200611150024.25647.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 01:08:41 +0200 (IST)
-eli@dev.mellanox.co.il wrote:
+On Tuesday 14 November 2006 22:22, suzuki wrote:
+> Does the following change look fine ?
+> 
+> do_msgsnd() - Accepting the mtype and user space ptr to the mtext. i.e.,
+> 
+> long do_msgsnd(int msqid, long mtype, void __user *mtext,
+>                 size_t msgsz, int msgflg);
+> and,
+> 
+> do_msgrcv() - accepting the kernel space data ptr to pmtype and user 
+> space ptr to mtext. The caller has to copy the *pmtype back to the user 
+> space.
+> 
+> i.e.,
+> 
+> long do_msgrcv(int msqid, long *pmtype, void __user *mtext,
+>                         size_t msgsz, long msgtyp, int msgflg);
 
-> Thanks for the commets.
-> I actually use UDP because I am seeking for ways to improve the
-> performance of IPOIB and I wanted to avoid TCP's flow control. I am really
-> up to making anaysis. Can you tell me more about irqbalnced?
+Yes, that looks fine.
 
-Look for info on irqbalance (depends which linux distribution you
-are using). You might not be running it at all, and it is completely
-optional. There is also a kernel level IRQ balancer that may or
-may not be configured.
+> Can we use the kernel space "struct msgbuf" instead of the mtype being 
+> passed explicitly.
 
-> Where can I
-> find more info how to control it? 
+That works as well, although it may be a little confusing to have
+the extra mtext byte of that structure included there, so I'd prefer
+the first solution.
 
-man irqbalance
-
-Note: irqbalance has heuristics about device names and driver names,
-it might be worthwhile to either update the source and teach it about
-infiniband, or work with existing heuristics (ie. call your interrupt "eth0", "eth1",...)
-
-
->I would like my interrupts serviced by
-> all CPUs in a somehow equal manner. I mentioned MSIX - the driver already
-> make use of MSIX and I thought this is relevant to interrupts affinity.
-
-MSIX is not directly related to affinity. But with MSIX you can have multiple
-CPU's all working at once. The device needs to return some info, and the driver
-has to register multiple times.
-
-Regular round-robin of network IRQ's is cache hostile, and that is why
-irqbalance tries to keep them on the same processor.
+	Arnd <><

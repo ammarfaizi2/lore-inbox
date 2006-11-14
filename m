@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966470AbWKNX0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966461AbWKNX25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966470AbWKNX0b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 18:26:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966475AbWKNX0b
+	id S966461AbWKNX25 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 18:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966465AbWKNX25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 18:26:31 -0500
-Received: from main.gmane.org ([80.91.229.2]:63158 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S966470AbWKNX0a (ORCPT
+	Tue, 14 Nov 2006 18:28:57 -0500
+Received: from elvis.mu.org ([192.203.228.196]:26110 "EHLO elvis.mu.org")
+	by vger.kernel.org with ESMTP id S966461AbWKNX25 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 18:26:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: Kernel list rejecting my email
-Date: Tue, 14 Nov 2006 23:26:06 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnelkkhp.7lr.olecom@flower.upol.cz>
-References: <20061114195854.6685.qmail@web52511.mail.yahoo.com> <20061114.142349.74748158.davem@davemloft.net>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Tue, 14 Nov 2006 18:28:57 -0500
+Message-ID: <455A512F.6030907@FreeBSD.org>
+Date: Tue, 14 Nov 2006 15:28:47 -0800
+From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       Jiri Bohac <jbohac@suse.cz>
+Subject: [PATCH 0/1] Try 2: Make the TSC safe to be use by gettimeofday().
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-11-14, David Miller wrote:
-[]
-> I banned you from the site entirely because your email
-> address keeps bouncing from time to time, repeatedly,
-> and instead of contacting us and asking why you just
-> blindly resubscribe.
->
-> I figured that blocking you entirely would get your
-> attention and finally make you try to contact us.
-[]
+Hi,
 
-Would you like, David, explain why my messages sometimes go to /dev/null?
-Last one was <http://permalink.gmane.org/gmane.test/3360>, while
-previous message with same headers and e-mail was ok. And this
-was dropped even via gmane.org nntp posting, as well as with lkml in cc.
+Here are the fixes from the previous version:
+- Don't use hard_smp_processor_id().
+- Use the PDA to store a pointer to the current CPU's vxtime data.
+- Use vgetcpu() to get the CPU number from vgettimeofday()
+  (Due to a bug in vgetcpu(), this only works with CONFIG_HOTPLUG_CPU=y)
+- No externs in .c files
+- Use idle notifiers instead of doing the HPET read in switch_to
+- Fix race in vgettimeofday() by checking the RIP of the process we're switching away from
+  in switch_to, and touching the vxtime seqlock if it happens to be in the VSYSCALL page.
+  (I hope this is not considered too much work for switch_to)
+- Remove usage of preempt_disable/enable() in do_gettimeoday(), since the above fix make it
+  unnecessary.
 
-Thanks.
-
-While using gmane.org news is very nice to read, i have problems with
-adding lkml in cc list, when i post. That is because gmane is replacing
-"newsgroup" header with "To" one, and my news user agent is replacing "Cc"
-with "To", and not add lkml to it, when sending copies my e-mail.
-So, i add "Mail-Followup-To", "Reply-to" is taboo on vger.kernel.org,
-and former is not supported by popular MUAs ;\
-
-Maybe a should hack my news client to do some magic with this, don't
-know yet.
-____
+-- Suleiman
 

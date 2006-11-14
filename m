@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966448AbWKNXTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966453AbWKNXVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966448AbWKNXTW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 18:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966453AbWKNXTW
+	id S966453AbWKNXVt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 18:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966461AbWKNXVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 18:19:22 -0500
-Received: from mga09.intel.com ([134.134.136.24]:5564 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S966448AbWKNXTV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 18:19:21 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,422,1157353200"; 
-   d="scan'208"; a="161556520:sNHT24361736"
-Message-ID: <455A4EF8.5030004@foo-projects.org>
-Date: Tue, 14 Nov 2006 15:19:20 -0800
-From: Auke Kok <sofar@foo-projects.org>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Tue, 14 Nov 2006 18:21:49 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:50453 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S966453AbWKNXVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 18:21:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=uUFWhh7Ld67y2q0O0twgR603L1+PI0FB0m+QysJNMOfKVUx9CuT1UG+G59IFbU0Ikip0lj/T96yqBe5CFc3ndP4UrQcm5orDZ3IgDFVzQe4wz56sReVrkqEt6wYoXeWZdJRZ7AY1c9MKbOKENFnvPU4vSnpyJX1DGsDtZ/RWTXs=
+Message-ID: <a44ae5cd0611141521pd342109jaae9e27aca3d2200@mail.gmail.com>
+Date: Tue, 14 Nov 2006 15:21:46 -0800
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Larry.Finger@lwfinger.net
+Subject: 2.6.19-rc5-mm2 -- bcm43xx busted (backing out the bcm43xx patches fixes it)
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: nightly 2.6 LXR run?
-References: <1163530480.16381.23.camel@jcm.boston.redhat.com> <slrnelkj1s.7lr.olecom@flower.upol.cz>
-In-Reply-To: <slrnelkj1s.7lr.olecom@flower.upol.cz>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Nov 2006 23:19:20.0881 (UTC) FILETIME=[5071BA10:01C70843]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Verych wrote:
-> Hallo.
-> On 2006-11-14, Jon Masters wrote:
->> Hi folks,
->>
->> So I'm curious (before I do it) whether anyone is currently running an
->> automated nightly LXR against Linus' git kernel tree?
-> 
-> I don't think so. Also, i don't think, it's useful for development.
-> There are TAGS/tags make targets for it, and they're more productive, i think.
-> 
-> But what really will be helpful (well, for me), is another git-web public 
-> service on Linus' git tree. kernel.org is very heavy loaded with many
-> things, so normally i get "The load average on the server is too high",
-> when trying to trace some code history and reading logs. There were
-> some lkml posts, even from Linus, stating, that kernel.org is very
-> loaded and slow.
+Hello,
 
-try to use `git2.kernel.org` instead of `git.kernel.org`. The second server somehow only 
-has an average load of ~4 instead of ~250.
+The last three MM kernels have fail to give me a working bcm43xx driver.
+The odd thing is that dmesg output seems to indicate that the driver
+is working okay.  NetworkManager doesn't see the driver, though.
+"iwlist scan" fails to find any access points, too.  iwconfig shows
+"Access Point: invalid".
 
-Cheers,
+I tried backing out the following patches, and it fixes the problem:
 
-Auke
+drivers/net/wireless/bcm43xx/bcm43xx.h
+drivers/net/wireless/bcm43xx/bcm43xx_main.c
+drivers/net/wireless/bcm43xx/bcm43xx_power.c
+drivers/net/wireless/bcm43xx/bcm43xx_wx.c
+drivers/net/wireless/bcm43xx/bcm43xx_xmit.c
+
+After backing out the patches, dmesg shows:
+
+bcm43xx driver
+bcm43xx: Chip ID 0x4306, rev 0x3
+bcm43xx: Number of cores: 5
+bcm43xx: Core 0: ID 0x800, rev 0x4, vendor 0x4243, enabled
+bcm43xx: Core 1: ID 0x812, rev 0x5, vendor 0x4243, disabled
+bcm43xx: Core 2: ID 0x80d, rev 0x2, vendor 0x4243, enabled
+bcm43xx: Core 3: ID 0x807, rev 0x2, vendor 0x4243, disabled
+bcm43xx: Core 4: ID 0x804, rev 0x9, vendor 0x4243, enabled
+bcm43xx: PHY connected
+bcm43xx: Detected PHY: Version: 2, Type 2, Revision 2
+bcm43xx: Detected Radio: ID: 2205017f (Manuf: 17f Ver: 2050 Rev: 2)
+bcm43xx: Radio turned off
+bcm43xx: Radio turned off
+bcm43xx: PHY connected
+bcm43xx: Microcode rev 0x127, pl 0xe (2005-04-18  02:36:27)
+bcm43xx: Radio turned on
+bcm43xx: Chip initialized
+bcm43xx: 30-bit DMA initialized
+bcm43xx: Keys cleared
+bcm43xx: Selected 802.11 core (phytype 2)
+
+Also, iwconfig shows:
+eth2      IEEE 802.11b/g  ESSID:"loftywifi"  Nickname:"Broadcom 4306"
+          Mode:Managed  Frequency=2.412 GHz  Access Point: 00:06:25:54:A2:0C
+          Bit Rate=11 Mb/s   Tx-Power=19 dBm
+          RTS thr:off   Fragment thr:off
+          Encryption key:23F8-49CF-201A-4334-1210-7C3E-0A   Security mode:open
+          Link Quality=76/100  Signal level=-53 dBm  Noise level=-72 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:0   Missed beacon:0
+
+Thanks,
+          Miles

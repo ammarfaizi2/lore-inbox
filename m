@@ -1,152 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966287AbWKNTbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966290AbWKNTfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966287AbWKNTbg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 14:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966290AbWKNTbg
+	id S966290AbWKNTfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 14:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966295AbWKNTfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 14:31:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27596 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966287AbWKNTbf (ORCPT
+	Tue, 14 Nov 2006 14:35:16 -0500
+Received: from sycorax.lbl.gov ([128.3.5.196]:12819 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S966290AbWKNTfO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 14:31:35 -0500
-Date: Tue, 14 Nov 2006 11:31:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Boot failure with ext2 and initrds
-Message-Id: <20061114113120.d4c22b02.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-	<20061114184919.GA16020@skynet.ie>
-	<Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Nov 2006 14:35:14 -0500
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1 (+ide-cd patches) regression: unable to rip cd
+References: <20061110161355.GB15031@kernel.dk>
+	<87u01717qw.fsf@sycorax.lbl.gov> <20061113200256.GC15031@kernel.dk>
+	<87lkmfcdci.fsf@sycorax.lbl.gov> <20061113203523.GE15031@kernel.dk>
+	<87ejs5dib1.fsf@sycorax.lbl.gov> <20061114190425.GE23770@kernel.dk>
+Date: Tue, 14 Nov 2006 11:35:10 -0800
+In-Reply-To: <20061114190425.GE23770@kernel.dk> (message from Jens Axboe on
+	Tue, 14 Nov 2006 20:04:25 +0100)
+Message-ID: <87ac2tddox.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006 19:11:22 +0000 (GMT)
-Hugh Dickins <hugh@veritas.com> wrote:
+Jens Axboe <jens.axboe@oracle.com> writes:
 
-> On Tue, 14 Nov 2006, Mel Gorman wrote:
-> > 2.6.19-rc5-mm2
-> > 
-> > Am seeing errors with systems using ext2. First machine is a plan old x86
-> > using initramfs. Console output looks like;
-> > ...
-> > Configuring network interfaces...BUG: soft lockup detected on CPU#3!
-> > ...
-> >  [<c01b3b80>] ext2_try_to_allocate+0xdb/0x152
-> >  [<c01b3e72>] ext2_try_to_allocate_with_rsv+0x4b/0x1b2
-> > 
-> > I've not investigated yet what patches might be at fault.
-> 
-> I expect you'll find it's
-> ext2-reservations-bring-ext2-reservations-code-in-line-with-latest-ext3.patch
-> which gets stuck in a loop there for me too: back it out and all seems fine.
-> 
-> It's not obvious which part of the patch is to blame: mostly it's
-> cleanup, but a few variables do change size: I'm currently narrowing
-> down to where a fix is needed.
-> 
+> When cdparanoia gets stuck, how is it stuck? Can you give me a
+> backtrace of that? If you can abort it, sounds like it isn't stuck
+> in the kernel.
 
-Doing s/-Wall/-W/ tends to shake out bugs in this stuff.
+i don't have my laptop with me but the error message i get in syslog
+is somewhere along the lines of (this is copied from the initial bug
+report):
 
-The below might help.
+kernel: ATAPI device hdc:
+kernel:   Error: Aborted command -- (Sense key=0x0b)
+kernel:   (reserved error code) -- (asc=0x11, ascq=0x11)
+kernel:   The failed "Read CD" packet command was: 
+kernel:   "be 00 00 00 51 93 00 00 0d f8 00 00 00 00 00 00 "
+kernel: hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
+kernel: hdc: packet command error: error=0x30 { LastFailedSense=0x03 }
+kernel: ide: failed opcode was: unknown
+kernel: ATAPI device hdc:
+kernel:   Error: Medium error -- (Sense key=0x03)
+kernel:   Unrecovered read error -- (asc=0x11, ascq=0x00)
+kernel:   The failed "Read CD" packet command was: 
+kernel:   "be 00 00 00 51 a0 00 00 07 f8 00 00 00 00 00 00 "
+kernel: hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
+kernel: hdc: packet command error: error=0xb4 { AbortedCommand LastFailedSense=0x0b }
+kernel: ide: failed opcode was: unknown
+kernel: ATAPI device hdc:
+kernel:   Error: Aborted command -- (Sense key=0x0b)
+kernel:   (reserved error code) -- (asc=0x11, ascq=0x11)
+kernel:   The failed "Read CD" packet command was: 
+kernel:   "be 00 00 00 51 9b 00 00 0d f8 00 00 00 00 00 00 "
 
-Sorry, I tested this well, then the cleanup patch was merged and I didn't
-get onto retesting :(
+and i assume cdparanoia has problems reading that particular sector
+and then it retries and i get similar messages every 5 seconds.
+sometimes it recovers from this, at other times it's just stuck there
+trying to read the same sector over and over again.
 
+but after i get this message the ripping speed is greatly reduced
+until i eject/insert the cd. then the speed goes back to normal. it
+doesn't matter if cdparanoia recovers, or if i start a new cdparanoia
+process, only if i eject/insert the cd. does this make sense?
 
+--alex--
 
-From: Andrew Morton <akpm@osdl.org>
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- fs/ext2/balloc.c |   33 +++++++++++++++------------------
- 1 files changed, 15 insertions(+), 18 deletions(-)
-
-diff -puN fs/ext2/balloc.c~ext2-reservations-bring-ext2-reservations-code-in-line-with-latest-ext3-fix fs/ext2/balloc.c
---- a/fs/ext2/balloc.c~ext2-reservations-bring-ext2-reservations-code-in-line-with-latest-ext3-fix
-+++ a/fs/ext2/balloc.c
-@@ -1155,9 +1155,10 @@ int ext2_new_blocks(struct inode *inode,
- 	struct buffer_head *gdp_bh;
- 	int group_no;
- 	int goal_group;
-+	ext2_grpblk_t grp_target_blk;	/* blockgroup relative goal block */
-+	ext2_grpblk_t grp_alloc_blk;	/* blockgroup-relative allocated block*/
- 	ext2_fsblk_t ret_block;		/* filesyetem-wide allocated block */
- 	int bgi;			/* blockgroup iteration index */
--	int target_block;
- 	int performed_allocation = 0;
- 	ext2_grpblk_t free_blocks;	/* number of free blocks in a group */
- 	struct super_block *sb;
-@@ -1230,14 +1231,15 @@ retry_alloc:
- 		my_rsv = NULL;
- 
- 	if (free_blocks > 0) {
--		ret_block = ((goal - le32_to_cpu(es->s_first_data_block)) %
-+		grp_target_blk = ((goal - le32_to_cpu(es->s_first_data_block)) %
- 				EXT2_BLOCKS_PER_GROUP(sb));
- 		bitmap_bh = read_block_bitmap(sb, group_no);
- 		if (!bitmap_bh)
- 			goto io_error;
--		ret_block = ext2_try_to_allocate_with_rsv(sb, group_no,
--					bitmap_bh, ret_block, my_rsv, &num);
--		if (ret_block >= 0)
-+		grp_alloc_blk = ext2_try_to_allocate_with_rsv(sb, group_no,
-+					bitmap_bh, grp_target_blk,
-+					my_rsv, &num);
-+		if (grp_alloc_blk >= 0)
- 			goto allocated;
- 	}
- 
-@@ -1273,9 +1275,9 @@ retry_alloc:
- 		/*
- 		 * try to allocate block(s) from this group, without a goal(-1).
- 		 */
--		ret_block = ext2_try_to_allocate_with_rsv(sb, group_no,
-+		grp_alloc_blk = ext2_try_to_allocate_with_rsv(sb, group_no,
- 					bitmap_bh, -1, my_rsv, &num);
--		if (ret_block >= 0)
-+		if (grp_alloc_blk >= 0)
- 			goto allocated;
- 	}
- 	/*
-@@ -1299,25 +1301,20 @@ allocated:
- 	ext2_debug("using block group %d(%d)\n",
- 			group_no, gdp->bg_free_blocks_count);
- 
--	target_block = ret_block + group_no * EXT2_BLOCKS_PER_GROUP(sb)
--				+ le32_to_cpu(es->s_first_data_block);
-+	ret_block = grp_alloc_blk + ext2_group_first_block_no(sb, group_no);
- 
--	if (in_range(le32_to_cpu(gdp->bg_block_bitmap), target_block, num) ||
--	    in_range(le32_to_cpu(gdp->bg_inode_bitmap), target_block, num) ||
--	    in_range(target_block, le32_to_cpu(gdp->bg_inode_table),
-+	if (in_range(le32_to_cpu(gdp->bg_block_bitmap), ret_block, num) ||
-+	    in_range(le32_to_cpu(gdp->bg_inode_bitmap), ret_block, num) ||
-+	    in_range(ret_block, le32_to_cpu(gdp->bg_inode_table),
- 		      EXT2_SB(sb)->s_itb_per_group) ||
--	    in_range(target_block + num - 1, le32_to_cpu(gdp->bg_inode_table),
-+	    in_range(ret_block + num - 1, le32_to_cpu(gdp->bg_inode_table),
- 		      EXT2_SB(sb)->s_itb_per_group))
- 		ext2_error(sb, "ext2_new_blocks",
- 			    "Allocating block in system zone - "
--			    "blocks from %u, length %lu", target_block, num);
-+			    "blocks from %u, length %lu", ret_block, num);
- 
- 	performed_allocation = 1;
- 
--
--	/* ret_block was blockgroup-relative.  Now it becomes fs-relative */
--	ret_block = target_block;
--
- 	if (ret_block + num - 1 >= le32_to_cpu(es->s_blocks_count)) {
- 		ext2_error(sb, "ext2_new_blocks",
- 			    "block("E2FSBLK") >= blocks count(%d) - "
-_
-
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

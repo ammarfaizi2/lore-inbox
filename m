@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933230AbWKNAQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933053AbWKNAWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933230AbWKNAQt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 19:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933228AbWKNAQt
+	id S933053AbWKNAWa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 19:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933240AbWKNAW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 19:16:49 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19675
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S933227AbWKNAQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 19:16:48 -0500
-Date: Mon, 13 Nov 2006 16:16:56 -0800 (PST)
-Message-Id: <20061113.161656.90118004.davem@davemloft.net>
-To: viro@ftp.linux.org.uk
-Cc: kenneth.w.chen@intel.com, akpm@osdl.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [patch] fix up generic csum_ipv6_magic function prototype
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061113085223.GR29920@ftp.linux.org.uk>
-References: <20061109072216.GL29920@ftp.linux.org.uk>
-	<20061108.235548.12921799.davem@davemloft.net>
-	<20061113085223.GR29920@ftp.linux.org.uk>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Nov 2006 19:22:29 -0500
+Received: from ns1.suse.de ([195.135.220.2]:30105 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S933053AbWKNAW3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 19:22:29 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 14 Nov 2006 11:22:23 +1100
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 000 of 4] md: Various fixes for new cache-bypassing-reads in raid5/6
+Message-ID: <20061114111600.31061.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 13 Nov 2006 08:52:23 +0000
+The patches which enable reading from raid5 without going through the
+stripe cache have a bug which causes corruption when reading from a
+raid6.
+It might be appropriate to put out a hotfix for rc5-mm1 which reverts
 
-> The first question is in the types we are using for length.  OK,
-> csum_tcpudp_...() is a special case; there we want u16 and unless
-> there's a reason _not_ to do so on sparc, I'd rather convert it
-> to the same thing.
+   md-enable-bypassing-cache-for-reads.patch
 
-That's fine.
+The follow 4 patches fix this bug and a few other bugs I found while
+re-reviewing and re-testing this code.  There are actually about 9
+separate bugs here, but I grouped some of them to avoid having lots
+of tiny patches.
 
-> csum_partial_copy_fromuser():  Can die, only 3 targets have its rudiment
-> and nothing in the tree uses it.  ACK?
+NeilBrown
 
-ACK.
 
-> csum_partial_copy().  Rare alias for csum_partial_copy_nocheck().  Can die;
-> all instances simply should be renamed to csum_partial_copy_nocheck.  ACK?
 
-ACK.
+ [PATCH 001 of 4] md: Fix innocuous bug in raid6 stripe_to_pdidx
+ [PATCH 002 of 4] md: Fix newly introduced read-corruption with raid6.
+ [PATCH 003 of 4] md: Misc fixes for aligned-read handling.
+ [PATCH 004 of 4] md: Fix a couple more bugs in raid5/6 aligned reads

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966310AbWKNULw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966328AbWKNUNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966310AbWKNULw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 15:11:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966309AbWKNULZ
+	id S966328AbWKNUNj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 15:13:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966317AbWKNUJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 15:11:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31402 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S966310AbWKNUJk (ORCPT
+	Tue, 14 Nov 2006 15:09:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59049 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S966313AbWKNUJR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 15:09:40 -0500
+	Tue, 14 Nov 2006 15:09:17 -0500
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 06/19] FS-Cache: NFS: Only obtain cache cookies on file open, not on inode read
-Date: Tue, 14 Nov 2006 20:06:34 +0000
+Subject: [PATCH 19/19] CacheFiles: Permit daemon to probe inuseness of a cache file
+Date: Tue, 14 Nov 2006 20:07:02 +0000
 To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
        trond.myklebust@fys.uio.no
 Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
        aviro@redhat.com, steved@redhat.com
-Message-Id: <20061114200634.12943.6815.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061114200702.12943.39624.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,148 +25,308 @@ User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make the NFS filesystem only obtain a cache cookie for a regular file when it's
-actually opened rather than when the inode is fetched in.  Directories and
-special files aren't currently cached on NFS.
-
-Normally, in a filesystem, an inode would be instantiated only when it's
-actually going to be used, but in the case of NFS it will be created by readdir
-listing a directory entry referring to it too.
-
-This meant that ls -lR or find would attempt to load all the regular file
-inodes in a tree into the cache, rather than none of them.  With this patch,
-none of them would be loaded.
+Permit the daemon to probe to see whether a cache file is in use by a netfs or
+not.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/fscache.h       |   41 ++++++++++++++++++++++++++++++++++++-----
- fs/nfs/inode.c         |    5 ++---
- include/linux/nfs_fs.h |    2 ++
- 3 files changed, 40 insertions(+), 8 deletions(-)
+ fs/cachefiles/cf-daemon.c |   73 +++++++++++++++++++
+ fs/cachefiles/cf-namei.c  |  170 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/cachefiles/internal.h  |    3 +
+ 3 files changed, 246 insertions(+), 0 deletions(-)
 
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index 00a2c07..0be6ffe 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -90,14 +90,25 @@ static inline const char *nfs_server_fsc
- /*
-  * get the per-filehandle cookie for an NFS inode
-  */
--static inline void nfs_fscache_get_fh_cookie(struct inode *inode,
--					     int maycache)
-+static inline void nfs_fscache_init_fh_cookie(struct inode *inode)
-+{
-+	NFS_I(inode)->fscache = NULL;
-+	if (S_ISREG(inode->i_mode))
-+		set_bit(NFS_INO_CACHEABLE, &NFS_I(inode)->flags);
-+}
+diff --git a/fs/cachefiles/cf-daemon.c b/fs/cachefiles/cf-daemon.c
+index ae82685..ee07865 100644
+--- a/fs/cachefiles/cf-daemon.c
++++ b/fs/cachefiles/cf-daemon.c
+@@ -38,6 +38,7 @@ static int cachefiles_daemon_cull(struct
+ static int cachefiles_daemon_debug(struct cachefiles_cache *cache, char *args);
+ static int cachefiles_daemon_dir(struct cachefiles_cache *cache, char *args);
+ static int cachefiles_daemon_tag(struct cachefiles_cache *cache, char *args);
++static int cachefiles_daemon_inuse(struct cachefiles_cache *cache, char *args);
+ 
+ static unsigned long cachefiles_open;
+ 
+@@ -66,6 +67,7 @@ static const struct cachefiles_daemon_cm
+ 	{ "frun",	cachefiles_daemon_frun	},
+ 	{ "fcull",	cachefiles_daemon_fcull	},
+ 	{ "fstop",	cachefiles_daemon_fstop	},
++	{ "inuse",	cachefiles_daemon_inuse	},
+ 	{ "tag",	cachefiles_daemon_tag	},
+ 	{ "",		NULL			}
+ };
+@@ -602,3 +604,74 @@ inval:
+ 	kerror("debug command requires mask");
+ 	return -EINVAL;
+ }
 +
 +/*
-+ * get the per-filehandle cookie for an NFS inode
++ * find out whether an object is in use or not
++ * - command: "inuse <dirfd> <name>"
 + */
-+static inline void nfs_fscache_enable_fh_cookie(struct inode *inode)
- {
- 	struct super_block *sb = inode->i_sb;
- 	struct nfs_inode *nfsi = NFS_I(inode);
- 
--	nfsi->fscache = NULL;
--	if (maycache && (NFS_SB(sb)->flags & NFS_MOUNT_FSCACHE)) {
-+	if (nfsi->fscache || !NFS_CACHEABLE(inode))
-+		return;
-+
-+	if ((NFS_SB(sb)->flags & NFS_MOUNT_FSCACHE)) {
- 		nfsi->fscache = fscache_acquire_cookie(
- 			NFS_SB(sb)->nfs_client->fscache,
- 			&nfs_cache_fh_index_def,
-@@ -179,6 +190,8 @@ static inline void nfs_fscache_zap_fh_co
-  */
- static inline void nfs_fscache_disable_fh_cookie(struct inode *inode)
- {
-+	clear_bit(NFS_INO_CACHEABLE, &NFS_I(inode)->flags);
-+
- 	if (NFS_I(inode)->fscache) {
- 		dfprintk(FSCACHE,
- 			 "NFS: nfsi 0x%p turning cache off\n", NFS_I(inode));
-@@ -194,6 +207,22 @@ static inline void nfs_fscache_disable_f
- }
- 
- /*
-+ * decide if we should enable or disable the FS cache for this inode
-+ * - for now, only regular files that are open read-only will be able to use
-+ *   the cache
-+ */
-+static inline void nfs_fscache_set_fh_cookie(struct inode *inode,
-+					     struct file *filp)
++static int cachefiles_daemon_inuse(struct cachefiles_cache *cache, char *args)
 +{
-+	if (NFS_CACHEABLE(inode)) {
-+		if ((filp->f_flags & O_ACCMODE) != O_RDONLY)
-+			nfs_fscache_disable_fh_cookie(inode);
-+		else
-+			nfs_fscache_enable_fh_cookie(inode);
++	struct dentry *dir;
++	struct file *dirfile;
++	uid_t fsuid;
++	gid_t fsgid;
++	u32 fscreatesid;
++	int dirfd, fput_needed, ret;
++
++	_enter(",%s", args);
++
++	dirfd = simple_strtoul(args, &args, 0);
++
++	if (!isspace(*args))
++		goto inval;
++
++	while (isspace(*args))
++		args++;
++
++	if (!*args)
++		goto inval;
++
++	if (strchr(args, '/'))
++		goto inval;
++
++	if (!test_bit(CACHEFILES_READY, &cache->flags)) {
++		kerror("inuse applied to unready cache");
++		return -EIO;
 +	}
++
++	if (test_bit(CACHEFILES_DEAD, &cache->flags)) {
++		kerror("inuse applied to dead cache");
++		return -EIO;
++	}
++
++	/* extract the directory dentry from the fd */
++	dirfile = fget_light(dirfd, &fput_needed);
++	if (!dirfile) {
++		kerror("cull dirfd not open");
++		return -EBADF;
++	}
++
++	dir = dget(dirfile->f_dentry);
++	fput_light(dirfile, fput_needed);
++	dirfile = NULL;
++
++	if (!S_ISDIR(dir->d_inode->i_mode))
++		goto notdir;
++
++	cachefiles_begin_secure(cache, &fsuid, &fsgid, &fscreatesid);
++	ret = cachefiles_check_in_use(cache, dir, args);
++	cachefiles_end_secure(cache, fsuid, fsgid, fscreatesid);
++
++	dput(dir);
++	_leave(" = %d", ret);
++	return ret;
++
++notdir:
++	dput(dir);
++	kerror("inuse command requires dirfd to be a directory");
++	return -ENOTDIR;
++
++inval:
++	kerror("inuse command requires dirfd and filename");
++	return -EINVAL;
++}
+diff --git a/fs/cachefiles/cf-namei.c b/fs/cachefiles/cf-namei.c
+index a3df94a..d0db9b3 100644
+--- a/fs/cachefiles/cf-namei.c
++++ b/fs/cachefiles/cf-namei.c
+@@ -524,6 +524,7 @@ nomem_d_alloc:
+ 	return ERR_PTR(-ENOMEM);
+ }
+ 
++#if 0
+ /*
+  * cull an object if it's not in use
+  * - called only by cache manager daemon
+@@ -631,3 +632,172 @@ choose_error:
+ 	_leave(" = %d", ret);
+ 	return ret;
+ }
++#endif
++
++/*
++ * find out if an object is in use or not
++ * - if finds object and it's not in use:
++ *   - returns a pointer to the object and a reference on it
++ *   - returns with the directory locked
++ */
++static struct dentry *cachefiles_check_active(struct cachefiles_cache *cache,
++					      struct dentry *dir,
++					      char *filename)
++{
++	struct cachefiles_object *object;
++	struct rb_node *_n;
++	struct dentry *victim;
++	int ret;
++
++	_enter(",%*.*s/,%s",
++	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
++
++	/* look up the victim */
++	mutex_lock(&dir->d_inode->i_mutex);
++
++	victim = lookup_one_len(filename, dir, strlen(filename));
++	if (IS_ERR(victim))
++		goto lookup_error;
++
++	_debug("victim -> %p %s",
++	       victim, victim->d_inode ? "positive" : "negative");
++
++	/* if the object is no longer there then we probably retired the object
++	 * at the netfs's request whilst the cull was in progress
++	 */
++	if (!victim->d_inode) {
++		mutex_unlock(&dir->d_inode->i_mutex);
++		dput(victim);
++		_leave(" = -ENOENT [absent]");
++		return ERR_PTR(-ENOENT);
++	}
++
++	/* check to see if we're using this object */
++	read_lock(&cache->active_lock);
++
++	_n = cache->active_nodes.rb_node;
++
++	while (_n) {
++		object = rb_entry(_n, struct cachefiles_object, active_node);
++
++		if (object->dentry > victim)
++			_n = _n->rb_left;
++		else if (object->dentry < victim)
++			_n = _n->rb_right;
++		else
++			goto object_in_use;
++	}
++
++	read_unlock(&cache->active_lock);
++
++	_leave(" = %p", victim);
++	return victim;
++
++object_in_use:
++	read_unlock(&cache->active_lock);
++	mutex_unlock(&dir->d_inode->i_mutex);
++	dput(victim);
++	_leave(" = -EBUSY [in use]");
++	return ERR_PTR(-EBUSY);
++
++lookup_error:
++	mutex_unlock(&dir->d_inode->i_mutex);
++	ret = PTR_ERR(victim);
++	if (ret == -ENOENT) {
++		/* file or dir now absent - probably retired by netfs */
++		_leave(" = -ESTALE [absent]");
++		return ERR_PTR(-ESTALE);
++	}
++
++	if (ret == -EIO) {
++		cachefiles_io_error(cache, "Lookup failed");
++	} else if (ret != -ENOMEM) {
++		kerror("Internal error: %d", ret);
++		ret = -EIO;
++	}
++
++	_leave(" = %d", ret);
++	return ERR_PTR(ret);
 +}
 +
 +/*
-  * install the VM ops for mmap() of an NFS file so that we can hold up writes
-  * to pages on shared writable mappings until the store to the cache is
-  * complete
-@@ -431,12 +460,14 @@ static inline void nfs4_fscache_get_clie
- static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
- static inline const char *nfs_server_fscache_state(struct nfs_server *server) { return "no "; }
++ * cull an object if it's not in use
++ * - called only by cache manager daemon
++ */
++int cachefiles_cull(struct cachefiles_cache *cache, struct dentry *dir,
++		    char *filename)
++{
++	struct dentry *victim;
++	int ret;
++
++	_enter(",%*.*s/,%s",
++	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
++
++	victim = cachefiles_check_active(cache, dir, filename);
++	if (IS_ERR(victim))
++		return PTR_ERR(victim);
++
++	_debug("victim -> %p %s",
++	       victim, victim->d_inode ? "positive" : "negative");
++
++	/* okay... the victim is not being used so we can cull it
++	 * - start by marking it as stale
++	 */
++	_debug("victim is cullable");
++
++	ret = cachefiles_remove_object_xattr(cache, victim);
++	if (ret < 0)
++		goto error_unlock;
++
++	/*  actually remove the victim (drops the dir mutex) */
++	_debug("bury");
++
++	ret = cachefiles_bury_object(cache, dir, victim);
++	if (ret < 0)
++		goto error;
++
++	dput(victim);
++	_leave(" = 0");
++	return 0;
++
++error_unlock:
++	mutex_unlock(&dir->d_inode->i_mutex);
++error:
++	dput(victim);
++	if (ret == -ENOENT) {
++		/* file or dir now absent - probably retired by netfs */
++		_leave(" = -ESTALE [absent]");
++		return -ESTALE;
++	}
++
++	if (ret != -ENOMEM) {
++		kerror("Internal error: %d", ret);
++		ret = -EIO;
++	}
++
++	_leave(" = %d", ret);
++	return ret;
++}
++
++/*
++ * find out if an object is in use or not
++ * - called only by cache manager daemon
++ * - returns -EBUSY or 0 to indicate whether an object is in use or not
++ */
++int cachefiles_check_in_use(struct cachefiles_cache *cache, struct dentry *dir,
++			    char *filename)
++{
++	struct dentry *victim;
++
++	_enter(",%*.*s/,%s",
++	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
++
++	victim = cachefiles_check_active(cache, dir, filename);
++	if (IS_ERR(victim))
++		return PTR_ERR(victim);
++
++	mutex_unlock(&dir->d_inode->i_mutex);
++	dput(victim);
++	_leave(" = 0");
++	return 0;
++}
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index d56b443..1b7ada2 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -183,6 +183,9 @@ extern struct dentry *cachefiles_get_dir
+ extern int cachefiles_cull(struct cachefiles_cache *cache, struct dentry *dir,
+ 			   char *filename);
  
--static inline void nfs_fscache_get_fh_cookie(struct inode *inode, int aycache) {}
-+static inline void nfs_fscache_init_fh_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_enable_fh_cookie(struct inode *inode) {}
- static inline void nfs_fscache_set_size(struct inode *inode) {}
- static inline void nfs_fscache_release_fh_cookie(struct inode *inode) {}
- static inline void nfs_fscache_zap_fh_cookie(struct inode *inode) {}
- static inline void nfs_fscache_renew_fh_cookie(struct inode *inode) {}
- static inline void nfs_fscache_disable_fh_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_set_fh_cookie(struct inode *inode, struct file *filp) {}
- static inline void nfs_fscache_install_vm_ops(struct inode *inode, struct vm_area_struct *vma) {}
- static inline int nfs_fscache_release_page(struct page *page)
- {
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 56acba0..0d683eb 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -299,7 +299,7 @@ nfs_fhget(struct super_block *sb, struct
- 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
- 		nfsi->access_cache = RB_ROOT;
- 
--		nfs_fscache_get_fh_cookie(inode, maycache);
-+		nfs_fscache_init_fh_cookie(inode);
- 
- 		unlock_new_inode(inode);
- 	} else
-@@ -566,8 +566,7 @@ int nfs_open(struct inode *inode, struct
- 	ctx->mode = filp->f_mode;
- 	nfs_file_set_open_context(filp, ctx);
- 	put_nfs_open_context(ctx);
--	if ((filp->f_flags & O_ACCMODE) != O_RDONLY)
--		nfs_fscache_disable_fh_cookie(inode);
-+	nfs_fscache_set_fh_cookie(inode, filp);
- 	return 0;
- }
- 
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index 5ead2bf..b2e5e86 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -205,6 +205,7 @@ #define NFS_INO_REVALIDATING	(0)		/* rev
- #define NFS_INO_ADVISE_RDPLUS	(1)		/* advise readdirplus */
- #define NFS_INO_STALE		(2)		/* possible stale inode */
- #define NFS_INO_ACL_LRU_SET	(3)		/* Inode is on the LRU list */
-+#define NFS_INO_CACHEABLE	(4)		/* inode can be cached by FS-Cache */
- 
- static inline struct nfs_inode *NFS_I(struct inode *inode)
- {
-@@ -230,6 +231,7 @@ #define NFS_ATTRTIMEO_UPDATE(inode)	(NFS
- 
- #define NFS_FLAGS(inode)		(NFS_I(inode)->flags)
- #define NFS_STALE(inode)		(test_bit(NFS_INO_STALE, &NFS_FLAGS(inode)))
-+#define NFS_CACHEABLE(inode)		(test_bit(NFS_INO_CACHEABLE, &NFS_FLAGS(inode)))
- 
- #define NFS_FILEID(inode)		(NFS_I(inode)->fileid)
- 
++extern int cachefiles_check_in_use(struct cachefiles_cache *cache,
++				   struct dentry *dir, char *filename);
++
+ /*
+  * cf-security.c
+  */

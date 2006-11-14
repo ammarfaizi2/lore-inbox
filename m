@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966396AbWKNVwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966404AbWKNVyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966396AbWKNVwu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 16:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966397AbWKNVwu
+	id S966404AbWKNVyE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 16:54:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966406AbWKNVyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 16:52:50 -0500
-Received: from cadalboia.ferrara.linux.it ([195.110.122.101]:46030 "EHLO
-	cadalboia.ferrara.linux.it") by vger.kernel.org with ESMTP
-	id S966396AbWKNVwt convert rfc822-to-8bit (ORCPT
+	Tue, 14 Nov 2006 16:54:04 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:23754 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S966405AbWKNVyA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 16:52:49 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: SATA ICH5 not detected at boot, mm-kernels
-Date: Tue, 14 Nov 2006 22:52:42 +0100
-User-Agent: KMail/1.9.5
-Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>
-References: <200611051536.35333.cova@ferrara.linux.it> <200611131017.51676.cova@ferrara.linux.it> <20061113132904.52e6fde7.akpm@osdl.org>
-In-Reply-To: <20061113132904.52e6fde7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 14 Nov 2006 16:54:00 -0500
+Date: Tue, 14 Nov 2006 16:53:58 -0500
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+Cc: Romano Giannetti <romanol@upcomillas.es>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pcmcia: patch to fix pccard_store_cis
+Message-ID: <20061114215358.GA1542@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Daniel Ritz <daniel.ritz-ml@swissonline.ch>,
+	Romano Giannetti <romanol@upcomillas.es>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <200611140040.02079.daniel.ritz-ml@swissonline.ch> <1163496810.2798.1.camel@localhost> <1163500168.2798.8.camel@localhost> <200611142250.42295.daniel.ritz-ml@swissonline.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611142252.42623.cova@ferrara.linux.it>
+In-Reply-To: <200611142250.42295.daniel.ritz-ml@swissonline.ch>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 22:29, lunedì 13 novembre 2006, Andrew Morton ha scritto:
-
->
-> In an earlier email, Tejun said:
-> > >> Nov  5 13:26:37 kefk ata: 0x170 IDE port busy
-> > >> Nov  5 13:26:37 kefk ata: conflict with ide1
+On Tue, Nov 14, 2006 at 10:50:41PM +0100, Daniel Ritz wrote:
+> On Tuesday 14 November 2006 11.29, Romano Giannetti wrote:
+> > On Tue, 2006-11-14 at 10:33 +0100, Romano Giannetti wrote:
+> > > On Tue, 2006-11-14 at 00:40 +0100, Daniel Ritz wrote:
+> > > > please also try this patch on top:
+> > > > 	http://zeus2.kernel.org/git/?p=linux/kernel/git/brodo/pcmcia-fixes-2.6.git;a=commitdiff;h=e6248ff596dd15bce0be4d780c60f173389b11c3
+> > > >
+> > > > (after you have "[PATCH] pcmcia: start over after CIS override"
+> > > > 	http://zeus2.kernel.org/git/?p=linux/kernel/git/brodo/pcmcia-fixes-2.6.git;a=commitdiff;h=f755c48254ce743a3d4c1fd6b136366c018ee5b2
+> > > >  applied)
 > > >
-> > > hm.  What does that mean?
-> >
-> > It means that IDE layer claimed the port.  It can be overridden by
-> > combined_mode kernel parameter.
->
-> Did you try that?
+> > > Applied, with just a bit of offset on 2.6.17.13. Compiling now. I'll be
+> > > back to you as soon as possible.
+> > >
+> > 
+> > Mr. Ritz,
+> > 
+> > 	IT WORKS. Really. The two functions are recognized  and the modem
+> > answers to minicom and kppp. I color myself happy. I will summarize the
+> > patch and send it to the ubuntu mailing list.
+> > 
+> 
+> that's good news then.
+> so i guess we really want Dominik's pcmcia-fixes-2.6 tree in 2.6.19 then. akpm?
 
-Uh, well, to be honest, no..or better: not yet :)
+pcmcia-fixes-2.6 is part of pcmcia-2.6 so it already is in -mm.
 
-anyway, applying this patch: http://lkml.org/lkml/2006/11/13/150
-tghe problem disappeared and 2.6.19-rc5-mm1 booted just fine, seeing all 
-ata_piix devices.
+	Dominik

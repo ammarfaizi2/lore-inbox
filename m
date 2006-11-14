@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966241AbWKNSH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965844AbWKNSHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966241AbWKNSH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 13:07:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966240AbWKNSH2
+	id S965844AbWKNSHE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 13:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966240AbWKNSHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 13:07:28 -0500
-Received: from mga01.intel.com ([192.55.52.88]:46613 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S966243AbWKNSH0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 13:07:26 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,421,1157353200"; 
-   d="scan'208"; a="15731040:sNHT39260547"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 14 Nov 2006 13:07:04 -0500
+Received: from rtr.ca ([64.26.128.89]:55047 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S965844AbWKNSHC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 13:07:02 -0500
+Message-ID: <455A05C2.6080508@rtr.ca>
+Date: Tue, 14 Nov 2006 13:06:58 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
-Date: Tue, 14 Nov 2006 10:06:37 -0800
-Message-ID: <EB12A50964762B4D8111D55B764A8454E0DC9D@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
-Thread-Index: AccIEq4ZKfhzuWXlQzq3GVl7Sude4gABCUqw
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
-Cc: "Len Brown" <lenb@kernel.org>, "Ingo Molnar" <mingo@elte.hu>,
-       "Thomas Gleixner" <tglx@linutronix.de>, <linux-kernel@vger.kernel.org>,
-       "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>
-X-OriginalArrivalTime: 14 Nov 2006 18:06:38.0157 (UTC) FILETIME=[A0FD3FD0:01C70817]
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Pavel Machek <pavel@ucw.cz>,
+       Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@suse.de>,
+       John Fremlin <not@just.any.name>,
+       kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
+       jim.kardach@intel.com
+Subject: Re: HD head unloads
+References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061113142219.GA2703@elf.ucw.cz> <45589008.1080001@garzik.org> <200611131637.56737.ak@suse.de> <455893E5.4010001@garzik.org> <4558B232.8080600@rtr.ca> <20061113220127.GA1704@elf.ucw.cz> <20061114034355.GB5810@khazad-dum.debian.net> <Pine.LNX.4.61.0611141021040.29913@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0611141021040.29913@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-
->-----Original Message-----
->From: Andreas Mohr [mailto:andi@rhlx01.fht-esslingen.de] 
->Sent: Tuesday, November 14, 2006 9:31 AM
->To: Pallipadi, Venkatesh
->Cc: Len Brown; Ingo Molnar; Andreas Mohr; Thomas Gleixner; 
->linux-kernel@vger.kernel.org; Van De Ven, Arjan
->Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ 
->required) [2.6.18-rc4-mm1]
+Jan Engelhardt wrote:
 >
->Hi,
->
->On Tue, Nov 14, 2006 at 09:21:02AM -0800, Pallipadi, Venkatesh wrote:
->> >I belive that Venki has looked at some of the HPET 
->enumeration issues,
->> >and maybe he has some suggestions.  Is there an example system
->> >on-hand where we know Windows works and Linux does not?
->> >
->> 
->> There are two things that can be happening when OS does not 
->see HPET in
->> ACPI.
->> - BIOS did enable HPET in chipset and did not communicate it to OS.
->> - BIOS did nothing to enable HPET in chipset.
->
->I'm sure you've already seen
->http://semthex.freeflux.net/blog/archive/2006/10/21/hpet-to-be-
->or-not-to-be.html
->... or not?
+> Let me jump in here. Short info: Toshiba MK2003GAH 1.8" 20GB 
+> PATA harddisk, in a Sony Vaio U3 (x86, gray-blue PhoenixBIOS).
+> If idle for more than 5 secs, unloads. Even when not inside any OS, 
+> which really sets me off.
+>     So I wrote a quick workaround hack for Linux, http://tinyurl.com/y3qs6g
+> It reads a predefined amount of bytes (just as much to not cause 
+> slowdown yet still cause it to not unload) from the disk at fixed 
+> intervals.
 
-Hmmm.. I hadn't seen this before..
+Thanks for the info.
+Jan, in your specific case, can you not "fix it" properly with:
 
->
->Hmm, hopefully it's easy to research where to enable HPET
->(if there is one at all!) on an el-cheapo VIA chipset...
->
->Many thanks for your patch! (even though currently Intel-only)
+    hdparm -B255 /dev/?d?
 
-Yes. This should be easy to do for any chipset. It should be documented
-somewhere in the chipset documentation. Atleast it is documented on ICH
-specification :).
+(fill in your drive device there).
 
-Thanks,
-Venki
+???

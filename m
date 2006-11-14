@@ -1,70 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755402AbWKNCoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755400AbWKNCsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755402AbWKNCoI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 21:44:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755400AbWKNCoI
+	id S1755400AbWKNCsX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 21:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755404AbWKNCsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 21:44:08 -0500
-Received: from mail.suse.de ([195.135.220.2]:25779 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1755399AbWKNCoF (ORCPT
+	Mon, 13 Nov 2006 21:48:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15756 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1755400AbWKNCsX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 21:44:05 -0500
-From: Andi Kleen <ak@suse.de>
-To: Suleiman Souhlal <ssouhlal@freebsd.org>
-Subject: Re: [PATCH 1/2] Make the TSC safe to be used by gettimeofday().
-Date: Tue, 14 Nov 2006 03:44:00 +0100
-User-Agent: KMail/1.9.5
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
-       Jiri Bohac <jbohac@suse.cz>
-References: <455916A5.2030402@FreeBSD.org> <200611140305.00383.ak@suse.de> <45592929.2000606@FreeBSD.org>
-In-Reply-To: <45592929.2000606@FreeBSD.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611140344.00407.ak@suse.de>
+	Mon, 13 Nov 2006 21:48:23 -0500
+Message-Id: <200611140251.kAE2pm0Z015391@pasta.boston.redhat.com>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: fix perms/range of vsyscall vma in /proc/*/maps
+In-Reply-To: Your message of "Fri, 10 Nov 2006 06:07:45 +0100."
+             <200611100607.45391.ak@suse.de>
+Date: Mon, 13 Nov 2006 21:51:48 -0500
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday, 10-Nov-2006 at 6:07 +0100, Andi Kleen wrote:
 
+> On Friday 10 November 2006 02:20, Ernie Petrides wrote:
+>
+> > Hi, Andi.  The final line of /proc/<pid>/maps on x86_64 for native 64-bit
+> > tasks shows an incorrect ending address and incorrect permissions.  There
+> > is only a single page mapped in this vsyscall region, and it is accessible
+> > for both read and execute.
 > 
-> Because CPUID returns the APIC ID, and I was under the impression that 
-> the cpu numbers
-> smp_processor_id() were dynamically allocated and didn't necessarily 
-> match the
-> APIC ID.
+> The range reported is how much address space is reserved, but you're
+> right it is less.
+> 
+> But I don't like hardcoding a page here -- this will likely be extended
+> soon. Can you please create a new define VSYSCALL_REAL_LENGTH or similar 
+> in vsyscall.h and use that?
 
-Correct, but one can use a mapping table.
+Good idea -- how about the patch below?
+
+Cheers.  -ernie
 
 
-> Yes, it's only needed on HLT and cpufreq change.
-> The code here is to force a "resynch" with the HPET if we've done a HLT. 
->   It has to be done before we switch to any userland thread that might 
-> use the per-cpu vxtime. switch_to() seemed like the most natural place 
-> to put this.
 
-I don't think so. The natural place after HLT is in the idle loop or 
-better in idle notifiers[1] and after  cpufreq is in the appropiate cpufreq 
-notifiers.
+Signed-off-by: Ernie Petrides <petrides@redhat.com>
+
+--- linux-2.6.18/arch/x86_64/kernel/vsyscall.c.orig
++++ linux-2.6.18/arch/x86_64/kernel/vsyscall.c
+@@ -205,6 +205,7 @@ static void __init map_vsyscall(void)
+ 	extern char __vsyscall_0;
+ 	unsigned long physaddr_page0 = __pa_symbol(&__vsyscall_0);
  
-
-[1] unfortunately they are still subtly broken in .19, but will be fixed
-in .20
-
-> A cow-orker suggested that we use SIDT and encode the CPU number in the 
-> limit of the IDT, which should be even faster than LSL.
-
-Possible yes. Did you time it?
-
-But then we would make the IDT variable length in memory? While
-the CPUs probably won't care some Hypervisors seem to be picky
-about these limits. LSL still seems somewhat safer.
++	/* Note that VSYSCALL_MAPPED_PAGES must agree with the code below. */
+ 	__set_fixmap(VSYSCALL_FIRST_PAGE, physaddr_page0, PAGE_KERNEL_VSYSCALL);
+ }
  
-> I couldn't figure out how to tell if a context switch has happened from 
-> userland. I tried putting a per-cpu context switch count, but I couldn't 
-> figure out how to get it atomically along with the CPU number..
-
-It's tricky. That is why we asked for RDTSCP.
-
--Andi
+--- linux-2.6.18/arch/x86_64/mm/init.c.orig
++++ linux-2.6.18/arch/x86_64/mm/init.c
+@@ -774,14 +774,15 @@ static __init int x8664_sysctl_init(void
+ __initcall(x8664_sysctl_init);
+ #endif
+ 
+-/* A pseudo VMAs to allow ptrace access for the vsyscall page.   This only
++/* A pseudo VMA to allow ptrace access for the vsyscall page.  This only
+    covers the 64bit vsyscall page now. 32bit has a real VMA now and does
+    not need special handling anymore. */
+ 
+ static struct vm_area_struct gate_vma = {
+ 	.vm_start = VSYSCALL_START,
+-	.vm_end = VSYSCALL_END,
+-	.vm_page_prot = PAGE_READONLY
++	.vm_end = VSYSCALL_START + (VSYSCALL_MAPPED_PAGES << PAGE_SHIFT),
++	.vm_page_prot = PAGE_READONLY_EXEC,
++	.vm_flags = VM_READ | VM_EXEC
+ };
+ 
+ struct vm_area_struct *get_gate_vma(struct task_struct *tsk)
+--- linux-2.6.18/include/asm-x86_64/vsyscall.h.orig
++++ linux-2.6.18/include/asm-x86_64/vsyscall.h
+@@ -9,6 +9,7 @@ enum vsyscall_num {
+ #define VSYSCALL_START (-10UL << 20)
+ #define VSYSCALL_SIZE 1024
+ #define VSYSCALL_END (-2UL << 20)
++#define VSYSCALL_MAPPED_PAGES 1
+ #define VSYSCALL_ADDR(vsyscall_nr) (VSYSCALL_START+VSYSCALL_SIZE*(vsyscall_nr))
+ 
+ #ifdef __KERNEL__

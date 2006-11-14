@@ -1,82 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933188AbWKNDpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933278AbWKNDyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933188AbWKNDpi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 22:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933239AbWKNDpi
+	id S933278AbWKNDyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 22:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933333AbWKNDyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 22:45:38 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:25188 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S933199AbWKNDpg convert rfc822-to-8bit (ORCPT
+	Mon, 13 Nov 2006 22:54:12 -0500
+Received: from elvis.mu.org ([192.203.228.196]:8156 "EHLO elvis.mu.org")
+	by vger.kernel.org with ESMTP id S933278AbWKNDyK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 22:45:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=aLz1iMU+EgFnZlmi5kFa2tSOIeFe5/u85SY45UFXCj6MgOBNYjrTsXvx0WhpupqxmRr9036yU3GutZIODBfxgk7F/TQPx07QS5hlSyZVlgJ6MbKRHS5tlGtp9G+zRwqxePMzgC1jLL/md6l5Fu1MjAOeSV1cfBIkAZ8dJbRLvL4=
-From: =?iso-8859-1?q?Jos=E9_Su=E1rez?= <j.suarez.agapito@gmail.com>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [linux-dvb] Avermedia 777 misbehaves after remote hack merged into v4l-dvb tree
-Date: Tue, 14 Nov 2006 04:45:29 +0100
-User-Agent: KMail/1.9.5
-Cc: Michael Krufky <mkrufky@linuxtv.org>, "pasky@ucw.cz" <pasky@ucw.cz>,
-       Linus Torvalds <torvalds@osdl.org>, linux-dvb@linuxtv.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
-References: <200611131711.46626.j.suarez.agapito@gmail.com> <4558DF23.5080207@linuxtv.org> <1163453015.26319.29.camel@201-2-70-92.bsace705.w.brasiltelecom.net.br>
-In-Reply-To: <1163453015.26319.29.camel@201-2-70-92.bsace705.w.brasiltelecom.net.br>
+	Mon, 13 Nov 2006 22:54:10 -0500
+Message-ID: <45593DD8.80301@FreeBSD.org>
+Date: Mon, 13 Nov 2006 19:54:00 -0800
+From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200611140445.30269.j.suarez.agapito@gmail.com>
+To: Andi Kleen <ak@suse.de>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       Jiri Bohac <jbohac@suse.cz>
+Subject: Re: [PATCH 1/2] Make the TSC safe to be used by gettimeofday().
+References: <455916A5.2030402@FreeBSD.org> <200611140305.00383.ak@suse.de> <45592929.2000606@FreeBSD.org> <200611140344.00407.ak@suse.de>
+In-Reply-To: <200611140344.00407.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Lunes 13 Noviembre 2006 22:23, Mauro Carvalho Chehab escribió:
-> Em Seg, 2006-11-13 às 16:09 -0500, Michael Krufky escreveu:
-> > Linus Torvalds wrote:
-> > > On Mon, 13 Nov 2006, Michael Krufky wrote:
-> > >> Mauro -- that patch needs fixing / more testing before it goes to
-> > >> mainstream...
-> > >>
-> > >> Could you please remove that changeset from your git tree before Linus
-> > >> pulls it?
-> > >
-> > > Too late. Already pulled and pushed out.
-> > >
-> > > Looking at the patch, one obvious bug stands out: the new case
-> > > statement for SAA7134_BOARD_AVERMEDIA_777 doesn't have a "break" at the
-> > > end.
-> > >
-> > > José, can you test this trivial patch and see if it fixes things?
->
-> Yes, this should fix the issue. It passed by my eyes :(
->
-> > Mauro, please pull from:
-> >
-> > http://linuxtv.org/hg/~mkrufky/v4l-dvb
-> >
-> > for the following:
-> >
-> > - saa7134: Fix missing 'break' for avermedia card case
->
-> Ok, I've updated also master development tree at
-> http://linuxtv.org/hg/v4l-dvb
->
-> Pasky,
->
-> Please test it also.
->
-> Cheers,
-> Mauro.
+Andi Kleen wrote:
+>>Because CPUID returns the APIC ID, and I was under the impression that 
+>>the cpu numbers
+>>smp_processor_id() were dynamically allocated and didn't necessarily 
+>>match the
+>>APIC ID.
+> 
+> 
+> Correct, but one can use a mapping table.
+> 
+>>Yes, it's only needed on HLT and cpufreq change.
+>>The code here is to force a "resynch" with the HPET if we've done a HLT. 
+>>  It has to be done before we switch to any userland thread that might 
+>>use the per-cpu vxtime. switch_to() seemed like the most natural place 
+>>to put this.
+> 
+> 
+> I don't think so. The natural place after HLT is in the idle loop or 
+> better in idle notifiers[1] and after  cpufreq is in the appropiate cpufreq 
+> notifiers.
+>  
+> 
+> [1] unfortunately they are still subtly broken in .19, but will be fixed
+> in .20
 
-The Avermedia 777 is working perfectly again with the current v4l-dvb tree. No 
-more misbehaviours. Looks like you guys addressed and resolved the issue 
-quite fast :)
-At the moment I can't give the remote control a try because lirc doesn't 
-compile against version 2.6.18 of the kernel. If that lirc issue gets solved, 
-I will try to use it as soon as I can.
+I initially had it after the HLT in the idle loop, but realized there 
+would be a small race: We could get switched away from the idle thread 
+after the HLT but before doing the resynch.
 
-All the best.
+It seems like idle notifiers would do the trick, except that they don't 
+appear to include the id of the CPU that went/exited from idle.
+
+Do you want me to also send a patch that addresses this?
+
+>>A cow-orker suggested that we use SIDT and encode the CPU number in the 
+>>limit of the IDT, which should be even faster than LSL.
+> 
+> 
+> Possible yes. Did you time it?
+ >
+> But then we would make the IDT variable length in memory? While
+> the CPUs probably won't care some Hypervisors seem to be picky
+> about these limits. LSL still seems somewhat safer.
+
+Does the LSL from the magic GDT entry return the APIC ID or the 
+smp_processor_id? If it's the latter, I can avoid using the 
+smp_processor_id->apic id table completely.
+
+> 
+>>I couldn't figure out how to tell if a context switch has happened from 
+>>userland. I tried putting a per-cpu context switch count, but I couldn't 
+>>figure out how to get it atomically along with the CPU number..
+> 
+> 
+> It's tricky. That is why we asked for RDTSCP.
+
+Another way I could fix this would be to just touch the seqlock, in 
+switch_to(), if we happen to be in vgettimeofday. Would this be acceptable?
+
+-- Suleiman

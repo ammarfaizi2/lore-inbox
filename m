@@ -1,84 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933195AbWKNDoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933188AbWKNDpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933195AbWKNDoF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Nov 2006 22:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933179AbWKNDoF
+	id S933188AbWKNDpi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Nov 2006 22:45:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933239AbWKNDpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Nov 2006 22:44:05 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:49889 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S933195AbWKNDoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Nov 2006 22:44:02 -0500
-X-Sasl-enc: wRJdumkdnyAsFfuD2r4a2f47/O5ZhOsr7fCz6TUz97V3 1163475842
-Date: Tue, 14 Nov 2006 01:43:55 -0200
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
-       Andi Kleen <ak@suse.de>, John Fremlin <not@just.any.name>,
-       kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
-       jim.kardach@intel.com
-Subject: HD head unloads (was: Re: AHCI power saving)
-Message-ID: <20061114034355.GB5810@khazad-dum.debian.net>
-References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061113142219.GA2703@elf.ucw.cz> <45589008.1080001@garzik.org> <200611131637.56737.ak@suse.de> <455893E5.4010001@garzik.org> <4558B232.8080600@rtr.ca> <20061113220127.GA1704@elf.ucw.cz>
+	Mon, 13 Nov 2006 22:45:38 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:25188 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S933199AbWKNDpg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Nov 2006 22:45:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=aLz1iMU+EgFnZlmi5kFa2tSOIeFe5/u85SY45UFXCj6MgOBNYjrTsXvx0WhpupqxmRr9036yU3GutZIODBfxgk7F/TQPx07QS5hlSyZVlgJ6MbKRHS5tlGtp9G+zRwqxePMzgC1jLL/md6l5Fu1MjAOeSV1cfBIkAZ8dJbRLvL4=
+From: =?iso-8859-1?q?Jos=E9_Su=E1rez?= <j.suarez.agapito@gmail.com>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [linux-dvb] Avermedia 777 misbehaves after remote hack merged into v4l-dvb tree
+Date: Tue, 14 Nov 2006 04:45:29 +0100
+User-Agent: KMail/1.9.5
+Cc: Michael Krufky <mkrufky@linuxtv.org>, "pasky@ucw.cz" <pasky@ucw.cz>,
+       Linus Torvalds <torvalds@osdl.org>, linux-dvb@linuxtv.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+References: <200611131711.46626.j.suarez.agapito@gmail.com> <4558DF23.5080207@linuxtv.org> <1163453015.26319.29.camel@201-2-70-92.bsace705.w.brasiltelecom.net.br>
+In-Reply-To: <1163453015.26319.29.camel@201-2-70-92.bsace705.w.brasiltelecom.net.br>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061113220127.GA1704@elf.ucw.cz>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611140445.30269.j.suarez.agapito@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006, Pavel Machek wrote:
-> On Mon 2006-11-13 12:58:10, Mark Lord wrote:
-> > Jeff Garzik wrote:
-> > >Andi Kleen wrote:
+El Lunes 13 Noviembre 2006 22:23, Mauro Carvalho Chehab escribió:
+> Em Seg, 2006-11-13 às 16:09 -0500, Michael Krufky escreveu:
+> > Linus Torvalds wrote:
+> > > On Mon, 13 Nov 2006, Michael Krufky wrote:
+> > >> Mauro -- that patch needs fixing / more testing before it goes to
+> > >> mainstream...
+> > >>
+> > >> Could you please remove that changeset from your git tree before Linus
+> > >> pulls it?
 > > >
-> > >>How does it shorten its life?
+> > > Too late. Already pulled and pushed out.
 > > >
-> > >Parks your hard drive heads many thousands of times more often than it 
-> > >does without the aggressive PM features.
-> > 
-> > Spinning-down would definitely shorten the drive lifespan.  Does it do that?
-> 
-> Not on my machine.
+> > > Looking at the patch, one obvious bug stands out: the new case
+> > > statement for SAA7134_BOARD_AVERMEDIA_777 doesn't have a "break" at the
+> > > end.
+> > >
+> > > José, can you test this trivial patch and see if it fixes things?
+>
+> Yes, this should fix the issue. It passed by my eyes :(
+>
+> > Mauro, please pull from:
+> >
+> > http://linuxtv.org/hg/~mkrufky/v4l-dvb
+> >
+> > for the following:
+> >
+> > - saa7134: Fix missing 'break' for avermedia card case
+>
+> Ok, I've updated also master development tree at
+> http://linuxtv.org/hg/v4l-dvb
+>
+> Pasky,
+>
+> Please test it also.
+>
+> Cheers,
+> Mauro.
 
-Heck, given just how much a ThinkPad T43 BIOS will attempt to do it for you,
-consider yourself lucky if the X60 behaves differently.  When I thought of
-monitoring the head unload counter through SMART on mine, my HD was already
-beyond 14k unloads... and the notebook had been powered up less than 100
-times :p
+The Avermedia 777 is working perfectly again with the current v4l-dvb tree. No 
+more misbehaviours. Looks like you guys addressed and resolved the issue 
+quite fast :)
+At the moment I can't give the remote control a try because lirc doesn't 
+compile against version 2.6.18 of the kernel. If that lirc issue gets solved, 
+I will try to use it as soon as I can.
 
-The BIOS likes to set the drive APM mode to something other than "off", and
-in many drives (well, Hitachi ones at least), that means the drive will be
-happy to unload heads every chance it gets, so as to be able to power off
-the head assembly motion drive.
-
-> > Parking heads is more like just doing some extra (long) seeks.
-
-Long seeks don't lift the head assembly off the plates, head unloads do.
-And head unloads will also power down some stuff in laptop HDs, seeks don't
-do that either.
-
-And even old-style parking places the heads on a different surface than the
-data area.  That's a lot different from seeks no matter how one looks at it.
-
-> > Is this documented somewhere as being a life-shortening action?
-
-Yes, although not often with that many words.
-
-For example, a Hitachi Travelstar 5k100 is rated for 600k load/unload
-cycles, and 20k emergency load/unload cycles (each emergency unload counts
-as 30 normal unloads, but the tech docs say it is about 100 times more
-stressfull to the drive).  It is in the public drive datasheet, along with
-other important information, such as that the drive needs to spin down often
-(no less than once every 48h) or its lifespan will be shortened.
-
-A typical desktop HD can probably survive a lot less head load/unload
-cycles and spin up/down cycles than that.
-
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+All the best.

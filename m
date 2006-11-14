@@ -1,135 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965291AbWKNMWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965334AbWKNMXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965291AbWKNMWu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 07:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965334AbWKNMWu
+	id S965334AbWKNMXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 07:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965335AbWKNMXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 07:22:50 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:61913 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S965291AbWKNMWt
+	Tue, 14 Nov 2006 07:23:16 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:49882 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S965334AbWKNMXP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 07:22:49 -0500
-Date: Tue, 14 Nov 2006 17:52:14 +0530
+	Tue, 14 Nov 2006 07:23:15 -0500
+Date: Tue, 14 Nov 2006 17:53:25 +0530
 From: Gautham R Shenoy <ego@in.ibm.com>
 To: Gautham R Shenoy <ego@in.ibm.com>
 Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
        vatsa@in.ibm.com, dipankar@in.ibm.com, davej@redhat.com, mingo@elte.hu,
        kiran@scalex86.org
-Subject: [PATCH 2/4] Define and use new events,CPU_LOCK_ACQUIRE and CPU_LOCK_RELEASE.
-Message-ID: <20061114122214.GC31787@in.ibm.com>
+Subject: [PATCH 3/4] Eliminate lock_cpu_hotplug in kernel/sched.c
+Message-ID: <20061114122325.GD31787@in.ibm.com>
 Reply-To: ego@in.ibm.com
-References: <20061114121832.GA31787@in.ibm.com> <20061114122050.GB31787@in.ibm.com>
+References: <20061114121832.GA31787@in.ibm.com> <20061114122050.GB31787@in.ibm.com> <20061114122214.GC31787@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061114122050.GB31787@in.ibm.com>
+In-Reply-To: <20061114122214.GC31787@in.ibm.com>
 User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an attempt to provide an alternate mechanism for postponing
-a hotplug event instead of using a global mechanism like lock_cpu_hotplug.
+Eliminate lock_cpu_hotplug from kernel/sched.c and use sched_hotcpu_mutex
+instead to postpone a hotplug event. 
 
-The proposal is to add two new events namely CPU_LOCK_ACQUIRE and
-CPU_LOCK_RELEASE. The notification for these two events would be sent
-out before and after a cpu_hotplug event respectively.
-
-During the CPU_LOCK_ACQUIRE event, a cpu-hotplug-aware subsystem is
-supposed to acquire any per-subsystem hotcpu mutex ( Eg. workqueue_mutex
-in kernel/workqueue.c ). 
-
-During the CPU_LOCK_RELEASE release event the cpu-hotplug-aware subsystem
-is supposed to release the per-subsystem hotcpu mutex.
-
-The reasons for defining new events as opposed to reusing the existing events
-like CPU_UP_PREPARE/CPU_UP_FAILED/CPU_ONLINE for locking/unlocking of 
-per-subsystem hotcpu mutexes are as follow:
-
-	- CPU_LOCK_ACQUIRE: All hotcpu mutexes are taken before subsystems
-	start handling pre-hotplug events like CPU_UP_PREPARE/CPU_DOWN_PREPARE 
-	etc, thus ensuring a clean handling of these events. 
-	
-	- CPU_LOCK_RELEASE: The hotcpu mutexes will be released only after
-	all subsystems have handled post-hotplug events like CPU_DOWN_FAILED,
-	CPU_DEAD,CPU_ONLINE etc thereby ensuring that there are no subsequent
-	clashes amongst the interdependent subsystems after a cpu hotplugs.
-	
-This patch also uses __raw_notifier_call chain in _cpu_up to take care 
-of the dependency between the two consequetive calls to
-raw_notifier_call_chain.
+In the migration_call hotcpu callback function, take sched_hotcpu_mutex
+while handling the event CPU_LOCK_ACQUIRE and release it while handling
+CPU_LOCK_RELEASE event.
 
 Signed-off-by: Gautham R Shenoy <ego@in.ibm.com>
 
 --
- include/linux/notifier.h |    2 ++
- kernel/cpu.c             |   15 +++++++++++----
- 2 files changed, 13 insertions(+), 4 deletions(-)
+ kernel/sched.c |   29 +++++++++++++++++++----------
+ 1 files changed, 19 insertions(+), 10 deletions(-)
 
-Index: hotplug/kernel/cpu.c
+Index: hotplug/kernel/sched.c
 ===================================================================
---- hotplug.orig/kernel/cpu.c
-+++ hotplug/kernel/cpu.c
-@@ -132,6 +132,8 @@ static int _cpu_down(unsigned int cpu)
- 	if (!cpu_online(cpu))
- 		return -EINVAL;
+--- hotplug.orig/kernel/sched.c
++++ hotplug/kernel/sched.c
+@@ -267,6 +267,7 @@ struct rq {
+ };
  
-+	raw_notifier_call_chain(&cpu_chain, CPU_LOCK_ACQUIRE,
-+						(void *)(long)cpu);
- 	err = raw_notifier_call_chain(&cpu_chain, CPU_DOWN_PREPARE,
- 						(void *)(long)cpu);
- 	if (err == NOTIFY_BAD) {
-@@ -185,6 +187,8 @@ out_thread:
- 	err = kthread_stop(p);
- out_allowed:
- 	set_cpus_allowed(current, old_allowed);
-+	raw_notifier_call_chain(&cpu_chain, CPU_LOCK_RELEASE,
-+						(void *)(long)cpu);
+ static DEFINE_PER_CPU(struct rq, runqueues);
++static DEFINE_MUTEX(sched_hotcpu_mutex);
+ 
+ static inline int cpu_of(struct rq *rq)
+ {
+@@ -4327,13 +4328,13 @@ long sched_setaffinity(pid_t pid, cpumas
+ 	struct task_struct *p;
+ 	int retval;
+ 
+-	lock_cpu_hotplug();
++	mutex_lock(&sched_hotcpu_mutex);
+ 	read_lock(&tasklist_lock);
+ 
+ 	p = find_process_by_pid(pid);
+ 	if (!p) {
+ 		read_unlock(&tasklist_lock);
+-		unlock_cpu_hotplug();
++		mutex_unlock(&sched_hotcpu_mutex);
+ 		return -ESRCH;
+ 	}
+ 
+@@ -4360,7 +4361,7 @@ long sched_setaffinity(pid_t pid, cpumas
+ 
+ out_unlock:
+ 	put_task_struct(p);
+-	unlock_cpu_hotplug();
++	mutex_unlock(&sched_hotcpu_mutex);
+ 	return retval;
+ }
+ 
+@@ -4417,7 +4418,7 @@ long sched_getaffinity(pid_t pid, cpumas
+ 	struct task_struct *p;
+ 	int retval;
+ 
+-	lock_cpu_hotplug();
++	mutex_lock(&sched_hotcpu_mutex);
+ 	read_lock(&tasklist_lock);
+ 
+ 	retval = -ESRCH;
+@@ -4433,7 +4434,7 @@ long sched_getaffinity(pid_t pid, cpumas
+ 
+ out_unlock:
+ 	read_unlock(&tasklist_lock);
+-	unlock_cpu_hotplug();
++	mutex_unlock(&sched_hotcpu_mutex);
+ 	if (retval)
+ 		return retval;
+ 
+@@ -5225,6 +5226,10 @@ migration_call(struct notifier_block *nf
+ 	struct rq *rq;
+ 
+ 	switch (action) {
++	case CPU_LOCK_ACQUIRE:
++		mutex_lock(&sched_hotcpu_mutex);
++		break;
++
+ 	case CPU_UP_PREPARE:
+ 		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
+ 		if (IS_ERR(p))
+@@ -5270,7 +5275,7 @@ migration_call(struct notifier_block *nf
+ 		BUG_ON(rq->nr_running != 0);
+ 
+ 		/* No need to migrate the tasks: it was best-effort if
+-		 * they didn't do lock_cpu_hotplug().  Just wake up
++		 * they didn't take sched_hotcpu_mutex.  Just wake up
+ 		 * the requestors. */
+ 		spin_lock_irq(&rq->lock);
+ 		while (!list_empty(&rq->migration_queue)) {
+@@ -5283,6 +5288,10 @@ migration_call(struct notifier_block *nf
+ 		}
+ 		spin_unlock_irq(&rq->lock);
+ 		break;
++
++	case CPU_LOCK_RELEASE:
++		mutex_unlock(&sched_hotcpu_mutex);
++		break;
+ #endif
+ 	}
+ 	return NOTIFY_OK;
+@@ -6652,10 +6661,10 @@ int arch_reinit_sched_domains(void)
+ {
+ 	int err;
+ 
+-	lock_cpu_hotplug();
++	mutex_lock(&sched_hotcpu_mutex);
+ 	detach_destroy_domains(&cpu_online_map);
+ 	err = arch_init_sched_domains(&cpu_online_map);
+-	unlock_cpu_hotplug();
++	mutex_unlock(&sched_hotcpu_mutex);
+ 
  	return err;
  }
- 
-@@ -206,13 +210,15 @@ int cpu_down(unsigned int cpu)
- /* Requires cpu_add_remove_lock to be held */
- static int __devinit _cpu_up(unsigned int cpu)
+@@ -6763,12 +6772,12 @@ void __init sched_init_smp(void)
  {
--	int ret;
-+	int ret, nr_calls = 0;
- 	void *hcpu = (void *)(long)cpu;
+ 	cpumask_t non_isolated_cpus;
  
- 	if (cpu_online(cpu) || !cpu_present(cpu))
- 		return -EINVAL;
+-	lock_cpu_hotplug();
++	mutex_lock(&sched_hotcpu_mutex);
+ 	arch_init_sched_domains(&cpu_online_map);
+ 	cpus_andnot(non_isolated_cpus, cpu_online_map, cpu_isolated_map);
+ 	if (cpus_empty(non_isolated_cpus))
+ 		cpu_set(smp_processor_id(), non_isolated_cpus);
+-	unlock_cpu_hotplug();
++	mutex_unlock(&sched_hotcpu_mutex);
+ 	/* XXX: Theoretical race here - CPU may be hotplugged now */
+ 	hotcpu_notifier(update_sched_domains, 0);
  
--	ret = raw_notifier_call_chain(&cpu_chain, CPU_UP_PREPARE, hcpu);
-+	raw_notifier_call_chain(&cpu_chain, CPU_LOCK_ACQUIRE, hcpu);
-+	ret = __raw_notifier_call_chain(&cpu_chain, CPU_UP_PREPARE, hcpu,
-+							-1, &nr_calls);
- 	if (ret == NOTIFY_BAD) {
- 		printk("%s: attempt to bring up CPU %u failed\n",
- 				__FUNCTION__, cpu);
-@@ -233,8 +239,9 @@ static int __devinit _cpu_up(unsigned in
- 
- out_notify:
- 	if (ret != 0)
--		raw_notifier_call_chain(&cpu_chain,
--				CPU_UP_CANCELED, hcpu);
-+		__raw_notifier_call_chain(&cpu_chain,
-+				CPU_UP_CANCELED, hcpu, nr_calls, NULL);
-+	raw_notifier_call_chain(&cpu_chain, CPU_LOCK_RELEASE, hcpu);
- 
- 	return ret;
- }
-Index: hotplug/include/linux/notifier.h
-===================================================================
---- hotplug.orig/include/linux/notifier.h
-+++ hotplug/include/linux/notifier.h
-@@ -194,6 +194,8 @@ extern int __srcu_notifier_call_chain(st
- #define CPU_DOWN_PREPARE	0x0005 /* CPU (unsigned)v going down */
- #define CPU_DOWN_FAILED		0x0006 /* CPU (unsigned)v NOT going down */
- #define CPU_DEAD		0x0007 /* CPU (unsigned)v dead */
-+#define CPU_LOCK_ACQUIRE	0x0008 /* Acquire all hotcpu locks */
-+#define CPU_LOCK_RELEASE	0x0009 /* Release all hotcpu locks */
- 
- #endif /* __KERNEL__ */
- #endif /* _LINUX_NOTIFIER_H */
 -- 
 Gautham R Shenoy
 Linux Technology Center

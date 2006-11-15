@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161693AbWKOVOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161562AbWKOVUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161693AbWKOVOm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 16:14:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161705AbWKOVOm
+	id S1161562AbWKOVUb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 16:20:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161683AbWKOVUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 16:14:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33457 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161693AbWKOVOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 16:14:41 -0500
-Subject: Re: [patch] floppy: suspend/resume fix
-From: Arjan van de Ven <arjan@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061115204933.GD3875@elf.ucw.cz>
-References: <200611122047.kACKl8KP004895@harpo.it.uu.se>
-	 <20061112212941.GA31624@flint.arm.linux.org.uk>
-	 <20061112220318.GA3387@elte.hu>
-	 <20061112235410.GB31624@flint.arm.linux.org.uk>
-	 <20061114110958.GB2242@elf.ucw.cz> <1163522062.14674.3.camel@mindpipe>
-	 <20061115202418.GC3875@elf.ucw.cz>
-	 <20061115204915.1d0717db@localhost.localdomain>
-	 <20061115204933.GD3875@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 15 Nov 2006 22:14:37 +0100
-Message-Id: <1163625278.31358.161.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 15 Nov 2006 16:20:31 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65241 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161562AbWKOVUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 16:20:30 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       discuss@x86-64.org, William Cohen <wcohen@redhat.com>,
+       Komuro <komurojun-mbn@nifty.com>, Ernst Herzberg <earny@net4u.de>,
+       Andre Noll <maan@systemlinux.org>, oprofile-list@lists.sourceforge.net,
+       Jens Axboe <jens.axboe@oracle.com>,
+       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
+       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
+       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<200611151945.31535.ak@suse.de>
+	<Pine.LNX.4.64.0611151105560.3349@woody.osdl.org>
+	<200611152023.53960.ak@suse.de>
+	<20061115122118.14fa2177.akpm@osdl.org>
+Date: Wed, 15 Nov 2006 14:18:24 -0700
+In-Reply-To: <20061115122118.14fa2177.akpm@osdl.org> (Andrew Morton's message
+	of "Wed, 15 Nov 2006 12:21:18 -0800")
+Message-ID: <m18xic4den.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
-> Yep, it would be nice to do something about that; but I'm not sure how
-> this "was media changed" should be implemented, and if it should be
-> done in kernel or in userland.
+> Is it correct to say that oprofile-on-2.6.18 works, and that
+> oprofile-on-2.6.19-rc5 does not?
+>
+> Or is there some sort of workaround for this, or does 2.6.19-rc5 only fail
+> in some particular scenarios?
+>
+> If it's really true that oprofile is simply busted then that's a serious
+> problem and we should find some way of unbusting it.  If that means just
+> adding a dummy "0" entry which always returns zero or something like that,
+> then fine.
+>
+> But we can't just go and bust it.
 
-well I guess step 1 is to sync_bdev() or whatever it is called nowadays
-before suspend. And maybe force unmount on resume always? 
+The simple question.  If we turn off the NMI watchdog on 2.6.19-rc5 
+does oprofile work?  I believe that is what Andi said.
+
+The description I read was a resource conflict. The resources oprofile
+just expects it can used are already in use so we tell it no and
+the user space oprofile doesn't cope.
+
+Now I don't know the interface allows us to rename the interfaces
+from 1 2 3 to 0 1 2.  If we can then that looks like something we can
+fix.  Otherwise from the description I tend to agree with Andi.
+
+The user space application assumed it own hardware that it did not.
+
+Hmm.  I bet if nothing else we could move the NMI watchdog from 0 to 3
+and make things work that way...
 
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Eric

@@ -1,88 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966739AbWKOKXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966741AbWKOKY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966739AbWKOKXq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 05:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966741AbWKOKXq
+	id S966741AbWKOKY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 05:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966742AbWKOKY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 05:23:46 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28174 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S966739AbWKOKXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 05:23:45 -0500
-Date: Wed, 15 Nov 2006 11:23:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Patrick Caulfield <pcaulfie@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Steven Whitehouse <swhiteho@redhat.com>,
-       teigland@redhat.com, linux-kernel@vger.kernel.org,
-       cluster-devel@redhat.com
-Subject: Re: [-mm patch] fix the DLM dependencies, part 2
-Message-ID: <20061115102351.GR22565@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org> <20061114183324.GL22565@stusta.de> <20061114225641.GP22565@stusta.de> <455AE7D7.4020002@redhat.com>
-MIME-Version: 1.0
+	Wed, 15 Nov 2006 05:24:29 -0500
+Received: from z2.cat.iki.fi ([212.16.98.133]:38302 "EHLO z2.cat.iki.fi")
+	by vger.kernel.org with ESMTP id S966741AbWKOKY2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 05:24:28 -0500
+Date: Wed, 15 Nov 2006 12:24:26 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Marc Perkel <mperkel@yahoo.com>
+Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel list rejecting my email - braindead list
+Message-ID: <20061115102426.GJ10054@mea-ext.zmailer.org>
+References: <20061114.142349.74748158.davem@davemloft.net> <20061115005426.37928.qmail@web52505.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <455AE7D7.4020002@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061115005426.37928.qmail@web52505.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 10:11:35AM +0000, Patrick Caulfield wrote:
-> Adrian Bunk wrote:
-> > On Tue, Nov 14, 2006 at 07:33:24PM +0100, Adrian Bunk wrote:
-> >> On Tue, Nov 14, 2006 at 01:41:25AM -0800, Andrew Morton wrote:
-> >>> ...
-> >>> - A nasty Kconfig warning comes out during the build.  It's due to
-> >>>   git-gfs2-nmw.patch.
-> >>> ...
-> >> So let's fix it.  ;-)
-> >> ...
-> > 
-> > And let's also fix another bug...
-> > 
-> > 
-> > <--  snip  -->
-> > 
-> > 
-> > IPV6=m, DLM=m, DLM_SCTP=y mustn't result in IP_SCTP=y.
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > --- linux-2.6.19-rc5-mm2/fs/dlm/Kconfig.old	2006-11-14 22:25:01.000000000 +0100
-> > +++ linux-2.6.19-rc5-mm2/fs/dlm/Kconfig	2006-11-14 22:25:19.000000000 +0100
-> > @@ -5,6 +5,7 @@ config DLM
-> >  	tristate "Distributed Lock Manager (DLM)"
-> >  	depends on IPV6 || IPV6=n
-> >  	select CONFIGFS_FS
-> > +	select IP_SCTP if DLM_SCTP
-> >  	help
-> >  	A general purpose distributed lock manager for kernel or userspace
-> >  	applications.
-> > @@ -23,7 +24,6 @@ config DLM_TCP
-> >  
-> >  config DLM_SCTP
-> >  	bool "SCTP"
-> > -	select IP_SCTP
-> >  
-> >  endchoice
+On Tue, Nov 14, 2006 at 04:54:25PM -0800, Marc Perkel wrote:
 > 
-> Thanks Adrian. I need to read the kconfig docs a little more closely :)
-> 
-> Incidentally, I think the 'depends on IPV6 || IPV6=n' can go too; it's in a patch I sent to Steve and it's basically just a line
-> copied from SCTP which is obsoleted by these other changes and the addition of the TCP transport.
+> So you are banning me from the list because my server
+> returned a 421 temporary error? You have to be out of
+> your fucking mind!
+>
+> 1136501663 davem marc@perkel.com linux-kernel 421 Lost incoming connection: The error was detected in line 3.
 
-As long as you select IP_SCTP, the "depends on IPV6 || IPV6=n" can't go:
-Otherwise, the illegal configuration DLM=y, IP_SCTP=y, IPV6=m would 
-become possible.
+Messages start to BOUNCE with that only after the condition
+has been active for 5 consequtive days.
+(Standards define 3 days queue wait time minimum.)
 
-> patrick
+If your email server has a temporary glitch and it does
+decide to report to remotes that "421 I am broken, try latter"
+that is fine AS LONG AS it gets fixed within 3 days.
 
-cu
-Adrian
+If the condition persists for 5 days, we do remove all
+subscribers at given domain AND the accumulated queue
+to them without any further messages to anybody.
+(They are not receiving the messages, so there is no way to
+notify them in forecastable future.)
 
--- 
+Do you have any idea of how many messages are in the queue
+at that time directed to recipients not receiving them ?
+Depending on the week: 1300 - 2000 !
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+  /Matti Aarnio  -- one of  <postmaster at vger.kernel.org>

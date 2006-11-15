@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966794AbWKOLI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966788AbWKOLGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966794AbWKOLI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 06:08:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966795AbWKOLI6
+	id S966788AbWKOLGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 06:06:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966790AbWKOLGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 06:08:58 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:47837 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S966794AbWKOLI6 (ORCPT
+	Wed, 15 Nov 2006 06:06:25 -0500
+Received: from iona.labri.fr ([147.210.8.143]:32708 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S966788AbWKOLGZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 06:08:58 -0500
-Date: Wed, 15 Nov 2006 12:06:14 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: David Miller <davem@davemloft.net>
-cc: viro@ftp.linux.org.uk, mperkel@yahoo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       zbrown@tumblerings.org
-Subject: Re: Majordomo is an obsolete piece of junk and Kernel should not be
- running it!
-In-Reply-To: <20061114.215049.51840975.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0611151204010.19772@yvahk01.tjqt.qr>
-References: <20061114.200507.21927677.davem@davemloft.net>
- <20061115042335.11460.qmail@web52506.mail.yahoo.com> <20061115054124.GA29920@ftp.linux.org.uk>
- <20061114.215049.51840975.davem@davemloft.net>
+	Wed, 15 Nov 2006 06:06:25 -0500
+Message-ID: <455AF4AE.9030606@ens-lyon.org>
+Date: Wed, 15 Nov 2006 12:06:22 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc5: known regressions (v3)
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061115102122.GQ22565@stusta.de>
+In-Reply-To: <20061115102122.GQ22565@stusta.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk wrote:
+> Subject : unable to rip cd
+> References : http://lkml.org/lkml/2006/10/13/100
+> http://lkml.org/lkml/2006/11/8/42
+> Submitter : Alex Romosan <romosan@sycorax.lbl.gov>
+> Handled-By : Jens Axboe <jens.axboe@oracle.com>
+> Status : Jens is investigating
 
-On Nov 14 2006 21:50, David Miller wrote:
->
->The following address(es) failed:
->
->  marc-kernel@perkel.com
->    (generated from zbrown@tumblerings.org)
->    Unrouteable address
+I think this one is already fixed.
 
-Can't we just agree that perkel.com's MX is fubared:
-
-12:04 ichi:../packages/SPECS > telnet mx.junkemailfilter.com. 25
-Trying 69.50.231.5...
-(wait and wait and wait)
+Brice
 
 
-	-`J'
--- 
+
+
+commit 616e8a091a035c0bd9b871695f4af191df123caa
+author Jens Axboe <jens.axboe@oracle.com> 1163437499 +0100
+committer Linus Torvalds <torvalds@g5.osdl.org> 1163440020 -0800
+
+[PATCH] Fix bad data direction in SG_IO
+
+Contrary to what the name misleads you to believe, SG_DXFER_TO_FROM_DEV
+is really just a normal read seen from the device side.
+
+This patch fixes http://lkml.org/lkml/2006/10/13/100
+
+

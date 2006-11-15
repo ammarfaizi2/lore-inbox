@@ -1,37 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWKOTmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161130AbWKOTjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161145AbWKOTmq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 14:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161187AbWKOTmp
+	id S1161130AbWKOTjM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 14:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbWKOTjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 14:42:45 -0500
-Received: from tapsys.com ([72.36.178.242]:3255 "EHLO tapsys.com")
-	by vger.kernel.org with ESMTP id S1161145AbWKOTmo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 14:42:44 -0500
-Message-ID: <455B6D74.2020507@madrabbit.org>
-Date: Wed, 15 Nov 2006 11:41:40 -0800
-From: Ray Lee <ray-lk@madrabbit.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: Michael Buesch <mb@bu3sch.de>
-Cc: Larry Finger <Larry.Finger@lwfinger.net>, Bcm43xx-dev@lists.berlios.de,
-       LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       John Linville <linville@tuxdriver.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: bcm43xx regression 2.6.19rc3 -> rc5, rtnl_lock trouble?
-References: <455B63EC.8070704@madrabbit.org> <200611152015.07844.mb@bu3sch.de>
-In-Reply-To: <200611152015.07844.mb@bu3sch.de>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 15 Nov 2006 14:39:11 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:3516 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S1161177AbWKOTjJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 14:39:09 -0500
+Subject: Re: [Madwifi-devel] ANNOUNCE: SFLC helps developers assess ar5k
+	(enabling free Atheros HAL)
+From: Pavel Roskin <proski@gnu.org>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: Michael Buesch <mb@bu3sch.de>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, madwifi-devel@lists.sourceforge.net,
+       lwn@lwn.net
+In-Reply-To: <20061115192054.GA10009@tuxdriver.com>
+References: <20061115031025.GH3451@tuxdriver.com>
+	 <200611151942.14596.mb@bu3sch.de>  <20061115192054.GA10009@tuxdriver.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 15 Nov 2006 14:39:01 -0500
+Message-Id: <1163619541.19111.6.camel@dv>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
-> On Wednesday 15 November 2006 20:01, Ray Lee wrote:
->> Suggestions? Requests for <shudder> even more info?
-> 
-> Yeah, enable bcm43xx debugging.
+Hello!
 
-Sigh, didn't even think to look for that. Okay, enabled and compiling a new
-kernel. This will take a few days to trigger, if the pattern holds, so in the
-meantime, any *other* thoughts?
+On Wed, 2006-11-15 at 14:21 -0500, John W. Linville wrote:
+> On Wed, Nov 15, 2006 at 07:42:14PM +0100, Michael Buesch wrote:
+> 
+> > Now that it seems to be ok to use these openbsd sources, should I port
+> > them to my driver framework?
+> > I looked over the ar5k code and, well, I don't like it. ;)
+> > I don't really like having a HAL. I'd rather prefer a "real" driver
+> > without that HAL obfuscation.
+> 
+> I don't think anyone likes the HAL-based architecture.  I don't think
+> we will accept a HAL-based driver into the upstream kernel.
+
+I said it before, and it's worth repeating.  Dissolving HAL in the
+sources is easy.  It's just a matter of moving functions around without
+serious chances of breaking anything as long as the source compiles.
+The whole "HAL-based architecture" can be reshuffled and eliminated by
+one person in a few days.
+
+Making things work properly takes years.  That's what MadWifi has been
+working on for a long time, using contributions and bug reports from
+scores of users and developers.
+
+Rejecting MadWifi because it's HAL based is like throwing away a diamond
+ring because it's too narrow.
+
+-- 
+Regards,
+Pavel Roskin
+
+

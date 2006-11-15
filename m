@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030847AbWKOSsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030845AbWKOSmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030847AbWKOSsR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030867AbWKOSsR
+	id S1030845AbWKOSmK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:42:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030842AbWKOSmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:48:17 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:15526 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030863AbWKOSsP (ORCPT
+	Wed, 15 Nov 2006 13:42:10 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:10384 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030836AbWKOSmI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:48:15 -0500
-Date: Wed, 15 Nov 2006 19:46:55 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Mikael Pettersson <mikpe@it.uu.se>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] floppy: suspend/resume fix
-Message-ID: <20061115184655.GA5748@elte.hu>
-References: <200611122047.kACKl8KP004895@harpo.it.uu.se> <20061112212941.GA31624@flint.arm.linux.org.uk> <20061112220318.GA3387@elte.hu> <20061112235410.GB31624@flint.arm.linux.org.uk> <20061114110958.GB2242@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061114110958.GB2242@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
-	[score: 0.1230]
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 15 Nov 2006 13:42:08 -0500
+Message-ID: <455B5F78.5060401@garzik.org>
+Date: Wed, 15 Nov 2006 13:42:00 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: Linus Torvalds <torvalds@osdl.org>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, tiwai@suse.de
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>	<20061114.190036.30187059.davem@davemloft.net>	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>	<20061114.192117.112621278.davem@davemloft.net>	<Pine.LNX.4.64.0611141935390.3349@woody.osdl.org>	<455A938A.4060002@garzik.org> <m3fyckdeam.fsf@defiant.localdomain>
+In-Reply-To: <m3fyckdeam.fsf@defiant.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Pavel Machek <pavel@ucw.cz> wrote:
-
-> > I wasn't talking about in-flight IO.  Take a moment to think about 
-> > it.
-> > 
-> > - You have a floppy inserted and mounted.
+Krzysztof Halasa wrote:
+> Jeff Garzik <jeff@garzik.org> writes:
 > 
-> Notice that Ingo is not talking about floppy being mounted.
+>> So far, MSI history on x86 has always followed these rules:
+>> * it works on Intel
+>> * it doesn't work [well | at all] on AMD/NV
+> 
+> I don't know how does it look when it doesn't work etc. but certainly
+> both NV Ethernet and HDA seem to work for me and:
 
-yeah. I was thinking in terms of "mdir a:".
+Oh I certainly agree (and it appears that Roland agrees) that MSI works 
+/somewhere/ on NV.  I give kudos to NV to working on forcedeth to make 
+sure it works well with MSI.  But unfortunately NV was also in the bug 
+report(s) linked.
 
-if a floppy is mounted then i agree that suspending is probably a bit 
-too much to expect from the kernel - but this particular bug affects 
-normal mtool use (which you can think of to be equivalent to mounting, 
-using and then umounting the floppy).
+Though OTOH, the driver wasn't calling pci_intx() nor setting irq flags 
+correctly, so who knows.
 
-	Ingo
+	Jeff
+
+
+

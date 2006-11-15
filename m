@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966773AbWKOKxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966794AbWKOLI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966773AbWKOKxh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 05:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966772AbWKOKxh
+	id S966794AbWKOLI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 06:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966795AbWKOLI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 05:53:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52238 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S966773AbWKOKxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 05:53:37 -0500
-Date: Wed, 15 Nov 2006 11:53:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alex Romosan <romosan@sycorax.lbl.gov>
-Subject: Re: 2.6.19-rc5: known regressions (v3)
-Message-ID: <20061115105342.GS22565@stusta.de>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061115102122.GQ22565@stusta.de> <20061115103505.GK23770@kernel.dk>
+	Wed, 15 Nov 2006 06:08:58 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:47837 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S966794AbWKOLI6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 06:08:58 -0500
+Date: Wed, 15 Nov 2006 12:06:14 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: David Miller <davem@davemloft.net>
+cc: viro@ftp.linux.org.uk, mperkel@yahoo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       zbrown@tumblerings.org
+Subject: Re: Majordomo is an obsolete piece of junk and Kernel should not be
+ running it!
+In-Reply-To: <20061114.215049.51840975.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0611151204010.19772@yvahk01.tjqt.qr>
+References: <20061114.200507.21927677.davem@davemloft.net>
+ <20061115042335.11460.qmail@web52506.mail.yahoo.com> <20061115054124.GA29920@ftp.linux.org.uk>
+ <20061114.215049.51840975.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061115103505.GK23770@kernel.dk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 11:35:05AM +0100, Jens Axboe wrote:
-> On Wed, Nov 15 2006, Adrian Bunk wrote:
-> > Subject    : unable to rip cd
-> > References : http://lkml.org/lkml/2006/10/13/100
-> >              http://lkml.org/lkml/2006/11/8/42
-> > Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
-> > Handled-By : Jens Axboe <jens.axboe@oracle.com>
-> > Status     : Jens is investigating
-> 
-> it's fixed and patched has been merged.
 
-Thanks for the information, I've removed it from my list.
+On Nov 14 2006 21:50, David Miller wrote:
+>
+>The following address(es) failed:
+>
+>  marc-kernel@perkel.com
+>    (generated from zbrown@tumblerings.org)
+>    Unrouteable address
 
-> Jens Axboe
+Can't we just agree that perkel.com's MX is fubared:
 
-cu
-Adrian
+12:04 ichi:../packages/SPECS > telnet mx.junkemailfilter.com. 25
+Trying 69.50.231.5...
+(wait and wait and wait)
 
+
+	-`J'
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-

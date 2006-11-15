@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161824AbWKOWFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161969AbWKOWOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161824AbWKOWFs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 17:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161827AbWKOWFs
+	id S1161969AbWKOWOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 17:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161970AbWKOWOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 17:05:48 -0500
-Received: from dvhart.com ([64.146.134.43]:34457 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1161824AbWKOWFs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 17:05:48 -0500
-Message-ID: <455B8F3A.6030503@mbligh.org>
-Date: Wed, 15 Nov 2006 14:05:46 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Wed, 15 Nov 2006 17:14:16 -0500
+Received: from hosting.zipcon.net ([209.221.136.3]:55177 "EHLO
+	hosting.zipcon.net") by vger.kernel.org with ESMTP id S1161969AbWKOWOP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 17:14:15 -0500
+Message-ID: <455B9133.9030704@beezmo.com>
+Date: Wed, 15 Nov 2006 14:14:11 -0800
+From: William D Waddington <william.waddington@beezmo.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Christian Krafft <krafft@de.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have
- no memory
-References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost> <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFCLUE3] flagging kernel interface changes
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hosting.zipcon.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - beezmo.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Wed, 15 Nov 2006, Christian Krafft wrote:
-> 
->> When booting a NUMA system with nodes that have no memory (eg by limiting memory),
->> bootmem_alloc_core tried to find pages in an uninitialized bootmem_map.
-> 
-> Why should we support nodes with no memory? If a node has no memory then 
-> its processors and other resources need to be attached to the nearest node 
-> with memory.
-> 
-> AFAICT The primary role of a node is to manage memory.
+I tried submitting a patch a while back:
+"[PATCH] IRQ: ease out-of-tree migration to new irq_handler prototype"
+to add #define __PT_REGS to include/linux/interrupt.h to flag the change
+to the new interrupt handler prototype.  It wasn't well received :(
 
-A node is an arbitrary container object containing one or more of:
+No big surprise.  The #define wasn't my idea and I hadn't submitted a
+patch before.  I wanted to see how the patch procedure worked, and
+hoped that the flag would be included so I could mod my drivers and
+move on...
 
-CPUs
-Memory
-IO bus
+What I'm curious about is why flagging kernel/driver interface changes
+is considered a bad idea.  From my point of view as a low-life out-of-
+tree driver maintainer,
 
-It does not have to contain memory.
+#ifdef NEW_INTERFACE
+#define <my new internals>
+#endif
 
-M.
+(w/maybe an #else...)
+
+is cleaner and safer than trying to track specific kernel versions in
+a multi-kernel-version driver.  It seems that in some cases, the new
+interface has been, like HAVE_COMPAT_IOCTL for instance.
+
+I don't want to start an argument about	"stable_api_nonsense" or the
+wisdom of out-of-tree drivers.  Just curious about the - why - and
+whether it is indifference or antagonism toward drivers outside the
+fold. Or ???
+
+Apologies for the long post, and thanks for your time.
+
+Bill
+-- 
+--------------------------------------------
+William D Waddington
+Bainbridge Island, WA, USA
+william.waddington@beezmo.com
+--------------------------------------------
+"Even bugs...are unexpected signposts on
+the long road of creativity..." - Ken Burtch

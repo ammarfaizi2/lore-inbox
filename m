@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966640AbWKOEFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966688AbWKOEFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966640AbWKOEFh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 23:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966573AbWKOEFh
+	id S966688AbWKOEFH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 23:05:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966632AbWKOEFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 23:05:37 -0500
-Received: from gate.crashing.org ([63.228.1.57]:41856 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S966667AbWKOEFg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 23:05:36 -0500
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-In-Reply-To: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-References: <200611150059.kAF0xBTl009796@hera.kernel.org>
-	 <455A6EBF.7060200@garzik.org>
-	 <Pine.LNX.4.64.0611141747490.3349@woody.osdl.org>
-	 <455A7E21.7020701@garzik.org>
-	 <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-Content-Type: text/plain
-Date: Wed, 15 Nov 2006 15:04:51 +1100
-Message-Id: <1163563491.5940.209.camel@localhost.localdomain>
+	Tue, 14 Nov 2006 23:05:07 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14759
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S966688AbWKOEFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 23:05:06 -0500
+Date: Tue, 14 Nov 2006 20:05:07 -0800 (PST)
+Message-Id: <20061114.200507.21927677.davem@davemloft.net>
+To: mperkel@yahoo.com
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: Re: Kernel list rejecting my email - braindead list
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061115035436.85558.qmail@web52508.mail.yahoo.com>
+References: <20061114.191918.112264008.davem@davemloft.net>
+	<20061115035436.85558.qmail@web52508.mail.yahoo.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Marc Perkel <mperkel@yahoo.com>
+Date: Tue, 14 Nov 2006 19:54:36 -0800 (PST)
 
-> I don't think "nice" is enough of an advantage to overcome "doesn't work 
-> on God knows how many systems".
+> If anyone should be sorry it should be you for taking
+> me off the list in the first place. Why are you
+> removing users every time a message bounces? That's
+> extremely abnormal.
 
-Note that the PCIe spec mandates MSIs while old style interrults (LSIs)
-are optional... The result is that there are already platforms (though
-not x86 just yet) being design with simply no support for LSIs on PCIe
-and I've heard of devices doing that too (yeah, that's weird, they
-wouldn't work in windows I suppose).
+First, you didn't read my email.  It wasn't "every bounce", it was
+every time your site generated a significant number of bounces all at
+once without "any sign of it ending any time soon."
 
-I suppose none of this affects x86 for now... For ppc, once we get our
-new MSI layer in, however, I'll have to keep them enabled by default,
-though there are fewer platforms involved and the chances at this point
-are fairly high that they all use a working chipset.
-  
-Ben.
+I've been doing this for more than 12 years, I know the difference
+between a bounce in response to SPAM and a bounce due to a site or
+email address being non-functional or busted.
 
+Feel free to keep defending yourself and ignoring what I have to say
+and I'll feel free to keep you on the ban list.
 
+When you run your own mailing lists, you can use whatever mailing list
+software you want and enforce whatever policies you want.
+
+Al Viro has weighed in on this topic before, perhaps he can give you a
+little bit insight on of his opinion on this matter which is shared
+by a large number of other linux-kernel users as well.

@@ -1,145 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbWKOOGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbWKOOJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030458AbWKOOGn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 09:06:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbWKOOGn
+	id S1030465AbWKOOJw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 09:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030467AbWKOOJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 09:06:43 -0500
-Received: from pat.uio.no ([129.240.10.15]:50108 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030458AbWKOOGm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 09:06:42 -0500
-Subject: Re: Security issues with local filesystem caching
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Howells <dhowells@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Karl MacMillan <kmacmill@redhat.com>,
-       jmorris@namei.org, chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com
-In-Reply-To: <11957.1163532168@redhat.com>
-References: <1162575034.5629.24.camel@lade.trondhjem.org>
-	 <1162561291.5635.64.camel@lade.trondhjem.org>
-	 <1162502667.6071.66.camel@lade.trondhjem.org>
-	 <1162496968.6071.38.camel@lade.trondhjem.org>
-	 <1162402218.32614.230.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil>
-	 <16969.1161771256@redhat.com> <31035.1162330008@redhat.com>
-	 <4417.1162395294@redhat.com> <25037.1162487801@redhat.com>
-	 <32754.1162499917@redhat.com> <12984.1162549621@redhat.com>
-	 <22908.1162567413@redhat.com>   <11957.1163532168@redhat.com>
-Content-Type: text/plain
-Date: Wed, 15 Nov 2006 09:05:42 -0500
-Message-Id: <1163599542.5691.84.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.197, required 12,
-	autolearn=disabled, AWL 1.67, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Wed, 15 Nov 2006 09:09:52 -0500
+Received: from mga01.intel.com ([192.55.52.88]:30143 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1030465AbWKOOJv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 09:09:51 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,425,1157353200"; 
+   d="scan'208"; a="164293764:sNHT21255479"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.19-rc5-mm2
+Date: Wed, 15 Nov 2006 06:09:47 -0800
+Message-ID: <EB12A50964762B4D8111D55B764A8454E4109A@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.19-rc5-mm2
+Thread-Index: AccIocz2iST7HMENQHCzBRVrSuep/wAHKcBA
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: <ego@in.ibm.com>, "Reuben Farrelly" <reuben-linuxkernel@reub.net>,
+       "Andrew Morton" <akpm@osdl.org>, <davej@redhat.com>,
+       <linux-kernel@vger.kernel.org>,
+       "CPUFreq Mailing List" <cpufreq@lists.linux.org.uk>,
+       "Mattia Dongili" <malattia@linux.it>
+X-OriginalArrivalTime: 15 Nov 2006 14:09:49.0332 (UTC) FILETIME=[B6485D40:01C708BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-14 at 19:22 +0000, David Howells wrote:
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> 
-> > > Avoiding context switches aren't the main problem; avoiding serialisation
-> > > is.
-> > 
-> > Why? It is a backing cache. The only case where serialisation ought to
-> > bother you is the case where the client has to invalidate the cache due
-> > to a server-side update of the file.
-> 
-> Cache invalidation is not so much of a problem as at that point we know exactly
-> where whatever it is that we're invalidating is, and if it's a big object we
-> just move it somewhere for the userspace daemon to splat.
-> 
-> The serialisation problem is that if we put cache lookup in its own thread,
-> then in effect every open[*] of an NFS file, AFS file, whatever, will be
-> serialised.
+ 
+
+>-----Original Message-----
+>From: Gautham R Shenoy [mailto:ego@in.ibm.com] 
+>Sent: Wednesday, November 15, 2006 2:34 AM
+>To: Gautham R Shenoy; Reuben Farrelly; Andrew Morton; 
+>davej@redhat.com; linux-kernel@vger.kernel.org; Pallipadi, 
+>Venkatesh; CPUFreq Mailing List
+>Subject: Re: 2.6.19-rc5-mm2
 >
-> It almost certainly wouldn't matter if what we did was to asynchronously look
-> up the cache cookie for a file.  In the common case, an open(O_RDONLY) syscall
-> is followed almost immediately by a read(), so there's not much to be gained
-> from asynchronising things as the cache cookie has to be available by the time
-> we come to process the read, but we can't get the cache cookie before
-> completing the server checks made by open, as we need the coherency data before
-> attempting to acquire a cookie.
+>Hi,
+>
+>On Tue, Nov 14, 2006 at 09:58:29PM +0100, Mattia Dongili wrote:
+>> 
+>> maybe this helps? mostly guessing here, but when cpufreq_userspace is
+>> the default governor we may hit this path and leave policy->cur
+>> unset.
+>
+>I doubt if that's causing the problem. My reasons are:
+>
+>- Reuben's config shows his system to be a x64_64. So if I am not
+>  mistaken, the correct file look for would be 
+>  arch/ia64/kernel/cpufreq/acpi-cpufreq.c.
 
-No. All you should need is the result of the lookup(). The coherency
-data needs to be checked against an eventual existing CacheFiles entry
-during the call to read(), not before.
+ia64 and x86_64 are different!
+X86_64 shares acpi-cpufreq.c in arch/i386/kernel/cpu/cpufreq. So, that
+is the file that can be causing problems here.
 
-> The serialisation would stem from having to do several synchronous filesystem
-> ops for each cache lookup, but only having one thread in which to do them.
-> Okay, I could have several worker threads, but why?  Each process attempting to
-> access the cache provides me with a suitable worker thread, and then I can have
-> as many as there are tasks on the system.
+>- The fix provided by you deals with the state of a 
+>  driver(hardware) specific variable data->cpu_feature while the
+>  governors like userspace/performance/powersave/ondemand are 
+>  driver(hardware) independent.
+>
+>Nevertheless, it could be a valid fix for i386 acpi_cpufreq considering
+>that policy->cur is not being initialized if 
+>data->cpu_feature == ACPI_ADR_SPACE_FIXED_HARDWARE.
 
-Umm...because the former is a model which actually fits your security
-requirements (i.e. one privileged daemon gets lookup()+open()+mkdir()...
-rights on the CacheFiles partition), whereas the latter is not (all
-tasks need lookup()+open()+mkdir().... privileges)?
+Yes. Patch from Mattia is indeed required for acpi-cpufreq. 
+Mattia: Can you please send the patch towards Andrew (With signed off
+etc) for inclusion.
 
-> [*] Note that for NFS I've now incorporated a patch from Steve Dickson to
-> acquire file cookies on the NFS open() file op, rather than during iget because
-> NFS readdir calls iget.
-> 
-> > Once the RPC calls have been launched, the process returns to the VM
-> > layer and just waits for the next page to be unlocked. It never returns
-> > to the filesystem layer. So where are you using the process context to
-> > write out the cached data?
-> 
-> What do you mean by "write out the cached data"?  Do you mean write the data to
-> the cache?
-> 
-> If so, that'd be nfs_readpage_to_fscache() as called from nfs_readpage_sync()
-> or nfs_readpage_release().
+Reuben: Can you please enable CPU_FREQ_DEBUG in your config and boot
+with "cpufreq.debug=7" boot parameter and send me the log. That will
+give some more debug information that should help to root cause this
+faster.
 
-nfs_readpage_release() is an rpciod context, _not_ a user thread
-context.
-
-> That calls fscache_write_page() which calls cachefiles_write_page() which calls
-> generic_file_buffered_write_one_kernel_page().
-> 
-> That last copies the data into the pagecache attached to an ext3 inode to be
-> written out (hopefully) asynchronously.
-> 
-> However, that may do other disk accesses, I suppose, as it calls
-> prepare_write() and commit_write() on ext3.
-
-Which would generally be forbidden under the rpciod context, BTW, since
-they imply calls to generic memory allocation (== nasty tricksy deadlock
-potential, since rpciod may be called upon to help write out NFS pages
-via shrink_page_list and friends).
-
-> I could try and make it asynchronous, but that means more overhead in other
-> ways:-(  I presume this will then sometimes be running in rpciod context?
-> 
-> > The cookie lookups need to be synchronous, but why would the file
-> > creation need to be synchronous? Creating the cachefs file and waiting
-> > on that to complete etc are all utterly useless activities as far as
-> > satisfying the user request for data goes. Just start the process of
-> > creating a backing file, and then get on with the actual syscall.
-> 
-> vfs_mkdir() is synchronous.  vfs_create() is synchronous.  vfs_[sg]etxattr is
-> synchronous.  Lookup is synchronous.
-
-All of them are synchronous as far as accessing the remote filesystem is
-concerned. Why would the user process care if a privileged daemon has
-completed the shadow mkdir() or create() on the CacheFiles system or
-not?
-
-> Yes, I could make them all asynchronous, but it'd be a lot more work, and
-> mostly unnecessary, and I'd probably have to fight down lots of objections.
-> 
-> 
-> Remember: in the common case, open(O_RDONLY) is going to be followed quickly by
-> a read().  I suppose there may be an intervening stat() and malloc(), but even
-> so...
-
-Which is why lookup() + open() + read() needs to be fast in the case
-where you have a CacheFiles hit. It does not justify mkdir, create, etc
-being fast, nor does it justify the open() + read() part needing to be
-fast in the case of a CacheFiles miss.
-
-  Trond
-
+Thanks,
+Venki

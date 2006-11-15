@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966792AbWKOLIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966787AbWKOLKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966792AbWKOLIT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 06:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966793AbWKOLIT
+	id S966787AbWKOLKx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 06:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966796AbWKOLKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 06:08:19 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:37588 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S966792AbWKOLIS (ORCPT
+	Wed, 15 Nov 2006 06:10:53 -0500
+Received: from z2.cat.iki.fi ([212.16.98.133]:2742 "EHLO z2.cat.iki.fi")
+	by vger.kernel.org with ESMTP id S966795AbWKOLKv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 06:08:18 -0500
-Date: Wed, 15 Nov 2006 11:58:00 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Mark Lord <lkml@rtr.ca>
-cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Pavel Machek <pavel@ucw.cz>,
-       Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@suse.de>,
-       John Fremlin <not@just.any.name>,
-       kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
-       jim.kardach@intel.com
-Subject: Re: HD head unloads
-In-Reply-To: <455A05C2.6080508@rtr.ca>
-Message-ID: <Pine.LNX.4.61.0611151157000.19772@yvahk01.tjqt.qr>
-References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061113142219.GA2703@elf.ucw.cz>
- <45589008.1080001@garzik.org> <200611131637.56737.ak@suse.de>
- <455893E5.4010001@garzik.org> <4558B232.8080600@rtr.ca> <20061113220127.GA1704@elf.ucw.cz>
- <20061114034355.GB5810@khazad-dum.debian.net> <Pine.LNX.4.61.0611141021040.29913@yvahk01.tjqt.qr>
- <455A05C2.6080508@rtr.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Wed, 15 Nov 2006 06:10:51 -0500
+Date: Wed, 15 Nov 2006 13:10:49 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Marc Perkel <mperkel@yahoo.com>
+Cc: Al Viro <viro@ftp.linux.org.uk>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Majordomo is an obsolete piece of junk and Kernel should not be running it!
+Message-ID: <20061115111049.GK10054@mea-ext.zmailer.org>
+References: <20061114.200507.21927677.davem@davemloft.net> <20061115042335.11460.qmail@web52506.mail.yahoo.com> <20061115054124.GA29920@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061115054124.GA29920@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 15, 2006 at 05:41:24AM +0000, Al Viro wrote:
+> On Tue, Nov 14, 2006 at 08:23:35PM -0800, Marc Perkel wrote:
+>  
+> > This is the only list I get booted from so that makes
+> > me think the problem is with the list and not with me.
+> > It seems that you are also using 12 year old software
+> > as well.  Why not get something modern like Mailman
+> > like most other lists use and then you don't have to
+> > be watching the bounces? 
 
-On Nov 14 2006 13:06, Mark Lord wrote:
-> Jan Engelhardt wrote:
->> 
->> Let me jump in here. Short info: Toshiba MK2003GAH 1.8" 20GB PATA
->> harddisk, in a Sony Vaio U3 (x86, gray-blue PhoenixBIOS).
->> If idle for more than 5 secs, unloads. Even when not inside any OS, which
->> really sets me off.
->>    So I wrote a quick workaround hack for Linux, http://tinyurl.com/y3qs6g
->> It reads a predefined amount of bytes (just as much to not cause slowdown
->> yet still cause it to not unload) from the disk at fixed intervals.
->
-> Thanks for the info.
-> Jan, in your specific case, can you not "fix it" properly with:
->
->   hdparm -B255 /dev/?d?
+More like 20 years old..
 
-No not really. The unload threshold only raises up to about 15 seconds.
+With mailman handling the bounces..  Leaked in spams will
+cause subscribers to be dropped right and left, and far
+sooner than after 5 days of persistent non-delivery...
 
+> > The problem is that you are running Majordomo which in
+> > it's day was great, but is day has passed. 
 
-	-`J'
--- 
+I really have not seen anything better than Majordomo 1.9x.
+There are lots of eye-candy and web-candy thingies out there,
+but principal task of adding/removing subscribers on list
+dataset and delivering messages to those are still the things
+that define list management.
+
+With this Majordomo we can define lists that permit incoming
+posting only from subscribers, we can even define poster address
+datasets that are not subscribers!  However for most of our lists
+we have chosen to run "posting is open, subject to silent filtering".
+
+Most new beasts want to make email delivery themselves (act as
+an MTA) instead of delegating it to an MTA in form which really
+is high performance.  I did that integration some 10 years ago,
+and we haven't had a need to look back.
+
+One incoming-to-list message goes thru Majordomo processing, and
+is given out as ONE message to MTA for delivery to 4000+ recipients.
+We would need to lot bigger server (-farm) to handle things in
+ways that those "send unique message to everybody" piece of junk
+list-softwares do it.
+
+  /Matti Aarnio  --  one of <postmaster at vger.kernel.org>

@@ -1,71 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161714AbWKOVZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161716AbWKOVZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161714AbWKOVZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 16:25:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161717AbWKOVZ1
+	id S1161716AbWKOVZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 16:25:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161717AbWKOVZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 16:25:27 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:52139 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161714AbWKOVZ0 (ORCPT
+	Wed, 15 Nov 2006 16:25:28 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:45532 "EHLO omx1.sgi.com")
+	by vger.kernel.org with ESMTP id S1161716AbWKOVZ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 16:25:26 -0500
-Date: Wed, 15 Nov 2006 16:24:11 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org, ebiederm@xmission.com, hpa@zytor.com,
-       Reloc Kernel List <fastboot@lists.osdl.org>, magnus.damm@gmail.com,
-       ak@suse.de, pavel@suse.cz, rjw@sisk.pl
-Subject: Re: [Fastboot] [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-Message-ID: <20061115212411.GF9039@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061113164314.GK17429@in.ibm.com>
-User-Agent: Mutt/1.5.11
+	Wed, 15 Nov 2006 16:25:27 -0500
+Date: Wed, 15 Nov 2006 13:24:55 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Christian Krafft <krafft@de.ibm.com>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have
+ no memory
+In-Reply-To: <20061115193437.25cdc371@localhost>
+Message-ID: <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
+References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 11:43:14AM -0500, Vivek Goyal wrote:
-> 
-> 
-> - Killed lots of dead code
-> - Improve the cpu sanity checks to verify long mode
->   is enabled when we wake up.
-> - Removed the need for modifying any existing kernel page table.
-> - Moved wakeup_level4_pgt into the wakeup routine so we can
->   run the kernel above 4G.
-> - Increased the size of the wakeup routine to 8K.
-> - Renamed the variables to use the 64bit register names.
-> - Lots of misc cleanups to match trampoline.S
-> 
-> I don't have a configuration I can test this but it compiles cleanly
-> and it should work, the code is very similar to the SMP trampoline,
-> which I have tested.  At least now the comments about still running in
-> low memory are actually correct.
-> 
-> Vivek has tested this patch for suspend to memory and it works fine.
-> 
+On Wed, 15 Nov 2006, Christian Krafft wrote:
 
-More update. Got hold of another machine and suspend/resume seems to be
-facing problems.
+> When booting a NUMA system with nodes that have no memory (eg by limiting memory),
+> bootmem_alloc_core tried to find pages in an uninitialized bootmem_map.
 
-With 2.6.19-rc5-git2
---------------------
-- echo 3 > /proc/acpi/sleep (Suspend to memory takes place)
-- Press power button (System tries to come back but fails in MPT adapter
-			initialization)
+Why should we support nodes with no memory? If a node has no memory then 
+its processors and other resources need to be attached to the nearest node 
+with memory.
 
-With 2.6.19-rc5-git2 + Reloc patches
-------------------------------------
-- echo 3 > /proc/acpi/sleep (Suspend to memory takes place)
-- Press power button (Fan powers on but nothing additional is displayed on
-			serial console.)
-
-Will do a bisect and try to isolate the problem.
-
-Pavel, I hope my testing procedure is right?
-
-Thanks
-Vivek
+AFAICT The primary role of a node is to manage memory.

@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966097AbWKODtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966116AbWKODxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966097AbWKODtm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 22:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966103AbWKODtm
+	id S966116AbWKODxl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 22:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966103AbWKODxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 22:49:42 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:60065 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S966097AbWKODtl (ORCPT
+	Tue, 14 Nov 2006 22:53:41 -0500
+Received: from mmail.enter.net ([216.193.128.40]:6504 "EHLO mmail.enter.net")
+	by vger.kernel.org with ESMTP id S966101AbWKODxk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 22:49:41 -0500
-From: Andi Kleen <ak@suse.de>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-Date: Wed, 15 Nov 2006 04:49:25 +0100
+	Tue, 14 Nov 2006 22:53:40 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+Date: Tue, 14 Nov 2006 22:53:29 -0500
 User-Agent: KMail/1.9.5
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org,
-       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com
-References: <20061113162135.GA17429@in.ibm.com> <m1fyclk8ws.fsf@ebiederm.dsl.xmission.com> <20061114234334.GB3394@elf.ucw.cz>
-In-Reply-To: <20061114234334.GB3394@elf.ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+References: <200611150059.kAF0xBTl009796@hera.kernel.org> <200611142210.51162.dhazelton@enter.net> <455A89CA.60507@garzik.org>
+In-Reply-To: <455A89CA.60507@garzik.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611150449.26057.ak@suse.de>
+Message-Id: <200611142253.29866.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 November 2006 00:43, Pavel Machek wrote:
-> Hi!
-> 
-> > >> I don't have a configuration I can test this but it compiles cleanly
-> > >
-> > > Ugh, now that's a big patch.. and untested, too :-(.
-> > 
-> > It was very carefully code reviewed at least the first time,
-> > and the code was put in sync with code that was tested.
-> 
-> So we had two very different versions of "switch to 64-bit" and now we
-> have two mostly similar versions. Not a big improvement...
+On Tuesday 14 November 2006 22:30, Jeff Garzik wrote:
+> D. Hazelton wrote:
+> > Again crowing about how something works on ONE (1) (Uno, Eins, Un, Ichi)
+> > platform. A single working platform is no reason to complicate code with
+> > a whitelist.
+>
+> A rather high volume platform with lots of users.
+>
+> 	Jeff
 
-Hmm? That's an improvement in my book. Of course i would prefer
-truly shared code, but even more similar code is better.
+Point is that it is still only one platform. Or don't you understand the point 
+I was making?
 
-> > > Why is PGE no longer required, for example?
-> > 
-> > PGE is never required.  Especially on a temporary page table.
-> > PGE is an optimization, to make context switches faster.
-> 
-> HPA tells me it is.
-
-He was just nitpicking. Eric is right it is just an optimization
-(modulo hardware/software bugs) 
-
--Andi
+DRH

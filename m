@@ -1,96 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754864AbWKOCkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755373AbWKOCuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754864AbWKOCkh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 21:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754866AbWKOCkh
+	id S1755373AbWKOCuL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 21:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755468AbWKOCuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 21:40:37 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:54235 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1754864AbWKOCkg (ORCPT
+	Tue, 14 Nov 2006 21:50:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38876 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1755373AbWKOCuK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 21:40:36 -0500
-Message-ID: <455A7E21.7020701@garzik.org>
-Date: Tue, 14 Nov 2006 21:40:33 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Tue, 14 Nov 2006 21:50:10 -0500
+Date: Tue, 14 Nov 2006 18:49:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Takashi Iwai <tiwai@suse.de>
 Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-References: <200611150059.kAF0xBTl009796@hera.kernel.org> <455A6EBF.7060200@garzik.org> <Pine.LNX.4.64.0611141747490.3349@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611141747490.3349@woody.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+In-Reply-To: <455A7E21.7020701@garzik.org>
+Message-ID: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
+References: <200611150059.kAF0xBTl009796@hera.kernel.org> <455A6EBF.7060200@garzik.org>
+ <Pine.LNX.4.64.0611141747490.3349@woody.osdl.org> <455A7E21.7020701@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+
+
+On Tue, 14 Nov 2006, Jeff Garzik wrote:
 > 
-> On Tue, 14 Nov 2006, Jeff Garzik wrote:
->> :(  Like AHCI, PCI MSI has -always- worked wonderfully for HD audio AFAIK.
-> 
-> That "AFAIK" is shorthand for "As Far As I haven't read any of the 
-> bug-reports but Know", right?
+> But not on Intel, hence the obvious whitelist question.
 
-None of the bug reports indicate Intel, thus following the well 
-established pattern of "it works great on Intel, but not elsewhere"
+Hmm. Maybe. I'd be happier with a global "we can do MSI" flag, and making 
+it easier for people to enable it (rather than do this one driver at a 
+time). And yes, _if_ it's true that MSI works on all Intel SB/NB 
+combinations, then maybe we could enable it for those systems.
 
+In the meantime, I'm really tired of continually hearing about MSI 
+problems, when there really aren't that many advantages.
 
->> Is a whitelist patch forthcoming?
-> 
-> Probably not. The advantages of MSI aren't all that obvious, and the 
-> disadvantages seem to be that it just doesn't work all that well for some 
-> people.
-> 
-> The fact that it works for MOST people has absolutely zero relevance. 
-> We've had too many frigging patches that have apparently been of the "this 
-> works for me, I don't care if some other motherboard has problems" kind.
-> 
-> See for example:
-> 
-> 	http://lkml.org/lkml/2006/10/7/164
-> 
-> and yes, that HDA MSI _does_ seem to be causing problems.
+> It's nice not to have to deal with shared interrupts.
 
-But not on Intel, hence the obvious whitelist question.
+I don't think "nice" is enough of an advantage to overcome "doesn't work 
+on God knows how many systems".
 
-
-> So don't blather about "MSI never causes problems". It's broken. Please 
-> stop living in denial.
-> 
-> When somebody can actually say what the huge advantages to MSI are that 
-> it's worth using when 
-> 
->  (a) several motherboards are apparently known broken
-
-several non-Intel motherboards
-
-
->  (b) microsoft apparently is of the same opinion and _also_ doesn't use it
-
-Yeah well, that's sage advice only when it's sage advice.  MS lags us by 
-years.  We do some bleeding, on the bleeding edge.
-
-
->  (c) the old non-MSI code works fine
-> 
->  (d) there is apparently no fool-proof way to tell when it works and when 
->      it doesn't.
-> 
-> then please holler. Btw, I'm not even _interested_ in any advantages 
-> unless you also have a solution for (d). Not a "it should work". I want to 
-> hear something that is _guaranteed_ to work.
-
-if (intel) ...
-
-That has a track record of working.
-
-It's nice not to have to deal with shared interrupts.
-
-	Jeff
-
-
+		Linus

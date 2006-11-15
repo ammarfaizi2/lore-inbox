@@ -1,55 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWKOTtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161209AbWKOTwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161179AbWKOTtE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 14:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161187AbWKOTtE
+	id S1161209AbWKOTwn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 14:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161219AbWKOTwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 14:49:04 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:45204 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161179AbWKOTtB (ORCPT
+	Wed, 15 Nov 2006 14:52:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:28621 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161209AbWKOTwm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 14:49:01 -0500
-Message-ID: <455B6F20.6050503@garzik.org>
-Date: Wed, 15 Nov 2006 14:48:48 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Stephen.Clark@seclark.us
-CC: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Takashi Iwai <tiwai@suse.de>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org
+	Wed, 15 Nov 2006 14:52:42 -0500
+Date: Wed, 15 Nov 2006 11:49:28 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>  <20061114.190036.30187059.davem@davemloft.net>  <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>  <20061114.192117.112621278.davem@davemloft.net>  <s5hbqn99f2v.wl%tiwai@suse.de>  <Pine.LNX.4.64.0611150814000.3349@woody.osdl.org> <1163607889.31358.132.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0611150829460.3349@woody.osdl.org> <455B6BB1.7030009@seclark.us>
-In-Reply-To: <455B6BB1.7030009@seclark.us>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-ID: <20061115114928.6ff0936e@freekitty>
+In-Reply-To: <455B6928.5030202@garzik.org>
+References: <20061114.192117.112621278.davem@davemloft.net>
+	<Pine.LNX.4.64.0611141935390.3349@woody.osdl.org>
+	<455A938A.4060002@garzik.org>
+	<20061114.201549.69019823.davem@davemloft.net>
+	<455A9664.50404@garzik.org>
+	<20061115110953.6cafdef8@freekitty>
+	<455B6928.5030202@garzik.org>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Clark wrote:
-> Also, I find it disturbing that we are forcing users to have know about 
-> all these
-> magic options that have to be put on the kernel boot line. My hard drive 
-> on my
-> new laptop would only run at 1.2mbs until I found out I had to use 
-> combined_mode=libata
-> and build a new ramdisk that included ata_piix.
+On Wed, 15 Nov 2006 14:23:20 -0500
+Jeff Garzik <jeff@garzik.org> wrote:
 
-That's what happens when two drivers want to drive the same hardware. 
-The "slow and safe" default is the only proven-stable option, with the 
-proven-stable PATA driver.  The other two options (drivers/ide for 
-PATA+SATA -> leads to SATA locksup) and (libata for PATA -> ok but 
-breaks existing configs, and less field time) are considered less safe.
+> Stephen Hemminger wrote:
+> > On Tue, 14 Nov 2006 23:24:04 -0500
+> > Jeff Garzik <jeff@garzik.org> wrote:
+> > 
+> >> David Miller wrote:
+> >>> Is this absolutely true?  I've never been sure about this point, and I
+> >>> was rather convinced after reading various documents that once you
+> >>> program up the MSI registers to start generating MSI this implicitly
+> >>> disabled INTX and this was even in the PCI specification.
+> >>>
+> >>> It would be great to get a definitive answer on this.
+> >>>
+> >>> If it is mandatory, perhaps the driver shouldn't be doing it and
+> >>> rather the PCI layer MSI enabling should.
+> > 
+> > pci_enable_msi() calls msi_capability_init() and that disables intx
+> > already.
+> [...]
+> > The driver shouldn't deal with this, pci_disable_msi() does.
+> 
+> Explicit code reference please?
+> 
+> AFAICS the PCI layer only touched INTx bit for PCI-Express devices.
 
-Combined mode is ugly no matter how you look at it.  Just turn it off in 
-BIOS (or pressure system vendor for this ability if BIOS lacks it, e.g. 
-some Dell servers)
+Yeah, why is that? Shouldn't it always be adjusting intx. 
+Are there are any MSI capable devices on non-PCI express?
+Sorry, don't have PCI spec (costs real $$) to check.
 
-And throw some annoyance at Intel for creating such a headache.
+--- 2.6.19-rc5.orig/drivers/pci/msi.c	2006-11-15 11:46:23.000000000 -0800
++++ 2.6.19-rc5/drivers/pci/msi.c	2006-11-15 11:46:55.000000000 -0800
+@@ -255,10 +255,7 @@
+ 		pci_write_config_word(dev, msi_control_reg(pos), control);
+ 		dev->msix_enabled = 1;
+ 	}
+-    	if (pci_find_capability(dev, PCI_CAP_ID_EXP)) {
+-		/* PCI Express Endpoint device detected */
+-		pci_intx(dev, 0);  /* disable intx */
+-	}
++	pci_intx(dev, 0);  /* disable intx */
+ }
+ 
+ void disable_msi_mode(struct pci_dev *dev, int pos, int type)
+@@ -276,10 +273,8 @@
+ 		pci_write_config_word(dev, msi_control_reg(pos), control);
+ 		dev->msix_enabled = 0;
+ 	}
+-    	if (pci_find_capability(dev, PCI_CAP_ID_EXP)) {
+-		/* PCI Express Endpoint device detected */
+-		pci_intx(dev, 1);  /* enable intx */
+-	}
++
++	pci_intx(dev, 1);  /* re-enable intx */
+ }
+ 
+ static int msi_lookup_irq(struct pci_dev *dev, int type)
 
-	Jeff
+		
 
 
+-- 
+Stephen Hemminger <shemminger@osdl.org>

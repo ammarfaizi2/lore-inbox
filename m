@@ -1,190 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966729AbWKOKLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966735AbWKOKME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966729AbWKOKLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 05:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966736AbWKOKLJ
+	id S966735AbWKOKME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 05:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966736AbWKOKME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 05:11:09 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:62400 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S966729AbWKOKLH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 05:11:07 -0500
-Date: Wed, 15 Nov 2006 11:11:36 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [Patch -mm 2/5] driver core: Introduce device_move(): move a
- device to a new parent.
-Message-ID: <20061115111136.3542aca3@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <1163583119.4244.6.camel@pim.off.vrfy.org>
-References: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
-	<20061115065052.GC23810@kroah.com>
-	<20061115082856.195ca0ab@gondolin.boeblingen.de.ibm.com>
-	<3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
-	<20061115102409.6e6e5dc0@gondolin.boeblingen.de.ibm.com>
-	<1163583119.4244.6.camel@pim.off.vrfy.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Nov 2006 05:12:04 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:27372 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S966735AbWKOKMB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 05:12:01 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [Linux-fbdev-devel] Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
+Date: Wed, 15 Nov 2006 11:09:05 +0100
+User-Agent: KMail/1.9.1
+Cc: Christian Hoffmann <chrmhoffmann@gmail.com>,
+       linux-fbdev-devel@lists.sourceforge.net,
+       Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Solomon Peachy <pizza@shaftnet.org>, Pavel Machek <pavel@ucw.cz>
+References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com> <200611150154.39499.chrmhoffmann@gmail.com> <1163555308.5940.177.camel@localhost.localdomain>
+In-Reply-To: <1163555308.5940.177.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611151109.06956.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 10:31:59 +0100,
-Kay Sievers <kay.sievers@vrfy.org> wrote:
-
-> We need the old DEVPATH in the environment (or something similar),
-> otherwise we can't connect the event with the new device location to the
-> current device. :)
-
-Duh. I've attached another completely untested patch below.
-
-> > Wouldn't we need something similar for kobject_rename()
-> > as well?
+On Wednesday, 15 November 2006 02:48, Benjamin Herrenschmidt wrote:
+> On Wed, 2006-11-15 at 01:54 +0100, Christian Hoffmann wrote:
+> > On Tuesday 14 November 2006 23:07, Benjamin Herrenschmidt wrote:
+> > > > I tried that patch, but the last message I see over netconsole (using
+> > > > tg3) is: Suspending console(s)
+> > > > and then nothing. Nothing on resume at all :(
+> > > >
+> > > > Adding some printks in the radeonfb_pci_suspend and radeonfb_pci_resume
+> > > > (radeon_pm.c) didn't help: I don't see them. But I am not a kernel
+> > > > programmer at all, so I might do something wrong or in the wrong place.
+> > >
+> > > Does it resume if you make radeon_pci_resume() a nop ?
+> > >
+> > > Of course, the fbdev will not come back, but will the machine overall
+> > > resume ?
+> > >
+> > > Ben.
+> > Yes, if i make radeon_pci_resume a nop, the machine resumes if i do a return 0 
+> > immediately.
+> > I think I tracked it down to the call to acquire_console_sem() as the 
+> > following code makes the machine hang again:
+> > 
+> > int radeonfb_pci_resume(struct pci_dev *pdev)
+> > {
+> >         struct fb_info *info = pci_get_drvdata(pdev);
+> >         struct radeonfb_info *rinfo = info->par;
+> >         int rc = 0;
+> >         if (pdev->dev.power.power_state.event == PM_EVENT_ON)
+> >                 return 0;
+> >         if (rinfo->no_schedule) {
+> >         /*      if (try_acquire_console_sem())*/
+> >                         return 0;
+> >         } else
+> >                 acquire_console_sem();
+> > 
+> >         return 0;
+> > ...
 > 
-> Maybe kobject_rename() can go, if we have a move function which can be
-> used. In any case, the events should look identical to userspace, yes.
+> Well, if you acquire the console sem you need to release it too :-)
 
-I think kobject_move() and kobject_rename() are two different beasts.
-kobject_move() changes the topology, kobject_rename() changes an
-identifier. Shouldn't they be reported in two different ways to
-userspace?
+Or the console semaphore is acquired too many times.
 
----
- include/linux/kobject.h |    6 ++++++
- lib/kobject.c           |   13 +++++++++++++
- lib/kobject_uevent.c    |   38 ++++++++++++++++++++++++++++++--------
- 3 files changed, 49 insertions(+), 8 deletions(-)
+Christian, could you please add release_console_sem() before 'return 0'
+and see if that makes the code work again?  If not, could you add a printk()
+in kernel/printk.c/acquire_console_sem() to see how many times it is called?
 
---- linux-2.6-CH.orig/include/linux/kobject.h
-+++ linux-2.6-CH/include/linux/kobject.h
-@@ -47,6 +47,7 @@ enum kobject_action {
- 	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices (broken) */
- 	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* device offline */
- 	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* device online */
-+	KOBJ_MOVE	= (__force kobject_action_t) 0x08,	/* device move */
- };
- 
- struct kobject {
-@@ -265,6 +266,8 @@ extern int __must_check subsys_create_fi
- 
- #if defined(CONFIG_HOTPLUG)
- void kobject_uevent(struct kobject *kobj, enum kobject_action action);
-+void kobject_uevent_extended(struct kobject *kobj, enum kobject_action action,
-+			     const char *string);
- 
- int add_uevent_var(char **envp, int num_envp, int *cur_index,
- 			char *buffer, int buffer_size, int *cur_len,
-@@ -272,6 +275,9 @@ int add_uevent_var(char **envp, int num_
- 	__attribute__((format (printf, 7, 8)));
- #else
- static inline void kobject_uevent(struct kobject *kobj, enum kobject_action action) { }
-+static inline void kobject_uevent_extended(struct kobject *kobj,
-+					   enum kobject_action action,
-+					   const char *string) { }
- 
- static inline int add_uevent_var(char **envp, int num_envp, int *cur_index,
- 				      char *buffer, int buffer_size, int *cur_len, 
---- linux-2.6-CH.orig/lib/kobject.c
-+++ linux-2.6-CH/lib/kobject.c
-@@ -364,6 +364,8 @@ int kobject_move(struct kobject *kobj, s
- {
- 	int error;
- 	struct kobject *old_parent;
-+	const char *devpath = NULL;
-+	const char *devpath_string = NULL;
- 
- 	kobj = kobject_get(kobj);
- 	if (!kobj)
-@@ -373,14 +375,25 @@ int kobject_move(struct kobject *kobj, s
- 		error = -EINVAL;
- 		goto out;
- 	}
-+	/* old object path */
-+	devpath = kobject_get_path(kobj, GFP_KERNEL);
-+	if (!devpath)
-+		goto out;
-+	devpath_string = kmalloc(strlen(devpath) + 15, GFP_KERNEL);
-+	if (!devpath_string)
-+		goto out;
-+	sprintf(devpath_string, "OLD_DEVPATH=%s", devpath);
- 	error = sysfs_move_dir(kobj, new_parent);
- 	if (error)
- 		goto out;
- 	old_parent = kobj->parent;
- 	kobj->parent = new_parent;
- 	kobject_put(old_parent);
-+	kobject_uevent_extended(kobj, KOBJ_MOVE, devpath);
- out:
- 	kobject_put(kobj);
-+	kfree(devpath_string);
-+	kfree(devpath);
- 	return error;
- }
- 
---- linux-2.6-CH.orig/lib/kobject_uevent.c
-+++ linux-2.6-CH/lib/kobject_uevent.c
-@@ -55,13 +55,8 @@ static char *action_to_string(enum kobje
- 	}
- }
- 
--/**
-- * kobject_uevent - notify userspace by ending an uevent
-- *
-- * @action: action that is happening (usually KOBJ_ADD and KOBJ_REMOVE)
-- * @kobj: struct kobject that the action is happening to
-- */
--void kobject_uevent(struct kobject *kobj, enum kobject_action action)
-+static void do_kobject_uevent(struct kobject *kobj, enum kobject_action action,
-+			      const char *string)
- {
- 	char **envp;
- 	char *buffer;
-@@ -134,7 +129,10 @@ void kobject_uevent(struct kobject *kobj
- 	scratch += sprintf (scratch, "DEVPATH=%s", devpath) + 1;
- 	envp [i++] = scratch;
- 	scratch += sprintf(scratch, "SUBSYSTEM=%s", subsystem) + 1;
--
-+	if (string != NULL) {
-+		envp [i++] = scratch;
-+		scratch += sprintf(scratch, "%s", string) + 1;
-+	}
- 	/* just reserve the space, overwrite it after kset call has returned */
- 	envp[i++] = seq_buff = scratch;
- 	scratch += strlen("SEQNUM=18446744073709551616") + 1;
-@@ -200,9 +198,33 @@ exit:
- 	kfree(envp);
- 	return;
- }
-+
-+/**
-+ * kobject_uevent - notify userspace by ending an uevent
-+ *
-+ * @action: action that is happening (usually KOBJ_ADD and KOBJ_REMOVE)
-+ * @kobj: struct kobject that the action is happening to
-+ */
-+void kobject_uevent(struct kobject *kobj, enum kobject_action action)
-+{
-+	do_kobject_uevent(kobj, action, NULL);
-+}
- EXPORT_SYMBOL_GPL(kobject_uevent);
- 
- /**
-+ * kobject_uevent_extended - send an uevent with extended data
-+ *
-+ * @action: action that is happening (usually KOBJ_MOVE)
-+ * @kobj: struct kobject that the action is happening to
-+ * @string: string containing additional data
-+ */
-+void kobject_uevent_extended(struct kobject *kobj, enum kobject_action action,
-+			     const char *string)
-+{
-+	do_kobject_uevent(kobj, action, string);
-+}
-+
-+/**
-  * add_uevent_var - helper for creating event variables
-  * @envp: Pointer to table of environment variables, as passed into
-  * uevent() method.
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

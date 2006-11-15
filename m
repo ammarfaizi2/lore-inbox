@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030641AbWKOQTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030632AbWKOQUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030641AbWKOQTI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030632AbWKOQTH
+	id S1030632AbWKOQUT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030646AbWKOQUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:19:07 -0500
-Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:41124 "EHLO
-	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1030641AbWKOQTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:19:04 -0500
-Date: Wed, 15 Nov 2006 11:19:00 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: David Howells <dhowells@redhat.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, trond.myklebust@fys.uio.no,
-       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
-       steved@redhat.com
-Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
- overridden 
-In-Reply-To: <15153.1163593562@redhat.com>
-Message-ID: <XMMS.LNX.4.64.0611151115360.8593@d.namei>
-References: <XMMS.LNX.4.64.0611141618300.25022@d.namei> 
- <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
- <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com> 
- <15153.1163593562@redhat.com>
+	Wed, 15 Nov 2006 11:20:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:39650 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030632AbWKOQUQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 11:20:16 -0500
+Date: Wed, 15 Nov 2006 08:19:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Takashi Iwai <tiwai@suse.de>
+cc: David Miller <davem@davemloft.net>, jeff@garzik.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+In-Reply-To: <s5hbqn99f2v.wl%tiwai@suse.de>
+Message-ID: <Pine.LNX.4.64.0611150814000.3349@woody.osdl.org>
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
+ <20061114.190036.30187059.davem@davemloft.net> <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
+ <20061114.192117.112621278.davem@davemloft.net> <s5hbqn99f2v.wl%tiwai@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006, David Howells wrote:
 
-> James Morris <jmorris@namei.org> wrote:
+
+On Wed, 15 Nov 2006, Takashi Iwai wrote:
 > 
-> > > +static u32 selinux_set_fscreate_secid(u32 secid)
-> > ...
-> > The ability to set this needs to be mediated via MAC policy.
-> 
-> There could a problem with that...  Is it possible for there to be a race?
+> The snd-hda-intel driver has a test of MSI, but it seems not working
+> on every machine.  It caused non-cared interrupts and the kernel
+> disabled that irq.
 
-Well, the value can be changed at any time, so you could be using a 
-temporary fscreate value, or your new value could be overwritten 
-immediately by writing to /proc/$$/attr/fscreate
+Yes. 
 
-I think we need to add a separate field for this purpose, which can only 
-be written to via the in-kernel API and overrides fscreate.
+Btw, this was why I was claiming that maybe some devices might raise 
+_both_ the MSI and the INTx interrupt, which can indeed cause problems 
+like that: because we see spurious interrupts on some other irq line (the 
+INTx one), we might decide to end up disabling that one, just because we 
+can't seem to shut it up.
 
-> I have to call the function twice per cache op: once to set the file 
-> creation security ID and once to restore it back to what it was.
-> 
-> However, what happens if I can't restore the original security ID (perhaps the
-> rules changed between the two invocations)?  I can't let the task continue as
-> it's now running with the wrong security...
+However, the same kind of schenario may happen if the MSI irq from a 
+device simply doesn't _work_ - the device may claim MSI capabilities but 
+always uses INTx, and you'd get the same behaviour from just _testing_ the 
+MSI line - the irq comes in on the wrong vector, and since you're not 
+handling that vector, the kernel has no choice but to say "I will have to 
+disable this screaming irq".
 
-Kill the task?
+So "testing" that an MSI works isn't actually goign to solve any real 
+problems. It may or may not show that the MSI works, but regardless of the 
+success of the test, it can have deadly consequences for _other_ devices 
+if the irq routing (which may be INTx) is broken.
 
+This is why I'm so adamant that we need to _know_ that it works before we 
+use it. When irq's get mis-routed, things go downhill real fast. We're 
+usually talking "dead machines", and there is very little that a driver 
+can do about it.
 
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+			Linus

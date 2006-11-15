@@ -1,61 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966720AbWKOJcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932669AbWKOJel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966720AbWKOJcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 04:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966721AbWKOJcJ
+	id S932669AbWKOJel (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 04:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932822AbWKOJel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 04:32:09 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:43481 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S966720AbWKOJcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 04:32:08 -0500
-Subject: Re: [Patch -mm 2/5] driver core: Introduce device_move(): move a
-	device to a new parent.
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-In-Reply-To: <20061115102409.6e6e5dc0@gondolin.boeblingen.de.ibm.com>
-References: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
-	 <20061115065052.GC23810@kroah.com>
-	 <20061115082856.195ca0ab@gondolin.boeblingen.de.ibm.com>
-	 <3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
-	 <20061115102409.6e6e5dc0@gondolin.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Wed, 15 Nov 2006 10:31:59 +0100
-Message-Id: <1163583119.4244.6.camel@pim.off.vrfy.org>
+	Wed, 15 Nov 2006 04:34:41 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:34224 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932669AbWKOJek (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 04:34:40 -0500
+Date: Wed, 15 Nov 2006 10:33:54 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: sleeping functions called in invalid context during resume
+Message-ID: <20061115093354.GA30813@elte.hu>
+References: <20061114223002.10c231bd@localhost.localdomain> <20061115012025.13c72fc1.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4ddcc9dd12ba6cf3155e4d81b383efda
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061115012025.13c72fc1.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0004]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-15 at 10:24 +0100, Cornelia Huck wrote:
-> On Wed, 15 Nov 2006 09:44:33 +0100,
-> "Kay Sievers" <kay.sievers@vrfy.org> wrote:
+
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> >  [<ffffffff80215059>] vfs_write+0xce/0x174
+> >  [<ffffffff802159a5>] sys_write+0x45/0x6e
+> >  [<ffffffff802593de>] system_call+0x7e/0x83
+> > DWARF2 unwinder stuck at system_call+0x7e/0x83
+> > 
+> > Leftover inexact backtrace:
 > 
-> > Udev and HAL, both will need an event for the moving, with the old
-> > DEVPATH value in the environment. We want something like a "rename" or
-> > "move" event. Without that, weird things will happen in userspace,
-> > because the devpath is used as the key to the device during the whole
-> > device lifetime. The only weird exception today is the netif rename
-> > case, which is already handled by special code in udev.
+> Could mean that someone somewhere forgot to release a spinlock.
 > 
-> Something like below (completely untested as my test box is currently
-> inaccessible)?
+> Ingo had a patch which would find the culprit (preempt-tracing.patch).
+> 
+> Does it still live?
 
-We need the old DEVPATH in the environment (or something similar),
-otherwise we can't connect the event with the new device location to the
-current device. :)
+if it's really a spinlock/rwlock release that was missed, then i've got 
+good news: we already have that debugging infrastructure, it's called 
+lockdep :-)
 
-> Wouldn't we need something similar for kobject_rename()
-> as well?
+The patch below makes use of that capability of lockdep for all 
+stackdumps that are printed to the console. Stephen, please apply this 
+patch, enable CONFIG_PROVE_LOCKING and try to trigger another message. 
 
-Maybe kobject_rename() can go, if we have a move function which can be
-used. In any case, the events should look identical to userspace, yes.
+	Ingo
 
-Thanks,
-Kay
+---------------->
+Subject: lockdep: show held locks when showing a stackdump
+From: Ingo Molnar <mingo@elte.hu>
 
+show held locks when printing a backtrace.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+---
+ arch/i386/kernel/traps.c   |    1 +
+ arch/x86_64/kernel/traps.c |    1 +
+ 2 files changed, 2 insertions(+)
+
+Index: linux/arch/i386/kernel/traps.c
+===================================================================
+--- linux.orig/arch/i386/kernel/traps.c
++++ linux/arch/i386/kernel/traps.c
+@@ -318,6 +318,7 @@ static void show_stack_log_lvl(struct ta
+ 	}
+ 	printk("\n%sCall Trace:\n", log_lvl);
+ 	show_trace_log_lvl(task, regs, esp, log_lvl);
++	debug_show_held_locks(task);
+ }
+ 
+ void show_stack(struct task_struct *task, unsigned long *esp)
+Index: linux/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/traps.c
++++ linux/arch/x86_64/kernel/traps.c
+@@ -405,6 +405,7 @@ show_trace(struct task_struct *tsk, stru
+ 	printk("\nCall Trace:\n");
+ 	dump_trace(tsk, regs, stack, &print_trace_ops, NULL);
+ 	printk("\n");
++	debug_show_held_locks(tsk);
+ }
+ 
+ static void

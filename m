@@ -1,74 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966611AbWKOBVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966610AbWKOBbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966611AbWKOBVm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 20:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966612AbWKOBVm
+	id S966610AbWKOBbO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 20:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966613AbWKOBbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 20:21:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27078 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966611AbWKOBVl (ORCPT
+	Tue, 14 Nov 2006 20:31:14 -0500
+Received: from elvis.mu.org ([192.203.228.196]:49397 "EHLO elvis.mu.org")
+	by vger.kernel.org with ESMTP id S966610AbWKOBbO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 20:21:41 -0500
-Date: Tue, 14 Nov 2006 17:17:53 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Ingo Molnar <mingo@redhat.com>, Komuro <komurojun-mbn@nifty.com>,
-       tglx@linutronix.de, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use delayed disable mode of ioapic edge triggered
- interrupts
-In-Reply-To: <m18xidlxv7.fsf_-_@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.64.0611141706300.3349@woody.osdl.org>
-References: <Pine.LNX.4.64.0611080749090.3667@g5.osdl.org>
- <1162985578.8335.12.camel@localhost.localdomain> <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
- <20061108085235.GT4729@stusta.de> <7813413.118221162987983254.komurojun-mbn@nifty.com>
- <11940937.327381163162570124.komurojun-mbn@nifty.com>
- <Pine.LNX.4.64.0611130742440.22714@g5.osdl.org> <m13b8ns24j.fsf@ebiederm.dsl.xmission.com>
- <1163450677.7473.86.camel@earth> <m1bqnboxv5.fsf@ebiederm.dsl.xmission.com>
- <1163492040.28401.76.camel@earth> <Pine.LNX.4.64.0611140757040.31445@g5.osdl.org>
- <m18xidlxv7.fsf_-_@ebiederm.dsl.xmission.com>
+	Tue, 14 Nov 2006 20:31:14 -0500
+Message-ID: <455A6DD8.4020608@FreeBSD.org>
+Date: Tue, 14 Nov 2006 17:31:04 -0800
+From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Always print out the header line in /proc/swaps
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It would be possible for /proc/swaps to not always print out the header:
 
+swapon /dev/hdc2
+swapon /dev/hde2
+swapoff /dev/hdc2
 
-On Tue, 14 Nov 2006, Eric W. Biederman wrote:
-> 
-> Hopefully this is the trivial patch that solves the problem.
+At this point /proc/swaps would not have a header.
 
-Ok, having looked more at this, I have to say that the whole 
-"IRQ_DELAYED_DISABLE" thing seems very fragile indeed.
+Signed-off-by: Suleiman Souhlal <suleiman@google.com>
+---
+ mm/swapfile.c |   22 +++++++++++++++++-----
+ 1 files changed, 17 insertions(+), 5 deletions(-)
 
-It looks like we should do it not only for APIC edge-triggered interrupts, 
-but for HT and MSI interrupts too, as far as I can tell (at least they 
-also use the "handle_edge_irq" routine)
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index a15def6..8e206ce 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -1274,10 +1274,13 @@ static void *swap_start(struct seq_file 
+ 
+ 	mutex_lock(&swapon_mutex);
+ 
++	if (!l)
++		return SEQ_START_TOKEN;
++
+ 	for (i = 0; i < nr_swapfiles; i++, ptr++) {
+ 		if (!(ptr->flags & SWP_USED) || !ptr->swap_map)
+ 			continue;
+-		if (!l--)
++		if (!--l)
+ 			return ptr;
+ 	}
+ 
+@@ -1286,10 +1289,17 @@ static void *swap_start(struct seq_file 
+ 
+ static void *swap_next(struct seq_file *swap, void *v, loff_t *pos)
+ {
+-	struct swap_info_struct *ptr = v;
++	struct swap_info_struct *ptr;
+ 	struct swap_info_struct *endptr = swap_info + nr_swapfiles;
+ 
+-	for (++ptr; ptr < endptr; ptr++) {
++	if (v == SEQ_START_TOKEN)
++		ptr = swap_info;
++	else {
++		ptr = v;
++		ptr++;
++	}
++
++	for (; ptr < endptr; ptr++) {
+ 		if (!(ptr->flags & SWP_USED) || !ptr->swap_map)
+ 			continue;
+ 		++*pos;
+@@ -1310,8 +1320,10 @@ static int swap_show(struct seq_file *sw
+ 	struct file *file;
+ 	int len;
+ 
+-	if (v == swap_info)
+-		seq_puts(swap, "Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
++	if (ptr == SEQ_START_TOKEN) {
++		seq_puts(swap,"Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
++		return 0;
++	}
+ 
+ 	file = ptr->swap_file;
+ 	len = seq_path(swap, file->f_vfsmnt, file->f_dentry, " \t\n\\");
 
-So I'm wondering how many other cases there are that are missing this.
-
-In that sense, Ingo's patch was a lot safer, although I still dislike it 
-for all the other reasons I mentioned - it's simply wrong to re-send a 
-level-triggered irq.
-
-I don't know MSI and HT interrupts well enough to tell whether they will 
-re-trigger on their own when we unmask them, but the point is, this 
-_looks_ like it might be incomplete.
-
-I think part of the problem is a bad interface. We should simply never set 
-the IRQ handler on its own. It should be a field in the "irq_chip" 
-structure, and we should use _different_ irq chip structures for level and 
-edge-triggered. Then we should also add the "flags" thing there, and you 
-could do something like
-
-	static struct irq_chip level_ioapic_chip = {
-		..
-
-instead of making the insane decision to use the "same" chip for all 
-ioapic things.
-
-Ingo? Eric? Comments?
-
-		Linus
 

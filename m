@@ -1,100 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030766AbWKORxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030775AbWKORyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030766AbWKORxz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:53:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030773AbWKORxz
+	id S1030775AbWKORyq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030777AbWKORyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:53:55 -0500
-Received: from pat.uio.no ([129.240.10.15]:51877 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030766AbWKORxy (ORCPT
+	Wed, 15 Nov 2006 12:54:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24464 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030775AbWKORyo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:53:54 -0500
-Subject: Re: [PATCH 05/19] NFS: Use local caching
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
+	Wed, 15 Nov 2006 12:54:44 -0500
+Message-ID: <455B5466.40407@mentalrootkit.com>
+Date: Wed, 15 Nov 2006 12:54:46 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: James Morris <jmorris@namei.org>
+CC: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
        linux-kernel@vger.kernel.org, aviro@redhat.com, steved@redhat.com
-In-Reply-To: <31660.1163610473@redhat.com>
-References: <1163609565.5691.167.camel@lade.trondhjem.org>
-	 <1163603377.5691.113.camel@lade.trondhjem.org>
-	 <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-	 <20061114200632.12943.72086.stgit@warthog.cambridge.redhat.com>
-	 <26454.1163606424@redhat.com>   <31660.1163610473@redhat.com>
-Content-Type: text/plain
-Date: Wed, 15 Nov 2006 12:53:31 -0500
-Message-Id: <1163613211.5691.204.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+ overridden
+References: <XMMS.LNX.4.64.0611141618300.25022@d.namei>  <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>  <24555.1163598644@redhat.com> <XMMS.LNX.4.64.0611151120240.8593@d.namei>
+In-Reply-To: <XMMS.LNX.4.64.0611151120240.8593@d.namei>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.158, required 12,
-	autolearn=disabled, AWL 1.71, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-15 at 17:07 +0000, David Howells wrote:
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+James Morris wrote:
+> On Wed, 15 Nov 2006, David Howells wrote:
 > 
-> > > This is releasepage() not invalidatepage().  It is conditional.
-> > 
-> > ...and invalidate_complete_page2() calls try_to_release_page() which
-> > again calls releasepage(). Success or failure of the latter should
-> > therefore not depend on the internal fscache state.
+>> James Morris <jmorris@namei.org> wrote:
+>>
+>>> The ability to set this needs to be mediated via MAC policy.
+>> Something like this, you mean?
 > 
-> Okay... invalidate_complete_page2() passes __GFP_WAIT through.  I'll make
-> nfs_fscache_release_page() check for that, and if it's set, it'll wait for
-> FS-Cache to finish with the page before returning true.
+> Yes, although perhaps writing to tsec->kern_create_sid or similar, which 
+> then overrides tsec->create_sid if set.  Also need 
+> /proc/pid/attr/kern_fscreate as a read only node.
 > 
-> This sounds like invalidate_inode_pages2() is doing the wrong thing.  After
-> all, releasepage() _is_ conditional.  It sounds like it should be calling
-> invalidatepage() instead.  Either that or NFS should be calling something
-> else entirely.
-
-No! invalidate_inode_pages2() is supposed to be non-destructive w.r.t.
-dirty pages. That is why it calls try_to_release_page(). If you want a
-destructive truncate, then you should be calling truncate_inode_pages().
-
-> > > Hmmm...  I wonder if I need to do this in nfs_update_inode() at all.
-> > > Won't the pages and the cache object attached to an inode be discarded
-> > > anyway if the file attributes returned by the server change?
-> > 
-> > In the case of a read-only file, yes. That is not true of a read/write
-> > file.
 > 
-> So I can assume that, as we're only caching read-only files, I don't need to
-> invoke FS-Cache here.
-
-I would assume so.
-
-> > > > >  static void nfs_readpage_release(struct nfs_page *req)
-> > > > >  {
-> > > > > +	struct inode *d_inode = req->wb_context->dentry->d_inode;
-> > > > > +
-> > > > > +	if (PageUptodate(req->wb_page))
-> > > > > +		nfs_readpage_to_fscache(d_inode, req->wb_page, 0);
-> > > > > +
-> > > > 
-> > > > Will usually be called from an rpciod context. Should therefore not be
-> > > > grabbing semaphores, doing memory allocation etc.
-> > > 
-> > > Is it possible to make an NFS kernel thread that can have completed nfs_page
-> > > structs queued for writing to the cache?
-> > 
-> > Why should we add extra context switches for the non-fscache case? Just
-> > move the call to nfs_readpage_to_fscache into its own kernel thread.
+>> +	error = task_has_perm(current, current, PROCESS__SETFSCREATE);
 > 
-> Sorry, I meant can I make use of the nfs_page struct that was handed to
-> nfs_readpage_release() by queuing it for an auxiliary thread to call
-> nfs_readpage_to_fscache() on?  I didn't intend to call nfs_readpage_release()
-> in another thread.
+> I wonder if we also need 'relabelto' and 'relabelfrom' permissions, to 
+> control which labels are being used.
+> 
 
-If you do, then you will either have to get rid of the call to
-nfs_clear_request(), or track the struct page yourself.
+No - assuming the existing checks are called, the controls on 
+file/dir/etc creation should be sufficient to control which labels are 
+used. Setting fscreate is not a relabel operation nor does it result in 
+a relabel operation as the sid is only used for creation.
 
-At this point, I think that removing the call to nfs_clear_request is
-safe: there should be nothing that checks page_count() in the mm layer
-that we can race with AFAICS.
+Karl
 
-Cheers,
-  Trond
 

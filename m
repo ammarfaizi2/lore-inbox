@@ -1,106 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030739AbWKOR1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030740AbWKOR2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030739AbWKOR1R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030746AbWKOR1R
+	id S1030740AbWKOR2V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030745AbWKOR2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:27:17 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27112 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030739AbWKOR1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:27:16 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org, ak@suse.de,
-       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com
-Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-References: <20061113162135.GA17429@in.ibm.com>
-	<20061113164314.GK17429@in.ibm.com> <20061114163002.GB4445@ucw.cz>
-	<m1fyclk8ws.fsf@ebiederm.dsl.xmission.com>
-	<20061114234334.GB3394@elf.ucw.cz>
-Date: Wed, 15 Nov 2006 10:26:12 -0700
-In-Reply-To: <20061114234334.GB3394@elf.ucw.cz> (Pavel Machek's message of
-	"Wed, 15 Nov 2006 00:43:34 +0100")
-Message-ID: <m1lkmc4o5n.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 15 Nov 2006 12:28:21 -0500
+Received: from gw.goop.org ([64.81.55.164]:3805 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030743AbWKOR2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 12:28:16 -0500
+Message-ID: <455B4E2F.7040408@goop.org>
+Date: Wed, 15 Nov 2006 09:28:15 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andi Kleen <ak@suse.de>, Eric Dumazet <dada1@cosmosbay.com>, akpm@osdl.org,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386-pda UP optimization
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <1158047806.2992.7.camel@laptopd505.fenrus.org> <200611151227.04777.dada1@cosmosbay.com> <200611151232.31937.ak@suse.de> <20061115172003.GA20403@elte.hu>
+In-Reply-To: <20061115172003.GA20403@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> Eric's test shows a 5% slowdown. That's far from cheap.
+>   
 
-Vivek.  It looks like the patch had whitespace damage sometime in it's
-history.  Do you know what happened to the to make the indentation
-inconsistent?  I'm pretty certain the version I generated didn't have
-that problem.
+It seems like an absurdly large difference.  PDA references aren't all
+that common in the kernel; for the %gs prefix on PDA accesses to be
+causing a 5% overall difference in a test like this means that the
+prefixes would have to be costing hundreds or thousands of cycles, which
+seems absurd.  Particularly since Eric's patch doesn't touch head.S, so
+the %gs save/restore is still being executed.
 
-Pavel Machek <pavel@ucw.cz> writes:
+Are we sure this isn't a cache layout issue?  Eric, did you try evicting
+your executable from pagecache between runs to see if you get variation
+depending on what physical pages it gets put into?  (Making several
+copies of the executable should have the same effect.)
 
-> Hi!
->
->> >> I don't have a configuration I can test this but it compiles cleanly
->> >
->> > Ugh, now that's a big patch.. and untested, too :-(.
->> 
->> It was very carefully code reviewed at least the first time,
->> and the code was put in sync with code that was tested.
->
-> So we had two very different versions of "switch to 64-bit" and now we
-> have two mostly similar versions. Not a big improvement...
-
-Well we had two versions.  It looks like the acpi wakeup was a cut
-and past of the primary kernel entry path, and it diverged and
-was less well maintained because it is less considered and get's used
-less often.
-
->> > Can we get it piece-by-piece?
->
-> Please?
-
-I honestly think it would make the change  less reviewable.
-
->> >> Vivek has tested this patch for suspend to memory and it works fine.
->> >
->> > Ok, so it was tested on one config. Given that the patch deals with
->> > detecting CPU oddities... :-(
->> 
->> Read the code.  Given your scorn and the state of that mess when I
->> started I'm not certain a productive conversation can be had.
->> 
->> Do you understand the code as it is currently written?
->
-> Mostly. I've written it at some point.
->
-> It may be a mess, but patch below is wholesale rewrite, mixing
-> cleanups (ebx->rbx) with serious changes (PGE). And then you tell me
-> it was tested on one machine. It is hard/impossible to rewrite, and
-> changelog is not helpful, either.
-
-So there is one major change in the patch.  Modifying the trampoline
-to take the code all of the way to 64bit mode, allowing us to switch
-to a kernel that is loaded above 4GB.  Essentially everything else is
-required by that change.
-
-The basic point is that I am completely changing the idiom for how
-cpus enter the kernel.  If you focus on the details the change and
-miss the primary change itself you will simply not understand what
-is happening.  The PGE change just happens to be part of the change
-in requirements for entering the kernel.
-
-The code paths that are changed are not conditional code they will
-always execute.  So a single test tells us a lot.
-
-I just looked at the patch again, and it really is not that large.
-At this point I'm afraid splitting it up is more likely to cause
-review problems then the other way around.  I don't any of the
-cleanups touch a code path I don't need to touch.
-
-As for the hard/impossible to rewrite. It was a bit tedious because
-of all of the picky details, but I didn't find it hard.  I suspect this
-is just a skill set difference.  Or the fact that I wasn't messing
-with the actual code that interfaces with acpi.
-
-Eric
+    J

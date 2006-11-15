@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965797AbWKODVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965613AbWKODWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965797AbWKODVR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 22:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965817AbWKODVQ
+	id S965613AbWKODWI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 22:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965817AbWKODWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 22:21:16 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:60879
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965797AbWKODVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 22:21:16 -0500
-Date: Tue, 14 Nov 2006 19:21:17 -0800 (PST)
-Message-Id: <20061114.192117.112621278.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: jeff@garzik.org, linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-	<20061114.190036.30187059.davem@davemloft.net>
-	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Nov 2006 22:22:08 -0500
+Received: from main.gmane.org ([80.91.229.2]:40594 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965613AbWKODWH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 22:22:07 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: /proc/acpi/dsdt whom to send it to
+Date: Wed, 15 Nov 2006 03:21:32 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnell2b7.7lr.olecom@flower.upol.cz>
+References: <455A785F.2070206@seclark.us> <20061114183554.9e20430b.randy.dunlap@oracle.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Tue, 14 Nov 2006 19:10:42 -0800 (PST)
+Hallo.
 
-> Yours was still an example of "nice". And it had absolutely nothing
-> to do with the _PROBLEM_.
+On 2006-11-15, Randy Dunlap wrote:
+> On Tue, 14 Nov 2006 21:15:59 -0500 Stephen Clark wrote:
+>
+>> Hi List,
+>> 
+>> I get this from dmesg - where should I send the output.
+>> 
+>> Asus Laptop ACPI Extras version 0.30
+>>   Error calling BSTS
+>>   unsupported model Z96F, trying default values
+>>   send /proc/acpi/dsdt to the developers
+>
+> linux-acpi@vger.kernel.org
 
-Understood.
+Yes, meybe there, if somebody will care.
 
-BTW, some drivers have taken the approch to add MSI self-tests
-inside of the driver to ensure correct option of MSI on a given
-machine.  There's a lot of resistence to that, the reasons for
-which I grok fully, but I'm not sure other suggestions such as
-black lists are any better.
+But it's <acpi4asus-user@lists.sourceforge.net> instead, and it seems
+to be very dead.
+____
 
-Given current experience maybe white-lists are in fact the way
-to go.

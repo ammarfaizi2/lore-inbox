@@ -1,92 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161381AbWKOUDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161393AbWKOUEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161381AbWKOUDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 15:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161382AbWKOUDJ
+	id S1161393AbWKOUEN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 15:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161383AbWKOUEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 15:03:09 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:11142 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1161381AbWKOUDI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 15:03:08 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Date: Wed, 15 Nov 2006 21:00:33 +0100
-User-Agent: KMail/1.9.1
-Cc: David Chinner <dgc@sgi.com>, Alasdair G Kergon <agk@redhat.com>,
-       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061115185029.GA3722@elf.ucw.cz> <200611152056.48218.rjw@sisk.pl>
-In-Reply-To: <200611152056.48218.rjw@sisk.pl>
+	Wed, 15 Nov 2006 15:04:12 -0500
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:44966
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1161382AbWKOUEL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 15:04:11 -0500
+From: Michael Buesch <mb@bu3sch.de>
+To: Pavel Roskin <proski@gnu.org>
+Subject: Re: [Madwifi-devel] ANNOUNCE: SFLC helps developers assess ar5k (enabling free Atheros HAL)
+Date: Wed, 15 Nov 2006 21:02:26 +0100
+User-Agent: KMail/1.9.5
+References: <20061115031025.GH3451@tuxdriver.com> <20061115192054.GA10009@tuxdriver.com> <1163619541.19111.6.camel@dv>
+In-Reply-To: <1163619541.19111.6.camel@dv>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       madwifi-devel@lists.sourceforge.net, lwn@lwn.net,
+       "John W. Linville" <linville@tuxdriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611152100.35054.rjw@sisk.pl>
+Message-Id: <200611152102.26681.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 15 November 2006 20:56, Rafael J. Wysocki wrote:
-> Hi,
+On Wednesday 15 November 2006 20:39, Pavel Roskin wrote:
+> Hello!
 > 
-> On Wednesday, 15 November 2006 19:50, Pavel Machek wrote:
-> > Hi!
+> On Wed, 2006-11-15 at 14:21 -0500, John W. Linville wrote:
+> > On Wed, Nov 15, 2006 at 07:42:14PM +0100, Michael Buesch wrote:
 > > 
-> > > > > This means, however, that we can leave the patch as is (well, with the minor
-> > > > > fix I have already posted), for now, because it doesn't make things worse a
-> > > > > bit, but:
-> > > > > (a) it prevents xfs from being corrupted and
-> > > > 
-> > > > I'd really prefer it to be fixed by 'freezeable workqueues'.
-> > > 
-> > > I'd prefer that you just freeze the filesystem and let the
-> > > filesystem do things correctly.
+> > > Now that it seems to be ok to use these openbsd sources, should I port
+> > > them to my driver framework?
+> > > I looked over the ar5k code and, well, I don't like it. ;)
+> > > I don't really like having a HAL. I'd rather prefer a "real" driver
+> > > without that HAL obfuscation.
 > > 
-> > Well, I'd prefer filesystems not to know about suspend, and current
-> > "freeze the filesystem" does not really nest properly.
-> > 
-> > > > Can you
-> > > > point me into sources -- which xfs workqueues are problematic?
-> > > 
-> > > AFAIK, its the I/O completion workqueues that are causing problems.
-> > > (fs/xfs/linux-2.6/xfs_buf.c) However, thinking about it, I'm not
-> > > sure that the work queues being left unfrozen is the real problem.
-> > > 
-> > > i.e. after a sync there's still I/O outstanding (e.g. metadata in
-> > > the log but not on disk), and because the kernel threads are frozen
-> > > some time after the sync, we could have issued this delayed write
-> > > metadata to disk after the sync. With XFS, we can have a of queue of
-> > 
-> > That's okay, snapshot is atomic. As long as data are safely in the
-> > journal, we should be okay.
-> > 
-> > > However, even if you stop the workqueue processing, you're still
-> > > going to have to wait for all I/O completion to occur before
-> > > snapshotting memory because having any I/O complete changes memory
-> > > state.  Hence I fail to see how freezing the workqueues really helps
-> > > at all here....
-> > 
-> > It is okay to change memory state, just on disk state may not change
-> > after atomic snapshot.
+> > I don't think anyone likes the HAL-based architecture.  I don't think
+> > we will accept a HAL-based driver into the upstream kernel.
 > 
-> There's one more thing, actually.  If the on-disk data and metadata are
-> changed _after_ the sync we do and _before_ we create the snapshot image,
-> and the subsequent  resume fails,
+> I said it before, and it's worth repeating.  Dissolving HAL in the
+> sources is easy.  It's just a matter of moving functions around without
+> serious chances of breaking anything as long as the source compiles.
+> The whole "HAL-based architecture" can be reshuffled and eliminated by
+> one person in a few days.
 
-Well, but this is equivalent to a power failure immediately after the sync, so
-there _must_ be a way to recover the filesystem from that, no?
+I'll look at it tomorrow.
+Probably best to merge this stuff into the tree somehow to get it
+working and clean it up afterwards. Shouldn't be too hard to merge.
 
-I think I'll prepare a patch for freezing the work queues and we'll see what
-to do next.
+> Making things work properly takes years.  That's what MadWifi has been
+> working on for a long time, using contributions and bug reports from
+> scores of users and developers.
+> 
+> Rejecting MadWifi because it's HAL based is like throwing away a diamond
+> ring because it's too narrow.
 
-Greetings,
-Rafael
-
+Well, it never worked for me. But I gave up trying about
+half a year ago. But maybe it's just stupid me. ;)
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Greetings Michael.

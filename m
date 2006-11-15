@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966063AbWKOHu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966595AbWKOHuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966063AbWKOHu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 02:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755480AbWKOHuZ
+	id S966595AbWKOHuv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 02:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966593AbWKOHuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 02:50:25 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:18381 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1755468AbWKOHuZ (ORCPT
+	Wed, 15 Nov 2006 02:50:50 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:48334 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1755487AbWKOHur (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 02:50:25 -0500
-Message-ID: <363577021.21912@ustc.edu.cn>
+	Wed, 15 Nov 2006 02:50:47 -0500
+Message-ID: <363577026.14901@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20061115075024.850542829@localhost.localdomain>
+Message-Id: <20061115075030.229339867@localhost.localdomain>
 References: <20061115075007.832957580@localhost.localdomain>
-Date: Wed, 15 Nov 2006 15:50:10 +0800
+Date: Wed, 15 Nov 2006 15:50:25 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 03/28] mm: introduce probe_page()
-Content-Disposition: inline; filename=mm-introduce-probe_page.patch
+Subject: [PATCH 18/28] readahead: initial method - user recommended size
+Content-Disposition: inline; filename=readahead-initial-method-user-recommended-size.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce a pair of functions to probe the existence of file page.
-	- int __probe_page(mapping, offset)
-	- int probe_page(mapping, offset)
+backing_dev_info.ra_pages0 is a user configurable parameter that controls
+the readahead size on start-of-file.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
---- linux-2.6.19-rc4-mm1.orig/include/linux/pagemap.h
-+++ linux-2.6.19-rc4-mm1/include/linux/pagemap.h
-@@ -72,6 +72,8 @@ static inline struct page *page_cache_al
- 
- typedef int filler_t(void *, struct page *);
- 
-+extern int __probe_page(struct address_space *mapping, pgoff_t offset);
-+extern int probe_page(struct address_space *mapping, pgoff_t offset);
- extern struct page * find_get_page(struct address_space *mapping,
- 				unsigned long index);
- extern struct page * find_lock_page(struct address_space *mapping,
---- linux-2.6.19-rc4-mm1.orig/mm/filemap.c
-+++ linux-2.6.19-rc4-mm1/mm/filemap.c
-@@ -613,6 +613,29 @@ void fastcall __lock_page_nosync(struct 
- 							TASK_UNINTERRUPTIBLE);
+--- linux-2.6.19-rc5-mm2.orig/block/ll_rw_blk.c
++++ linux-2.6.19-rc5-mm2/block/ll_rw_blk.c
+@@ -3795,6 +3795,24 @@ queue_ra_store(struct request_queue *q, 
+ 	return ret;
  }
  
-+/*
-+ * Probing page existence.
-+ */
-+int __probe_page(struct address_space *mapping, pgoff_t offset)
++static ssize_t queue_initial_ra_show(struct request_queue *q, char *page)
 +{
-+	return !!radix_tree_lookup(&mapping->page_tree, offset);
++	int kb = q->backing_dev_info.ra_pages0 << (PAGE_CACHE_SHIFT - 10);
++
++	return queue_var_show(kb, (page));
 +}
 +
-+/*
-+ * Here we just do not bother to grab the page, it's meaningless anyway.
-+ */
-+int probe_page(struct address_space *mapping, pgoff_t offset)
++static ssize_t
++queue_initial_ra_store(struct request_queue *q, const char *page, size_t count)
 +{
-+	int exists;
++	unsigned long kb;
++	ssize_t ret = queue_var_store(&kb, page, count);
 +
-+	read_lock_irq(&mapping->tree_lock);
-+	exists = __probe_page(mapping, offset);
-+	read_unlock_irq(&mapping->tree_lock);
++	q->backing_dev_info.ra_pages0 = kb >> (PAGE_CACHE_SHIFT - 10);
 +
-+	return exists;
++	return ret;
 +}
-+EXPORT_SYMBOL(probe_page);
 +
- /**
-  * find_get_page - find and get a page reference
-  * @mapping: the address_space to search
+ static ssize_t queue_max_sectors_show(struct request_queue *q, char *page)
+ {
+ 	int max_sectors_kb = q->max_sectors >> 1;
+@@ -3852,6 +3870,12 @@ static struct queue_sysfs_entry queue_ra
+ 	.store = queue_ra_store,
+ };
+ 
++static struct queue_sysfs_entry queue_initial_ra_entry = {
++	.attr = {.name = "initial_ra_kb", .mode = S_IRUGO | S_IWUSR },
++	.show = queue_initial_ra_show,
++	.store = queue_initial_ra_store,
++};
++
+ static struct queue_sysfs_entry queue_max_sectors_entry = {
+ 	.attr = {.name = "max_sectors_kb", .mode = S_IRUGO | S_IWUSR },
+ 	.show = queue_max_sectors_show,
+@@ -3872,6 +3896,7 @@ static struct queue_sysfs_entry queue_io
+ static struct attribute *default_attrs[] = {
+ 	&queue_requests_entry.attr,
+ 	&queue_ra_entry.attr,
++	&queue_initial_ra_entry.attr,
+ 	&queue_max_hw_sectors_entry.attr,
+ 	&queue_max_sectors_entry.attr,
+ 	&queue_iosched_entry.attr,
 
 --

@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966787AbWKOLKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWKOLXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966787AbWKOLKx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 06:10:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966796AbWKOLKx
+	id S1030375AbWKOLXg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 06:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932840AbWKOLXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 06:10:53 -0500
-Received: from z2.cat.iki.fi ([212.16.98.133]:2742 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S966795AbWKOLKv (ORCPT
+	Wed, 15 Nov 2006 06:23:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:31680 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932838AbWKOLXf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 06:10:51 -0500
-Date: Wed, 15 Nov 2006 13:10:49 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Marc Perkel <mperkel@yahoo.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Majordomo is an obsolete piece of junk and Kernel should not be running it!
-Message-ID: <20061115111049.GK10054@mea-ext.zmailer.org>
-References: <20061114.200507.21927677.davem@davemloft.net> <20061115042335.11460.qmail@web52506.mail.yahoo.com> <20061115054124.GA29920@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061115054124.GA29920@ftp.linux.org.uk>
+	Wed, 15 Nov 2006 06:23:35 -0500
+Message-ID: <455AF8A7.3020204@RedHat.com>
+Date: Wed, 15 Nov 2006 06:23:19 -0500
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 Red Hat/1.0.5-0.1.el4 SeaMonkey/1.0.5
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
+       trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: [PATCH 06/19] FS-Cache: NFS: Only obtain cache cookies on file
+ open, not on inode read
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200634.12943.6815.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20061114200634.12943.6815.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 05:41:24AM +0000, Al Viro wrote:
-> On Tue, Nov 14, 2006 at 08:23:35PM -0800, Marc Perkel wrote:
+
+
+David Howells wrote:
+> diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
+> index 5ead2bf..b2e5e86 100644
+> --- a/include/linux/nfs_fs.h
+> +++ b/include/linux/nfs_fs.h
+> @@ -205,6 +205,7 @@ #define NFS_INO_REVALIDATING	(0)		/* rev
+>  #define NFS_INO_ADVISE_RDPLUS	(1)		/* advise readdirplus */
+>  #define NFS_INO_STALE		(2)		/* possible stale inode */
+>  #define NFS_INO_ACL_LRU_SET	(3)		/* Inode is on the LRU list */
+> +#define NFS_INO_CACHEABLE	(4)		/* inode can be cached by FS-Cache */
 >  
-> > This is the only list I get booted from so that makes
-> > me think the problem is with the list and not with me.
-> > It seems that you are also using 12 year old software
-> > as well.  Why not get something modern like Mailman
-> > like most other lists use and then you don't have to
-> > be watching the bounces? 
+>  static inline struct nfs_inode *NFS_I(struct inode *inode)
+>  {
+> @@ -230,6 +231,7 @@ #define NFS_ATTRTIMEO_UPDATE(inode)	(NFS
+>  
+>  #define NFS_FLAGS(inode)		(NFS_I(inode)->flags)
+>  #define NFS_STALE(inode)		(test_bit(NFS_INO_STALE, &NFS_FLAGS(inode)))
+> +#define NFS_CACHEABLE(inode)		(test_bit(NFS_INO_CACHEABLE, &NFS_FLAGS(inode)))
+A small nit..
 
-More like 20 years old..
+To stay with the coding style NFS uses, could you please changes
+these variables to:
 
-With mailman handling the bounces..  Leaked in spams will
-cause subscribers to be dropped right and left, and far
-sooner than after 5 days of persistent non-delivery...
++#define NFS_INO_FSCACHE	(4)		/* inode can be cached by FS-Cache */
+and
++#define NFS_FSCACHE(inode)		(test_bit(NFS_INO_FSCACHE, &NFS_FLAGS(inode))
 
-> > The problem is that you are running Majordomo which in
-> > it's day was great, but is day has passed. 
 
-I really have not seen anything better than Majordomo 1.9x.
-There are lots of eye-candy and web-candy thingies out there,
-but principal task of adding/removing subscribers on list
-dataset and delivering messages to those are still the things
-that define list management.
-
-With this Majordomo we can define lists that permit incoming
-posting only from subscribers, we can even define poster address
-datasets that are not subscribers!  However for most of our lists
-we have chosen to run "posting is open, subject to silent filtering".
-
-Most new beasts want to make email delivery themselves (act as
-an MTA) instead of delegating it to an MTA in form which really
-is high performance.  I did that integration some 10 years ago,
-and we haven't had a need to look back.
-
-One incoming-to-list message goes thru Majordomo processing, and
-is given out as ONE message to MTA for delivery to 4000+ recipients.
-We would need to lot bigger server (-farm) to handle things in
-ways that those "send unique message to everybody" piece of junk
-list-softwares do it.
-
-  /Matti Aarnio  --  one of <postmaster at vger.kernel.org>
+steved.

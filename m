@@ -1,79 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966595AbWKOHuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966430AbWKOHuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966595AbWKOHuv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 02:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966593AbWKOHuu
+	id S966430AbWKOHuw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 02:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966591AbWKOHuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 02:50:50 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:48334 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1755487AbWKOHur (ORCPT
+	Wed, 15 Nov 2006 02:50:52 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:9934 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S966430AbWKOHuq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 02:50:47 -0500
-Message-ID: <363577026.14901@ustc.edu.cn>
+	Wed, 15 Nov 2006 02:50:46 -0500
+Message-ID: <363577024.11779@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20061115075030.229339867@localhost.localdomain>
+Message-Id: <20061115075027.832896629@localhost.localdomain>
 References: <20061115075007.832957580@localhost.localdomain>
-Date: Wed, 15 Nov 2006 15:50:25 +0800
+Date: Wed, 15 Nov 2006 15:50:18 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 18/28] readahead: initial method - user recommended size
-Content-Disposition: inline; filename=readahead-initial-method-user-recommended-size.patch
+Subject: [PATCH 11/28] readahead: min/max sizes
+Content-Disposition: inline; filename=readahead-min-max-sizes.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-backing_dev_info.ra_pages0 is a user configurable parameter that controls
-the readahead size on start-of-file.
+- Enlarge VM_MAX_READAHEAD to 1024 if new read-ahead code is compiled in.
+  This value is no longer tightly coupled with the thrashing problem,
+  therefore constrained by it. The adaptive read-ahead logic merely takes
+  it as an upper bound, and will not stick to it under memory pressure.
+
+- Slightly enlarge minimal/initial read-ahead size on big memory systems.
+  Memory bounty systems are less likely to suffer from thrashing on small
+  read-ahead sizes. A bigger initial value helps the ra_size scaling up
+  progress.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
---- linux-2.6.19-rc5-mm2.orig/block/ll_rw_blk.c
-+++ linux-2.6.19-rc5-mm2/block/ll_rw_blk.c
-@@ -3795,6 +3795,24 @@ queue_ra_store(struct request_queue *q, 
- 	return ret;
+--- linux-2.6.19-rc5-mm2.orig/include/linux/mm.h
++++ linux-2.6.19-rc5-mm2/include/linux/mm.h
+@@ -1046,7 +1046,11 @@ extern int filemap_populate(struct vm_ar
+ int write_one_page(struct page *page, int wait);
+ 
+ /* readahead.c */
++#ifdef CONFIG_ADAPTIVE_READAHEAD
++#define VM_MAX_READAHEAD	1024	/* kbytes */
++#else
+ #define VM_MAX_READAHEAD	128	/* kbytes */
++#endif
+ #define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
+ #define VM_MAX_CACHE_HIT    	256	/* max pages in a row in cache before
+ 					 * turning readahead off */
+--- linux-2.6.19-rc5-mm2.orig/mm/readahead.c
++++ linux-2.6.19-rc5-mm2/mm/readahead.c
+@@ -814,6 +814,30 @@ out:
+ 	return nr_pages;
  }
  
-+static ssize_t queue_initial_ra_show(struct request_queue *q, char *page)
++/*
++ * ra_min is mainly determined by the size of cache memory. Reasonable?
++ *
++ * Table of concrete numbers for 4KB page size:
++ *   inactive + free (MB):    4   8   16   32   64  128  256  512 1024
++ *            ra_min (KB):   16  16   16   16   20   24   32   48   64
++ */
++static inline void get_readahead_bounds(struct file_ra_state *ra,
++					unsigned long *ra_min,
++					unsigned long *ra_max)
 +{
-+	int kb = q->backing_dev_info.ra_pages0 << (PAGE_CACHE_SHIFT - 10);
++	unsigned long active;
++	unsigned long inactive;
++	unsigned long free;
 +
-+	return queue_var_show(kb, (page));
++	__get_zone_counts(&active, &inactive, &free, NODE_DATA(numa_node_id()));
++
++	free += inactive;
++	*ra_max = min(min(ra->ra_pages, 0xFFFFUL), free / 2);
++	*ra_min = min(min(MIN_RA_PAGES + (free >> 14),
++			  DIV_ROUND_UP(64*1024, PAGE_CACHE_SIZE)),
++			  *ra_max / 8);
 +}
 +
-+static ssize_t
-+queue_initial_ra_store(struct request_queue *q, const char *page, size_t count)
-+{
-+	unsigned long kb;
-+	ssize_t ret = queue_var_store(&kb, page, count);
-+
-+	q->backing_dev_info.ra_pages0 = kb >> (PAGE_CACHE_SHIFT - 10);
-+
-+	return ret;
-+}
-+
- static ssize_t queue_max_sectors_show(struct request_queue *q, char *page)
- {
- 	int max_sectors_kb = q->max_sectors >> 1;
-@@ -3852,6 +3870,12 @@ static struct queue_sysfs_entry queue_ra
- 	.store = queue_ra_store,
- };
+ #endif /* CONFIG_ADAPTIVE_READAHEAD */
  
-+static struct queue_sysfs_entry queue_initial_ra_entry = {
-+	.attr = {.name = "initial_ra_kb", .mode = S_IRUGO | S_IWUSR },
-+	.show = queue_initial_ra_show,
-+	.store = queue_initial_ra_store,
-+};
-+
- static struct queue_sysfs_entry queue_max_sectors_entry = {
- 	.attr = {.name = "max_sectors_kb", .mode = S_IRUGO | S_IWUSR },
- 	.show = queue_max_sectors_show,
-@@ -3872,6 +3896,7 @@ static struct queue_sysfs_entry queue_io
- static struct attribute *default_attrs[] = {
- 	&queue_requests_entry.attr,
- 	&queue_ra_entry.attr,
-+	&queue_initial_ra_entry.attr,
- 	&queue_max_hw_sectors_entry.attr,
- 	&queue_max_sectors_entry.attr,
- 	&queue_iosched_entry.attr,
+ /*
 
 --

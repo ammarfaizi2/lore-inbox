@@ -1,92 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966610AbWKOBbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966618AbWKOBe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966610AbWKOBbO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 20:31:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966613AbWKOBbO
+	id S966618AbWKOBe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 20:34:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966619AbWKOBe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 20:31:14 -0500
-Received: from elvis.mu.org ([192.203.228.196]:49397 "EHLO elvis.mu.org")
-	by vger.kernel.org with ESMTP id S966610AbWKOBbO (ORCPT
+	Tue, 14 Nov 2006 20:34:58 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:45529 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S966618AbWKOBe6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 20:31:14 -0500
-Message-ID: <455A6DD8.4020608@FreeBSD.org>
-Date: Tue, 14 Nov 2006 17:31:04 -0800
-From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
-X-Accept-Language: en-us, en
+	Tue, 14 Nov 2006 20:34:58 -0500
+Message-ID: <455A6EBF.7060200@garzik.org>
+Date: Tue, 14 Nov 2006 20:34:55 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Always print out the header line in /proc/swaps
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Takashi Iwai <tiwai@suse.de>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+References: <200611150059.kAF0xBTl009796@hera.kernel.org>
+In-Reply-To: <200611150059.kAF0xBTl009796@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It would be possible for /proc/swaps to not always print out the header:
+Linux Kernel Mailing List wrote:
+> commit 134a11f0c37c043d3ea557ea15b95b084e3cc2c8
+> tree c23bfd643913ea2d8cd01b17c1572b9602de7fd5
+> parent c387fd85f84b9d89a75596325d8d6a0f730baf64
+> author Takashi Iwai <tiwai@suse.de> 1163156917 +0100
+> committer Linus Torvalds <torvalds@woody.osdl.org> 1163549067 -0800
+> 
+> [PATCH] ALSA: hda-intel - Disable MSI support by default
+> 
+> Disable MSI support on HD-audio driver as default since there are too
+> many broken devices.
+> 
+> The module option is changed from disable_msi to enable_msi, too.  For
+> turning MSI support on, pass enable_msi=1, instead.
+> 
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-swapon /dev/hdc2
-swapon /dev/hde2
-swapoff /dev/hdc2
+:(  Like AHCI, PCI MSI has -always- worked wonderfully for HD audio AFAIK.
 
-At this point /proc/swaps would not have a header.
+Is a whitelist patch forthcoming?
 
-Signed-off-by: Suleiman Souhlal <suleiman@google.com>
----
- mm/swapfile.c |   22 +++++++++++++++++-----
- 1 files changed, 17 insertions(+), 5 deletions(-)
-
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index a15def6..8e206ce 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1274,10 +1274,13 @@ static void *swap_start(struct seq_file 
- 
- 	mutex_lock(&swapon_mutex);
- 
-+	if (!l)
-+		return SEQ_START_TOKEN;
-+
- 	for (i = 0; i < nr_swapfiles; i++, ptr++) {
- 		if (!(ptr->flags & SWP_USED) || !ptr->swap_map)
- 			continue;
--		if (!l--)
-+		if (!--l)
- 			return ptr;
- 	}
- 
-@@ -1286,10 +1289,17 @@ static void *swap_start(struct seq_file 
- 
- static void *swap_next(struct seq_file *swap, void *v, loff_t *pos)
- {
--	struct swap_info_struct *ptr = v;
-+	struct swap_info_struct *ptr;
- 	struct swap_info_struct *endptr = swap_info + nr_swapfiles;
- 
--	for (++ptr; ptr < endptr; ptr++) {
-+	if (v == SEQ_START_TOKEN)
-+		ptr = swap_info;
-+	else {
-+		ptr = v;
-+		ptr++;
-+	}
-+
-+	for (; ptr < endptr; ptr++) {
- 		if (!(ptr->flags & SWP_USED) || !ptr->swap_map)
- 			continue;
- 		++*pos;
-@@ -1310,8 +1320,10 @@ static int swap_show(struct seq_file *sw
- 	struct file *file;
- 	int len;
- 
--	if (v == swap_info)
--		seq_puts(swap, "Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
-+	if (ptr == SEQ_START_TOKEN) {
-+		seq_puts(swap,"Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
-+		return 0;
-+	}
- 
- 	file = ptr->swap_file;
- 	len = seq_path(swap, file->f_vfsmnt, file->f_dentry, " \t\n\\");
+	Jeff
 
 

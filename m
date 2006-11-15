@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966715AbWKOJUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966707AbWKOJXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966715AbWKOJUh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 04:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966716AbWKOJUg
+	id S966707AbWKOJXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 04:23:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966718AbWKOJXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 04:20:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52685 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966715AbWKOJUg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 04:20:36 -0500
-Date: Wed, 15 Nov 2006 01:20:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: sleeping functions called in invalid context during resume
-Message-Id: <20061115012025.13c72fc1.akpm@osdl.org>
-In-Reply-To: <20061114223002.10c231bd@localhost.localdomain>
-References: <20061114223002.10c231bd@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Wed, 15 Nov 2006 04:23:36 -0500
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:51737 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S966717AbWKOJXg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 04:23:36 -0500
+Date: Wed, 15 Nov 2006 10:24:09 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: "Kay Sievers" <kay.sievers@vrfy.org>
+Cc: "Greg KH" <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Subject: Re: [Patch -mm 2/5] driver core: Introduce device_move(): move a
+ device to a new parent.
+Message-ID: <20061115102409.6e6e5dc0@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
+References: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
+	<20061115065052.GC23810@kroah.com>
+	<20061115082856.195ca0ab@gondolin.boeblingen.de.ibm.com>
+	<3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006 22:30:02 -0800
-Stephen Hemminger <shemminger@osdl.org> wrote:
+On Wed, 15 Nov 2006 09:44:33 +0100,
+"Kay Sievers" <kay.sievers@vrfy.org> wrote:
 
-> Lots of sleeping while atomic warnings on 2.6.19-rc5
-> During resume I see the following:
-> 
-> 
-> platform floppy.0: EARLY resume
-> APIC error on CPU0: 00(00)
-> PM: Finishing wakeup.
-> BUG: sleeping function called from invalid context at drivers/base/power/resume.c:99
-> in_atomic():1, irqs_disabled():0
-> 
-> Call Trace:
->  [<ffffffff80266117>] show_trace+0x34/0x47
->  [<ffffffff8026613c>] dump_stack+0x12/0x17
->  [<ffffffff803734e5>] device_resume+0x19/0x51
->  [<ffffffff80292157>] enter_state+0x19b/0x1b5
->  [<ffffffff802921cf>] state_store+0x5e/0x79
->  [<ffffffff802cc157>] sysfs_write_file+0xc5/0xf8
->  [<ffffffff80215059>] vfs_write+0xce/0x174
->  [<ffffffff802159a5>] sys_write+0x45/0x6e
->  [<ffffffff802593de>] system_call+0x7e/0x83
-> DWARF2 unwinder stuck at system_call+0x7e/0x83
-> 
-> Leftover inexact backtrace:
+> Udev and HAL, both will need an event for the moving, with the old
+> DEVPATH value in the environment. We want something like a "rename" or
+> "move" event. Without that, weird things will happen in userspace,
+> because the devpath is used as the key to the device during the whole
+> device lifetime. The only weird exception today is the netif rename
+> case, which is already handled by special code in udev.
 
-Could mean that someone somewhere forgot to release a spinlock.
+Something like below (completely untested as my test box is currently
+inaccessible)? Wouldn't we need something similar for kobject_rename()
+as well?
 
-Ingo had a patch which would find the culprit (preempt-tracing.patch).
+---
+ include/linux/kobject.h |    1 +
+ lib/kobject.c           |    1 +
+ 2 files changed, 2 insertions(+)
 
-Does it still live?
+--- linux-2.6-CH.orig/include/linux/kobject.h
++++ linux-2.6-CH/include/linux/kobject.h
+@@ -47,6 +47,7 @@ enum kobject_action {
+ 	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices (broken) */
+ 	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* device offline */
+ 	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* device online */
++	KOBJ_MOVE	= (__force kobject_action_t) 0x08,	/* device move */
+ };
+ 
+ struct kobject {
+--- linux-2.6-CH.orig/lib/kobject.c
++++ linux-2.6-CH/lib/kobject.c
+@@ -379,6 +379,7 @@ int kobject_move(struct kobject *kobj, s
+ 	old_parent = kobj->parent;
+ 	kobj->parent = new_parent;
+ 	kobject_put(old_parent);
++	kobject_uevent(kobj, KOBJ_MOVE);
+ out:
+ 	kobject_put(kobj);
+ 	return error;

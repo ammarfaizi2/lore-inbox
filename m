@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030648AbWKOQVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030651AbWKOQW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030648AbWKOQVa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030647AbWKOQV3
+	id S1030651AbWKOQW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:22:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030655AbWKOQW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:21:29 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:57492 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030648AbWKOQV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:21:28 -0500
-Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
-From: Arjan van de Ven <arjan@infradead.org>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: Tejun Heo <htejun@gmail.com>, Mathieu Fluhr <mfluhr@nero.com>,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <455B3D99.8040705@cfl.rr.com>
-References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>
-	 <4558BE57.4020700@cfl.rr.com>
-	 <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>
-	 <1163446372.15249.190.camel@laptopd505.fenrus.org>
-	 <1163519125.2998.8.camel@de-c-l-110.nero-de.internal>
-	 <455 <455B3A78.7010503@gmail.com>  <455B3D99.8040705@cfl.rr.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 15 Nov 2006 17:20:52 +0100
-Message-Id: <1163607653.31358.128.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 15 Nov 2006 11:22:59 -0500
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:1220 "EHLO
+	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1030651AbWKOQW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 11:22:58 -0500
+Date: Wed, 15 Nov 2006 11:22:55 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, trond.myklebust@fys.uio.no,
+       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
+       steved@redhat.com
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+ overridden 
+In-Reply-To: <24555.1163598644@redhat.com>
+Message-ID: <XMMS.LNX.4.64.0611151120240.8593@d.namei>
+References: <XMMS.LNX.4.64.0611141618300.25022@d.namei> 
+ <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+ <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com> 
+ <24555.1163598644@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-15 at 11:17 -0500, Phillip Susi wrote:
-> Tejun Heo wrote:
-> >> The patch _seems_ to solve my problem. I am just really astonished when
-> >> I read the diff file :D. Can I expect that it will be merged to the
-> >> official kernel sources ?
-> > 
-> > It seems that some devices choke when the bytes after CDB contain 
-> > garbage.  I seem to recall that I read somewhere ATAPI device require 
-> > left command bytes cleared to zero but I can't find it anywhere now. 
-> > Maybe I'm just imagining.  Anyways, yeah, I'll push it to upstream.
-> > 
+On Wed, 15 Nov 2006, David Howells wrote:
+
+> James Morris <jmorris@namei.org> wrote:
 > 
-> The original patch memsets the entire buffer only to copy over most of 
-> it right after.  Could you amend the patch so that it memcpys first, 
-> then memsets only the remainder of the buffer?  No sense wasting cpu 
-> cycles.
+> > The ability to set this needs to be mediated via MAC policy.
+> 
+> Something like this, you mean?
 
-due to the funnies of how cpu caches work it might not actually be
-faster though... Write Allocate and things like that are.. well fun.
+Yes, although perhaps writing to tsec->kern_create_sid or similar, which 
+then overrides tsec->create_sid if set.  Also need 
+/proc/pid/attr/kern_fscreate as a read only node.
+
+
+> +	error = task_has_perm(current, current, PROCESS__SETFSCREATE);
+
+I wonder if we also need 'relabelto' and 'relabelfrom' permissions, to 
+control which labels are being used.
 
 
 
+- James
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+James Morris
+<jmorris@namei.org>

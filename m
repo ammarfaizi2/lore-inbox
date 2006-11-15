@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162047AbWKOXRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162041AbWKOX21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162047AbWKOXRy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 18:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162048AbWKOXRy
+	id S1162041AbWKOX21 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 18:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162048AbWKOX21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 18:17:54 -0500
-Received: from nz-out-0102.google.com ([64.233.162.198]:27865 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1162047AbWKOXRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 18:17:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oWVgGv5rJSjo8ibFYiHkzsy6lHD3RLyylPxW+cI8sC1dFInl4tfordIkOkjezvkuuMJ89fLIAB8HXdMDIhsHYsager5Sb0p5bFGDvAvOMjYLvAJGFpF1ehpUYqPhbCpdAtAdWkzHtStBQAx5w3UKOLZCEmmb89OU9R8KaweD01E=
-Message-ID: <9a8748490611151517r7779652ej910a33ca961ba025@mail.gmail.com>
-Date: Thu, 16 Nov 2006 00:17:52 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "William D Waddington" <william.waddington@beezmo.com>
-Subject: Re: [RFCLUE3] flagging kernel interface changes
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <455B9133.9030704@beezmo.com>
+	Wed, 15 Nov 2006 18:28:27 -0500
+Received: from mail.devicescape.com ([207.138.119.2]:37044 "EHLO
+	mail.devicescape.com") by vger.kernel.org with ESMTP
+	id S1162041AbWKOX20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 18:28:26 -0500
+Date: Wed, 15 Nov 2006 15:28:16 -0800
+From: David Kimdon <david.kimdon@devicescape.com>
+To: Pavel Roskin <proski@gnu.org>
+Cc: "John W. Linville" <linville@tuxdriver.com>, lwn@lwn.net,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Michael Buesch <mb@bu3sch.de>, madwifi-devel@lists.sourceforge.net
+Subject: Re: [Madwifi-devel] ANNOUNCE: SFLC helps developers assessar5k	(enabling free Atheros HAL)
+Message-ID: <20061115232816.GA20849@devicescape.com>
+References: <20061115192054.GA10009@tuxdriver.com> <1163619541.19111.6.camel@dv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <455B9133.9030704@beezmo.com>
+In-Reply-To: <1163619541.19111.6.camel@dv>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15/11/06, William D Waddington <william.waddington@beezmo.com> wrote:
-> I tried submitting a patch a while back:
-> "[PATCH] IRQ: ease out-of-tree migration to new irq_handler prototype"
-> to add #define __PT_REGS to include/linux/interrupt.h to flag the change
-> to the new interrupt handler prototype.  It wasn't well received :(
->
-> No big surprise.  The #define wasn't my idea and I hadn't submitted a
-> patch before.  I wanted to see how the patch procedure worked, and
-> hoped that the flag would be included so I could mod my drivers and
-> move on...
->
-> What I'm curious about is why flagging kernel/driver interface changes
-> is considered a bad idea.  From my point of view as a low-life out-of-
-> tree driver maintainer,
->
-> #ifdef NEW_INTERFACE
-> #define <my new internals>
-> #endif
->
-> (w/maybe an #else...)
->
-> is cleaner and safer than trying to track specific kernel versions in
-> a multi-kernel-version driver.  It seems that in some cases, the new
-> interface has been, like HAVE_COMPAT_IOCTL for instance.
->
-> I don't want to start an argument about "stable_api_nonsense" or the
-> wisdom of out-of-tree drivers.  Just curious about the - why - and
-> whether it is indifference or antagonism toward drivers outside the
-> fold. Or ???
->
+On Wed, Nov 15, 2006 at 02:39:01PM -0500, Pavel Roskin wrote:
+> On Wed, 2006-11-15 at 14:21 -0500, John W. Linville wrote:
+> > On Wed, Nov 15, 2006 at 07:42:14PM +0100, Michael Buesch wrote:
+> 
+> I said it before, and it's worth repeating.  Dissolving HAL in the
+> sources is easy.  It's just a matter of moving functions around without
+> serious chances of breaking anything as long as the source compiles.
+> The whole "HAL-based architecture" can be reshuffled and eliminated by
+> one person in a few days.
+> 
+> Making things work properly takes years.  That's what MadWifi has been
+> working on for a long time, using contributions and bug reports from
+> scores of users and developers.
+> 
+> Rejecting MadWifi because it's HAL based is like throwing away a diamond
+> ring because it's too narrow.
 
-I would say that one reason is that cluttering up the kernel with
-#ifdef's is ugly and annoying to maintain long-term. Especially when
-it's expected that anyone who changes in-kernel interfaces also fix up
-any user(s) of those interfaces, so the #ifdef's are pointless
-(ignoring out-of-tree code that is).
+I completely agree.  The approach we are taking with dadwifi[1] is to
+use much of the existing code from madwifi and port it to the d80211
+stack.  Today dadwifi works in monitor, sta and ap mode.
+
+-David
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+[1] http://madwifi.org/wiki/DadWifi
+
+> 
+> -- 
+> Regards,
+> Pavel Roskin
+> 
+> 
+> 
+> -------------------------------------------------------------------------
+> Take Surveys. Earn Cash. Influence the Future of IT
+> Join SourceForge.net's Techsay panel and you'll get the chance to share your
+> opinions on IT & business topics through brief surveys - and earn cash
+> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
+> _______________________________________________
+> Madwifi-devel mailing list
+> Madwifi-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/madwifi-devel

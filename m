@@ -1,113 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966836AbWKONET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966846AbWKONSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966836AbWKONET (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 08:04:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966835AbWKONET
+	id S966846AbWKONSN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 08:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966847AbWKONSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 08:04:19 -0500
-Received: from ra.tuxdriver.com ([70.61.120.52]:33037 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S966833AbWKONES (ORCPT
+	Wed, 15 Nov 2006 08:18:13 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:63818 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S966846AbWKONSM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 08:04:18 -0500
-Date: Wed, 15 Nov 2006 08:03:52 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: eli@dev.mellanox.co.il
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: UDP packets loss
-Message-ID: <20061115130352.GB721@hmsreliant.homelinux.net>
-References: <60157.89.139.64.58.1163542547.squirrel@dev.mellanox.co.il> <20061114143531.2ee7eae0@freekitty> <38090.194.90.237.34.1163545721.squirrel@dev.mellanox.co.il>
+	Wed, 15 Nov 2006 08:18:12 -0500
+X-IronPort-AV: i="4.09,424,1157353200"; 
+   d="scan'208"; a="2695509:sNHT22112664"
+Subject: Re: Yet another borken page_count() check in
+	invalidate_inode_pages2()....
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Charles Edward Lever <chucklever@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1163568819.5645.8.camel@lade.trondhjem.org>
+References: <1163568819.5645.8.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Network Appliance Inc
+Date: Wed, 15 Nov 2006 08:18:09 -0500
+Message-Id: <1163596689.5691.40.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <38090.194.90.237.34.1163545721.squirrel@dev.mellanox.co.il>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 15 Nov 2006 13:18:41.0261 (UTC) FILETIME=[9191E1D0:01C708B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 01:08:41AM +0200, eli@dev.mellanox.co.il wrote:
-> Thanks for the commets.
-> I actually use UDP because I am seeking for ways to improve the
-> performance of IPOIB and I wanted to avoid TCP's flow control. I am really
-> up to making anaysis. Can you tell me more about irqbalnced? Where can I
-> find more info how to control it? I would like my interrupts serviced by
-> all CPUs in a somehow equal manner. I mentioned MSIX - the driver already
-> make use of MSIX and I thought this is relevant to interrupts affinity.
-> 
+On Wed, 2006-11-15 at 00:33 -0500, Trond Myklebust wrote:
+> I'm once again getting bogus errors from invalidate_inode_pages2() due
+> to a VM bug. See the third line of remove_mapping().
 
-If you want complete control over which CPU's service which interrupts, just
-turn irqbalance off (usually service irqbalance stop).  Then use
-/proc/irq/<irq_number>/smp_affinity to tune the cpu affinity for each interrupt.
+Argh... Never try debugging past midnight: the above was a red herring.
+I've been hitting the WARN_ON in invalidate_inode_pages2() reliably when
+running NetApp's simulated i/o tool on the NFS client. It looks as if
+I'm hitting a race in which writeback starts on the page after the call
+to wait_on_page_writeback(), probably as a consequence of
+unmap_mapping_range().
 
-That being said however, As Auke and others have mentioned, servicing interrupts
-on multiple cpu's leads to lower performance, not higher performance.  cache
-line bouncing is going to create greater latency for each interrupt you service
-and slow you down overall.  I assume these are gigabit interfaces?  You're best
-focus to improve throughput is to (if the driver supports it), tune your
-interrupt coalescing factors such that you minimize the number of interrupts you
-actually receive from the card.
+Anyhow, when we call try_to_release_page() with the GFP_WAIT argument,
+it seems unnecessary that it should fail immediately if the page is
+under writeback. How about something like the following patch?
 
-Regards
-Neil
+Cheers,
+ Trond
+------------------------------------------------------------------
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+Date: Wed, 15 Nov 2006 08:02:30 -0500
+MM: Fix a loophole in try_to_release_page()
 
-> > On Wed, 15 Nov 2006 00:15:47 +0200 (IST)
-> > eli@dev.mellanox.co.il wrote:
-> >
-> >> Hi,
-> >> I am running a client/server test app over IPOIB in which the client
-> >> sends
-> >> a certain amount of data to the server. When the transmittion ends, the
-> >> server prints the bandwidth and how much data it received. I can see
-> >> that
-> >> the server reports it received about 60% that the client sent. However,
-> >> when I look at the server's interface counters before and after the
-> >> transmittion, I see that it actually received all the data that the
-> >> client
-> >> sent. This leads me to suspect that the networking layer somehow dropped
-> >> some of the data. One thing to not - the CPU is 100% busy at the
-> >> receiver.
-> >> Could this be the reason (the machine I am using is 2 dual cores - 4
-> >> CPUs).
-> >
-> > If receiver application can't keep up UDP drops packets. The counter
-> > receive buffer errors (UDP_MIB_RCVBUFERRORS) is incremented.
-> >
-> > Don't expect flow control or reliable delivery; it's a datagram service!
-> >
-> >> The secod question is how do I make the interrupts be srviced by all
-> >> CPUs?
-> >> I tried through the procfs as described by IRQ-affinity.txt but I can
-> >> set
-> >> the mask to 0F bu then I read back and see it is indeed 0f but after a
-> >> few
-> >> seconds I see it back to 02 (which means only CPU1).
-> >
-> > Most likely, the user level irq balance daemon (irqbalanced) is adjusting
-> > it?
-> >
-> >>
-> >> One more thing - the device I am using is capable of generating MSIX
-> >> interrupts.
-> >>
-> >
-> > Look at device capabilities with:
-> >
-> > 	lspci -vv
-> >
-> >
-> > --
-> > Stephen Hemminger <shemminger@osdl.org>
-> >
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-net" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The following patch allows try_to_release_page() to wait on page writeback
+instead of failing if the user specified __GFP_WAIT.
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+The reason is that when running NetApp's simulated I/O tool (sio_ntap) on
+the NFS client, I can currently reliably trigger the WARN_ON() in
+invalidate_inode_pages2().
+Whereas we do wait on page_writeback in invalidate_inode_pages2_range(), we
+do so before we unmap the page. There is still a race which will cause the
+call to try_to_release_page() to fail the test for PageWriteback(page).
+
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
+
+ mm/filemap.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 7b84dc8..d37f77b 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2445,7 +2445,9 @@ int try_to_release_page(struct page *pag
+ 	struct address_space * const mapping = page->mapping;
+ 
+ 	BUG_ON(!PageLocked(page));
+-	if (PageWriteback(page))
++	if (gfp_mask & __GFP_WAIT)
++		wait_on_page_writeback(page);
++	else if (PageWriteback(page))
+ 		return 0;
+ 
+ 	if (mapping && mapping->a_ops->releasepage)

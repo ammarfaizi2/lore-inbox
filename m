@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030695AbWKORBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030713AbWKOREe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030695AbWKORBk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:01:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030709AbWKORBk
+	id S1030713AbWKOREe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030714AbWKOREe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:01:40 -0500
-Received: from extu-mxob-2.symantec.com ([216.10.194.135]:55712 "EHLO
-	extu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
-	id S1030695AbWKORBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:01:39 -0500
-X-AuditID: d80ac287-a28e6bb000005d67-b1-455b47f08001 
-Date: Wed, 15 Nov 2006 17:01:54 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Jan Beulich <jbeulich@novell.com>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, patches@x86-64.org
-Subject: Re: [PATCH] x86-64: adjust pmd_bad()
-In-Reply-To: <455B3AF2.76E4.0078.0@novell.com>
-Message-ID: <Pine.LNX.4.64.0611151658520.24160@blonde.wat.veritas.com>
-References: <455B3AF2.76E4.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 15 Nov 2006 17:01:36.0424 (UTC) FILETIME=[B5C9CA80:01C708D7]
-X-Brightmail-Tracker: AAAAAA==
+	Wed, 15 Nov 2006 12:04:34 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9608 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030713AbWKOREc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 12:04:32 -0500
+Date: Wed, 15 Nov 2006 09:00:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-mm <linux-mm@kvack.org>, ext4 <linux-ext4@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pagefault in generic_file_buffered_write() causing deadlock
+Message-Id: <20061115090005.c9ec6db5.akpm@osdl.org>
+In-Reply-To: <1163606265.7662.8.camel@dyn9047017100.beaverton.ibm.com>
+References: <1163606265.7662.8.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006, Jan Beulich wrote:
+On Wed, 15 Nov 2006 07:57:45 -0800
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
 
-> Make pmd_bad() symmetrical to pgd_bad() and pud_bad(). At once,
-> simplify them all.
+> We are looking at a customer situation (on 2.6.16-based distro) - where
+> system becomes almost useless while running some java & stress tests.
+> 
+> Root cause seems to be taking a pagefault in generic_file_buffered_write
+> () after calling prepare_write. I am wondering 
+> 
+> 1) Why & How this can happen - since we made sure to fault the user
+> buffer before prepare write.
 
-Symmetrical and simpler, yes, but you're weakening the pmd_bad() test:
-no longer requires that all those _KERNPG_TABLE bits be set.  Wouldn't
-it be better to go the other way and strengthen pgd_bad, pud_bad?
+When using writev() we only fault in the first segment of the iovec.  If
+the second or succesive segment isn't mapped into pagetables we're
+vulnerable to the deadlock.
 
-Hugh
+> 2) If this is already fixed in current mainline (I can't see how).
+
+It was fixed in 2.6.17.
+
+You'll need 6527c2bdf1f833cc18e8f42bd97973d583e4aa83 and
+81b0c8713385ce1b1b9058e916edcf9561ad76d6

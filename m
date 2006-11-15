@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162041AbWKOX21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162064AbWKOXaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162041AbWKOX21 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 18:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162048AbWKOX21
+	id S1162064AbWKOXaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 18:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162065AbWKOXaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 18:28:27 -0500
-Received: from mail.devicescape.com ([207.138.119.2]:37044 "EHLO
-	mail.devicescape.com") by vger.kernel.org with ESMTP
-	id S1162041AbWKOX20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 18:28:26 -0500
-Date: Wed, 15 Nov 2006 15:28:16 -0800
-From: David Kimdon <david.kimdon@devicescape.com>
-To: Pavel Roskin <proski@gnu.org>
-Cc: "John W. Linville" <linville@tuxdriver.com>, lwn@lwn.net,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Michael Buesch <mb@bu3sch.de>, madwifi-devel@lists.sourceforge.net
-Subject: Re: [Madwifi-devel] ANNOUNCE: SFLC helps developers assessar5k	(enabling free Atheros HAL)
-Message-ID: <20061115232816.GA20849@devicescape.com>
-References: <20061115192054.GA10009@tuxdriver.com> <1163619541.19111.6.camel@dv>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163619541.19111.6.camel@dv>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 15 Nov 2006 18:30:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8892 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1162064AbWKOXaY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 18:30:24 -0500
+Date: Wed, 15 Nov 2006 15:29:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Tero Roponen <teanropo@jyu.fi>
+Cc: linux-kernel@vger.kernel.org, Jordan Crouse <jordan.crouse@amd.com>,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [PATCH -mm] fb: modedb uses wrong default_mode
+Message-Id: <20061115152952.0e92c50d.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
+References: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 02:39:01PM -0500, Pavel Roskin wrote:
-> On Wed, 2006-11-15 at 14:21 -0500, John W. Linville wrote:
-> > On Wed, Nov 15, 2006 at 07:42:14PM +0100, Michael Buesch wrote:
-> 
-> I said it before, and it's worth repeating.  Dissolving HAL in the
-> sources is easy.  It's just a matter of moving functions around without
-> serious chances of breaking anything as long as the source compiles.
-> The whole "HAL-based architecture" can be reshuffled and eliminated by
-> one person in a few days.
-> 
-> Making things work properly takes years.  That's what MadWifi has been
-> working on for a long time, using contributions and bug reports from
-> scores of users and developers.
-> 
-> Rejecting MadWifi because it's HAL based is like throwing away a diamond
-> ring because it's too narrow.
-
-I completely agree.  The approach we are taking with dadwifi[1] is to
-use much of the existing code from madwifi and port it to the d80211
-stack.  Today dadwifi works in monitor, sta and ap mode.
-
--David
-
-
-[1] http://madwifi.org/wiki/DadWifi
+On Wed, 15 Nov 2006 19:43:16 +0200 (EET)
+Tero Roponen <teanropo@jyu.fi> wrote:
 
 > 
-> -- 
-> Regards,
-> Pavel Roskin
+> It seems that default_mode is always overwritten in
+> fb_find_mode() if caller gives its own modedb; this
+> patch should fix it.
 > 
+> dmesg diff before and after the following patch:
 > 
+>  neofb: mapped framebuffer at c4a80000
+>  -Mode (640x400) won't display properly on LCD
+>  -Mode (640x400) won't display properly on LCD
+>  -neofb v0.4.2: 2048kB VRAM, using 640x480, 31.469kHz, 59Hz
+>  -Console: switching to colour frame buffer device 80x30
+>  +neofb v0.4.2: 2048kB VRAM, using 800x600, 37.878kHz, 60Hz
+>  +Console: switching to colour frame buffer device 100x37
+>   fb0: MagicGraph 128XD frame buffer device
 > 
-> -------------------------------------------------------------------------
-> Take Surveys. Earn Cash. Influence the Future of IT
-> Join SourceForge.net's Techsay panel and you'll get the chance to share your
-> opinions on IT & business topics through brief surveys - and earn cash
-> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
-> _______________________________________________
-> Madwifi-devel mailing list
-> Madwifi-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/madwifi-devel
+> Signed-off-by: Tero Roponen <teanropo@jyu.fi>
+> ---
+> 
+> --- linux-2.6.19-rc5-mm2/drivers/video/modedb.c.orig	2006-11-15 19:03:03.000000000 +0200
+> +++ linux-2.6.19-rc5-mm2/drivers/video/modedb.c	2006-11-15 19:02:57.000000000 +0200
+> @@ -507,7 +507,7 @@ int fb_find_mode(struct fb_var_screeninf
+>      }
+>      if (!default_mode && db != modedb)
+>  	default_mode = &db[0];
+> -    else
+> +    else if (!default_mode)
+>  	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
+>  
+>      if (!default_bpp)
+
+Sigh.
+
+2.6.19-rc5 has:
+
+    if (!default_mode)
+	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
+
+and Jordan changed it to
+
+    if (!default_mode && db != modedb)
+	default_mode = &db[0];
+    else
+	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
+
+and you want to change it to
+
+    if (!default_mode && db != modedb)
+	default_mode = &db[0];
+    else if (!default_mode)
+	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
+
+which is actually a complicated way of doing
+
+    if (!default_mode)
+	default_mode = &db[DEFAULT_MODEDB_INDEX];
+
+So let's do that.

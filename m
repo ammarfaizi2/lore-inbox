@@ -1,71 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030628AbWKOQIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030636AbWKOQJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030628AbWKOQIi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030632AbWKOQIi
+	id S1030636AbWKOQJj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030637AbWKOQJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:08:38 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:61603 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1030628AbWKOQIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:08:37 -0500
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: Zachary Amsden <zach@vmware.com>
-Subject: Re: [Opps] Invalid opcode
-Date: Wed, 15 Nov 2006 18:08:49 +0200
-User-Agent: KMail/1.9.5
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
-References: <200611051507.37196.caglar@pardus.org.tr> <200611120439.56199.caglar@pardus.org.tr> <4557F287.7050807@vmware.com>
-In-Reply-To: <4557F287.7050807@vmware.com>
+	Wed, 15 Nov 2006 11:09:39 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33298 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030636AbWKOQJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 11:09:37 -0500
+Date: Wed, 15 Nov 2006 17:09:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.32
+Message-ID: <20061115160936.GF5824@stusta.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1399175.9BTJFQFxie";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200611151808.49237.caglar@pardus.org.tr>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1399175.9BTJFQFxie
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Security fixes since 2.6.16.31:
+- CVE-2006-4538: ia64/sparc: fix local DoS with corrupted ELFs
 
-13 Kas 2006 Pts 06:20 tarihinde, Zachary Amsden =C5=9Funlar=C4=B1 yazm=C4=
-=B1=C5=9Ft=C4=B1:=20
-> I would like to find the exact cause of the problem; I suspect, as does
-> Andi, that it could just be dormant. You had problems still with
-> 2.6.18.latest, correct? If I can find the cause, I would like to get a
-> fix into 2.6.18-stable if possible. I think you already sent me the
-> reproducing kernel config, but I seem to have misplaced it. Could you
-> resend? I should have some time to look at this early this week.
 
-Sorry for late reply, [1] is the kernel config i used and if you want i can=
-=20
-provide ~5mb iso contains that kernel and its 26.19-rc5 version to test?
+Location:
+ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
 
-[1] http://cekirdek.pardus.org.tr/~caglar/2.6.18/config.2.6.18
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
 
---nextPart1399175.9BTJFQFxie
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Changes since 2.6.16.31:
 
-iD8DBQBFWzuRy7E6i0LKo6YRAmloAKDSsxaB0G5HNGC/gN6l2uBuZtiYjQCgqT1E
-vtFkxRfK/R+rurZ1uWn0UKM=
-=m8J7
------END PGP SIGNATURE-----
+Adrian Bunk (6):
+      remove Documentation/feature-removal-schedule.txt
+      drivers/md/md.c: update START_ARRAY printk
+      drivers/telephony/ixj: fix an array overrun
+      [AGPGART] remove unused variable
+      Linux 2.6.16.32-rc1
+      Linux 2.6.16.32
 
---nextPart1399175.9BTJFQFxie--
+Antonino Daplas (1):
+      nvidiafb: Add support for Geforce 6100 and related chipsets
+
+Christoph Lameter (1):
+      Fix longstanding load balancing bug in the scheduler
+
+Dave Jones (2):
+      [CPUFREQ] Make powernow-k7 work on SMP kernels.
+      [AGPGART] Suspend/Resume support for nVidia nForce AGP.
+
+Dmitriy Monakhov (1):
+       fix D-cache aliasing issue in cow_user_page
+
+Geert Uytterhoeven (1):
+      fbdev: correct buffer size limit in fbmem_read_proc()
+
+Herbert Xu (3):
+      [NET]: Add missing UFO initialisations
+      [NET]: Set truesize in pskb_copy
+      [NET]: Update frag_list in pskb_trim
+
+Jean Delvare (1):
+      scx200_acb: Fix the block transactions
+
+Jeff Mahoney (1):
+      [DISKLABEL] SUN: Fix signed int usage for sector count
+
+John Heffner (1):
+      [TCP]: Don't use highmem in tcp hash size calculation.
+
+Kirill Korotaev (2):
+      [IPV4]: Limit rt cache size properly.
+      ia64/sparc: fix local DoS with corrupted ELFs (CVE-2006-4538)
+
+Larry Woodman (1):
+      [NET]: __alloc_pages() failures reported due to fragmentation
+
+Marcel Holtmann (1):
+      Don't allow chmod() on the /proc/<pid>/ files
+
+Neil Brown (1):
+      md: Make sure bi_max_vecs is set properly in bio_split
+
+Paul Mackerras (2):
+      [POWERPC] Fix return value from memcpy
+      nvidia fbdev: fix powerpc xmon scribbles
+
+Pavel Roskin (1):
+      drivers/video/nvidia/nvidia.c: Add ID for Quadro NVS280
+
+Randy Dunlap (1):
+      [CPUFREQ] Fix powernow-k8 SMP kernel on UP hardware bug.
+
+Stephen Hemminger (1):
+      [MAINTAINERS]: Add proper entry for TC classifier
+
+Tejun Heo (1):
+      sata_sil24: add a new PCI ID for SiI 3124
+
+Thomas Andrews (1):
+      Fix the scx200_acb state machine:
+
+Thomas Graf (4):
+      PKT_SCHED: Fix error handling while dumping actions
+      PKT_SCHED: Fix illegal memory dereferences when dumping actions
+      PKT_SCHED: Return ENOENT if action module is unavailable
+      [PKT_SCHED]: act_api: Fix module leak while flushing actions
+
+
+ Documentation/feature-removal-schedule.txt |  191 ---------------------
+ MAINTAINERS                                |    6 
+ Makefile                                   |    2 
+ arch/i386/kernel/cpu/cpufreq/powernow-k7.c |    5 
+ arch/i386/kernel/cpu/cpufreq/powernow-k8.c |    2 
+ arch/ia64/kernel/sys_ia64.c                |   28 +--
+ arch/powerpc/lib/memcpy_64.S               |   11 -
+ arch/sparc/kernel/sys_sparc.c              |   27 +-
+ arch/sparc64/kernel/sys_sparc.c            |   30 +--
+ drivers/char/agp/nvidia-agp.c              |   27 ++
+ drivers/i2c/busses/scx200_acb.c            |   20 +-
+ drivers/md/md.c                            |    2 
+ drivers/scsi/sata_sil24.c                  |    1 
+ drivers/telephony/ixj.h                    |    2 
+ drivers/video/fbmem.c                      |    3 
+ drivers/video/nvidia/nv_hw.c               |   10 -
+ drivers/video/nvidia/nvidia.c              |   13 +
+ fs/bio.c                                   |    3 
+ fs/partitions/sun.c                        |    2 
+ fs/proc/base.c                             |   33 +++
+ include/asm-ia64/mman.h                    |    8 
+ include/asm-sparc/mman.h                   |    8 
+ include/asm-sparc64/mman.h                 |    8 
+ include/linux/pci_ids.h                    |    1 
+ include/linux/skbuff.h                     |   24 +-
+ kernel/sched.c                             |   38 +++-
+ mm/memory.c                                |    1 
+ mm/mmap.c                                  |   17 +
+ net/core/dev.c                             |    1 
+ net/core/skbuff.c                          |  109 ++++++++---
+ net/core/sock.c                            |    2 
+ net/ipv4/route.c                           |    2 
+ net/ipv4/tcp.c                             |    4 
+ net/sched/act_api.c                        |   22 +-
+ 34 files changed, 342 insertions(+), 321 deletions(-)
+

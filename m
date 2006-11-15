@@ -1,54 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966618AbWKOBe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966619AbWKOBqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966618AbWKOBe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 20:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966619AbWKOBe6
+	id S966619AbWKOBqg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 20:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966620AbWKOBqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 20:34:58 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:45529 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S966618AbWKOBe6 (ORCPT
+	Tue, 14 Nov 2006 20:46:36 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:8654 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S966619AbWKOBqf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 20:34:58 -0500
-Message-ID: <455A6EBF.7060200@garzik.org>
-Date: Tue, 14 Nov 2006 20:34:55 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Tue, 14 Nov 2006 20:46:35 -0500
+Date: Wed, 15 Nov 2006 02:46:11 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Marty Leisner <leisner@rochester.rr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC  -- /proc/patches to track development 
+In-Reply-To: <200611150117.kAF1H3CD012244@dell2.home>
+Message-ID: <Pine.LNX.4.61.0611150238570.1046@yvahk01.tjqt.qr>
+References: <200611150117.kAF1H3CD012244@dell2.home>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Takashi Iwai <tiwai@suse.de>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-References: <200611150059.kAF0xBTl009796@hera.kernel.org>
-In-Reply-To: <200611150059.kAF0xBTl009796@hera.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> commit 134a11f0c37c043d3ea557ea15b95b084e3cc2c8
-> tree c23bfd643913ea2d8cd01b17c1572b9602de7fd5
-> parent c387fd85f84b9d89a75596325d8d6a0f730baf64
-> author Takashi Iwai <tiwai@suse.de> 1163156917 +0100
-> committer Linus Torvalds <torvalds@woody.osdl.org> 1163549067 -0800
-> 
-> [PATCH] ALSA: hda-intel - Disable MSI support by default
-> 
-> Disable MSI support on HD-audio driver as default since there are too
-> many broken devices.
-> 
-> The module option is changed from disable_msi to enable_msi, too.  For
-> turning MSI support on, pass enable_msi=1, instead.
-> 
-> Signed-off-by: Takashi Iwai <tiwai@suse.de>
-> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-:(  Like AHCI, PCI MSI has -always- worked wonderfully for HD audio AFAIK.
+>From: Marty Leisner <leisner@rochester.rr.com>
+>Subject: RFC  -- /proc/patches to track development 
+                  ^^^^^
 
-Is a whitelist patch forthcoming?
+Wrong place. Really. (And I do not think /sys is a better one either. 
+But let others speak up.)
 
-	Jeff
+>I always want to know WHAT I'm running (or people I'm working with
+
+`uname -a`?
+
+>are running) rather than  "guessing" ("do you have the most current 
+>patch" "I think so")
+>
+>I've been a proponent of capturing .config information SOMEPLACE where
+>you can look at it at runtime...(it took a while but its there now).
+
+/proc/config,gz?
+
+>In /proc/patches there would be a series of comments (perhaps including
+>file, date and time) of various patches you want to monitor.  
+
+Wastes nonswappable memory.
+
+>It would be enabled by something like
+>
+>in file foo.c:
+>PATCH_COMMENT("this enables the foo feature");
+>
+>
+>In membar.c:
+>PATCH_COMMENT("go to the bar on saturday");
+>...
+>PATCH_COMMENT("watch how much you drink");
+>
+>
+>and in /proc/patches:
+>
+>foo.c: compiled <date> <time>:this enables the foo feature
+>membar.c: compiled <date> <time>:go to the bar on saturday
+>member.c: compiled <date> <time>:watch how much you drink
+>
+>There would be a Kconfig flag whether or not to enable this (i.e.
+>production kernels would not need it,
+>hacked kernels would, it could always be there if you're willing to
+>increase the footprint).
+
+Reasonable. However, I would prefer that PATCH_COMMENT() evaluates to a 
+string that is included in the module only (think MODULE_DESCRIPTION) 
+and is not loaded during modprobe. Instead, modinfo your 
+/lib/modules/`uname -r` tree and grep for your PATCH_COMMENT lines. Hey, 
+that's even in userspace - no memory wasted.
+
+>Instead of looking for aberrant behavior to identify patches, you could easily
+>see things with cat.
+
+Can you define patch? IMO, if you run a normal, mm, or git kernel, you 
+usually find -mm or -git in the `uname -r` output. Of course there is 
+also some development going on between -gitA and -gitB, but most people 
+seem to keep together what they have patched.
+
+>Seems very easy and has high ROI if you need to track patched kernels locally.
+
+Patched by whom? (Tier-1 kernel developers (mainline, mm and those who 
+run a tree on git.kernel.org), or Tier-2+ (Distro vendors))
 
 
+
+	-`J'
+-- 

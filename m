@@ -1,84 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030692AbWKOQrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030690AbWKOQqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030692AbWKOQrF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030691AbWKOQrF
+	id S1030690AbWKOQqq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030683AbWKOQqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:47:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:58496 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030693AbWKOQrB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:47:01 -0500
-Date: Wed, 15 Nov 2006 08:46:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: Charles Edward Lever <chucklever@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Yet another borken page_count() check in
- invalidate_inode_pages2()....
-Message-Id: <20061115084641.827494be.akpm@osdl.org>
-In-Reply-To: <1163596689.5691.40.camel@lade.trondhjem.org>
-References: <1163568819.5645.8.camel@lade.trondhjem.org>
-	<1163596689.5691.40.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Wed, 15 Nov 2006 11:46:46 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:60335
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1030690AbWKOQqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 11:46:45 -0500
+Message-Id: <455B52CF.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Wed, 15 Nov 2006 16:47:59 +0000
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "linux-acpi" <linux-acpi@intel.com>, "Mikael Pettersson" <mikpe@it.uu.se>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] avoid compiler warnings
+References: <455B36D2.76E4.0078.0@novell.com>
+ <17755.13665.576585.82545@alkaid.it.uu.se>
+In-Reply-To: <17755.13665.576585.82545@alkaid.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 08:18:09 -0500
-Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
+>>Pointers should not be casted to u32 as this results in compiler warnings
+>>on 64-bit platforms.
+>
+>NAK. Use "%p" for formatting pointers. No casts needed.
 
-> The following patch allows try_to_release_page() to wait on page writeback
-> instead of failing if the user specified __GFP_WAIT.
-> 
-> The reason is that when running NetApp's simulated I/O tool (sio_ntap) on
-> the NFS client, I can currently reliably trigger the WARN_ON() in
-> invalidate_inode_pages2().
-> Whereas we do wait on page_writeback in invalidate_inode_pages2_range(), we
-> do so before we unmap the page. There is still a race which will cause the
-> call to try_to_release_page() to fail the test for PageWriteback(page).
-> 
-> Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
-> ---
-> 
->  mm/filemap.c |    4 +++-
->  1 files changed, 3 insertions(+), 1 deletions(-)
-> 
-> diff --git a/mm/filemap.c b/mm/filemap.c
-> index 7b84dc8..d37f77b 100644
-> --- a/mm/filemap.c
-> +++ b/mm/filemap.c
-> @@ -2445,7 +2445,9 @@ int try_to_release_page(struct page *pag
->  	struct address_space * const mapping = page->mapping;
->  
->  	BUG_ON(!PageLocked(page));
-> -	if (PageWriteback(page))
-> +	if (gfp_mask & __GFP_WAIT)
-> +		wait_on_page_writeback(page);
-> +	else if (PageWriteback(page))
->  		return 0;
->  
->  	if (mapping && mapping->a_ops->releasepage)
+Indeed, how did I not see this... While at this, I saw that there were a few
+more instances that needed fixing (they weren't actively generating warnings
+because of the build settings).
 
-The change probably makes sense.  Need to think about that a bit more and
-review callers..
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-But I don't see how it can change invalidate_inode_pages2().  What we
-would effectively have is: 
-
-invalidate_inode_pages2_range()
-{
-	lock_page(page);
-	wait_on_page_writeback(page);
-
-	...
-
-				
-	wait_on_page_writeback(page);
-
-but nobody could have started another writeback after the "..." because they
-couldn't have got the lock_page(), and lock_page() is required for
-->writepage()?
+--- linux-2.6.19-rc5/drivers/acpi/executer/exmutex.c	2006-09-20 05:42:06.000000000 +0200
++++ 2.6.19-rc5-acpi-warnings/drivers/acpi/executer/exmutex.c	2006-11-15 17:22:39.000000000 +0100
+@@ -266,10 +266,10 @@ acpi_ex_release_mutex(union acpi_operand
+ 	     walk_state->thread->thread_id)
+ 	    && (obj_desc->mutex.os_mutex != ACPI_GLOBAL_LOCK)) {
+ 		ACPI_ERROR((AE_INFO,
+-			    "Thread %X cannot release Mutex [%4.4s] acquired by thread %X",
+-			    (u32) walk_state->thread->thread_id,
++			    "Thread %p cannot release Mutex [%4.4s] acquired by thread %p",
++			    walk_state->thread->thread_id,
+ 			    acpi_ut_get_node_name(obj_desc->mutex.node),
+-			    (u32) obj_desc->mutex.owner_thread->thread_id));
++			    obj_desc->mutex.owner_thread->thread_id));
+ 		return_ACPI_STATUS(AE_AML_NOT_OWNER);
+ 	}
+ 
+--- linux-2.6.19-rc5/drivers/acpi/utilities/utmutex.c	2006-09-20 05:42:06.000000000 +0200
++++ 2.6.19-rc5-acpi-warnings/drivers/acpi/utilities/utmutex.c	2006-11-15 17:24:31.000000000 +0100
+@@ -222,7 +222,7 @@ acpi_status acpi_ut_acquire_mutex(acpi_m
+ 			if (acpi_gbl_mutex_info[i].thread_id == this_thread_id) {
+ 				if (i == mutex_id) {
+ 					ACPI_ERROR((AE_INFO,
+-						    "Mutex [%s] already acquired by this thread [%X]",
++						    "Mutex [%s] already acquired by this thread [%p]",
+ 						    acpi_ut_get_mutex_name
+ 						    (mutex_id),
+ 						    this_thread_id));
+@@ -231,7 +231,7 @@ acpi_status acpi_ut_acquire_mutex(acpi_m
+ 				}
+ 
+ 				ACPI_ERROR((AE_INFO,
+-					    "Invalid acquire order: Thread %X owns [%s], wants [%s]",
++					    "Invalid acquire order: Thread %p owns [%s], wants [%s]",
+ 					    this_thread_id,
+ 					    acpi_ut_get_mutex_name(i),
+ 					    acpi_ut_get_mutex_name(mutex_id)));
+@@ -243,23 +243,23 @@ acpi_status acpi_ut_acquire_mutex(acpi_m
+ #endif
+ 
+ 	ACPI_DEBUG_PRINT((ACPI_DB_MUTEX,
+-			  "Thread %X attempting to acquire Mutex [%s]\n",
+-			  (u32) this_thread_id, acpi_ut_get_mutex_name(mutex_id)));
++			  "Thread %p attempting to acquire Mutex [%s]\n",
++			  this_thread_id, acpi_ut_get_mutex_name(mutex_id)));
+ 
+ 	status = acpi_os_acquire_mutex(acpi_gbl_mutex_info[mutex_id].mutex,
+ 				       ACPI_WAIT_FOREVER);
+ 	if (ACPI_SUCCESS(status)) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_MUTEX,
+-				  "Thread %X acquired Mutex [%s]\n",
+-				  (u32) this_thread_id,
++				  "Thread %p acquired Mutex [%s]\n",
++				  this_thread_id,
+ 				  acpi_ut_get_mutex_name(mutex_id)));
+ 
+ 		acpi_gbl_mutex_info[mutex_id].use_count++;
+ 		acpi_gbl_mutex_info[mutex_id].thread_id = this_thread_id;
+ 	} else {
+ 		ACPI_EXCEPTION((AE_INFO, status,
+-				"Thread %X could not acquire Mutex [%X]",
+-				(u32) this_thread_id, mutex_id));
++				"Thread %p could not acquire Mutex [%X]",
++				this_thread_id, mutex_id));
+ 	}
+ 
+ 	return (status);
+@@ -285,7 +285,7 @@ acpi_status acpi_ut_release_mutex(acpi_m
+ 
+ 	this_thread_id = acpi_os_get_thread_id();
+ 	ACPI_DEBUG_PRINT((ACPI_DB_MUTEX,
+-			  "Thread %X releasing Mutex [%s]\n", (u32) this_thread_id,
++			  "Thread %p releasing Mutex [%s]\n", this_thread_id,
+ 			  acpi_ut_get_mutex_name(mutex_id)));
+ 
+ 	if (mutex_id > ACPI_MAX_MUTEX) {
 
 

@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030840AbWKOSjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030847AbWKOSsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030840AbWKOSjU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030836AbWKOSjU
+	id S1030847AbWKOSsR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030867AbWKOSsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:39:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34697 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030830AbWKOSjT (ORCPT
+	Wed, 15 Nov 2006 13:48:17 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:15526 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030863AbWKOSsP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:39:19 -0500
-Date: Wed, 15 Nov 2006 19:38:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org, ak@suse.de,
-       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com
-Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-Message-ID: <20061115183852.GA3724@elf.ucw.cz>
-References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <20061114163002.GB4445@ucw.cz> <m1fyclk8ws.fsf@ebiederm.dsl.xmission.com> <20061114234334.GB3394@elf.ucw.cz> <m1lkmc4o5n.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
+	Wed, 15 Nov 2006 13:48:15 -0500
+Date: Wed, 15 Nov 2006 19:46:55 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] floppy: suspend/resume fix
+Message-ID: <20061115184655.GA5748@elte.hu>
+References: <200611122047.kACKl8KP004895@harpo.it.uu.se> <20061112212941.GA31624@flint.arm.linux.org.uk> <20061112220318.GA3387@elte.hu> <20061112235410.GB31624@flint.arm.linux.org.uk> <20061114110958.GB2242@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1lkmc4o5n.fsf@ebiederm.dsl.xmission.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20061114110958.GB2242@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
+	[score: 0.1230]
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >> > Can we get it piece-by-piece?
-> >
-> > Please?
+* Pavel Machek <pavel@ucw.cz> wrote:
+
+> > I wasn't talking about in-flight IO.  Take a moment to think about 
+> > it.
+> > 
+> > - You have a floppy inserted and mounted.
 > 
-> I honestly think it would make the change  less reviewable.
+> Notice that Ingo is not talking about floppy being mounted.
 
-It included mass renames, "unused" code removal, and miscellaus
-cleanups. At least seaparate cleanups from "real" changes.
+yeah. I was thinking in terms of "mdir a:".
 
-							Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+if a floppy is mounted then i agree that suspending is probably a bit 
+too much to expect from the kernel - but this particular bug affects 
+normal mtool use (which you can think of to be equivalent to mounting, 
+using and then umounting the floppy).
+
+	Ingo

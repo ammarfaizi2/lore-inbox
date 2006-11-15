@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161826AbWKOWDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161824AbWKOWFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161826AbWKOWDH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 17:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161821AbWKOWDH
+	id S1161824AbWKOWFs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 17:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161827AbWKOWFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 17:03:07 -0500
-Received: from smtp-out.neti.ee ([194.126.126.45]:46037 "EHLO smtp-out.neti.ee")
-	by vger.kernel.org with ESMTP id S1161824AbWKOWDF (ORCPT
+	Wed, 15 Nov 2006 17:05:48 -0500
+Received: from dvhart.com ([64.146.134.43]:34457 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1161824AbWKOWFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 17:03:05 -0500
-From: Hasso Tepper <hasso@estpak.ee>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Sysctl syscall
-Date: Thu, 16 Nov 2006 00:03:02 +0200
-User-Agent: KMail/1.9.4
-Organization: Elion Enterprises Ltd.
+	Wed, 15 Nov 2006 17:05:48 -0500
+Message-ID: <455B8F3A.6030503@mbligh.org>
+Date: Wed, 15 Nov 2006 14:05:46 -0800
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200611160003.02681.hasso@estpak.ee>
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Christian Krafft <krafft@de.ibm.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have
+ no memory
+References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost> <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling the program which uses a lot "sysctl" syscalls, gives me this 
-warning on Debian unstable:
+Christoph Lameter wrote:
+> On Wed, 15 Nov 2006, Christian Krafft wrote:
+> 
+>> When booting a NUMA system with nodes that have no memory (eg by limiting memory),
+>> bootmem_alloc_core tried to find pages in an uninitialized bootmem_map.
+> 
+> Why should we support nodes with no memory? If a node has no memory then 
+> its processors and other resources need to be attached to the nearest node 
+> with memory.
+> 
+> AFAICT The primary role of a node is to manage memory.
 
-"warning: the `sysctl' syscall has been removed from 2.6.18+ kernels, 
-direct access to `/proc/sys' should be used instead."
+A node is an arbitrary container object containing one or more of:
 
-Is it true? And what can be used as alternative which would work with both 
-2.4 and 2.6 kernels and would work with capabilities (sys/capability.h)?
-Accessing `/proc/sys' directly isn't such alternative as it doesn't work 
-with capabilities.
+CPUs
+Memory
+IO bus
 
+It does not have to contain memory.
 
-regards,
-
--- 
-Hasso Tepper
-Elion Enterprises Ltd. [AS3249]
-Data Communication Network Administrator
+M.

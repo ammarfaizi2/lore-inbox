@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965893AbWKOHGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965556AbWKOHNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965893AbWKOHGd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 02:06:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966059AbWKOHGc
+	id S965556AbWKOHNq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 02:13:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965838AbWKOHNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 02:06:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:2196 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965893AbWKOHGc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 02:06:32 -0500
-Date: Tue, 14 Nov 2006 22:50:52 -0800
-From: Greg KH <greg@kroah.com>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [Patch -mm 2/5] driver core: Introduce device_move(): move a device to a new parent.
-Message-ID: <20061115065052.GC23810@kroah.com>
-References: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
+	Wed, 15 Nov 2006 02:13:46 -0500
+Received: from hera.kernel.org ([140.211.167.34]:48548 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965556AbWKOHNp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 02:13:45 -0500
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: "J.A. =?iso-8859-1?q?Magall=F3n?=" <jamagallon@ono.com>
+Subject: Re: SMP and ACPI
+Date: Wed, 15 Nov 2006 02:16:37 -0500
+User-Agent: KMail/1.8.2
+Cc: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+References: <20061114225848.160cc46f@werewolf-wl>
+In-Reply-To: <20061114225848.160cc46f@werewolf-wl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611150216.37471.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2006 at 11:32:08AM +0100, Cornelia Huck wrote:
-> From: Cornelia Huck <cornelia.huck@de.ibm.com>
-> 
-> Provide a function device_move() to move a device to a new parent device. Add
-> auxilliary functions kobject_move() and sysfs_move_dir().
+On Tuesday 14 November 2006 16:58, J.A. Magallón wrote:
 
-At first glance, this looks sane, but for the kobject_move function, we
-are not notifying userspace that something has changed here.
+>...  is it still needed to select ACPI manually to
+> get SMP working, or does SMP select the minimal part of ACPI that is needed ?
 
-Is that ok?
+if speaking of recent 2.6...
 
-How will udev and HAL handle something like this without being told
-about it?  When the device eventually goes away, I think they will be
-very confused.
+CONFIG_SMP and CONFIG_ACPI are independent.
 
-thanks,
+So if you select CONFIG_SMP and don't select CONFIG_ACPI,
+then your PC will need to support MPS if Linux is going to bring up the processors...
 
-greg k-h
+There no longer exists a build-time concept of "minimal part of ACPI that is needed" --
+you either include CONFIG_ACPI or you exclude it.  However, at boot-time, "acpi=ht"
+is still present -- primarily for some old systems with HT  that didn't run ACPI well.
+No idea if this this is still needed in practice but occasionally acpi=ht comes in handy
+to debug table related issues.
+
+-Len

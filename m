@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030845AbWKOSmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030825AbWKOSpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030845AbWKOSmK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030842AbWKOSmK
+	id S1030825AbWKOSpa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030853AbWKOSp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:42:10 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:10384 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030836AbWKOSmI (ORCPT
+	Wed, 15 Nov 2006 13:45:29 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:41381 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030825AbWKOSpZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:42:08 -0500
-Message-ID: <455B5F78.5060401@garzik.org>
-Date: Wed, 15 Nov 2006 13:42:00 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Linus Torvalds <torvalds@osdl.org>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>	<20061114.190036.30187059.davem@davemloft.net>	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>	<20061114.192117.112621278.davem@davemloft.net>	<Pine.LNX.4.64.0611141935390.3349@woody.osdl.org>	<455A938A.4060002@garzik.org> <m3fyckdeam.fsf@defiant.localdomain>
-In-Reply-To: <m3fyckdeam.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Wed, 15 Nov 2006 13:45:25 -0500
+Date: Wed, 15 Nov 2006 19:44:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, Michael.Fetterman@cl.cam.ac.uk,
+       Ian Campbell <Ian.Campbell@XenSource.com>
+Subject: Re: i386 PDA patches use of %gs
+Message-ID: <20061115184433.GB5078@elte.hu>
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <45075829.701@goop.org> <20060913095942.GA10075@elte.hu> <45082F1C.8000003@goop.org> <20061115182613.GA2227@elte.hu> <20061115182915.GA2705@elte.hu> <455B5FB6.7010009@goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <455B5FB6.7010009@goop.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> Jeff Garzik <jeff@garzik.org> writes:
+
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+
+> > that loads (and uses) a single selector value for %fs, and doesnt do 
+> > any mixed use as far as i can see.
 > 
->> So far, MSI history on x86 has always followed these rules:
->> * it works on Intel
->> * it doesn't work [well | at all] on AMD/NV
-> 
-> I don't know how does it look when it doesn't work etc. but certainly
-> both NV Ethernet and HDA seem to work for me and:
+> I'm not sure what you're getting at.  Each loop iteration is analogous 
+> to a user->kernel->user transition with respect to the 
+> save/reload/use/restore pattern on the segment register.  In this 
+> case, %fs starts as a null selector, gets reloaded with a non NULL 
+> selector, and then is restored to null.  Do you mean some other 
+> mixing?
 
-Oh I certainly agree (and it appears that Roland agrees) that MSI works 
-/somewhere/ on NV.  I give kudos to NV to working on forcedeth to make 
-sure it works well with MSI.  But unfortunately NV was also in the bug 
-report(s) linked.
+yeah, mixed use: i.e. set up /two/ selector values and load them into 
+%gs and read+write memory through them. It might not change the results, 
+but that's what i meant under 'mixed use'.
 
-Though OTOH, the driver wasn't calling pci_intx() nor setting irq flags 
-correctly, so who knows.
-
-	Jeff
-
-
-
+	Ingo

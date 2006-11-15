@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966558AbWKOG7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966589AbWKOHDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966558AbWKOG7N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 01:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966559AbWKOG7M
+	id S966589AbWKOHDw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 02:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966590AbWKOHDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 01:59:12 -0500
-Received: from mail.gmx.net ([213.165.64.20]:12715 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S966558AbWKOG7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 01:59:11 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch] sched: optimize activate_task for RT task - v2
-From: Mike Galbraith <efault@gmx.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: nickpiggin@yahoo.com.au, "'Ingo Molnar'" <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <000401c70848$520252e0$d834030a@amr.corp.intel.com>
-References: <000401c70848$520252e0$d834030a@amr.corp.intel.com>
-Content-Type: text/plain
-Date: Wed, 15 Nov 2006 08:00:19 +0100
-Message-Id: <1163574019.6175.30.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Wed, 15 Nov 2006 02:03:52 -0500
+Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:46491 "HELO
+	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S966589AbWKOHDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 02:03:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=mf5ZuvoXJ3HSMLvsQfNseYf7CI/inhApgzygD+ylGmrquXStUhZesCVuM3oZfcbcvajmwRpO1Wnx8sl4/C9C0kwrHkJH9CgiU3gP+ixUdvDiBIVd9pDc3tkTLgttGo+Zr0rt1Tjk2slbyn1mCmv6eOMJ0FFawKhVbgfatGPMqA8=  ;
+X-YMail-OSG: D2oNubkVM1lxki4_w.6YQBAQkyClfZoq7Azl7hB4Yuh47tvQnQk8Jyq340a5bVzV59ncN_8yrNM48E.uR213NM_0ldha23WTV0z_E8Jm3Fjqiwjjaha6WA--
+From: David Brownell <david-b@pacbell.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
+Date: Tue, 14 Nov 2006 23:03:47 -0800
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+Message-Id: <200611142303.47325.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-14 at 15:55 -0800, Chen, Kenneth W wrote:
-> Perhaps the following is a better patch compare to earlier one.
-> The p->sleep_type are only for SCHED_NORMAL as well, so we can
-> bypass them altogether in one shot.
-> 
-> 
-> 
-> 
-> RT task does not participate in interactiveness priority and thus
-> shouldn't be bothered with timestamp and p->sleep_type manipulation
-> when task is being put on run queue.  Bypass all of the them with
-> a single if (rt_task) test.
+dmesg reports to me stuff like
 
-Personally, I think it's best to leave it as it is.  With that change,
-if someone changes policy while the task is waiting to get cpu, it will
-be requeued, and the on-runqueue bonus logic will then end up using
-wildly inaccurate information.  Unlikely, true (hmm, what about PI...
-afaik, works both ways), but from the correctness standpoint, I think
-the information we use in heuristics should always be kept as accurate
-as possible.
+ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
+ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [20060707]
+ACPI Error (psparse-0537): Method parse/execution failed [\_SB_.PCI0.LPC0.BAT1._BIF] (Node ffff8100020368d0), AE_TIME
+ACPI Exception (acpi_battery-0148): AE_TIME, Evaluating _BIF [20060707]
+ACPI: read EC, IB not empty
+ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
+ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [20060707]
+ACPI Error (psparse-0537): Method parse/execution failed [\_TZ_.THRM._TMP] (Node ffff810002032d10), AE_TIME
 
-If you want to shave cycles, IMHO the better investment would be to get
-rid of the division in schedule().
+It never used to complain at all.  This is an amd64 laptop, and related symptoms
+include
 
-	-Mike
+ - kpowersave not being able to monitor the batter or AC adapter correctly;
+   leading to catastrophes like laptop powering itself off with no warning,
+   loss of work, filesystem needing log recovery, and so forth.
+
+ - Serious fan action.  Recent kernels seemed to finally be doing sane things
+   so that e.g. just editing text kept the CPU cool ... but now it's on almost
+   all the time, CPU is very hot.
+
+What's an AE_TIME?
+
+I'm not quite sure where these problems crept in, but I never saw such stuff with
+2.6.18 at all.
+
+- Dave
 

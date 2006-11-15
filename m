@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030622AbWKOQEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030628AbWKOQIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030622AbWKOQEU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030624AbWKOQET
+	id S1030628AbWKOQIi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030632AbWKOQIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:04:19 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:3231 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030622AbWKOQES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:04:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=tPASZmeudIzQO7f3jdfSr5EKYaiYivm+JxS1zIiOreOXzYsWE0r1II7xUqFFv3QbbT50IK5zRWGWFGSskVJDcI9QC/ZsJ2m7jVro/+Jj8kf+Kqh5kmME3QSaVSpTra+vtdWIEZkSAzCFIUzzrnHAm4NMhpXjAY/9rxr6qZQ5fSw=
-Message-ID: <455B3A78.7010503@gmail.com>
-Date: Thu, 16 Nov 2006 01:04:08 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
+	Wed, 15 Nov 2006 11:08:38 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:61603 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1030628AbWKOQIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 11:08:37 -0500
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: [Opps] Invalid opcode
+Date: Wed, 15 Nov 2006 18:08:49 +0200
+User-Agent: KMail/1.9.5
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>
+References: <200611051507.37196.caglar@pardus.org.tr> <200611120439.56199.caglar@pardus.org.tr> <4557F287.7050807@vmware.com>
+In-Reply-To: <4557F287.7050807@vmware.com>
 MIME-Version: 1.0
-To: Mathieu Fluhr <mfluhr@nero.com>
-CC: Arjan van de Ven <arjan@infradead.org>, Phillip Susi <psusi@cfl.rr.com>,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
-References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>	 <4558BE57.4020700@cfl.rr.com>	 <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>	 <1163446372.15249.190.camel@laptopd505.fenrus.org>	 <1163519125.2998.8.camel@de-c-l-110.nero-de.internal>	 <4559FBCF.9050203@gmail.com> <1163603958.3029.3.camel@de-c-l-110.nero-de.internal>
-In-Reply-To: <1163603958.3029.3.camel@de-c-l-110.nero-de.internal>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1399175.9BTJFQFxie";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200611151808.49237.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Fluhr wrote:
-> On Wed, 2006-11-15 at 02:24 +0900, Tejun Heo wrote:
->>> ... and the problem is not in accessing the device itself (this is
->>> working like a charm) but understanding why a SCSI READ(10) cmd
->>> sometimes fails as a ATA-padded READ(10) cmd - as discribed in the
->> Annex
->>> A of the MMC-5 spec - ALWAYS works.
->>> -> I would suspect somehow a synchronisation problem somehow in the
->>> translation of SCSI to ATA command...
->> Can you try the attached patch and see if anything changes?
->>
-> 
-> The patch _seems_ to solve my problem. I am just really astonished when
-> I read the diff file :D. Can I expect that it will be merged to the
-> official kernel sources ?
+--nextPart1399175.9BTJFQFxie
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-It seems that some devices choke when the bytes after CDB contain 
-garbage.  I seem to recall that I read somewhere ATAPI device require 
-left command bytes cleared to zero but I can't find it anywhere now. 
-Maybe I'm just imagining.  Anyways, yeah, I'll push it to upstream.
+13 Kas 2006 Pts 06:20 tarihinde, Zachary Amsden =C5=9Funlar=C4=B1 yazm=C4=
+=B1=C5=9Ft=C4=B1:=20
+> I would like to find the exact cause of the problem; I suspect, as does
+> Andi, that it could just be dormant. You had problems still with
+> 2.6.18.latest, correct? If I can find the cause, I would like to get a
+> fix into 2.6.18-stable if possible. I think you already sent me the
+> reproducing kernel config, but I seem to have misplaced it. Could you
+> resend? I should have some time to look at this early this week.
 
--- 
-tejun
+Sorry for late reply, [1] is the kernel config i used and if you want i can=
+=20
+provide ~5mb iso contains that kernel and its 26.19-rc5 version to test?
+
+[1] http://cekirdek.pardus.org.tr/~caglar/2.6.18/config.2.6.18
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
+
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart1399175.9BTJFQFxie
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFWzuRy7E6i0LKo6YRAmloAKDSsxaB0G5HNGC/gN6l2uBuZtiYjQCgqT1E
+vtFkxRfK/R+rurZ1uWn0UKM=
+=m8J7
+-----END PGP SIGNATURE-----
+
+--nextPart1399175.9BTJFQFxie--

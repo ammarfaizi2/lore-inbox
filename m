@@ -1,86 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWKONea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966860AbWKONpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbWKONea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 08:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966860AbWKONea
+	id S966860AbWKONpV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 08:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966861AbWKONpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 08:34:30 -0500
-Received: from khc.piap.pl ([195.187.100.11]:64183 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S966859AbWKONe3 (ORCPT
+	Wed, 15 Nov 2006 08:45:21 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:36120 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S966860AbWKONpU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 08:34:29 -0500
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-	<20061114.190036.30187059.davem@davemloft.net>
-	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
-	<20061114.192117.112621278.davem@davemloft.net>
-	<Pine.LNX.4.64.0611141935390.3349@woody.osdl.org>
-	<455A938A.4060002@garzik.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 15 Nov 2006 14:34:25 +0100
-In-Reply-To: <455A938A.4060002@garzik.org> (Jeff Garzik's message of "Tue, 14 Nov 2006 23:11:54 -0500")
-Message-ID: <m3fyckdeam.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Wed, 15 Nov 2006 08:45:20 -0500
+Date: Wed, 15 Nov 2006 16:50:55 +0300
+From: Alexey Dobriyan <adobriyan@openvz.org>
+To: akpm@osdl.org
+Cc: Deepak Saxena <dsaxena@mvista.com>, linux-kernel@vger.kernel.org,
+       devel@openvz.org
+Subject: [PATCH] i2c-ixp4xx: fix ") != 0))" typo
+Message-ID: <20061115135055.GA8990@localhost.sw.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jeff@garzik.org> writes:
+i2c_bit_add_bus() returns -E;
+-E != 0		=>	err = 1
+probe fails with positive error code
 
-> So far, MSI history on x86 has always followed these rules:
-> * it works on Intel
-> * it doesn't work [well | at all] on AMD/NV
+Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
+---
 
-I don't know how does it look when it doesn't work etc. but certainly
-both NV Ethernet and HDA seem to work for me and:
+ drivers/i2c/busses/i2c-ixp4xx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-$ cat /proc/interrupts 
-           CPU0       
-  0:     596146   IO-APIC-edge      timer
-  1:      15425   IO-APIC-edge      i8042
-  8:     103741   IO-APIC-edge      rtc
-  9:          0   IO-APIC-fasteoi   acpi
- 12:      25168   IO-APIC-edge      i8042
- 14:         61   IO-APIC-edge      libata
- 15:          0   IO-APIC-edge      libata
- 20:          2   IO-APIC-fasteoi   ehci_hcd:usb1
- 21:          0   IO-APIC-fasteoi   libata
- 22:       4881   IO-APIC-fasteoi   libata
- 23:      17010   IO-APIC-fasteoi   libata, ohci_hcd:usb2
-279:     598326   PCI-MSI-edge      eth0
-280:      21497   PCI-MSI-edge      eth0
-281:      20448   PCI-MSI-edge      eth0
-282:       4881   PCI-MSI-edge      HDA Intel
-NMI:         70 
-LOC:     596126 
-ERR:          0
+--- a/drivers/i2c/busses/i2c-ixp4xx.c
++++ b/drivers/i2c/busses/i2c-ixp4xx.c
+@@ -137,7 +137,8 @@ static int ixp4xx_i2c_probe(struct platf
+ 	gpio_line_set(gpio->scl_pin, 0);
+ 	gpio_line_set(gpio->sda_pin, 0);
+ 
+-	if ((err = i2c_bit_add_bus(&drv_data->adapter) != 0)) {
++	err = i2c_bit_add_bus(&drv_data->adapter);
++	if (err != 0)
+ 		printk(KERN_ERR "ERROR: Could not install %s\n", plat_dev->dev.bus_id);
+ 
+ 		kfree(drv_data);
 
-$ /sbin/lspci|grep nV 
-00:00.0 RAM memory: nVidia Corporation MCP55 Memory Controller (rev a1)
-00:01.0 ISA bridge: nVidia Corporation MCP55 LPC Bridge (rev a2)
-00:01.1 SMBus: nVidia Corporation MCP55 SMBus (rev a2)
-00:01.2 RAM memory: nVidia Corporation MCP55 Memory Controller (rev a2)
-00:02.0 USB Controller: nVidia Corporation MCP55 USB Controller (rev a1)
-00:02.1 USB Controller: nVidia Corporation MCP55 USB Controller (rev a2)
-00:04.0 IDE interface: nVidia Corporation MCP55 IDE (rev a1)
-00:05.0 IDE interface: nVidia Corporation MCP55 SATA Controller (rev a2)
-00:05.1 IDE interface: nVidia Corporation MCP55 SATA Controller (rev a2)
-00:05.2 IDE interface: nVidia Corporation MCP55 SATA Controller (rev a2)
-00:06.0 PCI bridge: nVidia Corporation MCP55 PCI bridge (rev a2)
-00:06.1 Audio device: nVidia Corporation MCP55 High Definition Audio (rev a2)
-00:08.0 Bridge: nVidia Corporation MCP55 Ethernet (rev a2)
-00:09.0 Bridge: nVidia Corporation MCP55 Ethernet (rev a2)
-00:0b.0 PCI bridge: nVidia Corporation MCP55 PCI Express bridge (rev a2)
-00:0c.0 PCI bridge: nVidia Corporation MCP55 PCI Express bridge (rev a2)
-00:0d.0 PCI bridge: nVidia Corporation MCP55 PCI Express bridge (rev a2)
-00:0e.0 PCI bridge: nVidia Corporation MCP55 PCI Express bridge (rev a2)
-00:0f.0 PCI bridge: nVidia Corporation MCP55 PCI Express bridge (rev a2)
-
-> Anyway, if you want your master switch, put it there, not in each driver...
-
-Definitely.
--- 
-Krzysztof Halasa

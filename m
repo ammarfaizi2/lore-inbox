@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966694AbWKOIdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966698AbWKOIof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966694AbWKOIdz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 03:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966693AbWKOIdz
+	id S966698AbWKOIof (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 03:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966699AbWKOIof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 03:33:55 -0500
-Received: from SMT02001.global-sp.net ([193.168.50.54]:29082 "EHLO
-	SMT02001.global-sp.net") by vger.kernel.org with ESMTP
-	id S966691AbWKOIdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 03:33:54 -0500
-Message-ID: <455AD123.4080804@privacy.net>
-Date: Wed, 15 Nov 2006 09:34:43 +0100
-From: John <me@privacy.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050905
-X-Accept-Language: en, fr
+	Wed, 15 Nov 2006 03:44:35 -0500
+Received: from wx-out-0506.google.com ([66.249.82.229]:15536 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S966698AbWKOIoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 03:44:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=KY7t91aFQU5xknS9op5HkjBggMbfvaPrkFg/ynvzfAmTiQlp9xTV1bNLVi0he8887KgvTQm7E9AqhrbgkxpYYpX1XE2xZ+QgpxOtRQbga9kSTauA6vf9klQQ7rtifEQ4N/nux4o0tSSJFUXZxwHB6uffX4CZrKN5OP8UwcnK3E4=
+Message-ID: <3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
+Date: Wed, 15 Nov 2006 09:44:33 +0100
+From: "Kay Sievers" <kay.sievers@vrfy.org>
+To: "Cornelia Huck" <cornelia.huck@de.ibm.com>
+Subject: Re: [Patch -mm 2/5] driver core: Introduce device_move(): move a device to a new parent.
+Cc: "Greg KH" <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+In-Reply-To: <20061115082856.195ca0ab@gondolin.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-CC: auke-jan.h.kok@intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, hpa@zytor.com
-Subject: Re: Intel 82559 NIC corrupted EEPROM
-References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com> <45506C9A.5010009@privacy.net> <4551B7B8.8080601@privacy.net> <4807377b0611080926x21bd6326xc5e7683100d20948@mail.gmail.com> <45533801.7000809@privacy.net> <4807377b0611091619v6bfe17f4tbcbb64db0ab8ea9@mail.gmail.com> <45546A93.6070905@privacy.net>
-In-Reply-To: <45546A93.6070905@privacy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2006 08:36:15.0351 (UTC) FILETIME=[1D053870:01C70891]
-X-global-asp-net-MailScanner: Found to be clean
-X-global-asp-net-MailScanner-SpamCheck: 
-X-MailScanner-From: me@privacy.net
+Content-Disposition: inline
+References: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
+	 <20061115065052.GC23810@kroah.com>
+	 <20061115082856.195ca0ab@gondolin.boeblingen.de.ibm.com>
+X-Google-Sender-Auth: 6b7f26a09d1cdfe7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John wrote:
+On 11/15/06, Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+> On Tue, 14 Nov 2006 22:50:52 -0800,
+> Greg KH <greg@kroah.com> wrote:
+>
+> > On Tue, Nov 14, 2006 at 11:32:08AM +0100, Cornelia Huck wrote:
+> > > From: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > >
+> > > Provide a function device_move() to move a device to a new parent device. Add
+> > > auxilliary functions kobject_move() and sysfs_move_dir().
+> >
+> > At first glance, this looks sane, but for the kobject_move function, we
+> > are not notifying userspace that something has changed here.
+> >
+> > Is that ok?
+> >
+> > How will udev and HAL handle something like this without being told
+> > about it?  When the device eventually goes away, I think they will be
+> > very confused.
 
-> 00000000-0009ffff : System RAM
-> 000a0000-000bffff : Video RAM area
-> 000f0000-000fffff : System ROM
-> 00100000-0ffeffff : System RAM
->   00100000-00296a1a : Kernel code
->   00296a1b-0031bbe7 : Kernel data
-> 0fff0000-0fff2fff : ACPI Non-volatile Storage
-> 0fff3000-0fffffff : ACPI Tables
-> 20000000-200fffff : 0000:00:08.0
-> 20100000-201fffff : 0000:00:09.0
-> 20200000-202fffff : 0000:00:0a.0
-> e0000000-e3ffffff : 0000:00:00.0
-> e5000000-e50fffff : 0000:00:08.0
-> e5100000-e51fffff : 0000:00:09.0
-> e5200000-e52fffff : 0000:00:0a.0
-> e5300000-e5300fff : 0000:00:08.0
-> e5301000-e5301fff : 0000:00:0a.0
-> e5302000-e5302fff : 0000:00:09.0
-> ffff0000-ffffffff : reserved
-> 
-> I've also attached:
-> 
-> o config-2.6.18.1-adlink used to compile this kernel
-> o dmesg output after the machine boots
+Yes, userspace will get confused, if we we don't get proper
+notification. We require to update the udev and HAL database with the
+new devpath, to find the current device context on device events, or
+for "remove".
 
-I suppose the information I've sent is not enough to locate the
-root of the problem. Is there more I can provide?
+> Hm. I don't think we want to trigger udev with some remove/add events
+> (especially since it is still the same device, it just has been moved
+> around). A change event doesn't sound quite right either. But I guess
+> we need to do something, at least to make HAL happy since it remembers
+> the path in sysfs (although I seem to remember a HAL patch that got rid
+> of it?)
+
+Udev and HAL, both will need an event for the moving, with the old
+DEVPATH value in the environment. We want something like a "rename" or
+"move" event. Without that, weird things will happen in userspace,
+because the devpath is used as the key to the device during the whole
+device lifetime. The only weird exception today is the netif rename
+case, which is already handled by special code in udev.
+
+Thanks,
+Kay

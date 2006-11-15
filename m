@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030837AbWKOSyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030868AbWKOSyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030837AbWKOSyS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030868AbWKOSyS
+	id S1030868AbWKOSyW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030870AbWKOSyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:54:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44980 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030837AbWKOSyR (ORCPT
+	Wed, 15 Nov 2006 13:54:22 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:14816 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030868AbWKOSyV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:54:17 -0500
-Date: Wed, 15 Nov 2006 10:51:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Arjan van de Ven <arjan@infradead.org>, Takashi Iwai <tiwai@suse.de>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-In-Reply-To: <455B5F01.7020601@garzik.org>
-Message-ID: <Pine.LNX.4.64.0611151046410.3349@woody.osdl.org>
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org> 
- <20061114.190036.30187059.davem@davemloft.net>  <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
-  <20061114.192117.112621278.davem@davemloft.net>  <s5hbqn99f2v.wl%tiwai@suse.de>
-  <Pine.LNX.4.64.0611150814000.3349@woody.osdl.org>
- <1163607889.31358.132.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0611150829460.3349@woody.osdl.org> <455B5F01.7020601@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Nov 2006 13:54:21 -0500
+Date: Wed, 15 Nov 2006 19:53:31 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mikael Pettersson <mikpe@it.uu.se>, 7eggert@gmx.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] floppy: suspend/resume fix
+Message-ID: <20061115185331.GA6878@elte.hu>
+References: <200611122240.kACMeS7l005120@harpo.it.uu.se> <20061112235806.GC31624@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061112235806.GC31624@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
+	[score: 0.1926]
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-On Wed, 15 Nov 2006, Jeff Garzik wrote:
-> 
-> > And btw, I say this as a person whose new main machine used to have HDA
-> > routed over MSI, and the decision to default to it off meant that it went
-> > back to the regular INTx thing.
-> 
-> Yeah, but you don't care if that happens, so this is an ineffective 'btw'
-> It's not like you went to sleep crying over the loss, like I did [just
-> kidding!]
-
-Heh. I'm really hoping that nobody will cry themselves to sleep over MSI 
-not being enabled..
-
-> > (Btw, MSI interrupts also seem to not participate in CPU balancing:
+> On Sun, Nov 12, 2006 at 11:40:28PM +0100, Mikael Pettersson wrote:
+> > The bug occurs regardless of whether I leave the floppy disc in the drive
+> > during suspend or not. 2.6.19-rc5 (vanilla and with Ingo's suspend/resume
+> > hooks) fails the following use case as well:
 > > 
-> >  22:      41556      43005   IO-APIC-fasteoi   HDA Intel
-> > 506:     110417          0   PCI-MSI-edge      eth0
+> > 1. boot
+> > 2. insert floppy disc
+> > 3. tar tvf /dev/fd0 (works)
+> > 4. manually eject floppy disc
+> > 5. suspend, later resume 
+> > 6. insert floppy disc
+> > 7. tar tvf /dev/fd0 (fails with I/O errors)
+> > 8. tar tvf /dev/fd0 (works)
 > > 
-> > which is another semantic change introduced by using MSI)
+> > Like Ingo said, something happens to the HW during suspend and we
+> > need to figure out how to reinitialise the HW and the driver so that
+> > things work immediately after resume.
 > 
-> No, that's most likely because ethernet is always intentionally locked to a
-> single CPU by irqbalance.
+> Now this is interesting - I know there's been a long standing bug with 
+> kernels on my Thinkpad which behave in a similar way to your 
+> description above.  Basically whenever I change the disk in the drive 
+> I tend to need _two_ goes to do anything with it - the first mostly 
+> always fails with IO errors.
 
-Nope, the same thing happened to "HDA Intel" when it was an MSI interrupt 
-(ie before I applied the change that made it not use MSI by default).
+yeah. But somehow the pre-lockdep-change driver gets this right - purely 
+by virtue of unregistering the IRQ line and the DMA channel - neither of 
+which should have any material effect on behavior ... [and when i 
+restored this in suspend/resume it didnt fix the bug] Weird.
 
-So I think it's either: (a) irqbalance doesn't balance MSI interrupts at 
-all or (b) the MSI interrupt code doesn't honor balancing requests even if 
-it does.
-
-I didn't look any closer. It's not like it's a huge problem for me (or 
-likely for anybody else), but it was interesting to see another 
-"unintended consequence" of the "use MSI or not" choice.
-
-The suspend problem reported by Stephen is another such thing - where MSI 
-itself wasn't a problem, but stupid (probably broken) firmware code at 
-wakeup broke it by an unforseen interaction. Again, that is probably 
-related to the fact that nobody has ever really tested it (ie firmware 
-"engineers" obviously didn't actually ever test anything with MSI enabled 
-and in use, and there really is no excuse for firmware messing with the 
-MSI setting - other than the usual "firmware is inevitably buggy" thing).
-
-			Linus
+	Ingo

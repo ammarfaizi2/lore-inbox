@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755373AbWKOCuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754866AbWKOCvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755373AbWKOCuL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 21:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755468AbWKOCuL
+	id S1754866AbWKOCvD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 21:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755468AbWKOCvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 21:50:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38876 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1755373AbWKOCuK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 21:50:10 -0500
-Date: Tue, 14 Nov 2006 18:49:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-In-Reply-To: <455A7E21.7020701@garzik.org>
-Message-ID: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-References: <200611150059.kAF0xBTl009796@hera.kernel.org> <455A6EBF.7060200@garzik.org>
- <Pine.LNX.4.64.0611141747490.3349@woody.osdl.org> <455A7E21.7020701@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Nov 2006 21:51:03 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21927
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1754866AbWKOCvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 21:51:01 -0500
+Date: Tue, 14 Nov 2006 18:51:02 -0800 (PST)
+Message-Id: <20061114.185102.71089409.davem@davemloft.net>
+To: mperkel@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel list rejecting my email - braindead list
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061115005426.37928.qmail@web52505.mail.yahoo.com>
+References: <20061114.142349.74748158.davem@davemloft.net>
+	<20061115005426.37928.qmail@web52505.mail.yahoo.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Marc Perkel <mperkel@yahoo.com>
+Date: Tue, 14 Nov 2006 16:54:25 -0800 (PST)
 
-
-On Tue, 14 Nov 2006, Jeff Garzik wrote:
+> So you are banning me from the list because my server
+> returned a 421 temporary error? You have to be out of
+> your fucking mind!
 > 
-> But not on Intel, hence the obvious whitelist question.
+> 1136501663 davem marc@perkel.com linux-kernel 421
+> Lost incoming connection: The error was detected in
+> line 3.
 
-Hmm. Maybe. I'd be happier with a global "we can do MSI" flag, and making 
-it easier for people to enable it (rather than do this one driver at a 
-time). And yes, _if_ it's true that MSI works on all Intel SB/NB 
-combinations, then maybe we could enable it for those systems.
+Your site was generating 500 errors too.
 
-In the meantime, I'm really tired of continually hearing about MSI 
-problems, when there really aren't that many advantages.
+But that's not the reason I banned you.
 
-> It's nice not to have to deal with shared interrupts.
+The reason I banned you, and I apply this rule consistently, is that
+you ignored when you were removed from the list.  Instead of
+contacting the postmaster and asking why, you just blindly
+resubscribed yourself again.
 
-I don't think "nice" is enough of an advantage to overcome "doesn't work 
-on God knows how many systems".
+When we remove you, we do it because your email address really is
+bouncing.
 
-		Linus
+One should always contact the postmaster for more information when
+they are unsubscribed from the mailing list.

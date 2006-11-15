@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030989AbWKOUjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030988AbWKOUoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030989AbWKOUjv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 15:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030988AbWKOUjv
+	id S1030988AbWKOUoE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 15:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030991AbWKOUoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 15:39:51 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:37882 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1030654AbWKOUju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 15:39:50 -0500
-Date: Wed, 15 Nov 2006 15:39:52 -0500
-From: Chris Mason <chris.mason@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-mm <linux-mm@kvack.org>,
-       ext4 <linux-ext4@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
-       npiggin@suse.de
-Subject: Re: pagefault in generic_file_buffered_write() causing deadlock
-Message-ID: <20061115203929.GE2392@think.oraclecorp.com>
-References: <1163606265.7662.8.camel@dyn9047017100.beaverton.ibm.com> <20061115090005.c9ec6db5.akpm@osdl.org> <455B5A7B.6010807@us.ibm.com> <20061115112957.e38539e9.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061115112957.e38539e9.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Wed, 15 Nov 2006 15:44:03 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37069 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030988AbWKOUoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 15:44:01 -0500
+Date: Wed, 15 Nov 2006 20:49:15 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] floppy: suspend/resume fix
+Message-ID: <20061115204915.1d0717db@localhost.localdomain>
+In-Reply-To: <20061115202418.GC3875@elf.ucw.cz>
+References: <200611122047.kACKl8KP004895@harpo.it.uu.se>
+	<20061112212941.GA31624@flint.arm.linux.org.uk>
+	<20061112220318.GA3387@elte.hu>
+	<20061112235410.GB31624@flint.arm.linux.org.uk>
+	<20061114110958.GB2242@elf.ucw.cz>
+	<1163522062.14674.3.camel@mindpipe>
+	<20061115202418.GC3875@elf.ucw.cz>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 11:29:57AM -0800, Andrew Morton wrote:
-> Oh well.  If it's a deadlock (this is not clear from your description) then
-> please gather backtraces of all affected tasks.
+On Wed, 15 Nov 2006 21:24:18 +0100
+Pavel Machek <pavel@ucw.cz> wrote:
+
+> On Tue 2006-11-14 11:34:21, Lee Revell wrote:
+> > On Tue, 2006-11-14 at 12:09 +0100, Pavel Machek wrote:
+> > > Suspending with mounted floppy is a user error.
+> > 
+> > Huh?  How so?
 > 
-> There is an ab/ba deadlock with journal_start() and lock_page(), iirc. 
-> Chris and I had a look at that a while back and collapsed in exhaustion -
-> it isn't pretty.  
+> Floppy is removable, and you are expected to umount removable devices
+> before suspend.
 
-This should be the page fault/journal lock inversion stuff Nick was
-working on.  His patchset had a pretty good description of the problems,
-Badari can also dig through the novell/ltc bugzillas for vmmstress.
-Should be LTC9358.
+That seems pretty crude. There are lots of cases where an apparently
+removable device is/should be preserved properly and left mounted (eg
+builtin CF).
 
-Hopefully Nick's patches will address all of this.  sles9 had a partial
-solution for the mmap deadlock, I think it was to dirty the inode at a
-later time.  For some reason, I thought this workload was passing in
-later kernels...
+We really want to be smarter than that - which means the drivers ought to
+be doing stuff in their suspend/resume paths to figure out if the media
+changed when really possible (eg IDE removable)
 
--chris
+Floppy is probably not too fixable, but calling it a "user error" is
+insulting - user expectation is reasonable that suspend/resume should
+just work. The implementation is just rather trickier/nonsensical in this
+case.

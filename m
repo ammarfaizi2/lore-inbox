@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030771AbWKOSFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030790AbWKOSFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030771AbWKOSFE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:05:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030787AbWKOSFE
+	id S1030790AbWKOSFg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030791AbWKOSFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:05:04 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:8613 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1030771AbWKOSFA (ORCPT
+	Wed, 15 Nov 2006 13:05:36 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:8003 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1030790AbWKOSFe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:05:00 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] i386-pda UP optimization
-Date: Wed, 15 Nov 2006 19:05:04 +0100
-User-Agent: KMail/1.9.5
-Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>, akpm@osdl.org,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <20061115173252.GA24062@elte.hu> <455B557C.7020602@goop.org>
-In-Reply-To: <455B557C.7020602@goop.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 15 Nov 2006 13:05:34 -0500
+X-IronPort-AV: i="4.09,425,1157353200"; 
+   d="scan'208"; a="2768738:sNHT29903881"
+Subject: Re: Yet another borken page_count() check in
+	invalidate_inode_pages2()....
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Charles Edward Lever <chucklever@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061115084641.827494be.akpm@osdl.org>
+References: <1163568819.5645.8.camel@lade.trondhjem.org>
+	 <1163596689.5691.40.camel@lade.trondhjem.org>
+	 <20061115084641.827494be.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611151905.04712.dada1@cosmosbay.com>
+Organization: Network Appliance Inc
+Date: Wed, 15 Nov 2006 13:05:13 -0500
+Message-Id: <1163613913.5691.215.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 15 Nov 2006 18:05:44.0703 (UTC) FILETIME=[AB8A90F0:01C708E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 November 2006 18:59, Jeremy Fitzhardinge wrote:
-> Ingo Molnar wrote:
-> > i said this before: using segmentation tricks these days is /insane/.
-> > Segmentation is not for free, and it's not going to be cheap in the
-> > future. In fact, chances are that it will be /more/ expensive in the
-> > future, because sane OSs just make no use of them besides the trivial
-> > "they dont even exist" uses.
->
-> Many, many systems use %fs/%gs to implement some kind of thread-local
-> storage, and such usage is becoming more common; the PDA's use of it in
-> the kernel is no different.  I would agree that using all the obscure
-> corners of segmentation is just asking for trouble, but using %gs as an
-> address offset seems like something that's going to be efficient on x86
-> 32/64 processors indefinitely.
->
-> > so /at a minimum/, as i suggested it before, the kernel's segment use
-> > should not overlap that of glibc's. I.e. the kernel should use %fs, not
-> > %gs.
->
-> Last time you raised this I did a pretty comprehensive set of tests
-> which showed there was flat out zero difference between using %fs and
-> %gs.  There doesn't seem to be anything to the theory that reloading a
-> null segment selector is in any way cheaper than loading a real
-> selector.  Did you find a problem in my methodology?
+On Wed, 2006-11-15 at 08:46 -0800, Andrew Morton wrote:
 
-I have the feeling (most probably wrong, but I prefer to speak than keeping 
-this for myself) that the cost of segment load is delayed up to the first use 
-of a segment selector. Sort of a lazy reload...
+> but nobody could have started another writeback after the "..." because they
+> couldn't have got the lock_page(), and lock_page() is required for
+> ->writepage()?
 
-I had this crazy idea while looking at oprofile numbers
+Nothing can have called writepage(), but something may be calling
+->writepages(). That may call set_page_writeback without taking the page
+lock.
 
+Cheers,
+  Trond

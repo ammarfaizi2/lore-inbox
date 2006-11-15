@@ -1,49 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030713AbWKOREe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030715AbWKOREK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030713AbWKOREe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030714AbWKOREe
+	id S1030715AbWKOREK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030713AbWKOREK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:04:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9608 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030713AbWKOREc (ORCPT
+	Wed, 15 Nov 2006 12:04:10 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:59073 "EHLO omx1.sgi.com")
+	by vger.kernel.org with ESMTP id S1030709AbWKOREI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:04:32 -0500
-Date: Wed, 15 Nov 2006 09:00:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>, ext4 <linux-ext4@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pagefault in generic_file_buffered_write() causing deadlock
-Message-Id: <20061115090005.c9ec6db5.akpm@osdl.org>
-In-Reply-To: <1163606265.7662.8.camel@dyn9047017100.beaverton.ibm.com>
-References: <1163606265.7662.8.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Nov 2006 12:04:08 -0500
+Date: Wed, 15 Nov 2006 11:06:34 -0600
+From: "Bill O'Donnell" <billodo@sgi.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Chris Friedhoff <chris@friedhoff.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
+       KaiGai Kohei <kaigai@kaigai.gr.jp>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 1/1] security: introduce fs caps
+Message-ID: <20061115170633.GA21345@sgi.com>
+References: <20061108222453.GA6408@sergelap.austin.ibm.com> <20061109061021.GA32696@sergelap.austin.ibm.com> <20061109103349.e58e8f51.chris@friedhoff.org> <20061113215706.GA9658@sgi.com> <20061114052531.GA20915@sergelap.austin.ibm.com> <20061114135546.GA9953@sgi.com> <20061114152307.GA7534@sergelap.austin.ibm.com> <455B0357.2050400@ak.jp.nec.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <455B0357.2050400@ak.jp.nec.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 07:57:45 -0800
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+On Wed, Nov 15, 2006 at 09:08:55PM +0900, KaiGai Kohei wrote:
+| Serge E. Hallyn wrote:
+| >Quoting Bill O'Donnell (billodo@sgi.com):
+| >>8102  execve("/sbin/setfcaps", ["setfcaps", "cap_net_raw=ep", 
+| >>"/bin/ping"], [/* 67 vars */]) = 0
+|     - snip -
+| >>8102  capget(0x19980330, 0, {0, 0, 0})  = -1 EINVAL (Invalid argument)
+| >
+| >I don't see why this capget is returning -EINVAL.  In fact I don't see
+| >why it happens at all - cap_inode_setxattr would check
+| >capable(CAP_SYS_ADMIN), but setxattr hasn't been called yet.  Looking at
+| >both libcap and setfcaps.c, I don't see where the capget comes from.
+| >
+| >As for the -EINVAL, kernel/capability.c:sys_capget() returns -EINVAL if
+| >the _LINUX_CAPABILITY_VERSION is wrong - you have 0x19980330 which is
+| >correct - if pid < 0 - but you send in 0 - or if security_capget
+| >returns -EINVAL, which cap_capget (and dummy_capget) don't do.
+| >
+| >Kaigai, do you have any ideas?
+| 
+| Bill said that he uses SLES10/ia64, so the version of libcap is different
+| from Fedora Core's one. 'libcap-1.92-499.4.src.rpm' is bandled.
+| 
+| Then, I found a strange code in libcap-1.92-499.4.src.rpm.
+| 
+| The setfcaps calls cap_from_text() which is defined in libcap to parse
+| the command line argument. It has the following function call chains:
+| 
+| cap_from_text()
+|   -> cap_init()
+|     -> _libcap_establish_api()
 
-> We are looking at a customer situation (on 2.6.16-based distro) - where
-> system becomes almost useless while running some java & stress tests.
-> 
-> Root cause seems to be taking a pagefault in generic_file_buffered_write
-> () after calling prepare_write. I am wondering 
-> 
-> 1) Why & How this can happen - since we made sure to fault the user
-> buffer before prepare write.
+     - snip -
 
-When using writev() we only fault in the first segment of the iovec.  If
-the second or succesive segment isn't mapped into pagetables we're
-vulnerable to the deadlock.
+| capget() is called from _libcap_establish_api() with full-zeroed
+| __user_cap_header_struct object at first time.
+| The result of this, sys_capget() in kernel will return -EINVAL.
+| (Why did strace say the first argument is 0x19980330?)
+| 
+| Probably, Bill didn't update libcap.so.
+No, I didn't...
+certify:~/libcap-1.10/progs # ls -altr /lib/libcap*
+-rwxr-xr-x 1 root root 22672 2006-06-16 09:56 /lib/libcap.so.1.92
+-rw-r--r-- 1 root root 53363 2006-11-13 16:04 /lib/libcap.so.1.10
+lrwxrwxrwx 1 root root    14 2006-11-13 16:04 /lib/libcap.so.1 ->libcap.so.1.92
+lrwxrwxrwx 1 root root    11 2006-11-13 16:04 /lib/libcap.so -> libcap.so.1
 
-> 2) If this is already fixed in current mainline (I can't see how).
+| 
+| But I can't recommend Bill to update libcap immediately.
+| As Hawk Xu said, it may cause a serious problem on the distro
+| except Fedora Core 6. :(
 
-It was fixed in 2.6.17.
+What version of libcap is on FC6? 
 
-You'll need 6527c2bdf1f833cc18e8f42bd97973d583e4aa83 and
-81b0c8713385ce1b1b9058e916edcf9561ad76d6
+| 
+| I have to recommend to use 'fscaps-1.0-kg.i386.rpm' now.
+| It includes the implementation of interaction between application and xattr.
+| (Of couse, it's one of the features which should be provided by libcap.)
+
+But that won't work on ia64 will it?
+
+Thanks,
+Bill
+
+
+-- 
+Bill O'Donnell
+SGI
+651.683.3079
+billodo@sgi.com

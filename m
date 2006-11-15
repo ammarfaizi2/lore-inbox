@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030789AbWKOSC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030791AbWKOSFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030789AbWKOSC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030787AbWKOSC1
+	id S1030791AbWKOSFw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:05:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030792AbWKOSFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:02:27 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:42904 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030790AbWKOSC0 (ORCPT
+	Wed, 15 Nov 2006 13:05:52 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:2715 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030791AbWKOSFu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:02:26 -0500
-Date: Wed, 15 Nov 2006 19:01:05 +0100
+	Wed, 15 Nov 2006 13:05:50 -0500
+Date: Wed, 15 Nov 2006 19:04:36 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386-pda UP optimization
-Message-ID: <20061115180105.GA29795@elte.hu>
-References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611151846.31109.dada1@cosmosbay.com> <20061115174957.GA27827@elte.hu> <200611151858.09958.dada1@cosmosbay.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: sleeping functions called in invalid context during resume
+Message-ID: <20061115180436.GB29795@elte.hu>
+References: <20061114223002.10c231bd@localhost.localdomain> <20061115012025.13c72fc1.akpm@osdl.org> <20061115093354.GA30813@elte.hu> <20061115100119.460b7a4e@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200611151858.09958.dada1@cosmosbay.com>
+In-Reply-To: <20061115100119.460b7a4e@localhost.localdomain>
 User-Agent: Mutt/1.4.2.2i
 X-ELTE-SpamScore: -4.4
 X-ELTE-SpamLevel: 
@@ -37,22 +35,20 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Eric Dumazet <dada1@cosmosbay.com> wrote:
+* Stephen Hemminger <shemminger@osdl.org> wrote:
 
-> > > +	GET_CPU_NUM(%ebx) \
-> > >  	PER_CPU(cpu_gdt_descr, %ebx); \
-> > >  	movl GDS_address(%ebx), %ebx; \
-> >
-> > %ebx very definitely wants to have a current CPU number loaded ;) Pick
-> > it up from the task struct.
+> > The patch below makes use of that capability of lockdep for all 
+> > stackdumps that are printed to the console. Stephen, please apply 
+> > this patch, enable CONFIG_PROVE_LOCKING and try to trigger another 
+> > message.
 > 
-> Hum.... Are you sure ?
-> 
-> For UP we have this PER_CPU definition :
-> 
-> #define PER_CPU(var, cpu) \
->         movl $per_cpu__/**/var, cpu;
+> I tried but with CONFIG_PROVE_LOCKING, resume gets stuck in an 
+> infinite loop backtracing to the console.  Unfortunately, the serial 
+> console isn't up at that point so it it isn't capturable.
 
-hm, you are right. No quick ideas then.
+hm - could you change the stack- UNWIND option (to on or off) to see 
+whether that makes a difference? If it doesnt help, could you try 
+CONFIG_DISABLE_CONSOLE_SUSPEND [but that might hang your resume earlier 
+than the bug triggers].
 
 	Ingo

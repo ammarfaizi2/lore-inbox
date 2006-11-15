@@ -1,86 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030880AbWKOTUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030924AbWKOTV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030880AbWKOTUt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 14:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030926AbWKOTUt
+	id S1030924AbWKOTV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 14:21:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030926AbWKOTV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 14:20:49 -0500
-Received: from hera.kernel.org ([140.211.167.34]:36741 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1030880AbWKOTUs (ORCPT
+	Wed, 15 Nov 2006 14:21:59 -0500
+Received: from ra.tuxdriver.com ([70.61.120.52]:14347 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1030924AbWKOTV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 14:20:48 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Date: Wed, 15 Nov 2006 11:20:14 -0800
-Organization: OSDL
-Message-ID: <20061115112014.54de5b2c@freekitty>
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-	<20061114.190036.30187059.davem@davemloft.net>
-	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
-	<20061114.192117.112621278.davem@davemloft.net>
-	<s5hbqn99f2v.wl%tiwai@suse.de>
+	Wed, 15 Nov 2006 14:21:57 -0500
+Date: Wed, 15 Nov 2006 14:21:05 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: madwifi-devel@lists.sourceforge.net, lwn@lwn.net, mcgrof@gmail.com,
+       david.kimdon@devicescape.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: ANNOUNCE: SFLC helps developers assess ar5k (enabling free Atheros HAL)
+Message-ID: <20061115192054.GA10009@tuxdriver.com>
+References: <20061115031025.GH3451@tuxdriver.com> <200611151942.14596.mb@bu3sch.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1163618415 10909 10.8.0.54 (15 Nov 2006 19:20:15 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 15 Nov 2006 19:20:15 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611151942.14596.mb@bu3sch.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 11:31:04 +0100
-Takashi Iwai <tiwai@suse.de> wrote:
+On Wed, Nov 15, 2006 at 07:42:14PM +0100, Michael Buesch wrote:
 
-> At Tue, 14 Nov 2006 19:21:17 -0800 (PST),
-> David Miller wrote:
-> > 
-> > From: Linus Torvalds <torvalds@osdl.org>
-> > Date: Tue, 14 Nov 2006 19:10:42 -0800 (PST)
-> > 
-> > > Yours was still an example of "nice". And it had absolutely nothing
-> > > to do with the _PROBLEM_.
-> > 
-> > Understood.
-> > 
-> > BTW, some drivers have taken the approch to add MSI self-tests
-> > inside of the driver to ensure correct option of MSI on a given
-> > machine.  There's a lot of resistence to that, the reasons for
-> > which I grok fully, but I'm not sure other suggestions such as
-> > black lists are any better.
-> 
-> The snd-hda-intel driver has a test of MSI, but it seems not working
-> on every machine.  It caused non-cared interrupts and the kernel
-> disabled that irq.
-> 
-> > Given current experience maybe white-lists are in fact the way
-> > to go.
-> 
-> Could it be whitelisted in the PCI driver side?  I don't think it's
-> good to have a huge white/blacklist in each device driver.
-> 
+> Now that it seems to be ok to use these openbsd sources, should I port
+> them to my driver framework?
+> I looked over the ar5k code and, well, I don't like it. ;)
+> I don't really like having a HAL. I'd rather prefer a "real" driver
+> without that HAL obfuscation.
 
-A whitelist is an awkward solution, the problem is the number of
-chipsets available with MSI will continue to grow. And the assumption
-is that after Microsoft OS supports MSI, that newer chipsets will work.
+I don't think anyone likes the HAL-based architecture.  I don't think
+we will accept a HAL-based driver into the upstream kernel.
 
-So by having a whitelist, you force a growing whitelist (in the kernel)
-to know about all the possible chipsets.  Since non-whitelisted systems
-will end up using INTX and working fine, most users will never try MSI
-and the whitelist will end up stale.
+The point is that the ar5k is now safe to be used as a reference and
+source of information (and code, as appropriate) without copyright FUD.
+Distilling that information into a proper Linux driver is work that
+remains to be done.
 
-A better solution is to have more robust IRQ management that can
-deal with misrouted IRQ's and try and recover correctly. How hard would
-it be to:
-	* remember original IRQ before MSI was enabled
-	* make sure all MSI irq's are not flagged SHARED
-	* in case of bogus IRQ walk the list and try and correct
-	  the problem by reverting to INTX mode.
-	* add interface?
-		pci_request_irq_msi(pdev, regular_irq_handler, msi_irq_handler, flags, name, context)
-
-All this should be done by the MSI layer, not the device drivers.
-
+John
 -- 
-Stephen Hemminger <shemminger@osdl.org>
+John W. Linville
+linville@tuxdriver.com

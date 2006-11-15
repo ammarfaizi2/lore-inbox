@@ -1,131 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755473AbWKOH4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966559AbWKOHz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755473AbWKOH4X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 02:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966599AbWKOH4J
+	id S966559AbWKOHz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 02:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966262AbWKOHuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 02:56:09 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:60622 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1755478AbWKOHuc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 15 Nov 2006 02:50:32 -0500
-Message-ID: <363577028.93218@ustc.edu.cn>
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:6605 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S966059AbWKOHu1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 02:50:27 -0500
+Message-ID: <363577020.39493@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20061115075031.909090639@localhost.localdomain>
-References: <20061115075007.832957580@localhost.localdomain>
-Date: Wed, 15 Nov 2006 15:50:30 +0800
+Message-Id: <20061115075007.832957580@localhost.localdomain>
+Date: Wed, 15 Nov 2006 15:50:07 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 23/28] readahead: laptop mode
-Content-Disposition: inline; filename=readahead-laptop-mode.patch
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 00/28] Adaptive readahead V16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When the laptop drive is spinned down, defer look-ahead to spin up time.
+Hi Andrew,
 
-The implementation employs a poll based method, for performance is not a
-concern in this code path. The poll interval is 64KB, which should be small
-enough for movies/musics. The user space application is responsible for
-proper caching to hide the spin-up-and-read delay.
+This readahead update focuses on complexity/overhead problems.
+It introduces major changes to initial/context/nfsd readahead,
+along with many other cleanups.
 
-For crazy laptop users who prefer aggressive read-ahead, here is the way:
+Patches
+=======
 
-# echo 1000 > /proc/sys/vm/readahead_ratio
-# blockdev --setra 524280 /dev/hda      # this is the max possible value
+One-to-one patching to the existing patches would be impossible,
+so I updated the -mm patchset in place. Please replace the -mm patches
+from
+	readahead-kconfig-options.patch
+to
+	readahead-remove-the-size-limit-of-max_sectors_kb-on-read_ahead_kb.patch
+with this patchset, thanks.
 
-Notes:
-- It is still an untested feature.
-- It is safer to use blockdev+fadvise to increase ra-max for a single file,
-  which needs patching your movie player.
-- Be sure to restore them to sane values in normal operations!
+[PATCH 01/28] readahead: kconfig options
+[PATCH 02/28] radixtree: introduce scan hole/data functions
+[PATCH 03/28] mm: introduce probe_page()
+[PATCH 04/28] mm: introduce PG_readahead
+[PATCH 05/28] readahead: add look-ahead support to __do_page_cache_readahead()
+[PATCH 06/28] readahead: insert cond_resched() calls
+[PATCH 07/28] readahead: {MIN,MAX}_RA_PAGES
+[PATCH 08/28] readahead: events accounting
+[PATCH 09/28] readahead: rescue_pages()
+[PATCH 10/28] readahead: sysctl parameters
+[PATCH 11/28] readahead: min/max sizes
+[PATCH 12/28] readahead: state based method - aging accounting
+[PATCH 13/28] readahead: state based method - routines
+[PATCH 14/28] readahead: state based method
+[PATCH 15/28] readahead: context based method
+[PATCH 16/28] readahead: initial method - guiding sizes
+[PATCH 17/28] readahead: initial method - thrashing guard size
+[PATCH 18/28] readahead: initial method - user recommended size
+[PATCH 19/28] readahead: initial method
+[PATCH 20/28] readahead: backward prefetching method
+[PATCH 21/28] readahead: thrashing recovery method
+[PATCH 22/28] readahead: call scheme
+[PATCH 23/28] readahead: laptop mode
+[PATCH 24/28] readahead: loop case
+[PATCH 25/28] readahead: nfsd case
+[PATCH 26/28] readahead: turn on by default
+[PATCH 27/28] readahead: remove size limit on read_ahead_kb
+[PATCH 28/28] readahead: remove size limit of max_sectors_kb on read_ahead_kb
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
---- linux-2.6.19-rc5-mm2.orig/include/linux/writeback.h
-+++ linux-2.6.19-rc5-mm2/include/linux/writeback.h
-@@ -86,6 +86,12 @@ void laptop_io_completion(void);
- void laptop_sync_completion(void);
- void throttle_vm_writeout(void);
- 
-+extern struct timer_list laptop_mode_wb_timer;
-+static inline int laptop_spinned_down(void)
-+{
-+	return !timer_pending(&laptop_mode_wb_timer);
-+}
-+
- /* These are exported to sysctl. */
- extern int dirty_background_ratio;
- extern int vm_dirty_ratio;
---- linux-2.6.19-rc5-mm2.orig/mm/page-writeback.c
-+++ linux-2.6.19-rc5-mm2/mm/page-writeback.c
-@@ -375,7 +375,7 @@ static void wb_timer_fn(unsigned long un
- static void laptop_timer_fn(unsigned long unused);
- 
- static DEFINE_TIMER(wb_timer, wb_timer_fn, 0, 0);
--static DEFINE_TIMER(laptop_mode_wb_timer, laptop_timer_fn, 0, 0);
-+DEFINE_TIMER(laptop_mode_wb_timer, laptop_timer_fn, 0, 0);
- 
- /*
-  * Periodic writeback of "old" data.
---- linux-2.6.19-rc5-mm2.orig/mm/readahead.c
-+++ linux-2.6.19-rc5-mm2/mm/readahead.c
-@@ -17,6 +17,7 @@
- #include <linux/backing-dev.h>
- #include <linux/pagevec.h>
- #include <linux/buffer_head.h>
-+#include <linux/writeback.h>
- 
- #include <asm/div64.h>
- 
-@@ -822,6 +823,32 @@ out:
- }
- 
- /*
-+ * Set a new look-ahead mark at @next.
-+ * Return 0 if the new mark is successfully set.
-+ */
-+static int renew_lookahead(struct address_space *mapping,
-+				struct file_ra_state *ra,
-+				pgoff_t offset, pgoff_t next)
-+{
-+	struct page *page;
-+
-+	if (offset == ra->lookahead_index &&
-+	      next >= ra->readahead_index)
-+		return 1;
-+
-+	if (!(page = find_get_page(mapping, next)))
-+		return 1;
-+
-+	SetPageReadahead(page);
-+	page_cache_release(page);
-+
-+	if (ra->lookahead_index == offset)
-+	    ra->lookahead_index = next;
-+
-+	return 0;
-+}
-+
-+/*
-  * Update `backing_dev_info.ra_thrash_bytes' to be a _biased_ average of
-  * read-ahead sizes. Which makes it an a-bit-risky(*) estimation of the
-  * _minimal_ read-ahead thrashing threshold on the device.
-@@ -1629,6 +1656,15 @@ page_cache_readahead_adaptive(struct add
- 			ra_account(ra, RA_EVENT_IO_CONGESTION, req_size);
- 			return 0;
- 		}
-+
-+		/*
-+		 * Defer read-ahead to save energy.
-+		 */
-+		if (unlikely(laptop_mode && laptop_spinned_down())) {
-+			if (!renew_lookahead(mapping, ra, offset,
-+						offset + LAPTOP_POLL_INTERVAL))
-+				return 0;
-+		}
- 	}
- 
- 	if (page)
+Diffstat
+========
 
+ Documentation/sysctl/vm.txt |   46 +
+ block/ll_rw_blk.c           |   43 -
+ drivers/block/loop.c        |    6
+ fs/mpage.c                  |    4
+ fs/nfs/client.c             |    3
+ fs/nfsd/vfs.c               |    6
+ include/linux/backing-dev.h |    2
+ include/linux/fs.h          |   60 +
+ include/linux/mm.h          |   31
+ include/linux/mmzone.h      |    3
+ include/linux/page-flags.h  |    6
+ include/linux/pagemap.h     |    2
+ include/linux/radix-tree.h  |    6
+ include/linux/sysctl.h      |    2
+ include/linux/writeback.h   |    6
+ kernel/sysctl.c             |   27
+ lib/radix-tree.c            |   93 ++
+ mm/Kconfig                  |   57 +
+ mm/filemap.c                |   65 +-
+ mm/page-writeback.c         |    2
+ mm/page_alloc.c             |   33 +
+ mm/readahead.c              | 1404 +++++++++++++++++++++++++++++++++++++++++++-
+ mm/vmscan.c                 |    1
+ 23 files changed, 1862 insertions(+), 46 deletions(-)
+
+Changelog
+=========
+
+V16  2006-11-15
+
+OVERHEADS ELIMINATION
+- nfsd readahead: now works in peace with the chaotic nfsd requests
+- context readahead on random reads: disabled by default
+- replace TestClearPageReadahead() with ClearPageReadahead()
+
+CODE REDUCTION
+- take 2 function parameters from page_cache_readahead_adaptive()
+- drop delayed page_cache_release() patch on filemap.c
+- drop smooth aging accounting
+- drop cache hit feedback
+- drop fixed size random read prefetching
+- drop initial readahead size auto detection
+
+READABILITY IMPROVEMENT
+- context readahead: document and clearly define cases/subroutines
+- rename ra_dispatch() to ra_submit()
+- rename zone.aging_total to zone.total_scanned
+- move readahead.c/node_readahead_aging() to page_alloc.c/nr_scanned_pages_node()
+- some minor cleanups
+
+SEMANTIC CHANGES
+- vm.readahead_ratio == 1 (single value) selects stock readahead
+- vm.readahead_hit_rate == 0 prevents possible context readahead overheads
+- /sys/block/sda/queue/initial_ra_kb = 64 as recommended initial readahead size
+- limit ra_min to ra_max/8 (8 = 128k/16k)
+- ignore readahead_ratio in aggressive context readahead
+- be conservative on backward prefetching
+
+V15  2006-05-28
+- apply stream_shift size limits to contexta method
+- *remain in query_page_cache_segment() is over counted by 1, fix it
+- comment update for adjust_rala_aggressive()
+- add use case comment for backward prefetching
+
+V14  2006-05-27
+- remove __radix_tree_lookup_parent()
+- implement radix_tree_scan_hole*() as dumb and safe
+- break file_ra_state.cache_hits into u16s
+- rationalize ra_dispatch and move look-ahead/age stuffs here
+- move node_free_and_cold_pages() to page_alloc.c/nr_free_inactive_pages_node()
+- fix a bug in query_page_cache_segment()
+- adjust RA_FLAG_XXX to avoid confliction with ra_class_{new,old}
+- random comments
+
+V13  2006-05-26
+- remove radix tree look-aside cache
+- fix radix tree NULL dereference bug
+- fix radix tree bugs on direct embedded data
+- add comment on cold_page_refcnt()
+- rename find_page() to probe_page()
+- replace the non-atomic __SetPageReadahead()
+- fix the risky rescue_pages()
+- some cleanups recommended by Nick Piggin
+
+V12  2006-05-24
+- improve small files case
+- allow pausing of events accounting
+- disable sparse read-ahead by default
+- a bug fix in radix_tree_cache_lookup_parent()
+- more cleanups
+
+V11  2006-03-19
+- patchset rework
+- add kconfig option to make the feature compile-time selectable
+- improve radix tree scan functions
+- fix bug of using smp_processor_id() in preemptible code
+- avoid overflow in compute_thrashing_threshold()
+- disable sparse read prefetching if (readahead_hit_rate == 1)
+- make thrashing recovery a standalone function
+- random cleanups
+
+V10  2005-12-16
+- remove delayed page activation
+- remove live page protection
+- revert mmap readaround to old behavior
+- default to original readahead logic
+- default to original readahead size
+- merge comment fixes from Andreas Mohr
+- merge radixtree cleanups from Christoph Lameter
+- reduce sizeof(struct file_ra_state) by unnamed union
+- stateful method cleanups
+- account other read-ahead paths
+
+V9  2005-12-3
+- standalone mmap read-around code, a little more smart and tunable
+- make stateful method sensible of request size
+- decouple readahead_ratio from live pages protection
+- let readahead_ratio contribute to ra_size grow speed in stateful method
+- account variance of ra_size
+
+V8  2005-11-25
+
+- balance zone aging only in page relaim paths and do it right
+- do the aging of slabs in the same way as zones
+- add debug code to dump the detailed page reclaim steps
+- undo exposing of struct radix_tree_node and uninline related functions
+- work better with nfsd
+- generalize accelerated context based read-ahead
+- account smooth read-ahead aging based on page referenced/activate bits
+- avoid divide error in compute_thrashing_threshold()
+- more low lantency efforts
+- update some comments
+- rebase debug actions on debugfs entries instead of magic readahead_ratio values
+
+V7  2005-11-09
+
+- new tunable parameters: readahead_hit_rate/readahead_live_chunk
+- support sparse sequential accesses
+- delay look-ahead if drive is spinned down in laptop mode
+- disable look-ahead for loopback file
+- make mandatory thrashing protection more simple and robust
+- attempt to improve responsiveness on large read-ahead size
+
+V6  2005-11-01
+
+- cancel look-ahead in laptop mode
+- increase read-ahead limit to 0xFFFF pages
+
+V5  2005-10-28
+
+- rewrite context based method to make it clean and robust
+- improved accuracy of stateful thrashing threshold estimation
+- make page aging equal to the number of code pages scanned
+- sort out the thrashing protection logic
+- enhanced debug/accounting facilities
+
+V4  2005-10-15
+
+- detect and save live chunks on page reclaim
+- support database workload
+- support reading backward
+- radix tree lookup look-aside cache
+
+V3  2005-10-06
+
+- major code reorganization and documention
+- stateful estimation of thrashing-threshold
+- context method with accelerated grow up phase
+- adaptive look-ahead
+- early detection and rescue of pages in danger
+- statitics data collection
+- synchronized page aging between zones
+
+V2  2005-09-15
+
+- delayed page activation
+- look-ahead: towards pipelined read-ahead
+
+V1  2005-09-13
+
+Initial release which features:
+        o stateless (for now)
+        o adapts to available memory / read speed
+        o free of thrashing (in theory)
+
+And handles:
+        o large number of slow streams (FTP server)
+	o open/read/close access patterns (NFS server)
+        o multiple interleaved, sequential streams in one file
+	  (multithread / multimedia / database)
+
+Cheers,
+Fengguang Wu
 --
+Dept. Automation                University of Science and Technology of China

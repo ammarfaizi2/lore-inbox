@@ -1,81 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162071AbWKOXjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162074AbWKOXmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162071AbWKOXjG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 18:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162072AbWKOXjG
+	id S1162074AbWKOXmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 18:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162075AbWKOXmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 18:39:06 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:38849 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1162071AbWKOXjF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 18:39:05 -0500
-Date: Wed, 15 Nov 2006 17:39:00 -0600
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, "Steven M. French" <sfrench@us.ibm.com>
-Subject: [PATCH] eCryptfs: CIFS nlink fixes
-Message-ID: <20061115233859.GG3409@us.ibm.com>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Nov 2006 18:42:25 -0500
+Received: from outbound-ash.frontbridge.com ([206.16.192.249]:61130 "EHLO
+	outbound2-ash-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1162074AbWKOXmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 18:42:24 -0500
+X-BigFish: VP
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+Date: Wed, 15 Nov 2006 16:44:56 -0700
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: "Andrew Morton" <akpm@osdl.org>
+cc: "Tero Roponen" <teanropo@jyu.fi>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: fb: modedb uses wrong default_mode
+Message-ID: <20061115234456.GB3674@cosmic.amd.com>
+References: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
+ <20061115152952.0e92c50d.akpm@osdl.org>
+MIME-Version: 1.0
+In-Reply-To: <20061115152952.0e92c50d.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 15 Nov 2006 23:42:20.0442 (UTC)
+ FILETIME=[B123C7A0:01C7090F]
+X-WSS-ID: 69457A560T0474539-01-01
+Content-Type: text/plain;
+ charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When CIFS is the lower filesystem, the old lower dentry needs to be
-explicitly dropped from inside eCryptfs to force a revalidate. In
-addition, when CIFS is the lower filesystem, the inode attributes need
-to be copied back up from the lower inode to the eCryptfs inode on an
-eCryptfs revalidate.
+On 15/11/06 15:29 -0800, Andrew Morton wrote:
+> On Wed, 15 Nov 2006 19:43:16 +0200 (EET)
+> Tero Roponen <teanropo@jyu.fi> wrote:
+> 
+> > 
+> > It seems that default_mode is always overwritten in
+> > fb_find_mode() if caller gives its own modedb; this
+> > patch should fix it.
 
-Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+> Sigh.
+> 
+> 2.6.19-rc5 has:
+> 
+>     if (!default_mode)
+> 	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
+> 
+> and Jordan changed it to
+> 
+>     if (!default_mode && db != modedb)
+> 	default_mode = &db[0];
+>     else
+> 	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
 
----
 
- fs/ecryptfs/dentry.c |    6 ++++++
- fs/ecryptfs/inode.c  |    3 ++-
- 2 files changed, 8 insertions(+), 1 deletions(-)
+> and you want to change it to
+> 
+>     if (!default_mode && db != modedb)
+> 	default_mode = &db[0];
+>     else if (!default_mode)
+> 	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
+> 
+> which is actually a complicated way of doing
+> 
+>     if (!default_mode)
+> 	default_mode = &db[DEFAULT_MODEDB_INDEX];
 
-ddef902c356e65e01e8ca3f2cc073613e8fffdec
-diff --git a/fs/ecryptfs/dentry.c b/fs/ecryptfs/dentry.c
-index 0b9992a..52d1e36 100644
---- a/fs/ecryptfs/dentry.c
-+++ b/fs/ecryptfs/dentry.c
-@@ -57,6 +57,12 @@ static int ecryptfs_d_revalidate(struct 
- 	rc = lower_dentry->d_op->d_revalidate(lower_dentry, nd);
- 	nd->dentry = dentry_save;
- 	nd->mnt = vfsmount_save;
-+	if (dentry->d_inode) {
-+		struct inode *lower_inode =
-+			ecryptfs_inode_to_lower(dentry->d_inode);
-+
-+		ecryptfs_copy_attr_all(dentry->d_inode, lower_inode);
-+	}
- out:
- 	return rc;
- }
-diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
-index ff4865d..fc0f624 100644
---- a/fs/ecryptfs/inode.c
-+++ b/fs/ecryptfs/inode.c
-@@ -470,6 +470,7 @@ out_lock:
- 	unlock_dir(lower_dir_dentry);
- 	dput(lower_new_dentry);
- 	dput(lower_old_dentry);
-+	d_drop(lower_old_dentry);
- 	d_drop(new_dentry);
- 	d_drop(old_dentry);
- 	return rc;
-@@ -484,7 +485,7 @@ static int ecryptfs_unlink(struct inode 
- 	lock_parent(lower_dentry);
- 	rc = vfs_unlink(lower_dir_inode, lower_dentry);
- 	if (rc) {
--		ecryptfs_printk(KERN_ERR, "Error in vfs_unlink\n");
-+		printk(KERN_ERR "Error in vfs_unlink; rc = [%d]\n", rc);
- 		goto out_unlock;
- 	}
- 	ecryptfs_copy_attr_times(dir, lower_dir_inode);
+Unless DEFAULT_MODEDB_INDEX for some reason gets set to non-zero, then
+it could be dangerous. If we agree that the default entry should aways be 
+at 0, then nuke the define and hard code the zero.  That way, nobody will be 
+tempted to change it.
+
+Jordan
+
 -- 
-1.3.3
+Jordan Crouse
+Senior Linux Engineer
+Advanced Micro Devices, Inc.
+<www.amd.com/embeddedprocessors>
+
 

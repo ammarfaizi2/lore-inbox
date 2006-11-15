@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162016AbWKOWiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162020AbWKOWlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162016AbWKOWiG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 17:38:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162017AbWKOWiF
+	id S1162020AbWKOWlK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 17:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162024AbWKOWlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 17:38:05 -0500
-Received: from hosting.zipcon.net ([209.221.136.3]:52108 "EHLO
-	hosting.zipcon.net") by vger.kernel.org with ESMTP id S1162016AbWKOWiD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 17:38:03 -0500
-Message-ID: <455B96C7.8010202@beezmo.com>
-Date: Wed, 15 Nov 2006 14:37:59 -0800
-From: William D Waddington <william.waddington@beezmo.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Wed, 15 Nov 2006 17:41:10 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17893 "EHLO omx1.sgi.com")
+	by vger.kernel.org with ESMTP id S1162020AbWKOWlI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 17:41:08 -0500
+Date: Wed, 15 Nov 2006 14:40:36 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Jack Steiner <steiner@sgi.com>
+cc: Christian Krafft <krafft@de.ibm.com>, linux-mm@kvack.org,
+       Martin Bligh <mbligh@mbligh.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have
+ no memory
+In-Reply-To: <20061115215845.GB20526@sgi.com>
+Message-ID: <Pine.LNX.4.64.0611151432050.23201@schroedinger.engr.sgi.com>
+References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost>
+ <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
+ <20061115215845.GB20526@sgi.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFCLUE3] flagging kernel interface changes
-References: <455B9133.9030704@beezmo.com> <1163629533.31358.168.camel@laptopd505.fenrus.org>
-In-Reply-To: <1163629533.31358.168.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hosting.zipcon.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - beezmo.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->> I don't want to start an argument about	"stable_api_nonsense" or 
->> the wisdom of out-of-tree drivers.  Just curious about the - why - 
->> and whether it is indifference or antagonism toward drivers outside
->>  the fold. Or ???
-> 
-> 
-> Hi,
-> 
-> in general the best approach has been to make the driver support the 
-> NEW interface, and then do some compat thing to fake the old one. The
->  other way around is going to be MUCH more painful long term. So as 
-> general rule: always follow the latest API, and use a compat.h hack 
-> for older kernels inside your driver, but keep the normal code clean.
->  It's not always easy, but keeping old API and faking it to the new 
-> one is only going to be really really painful; things will deviate 
-> more and more over time and at some point you'll have to jump anyway.
+On Wed, 15 Nov 2006, Jack Steiner wrote:
 
-Good point.  I actually try to do it that way.  Should have said
+> A lot of the core infrastructure is currently missing that is required
+> to describe IO nodes as regular nodes, but in principle, I don't
+> see anything wrong with nodes w/o memory.
 
-#ifndef NEW_INTERFACE
-...
+Every processor has a local node on which it runs. The kernel places 
+memory used by the processor on the local node. Even if we allow
+nodes without memory: We still need to associate a "local" node to the 
+processor. If that is across some NUMA interlink then it is going to be 
+slower but it will work.
 
-> In addition quite a few api changes are done in a way that make this
->  less painful than the other way around..
+AFAIK It seems to be better to explicitly associate a memory node with a 
+processor during bootup in arch code. 
 
-The other part of the question is why this irq_handler prototype change
-in 2.6.19 isn't flagged to make things a little easier.
+Various kernel optimizations rely on local memory. Would we create 
+a  special case here of a pglist_data structure without a zones structure? 
 
-> however in general really there is pain to be out-of-tree; and to
-> some degree that's an incentive to merge back  :)
+It seems that the contents of pglist_data are targeted to a memory node. 
+If we do not have a pglist_data structure then the node would not exist 
+for the kernel.
 
-No argument, but I don't have the stamina to try to get my 10+ year
-old code out of the public domain and into the main line :)
-
-Many thanks for your reply,
-Bill
--- 
---------------------------------------------
-William D Waddington
-Bainbridge Island, WA, USA
-william.waddington@beezmo.com
---------------------------------------------
-"Even bugs...are unexpected signposts on
-the long road of creativity..." - Ken Burtch
+What would the benefit or difference be of having nodes without memory?

@@ -1,60 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWKOLXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbWKOL1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030375AbWKOLXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 06:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932840AbWKOLXg
+	id S1030376AbWKOL1F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 06:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932840AbWKOL1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 06:23:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31680 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932838AbWKOLXf (ORCPT
+	Wed, 15 Nov 2006 06:27:05 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:45455 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S932838AbWKOL1D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 06:23:35 -0500
-Message-ID: <455AF8A7.3020204@RedHat.com>
-Date: Wed, 15 Nov 2006 06:23:19 -0500
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 Red Hat/1.0.5-0.1.el4 SeaMonkey/1.0.5
+	Wed, 15 Nov 2006 06:27:03 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: akpm@osdl.org
+Subject: [PATCH] i386-pda UP optimization
+Date: Wed, 15 Nov 2006 12:27:04 +0100
+User-Agent: KMail/1.9.5
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, ak@suse.de, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <4506665D.2090001@goop.org> <1158047806.2992.7.camel@laptopd505.fenrus.org>
+In-Reply-To: <1158047806.2992.7.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
-       trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com
-Subject: Re: [PATCH 06/19] FS-Cache: NFS: Only obtain cache cookies on file
- open, not on inode read
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200634.12943.6815.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20061114200634.12943.6815.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ImvWFko6SxDWlqE"
+Message-Id: <200611151227.04777.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_ImvWFko6SxDWlqE
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+Seeing %gs prefixes used now by i386 port, I recalled seeing strange oprofile 
+results on Opteron machines.
 
-David Howells wrote:
-> diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-> index 5ead2bf..b2e5e86 100644
-> --- a/include/linux/nfs_fs.h
-> +++ b/include/linux/nfs_fs.h
-> @@ -205,6 +205,7 @@ #define NFS_INO_REVALIDATING	(0)		/* rev
->  #define NFS_INO_ADVISE_RDPLUS	(1)		/* advise readdirplus */
->  #define NFS_INO_STALE		(2)		/* possible stale inode */
->  #define NFS_INO_ACL_LRU_SET	(3)		/* Inode is on the LRU list */
-> +#define NFS_INO_CACHEABLE	(4)		/* inode can be cached by FS-Cache */
->  
->  static inline struct nfs_inode *NFS_I(struct inode *inode)
->  {
-> @@ -230,6 +231,7 @@ #define NFS_ATTRTIMEO_UPDATE(inode)	(NFS
->  
->  #define NFS_FLAGS(inode)		(NFS_I(inode)->flags)
->  #define NFS_STALE(inode)		(test_bit(NFS_INO_STALE, &NFS_FLAGS(inode)))
-> +#define NFS_CACHEABLE(inode)		(test_bit(NFS_INO_CACHEABLE, &NFS_FLAGS(inode)))
-A small nit..
+I really think %gs prefixes can be expensive in some (most ?) cases, even if 
+the Intel/AMD docs say they are free.
 
-To stay with the coding style NFS uses, could you please changes
-these variables to:
+I wrote this trivial User program to benchmark vfs_read()/vfs_write() that 
+happens to use 'current' many times.
 
-+#define NFS_INO_FSCACHE	(4)		/* inode can be cached by FS-Cache */
-and
-+#define NFS_FSCACHE(inode)		(test_bit(NFS_INO_FSCACHE, &NFS_FLAGS(inode))
+#include <unistd.h>
+#include <errno.h>
 
+int main()
+{
+        int i, fd[2];
+        char c = 0;
+        pipe(fd);
+        for (i = 0; i < 10000000; i++) {
+                errno = 0; // glibc also use %gs
+                write(fd[1], &c, 1);
+                read(fd[0], &c, 1);
+        }
+        return 0;
+}
 
-steved.
+The best elap time I got for this program on 10 runs was : 12.811 s
+(Intel(R) Pentium(R) M processor 1.60GHz)
+
+With the attached patch, I got 12.212 s, and a kernel text size reduction of 
+3400 bytes.
+
+I wish Jeremy give us patches for UP machines so that %gs can be let untouched 
+in entry.S (syscall entry/exit). A lot of ia32 machines are still using one 
+CPU.
+
+Note : I dont have a x86_64 machine here, but I suspect a similar patch could 
+be done for x86_64 too.
+
+Thank you
+
+[PATCH] i386-pda UP optimization
+
+On a !CONFIG_SMP machine, there is only one PDA, (one CPU).
+We can avoid %gs prefixes when reading/writing fields in PDA.
+This reduce kernel text size and also give better performance.
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+--Boundary-00=_ImvWFko6SxDWlqE
+Content-Type: text/plain;
+  charset="utf-8";
+  name="i386-pda-up.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="i386-pda-up.patch"
+
+--- linux-2.6.19-rc5-mm2/include/asm-i386/pda.h	2006-11-15 11:21:24.000000000 +0100
++++ linux-2.6.19-rc5-mm2-ed/include/asm-i386/pda.h	2006-11-15 11:23:49.000000000 +0100
+@@ -91,10 +91,19 @@
+ 	((typeof(_proxy_pda.field) *)((unsigned char *)read_pda(_pda) + \
+ 				      pda_offset(field)))
+ 
++#if defined(CONFIG_SMP)
+ #define read_pda(field) pda_from_op("mov",field)
+ #define write_pda(field,val) pda_to_op("mov",field,val)
+ #define add_pda(field,val) pda_to_op("add",field,val)
+ #define sub_pda(field,val) pda_to_op("sub",field,val)
+ #define or_pda(field,val) pda_to_op("or",field,val)
++#else
++extern struct i386_pda boot_pda;
++#define read_pda(field)      boot_pda.field 
++#define write_pda(field,val) do { boot_pda.field = (val);} while (0)
++#define add_pda(field,val) ) do { boot_pda.field += (val);} while (0)
++#define sub_pda(field,val)   do { boot_pda.field -= (val);} while (0)
++#define or_pda(field,val)    do { boot_pda.field |= (val);} while (0)
++#endif
+ 
+ #endif	/* _I386_PDA_H */
+--- linux-2.6.19-rc5-mm2/arch/i386/kernel/cpu/common.c	2006-11-15 11:21:25.000000000 +0100
++++ linux-2.6.19-rc5-mm2-ed/arch/i386/kernel/cpu/common.c	2006-11-15 11:45:09.000000000 +0100
+@@ -609,6 +609,14 @@
+ 	return regs;
+ }
+ 
++/* Initial PDA used by boot CPU */
++struct i386_pda boot_pda = {
++	._pda = &boot_pda,
++	.cpu_number = 0,
++	.pcurrent = &init_task,
++};
++EXPORT_SYMBOL(boot_pda);
++
+ static __cpuinit int alloc_gdt(int cpu)
+ {
+ 	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
+@@ -628,11 +636,10 @@
+ 		BUG_ON(gdt != NULL || pda != NULL);
+ 
+ 		gdt = alloc_bootmem_pages(PAGE_SIZE);
+-		pda = alloc_bootmem(sizeof(*pda));
++		pda = &boot_pda;
+ 		/* alloc_bootmem(_pages) panics on failure, so no check */
+ 
+ 		memset(gdt, 0, PAGE_SIZE);
+-		memset(pda, 0, sizeof(*pda));
+ 	} else {
+ 		/* GDT and PDA might already have been allocated if
+ 		   this is a CPU hotplug re-insertion. */
+@@ -655,13 +662,6 @@
+ 	return 1;
+ }
+ 
+-/* Initial PDA used by boot CPU */
+-struct i386_pda boot_pda = {
+-	._pda = &boot_pda,
+-	.cpu_number = 0,
+-	.pcurrent = &init_task,
+-};
+-
+ static inline void set_kernel_gs(void)
+ {
+ 	/* Set %gs for this CPU's PDA.  Memory clobber is to create a
+
+--Boundary-00=_ImvWFko6SxDWlqE--

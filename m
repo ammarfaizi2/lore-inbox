@@ -1,74 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966153AbWKOHpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966063AbWKOHu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966153AbWKOHpY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 02:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966059AbWKOHpX
+	id S966063AbWKOHu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 02:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755480AbWKOHuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 02:45:23 -0500
-Received: from hera.kernel.org ([140.211.167.34]:27349 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S966004AbWKOHpV (ORCPT
+	Wed, 15 Nov 2006 02:50:25 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:18381 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1755468AbWKOHuZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 02:45:21 -0500
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
-Date: Wed, 15 Nov 2006 02:48:12 -0500
-User-Agent: KMail/1.8.2
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-References: <200611142303.47325.david-b@pacbell.net>
-In-Reply-To: <200611142303.47325.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611150248.12578.len.brown@intel.com>
+	Wed, 15 Nov 2006 02:50:25 -0500
+Message-ID: <363577021.21912@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Message-Id: <20061115075024.850542829@localhost.localdomain>
+References: <20061115075007.832957580@localhost.localdomain>
+Date: Wed, 15 Nov 2006 15:50:10 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 03/28] mm: introduce probe_page()
+Content-Disposition: inline; filename=mm-introduce-probe_page.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 November 2006 02:03, David Brownell wrote:
-> dmesg reports to me stuff like
-> 
-> ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
-> ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [20060707]
-> ACPI Error (psparse-0537): Method parse/execution failed [\_SB_.PCI0.LPC0.BAT1._BIF] (Node ffff8100020368d0), AE_TIME
-> ACPI Exception (acpi_battery-0148): AE_TIME, Evaluating _BIF [20060707]
-> ACPI: read EC, IB not empty
-> ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
-> ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [20060707]
-> ACPI Error (psparse-0537): Method parse/execution failed [\_TZ_.THRM._TMP] (Node ffff810002032d10), AE_TIME
+Introduce a pair of functions to probe the existence of file page.
+	- int __probe_page(mapping, offset)
+	- int probe_page(mapping, offset)
 
-AE_TIME is generally used for timeout situations -- ie didn't get a semaphore within a certain period.
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+--- linux-2.6.19-rc4-mm1.orig/include/linux/pagemap.h
++++ linux-2.6.19-rc4-mm1/include/linux/pagemap.h
+@@ -72,6 +72,8 @@ static inline struct page *page_cache_al
+ 
+ typedef int filler_t(void *, struct page *);
+ 
++extern int __probe_page(struct address_space *mapping, pgoff_t offset);
++extern int probe_page(struct address_space *mapping, pgoff_t offset);
+ extern struct page * find_get_page(struct address_space *mapping,
+ 				unsigned long index);
+ extern struct page * find_lock_page(struct address_space *mapping,
+--- linux-2.6.19-rc4-mm1.orig/mm/filemap.c
++++ linux-2.6.19-rc4-mm1/mm/filemap.c
+@@ -613,6 +613,29 @@ void fastcall __lock_page_nosync(struct 
+ 							TASK_UNINTERRUPTIBLE);
+ }
+ 
++/*
++ * Probing page existence.
++ */
++int __probe_page(struct address_space *mapping, pgoff_t offset)
++{
++	return !!radix_tree_lookup(&mapping->page_tree, offset);
++}
++
++/*
++ * Here we just do not bother to grab the page, it's meaningless anyway.
++ */
++int probe_page(struct address_space *mapping, pgoff_t offset)
++{
++	int exists;
++
++	read_lock_irq(&mapping->tree_lock);
++	exists = __probe_page(mapping, offset);
++	read_unlock_irq(&mapping->tree_lock);
++
++	return exists;
++}
++EXPORT_SYMBOL(probe_page);
++
+ /**
+  * find_get_page - find and get a page reference
+  * @mapping: the address_space to search
 
-Any change if you boot with "ec_intr=0"?
-
-thanks,
--Len
-
-> It never used to complain at all.  This is an amd64 laptop, and related symptoms
-> include
-> 
->  - kpowersave not being able to monitor the batter or AC adapter correctly;
->    leading to catastrophes like laptop powering itself off with no warning,
->    loss of work, filesystem needing log recovery, and so forth.
-> 
->  - Serious fan action.  Recent kernels seemed to finally be doing sane things
->    so that e.g. just editing text kept the CPU cool ... but now it's on almost
->    all the time, CPU is very hot.
-> 
-> What's an AE_TIME?
-> 
-> I'm not quite sure where these problems crept in, but I never saw such stuff with
-> 2.6.18 at all.
-> 
-> - Dave
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--

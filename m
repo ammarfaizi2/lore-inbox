@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966100AbWKODbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966097AbWKODtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966100AbWKODbH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 22:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966068AbWKODbH
+	id S966097AbWKODtm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 22:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966103AbWKODtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 22:31:07 -0500
-Received: from ra.tuxdriver.com ([70.61.120.52]:20755 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S966020AbWKODbF (ORCPT
+	Tue, 14 Nov 2006 22:49:42 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:60065 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S966097AbWKODtl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 22:31:05 -0500
-Date: Tue, 14 Nov 2006 22:10:26 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: madwifi-devel@lists.sourceforge.net, lwn@lwn.net, mcgrof@gmail.com,
-       david.kimdon@devicescape.com
-Subject: ANNOUNCE: SFLC helps developers assess ar5k (enabling free Atheros HAL)
-Message-ID: <20061115031025.GH3451@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Nov 2006 22:49:41 -0500
+From: Andi Kleen <ak@suse.de>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
+Date: Wed, 15 Nov 2006 04:49:25 +0100
+User-Agent: KMail/1.9.5
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org,
+       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com
+References: <20061113162135.GA17429@in.ibm.com> <m1fyclk8ws.fsf@ebiederm.dsl.xmission.com> <20061114234334.GB3394@elf.ucw.cz>
+In-Reply-To: <20061114234334.GB3394@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200611150449.26057.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is my pleasure to announce that the SFLC [1] has assisted the ar5k
-developers in evaluating the development history of Reyk Floeter's
-OpenBSD reverse-engineered Atheros HAL, ar5k [2].  SFLC's assessment
-leads to the conclusion that free software developers should not be
-worried about using/extending ar5k or porting ar5k to other platforms.
+On Wednesday 15 November 2006 00:43, Pavel Machek wrote:
+> Hi!
+> 
+> > >> I don't have a configuration I can test this but it compiles cleanly
+> > >
+> > > Ugh, now that's a big patch.. and untested, too :-(.
+> > 
+> > It was very carefully code reviewed at least the first time,
+> > and the code was put in sync with code that was tested.
+> 
+> So we had two very different versions of "switch to 64-bit" and now we
+> have two mostly similar versions. Not a big improvement...
 
-In the past there were serious questions raised and even dire warnings
-made about ar5k's copyright status.  The purpose of this statement
-is to refute those claims and to publicly clarify ar5k's status
-to developers.
+Hmm? That's an improvement in my book. Of course i would prefer
+truly shared code, but even more similar code is better.
 
-SFLC has made independent inquiries with the OpenBSD team regarding the
-development history of ar5k source.  The responses received provide
-a reasonable basis for SFLC to believe that the OpenBSD developers
-who worked on ar5k did not misappropriate code, and that the ar5k
-implementation is OpenBSD's original copyrighted work.
+> > > Why is PGE no longer required, for example?
+> > 
+> > PGE is never required.  Especially on a temporary page table.
+> > PGE is an optimization, to make context switches faster.
+> 
+> HPA tells me it is.
 
-This announcement should serve to remove the cloud which has prevented
-progress towards an in-kernel driver for Atheros hardware.  This should
-be of particular interest to those involved with the DadWifi project [3].
+He was just nitpicking. Eric is right it is just an optimization
+(modulo hardware/software bugs) 
 
-I'd like to take this opportunity to thank the folks at the SFLC for
-their hard work, and I'd also like to personally thank Luis Rodriguez
-for the role he played in coordinating contact between the SFLC and
-the community at large.
-
-Thanks!
-
-John
-
-[1] http://www.softwarefreedom.org/
-[2] http://team.vantronix.net/ar5k/
-[3] http://marc.theaimsgroup.com/?l=linux-netdev&m=116113064513921&w=2
--- 
-John W. Linville
-linville@tuxdriver.com
+-Andi

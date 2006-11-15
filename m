@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030682AbWKOQiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030681AbWKOQiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030682AbWKOQiC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:38:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWKOQiB
+	id S1030681AbWKOQiN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWKOQiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:38:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53483 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030681AbWKOQiA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:38:00 -0500
-Date: Wed, 15 Nov 2006 08:36:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Takashi Iwai <tiwai@suse.de>, David Miller <davem@davemloft.net>,
-       jeff@garzik.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-In-Reply-To: <1163607889.31358.132.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0611150829460.3349@woody.osdl.org>
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org> 
- <20061114.190036.30187059.davem@davemloft.net>  <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
-  <20061114.192117.112621278.davem@davemloft.net>  <s5hbqn99f2v.wl%tiwai@suse.de>
-  <Pine.LNX.4.64.0611150814000.3349@woody.osdl.org>
- <1163607889.31358.132.camel@laptopd505.fenrus.org>
+	Wed, 15 Nov 2006 11:38:13 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16820 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030681AbWKOQiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 11:38:03 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz,
+       Komuro <komurojun-mbn@nifty.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@redhat.com>, Ernst Herzberg <earny@net4u.de>,
+       Len Brown <len.brown@intel.com>, Andre Noll <maan@systemlinux.org>,
+       Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       Prakash Punnoor <prakash@punnoor.de>, phil.el@wanadoo.fr,
+       oprofile-list@lists.sourceforge.net,
+       Alex Romosan <romosan@sycorax.lbl.gov>,
+       Jens Axboe <jens.axboe@oracle.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.19-rc5: known regressions (v3)
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<20061115102122.GQ22565@stusta.de>
+	<20061115075241.64ce1b7c@localhost.localdomain>
+Date: Wed, 15 Nov 2006 09:35:01 -0700
+In-Reply-To: <20061115075241.64ce1b7c@localhost.localdomain> (Stephen
+	Hemminger's message of "Wed, 15 Nov 2006 07:52:41 -0800")
+Message-ID: <m1u0104qiy.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephen Hemminger <shemminger@osdl.org> writes:
 
+>> 
+>> Subject    : PCI MSI setting corrupted during resume
+>> References : http://bugzilla.kernel.org/show_bug.cgi?id=7479
+>> Submitter  : Stephen Hemminger <shemminger@osdl.org>
+>> Status     : unknown
+>> 
+> Turns out this isn't a regression, it was always there. It has to do with ACPI
+> clearing state on resume. MSI wasn't being used the same in older kernels so
+> it didn't show up.
 
-On Wed, 15 Nov 2006, Arjan van de Ven wrote:
-> 
-> well we could cheat some. And have the generic code for this just
-> register the irq handler for both somehow.
+Ok.  Do we know enough to fix the MSI case?
 
-Well, not generic code. It would have to be the driver itself that does 
-it, since generic code doesn't even know (at irq request time - and when 
-they are generated - it just gets the irq number).
+Eric
 
-And the thing is, once you do that, all the advantages of MSI totally go 
-away - both the "nice" ones and the "really good ones" (the latter being 
-the hopeful eventual removal of irq routing confusions). So if you do 
-that, the better solution is for the driver to say "I won't use MSI at 
-all".
-
-Really.
-
-It all boils down to the same thing: either we have to know that MSI works 
-(where "know" is obviously relative - it's not like you can avoid _all_ 
-bugs, but dammit, even a single report of "not working" means that there 
-are probably a ton of machines like that, and we did something wrong), or 
-we shouldn't use it. There is no middle ground. You can't really safely 
-"test" for it, and while you _can_ say "just do both", it doesn't really 
-help anything (and potentially exposes you to just more bugs: if enablign 
-MSI actually _does_ disable INTx, but then doesn't work, at a minimum you 
-end up with a device that doesn't work, even if the rest of the kernel 
-might be ok).
-
-And btw, I say this as a person whose new main machine used to have HDA 
-routed over MSI, and the decision to default to it off meant that it went 
-back to the regular INTx thing.
-
-(Btw, MSI interrupts also seem to not participate in CPU balancing:
-
- 22:      41556      43005   IO-APIC-fasteoi   HDA Intel
-506:     110417          0   PCI-MSI-edge      eth0
-
-which is another semantic change introduced by using MSI)
-
-			Linus

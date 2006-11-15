@@ -1,34 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030911AbWKOTOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030901AbWKOTPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030911AbWKOTOK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 14:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030913AbWKOTOK
+	id S1030901AbWKOTPv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 14:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030913AbWKOTPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 14:14:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:50660 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030901AbWKOTOF (ORCPT
+	Wed, 15 Nov 2006 14:15:51 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:23954 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030901AbWKOTPt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 14:14:05 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <6134.1163617750@redhat.com> 
-References: <6134.1163617750@redhat.com>  <26860.1163607813@redhat.com> <XMMS.LNX.4.64.0611151115360.8593@d.namei> <XMMS.LNX.4.64.0611141618300.25022@d.namei> <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com> <15153.1163593562@redhat.com> 
-To: David Howells <dhowells@redhat.com>
-Cc: James Morris <jmorris@namei.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-       trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com, steved@redhat.com
-Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be overridden 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 15 Nov 2006 19:11:41 +0000
-Message-ID: <6203.1163617901@redhat.com>
+	Wed, 15 Nov 2006 14:15:49 -0500
+Message-ID: <455B6761.3050700@garzik.org>
+Date: Wed, 15 Nov 2006 14:15:45 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: David Miller <davem@davemloft.net>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>	<20061114.190036.30187059.davem@davemloft.net>	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>	<20061114.192117.112621278.davem@davemloft.net>	<s5hbqn99f2v.wl%tiwai@suse.de>	<455B5D22.10408@garzik.org> <s5hslgktu4a.wl%tiwai@suse.de>
+In-Reply-To: <s5hslgktu4a.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
+Takashi Iwai wrote:
+> diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+> index e35cfd3..bdb92b3 100644
+> --- a/sound/pci/hda/hda_intel.c
+> +++ b/sound/pci/hda/hda_intel.c
+> @@ -544,6 +544,7 @@ static unsigned int azx_rirb_get_respons
+>  		free_irq(chip->irq, chip);
+>  		chip->irq = -1;
+>  		pci_disable_msi(chip->pci);
+> +		pci_intx(chip->pci, 1);
+>  		chip->msi = 0;
+>  		if (azx_acquire_irq(chip, 1) < 0)
+>  			return -1;
+> @@ -830,14 +831,15 @@ static irqreturn_t azx_interrupt(int irq
+>  {
+>  	struct azx *chip = dev_id;
+>  	struct azx_dev *azx_dev;
+> +	unsigned long flags;
+>  	u32 status;
+>  	int i;
+>  
+> -	spin_lock(&chip->reg_lock);
+> +	spin_lock_irqsave(&chip->reg_lock, flags);
+>  
+>  	status = azx_readl(chip, INTSTS);
+>  	if (status == 0) {
+> -		spin_unlock(&chip->reg_lock);
+> +		spin_unlock_irqrestore(&chip->reg_lock, flags);
+>  		return IRQ_NONE;
+>  	}
+>  	
+> @@ -867,7 +869,7 @@ static irqreturn_t azx_interrupt(int irq
+>  	if (azx_readb(chip, STATESTS) & 0x04)
+>  		azx_writeb(chip, STATESTS, 0x04);
+>  #endif
+> -	spin_unlock(&chip->reg_lock);
+> +	spin_unlock_irqrestore(&chip->reg_lock, flags);
 
-> I haven't removed the old fscreate overriding patch yet, not have I put in the
-> error handling in CacheFiles.
+ACK the pci_intx() calls, NAK the obviously overweight spinlock changes. 
+  The spinlock changes are completely unnecessary.  Just look at any 
+other (non-ALSA) PCI driver.  Existing "spin_lock()" is fine for both 
+PCI shared irq handlers and MSI irq handlers.
 
-that should read "... nor have I..."
+It sounds like you are trying to work around a reentrancy problem that 
+does not exist.
 
-David
+Only weird drivers like ps2kbd/mouse or IDE need spin_lock_irqsave(), 
+where separate interrupt sources call the same function.
+
+	Jeff
+
+
+

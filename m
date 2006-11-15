@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965817AbWKODYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965978AbWKODaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965817AbWKODYI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 22:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965984AbWKODYH
+	id S965978AbWKODaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 22:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966020AbWKODaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 22:24:07 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:47668 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S965817AbWKODYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 22:24:06 -0500
-Message-ID: <455A8857.401@oracle.com>
-Date: Tue, 14 Nov 2006 19:24:07 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Tue, 14 Nov 2006 22:30:24 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:43997 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965978AbWKODaY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 22:30:24 -0500
+Message-ID: <455A89CA.60507@garzik.org>
+Date: Tue, 14 Nov 2006 22:30:18 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: /proc/acpi/dsdt whom to send it to
-References: <455A785F.2070206@seclark.us> <20061114183554.9e20430b.randy.dunlap@oracle.com> <slrnell2b7.7lr.olecom@flower.upol.cz>
-In-Reply-To: <slrnell2b7.7lr.olecom@flower.upol.cz>
+To: "D. Hazelton" <dhazelton@enter.net>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+References: <200611150059.kAF0xBTl009796@hera.kernel.org> <Pine.LNX.4.64.0611141747490.3349@woody.osdl.org> <455A7E21.7020701@garzik.org> <200611142210.51162.dhazelton@enter.net>
+In-Reply-To: <200611142210.51162.dhazelton@enter.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Verych wrote:
-> Hallo.
-> 
-> On 2006-11-15, Randy Dunlap wrote:
->> On Tue, 14 Nov 2006 21:15:59 -0500 Stephen Clark wrote:
->>
->>> Hi List,
->>>
->>> I get this from dmesg - where should I send the output.
->>>
->>> Asus Laptop ACPI Extras version 0.30
->>>   Error calling BSTS
->>>   unsupported model Z96F, trying default values
->>>   send /proc/acpi/dsdt to the developers
->> linux-acpi@vger.kernel.org
-> 
-> Yes, meybe there, if somebody will care.
-> 
-> But it's <acpi4asus-user@lists.sourceforge.net> instead, and it seems
-> to be very dead.
-> ____
+D. Hazelton wrote:
+> Again crowing about how something works on ONE (1) (Uno, Eins, Un, Ichi) 
+> platform. A single working platform is no reason to complicate code with a 
+> whitelist.
 
-Sorry, my bad.  I skimmed over too many words.
+A rather high volume platform with lots of users.
 
--- 
-~Randy
+	Jeff
+
+

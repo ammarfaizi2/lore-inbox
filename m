@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966580AbWKOEYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966582AbWKOE2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966580AbWKOEYt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 23:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966583AbWKOEYs
+	id S966582AbWKOE2O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 23:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966583AbWKOE2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 23:24:48 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:60006 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S966582AbWKOEYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 23:24:47 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
+	Tue, 14 Nov 2006 23:28:14 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15844
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S966582AbWKOE2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 23:28:13 -0500
+Date: Tue, 14 Nov 2006 20:28:14 -0800 (PST)
+Message-Id: <20061114.202814.70218466.davem@davemloft.net>
+To: jeff@garzik.org
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, tiwai@suse.de
 Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-X-Message-Flag: Warning: May contain useful information
-References: <200611150059.kAF0xBTl009796@hera.kernel.org>
-	<455A6EBF.7060200@garzik.org>
-	<Pine.LNX.4.64.0611141747490.3349@woody.osdl.org>
-	<455A7E21.7020701@garzik.org>
-	<Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-	<1163563491.5940.209.camel@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 14 Nov 2006 20:24:46 -0800
-In-Reply-To: <1163563491.5940.209.camel@localhost.localdomain> (Benjamin Herrenschmidt's message of "Wed, 15 Nov 2006 15:04:51 +1100")
-Message-ID: <adad57pz69d.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 Nov 2006 04:24:46.0670 (UTC) FILETIME=[FB7736E0:01C7086D]
-Authentication-Results: sj-dkim-5; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim5002 verified; ); 
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <455A9664.50404@garzik.org>
+References: <455A938A.4060002@garzik.org>
+	<20061114.201549.69019823.davem@davemloft.net>
+	<455A9664.50404@garzik.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > and I've heard of devices doing that too (yeah, that's weird, they
- > wouldn't work in windows I suppose).
+From: Jeff Garzik <jeff@garzik.org>
+Date: Tue, 14 Nov 2006 23:24:04 -0500
 
-for example the QLogic PCIe InfiniBand adapter (drivers/infiniband/hw/ipath)
-can't generate legacy INTx interrupts...
+> I can't answer for the spec, but at least two independent device vendors 
+> recommended to write an MSI driver that way (disable intx, enable msi).
+
+Ok.
+
+> Completely independent of MSI though, a PCI 2.2 compliant driver should 
+> be nice and disable intx on exit, just to avoid any potential interrupt 
+> hassles after driver unload.  And of course be aware that it might need 
+> to enable intx upon entry.
+
+This also sounds like it should occur in the generic PCI layer when a
+PCI driver is unregistered.

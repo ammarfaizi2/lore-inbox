@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161690AbWKOVNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161693AbWKOVOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161690AbWKOVNB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 16:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161693AbWKOVNA
+	id S1161693AbWKOVOm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 16:14:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161705AbWKOVOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 16:13:00 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8065 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161690AbWKOVNA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 16:13:00 -0500
-Date: Wed, 15 Nov 2006 13:12:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: Charles Edward Lever <chucklever@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Yet another borken page_count() check in
- invalidate_inode_pages2()....
-Message-Id: <20061115131256.403facca.akpm@osdl.org>
-In-Reply-To: <1163624265.5880.31.camel@lade.trondhjem.org>
-References: <1163568819.5645.8.camel@lade.trondhjem.org>
-	<1163596689.5691.40.camel@lade.trondhjem.org>
-	<20061115084641.827494be.akpm@osdl.org>
-	<1163613913.5691.215.camel@lade.trondhjem.org>
-	<20061115112426.84e5417c.akpm@osdl.org>
-	<1163624265.5880.31.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 15 Nov 2006 16:14:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33457 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161693AbWKOVOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 16:14:41 -0500
+Subject: Re: [patch] floppy: suspend/resume fix
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061115204933.GD3875@elf.ucw.cz>
+References: <200611122047.kACKl8KP004895@harpo.it.uu.se>
+	 <20061112212941.GA31624@flint.arm.linux.org.uk>
+	 <20061112220318.GA3387@elte.hu>
+	 <20061112235410.GB31624@flint.arm.linux.org.uk>
+	 <20061114110958.GB2242@elf.ucw.cz> <1163522062.14674.3.camel@mindpipe>
+	 <20061115202418.GC3875@elf.ucw.cz>
+	 <20061115204915.1d0717db@localhost.localdomain>
+	 <20061115204933.GD3875@elf.ucw.cz>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 15 Nov 2006 22:14:37 +0100
+Message-Id: <1163625278.31358.161.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 15:57:45 -0500
-Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
 
-> On Wed, 2006-11-15 at 11:24 -0800, Andrew Morton wrote:
-> 
-> > The protocol is
-> > 
-> > 	lock_page()
-> > 	set_page_writeback()
-> > 	->writepage()
-> 
-> We're not using ->writepage().
+> Yep, it would be nice to do something about that; but I'm not sure how
+> this "was media changed" should be implemented, and if it should be
+> done in kernel or in userland.
 
-I think you know what I mean.
-
-> > and there are various places which assume that nobody will start new
-> > writeout of a locked page.  But I forget where they are - things have always
-> > been this way.
-> 
-> Huh? There has never been a requirement to lock the page if all you want
-> to do is call set_page_writeback().
-
-The protocol is, and always has been
-
-	lock_page()
-	set_page_writeback();
-	start-io
-	unlock_page();
-
-end_io:
-	end_page_writeback()
+well I guess step 1 is to sync_bdev() or whatever it is called nowadays
+before suspend. And maybe force unmount on resume always? 
 
 
-and there are places in the VM which rely upon some or all of that.  I'd
-need to go on a big hunt to remember where they are.  One of them is
-invalidate_inode_pages2(), as you've just discovered.
-
-> The only reason why we want to do
-> that at all is to allow the VM to track that the page is under I/O. All
-> other operations involved in scheduling writes are protected by internal
-> NFS locks.
-
-Well the VM uses lock_page() for this synchronisation.  If NFS has gone and
-decided not to do that then we'll need to either
-
-a) Make NFS follow the protocol or
-
-b) Put stuff in NFS to allow the VM to work correctly (until we change it) or
-
-c) Put very-clearly-commented NFS exception code into the VM.
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

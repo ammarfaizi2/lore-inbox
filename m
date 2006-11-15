@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030632AbWKOQUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030648AbWKOQVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030632AbWKOQUT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030646AbWKOQUT
+	id S1030648AbWKOQVa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:21:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030647AbWKOQV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:20:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39650 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030632AbWKOQUQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:20:16 -0500
-Date: Wed, 15 Nov 2006 08:19:05 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Takashi Iwai <tiwai@suse.de>
-cc: David Miller <davem@davemloft.net>, jeff@garzik.org,
+	Wed, 15 Nov 2006 11:21:29 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57492 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030648AbWKOQV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 11:21:28 -0500
+Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
+From: Arjan van de Ven <arjan@infradead.org>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Tejun Heo <htejun@gmail.com>, Mathieu Fluhr <mfluhr@nero.com>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-In-Reply-To: <s5hbqn99f2v.wl%tiwai@suse.de>
-Message-ID: <Pine.LNX.4.64.0611150814000.3349@woody.osdl.org>
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
- <20061114.190036.30187059.davem@davemloft.net> <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
- <20061114.192117.112621278.davem@davemloft.net> <s5hbqn99f2v.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <455B3D99.8040705@cfl.rr.com>
+References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>
+	 <4558BE57.4020700@cfl.rr.com>
+	 <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>
+	 <1163446372.15249.190.camel@laptopd505.fenrus.org>
+	 <1163519125.2998.8.camel@de-c-l-110.nero-de.internal>
+	 <455 <455B3A78.7010503@gmail.com>  <455B3D99.8040705@cfl.rr.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 15 Nov 2006 17:20:52 +0100
+Message-Id: <1163607653.31358.128.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 15 Nov 2006, Takashi Iwai wrote:
+On Wed, 2006-11-15 at 11:17 -0500, Phillip Susi wrote:
+> Tejun Heo wrote:
+> >> The patch _seems_ to solve my problem. I am just really astonished when
+> >> I read the diff file :D. Can I expect that it will be merged to the
+> >> official kernel sources ?
+> > 
+> > It seems that some devices choke when the bytes after CDB contain 
+> > garbage.  I seem to recall that I read somewhere ATAPI device require 
+> > left command bytes cleared to zero but I can't find it anywhere now. 
+> > Maybe I'm just imagining.  Anyways, yeah, I'll push it to upstream.
+> > 
 > 
-> The snd-hda-intel driver has a test of MSI, but it seems not working
-> on every machine.  It caused non-cared interrupts and the kernel
-> disabled that irq.
+> The original patch memsets the entire buffer only to copy over most of 
+> it right after.  Could you amend the patch so that it memcpys first, 
+> then memsets only the remainder of the buffer?  No sense wasting cpu 
+> cycles.
 
-Yes. 
+due to the funnies of how cpu caches work it might not actually be
+faster though... Write Allocate and things like that are.. well fun.
 
-Btw, this was why I was claiming that maybe some devices might raise 
-_both_ the MSI and the INTx interrupt, which can indeed cause problems 
-like that: because we see spurious interrupts on some other irq line (the 
-INTx one), we might decide to end up disabling that one, just because we 
-can't seem to shut it up.
 
-However, the same kind of schenario may happen if the MSI irq from a 
-device simply doesn't _work_ - the device may claim MSI capabilities but 
-always uses INTx, and you'd get the same behaviour from just _testing_ the 
-MSI line - the irq comes in on the wrong vector, and since you're not 
-handling that vector, the kernel has no choice but to say "I will have to 
-disable this screaming irq".
 
-So "testing" that an MSI works isn't actually goign to solve any real 
-problems. It may or may not show that the MSI works, but regardless of the 
-success of the test, it can have deadly consequences for _other_ devices 
-if the irq routing (which may be INTx) is broken.
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-This is why I'm so adamant that we need to _know_ that it works before we 
-use it. When irq's get mis-routed, things go downhill real fast. We're 
-usually talking "dead machines", and there is very little that a driver 
-can do about it.
-
-			Linus

@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030588AbWKOPec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030596AbWKOPm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030588AbWKOPec (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 10:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030589AbWKOPec
+	id S1030596AbWKOPm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 10:42:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030598AbWKOPm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 10:34:32 -0500
-Received: from dvhart.com ([64.146.134.43]:42899 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1030588AbWKOPeb (ORCPT
+	Wed, 15 Nov 2006 10:42:57 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:198 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1030596AbWKOPm5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 10:34:31 -0500
-Message-ID: <455B330F.7050102@mbligh.org>
-Date: Wed, 15 Nov 2006 07:32:31 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Wed, 15 Nov 2006 10:42:57 -0500
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Boot failure with ext2 and initrds
-References: <20061114014125.dd315fff.akpm@osdl.org> <20061114184919.GA16020@skynet.ie> <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com> <20061114113120.d4c22b02.akpm@osdl.org> <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com> <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17755.13665.576585.82545@alkaid.it.uu.se>
+Date: Wed, 15 Nov 2006 16:42:25 +0100
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: "Jan Beulich" <jbeulich@novell.com>
+Cc: "linux-acpi" <linux-acpi@intel.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] avoid compiler warnings
+In-Reply-To: <455B36D2.76E4.0078.0@novell.com>
+References: <455B36D2.76E4.0078.0@novell.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Tue, 14 Nov 2006, Hugh Dickins wrote:
->> On Tue, 14 Nov 2006, Andrew Morton wrote:
->>> The below might help.
->> Indeed it does (with Martin's E2FSBLK warning fix),
->> seems to be running well on all machines now.
-> 
-> i386 and ppc64 still doing builds, but after an hour on x86_64,
-> an ld got stuck in a loop under ext2_try_to_allocate_with_rsv,
-> alternating between ext2_rsv_window_add and rsv_window_remove.
+Jan Beulich writes:
+ > Pointers should not be casted to u32 as this results in compiler warnings
+ > on 64-bit platforms.
+ > 
+ > Signed-off-by: Jan Beulich <jbeulich@novell.com>
+ > 
+ > --- linux-2.6.19-rc5/drivers/acpi/executer/exmutex.c	2006-09-20 05:42:06.000000000 +0200
+ > +++ 2.6.19-rc5-acpi-warnings/drivers/acpi/executer/exmutex.c	2006-11-06 09:10:16.000000000 +0100
+ > @@ -266,10 +266,10 @@ acpi_ex_release_mutex(union acpi_operand
+ >  	     walk_state->thread->thread_id)
+ >  	    && (obj_desc->mutex.os_mutex != ACPI_GLOBAL_LOCK)) {
+ >  		ACPI_ERROR((AE_INFO,
+ > -			    "Thread %X cannot release Mutex [%4.4s] acquired by thread %X",
+ > -			    (u32) walk_state->thread->thread_id,
+ > +			    "Thread %lX cannot release Mutex [%4.4s] acquired by thread %lX",
+ > +			    (unsigned long) walk_state->thread->thread_id,
+ >  			    acpi_ut_get_node_name(obj_desc->mutex.node),
+ > -			    (u32) obj_desc->mutex.owner_thread->thread_id));
+ > +			    (unsigned long) obj_desc->mutex.owner_thread->thread_id));
+ >  		return_ACPI_STATUS(AE_AML_NOT_OWNER);
+ >  	}
+ >  
+ > --- linux-2.6.19-rc5/drivers/acpi/utilities/utmutex.c	2006-09-20 05:42:06.000000000 +0200
+ > +++ 2.6.19-rc5-acpi-warnings/drivers/acpi/utilities/utmutex.c	2006-11-06 09:10:16.000000000 +0100
+ > @@ -258,8 +258,8 @@ acpi_status acpi_ut_acquire_mutex(acpi_m
+ >  		acpi_gbl_mutex_info[mutex_id].thread_id = this_thread_id;
+ >  	} else {
+ >  		ACPI_EXCEPTION((AE_INFO, status,
+ > -				"Thread %X could not acquire Mutex [%X]",
+ > -				(u32) this_thread_id, mutex_id));
+ > +				"Thread %lX could not acquire Mutex [%X]",
+ > +				(unsigned long) this_thread_id, mutex_id));
+ >  	}
+ >  
+ >  	return (status);
 
-Ugh. What test are you doing? kernel compile in a tight loop forever?
-
-Andrew, do you want to drop the set for now, and we can try and
-debug it outside of -mm? No reason to break your tree if we don't
-have to ...
-
-> Send me a patch and I'll try it...
-> 
-> ext2_try_to_allocate_with_rsv+0x288
-> ext2_new_blocks+0x21e
-> ext2_get_blocks+0x398
-> ext2_get_block+0x46
-> __block_prepare_write+0x171
-> block_prepare_write+0x39
-> ext2_prepare_write+0x2c
-> generic_file_buffered_write+0x2b0
-> __generic_file_aio_write_nolock+0x4bc
-> generic_file_aio_write+0x6d
-> do_sync_write+0xf9
-> vfs_write+0xc8
-> sys_write+0x51
-
+NAK. Use "%p" for formatting pointers. No casts needed.

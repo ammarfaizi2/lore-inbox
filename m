@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030791AbWKOSFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030771AbWKOSFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030791AbWKOSFw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030792AbWKOSFw
+	id S1030771AbWKOSFE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:05:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030787AbWKOSFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:05:52 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2715 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030791AbWKOSFu (ORCPT
+	Wed, 15 Nov 2006 13:05:04 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:8613 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1030771AbWKOSFA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:05:50 -0500
-Date: Wed, 15 Nov 2006 19:04:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: sleeping functions called in invalid context during resume
-Message-ID: <20061115180436.GB29795@elte.hu>
-References: <20061114223002.10c231bd@localhost.localdomain> <20061115012025.13c72fc1.akpm@osdl.org> <20061115093354.GA30813@elte.hu> <20061115100119.460b7a4e@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Nov 2006 13:05:00 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] i386-pda UP optimization
+Date: Wed, 15 Nov 2006 19:05:04 +0100
+User-Agent: KMail/1.9.5
+Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>, akpm@osdl.org,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <20061115173252.GA24062@elte.hu> <455B557C.7020602@goop.org>
+In-Reply-To: <455B557C.7020602@goop.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061115100119.460b7a4e@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200611151905.04712.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 15 November 2006 18:59, Jeremy Fitzhardinge wrote:
+> Ingo Molnar wrote:
+> > i said this before: using segmentation tricks these days is /insane/.
+> > Segmentation is not for free, and it's not going to be cheap in the
+> > future. In fact, chances are that it will be /more/ expensive in the
+> > future, because sane OSs just make no use of them besides the trivial
+> > "they dont even exist" uses.
+>
+> Many, many systems use %fs/%gs to implement some kind of thread-local
+> storage, and such usage is becoming more common; the PDA's use of it in
+> the kernel is no different.  I would agree that using all the obscure
+> corners of segmentation is just asking for trouble, but using %gs as an
+> address offset seems like something that's going to be efficient on x86
+> 32/64 processors indefinitely.
+>
+> > so /at a minimum/, as i suggested it before, the kernel's segment use
+> > should not overlap that of glibc's. I.e. the kernel should use %fs, not
+> > %gs.
+>
+> Last time you raised this I did a pretty comprehensive set of tests
+> which showed there was flat out zero difference between using %fs and
+> %gs.  There doesn't seem to be anything to the theory that reloading a
+> null segment selector is in any way cheaper than loading a real
+> selector.  Did you find a problem in my methodology?
 
-* Stephen Hemminger <shemminger@osdl.org> wrote:
+I have the feeling (most probably wrong, but I prefer to speak than keeping 
+this for myself) that the cost of segment load is delayed up to the first use 
+of a segment selector. Sort of a lazy reload...
 
-> > The patch below makes use of that capability of lockdep for all 
-> > stackdumps that are printed to the console. Stephen, please apply 
-> > this patch, enable CONFIG_PROVE_LOCKING and try to trigger another 
-> > message.
-> 
-> I tried but with CONFIG_PROVE_LOCKING, resume gets stuck in an 
-> infinite loop backtracing to the console.  Unfortunately, the serial 
-> console isn't up at that point so it it isn't capturable.
+I had this crazy idea while looking at oprofile numbers
 
-hm - could you change the stack- UNWIND option (to on or off) to see 
-whether that makes a difference? If it doesnt help, could you try 
-CONFIG_DISABLE_CONSOLE_SUSPEND [but that might hang your resume earlier 
-than the bug triggers].
-
-	Ingo

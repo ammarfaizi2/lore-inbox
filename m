@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031009AbWKOWcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162009AbWKOWfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031009AbWKOWcM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 17:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031013AbWKOWcM
+	id S1162009AbWKOWfV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 17:35:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162012AbWKOWfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 17:32:12 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61447 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1031009AbWKOWcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 17:32:10 -0500
-Date: Wed, 15 Nov 2006 23:32:09 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc5: known regressions (v3)
-Message-ID: <20061115223209.GB31879@stusta.de>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061115102122.GQ22565@stusta.de> <455AF4AE.9030606@ens-lyon.org>
+	Wed, 15 Nov 2006 17:35:21 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:57754 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1162009AbWKOWfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 17:35:19 -0500
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
+	<20061114.190036.30187059.davem@davemloft.net>
+	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
+	<20061114.192117.112621278.davem@davemloft.net>
+	<s5hbqn99f2v.wl%tiwai@suse.de> <20061115112014.54de5b2c@freekitty>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 15 Nov 2006 14:35:16 -0800
+In-Reply-To: <20061115112014.54de5b2c@freekitty> (Stephen Hemminger's message of "Wed, 15 Nov 2006 11:20:14 -0800")
+Message-ID: <adahcx0wd7f.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <455AF4AE.9030606@ens-lyon.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-OriginalArrivalTime: 15 Nov 2006 22:35:16.0833 (UTC) FILETIME=[52E1C510:01C70906]
+Authentication-Results: sj-dkim-1; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim1002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 12:06:22PM +0100, Brice Goglin wrote:
-> Adrian Bunk wrote:
-> > Subject : unable to rip cd
-> > References : http://lkml.org/lkml/2006/10/13/100
-> > http://lkml.org/lkml/2006/11/8/42
-> > Submitter : Alex Romosan <romosan@sycorax.lbl.gov>
-> > Handled-By : Jens Axboe <jens.axboe@oracle.com>
-> > Status : Jens is investigating
-> 
-> I think this one is already fixed.
+ > A whitelist is an awkward solution, the problem is the number of
+ > chipsets available with MSI will continue to grow. And the assumption
+ > is that after Microsoft OS supports MSI, that newer chipsets will work.
 
-Thanks for this information (Jens already told me the same).
+Maybe a whitelist for older systems and then enable everything after a
+DMI cutoff date by default?  Doesn't work on non-PC stuff though...
 
-> Brice
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ - R.

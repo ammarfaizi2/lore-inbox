@@ -1,101 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966808AbWKOMkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966805AbWKOMpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966808AbWKOMkk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 07:40:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966805AbWKOMkk
+	id S966805AbWKOMpV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 07:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966813AbWKOMpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 07:40:40 -0500
-Received: from pxy2nd.nifty.com ([202.248.175.14]:9409 "HELO pxy2nd.nifty.com")
-	by vger.kernel.org with SMTP id S966808AbWKOMkj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 07:40:39 -0500
+	Wed, 15 Nov 2006 07:45:21 -0500
+Received: from nz-out-0102.google.com ([64.233.162.194]:54136 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S966809AbWKOMpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 07:45:18 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=pxy2nd-default; d=nifty.com;
-  b=MoQsQHD1uxu/vu8wqILCvkqkQs3LhtjhAnfWgMFaK0JtMkU2eMHiOK5k9EfXX19jLz+PNwio20LjgVrgEqSWeg==  ;
-Message-ID: <11129007.324261163594437361.komurojun-mbn@nifty.com>
-Date: Wed, 15 Nov 2006 21:40:37 +0900 (JST)
-From: Komuro <komurojun-mbn@nifty.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] Use delayed disable mode of ioapic edge triggered interrupts
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Komuro <komurojun-mbn@nifty.com>, tglx@linutronix.de,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m18xidlxv7.fsf_-_@ebiederm.dsl.xmission.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=KDqZmP8SJarUp/XiHHu0rr9aUrR1yIE+Tw4BCNwH0NbJ0YxdsE0Y28mL2H7kxST9+vs8M61nY73IFqJC7qiIzq85RHKFSU4BDJi1Rdj8eVYPq6iFtgxnNIPnMLMMGbVhJgjShl0YaqTmYSo2e2bXaFv4FWenL5sob35lUx2taE0=
+Message-ID: <455B0BD7.20108@gmail.com>
+Date: Wed, 15 Nov 2006 21:45:11 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.7 (X11/20061014)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
+To: "Berck E. Nash" <flyboy@gmail.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18 - AHCI detection pauses excessively
+References: <4557B7D2.2050004@gmail.com>
+In-Reply-To: <4557B7D2.2050004@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: @nifty Webmail 2.0
-References: <m18xidlxv7.fsf_-_@ebiederm.dsl.xmission.com>
- <Pine.LNX.4.64.0611080749090.3667@g5.osdl.org>
-	<1162985578.8335.12.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
-	<20061108085235.GT4729@stusta.de>
-	<7813413.118221162987983254.komurojun-mbn@nifty.com>
-	<11940937.327381163162570124.komurojun-mbn@nifty.com>
-	<Pine.LNX.4.64.0611130742440.22714@g5.osdl.org>
-	<m13b8ns24j.fsf@ebiederm.dsl.xmission.com>
-	<1163450677.7473.86.camel@earth>
-	<m1bqnboxv5.fsf@ebiederm.dsl.xmission.com>
-	<1163492040.28401.76.camel@earth>
-	<Pine.LNX.4.64.0611140757040.31445@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I tried the Eric's patch instead of Ingo's
-with 2.6.19-rc5.
-
-
-The interrupt is generated properly.
-
-Thanks!
-
-Best Regards
-Komuro
-
-
->
->Hopefully this is the trivial patch that solves the problem.
->
->Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
->
->diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
->index ad84bc2..3b7a63e 100644
->--- a/arch/i386/kernel/io_apic.c
->+++ b/arch/i386/kernel/io_apic.c
->@@ -1287,9 +1287,11 @@ static void ioapic_register_intr(int irq
-> 			trigger == IOAPIC_LEVEL)
-> 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
-> 					 handle_fasteoi_irq, "fasteoi");
->-	else
->+	else {
->+		irq_desc[irq].status |= IRQ_DELAYED_DISABLE;
-> 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
-> 					 handle_edge_irq, "edge");
->+	}
-> 	set_intr_gate(vector, interrupt[irq]);
-> }
+Berck E. Nash wrote:
+> AHCI pauses heartily on during detection boot, but eventually proceeds. 
+>  I've mentioned the problem before, but have since narrowed it down a 
+> bit.  The problem does not occur in 2.6.17.3, but does occur in 2.6.18. 
+>  The problem is still occurring both in 2.6.19-rc5 as well as 
+> 2.6.19-rc5-mm1.
 > 
->diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
->index 41bfc49..14654e6 100644
->--- a/arch/x86_64/kernel/io_apic.c
->+++ b/arch/x86_64/kernel/io_apic.c
->@@ -790,9 +790,11 @@ static void ioapic_register_intr(int irq
-> 			trigger == IOAPIC_LEVEL)
-> 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
-> 					      handle_fasteoi_irq, "fasteoi");
->-	else
->+	else {
->+		irq_desc[irq].status |= IRQ_DELAYED_DISABLE;
-> 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
-> 					      handle_edge_irq, "edge");
->+	}
-> }
+> Please cc me on replies since I am not subscribed to LKML.
 > 
-> static void __init setup_IO_APIC_irqs(void)
->
+> Messages surrounding the hang:
+> 
+> scsi2 : ahci
+> ata2: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+> ata2.00: qc timeout (cmd 0xec)
+> ata2.00: failed to IDENTIFY (I/O error, err_mask=0x104)
+> ata2: port is slow to respond, please be patient (Status 0x80)
+> ata2: port failed to respond (30 secs, Status 0x80)
+> ata2: COMRESET failed (device not ready)
+> ata2: hardreset failed, retrying in 5 secs
+> ata2: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+> ata2.00: ATA-6, max UDMA/133, 640 sectors: LBA
+> ata2.00: ata2: dev 0 multi count 1
+> ata2.00: configured for UDMA/133
+> 
+> I should note that on this system ata1 and ata3 both detect quickly, but 
+> they have 1.5 Gbps devices whereas ata2 has a 3.0Gbps device.
 
+Hmmm.. Can you try with the attached patch applied?  Also, please turn 
+on kernel config 'Kernel Hacking -> Show timing info on printks' and 
+report boot dmesg.
+
+Thanks.
+
+-- 
+tejun

@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030727AbWKORWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030730AbWKORX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030727AbWKORWj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:22:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030728AbWKORWj
+	id S1030730AbWKORX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030728AbWKORX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:22:39 -0500
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:55464 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030727AbWKORWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:22:38 -0500
-Date: Wed, 15 Nov 2006 18:23:11 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: "Kay Sievers" <kay.sievers@vrfy.org>, "Greg KH" <greg@kroah.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Subject: Re: [Patch -mm 2/5] driver core: Introduce device_move(): move a
- device to a new parent.
-Message-ID: <20061115182311.70821c97@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <d120d5000611150844s16980cf3r2fca9a71d439cbed@mail.gmail.com>
-References: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
-	<20061115065052.GC23810@kroah.com>
-	<20061115082856.195ca0ab@gondolin.boeblingen.de.ibm.com>
-	<3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
-	<20061115102409.6e6e5dc0@gondolin.boeblingen.de.ibm.com>
-	<1163583119.4244.6.camel@pim.off.vrfy.org>
-	<20061115111136.3542aca3@gondolin.boeblingen.de.ibm.com>
-	<d120d5000611150844s16980cf3r2fca9a71d439cbed@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Nov 2006 12:23:26 -0500
+Received: from ns2.suse.de ([195.135.220.15]:8650 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030730AbWKORX0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 12:23:26 -0500
+From: Andi Kleen <ak@suse.de>
+To: patches@x86-64.org
+Subject: Re: [patches] Re: [PATCH] x86-64: adjust pmd_bad()
+Date: Wed, 15 Nov 2006 18:23:20 +0100
+User-Agent: KMail/1.9.5
+Cc: Hugh Dickins <hugh@veritas.com>, Jan Beulich <jbeulich@novell.com>,
+       linux-kernel@vger.kernel.org
+References: <455B3AF2.76E4.0078.0@novell.com> <Pine.LNX.4.64.0611151658520.24160@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0611151658520.24160@blonde.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611151823.20520.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 11:44:36 -0500,
-"Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
+On Wednesday 15 November 2006 18:01, Hugh Dickins wrote:
+> On Wed, 15 Nov 2006, Jan Beulich wrote:
+> 
+> > Make pmd_bad() symmetrical to pgd_bad() and pud_bad(). At once,
+> > simplify them all.
+> 
+> Symmetrical and simpler, yes, but you're weakening the pmd_bad() test:
+> no longer requires that all those _KERNPG_TABLE bits be set.  Wouldn't
+> it be better to go the other way and strengthen pgd_bad, pud_bad?
 
-> Why do we need to have them at all? Devices should not "move" in the
-> trees - it it moves we should just treat them as old devices going
-> away and new devices appearing...
+That's a good point. Yes that would be better.  If it works :) 
 
-But unregistering and re-registering is exactly what we want to avoid
-in our case. We have still the same ccw device, it's only now
-operational via another subchannel (i. e. the topology changed, but not
-the device). If we unregistered the device, we would also kill the
-associated block device(s), and if it had been mounted, we go boom.
-(This is what currently happens without this patchset, and it may be
-triggered by a short hardware outage we'd otherwise survive without a
-problem.)
+They can't be completely the same because we don't set large page bits on
+PGDs (on PUDs we will eventually with 1GB pages) 
 
--- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com
+-Andi

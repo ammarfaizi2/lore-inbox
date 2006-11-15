@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030869AbWKOStg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030833AbWKOSvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030869AbWKOStg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:49:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030868AbWKOStf
+	id S1030833AbWKOSvE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030868AbWKOSvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:49:35 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:32144 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030863AbWKOStd (ORCPT
+	Wed, 15 Nov 2006 13:51:04 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:32735 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030838AbWKOSvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:49:33 -0500
-Message-ID: <455B6131.1@pobox.com>
-Date: Wed, 15 Nov 2006 13:49:21 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Vasily Averin <vvs@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org, devel@openvz.org
-Subject: Re: [Q] PCI Express and ide (native) leads to irq storm?
-References: <453DC2A9.8000507@sw.ru> <453DC65C.8000408@sw.ru>	 <454206EE.9080206@sw.ru> <1161958862.16839.26.camel@localhost.localdomain> <4559879D.8090105@sw.ru> <455AF01C.5090307@gmail.com>
-In-Reply-To: <455AF01C.5090307@gmail.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Wed, 15 Nov 2006 13:51:01 -0500
+Date: Wed, 15 Nov 2006 19:49:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, Michael.Fetterman@cl.cam.ac.uk,
+       Ian Campbell <Ian.Campbell@XenSource.com>
+Subject: Re: i386 PDA patches use of %gs
+Message-ID: <20061115184936.GA6389@elte.hu>
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <45075829.701@goop.org> <20060913095942.GA10075@elte.hu> <45082F1C.8000003@goop.org> <20061115182613.GA2227@elte.hu> <455B5ED8.5090005@goop.org> <20061115184315.GA5078@elte.hu> <455B611C.3010503@goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <455B611C.3010503@goop.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> In short, some piix controllers including ICH7, when put into enhanced 
-> mode (PCI native mode), uses BMDMA Interrupt bit as interrupt 
-> pending/clear bit for *all* commands.  ie. Reading STATUS does NOT clear 
 
-Yep.  I thought I had mentioned this, ages ago.
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
+> Ingo Molnar wrote:
+> > but it does not actually use the 'normal usermode TLS selector' - it 
+> > only loads it.
+> >
+> > a meaningful test would be to allocate two selector values and load and 
+> > read+write memory through both of them.
+> >   
+> 
+> Well, obviously in one case it would need to switch between 
+> null/non-null/null.  But yes, good point about using the "usermode" 
+> %gs each iteration.  I'll do some more tests.
 
-> Fortunately, libata is immune to the problem because it does 
-> ap->ops->irq_clear(ap) in ata_host_intr() regardless of command type in 
-> flight.  So, not loading IDE piix and using libata to drive all piix 
-> ports solves the problem.
+i'd not even use glibc's %gs but set up two separate selectors. (that's 
+a more controlled experiment - someone might run a non-TLS glibc, etc.)
 
-Yep, that's intentional :)
-
-	Jeff
-
-
-
+	Ingo

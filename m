@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966607AbWKOBRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966611AbWKOBVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966607AbWKOBRI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 20:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966609AbWKOBRH
+	id S966611AbWKOBVm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 20:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966612AbWKOBVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 20:17:07 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:24766 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S966607AbWKOBRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 20:17:06 -0500
-Message-Id: <200611150117.kAF1H3CD012244@dell2.home>
-To: linux-kernel@vger.kernel.org
-Subject: RFC  -- /proc/patches to track development 
+	Tue, 14 Nov 2006 20:21:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27078 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S966611AbWKOBVl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 20:21:41 -0500
+Date: Tue, 14 Nov 2006 17:17:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Ingo Molnar <mingo@redhat.com>, Komuro <komurojun-mbn@nifty.com>,
+       tglx@linutronix.de, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use delayed disable mode of ioapic edge triggered
+ interrupts
+In-Reply-To: <m18xidlxv7.fsf_-_@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.64.0611141706300.3349@woody.osdl.org>
+References: <Pine.LNX.4.64.0611080749090.3667@g5.osdl.org>
+ <1162985578.8335.12.camel@localhost.localdomain> <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+ <20061108085235.GT4729@stusta.de> <7813413.118221162987983254.komurojun-mbn@nifty.com>
+ <11940937.327381163162570124.komurojun-mbn@nifty.com>
+ <Pine.LNX.4.64.0611130742440.22714@g5.osdl.org> <m13b8ns24j.fsf@ebiederm.dsl.xmission.com>
+ <1163450677.7473.86.camel@earth> <m1bqnboxv5.fsf@ebiederm.dsl.xmission.com>
+ <1163492040.28401.76.camel@earth> <Pine.LNX.4.64.0611140757040.31445@g5.osdl.org>
+ <m18xidlxv7.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <12177.1163553423.1@dell2.home>
-Date: Tue, 14 Nov 2006 20:17:03 -0500
-From: "Marty Leisner" <leisner@rochester.rr.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I always want to know WHAT I'm running (or people I'm working with
-are running) rather than  "guessing" ("do you have the most current 
-patch" "I think so")
-
-I've been a proponent of capturing .config information SOMEPLACE where
-you can look at it at runtime...(it took a while but its there now).
 
 
-In /proc/patches there would be a series of comments (perhaps including
-file, date and time) of various patches you want to monitor.  
+On Tue, 14 Nov 2006, Eric W. Biederman wrote:
+> 
+> Hopefully this is the trivial patch that solves the problem.
 
-It would be enabled by something like
+Ok, having looked more at this, I have to say that the whole 
+"IRQ_DELAYED_DISABLE" thing seems very fragile indeed.
 
-in file foo.c:
-PATCH_COMMENT("this enables the foo feature");
+It looks like we should do it not only for APIC edge-triggered interrupts, 
+but for HT and MSI interrupts too, as far as I can tell (at least they 
+also use the "handle_edge_irq" routine)
 
+So I'm wondering how many other cases there are that are missing this.
 
-In membar.c:
-PATCH_COMMENT("go to the bar on saturday");
-...
-PATCH_COMMENT("watch how much you drink");
+In that sense, Ingo's patch was a lot safer, although I still dislike it 
+for all the other reasons I mentioned - it's simply wrong to re-send a 
+level-triggered irq.
 
+I don't know MSI and HT interrupts well enough to tell whether they will 
+re-trigger on their own when we unmask them, but the point is, this 
+_looks_ like it might be incomplete.
 
-and in /proc/patches:
+I think part of the problem is a bad interface. We should simply never set 
+the IRQ handler on its own. It should be a field in the "irq_chip" 
+structure, and we should use _different_ irq chip structures for level and 
+edge-triggered. Then we should also add the "flags" thing there, and you 
+could do something like
 
-foo.c: compiled <date> <time>:this enables the foo feature
-membar.c: compiled <date> <time>:go to the bar on saturday
-member.c: compiled <date> <time>:watch how much you drink
+	static struct irq_chip level_ioapic_chip = {
+		..
 
-There would be a Kconfig flag whether or not to enable this (i.e.
-production kernels would not need it,
-hacked kernels would, it could always be there if you're willing to
-increase the footprint).
+instead of making the insane decision to use the "same" chip for all 
+ioapic things.
 
-Instead of looking for aberrant behavior to identify patches, you could easily
-see things with cat.
+Ingo? Eric? Comments?
 
-Seems very easy and has high ROI if you need to track patched kernels locally.
-
-
-marty
-
+		Linus
 

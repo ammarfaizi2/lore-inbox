@@ -1,88 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966089AbWKOMjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966808AbWKOMkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966089AbWKOMjG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 07:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966807AbWKOMjG
+	id S966808AbWKOMkk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 07:40:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966805AbWKOMkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 07:39:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:5033 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S966089AbWKOMjD (ORCPT
+	Wed, 15 Nov 2006 07:40:40 -0500
+Received: from pxy2nd.nifty.com ([202.248.175.14]:9409 "HELO pxy2nd.nifty.com")
+	by vger.kernel.org with SMTP id S966808AbWKOMkj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 07:39:03 -0500
-Message-ID: <455B0A58.9080303@RedHat.com>
-Date: Wed, 15 Nov 2006 07:38:48 -0500
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 Red Hat/1.0.5-0.1.el4 SeaMonkey/1.0.5
+	Wed, 15 Nov 2006 07:40:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=pxy2nd-default; d=nifty.com;
+  b=MoQsQHD1uxu/vu8wqILCvkqkQs3LhtjhAnfWgMFaK0JtMkU2eMHiOK5k9EfXX19jLz+PNwio20LjgVrgEqSWeg==  ;
+Message-ID: <11129007.324261163594437361.komurojun-mbn@nifty.com>
+Date: Wed, 15 Nov 2006 21:40:37 +0900 (JST)
+From: Komuro <komurojun-mbn@nifty.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] Use delayed disable mode of ioapic edge triggered interrupts
+Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Komuro <komurojun-mbn@nifty.com>, tglx@linutronix.de,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m18xidlxv7.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
-       trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com
-Subject: Re: [PATCH 05/19] NFS: Use local caching
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200632.12943.72086.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20061114200632.12943.72086.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: @nifty Webmail 2.0
+References: <m18xidlxv7.fsf_-_@ebiederm.dsl.xmission.com>
+ <Pine.LNX.4.64.0611080749090.3667@g5.osdl.org>
+	<1162985578.8335.12.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<20061108085235.GT4729@stusta.de>
+	<7813413.118221162987983254.komurojun-mbn@nifty.com>
+	<11940937.327381163162570124.komurojun-mbn@nifty.com>
+	<Pine.LNX.4.64.0611130742440.22714@g5.osdl.org>
+	<m13b8ns24j.fsf@ebiederm.dsl.xmission.com>
+	<1163450677.7473.86.camel@earth>
+	<m1bqnboxv5.fsf@ebiederm.dsl.xmission.com>
+	<1163492040.28401.76.camel@earth>
+	<Pine.LNX.4.64.0611140757040.31445@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> The attached patch makes it possible for the NFS filesystem to make use of the
-> network filesystem local caching service (FS-Cache).
+Hi,
+
+I tried the Eric's patch instead of Ingo's
+with 2.6.19-rc5.
+
+
+The interrupt is generated properly.
+
+Thanks!
+
+Best Regards
+Komuro
+
+
+>
+>Hopefully this is the trivial patch that solves the problem.
+>
+>Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+>
+>diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+>index ad84bc2..3b7a63e 100644
+>--- a/arch/i386/kernel/io_apic.c
+>+++ b/arch/i386/kernel/io_apic.c
+>@@ -1287,9 +1287,11 @@ static void ioapic_register_intr(int irq
+> 			trigger == IOAPIC_LEVEL)
+> 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
+> 					 handle_fasteoi_irq, "fasteoi");
+>-	else
+>+	else {
+>+		irq_desc[irq].status |= IRQ_DELAYED_DISABLE;
+> 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
+> 					 handle_edge_irq, "edge");
+>+	}
+> 	set_intr_gate(vector, interrupt[irq]);
+> }
 > 
-> To be able to use this, an updated mount program is required.  This can be
-> obtained from:
+>diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+>index 41bfc49..14654e6 100644
+>--- a/arch/x86_64/kernel/io_apic.c
+>+++ b/arch/x86_64/kernel/io_apic.c
+>@@ -790,9 +790,11 @@ static void ioapic_register_intr(int irq
+> 			trigger == IOAPIC_LEVEL)
+> 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
+> 					      handle_fasteoi_irq, "fasteoi");
+>-	else
+>+	else {
+>+		irq_desc[irq].status |= IRQ_DELAYED_DISABLE;
+> 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
+> 					      handle_edge_irq, "edge");
+>+	}
+> }
 > 
-> 	http://people.redhat.com/steved/cachefs/util-linux/
-> 
-> To mount an NFS filesystem to use caching, add an "fsc" option to the mount:
-> 
-> 	mount warthog:/ /a -o fsc
-Note: the nfs mounting code has recently moved from util-linux
-into nfs-utils but the functionality is off by default (hopefully that
-will change soon). In Fedora Core 6 we've decided to go ahead and
-turn on the mount code which in turned allowed us to added
-the '-o fsc' mounting flag. So with FC6, there is no need
-to download a modified util-linux.
-
-> +static inline void nfs_fscache_get_fh_cookie(struct inode *inode, int aycache) {}
-> +static inline void nfs_fscache_release_fh_cookie(struct inode *inode) {}
-> +static inline void nfs_fscache_zap_fh_cookie(struct inode *inode) {}
-> +static inline void nfs_fscache_renew_fh_cookie(struct inode *inode) {}
-> +static inline void nfs_fscache_disable_fh_cookie(struct inode *inode) {}
-
-To create a cleaner and more scalable "cookie" interface into NFS,
-I suggest that we remove the type of cookie from the name of the
-cookie routines (meaning remove the _fh_ from the names) and bury
-that type of information in the actual cookie routines. The last
-thing the NFS code should care about is the type of cookie it needs
-to use.. those decisions should exist in the cookie routines, not
-in the mainline code... imho...
-
-So resulting in routines would like:
-
-static inline void nfs_fscache_get_cookie(struct inode *inode) {}
-static inline void nfs_fscache_release_cookie(struct inode *inode) {}
-static inline void nfs_fscache_zap_cookie(struct inode *inode) {}
-static inline void nfs_fscache_renew_cookie(struct inode *inode) {}
-static inline void nfs_fscache_disable_cookie(struct inode *inode) {}
-
-Then instead of just having a fscache_cookie hang off the NFS inode,
-have a pointer to a nfs_fscache_cookie structure:
-
-struct nfs_fscache_cookie {
-     int   type;   /* the type cookie: FILE, READDIR, XATTR, etc */
-     ulong flags;  /* Doesn't all interfaces need flags :-) */
-     void *cookie; /* the actual cookie */
-};
-
-Using an interface like this, would allow all the ugly cookie processing
-to stay far away from the mainline NFS code, also makes the interface
-into NFS much cleaner, simpler and scalable. Finally all changes (i.e. 
-adding another cookie type) would be isolated away from the mainline
-code and confined to a couple files.
-
-Comments?
-
-steved.
+> static void __init setup_IO_APIC_irqs(void)
+>
 

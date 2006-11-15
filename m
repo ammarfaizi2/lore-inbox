@@ -1,81 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030699AbWKOQwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030703AbWKOQyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030699AbWKOQwR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030701AbWKOQwR
+	id S1030703AbWKOQyI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030700AbWKOQyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:52:17 -0500
-Received: from [69.90.0.18] ([69.90.0.18]:11737 "EHLO mtl.rackplans.net")
-	by vger.kernel.org with ESMTP id S1030699AbWKOQwP (ORCPT
+	Wed, 15 Nov 2006 11:54:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32698 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030703AbWKOQyE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:52:15 -0500
-Date: Wed, 15 Nov 2006 11:52:05 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-X-X-Sender: gmack@mtl.rackplans.net
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Marc Perkel <mperkel@yahoo.com>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Majordomo is an obsolete piece of junk and Kernel should not be
- running it!
-In-Reply-To: <20061115054124.GA29920@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0611151141380.9849@mtl.rackplans.net>
-References: <20061114.200507.21927677.davem@davemloft.net>
- <20061115042335.11460.qmail@web52506.mail.yahoo.com> <20061115054124.GA29920@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Nov 2006 11:54:04 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+To: trond.myklebust@fys.uio.no, torvalds@osdl.org, akpm@osdl.org,
+       sds@tycho.nsa.gov
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+       aviro@redhat.com, steved@redhat.com
+Subject: [PATCH 24/19] FS-Cache: NFS: Remove old support for R/W caching
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 15 Nov 2006 16:51:47 +0000
+Message-ID: <31408.1163609507@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006, Al Viro wrote:
 
-> Date: Wed, 15 Nov 2006 05:41:24 +0000
-> From: Al Viro <viro@ftp.linux.org.uk>
-> To: Marc Perkel <mperkel@yahoo.com>
-> Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
-> Subject: Re: Majordomo is an obsolete piece of junk and Kernel should not be
->     running it!
-> 
-> On Tue, Nov 14, 2006 at 08:23:35PM -0800, Marc Perkel wrote:
->  
-> > This is the only list I get booted from so that makes
-> > me think the problem is with the list and not with me.
-> > It seems that you are also using 12 year old software
-> > as well.  Why not get something modern like Mailman
-> > like most other lists use and then you don't have to
-> > be watching the bounces? 
-> > 
-> > The problem is that you are running Majordomo which in
-> > it's day was great, but is day has passed. 
-> 
-> Feel free to start your own maillist.  And do whatever the bleeding
-> fsck you want to do there.
->  
-> > The bottom line is that you keep booting me off for
-> > minor problems.
-> 
-> Such as being an obnoxious luser?
-> 
-> > I would think that you should fix it.
-> 
-> FWIW, so do I - and I'm amazed by the mildness of corrective
-> measures taken so far.
-> 
+Remove old support for caching of files that are opened for writing.  This is
+not currently supported, and so the bits that enabled it are currently useless.
 
-I'd just like to point out how very broken your mail server has to be 
-before ending up dropped from the list.  I've been dropped three times 
-that I can think of off the top of my head.  Two were multi day outages of 
-my mail server and one was a serious misconfig that caused everything to 
-bounce for sereral hours.
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-Someone needs to suck it up and fix his mail server.
+ fs/nfs/fscache.c |   11 -----------
+ fs/nfs/fscache.h |   32 --------------------------------
+ fs/nfs/inode.c   |    1 -
+ fs/nfs/write.c   |    3 ---
+ 4 files changed, 0 insertions(+), 47 deletions(-)
 
-	Gerhard
-
-
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index 81286f6..6bdd1f2 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -334,14 +334,3 @@ void nfs_readpage_from_fscache_complete(
+ 			unlock_page(page);
+ 	}
+ }
+-
+-/*
+- * handle completion of a page being read from the cache
+- * - really need to synchronise the end of writeback, probably using a page
+- *   flag, but for the moment we disable caching on writable files
+- */
+-void nfs_writepage_to_fscache_complete(struct page *page,
+-				       void *data,
+-				       int error)
+-{
+-}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index b82b896..92c2dbf 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -425,33 +425,6 @@ static inline int nfs_readpages_from_fsc
+ 	return ret;
+ }
+ 
+-/*
+- * store an updated page in fscache
+- */
+-extern void nfs_writepage_to_fscache_complete(struct page *page, void *data, int error);
+-
+-static inline void nfs_writepage_to_fscache(struct inode *inode,
+-					    struct page *page)
+-{
+-	int error;
+-
+-	if (PageNfsCached(page) && NFS_I(inode)->fscache) {
+-		dfprintk(FSCACHE,
+-			 "NFS: writepage_to_fscache (0x%p/0x%p/0x%p)\n",
+-			 NFS_I(inode)->fscache, page, inode);
+-
+-		error = fscache_write_page(NFS_I(inode)->fscache, page,
+-					   nfs_writepage_to_fscache_complete,
+-					   NULL, GFP_KERNEL);
+-		if (error != 0) {
+-			dfprintk(FSCACHE,
+-				 "NFS:    fscache_write_page error %d\n",
+-				 error);
+-			fscache_uncache_page(NFS_I(inode)->fscache, page);
+-		}
+-	}
+-}
+-
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+ static inline void nfs_fscache_unregister(void) {}
+@@ -493,10 +466,5 @@ static inline int nfs_readpages_from_fsc
+ 	return -ENOBUFS;
+ }
+ 
+-static inline void nfs_writepage_to_fscache(struct inode *inode, struct page *page)
+-{
+-	BUG_ON(PageNfsCached(page));
+-}
+-
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 25376a5..3409448 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -381,7 +381,6 @@ void nfs_setattr_update_inode(struct ino
+ 	if ((attr->ia_valid & ATTR_SIZE) != 0) {
+ 		nfs_inc_stats(inode, NFSIOS_SETATTRTRUNC);
+ 		inode->i_size = attr->ia_size;
+-		nfs_fscache_set_size(inode);
+ 		vmtruncate(inode, attr->ia_size);
+ 	}
+ }
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 77d0d9d..a2e0570 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -340,9 +340,6 @@ do_it:
+ 		err = -EBADF;
+ 		goto out;
+ 	}
+-
+-	nfs_writepage_to_fscache(inode, page);
+-
+ 	lock_kernel();
+ 	if (!IS_SYNC(inode) && inode_referenced) {
+ 		err = nfs_writepage_async(ctx, inode, page, 0, offset);

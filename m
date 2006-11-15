@@ -1,71 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966707AbWKOJXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966717AbWKOJ1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966707AbWKOJXh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 04:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966718AbWKOJXg
+	id S966717AbWKOJ1c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 04:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966718AbWKOJ1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 04:23:36 -0500
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:51737 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S966717AbWKOJXg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 04:23:36 -0500
-Date: Wed, 15 Nov 2006 10:24:09 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: "Kay Sievers" <kay.sievers@vrfy.org>
-Cc: "Greg KH" <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Subject: Re: [Patch -mm 2/5] driver core: Introduce device_move(): move a
- device to a new parent.
-Message-ID: <20061115102409.6e6e5dc0@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
-References: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
-	<20061115065052.GC23810@kroah.com>
-	<20061115082856.195ca0ab@gondolin.boeblingen.de.ibm.com>
-	<3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Nov 2006 04:27:32 -0500
+Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:57504 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S966717AbWKOJ1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 04:27:31 -0500
+Date: Wed, 15 Nov 2006 10:27:27 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: How to interpret MCE messages?
+Message-ID: <20061115092726.GA22720@piper.oerlikon.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20061108162022.GA4258@piper.madduck.net> <1163003354.23956.43.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+In-Reply-To: <1163003354.23956.43.camel@localhost.localdomain>
+X-OS: Debian GNU/Linux 4.0 kernel 2.6.18-2-amd64 x86_64
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+X-Spamtrap: madduck.bogus@madduck.net
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 09:44:33 +0100,
-"Kay Sievers" <kay.sievers@vrfy.org> wrote:
 
-> Udev and HAL, both will need an event for the moving, with the old
-> DEVPATH value in the environment. We want something like a "rename" or
-> "move" event. Without that, weird things will happen in userspace,
-> because the devpath is used as the key to the device during the whole
-> device lifetime. The only weird exception today is the netif rename
-> case, which is already handled by special code in udev.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Something like below (completely untested as my test box is currently
-inaccessible)? Wouldn't we need something similar for kobject_rename()
-as well?
+also sprach Alan Cox <alan@lxorguk.ukuu.org.uk> [2006.11.08.1729 +0100]:
+> > Before I go out and buy a new motherboard (as I assume that it's
+> > a L1/L2 cache problem),=20
+>=20
+> L1/L2 cache are on the CPU these days. Double check with the
+> processor docs and vendor but I think mcelog is actually trying to
+> tell you that the CPU wants to be warranty returned. It might also
+> of course be a heat problem.
 
----
- include/linux/kobject.h |    1 +
- lib/kobject.c           |    1 +
- 2 files changed, 2 insertions(+)
+I've cleaned the fan and cooler and put a huge fan next to the open
+case, blowing any heat out of it. I saw the errors again, even
+without any load.
 
---- linux-2.6-CH.orig/include/linux/kobject.h
-+++ linux-2.6-CH/include/linux/kobject.h
-@@ -47,6 +47,7 @@ enum kobject_action {
- 	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices (broken) */
- 	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* device offline */
- 	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* device online */
-+	KOBJ_MOVE	= (__force kobject_action_t) 0x08,	/* device move */
- };
- 
- struct kobject {
---- linux-2.6-CH.orig/lib/kobject.c
-+++ linux-2.6-CH/lib/kobject.c
-@@ -379,6 +379,7 @@ int kobject_move(struct kobject *kobj, s
- 	old_parent = kobj->parent;
- 	kobj->parent = new_parent;
- 	kobject_put(old_parent);
-+	kobject_uevent(kobj, KOBJ_MOVE);
- out:
- 	kobject_put(kobj);
- 	return error;
+Thus I guess the CPU is asking for retirement. I am just
+double-checking with you guys whether I can be sure that it's only
+the CPU, or whether it could also be the fault of the motherboard...
+
+Thanks,
+
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+spamtraps: madduck.bogus@madduck.net
+=20
+time wounds all heels.
+                                                       -- groucho marx
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature (GPG/PGP)
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFWt1+IgvIgzMMSnURAg+iAJ9+IZ3U+kiu4B69g4y9mOwmhKIBXwCgxd8z
+dMGGs3p6e90lIKqYx1NSxMU=
+=gi5G
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--

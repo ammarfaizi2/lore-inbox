@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030761AbWKORj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030729AbWKORna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030761AbWKORj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:39:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030763AbWKORj6
+	id S1030729AbWKORna (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030640AbWKORna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:39:58 -0500
-Received: from ns.suse.de ([195.135.220.2]:28576 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030762AbWKORj5 (ORCPT
+	Wed, 15 Nov 2006 12:43:30 -0500
+Received: from posti6.jyu.fi ([130.234.4.43]:29409 "EHLO posti6.jyu.fi")
+	by vger.kernel.org with ESMTP id S1030766AbWKORn3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:39:57 -0500
-Date: Wed, 15 Nov 2006 18:40:17 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Toralf =?iso-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>
-Cc: isdn4linux@listserv.isdn4linux.de, info@formula-n.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  fix build error for HISAX_NETJET
-Message-ID: <20061115174017.GB5158@pingi.kke.suse.de>
-Mail-Followup-To: Toralf =?iso-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>,
-	isdn4linux@listserv.isdn4linux.de, info@formula-n.de,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200611151808.56562.toralf.foerster@gmx.de>
-X-Operating-System: Linux 2.6.16.21-0.23-smp x86_64
-User-Agent: KMail/1.9.5
+	Wed, 15 Nov 2006 12:43:29 -0500
+Date: Wed, 15 Nov 2006 19:43:16 +0200 (EET)
+From: Tero Roponen <teanropo@jyu.fi>
+X-X-Sender: teanropo@jalava.cc.jyu.fi
+To: linux-kernel@vger.kernel.org
+cc: akpm@osdl.org
+Subject: [PATCH -mm] fb: modedb uses wrong default_mode
+Message-ID: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch fixes a build error for the  enter:now PCI card.
 
-Acked-by: Karsten Keil <kkeil@suse.de>
-Signed-off-by: Toralf Förster <toralf.foerster@gmx.de>
+It seems that default_mode is always overwritten in
+fb_find_mode() if caller gives its own modedb; this
+patch should fix it.
 
-diff --git a/drivers/isdn/hisax/Kconfig b/drivers/isdn/hisax/Kconfig
-index eb57a98..cfd2718 100644
---- a/drivers/isdn/hisax/Kconfig
-+++ b/drivers/isdn/hisax/Kconfig
-@@ -344,7 +344,7 @@ config HISAX_HFC_SX
+dmesg diff before and after the following patch:
 
- config HISAX_ENTERNOW_PCI
-        bool "Formula-n enter:now PCI card"
--       depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || FRV))
-+       depends on HISAX_NETJET && PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || FRV))
-        help
-          This enables HiSax support for the Formula-n enter:now PCI
-          ISDN card.
+ neofb: mapped framebuffer at c4a80000
+ -Mode (640x400) won't display properly on LCD
+ -Mode (640x400) won't display properly on LCD
+ -neofb v0.4.2: 2048kB VRAM, using 640x480, 31.469kHz, 59Hz
+ -Console: switching to colour frame buffer device 80x30
+ +neofb v0.4.2: 2048kB VRAM, using 800x600, 37.878kHz, 60Hz
+ +Console: switching to colour frame buffer device 100x37
+  fb0: MagicGraph 128XD frame buffer device
 
+Signed-off-by: Tero Roponen <teanropo@jyu.fi>
+---
 
-
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+--- linux-2.6.19-rc5-mm2/drivers/video/modedb.c.orig	2006-11-15 19:03:03.000000000 +0200
++++ linux-2.6.19-rc5-mm2/drivers/video/modedb.c	2006-11-15 19:02:57.000000000 +0200
+@@ -507,7 +507,7 @@ int fb_find_mode(struct fb_var_screeninf
+     }
+     if (!default_mode && db != modedb)
+ 	default_mode = &db[0];
+-    else
++    else if (!default_mode)
+ 	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
+ 
+     if (!default_bpp)

@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162072AbWKOXjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162071AbWKOXjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162072AbWKOXjk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 18:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162073AbWKOXjk
+	id S1162071AbWKOXjG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 18:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162072AbWKOXjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 18:39:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17086 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1162072AbWKOXjj (ORCPT
+	Wed, 15 Nov 2006 18:39:06 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:38849 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1162071AbWKOXjF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 18:39:39 -0500
-Date: Wed, 15 Nov 2006 15:36:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       Zachary Amsden <zach@vmware.com>,
-       "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
-Subject: Re: 2.6.19-rc5-mm2: paravirt X86_PAE=y compile error
-Message-Id: <20061115153614.a71f944d.akpm@osdl.org>
-In-Reply-To: <20061115231626.GC31879@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-	<20061115231626.GC31879@stusta.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 15 Nov 2006 18:39:05 -0500
+Date: Wed, 15 Nov 2006 17:39:00 -0600
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, "Steven M. French" <sfrench@us.ibm.com>
+Subject: [PATCH] eCryptfs: CIFS nlink fixes
+Message-ID: <20061115233859.GG3409@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006 00:16:26 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+When CIFS is the lower filesystem, the old lower dentry needs to be
+explicitly dropped from inside eCryptfs to force a revalidate. In
+addition, when CIFS is the lower filesystem, the inode attributes need
+to be copied back up from the lower inode to the eCryptfs inode on an
+eCryptfs revalidate.
 
-> Paravirt breaks CONFIG_X86_PAE=y compilation:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC      init/main.o
-> In file included from include2/asm/pgtable.h:245,
->                  from 
-> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/mm.h:40,
->                  from 
-> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/poll.h:11,
->                  from 
-> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/rtc.h:113,
->                  from 
-> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/efi.h:19,
->                  from 
-> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/init/main.c:43:
-> include2/asm/pgtable-3level.h:108: error: redefinition of 'pte_clear'
-> include2/asm/paravirt.h:365: error: previous definition of 'pte_clear' was here
-> include2/asm/pgtable-3level.h:115: error: redefinition of 'pmd_clear'
-> include2/asm/paravirt.h:370: error: previous definition of 'pmd_clear' was here
-> make[2]: *** [init/main.o] Error 1
-> 
+Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
 
-So it does.  Zach will save us.
+---
 
-How come allmodconfig doesn't select highmem?
+ fs/ecryptfs/dentry.c |    6 ++++++
+ fs/ecryptfs/inode.c  |    3 ++-
+ 2 files changed, 8 insertions(+), 1 deletions(-)
+
+ddef902c356e65e01e8ca3f2cc073613e8fffdec
+diff --git a/fs/ecryptfs/dentry.c b/fs/ecryptfs/dentry.c
+index 0b9992a..52d1e36 100644
+--- a/fs/ecryptfs/dentry.c
++++ b/fs/ecryptfs/dentry.c
+@@ -57,6 +57,12 @@ static int ecryptfs_d_revalidate(struct 
+ 	rc = lower_dentry->d_op->d_revalidate(lower_dentry, nd);
+ 	nd->dentry = dentry_save;
+ 	nd->mnt = vfsmount_save;
++	if (dentry->d_inode) {
++		struct inode *lower_inode =
++			ecryptfs_inode_to_lower(dentry->d_inode);
++
++		ecryptfs_copy_attr_all(dentry->d_inode, lower_inode);
++	}
+ out:
+ 	return rc;
+ }
+diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
+index ff4865d..fc0f624 100644
+--- a/fs/ecryptfs/inode.c
++++ b/fs/ecryptfs/inode.c
+@@ -470,6 +470,7 @@ out_lock:
+ 	unlock_dir(lower_dir_dentry);
+ 	dput(lower_new_dentry);
+ 	dput(lower_old_dentry);
++	d_drop(lower_old_dentry);
+ 	d_drop(new_dentry);
+ 	d_drop(old_dentry);
+ 	return rc;
+@@ -484,7 +485,7 @@ static int ecryptfs_unlink(struct inode 
+ 	lock_parent(lower_dentry);
+ 	rc = vfs_unlink(lower_dir_inode, lower_dentry);
+ 	if (rc) {
+-		ecryptfs_printk(KERN_ERR, "Error in vfs_unlink\n");
++		printk(KERN_ERR "Error in vfs_unlink; rc = [%d]\n", rc);
+ 		goto out_unlock;
+ 	}
+ 	ecryptfs_copy_attr_times(dir, lower_dir_inode);
+-- 
+1.3.3
+

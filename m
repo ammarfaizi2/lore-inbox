@@ -1,95 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755476AbWKODyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966117AbWKODzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755476AbWKODyk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 22:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966101AbWKODyk
+	id S966117AbWKODzG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 22:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966118AbWKODzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 22:54:40 -0500
-Received: from web52508.mail.yahoo.com ([206.190.48.191]:61067 "HELO
-	web52508.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1753757AbWKODyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 22:54:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=GNbvH3EKRClh8ksBnkUJ/eT0L0yQwD/Ml7Q6b2CV5sZlla/kX6HvgpjxTAdXgy8yxVIseRvWTi9fLlcO3nPfNu+wb2fukPKOewyLvs8x8zxew8gXA7NdgzZ6RjMyM3O4kextGQ60dDn7TCVHe8coFZnSTHHfySMlZqBjozXtfvQ=  ;
-Message-ID: <20061115035436.85558.qmail@web52508.mail.yahoo.com>
-Date: Tue, 14 Nov 2006 19:54:36 -0800 (PST)
-From: Marc Perkel <mperkel@yahoo.com>
-Subject: Re: Kernel list rejecting my email - braindead list
+	Tue, 14 Nov 2006 22:55:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14059 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S966117AbWKODzE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 22:55:04 -0500
+Date: Tue, 14 Nov 2006 19:54:38 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061114.191918.112264008.davem@davemloft.net>
+cc: jeff@garzik.org, linux-kernel@vger.kernel.org, tiwai@suse.de
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+In-Reply-To: <20061114.192117.112621278.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0611141935390.3349@woody.osdl.org>
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
+ <20061114.190036.30187059.davem@davemloft.net> <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
+ <20061114.192117.112621278.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
---- David Miller <davem@davemloft.net> wrote:
-
-> From: Marc Perkel <mperkel@yahoo.com>
-> Date: Tue, 14 Nov 2006 19:12:56 -0800 (PST)
+On Tue, 14 Nov 2006, David Miller wrote:
 > 
-> > So what? Yes sometimes the spam coming through
-> this
-> > list triggers a bounce. So what?
+> > Yours was still an example of "nice". And it had absolutely nothing
+> > to do with the _PROBLEM_.
 > 
-> I verified each and every time that I removed you
-> (at least 6 or 7
-> seperate occaisions) that your site was bouncing
-> repeatedly for
-> completely normal postings, not spam.
-> 
-> And I don't remove when you bounce "once", I do it
-> when your address
-> generates a series of bounces that doesn't look like
-> it will end any
-> time soon.
-> 
-> You've had to resubscribe multiple times, at what
-> point would it have
-> occured you to ask postmaster here what the problem
-> was so that you
-> could go ahead and correct it?
-> 
-> Your address caused problems on a continual and
-> repeated basis.
-> We're not talking about isolated bounces.
-> 
-> Anyways, all of this talk is about you defending
-> yourself.  There has
-> been no talk so far of correcting the problem, what
-> you're going to do
-> in the future to prevent this from reoccuring so
-> that I can remove the
-> block of your email address.
-> 
-> And a maybe even a nice little "sorry about that".
-> 
+> Understood.
 
+Btw, before somebody thinks I hate MSI - I'd absolutely _love_ for it to 
+work, because I think MSI has the potential of getting rid of a lot of irq 
+routing problems.
 
-If anyone should be sorry it should be you for taking
-me off the list in the first place. Why are you
-removing users every time a message bounces? That's
-extremely abnormal. I am part of a lot of lists and I
-have never seen anyone delete people based on a
-trivial number of bounces. Especially on a list that
-has as uch spam as this list does. 
+And that's more than just a "nice" - we've obviously had issues with 
+machines not working right because we didn't get the magic PIRQ tables or 
+ACPI crud right. 
 
-I bounce some messages - so what? 
+So I'd actually be thrilled if we could use MSI more. (And here, "MSI" 
+should be considered to also include "MSI-X" etc - please, no language 
+lawyering).
 
-The problem is that if this list kicks people off
-wrongly them the fault is with the list configuration.
-What you should be doing is fixing the list and not
-kicking people off the list.
+> Given current experience maybe white-lists are in fact the way
+> to go.
 
+The thing that worries me is that I can well believe that the Intel NB/SB 
+combination gets MSI 100% correct, and I'd love to whitelist it.
 
+HOWEVER - that's only true on systems with no other PCI bridges. Even if 
+you have an Intel NB/SB, what about other bridges in that same system, and 
+the devices behind them? 
 
- 
-____________________________________________________________________________________
-Do you Yahoo!?
-Everyone is raving about the all-new Yahoo! Mail beta.
-http://new.mail.yahoo.com
+Now, I think that a MSI thing should look like a PCI write to a magic 
+address (I'm really not very up on it, so correct me if I'm wrong), and 
+thus maybe bridges are bound to get it right, and the only thing we really 
+need to worry about is the host bridge. Maybe. In that case, it might be 
+sensible to have a host-bridge white-table, and if we know all Intel 
+bridges that claim to support MSI do so correctly, then maybe we can just 
+say "ok, always enable it for Intel host bridges".
+
+But right now I'm not convinced we really know what all goes wrong. Maybe 
+it's just broken NVidia and AMD bridges. But maybe it's also individual 
+devices that continue to (for example) raise _both_ the legacy IRQ line 
+_and_ send an MSI request.
+
+Maybe even Intel host bridges have all the same troubles with that, and 
+the reason we haven't seen it is that _usually_ an Intel host bridge goes 
+together with certain Intel MSI-capable chips (ie e1000, Intel HDA etc). 
+So for all we know, it's not necessarily the Intel host bridge that is the 
+magic thing to make things work, it could be something that just has a 
+high _correlation_ with an Intel host bridge.
+
+So call me a nervous nellie. 
+
+		Linus

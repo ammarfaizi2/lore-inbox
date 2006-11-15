@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030867AbWKOStG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030858AbWKOSrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030867AbWKOStG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030865AbWKOStF
+	id S1030858AbWKOSrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:47:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030861AbWKOSrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:49:05 -0500
-Received: from gw.goop.org ([64.81.55.164]:40079 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1030863AbWKOStB (ORCPT
+	Wed, 15 Nov 2006 13:47:24 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:17377 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030858AbWKOSrX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:49:01 -0500
-Message-ID: <455B611C.3010503@goop.org>
-Date: Wed, 15 Nov 2006 10:49:00 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Wed, 15 Nov 2006 13:47:23 -0500
+Message-ID: <455B60E5.2040201@us.ibm.com>
+Date: Wed, 15 Nov 2006 12:48:05 -0600
+From: Maynard Johnson <maynardj@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org, ak@suse.de,
-       linux-kernel@vger.kernel.org, Michael.Fetterman@cl.cam.ac.uk,
-       Ian Campbell <Ian.Campbell@XenSource.com>
-Subject: Re: i386 PDA patches use of %gs
-References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <45075829.701@goop.org> <20060913095942.GA10075@elte.hu> <45082F1C.8000003@goop.org> <20061115182613.GA2227@elte.hu> <455B5ED8.5090005@goop.org> <20061115184315.GA5078@elte.hu>
-In-Reply-To: <20061115184315.GA5078@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1
+To: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
+       oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [RFC, Patch 0/1] OProfile for Cell: Initial profiling support --
+ new patch
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> but it does not actually use the 'normal usermode TLS selector' - it 
-> only loads it.
->
-> a meaningful test would be to allocate two selector values and load and 
-> read+write memory through both of them.
->   
+Hello,
+I will be posting a patch that updates the OProfile kernel driver to 
+enable it for the Cell Broadband Engine processor.  The patch is based 
+on Arnd Bergmann's arnd6 patchset for 2.6.18  
+(http://kernel.org/pub/linux/kernel/people/arnd/patches/2.6.18-arnd6/), 
+with Kevin Corry's cbe_pmu_interrupt patch on applied on top.  Kevin 
+Corry's patch was submitted to the mailing lists earlier today and can 
+be found at:
+ http://marc.theaimsgroup.com/?l=linux-kernel&m=116360639928471&w=2).
 
-Well, obviously in one case it would need to switch between
-null/non-null/null.  But yes, good point about using the "usermode" %gs
-each iteration.  I'll do some more tests.
+I will also post an OProfile userpsace patch to the oprofile-list that 
+adds the necessary support for the Cell processor.
 
-    J
+Thanks in advance for your review of this patch.
+
+Maynard Johnson
+LTC Power Linux Toolchain
+507-253-2650
+

@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161532AbWKOVKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161690AbWKOVNB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161532AbWKOVKt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 16:10:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161562AbWKOVKt
+	id S1161690AbWKOVNB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 16:13:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161693AbWKOVNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 16:10:49 -0500
-Received: from nijmegen.renzel.net ([195.243.213.130]:30670 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S1161532AbWKOVKt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 16:10:49 -0500
-From: Mws <mws@twisted-brains.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Date: Wed, 15 Nov 2006 22:10:46 +0100
-User-Agent: KMail/1.9.5
-Cc: Jeff Garzik <jeff@garzik.org>, Krzysztof Halasa <khc@pm.waw.pl>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       tiwai@suse.de, Olivier Nicolas <olivn@trollprod.org>
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org> <200611152059.53845.mws@twisted-brains.org> <Pine.LNX.4.64.0611151210380.3349@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611151210380.3349@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 15 Nov 2006 16:13:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8065 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161690AbWKOVNA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 16:13:00 -0500
+Date: Wed, 15 Nov 2006 13:12:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <Trond.Myklebust@netapp.com>
+Cc: Charles Edward Lever <chucklever@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Yet another borken page_count() check in
+ invalidate_inode_pages2()....
+Message-Id: <20061115131256.403facca.akpm@osdl.org>
+In-Reply-To: <1163624265.5880.31.camel@lade.trondhjem.org>
+References: <1163568819.5645.8.camel@lade.trondhjem.org>
+	<1163596689.5691.40.camel@lade.trondhjem.org>
+	<20061115084641.827494be.akpm@osdl.org>
+	<1163613913.5691.215.camel@lade.trondhjem.org>
+	<20061115112426.84e5417c.akpm@osdl.org>
+	<1163624265.5880.31.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611152210.47238.mws@twisted-brains.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 November 2006 21:14, Linus Torvalds wrote:
+On Wed, 15 Nov 2006 15:57:45 -0500
+Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
+
+> On Wed, 2006-11-15 at 11:24 -0800, Andrew Morton wrote:
 > 
-> On Wed, 15 Nov 2006, Mws wrote:
+> > The protocol is
 > > 
-> > after some small discussions on alsa-user ml i recognised this
-> > thread today. 
-> > i thought my problem could also exist on this msi stuff.
-> > i disabled msi in kernel config, reboot, and, after starting x & kde
-> > i got immediately a freeze.
-> > last and maybe important last try has been to
-> > enable msi support _but_ boot kernel with cmdline pci=nomsi
-> > this finally did work out. i got a working sound environment again.
+> > 	lock_page()
+> > 	set_page_writeback()
+> > 	->writepage()
 > 
-> I expect that you have the exact same issue as Olivier: the "hang" is 
-> probably because you started using the sound device (beeping on the 
-> console is handled by the old built-in speaker, but in X a single beep 
-> tends to be due to sound device drivers), and because of sound irq 
-> misrouting you had some other device (like your harddisk) that got their 
-> irq disabled due to the "nobody cared" issue.
-> 
-> > i find it a bit abnormal that the disabling msi in kernel config behaviour
-> > is different from kernel cmdline pci=nomsi option.
-> 
-> Now, that does actually worry me. It _should_ have worked with CONFIG_MSI 
-> disabled. I wonder if some of the MSI workarounds actually broke the HDA 
-> driver subtly.
-> 
-> Anyway, it would be a good idea to test the current -git tree if you can, 
-> both with CONFIG_MSI and without (and _without_ any "pci=nomsi" kernel 
-> command line). It should hopefully work, exactly because the HDA driver 
-> now shouldn't even try to do any MSI stuff by default.
-> 
-> Knock wood.
-> 
-> 		Linus
-hi,
+> We're not using ->writepage().
 
-linus, just cloned current git, but will test it tomorrow morning.
+I think you know what I mean.
 
-will inform you on the results.
+> > and there are various places which assume that nobody will start new
+> > writeout of a locked page.  But I forget where they are - things have always
+> > been this way.
+> 
+> Huh? There has never been a requirement to lock the page if all you want
+> to do is call set_page_writeback().
 
-thanks 
-marcel
+The protocol is, and always has been
+
+	lock_page()
+	set_page_writeback();
+	start-io
+	unlock_page();
+
+end_io:
+	end_page_writeback()
+
+
+and there are places in the VM which rely upon some or all of that.  I'd
+need to go on a big hunt to remember where they are.  One of them is
+invalidate_inode_pages2(), as you've just discovered.
+
+> The only reason why we want to do
+> that at all is to allow the VM to track that the page is under I/O. All
+> other operations involved in scheduling writes are protected by internal
+> NFS locks.
+
+Well the VM uses lock_page() for this synchronisation.  If NFS has gone and
+decided not to do that then we'll need to either
+
+a) Make NFS follow the protocol or
+
+b) Put stuff in NFS to allow the VM to work correctly (until we change it) or
+
+c) Put very-clearly-commented NFS exception code into the VM.
+

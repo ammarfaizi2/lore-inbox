@@ -1,111 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030645AbWKOQTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030641AbWKOQTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030645AbWKOQTX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 11:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030643AbWKOQTX
+	id S1030641AbWKOQTI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 11:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030632AbWKOQTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:19:23 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37094 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030644AbWKOQTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:19:21 -0500
-Date: Wed, 15 Nov 2006 16:24:45 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] pci: Introduce pci_find_present
-Message-ID: <20061115162445.641eb321@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Nov 2006 11:19:07 -0500
+Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:41124 "EHLO
+	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1030641AbWKOQTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 11:19:04 -0500
+Date: Wed, 15 Nov 2006 11:19:00 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, trond.myklebust@fys.uio.no,
+       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
+       steved@redhat.com
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+ overridden 
+In-Reply-To: <15153.1163593562@redhat.com>
+Message-ID: <XMMS.LNX.4.64.0611151115360.8593@d.namei>
+References: <XMMS.LNX.4.64.0611141618300.25022@d.namei> 
+ <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+ <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com> 
+ <15153.1163593562@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This works like pci_dev_present but instead of returning boolean returns
-the matching pci_device_id entry. This makes it much more useful. Code
-bloat is basically nil as the old boolean function is rewritten in terms
-of the new one.
+On Wed, 15 Nov 2006, David Howells wrote:
 
-This will be used by the updated VIA PCI quirks for one
+> James Morris <jmorris@namei.org> wrote:
+> 
+> > > +static u32 selinux_set_fscreate_secid(u32 secid)
+> > ...
+> > The ability to set this needs to be mediated via MAC policy.
+> 
+> There could a problem with that...  Is it possible for there to be a race?
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Well, the value can be changed at any time, so you could be using a 
+temporary fscreate value, or your new value could be overwritten 
+immediately by writing to /proc/$$/attr/fscreate
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm2/drivers/pci/search.c linux-2.6.19-rc5-mm2/drivers/pci/search.c
---- linux.vanilla-2.6.19-rc5-mm2/drivers/pci/search.c	2006-11-15 13:25:47.000000000 +0000
-+++ linux-2.6.19-rc5-mm2/drivers/pci/search.c	2006-11-15 13:52:14.000000000 +0000
-@@ -413,6 +413,24 @@
- 	return dev;
- }
- 
-+const struct pci_device_id *pci_find_present(const struct pci_device_id *ids)
-+{
-+	struct pci_dev *dev;
-+	struct pci_device_id * found = NULL;
-+
-+	WARN_ON(in_interrupt());
-+	down_read(&pci_bus_sem);
-+	while (ids->vendor || ids->subvendor || ids->class_mask) {
-+		list_for_each_entry(dev, &pci_devices, global_list) {
-+			if ((found = pci_match_one_device(ids, dev)) != NULL)
-+				break;
-+		}
-+		ids++;
-+	}
-+	up_read(&pci_bus_sem);
-+	return found;
-+}
-+
- /**
-  * pci_dev_present - Returns 1 if device matching the device list is present, 0 if not.
-  * @ids: A pointer to a null terminated list of struct pci_device_id structures
-@@ -424,27 +442,14 @@
-  * find devices that are usually built into a system, or for a general hint as
-  * to if another device happens to be present at this specific moment in time.
-  */
-+
- int pci_dev_present(const struct pci_device_id *ids)
- {
--	struct pci_dev *dev;
--	int found = 0;
--
--	WARN_ON(in_interrupt());
--	down_read(&pci_bus_sem);
--	while (ids->vendor || ids->subvendor || ids->class_mask) {
--		list_for_each_entry(dev, &pci_devices, global_list) {
--			if (pci_match_one_device(ids, dev)) {
--				found = 1;
--				goto exit;
--			}
--		}
--		ids++;
--	}
--exit:
--	up_read(&pci_bus_sem);
--	return found;
-+	return pci_find_present(ids) == NULL ? 0 : 1;
- }
-+
- EXPORT_SYMBOL(pci_dev_present);
-+EXPORT_SYMBOL(pci_find_present);
- 
- EXPORT_SYMBOL(pci_find_device);
- EXPORT_SYMBOL(pci_find_device_reverse);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm2/include/linux/pci.h linux-2.6.19-rc5-mm2/include/linux/pci.h
---- linux.vanilla-2.6.19-rc5-mm2/include/linux/pci.h	2006-11-15 13:27:03.000000000 +0000
-+++ linux-2.6.19-rc5-mm2/include/linux/pci.h	2006-11-15 13:53:30.000000000 +0000
-@@ -461,6 +476,7 @@
- struct pci_dev *pci_get_bus_and_slot (unsigned int bus, unsigned int devfn);
- struct pci_dev *pci_get_class (unsigned int class, struct pci_dev *from);
- int pci_dev_present(const struct pci_device_id *ids);
-+const struct pci_device_id *pci_find_present(const struct pci_device_id *ids);
- 
- int pci_bus_read_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 *val);
- int pci_bus_read_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 *val);
-@@ -684,6 +700,7 @@
- { return NULL; }
- 
- #define pci_dev_present(ids)	(0)
-+#define pci_find_present(ids)	(NULL)
- #define pci_dev_put(dev)	do { } while (0)
- 
- static inline void pci_set_master(struct pci_dev *dev) { }
+I think we need to add a separate field for this purpose, which can only 
+be written to via the in-kernel API and overrides fscreate.
+
+> I have to call the function twice per cache op: once to set the file 
+> creation security ID and once to restore it back to what it was.
+> 
+> However, what happens if I can't restore the original security ID (perhaps the
+> rules changed between the two invocations)?  I can't let the task continue as
+> it's now running with the wrong security...
+
+Kill the task?
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

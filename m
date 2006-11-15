@@ -1,455 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031000AbWKOVJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161532AbWKOVKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031000AbWKOVJU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 16:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031001AbWKOVJU
+	id S1161532AbWKOVKt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 16:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161562AbWKOVKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 16:09:20 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:30949 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1031000AbWKOVJT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 16:09:19 -0500
-Date: Wed, 15 Nov 2006 16:07:28 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, pavel@suse.cz, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: [PATCH] x86_64: Move cpu long mode verification code to common file (was Re: [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup)
-Message-ID: <20061115210728.GE9039@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <200611131822.44034.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Nov 2006 16:10:49 -0500
+Received: from nijmegen.renzel.net ([195.243.213.130]:30670 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S1161532AbWKOVKt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 16:10:49 -0500
+From: Mws <mws@twisted-brains.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+Date: Wed, 15 Nov 2006 22:10:46 +0100
+User-Agent: KMail/1.9.5
+Cc: Jeff Garzik <jeff@garzik.org>, Krzysztof Halasa <khc@pm.waw.pl>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       tiwai@suse.de, Olivier Nicolas <olivn@trollprod.org>
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org> <200611152059.53845.mws@twisted-brains.org> <Pine.LNX.4.64.0611151210380.3349@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611151210380.3349@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200611131822.44034.ak@suse.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611152210.47238.mws@twisted-brains.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 06:22:43PM +0100, Andi Kleen wrote:
+On Wednesday 15 November 2006 21:14, Linus Torvalds wrote:
 > 
-> > +verify_cpu:
-> > +	pushl	$0			# Kill any dangerous flags
-> > +	popfl
-> > +
-> > +	/* minimum CPUID flags for x86-64 */
-> > +	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
-> > +#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
-> > +			   (1<<13)|(1<<15)|(1<<24)|(1<<25)|(1<<26))
-> > +#define REQUIRED_MASK2 (1<<29)
+> On Wed, 15 Nov 2006, Mws wrote:
+> > 
+> > after some small discussions on alsa-user ml i recognised this
+> > thread today. 
+> > i thought my problem could also exist on this msi stuff.
+> > i disabled msi in kernel config, reboot, and, after starting x & kde
+> > i got immediately a freeze.
+> > last and maybe important last try has been to
+> > enable msi support _but_ boot kernel with cmdline pci=nomsi
+> > this finally did work out. i got a working sound environment again.
 > 
-> It would be much better if this least this CPUID code was in a common shared 
-> file with head.S
->
+> I expect that you have the exact same issue as Olivier: the "hang" is 
+> probably because you started using the sound device (beeping on the 
+> console is handled by the old built-in speaker, but in X a single beep 
+> tends to be due to sound device drivers), and because of sound irq 
+> misrouting you had some other device (like your harddisk) that got their 
+> irq disabled due to the "nobody cared" issue.
+> 
+> > i find it a bit abnormal that the disabling msi in kernel config behaviour
+> > is different from kernel cmdline pci=nomsi option.
+> 
+> Now, that does actually worry me. It _should_ have worked with CONFIG_MSI 
+> disabled. I wonder if some of the MSI workarounds actually broke the HDA 
+> driver subtly.
+> 
+> Anyway, it would be a good idea to test the current -git tree if you can, 
+> both with CONFIG_MSI and without (and _without_ any "pci=nomsi" kernel 
+> command line). It should hopefully work, exactly because the HDA driver 
+> now shouldn't even try to do any MSI stuff by default.
+> 
+> Knock wood.
+> 
+> 		Linus
+hi,
 
-Hi Andi,
+linus, just cloned current git, but will test it tomorrow morning.
 
-Pleaese find attached the patch which moves verify_cpu code to a
-single file arch/x86_64/kernel/verify_cpu.S and this file is included
-by all to do the cpu long mode and SSE checks.
+will inform you on the results.
 
-Thanks
-Vivek
-
-
-
-o This patch moves the code to verify long mode and SSE to a common file.
-  This code is not shared by trampoline.S, wakeup.S, boot/setup.S and
-  boot/compressed/head.S
-
-o So far we used to do very limited check in trampoline.S, wakeup.S and
-  in 32bit entry point. Now all the entry paths are forced to do the
-  exhaustive check, including SSE because verify_cpu is shared.
-
-o I am keeping this patch as last in the x86 relocatable series because
-  previous patches have got quite some amount of testing done and don't want
-  to distrub that. So that if there is problem introduced by this patch, at
-  least it can be easily isolated.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- arch/x86_64/boot/compressed/head.S |   19 ++++++
- arch/x86_64/boot/setup.S           |   65 ++---------------------
- arch/x86_64/kernel/acpi/wakeup.S   |   51 +-----------------
- arch/x86_64/kernel/trampoline.S    |   51 +-----------------
- arch/x86_64/kernel/verify_cpu.S    |  103 +++++++++++++++++++++++++++++++++++++
- 5 files changed, 134 insertions(+), 155 deletions(-)
-
-diff -puN arch/x86_64/boot/compressed/head.S~x86_64-move-cpu-verfication-code-to-common-file arch/x86_64/boot/compressed/head.S
---- linux-2.6.19-rc5-git2-reloc/arch/x86_64/boot/compressed/head.S~x86_64-move-cpu-verfication-code-to-common-file	2006-11-14 23:11:44.000000000 -0500
-+++ linux-2.6.19-rc5-git2-reloc-root/arch/x86_64/boot/compressed/head.S	2006-11-14 23:11:44.000000000 -0500
-@@ -54,6 +54,15 @@ startup_32:
- 1:	popl	%ebp
- 	subl	$1b, %ebp
- 
-+/* setup a stack and make sure cpu supports long mode. */
-+	movl	$user_stack_end, %eax
-+	addl	%ebp, %eax
-+	movl	%eax, %esp
-+
-+	call	verify_cpu
-+	testl	%eax, %eax
-+	jnz	no_longmode
-+
- /* Compute the delta between where we were compiled to run at
-  * and where the code will actually run at.
-  */
-@@ -150,13 +159,21 @@ startup_32:
- 	/* Jump from 32bit compatibility mode into 64bit mode. */
- 	lret
- 
-+no_longmode:
-+	/* This isn't an x86-64 CPU so hang */
-+1:
-+	hlt
-+	jmp     1b
-+
-+#include "../../kernel/verify_cpu.S"
-+
- 	/* Be careful here startup_64 needs to be at a predictable
- 	 * address so I can export it in an ELF header.  Bootloaders
- 	 * should look at the ELF header to find this address, as
- 	 * it may change in the future.
- 	 */
- 	.code64
--	.org 0x100
-+	.org 0x200
- ENTRY(startup_64)
- 	/* We come here either from startup_32 or directly from a
- 	 * 64bit bootloader.  If we come here from a bootloader we depend on
-diff -puN arch/x86_64/boot/setup.S~x86_64-move-cpu-verfication-code-to-common-file arch/x86_64/boot/setup.S
---- linux-2.6.19-rc5-git2-reloc/arch/x86_64/boot/setup.S~x86_64-move-cpu-verfication-code-to-common-file	2006-11-14 23:11:44.000000000 -0500
-+++ linux-2.6.19-rc5-git2-reloc-root/arch/x86_64/boot/setup.S	2006-11-14 23:11:44.000000000 -0500
-@@ -295,64 +295,10 @@ loader_ok:
- 	movw	%cs,%ax
- 	movw	%ax,%ds
- 	
--	/* minimum CPUID flags for x86-64 */
--	/* see http://www.x86-64.org/lists/discuss/msg02971.html */		
--#define SSE_MASK ((1<<25)|(1<<26))
--#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
--					   (1<<13)|(1<<15)|(1<<24))
--#define REQUIRED_MASK2 (1<<29)
--
--	pushfl				/* standard way to check for cpuid */
--	popl	%eax
--	movl	%eax,%ebx
--	xorl	$0x200000,%eax
--	pushl	%eax
--	popfl
--	pushfl
--	popl	%eax
--	cmpl	%eax,%ebx
--	jz	no_longmode		/* cpu has no cpuid */
--	movl	$0x0,%eax
--	cpuid
--	cmpl	$0x1,%eax
--	jb	no_longmode		/* no cpuid 1 */
--	xor	%di,%di
--	cmpl	$0x68747541,%ebx	/* AuthenticAMD */
--	jnz	noamd
--	cmpl	$0x69746e65,%edx
--	jnz	noamd
--	cmpl	$0x444d4163,%ecx
--	jnz	noamd
--	mov	$1,%di			/* cpu is from AMD */
--noamd:		
--	movl    $0x1,%eax
--	cpuid
--	andl	$REQUIRED_MASK1,%edx
--	xorl	$REQUIRED_MASK1,%edx
--	jnz	no_longmode
--	movl    $0x80000000,%eax
--	cpuid
--	cmpl    $0x80000001,%eax
--	jb      no_longmode             /* no extended cpuid */
--	movl    $0x80000001,%eax
--	cpuid
--	andl    $REQUIRED_MASK2,%edx
--	xorl    $REQUIRED_MASK2,%edx
--	jnz     no_longmode
--sse_test:		
--	movl	$1,%eax
--	cpuid
--	andl	$SSE_MASK,%edx
--	cmpl	$SSE_MASK,%edx
--	je	sse_ok
--	test	%di,%di
--	jz	no_longmode	/* only try to force SSE on AMD */ 
--	movl	$0xc0010015,%ecx	/* HWCR */
--	rdmsr
--	btr	$15,%eax	/* enable SSE */
--	wrmsr
--	xor	%di,%di		/* don't loop */
--	jmp	sse_test	/* try again */	
-+	call verify_cpu
-+	testl %eax,%eax
-+	jz sse_ok
-+
- no_longmode:
- 	call	beep
- 	lea	long_mode_panic,%si
-@@ -362,7 +308,8 @@ no_longmode_loop:		
- long_mode_panic:
- 	.string "Your CPU does not support long mode. Use a 32bit distribution."
- 	.byte 0
--	
-+
-+#include "../kernel/verify_cpu.S"
- sse_ok:
- 	popw	%ds
- 	
-diff -puN arch/x86_64/kernel/acpi/wakeup.S~x86_64-move-cpu-verfication-code-to-common-file arch/x86_64/kernel/acpi/wakeup.S
---- linux-2.6.19-rc5-git2-reloc/arch/x86_64/kernel/acpi/wakeup.S~x86_64-move-cpu-verfication-code-to-common-file	2006-11-14 23:11:44.000000000 -0500
-+++ linux-2.6.19-rc5-git2-reloc-root/arch/x86_64/kernel/acpi/wakeup.S	2006-11-14 23:11:44.000000000 -0500
-@@ -43,6 +43,8 @@ wakeup_code:
- 	jne	bogus_real_magic
- 
- 	call	verify_cpu			# Verify the cpu supports long mode
-+	testl	%eax, %eax
-+	jnz	no_longmode
- 
- 	testl	$1, video_flags - wakeup_code
- 	jz	1f
-@@ -292,57 +294,12 @@ check_vesaa:
- _setbada: jmp setbada
- 
- 	.code16
--verify_cpu:
--	pushl	$0			# Kill any dangerous flags
--	popfl
--
--	/* minimum CPUID flags for x86-64 */
--	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
--#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
--			   (1<<13)|(1<<15)|(1<<24)|(1<<25)|(1<<26))
--#define REQUIRED_MASK2 (1<<29)
--
--	pushfl				# check for cpuid
--	popl	%eax
--	movl	%eax, %ebx
--	xorl	$0x200000,%eax
--	pushl	%eax
--	popfl
--	pushfl
--	popl	%eax
--	pushl	%ebx
--	popfl
--	cmpl	%eax, %ebx
--	jz	no_longmode
--
--	xorl	%eax, %eax		# See if cpuid 1 is implemented
--	cpuid
--	cmpl	$0x1, %eax
--	jb	no_longmode
--
--	movl	$0x01, %eax		# Does the cpu have what it takes?
--	cpuid
--	andl	$REQUIRED_MASK1, %edx
--	xorl	$REQUIRED_MASK1, %edx
--	jnz	no_longmode
--
--	movl	$0x80000000, %eax	# See if extended cpuid is implemented
--	cpuid
--	cmpl	$0x80000001, %eax
--	jb	no_longmode
--
--	movl	$0x80000001, %eax	# Does the cpu have what it takes?
--	cpuid
--	andl	$REQUIRED_MASK2, %edx
--	xorl	$REQUIRED_MASK2, %edx
--	jnz	no_longmode
--
--	ret				# The cpu supports long mode
--
- no_longmode:
- 	movb	$0xbc,%al	;  outb %al,$0x80
- 	jmp no_longmode
- 
-+#include "../verify_cpu.S"
-+
- 	ret
- 	
- 
-diff -puN arch/x86_64/kernel/trampoline.S~x86_64-move-cpu-verfication-code-to-common-file arch/x86_64/kernel/trampoline.S
---- linux-2.6.19-rc5-git2-reloc/arch/x86_64/kernel/trampoline.S~x86_64-move-cpu-verfication-code-to-common-file	2006-11-14 23:11:44.000000000 -0500
-+++ linux-2.6.19-rc5-git2-reloc-root/arch/x86_64/kernel/trampoline.S	2006-11-14 23:11:44.000000000 -0500
-@@ -54,6 +54,8 @@ r_base = .
- 	movw	$(trampoline_stack_end - r_base), %sp
- 
- 	call	verify_cpu		# Verify the cpu supports long mode
-+	testl   %eax, %eax		# Check for return code
-+	jnz	no_longmode
- 
- 	mov	%cs, %ax
- 	movzx	%ax, %esi		# Find the 32bit trampoline location
-@@ -121,57 +123,10 @@ startup_64:
- 	jmp	*%rax
- 
- 	.code16
--verify_cpu:
--	pushl	$0			# Kill any dangerous flags
--	popfl
--
--	/* minimum CPUID flags for x86-64 */
--	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
--#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
--			   (1<<13)|(1<<15)|(1<<24)|(1<<25)|(1<<26))
--#define REQUIRED_MASK2 (1<<29)
--
--	pushfl				# check for cpuid
--	popl	%eax
--	movl	%eax, %ebx
--	xorl	$0x200000,%eax
--	pushl	%eax
--	popfl
--	pushfl
--	popl	%eax
--	pushl	%ebx
--	popfl
--	cmpl	%eax, %ebx
--	jz	no_longmode
--
--	xorl	%eax, %eax		# See if cpuid 1 is implemented
--	cpuid
--	cmpl	$0x1, %eax
--	jb	no_longmode
--
--	movl	$0x01, %eax		# Does the cpu have what it takes?
--	cpuid
--	andl	$REQUIRED_MASK1, %edx
--	xorl	$REQUIRED_MASK1, %edx
--	jnz	no_longmode
--
--	movl	$0x80000000, %eax	# See if extended cpuid is implemented
--	cpuid
--	cmpl	$0x80000001, %eax
--	jb	no_longmode
--
--	movl	$0x80000001, %eax	# Does the cpu have what it takes?
--	cpuid
--	andl	$REQUIRED_MASK2, %edx
--	xorl	$REQUIRED_MASK2, %edx
--	jnz	no_longmode
--
--	ret				# The cpu supports long mode
--
- no_longmode:
- 	hlt
- 	jmp no_longmode
--
-+#include "verify_cpu.S"
- 
- 	# Careful these need to be in the same 64K segment as the above;
- tidt:
-diff -puN /dev/null arch/x86_64/kernel/verify_cpu.S
---- /dev/null	2006-11-14 23:08:29.168044802 -0500
-+++ linux-2.6.19-rc5-git2-reloc-root/arch/x86_64/kernel/verify_cpu.S	2006-11-14 23:11:44.000000000 -0500
-@@ -0,0 +1,103 @@
-+/*
-+ *
-+ *	verify_cpu.S
-+ *
-+ * 	14 Nov 2006  Vivek Goyal: Created the file
-+ *
-+ *	This is a common code for verification whether CPU supports
-+ * 	long mode and SSE or not. It is not called directly instead this
-+ *	file is included at various places and compiled in that context.
-+ * 	Following are the current usage.
-+ *
-+ * 	This file is included by both 16bit and 32bit code.
-+ *
-+ *	arch/x86_64/boot/setup.S : Boot cpu verification (16bit)
-+ *	arch/x86_64/boot/compressed/head.S: Boot cpu verification (32bit)
-+ *	arch/x86_64/kernel/trampoline.S: secondary processor verfication (16bit)
-+ *	arch/x86_64/kernel/acpi/wakeup.S:Verfication at resume (16bit)
-+ *
-+ *	verify_cpu, returns the status of cpu check in register %eax.
-+ *		0: Success    1: Failure
-+ *
-+ * 	The caller needs to check for the error code and take the action
-+ * 	appropriately. Either display a message or halt.
-+ */
-+
-+verify_cpu:
-+
-+	pushfl				# Save caller passed flags
-+	pushl	$0			# Kill any dangerous flags
-+	popfl
-+
-+	/* minimum CPUID flags for x86-64 */
-+	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
-+#define SSE_MASK ((1<<25)|(1<<26))
-+#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
-+					   (1<<13)|(1<<15)|(1<<24))
-+#define REQUIRED_MASK2 (1<<29)
-+	pushfl				# standard way to check for cpuid
-+	popl	%eax
-+	movl	%eax,%ebx
-+	xorl	$0x200000,%eax
-+	pushl	%eax
-+	popfl
-+	pushfl
-+	popl	%eax
-+	cmpl	%eax,%ebx
-+	jz	verify_cpu_no_longmode	# cpu has no cpuid
-+
-+	movl	$0x0,%eax		# See if cpuid 1 is implemented
-+	cpuid
-+	cmpl	$0x1,%eax
-+	jb	verify_cpu_no_longmode	# no cpuid 1
-+
-+	xor	%di,%di
-+	cmpl	$0x68747541,%ebx	# AuthenticAMD
-+	jnz	verify_cpu_noamd
-+	cmpl	$0x69746e65,%edx
-+	jnz	verify_cpu_noamd
-+	cmpl	$0x444d4163,%ecx
-+	jnz	verify_cpu_noamd
-+	mov	$1,%di			# cpu is from AMD
-+
-+verify_cpu_noamd:
-+	movl    $0x1,%eax		# Does the cpu have what it takes
-+	cpuid
-+	andl	$REQUIRED_MASK1,%edx
-+	xorl	$REQUIRED_MASK1,%edx
-+	jnz	verify_cpu_no_longmode
-+
-+	movl    $0x80000000,%eax	# See if extended cpuid is implemented
-+	cpuid
-+	cmpl    $0x80000001,%eax
-+	jb      verify_cpu_no_longmode	# no extended cpuid
-+
-+	movl    $0x80000001,%eax	# Does the cpu have what it takes
-+	cpuid
-+	andl    $REQUIRED_MASK2,%edx
-+	xorl    $REQUIRED_MASK2,%edx
-+	jnz     verify_cpu_no_longmode
-+
-+verify_cpu_sse_test:
-+	movl	$1,%eax
-+	cpuid
-+	andl	$SSE_MASK,%edx
-+	cmpl	$SSE_MASK,%edx
-+	je	verify_cpu_sse_ok
-+	test	%di,%di
-+	jz	verify_cpu_no_longmode	# only try to force SSE on AMD
-+	movl	$0xc0010015,%ecx	# HWCR
-+	rdmsr
-+	btr	$15,%eax		# enable SSE
-+	wrmsr
-+	xor	%di,%di			# don't loop
-+	jmp	verify_cpu_sse_test	# try again
-+
-+verify_cpu_no_longmode:
-+	popfl				# Restore caller passed flags
-+	movl $1,%eax
-+	ret
-+verify_cpu_sse_ok:
-+	popfl				# Restore caller passed flags
-+	xorl %eax, %eax
-+	ret
-_
+thanks 
+marcel

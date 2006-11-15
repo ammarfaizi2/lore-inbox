@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030909AbWKOTNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030911AbWKOTOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030909AbWKOTNW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 14:13:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030901AbWKOTNW
+	id S1030911AbWKOTOK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 14:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030913AbWKOTOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 14:13:22 -0500
-Received: from bay0-omc2-s24.bay0.hotmail.com ([65.54.246.160]:58131 "EHLO
-	bay0-omc2-s24.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1030909AbWKOTNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 14:13:21 -0500
-Message-ID: <BAY20-F9CB5C5B7B494CDAD29493D8EA0@phx.gbl>
-X-Originating-IP: [80.178.1.111]
-X-Originating-Email: [yan_952@hotmail.com]
-From: "Burman Yan" <yan_952@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@kernel.org, weissg@vienna.at
-Subject: [PATCH 2.6.19-rc5] ohci: replace kmalloc+memset with kzalloc
-Date: Wed, 15 Nov 2006 21:13:15 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 15 Nov 2006 19:13:20.0396 (UTC) FILETIME=[1CEC34C0:01C708EA]
+	Wed, 15 Nov 2006 14:14:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50660 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030901AbWKOTOF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 14:14:05 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <6134.1163617750@redhat.com> 
+References: <6134.1163617750@redhat.com>  <26860.1163607813@redhat.com> <XMMS.LNX.4.64.0611151115360.8593@d.namei> <XMMS.LNX.4.64.0611141618300.25022@d.namei> <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com> <15153.1163593562@redhat.com> 
+To: David Howells <dhowells@redhat.com>
+Cc: James Morris <jmorris@namei.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
+       linux-kernel@vger.kernel.org, aviro@redhat.com, steved@redhat.com
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be overridden 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 15 Nov 2006 19:11:41 +0000
+Message-ID: <6203.1163617901@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+David Howells <dhowells@redhat.com> wrote:
 
-This patch replaced kmalloc+memset with kzalloc in the ohci source.
+> I haven't removed the old fscreate overriding patch yet, not have I put in the
+> error handling in CacheFiles.
 
-Regards
-Yan Burman
+that should read "... nor have I..."
 
-_________________________________________________________________
-Don't just search. Find. Check out the new MSN Search! 
-http://search.msn.com/
-
+David

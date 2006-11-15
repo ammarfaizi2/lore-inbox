@@ -1,36 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030621AbWKOUGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030955AbWKOUQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030621AbWKOUGp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 15:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030653AbWKOUGp
+	id S1030955AbWKOUQU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 15:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030956AbWKOUQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 15:06:45 -0500
-Received: from wx-out-0506.google.com ([66.249.82.234]:26815 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030621AbWKOUGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 15:06:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=CCGAjeAaACPVEA2ty67i3bcL7U6XOBwr5QFf96DMPaMSfM0QHvVG2PHOnTyQ1yR6yxschI4OYakF09OToYO0LilNKrA0u1tMu9fpAffaebYv3x35Tq5B09fDlmAlNUIRv4fDGRZn6IZMIeaqvizZXQIH6IhriMFo9QZgJDtC2w0=
-Message-ID: <f36b08ee0611151206k50284ef9n43d7edf744ae2f19@mail.gmail.com>
-Date: Wed, 15 Nov 2006 22:06:43 +0200
-From: "Yakov Lerner" <iler.ml@gmail.com>
-To: Kernel <linux-kernel@vger.kernel.org>
-Subject: locking sectors of raw disk (raw read-write test of mounted disk)
+	Wed, 15 Nov 2006 15:16:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60376 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030955AbWKOUQT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 15:16:19 -0500
+Date: Wed, 15 Nov 2006 12:14:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mws <mws@twisted-brains.org>
+cc: Jeff Garzik <jeff@garzik.org>, Krzysztof Halasa <khc@pm.waw.pl>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       tiwai@suse.de, Olivier Nicolas <olivn@trollprod.org>
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+In-Reply-To: <200611152059.53845.mws@twisted-brains.org>
+Message-ID: <Pine.LNX.4.64.0611151210380.3349@woody.osdl.org>
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
+ <455B688F.8070007@garzik.org> <Pine.LNX.4.64.0611151127560.3349@woody.osdl.org>
+ <200611152059.53845.mws@twisted-brains.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to make read-write test of the raw disk, and disk has
-mounted partitions. Is it possible to lock  range of sectors
-of the raw device so that any kernel code that wants to write
-to this range will sleep ? (so that test
-    { lock range; read /dev/hda->buf; write buf->/dev/hda; unlock }
-won't corrupt the filesysyem ?)
 
-Thanks
-Yakov
+
+On Wed, 15 Nov 2006, Mws wrote:
+> 
+> after some small discussions on alsa-user ml i recognised this
+> thread today. 
+> i thought my problem could also exist on this msi stuff.
+> i disabled msi in kernel config, reboot, and, after starting x & kde
+> i got immediately a freeze.
+> last and maybe important last try has been to
+> enable msi support _but_ boot kernel with cmdline pci=nomsi
+> this finally did work out. i got a working sound environment again.
+
+I expect that you have the exact same issue as Olivier: the "hang" is 
+probably because you started using the sound device (beeping on the 
+console is handled by the old built-in speaker, but in X a single beep 
+tends to be due to sound device drivers), and because of sound irq 
+misrouting you had some other device (like your harddisk) that got their 
+irq disabled due to the "nobody cared" issue.
+
+> i find it a bit abnormal that the disabling msi in kernel config behaviour
+> is different from kernel cmdline pci=nomsi option.
+
+Now, that does actually worry me. It _should_ have worked with CONFIG_MSI 
+disabled. I wonder if some of the MSI workarounds actually broke the HDA 
+driver subtly.
+
+Anyway, it would be a good idea to test the current -git tree if you can, 
+both with CONFIG_MSI and without (and _without_ any "pci=nomsi" kernel 
+command line). It should hopefully work, exactly because the HDA driver 
+now shouldn't even try to do any MSI stuff by default.
+
+Knock wood.
+
+		Linus

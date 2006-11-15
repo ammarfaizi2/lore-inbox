@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966788AbWKOLGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966792AbWKOLIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966788AbWKOLGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 06:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966790AbWKOLGZ
+	id S966792AbWKOLIT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 06:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966793AbWKOLIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 06:06:25 -0500
-Received: from iona.labri.fr ([147.210.8.143]:32708 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S966788AbWKOLGZ (ORCPT
+	Wed, 15 Nov 2006 06:08:19 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:37588 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S966792AbWKOLIS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 06:06:25 -0500
-Message-ID: <455AF4AE.9030606@ens-lyon.org>
-Date: Wed, 15 Nov 2006 12:06:22 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Icedove 1.5.0.7 (X11/20061013)
+	Wed, 15 Nov 2006 06:08:18 -0500
+Date: Wed, 15 Nov 2006 11:58:00 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Mark Lord <lkml@rtr.ca>
+cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Pavel Machek <pavel@ucw.cz>,
+       Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@suse.de>,
+       John Fremlin <not@just.any.name>,
+       kernel list <linux-kernel@vger.kernel.org>, htejun@gmail.com,
+       jim.kardach@intel.com
+Subject: Re: HD head unloads
+In-Reply-To: <455A05C2.6080508@rtr.ca>
+Message-ID: <Pine.LNX.4.61.0611151157000.19772@yvahk01.tjqt.qr>
+References: <87k639u55l.fsf-genuine-vii@john.fremlin.org> <20061113142219.GA2703@elf.ucw.cz>
+ <45589008.1080001@garzik.org> <200611131637.56737.ak@suse.de>
+ <455893E5.4010001@garzik.org> <4558B232.8080600@rtr.ca> <20061113220127.GA1704@elf.ucw.cz>
+ <20061114034355.GB5810@khazad-dum.debian.net> <Pine.LNX.4.61.0611141021040.29913@yvahk01.tjqt.qr>
+ <455A05C2.6080508@rtr.ca>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc5: known regressions (v3)
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061115102122.GQ22565@stusta.de>
-In-Reply-To: <20061115102122.GQ22565@stusta.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> Subject : unable to rip cd
-> References : http://lkml.org/lkml/2006/10/13/100
-> http://lkml.org/lkml/2006/11/8/42
-> Submitter : Alex Romosan <romosan@sycorax.lbl.gov>
-> Handled-By : Jens Axboe <jens.axboe@oracle.com>
-> Status : Jens is investigating
 
-I think this one is already fixed.
+On Nov 14 2006 13:06, Mark Lord wrote:
+> Jan Engelhardt wrote:
+>> 
+>> Let me jump in here. Short info: Toshiba MK2003GAH 1.8" 20GB PATA
+>> harddisk, in a Sony Vaio U3 (x86, gray-blue PhoenixBIOS).
+>> If idle for more than 5 secs, unloads. Even when not inside any OS, which
+>> really sets me off.
+>>    So I wrote a quick workaround hack for Linux, http://tinyurl.com/y3qs6g
+>> It reads a predefined amount of bytes (just as much to not cause slowdown
+>> yet still cause it to not unload) from the disk at fixed intervals.
+>
+> Thanks for the info.
+> Jan, in your specific case, can you not "fix it" properly with:
+>
+>   hdparm -B255 /dev/?d?
 
-Brice
-
-
-
-
-commit 616e8a091a035c0bd9b871695f4af191df123caa
-author Jens Axboe <jens.axboe@oracle.com> 1163437499 +0100
-committer Linus Torvalds <torvalds@g5.osdl.org> 1163440020 -0800
-
-[PATCH] Fix bad data direction in SG_IO
-
-Contrary to what the name misleads you to believe, SG_DXFER_TO_FROM_DEV
-is really just a normal read seen from the device side.
-
-This patch fixes http://lkml.org/lkml/2006/10/13/100
+No not really. The unload threshold only raises up to about 15 seconds.
 
 
+	-`J'
+-- 

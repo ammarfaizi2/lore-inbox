@@ -1,90 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030943AbWKOUB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161381AbWKOUDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030943AbWKOUB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 15:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030948AbWKOUB5
+	id S1161381AbWKOUDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 15:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161382AbWKOUDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 15:01:57 -0500
-Received: from smtpout08-04.prod.mesa1.secureserver.net ([64.202.165.12]:1509
-	"HELO smtpout08-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1030943AbWKOUB4 (ORCPT
+	Wed, 15 Nov 2006 15:03:09 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:11142 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1161381AbWKOUDI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 15:01:56 -0500
-Message-ID: <455B7233.5080000@seclark.us>
-Date: Wed, 15 Nov 2006 15:01:55 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Wed, 15 Nov 2006 15:03:08 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Date: Wed, 15 Nov 2006 21:00:33 +0100
+User-Agent: KMail/1.9.1
+Cc: David Chinner <dgc@sgi.com>, Alasdair G Kergon <agk@redhat.com>,
+       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Srinivasa DS <srinivasa@in.ibm.com>,
+       Nigel Cunningham <nigel@suspend2.net>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061115185029.GA3722@elf.ucw.cz> <200611152056.48218.rjw@sisk.pl>
+In-Reply-To: <200611152056.48218.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>  <20061114.190036.30187059.davem@davemloft.net>  <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>  <20061114.192117.112621278.davem@davemloft.net>  <s5hbqn99f2v.wl%tiwai@suse.de>  <Pine.LNX.4.64.0611150814000.3349@woody.osdl.org> <1163607889.31358.132.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0611150829460.3349@woody.osdl.org> <455B6BB1.7030009@seclark.us> <455B6F20.6050503@garzik.org>
-In-Reply-To: <455B6F20.6050503@garzik.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611152100.35054.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Wednesday, 15 November 2006 20:56, Rafael J. Wysocki wrote:
+> Hi,
+> 
+> On Wednesday, 15 November 2006 19:50, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > > This means, however, that we can leave the patch as is (well, with the minor
+> > > > > fix I have already posted), for now, because it doesn't make things worse a
+> > > > > bit, but:
+> > > > > (a) it prevents xfs from being corrupted and
+> > > > 
+> > > > I'd really prefer it to be fixed by 'freezeable workqueues'.
+> > > 
+> > > I'd prefer that you just freeze the filesystem and let the
+> > > filesystem do things correctly.
+> > 
+> > Well, I'd prefer filesystems not to know about suspend, and current
+> > "freeze the filesystem" does not really nest properly.
+> > 
+> > > > Can you
+> > > > point me into sources -- which xfs workqueues are problematic?
+> > > 
+> > > AFAIK, its the I/O completion workqueues that are causing problems.
+> > > (fs/xfs/linux-2.6/xfs_buf.c) However, thinking about it, I'm not
+> > > sure that the work queues being left unfrozen is the real problem.
+> > > 
+> > > i.e. after a sync there's still I/O outstanding (e.g. metadata in
+> > > the log but not on disk), and because the kernel threads are frozen
+> > > some time after the sync, we could have issued this delayed write
+> > > metadata to disk after the sync. With XFS, we can have a of queue of
+> > 
+> > That's okay, snapshot is atomic. As long as data are safely in the
+> > journal, we should be okay.
+> > 
+> > > However, even if you stop the workqueue processing, you're still
+> > > going to have to wait for all I/O completion to occur before
+> > > snapshotting memory because having any I/O complete changes memory
+> > > state.  Hence I fail to see how freezing the workqueues really helps
+> > > at all here....
+> > 
+> > It is okay to change memory state, just on disk state may not change
+> > after atomic snapshot.
+> 
+> There's one more thing, actually.  If the on-disk data and metadata are
+> changed _after_ the sync we do and _before_ we create the snapshot image,
+> and the subsequent  resume fails,
 
->Stephen Clark wrote:
->  
->
->>Also, I find it disturbing that we are forcing users to have know about 
->>all these
->>magic options that have to be put on the kernel boot line. My hard drive 
->>on my
->>new laptop would only run at 1.2mbs until I found out I had to use 
->>combined_mode=libata
->>and build a new ramdisk that included ata_piix.
->>    
->>
->
->That's what happens when two drivers want to drive the same hardware. 
->The "slow and safe" default is the only proven-stable option, with the 
->proven-stable PATA driver.  The other two options (drivers/ide for 
->PATA+SATA -> leads to SATA locksup) and (libata for PATA -> ok but 
->breaks existing configs, and less field time) are considered less safe.
->
->  
->
-The problem with this approach is the average user will just think linux 
-sucks - it is so
-slow, they won't know how to investigate or trouble shoot the problem, 
-and just go back to winblows.
-I've got an ich7 chipset that supports sata and ide. My laptop has only 
-ide devices so why
-is there a conflict that has to be resolved by combined mode? Why can't 
-the sata driver
-be smart enough to know there are no sata devices for it to handle?
+Well, but this is equivalent to a power failure immediately after the sync, so
+there _must_ be a way to recover the filesystem from that, no?
 
->Combined mode is ugly no matter how you look at it.  Just turn it off in 
->BIOS (or pressure system vendor for this ability if BIOS lacks it, e.g. 
->some Dell servers)
->
->And throw some annoyance at Intel for creating such a headache.
->
->	Jeff
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+I think I'll prepare a patch for freezing the work queues and we'll see what
+to do next.
+
+Greetings,
+Rafael
 
 
 -- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

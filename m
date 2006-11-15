@@ -1,33 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030784AbWKOR5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030774AbWKOR6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030784AbWKOR5i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030791AbWKOR5h
+	id S1030774AbWKOR6K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030781AbWKOR6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:57:37 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:29310 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030784AbWKOR5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:57:36 -0500
-Date: Wed, 15 Nov 2006 18:54:47 +0100
-From: Christian Krafft <krafft@de.ibm.com>
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 0/2] fix bugs while booting on NUMA system where some nodes
- have no mem
-Message-ID: <20061115185447.3bcc1f6e@localhost>
-X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Nov 2006 12:58:10 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:57764 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1030774AbWKOR6G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 12:58:06 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] i386-pda UP optimization
+Date: Wed, 15 Nov 2006 18:58:09 +0100
+User-Agent: KMail/1.9.5
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611151846.31109.dada1@cosmosbay.com> <20061115174957.GA27827@elte.hu>
+In-Reply-To: <20061115174957.GA27827@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611151858.09958.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 15 November 2006 18:49, Ingo Molnar wrote:
+> * Eric Dumazet <dada1@cosmosbay.com> wrote:
+> > Machine boots but freeze when init starts. Any idea ?
+>
+> probably caused by this:
+> > +# define GET_CPU_NUM(reg)
+> >
+> >  #define FIXUP_ESPFIX_STACK \
+> >  	/* since we are on a wrong stack, we cant make it a C code :( */ \
+> > -	movl %gs:PDA_cpu, %ebx; \
+> > +	GET_CPU_NUM(%ebx) \
+> >  	PER_CPU(cpu_gdt_descr, %ebx); \
+> >  	movl GDS_address(%ebx), %ebx; \
+>
+> %ebx very definitely wants to have a current CPU number loaded ;) Pick
+> it up from the task struct.
 
-The following patches are fixing two problems that showed up
-while booting a NUMA system where memory was limited to the first node.
-Please cc me for comments as I am not subscribed.
+Hum.... Are you sure ?
 
-cheers,
-Christian
+For UP we have this PER_CPU definition :
+
+#define PER_CPU(var, cpu) \
+        movl $per_cpu__/**/var, cpu;
+
+You can see 'cpu' is a pure output , not an input value.
+
+So I basically deleted the fist instruction of this sequence :
+
+movl %gs:PDA_cpu, %ebx
+movl $per_cpu__cpu_gdt_descr, %ebx;
+
+Did I miss something ?

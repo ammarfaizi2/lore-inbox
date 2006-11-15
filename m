@@ -1,85 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966392AbWKOHvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966409AbWKOHwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966392AbWKOHvb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 02:51:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966421AbWKOHvL
+	id S966409AbWKOHwj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 02:52:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966299AbWKOHvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 02:51:11 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:46286 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1755485AbWKOHug (ORCPT
+	Wed, 15 Nov 2006 02:51:06 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:49869 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S966409AbWKOHui (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 02:50:36 -0500
-Message-ID: <363577027.13886@ustc.edu.cn>
+	Wed, 15 Nov 2006 02:50:38 -0500
+Message-ID: <363577023.13886@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20061115075031.286178806@localhost.localdomain>
+Message-Id: <20061115075027.139255636@localhost.localdomain>
 References: <20061115075007.832957580@localhost.localdomain>
-Date: Wed, 15 Nov 2006 15:50:28 +0800
+Date: Wed, 15 Nov 2006 15:50:16 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 21/28] readahead: thrashing recovery method
-Content-Disposition: inline; filename=readahead-thrashing-recovery-method.patch
+Subject: [PATCH 09/28] readahead: rescue_pages()
+Content-Disposition: inline; filename=readahead-rescue_pages.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Readahead policy after thrashing.
-
-It tries to recover gracefully from the thrashing.
+Introduce function rescue_pages() to protect pages in danger of thrashing.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
---- linux-2.6.19-rc5-mm2.orig/mm/readahead.c
-+++ linux-2.6.19-rc5-mm2/mm/readahead.c
-@@ -1522,6 +1522,50 @@ try_backward_prefetching(struct file_ra_
+--- linux-2.6.19-rc5-mm1.orig/mm/readahead.c
++++ linux-2.6.19-rc5-mm1/mm/readahead.c
+@@ -708,6 +708,96 @@ unsigned long max_sane_readahead(unsigne
  }
  
  /*
-+ * Readahead thrashing recovery.
++ * Adaptive read-ahead.
++ *
++ * Good read patterns are compact both in space and time. The read-ahead logic
++ * tries to grant larger read-ahead size to better readers under the constraint
++ * of system memory and load pressure.
++ *
++ * It employs two methods to estimate the max thrashing safe read-ahead size:
++ *   1. state based   - the default one
++ *   2. context based - the failsafe one
++ * The integration of the dual methods has the merit of being agile and robust.
++ * It makes the overall design clean: special cases are handled in general by
++ * the stateless method, leaving the stateful one simple and fast.
++ *
++ * To improve throughput and decrease read delay, the logic 'looks ahead'.
++ * In most read-ahead chunks, one page will be selected and tagged with
++ * PG_readahead. Later when the page with PG_readahead is read, the logic
++ * will be notified to submit the next read-ahead chunk in advance.
++ *
++ *                 a read-ahead chunk
++ *    +-----------------------------------------+
++ *    |       # PG_readahead                    |
++ *    +-----------------------------------------+
++ *            ^ When this page is read, notify me for the next read-ahead.
++ *
 + */
-+static unsigned long
-+thrashing_recovery_readahead(struct address_space *mapping,
-+				struct file *filp, struct file_ra_state *ra,
-+				pgoff_t offset, unsigned long ra_max)
-+{
-+	unsigned long ra_size;
 +
-+#ifdef CONFIG_DEBUG_READAHEAD
-+	if (probe_page(mapping, offset - 1))
-+		ra_account(ra, RA_EVENT_READAHEAD_MUTILATE,
-+						ra->readahead_index - offset);
-+	ra_account(ra, RA_EVENT_READAHEAD_THRASHING,
-+						ra->readahead_index - offset);
-+#endif
-+
-+	/*
-+	 * Some thrashing occur in (ra_index, la_index], in which case the
-+	 * old read-ahead chunk is lost soon after the new one is allocated.
-+	 * Ensure that we recover all needed pages in the old chunk.
-+	 */
-+	if (offset < ra->ra_index)
-+		ra_size = ra->ra_index - offset;
-+	else {
-+		/* After thrashing, we know the exact thrashing-threshold. */
-+		ra_size = offset - ra->ra_index;
-+		update_ra_thrash_bytes(mapping->backing_dev_info, ra_size);
-+
-+		/* And we'd better be a bit conservative. */
-+		ra_size = ra_size * 3 / 4;
-+	}
-+
-+	if (ra_size > ra_max)
-+		ra_size = ra_max;
-+
-+	ra_set_class(ra, RA_CLASS_THRASHING);
-+	ra_set_index(ra, offset, offset);
-+	ra_set_size(ra, ra_size, ra_size / LOOKAHEAD_RATIO);
-+
-+	return ra_submit(ra, mapping, filp);
-+}
++#ifdef CONFIG_ADAPTIVE_READAHEAD
 +
 +/*
-  * ra_min is mainly determined by the size of cache memory. Reasonable?
-  *
-  * Table of concrete numbers for 4KB page size:
++ * Move pages in danger (of thrashing) to the head of inactive_list.
++ * Not expected to happen frequently.
++ *
++ * @page will be skipped: it's grabbed and won't die away.
++ * The following @nr_pages-1 pages will be protected.
++ */
++static unsigned long rescue_pages(struct page *page, unsigned long nr_pages)
++{
++	int pgrescue = 0;
++	pgoff_t index = page_index(page);
++	struct address_space *mapping = page_mapping(page);
++	struct page *grabbed_page = NULL;
++	struct zone *zone;
++
++	dprintk("rescue_pages(ino=%lu, index=%lu nr=%lu)\n",
++			mapping->host->i_ino, index, nr_pages);
++
++	for(;;) {
++		zone = page_zone(page);
++		spin_lock_irq(&zone->lru_lock);
++
++		if (!PageLRU(page))
++			goto out_unlock;
++
++		while (page_mapping(page) == mapping &&
++				page_index(page) == index) {
++			struct page *the_page = page;
++			page = list_entry((page)->lru.prev, struct page, lru);
++			if (!PageActive(the_page) &&
++					!PageLocked(the_page) &&
++					page_count(the_page) == 1) {
++				list_move(&the_page->lru, &zone->inactive_list);
++				pgrescue++;
++			}
++			index++;
++			if (!--nr_pages)
++				goto out_unlock;
++		}
++
++		spin_unlock_irq(&zone->lru_lock);
++		cond_resched();
++
++		if (grabbed_page)
++			page_cache_release(grabbed_page);
++		grabbed_page = page = find_get_page(mapping, index);
++		if (!page)
++			goto out;
++	}
++
++out_unlock:
++	spin_unlock_irq(&zone->lru_lock);
++out:
++	if (grabbed_page)
++		page_cache_release(grabbed_page);
++	ra_account(NULL, RA_EVENT_READAHEAD_RESCUE, pgrescue);
++	return nr_pages;
++}
++
++#endif /* CONFIG_ADAPTIVE_READAHEAD */
++
++/*
+  * Read-ahead events accounting.
+  */
+ #ifdef CONFIG_DEBUG_READAHEAD
 
 --

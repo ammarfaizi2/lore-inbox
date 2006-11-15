@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030567AbWKOPYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030557AbWKOPXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030567AbWKOPYA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 10:24:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030565AbWKOPYA
+	id S1030557AbWKOPXc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 10:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030564AbWKOPXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 10:24:00 -0500
-Received: from py-out-1112.google.com ([64.233.166.180]:16583 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030564AbWKOPX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 10:23:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WzURjAf+pusTjk4y+5uMavypDtNwv6UihNxPCJSKh2PUj+mekVhtG3nZvq0tAOm4JMCb2AVHOmlzO2ktN7CuAWTiQN4kxA0MIQzjtd3ylIStuTcONvV6U1XBZUwEXXin3arTnWb3yko6/GFS2bkCOqUMMLzkwEe1EeUA/CKu8Is=
-Message-ID: <e5bfff550611150723p691fc480m874cce9ad4d64476@mail.gmail.com>
-Date: Wed, 15 Nov 2006 16:23:24 +0100
-From: "Marco Costalba" <mcostalba@gmail.com>
-To: "Andreas Ericsson" <ae@op5.se>
-Subject: Re: [ANNOUNCE] qgit-1.5.3
-Cc: "Git Mailing List" <git@vger.kernel.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <45585749.5030200@op5.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 15 Nov 2006 10:23:32 -0500
+Received: from s1.mailresponder.info ([193.24.237.10]:3859 "EHLO
+	s1.mailresponder.info") by vger.kernel.org with ESMTP
+	id S1030557AbWKOPX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 10:23:28 -0500
+Subject: Re: READ SCSI cmd seems to fail on SATA optical devices...
+From: Mathieu Fluhr <mfluhr@nero.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Phillip Susi <psusi@cfl.rr.com>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4559FBCF.9050203@gmail.com>
+References: <1163434776.2984.21.camel@de-c-l-110.nero-de.internal>
+	 <4558BE57.4020700@cfl.rr.com>
+	 <1163444160.27291.2.camel@de-c-l-110.nero-de.internal>
+	 <1163446372.15249.190.camel@laptopd505.fenrus.org>
+	 <1163519125.2998.8.camel@de-c-l-110.nero-de.internal>
+	 <4559FBCF.9050203@gmail.com>
+Content-Type: text/plain
+Organization: Nero AG
+Date: Wed, 15 Nov 2006 16:19:18 +0100
+Message-Id: <1163603958.3029.3.camel@de-c-l-110.nero-de.internal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <e5bfff550611110006p44494ed4h2979232bfc8e957c@mail.gmail.com>
-	 <45585749.5030200@op5.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/13/06, Andreas Ericsson <ae@op5.se> wrote:
-> Marco Costalba wrote:
-> >
-> > Download tarball from http://www.sourceforge.net/projects/qgit
-> > or directly from git public repository
-> > git://git.kernel.org/pub/scm/qgit/qgit.git
-> >
->
-> Love the tool, but can't fetch the tag. Did you forget to
->
->         $ git push origin 1.5.3
->
+On Wed, 2006-11-15 at 02:24 +0900, Tejun Heo wrote:
+> > ... and the problem is not in accessing the device itself (this is
+> > working like a charm) but understanding why a SCSI READ(10) cmd
+> > sometimes fails as a ATA-padded READ(10) cmd - as discribed in the
+> Annex
+> > A of the MMC-5 spec - ALWAYS works.
+> > -> I would suspect somehow a synchronisation problem somehow in the
+> > translation of SCSI to ATA command...
+> 
+> Can you try the attached patch and see if anything changes?
+> 
 
-I think I have pushed the new tag, indeed the gitweb interface on
-kernel.org/git shows correctly the 1.5.3 tag (and also two new commits
-after that).
+The patch _seems_ to solve my problem. I am just really astonished when
+I read the diff file :D. Can I expect that it will be merged to the
+official kernel sources ?
 
-I've also pulled from kernel.org/git/qgit in a test repository and got
-the tag succesfully.
+Thanks a lot for your answers!
 
-I'm not able to reproduce this, in any case I will push again the tags.
-
-Thanks
-Marco

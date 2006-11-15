@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030811AbWKOSYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030810AbWKOSYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030811AbWKOSYd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030809AbWKOSYd
+	id S1030810AbWKOSYX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030811AbWKOSYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:24:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28593 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030811AbWKOSYc (ORCPT
+	Wed, 15 Nov 2006 13:24:23 -0500
+Received: from gw.goop.org ([64.81.55.164]:60293 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030810AbWKOSYW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:24:32 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <455B53C7.1060604@mentalrootkit.com> 
-References: <455B53C7.1060604@mentalrootkit.com>  <XMMS.LNX.4.64.0611151115360.8593@d.namei> <XMMS.LNX.4.64.0611141618300.25022@d.namei> <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com> <15153.1163593562@redhat.com> <26860.1163607813@redhat.com> 
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: David Howells <dhowells@redhat.com>, James Morris <jmorris@namei.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, trond.myklebust@fys.uio.no,
-       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
-       steved@redhat.com
-Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be overridden 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 15 Nov 2006 18:21:57 +0000
-Message-ID: <1796.1163614917@redhat.com>
+	Wed, 15 Nov 2006 13:24:22 -0500
+Message-ID: <455B5B55.20803@goop.org>
+Date: Wed, 15 Nov 2006 10:24:21 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       Eric Dumazet <dada1@cosmosbay.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386-pda UP optimization
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org>	 <1158047806.2992.7.camel@laptopd505.fenrus.org>	 <200611151227.04777.dada1@cosmosbay.com> <200611151232.31937.ak@suse.de>	 <20061115172003.GA20403@elte.hu>  <455B4E2F.7040408@goop.org> <1163613702.31358.145.camel@laptopd505.fenrus.org>
+In-Reply-To: <1163613702.31358.145.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
+Arjan van de Ven wrote:
+> segment register accesses really are not cheap. 
+> Also really it'll be better to use the register userspace is not using,
+> but we had that discussion before; could you remind me why you picked 
+> %gs in the first place?
+>   
 
-> > and the race in which the rules might change is still a
-> > possibility I have to deal with.
-> 
-> I don't think this is a race, it is revocation of access. If you check the
-> access at every operation and correctly deal with access failures, then this
-> shouldn't be a problem. Yes it is a pain, but that is how SELinux is supposed
-> to work.
+To leave open the possibility of using the compiler's TLS support in the
+kernel for percpu.  I also measured the cost of reloading %gs vs %fs,
+and found no difference between reloading a null selector vs a non-null
+selector.
 
-Yes, but what is the correct method of dealing with a failure?  All I can think
-of is to SIGKILL the process.
+    J
 
-David

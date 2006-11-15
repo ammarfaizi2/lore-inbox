@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWKODM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932743AbWKODTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbWKODM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 22:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWKODM6
+	id S932743AbWKODTS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 22:19:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932815AbWKODTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 22:12:58 -0500
-Received: from web52512.mail.yahoo.com ([206.190.48.195]:38504 "HELO
-	web52512.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932601AbWKODM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 22:12:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=C/n5Tcwaf9qKkl8/jNU3ztal6BZ35H8Pq35mmaaGjtgpspAfIfBlb8mttlWn6/W9GgXrGUqlEOoZUEyjuH29Ob28aRSzKTQW0SNDQ+S3c07AyvihupeOHB206xQX9dfehWaiLhJ/zJozU6V6KyrYBpXGPtIuYYF1gcU3zhqg7iU=  ;
-Message-ID: <20061115031256.20343.qmail@web52512.mail.yahoo.com>
-Date: Tue, 14 Nov 2006 19:12:56 -0800 (PST)
-From: Marc Perkel <mperkel@yahoo.com>
-Subject: Re: Kernel list rejecting my email - braindead list
-To: David Miller <davem@davemloft.net>
+	Tue, 14 Nov 2006 22:19:18 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59343
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932743AbWKODTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 22:19:17 -0500
+Date: Tue, 14 Nov 2006 19:19:18 -0800 (PST)
+Message-Id: <20061114.191918.112264008.davem@davemloft.net>
+To: mperkel@yahoo.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061114.185102.71089409.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Kernel list rejecting my email - braindead list
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061115031256.20343.qmail@web52512.mail.yahoo.com>
+References: <20061114.185102.71089409.davem@davemloft.net>
+	<20061115031256.20343.qmail@web52512.mail.yahoo.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Marc Perkel <mperkel@yahoo.com>
+Date: Tue, 14 Nov 2006 19:12:56 -0800 (PST)
+
+> So what? Yes sometimes the spam coming through this
+> list triggers a bounce. So what?
+
+I verified each and every time that I removed you (at least 6 or 7
+seperate occaisions) that your site was bouncing repeatedly for
+completely normal postings, not spam.
+
+And I don't remove when you bounce "once", I do it when your address
+generates a series of bounces that doesn't look like it will end any
+time soon.
+
+You've had to resubscribe multiple times, at what point would it have
+occured you to ask postmaster here what the problem was so that you
+could go ahead and correct it?
+
+Your address caused problems on a continual and repeated basis.
+We're not talking about isolated bounces.
+
+Anyways, all of this talk is about you defending yourself.  There has
+been no talk so far of correcting the problem, what you're going to do
+in the future to prevent this from reoccuring so that I can remove the
+block of your email address.
+
+And a maybe even a nice little "sorry about that".
 
 
---- David Miller <davem@davemloft.net> wrote:
-
-> From: Marc Perkel <mperkel@yahoo.com>
-> Date: Tue, 14 Nov 2006 16:54:25 -0800 (PST)
-> 
-> > So you are banning me from the list because my
-> server
-> > returned a 421 temporary error? You have to be out
-> of
-> > your fucking mind!
-> > 
-> > 1136501663 davem marc@perkel.com linux-kernel 421
-> > Lost incoming connection: The error was detected
-> in
-> > line 3.
-> 
-> Your site was generating 500 errors too.
-> 
-> But that's not the reason I banned you.
-> 
-> The reason I banned you, and I apply this rule
-> consistently, is that
-> you ignored when you were removed from the list. 
-> Instead of
-> contacting the postmaster and asking why, you just
-> blindly
-> resubscribed yourself again.
-> 
-> When we remove you, we do it because your email
-> address really is
-> bouncing.
-> 
-> One should always contact the postmaster for more
-> information when
-> they are unsubscribed from the mailing list.
-> 
-
-So what? Yes sometimes the spam coming through this
-list triggers a bounce. So what? What is an occasional
-bounce message a problem for you? Why don't you just
-ignore a few bounces? The list seems to be far more
-tollerant of spam than it is if a message bounces
-every now and then.
-
-majordomo is an ancient piece of software. I don't
-understand why this list doesn't use a more modern
-platform like Mailman that automatically deal with
-bounce processing. It tracks bounces and it can tell
-if a message is a fluke bounce or if an email address
-it permanently down. For some reason you are making a
-huge deal over nothing. You act as if a bounce is a
-crime.
-
-
-
- 
-____________________________________________________________________________________
-Do you Yahoo!?
-Everyone is raving about the all-new Yahoo! Mail beta.
-http://new.mail.yahoo.com

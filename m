@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162058AbWKOXQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162047AbWKOXRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162058AbWKOXQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 18:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162059AbWKOXQ3
+	id S1162047AbWKOXRy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 18:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162048AbWKOXRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 18:16:29 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:23560 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1162058AbWKOXQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 18:16:28 -0500
-Date: Thu, 16 Nov 2006 00:16:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>
+	Wed, 15 Nov 2006 18:17:54 -0500
+Received: from nz-out-0102.google.com ([64.233.162.198]:27865 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1162047AbWKOXRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 18:17:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oWVgGv5rJSjo8ibFYiHkzsy6lHD3RLyylPxW+cI8sC1dFInl4tfordIkOkjezvkuuMJ89fLIAB8HXdMDIhsHYsager5Sb0p5bFGDvAvOMjYLvAJGFpF1ehpUYqPhbCpdAtAdWkzHtStBQAx5w3UKOLZCEmmb89OU9R8KaweD01E=
+Message-ID: <9a8748490611151517r7779652ej910a33ca961ba025@mail.gmail.com>
+Date: Thu, 16 Nov 2006 00:17:52 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "William D Waddington" <william.waddington@beezmo.com>
+Subject: Re: [RFCLUE3] flagging kernel interface changes
 Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc5-mm2: paravirt X86_PAE=y compile error
-Message-ID: <20061115231626.GC31879@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org>
+In-Reply-To: <455B9133.9030704@beezmo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061114014125.dd315fff.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <455B9133.9030704@beezmo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paravirt breaks CONFIG_X86_PAE=y compilation:
+On 15/11/06, William D Waddington <william.waddington@beezmo.com> wrote:
+> I tried submitting a patch a while back:
+> "[PATCH] IRQ: ease out-of-tree migration to new irq_handler prototype"
+> to add #define __PT_REGS to include/linux/interrupt.h to flag the change
+> to the new interrupt handler prototype.  It wasn't well received :(
+>
+> No big surprise.  The #define wasn't my idea and I hadn't submitted a
+> patch before.  I wanted to see how the patch procedure worked, and
+> hoped that the flag would be included so I could mod my drivers and
+> move on...
+>
+> What I'm curious about is why flagging kernel/driver interface changes
+> is considered a bad idea.  From my point of view as a low-life out-of-
+> tree driver maintainer,
+>
+> #ifdef NEW_INTERFACE
+> #define <my new internals>
+> #endif
+>
+> (w/maybe an #else...)
+>
+> is cleaner and safer than trying to track specific kernel versions in
+> a multi-kernel-version driver.  It seems that in some cases, the new
+> interface has been, like HAVE_COMPAT_IOCTL for instance.
+>
+> I don't want to start an argument about "stable_api_nonsense" or the
+> wisdom of out-of-tree drivers.  Just curious about the - why - and
+> whether it is indifference or antagonism toward drivers outside the
+> fold. Or ???
+>
 
-<--  snip  -->
+I would say that one reason is that cluttering up the kernel with
+#ifdef's is ugly and annoying to maintain long-term. Especially when
+it's expected that anyone who changes in-kernel interfaces also fix up
+any user(s) of those interfaces, so the #ifdef's are pointless
+(ignoring out-of-tree code that is).
 
-...
-  CC      init/main.o
-In file included from include2/asm/pgtable.h:245,
-                 from 
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/mm.h:40,
-                 from 
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/poll.h:11,
-                 from 
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/rtc.h:113,
-                 from 
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/efi.h:19,
-                 from 
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/init/main.c:43:
-include2/asm/pgtable-3level.h:108: error: redefinition of 'pte_clear'
-include2/asm/paravirt.h:365: error: previous definition of 'pte_clear' was here
-include2/asm/pgtable-3level.h:115: error: redefinition of 'pmd_clear'
-include2/asm/paravirt.h:370: error: previous definition of 'pmd_clear' was here
-make[2]: *** [init/main.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

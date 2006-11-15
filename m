@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966767AbWKOKsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966771AbWKOKun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966767AbWKOKsX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 05:48:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966770AbWKOKsX
+	id S966771AbWKOKun (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 05:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966770AbWKOKun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 05:48:23 -0500
-Received: from server1.meinberg.de ([85.10.202.66]:3476 "EHLO
-	paolo.meinberg.de") by vger.kernel.org with ESMTP id S966767AbWKOKsW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 05:48:22 -0500
-Message-ID: <455AF068.5020700@meinberg.de>
-Date: Wed, 15 Nov 2006 11:48:08 +0100
-From: Heiko Gerstung <heiko.gerstung@meinberg.de>
-Organization: Meinberg Radio Clocks
-User-Agent: Thunderbird 1.5.0.7 (X11/20061108)
+	Wed, 15 Nov 2006 05:50:43 -0500
+Received: from mail.suse.de ([195.135.220.2]:27306 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S966771AbWKOKun (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 05:50:43 -0500
+From: Andi Kleen <ak@suse.de>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: 2.6.19-rc5: known regressions (v3)
+Date: Wed, 15 Nov 2006 11:50:10 +0100
+User-Agent: KMail/1.9.5
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephen Hemminger <shemminger@osdl.org>, gregkh@suse.de,
+       linux-pci@atrey.karlin.mff.cuni.cz, Komuro <komurojun-mbn@nifty.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@redhat.com>, Ernst Herzberg <earny@net4u.de>,
+       Len Brown <len.brown@intel.com>, Andre Noll <maan@systemlinux.org>,
+       discuss@x86-64.org, Prakash Punnoor <prakash@punnoor.de>,
+       phil.el@wanadoo.fr, oprofile-list@lists.sourceforge.net,
+       Alex Romosan <romosan@sycorax.lbl.gov>,
+       Jens Axboe <jens.axboe@oracle.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061115102122.GQ22565@stusta.de> <200611151135.48306.dada1@cosmosbay.com>
+In-Reply-To: <200611151135.48306.dada1@cosmosbay.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Initial ramdisk support does not work (for me) on 2.6.17.13
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611151150.11275.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-We are building embedded devices based on Linux and we use a ramdisk as
-our root device in order to avoid problems with people switching off the
-unit without a proper shutdown and to save write-cycles on our flash disc.
+> On a working kernel on an Opteron, we have normally 4 directories 
+> in /dev/oprofile :
+> 
+> # ls -ld /dev/oprofile/?
+> drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/0
+> drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/1
+> drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/2
+> drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/3
+> 
+> With linux-2.6.19-rc5, the first one (0) is missing and we get 1,2,3
 
-Using a 2.6.12 kernel it was no problem to boot the system by using this
-kernel parameters:
-load_ramdisk=1 console=tty0 initrd=initrd.gz rw  vga=769
-ramdisk_size=32768 root=/dev/ram0
+That's because 0 was never available. It is used by the NMI watchdog.
+The new kernel doesn't give it to oprofile anymore.
 
-Today I tried to test run a 2.6.17.12 kernel using the same parameters
-but I get this error message:
-VFS: Cannot open root device "ram0" or unknown-block(1,0)
-Please append a correct "root=" boot option
+> Maybe the 'bug' is in oprofile tools, that currently expect to find '0'
 
-The RAMDISK driver seems to be initialized correctly and the initrd
-image (gzipped ext2fs) contains a block device /dev/ram0 with major 1
-and minor 0 ...
+Yes, it's likely a user space issue.
 
-Any hints what has changed and how I can get this kernel to use a
-ramdisk as its root device?
-
-Thanks in advance,
-best regards,
-Heiko
-
-
--- 
-------------------------------------------------------------------------
-
-*MEINBERG Funkuhren GmbH & Co. KG*
-Auf der Landwehr 22
-D-31812 Bad Pyrmont, Germany
-Tel.: ++49 (0)5281 9309-25
-Fax: ++49 (0)5281 9309-30
-eMail: heiko.gerstung@meinberg.de <mailto:heiko.gerstung@meinberg.de>
-Internet: www.meinberg.de <http://www.meinberg.de/>
-
-------------------------------------------------------------------------
-
-Meinberg radio clocks: 25 years of accurate time worldwide
+-Andi
 

@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966671AbWKOIXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966680AbWKOIWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966671AbWKOIXA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 03:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966681AbWKOIXA
+	id S966680AbWKOIWb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 03:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966671AbWKOIWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 03:23:00 -0500
-Received: from mail.gmx.de ([213.165.64.20]:14061 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S966671AbWKOIW7 (ORCPT
+	Wed, 15 Nov 2006 03:22:31 -0500
+Received: from gw.goop.org ([64.81.55.164]:40118 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S966680AbWKOIWa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 03:22:59 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch] sched: optimize activate_task for RT task - v2
-From: Mike Galbraith <efault@gmx.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: nickpiggin@yahoo.com.au, "'Ingo Molnar'" <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1163574019.6175.30.camel@Homer.simpson.net>
-References: <000401c70848$520252e0$d834030a@amr.corp.intel.com>
-	 <1163574019.6175.30.camel@Homer.simpson.net>
-Content-Type: text/plain
-Date: Wed, 15 Nov 2006 09:24:06 +0100
-Message-Id: <1163579046.7035.29.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Wed, 15 Nov 2006 03:22:30 -0500
+Message-ID: <455ACE45.4040305@goop.org>
+Date: Wed, 15 Nov 2006 00:22:29 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org,
+       Eric Sandeen <sandeen@redhat.com>
+Subject: Re: paging request BUG in 2.6.19-rc5 on resume - X60s
+References: <20061113081147.GB5289@gimli>
+In-Reply-To: <20061113081147.GB5289@gimli>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-15 at 08:00 +0100, Mike Galbraith wrote:
+Martin Lorenz wrote:
+> I only see this when ipw3945 is loaded.
+>
+> [226156.057000] BUG: unable to handle kernel paging request at virtual
+> address 756e6567
+>   
 
-> Personally, I think it's best to leave it as it is.  With that change,
-> if someone changes policy while the task is waiting to get cpu, it will
-> be requeued, and the on-runqueue bonus logic will then end up using
-> wildly inaccurate information.
+OK, very bizarre.  Another instance of this pattern:
 
-Bah, that's inverted.  interactive_sleep() will never be true after a
-rt->non-rt policy change while enqueued with your change, so on-runqueue
-bonus will be disabled where it otherwise might have been enabled.  Not
-terribly interesting in any case given the likelihood, but still...
+   1. Recent Core Duo Thinkpad (X60, T60, X60s)
+   2. tainting wireless driver loaded (ipw3945, madwifi)
+   3. fault at "Genu" somewhere in filesystem code
+   4. not long after a resume from ram (?)
 
-	-Mike
+Not exactly the same backtrace as before
+(https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=208488
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=207658), but pretty
+close.
 
+The only things I can think of are:
+
+   1. ipw3945 and madwifi are sharing some 802.11 code, which splats
+      this pattern into memory for some reason
+   2. some firmware/smm bug which end up corrupting a register (?)
+   3. erm?  anyone?
+
+
+    J

@@ -1,65 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966763AbWKOKgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966758AbWKOKft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966763AbWKOKgF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 05:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966761AbWKOKfu
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 05:35:50 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:35469 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S966760AbWKOKft (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S966758AbWKOKft (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 15 Nov 2006 05:35:49 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.19-rc5: known regressions (v3)
-Date: Wed, 15 Nov 2006 11:35:46 +0100
-User-Agent: KMail/1.9.5
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz, Komuro <komurojun-mbn@nifty.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@redhat.com>, Ernst Herzberg <earny@net4u.de>,
-       Len Brown <len.brown@intel.com>, Andre Noll <maan@systemlinux.org>,
-       Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-       Prakash Punnoor <prakash@punnoor.de>, phil.el@wanadoo.fr,
-       oprofile-list@lists.sourceforge.net,
-       Alex Romosan <romosan@sycorax.lbl.gov>,
-       Jens Axboe <jens.axboe@oracle.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061115102122.GQ22565@stusta.de>
-In-Reply-To: <20061115102122.GQ22565@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966761AbWKOKft
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 15 Nov 2006 05:35:49 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:12263 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S966758AbWKOKfs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 05:35:48 -0500
+Date: Wed, 15 Nov 2006 16:04:19 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Gautham R Shenoy <ego@in.ibm.com>,
+       Reuben Farrelly <reuben-linuxkernel@reub.net>,
+       Andrew Morton <akpm@osdl.org>, davej@redhat.com,
+       linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com,
+       CPUFreq Mailing List <cpufreq@lists.linux.org.uk>
+Subject: Re: 2.6.19-rc5-mm2
+Message-ID: <20061115103419.GA3131@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061114014125.dd315fff.akpm@osdl.org> <4559A91C.10009@reub.net> <20061114170053.GA22649@in.ibm.com> <20061114205829.GC2504@inferi.kami.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611151135.48306.dada1@cosmosbay.com>
+In-Reply-To: <20061114205829.GC2504@inferi.kami.home>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 November 2006 11:21, Adrian Bunk wrote:
+Hi,
 
-> Subject    : x86_64: oprofile doesn't work
-> References : http://lkml.org/lkml/2006/10/27/3
-> Submitter  : Prakash Punnoor <prakash@punnoor.de>
-> Status     : unknown
->
+On Tue, Nov 14, 2006 at 09:58:29PM +0100, Mattia Dongili wrote:
+> 
+> maybe this helps? mostly guessing here, but when cpufreq_userspace is
+> the default governor we may hit this path and leave policy->cur
+> unset.
 
-I confirm a got this one too.
-On a working kernel on an Opteron, we have normally 4 directories 
-in /dev/oprofile :
+I doubt if that's causing the problem. My reasons are:
 
-# ls -ld /dev/oprofile/?
-drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/0
-drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/1
-drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/2
-drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/3
+- Reuben's config shows his system to be a x64_64. So if I am not
+  mistaken, the correct file look for would be 
+  arch/ia64/kernel/cpufreq/acpi-cpufreq.c.
 
-With linux-2.6.19-rc5, the first one (0) is missing and we get 1,2,3
+- The fix provided by you deals with the state of a 
+  driver(hardware) specific variable data->cpu_feature while the
+  governors like userspace/performance/powersave/ondemand are 
+  driver(hardware) independent.
 
-Maybe the 'bug' is in oprofile tools, that currently expect to find '0'
+Nevertheless, it could be a valid fix for i386 acpi_cpufreq considering
+that policy->cur is not being initialized if 
+data->cpu_feature == ACPI_ADR_SPACE_FIXED_HARDWARE.
 
-Eric
+Please check with Dave Jones or Venkatesh Pallipadi.
+
+Thanks
+gautham.
+
+> 
+> diff --git a/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c b/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
+> index 18f4715..94e6e86 100644
+> --- a/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
+> +++ b/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
+> @@ -706,7 +706,7 @@ static int acpi_cpufreq_cpu_init(struct
+>  		break;
+>  	case ACPI_ADR_SPACE_FIXED_HARDWARE:
+>  		acpi_cpufreq_driver.get = get_cur_freq_on_cpu;
+> -		get_cur_freq_on_cpu(cpu);
+> +		policy->cur = get_cur_freq_on_cpu(cpu);
+>  		break;
+>  	default:
+>  		break;
+> 
+> -- 
+> mattia
+> :wq!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

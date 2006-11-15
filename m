@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966771AbWKOKun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966773AbWKOKxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966771AbWKOKun (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 05:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966770AbWKOKun
+	id S966773AbWKOKxh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 05:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966772AbWKOKxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 05:50:43 -0500
-Received: from mail.suse.de ([195.135.220.2]:27306 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S966771AbWKOKun (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 05:50:43 -0500
-From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
+	Wed, 15 Nov 2006 05:53:37 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52238 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S966773AbWKOKxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 05:53:37 -0500
+Date: Wed, 15 Nov 2006 11:53:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alex Romosan <romosan@sycorax.lbl.gov>
 Subject: Re: 2.6.19-rc5: known regressions (v3)
-Date: Wed, 15 Nov 2006 11:50:10 +0100
-User-Agent: KMail/1.9.5
-Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz, Komuro <komurojun-mbn@nifty.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@redhat.com>, Ernst Herzberg <earny@net4u.de>,
-       Len Brown <len.brown@intel.com>, Andre Noll <maan@systemlinux.org>,
-       discuss@x86-64.org, Prakash Punnoor <prakash@punnoor.de>,
-       phil.el@wanadoo.fr, oprofile-list@lists.sourceforge.net,
-       Alex Romosan <romosan@sycorax.lbl.gov>,
-       Jens Axboe <jens.axboe@oracle.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061115102122.GQ22565@stusta.de> <200611151135.48306.dada1@cosmosbay.com>
-In-Reply-To: <200611151135.48306.dada1@cosmosbay.com>
+Message-ID: <20061115105342.GS22565@stusta.de>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061115102122.GQ22565@stusta.de> <20061115103505.GK23770@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611151150.11275.ak@suse.de>
+In-Reply-To: <20061115103505.GK23770@kernel.dk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> On a working kernel on an Opteron, we have normally 4 directories 
-> in /dev/oprofile :
+On Wed, Nov 15, 2006 at 11:35:05AM +0100, Jens Axboe wrote:
+> On Wed, Nov 15 2006, Adrian Bunk wrote:
+> > Subject    : unable to rip cd
+> > References : http://lkml.org/lkml/2006/10/13/100
+> >              http://lkml.org/lkml/2006/11/8/42
+> > Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
+> > Handled-By : Jens Axboe <jens.axboe@oracle.com>
+> > Status     : Jens is investigating
 > 
-> # ls -ld /dev/oprofile/?
-> drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/0
-> drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/1
-> drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/2
-> drwxr-xr-x 1 root root 0 15. Nov 12:38 /dev/oprofile/3
-> 
-> With linux-2.6.19-rc5, the first one (0) is missing and we get 1,2,3
+> it's fixed and patched has been merged.
 
-That's because 0 was never available. It is used by the NMI watchdog.
-The new kernel doesn't give it to oprofile anymore.
+Thanks for the information, I've removed it from my list.
 
-> Maybe the 'bug' is in oprofile tools, that currently expect to find '0'
+> Jens Axboe
 
-Yes, it's likely a user space issue.
+cu
+Adrian
 
--Andi
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

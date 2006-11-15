@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966722AbWKOJsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966723AbWKOJuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966722AbWKOJsH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 04:48:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966723AbWKOJsH
+	id S966723AbWKOJuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 04:50:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966725AbWKOJuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 04:48:07 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:39483 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S966722AbWKOJsF (ORCPT
+	Wed, 15 Nov 2006 04:50:09 -0500
+Received: from main.gmane.org ([80.91.229.2]:52179 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S966723AbWKOJuH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 04:48:05 -0500
-Date: Wed, 15 Nov 2006 10:47:27 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
-Cc: inux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org,
-       zach.brown@oracle.com
-Subject: Re: linux io_submit syscall duration
-Message-ID: <20061115094727.GJ23770@kernel.dk>
-References: <5d96567b0611142339k23e78cc6u19b64052be5cd360@mail.gmail.com> <20061115074720.GH23770@kernel.dk> <5d96567b0611150143n1a7cc16dgea39fba748a2de7f@mail.gmail.com>
+	Wed, 15 Nov 2006 04:50:07 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+Subject: Re: [ARM - Xscale Pxa 255] dlopen()s segfault at first runt; Subsequent runs succeeds.
+Date: Wed, 15 Nov 2006 10:11:25 +0100
+Message-ID: <87k61xcbwi.fsf@fc5.bigo.ensc.de>
+References: <455A40DF.3040903@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5d96567b0611150143n1a7cc16dgea39fba748a2de7f@mail.gmail.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p54b4dcc3.dip.t-dialin.net
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+Cancel-Lock: sha1:6A8SziTzPXFWyifnIGA2EpwKmxI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexandre Pereira Nunes <alexandre.nunes@gmail.com> writes:
 
-(don't top post and don't drop the cc list!)
+> With Linux 2.6.18 we're experiencing the symptoms describe above; On
+> the first attempt to load a binary which in turns explicitly loads a
+> DSO, there's a crash. Subsequent attempts succeeds.
 
-On Wed, Nov 15 2006, Raz Ben-Jehuda(caro) wrote:
-> first thank you from your quick reply.
-> 
-> I looked and what I found is :
-> "io_submit() taking a long time to return ?" from 2006-07-14.
+Might be the issue described at
 
-Subject is "async I/O seems to be blocking on 2.6.15" and the posting is
-from 2006-11-3. I said about a week ago, not 4 months.
+     http://article.gmane.org/gmane.linux.ports.arm.kernel/28068
+     http://article.gmane.org/gmane.linux.kernel/463291
 
-> 1.  It is NOT the first IO. already took care for that in my test.
+Temporary solution was to revert a zlib related patch.
 
-That was a different problem.
 
-> 2.  The test uses block device and does not walk through a file system.
 
-So would not apply.
-
-> 3.  Taking a look at the code, it seems that the main problem is the fact
->     that in io_submit_one all the pending requests are being rerun.
-> 
->    io_submit_one()
->   {
->    ...
->        if (!list_empty(&ctx->run_list)) {
->                /* drain the run list */
->              while (__aio_run_iocbs(ctx))
->                      ;
->      }
->   ...
->   }
-> 
->  This code was put in remarks.
-> the second is in:
->  aio_run_iocb()
->   ...
->    current->io_wait = &iocb->ki_wait;
->    if ( iocb->ki_retried >  1)
->        ret = retry(iocb);
->    else{
->        ret = -EIOCBRETRY;
->        kiocbSetKicked(iocb);
->    }
->     current->io_wait = NULL;
->  ....
-> 
->  With these fixes io_submit delay reduced to zero ms.
-> 
-> I would appreciate your review on these fixes.
-
-Post a patch so it can be reviewed.
-
--- 
-Jens Axboe
+Enrico
 

@@ -1,85 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966735AbWKOKME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966737AbWKOKM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966735AbWKOKME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 05:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966736AbWKOKME
+	id S966737AbWKOKM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 05:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966738AbWKOKM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 05:12:04 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:27372 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S966735AbWKOKMB (ORCPT
+	Wed, 15 Nov 2006 05:12:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23177 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S966737AbWKOKM4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 05:12:01 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [Linux-fbdev-devel] Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
-Date: Wed, 15 Nov 2006 11:09:05 +0100
-User-Agent: KMail/1.9.1
-Cc: Christian Hoffmann <chrmhoffmann@gmail.com>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Solomon Peachy <pizza@shaftnet.org>, Pavel Machek <pavel@ucw.cz>
-References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com> <200611150154.39499.chrmhoffmann@gmail.com> <1163555308.5940.177.camel@localhost.localdomain>
-In-Reply-To: <1163555308.5940.177.camel@localhost.localdomain>
+	Wed, 15 Nov 2006 05:12:56 -0500
+Message-ID: <455AE7D7.4020002@redhat.com>
+Date: Wed, 15 Nov 2006 10:11:35 +0000
+From: Patrick Caulfield <pcaulfie@redhat.com>
+Organization: Red Hat
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, Steven Whitehouse <swhiteho@redhat.com>,
+       teigland@redhat.com, linux-kernel@vger.kernel.org,
+       cluster-devel@redhat.com
+Subject: Re: [-mm patch] fix the DLM dependencies, part 2
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061114183324.GL22565@stusta.de> <20061114225641.GP22565@stusta.de>
+In-Reply-To: <20061114225641.GP22565@stusta.de>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611151109.06956.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 15 November 2006 02:48, Benjamin Herrenschmidt wrote:
-> On Wed, 2006-11-15 at 01:54 +0100, Christian Hoffmann wrote:
-> > On Tuesday 14 November 2006 23:07, Benjamin Herrenschmidt wrote:
-> > > > I tried that patch, but the last message I see over netconsole (using
-> > > > tg3) is: Suspending console(s)
-> > > > and then nothing. Nothing on resume at all :(
-> > > >
-> > > > Adding some printks in the radeonfb_pci_suspend and radeonfb_pci_resume
-> > > > (radeon_pm.c) didn't help: I don't see them. But I am not a kernel
-> > > > programmer at all, so I might do something wrong or in the wrong place.
-> > >
-> > > Does it resume if you make radeon_pci_resume() a nop ?
-> > >
-> > > Of course, the fbdev will not come back, but will the machine overall
-> > > resume ?
-> > >
-> > > Ben.
-> > Yes, if i make radeon_pci_resume a nop, the machine resumes if i do a return 0 
-> > immediately.
-> > I think I tracked it down to the call to acquire_console_sem() as the 
-> > following code makes the machine hang again:
-> > 
-> > int radeonfb_pci_resume(struct pci_dev *pdev)
-> > {
-> >         struct fb_info *info = pci_get_drvdata(pdev);
-> >         struct radeonfb_info *rinfo = info->par;
-> >         int rc = 0;
-> >         if (pdev->dev.power.power_state.event == PM_EVENT_ON)
-> >                 return 0;
-> >         if (rinfo->no_schedule) {
-> >         /*      if (try_acquire_console_sem())*/
-> >                         return 0;
-> >         } else
-> >                 acquire_console_sem();
-> > 
-> >         return 0;
-> > ...
+Adrian Bunk wrote:
+> On Tue, Nov 14, 2006 at 07:33:24PM +0100, Adrian Bunk wrote:
+>> On Tue, Nov 14, 2006 at 01:41:25AM -0800, Andrew Morton wrote:
+>>> ...
+>>> - A nasty Kconfig warning comes out during the build.  It's due to
+>>>   git-gfs2-nmw.patch.
+>>> ...
+>> So let's fix it.  ;-)
+>> ...
 > 
-> Well, if you acquire the console sem you need to release it too :-)
+> And let's also fix another bug...
+> 
+> 
+> <--  snip  -->
+> 
+> 
+> IPV6=m, DLM=m, DLM_SCTP=y mustn't result in IP_SCTP=y.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.19-rc5-mm2/fs/dlm/Kconfig.old	2006-11-14 22:25:01.000000000 +0100
+> +++ linux-2.6.19-rc5-mm2/fs/dlm/Kconfig	2006-11-14 22:25:19.000000000 +0100
+> @@ -5,6 +5,7 @@ config DLM
+>  	tristate "Distributed Lock Manager (DLM)"
+>  	depends on IPV6 || IPV6=n
+>  	select CONFIGFS_FS
+> +	select IP_SCTP if DLM_SCTP
+>  	help
+>  	A general purpose distributed lock manager for kernel or userspace
+>  	applications.
+> @@ -23,7 +24,6 @@ config DLM_TCP
+>  
+>  config DLM_SCTP
+>  	bool "SCTP"
+> -	select IP_SCTP
+>  
+>  endchoice
 
-Or the console semaphore is acquired too many times.
+Thanks Adrian. I need to read the kconfig docs a little more closely :)
 
-Christian, could you please add release_console_sem() before 'return 0'
-and see if that makes the code work again?  If not, could you add a printk()
-in kernel/printk.c/acquire_console_sem() to see how many times it is called?
-
-Greetings,
-Rafael
-
+Incidentally, I think the 'depends on IPV6 || IPV6=n' can go too; it's in a patch I sent to Steve and it's basically just a line
+copied from SCTP which is obsoleted by these other changes and the addition of the TCP transport.
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+
+patrick

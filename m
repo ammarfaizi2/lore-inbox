@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162022AbWKOWmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161736AbWKOWnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162022AbWKOWmO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 17:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162024AbWKOWmO
+	id S1161736AbWKOWnT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 17:43:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162021AbWKOWnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 17:42:14 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26820 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1162022AbWKOWmN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 17:42:13 -0500
-Date: Wed, 15 Nov 2006 14:41:39 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Martin Bligh <mbligh@mbligh.org>
-cc: Christian Krafft <krafft@de.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have
- no memory
-In-Reply-To: <455B8F3A.6030503@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0611151440400.23201@schroedinger.engr.sgi.com>
-References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost>
- <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
- <455B8F3A.6030503@mbligh.org>
+	Wed, 15 Nov 2006 17:43:19 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:40365 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1162018AbWKOWnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 17:43:18 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, tiwai@suse.de
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
+	<p73ejs5co0q.fsf@bingen.suse.de> <adazmatxq66.fsf@cisco.com>
+	<200611150611.13623.ak@suse.de>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 15 Nov 2006 14:43:16 -0800
+In-Reply-To: <200611150611.13623.ak@suse.de> (Andi Kleen's message of "Wed, 15 Nov 2006 06:11:13 +0100")
+Message-ID: <ada8xicwcu3.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 15 Nov 2006 22:43:16.0555 (UTC) FILETIME=[70D189B0:01C70907]
+Authentication-Results: sj-dkim-3; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim3002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006, Martin Bligh wrote:
+ > Perhaps with special user space quirks, but not in mainline kernel because it's
+ > not force enabled (see erratum #78).
 
-> A node is an arbitrary container object containing one or more of:
-> 
-> CPUs
-> Memory
-> IO bus
-> 
-> It does not have to contain memory.
+I just looked at the revision guide again, and I don't see why erratum
+#78 would matter -- that seems to be saying that the bridge itself
+doesn't have an MSI capability so it can't generate MSI interrupts
+itself.  But why does that matter for devices below the bridge?
 
-I have never seen a node on Linux without memory. I have seen nodes 
-without processors and without I/O but not without memory.This seems to be 
-something new?
+Anyway I have some HP DL145 G2 servers with 8132 bridges in them.
+I'll plug an MSI-capable PCI-X card in and see what happens.  So far
+I've only used PCIe cards in my systems (but MSI-X works fine there,
+with nVidia host bridges).
 
+ - R.

@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030510AbWKOOrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030511AbWKOOsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030510AbWKOOrP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 09:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbWKOOrP
+	id S1030511AbWKOOsp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 09:48:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbWKOOso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 09:47:15 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:42389
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1030510AbWKOOrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 09:47:15 -0500
-Message-Id: <455B36D2.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Wed, 15 Nov 2006 14:48:34 +0000
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "linux-acpi" <linux-acpi@intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] avoid compiler warnings
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 15 Nov 2006 09:48:44 -0500
+Received: from mga07.intel.com ([143.182.124.22]:62011 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1030511AbWKOOsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 09:48:43 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,425,1157353200"; 
+   d="scan'208"; a="146816745:sNHT71362585"
+Message-ID: <455B28B2.4010707@linux.intel.com>
+Date: Wed, 15 Nov 2006 17:48:18 +0300
+From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Len Brown <lenb@kernel.org>
+CC: David Brownell <david-b@pacbell.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
+References: <200611142303.47325.david-b@pacbell.net> <200611150248.12578.len.brown@intel.com>
+In-Reply-To: <200611150248.12578.len.brown@intel.com>
+Content-Type: multipart/mixed;
+ boundary="------------030109050807050601050305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pointers should not be casted to u32 as this results in compiler warnings
-on 64-bit platforms.
+This is a multi-part message in MIME format.
+--------------030109050807050601050305
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Could you try if attached patch helps?
 
---- linux-2.6.19-rc5/drivers/acpi/executer/exmutex.c	2006-09-20 05:42:06.000000000 +0200
-+++ 2.6.19-rc5-acpi-warnings/drivers/acpi/executer/exmutex.c	2006-11-06 09:10:16.000000000 +0100
-@@ -266,10 +266,10 @@ acpi_ex_release_mutex(union acpi_operand
- 	     walk_state->thread->thread_id)
- 	    && (obj_desc->mutex.os_mutex != ACPI_GLOBAL_LOCK)) {
- 		ACPI_ERROR((AE_INFO,
--			    "Thread %X cannot release Mutex [%4.4s] acquired by thread %X",
--			    (u32) walk_state->thread->thread_id,
-+			    "Thread %lX cannot release Mutex [%4.4s] acquired by thread %lX",
-+			    (unsigned long) walk_state->thread->thread_id,
- 			    acpi_ut_get_node_name(obj_desc->mutex.node),
--			    (u32) obj_desc->mutex.owner_thread->thread_id));
-+			    (unsigned long) obj_desc->mutex.owner_thread->thread_id));
- 		return_ACPI_STATUS(AE_AML_NOT_OWNER);
- 	}
+
+Regards,
+    Alex
+
+
+
+
+
+
+
+--------------030109050807050601050305
+Content-Type: text/plain;
+ name="ec1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ec1.patch"
+
+Always enable GPE after return from notify handler.
+
+From:  Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+
+
+---
+
+ drivers/acpi/ec.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index e6d4b08..937eafc 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -465,8 +465,6 @@ static u32 acpi_ec_gpe_handler(void *dat
  
---- linux-2.6.19-rc5/drivers/acpi/utilities/utmutex.c	2006-09-20 05:42:06.000000000 +0200
-+++ 2.6.19-rc5-acpi-warnings/drivers/acpi/utilities/utmutex.c	2006-11-06 09:10:16.000000000 +0100
-@@ -258,8 +258,8 @@ acpi_status acpi_ut_acquire_mutex(acpi_m
- 		acpi_gbl_mutex_info[mutex_id].thread_id = this_thread_id;
- 	} else {
- 		ACPI_EXCEPTION((AE_INFO, status,
--				"Thread %X could not acquire Mutex [%X]",
--				(u32) this_thread_id, mutex_id));
-+				"Thread %lX could not acquire Mutex [%X]",
-+				(unsigned long) this_thread_id, mutex_id));
+ 	if (value & ACPI_EC_FLAG_SCI) {
+ 		status = acpi_os_execute(OSL_EC_BURST_HANDLER, acpi_ec_gpe_query, ec);
+-		return status == AE_OK ?
+-		    ACPI_INTERRUPT_HANDLED : ACPI_INTERRUPT_NOT_HANDLED;
  	}
- 
- 	return (status);
+ 	acpi_enable_gpe(NULL, ec->gpe_bit, ACPI_ISR);
+ 	return status == AE_OK ?
 
-
+--------------030109050807050601050305--

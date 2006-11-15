@@ -1,99 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932669AbWKOJel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966722AbWKOJsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932669AbWKOJel (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 04:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932822AbWKOJel
+	id S966722AbWKOJsH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 04:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966723AbWKOJsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 04:34:41 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:34224 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932669AbWKOJek (ORCPT
+	Wed, 15 Nov 2006 04:48:07 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:39483 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S966722AbWKOJsF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 04:34:40 -0500
-Date: Wed, 15 Nov 2006 10:33:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: sleeping functions called in invalid context during resume
-Message-ID: <20061115093354.GA30813@elte.hu>
-References: <20061114223002.10c231bd@localhost.localdomain> <20061115012025.13c72fc1.akpm@osdl.org>
+	Wed, 15 Nov 2006 04:48:05 -0500
+Date: Wed, 15 Nov 2006 10:47:27 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
+Cc: inux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org,
+       zach.brown@oracle.com
+Subject: Re: linux io_submit syscall duration
+Message-ID: <20061115094727.GJ23770@kernel.dk>
+References: <5d96567b0611142339k23e78cc6u19b64052be5cd360@mail.gmail.com> <20061115074720.GH23770@kernel.dk> <5d96567b0611150143n1a7cc16dgea39fba748a2de7f@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061115012025.13c72fc1.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0004]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <5d96567b0611150143n1a7cc16dgea39fba748a2de7f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+(don't top post and don't drop the cc list!)
 
-> >  [<ffffffff80215059>] vfs_write+0xce/0x174
-> >  [<ffffffff802159a5>] sys_write+0x45/0x6e
-> >  [<ffffffff802593de>] system_call+0x7e/0x83
-> > DWARF2 unwinder stuck at system_call+0x7e/0x83
-> > 
-> > Leftover inexact backtrace:
+On Wed, Nov 15 2006, Raz Ben-Jehuda(caro) wrote:
+> first thank you from your quick reply.
 > 
-> Could mean that someone somewhere forgot to release a spinlock.
+> I looked and what I found is :
+> "io_submit() taking a long time to return ?" from 2006-07-14.
+
+Subject is "async I/O seems to be blocking on 2.6.15" and the posting is
+from 2006-11-3. I said about a week ago, not 4 months.
+
+> 1.  It is NOT the first IO. already took care for that in my test.
+
+That was a different problem.
+
+> 2.  The test uses block device and does not walk through a file system.
+
+So would not apply.
+
+> 3.  Taking a look at the code, it seems that the main problem is the fact
+>     that in io_submit_one all the pending requests are being rerun.
 > 
-> Ingo had a patch which would find the culprit (preempt-tracing.patch).
+>    io_submit_one()
+>   {
+>    ...
+>        if (!list_empty(&ctx->run_list)) {
+>                /* drain the run list */
+>              while (__aio_run_iocbs(ctx))
+>                      ;
+>      }
+>   ...
+>   }
 > 
-> Does it still live?
+>  This code was put in remarks.
+> the second is in:
+>  aio_run_iocb()
+>   ...
+>    current->io_wait = &iocb->ki_wait;
+>    if ( iocb->ki_retried >  1)
+>        ret = retry(iocb);
+>    else{
+>        ret = -EIOCBRETRY;
+>        kiocbSetKicked(iocb);
+>    }
+>     current->io_wait = NULL;
+>  ....
+> 
+>  With these fixes io_submit delay reduced to zero ms.
+> 
+> I would appreciate your review on these fixes.
 
-if it's really a spinlock/rwlock release that was missed, then i've got 
-good news: we already have that debugging infrastructure, it's called 
-lockdep :-)
+Post a patch so it can be reviewed.
 
-The patch below makes use of that capability of lockdep for all 
-stackdumps that are printed to the console. Stephen, please apply this 
-patch, enable CONFIG_PROVE_LOCKING and try to trigger another message. 
+-- 
+Jens Axboe
 
-	Ingo
-
----------------->
-Subject: lockdep: show held locks when showing a stackdump
-From: Ingo Molnar <mingo@elte.hu>
-
-show held locks when printing a backtrace.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
----
- arch/i386/kernel/traps.c   |    1 +
- arch/x86_64/kernel/traps.c |    1 +
- 2 files changed, 2 insertions(+)
-
-Index: linux/arch/i386/kernel/traps.c
-===================================================================
---- linux.orig/arch/i386/kernel/traps.c
-+++ linux/arch/i386/kernel/traps.c
-@@ -318,6 +318,7 @@ static void show_stack_log_lvl(struct ta
- 	}
- 	printk("\n%sCall Trace:\n", log_lvl);
- 	show_trace_log_lvl(task, regs, esp, log_lvl);
-+	debug_show_held_locks(task);
- }
- 
- void show_stack(struct task_struct *task, unsigned long *esp)
-Index: linux/arch/x86_64/kernel/traps.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/traps.c
-+++ linux/arch/x86_64/kernel/traps.c
-@@ -405,6 +405,7 @@ show_trace(struct task_struct *tsk, stru
- 	printk("\nCall Trace:\n");
- 	dump_trace(tsk, regs, stack, &print_trace_ops, NULL);
- 	printk("\n");
-+	debug_show_held_locks(tsk);
- }
- 
- static void

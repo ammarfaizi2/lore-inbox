@@ -1,57 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966581AbWKOEam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966634AbWKOEm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966581AbWKOEam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 23:30:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966586AbWKOEal
+	id S966634AbWKOEm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 23:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966635AbWKOEm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 23:30:41 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:16500 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S966581AbWKOEak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 23:30:40 -0500
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-	<20061114.190036.30187059.davem@davemloft.net>
-	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
-	<20061114.192117.112621278.davem@davemloft.net>
-	<Pine.LNX.4.64.0611141935390.3349@woody.osdl.org>
-	<455A938A.4060002@garzik.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 14 Nov 2006 20:30:36 -0800
-In-Reply-To: <455A938A.4060002@garzik.org> (Jeff Garzik's message of "Tue, 14 Nov 2006 23:11:54 -0500")
-Message-ID: <ada8xidz5zn.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Tue, 14 Nov 2006 23:42:27 -0500
+Received: from mx2.suse.de ([195.135.220.15]:44461 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S966634AbWKOEm0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 23:42:26 -0500
+From: Andi Kleen <ak@suse.de>
+To: Suleiman Souhlal <ssouhlal@freebsd.org>
+Subject: Re: [PATCH 1/1] Make the TSC safe to be used by gettimeofday().
+Date: Wed, 15 Nov 2006 05:42:14 +0100
+User-Agent: KMail/1.9.5
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       Jiri Bohac <jbohac@suse.cz>
+References: <455A512F.6030907@FreeBSD.org> <455A52E9.9030505@FreeBSD.org>
+In-Reply-To: <455A52E9.9030505@FreeBSD.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 Nov 2006 04:30:36.0462 (UTC) FILETIME=[CBF53CE0:01C7086E]
-Authentication-Results: sj-dkim-6; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim6002 verified; ); 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611150542.14239.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > That reminds me of a potential driver bug -- MSI-aware drivers need to
- > call pci_intx(pdev,0) to turn off the legacy PCI interrupt, before
- > enabling MSI interrupts.
+On Wednesday 15 November 2006 00:36, Suleiman Souhlal wrote:
+> This is done by a per-cpu vxtime structure that stores the last TSC and HPET
+> values.
+> 
+> Whenever we switch to a userland process after a HLT instruction has been
+> executed or after the CPU frequency has changed, we force a new read of the
+> TSC, HPET and xtime so that we know the correct frequency we have to deal
+> with.
+> 
+> We also force a resynch once every second, on every CPU.
 
-Huh?  The device can't generate any legacy interrupts once MSI is
-enabled.  As the PCI spec says:
+Hmm, not sure we want to do it this way. Especially since you
+got unsolved races. But patch review ignoring the 10k foot picture again.
 
-    "While enabled for MSI or MSI-X operation, a function is prohibited
-    from using its INTx# pin (if implemented) to request service (MSI,
-    MSI-X, and INTx# are mutually exclusive)."
 
-Although the MSI core does do pci_intx() for PCIe devices only, for
-some reason I can't grok.
+>  static void default_idle(void)
+>  {
+> +	int cpu;
+> +
+> +	cpu = smp_processor_id();
+> +
 
- > The only thing that has changed recently is that people are trying to
- > get it working on AMD/NV as well.  (Brice Goglin's stuff starting at
- > 6397c75cbc4d7dbc3d07278b57c82a47dafb21b5 in 'git log')
 
-Actually NVidia/AMD was working on some systems long before that -- I
-had it working at least 2 years ago.
+This is not used? 
 
- - R.
+> +
+> +	/*
+> +	 * If we are switching away from a process in vsyscall, touch
+> +	 * the vxtime seq lock so that userland is aware that a context switch
+> +	 * has happened.
+> +	 */
+> +	rip = *(unsigned long *)(prev->rsp0 +
+> +	    offsetof(struct user_regs_struct, rip) - sizeof(struct pt_regs));
+> +	if (unlikely(rip > VSYSCALL_START) && unlikely(rip < VSYSCALL_END)) {
+> +		write_seqlock(&vxtime.vx_seq);
+> +		write_sequnlock(&vxtime.vx_seq);
+> +	}
+> +
+
+Can't this starve? If a process is unlucky enough (e.g. from 
+lots of interrupts) that it can't go through the vsyscall without at 
+least one context switch it will never finish. Ok maybe it's an 
+unlikely enough livelock, but it still makes me uncomfortable.
+
+unlikely should be normally top level in the condition.
+
+It would need to be rip >= 
+
+There's a macro to hide the rip lookup
+
+
+> @@ -135,9 +138,11 @@ void do_gettimeofday(struct timeval *tv)
+>  		   be found. Note when you fix it here you need to do the same
+>  		   in arch/x86_64/kernel/vsyscall.c and export all needed
+>  		   variables in vmlinux.lds. -AK */ 
+> -		usec += do_gettimeoffset();
+> -
+> -	} while (read_seqretry(&xtime_lock, seq));
+> +		rdtscll(t);
+
+Not calling do_gettimeoffset anymore?
+
+This means notsc won't work anymore. And the CPUID sync is also gone
+
+>  
+> -  .vxtime : AT(VLOAD(.vxtime)) { *(.vxtime) }
+> -  vxtime = VVIRT(.vxtime);
+> -
+>    .vgetcpu_mode : AT(VLOAD(.vgetcpu_mode)) { *(.vgetcpu_mode) }
+>    vgetcpu_mode = VVIRT(.vgetcpu_mode);
+>  
+> @@ -119,6 +116,9 @@ #define VVIRT(x) (ADDR(x) - VVIRT_OFFSET
+>    .vsyscall_2 ADDR(.vsyscall_0) + 2048: AT(VLOAD(.vsyscall_2)) { *(.vsyscall_2) }
+>    .vsyscall_3 ADDR(.vsyscall_0) + 3072: AT(VLOAD(.vsyscall_3)) { *(.vsyscall_3) }
+>  
+> +  .vxtime : AT(VLOAD(.vxtime)) { *(.vxtime) }
+> +  vxtime = VVIRT(.vxtime);
+
+Why did you move it?
+
+> +long vgetcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache);
+
+externs in c code are still forbidden, even if they don't have
+extern
+
+
+>  static __always_inline void do_vgettimeofday(struct timeval * tv)
+
+Has similar problems are the in kernel gtod
+
+> +static int vxtime_periodic(void *arg)
+> +{
+> +	while (1) {
+> +		set_current_state(TASK_INTERRUPTIBLE);
+> +		schedule_timeout(msecs_to_jiffies(1000));
+> +
+> +		smp_call_function(_vxtime_update_pcpu, NULL, 1, 1);
+> +		_vxtime_update_pcpu(NULL);
+> +	}
+> +
+> +	return (0); /* NOTREACHED */
+
+I don't see why this should be a thread and not a timer? Threads
+are expensive and there are already too many
+
+
+> +
+> +static __init int vxtime_init_pcpu(void)
+> +{
+> +	seqlock_init(&vxtime.vx_seq);
+> +
+> +	/*
+> +	 * Don't bother updating the per-cpu data after each HLT
+> +	 * if we don't need to.
+> +	 */
+> +	if (!unsynchronized_tsc())
+
+So why did you drop the __cpuinit for unsynchronized_tsc if it's only
+called from __init?
+
+-Andi

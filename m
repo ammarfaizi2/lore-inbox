@@ -1,183 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030932AbWKOTqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWKOTtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030932AbWKOTqo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 14:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030942AbWKOTqo
+	id S1161179AbWKOTtE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 14:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161187AbWKOTtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 14:46:44 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:44245 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1030932AbWKOTqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 14:46:43 -0500
-Date: Wed, 15 Nov 2006 11:41:55 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Andi Kleen <ak@suse.de>
-Cc: len.brown@intel.com, Linus Torvalds <torvalds@osdl.org>, jeff@garzik.org,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [PATCH v2] ACPI: use MSI_NOT_SUPPORTED bit
-Message-Id: <20061115114155.3a94d48c.randy.dunlap@oracle.com>
-In-Reply-To: <200611151944.12415.ak@suse.de>
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-	<p73ejs5co0q.fsf@bingen.suse.de>
-	<20061115103525.19e9d3eb.randy.dunlap@oracle.com>
-	<200611151944.12415.ak@suse.de>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Nov 2006 14:49:04 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:45204 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161179AbWKOTtB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 14:49:01 -0500
+Message-ID: <455B6F20.6050503@garzik.org>
+Date: Wed, 15 Nov 2006 14:48:48 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Stephen.Clark@seclark.us
+CC: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Takashi Iwai <tiwai@suse.de>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>  <20061114.190036.30187059.davem@davemloft.net>  <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>  <20061114.192117.112621278.davem@davemloft.net>  <s5hbqn99f2v.wl%tiwai@suse.de>  <Pine.LNX.4.64.0611150814000.3349@woody.osdl.org> <1163607889.31358.132.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0611150829460.3349@woody.osdl.org> <455B6BB1.7030009@seclark.us>
+In-Reply-To: <455B6BB1.7030009@seclark.us>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 19:44:12 +0100 Andi Kleen wrote:
+Stephen Clark wrote:
+> Also, I find it disturbing that we are forcing users to have know about 
+> all these
+> magic options that have to be put on the kernel boot line. My hard drive 
+> on my
+> new laptop would only run at 1.2mbs until I found out I had to use 
+> combined_mode=libata
+> and build a new ramdisk that included ata_piix.
 
-> On Wednesday 15 November 2006 19:35, Randy Dunlap wrote:
-> > On 15 Nov 2006 05:49:41 +0100 Andi Kleen wrote:
-> > 
-> > > BTW there seems to be a new ACPI FADT bit that says "MSI is broken"
-> > > We should probably check that too as a double check.
-> > 
-> > Do you mean more than just use that bit when you say "double check"?
-> > 
-> > I wonder why this hasn't already been done. (?)
-> 
-> Nobody coded it yet.
-> 
-> > How's this look?  Build-tested only.
-> 
-> There should be probably a command line option to overwrite it
+That's what happens when two drivers want to drive the same hardware. 
+The "slow and safe" default is the only proven-stable option, with the 
+proven-stable PATA driver.  The other two options (drivers/ide for 
+PATA+SATA -> leads to SATA locksup) and (libata for PATA -> ok but 
+breaks existing configs, and less field time) are considered less safe.
 
-OK, anything else?
+Combined mode is ugly no matter how you look at it.  Just turn it off in 
+BIOS (or pressure system vendor for this ability if BIOS lacks it, e.g. 
+some Dell servers)
 
----
-From: Randy Dunlap <randy.dunlap@oracle.com>
+And throw some annoyance at Intel for creating such a headache.
 
-- Implement use of FADT boot_flags.MSI_NOT_SUPPORTED bit to prevent
-  assigning MSIs.
-- Force MSI_NOT_SUPPORTED for ACPI 1.0 tables.
-- Add "pci=allowmsi" to override (ignore) the MSI_NOT_SUPPORTED bit
-  from the APCI FADT.
+	Jeff
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- Documentation/kernel-parameters.txt |    6 ++++++
- drivers/acpi/bus.c                  |    7 +++++++
- drivers/acpi/tables/tbconvrt.c      |    3 ++-
- drivers/pci/pci.c                   |    4 ++++
- include/acpi/actbl.h                |    4 +++-
- include/linux/pci.h                 |    3 +++
- 6 files changed, 25 insertions(+), 2 deletions(-)
 
---- linux-2619-rc5.orig/include/acpi/actbl.h
-+++ linux-2619-rc5/include/acpi/actbl.h
-@@ -290,7 +290,7 @@ struct fadt_descriptor_rev1 {
- 	ACPI_FADT_COMMON u32 flags;
- };
- 
--/* FADT: Prefered Power Management Profiles */
-+/* FADT: Preferred Power Management Profiles */
- 
- #define PM_UNSPECIFIED                  0
- #define PM_DESKTOP                      1
-@@ -304,6 +304,8 @@ struct fadt_descriptor_rev1 {
- 
- #define BAF_LEGACY_DEVICES              0x0001
- #define BAF_8042_KEYBOARD_CONTROLLER    0x0002
-+#define BAF_VGA_NOT_PRESENT		0x0004
-+#define BAF_MSI_NOT_SUPPORTED		0x0008
- 
- #define FADT2_REVISION_ID               3
- #define FADT2_MINUS_REVISION_ID         2
---- linux-2619-rc5.orig/drivers/acpi/tables/tbconvrt.c
-+++ linux-2619-rc5/drivers/acpi/tables/tbconvrt.c
-@@ -289,7 +289,8 @@ acpi_tb_convert_fadt1(struct fadt_descri
- 		 * Since there isn't any equivalence in 1.0 and since it is highly
- 		 * likely that a 1.0 system has legacy support.
- 		 */
--		local_fadt->iapc_boot_arch = BAF_LEGACY_DEVICES;
-+		local_fadt->iapc_boot_arch = BAF_LEGACY_DEVICES |
-+						BAF_MSI_NOT_SUPPORTED;
- 	}
- 
- 	/*
---- linux-2619-rc5.orig/include/linux/pci.h
-+++ linux-2619-rc5/include/linux/pci.h
-@@ -610,6 +610,7 @@ static inline int pci_enable_msix(struct
- 	struct msix_entry *entries, int nvec) {return -1;}
- static inline void pci_disable_msix(struct pci_dev *dev) {}
- static inline void msi_remove_pci_irq_vectors(struct pci_dev *dev) {}
-+static inline void pci_no_msi(void) {}
- #else
- extern void pci_scan_msi_device(struct pci_dev *dev);
- extern int pci_enable_msi(struct pci_dev *dev);
-@@ -618,6 +619,8 @@ extern int pci_enable_msix(struct pci_de
- 	struct msix_entry *entries, int nvec);
- extern void pci_disable_msix(struct pci_dev *dev);
- extern void msi_remove_pci_irq_vectors(struct pci_dev *dev);
-+extern void pci_no_msi(void);
-+extern int pci_allow_msi;
- #endif
- 
- #ifdef CONFIG_HT_IRQ
---- linux-2619-rc5.orig/drivers/acpi/bus.c
-+++ linux-2619-rc5/drivers/acpi/bus.c
-@@ -28,6 +28,7 @@
- #include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/sched.h>
-+#include <linux/pci.h>
- #include <linux/pm.h>
- #include <linux/pm_legacy.h>
- #include <linux/device.h>
-@@ -637,6 +638,12 @@ void __init acpi_early_init(void)
- 	}
- #endif
- 
-+	if (!pci_allow_msi &&
-+	   (acpi_fadt.iapc_boot_arch & BAF_MSI_NOT_SUPPORTED)) {
-+		printk(KERN_DEBUG PREFIX "MSI not supported, disabling it\n");
-+		pci_no_msi();
-+	}
-+
- 	status =
- 	    acpi_enable_subsystem(~
- 				  (ACPI_NO_HARDWARE_INIT |
---- linux-2619-rc5.orig/Documentation/kernel-parameters.txt
-+++ linux-2619-rc5/Documentation/kernel-parameters.txt
-@@ -1178,6 +1178,12 @@ and is between 256 and 4096 characters. 
- 		nomsi		[MSI] If the PCI_MSI kernel config parameter is
- 				enabled, this kernel boot option can be used to
- 				disable the use of MSI interrupts system-wide.
-+		allowmsi	[MSI,ACPI] If ACPI FADT says that MSI is not
-+				supported on this platform but the user wants
-+				to use it anyway, this option tells the kernel
-+				to ignore the ACPI FADT MSI flag and allow MSI
-+				to be used if there are devices that want to
-+				use it.
- 		nosort		[IA-32] Don't sort PCI devices according to
- 				order given by the PCI BIOS. This sorting is
- 				done to get a device order compatible with
---- linux-2619-rc5.orig/drivers/pci/pci.c
-+++ linux-2619-rc5/drivers/pci/pci.c
-@@ -20,6 +20,8 @@
- #include "pci.h"
- 
- unsigned int pci_pm_d3_delay = 10;
-+int pci_allow_msi; /* when set, this overrides the ACPI FADT boot_arch
-+		    * MSI_NOT_SUPPORTED bit so that MSI can still be used */
- 
- /**
-  * pci_bus_max_busnr - returns maximum PCI bus number of given bus' children
-@@ -998,6 +1000,8 @@ static int __devinit pci_setup(char *str
- 		if (*str && (str = pcibios_setup(str)) && *str) {
- 			if (!strcmp(str, "nomsi")) {
- 				pci_no_msi();
-+			} else if (!strcmp(str, "allowmsi"))
-+				pci_allow_msi = 1;
- 			} else {
- 				printk(KERN_ERR "PCI: Unknown option `%s'\n",
- 						str);

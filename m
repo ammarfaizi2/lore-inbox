@@ -1,139 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWKODKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWKODM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWKODKz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Nov 2006 22:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWKODKz
+	id S932601AbWKODM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Nov 2006 22:12:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWKODM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Nov 2006 22:10:55 -0500
-Received: from mail.enter.net ([216.193.128.40]:15802 "EHLO mmail.enter.net")
-	by vger.kernel.org with ESMTP id S932490AbWKODKy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Nov 2006 22:10:54 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Date: Tue, 14 Nov 2006 22:10:50 -0500
-User-Agent: KMail/1.9.5
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-References: <200611150059.kAF0xBTl009796@hera.kernel.org> <Pine.LNX.4.64.0611141747490.3349@woody.osdl.org> <455A7E21.7020701@garzik.org>
-In-Reply-To: <455A7E21.7020701@garzik.org>
+	Tue, 14 Nov 2006 22:12:58 -0500
+Received: from web52512.mail.yahoo.com ([206.190.48.195]:38504 "HELO
+	web52512.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932601AbWKODM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Nov 2006 22:12:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=C/n5Tcwaf9qKkl8/jNU3ztal6BZ35H8Pq35mmaaGjtgpspAfIfBlb8mttlWn6/W9GgXrGUqlEOoZUEyjuH29Ob28aRSzKTQW0SNDQ+S3c07AyvihupeOHB206xQX9dfehWaiLhJ/zJozU6V6KyrYBpXGPtIuYYF1gcU3zhqg7iU=  ;
+Message-ID: <20061115031256.20343.qmail@web52512.mail.yahoo.com>
+Date: Tue, 14 Nov 2006 19:12:56 -0800 (PST)
+From: Marc Perkel <mperkel@yahoo.com>
+Subject: Re: Kernel list rejecting my email - braindead list
+To: David Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061114.185102.71089409.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611142210.51162.dhazelton@enter.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 November 2006 21:40, Jeff Garzik wrote:
-> Linus Torvalds wrote:
-> > On Tue, 14 Nov 2006, Jeff Garzik wrote:
-> >> :(  Like AHCI, PCI MSI has -always- worked wonderfully for HD audio
-> >> : AFAIK.
-> >
-> > That "AFAIK" is shorthand for "As Far As I haven't read any of the
-> > bug-reports but Know", right?
->
-> None of the bug reports indicate Intel, thus following the well
-> established pattern of "it works great on Intel, but not elsewhere"
 
-Since when does INTEL make policy about Linux?
-It'd be better to just follow Linus' suggestion and *NOT* use it.
 
-> >> Is a whitelist patch forthcoming?
-> >
-> > Probably not. The advantages of MSI aren't all that obvious, and the
-> > disadvantages seem to be that it just doesn't work all that well for some
-> > people.
-> >
-> > The fact that it works for MOST people has absolutely zero relevance.
-> > We've had too many frigging patches that have apparently been of the
-> > "this works for me, I don't care if some other motherboard has problems"
-> > kind.
-> >
-> > See for example:
-> >
-> > 	http://lkml.org/lkml/2006/10/7/164
-> >
-> > and yes, that HDA MSI _does_ seem to be causing problems.
->
-> But not on Intel, hence the obvious whitelist question.
+--- David Miller <davem@davemloft.net> wrote:
 
-AFAICT that is the problem. You are fixated on the fact that MSI for the Intel 
-HD Audio works on INTEL motherboards. Pardon the language but - BIG FUCKING 
-SURPRISE THERE! The systems I'm running right now might be Intel chipset 
-boards, but that is simply a fluke. (They were given to me)
-
-As a simple fact the only reason I see Linux users moving to systems with 
-Intel chipsets is that Intel is actually making a lot of its driver code open 
-source. Other than that... Well, let me just point out that not one of the 
-Linux users I personally know have a system with an Intel chipset.
-
-> > So don't blather about "MSI never causes problems". It's broken. Please
-> > stop living in denial.
+> From: Marc Perkel <mperkel@yahoo.com>
+> Date: Tue, 14 Nov 2006 16:54:25 -0800 (PST)
+> 
+> > So you are banning me from the list because my
+> server
+> > returned a 421 temporary error? You have to be out
+> of
+> > your fucking mind!
 > > 
-> > When somebody can actually say what the huge advantages to MSI are that
-> > it's worth using when
-> >
-> >  (a) several motherboards are apparently known broken
->
-> several non-Intel motherboards
+> > 1136501663 davem marc@perkel.com linux-kernel 421
+> > Lost incoming connection: The error was detected
+> in
+> > line 3.
+> 
+> Your site was generating 500 errors too.
+> 
+> But that's not the reason I banned you.
+> 
+> The reason I banned you, and I apply this rule
+> consistently, is that
+> you ignored when you were removed from the list. 
+> Instead of
+> contacting the postmaster and asking why, you just
+> blindly
+> resubscribed yourself again.
+> 
+> When we remove you, we do it because your email
+> address really is
+> bouncing.
+> 
+> One should always contact the postmaster for more
+> information when
+> they are unsubscribed from the mailing list.
+> 
 
-Again you focus on Intel. Give it up already. You've proved that you have no 
-real argument *FOR* having MSI in the driver.
+So what? Yes sometimes the spam coming through this
+list triggers a bounce. So what? What is an occasional
+bounce message a problem for you? Why don't you just
+ignore a few bounces? The list seems to be far more
+tollerant of spam than it is if a message bounces
+every now and then.
 
-> >  (b) microsoft apparently is of the same opinion and _also_ doesn't use
-> > it
->
-> Yeah well, that's sage advice only when it's sage advice.  MS lags us by
-> years.  We do some bleeding, on the bleeding edge.
+majordomo is an ancient piece of software. I don't
+understand why this list doesn't use a more modern
+platform like Mailman that automatically deal with
+bounce processing. It tracks bounces and it can tell
+if a message is a fluke bounce or if an email address
+it permanently down. For some reason you are making a
+huge deal over nothing. You act as if a bounce is a
+crime.
 
-and is light years ahead in some parts. Have you seen the "usermode driver" 
-system released as part of Vista and as a patch for XP? I, personally, cannot 
-see how it could work or be secure while doing so, but it does have an 
-advantage... Namely that a driver cannot bring the kernel down.
 
-That Linux is ahead of Windows in a lot of cases is due more to the fact that 
-it is extremely easy to get new technology implemented and working in Linux 
-(and accepted into the kernel) than it is for the Windows. (Due more to the 
-*MASSIVE* size of the windows code base and the fact that its a closed 
-corporate project than anything)
 
-But anyway...
-
-> >  (c) the old non-MSI code works fine
-> >
-> >  (d) there is apparently no fool-proof way to tell when it works and when
-> >      it doesn't.
-> >
-> > then please holler. Btw, I'm not even _interested_ in any advantages
-> > unless you also have a solution for (d). Not a "it should work". I want
-> > to hear something that is _guaranteed_ to work.
->
-> if (intel) ...
-
-Again crowing about how something works on ONE (1) (Uno, Eins, Un, Ichi) 
-platform. A single working platform is no reason to complicate code with a 
-whitelist.
-
->
-> That has a track record of working.
->
-> It's nice not to have to deal with shared interrupts.
->
-> 	Jeff
-
-Yes, I'm sure it is. But until it starts working on more than one platform 
-it'd be stupid to add the code for a whitelist. Be easier to just *OFFER* MSI 
-to people as a build option.  Then the people who *KNOW* it won't fubar their 
-system can activate it.
-
-(BTW, as Linus pointed out, MSI isn't really needed until you get to a system 
-so large it has someone (or someones) there whose sole job is to make sure 
-that the best and fastest ways of doing things are used and are fully 
-functional)
-
-DRH
+ 
+____________________________________________________________________________________
+Do you Yahoo!?
+Everyone is raving about the all-new Yahoo! Mail beta.
+http://new.mail.yahoo.com

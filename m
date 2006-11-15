@@ -1,48 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966596AbWKOHyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966457AbWKOHyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966596AbWKOHyw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 02:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966599AbWKOHyn
+	id S966457AbWKOHyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 02:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966559AbWKOHu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 02:54:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:40654 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S966596AbWKOHyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 02:54:31 -0500
-Subject: Re: 2.6.19-rc5-mm2 -- 3d slow with dynticks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Benoit Boissinot <bboissin@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <40f323d00611141456i7d538593vaf7e962121b6009d@mail.gmail.com>
-References: <40f323d00611141456i7d538593vaf7e962121b6009d@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 15 Nov 2006 08:54:25 +0100
-Message-Id: <1163577265.31358.83.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 15 Nov 2006 02:50:58 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:53710 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S966457AbWKOHum (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 02:50:42 -0500
+Message-ID: <363577027.21937@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Message-Id: <20061115075030.942942737@localhost.localdomain>
+References: <20061115075007.832957580@localhost.localdomain>
+Date: Wed, 15 Nov 2006 15:50:27 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 20/28] readahead: backward prefetching method
+Content-Disposition: inline; filename=readahead-backward-prefetching-method.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-14 at 23:56 +0100, Benoit Boissinot wrote:
-> On 11/14/06, Andrew Morton <akpm@osdl.org> wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/
-> >
-> 
-> CONFIG_NO_HZ=y still gives me slow 3d games on this one whereas
-> 2.6.19-rc5-mm1 +
-> http://tglx.de/private/tglx/2.6.19-rc5-mm1-dyntick.diff was fine.
-> 
-> Maybe some patches where not merged ?
+Readahead policy for reading backward.
 
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+DESC
+readahead: backward prefetching method - add use case comment
+EDESC
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 
-what video is this?
+Backward prefetching is vital to structural analysis and some other
+scientific applications.  Comment this use case.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+--- linux-2.6.19-rc5-mm2.orig/mm/readahead.c
++++ linux-2.6.19-rc5-mm2/mm/readahead.c
+@@ -1476,6 +1476,52 @@ initial_readahead(struct address_space *
+ }
+ 
+ /*
++ * Backward prefetching.
++ *
++ * No look-ahead and thrashing safety guard: should be unnecessary.
++ *
++ * Important for certain scientific arenas(i.e. structural analysis).
++ */
++static int
++try_backward_prefetching(struct file_ra_state *ra, pgoff_t offset,
++			 unsigned long size, unsigned long ra_max)
++{
++	pgoff_t prev = ra->prev_page;
++
++	/* Reading backward? */
++	if (offset >= prev)
++		return 0;
++
++	/* Close enough? */
++	size += readahead_hit_rate;
++	if (offset + 2 * size <= prev)
++		return 0;
++
++	if (ra_class_new(ra) == RA_CLASS_BACKWARD && ra_has_index(ra, prev)) {
++		prev = ra->la_index;
++		size += 2 * ra_readahead_size(ra);
++	} else
++		size *= 2;
++
++	if (size > ra_max)
++		size = ra_max;
++	if (size > prev)
++		size = prev;
++
++	/* The readahead-request covers the read-request? */
++	if (offset < prev - size)
++		return 0;
++
++	offset = prev - size;
++
++	ra_set_class(ra, RA_CLASS_BACKWARD);
++	ra_set_index(ra, offset, offset);
++	ra_set_size(ra, size, 0);
++
++	return 1;
++}
++
++/*
+  * ra_min is mainly determined by the size of cache memory. Reasonable?
+  *
+  * Table of concrete numbers for 4KB page size:
 
+--

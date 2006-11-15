@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030775AbWKORyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030640AbWKOR4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030775AbWKORyq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030777AbWKORyp
+	id S1030640AbWKOR4q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:56:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030774AbWKOR4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:54:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24464 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030775AbWKORyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:54:44 -0500
-Message-ID: <455B5466.40407@mentalrootkit.com>
-Date: Wed, 15 Nov 2006 12:54:46 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Wed, 15 Nov 2006 12:56:45 -0500
+Received: from wr-out-0506.google.com ([64.233.184.224]:4163 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030640AbWKOR4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 12:56:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sfyZoS/cEv9Cmo2MKSghlxZF2eFnWdNHq2StZCbw2Gn7NZkL9mRbmWQO7a51wRHrPGDlG8ulAzt0Rkz9XiOM0GyMZ1oXvtSBeuo7jA7prBJGcZQR8ZZyg8pf4y5YzptP6GZMd44VRQPvQc2sFeDa7GHmd1Iqhf/s2zeCIZF0lgc=
+Message-ID: <40f323d00611150956q7c61bcafqed43598c8c94fa65@mail.gmail.com>
+Date: Wed, 15 Nov 2006 18:56:43 +0100
+From: "Benoit Boissinot" <bboissin@gmail.com>
+To: tglx@linutronix.de
+Subject: Re: 2.6.19-rc5-mm2 -- 3d slow with dynticks
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1163586665.8335.334.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-       trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com, steved@redhat.com
-Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
- overridden
-References: <XMMS.LNX.4.64.0611141618300.25022@d.namei>  <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>  <24555.1163598644@redhat.com> <XMMS.LNX.4.64.0611151120240.8593@d.namei>
-In-Reply-To: <XMMS.LNX.4.64.0611151120240.8593@d.namei>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <40f323d00611141456i7d538593vaf7e962121b6009d@mail.gmail.com>
+	 <1163586665.8335.334.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
-> On Wed, 15 Nov 2006, David Howells wrote:
-> 
->> James Morris <jmorris@namei.org> wrote:
->>
->>> The ability to set this needs to be mediated via MAC policy.
->> Something like this, you mean?
-> 
-> Yes, although perhaps writing to tsec->kern_create_sid or similar, which 
-> then overrides tsec->create_sid if set.  Also need 
-> /proc/pid/attr/kern_fscreate as a read only node.
-> 
-> 
->> +	error = task_has_perm(current, current, PROCESS__SETFSCREATE);
-> 
-> I wonder if we also need 'relabelto' and 'relabelfrom' permissions, to 
-> control which labels are being used.
-> 
+On 11/15/06, Thomas Gleixner <tglx@linutronix.de> wrote:
+> On Tue, 2006-11-14 at 23:56 +0100, Benoit Boissinot wrote:
+> > On 11/14/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/
+> > >
+> >
+> > CONFIG_NO_HZ=y still gives me slow 3d games on this one whereas
+> > 2.6.19-rc5-mm1 +
+> > http://tglx.de/private/tglx/2.6.19-rc5-mm1-dyntick.diff was fine.
+> >
+> > Maybe some patches where not merged ?
+>
+> I just checked. They are all in -mm2.
+>
+I just noticed I had no direct rendering and there was some acpi
+errors in dmesg.
 
-No - assuming the existing checks are called, the controls on 
-file/dir/etc creation should be sufficient to control which labels are 
-used. Setting fscreate is not a relabel operation nor does it result in 
-a relabel operation as the sid is only used for creation.
+Doing a reboot solved it.
 
-Karl
+Sorry for the false alarm.
 
+regards,
 
+Benoit

@@ -1,50 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030969AbWKOUYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWKOU0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030969AbWKOUYH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 15:24:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030968AbWKOUYG
+	id S1161383AbWKOU0S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 15:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030975AbWKOU0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 15:24:06 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59862 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030969AbWKOUYD (ORCPT
+	Wed, 15 Nov 2006 15:26:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2781 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030952AbWKOU0R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 15:24:03 -0500
-Date: Wed, 15 Nov 2006 21:23:48 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: David Chinner <dgc@sgi.com>, Alasdair G Kergon <agk@redhat.com>,
-       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061115202348.GB3875@elf.ucw.cz>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061115185029.GA3722@elf.ucw.cz> <200611152056.48218.rjw@sisk.pl> <200611152100.35054.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611152100.35054.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 15 Nov 2006 15:26:17 -0500
+Date: Wed, 15 Nov 2006 12:21:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
+       William Cohen <wcohen@redhat.com>, Eric Dumazet <dada1@cosmosbay.com>,
+       Komuro <komurojun-mbn@nifty.com>, Ernst Herzberg <earny@net4u.de>,
+       Andre Noll <maan@systemlinux.org>, oprofile-list@lists.sourceforge.net,
+       Jens Axboe <jens.axboe@oracle.com>,
+       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
+       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
+       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
+Message-Id: <20061115122118.14fa2177.akpm@osdl.org>
+In-Reply-To: <200611152023.53960.ak@suse.de>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<200611151945.31535.ak@suse.de>
+	<Pine.LNX.4.64.0611151105560.3349@woody.osdl.org>
+	<200611152023.53960.ak@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 15 Nov 2006 20:23:53 +0100
+Andi Kleen <ak@suse.de> wrote:
 
-> > There's one more thing, actually.  If the on-disk data and metadata are
-> > changed _after_ the sync we do and _before_ we create the snapshot image,
-> > and the subsequent  resume fails,
 > 
-> Well, but this is equivalent to a power failure immediately after the sync, so
-> there _must_ be a way to recover the filesystem from that, no?
+> > The fact is, it used to work, and the kernel changed interfaces, so now it 
+> > doesn't. 
+> 
+> No, it didn't work. oprofile may have done something, but it 
+> just silently killed the NMI watchdog in the process.
+> That was never acceptable.
 
-Exactly.
+But people could get profiles out.  I know, I've seen them!
 
-> I think I'll prepare a patch for freezing the work queues and we'll see what
-> to do next.
+> Now we do proper accounting of NMI sources and also proper allocation
+> of performance counters.
+> 
+>  
+> > Yes, "oprofile" should be fixed to not depend on that, but the kernel 
+> > shouldn't change the interfaces, and we should add back the zero entry.
+> 
+> That would break the nmi watchdog again.
+> 
+> Anyways, there is a sysctl to disable the nmi watchdog if someone
+> is desperate.
+> 
+> But I think it is clearly oprofile who did wrong here and needs
+> to be fixed.
+> 
 
-Thanks!
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Is it correct to say that oprofile-on-2.6.18 works, and that
+oprofile-on-2.6.19-rc5 does not?
+
+Or is there some sort of workaround for this, or does 2.6.19-rc5 only fail
+in some particular scenarios?
+
+If it's really true that oprofile is simply busted then that's a serious
+problem and we should find some way of unbusting it.  If that means just
+adding a dummy "0" entry which always returns zero or something like that,
+then fine.
+
+But we can't just go and bust it.

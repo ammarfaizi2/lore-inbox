@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030800AbWKOSO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030804AbWKOSR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030800AbWKOSO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030802AbWKOSO0
+	id S1030804AbWKOSR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030803AbWKOSR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:14:26 -0500
-Received: from wx-out-0506.google.com ([66.249.82.233]:31465 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030800AbWKOSOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:14:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=C/HdiLHjGWlY95lrz9InUoTgOr/b8m7aYGZg+rhHnb/IW6SQSi626Do+wyqVg99YcDy7KHYH80IR6FmFRaO4dizn4GjLyUr32L9WAa2INQ+PlRY5915TIaOUP3X3vaFVlGpFIbeaTUdzD8SWopsmiqqWZU5qhgSuJwMVmMu1R2E=
-Date: Wed, 15 Nov 2006 15:14:27 -0300
-From: Naranjo Manuel Francisco <naranjo.manuel@gmail.com>
-To: <bunk@stusta.de>
-Cc: gregkh@suse.de, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: drivers/usb/serial/aircable.c: inconsequent NULL checking
-Message-ID: <20061115151427.47ffdd75@manuel>
-In-Reply-To: <360bc8300611151008v44e12cebx65688233fc614906@mail.gmail.com>
-References: <20061111161300.GB8809@stusta.de>
-	<360bc8300611151008v44e12cebx65688233fc614906@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.5.2 (GTK+ 2.10.6; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Nov 2006 13:17:28 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:3724 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030793AbWKOSR1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 13:17:27 -0500
+Message-ID: <455B5990.7080808@us.ibm.com>
+Date: Wed, 15 Nov 2006 10:16:48 -0800
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-mm <linux-mm@kvack.org>, ext4 <linux-ext4@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pagefault in generic_file_buffered_write() causing deadlock
+References: <1163606265.7662.8.camel@dyn9047017100.beaverton.ibm.com> <20061115090005.c9ec6db5.akpm@osdl.org>
+In-Reply-To: <20061115090005.c9ec6db5.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2006/11/11, Adrian Bunk <bunk@stusta.de>:
-> > The Coverity checker spotted the following in
-> > drivers/usb/serial/aircable.c:
-> >
-> > <--  snip  -->
-> >
-> > ...
-> > static void aircable_read(void *params)
-> > {
-> > ...
+Andrew Morton wrote:
+> On Wed, 15 Nov 2006 07:57:45 -0800
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+>   
+>> We are looking at a customer situation (on 2.6.16-based distro) - where
+>> system becomes almost useless while running some java & stress tests.
+>>
+>> Root cause seems to be taking a pagefault in generic_file_buffered_write
+>> () after calling prepare_write. I am wondering 
+>>
+>> 1) Why & How this can happen - since we made sure to fault the user
+>> buffer before prepare write.
+>>     
+>
+> When using writev() we only fault in the first segment of the iovec.  If
+> the second or succesive segment isn't mapped into pagetables we're
+> vulnerable to the deadlock.
+>   
 
+Yes. I remember this change. Thank you.
+>   
+>> 2) If this is already fixed in current mainline (I can't see how).
+>>     
+>
+> It was fixed in 2.6.17.
+>
+> You'll need 6527c2bdf1f833cc18e8f42bd97973d583e4aa83 and
+> 81b0c8713385ce1b1b9058e916edcf9561ad76d6
+>   
+I will try to get this change into customer :(
 
-Hi everyone,
-Sorry for the long time response but here is the patch, I think this way should work, if anyone has any suggestion let me know. What I do now is, in case I don't have the tty available I reschedule the work, I have tried it and it works with no problem, I even tried removing the device, and didn't find anything strange.
-
-Manuel Naranjo
-
-Signed-off-by: Naranjo Manuel <naranjo.manuel@gmail.com>
-
-----
-
---- linux2/drivers/usb/serial/aircable.c.orig	2006-11-15 15:03:40.000000000 -0300
-+++ linux2/drivers/usb/serial/aircable.c	2006-11-12 21:59:05.000000000 -0300
-@@ -270,8 +270,11 @@ static void aircable_read(void *params)
- 	 */
- 	tty = port->tty;
- 
--	if (!tty)
-+	if (!tty){
- 		schedule_work(&priv->rx_work);
-+		err("%s - No tty available", __FUNCTION__);
-+		return ;
-+	}
- 
- 	count = min(64, serial_buf_data_avail(priv->rx_buf));
- 
+Thanks,
+Badari
 

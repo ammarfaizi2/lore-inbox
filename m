@@ -1,87 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966725AbWKOKmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966765AbWKOKrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966725AbWKOKmT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 05:42:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966757AbWKOKmT
+	id S966765AbWKOKrE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 05:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966768AbWKOKrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 05:42:19 -0500
-Received: from tornado.reub.net ([203.222.131.131]:41670 "EHLO
-	tornado.reub.net") by vger.kernel.org with ESMTP id S966725AbWKOKmS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 05:42:18 -0500
-Message-ID: <455AEF0B.1040907@reub.net>
-Date: Wed, 15 Nov 2006 21:42:19 +1100
-From: Reuben Farrelly <reuben-linuxkernel@reub.net>
-User-Agent: Thunderbird 2.0b1pre (Windows/20061114)
+	Wed, 15 Nov 2006 05:47:04 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:25195 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S966765AbWKOKrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 05:47:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=BRnyptj/1+oln0CSYHZ6GU1YvHXK84F8hs2pV3vsBpSAkhVvEATNhA+0HPr+BB0+yX4GuWX3KdCGg79pIcnQj8DA6ZSqpVZ5fi/IPb6k6czAotHtFzw8EMeQMXL6mIPrb9+Pe5Da26DkQd02HWXza7uRbYNFScl/3rz1ujk7z3I=
+Message-ID: <455AF01C.5090307@gmail.com>
+Date: Wed, 15 Nov 2006 19:46:52 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.7 (X11/20061014)
 MIME-Version: 1.0
-To: ego@in.ibm.com
-CC: Andrew Morton <akpm@osdl.org>, davej@redhat.com,
-       linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com,
-       CPUFreq Mailing List <cpufreq@lists.linux.org.uk>
-Subject: Re: 2.6.19-rc5-mm2
-References: <20061114014125.dd315fff.akpm@osdl.org> <4559A91C.10009@reub.net> <20061114170053.GA22649@in.ibm.com> <20061114205829.GC2504@inferi.kami.home> <20061115103419.GA3131@in.ibm.com>
-In-Reply-To: <20061115103419.GA3131@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Vasily Averin <vvs@sw.ru>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@kernel.dk>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-ide@vger.kernel.org, devel@openvz.org,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [Q] PCI Express and ide (native) leads to irq storm?
+References: <453DC2A9.8000507@sw.ru> <453DC65C.8000408@sw.ru>	 <454206EE.9080206@sw.ru> <1161958862.16839.26.camel@localhost.localdomain> <4559879D.8090105@sw.ru>
+In-Reply-To: <4559879D.8090105@sw.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 15/11/2006 9:34 PM, Gautham R Shenoy wrote:
-> Hi,
+Vasily Averin wrote:
+> Alan Cox wrote:
+>> Ar Gwe, 2006-10-27 am 17:17 +0400, ysgrifennodd Vasily Averin:
+>>> Could somebody please help me to troubleshoot this issue? I've seen this issue
+>>> on the customer nodes and would like to know how I can work-around this issue
+>>> without any changes inside motherboard BIOS.
+>> If its an IRQ routing triggered problem you probably can't, at least not
+>> the IDE error. The oops wants debugging further because it shouldn't
+>> have oopsed on that error merely given up.
 > 
-> On Tue, Nov 14, 2006 at 09:58:29PM +0100, Mattia Dongili wrote:
->> maybe this helps? mostly guessing here, but when cpufreq_userspace is
->> the default governor we may hit this path and leave policy->cur
->> unset.
+> Alan,
+> I've reproduced this issue on linux 2.6.19-rc5 kernel.
 > 
-> I doubt if that's causing the problem. My reasons are:
-
-Yes.  I just tried with the one-liner from Mattia as below, and unfortunately it 
-made no difference.  The crash was the same..
-
-Unfortunately I didn't get to test out 2.6.19-rc5-mm1 as there was some issue 
-with it unable to mount my ext3/raid-1 root (fixed in -rc5-mm2), that I didn't 
-have time to get to the bottom of.
-
-So there is a chance that this cpufreq problem is not new to -rc5-mm2.
-
-Reuben
-
-
-> - Reuben's config shows his system to be a x64_64. So if I am not
->   mistaken, the correct file look for would be 
->   arch/ia64/kernel/cpufreq/acpi-cpufreq.c.
+> As far as I see if IDE controller is switched into native mode it shares irq
+> together with one of PCI Express Ports. It seems for me the last device is
+> guilty in this issue, becuase of it shares IDE irq on all the checked nodes.
+> and I do not know the ways to change their irq number or disable this device at all.
 > 
-> - The fix provided by you deals with the state of a 
->   driver(hardware) specific variable data->cpu_feature while the
->   governors like userspace/performance/powersave/ondemand are 
->   driver(hardware) independent.
+> I means the following devices:
 > 
-> Nevertheless, it could be a valid fix for i386 acpi_cpufreq considering
-> that policy->cur is not being initialized if 
-> data->cpu_feature == ACPI_ADR_SPACE_FIXED_HARDWARE.
+> on Intel 915G-based nodes
+> 0000:00:1c.2 Class 0604: 8086:2664 (rev 03)
+> 0000:00:1c.2 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family)
+> PCI Express Port 3 (rev 03)
 > 
-> Please check with Dave Jones or Venkatesh Pallipadi.
+> on Intel E7520 node:
+> 00:04.0 0604: 8086:3597 (rev 0a)
+> 00:05.0 0604: 8086:3598 (rev 0a)
+> 00:04.0 PCI bridge: Intel Corporation E7525/E7520 PCI Express Port B (rev 0a)
+> 00:05.0 PCI bridge: Intel Corporation E7520 PCI Express Port B1 (rev 0a)
 > 
-> Thanks
-> gautham.
+> I've checked Intel chipset spec updates but do not found any related issues.
 > 
->> diff --git a/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c b/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
->> index 18f4715..94e6e86 100644
->> --- a/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
->> +++ b/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
->> @@ -706,7 +706,7 @@ static int acpi_cpufreq_cpu_init(struct
->>  		break;
->>  	case ACPI_ADR_SPACE_FIXED_HARDWARE:
->>  		acpi_cpufreq_driver.get = get_cur_freq_on_cpu;
->> -		get_cur_freq_on_cpu(cpu);
->> +		policy->cur = get_cur_freq_on_cpu(cpu);
->>  		break;
->>  	default:
->>  		break;
->>
->> -- 
->> mattia
+> Please see http://bugzilla.kernel.org/show_bug.cgi?id=7518 for details
 
+Okay, I tracked this one down.  It's pretty interesting.
+
+In short, some piix controllers including ICH7, when put into enhanced 
+mode (PCI native mode), uses BMDMA Interrupt bit as interrupt 
+pending/clear bit for *all* commands.  ie. Reading STATUS does NOT clear 
+IRQ even for PIO commands.  1 should be written to BMDMA Interrupt bit 
+to clear IRQ.  That's what's causing IRQ storm.  IDE driver does what 
+it's supposed to do but IRQ is just stuck at low active.
+
+Fortunately, libata is immune to the problem because it does 
+ap->ops->irq_clear(ap) in ata_host_intr() regardless of command type in 
+flight.  So, not loading IDE piix and using libata to drive all piix 
+ports solves the problem.
+
+I guess this behavior is unique to some piixs in enhanced mode 
+considering wide use of IDE driver.  Fixing this in IDE driver is pain 
+in the ass because IRQ handler is scattered all over the place.  I'm 
+thinking about adding big warning message saying "IRQ storm can occur 
+and you better switch to libata if that happens".  But if anyone else is 
+up for the job of fixing IDE, please don't hesitate.
+
+Thanks.
+
+-- 
+tejun

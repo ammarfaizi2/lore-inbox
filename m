@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030723AbWKORVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030727AbWKORWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030723AbWKORVf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 12:21:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030728AbWKORVf
+	id S1030727AbWKORWj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 12:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030728AbWKORWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 12:21:35 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:3040 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030723AbWKORVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 12:21:34 -0500
-Date: Wed, 15 Nov 2006 18:20:03 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, akpm@osdl.org,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386-pda UP optimization
-Message-ID: <20061115172003.GA20403@elte.hu>
-References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <1158047806.2992.7.camel@laptopd505.fenrus.org> <200611151227.04777.dada1@cosmosbay.com> <200611151232.31937.ak@suse.de>
+	Wed, 15 Nov 2006 12:22:39 -0500
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:55464 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030727AbWKORWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 12:22:38 -0500
+Date: Wed, 15 Nov 2006 18:23:11 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: "Kay Sievers" <kay.sievers@vrfy.org>, "Greg KH" <greg@kroah.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Subject: Re: [Patch -mm 2/5] driver core: Introduce device_move(): move a
+ device to a new parent.
+Message-ID: <20061115182311.70821c97@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <d120d5000611150844s16980cf3r2fca9a71d439cbed@mail.gmail.com>
+References: <20061114113208.74ec12c4@gondolin.boeblingen.de.ibm.com>
+	<20061115065052.GC23810@kroah.com>
+	<20061115082856.195ca0ab@gondolin.boeblingen.de.ibm.com>
+	<3ae72650611150044y8e0b57k681c478dca5c6cbf@mail.gmail.com>
+	<20061115102409.6e6e5dc0@gondolin.boeblingen.de.ibm.com>
+	<1163583119.4244.6.camel@pim.off.vrfy.org>
+	<20061115111136.3542aca3@gondolin.boeblingen.de.ibm.com>
+	<d120d5000611150844s16980cf3r2fca9a71d439cbed@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611151232.31937.ak@suse.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0004]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 15 Nov 2006 11:44:36 -0500,
+"Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
 
-* Andi Kleen <ak@suse.de> wrote:
+> Why do we need to have them at all? Devices should not "move" in the
+> trees - it it moves we should just treat them as old devices going
+> away and new devices appearing...
 
-> On Wednesday 15 November 2006 12:27, Eric Dumazet wrote:
-> > Seeing %gs prefixes used now by i386 port, I recalled seeing strange 
-> > oprofile results on Opteron machines.
-> > 
-> > I really think %gs prefixes can be expensive in some (most ?) cases, 
-> > even if the Intel/AMD docs say they are free.
-> 
-> They aren't free, just very cheap.
+But unregistering and re-registering is exactly what we want to avoid
+in our case. We have still the same ccw device, it's only now
+operational via another subchannel (i. e. the topology changed, but not
+the device). If we unregistered the device, we would also kill the
+associated block device(s), and if it had been mounted, we go boom.
+(This is what currently happens without this patchset, and it may be
+triggered by a short hardware outage we'd otherwise survive without a
+problem.)
 
-Eric's test shows a 5% slowdown. That's far from cheap.
-
-	Ingo
+-- 
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

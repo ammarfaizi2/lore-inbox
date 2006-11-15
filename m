@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030835AbWKOSus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030837AbWKOSyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030835AbWKOSus (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 13:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030868AbWKOSus
+	id S1030837AbWKOSyS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 13:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030868AbWKOSyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 13:50:48 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38583 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030838AbWKOSur (ORCPT
+	Wed, 15 Nov 2006 13:54:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:44980 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030837AbWKOSyR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 13:50:47 -0500
-Date: Wed, 15 Nov 2006 19:50:29 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Chinner <dgc@sgi.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alasdair G Kergon <agk@redhat.com>,
-       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061115185029.GA3722@elf.ucw.cz>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061109232438.GS30653@agk.surrey.redhat.com> <20061109233258.GH2616@elf.ucw.cz> <200611101303.33685.rjw@sisk.pl> <20061112184310.GC5081@ucw.cz> <20061112233054.GI11034@melbourne.sgi.com>
+	Wed, 15 Nov 2006 13:54:17 -0500
+Date: Wed, 15 Nov 2006 10:51:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+cc: Arjan van de Ven <arjan@infradead.org>, Takashi Iwai <tiwai@suse.de>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+In-Reply-To: <455B5F01.7020601@garzik.org>
+Message-ID: <Pine.LNX.4.64.0611151046410.3349@woody.osdl.org>
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org> 
+ <20061114.190036.30187059.davem@davemloft.net>  <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
+  <20061114.192117.112621278.davem@davemloft.net>  <s5hbqn99f2v.wl%tiwai@suse.de>
+  <Pine.LNX.4.64.0611150814000.3349@woody.osdl.org>
+ <1163607889.31358.132.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.64.0611150829460.3349@woody.osdl.org> <455B5F01.7020601@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061112233054.GI11034@melbourne.sgi.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > This means, however, that we can leave the patch as is (well, with the minor
-> > > fix I have already posted), for now, because it doesn't make things worse a
-> > > bit, but:
-> > > (a) it prevents xfs from being corrupted and
+
+On Wed, 15 Nov 2006, Jeff Garzik wrote:
+> 
+> > And btw, I say this as a person whose new main machine used to have HDA
+> > routed over MSI, and the decision to default to it off meant that it went
+> > back to the regular INTx thing.
+> 
+> Yeah, but you don't care if that happens, so this is an ineffective 'btw'
+> It's not like you went to sleep crying over the loss, like I did [just
+> kidding!]
+
+Heh. I'm really hoping that nobody will cry themselves to sleep over MSI 
+not being enabled..
+
+> > (Btw, MSI interrupts also seem to not participate in CPU balancing:
 > > 
-> > I'd really prefer it to be fixed by 'freezeable workqueues'.
+> >  22:      41556      43005   IO-APIC-fasteoi   HDA Intel
+> > 506:     110417          0   PCI-MSI-edge      eth0
+> > 
+> > which is another semantic change introduced by using MSI)
 > 
-> I'd prefer that you just freeze the filesystem and let the
-> filesystem do things correctly.
+> No, that's most likely because ethernet is always intentionally locked to a
+> single CPU by irqbalance.
 
-Well, I'd prefer filesystems not to know about suspend, and current
-"freeze the filesystem" does not really nest properly.
+Nope, the same thing happened to "HDA Intel" when it was an MSI interrupt 
+(ie before I applied the change that made it not use MSI by default).
 
-> > Can you
-> > point me into sources -- which xfs workqueues are problematic?
-> 
-> AFAIK, its the I/O completion workqueues that are causing problems.
-> (fs/xfs/linux-2.6/xfs_buf.c) However, thinking about it, I'm not
-> sure that the work queues being left unfrozen is the real problem.
-> 
-> i.e. after a sync there's still I/O outstanding (e.g. metadata in
-> the log but not on disk), and because the kernel threads are frozen
-> some time after the sync, we could have issued this delayed write
-> metadata to disk after the sync. With XFS, we can have a of queue of
+So I think it's either: (a) irqbalance doesn't balance MSI interrupts at 
+all or (b) the MSI interrupt code doesn't honor balancing requests even if 
+it does.
 
-That's okay, snapshot is atomic. As long as data are safely in the
-journal, we should be okay.
+I didn't look any closer. It's not like it's a huge problem for me (or 
+likely for anybody else), but it was interesting to see another 
+"unintended consequence" of the "use MSI or not" choice.
 
-> However, even if you stop the workqueue processing, you're still
-> going to have to wait for all I/O completion to occur before
-> snapshotting memory because having any I/O complete changes memory
-> state.  Hence I fail to see how freezing the workqueues really helps
-> at all here....
+The suspend problem reported by Stephen is another such thing - where MSI 
+itself wasn't a problem, but stupid (probably broken) firmware code at 
+wakeup broke it by an unforseen interaction. Again, that is probably 
+related to the fact that nobody has ever really tested it (ie firmware 
+"engineers" obviously didn't actually ever test anything with MSI enabled 
+and in use, and there really is no excuse for firmware messing with the 
+MSI setting - other than the usual "firmware is inevitably buggy" thing).
 
-It is okay to change memory state, just on disk state may not change
-after atomic snapshot.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+			Linus

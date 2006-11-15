@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030979AbWKOU3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030977AbWKOUfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030979AbWKOU3y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 15:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbWKOU3y
+	id S1030977AbWKOUfa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 15:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030981AbWKOUfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 15:29:54 -0500
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:30154 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1030979AbWKOU3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 15:29:53 -0500
-Date: Wed, 15 Nov 2006 15:29:45 -0500
-To: Jan Pieter <pptp@jp.dhs.org>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: The return of the ITeX PCI ADSL card for 2.6 kernels
-Message-ID: <20061115202945.GB8238@csclub.uwaterloo.ca>
-References: <200611110116.29320.pptp@jp.dhs.org> <20061113091017.66e58a9b@freekitty> <200611131722.kADHMkDq007954@turing-police.cc.vt.edu> <200611151818.38436.pptp@jp.dhs.org>
+	Wed, 15 Nov 2006 15:35:30 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:27359 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030977AbWKOUf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 15:35:29 -0500
+Subject: Re: [patch] floppy: suspend/resume fix
+From: Lee Revell <rlrevell@joe-job.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ingo Molnar <mingo@elte.hu>, Mikael Pettersson <mikpe@it.uu.se>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061115202418.GC3875@elf.ucw.cz>
+References: <200611122047.kACKl8KP004895@harpo.it.uu.se>
+	 <20061112212941.GA31624@flint.arm.linux.org.uk>
+	 <20061112220318.GA3387@elte.hu>
+	 <20061112235410.GB31624@flint.arm.linux.org.uk>
+	 <20061114110958.GB2242@elf.ucw.cz> <1163522062.14674.3.camel@mindpipe>
+	 <20061115202418.GC3875@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 15 Nov 2006 15:34:58 -0500
+Message-Id: <1163622899.14674.174.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611151818.38436.pptp@jp.dhs.org>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 06:18:38PM +0100, Jan Pieter wrote:
-> You also need an ADSL library. That info is available, but it takes a *lot* of
-> hard work to implement. On the other hand, all future adsl drivers can use
-> the library. Dsl drivers are closed source because of this library. If such
-> library existed, there would be no reason for manufacturers to do closed
-> source Linux drivers.
+On Wed, 2006-11-15 at 21:24 +0100, Pavel Machek wrote:
+> On Tue 2006-11-14 11:34:21, Lee Revell wrote:
+> > On Tue, 2006-11-14 at 12:09 +0100, Pavel Machek wrote:
+> > > Suspending with mounted floppy is a user error.
+> > 
+> > Huh?  How so?
 > 
-> I have 3 cards working now. Alcatel also sold it, as 'Speedtouch PC'. So it
-> must be more than 45 ;-)
+> Floppy is removable, and you are expected to umount removable devices
+> before suspend.
 
-I know the Sangoma S518 also uses a binary blob for the ADSL component
-for I guess the same reason.  At least they maintain their drivers so
-their cards work with current kernels (as long as you use one of the
-architectures they compile the binary blob for).
+Ah, OK.  I read that as "it's an error for the user to close the lid
+with a floppy or CD in the drive".  But really HAL or the desktop
+environment or whatever is supposed to do it...
 
-Stupid secret libraries. :(
+Lee
 
-Of course claiming such drivers are GPL is nonsense in my opinion.
-
---
-Len Sorensen

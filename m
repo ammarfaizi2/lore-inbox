@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030930AbWKOTYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030697AbWKOTXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030930AbWKOTYl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 14:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030931AbWKOTYl
+	id S1030697AbWKOTXX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 14:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030927AbWKOTXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 14:24:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4288 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030922AbWKOTYk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 14:24:40 -0500
-Date: Wed, 15 Nov 2006 11:24:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: Charles Edward Lever <chucklever@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Yet another borken page_count() check in
- invalidate_inode_pages2()....
-Message-Id: <20061115112426.84e5417c.akpm@osdl.org>
-In-Reply-To: <1163613913.5691.215.camel@lade.trondhjem.org>
-References: <1163568819.5645.8.camel@lade.trondhjem.org>
-	<1163596689.5691.40.camel@lade.trondhjem.org>
-	<20061115084641.827494be.akpm@osdl.org>
-	<1163613913.5691.215.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 15 Nov 2006 14:23:23 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:26313 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1030697AbWKOTXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 14:23:22 -0500
+Date: Wed, 15 Nov 2006 14:23:18 -0500
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Tobias Pflug <tobias.pflug@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fs indexing/ querying on meta-data
+Message-ID: <20061115192318.GA14916@filer.fsl.cs.sunysb.edu>
+References: <4550DABA.40600@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4550DABA.40600@gmx.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 13:05:13 -0500
-Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
+On Tue, Nov 07, 2006 at 08:12:58PM +0100, Tobias Pflug wrote:
+...
+> I also considered using FiST (http://www.am-utils.org/project-fist.html, 
+> stackable filesystem language)
+> but the development seems to be stalled, I am having issues with 
+> compilation, the author doesn't respond
+> and I read about people having major issues with it (segfaults etc..)
+ 
+Hrm. Did you try the mailing list? The development is kind of slow, but
+there are people that'll gladly accept patches :)
+ 
+Josef "Jeff" Sipek.
 
-> On Wed, 2006-11-15 at 08:46 -0800, Andrew Morton wrote:
-> 
-> > but nobody could have started another writeback after the "..." because they
-> > couldn't have got the lock_page(), and lock_page() is required for
-> > ->writepage()?
-> 
-> Nothing can have called writepage(), but something may be calling
-> ->writepages(). That may call set_page_writeback without taking the page
-> lock.
-> 
-
-The protocol is
-
-	lock_page()
-	set_page_writeback()
-	->writepage()
-
-and there are various places which assume that nobody will start new
-writeout of a locked page.  But I forget where they are - things have always
-been this way.
-
-If NFS is running set_page_writeback() against an unlocked page then I
-don't know what will break.  I didn't know it was doing that.
-
+-- 
+NT is to UNIX what a doughnut is to a particle accelerator.

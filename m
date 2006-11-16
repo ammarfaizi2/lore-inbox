@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424234AbWKPQDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424241AbWKPQF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424234AbWKPQDl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 11:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424235AbWKPQDk
+	id S1424241AbWKPQF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424236AbWKPQF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 11:03:40 -0500
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:26501 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1424234AbWKPQDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 11:03:40 -0500
-Message-ID: <455C9C2C.6000703@wolfmountaingroup.com>
-Date: Thu, 16 Nov 2006 10:13:16 -0700
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: When is the kernel moving to GPLv3? (probably feeding a troll
- :)
-References: <455C984C.7080308@wolfmountaingroup.com> <20061116155927.GD8238@csclub.uwaterloo.ca>
-In-Reply-To: <20061116155927.GD8238@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 11:05:58 -0500
+Received: from main.gmane.org ([80.91.229.2]:29841 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1424241AbWKPQF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 11:05:57 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: [ot] (was When is the kernel moving to GPLv3?)
+Date: Thu, 16 Nov 2006 16:03:36 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnelp3c6.7lr.olecom@flower.upol.cz>
+References: <455C984C.7080308@wolfmountaingroup.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
+On 2006-11-16, Jeffrey V. Merkey wrote:
+[]
+> So when is the kernel moving to GPLv3?   I have seen some discussions 
+> about moving off v2, is there concensus about moving to v3 to remove
+> threats of patent claims against v2 code by M$ and others who may use 
+> Linux in hardware based projects.
 
->The "consensus" seems to be: The kernel is currently GPLv2 (and nothing
->else) and changing that is almost an imposible task, and the majority of
->the major active contributers also don't seem interested in considering
->the GPLv3 in its current form.  It really seems to be that simple.
->
->Some people claim Novell's "Deal" isn't even permitted under the GPLv2,
->or that the "Deal" has no meaning or purpose at all.
->
->  
->
-
-There exists sufficient precedence and case law to assert this position 
-as accurate. It would take
-a patent infringement case where GPL code was being distributed to 
-establish it as a matter of law.
-I can guarantee Novell and M$ will avoid any such suit for that very reason.
-
-It may all be moot and not really matter, other than for FUD factor by 
-Novell/M$.
-
-Jeff
-
->--
->Len Sorensen
->
->  
->
+Archives, man, search archives, and get off OT, please.
+<http://marc.theaimsgroup.com/?l=linux-kernel&w=2&r=1&s=GPLv3&q=b>
+I guess, you know who is the Author, thus select messages.
+____
 

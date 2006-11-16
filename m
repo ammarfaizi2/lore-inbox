@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424279AbWKPQYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424278AbWKPQZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424279AbWKPQYl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 11:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424276AbWKPQYl
+	id S1424278AbWKPQZt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:25:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424276AbWKPQZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 11:24:41 -0500
-Received: from ns1.coraid.com ([65.14.39.133]:28995 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1424278AbWKPQYk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 11:24:40 -0500
-Date: Thu, 16 Nov 2006 11:15:56 -0500
-From: "Ed L. Cashin" <ecashin@coraid.com>
-To: Dennis Stosberg <dennis@stosberg.net>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] aoe: Add forgotten NULL at end of attribute list in aoeblk.c
-Message-ID: <20061116161556.GA7222@coraid.com>
-References: <20061113081520.G77d5ed8a@leonov.stosberg.net>
+	Thu, 16 Nov 2006 11:25:48 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:4301 "EHLO
+	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S1424278AbWKPQZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 11:25:47 -0500
+X-AuditID: 7f000001-a3337bb000002674-ac-455c910a2a03 
+Date: Thu, 16 Nov 2006 16:26:02 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: cmm@us.ibm.com, Mel Gorman <mel@skynet.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: Boot failure with ext2 and initrds
+In-Reply-To: <20061116011351.1401a00f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0611161610050.19040@blonde.wat.veritas.com>
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061114184919.GA16020@skynet.ie>
+ <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
+ <20061114113120.d4c22b02.akpm@osdl.org> <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+ <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
+ <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com>
+ <20061115232228.afaf42f2.akpm@osdl.org> <1163666960.4310.40.camel@localhost.localdomain>
+ <20061116011351.1401a00f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061113081520.G77d5ed8a@leonov.stosberg.net>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 16 Nov 2006 16:25:46.0272 (UTC) FILETIME=[DE9C6200:01C7099B]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2006 at 09:15:20AM +0100, Dennis Stosberg wrote:
-> This caused the system to stall when the aoe module was loaded.  The
-> error was introduced in commit 4ca5224f3ea4779054d96e885ca9b3980801ce13
-
-Boy, I've been totally spoiled by the gitweb at kernel.org.  It's been
-unavailable lately.
-
-Anyway, thanks for the fix.  It looks good to me if it looks good to
-Greg---after a google search it appears that your patch is a followup
-to his consolidation of the attributes.
- 
-> Signed-off-by: Dennis Stosberg <dennis@stosberg.net>
-> ---
+On Thu, 16 Nov 2006, Andrew Morton wrote:
+> On Thu, 16 Nov 2006 00:49:20 -0800
+> Mingming Cao <cmm@us.ibm.com> wrote:
 > 
-> The log of the caused error can be found at
-> http://stosberg.net/tmp/aoe_trace.txt
+> > That does not explain the repeated reservation window add and remove
+> > behavior Huge has reported. 
 > 
->  drivers/block/aoe/aoeblk.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+> I spent quite some time comparing with ext3.  I'm a bit stumped and I'm
+> suspecting that the simplistic porting the code is now OK, but something's
+> just wrong.
 > 
-> diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
-> index d433f27..aa25f8b 100644
-> --- a/drivers/block/aoe/aoeblk.c
-> +++ b/drivers/block/aoe/aoeblk.c
-> @@ -68,6 +68,7 @@ static struct attribute *aoe_attrs[] = {
->  	&disk_attr_mac.attr,
->  	&disk_attr_netif.attr,
->  	&disk_attr_fwver.attr,
-> +	NULL
->  };
->  
->  static const struct attribute_group attr_group = {
-> -- 
-> 1.4.3.3
+> I assume that the while (1) loop in ext3_try_to_allocate_with_rsv() has
+> gone infinite.  I don't see why, but more staring is needed.
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+Just to report that similar tests on three machines have each run
+for 20 hours so far without any such infinite loop reoccurring.
+
+Well, I broke off the x86_64 for a couple of hours: wondered if I'd got
+confused, forgotten to "rmmod ext2" at one stage, and saw that behaviour
+with my simple "ext2fs_blk_t ret_block" patch, rather than your more
+extensive patch to ext2_new_blocks() that I'd believed I was testing.
+I didn't give it long enough to be conclusive, but the problem didn't
+show up with that either, so I've gone back to testing with yours.
+
+I'd have kept the hang around for longer if I'd guessed it would be
+hard to reproduce, and that it would be puzzling even to you: sorry.
+kdb is in, if it comes again I can peer at it more closely.
+
+Hugh

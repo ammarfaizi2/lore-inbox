@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162246AbWKPCpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162226AbWKPCqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162246AbWKPCpz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162248AbWKPCp3
+	id S1162226AbWKPCqd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162254AbWKPCqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:45:29 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46991 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162243AbWKPCpM
+	Wed, 15 Nov 2006 21:46:07 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:656 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162253AbWKPCp7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:45:12 -0500
-Message-Id: <20061116024602.250030000@sous-sol.org>
+	Wed, 15 Nov 2006 21:45:59 -0500
+Message-Id: <20061116024659.390275000@sous-sol.org>
 References: <20061116024332.124753000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 15 Nov 2006 18:43:43 -0800
+Date: Wed, 15 Nov 2006 18:43:48 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, maks@sternwelten.at
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Oliver Neukum <oliver@neukum.name>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 11/30] USB: failure in usblps error path
-Content-Disposition: inline; filename=usb-failure-in-usblp-s-error-path.patch
+       alan@lxorguk.ukuu.org.uk, Andi Kleen <ak@suse.de>, jbeulich@novell.com
+Subject: [patch 16/30] x86_64: Fix FPU corruption
+Content-Disposition: inline; filename=x86_64-fix-fpu-corruption.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Oliver Neukum <oliver@neukum.name>
+From: Andi Kleen <ak@suse.de>
 
-if urb submission fails due to a transient error here eg. ENOMEM
-, the driver is dead. This fixes it.
+This reverts an earlier patch that was found to cause FPU
+state corruption. I think the corruption happens because
+unlazy_fpu() can cause FPU exceptions and when it happens
+after the current switch some processing would affect
+the state in the wrong process.
 
-	Regards
-		Oliver
+Thanks to  Douglas Crosher and Tom Hughes for testing.
 
-Signed-off-by: Oliver Neukum <oliver@neukum.name>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: jbeulich@novell.com
+Signed-off-by: Andi Kleen <ak@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
+ arch/x86_64/kernel/process.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
- drivers/usb/class/usblp.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- linux-2.6.18.2.orig/drivers/usb/class/usblp.c
-+++ linux-2.6.18.2/drivers/usb/class/usblp.c
-@@ -701,6 +701,7 @@ static ssize_t usblp_write(struct file *
- 		usblp->wcomplete = 0;
- 		err = usb_submit_urb(usblp->writeurb, GFP_KERNEL);
- 		if (err) {
-+			usblp->wcomplete = 1;
- 			if (err != -ENOMEM)
- 				count = -EIO;
- 			else
+--- linux-2.6.18.2.orig/arch/x86_64/kernel/process.c
++++ linux-2.6.18.2/arch/x86_64/kernel/process.c
+@@ -571,6 +571,9 @@ __switch_to(struct task_struct *prev_p, 
+ 		prev->gsindex = gsindex;
+ 	}
+ 
++	/* Must be after DS reload */
++	unlazy_fpu(prev_p);
++
+ 	/* 
+ 	 * Switch the PDA and FPU contexts.
+ 	 */
+@@ -578,10 +581,6 @@ __switch_to(struct task_struct *prev_p, 
+ 	write_pda(oldrsp, next->userrsp); 
+ 	write_pda(pcurrent, next_p); 
+ 
+-	/* This must be here to ensure both math_state_restore() and
+-	   kernel_fpu_begin() work consistently. 
+-	   And the AMD workaround requires it to be after DS reload. */
+-	unlazy_fpu(prev_p);
+ 	write_pda(kernelstack,
+ 		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
+ 
 
 --

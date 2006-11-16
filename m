@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161341AbWKPRZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161830AbWKPRb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161341AbWKPRZT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 12:25:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161361AbWKPRZT
+	id S1161830AbWKPRb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 12:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161844AbWKPRb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 12:25:19 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:49974 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1161341AbWKPRZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 12:25:17 -0500
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-X-Message-Flag: Warning: May contain useful information
-References: <455A938A.4060002@garzik.org>
-	<20061114.201549.69019823.davem@davemloft.net>
-	<455A9664.50404@garzik.org>
-	<20061114.202814.70218466.davem@davemloft.net>
-	<1163643937.5940.342.camel@localhost.localdomain>
-	<455BDA1D.5090409@garzik.org>
-	<1163650341.5940.361.camel@localhost.localdomain>
-	<455C0176.5090107@garzik.org> <m3u00z4fnv.fsf@defiant.localdomain>
-	<455C8350.3050309@garzik.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 16 Nov 2006 09:24:59 -0800
-In-Reply-To: <455C8350.3050309@garzik.org> (Jeff Garzik's message of "Thu, 16 Nov 2006 10:27:12 -0500")
-Message-ID: <adau00ztic4.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Thu, 16 Nov 2006 12:31:56 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:41169 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161830AbWKPRbz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 12:31:55 -0500
+Message-ID: <455CA088.3040807@us.ibm.com>
+Date: Thu, 16 Nov 2006 11:31:52 -0600
+From: Maynard Johnson <maynardj@us.ibm.com>
+Reply-To: maynardj@us.ibm.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 16 Nov 2006 17:25:00.0303 (UTC) FILETIME=[24FA79F0:01C709A4]
-Authentication-Results: sj-dkim-7; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim7002 verified; ); 
+To: Maynard Johnson <maynardj@us.ibm.com>
+CC: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
+       oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, Patch 0/1] OProfile for Cell: Initial profiling support
+ -- new	patch
+References: <455B60E5.2040201@us.ibm.com>
+In-Reply-To: <455B60E5.2040201@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Most interrupt-driven devices have an interrupt mask register of some
- > sort.  The nice thing about PCI_COMMAND_INTX_DISABLE is that it is
- > standardized.
+Based on review comments received so far, we will be posting an updated 
+kernel patch for OProfile for Cell.  Most notably, this patch removes 
+some racey conditions between our "virtual counter" function and the 
+interrupt handler, as well as fixing the way we were restarting and 
+stopping our timer for the virtual counter.
 
-You all got on me about quoting the spec about not generating INTx
-interrupts after MSI is enabled.  What makes you think that setting
-some bit in the command register, which wasn't even standardized until
-PCI 2.3 and which most hardware designers probably forgot about, is
-going to work on broken devices?
+Thanks.
+-Maynard
 
- - R.
+Maynard Johnson wrote:
+
+> Hello,
+> I will be posting a patch that updates the OProfile kernel driver to 
+> enable it for the Cell Broadband Engine processor.  The patch is based 
+> on Arnd Bergmann's arnd6 patchset for 2.6.18  
+> (http://kernel.org/pub/linux/kernel/people/arnd/patches/2.6.18-arnd6/), 
+> with Kevin Corry's cbe_pmu_interrupt patch on applied on top.  Kevin 
+> Corry's patch was submitted to the mailing lists earlier today and can 
+> be found at:
+>  http://marc.theaimsgroup.com/?l=linux-kernel&m=116360639928471&w=2).
+> 
+> I will also post an OProfile userpsace patch to the oprofile-list that 
+> adds the necessary support for the Cell processor.
+> 
+> Thanks in advance for your review of this patch.
+> 
+> Maynard Johnson
+> LTC Power Linux Toolchain
+> 507-253-2650
+> 
+> 
+> -------------------------------------------------------------------------
+> Take Surveys. Earn Cash. Influence the Future of IT
+> Join SourceForge.net's Techsay panel and you'll get the chance to share your
+> opinions on IT & business topics through brief surveys - and earn cash
+> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
+> _______________________________________________
+> oprofile-list mailing list
+> oprofile-list@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/oprofile-list
+
+

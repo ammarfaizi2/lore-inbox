@@ -1,114 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031112AbWKPIqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161382AbWKPIts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031112AbWKPIqs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 03:46:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031118AbWKPIqs
+	id S1161382AbWKPIts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 03:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161975AbWKPIts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 03:46:48 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:59746 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1031112AbWKPIqr (ORCPT
+	Thu, 16 Nov 2006 03:49:48 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:39394 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161382AbWKPItq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 03:46:47 -0500
-Message-ID: <455C2510.5000002@sw.ru>
-Date: Thu, 16 Nov 2006 11:45:04 +0300
-From: Vasily Averin <vvs@sw.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@kernel.dk>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org, devel@openvz.org
-Subject: Re: [Q] PCI Express and ide (native) leads to irq storm?
-References: <453DC2A9.8000507@sw.ru> <453DC65C.8000408@sw.ru>	 <454206EE.9080206@sw.ru> <1161958862.16839.26.camel@localhost.localdomain> <4559879D.8090105@sw.ru> <455AF01C.5090307@gmail.com>
-In-Reply-To: <455AF01C.5090307@gmail.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 03:49:46 -0500
+Date: Thu, 16 Nov 2006 09:48:55 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [patch, -rc6] x86_64: UP build fixes
+Message-ID: <20061116084855.GA8848@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
+	[score: 0.1074]
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Vasily Averin wrote:
->> Alan Cox wrote:
->>> Ar Gwe, 2006-10-27 am 17:17 +0400, ysgrifennodd Vasily Averin:
->>>> Could somebody please help me to troubleshoot this issue? I've seen this issue
->>>> on the customer nodes and would like to know how I can work-around this issue
->>>> without any changes inside motherboard BIOS.
->>> If its an IRQ routing triggered problem you probably can't, at least not
->>> the IDE error. The oops wants debugging further because it shouldn't
->>> have oopsed on that error merely given up.
->> Alan,
->> I've reproduced this issue on linux 2.6.19-rc5 kernel.
->>
->> As far as I see if IDE controller is switched into native mode it shares irq
->> together with one of PCI Express Ports. It seems for me the last device is
->> guilty in this issue, becuase of it shares IDE irq on all the checked nodes.
->> and I do not know the ways to change their irq number or disable this device at all.
->>
->> I means the following devices:
->>
->> on Intel 915G-based nodes
->> 0000:00:1c.2 Class 0604: 8086:2664 (rev 03)
->> 0000:00:1c.2 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family)
->> PCI Express Port 3 (rev 03)
->>
->> on Intel E7520 node:
->> 00:04.0 0604: 8086:3597 (rev 0a)
->> 00:05.0 0604: 8086:3598 (rev 0a)
->> 00:04.0 PCI bridge: Intel Corporation E7525/E7520 PCI Express Port B (rev 0a)
->> 00:05.0 PCI bridge: Intel Corporation E7520 PCI Express Port B1 (rev 0a)
->>
->> I've checked Intel chipset spec updates but do not found any related issues.
->>
->> Please see http://bugzilla.kernel.org/show_bug.cgi?id=7518 for details
-> 
-> Okay, I tracked this one down.  It's pretty interesting.
-> 
-> In short, some piix controllers including ICH7, when put into enhanced 
-> mode (PCI native mode), uses BMDMA Interrupt bit as interrupt 
-> pending/clear bit for *all* commands.  ie. Reading STATUS does NOT clear 
-> IRQ even for PIO commands.  1 should be written to BMDMA Interrupt bit 
-> to clear IRQ.  That's what's causing IRQ storm.  IDE driver does what 
-> it's supposed to do but IRQ is just stuck at low active.
-> 
-> Fortunately, libata is immune to the problem because it does 
-> ap->ops->irq_clear(ap) in ata_host_intr() regardless of command type in 
-> flight.  So, not loading IDE piix and using libata to drive all piix 
-> ports solves the problem.
+Subject: x86_64: UP build fixes
+From: Ingo Molnar <mingo@elte.hu>
 
-I've disabled IDE support in the config and recompiled the kernel.
-It seems you are right, problem go away, new kernel was booted without any
-problems and works well.
+x86_64 does not build cleanly on UP:
 
-> I guess this behavior is unique to some piixs in enhanced mode 
-> considering wide use of IDE driver.  Fixing this in IDE driver is pain 
-> in the ass because IRQ handler is scattered all over the place.  I'm 
-> thinking about adding big warning message saying "IRQ storm can occur 
-> and you better switch to libata if that happens".  But if anyone else is 
-> up for the job of fixing IDE, please don't hesitate.
+arch/x86_64/kernel/vsyscall.c: In function 'cpu_vsyscall_notifier':
+arch/x86_64/kernel/vsyscall.c:282: warning: implicit declaration of function 'smp_call_function_single'
+arch/x86_64/kernel/vsyscall.c: At top level:
+arch/x86_64/kernel/vsyscall.c:279: warning: 'cpu_vsyscall_notifier' defined but not used
 
-I'm very happy that we have found the cause of this issue, however it seems for
-me you do not understand fully its severity for linux end-users.
+this patch fixes it.
 
-At the present moment this issue is present in all vendor kernels, and they
-cannot be installed on the huge number of end-user nodes. Moreover, end-user
-nodes can have installed old Linux distribution where initscripts do not loads
-all the detected modules at the boot-time. Linux may be installed  and the
-following situation is possible: kernel was booted and works well until some
-user will going to access the CDROM.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ include/asm-x86_64/smp.h |   11 ++---------
+ include/linux/cpu.h      |    2 +-
+ include/linux/smp.h      |    9 +++++++++
+ 3 files changed, 12 insertions(+), 10 deletions(-)
 
->From end-users point of view this issue looks mystic and very dump: is the linux
-stable? is it ready for desktop? $%^&#! It crashes when I accessing the CDROM! :(
-
-As a linux support engeneer I've seen this issue several times on the user-nodes
-and it was very hard to understand what's happened and how to prevent this issue
-in the future. First question is resolved now but from support point of view it
-is very important to find some workaround against this issue on existing
-distributions. Right now I see only one way: if this issue is detected on the
-user node, we can add something like "ide=disable" into kernel commandline.
-
-Probably the better solution exists?
-
-thank you,
-	Vasily Averin
+Index: linux/include/asm-x86_64/smp.h
+===================================================================
+--- linux.orig/include/asm-x86_64/smp.h
++++ linux/include/asm-x86_64/smp.h
+@@ -115,16 +115,9 @@ static __inline int logical_smp_processo
+ }
+ 
+ #ifdef CONFIG_SMP
+-#define cpu_physical_id(cpu)		x86_cpu_to_apicid[cpu]
++# define cpu_physical_id(cpu)		x86_cpu_to_apicid[cpu]
+ #else
+-#define cpu_physical_id(cpu)		boot_cpu_id
+-static inline int smp_call_function_single(int cpuid, void (*func) (void *info),
+-				void *info, int retry, int wait)
+-{
+-	/* Disable interrupts here? */
+-	func(info);
+-	return 0;
+-}
++# define cpu_physical_id(cpu)		boot_cpu_id
+ #endif /* !CONFIG_SMP */
+ #endif
+ 
+Index: linux/include/linux/cpu.h
+===================================================================
+--- linux.orig/include/linux/cpu.h
++++ linux/include/linux/cpu.h
+@@ -81,7 +81,7 @@ int cpu_down(unsigned int cpu);
+ #define lock_cpu_hotplug()	do { } while (0)
+ #define unlock_cpu_hotplug()	do { } while (0)
+ #define lock_cpu_hotplug_interruptible() 0
+-#define hotcpu_notifier(fn, pri)	do { } while (0)
++#define hotcpu_notifier(fn, pri)	do { (void)(fn); } while (0)
+ #define register_hotcpu_notifier(nb)	do { } while (0)
+ #define unregister_hotcpu_notifier(nb)	do { } while (0)
+ 
+Index: linux/include/linux/smp.h
+===================================================================
+--- linux.orig/include/linux/smp.h
++++ linux/include/linux/smp.h
+@@ -100,6 +100,15 @@ static inline void smp_send_reschedule(i
+ #define num_booting_cpus()			1
+ #define smp_prepare_boot_cpu()			do {} while (0)
+ 
++static inline int
++smp_call_function_single(int cpuid, void (*func) (void *info), void *info,
++			 int retry, int wait)
++{
++	func(info);
++
++	return 0;
++}
++
+ #endif /* !SMP */
+ 
+ /*

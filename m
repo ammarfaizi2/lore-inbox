@@ -1,137 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424188AbWKPPlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424200AbWKPPrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424188AbWKPPlS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 10:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424187AbWKPPlR
+	id S1424200AbWKPPrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 10:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424194AbWKPPrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 10:41:17 -0500
-Received: from mga09.intel.com ([134.134.136.24]:18047 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1424184AbWKPPlQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 10:41:16 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,430,1157353200"; 
-   d="scan'208"; a="162601169:sNHT42161098"
-Message-ID: <455C8696.80508@linux.intel.com>
-Date: Thu, 16 Nov 2006 18:41:10 +0300
-From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Thu, 16 Nov 2006 10:47:09 -0500
+Received: from rwcrmhc13.comcast.net ([216.148.227.153]:49852 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1424200AbWKPPrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 10:47:07 -0500
+Message-ID: <455C984C.7080308@wolfmountaingroup.com>
+Date: Thu, 16 Nov 2006 09:56:44 -0700
+From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Len Brown <lenb@kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
-References: <200611142303.47325.david-b@pacbell.net> <455B28B2.4010707@linux.intel.com> <200611151356.52985.david-b@pacbell.net> <200611151710.26570.david-b@pacbell.net>
-In-Reply-To: <200611151710.26570.david-b@pacbell.net>
-Content-Type: multipart/mixed;
- boundary="------------030108010505080106030705"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: When is the kernel moving to GPLv3?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030108010505080106030705
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+/"Red Hat has slammed the door shut 
+<http://www.eweek.com/article2/0,1895,2059675,00.asp> on any possibility 
+of entering into a patent protection deal similar to the one Microsoft 
+recently announced with Novell, eWeek is reporting. While Microsoft has 
+repeatedly said it wants to work with Red Hat and would like to 
+structure a relationship where its customers can be assured of the same 
+thing as Novell's customers 
+<http://linux.slashdot.org/linux/06/11/02/1957252.shtml?tid=109> now 
+are, Mark Webbink, Red Hat's deputy general counsel, says 'we do not 
+believe there is a need for or basis for the type of relationship 
+defined in the Microsoft-Novell announcement.' Interestingly enough, 
+Microsoft also says that it has not ruled out going it alone and 
+providing some sort of indemnification for its customers who also use 
+Red Hat Linux."/
 
-Looks like either EC GPE or whole ACPI irq got disabled... Could you 
-check that ACPI interrupts still arrive after
-you notice AE_TIME?
-Also, may be attached patch will help?
+"Meanwhile, Eben Moglen, the FSF general counsel, promises that GPLv3 
+will explicitly outlaw 
+<http://money.cnn.com/blogs/legalpad/2006/11/is-microsoft-novell-deal-dead-on.html> 
+deals like this. (Of course everyone's on v2, so calling the Novell deal 
+"DOA" would be premature.)"
 
-Regards,
-    Alex.
+So when is the kernel moving to GPLv3?   I have seen some discussions 
+about moving off v2, is there concensus about moving to v3 to remove
+threats of patent claims against v2 code by M$ and others who may use 
+Linux in hardware based projects.
 
-David Brownell wrote:
-> On Wednesday 15 November 2006 1:56 pm, David Brownell wrote:
->   
->> On Wednesday 15 November 2006 6:48 am, Alexey Starikovskiy wrote:
->>     
->>> ec1.patch
->>>
->>>
->>> Always enable GPE after return from notify handler.
->>>
->>> From:  Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
->>>
->>>
->>> ---
->>>       
->> Yes, this seems to resolve the regression as well as Len's ec_intr=0 boot param.
->>     
->
-> Whoops, I spoke too soon.  It does get rid of SOME of the AE_TIME errors.  But
-> the system is still confused about whether or not the AC is connected, and
-> whether the battery is charging or not; and the CPU is still relatively hot.
-> Even with this patch I later got:
->
-> ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
-> ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [2006070
-> 7]
-> ACPI Error (psparse-0537): Method parse/execution failed [\_TZ_.THRM._TMP] (Node ffff810002032d10), AE
-> _TIME
->
-> In short, better but evidently not yet good enough...
->
-> - Dave
->
->
->
->   
->> IMO this should get merged into 2.6.19 ASAP ...
->>
->>
->>     
->>>  drivers/acpi/ec.c |    2 --
->>>  1 files changed, 0 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
->>> index e6d4b08..937eafc 100644
->>> --- a/drivers/acpi/ec.c
->>> +++ b/drivers/acpi/ec.c
->>> @@ -465,8 +465,6 @@ static u32 acpi_ec_gpe_handler(void *dat
->>>  
->>>         if (value & ACPI_EC_FLAG_SCI) {
->>>                 status = acpi_os_execute(OSL_EC_BURST_HANDLER, acpi_ec_gpe_query, ec);
->>> -               return status == AE_OK ?
->>> -                   ACPI_INTERRUPT_HANDLED : ACPI_INTERRUPT_NOT_HANDLED;
->>>         }
->>>         acpi_enable_gpe(NULL, ec->gpe_bit, ACPI_ISR);
->>>         return status == AE_OK ?
->>>       
+Jeff
 
 
---------------030108010505080106030705
-Content-Type: text/plain;
- name="ec2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ec2.patch"
-
-Always confirm handled interrupt, even if we failed.
-
-From:  Alexey Starikovskiy <alexey.y.starikovskiy@intel.com>
-
-
----
-
- drivers/acpi/ec.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 937eafc..6fb5ee0 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -467,8 +467,8 @@ static u32 acpi_ec_gpe_handler(void *dat
- 		status = acpi_os_execute(OSL_EC_BURST_HANDLER, acpi_ec_gpe_query, ec);
- 	}
- 	acpi_enable_gpe(NULL, ec->gpe_bit, ACPI_ISR);
--	return status == AE_OK ?
--	    ACPI_INTERRUPT_HANDLED : ACPI_INTERRUPT_NOT_HANDLED;
-+	WARN_ON(ACPI_FAILURE(status));
-+	return ACPI_INTERRUPT_HANDLED;
- }
- 
- /* --------------------------------------------------------------------------
-
---------------030108010505080106030705--

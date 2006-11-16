@@ -1,131 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424636AbWKPV1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424654AbWKPVah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424636AbWKPV1m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424646AbWKPV1m
+	id S1424654AbWKPVah (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424656AbWKPVah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:27:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:12996 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1424636AbWKPV1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:27:40 -0500
-Date: Thu, 16 Nov 2006 13:27:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: cmm@us.ibm.com
-Cc: Hugh Dickins <hugh@veritas.com>, Mel Gorman <mel@skynet.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: Boot failure with ext2 and initrds
-Message-Id: <20061116132724.1882b122.akpm@osdl.org>
-In-Reply-To: <1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-	<20061114184919.GA16020@skynet.ie>
-	<Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
-	<20061114113120.d4c22b02.akpm@osdl.org>
-	<Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
-	<Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
-	<20061115214534.72e6f2e8.akpm@osdl.org>
-	<455C0B6F.7000201@us.ibm.com>
-	<20061115232228.afaf42f2.akpm@osdl.org>
-	<1163666960.4310.40.camel@localhost.localdomain>
-	<20061116011351.1401a00f.akpm@osdl.org>
-	<1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 16 Nov 2006 16:30:37 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:24018 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1424654AbWKPVae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 16:30:34 -0500
+Date: Thu, 16 Nov 2006 13:30:33 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
+Cc: davej@codemonkey.org.uk, hpa@zytor.com, linux-kernel@vger.kernel.org,
+       shai.satt@intel.com
+Subject: Re: [PATCH 2.6.19-rc5-git7] EFI: mapping memory region of runtime
+ services when using memmap kernel parameter
+Message-Id: <20061116133033.c4f60cc2.randy.dunlap@oracle.com>
+In-Reply-To: <C1467C8B168BCF40ACEC2324C1A2B074A6A69F@hasmsx411.ger.corp.intel.com>
+References: <C1467C8B168BCF40ACEC2324C1A2B074A6A69F@hasmsx411.ger.corp.intel.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006 12:15:16 -0800
-Mingming Cao <cmm@us.ibm.com> wrote:
+On Thu, 16 Nov 2006 22:50:03 +0200 Myaskouvskey, Artiom wrote:
 
-> On Thu, 2006-11-16 at 01:13 -0800, Andrew Morton wrote:
-> > On Thu, 16 Nov 2006 00:49:20 -0800
-> > Mingming Cao <cmm@us.ibm.com> wrote:
-> > 
-> > > On Wed, 2006-11-15 at 23:22 -0800, Andrew Morton wrote:
-> > > > On Wed, 15 Nov 2006 22:55:43 -0800
-> > > > Mingming Cao <cmm@us.ibm.com> wrote:
-> > > > 
-> > > > > Hmm, maxblocks, in bitmap_search_next_usable_block(),  is the end block 
-> > > > > number of the range  to search, not the lengh of the range. maxblocks 
-> > > > > get passed to ext2_find_next_zero_bit(), where it expecting to take the 
-> > > > > _size_ of the range to search instead...
-> > > > > 
-> > > > > Something like this: (this is not a patch)
-> > > > >   @@ -524,7 +524,7 @@ bitmap_search_next_usable_block(ext2_grp
-> > > > >    	ext2_grpblk_t next;
-> > > > > 
-> > > > >    -  	next = ext2_find_next_zero_bit(bh->b_data, maxblocks, start);
-> > > > >    +  	next = ext2_find_next_zero_bit(bh->b_data, maxblocks-start + 1, start);
-> > > > > 	if (next >= maxblocks)
-> > > > >    		return -1;
-> > > > >    	return next;
-> > > > >    }
-> > > > 
-> > > > yes, the `size' arg to find_next_zero_bit() represents the number of bits
-> > > > to scan at `offset'.
-> > > > 
-> > > > So I think your change is correctish.  But we don't want the "+ 1", do we?
-> > > > 
-> > > I think we still need the "+1", maxblocks here is the ending block of
-> > > the reservation window, so the number of bits to scan =end-start+1.
-> > > 
-> > > > If we're right then this bug could cause the code to scan off the end of the
-> > > > bitmap.  But it won't explain Hugh's bug, because of the if (next >= maxblocks).
-> > > > 
-> > > 
-> > > Yeah.. at first I thought it might be related, then, thinked it over,
-> > > the bug only makes the bits to scan larger, so if find_next_zero_bit()
-> > > returns something off the end of bitmap, that is fine, it just
-> > > indicating that there is no free bit left in the rest of bitmap, which
-> > > is expected behavior. So bitmap_search_next_usable_block() fail is the
-> > > expected. It will move on to next block group and try to create a new
-> > > reservation window there.
-> > 
-> > I wonder why it's never oopsed.  Perhaps there's always a zero in there for
-> > some reason.
-> > 
+> From: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
 > 
-> Why you think it should oopsed?  Even if find_next_zero_bit() finds a
-> zero bit beyond of the end of bitmap, the check next > maxblocks will
-> catch this and make sure we are not taking a zero bit out of the bitmap
-> range, so it fails as expected.
-
-If it can read off the end of the buffer, it can oops.  With
-CONFIG_DEBUG_PAGEALLOC, especially.
-
-
-> > > That does not explain the repeated reservation window add and remove
-> > > behavior Huge has reported. 
-> > 
-> > I spent quite some time comparing with ext3.  I'm a bit stumped and I'm
-> > suspecting that the simplistic porting the code is now OK, but something's
-> > just wrong.
-> > 
-> > I assume that the while (1) loop in ext3_try_to_allocate_with_rsv() has
-> > gone infinite.  I don't see why, but more staring is needed.
-> > 
+>  
 > 
-> The loop should not go forever, it will stops when there is no window
-> with free bit to reserve in the given block group.
-
-It seems to have done so in Hugh's testing, but there's some question there
-now.  Although I didn't check to see if there's a significant difference
-between Hugh's patch and mine.
-
-
-> > What lock protects the fields in struct ext[234]_reserve_window from being
-> > concurrently modified by two CPUs?  None, it seems.  Ditto
-> > ext[234]_reserve_window_node.  i_mutex will cover it for write(), but not
-> > for pageout over a file hole.  If we end up with a zero- or negative-sized
-> > window then odd things might happen.
-> > 
+> When using memmap kernel parameter in EFI boot we should also add to memory map 
 > 
-> Yes, trucate_mutex protect both struct ext[234]_reserve_window and ext
-> [234]_reserve_window_node, and struct ext[234]_block_alloc_info.
-> Actually I think truncate_mutex protects all data structures related to
-> block allocation/mapping structures.
+> memory regions of runtime services to enable their mapping later.
+> 
+>  
+> 
+> Signed-off-by: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
+> 
+> ---
 
-Yes.  I guess ext2 needs a new mutex for this.  Sad.
+The patch does not apply cleanly due to extra blank lines
+between each real/expected line.
+
+More comments below.
+
+
+> diff -uprN linux-2.6.19-rc5-git7.orig/include/linux/efi.h linux-2.6.19-rc5-git7/include/linux/efi.h
+> 
+> --- linux-2.6.19-rc5-git7.orig/include/linux/efi.h    2006-11-16 20:45:58.000000000 +0200
+> 
+> +++ linux-2.6.19-rc5-git7/include/linux/efi.h   2006-11-16 22:10:54.000000000 +0200
+> 
+> @@ -302,6 +302,7 @@ extern void efi_initialize_iomem_resourc
+> 
+>                               struct resource *data_resource);
+> 
+>  extern unsigned long __init efi_get_time(void);
+> 
+>  extern int __init efi_set_rtc_mmss(unsigned long nowtime);
+> 
+> +extern int is_available_memory(efi_memory_desc_t * md);
+> 
+>  extern struct efi_memory_map memmap;
+> 
+>  
+> 
+>  /**
+> 
+> diff -uprN linux-2.6.19-rc5-git7.orig/arch/i386/kernel/setup.c linux-2.6.19-rc5-git7/arch/i386/kernel/setup.c
+> 
+> --- linux-2.6.19-rc5-git7.orig/arch/i386/kernel/setup.c     2006-11-16 20:45:19.000000000 +0200
+> 
+> +++ linux-2.6.19-rc5-git7/arch/i386/kernel/setup.c    2006-11-16 22:05:01.000000000 +0200
+> 
+> @@ -349,25 +349,42 @@ static void __init probe_roms(void)
+> 
+>  static void __init limit_regions(unsigned long long size)
+> 
+>  {
+> 
+>       unsigned long long current_addr = 0;
+> 
+> -     int i;
+> 
+> +     int i , j;
+
+	int i, j;
+
+> 
+>       if (efi_enabled) {
+> 
+> -           efi_memory_desc_t *md;
+> 
+> -           void *p;
+> 
+> +           efi_memory_desc_t *md, *next_md = 0;
+> 
+> +           void *p, *p1;
+> 
+>  
+> 
+> -           for (p = memmap.map, i = 0; p < memmap.map_end;
+> 
+> -                 p += memmap.desc_size, i++) {
+> 
+> +           for (p = memmap.map, i = 0,j = 0, p1 = memmap.map;
+
+	space after comma, please.
+
+> +                       p < memmap.map_end; p += memmap.desc_size, i++) {
+> 
+>                   md = p;
+> 
+> -                 current_addr = md->phys_addr + (md->num_pages << 12);
+> 
+> -                 if (md->type == EFI_CONVENTIONAL_MEMORY) {
+> 
+> +                 next_md = p1;
+> 
+> +                 current_addr = md->phys_addr + PFN_PHYS(md->num_pages);
+> 
+> +                 if (is_available_memory(md)) {
+> 
+> +                       if (md->phys_addr >= size) continue;
+
+	Split to 2 lines:
+			if (condition)
+				continue;
+
+> +                       memcpy(next_md, md, memmap.desc_size);
+> 
+>                         if (current_addr >= size) {
+> 
+> -                             md->num_pages -=
+> 
+> -                                   (((current_addr-size) + PAGE_SIZE-1) >> PAGE_SHIFT);
+> 
+> -                             memmap.nr_map = i + 1;
+> 
+> -                             return;
+> 
+> +                             next_md->num_pages -=
+> 
+> +                                   PFN_UP(current_addr-size);
+
+					...(current_addr - size);
+> 
+>                         }
+> 
+> +                       p1 += memmap.desc_size;
+> 
+> +                       next_md = p1;
+> 
+> +                       j++;
+> 
+> +                 }
+> 
+> +                 else if ((md->attribute & EFI_MEMORY_RUNTIME) ==
+> 
+> +                             EFI_MEMORY_RUNTIME) {
+> 
+> +                       /* In order to make runtime services available
+> 
+> +                       * we have to include runtime
+> 
+> +                       * memory regions in memory map */
+> 
+> +                       memcpy(next_md, md, memmap.desc_size);
+> 
+> +                       p1 += memmap.desc_size;
+> 
+> +                       next_md = p1;
+> 
+> +                       j++;
+> 
+>                   }
+> 
+>             }
+> 
+> +           memmap.nr_map = j;
+> 
+> +           memmap.map_end = memmap.map + (memmap.nr_map * memmap.desc_size);
+> 
+> +           return;
+> 
+>       }
+> 
+>       for (i = 0; i < e820.nr_map; i++) {
+> 
+>             current_addr = e820.map[i].addr + e820.map[i].size;
+> 
+>  
+> -
+
+---
+~Randy

@@ -1,123 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162238AbWKPCn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162229AbWKPCnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162238AbWKPCn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:43:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162240AbWKPCn7
+	id S1162229AbWKPCnf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:43:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162234AbWKPCne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:43:59 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:14223 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162238AbWKPCnn
+	Wed, 15 Nov 2006 21:43:34 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:7823 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162229AbWKPCnd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:43:43 -0500
-Message-Id: <20061116024414.118486000@sous-sol.org>
+	Wed, 15 Nov 2006 21:43:33 -0500
+Message-Id: <20061116024438.604985000@sous-sol.org>
 References: <20061116024332.124753000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 15 Nov 2006 18:43:34 -0800
+Date: Wed, 15 Nov 2006 18:43:36 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Christoph Lameter <clameter@sgi.com>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>
-Subject: [patch 02/30] POWERPC: Make alignment exception always check exception table
-Content-Disposition: inline; filename=make-alignment-exception-always-check-exception-table.patch
+       alan@lxorguk.ukuu.org.uk, Stephen Rothwell <sfr@canb.auug.org.au>,
+       linux-mm@kvack.org
+Subject: [patch 04/30] Fix sys_move_pages when a NULL node list is passed.
+Content-Disposition: inline; filename=fix-sys_move_pages-when-a-null-node-list-is-passed.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
 
-The alignment exception used to only check the exception table for
--EFAULT, not for other errors. That opens an oops window if we can
-coerce the kernel into getting an alignment exception for other reasons
-in what would normally be a user-protected accessor, which can be done
-via some of the futex ops. This fixes it by always checking the
-exception tables.
+sys_move_pages() uses vmalloc() to allocate an array of structures
+that is fills with information passed from user mode and then passes to
+do_stat_pages() (in the case the node list is NULL).  do_stat_pages()
+depends on a marker in the node field of the structure to decide how large
+the array is and this marker is correctly inserted into the last element
+of the array.  However, vmalloc() doesn't zero the memory it allocates
+and if the user passes NULL for the node list, then the node fields are
+not filled in (except for the end marker).  If the memory the vmalloc()
+returned happend to have a word with the marker value in it in just the
+right place, do_pages_stat will fail to fill the status field of part
+of the array and we will return (random) kernel data to user mode.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Acked-by: Christoph Lameter <clameter@sgi.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/powerpc/kernel/traps.c |   18 ++++++++++--------
- arch/ppc/kernel/traps.c     |   18 ++++++++++--------
- 2 files changed, 20 insertions(+), 16 deletions(-)
+ mm/migrate.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- linux-2.6.18.2.orig/arch/powerpc/kernel/traps.c
-+++ linux-2.6.18.2/arch/powerpc/kernel/traps.c
-@@ -818,7 +818,7 @@ void __kprobes program_check_exception(s
+--- linux-2.6.18.2.orig/mm/migrate.c
++++ linux-2.6.18.2/mm/migrate.c
+@@ -950,7 +950,8 @@ asmlinkage long sys_move_pages(pid_t pid
+ 				goto out;
  
- void alignment_exception(struct pt_regs *regs)
- {
--	int fixed = 0;
-+	int sig, code, fixed = 0;
- 
- 	/* we don't implement logging of alignment exceptions */
- 	if (!(current->thread.align_ctl & PR_UNALIGN_SIGBUS))
-@@ -832,14 +832,16 @@ void alignment_exception(struct pt_regs 
- 
- 	/* Operand address was bad */
- 	if (fixed == -EFAULT) {
--		if (user_mode(regs))
--			_exception(SIGSEGV, regs, SEGV_ACCERR, regs->dar);
--		else
--			/* Search exception table */
--			bad_page_fault(regs, regs->dar, SIGSEGV);
--		return;
-+		sig = SIGSEGV;
-+		code = SEGV_ACCERR;
-+	} else {
-+		sig = SIGBUS;
-+		code = BUS_ADRALN;
+ 			pm[i].node = node;
+-		}
++		} else
++			pm[i].node = 0;	/* anything to not match MAX_NUMNODES */
  	}
--	_exception(SIGBUS, regs, BUS_ADRALN, regs->dar);
-+	if (user_mode(regs))
-+		_exception(sig, regs, code, regs->dar);
-+	else
-+		bad_page_fault(regs, regs->dar, sig);
- }
- 
- void StackOverflow(struct pt_regs *regs)
---- linux-2.6.18.2.orig/arch/ppc/kernel/traps.c
-+++ linux-2.6.18.2/arch/ppc/kernel/traps.c
-@@ -708,7 +708,7 @@ void single_step_exception(struct pt_reg
- 
- void alignment_exception(struct pt_regs *regs)
- {
--	int fixed;
-+	int sig, code, fixed = 0;
- 
- 	fixed = fix_alignment(regs);
- 	if (fixed == 1) {
-@@ -717,14 +717,16 @@ void alignment_exception(struct pt_regs 
- 		return;
- 	}
- 	if (fixed == -EFAULT) {
--		/* fixed == -EFAULT means the operand address was bad */
--		if (user_mode(regs))
--			_exception(SIGSEGV, regs, SEGV_ACCERR, regs->dar);
--		else
--			bad_page_fault(regs, regs->dar, SIGSEGV);
--		return;
-+		sig = SIGSEGV;
-+		code = SEGV_ACCERR;
-+	} else {
-+		sig = SIGBUS;
-+		code = BUS_ADRALN;
- 	}
--	_exception(SIGBUS, regs, BUS_ADRALN, regs->dar);
-+	if (user_mode(regs))
-+		_exception(sig, regs, code, regs->dar);
-+	else
-+		bad_page_fault(regs, regs->dar, sig);
- }
- 
- void StackOverflow(struct pt_regs *regs)
+ 	/* End marker */
+ 	pm[nr_pages].node = MAX_NUMNODES;
 
 --

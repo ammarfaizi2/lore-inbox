@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424599AbWKPXqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424608AbWKPXrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424599AbWKPXqx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 18:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424597AbWKPXqx
+	id S1424608AbWKPXrc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 18:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424601AbWKPXrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 18:46:53 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42193 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1424595AbWKPXqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 18:46:52 -0500
-Date: Thu, 16 Nov 2006 23:52:23 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: eli@dev.mellanox.co.il
-Cc: eli@dev.mellanox.co.il, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: UDP packets loss
-Message-ID: <20061116235223.78f13473@localhost.localdomain>
-In-Reply-To: <18154.194.90.237.34.1163703097.squirrel@dev.mellanox.co.il>
-References: <60157.89.139.64.58.1163542548.squirrel@dev.mellanox.co.il>
-	<18154.194.90.237.34.1163703097.squirrel@dev.mellanox.co.il>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Thu, 16 Nov 2006 18:47:32 -0500
+Received: from localhost.localdomain ([127.0.0.1]:1208 "EHLO localhost")
+	by vger.kernel.org with ESMTP id S1424600AbWKPXrb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 18:47:31 -0500
+Date: Thu, 16 Nov 2006 18:47:30 -0500 (EST)
+Message-Id: <20061116.184730.35014107.davem@davemloft.net>
+To: jesper.juhl@gmail.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: IPv4: ip_options_compile() how can we avoid blowing up on a
+ NULL skb???
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <9a8748490611161434oc393db0o1e1c23ba99b1c796@mail.gmail.com>
+References: <9a8748490611161434oc393db0o1e1c23ba99b1c796@mail.gmail.com>
+X-Mailer: Mew version 5.1 on Emacs 21.3 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006 20:51:37 +0200 (IST)
-eli@dev.mellanox.co.il wrote:
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+Date: Thu, 16 Nov 2006 23:34:14 +0100
 
-> eventually slow the whole thing to a rate such all parts can handle. But
-> is there a way to overcome this situation and to avoid packets drop? If
-> this would happen then TCP would work at higher rates as well?? Perhaps
-> increase buffers sizes?
+> So if 'skb' is NULL, the only route I see that doesn't cause a NULL
+> pointer deref is if  (opt != NULL)  and at the same time
+> (opt->is_data != NULL)  .   Is that guaranteed in any way?
 
-Increased buffer sizes can actually paradoxically make the situation
-worse. Van Jacobson once claimed that those who do not understand TCP are
-doomed to re-invent it.
+Yes, it is guarenteed, all callers  make sure these invariants
+hold true.
 
-If you have a very controlled environment then there are alternative flow
-control approaches including counting approaches when you know the
-underlying transport is basically reliable (or you can tolerate minor
-loss). That's roughly speaking the equivalent of TCP with fixed windows
-and knowing that the buffering worst cases are the end points.
-
-Alan
+I'm very happy to accept a patch which assert's this using BUG()
+checks :-)

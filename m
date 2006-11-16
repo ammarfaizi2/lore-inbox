@@ -1,172 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424711AbWKPVwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424713AbWKPVxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424711AbWKPVwU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424713AbWKPVwU
+	id S1424713AbWKPVxy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424716AbWKPVxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:52:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8383 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1424711AbWKPVwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:52:19 -0500
-Date: Thu, 16 Nov 2006 22:51:54 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       rjw@sisk.pl, ebiederm@xmission.com, hpa@zytor.com,
-       magnus.damm@gmail.com, Reloc Kernel List <fastboot@lists.osdl.org>,
-       ak@suse.de
-Subject: Re: [Fastboot] [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-Message-ID: <20061116215154.GD6695@elf.ucw.cz>
-References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <20061115212411.GF9039@in.ibm.com> <20061116002836.GG9039@in.ibm.com> <20061116200933.GE13069@in.ibm.com> <20061116205313.GB5596@elf.ucw.cz> <20061116212950.GF13069@in.ibm.com>
+	Thu, 16 Nov 2006 16:53:54 -0500
+Received: from 64.221.212.177.ptr.us.xo.net ([64.221.212.177]:55635 "EHLO
+	ext.agami.com") by vger.kernel.org with ESMTP id S1424713AbWKPVxx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 16:53:53 -0500
+Message-ID: <455CD6C8.5030907@agami.com>
+Date: Thu, 16 Nov 2006 13:23:20 -0800
+From: Shailendra Tripathi <stripathi@agami.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061116212950.GF13069@in.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: linux-kernel@vger.kernel.org, xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       nathans@sgi.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][RFC][resend] potential NULL pointer deref in XFS on failed
+ mount
+References: <200611162218.26945.jesper.juhl@gmail.com>
+In-Reply-To: <200611162218.26945.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hey Jesper,
+                Rather,  it can be done as below. Nothing to say that 
+your code wouldn't work. Just that catch it early, so that potential 
+function call overhead to call xfs_free_buftarg can be avoided.
 
-> > > Fixed the resume problem happening on my second box which supported NX
-> > > protection bit. Please find attached the regenerated patch.
-> > > 
-> > > - Killed lots of dead code
-> > 
-> > Cleanup. (a)
-> > 
-> > > - Improve the cpu sanity checks to verify long mode
-> > >   is enabled when we wake up.
-> > 
-> > Change. (b). I'm not sure if we really need this one. I do not think
-> > replacing cpu while suspended is supported operation.
-> > 
-> 
-> That's fine but it does not harm. Now all the entry path share the
-> same sanity check (verify_cpu.S) and I believe it makes code more
-> maintanable and more robust. It just makes our checks stronger in
-> case somebody really replaces the cpus.
+void
+xfs_unmountfs_close(xfs_mount_t *mp, struct cred *cr)
+{
+       if (mp->m_logdev_targp && (mp->m_logdev_targp != mp->m_ddev_targp))
+                xfs_free_buftarg(mp->m_logdev_targp, 1);
+        if (mp->m_rtdev_targp)
+                xfs_free_buftarg(mp->m_rtdev_targp, 1);
+        xfs_free_buftarg(mp->m_ddev_targp, 0);
+}
 
-It is probably okay if shared.
 
-> > > - Removed the need for modifying any existing kernel page table.
-> > 
-> > Unrelated change, probably good one. (c).
-> > 
-> > > - Moved wakeup_level4_pgt into the wakeup routine so we can
-> > >   run the kernel above 4G.
-> > 
-> > The change you really wanted to do in the first place. (d).
-> > 
-> > > - Increased the size of the wakeup routine to 8K.
-> > 
-> > You want bigger stack or what? (e)
-> > 
-> 
-> I think this is because of wakeup_level4_pgt page tables which are now
-> part of trampoline. And these page tables got to be at 4K byte boundary.
-> Hence now we need two pages for trampoline instead of one.
+Jesper Juhl wrote:
+> (got no reply on this when I originally send it on 20061031, so resending
+>  now that a bit of time has passed.  The patch still applies cleanly to
+>  Linus' git tree as of today.)
+>
+>
+> The Coverity checker spotted a potential problem in XFS.
+>
+> The problem is that if, in xfs_mount(), this code triggers:
+>
+> 	...
+> 	if (!mp->m_logdev_targp)
+> 		goto error0;
+> 	...
+>
+> Then we'll end up calling xfs_unmountfs_close() with a NULL 
+> 'mp->m_logdev_targp'. 
+> This in turn will result in a call to xfs_free_buftarg() with its 'btp' 
+> argument == NULL. xfs_free_buftarg() dereferences 'btp' leading to
+> a NULL pointer dereference and crash.
+>
+> I think this can happen, since the fatal call to xfs_free_buftarg() 
+> happens when 'm_logdev_targp != m_ddev_targp' and due to a check of
+> 'm_ddev_targp' against NULL in xfs_mount() (and subsequent return if it is 
+> NULL) the two will never both be NULL when we hit the error0 label from 
+> the two lines cited above.
+>
+> Comments welcome (please keep me on Cc: on replies).
+>
+> Here's a proposed patch to fix this by testing 'btp' against NULL in 
+> xfs_free_buftarg().
+>
+>
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+>
+>  fs/xfs/linux-2.6/xfs_buf.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+>
+> diff --git a/fs/xfs/linux-2.6/xfs_buf.c b/fs/xfs/linux-2.6/xfs_buf.c
+> index db5f5a3..6ef1860 100644
+> --- a/fs/xfs/linux-2.6/xfs_buf.c
+> +++ b/fs/xfs/linux-2.6/xfs_buf.c
+> @@ -1450,6 +1450,9 @@ xfs_free_buftarg(
+>  	xfs_buftarg_t		*btp,
+>  	int			external)
+>  {
+> +	if (unlikely(!btp))
+> +		return;
+> +
+>  	xfs_flush_buftarg(btp, 1);
+>  	if (external)
+>  		xfs_blkdev_put(btp->bt_bdev);
+>
+>
+>
+>   
 
-Aha, ok. Notice that in the changelog.
-
-> > > - Renamed the variables to use the 64bit register names.
-> > 
-> > Cleanup. (a)
-> > 
-> > > - Lots of misc cleanups to match trampoline.S
-> > 
-> > More cleanups. (a).
-> > 
-> > Can we at least get (a) (b) (c) (d) and (e) separated?
-> 
-> Ok. I will separate the patches.
-
-Thanks!
-
-> > > I don't have a configuration I can test this but it compiles cleanly
-> > > and it should work, the code is very similar to the SMP trampoline,
-> > 
-> > I assume you have configuration for test now?
-> 
-> Eric did not have but now I have tested it already on two configurations.
-> I think that's good enough. Isn't it?
-
-Should be... if it is in -mm for long enough. Unfortunately very
-little people are testing x86-64 on notebooks :-(. I guess I should
-force myself to install 64-bit distro on old arima here...
-
-> > > -static pgd_t low_ptr;
-> > > -
-> > > -static void init_low_mapping(void)
-> > > -{
-> > > -	pgd_t *slot0 = pgd_offset(current->mm, 0UL);
-> > > -	low_ptr = *slot0;
-> > > -	set_pgd(slot0, *pgd_offset(current->mm, PAGE_OFFSET));
-> > > -	WARN_ON(num_online_cpus() != 1);
-> > > -	local_flush_tlb();
-> > > -}
-> > > -
-> > 
-> > So you no longer need identity mapping? Is not it specified that when
-> > you transition between modes, you should do that while in identity
-> > mapping?
-> > 
-> 
-> I am not sure where these mappings are required at all in first place?
-> While going to sleep state? While resuming we are using wake page tables
-> and they already got identity mappings so it should not be an issue.
-
-Ok, I guess that's okay.
-
-> > > @@ -228,25 +206,10 @@ wakeup_long64:
-> > >  	.align	64	
-> > >  gdta:
-> > >  	.word	0, 0, 0, 0			# dummy
-> > > -
-> > > -	.word	0, 0, 0, 0			# unused
-> > > -
-> > > -	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
-> > > -	.word	0				# base address = 0
-> > > -	.word	0x9B00				# code read/exec. ??? Why I need 0x9B00 (as opposed to 0x9A00 in order for this to work?)
-> > > -	.word	0x00CF				# granularity = 4096, 386
-> > > -						#  (+5th nibble of limit)
-> > > -
-> > > -	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
-> > > -	.word	0				# base address = 0
-> > > -	.word	0x9200				# data read/write
-> > > -	.word	0x00CF				# granularity = 4096, 386
-> > > -						#  (+5th nibble of limit)
-> > > -# this is 64bit descriptor for code
-> > > -	.word	0xFFFF
-> > > -	.word	0
-> > > -	.word	0x9A00				# code read/exec
-> > > -	.word	0x00AF				# as above, but it is long mode and with D=0
-> > > +	/* ??? Why I need the accessed bit set in order for this to work? */
-> > > +	.quad	0x00cf9b000000ffff		# __KERNEL32_CS
-> > > +	.quad	0x00af9b000000ffff		# __KERNEL_CS
-> > > +	.quad	0x00cf93000000ffff		# __KERNEL_DS
-> > 
-> > Why this change, why did you change the values in here, and why you
-> > did not tell me about it in the changelog?
-> 
-> I think mainly it has been modified to be consistent gdt table across
-> the kernel (cpu_gdt_table, trampoline.S and wakeup.S). Now __KERNEL_32_CS
-> entry has been moved up to keep the size of gdt small on trampoline. This
-> change was done in patch number 7 (cleanup segments).
-> 
-> Seondly, I think it is just change of form from using .word to .quad. More
-> compact form.
-> 
-> Thirdly I think it does not harm marking that gdt entry has been accessed.
-> Eric can elaborate more on it. Patch 7 also has got details.
-
-Ok. Maybe it would be nice to #include the GDT's, too, so they do not
-drift apart? Or at least comment "this has to be kept in sync
-with..."?
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

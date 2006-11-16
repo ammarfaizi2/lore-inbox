@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162121AbWKPA0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162108AbWKPA0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162121AbWKPA0i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 19:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162117AbWKPA0h
+	id S1162108AbWKPA0V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 19:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162112AbWKPA0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 19:26:37 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:19990 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1162116AbWKPA0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 19:26:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=rEA/V49Wtuk1UpOJZl4kqPAwlR63gKrNbSSDK1ArDmpcqBuymDID899V7Zcf3sBGwmXylvuRHM9YujOLbi+vcEmF3WlA5RcepYQztJMZZKGBqiIXzP1kI47AnuoGLNNooGq5appL0svu37bkNlqlfzr47FJ1WKvl2FjIbNYLHGg=
-Message-ID: <455BB01B.2080309@gmail.com>
-Date: Thu, 16 Nov 2006 09:26:03 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
+	Wed, 15 Nov 2006 19:26:21 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:30160 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1162108AbWKPA0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 19:26:20 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have no memory
+Date: Thu, 16 Nov 2006 01:26:01 +0100
+User-Agent: KMail/1.9.5
+Cc: Martin Bligh <mbligh@mbligh.org>, Christian Krafft <krafft@de.ibm.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <20061115193049.3457b44c@localhost> <455B8F3A.6030503@mbligh.org> <Pine.LNX.4.64.0611151440400.23201@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0611151440400.23201@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-raid@vger.kernel.org, neilb@cse.unsw.edu.au, mingo@redhat.com,
-       dm-devel@redhat.com
-Subject: Re: Problem booting linux 2.6.19-rc5, 2.6.19-rc5-git6,      2.6.19-rc5-mm2
- with md raid 1 over lvm root
-References: <41884.81.64.156.37.1163631254.squirrel@rousalka.dyndns.org>
-In-Reply-To: <41884.81.64.156.37.1163631254.squirrel@rousalka.dyndns.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611160126.02016.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Mailhot wrote:
-> The failing kernels (I tried -rc5, -rc5-git6, -rc5-mm2 only print :
-> 
-> %<----
-> device-mapper: ioctl: 4.7.0-ioctl (2006-06-24) initialised:
-> dm-devel@redhat.com
-> md: Autodetecting RAID arrays.
-> md: autorun ...
-> md: ... autorun DONE.
-> %<-----
-> 
-> (I didn't bother copying the rest of the failing kernel dmesg, as sata
-> initialisation fills the first half of the screen, then dm is initialised,
-> then you only get the logical consequences of failing to detect the /
-> volume. The sata part seems fine – it prints the name of the hard drives
-> we want to use)
-> 
-> I'm attaching the dmesg for the working distro kernel (yes I know not 100%
-> distro kernel, but very close to one), distro config , and the config I
-> used in my test. If anyone could help me to figure what's wrong I'd be
-> grateful.
+On Wednesday 15 November 2006 23:41, Christoph Lameter wrote:
+> On Wed, 15 Nov 2006, Martin Bligh wrote:
+> > A node is an arbitrary container object containing one or more of:
+> >
+> > CPUs
+> > Memory
+> > IO bus
 
-Say 'y' not 'm' to SCSI disk support.
++ SPUs on a Cell processor
 
--- 
-tejun
+> > It does not have to contain memory.
+>
+> I have never seen a node on Linux without memory. I have seen nodes
+> without processors and without I/O but not without memory.This seems to be
+> something new?
+
+In this particular case, we have a dual-socket Cell/B.E. blade server,
+where each of the two CPU-socket/south-bridge/memory combinations is
+treated as a separate node. The two points that make this tricky
+are:
+
+- we want to be able to boot with the 'mem=512M' option, which effectively
+  disables the memory on the second node (each node has 512MiB).
+- Each node has 8 SPUs, all of which we want to use. In order to use an
+  SPU, we call __add_pages to register the local memory on it, so we have
+  struct page pointers we can hand out to user mappings with ->nopage().
+
+The __add_pages call needs to do node local allocations (there are
+probably more allocations that have the same problem, but this is the
+first one that crashes), which oops when there is no memory registered
+at all for that node, instead of returning an error or falling back
+on a non-local allocation.
+
+	Arnd <><

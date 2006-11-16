@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424724AbWKPV4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424728AbWKPV7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424724AbWKPV4h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424726AbWKPV4h
+	id S1424728AbWKPV7V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424730AbWKPV7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:56:37 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:23995 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1424724AbWKPV4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:56:36 -0500
-Date: Thu, 16 Nov 2006 16:56:35 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Thomas Gleixner <tglx@timesys.com>
-cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: BUG: cpufreq notification broken
-In-Reply-To: <1163712994.10333.49.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0611161654270.2460-100000@iolanthe.rowland.org>
+	Thu, 16 Nov 2006 16:59:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12495 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1424728AbWKPV7U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 16:59:20 -0500
+Date: Thu, 16 Nov 2006 13:59:06 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] hotplug CPU: clean up hotcpu_notifier() use
+In-Reply-To: <20061116093228.GA15603@elte.hu>
+Message-ID: <Pine.LNX.4.64.0611161357380.3349@woody.osdl.org>
+References: <20061116084855.GA8848@elte.hu> <20061116090330.GA11312@elte.hu>
+ <20061116093228.GA15603@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006, Thomas Gleixner wrote:
 
-> On Thu, 2006-11-16 at 16:26 -0500, Alan Stern wrote:
-> > On Thu, 16 Nov 2006, Thomas Gleixner wrote:
-> > 
-> > > There is another issue with this SRCU change:
-> > > 
-> > > The notification comes actually after the real change, which is bad. We
-> > > try to make the TSC usable by backing it with pm_timer accross such
-> > > states, but this behaviour breaks the safety code.
-> > 
-> > I don't understand.  Sending notifications is completely separate from 
-> > setting up the notifier chain's head.  The patch you mentioned didn't 
-> > touch the code that sends the notifications.
-> 
-> Yeah, my bad. It just uses rcu based locking, but its still synchronous.
-> 
-> I have to dig deeper, why the change of the frequency happens _before_
-> the notifier arrives.
 
-There are supposed to be _two_ notifier calls: one before the frequency 
-change and one after.  Check the callers of cpufreq_notify_transition().
+On Thu, 16 Nov 2006, Ingo Molnar wrote:
+>
+> the cpu-hotplug related warning is solved by the cleanup below.
 
-Alan Stern
+I do not believe this is a cleanup, at least not in this kind of form:
 
+> @@ -1777,8 +1775,8 @@ xfs_icsb_init_counters(
+>  #ifdef CONFIG_HOTPLUG_CPU
+>  	mp->m_icsb_notifier.notifier_call = xfs_icsb_cpu_notify;
+>  	mp->m_icsb_notifier.priority = 0;
+> -	register_hotcpu_notifier(&mp->m_icsb_notifier);
+>  #endif /* CONFIG_HOTPLUG_CPU */
+> +	register_hotcpu_notifier(&mp->m_icsb_notifier);
+
+That's just horrible. Now you "register" that notifier that you've never 
+actually even initialized.
+
+The new code is a lot worse than the old code at least in this case.
+
+		Linus

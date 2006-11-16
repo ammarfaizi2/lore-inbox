@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162284AbWKPEYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162270AbWKPE2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162284AbWKPEYe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 23:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162270AbWKPEYe
+	id S1162270AbWKPE2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 23:28:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162272AbWKPE2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 23:24:34 -0500
-Received: from science.horizon.com ([192.35.100.1]:9258 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1162284AbWKPEYe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 23:24:34 -0500
-Date: 15 Nov 2006 23:24:32 -0500
-Message-ID: <20061116042432.26300.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Cc: linux@horizon.com
+	Wed, 15 Nov 2006 23:28:25 -0500
+Received: from outbound-ash.frontbridge.com ([206.16.192.249]:45538 "EHLO
+	outbound2-ash-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1162270AbWKPE2Y convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 23:28:24 -0500
+X-BigFish: VP
+X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [PATCH] ALSA: hda-intel - Disable MSI support by default
+Date: Wed, 15 Nov 2006 20:25:01 -0800
+Message-ID: <5986589C150B2F49A46483AC44C7BCA4907209@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] ALSA: hda-intel - Disable MSI support by default
+Thread-Index: AccI+G+74GXGy7WIQ3ad7MeRPzzpxAAG1HgwAAeB11AAAR5gUA==
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Lu, Yinghai" <yinghai.lu@amd.com>,
+       "Olivier Nicolas" <olivn@trollprod.org>,
+       "Linus Torvalds" <torvalds@osdl.org>
+cc: "Mws" <mws@twisted-brains.org>, "Jeff Garzik" <jeff@garzik.org>,
+       "Krzysztof Halasa" <khc@pm.waw.pl>,
+       "David Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       tiwai@suse.de
+X-OriginalArrivalTime: 16 Nov 2006 04:25:02.0825 (UTC)
+ FILETIME=[2F820590:01C70937]
+X-WSS-ID: 694537941WC498782-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It all boils down to the same thing: either we have to know that MSI works 
-> (where "know" is obviously relative - it's not like you can avoid _all_ 
-> bugs, but dammit, even a single report of "not working" means that there 
-> are probably a ton of machines like that, and we did something wrong), or 
-> we shouldn't use it. There is no middle ground. You can't really safely 
-> "test" for it, and while you _can_ say "just do both", it doesn't really 
-> help anything (and potentially exposes you to just more bugs: if enablign 
-> MSI actually _does_ disable INTx, but then doesn't work, at a minimum you 
-> end up with a device that doesn't work, even if the rest of the kernel 
-> might be ok).
+I think the root cause in hda_intel driver's self.
 
-Er... why can't you test it?
+It gets io-apic irq initialized at first, and it will use
+azx_acquire_irq to install handler after check if MSI can be enabled.
+And when it try to enable the MSI, that will start the int in the chip.
+Even handler for MSI is not installed.
 
-The fundamental problem in IRQ routing is that if you have it wrong,
-you have a screaming interrupt that you can't shut up.
+YH
 
-Well, before giving up entirely, assume that *some* device owns that
-interrupt, it's just mis-routed.
 
-So start calling the IRQ handlers for *every* PCI device until the
-damn interrupt goes away, or you've really proved that it can't
-be shut up.
 
-If you have interrupts coming in fast, you might have to retry a few
-times to be sure there's nothing to be done, but that's nothing new.
 
-Now, if you get really nasty with the locking, you can disable all
-other interrupt handlers on all processors until you've dealt with
-the screaming interrupt, and when it goes away, you can point the
-finger conclusively at the device which has the misrouted interrupt.
-And you've also found where its interrupt *is* routed.
-
-If you don't have such nasty locking, then you only have a strong
-suspiscion about what did it, but a few repetitions can firm that up.
-Any time a device handles an interrupt that arrived from the expected
-place, its index of suspiscion goes down.  You can even use this
-to select an order to call the various PCI drivers.
-
-All of this can be rather time-consuming and mess up real-time response,
-but it's only once per boot, and being able to point the finger accurately
-at buggy hardware rather than not working at all for mysterious reasons is
-quite nice.  And an increasing number of BIOS vendors and OEMs are testing
-with Linux, even if only cursorily, so there is some (slow) feedback.
-
-Whether you actually learn to cope with misrouted interrupts is
-a separate issue that I won't raise.

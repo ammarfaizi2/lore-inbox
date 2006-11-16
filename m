@@ -1,142 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031038AbWKPBag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031044AbWKPBfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031038AbWKPBag (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 20:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031041AbWKPBag
+	id S1031044AbWKPBfv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 20:35:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031047AbWKPBfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 20:30:36 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:38560 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1031038AbWKPBaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 20:30:35 -0500
-Message-ID: <455BBF38.5030503@vmware.com>
-Date: Wed, 15 Nov 2006 17:30:32 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org,
-       "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
-Subject: Re: 2.6.19-rc5-mm2: paravirt X86_PAE=y compile error
-References: <20061114014125.dd315fff.akpm@osdl.org>	<20061115231626.GC31879@stusta.de> <20061115153614.a71f944d.akpm@osdl.org>
-In-Reply-To: <20061115153614.a71f944d.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------070201010000080000010505"
+	Wed, 15 Nov 2006 20:35:51 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:61067 "EHLO omx1.sgi.com")
+	by vger.kernel.org with ESMTP id S1031044AbWKPBfu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 20:35:50 -0500
+Date: Wed, 15 Nov 2006 19:35:34 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Christian Krafft <krafft@de.ibm.com>, linux-mm@kvack.org,
+       Martin Bligh <mbligh@mbligh.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have no memory
+Message-ID: <20061116013534.GB1066@sgi.com>
+References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost> <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com> <20061115215845.GB20526@sgi.com> <Pine.LNX.4.64.0611151432050.23201@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611151432050.23201@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070201010000080000010505
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Nov 15, 2006 at 02:40:36PM -0800, Christoph Lameter wrote:
+> On Wed, 15 Nov 2006, Jack Steiner wrote:
+> 
+> > A lot of the core infrastructure is currently missing that is required
+> > to describe IO nodes as regular nodes, but in principle, I don't
+> > see anything wrong with nodes w/o memory.
+> 
+> Every processor has a local node on which it runs. The kernel places 
+> memory used by the processor on the local node. Even if we allow
+> nodes without memory: We still need to associate a "local" node to the 
+> processor. If that is across some NUMA interlink then it is going to be 
+> slower but it will work.
 
-Andrew Morton wrote:
-> On Thu, 16 Nov 2006 00:16:26 +0100
-> Adrian Bunk <bunk@stusta.de> wrote:
->
->   
->> Paravirt breaks CONFIG_X86_PAE=y compilation:
->>
->> <--  snip  -->
->>
->> ...
->>   CC      init/main.o
->> In file included from include2/asm/pgtable.h:245,
->>                  from 
->> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/mm.h:40,
->>                  from 
->> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/poll.h:11,
->>                  from 
->> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/rtc.h:113,
->>                  from 
->> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/efi.h:19,
->>                  from 
->> /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/init/main.c:43:
->> include2/asm/pgtable-3level.h:108: error: redefinition of 'pte_clear'
->> include2/asm/paravirt.h:365: error: previous definition of 'pte_clear' was here
->> include2/asm/pgtable-3level.h:115: error: redefinition of 'pmd_clear'
->> include2/asm/paravirt.h:370: error: previous definition of 'pmd_clear' was here
->> make[2]: *** [init/main.o] Error 1
->>
->>     
->
-> So it does.  Zach will save us.
->
->   
+True.
 
-Well that shouldn't have happened.  Must have been some reject that went 
-unnoticed?  Try this.
+> 
+> AFAIK It seems to be better to explicitly associate a memory node with a 
+> processor during bootup in arch code. 
+> 
+> Various kernel optimizations rely on local memory. Would we create 
+> a  special case here of a pglist_data structure without a zones structure? 
+> 
+> It seems that the contents of pglist_data are targeted to a memory node. 
+> If we do not have a pglist_data structure then the node would not exist 
+> for the kernel.
+> 
+> What would the benefit or difference be of having nodes without memory?
 
---------------070201010000080000010505
-Content-Type: text/plain;
- name="pae-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pae-fix.patch"
+I doubt that there is a demand for systems with memoryless nodes. However, if the
+DIMM(s) on a node fails, I think the system may perform better
+with the cpus on the node enabled than it will if they have to be
+disabled.
 
-Save big on PAE patches, now cheaper by the dozen!
-I hope this doesn't trip someone's ham filter.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-Index: linux-2.6.18/include/asm-i386/pgtable-3level.h
-===================================================================
---- linux-2.6.18.orig/include/asm-i386/pgtable-3level.h	2006-11-10 14:49:51.000000000 -0800
-+++ linux-2.6.18/include/asm-i386/pgtable-3level.h	2006-11-15 17:26:54.000000000 -0800
-@@ -78,26 +78,6 @@ static inline void set_pte_present(struc
- 		set_64bit((unsigned long long *)(pmdptr),pmd_val(pmdval))
- #define set_pud(pudptr,pudval) \
- 		(*(pudptr) = (pudval))
--#endif
--
--/*
-- * Pentium-II erratum A13: in PAE mode we explicitly have to flush
-- * the TLB via cr3 if the top-level pgd is changed...
-- * We do not let the generic code free and clear pgd entries due to
-- * this erratum.
-- */
--static inline void pud_clear (pud_t * pud) { }
--
--#define pud_page(pud) \
--((struct page *) __va(pud_val(pud) & PAGE_MASK))
--
--#define pud_page_vaddr(pud) \
--((unsigned long) __va(pud_val(pud) & PAGE_MASK))
--
--
--/* Find an entry in the second-level page table.. */
--#define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
--			pmd_index(address))
- 
- /*
-  * For PTEs and PDEs, we must clear the P-bit first when clearing a page table
-@@ -118,6 +98,26 @@ static inline void pmd_clear(pmd_t *pmd)
- 	smp_wmb();
- 	*(tmp + 1) = 0;
- }
-+#endif
-+
-+/*
-+ * Pentium-II erratum A13: in PAE mode we explicitly have to flush
-+ * the TLB via cr3 if the top-level pgd is changed...
-+ * We do not let the generic code free and clear pgd entries due to
-+ * this erratum.
-+ */
-+static inline void pud_clear (pud_t * pud) { }
-+
-+#define pud_page(pud) \
-+((struct page *) __va(pud_val(pud) & PAGE_MASK))
-+
-+#define pud_page_vaddr(pud) \
-+((unsigned long) __va(pud_val(pud) & PAGE_MASK))
-+
-+
-+/* Find an entry in the second-level page table.. */
-+#define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
-+			pmd_index(address))
- 
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
- static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
-
---------------070201010000080000010505--
+-- jack

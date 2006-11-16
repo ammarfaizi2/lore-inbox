@@ -1,96 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424103AbWKPOlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424108AbWKPOp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424103AbWKPOlg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 09:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424104AbWKPOlg
+	id S1424108AbWKPOp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 09:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424109AbWKPOp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 09:41:36 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:11023 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1424103AbWKPOlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 09:41:35 -0500
-Date: Thu, 16 Nov 2006 15:42:07 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Greg K-H <greg@kroah.com>,
-       Kay Sievers <kay.sievers@vrfy.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [Patch -mm 1/2] driver core: Introduce device_find_child().
-Message-ID: <20061116154207.4e59ce23@gondolin.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 09:45:29 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:41196 "EHLO omx1.sgi.com")
+	by vger.kernel.org with ESMTP id S1424108AbWKPOp2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 09:45:28 -0500
+Date: Thu, 16 Nov 2006 08:47:43 -0600
+From: "Bill O'Donnell" <billodo@sgi.com>
+To: Chris Friedhoff <chris@friedhoff.org>
+Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
+       KaiGai Kohei <kaigai@kaigai.gr.jp>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 1/1] security: introduce fs caps
+Message-ID: <20061116144743.GA21497@sgi.com>
+References: <20061108222453.GA6408@sergelap.austin.ibm.com> <20061109061021.GA32696@sergelap.austin.ibm.com> <20061109103349.e58e8f51.chris@friedhoff.org> <20061113215706.GA9658@sgi.com> <20061114052531.GA20915@sergelap.austin.ibm.com> <20061114135546.GA9953@sgi.com> <20061114152307.GA7534@sergelap.austin.ibm.com> <455B0357.2050400@ak.jp.nec.com> <20061115170633.GA21345@sgi.com> <20061115224923.539fe60a.chris@friedhoff.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061115224923.539fe60a.chris@friedhoff.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+On Wed, Nov 15, 2006 at 10:49:23PM +0100, Chris Friedhoff wrote:
+| On Wed, 15 Nov 2006 11:06:34 -0600
+| "Bill O'Donnell" <billodo@sgi.com> wrote:
+| 
+| - snip - 
+| > | Probably, Bill didn't update libcap.so.
+| > No, I didn't...
+| > certify:~/libcap-1.10/progs # ls -altr /lib/libcap*
+| > -rwxr-xr-x 1 root root 22672 2006-06-16 09:56 /lib/libcap.so.1.92
+| > -rw-r--r-- 1 root root 53363 2006-11-13 16:04 /lib/libcap.so.1.10
+| > lrwxrwxrwx 1 root root    14 2006-11-13 16:04 /lib/libcap.so.1 ->libcap.so.1.92
+| > lrwxrwxrwx 1 root root    11 2006-11-13 16:04 /lib/libcap.so -> libcap.so.1
+| > 
+| 
+| Why is SLES10 using libcap-1.92?
+| (googling brought this page:
+| http://www.me.kernel.org/pub/linux/libs/security/linux-privs/old/kernel-2.3/)
 
-Introduce device_find_child() to match device_for_each_child().
+Good quesion.  My gentoo ia32 machine uses libcap.so.1.10.  Probably a FAQ, 
+but is 1.92 actually older than 1.10?
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+| 
+| > | 
+| > | But I can't recommend Bill to update libcap immediately.
+| > | As Hawk Xu said, it may cause a serious problem on the distro
+| > | except Fedora Core 6. :(
+| > 
+| > What version of libcap is on FC6? 
+| > 
+| 
+| Are there newer libcap versions then libcap-1.10 available?
+| (http://ftp.kernel.org/pub/linux/libs/security/linux-privs/kernel-2.4/)
 
----
- drivers/base/core.c    |   33 +++++++++++++++++++++++++++++++++
- include/linux/device.h |    2 ++
- 2 files changed, 35 insertions(+)
+| 
+| > | 
+| > | I have to recommend to use 'fscaps-1.0-kg.i386.rpm' now.
+| > | It includes the implementation of interaction between application and xattr.
+| > | (Of couse, it's one of the features which should be provided by libcap.)
+| > 
+| > But that won't work on ia64 will it?
+| 
+| Kaigai also provides a srpm package to compile.
+|  VFS Capability Support -> fscaps version 1.0 [SRPM]
+| (http://www.kaigai.gr.jp/pub/fscaps-1.0-kg.src.rpm)
 
---- linux-2.6-CH.orig/drivers/base/core.c
-+++ linux-2.6-CH/drivers/base/core.c
-@@ -750,12 +750,45 @@ int device_for_each_child(struct device 
- 	return error;
- }
- 
-+/**
-+ * device_find_child - device iterator for locating a particular device.
-+ * @parent: parent struct device
-+ * @data: Data to pass to match function
-+ * @match: Callback function to check device
-+ *
-+ * This is similar to the device_for_each_child() function above, but it
-+ * returns a reference to a device that is 'found' for later use, as
-+ * determined by the @match callback.
-+ *
-+ * The callback should return 0 if the device doesn't match and non-zero
-+ * if it does.  If the callback returns non-zero and a reference to the
-+ * current device can be obtained, this function will return to the caller
-+ * and not iterate over any more devices.
-+ */
-+struct device * device_find_child(struct device *parent, void *data,
-+				  int (*match)(struct device *, void *))
-+{
-+	struct klist_iter i;
-+	struct device *child;
-+
-+	if (!parent)
-+		return NULL;
-+
-+	klist_iter_init(&parent->klist_children, &i);
-+	while ((child = next_device(&i)))
-+		if (match(child, data) && get_device(child))
-+			break;
-+	klist_iter_exit(&i);
-+	return child;
-+}
-+
- int __init devices_init(void)
- {
- 	return subsystem_register(&devices_subsys);
- }
- 
- EXPORT_SYMBOL_GPL(device_for_each_child);
-+EXPORT_SYMBOL_GPL(device_find_child);
- 
- EXPORT_SYMBOL_GPL(device_initialize);
- EXPORT_SYMBOL_GPL(device_add);
---- linux-2.6-CH.orig/include/linux/device.h
-+++ linux-2.6-CH/include/linux/device.h
-@@ -420,6 +420,8 @@ extern int __must_check device_add(struc
- extern void device_del(struct device * dev);
- extern int device_for_each_child(struct device *, void *,
- 		     int (*fn)(struct device *, void *));
-+extern struct device *device_find_child(struct device *, void *data,
-+					int (*match)(struct device *, void *));
- extern int device_rename(struct device *dev, char *new_name);
- 
- /*
+I'll try that next.
+
+Thanks, 
+Bill
+

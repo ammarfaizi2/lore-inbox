@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424734AbWKPWBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424735AbWKPWDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424734AbWKPWBo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 17:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424735AbWKPWBo
+	id S1424735AbWKPWDM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 17:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424736AbWKPWDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 17:01:44 -0500
-Received: from usea-naimss2.unisys.com ([192.61.61.104]:15374 "EHLO
-	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S1424734AbWKPWBn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 17:01:43 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 16 Nov 2006 17:03:12 -0500
+Received: from 64.221.212.177.ptr.us.xo.net ([64.221.212.177]:50774 "EHLO
+	ext.agami.com") by vger.kernel.org with ESMTP id S1424735AbWKPWDL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 17:03:11 -0500
+Message-ID: <455CDBA5.5070809@agami.com>
+Date: Thu, 16 Nov 2006 13:44:05 -0800
+From: Shailendra Tripathi <stripathi@agami.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: How to go about debuging a system lockup?
-Date: Thu, 16 Nov 2006 16:01:03 -0600
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0D87@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to go about debuging a system lockup?
-Thread-Index: AccJyrVgcshUufYbSgSl4HvsedN+pQ==
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>,
-       "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 16 Nov 2006 22:01:03.0532 (UTC) FILETIME=[B56EA6C0:01C709CA]
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: linux-kernel@vger.kernel.org, xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       nathans@sgi.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][RFC][resend] potential NULL pointer deref in XFS on failed
+ mount
+References: <200611162218.26945.jesper.juhl@gmail.com>	 <455CD6C8.5030907@agami.com> <9a8748490611161343x44e759acs9b70247c84452ba5@mail.gmail.com>
+In-Reply-To: <9a8748490611161343x44e759acs9b70247c84452ba5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't know of a good version yet.  I so far don't know if there ever
-> was one.  This could even be a bug in the PCI hardware, or the way the
-> BIOS on this system on a board configured the PCI controller.  Maybe I
-> should go back and try a 2.4 kernel.
-> 
-> > Hope some of that helps :)
-> 
-> Well hopefully.
-> 
+Jesper Juhl wrote:
 
-If you can't drop in kdb, or no sysreq, then your interrupts are
-disabled. I used to be (with older systems anyway) that NMI button was
-on the system, so one could send an NMI and make the handler to print a
-trace. Newer systems might not have that, so you can built your own PCI
-card to send an NMI :)
-Another possibility is to use port 80 and make suspicious code print
-something to it. Once we used a small self-built thing with LEDs to
-catch the output to the parallel port while debugging silent boot
-failure. There are some port 80 cards that you can buy:
-http://auctions.yahoo.com/i:Port%2080%20Card%20and%20power%20supply%20te
-ster:102201489
-http://www.amazon.com/gp/product/B000234U3I/ref=pd_cp_e_title/103-887558
-8-5330221
+> The reason I want to fix it in the freeing function is that many other
+> functions in the kernel that free resources are safe to call with NULL
+> pointers and this would make xfs_free_buftarg() follow that
+> convention.  This would perhaps also allow for some cleanups in other
+> places that call the function since then there's no longer a need for
+> explicit NULL checks any more (haven't checked if there's anything to
+> gain there though).
+> I don't think the function call overhead matters much since this is in
+> a case of a failed mount, so it should happen very rarely.
+>
+I agree with you.  However, cleanup functions should(/must?) check for  
+NULL etc and
+in this case it is already doing so for other cases. So, perhaps not 
+required. Just a different viewpoint.
+Your choice.
 
-If your system has a jtag then in target probe would be useful if you
-have one (or can borrow one, those are expensive).
-
---Natalie
+>> void
+>> xfs_unmountfs_close(xfs_mount_t *mp, struct cred *cr)
+>> {
+>>        if (mp->m_logdev_targp && (mp->m_logdev_targp != 
+>> mp->m_ddev_targp))
+>>                 xfs_free_buftarg(mp->m_logdev_targp, 1);
+>>         if (mp->m_rtdev_targp)
+>>                 xfs_free_buftarg(mp->m_rtdev_targp, 1);
+>>         xfs_free_buftarg(mp->m_ddev_targp, 0);
+>> }
+>>
+>
+>
 

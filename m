@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162260AbWKPCrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162253AbWKPCrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162260AbWKPCrN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162253AbWKPCrM
+	id S1162253AbWKPCrw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:47:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162261AbWKPCrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:47:12 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:23952 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162243AbWKPCq6
+	Wed, 15 Nov 2006 21:47:20 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:5512 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162254AbWKPCrP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:46:58 -0500
-Message-Id: <20061116024809.629931000@sous-sol.org>
+	Wed, 15 Nov 2006 21:47:15 -0500
+Message-Id: <20061116024836.422688000@sous-sol.org>
 References: <20061116024332.124753000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 15 Nov 2006 18:43:54 -0800
+Date: Wed, 15 Nov 2006 18:43:57 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,44 +21,44 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: [patch 22/30] CPUFREQ: Make acpi-cpufreq unsticky again.
-Content-Disposition: inline; filename=cpufreq-make-acpi-cpufreq-unsticky-again.patch
+       alan@lxorguk.ukuu.org.uk, maks@sternwelten.at,
+       Jens Axboe <jens.axboe@oracle.com>
+Subject: [patch 25/30] block: Fix bad data direction in SG_IO
+Content-Disposition: inline; filename=fix-bad-data-direction-in-sg_io.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Dave Jones <davej@redhat.com>
+From: Jens Axboe <jens.axboe@oracle.com>
 
-This caused suspend/resume regressions.
+Contrary to what the name misleads you to believe, SG_DXFER_TO_FROM_DEV
+is really just a normal read seen from the device side.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+This patch fixes http://lkml.org/lkml/2006/10/13/100
+
+Signed-off-by: Jens Axboe <jens.axboe@oracle.com>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ block/scsi_ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.18.2.orig/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
-+++ linux-2.6.18.2/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
-@@ -560,7 +560,6 @@ static struct cpufreq_driver acpi_cpufre
- 	.name	= "acpi-cpufreq",
- 	.owner	= THIS_MODULE,
- 	.attr	= acpi_cpufreq_attr,
--	.flags	= CPUFREQ_STICKY,
- };
- 
- 
-@@ -571,7 +570,7 @@ acpi_cpufreq_init (void)
- 
- 	acpi_cpufreq_early_init_acpi();
- 
-- 	return cpufreq_register_driver(&acpi_cpufreq_driver);
-+	return cpufreq_register_driver(&acpi_cpufreq_driver);
- }
- 
- 
+--- linux-2.6.18.2.orig/block/scsi_ioctl.c
++++ linux-2.6.18.2/block/scsi_ioctl.c
+@@ -246,10 +246,10 @@ static int sg_io(struct file *file, requ
+ 		switch (hdr->dxfer_direction) {
+ 		default:
+ 			return -EINVAL;
+-		case SG_DXFER_TO_FROM_DEV:
+ 		case SG_DXFER_TO_DEV:
+ 			writing = 1;
+ 			break;
++		case SG_DXFER_TO_FROM_DEV:
+ 		case SG_DXFER_FROM_DEV:
+ 			break;
+ 		}
 
 --

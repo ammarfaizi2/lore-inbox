@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424194AbWKPPsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424171AbWKPPuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424194AbWKPPsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 10:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424205AbWKPPsQ
+	id S1424171AbWKPPuU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 10:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424206AbWKPPuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 10:48:16 -0500
-Received: from mx1.suse.de ([195.135.220.2]:33769 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1424194AbWKPPsO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 10:48:14 -0500
-From: Andi Kleen <ak@suse.de>
-To: William Cohen <wcohen@redhat.com>
-Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
-Date: Thu, 16 Nov 2006 16:47:38 +0100
+	Thu, 16 Nov 2006 10:50:20 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:37647 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1424171AbWKPPuT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 10:50:19 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Organization: tuxland
+To: Torrey Hoffman <thoffman@arnor.net>, Greg KH <greg@kroah.com>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] usb: ati remote memleak fix
+Date: Thu, 16 Nov 2006 16:50:25 +0100
 User-Agent: KMail/1.9.5
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       discuss@x86-64.org, Eric Dumazet <dada1@cosmosbay.com>,
-       Komuro <komurojun-mbn@nifty.com>, Ernst Herzberg <earny@net4u.de>,
-       Andre Noll <maan@systemlinux.org>, oprofile-list@lists.sourceforge.net,
-       Jens Axboe <jens.axboe@oracle.com>,
-       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
-       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
-       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <200611160804.31806.ak@suse.de> <455C8520.8060109@redhat.com>
-In-Reply-To: <455C8520.8060109@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611161647.39456.ak@suse.de>
+Message-Id: <200611161650.26989.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-> What other purposes do you see the performance counters useful for? 
+	This is a bug. When checking for ati_remote->outbuf we free
+freeing ati_remote->inbuf so we end up freeing ati_remote->inbuf twice.
+Also the checks for 'ati_remote->inbuf != NULL' and
+'ati_remote->outbuf != NULL' are redundant as usb_buffer_free() does
+this.
 
-Export one to user space as a cycle counter for benchmarking. RDTSC doesn't 
-do this job anymore.
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-> To collect information on process characteristics so they can be scheduled more efficiently?
+ drivers/usb/input/ati_remote.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-That might happen at some point in the future, but i would expect
-us to wait for CPUs with more performance counters first.
+diff -up linux-2.6.19-rc5-mm2-a/drivers/usb/input/ati_remote.c linux-2.6.19-rc5-mm2-b/drivers/usb/input/ati_remote.c
+--- linux-2.6.19-rc5-mm2-a/drivers/usb/input/ati_remote.c	2006-11-15 11:24:24.000000000 +0100
++++ linux-2.6.19-rc5-mm2-b/drivers/usb/input/ati_remote.c	2006-11-15 16:33:02.000000000 +0100
+@@ -633,13 +633,11 @@ static void ati_remote_free_buffers(stru
+ 	usb_free_urb(ati_remote->irq_urb);
+ 	usb_free_urb(ati_remote->out_urb);
 
-> Is this going to require sharing the nmi interrupt and knowing which perfcounter 
-> register triggered the interrupt to get the correct action?  Currently the 
-> oprofile interrupt handler assumes any performance monitoring counter it sees 
-> overflowing is something it should count.
+-	if (ati_remote->inbuf)
+-		usb_buffer_free(ati_remote->udev, DATA_BUFSIZE,
+-				ati_remote->inbuf, ati_remote->inbuf_dma);
+-
+-	if (ati_remote->outbuf)
+-		usb_buffer_free(ati_remote->udev, DATA_BUFSIZE,
+-				ati_remote->inbuf, ati_remote->outbuf_dma);
++	usb_buffer_free(ati_remote->udev, DATA_BUFSIZE,
++		ati_remote->inbuf, ati_remote->inbuf_dma);
++
++	usb_buffer_free(ati_remote->udev, DATA_BUFSIZE,
++		ati_remote->outbuf, ati_remote->outbuf_dma);
+ }
 
-Yes. That needs to be fixed.
 
--Andi
 
+-- 
+Regards,
+
+	Mariusz Kozlowski

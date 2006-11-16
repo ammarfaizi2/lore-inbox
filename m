@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162267AbWKPCvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162269AbWKPCty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162267AbWKPCvd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162258AbWKPCvc
+	id S1162269AbWKPCty (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:49:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162264AbWKPCse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:51:32 -0500
-Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:23718 "EHLO
-	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1162256AbWKPCvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:51:19 -0500
-Message-ID: <455BD219.8080104@lwfinger.net>
-Date: Wed, 15 Nov 2006 20:51:05 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Ray Lee <ray-lk@madrabbit.org>
-CC: Michael Buesch <mb@bu3sch.de>, Bcm43xx-dev@lists.berlios.de,
-       LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       John Linville <linville@tuxdriver.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: bcm43xx regression 2.6.19rc3 -> rc5, rtnl_lock trouble?
-References: <455B63EC.8070704@madrabbit.org> <200611152015.07844.mb@bu3sch.de> <455B6D74.2020507@madrabbit.org>
-In-Reply-To: <455B6D74.2020507@madrabbit.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Nov 2006 21:48:34 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:24200 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162256AbWKPCs1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 21:48:27 -0500
+Message-Id: <20061116024720.765249000@sous-sol.org>
+References: <20061116024332.124753000@sous-sol.org>
+User-Agent: quilt/0.45-1
+Date: Wed, 15 Nov 2006 18:43:50 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
+       bunk@stusta.de, John Heffner <jheffner@psc.edu>
+Subject: [patch 18/30] TCP: Dont use highmem in tcp hash size calculation.
+Content-Disposition: inline; filename=tcp-don-t-use-highmem-in-tcp-hash-size-calculation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Lee wrote:
-> Michael Buesch wrote:
->> On Wednesday 15 November 2006 20:01, Ray Lee wrote:
->>> Suggestions? Requests for <shudder> even more info?
->> Yeah, enable bcm43xx debugging.
-> 
-> Sigh, didn't even think to look for that. Okay, enabled and compiling a new
-> kernel. This will take a few days to trigger, if the pattern holds, so in the
-> meantime, any *other* thoughts?
-> 
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-Which chip and revision do you have? Send me your equivalent of the line "bcm43xx: Chip ID 0x4306, 
-rev 0x2".
+From: John Heffner <jheffner@psc.edu>
 
-Thanks,
+ 
+This patch removes consideration of high memory when determining TCP
+hash table sizes.  Taking into account high memory results in tcp_mem
+values that are too large.
 
-Larry
+Signed-off-by: John Heffner <jheffner@psc.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
 
+---
+ net/ipv4/tcp.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+--- linux-2.6.18.2.orig/net/ipv4/tcp.c
++++ linux-2.6.18.2/net/ipv4/tcp.c
+@@ -2269,7 +2269,7 @@ void __init tcp_init(void)
+ 					thash_entries,
+ 					(num_physpages >= 128 * 1024) ?
+ 					13 : 15,
+-					HASH_HIGHMEM,
++					0,
+ 					&tcp_hashinfo.ehash_size,
+ 					NULL,
+ 					0);
+@@ -2285,7 +2285,7 @@ void __init tcp_init(void)
+ 					tcp_hashinfo.ehash_size,
+ 					(num_physpages >= 128 * 1024) ?
+ 					13 : 15,
+-					HASH_HIGHMEM,
++					0,
+ 					&tcp_hashinfo.bhash_size,
+ 					NULL,
+ 					64 * 1024);
+
+--

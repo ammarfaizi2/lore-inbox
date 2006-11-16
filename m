@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161942AbWKPG7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422634AbWKPHFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161942AbWKPG7V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 01:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161947AbWKPG7V
+	id S1422634AbWKPHFh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 02:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422646AbWKPHFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 01:59:21 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:45375 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1161942AbWKPG7U (ORCPT
+	Thu, 16 Nov 2006 02:05:37 -0500
+Received: from mx2.suse.de ([195.135.220.15]:46053 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422634AbWKPHFg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 01:59:20 -0500
-Date: Thu, 16 Nov 2006 07:58:47 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Edward Falk <efalk@google.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Introduce block I/O performance histograms
-Message-ID: <20061116065846.GE32394@kernel.dk>
-References: <455BD7E8.9020303@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Nov 2006 02:05:36 -0500
+From: Andi Kleen <ak@suse.de>
+To: virtualization@lists.osdl.org
+Subject: Re: 2.6.19-rc5-mm2: paravirt X86_PAE=y compile error
+Date: Thu, 16 Nov 2006 08:05:32 +0100
+User-Agent: KMail/1.9.5
+Cc: Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>
+References: <20061114014125.dd315fff.akpm@osdl.org> <455BBF38.5030503@vmware.com> <20061116022753.GC6602@sequoia.sous-sol.org>
+In-Reply-To: <20061116022753.GC6602@sequoia.sous-sol.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <455BD7E8.9020303@google.com>
+Message-Id: <200611160805.32539.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15 2006, Edward Falk wrote:
-> This patch introduces performance histogram record keeping for block 
-> I/O, used for performance tuning.  It is turned off by default.
+On Thursday 16 November 2006 03:27, Chris Wright wrote:
+> * Zachary Amsden (zach@vmware.com) wrote:
+> > Well that shouldn't have happened.  Must have been some reject that went 
+> > unnoticed?  Try this.
 > 
-> When turned on, you simply do something like:
-> 
-> # cat /sys/block/sda/read_request_histo
-> rows = bytes columns = ms
->         10      20      50      100     200     500     1000    2000
->    2048 5       0       0       0       0       0       0       0
->    4096 0       0       0       0       0       0       0       0
->    8192 17231   135     41      10      0       0       0       0
->   16384 4400    24      6       2       0       0       0       0
->   32768 2897    34      4       4       0       0       0       0
->   65536 7089    87      5       1       2       0       0       0
+> Thanks Zach, added to the pv patchqueue as well.
 
-I don't see the point at all for including this piece of code in the
-kernel. You can do the same from user space. Your help entry said it
-even grows the kernel size about 21k, that's pretty nasty.
+That was one of the things that got fixed in paravirt-compile too iirc
 
-So NAK.
-
--- 
-Jens Axboe
-
+-Andi
